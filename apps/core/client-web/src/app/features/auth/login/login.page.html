@@ -20,15 +20,15 @@
       <div class="tfa-dialog"
            role="dialog"
            aria-modal="true"
-           [attr.aria-label]="'LOGIN.2FA.TITLE' | translate">
+           [attr.aria-label]="'login.two_factor.title' | translate">
         <button type="button" class="tfa-close" (click)="closeTwoFactor()">
           <lucide-icon [img]="icons.ArrowLeft" size="15"></lucide-icon>
-          {{ 'LOGIN.2FA.BACK_TO_LOGIN' | translate }}
+          {{ 'login.two_factor.back_to_login' | translate }}
         </button>
 
         <app-otp
-          [title]="'LOGIN.2FA.TITLE' | translate"
-          [description]="'LOGIN.2FA.SUBTITLE' | translate"
+          [title]="'login.two_factor.title' | translate"
+          [description]="'login.two_factor.subtitle' | translate"
           [otpLength]="6"
           (verify)="onOtpVerify($event)">
         </app-otp>
@@ -46,13 +46,13 @@
       no compitan con la única acción que ahora importa. «Volver» reconstruye el
       acceso normal intacto.
     -->
-    <section class="sso-view" role="region" [attr.aria-label]="'LOGIN.SSO.TITLE' | translate">
+    <section class="sso-view" role="region" [attr.aria-label]="'login.sso.title' | translate">
       <header class="auth-head">
         <span class="auth-seal" aria-hidden="true">
           <app-brand-logo variant="mark" [size]="30"></app-brand-logo>
         </span>
-        <h1 class="auth-title">{{ 'LOGIN.SSO.TITLE' | translate }}</h1>
-        <p class="auth-subtitle">{{ 'LOGIN.SSO.PROMPT' | translate }}</p>
+        <h1 class="auth-title">{{ 'login.sso.title' | translate }}</h1>
+        <p class="auth-subtitle">{{ 'login.sso.enter_your_work_email_continue_with' | translate }}</p>
       </header>
 
       <div class="sso-form">
@@ -61,8 +61,8 @@
           type="email"
           class="sso-input"
           [formControl]="ssoEmailControl"
-          [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
-          [attr.aria-label]="'LOGIN.SSO.PROMPT' | translate"
+          [placeholder]="'login.name_company_com' | translate"
+          [attr.aria-label]="'login.sso.enter_your_work_email_continue_with' | translate"
           autocomplete="username"
           (keyup.enter)="startSso()" />
 
@@ -72,7 +72,7 @@
           [loading]="ssoChecking()"
           [disabled]="ssoEmailControl.invalid"
           (clicked)="startSso()">
-          {{ 'LOGIN.SSO.CONTINUE' | translate }}
+          {{ 'login.sso.continue' | translate }}
           @if (!ssoChecking()) {
             <lucide-icon [img]="icons.ArrowRight" size="16"></lucide-icon>
           }
@@ -84,7 +84,7 @@
 
         <button type="button" class="sso-cancel" (click)="cancelSso()">
           <lucide-icon [img]="icons.ArrowLeft" size="15"></lucide-icon>
-          {{ 'LOGIN.SSO.CANCEL' | translate }}
+          {{ 'login.sso.cancel' | translate }}
         </button>
       </div>
     </section>
@@ -95,8 +95,8 @@
       <span class="auth-seal" aria-hidden="true">
         <app-brand-logo variant="mark" [size]="30"></app-brand-logo>
       </span>
-      <h1 class="auth-title">{{ 'LOGIN.TITLE' | translate }}</h1>
-      <p class="auth-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
+      <h1 class="auth-title">{{ 'login.title' | translate }}</h1>
+      <p class="auth-subtitle">{{ 'login.access_your_workspace_continue' | translate }}</p>
     </header>
 
     <!-- ZONA 2 · Credenciales (acción principal) -->
@@ -105,8 +105,8 @@
       <app-auth-input
         formControlName="email"
         type="email"
-        [label]="'LOGIN.EMAIL_LABEL' | translate"
-        [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
+        [label]="'login.email_label' | translate"
+        [placeholder]="'login.name_company_com' | translate"
         [hasIcon]="true"
         [required]="true"
         autocomplete="username"
@@ -117,7 +117,7 @@
       <app-auth-input
         formControlName="password"
         type="password"
-        [label]="'LOGIN.PASSWORD_LABEL' | translate"
+        [label]="'login.password_label' | translate"
         placeholder="••••••••"
         [hasIcon]="true"
         [required]="true"
@@ -134,7 +134,7 @@
         <a header-extra
            class="forgot-link"
            [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']">
-          {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+          {{ 'login.forgot_password' | translate }}
         </a>
       </app-auth-input>
 
@@ -143,7 +143,7 @@
         <span class="checkmark" aria-hidden="true">
           <lucide-icon [img]="icons.Check" size="12"></lucide-icon>
         </span>
-        <span class="remember-text">{{ 'LOGIN.REMEMBER_ME' | translate }}</span>
+        <span class="remember-text">{{ 'login.keep_me_logged' | translate }}</span>
       </label>
 
       @if (errorMessage()) {
@@ -162,7 +162,7 @@
         type="submit"
         variant="primary"
         [loading]="isLoggingIn()">
-        {{ (isLoggingIn() ? 'LOGIN.LOGGING_IN' : 'LOGIN.SUBMIT_BUTTON') | translate }}
+        {{ (isLoggingIn() ? 'login.logging_in' : 'login.submit_button') | translate }}
         @if (!isLoggingIn()) {
           <lucide-icon [img]="icons.ArrowRight" size="16"></lucide-icon>
         }
@@ -172,7 +172,7 @@
 
     <!-- ZONA 3 · Métodos alternativos -->
     <div class="alt-divider">
-      <span>{{ 'LOGIN.OR' | translate }}</span>
+      <span>{{ 'login.or' | translate }}</span>
     </div>
 
     <!--
@@ -199,9 +199,9 @@
        donde la tarjeta se dedica por completo al acceso corporativo. -->
   @if (!showSsoInput()) {
     <p class="cross-link">
-      {{ 'LOGIN.NO_ACCOUNT' | translate }}
+      {{ 'login.no_account' | translate }}
       <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountryCode(), 'auth', 'register']">
-        {{ 'LOGIN.REGISTER_LINK' | translate }}
+        {{ 'login.register_link' | translate }}
       </a>
     </p>
   }

@@ -33,7 +33,7 @@ export class CostAccountingService {
       where: { id, organizationId },
     });
     if (!costCenter) {
-      throw new NotFoundError('COST_ACCOUNTING.COST_CENTER_NOT_FOUND', { id });
+      throw new NotFoundError('cost_accounting.cost_centre_id_not_found', { id });
     }
     return costCenter;
   }

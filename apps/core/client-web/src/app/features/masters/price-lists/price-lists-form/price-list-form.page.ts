@@ -74,7 +74,7 @@ export class PriceListFormPage implements OnInit {
   loadProducts(): void {
     this.inventoryService.getProducts().subscribe({
       next: (products) => this.products.set(products),
-      error: () => this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.PUDIERON_CARGAR_PRODUCTOS'),
+      error: () => this.notificationService.showError('masters.price_lists_form.products_could_not_loaded'),
     });
   }
 
@@ -96,7 +96,7 @@ export class PriceListFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.PUDO_CARGAR_LISTA_PRECIOS');
+        this.notificationService.showError('masters.price_lists_form.price_list_could_not_loaded');
         this.router.navigate(['/masters/price-lists']);
       },
     });
@@ -134,14 +134,14 @@ export class PriceListFormPage implements OnInit {
       //  entra en el `FormArray` y nombra la línea concreta.
       this.problems.set(
         draftProblems(this.priceListForm, {
-          name: 'MASTERS.PRICE_LISTS_FORM.NOMBRE_LISTA',
-          status: 'MASTERS.PRICE_LISTS_FORM.ESTADO',
-          currency: 'MASTERS.PRICE_LISTS_FORM.MONEDA',
-          validFrom: 'MASTERS.PRICE_LISTS_FORM.VALIDO_DESDE',
-          validTo: 'MASTERS.PRICE_LISTS_FORM.VALIDO_HASTA',
-          items: 'MASTERS.PRICE_LISTS_FORM.ITEMS_LISTA_PRECIOS',
-          productId: 'MASTERS.PRICE_LISTS_FORM.PRODUCTO',
-          price: 'MASTERS.PRICE_LISTS_FORM.PRECIO',
+          name: 'masters.price_lists_form.list_name',
+          status: 'masters.price_lists_form.status',
+          currency: 'masters.price_lists_form.currency',
+          validFrom: 'masters.price_lists_form.valid_from',
+          validTo: 'masters.price_lists_form.valid_until',
+          items: 'masters.price_lists_form.price_list_items',
+          productId: 'masters.price_lists_form.product',
+          price: 'masters.price_lists_form.price',
         }),
       );
       return;
@@ -161,11 +161,11 @@ export class PriceListFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.PRICE_LISTS_FORM.LISTA_PRECIOS_ACTUALIZADA_EXITOSAMENTE' : 'MASTERS.PRICE_LISTS_FORM.LISTA_PRECIOS_CREADA_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'masters.price_lists_form.price_list_updated' : 'masters.price_lists_form.price_list_created');
         this.router.navigate(['/masters/price-lists']);
       },
       error: (err) => {
-        this.notificationService.showError(this.isEditMode() ? 'MASTERS.PRICE_LISTS_FORM.ERROR_ACTUALIZAR_LISTA_PRECIOS' : 'MASTERS.PRICE_LISTS_FORM.ERROR_CREAR_LISTA_PRECIOS');
+        this.notificationService.showError(this.isEditMode() ? 'masters.price_lists_form.error_updating_price_list' : 'masters.price_lists_form.error_creating_price_list');
         this.isSaving.set(false);
       },
       complete: () => {

@@ -1,40 +1,40 @@
 <vx-list-shell
-  titleKey="HCM.DEPARTMENTS.TITLE"
+  titleKey="hcm.departments.title"
   [count]="departments().length"
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()"
     (click)="creating.set(!creating())">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'HCM.DEPARTMENTS.NEW' | translate }}</span>
+    <span>{{ 'hcm.departments.new' | translate }}</span>
   </button>
 
   @if (creating()) {
     <div class="inline-row card">
       <input #newName type="text" maxlength="120"
-        [placeholder]="'HCM.DEPARTMENTS.NAME' | translate" />
+        [placeholder]="'hcm.departments.name' | translate" />
       <input #newCost type="text" maxlength="60"
-        [placeholder]="'HCM.DEPARTMENTS.COST_CENTER' | translate" />
+        [placeholder]="'hcm.departments.cost_centre' | translate" />
       <button type="button" class="primary-button" [disabled]="busy()"
         (click)="create(newName.value, newCost.value); newName.value = ''; newCost.value = ''">
-        {{ 'COMMON.SAVE' | translate }}
+        {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="creating.set(false)">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'common.cancel' | translate }}
       </button>
     </div>
   }
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'HCM.DEPARTMENTS.NAME' | translate }}</th>
-          <th>{{ 'HCM.DEPARTMENTS.COST_CENTER' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'hcm.departments.name' | translate }}</th>
+          <th>{{ 'hcm.departments.cost_centre' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -47,10 +47,10 @@
                   <input #editCost type="text" maxlength="60" [value]="department.costCenter || ''" />
                   <button type="button" class="primary-button" [disabled]="busy()"
                     (click)="update(department, editName.value, editCost.value)">
-                    {{ 'COMMON.SAVE' | translate }}
+                    {{ 'common.save' | translate }}
                   </button>
                   <button type="button" class="secondary-button" (click)="editing.set(null)">
-                    {{ 'COMMON.CANCEL' | translate }}
+                    {{ 'common.cancel' | translate }}
                   </button>
                 </div>
               </td>
@@ -61,11 +61,11 @@
               <td>{{ department.costCenter || '—' }}</td>
               <td class="text-right row-actions">
                 <button type="button" class="icon-button" (click)="editing.set(department.id)"
-                  [attr.aria-label]="'COMMON.EDIT' | translate">
+                  [attr.aria-label]="'common.edit' | translate">
                   <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
                 </button>
                 <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(department)"
-                  [attr.aria-label]="'COMMON.DELETE' | translate">
+                  [attr.aria-label]="'common.delete' | translate">
                   <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
                 </button>
               </td>

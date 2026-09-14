@@ -32,7 +32,7 @@ export class OrganizationsService {
   async findOne(id: string): Promise<Organization> {
     const organization = await this.organizationRepository.findOneBy({ id });
     if (!organization) {
-      throw new NotFoundError('ORGANIZATIONS.ORGANIZATION_WITH_ID_NOT_FOUND', { id });
+      throw new NotFoundError('organizations.organization_with_id_not_found', { id });
     }
     return organization;
   }
@@ -74,16 +74,16 @@ export class OrganizationsService {
     const country = createSubsidiaryDto.country?.toUpperCase() ?? '';
     const profile = findCountryProfile(country);
     if (!profile) {
-      throw new BadRequestError('ORGANIZATIONS.PAIS_TODAVIA_NO_ESTA_DISPONIBLE', { country: createSubsidiaryDto.country });
+      throw new BadRequestError('organizations.country_country_not_available_yet', { country: createSubsidiaryDto.country });
     }
     if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
-      throw new BadRequestError('ORGANIZATIONS.NO_ES_VALIDO', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('organizations.label_not_valid_name', { label: profile.taxId.label, name: profile.name });
     }
 
     const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);
     const region = await this.localizationService.findRegionByCountryCode(country);
     if (!region) {
-      throw new InternalServerError('ORGANIZATIONS.CONFIGURACION_FISCAL_ESE_PAIS_NO_ESTA_DISPONIBLE');
+      throw new InternalServerError('organizations.tax_configuration_country_not_available_right');
     }
 
     return this.organizationRepository.manager.transaction(async (manager) => {
@@ -99,7 +99,7 @@ export class OrganizationsService {
         where: { id: parentOrganizationId },
       });
       if (!parent) {
-        throw new NotFoundError('ORGANIZATIONS.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
+        throw new NotFoundError('organizations.parent_organization_not_found');
       }
 
       // Same rule the signup applies: one fiscal identity per market.
@@ -107,7 +107,7 @@ export class OrganizationsService {
         where: { taxId, fiscalRegionId: region.id },
       });
       if (duplicate) {
-        throw new ConflictError('ORGANIZATIONS.YA_EXISTE_ORGANIZACION_REGISTRADA_ESE', { label: profile.taxId.label });
+        throw new ConflictError('organizations.organization_already_registered_with_label', { label: profile.taxId.label });
       }
 
       const savedOrg = await this.create(

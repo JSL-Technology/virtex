@@ -105,10 +105,10 @@ export class TemplatesPage {
 
   async remove(node: DocumentNode): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_DOCUMENT.TITLE',
-      message: 'DIALOG.DELETE_DOCUMENT.MESSAGE',
+      title: 'dialog.delete_document.title',
+      message: 'dialog.delete_document.message',
       messageParams: { name: node.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -133,7 +133,7 @@ export class TemplatesPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'DOCUMENTS.REPOSITORY.ACTION_FAILED',
+      typeof message === 'string' ? message : 'documents.repository.action_failed',
     );
   }
 }

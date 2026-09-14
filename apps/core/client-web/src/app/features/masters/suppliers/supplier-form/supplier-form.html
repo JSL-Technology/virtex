@@ -1,58 +1,58 @@
 <vx-draft-shell
   [title]="
-    (isEditMode() ? 'MASTERS.SUPPLIER_FORM.TITLE_EDIT' : 'MASTERS.SUPPLIER_FORM.TITLE_NEW')
+    (isEditMode() ? 'masters.supplier_form.title_edit' : 'masters.supplier_form.title_new')
       | translate
   "
-  [subtitle]="'MASTERS.SUPPLIER_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PROVEEDOR' | translate"
+  [subtitle]="'masters.supplier_form.fill_your_supplier_details' | translate"
   [dirty]="supplierForm.dirty"
   [invalid]="supplierForm.invalid"
   [problems]="problems()"
   [form]="supplierForm"
-  saveLabelKey="MASTERS.SUPPLIER_FORM.GUARDAR_PROVEEDOR"
-  cancelLabelKey="MASTERS.SUPPLIER_FORM.CANCELAR"
+  saveLabelKey="masters.supplier_form.save_supplier"
+  cancelLabelKey="masters.supplier_form.cancel"
   (save)="saveSupplier()"
   (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="supplierForm">
     <section class="form-section">
       <h2 class="form-section-title">
-        {{ 'MASTERS.SUPPLIER_FORM.INFORMACION_PROVEEDOR' | translate }}
+        {{ 'masters.supplier_form.supplier_information' | translate }}
       </h2>
 
       <div class="form-grid">
         <div class="form-field">
-          <label for="name">{{ 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR' | translate }}</label>
+          <label for="name">{{ 'masters.supplier_form.supplier_name' | translate }}</label>
           <input id="name" formControlName="name" />
         </div>
         <div class="form-field">
-          <label for="contactPerson">{{ 'MASTERS.SUPPLIER_FORM.PERSONA_CONTACTO' | translate }}</label>
+          <label for="contactPerson">{{ 'masters.supplier_form.contact_person' | translate }}</label>
           <input id="contactPerson" formControlName="contactPerson" />
         </div>
         <div class="form-field">
-          <label for="taxId">{{ 'MASTERS.SUPPLIER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label>
+          <label for="taxId">{{ 'masters.supplier_form.tax_id' | translate }}</label>
           <input id="taxId" formControlName="taxId" />
         </div>
         <div class="form-field">
-          <label for="address">{{ 'MASTERS.SUPPLIER_FORM.DIRECCION' | translate }}</label>
+          <label for="address">{{ 'masters.supplier_form.address' | translate }}</label>
           <input id="address" formControlName="address" />
         </div>
         <div class="form-field">
-          <label for="email">{{ 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO' | translate }}</label>
+          <label for="email">{{ 'masters.supplier_form.email' | translate }}</label>
           <input type="email" id="email" formControlName="email" />
         </div>
         <div class="form-field">
-          <label for="phone">{{ 'MASTERS.SUPPLIER_FORM.TELEFONO' | translate }}</label>
+          <label for="phone">{{ 'masters.supplier_form.phone' | translate }}</label>
           <input type="tel" id="phone" formControlName="phone" />
         </div>
         <div class="form-field">
-          <label for="country">{{ 'MASTERS.SUPPLIER_FORM.PAIS' | translate }}</label>
+          <label for="country">{{ 'masters.supplier_form.country' | translate }}</label>
           <!-- Named in the reader's language by `Intl.DisplayNames`; see `CountryNamesService`. -->
           <select id="country" formControlName="country">
             @for (option of countries(); track option.code) {
               <option [value]="option.code">{{ option.name }}</option>
             }
           </select>
-          <small class="field-hint">{{ 'MASTERS.SUPPLIER_FORM.PAIS_AYUDA' | translate }}</small>
+          <small class="field-hint">{{ 'masters.supplier_form.two_letter_iso_code_tells_domestic' | translate }}</small>
         </div>
         <!--
           Qué se le retiene a este proveedor depende de quién es, no de lo que escriba quien captura
@@ -63,18 +63,18 @@
         -->
         <div class="form-field">
           <label for="taxpayerType">
-            {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE' | translate }}
+            {{ 'contacts.customer_form.taxpayer_type' | translate }}
           </label>
           <select id="taxpayerType" formControlName="taxpayerType">
             <option value="">
-              {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_SIN_CLASIFICAR' | translate }}
+              {{ 'contacts.customer_form.unclassified' | translate }}
             </option>
             @for (type of taxpayerTypes; track type.value) {
               <option [value]="type.value">{{ type.labelKey | translate }}</option>
             }
           </select>
           <small class="field-hint">
-            {{ 'MASTERS.SUPPLIER_FORM.TIPO_CONTRIBUYENTE_AYUDA' | translate }}
+            {{ 'masters.supplier_form.decides_what_withheld_when_you_pay' | translate }}
           </small>
         </div>
       </div>

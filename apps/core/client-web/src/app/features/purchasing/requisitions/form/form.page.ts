@@ -89,7 +89,7 @@ export class RequisitionFormPage implements OnInit {
     if (this.id) {
       this.purchasing.getRequisition(this.id).subscribe({
         next: (requisition) => this.load(requisition),
-        error: () => this.notifications.showError('PROCUREMENT.REQUISITION_NOT_FOUND'),
+        error: () => this.notifications.showError('procurement.requisition_not_found'),
       });
     } else {
       this.addLine();
@@ -146,8 +146,8 @@ export class RequisitionFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          description: 'PURCHASING.REQUISITIONS.FORM.DESCRIPTION',
-          quantity: 'PURCHASING.REQUISITIONS.FORM.QUANTITY',
+          description: 'purchasing.requisitions.form.description',
+          quantity: 'purchasing.requisitions.form.quantity',
         }),
       );
       return;
@@ -176,7 +176,7 @@ export class RequisitionFormPage implements OnInit {
       next: (requisition) => {
         this.saving.set(false);
         this.load(requisition);
-        this.notifications.showSuccess('PURCHASING.REQUISITIONS.FORM.SAVED');
+        this.notifications.showSuccess('purchasing.requisitions.form.saved');
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
     });
@@ -240,7 +240,7 @@ export class RequisitionFormPage implements OnInit {
     this.saving.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PURCHASING.REQUISITIONS.FORM.SAVE_FAILED',
+      typeof message === 'string' ? message : 'purchasing.requisitions.form.save_failed',
     );
   }
 

@@ -140,16 +140,16 @@ describe('CFDI 4.0', () => {
       } as unknown as Invoice;
 
       expect(() => builder.build(input({ invoice: noCodes }))).toThrow(
-        expect.objectContaining({ messageKey: 'EINVOICING.CFDI_LINEA_SIN_CLAVE_SAT' }),
+        expect.objectContaining({ messageKey: 'einvoicing.line_line_has_no_key_from' }),
       );
     });
 
     it.each([
-      ['el emisor sin RFC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'EINVOICING.CFDI_EMISOR_SIN_RFC'],
-      ['el receptor sin RFC', { customer: { ...customer, taxId: null } as unknown as Customer }, 'EINVOICING.CFDI_RECEPTOR_SIN_RFC'],
-      ['sin régimen fiscal', { issuerRegime: '' }, 'EINVOICING.CFDI_SIN_REGIMEN_FISCAL'],
-      ['sin lugar de expedición', { issuingPostalCode: '' }, 'EINVOICING.CFDI_SIN_LUGAR_EXPEDICION'],
-      ['el receptor sin código postal', { customer: { ...customer, postalCode: null } as unknown as Customer }, 'EINVOICING.CFDI_RECEPTOR_SIN_CODIGO_POSTAL'],
+      ['el emisor sin RFC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'einvoicing.organization_has_no_rfc_cfdi_cannot'],
+      ['el receptor sin RFC', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.customer_customer_has_no_rfc_which'],
+      ['sin régimen fiscal', { issuerRegime: '' }, 'einvoicing.issuer_tax_regime_missing_set_under'],
+      ['sin lugar de expedición', { issuingPostalCode: '' }, 'einvoicing.postal_code_place_issue_missing'],
+      ['el receptor sin código postal', { customer: { ...customer, postalCode: null } as unknown as Customer }, 'einvoicing.customer_customer_has_no_postal_code'],
     ])('refuses to build with %s', (_name, overrides, messageKey) => {
       expect(() => builder.build(input(overrides as Partial<CfdiBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),

@@ -3,6 +3,6 @@ import { IsUUID } from 'class-validator';
 
 export class SwitchOrganizationDto {
   @ApiProperty({ description: 'The organization to switch into. Must be one the user belongs to.' })
-  @IsUUID('4', { message: 'VALIDATION.SWITCH_ORGANIZATION.IDENTIFICADOR_ORGANIZACION_NO_VALIDO' })
+  @IsUUID('4', { message: 'validation.switch_organization.organization_identifier_not_valid' })
   organizationId: string;
 }

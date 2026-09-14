@@ -116,7 +116,7 @@ export class TabRegistryService {
       //  embellecido es un dato. Guardarlo en `title` hacía que `openTab` lo buscara en el
       //  catálogo, no lo encontrara, y la pestaña se llamara «[[Customers]]» —el marcador de clave
       //  ausente— en desarrollo, y algo inventado por el humanizador en producción.
-      title: 'TABS.GENERIC_MODULE',
+      title: 'tabs.module',
       titleFn: () => this.prettify(routePath),
       icon: 'LayoutGrid',
       isCloseable: true,
@@ -136,7 +136,7 @@ export class TabRegistryService {
 
   private prettify(routePath: string): string {
     const last = this.segments(routePath).pop();
-    if (!last) return this.translate.instant('TABS.GENERIC_MODULE');
+    if (!last) return this.translate.instant('tabs.module');
     return last.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
 }

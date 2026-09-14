@@ -21,14 +21,14 @@ import {
 export class MexicanAccountingQueryDto {
   @Type(() => Number)
   @IsInt()
-  @Min(2000, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":2000}' })
-  @Max(2999, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":2999}' })
+  @Min(2000, { message: 'validation.constraints.min|{"min":2000}' })
+  @Max(2999, { message: 'validation.constraints.max|{"max":2999}' })
   year: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(12, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":12}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(12, { message: 'validation.constraints.max|{"max":12}' })
   month: number;
 
   /** `N` for the ordinary monthly filing, `C` for one that corrects it. */

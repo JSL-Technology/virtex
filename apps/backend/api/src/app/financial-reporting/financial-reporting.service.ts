@@ -273,10 +273,10 @@ export class FinancialReportingService {
 
     if (!ledger) {
       throw ledgerId
-        ? new NotFoundError('FINANCIAL_REPORTING.LIBRO_CONTABLE_ID_NO_FUE_ENCONTRADO_NO', {
+        ? new NotFoundError('financial_reporting.ledger_ledger_id_not_found_does', {
             ledgerId,
           })
-        : new BadRequestError('FINANCIAL_REPORTING.NO_HA_ESPECIFICADO_LIBRO_CONTABLE_NO_HAY');
+        : new BadRequestError('financial_reporting.no_ledger_specified_organization_has_no');
     }
     return ledger;
   }
@@ -350,7 +350,7 @@ export class FinancialReportingService {
     const from = toIsoDate(startDate);
     const to = toIsoDate(endDate);
     if (from > to) {
-      throw new BadRequestError('VALIDATION.CONSTRAINTS.PERIOD_START_AFTER_END');
+      throw new BadRequestError('validation.constraints.period_start_after_end');
     }
     return { from, to };
   }
@@ -643,7 +643,7 @@ export class FinancialReportingService {
       .map((account) => account.id);
 
     if (ids.length === 0) {
-      throw new BadRequestError('FINANCIAL_REPORTING.NO_HAY_CUENTAS_DE_EFECTIVO_CONFIGURADAS');
+      throw new BadRequestError('financial_reporting.no_cash_bank_accounts_configured_assign');
     }
     return ids;
   }

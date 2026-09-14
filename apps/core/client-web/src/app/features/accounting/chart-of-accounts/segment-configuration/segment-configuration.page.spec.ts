@@ -90,7 +90,7 @@ describe('SegmentConfigurationPage', () => {
     component.onSave();
 
     expect(apiService.configureSegmentDefinitions).toHaveBeenCalled();
-    expect(notificationService.showSuccess).toHaveBeenCalledWith('ACCOUNTING.SEGMENT_CONFIGURATION.ESTRUCTURA_SEGMENTOS_GUARDADA_CORRECTAMENTE');
+    expect(notificationService.showSuccess).toHaveBeenCalledWith('accounting.segment_configuration.segment_structure_saved_successfully');
     expect(router.navigate).toHaveBeenCalledWith(['/accounting/chart-of-accounts']);
   });
 

@@ -16,7 +16,7 @@
 
     <div class="company-info">
       <span class="company-name">{{ currentOrg()?.legalName || 'Virtex' }}</span>
-      <span class="company-plan">{{ 'MAIN.COMPANY_SWITCHER.EMPRESA_ACTUAL' | translate }}</span>
+      <span class="company-plan">{{ 'main.company_switcher.current_company' | translate }}</span>
     </div>
 
     <lucide-icon [img]="ChevronsUpDownIcon" size="14" class="trigger-icon"></lucide-icon>
@@ -29,7 +29,7 @@
           <lucide-icon [img]="SearchIcon" size="14"></lucide-icon>
           <input
             type="text"
-            [placeholder]="'SEARCH.ORGANIZATIONS' | translate"
+            [placeholder]="'search.organizations' | translate"
             (input)="onSearch($event)"
             (click)="$event.stopPropagation()"
 
@@ -38,7 +38,7 @@
       </div>
 
       <div class="dropdown-body">
-        <div class="section-label">{{ 'MAIN.COMPANY_SWITCHER.EMPRESAS' | translate }}</div>
+        <div class="section-label">{{ 'main.company_switcher.companies' | translate }}</div>
         @for (org of filteredOrganizations(); track org.id) {
           <button
             class="org-item"
@@ -58,11 +58,11 @@
             }
           </button>
         } @empty {
-          <div class="no-results">{{ 'MAIN.COMPANY_SWITCHER.NO_ENCONTRARON_EMPRESAS' | translate }}</div>
+          <div class="no-results">{{ 'main.company_switcher.no_companies_found' | translate }}</div>
         }
 
         @if (switching()) {
-          <div class="switch-status">{{ 'MAIN.COMPANY_SWITCHER.CAMBIANDO_EMPRESA' | translate }}</div>
+          <div class="switch-status">{{ 'main.company_switcher.switching_company' | translate }}</div>
         }
         @if (switchError()) {
           <div class="switch-error">{{ switchError() }}</div>
@@ -72,11 +72,11 @@
       <div class="dropdown-footer">
         <button class="footer-action">
           <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
-          <span>{{ 'MAIN.COMPANY_SWITCHER.CREAR_NUEVA_EMPRESA' | translate }}</span>
+          <span>{{ 'main.company_switcher.create_new_company' | translate }}</span>
         </button>
         <button class="footer-action">
           <lucide-icon [img]="SettingsIcon" size="14"></lucide-icon>
-          <span>{{ 'MAIN.COMPANY_SWITCHER.GESTIONAR_ORGANIZACIONES' | translate }}</span>
+          <span>{{ 'main.company_switcher.manage_organizations' | translate }}</span>
         </button>
       </div>
     </div>

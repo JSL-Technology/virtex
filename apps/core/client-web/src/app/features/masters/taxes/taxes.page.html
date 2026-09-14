@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="MASTERS.TAXES.TAX_RATES"
+  titleKey="masters.taxes.tax_rates"
   [count]="taxes().length"
   [loading]="isLoading()"
   [empty]="taxes().length === 0"
@@ -12,17 +12,17 @@
     *appHasPermission="'taxes:create'"
   >
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.TAXES.NEW_TAX' | translate }}</span>
+    <span>{{ 'masters.taxes.new_tax' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.TAXES.NAME' | translate }}</th>
-          <th>{{ 'MASTERS.TAXES.TYPE' | translate }}</th>
-          <th class="text-right">{{ 'MASTERS.TAXES.RATE' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.TAXES.COUNTRY' | translate }}</th>
+          <th>{{ 'masters.taxes.name' | translate }}</th>
+          <th>{{ 'masters.taxes.type' | translate }}</th>
+          <th class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
+          <th class="text-center">{{ 'masters.taxes.country' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
@@ -44,7 +44,7 @@
                 type="button"
                 class="icon-button"
                 *appHasPermission="'taxes:delete'"
-                [attr.aria-label]="'COMMON.DELETE' | translate"
+                [attr.aria-label]="'common.delete' | translate"
                 (click)="deleteTax(tax)"
               >
                 <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>

@@ -128,7 +128,7 @@ export class ComplianceService {
       // template literals on `BadRequestException`, so an English or Portuguese tenant met a
       // Spanish sentence at the one moment the product is telling them what to go and fix. The
       // wording is unchanged — it moved into the catalogue, where the other two languages have it.
-      throw new BadRequestError('COMPLIANCE.NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO', { type });
+      throw new BadRequestError('compliance.no_active_ncf_sequence_type_type', { type });
     }
 
     // `starts_at`, `ends_at` and `current_sequence` are `bigint`, which the driver returns as
@@ -137,11 +137,11 @@ export class ComplianceService {
     const current = Number(sequence.currentSequence);
     const end = Number(sequence.endsAt);
     if (!Number.isFinite(current) || !Number.isFinite(end)) {
-      throw new InternalServerError('COMPLIANCE.SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS', { type });
+      throw new InternalServerError('compliance.ncf_sequence_type_type_has_non', { type });
     }
 
     if (current >= end) {
-      throw new BadRequestError('COMPLIANCE.SECUENCIA_NCF_TIPO_HA_AGOTADO', {
+      throw new BadRequestError('compliance.ncf_sequence_type_type_exhausted_range', {
         type,
         startsAt: sequence.startsAt,
         endsAt: sequence.endsAt,
@@ -151,7 +151,7 @@ export class ComplianceService {
     if (sequence.expiresAt) {
       const today = new Date().toISOString().split('T')[0];
       if (sequence.expiresAt < today) {
-        throw new BadRequestError('COMPLIANCE.AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO', {
+        throw new BadRequestError('compliance.authorisation_ncf_sequence_type_type_expired', {
           type,
           expiresAt: sequence.expiresAt,
         });
@@ -205,15 +205,15 @@ export class ComplianceService {
     const { type, prefix, startsAt, endsAt } = input;
 
     if (!Number.isInteger(startsAt) || !Number.isInteger(endsAt) || startsAt < 1 || endsAt < startsAt) {
-      throw new BadRequestError('COMPLIANCE.RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL');
+      throw new BadRequestError('compliance.ncf_sequence_range_invalid_ending_number');
     }
     if (prefix.toUpperCase() !== type) {
-      throw new BadRequestError('COMPLIANCE.PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE', { prefix, type });
+      throw new BadRequestError('compliance.prefix_prefix_does_not_match_document', { prefix, type });
     }
     if (input.expiresAt) {
       const today = new Date().toISOString().split('T')[0];
       if (input.expiresAt < today) {
-        throw new BadRequestError('COMPLIANCE.FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO');
+        throw new BadRequestError('compliance.authorization_expiry_date_has_passed_range');
       }
     }
 
@@ -250,7 +250,7 @@ export class ComplianceService {
         .andWhere('invoice.ncfNumber BETWEEN :first AND :last', { first, last })
         .getCount();
       if (alreadyIssued > 0) {
-        throw new ConflictError('COMPLIANCE.YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO', { alreadyIssued, first, last });
+        throw new ConflictError('compliance.already_issued_document_have_already_issued', { alreadyIssued, first, last });
       }
 
       // Only one range of a type may be active; the unique index enforces it, this makes the
@@ -286,7 +286,7 @@ export class ComplianceService {
     return this.ncfSequenceRepository.manager.transaction(async (manager) => {
       const repo = manager.getRepository(NcfSequence);
       const sequence = await repo.findOne({ where: { id: sequenceId, organizationId } });
-      if (!sequence) throw new NotFoundError('COMPLIANCE.SECUENCIA_NCF_NO_ENCONTRADA');
+      if (!sequence) throw new NotFoundError('compliance.ncf_sequence_not_found');
 
       if (isActive) {
         await repo.update({ organizationId, type: sequence.type, isActive: true }, { isActive: false });
@@ -384,7 +384,7 @@ export class ComplianceService {
 
   private async requireOrganization(organizationId: string): Promise<Organization> {
     const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
-    if (!organization) throw new NotFoundError('COMPLIANCE.ORGANIZACION_NO_ENCONTRADA');
+    if (!organization) throw new NotFoundError('compliance.organization_not_found');
     return organization;
   }
 
@@ -397,7 +397,7 @@ export class ComplianceService {
     const organization = await this.requireOrganization(organizationId);
     const country = (organization.country ?? '').toUpperCase();
     if (country !== 'DO') {
-      throw new BadRequestError('COMPLIANCE.FORMATO_ES_ENVIO_DGII_NO_APLICA_ORGANIZACION', {
+      throw new BadRequestError('compliance.report_format_dgii_dominican_republic_filing', {
         report,
         country: organization.country ?? '—',
       });

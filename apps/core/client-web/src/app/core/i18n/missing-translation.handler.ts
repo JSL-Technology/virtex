@@ -10,7 +10,7 @@ import {
  * ## The default is the wrong failure mode for a product that is sold
  *
  * `@ngx-translate` renders a missing key as the key itself, so the failure surfaces as
- * `USER.STATUS.INACTIVE` sitting in a table cell, or `USER.ROLE.ADMINISTRATOR_DESC` in the roles
+ * `user.status.inactive` sitting in a table cell, or `USER.ROLE.ADMINISTRATOR_DESC` in the roles
  * screen — which is exactly what this application shipped. It is not a crash, not a type error
  * and not a failing render, so nothing catches it and the customer is the one who finds it.
  *
@@ -50,7 +50,7 @@ export class VirtexMissingTranslationHandler implements MissingTranslationHandle
 }
 
 /**
- * `SETTINGS.SECURITY.BACKUP_CODES` becomes "Backup codes".
+ * `settings.security.backup_codes` becomes "Backup codes".
  *
  * Deliberately crude. This is a legibility floor, not a translation: it produces English-shaped
  * text because the keys are English-shaped, and the only thing it guarantees is that a reader

@@ -24,41 +24,41 @@ import {
  */
 export class CreateTaxJurisdictionDto {
   @IsString()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
   /** `TX`, `CA`, `SP`. Required: no rate in these markets is nationwide. */
   @IsString()
-  @Length(1, 8, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":8}' })
+  @Length(1, 8, { message: 'validation.constraints.length|{"min":1,"max":8}' })
   stateCode: string;
 
   @IsString()
   @IsOptional()
-  @Length(1, 120, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":120}' })
+  @Length(1, 120, { message: 'validation.constraints.length|{"min":1,"max":120}' })
   county?: string;
 
   @IsString()
   @IsOptional()
-  @Length(1, 120, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":120}' })
+  @Length(1, 120, { message: 'validation.constraints.length|{"min":1,"max":120}' })
   city?: string;
 
   /** Narrows a row; never defines one. One postal code can straddle two cities. */
   @IsString()
   @IsOptional()
-  @Length(1, 16, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":16}' })
+  @Length(1, 16, { message: 'validation.constraints.length|{"min":1,"max":16}' })
   postalCode?: string;
 
   @IsEnum(JurisdictionLevel)
   level: JurisdictionLevel;
 
   @IsString()
-  @Length(1, 160, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":160}' })
+  @Length(1, 160, { message: 'validation.constraints.length|{"min":1,"max":160}' })
   name: string;
 
   /** As a fraction: `0.0825` is 8.25 %. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
-  @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(1, { message: 'validation.constraints.max|{"max":1}' })
   rate: number;
 
   @IsBoolean()

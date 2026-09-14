@@ -235,7 +235,7 @@ describe('sales-tax engine', () => {
       // `BadRequestException`: a reader in another language got Spanish, and the i18n coverage
       // check could not see the string at all.
       expect(() => assertAllowedTaxRate('DO', 0.21)).toThrow(
-        expect.objectContaining({ messageKey: 'INVOICES.TASA_IMPUESTO_NO_VALIDA_PARA_PAIS' }),
+        expect.objectContaining({ messageKey: 'invoices.tax_rate_rate_not_valid_country' }),
       );
     });
 

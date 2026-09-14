@@ -32,7 +32,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
 export function fiscalConsecutive(invoice: Invoice): string {
   const digits = (invoice.ncfNumber ?? '').split('-').pop()?.replace(/\D/g, '') ?? '';
   if (!digits) {
-    throw new BadRequestError('EINVOICING.DOCUMENTO_SIN_NUMERO_FISCAL', {
+    throw new BadRequestError('einvoicing.document_document_has_no_fiscal_number', {
       document: invoice.invoiceNumber ?? '',
     });
   }
@@ -43,7 +43,7 @@ export function fiscalConsecutive(invoice: Invoice): string {
 export function fiscalNumber(invoice: Invoice): string {
   const number = (invoice.ncfNumber ?? '').trim();
   if (!number) {
-    throw new BadRequestError('EINVOICING.DOCUMENTO_SIN_NUMERO_FISCAL', {
+    throw new BadRequestError('einvoicing.document_document_has_no_fiscal_number', {
       document: invoice.invoiceNumber ?? '',
     });
   }

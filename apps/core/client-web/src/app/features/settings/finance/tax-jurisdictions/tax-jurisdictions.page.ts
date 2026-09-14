@@ -52,15 +52,15 @@ export class TaxJurisdictionsPage implements OnInit {
   readonly showForm = signal(false);
 
   protected readonly levels = [
-    { value: 'STATE', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL_STATE' },
-    { value: 'COUNTY', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL_COUNTY' },
-    { value: 'CITY', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL_CITY' },
-    { value: 'SPECIAL', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL_SPECIAL' },
+    { value: 'STATE', labelKey: 'settings.pages.tax_jurisdictions.level_state' },
+    { value: 'COUNTY', labelKey: 'settings.pages.tax_jurisdictions.level_county' },
+    { value: 'CITY', labelKey: 'settings.pages.tax_jurisdictions.level_city' },
+    { value: 'SPECIAL', labelKey: 'settings.pages.tax_jurisdictions.level_special' },
   ] as const;
 
   protected readonly sourcings = [
-    { value: 'DESTINATION', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.SOURCING_DESTINATION' },
-    { value: 'ORIGIN', labelKey: 'SETTINGS.PAGES.TAX_JURISDICTIONS.SOURCING_ORIGIN' },
+    { value: 'DESTINATION', labelKey: 'settings.pages.tax_jurisdictions.sourcing_destination' },
+    { value: 'ORIGIN', labelKey: 'settings.pages.tax_jurisdictions.sourcing_origin' },
   ] as const;
 
   /**
@@ -110,7 +110,7 @@ export class TaxJurisdictionsPage implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.notifications.showError('SETTINGS.PAGES.TAX_JURISDICTIONS.LOAD_FAILED');
+          this.notifications.showError('settings.pages.tax_jurisdictions.load_failed');
         },
       });
   }
@@ -161,7 +161,7 @@ export class TaxJurisdictionsPage implements OnInit {
         error: (error) => {
           this.saving.set(false);
           this.notifications.showError(
-            error?.error?.message ?? 'SETTINGS.PAGES.TAX_JURISDICTIONS.SAVE_FAILED',
+            error?.error?.message ?? 'settings.pages.tax_jurisdictions.save_failed',
           );
         },
       });
@@ -174,7 +174,7 @@ export class TaxJurisdictionsPage implements OnInit {
       .subscribe({
         next: () => this.load(),
         error: () =>
-          this.notifications.showError('SETTINGS.PAGES.TAX_JURISDICTIONS.DELETE_FAILED'),
+          this.notifications.showError('settings.pages.tax_jurisdictions.delete_failed'),
       });
   }
 

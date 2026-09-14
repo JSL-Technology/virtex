@@ -9,12 +9,12 @@ import {
 
 export class RegisterPluginDto {
   @IsString()
-  @MinLength(2, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":2}' })
-  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
+  @MinLength(2, { message: 'validation.constraints.min_length|{"min":2}' })
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   name: string;
 
   @IsString()
-  @MaxLength(50, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":50}' })
+  @MaxLength(50, { message: 'validation.constraints.max_length|{"max":50}' })
   version: string;
 
   @IsString()

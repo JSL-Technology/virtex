@@ -45,9 +45,9 @@ export class UnauthorizedPage {
    */
   constructMailtoLink(attemptedUrl: string | null): string {
     const user = this.currentUser();
-    const route = attemptedUrl || this.translate.instant('UNAUTHORIZED.PROTECTED_ROUTE');
-    const subject = this.translate.instant('UNAUTHORIZED.REQUEST_SUBJECT', { route });
-    const body = this.translate.instant('UNAUTHORIZED.REQUEST_BODY', {
+    const route = attemptedUrl || this.translate.instant('unauthorized.protected_route');
+    const subject = this.translate.instant('unauthorized.request_subject', { route });
+    const body = this.translate.instant('unauthorized.request_body', {
       name: `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim(),
       email: user?.email ?? '',
       url: `${window.location.origin}${attemptedUrl || '/'}`,

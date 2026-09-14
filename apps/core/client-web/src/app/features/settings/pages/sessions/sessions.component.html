@@ -2,12 +2,12 @@
 
   <div class="sess-header">
     <div class="sess-header__text">
-      <h1 class="sess-header__title">{{ 'SETTINGS.SESSIONS.SESIONES_ACTIVAS' | translate }}</h1>
-      <p class="sess-header__subtitle">{{ 'SETTINGS.SESSIONS.REVISA_ADMINISTRA_DISPOSITIVOS_ACCESO_ACTIVO_TU' | translate }}</p>
+      <h1 class="sess-header__title">{{ 'settings.sessions.active_sessions' | translate }}</h1>
+      <p class="sess-header__subtitle">{{ 'settings.sessions.review_manage_devices_with_active_access' | translate }}</p>
     </div>
     <button class="sess-refresh" (click)="load()" [disabled]="loading()">
       <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-      {{ 'SETTINGS.SESSIONS.ACTUALIZAR' | translate }}
+      {{ 'settings.sessions.refresh' | translate }}
     </button>
   </div>
 
@@ -15,7 +15,7 @@
   @if (loading()) {
     <div class="sess-card sess-loading">
       <div class="sess-spinner"></div>
-      <span>{{ 'SETTINGS.SESSIONS.CARGANDO_SESIONES' | translate }}</span>
+      <span>{{ 'settings.sessions.loading_sessions' | translate }}</span>
     </div>
   }
 
@@ -23,7 +23,7 @@
   @if (!loading() && sessions().length === 0) {
     <div class="sess-card sess-empty">
       <lucide-icon [img]="MonitorIcon" size="32"></lucide-icon>
-      <p>{{ 'SETTINGS.SESSIONS.NO_HAY_SESIONES_ACTIVAS_REGISTRADAS' | translate }}</p>
+      <p>{{ 'settings.sessions.no_active_sessions_record' | translate }}</p>
     </div>
   }
 
@@ -46,7 +46,7 @@
               {{ session.browser || 'Navegador desconocido' }}
               <span class="sess-item__os">en {{ session.os || 'SO desconocido' }}</span>
               @if (session.isCurrent) {
-                <span class="sess-badge-current">{{ 'SETTINGS.SESSIONS.SESION_ACTUAL' | translate }}</span>
+                <span class="sess-badge-current">{{ 'settings.sessions.current_session' | translate }}</span>
               }
             </div>
             <div class="sess-item__meta">
@@ -68,7 +68,7 @@
             <button class="sess-revoke"
                     (click)="revoke(session.id)"
                     [disabled]="processingId() === session.id"
-                    [title]="'SETTINGS.SESSIONS.REVOCAR_SESION' | translate">
+                    [title]="'settings.sessions.revoke_session' | translate">
               @if (processingId() === session.id) {
                 <span class="sess-spinner sess-spinner--sm"></span>
               } @else {

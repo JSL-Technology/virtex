@@ -71,7 +71,7 @@ export class AccountFormPage implements OnInit {
         }
       },
       error: () => {
-        this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.ERROR_CARGAR_CONFIGURACION_SEGMENTOS');
+        this.notificationService.showError('accounting.account_form.error_loading_segment_configuration');
       }
     });
   }
@@ -173,7 +173,7 @@ export class AccountFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.ERROR_CARGAR_DATOS_CUENTA');
+        this.notificationService.showError('accounting.account_form.error_loading_account_details');
         this.isLoading.set(false);
         this.router.navigate(['/accounting/chart-of-accounts']);
       }
@@ -185,7 +185,7 @@ export class AccountFormPage implements OnInit {
 
   onSave(): void {
     if (this.isConfigMissing()) {
-      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.PUEDE_GUARDAR_CUENTA_SIN_ESTRUCTURA_SEGMENTOS');
+      this.notificationService.showError('accounting.account_form.account_cannot_saved_without_configured_segment');
       return;
     }
 
@@ -206,7 +206,7 @@ export class AccountFormPage implements OnInit {
     const segments = this.parseCodeToSegments(formData.code);
 
     if (!this.isEditing() && segments.length === 0) {
-      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.CODIGO_CUENTA_DEBE_TENER_MENOS_SEGMENTO');
+      this.notificationService.showError('accounting.account_form.account_code_must_have_least_one');
       this.isLoading.set(false);
       this.activeTab.set('general');
       return;
@@ -235,7 +235,7 @@ export class AccountFormPage implements OnInit {
   
     saveOperation.pipe(take(1)).subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditing() ? 'ACCOUNTING.ACCOUNT_FORM.CUENTA_ACTUALIZADA_EXITO' : 'ACCOUNTING.ACCOUNT_FORM.CUENTA_CREADA_EXITO');
+        this.notificationService.showSuccess(this.isEditing() ? 'accounting.account_form.account_updated_successfully' : 'accounting.account_form.account_created_successfully');
         this.stateService.refreshAccounts();
         this.router.navigate(['/accounting/chart-of-accounts']);
       },
@@ -269,7 +269,7 @@ export class AccountFormPage implements OnInit {
       return JSON.stringify(rawMessage);
     }
 
-    return rawMessage || this.translate.instant('ERRORS.SAVE_ACCOUNT');
+    return rawMessage || this.translate.instant('errors.save_account');
   }
 
   private getNatureFromType(type: AccountType): AccountNature {
@@ -331,20 +331,20 @@ export class AccountFormPage implements OnInit {
 
 /** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
 const ACCOUNT_FIELD_LABELS: Record<string, string> = {
-  code: 'ACCOUNTING.ACCOUNT_FORM.CODIGO_CUENTA',
-  name: 'ACCOUNTING.ACCOUNT_FORM.NOMBRE_CUENTA',
-  description: 'ACCOUNTING.ACCOUNT_FORM.DESCRIPCION',
-  parentId: 'ACCOUNTING.ACCOUNT_FORM.CUENTA_PADRE_AGRUPADORA',
-  type: 'ACCOUNTING.ACCOUNT_FORM.TIPO_CUENTA',
-  nature: 'ACCOUNTING.ACCOUNT_FORM.NATURALEZA_AUTOMATICO',
-  category: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA',
-  isPostable: 'ACCOUNTING.ACCOUNT_FORM.ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES',
-  isActive: 'ACCOUNTING.ACCOUNT_FORM.CUENTA_ACTIVA',
-  balanceSheetCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_BALANCE_GENERAL',
-  incomeStatementCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_ESTADO_RESULTADOS',
-  cashFlowCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_FLUJO_EFECTIVO',
-  version: 'ACCOUNTING.ACCOUNT_FORM.VERSION_CATALOGO',
-  hierarchyType: 'ACCOUNTING.ACCOUNT_FORM.TIPO_JERARQUIA',
-  effectiveFrom: 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_DESDE',
-  effectiveTo: 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_HASTA',
+  code: 'accounting.account_form.account_code',
+  name: 'accounting.account_form.account_name',
+  description: 'accounting.account_form.description',
+  parentId: 'accounting.account_form.parent_account_grouping',
+  type: 'accounting.account_form.account_type',
+  nature: 'accounting.account_form.nature_automatic',
+  category: 'accounting.account_form.category',
+  isPostable: 'accounting.account_form.postable_account_accepts_transactions',
+  isActive: 'accounting.account_form.active_account',
+  balanceSheetCategory: 'accounting.account_form.balance_sheet_category',
+  incomeStatementCategory: 'accounting.account_form.income_statement_category',
+  cashFlowCategory: 'accounting.account_form.cash_flow_category',
+  version: 'accounting.account_form.chart_version',
+  hierarchyType: 'accounting.account_form.hierarchy_type',
+  effectiveFrom: 'accounting.account_form.effective_from',
+  effectiveTo: 'accounting.account_form.effective_until',
 };

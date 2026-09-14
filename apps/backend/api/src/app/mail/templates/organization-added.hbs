@@ -1,12 +1,12 @@
-{{#> shell title=(t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION') preheader=(t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName)}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};"><strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{organizationName}}</strong> {{t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.ORGANIZATION_ADDED.USA_TU_CONTRASENA_SIEMPRE_ES_MISMA'}}</p>
+{{#> shell title=(t 'mail.organization_added.access_new_organization') preheader=(t 'mail.organization_added.has_given_you_access_their_app' appName=appName)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.organization_added.access_new_organization'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};"><strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{organizationName}}</strong> {{t 'mail.organization_added.has_given_you_access_their_app' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.organization_added.use_your_usual_password_same_account'}}</p>
 
-{{> button href=url label=(t 'MAIL.ORGANIZATION_ADDED.INICIAR_SESION')}}
+{{> button href=url label=(t 'mail.organization_added.sign')}}
 
-{{> link-fallback href=url label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+{{> link-fallback href=url label=(t 'mail.common.if_button_does_not_work_copy')}}
 
-{{#> note}}{{t 'MAIL.ORGANIZATION_ADDED.SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA'}}{{/note}}
+{{#> note}}{{t 'mail.organization_added.if_you_not_expecting_access_contact'}}{{/note}}
 {{/shell}}

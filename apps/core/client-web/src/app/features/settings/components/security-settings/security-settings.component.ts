@@ -127,11 +127,11 @@ export class SecuritySettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess('SETTINGS.SECURITY.EMAIL_CODE_SENT');
+          this.notificationService.showSuccess('settings.security.email_code_sent');
           this.isResendingEmail.set(false);
         },
         error: () => {
-          this.notificationService.showError('SETTINGS.SECURITY.ERRORS.SEND_FAILED');
+          this.notificationService.showError('settings.security.errors.send_failed');
           this.isResendingEmail.set(false);
         }
       });
@@ -145,13 +145,13 @@ export class SecuritySettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('COMMON.SUCCESS'));
+          if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('common.success'));
           setTimeout(() => this.generateQrCode(), 1000);
         },
         error: () => {
-          this.notificationService.showError('SETTINGS.SECURITY.ERRORS.INVALID_CODE');
+          this.notificationService.showError('settings.security.errors.invalid_code');
           if (this.otpComponent) {
-            this.otpComponent.handleError(this.translate.instant('SETTINGS.SECURITY.ERRORS.INVALID_CODE'));
+            this.otpComponent.handleError(this.translate.instant('settings.security.errors.invalid_code'));
           }
         }
       });
@@ -168,7 +168,7 @@ export class SecuritySettingsComponent implements OnInit {
           this.currentStep.set('QR_SETUP');
         },
         error: () => {
-            this.notificationService.showError('SETTINGS.SECURITY.ERRORS.SETUP_FAILED');
+            this.notificationService.showError('settings.security.errors.setup_failed');
             this.closeSetupModal();
         }
       });
@@ -183,18 +183,18 @@ export class SecuritySettingsComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (res: any) => {
-        if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('SETTINGS.SECURITY.2FA_ENABLED'));
+        if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('settings.security.2_fa_enabled'));
         setTimeout(() => {
             this.is2faEnabled.set(true);
             this.backupCodes.set(res.backupCodes);
             this.currentStep.set('BACKUP_CODES');
-            this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_ENABLED');
+            this.notificationService.showSuccess('settings.security.2_fa_enabled');
         }, 1000);
       },
       error: () => {
-        this.notificationService.showError('SETTINGS.SECURITY.ERRORS.INVALID_CODE');
+        this.notificationService.showError('settings.security.errors.invalid_code');
         if (this.otpComponent) {
-          this.otpComponent.handleError(this.translate.instant('SETTINGS.SECURITY.ERRORS.INVALID_CODE'));
+          this.otpComponent.handleError(this.translate.instant('settings.security.errors.invalid_code'));
         }
       }
     });
@@ -202,7 +202,7 @@ export class SecuritySettingsComponent implements OnInit {
 
   copySecret() {
       navigator.clipboard.writeText(this.twoFactorSecret()).then(() => {
-          this.notificationService.showSuccess('SETTINGS.SECURITY.COPIED');
+          this.notificationService.showSuccess('settings.security.copied');
       });
   }
 
@@ -210,7 +210,7 @@ export class SecuritySettingsComponent implements OnInit {
   copyBackupCodes() {
       const text = this.backupCodes().join('\n');
       navigator.clipboard.writeText(text).then(() => {
-          this.notificationService.showSuccess('SETTINGS.SECURITY.COPIED');
+          this.notificationService.showSuccess('settings.security.copied');
       });
   }
 
@@ -227,7 +227,7 @@ export class SecuritySettingsComponent implements OnInit {
 
   completeSetup() {
       if (!this.hasSavedBackupCodes()) {
-          this.notificationService.showError('SETTINGS.SECURITY.CONFIRM_BACKUP_CODES');
+          this.notificationService.showError('settings.security.confirm_backup_codes');
           return;
       }
       this.closeSetupModal();
@@ -249,10 +249,10 @@ export class SecuritySettingsComponent implements OnInit {
     .subscribe({
       next: () => {
         this.is2faEnabled.set(false);
-        this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_DISABLED');
+        this.notificationService.showSuccess('settings.security.2_fa_disabled');
         this.authService.reloadSession().subscribe();
       },
-      error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.DISABLE_FAILED')
+      error: () => this.notificationService.showError('settings.security.errors.two_step_verification_could_not_turned')
     });
   }
 
@@ -264,9 +264,9 @@ export class SecuritySettingsComponent implements OnInit {
     .subscribe({
       next: () => {
         this.loadSessions();
-        this.notificationService.showSuccess('SETTINGS.SECURITY.SESSION_REVOKED');
+        this.notificationService.showSuccess('settings.security.session_revoked');
       },
-      error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.REVOKE_FAILED')
+      error: () => this.notificationService.showError('settings.security.errors.revoke_failed')
     });
   }
 

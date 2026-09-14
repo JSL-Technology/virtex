@@ -53,7 +53,7 @@ export class CustomersService {
       where: { id, organizationId },
     });
     if (!customer) {
-      throw new NotFoundError('CUSTOMERS.CLIENTE_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('customers.customer_id_not_found', { id });
     }
     return customer;
   }

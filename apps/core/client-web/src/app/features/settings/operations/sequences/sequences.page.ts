@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.SEQUENCES.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.SEQUENCES.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.sequences.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.sequences.configure_automatic_numbering_invoices_receipts_other' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.SEQUENCES.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.SEQUENCES.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.SEQUENCES.FEATURES.F1','SETTINGS.PAGES.SEQUENCES.FEATURES.F2','SETTINGS.PAGES.SEQUENCES.FEATURES.F3','SETTINGS.PAGES.SEQUENCES.FEATURES.F4','SETTINGS.PAGES.SEQUENCES.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.sequences.empty_title'"
+        [description]="'settings.pages.sequences.empty_description'"
+        [features]="['settings.pages.sequences.features.f1','settings.pages.sequences.features.f2','settings.pages.sequences.features.f3','settings.pages.sequences.features.f4','settings.pages.sequences.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

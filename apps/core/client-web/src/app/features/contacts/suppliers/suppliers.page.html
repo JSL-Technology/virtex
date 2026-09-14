@@ -1,6 +1,6 @@
 <vx-list-shell
-  titleKey="CONTACTS.SUPPLIERS.PROVEEDORES"
-  subtitleKey="CONTACTS.SUPPLIERS.ADMINISTRA_INFORMACION_TUS_PROVEEDORES"
+  titleKey="contacts.suppliers.suppliers"
+  subtitleKey="contacts.suppliers.manage_your_suppliers_information"
   [count]="suppliers().length"
   [loading]="isLoading()"
   [empty]="suppliers().length === 0"
@@ -8,18 +8,18 @@
 >
   <a listActions routerLink="/masters/suppliers/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'CONTACTS.SUPPLIERS.NUEVO_PROVEEDOR' | translate }}</span>
+    <span>{{ 'contacts.suppliers.new_supplier' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'CONTACTS.SUPPLIERS.NOMBRE_EMPRESA' | translate }}</th>
-          <th>{{ 'CONTACTS.SUPPLIERS.PERSONA_CONTACTO' | translate }}</th>
-          <th>{{ 'CONTACTS.SUPPLIERS.EMAIL' | translate }}</th>
-          <th>{{ 'CONTACTS.SUPPLIERS.TELEFONO' | translate }}</th>
-          <th class="actions-column">{{ 'CONTACTS.SUPPLIERS.ACCIONES' | translate }}</th>
+          <th>{{ 'contacts.suppliers.company_name' | translate }}</th>
+          <th>{{ 'contacts.suppliers.contact_person' | translate }}</th>
+          <th>{{ 'contacts.suppliers.email' | translate }}</th>
+          <th>{{ 'contacts.suppliers.phone' | translate }}</th>
+          <th class="actions-column">{{ 'contacts.suppliers.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -38,14 +38,14 @@
                 <a
                   [routerLink]="['/masters/suppliers', supplier.id, 'edit']"
                   class="icon-button"
-                  [attr.aria-label]="'CONTACTS.SUPPLIERS.EDITAR' | translate"
+                  [attr.aria-label]="'contacts.suppliers.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
                 </a>
                 <button
                   type="button"
                   class="icon-button delete"
-                  [attr.aria-label]="'CONTACTS.SUPPLIERS.ELIMINAR' | translate"
+                  [attr.aria-label]="'contacts.suppliers.delete' | translate"
                   (click)="deleteSupplier(supplier.id)"
                 >
                   <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>

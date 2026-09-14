@@ -97,7 +97,7 @@ export class ReportsController {
       default:
         // A localized 400, not a bare `Error` — which the exception filter reports as a 500 and an
         // untranslated English sentence.
-        throw new BadRequestError('REPORTS.TIPO_REPORTE_NO_SOPORTADO', {
+        throw new BadRequestError('reports.report_type_kind_does_not_exist', {
           reportType: generateReportDto.reportType,
         });
     }

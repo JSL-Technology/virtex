@@ -1,98 +1,98 @@
 <vx-list-shell
-  titleKey="PAYROLL.CONCEPTS.TITLE"
+  titleKey="payroll.concepts.title"
   [count]="concepts().length"
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()" (click)="startCreate()">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'PAYROLL.CONCEPTS.NEW' | translate }}</span>
+    <span>{{ 'payroll.concepts.new' | translate }}</span>
   </button>
 
   <label listFilters class="inline-field">
     <input type="checkbox" [checked]="includeInactive()"
       (change)="toggleInactive($any($event.target).checked)" />
-    <span>{{ 'PAYROLL.CONCEPTS.INCLUDE_INACTIVE' | translate }}</span>
+    <span>{{ 'payroll.concepts.include_inactive' | translate }}</span>
   </label>
 
   @if (creating() || editing()) {
     <div class="editor card">
       <label class="field">
-        <span>{{ 'PAYROLL.CONCEPTS.CODE' | translate }}</span>
+        <span>{{ 'payroll.concepts.code' | translate }}</span>
         <input type="text" maxlength="30" [value]="draft().code ?? ''"
           [disabled]="!!editing()"
           (input)="patch({ code: $any($event.target).value })" />
       </label>
       <label class="field field--wide">
-        <span>{{ 'PAYROLL.CONCEPTS.NAME' | translate }}</span>
+        <span>{{ 'payroll.concepts.name' | translate }}</span>
         <input type="text" maxlength="120" [value]="draft().name ?? ''"
           (input)="patch({ name: $any($event.target).value })" />
       </label>
       <label class="field">
-        <span>{{ 'PAYROLL.CONCEPTS.TYPE' | translate }}</span>
+        <span>{{ 'payroll.concepts.type' | translate }}</span>
         <select [value]="draft().type" (change)="patch({ type: $any($event.target).value })">
           @for (type of types; track type) {
-            <option [value]="type">{{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + type | translate }}</option>
+            <option [value]="type">{{ 'payroll.concepts.type_label.' + type | translate }}</option>
           }
         </select>
       </label>
       <label class="field">
-        <span>{{ 'PAYROLL.CONCEPTS.CALCULATION' | translate }}</span>
+        <span>{{ 'payroll.concepts.calculation' | translate }}</span>
         <select [value]="draft().calculation" (change)="patch({ calculation: $any($event.target).value })">
           @for (calculation of calculations; track calculation) {
             <option [value]="calculation">
-              {{ 'PAYROLL.CONCEPTS.CALC_LABEL.' + calculation | translate }}
+              {{ 'payroll.concepts.calc_label.' + calculation | translate }}
             </option>
           }
         </select>
       </label>
       <label class="field">
         <!-- A fraction for a percentage (0.03), a multiplier for an hourly premium (1.35). -->
-        <span>{{ 'PAYROLL.CONCEPTS.RATE' | translate }}</span>
+        <span>{{ 'payroll.concepts.rate' | translate }}</span>
         <input type="number" step="0.000001" min="0" [value]="draft().rate ?? 0"
           (input)="patch({ rate: +$any($event.target).value })" />
-        <small class="field__note">{{ 'PAYROLL.CONCEPTS.RATE_HELP' | translate }}</small>
+        <small class="field__note">{{ 'payroll.concepts.rate_help' | translate }}</small>
       </label>
       <label class="inline-field">
         <input type="checkbox" [checked]="draft().taxable ?? true"
           (change)="patch({ taxable: $any($event.target).checked })" />
-        <span>{{ 'PAYROLL.CONCEPTS.TAXABLE' | translate }}</span>
+        <span>{{ 'payroll.concepts.taxable' | translate }}</span>
       </label>
       <label class="inline-field">
         <input type="checkbox" [checked]="draft().contributesToTss ?? true"
           (change)="patch({ contributesToTss: $any($event.target).checked })" />
-        <span>{{ 'PAYROLL.CONCEPTS.TSS_BASE' | translate }}</span>
+        <span>{{ 'payroll.concepts.tss_base' | translate }}</span>
       </label>
       <label class="inline-field">
         <input type="checkbox" [checked]="draft().active ?? true"
           (change)="patch({ active: $any($event.target).checked })" />
-        <span>{{ 'PAYROLL.CONCEPTS.ACTIVE' | translate }}</span>
+        <span>{{ 'payroll.concepts.active' | translate }}</span>
       </label>
 
       <div class="editor__actions">
         <button type="button" class="primary-button" [disabled]="busy()" (click)="save()">
-          {{ 'COMMON.SAVE' | translate }}
+          {{ 'common.save' | translate }}
         </button>
         <button type="button" class="secondary-button" (click)="cancel()">
-          {{ 'COMMON.CANCEL' | translate }}
+          {{ 'common.cancel' | translate }}
         </button>
       </div>
     </div>
   }
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'PAYROLL.CONCEPTS.CODE' | translate }}</th>
-          <th>{{ 'PAYROLL.CONCEPTS.NAME' | translate }}</th>
-          <th>{{ 'PAYROLL.CONCEPTS.TYPE' | translate }}</th>
-          <th>{{ 'PAYROLL.CONCEPTS.CALCULATION' | translate }}</th>
-          <th class="numeric">{{ 'PAYROLL.CONCEPTS.RATE' | translate }}</th>
-          <th class="text-center">{{ 'PAYROLL.CONCEPTS.TAXABLE' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'payroll.concepts.code' | translate }}</th>
+          <th>{{ 'payroll.concepts.name' | translate }}</th>
+          <th>{{ 'payroll.concepts.type' | translate }}</th>
+          <th>{{ 'payroll.concepts.calculation' | translate }}</th>
+          <th class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
+          <th class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -100,8 +100,8 @@
           <tr [class.is-inactive]="!concept.active">
             <td><code>{{ concept.code }}</code></td>
             <td>{{ concept.name }}</td>
-            <td>{{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + concept.type | translate }}</td>
-            <td>{{ 'PAYROLL.CONCEPTS.CALC_LABEL.' + concept.calculation | translate }}</td>
+            <td>{{ 'payroll.concepts.type_label.' + concept.type | translate }}</td>
+            <td>{{ 'payroll.concepts.calc_label.' + concept.calculation | translate }}</td>
             <td class="numeric">{{ concept.rate !== null ? (concept.rate | vxNumber: '1.0-6') : '—' }}</td>
             <td class="text-center">{{ concept.taxable ? '✓' : '—' }}</td>
             <td class="text-right row-actions">
@@ -110,14 +110,14 @@
                   A legal deduction's rate comes from the versioned parameter tables, not from here.
                   Saying so beats a button that fails.
                 -->
-                <span class="tag">{{ 'PAYROLL.CONCEPTS.SYSTEM' | translate }}</span>
+                <span class="tag">{{ 'payroll.concepts.system' | translate }}</span>
               } @else {
                 <button type="button" class="icon-button" (click)="startEdit(concept)"
-                  [attr.aria-label]="'COMMON.EDIT' | translate">
+                  [attr.aria-label]="'common.edit' | translate">
                   <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
                 </button>
                 <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(concept)"
-                  [attr.aria-label]="'COMMON.DELETE' | translate">
+                  [attr.aria-label]="'common.delete' | translate">
                   <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
                 </button>
               }

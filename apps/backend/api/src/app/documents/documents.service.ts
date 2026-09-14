@@ -78,7 +78,7 @@ export class DocumentsService {
 
   async findOne(id: string, organizationId: string): Promise<DocumentNode> {
     const node = await this.nodes.findOneBy({ id, organizationId });
-    if (!node) throw new NotFoundError('DOCUMENTS.NOT_FOUND', { id });
+    if (!node) throw new NotFoundError('documents.not_found', { id });
     return node;
   }
 
@@ -143,7 +143,7 @@ export class DocumentsService {
   ): Promise<DocumentNode> {
     const parentId = await this.resolveParent(options.parentId, organizationId);
     const name = file.fileName.trim();
-    if (!name) throw new BadRequestError('DOCUMENTS.NAME_REQUIRED');
+    if (!name) throw new BadRequestError('documents.name_required');
     await this.assertNameFree(organizationId, parentId, name);
 
     // Per tenant, so one tenant's objects are never in another's prefix.
@@ -190,11 +190,11 @@ export class DocumentsService {
     const node = await this.findOne(id, organizationId);
     const parentId = await this.resolveParent(dto.parentId, organizationId);
 
-    if (parentId === node.id) throw new BadRequestError('DOCUMENTS.CANNOT_MOVE_INTO_ITSELF');
+    if (parentId === node.id) throw new BadRequestError('documents.cannot_move_into_itself');
     if (parentId && (await this.isDescendant(parentId, node.id, organizationId))) {
       // Moving a folder into its own subtree detaches it from the root: it and everything under it
       // become unreachable while still occupying storage.
-      throw new BadRequestError('DOCUMENTS.CANNOT_MOVE_INTO_DESCENDANT');
+      throw new BadRequestError('documents.folder_cannot_moved_into_one_own');
     }
 
     await this.assertNameFree(organizationId, parentId, node.name, node.id);
@@ -209,7 +209,7 @@ export class DocumentsService {
   ): Promise<DocumentNode> {
     const node = await this.findOne(id, organizationId);
     if (node.kind !== DocumentNodeKind.FILE && dto.templateType) {
-      throw new BadRequestError('DOCUMENTS.FOLDER_IS_NOT_A_TEMPLATE');
+      throw new BadRequestError('documents.folder_is_not_a_template');
     }
     if (dto.templateType !== undefined) node.templateType = dto.templateType;
     if (dto.description !== undefined) node.description = dto.description;
@@ -220,7 +220,7 @@ export class DocumentsService {
   async stream(id: string, organizationId: string): Promise<{ node: DocumentNode; file: StoredFileStream }> {
     const node = await this.findOne(id, organizationId);
     if (node.kind !== DocumentNodeKind.FILE || !node.storageKey) {
-      throw new BadRequestError('DOCUMENTS.FOLDER_HAS_NO_CONTENT');
+      throw new BadRequestError('documents.folder_has_no_content');
     }
     return { node, file: await this.storage.getStream(node.storageKey) };
   }
@@ -256,9 +256,9 @@ export class DocumentsService {
   ): Promise<string | null> {
     if (!parentId) return null;
     const parent = await this.nodes.findOneBy({ id: parentId, organizationId });
-    if (!parent) throw new NotFoundError('DOCUMENTS.FOLDER_NOT_FOUND', { id: parentId });
+    if (!parent) throw new NotFoundError('documents.folder_not_found', { id: parentId });
     if (parent.kind !== DocumentNodeKind.FOLDER) {
-      throw new BadRequestError('DOCUMENTS.PARENT_IS_NOT_A_FOLDER');
+      throw new BadRequestError('documents.parent_is_not_a_folder');
     }
     return parent.id;
   }
@@ -277,7 +277,7 @@ export class DocumentsService {
         ...(exceptId ? { id: Not(exceptId) } : {}),
       },
     });
-    if (clash) throw new BadRequestError('DOCUMENTS.NAME_TAKEN', { name });
+    if (clash) throw new BadRequestError('documents.name_already_exists_folder', { name });
   }
 
   private async isDescendant(

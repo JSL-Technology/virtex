@@ -131,7 +131,7 @@ export class XeRatesProvider {
     const apiId = this.configService.get<string>('XE_API_ID');
     const apiKey = this.configService.get<string>('XE_API_KEY');
     if (!apiId || !apiKey) {
-      throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_NO_CONFIGURADO');
+      throw new BadRequestError('currencies.no_exchange_rate_provider_configured_record');
     }
 
     const search = new URLSearchParams(query).toString();
@@ -155,7 +155,7 @@ export class XeRatesProvider {
         axiosError.message;
       // Path and status, never the query string and never the credentials.
       this.logger.error(`XE ${path} respondió ${status ?? 'sin estado'}: ${detail}`);
-      throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_ERROR', {
+      throw new BadRequestError('currencies.provider_responded_with_status_status_detail', {
         provider: 'XE',
         status: status ?? 0,
         detail: String(detail ?? 'error desconocido'),

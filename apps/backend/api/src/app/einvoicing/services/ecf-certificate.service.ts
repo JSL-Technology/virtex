@@ -34,8 +34,8 @@ export class EcfCertificateService {
     organizationId: string,
     input: { pfx: Buffer; password: string; alias: string },
   ): Promise<EcfCertificateView> {
-    if (!input.pfx?.length) throw new BadRequestError('EINVOICING.ARCHIVO_CERTIFICADO_ESTA_VACIO');
-    if (!input.password) throw new BadRequestError('EINVOICING.CONTRASENA_CERTIFICADO_ES_OBLIGATORIA');
+    if (!input.pfx?.length) throw new BadRequestError('einvoicing.certificate_file_empty');
+    if (!input.password) throw new BadRequestError('einvoicing.certificate_password_required');
 
     // Validate before persisting — a bad password / malformed file throws here, not at signing time.
     const parsed = this.vault.parsePkcs12(input.pfx, input.password);

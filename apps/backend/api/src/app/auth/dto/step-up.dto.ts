@@ -12,21 +12,21 @@ import { StepUpScope } from '../enums/step-up-scope.enum';
  */
 export class StepUpDto {
   @ApiProperty({ enum: StepUpScope, description: 'Action the resulting token may authorise' })
-  @IsEnum(StepUpScope, { message: 'VALIDATION.STEP_UP.AMBITO_VERIFICACION_NO_VALIDO' })
+  @IsEnum(StepUpScope, { message: 'validation.step_up.invalid_verification_scope' })
   @IsNotEmpty()
   scope!: StepUpScope;
 
   @ApiPropertyOptional({ description: 'Account password. Used when 2FA is not enabled.' })
   @IsOptional()
   @IsString()
-  @MaxLength(128, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":128}' })
+  @MaxLength(128, { message: 'validation.constraints.max_length|{"max":128}' })
   password?: string;
 
   @ApiPropertyOptional({ description: 'TOTP code or backup code. Used when 2FA is enabled.' })
   @IsOptional()
   @IsString()
   // A 6-digit TOTP or a backup code; both are short, alphanumeric and case-insensitive.
-  @Length(6, 32, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":6,"max":32}' })
-  @Matches(/^[A-Za-z0-9-]+$/, { message: 'VALIDATION.STEP_UP.CODIGO_VERIFICACION_NO_VALIDO' })
+  @Length(6, 32, { message: 'validation.constraints.length|{"min":6,"max":32}' })
+  @Matches(/^[A-Za-z0-9-]+$/, { message: 'validation.step_up.verification_code_not_valid' })
   otpCode?: string;
 }

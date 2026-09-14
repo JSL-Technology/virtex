@@ -437,6 +437,36 @@
     "en": "Alias",
     "pt": "Apelido"
   },
+  "settings.fiscal.capability.accounting": {
+    "es": "Contabilidad",
+    "en": "Bookkeeping",
+    "pt": "Contabilidade"
+  },
+  "settings.fiscal.capability.electronic_accounting": {
+    "es": "Contabilidad electrónica",
+    "en": "Electronic accounting",
+    "pt": "Contabilidade eletrónica"
+  },
+  "settings.fiscal.capability.electronic_invoicing": {
+    "es": "Facturación electrónica",
+    "en": "Electronic invoicing",
+    "pt": "Faturação eletrónica"
+  },
+  "settings.fiscal.capability.periodic_returns": {
+    "es": "Declaraciones periódicas",
+    "en": "Periodic returns",
+    "pt": "Declarações periódicas"
+  },
+  "settings.fiscal.capability.tax_determination": {
+    "es": "Determinación de impuestos",
+    "en": "Tax determination",
+    "pt": "Determinação de impostos"
+  },
+  "settings.fiscal.capability.withholding": {
+    "es": "Retenciones",
+    "en": "Withholding",
+    "pt": "Retenções"
+  },
   "settings.fiscal.certificate_could_not_deactivated": {
     "es": "No se pudo desactivar el certificado.",
     "en": "The certificate could not be deactivated.",
@@ -572,17 +602,17 @@
     "en": "E-invoicing",
     "pt": "Emissão eletrônica"
   },
-  "settings.fiscal.level_implemented": {
+  "settings.fiscal.level.implemented": {
     "es": "Implementado",
     "en": "Implemented",
     "pt": "Implementado"
   },
-  "settings.fiscal.level_needs_credentials": {
+  "settings.fiscal.level.needs_credentials": {
     "es": "Necesita tus credenciales",
     "en": "Needs your credentials",
     "pt": "Precisa das suas credenciais"
   },
-  "settings.fiscal.level_not_implemented": {
+  "settings.fiscal.level.not_implemented": {
     "es": "No implementado",
     "en": "Not implemented",
     "pt": "Não implementado"
@@ -1881,6 +1911,36 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
+  "settings.pages.withholding.capability.accounting": {
+    "es": "Contabilidad",
+    "en": "Bookkeeping",
+    "pt": "Contabilidade"
+  },
+  "settings.pages.withholding.capability.electronic_accounting": {
+    "es": "Contabilidad electrónica",
+    "en": "Electronic accounting",
+    "pt": "Contabilidade eletrónica"
+  },
+  "settings.pages.withholding.capability.electronic_invoicing": {
+    "es": "Facturación electrónica",
+    "en": "Electronic invoicing",
+    "pt": "Faturação eletrónica"
+  },
+  "settings.pages.withholding.capability.periodic_returns": {
+    "es": "Declaraciones periódicas",
+    "en": "Periodic returns",
+    "pt": "Declarações periódicas"
+  },
+  "settings.pages.withholding.capability.tax_determination": {
+    "es": "Determinación de impuestos",
+    "en": "Tax determination",
+    "pt": "Determinação de impostos"
+  },
+  "settings.pages.withholding.capability.withholding": {
+    "es": "Retenciones",
+    "en": "Withholding",
+    "pt": "Retenções"
+  },
   "settings.pages.withholding.code": {
     "es": "Código",
     "en": "Code",
@@ -1890,6 +1950,21 @@
     "es": "Persona jurídica",
     "en": "Company",
     "pt": "Pessoa jurídica"
+  },
+  "settings.pages.withholding.coverage.implemented": {
+    "es": "Implementado",
+    "en": "Implemented",
+    "pt": "Implementado"
+  },
+  "settings.pages.withholding.coverage.needs_credentials": {
+    "es": "Requiere credenciales",
+    "en": "Needs credentials",
+    "pt": "Requer credenciais"
+  },
+  "settings.pages.withholding.coverage.not_implemented": {
+    "es": "No implementado",
+    "en": "Not implemented",
+    "pt": "Não implementado"
   },
   "settings.pages.withholding.delete": {
     "es": "Eliminar",
@@ -2325,6 +2400,16 @@
     "es": "Editar Rol",
     "en": "Edit Role",
     "pt": "Editar Perfil"
+  },
+  "settings.roles.errors.load_permissions": {
+    "es": "No pudimos cargar los permisos.",
+    "en": "We could not load the permissions.",
+    "pt": "Não foi possível carregar as permissões."
+  },
+  "settings.roles.errors.load_roles": {
+    "es": "No pudimos cargar los roles.",
+    "en": "We could not load the roles.",
+    "pt": "Não foi possível carregar os perfis."
   },
   "settings.roles.permissions": {
     "es": "Permisos",

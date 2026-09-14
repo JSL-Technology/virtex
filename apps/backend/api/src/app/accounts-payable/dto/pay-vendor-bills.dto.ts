@@ -31,19 +31,19 @@ export class VendorBillPaymentLineDto {
 
   /** Tax withheld from the supplier on this payment and owed to the authority. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxWithheld?: number;
 
   /** Income tax withheld from the supplier on this payment. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   incomeTaxWithheld?: number;
 
   /** Early-payment discount taken. Reduces the bill's balance without cash leaving. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   discount?: number;
 }
@@ -63,7 +63,7 @@ export class PayVendorBillsDto {
   reference?: string;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
+  @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => VendorBillPaymentLineDto)
   lines: VendorBillPaymentLineDto[];

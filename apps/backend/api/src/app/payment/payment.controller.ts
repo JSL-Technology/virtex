@@ -59,12 +59,12 @@ export class PaymentController {
     @Ip() ip: string
   ) {
     if (!user.organizationId) {
-        throw new BadRequestError('PAYMENT.USER_DOES_NOT_BELONG_ORGANIZATION');
+        throw new BadRequestError('payment.user_does_not_belong_organization');
     }
 
     const plan = (await this.saasService.getPlans()).find((p) => p.slug === dto.planSlug);
     if (!plan) {
-      throw new BadRequestError('PAYMENT.PLAN_NO_ENCONTRADO');
+      throw new BadRequestError('payment.plan_not_found');
     }
     const priceId = SaasService.priceIdFor(plan, dto.billingPeriod ?? 'monthly');
     if (!priceId) {
@@ -118,7 +118,7 @@ export class PaymentController {
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getOverview(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
-      throw new BadRequestError('PAYMENT.USER_DOES_NOT_BELONG_ORGANIZATION');
+      throw new BadRequestError('payment.user_does_not_belong_organization');
     }
     return this.paymentService.getBillingOverview(user.organizationId);
   }
@@ -131,7 +131,7 @@ export class PaymentController {
     @Body() body: ConfirmCheckoutDto
   ) {
     if (!user.organizationId) {
-      throw new BadRequestError('PAYMENT.USER_DOES_NOT_BELONG_ORGANIZATION');
+      throw new BadRequestError('payment.user_does_not_belong_organization');
     }
     return this.paymentService.confirmOrganizationCheckout(user.organizationId, body.sessionId);
   }
@@ -141,7 +141,7 @@ export class PaymentController {
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getInvoices(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
-      throw new BadRequestError('PAYMENT.USER_DOES_NOT_BELONG_ORGANIZATION');
+      throw new BadRequestError('payment.user_does_not_belong_organization');
     }
     return this.paymentService.getInvoices(user.organizationId);
   }
@@ -155,7 +155,7 @@ export class PaymentController {
     @Ip() ip: string
   ) {
     if (!user.organizationId) {
-      throw new BadRequestError('PAYMENT.USER_DOES_NOT_BELONG_ORGANIZATION');
+      throw new BadRequestError('payment.user_does_not_belong_organization');
     }
     // Same reasoning as the checkout session: the return URL is ours to decide, not the caller's.
     const { cancelUrl: returnUrl } = this.billingRedirectUrls();
@@ -200,7 +200,7 @@ export class PaymentController {
   @UseGuards(ThrottlerGuard)
   async handleWebhook(@Headers('stripe-signature') signature: string, @Req() req: Request) {
     if (!signature) {
-      throw new BadRequestError('PAYMENT.MISSING_STRIPE_SIGNATURE_HEADER');
+      throw new BadRequestError('payment.missing_stripe_signature_header');
     }
 
     // The signature is computed over the bytes Stripe sent. `rawBody` is populated because the
@@ -208,7 +208,7 @@ export class PaymentController {
     // re-serialising it, which changes key order and whitespace and makes every signature fail.
     const rawBody = (req as unknown as { rawBody?: Buffer }).rawBody;
     if (!Buffer.isBuffer(rawBody)) {
-      throw new BadRequestError('PAYMENT.RAW_REQUEST_BODY_UNAVAILABLE_WEBHOOK_SIGNATURE_CANNOT');
+      throw new BadRequestError('payment.raw_request_body_unavailable_webhook_signature_cannot');
     }
 
     return this.paymentService.handleWebhook(signature, rawBody);

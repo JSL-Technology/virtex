@@ -72,7 +72,7 @@ export class DatasheetsService {
       relations: ['sheets'],
     });
     if (!book) {
-      throw new NotFoundError('DATASHEETS.DATASHEET_WITH_ID_NOT_FOUND', { id });
+      throw new NotFoundError('datasheets.datasheet_with_id_not_found', { id });
     }
 
     await this.requireAccess(book, user);
@@ -119,7 +119,7 @@ export class DatasheetsService {
     const access = await this.accessFor(book, user);
     if (!access) {
       // Not found, not forbidden: telling a stranger that a book exists is itself a disclosure.
-      throw new NotFoundError('DATASHEETS.DATASHEET_WITH_ID_NOT_FOUND', { id: book.id });
+      throw new NotFoundError('datasheets.datasheet_with_id_not_found', { id: book.id });
     }
     return access;
   }
@@ -171,7 +171,7 @@ export class DatasheetsService {
     const book = await this.findOne(id, user);
     const access = await this.requireAccess(book, user);
     if (!CAN_EDIT.has(access)) {
-      throw new ForbiddenError('DATASHEETS.SIN_PERMISO_EDICION', { id });
+      throw new ForbiddenError('datasheets.you_do_not_have_permission_edit', { id });
     }
 
     // The tenant and the owner are not editable through this route: a book cannot be moved to
@@ -201,7 +201,7 @@ export class DatasheetsService {
   async remove(id: string, user: AuthenticatedUser): Promise<void> {
     const book = await this.findOne(id, user);
     if (book.ownerId !== user.id) {
-      throw new ForbiddenError('DATASHEETS.ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT');
+      throw new ForbiddenError('datasheets.only_owner_can_delete_this_document');
     }
     await this.bookRepo.remove(book);
   }

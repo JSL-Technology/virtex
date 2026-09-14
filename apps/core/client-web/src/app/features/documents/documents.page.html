@@ -1,17 +1,17 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>{{ 'DOCUMENTS.DOCUMENTS' | translate }}</h1>
-            <p>{{ 'DOCUMENTS.MANAGE_AND_ORGANIZE_ALL_YOUR_BUSINESS' | translate }}</p>
+            <h1>{{ 'documents.documents' | translate }}</h1>
+            <p>{{ 'documents.manage_and_organize_all_your_business' | translate }}</p>
         </div>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FolderIcon" size="16"></lucide-icon>
-                <span>{{ 'DOCUMENTS.NEW_FOLDER' | translate }}</span>
+                <span>{{ 'documents.new_folder' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
-                <span>{{ 'DOCUMENTS.UPLOAD_FILE' | translate }}</span>
+                <span>{{ 'documents.upload_file' | translate }}</span>
             </button>
         </div>
     </div>
@@ -23,7 +23,7 @@
             </div>
             <div class="search-bar">
                 <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
-                <input type="text" [placeholder]="'DOCUMENTS.SEARCH_IN_THIS_FOLDER' | translate">
+                <input type="text" [placeholder]="'documents.search_in_this_folder' | translate">
             </div>
         </div>
 
@@ -32,9 +32,9 @@
                 <thead>
                     <tr>
                         <th style="width: 1%;"><input type="checkbox"></th>
-                        <th>{{ 'DOCUMENTS.NAME' | translate }}</th>
-                        <th>{{ 'DOCUMENTS.LAST_MODIFIED' | translate }}</th>
-                        <th>{{ 'DOCUMENTS.FILE_SIZE' | translate }}</th>
+                        <th>{{ 'documents.name' | translate }}</th>
+                        <th>{{ 'documents.last_modified' | translate }}</th>
+                        <th>{{ 'documents.file_size' | translate }}</th>
                         <th class="actions-column"></th>
                     </tr>
                 </thead>
@@ -58,7 +58,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="5" class="empty-state">{{ 'DOCUMENTS.THIS_FOLDER_EMPTY' | translate }}</td>
+                        <td colspan="5" class="empty-state">{{ 'documents.this_folder_empty' | translate }}</td>
                     </tr>
                     }
                 </tbody>

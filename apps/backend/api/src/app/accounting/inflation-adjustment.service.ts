@@ -45,17 +45,17 @@ export class InflationAdjustmentService {
 
     const inflationIndex = await this.inflationIndexRepository.findOneBy({ year, month, organizationId });
     if (!inflationIndex) {
-      throw new NotFoundError('ACCOUNTING.INDICE_INFLACION_NO_ENCONTRADO', { year, month });
+      throw new NotFoundError('accounting.no_inflation_index_found_year_month', { year, month });
     }
 
     const settings = await this.orgSettingsRepository.findOneBy({ organizationId });
     if (!settings?.defaultInflationAdjustmentAccountId) {
-        throw new BadRequestError('ACCOUNTING.CUENTA_AJUSTE_INFLACION_NO_ESTA_CONFIGURADA');
+        throw new BadRequestError('accounting.inflation_adjustment_account_not_configured');
     }
 
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestError('ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+        throw new BadRequestError('accounting.no_default_ledger_has_configured_organization');
     }
     
     const accountsToAdjust = await this.accountRepository.find({
@@ -70,7 +70,7 @@ export class InflationAdjustmentService {
     await this.dataSource.transaction(async manager => {
         const adjustmentJournal = await manager.findOneBy(Journal, { organizationId, code: 'AJU-INF' });
         if (!adjustmentJournal) {
-            throw new BadRequestError('ACCOUNTING.DIARIO_AJUSTE_INFLACION_AJU_INF_NO_ENCONTRADO');
+            throw new BadRequestError('accounting.inflation_adjustment_journal_aju_inf_not');
         }
 
         // The last day of the month being adjusted, in UTC. `new Date(year, month, 0)` builds a
@@ -92,9 +92,9 @@ export class InflationAdjustmentService {
         // every other period label in the product does.
         const period = `${year}-${String(month).padStart(2, '0')}`;
         const words = await this.narrative.describeAll(manager, organizationId, {
-            line: { key: 'LEDGER.INFLATION.LINE', params: { period } },
-            counterpart: { key: 'LEDGER.INFLATION.COUNTERPART', params: { period } },
-            header: { key: 'LEDGER.INFLATION.ENTRY', params: { period } },
+            line: { key: 'ledger.inflation.line', params: { period } },
+            counterpart: { key: 'ledger.inflation.counterpart', params: { period } },
+            header: { key: 'ledger.inflation.entry', params: { period } },
         });
 
         let totalAdjustmentCents = 0;
@@ -146,7 +146,7 @@ export class InflationAdjustmentService {
               }]
           });
         } else {
-            throw new InternalServerError('ACCOUNTING.CUENTA_AJUSTE_INFLACION_DESAPARECIO_MITAD_TRANSACCION');
+            throw new InternalServerError('accounting.inflation_adjustment_account_disappeared_mid_transaction');
         }
 
         const entryDto: CreateJournalEntryDto = {

@@ -28,10 +28,10 @@ export class KpiRoe implements OnInit {
   ngOnInit(): void {
     this.kpi$ = this.dashboardApiService.getROE().pipe(
       map(data => ({
-        title: 'DASH.WIDGET.KPI_ROE.TITLE',
+        title: 'dash.widget.kpi_roe.title',
         value: (data.roe / 100).toString(), // CORRECCIÓN: Se envía como decimal para el pipe 'percent'
         comparisonValue: '', // El backend no provee comparación aún
-        comparisonPeriod: 'DASH.WIDGET.KPI_ROE.COMP_PERIOD',
+        comparisonPeriod: 'dash.widget.kpi_roe.vs_prior_year',
         isPositive: data.roe > 0, // Un ROE positivo es bueno
         iconName: 'Trophy',
         color: 'blue'

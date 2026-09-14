@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.INVENTORY_POLICIES.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.INVENTORY_POLICIES.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.inventory_policies.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.inventory_policies.define_valuation_replenishment_stock_control_rules' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.INVENTORY_POLICIES.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.INVENTORY_POLICIES.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F1','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F2','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F3','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F4','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.inventory_policies.empty_title'"
+        [description]="'settings.pages.inventory_policies.empty_description'"
+        [features]="['settings.pages.inventory_policies.features.f1','settings.pages.inventory_policies.features.f2','settings.pages.inventory_policies.features.f3','settings.pages.inventory_policies.features.f4','settings.pages.inventory_policies.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

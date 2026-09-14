@@ -1,6 +1,5 @@
 {
   "$note": "A third copy of the authentication error set lived under LOGIN.ERRORS.*, because the sign-in screen mapped HTTP status codes to its own keys instead of reading the error code the server sends. These redirect to the one canonical set. Applied to the catalogues (the duplicate is dropped) and to every reference in code, so login.page.ts ends up on the same phrasing as the rest of the product.",
-
   "login.errors.auth_invalid_credentials": "errors.auth_invalid_credentials",
   "login.errors.auth_user_not_found": "errors.auth_user_not_found",
   "login.errors.auth_user_inactive": "errors.auth_user_inactive",
@@ -9,10 +8,12 @@
   "login.errors.auth_refresh_token_invalid": "errors.auth_refresh_token_invalid",
   "login.errors.auth_refresh_token_revoked": "errors.auth_refresh_token_revoked",
   "login.errors.auth_device_mismatch": "errors.auth_device_mismatch",
-
   "login.errors.network_error": "errors.network",
   "login.errors.server_error": "errors.internal",
   "login.errors.too_many_attempts": "errors.http_429",
   "login.errors.invalid_code": "errors.auth_two_factor_invalid",
-  "login.errors.account_locked": "errors.auth_account_locked"
+  "login.errors.account_locked": "errors.auth_account_locked",
+  "settings.fiscal.level_implemented": "settings.fiscal.level.implemented",
+  "settings.fiscal.level_needs_credentials": "settings.fiscal.level.needs_credentials",
+  "settings.fiscal.level_not_implemented": "settings.fiscal.level.not_implemented"
 }

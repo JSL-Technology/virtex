@@ -21,7 +21,7 @@ export class ImpersonateDto {
 export class VerifyEmailCodeDto {
   @ApiProperty({ description: 'Email verification code for 2FA setup', example: '123456' })
   @IsString()
-  @Length(4, 12, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":4,"max":12}' })
+  @Length(4, 12, { message: 'validation.constraints.length|{"min":4,"max":12}' })
   code!: string;
 }
 
@@ -35,7 +35,7 @@ export class SendPhoneOtpDto {
 export class VerifyPhoneOtpDto {
   @ApiProperty({ description: 'OTP code sent via SMS', example: '123456' })
   @IsString()
-  @Length(4, 12, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":4,"max":12}' })
+  @Length(4, 12, { message: 'validation.constraints.length|{"min":4,"max":12}' })
   code!: string;
 
   @ApiProperty({ description: 'Phone number the OTP was sent to (E.164)', example: '+18091234567' })
@@ -50,7 +50,7 @@ export class ConfirmEmailMagicLinkDto {
   @ApiProperty({ description: 'Signed registration email magic-link token (JWT)' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(2048, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2048}' })
+  @MaxLength(2048, { message: 'validation.constraints.max_length|{"max":2048}' })
   token!: string;
 }
 
@@ -59,6 +59,6 @@ export class WebAuthnLoginOptionsDto {
   @IsOptional()
   @NormalizeEmail()
   @IsEmail()
-  @MaxLength(320, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":320}' })
+  @MaxLength(320, { message: 'validation.constraints.max_length|{"max":320}' })
   email?: string;
 }

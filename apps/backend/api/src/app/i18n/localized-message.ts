@@ -10,7 +10,7 @@
  * final string, because nothing inside the application knows who is reading it.
  */
 export interface LocalizedMessage {
-  /** A key in the server catalogue, e.g. `ACCOUNTING.PERIOD_CLOSED`. */
+  /** A key in the server catalogue, e.g. `accounting.period_closed`. */
   messageKey: string;
   /** Interpolation values for the key. Data, never prose. */
   messageParams?: Record<string, unknown>;

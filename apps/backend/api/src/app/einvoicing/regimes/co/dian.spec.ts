@@ -203,9 +203,9 @@ describe('DIAN — factura electrónica', () => {
     });
 
     it.each([
-      ['el emisor sin NIT', { organization: { ...organization, taxId: null } as unknown as Organization }, 'EINVOICING.DIAN_EMISOR_SIN_NIT'],
-      ['el receptor sin documento', { customer: { ...customer, taxId: null } as unknown as Customer }, 'EINVOICING.DIAN_RECEPTOR_SIN_DOCUMENTO'],
-      ['sin clave técnica', { technicalKey: '' }, 'EINVOICING.DIAN_SIN_CLAVE_TECNICA'],
+      ['el emisor sin NIT', { organization: { ...organization, taxId: null } as unknown as Organization }, 'einvoicing.organization_has_no_nit_electronic_invoice'],
+      ['el receptor sin documento', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.customer_customer_has_no_identification_document'],
+      ['sin clave técnica', { technicalKey: '' }, 'einvoicing.invoicing_resolution_technical_key_missing_cufe'],
     ])('refuses to build with %s', (_name, overrides, messageKey) => {
       expect(() => builder.build(input(overrides as Partial<DianBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),

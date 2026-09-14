@@ -14,11 +14,11 @@
  *
  *  2. A BOUNDED decorator with no message at all — `@MaxLength(254)`, `@Min(1)`, `@Length(2, 40)` —
  *     gains one carrying its own bound: `@MaxLength(254, { message:
- *     'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })`. Without it `class-validator` renders
+ *     'validation.constraints.max_length|{"max":254}' })`. Without it `class-validator` renders
  *     English, and the generic catalogue string cannot name the limit it is talking about
  *     because a `ValidationError` does not carry the constraint's arguments.
  *
- * Unbounded decorators are deliberately left alone: `VALIDATION.CONSTRAINTS.IS_EMAIL` needs no
+ * Unbounded decorators are deliberately left alone: `validation.constraints.is_email` needs no
  * arguments, so the exception factory can resolve it from the constraint name and eleven hundred
  * call sites stay untouched.
  *
@@ -176,7 +176,7 @@ for (const file of files) {
       const values = second === undefined ? [first] : [first, second];
       if (values.length !== names.length) return whole;
       const params = Object.fromEntries(names.map((name, index) => [name, Number(values[index])]));
-      const key = `VALIDATION.CONSTRAINTS.${decorator
+      const key = `validation.constraints.${decorator
         .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
         .toUpperCase()}`;
       bounded++;

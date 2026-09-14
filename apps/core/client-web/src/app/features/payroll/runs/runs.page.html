@@ -1,57 +1,57 @@
 <vx-list-shell
-  titleKey="PAYROLL.RUNS.TITLE"
+  titleKey="payroll.runs.title"
   [count]="runs().length"
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()"
     (click)="creating.set(!creating())">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'PAYROLL.RUNS.NEW' | translate }}</span>
+    <span>{{ 'payroll.runs.new' | translate }}</span>
   </button>
 
   @if (creating()) {
     <div class="inline-row card">
       <label class="field">
-        <span>{{ 'PAYROLL.RUNS.YEAR' | translate }}</span>
+        <span>{{ 'payroll.runs.year' | translate }}</span>
         <input type="number" min="2000" max="2100" [value]="newYear()"
           (input)="newYear.set(+$any($event.target).value)" />
       </label>
       <label class="field">
-        <span>{{ 'PAYROLL.RUNS.MONTH' | translate }}</span>
+        <span>{{ 'payroll.runs.month' | translate }}</span>
         <input type="number" min="1" max="12" [value]="newMonth()"
           (input)="newMonth.set(+$any($event.target).value)" />
       </label>
       <label class="field">
-        <span>{{ 'PAYROLL.RUNS.TYPE' | translate }}</span>
+        <span>{{ 'payroll.runs.type' | translate }}</span>
         <select [value]="newType()" (change)="newType.set($any($event.target).value)">
-          <option value="REGULAR">{{ 'PAYROLL.RUNS.TYPE_LABEL.REGULAR' | translate }}</option>
-          <option value="CHRISTMAS_BONUS">{{ 'PAYROLL.RUNS.TYPE_LABEL.CHRISTMAS_BONUS' | translate }}</option>
-          <option value="ADJUSTMENT">{{ 'PAYROLL.RUNS.TYPE_LABEL.ADJUSTMENT' | translate }}</option>
+          <option value="REGULAR">{{ 'payroll.runs.type_label.regular' | translate }}</option>
+          <option value="CHRISTMAS_BONUS">{{ 'payroll.runs.type_label.christmas_bonus' | translate }}</option>
+          <option value="ADJUSTMENT">{{ 'payroll.runs.type_label.adjustment' | translate }}</option>
         </select>
       </label>
       <button type="button" class="primary-button" [disabled]="busy()" (click)="create()">
-        {{ 'PAYROLL.RUNS.CREATE' | translate }}
+        {{ 'payroll.runs.create' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="creating.set(false)">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'common.cancel' | translate }}
       </button>
     </div>
   }
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'PAYROLL.RUNS.PERIOD' | translate }}</th>
-          <th>{{ 'PAYROLL.RUNS.NAME' | translate }}</th>
-          <th>{{ 'PAYROLL.RUNS.TYPE' | translate }}</th>
-          <th class="text-right">{{ 'PAYROLL.RUNS.GROSS' | translate }}</th>
-          <th class="text-right">{{ 'PAYROLL.RUNS.NET' | translate }}</th>
-          <th class="text-right">{{ 'PAYROLL.RUNS.EMPLOYER_COST' | translate }}</th>
-          <th class="text-center">{{ 'PAYROLL.RUNS.STATUS' | translate }}</th>
+          <th>{{ 'payroll.runs.period' | translate }}</th>
+          <th>{{ 'payroll.runs.name' | translate }}</th>
+          <th>{{ 'payroll.runs.type' | translate }}</th>
+          <th class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
+          <th class="text-right">{{ 'payroll.runs.net' | translate }}</th>
+          <th class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
+          <th class="text-center">{{ 'payroll.runs.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -61,14 +61,14 @@
               <a [routerLink]="['/payroll/runs', run.id]" class="table-link">{{ periodOf(run) }}</a>
             </td>
             <td>{{ run.name }}</td>
-            <td>{{ 'PAYROLL.RUNS.TYPE_LABEL.' + run.runType | translate }}</td>
+            <td>{{ 'payroll.runs.type_label.' + run.runType | translate }}</td>
             <td class="text-right">{{ run.totalGross | vxMoney: run.currencyCode }}</td>
             <td class="text-right">{{ run.totalNet | vxMoney: run.currencyCode }}</td>
             <!-- What the payroll actually costs the company: net plus the employer's own share. -->
             <td class="text-right">{{ run.totalEmployerContributions | vxMoney: run.currencyCode }}</td>
             <td class="text-center">
               <span class="status-badge" [class]="statusClass(run.status)">
-                {{ 'PAYROLL.RUNS.STATUS_LABEL.' + run.status | translate }}
+                {{ 'payroll.runs.status_label.' + run.status | translate }}
               </span>
             </td>
           </tr>

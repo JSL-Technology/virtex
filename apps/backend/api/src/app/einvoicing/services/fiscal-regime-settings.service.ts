@@ -59,7 +59,7 @@ export class FiscalRegimeSettingsService {
       select: ['id', 'country'],
     });
     const country = (organization?.country ?? '').toUpperCase();
-    if (!country) throw new BadRequestError('EINVOICING.ORGANIZACION_SIN_PAIS');
+    if (!country) throw new BadRequestError('einvoicing.organization_has_no_country_set_without');
     return country;
   }
 
@@ -119,7 +119,7 @@ export class FiscalRegimeSettingsService {
     const countryCode = await this.countryOf(organizationId);
 
     if (dto.secret && !dto.secretKind) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_SECRETO_SIN_TIPO');
+      throw new BadRequestError('einvoicing.you_supplied_secret_material_range_but');
     }
 
     const range = await this.dataSource.transaction((manager) =>
@@ -167,7 +167,7 @@ export class FiscalRegimeSettingsService {
       { isActive: false },
     );
     if (!result.affected) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_NO_ENCONTRADO');
+      throw new BadRequestError('einvoicing.range_not_found');
     }
   }
 }

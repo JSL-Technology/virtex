@@ -45,11 +45,11 @@ export class PhoneVerificationModalComponent {
       next: () => {
         this.isLoading.set(false);
         this.otpSent.set(true);
-        this.notificationService.showSuccess('SETTINGS.PROFILE.OTP_SENT');
+        this.notificationService.showSuccess('settings.profile.otp_sent');
       },
       error: () => {
         this.isLoading.set(false);
-        this.notificationService.showError('SETTINGS.PROFILE.ERRORS.OTP_SEND');
+        this.notificationService.showError('settings.profile.errors.otp_send');
       }
     });
   }
@@ -61,13 +61,13 @@ export class PhoneVerificationModalComponent {
     this.authService.verifyPhoneOtp(this.otpControl.value!, this.phoneControl.value!).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.notificationService.showSuccess('SETTINGS.PROFILE.PHONE_VERIFIED');
+        this.notificationService.showSuccess('settings.profile.phone_verified');
         this.verified.emit();
         this.closed.emit();
       },
       error: () => {
         this.isLoading.set(false);
-        this.notificationService.showError('SETTINGS.PROFILE.ERRORS.OTP_INVALID');
+        this.notificationService.showError('settings.profile.errors.otp_invalid');
       }
     });
   }

@@ -80,14 +80,14 @@ export class LedgersService {
     const from = toIsoDate(query.startDate);
     const to = toIsoDate(query.endDate);
     if (from > to) {
-      throw new BadRequestError('ACCOUNTING.RANGO_FECHAS_INVALIDO');
+      throw new BadRequestError('accounting.start_date_cannot_later_than_end');
     }
 
     const account = await this.accountRepository.findOne({
       where: { id: query.accountId, organizationId },
     });
     if (!account) {
-      throw new NotFoundError('ACCOUNTING.CUENTA_ID_NO_ENCONTRADA', {
+      throw new NotFoundError('accounting.account_account_id_not_found', {
         accountId: query.accountId,
       });
     }
@@ -96,7 +96,7 @@ export class LedgersService {
       ? await this.ledgerRepository.findOne({ where: { id: query.ledgerId, organizationId } })
       : await this.ledgerRepository.findOne({ where: { organizationId, isDefault: true } });
     if (!ledger) {
-      throw new BadRequestError('ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+      throw new BadRequestError('accounting.no_default_ledger_has_configured_organization');
     }
 
     const page = Math.max(1, Math.floor(query.page ?? 1));
@@ -264,7 +264,7 @@ export class LedgersService {
   async findOne(id: string, organizationId: string): Promise<Ledger> {
     const ledger = await this.ledgerRepository.findOne({ where: { id, organizationId } });
     if (!ledger) {
-      throw new NotFoundError('ACCOUNTING.LIBRO_CONTABLE_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('accounting.ledger_id_not_found', { id });
     }
     return ledger;
   }
@@ -307,7 +307,7 @@ export class LedgersService {
     if (updateDto.isDefault === false && ledger.isDefault) {
       // A tenant with no default ledger cannot post at all: every posting path resolves the
       // default to value its lines against.
-      throw new BadRequestError('ACCOUNTING.LIBRO_DEFECTO_NO_PUEDE_QUEDAR_SIN_ASIGNAR');
+      throw new BadRequestError('accounting.default_ledger_cannot_unset_without_designating');
     }
 
     if (updateDto.name !== undefined) ledger.name = updateDto.name;

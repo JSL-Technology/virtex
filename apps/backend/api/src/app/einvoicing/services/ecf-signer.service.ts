@@ -47,7 +47,7 @@ export class EcfSignerService {
     try {
       sig.computeSignature(xml, { location: { reference: rootXpath, action: 'append' } });
     } catch (err) {
-      throw new InternalServerError('EINVOICING.NO_PUDO_FIRMAR_DOCUMENTO_CF', { p1: (err as Error).message });
+      throw new InternalServerError('einvoicing.cf_document_could_not_signed_p1', { p1: (err as Error).message });
     }
 
     return sig.getSignedXml();
@@ -65,7 +65,7 @@ export class EcfSignerService {
   private extractSignatureValue(signedXml: string): string {
     const match = signedXml.match(/<(?:[\w-]+:)?SignatureValue[^>]*>([\s\S]*?)<\/(?:[\w-]+:)?SignatureValue>/);
     if (!match) {
-      throw new InternalServerError('EINVOICING.DOCUMENTO_FIRMADO_NO_CONTIENE_SIGNATUREVALUE');
+      throw new InternalServerError('einvoicing.signed_document_contains_no_signature_value');
     }
     return match[1];
   }

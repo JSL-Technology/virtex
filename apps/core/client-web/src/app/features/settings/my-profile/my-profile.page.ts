@@ -184,16 +184,16 @@ export class MyProfilePage implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (res) => {
-              this.notificationService.showSuccess('SETTINGS.PROFILE.AVATAR_UPDATED');
+              this.notificationService.showSuccess('settings.profile.avatar_updated');
               this.authService.reloadSession().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
           },
           error: (error: HttpErrorResponse) => {
               if (error.status === 413) {
-                 this.notificationService.showError('SETTINGS.PROFILE.ERRORS.FILE_TOO_LARGE');
+                 this.notificationService.showError('settings.profile.errors.file_too_large');
               } else if (error.status === 400 && error.error?.message?.includes('image')) {
-                 this.notificationService.showError('SETTINGS.PROFILE.ERRORS.INVALID_FORMAT');
+                 this.notificationService.showError('settings.profile.errors.invalid_format');
               } else {
-                 this.notificationService.showError('SETTINGS.PROFILE.ERRORS.AVATAR_UPLOAD');
+                 this.notificationService.showError('settings.profile.errors.avatar_upload');
               }
           }
       });
@@ -227,7 +227,7 @@ export class MyProfilePage implements OnInit {
 
       this.usersService.updateProfile(payload).subscribe({
         next: () => {
-          this.notificationService.showSuccess('SETTINGS.PROFILE.UPDATED');
+          this.notificationService.showSuccess('settings.profile.updated');
           this.authService.reloadSession().subscribe();
           this.profileForm.markAsPristine();
           this.isLoading = false;
@@ -235,7 +235,7 @@ export class MyProfilePage implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.notificationService.showError('SETTINGS.PROFILE.ERRORS.UPDATE_FAILED');
+          this.notificationService.showError('settings.profile.errors.update_failed');
           this.isLoading = false;
           this.cdr.markForCheck();
         }
@@ -248,7 +248,7 @@ export class MyProfilePage implements OnInit {
       const { newPassword, confirmPassword } = this.passwordForm.value;
 
       if (newPassword !== confirmPassword) {
-        this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORDS_DO_NOT_MATCH');
+        this.notificationService.showError('settings.profile.errors.passwords_do_not_match');
         return;
       }
 
@@ -260,12 +260,12 @@ export class MyProfilePage implements OnInit {
       }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess('SETTINGS.PROFILE.PASSWORD_CHANGED');
+          this.notificationService.showSuccess('settings.profile.password_changed');
           this.passwordForm.reset();
         },
         error: (err) => {
           console.error(err);
-          this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORD_CHANGE_FAILED');
+          this.notificationService.showError('settings.profile.errors.password_change_failed');
         }
       });
     }
@@ -301,11 +301,11 @@ export class MyProfilePage implements OnInit {
   requestEmailChange(): void {
     const newEmail = this.newEmail().trim();
     if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-      this.notificationService.showError('SETTINGS.PROFILE.ERRORS.INVALID_EMAIL');
+      this.notificationService.showError('settings.profile.errors.invalid_email');
       return;
     }
     if (newEmail.toLowerCase() === (this.currentUser()?.email ?? '').toLowerCase()) {
-      this.notificationService.showError('SETTINGS.PROFILE.ERRORS.EMAIL_UNCHANGED');
+      this.notificationService.showError('settings.profile.errors.email_unchanged');
       return;
     }
 
@@ -319,11 +319,11 @@ export class MyProfilePage implements OnInit {
       .subscribe({
         next: () => {
           this.changingEmail.set(false);
-          this.notificationService.showSuccess('SETTINGS.PROFILE.EMAIL_CHANGE_REQUESTED');
+          this.notificationService.showSuccess('settings.profile.email_change_requested');
         },
         error: (err) => {
           console.error(err);
-          this.notificationService.showError('SETTINGS.PROFILE.ERRORS.EMAIL_CHANGE_FAILED');
+          this.notificationService.showError('settings.profile.errors.email_change_failed');
         },
       });
   }

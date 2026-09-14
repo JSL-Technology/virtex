@@ -185,7 +185,7 @@ export class LocalizationService implements OnModuleInit {
   async getPublicCountryConfig(countryCode: string): Promise<PublicCountryConfig> {
     const profile = findCountryProfile(countryCode);
     if (!profile) {
-      throw new NotFoundError('LOCALIZATION.PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA', { countryCode });
+      throw new NotFoundError('localization.country_country_code_not_available_registration', { countryCode });
     }
 
     const region = await this.findRegionByCountryCode(profile.countryCode);
@@ -196,7 +196,7 @@ export class LocalizationService implements OnModuleInit {
       this.logger.error(
         `No existe fiscal_region para ${profile.countryCode} pese a estar en COUNTRY_FISCAL_PROFILES`,
       );
-      throw new NotFoundError('LOCALIZATION.CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE', { countryCode: profile.countryCode });
+      throw new NotFoundError('localization.tax_configuration_country_code_not_available', { countryCode: profile.countryCode });
     }
 
     // Every human-readable label goes out in the language of the request. The signup form used to
@@ -281,7 +281,7 @@ export class LocalizationService implements OnModuleInit {
   async lookupTaxId(countryCode: string, taxId: string): Promise<TaxIdLookupResult> {
     const profile = findCountryProfile(countryCode);
     if (!profile) {
-      throw new NotFoundError('LOCALIZATION.PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA', { countryCode });
+      throw new NotFoundError('localization.country_country_code_not_available_registration', { countryCode });
     }
 
     if (!validateTaxId(profile.countryCode, taxId)) {
@@ -359,7 +359,7 @@ export class LocalizationService implements OnModuleInit {
    */
   async applyFiscalPackage(organization: Organization, manager?: EntityManager) {
     if (!organization.fiscalRegionId) {
-      throw new InternalServerError('LOCALIZATION.ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE', { id: organization.id });
+      throw new InternalServerError('localization.organization_id_has_no_tax_region', { id: organization.id });
     }
 
     const regionRepo = manager
@@ -370,7 +370,7 @@ export class LocalizationService implements OnModuleInit {
     });
 
     if (!region) {
-      throw new NotFoundError('LOCALIZATION.REGION_FISCAL_ID_NO_ENCONTRADA', { fiscalRegionId: organization.fiscalRegionId });
+      throw new NotFoundError('localization.tax_region_fiscal_region_id_not', { fiscalRegionId: organization.fiscalRegionId });
     }
 
     this.logger.log(
@@ -409,7 +409,7 @@ export class LocalizationService implements OnModuleInit {
     const scheme = findTaxScheme(countryCode);
 
     if (!scheme) {
-      throw new InternalServerError('LOCALIZATION.NO_HAY_ESQUEMA_IMPUESTOS_DEFINIDO', { countryCode });
+      throw new InternalServerError('localization.no_tax_scheme_defined_country_code', { countryCode });
     }
 
     if (scheme.configurationRequired) {

@@ -84,7 +84,7 @@ describe('FileParserService', () => {
     it('refuses a row whose delimiter cut through a value', async () => {
       await expect(
         parser.parse(asFile(Buffer.from('Concepto,Debe\nVenta,58.750,00\n'), CSV), undefined),
-      ).rejects.toMatchObject({ messageKey: 'JOURNAL_ENTRIES.ARCHIVO_CSV_MAL_FORMADO' });
+      ).rejects.toMatchObject({ messageKey: 'journal_entries.csv_file_cannot_read_detail' });
     });
 
     it('tolerates a short trailing row, whose missing columns simply read as empty', async () => {
@@ -99,7 +99,7 @@ describe('FileParserService', () => {
     it('refuses a file it cannot read rather than returning half of it', async () => {
       await expect(
         parser.parse(asFile(Buffer.from('Fecha,Concepto\n"sin cerrar,Venta\n'), CSV), undefined),
-      ).rejects.toMatchObject({ messageKey: 'JOURNAL_ENTRIES.ARCHIVO_CSV_MAL_FORMADO' });
+      ).rejects.toMatchObject({ messageKey: 'journal_entries.csv_file_cannot_read_detail' });
     });
   });
 
@@ -178,21 +178,21 @@ describe('FileParserService', () => {
     it('refuses a file that is not a workbook', async () => {
       await expect(
         parser.parse(asFile(Buffer.from('no soy un libro de Excel'), XLSX_MIME), undefined),
-      ).rejects.toMatchObject({ messageKey: 'JOURNAL_ENTRIES.ARCHIVO_EXCEL_MAL_FORMADO' });
+      ).rejects.toMatchObject({ messageKey: 'journal_entries.excel_file_cannot_read_detail' });
     });
   });
 
   it('refuses a type it does not read', async () => {
     await expect(
       parser.parse(asFile(Buffer.from('%PDF-1.7'), 'application/pdf'), undefined),
-    ).rejects.toMatchObject({ messageKey: 'JOURNAL_ENTRIES.TIPO_ARCHIVO_NO_SOPORTADO' });
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.unsupported_file_type_mimetype' });
   });
 
   it('says so when the upload carried no bytes', async () => {
     await expect(
       parser.parse({ mimetype: CSV } as FastifyFile, undefined),
     ).rejects.toMatchObject({
-      messageKey: 'JOURNAL_ENTRIES.ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER',
+      messageKey: 'journal_entries.uploaded_file_empty_could_not_read',
     });
   });
 });

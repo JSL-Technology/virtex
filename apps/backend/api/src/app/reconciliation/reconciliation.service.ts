@@ -224,15 +224,15 @@ export class ReconciliationService {
       organizationId,
     });
     if (!bankAccount) {
-      throw new BadRequestError('RECONCILIATION.CUENTA_BANCARIA_ESPECIFICADA_NO_ES_VALIDA');
+      throw new BadRequestError('reconciliation.specified_bank_account_not_valid');
     }
     if (dto.startDate > dto.endDate) {
-      throw new BadRequestError('RECONCILIATION.RANGO_FECHAS_INVALIDO');
+      throw new BadRequestError('reconciliation.statement_start_date_after_end_date');
     }
 
     const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
     if (!bytes || bytes.length === 0) {
-      throw new BadRequestError('RECONCILIATION.ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER');
+      throw new BadRequestError('reconciliation.uploaded_file_empty_could_not_read');
     }
     const fileHash = createHash('sha256').update(bytes).digest('hex');
 
@@ -242,7 +242,7 @@ export class ReconciliationService {
       where: { organizationId, bankAccountId: bankAccount.id, fileHash },
     });
     if (duplicate && duplicate.status !== StatementStatus.FAILED) {
-      throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_YA_IMPORTADO', {
+      throw new BadRequestError('reconciliation.file_has_already_imported_account_file', {
         statementId: duplicate.id,
         fileName: duplicate.fileName,
       });
@@ -319,7 +319,7 @@ export class ReconciliationService {
       this.logger.warn(
         `Importación del estado de cuenta ${statement.id} fallida: ${statement.importError}`,
       );
-      throw new BadRequestError('RECONCILIATION.FORMATO_ARCHIVO_CSV_NO_ES_VALIDO_ESTA', {
+      throw new BadRequestError('reconciliation.csv_file_malformed_corrupt_column_mapping', {
         detail: statement.importError,
       });
     }
@@ -347,7 +347,7 @@ export class ReconciliationService {
       where: { id, organizationId },
       relations: ['transactions', 'bankAccount'],
     });
-    if (!statement) throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
+    if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
     statement.transactions.sort((a, b) =>
       a.date === b.date ? (a.sourceRow ?? 0) - (b.sourceRow ?? 0) : a.date < b.date ? -1 : 1,
     );
@@ -447,7 +447,7 @@ export class ReconciliationService {
       isDefault: true,
     });
     if (!ledger) {
-      throw new BadRequestError('RECONCILIATION.NO_HAY_LIBRO_CONTABLE_POR_DEFECTO');
+      throw new BadRequestError('reconciliation.no_default_ledger_has_configured_organization');
     }
 
     // Everything in this proof is in the ACCOUNT's currency, because that is what the statement is
@@ -560,9 +560,9 @@ export class ReconciliationService {
       const statement = await manager.findOne(BankStatement, {
         where: { id: dto.statementId, organizationId },
       });
-      if (!statement) throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
+      if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
       if (statement.status === StatementStatus.RECONCILED) {
-        throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_CERRADO');
+        throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
       }
 
       return this.writeMatch(manager, {
@@ -585,9 +585,9 @@ export class ReconciliationService {
         where: { id: matchId, organizationId },
         relations: ['lines', 'statement'],
       });
-      if (!match) throw new NotFoundError('RECONCILIATION.CONCILIACION_NO_ENCONTRADA');
+      if (!match) throw new NotFoundError('reconciliation.match_does_not_exist_does_not');
       if (match.statement.status === StatementStatus.RECONCILED) {
-        throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_CERRADO');
+        throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
       }
 
       const lineIds = match.lines.map((line) => line.journalEntryLineId);
@@ -625,13 +625,13 @@ export class ReconciliationService {
         relations: ['statement'],
       });
       if (!transaction) {
-        throw new NotFoundError('RECONCILIATION.TRANSACCION_BANCARIA_NO_ENCONTRADA');
+        throw new NotFoundError('reconciliation.bank_movement_does_not_exist_does');
       }
       if (transaction.statement.status === StatementStatus.RECONCILED) {
-        throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_CERRADO');
+        throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
       }
       if (transaction.status === TransactionStatus.MATCHED) {
-        throw new BadRequestError('RECONCILIATION.TRANSACCION_YA_CONCILIADA');
+        throw new BadRequestError('reconciliation.bank_movement_id_already_matched_set');
       }
 
       transaction.status = TransactionStatus.EXCLUDED;
@@ -653,23 +653,23 @@ export class ReconciliationService {
   ): Promise<BankStatement> {
     const summary = await this.summary(statementId, organizationId);
     if (summary.status === StatementStatus.RECONCILED) {
-      throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_CERRADO');
+      throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
     }
     if (summary.status !== StatementStatus.IMPORTED) {
-      throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_NO_IMPORTADO');
+      throw new BadRequestError('reconciliation.statement_did_not_import_successfully_cannot');
     }
     if (!summary.statementIsInternallyConsistent) {
-      throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_NO_CUADRA_CONSIGO_MISMO', {
+      throw new BadRequestError('reconciliation.statement_does_not_add_up_opening', {
         difference: summary.statementInternalDifference,
       });
     }
     if (summary.unrecordedStatementCount > 0) {
-      throw new BadRequestError('RECONCILIATION.QUEDAN_TRANSACCIONES_SIN_CONCILIAR', {
+      throw new BadRequestError('reconciliation.count_bank_movements_still_neither_matched', {
         count: summary.unrecordedStatementCount,
       });
     }
     if (!summary.isReconciled) {
-      throw new BadRequestError('RECONCILIATION.CONCILIACION_NO_CUADRA', {
+      throw new BadRequestError('reconciliation.reconciliation_does_not_balance_difference_remains', {
         difference: summary.difference,
       });
     }
@@ -708,12 +708,12 @@ export class ReconciliationService {
     const statement = await this.statements.findOne({
       where: { id: statementId, organizationId },
     });
-    if (!statement) throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
+    if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
     if (statement.status !== StatementStatus.RECONCILED) {
-      throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_NO_ESTA_CERRADO');
+      throw new BadRequestError('reconciliation.statement_not_reconciled');
     }
     if (!reason?.trim()) {
-      throw new BadRequestError('RECONCILIATION.REAPERTURA_REQUIERE_MOTIVO');
+      throw new BadRequestError('reconciliation.reopening_closed_reconciliation_requires_stated_reason');
     }
 
     statement.status = StatementStatus.IMPORTED;
@@ -763,7 +763,7 @@ export class ReconciliationService {
     organizationId: string,
   ): Promise<ReconciliationRule> {
     const rule = await this.rules.findOne({ where: { id, organizationId } });
-    if (!rule) throw new NotFoundError('RECONCILIATION.REGLA_NO_ENCONTRADA');
+    if (!rule) throw new NotFoundError('reconciliation.reconciliation_rule_does_not_exist_does');
 
     const merged = { ...rule, ...dto };
     await this.validateRule(merged, organizationId);
@@ -785,7 +785,7 @@ export class ReconciliationService {
 
   async deleteRule(id: string, organizationId: string): Promise<void> {
     const result = await this.rules.delete({ id, organizationId });
-    if (!result.affected) throw new NotFoundError('RECONCILIATION.REGLA_NO_ENCONTRADA');
+    if (!result.affected) throw new NotFoundError('reconciliation.reconciliation_rule_does_not_exist_does');
   }
 
   /**
@@ -806,9 +806,9 @@ export class ReconciliationService {
         where: { id: statementId, organizationId },
         relations: ['transactions'],
       });
-      if (!statement) throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
+      if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
       if (statement.status === StatementStatus.RECONCILED) {
-        throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_CERRADO');
+        throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
       }
 
       const bankAccount = await manager.findOneByOrFail(BankAccount, {
@@ -929,13 +929,13 @@ export class ReconciliationService {
     } = input;
 
     if (bankTransactionIds.length === 0 || journalEntryLineIds.length === 0) {
-      throw new BadRequestError('RECONCILIATION.CONCILIACION_REQUIERE_AMBOS_LADOS');
+      throw new BadRequestError('reconciliation.match_needs_least_one_bank_movement');
     }
     if (new Set(bankTransactionIds).size !== bankTransactionIds.length) {
-      throw new BadRequestError('RECONCILIATION.TRANSACCION_REPETIDA_EN_CONCILIACION');
+      throw new BadRequestError('reconciliation.bank_movement_appears_twice_same_match');
     }
     if (new Set(journalEntryLineIds).size !== journalEntryLineIds.length) {
-      throw new BadRequestError('RECONCILIATION.LINEA_REPETIDA_EN_CONCILIACION');
+      throw new BadRequestError('reconciliation.ledger_line_appears_twice_same_match');
     }
 
     // Statement lines: they must belong to this statement, which belongs to this tenant.
@@ -943,13 +943,13 @@ export class ReconciliationService {
       where: { id: In(bankTransactionIds), statementId: statement.id },
     });
     if (transactions.length !== bankTransactionIds.length) {
-      throw new BadRequestError('RECONCILIATION.TRANSACCION_BANCARIA_NO_ENCONTRADA');
+      throw new BadRequestError('reconciliation.bank_movement_does_not_exist_does');
     }
     const alreadyUsed = transactions.find(
       (transaction) => transaction.status !== TransactionStatus.UNMATCHED,
     );
     if (alreadyUsed) {
-      throw new BadRequestError('RECONCILIATION.TRANSACCION_YA_CONCILIADA', {
+      throw new BadRequestError('reconciliation.bank_movement_id_already_matched_set', {
         id: alreadyUsed.id,
       });
     }
@@ -970,11 +970,11 @@ export class ReconciliationService {
       .getMany();
 
     if (lines.length !== journalEntryLineIds.length) {
-      throw new BadRequestError('RECONCILIATION.LINEA_CONTABLE_NO_VALIDA_PARA_ESTA_CUENTA');
+      throw new BadRequestError('reconciliation.ledger_line_does_not_exist_not');
     }
     const alreadyReconciled = lines.find((line) => line.isReconciled);
     if (alreadyReconciled) {
-      throw new BadRequestError('RECONCILIATION.LINEA_CONTABLE_YA_CONCILIADA', {
+      throw new BadRequestError('reconciliation.ledger_line_id_already_reconciled', {
         id: alreadyReconciled.id,
       });
     }
@@ -1013,7 +1013,7 @@ export class ReconciliationService {
         // Refused, not guessed. The posting did not record what the movement was in the account's
         // own currency, and deriving it from today's rate would produce a different answer every
         // day — which is not a reconciliation, it is a coincidence.
-        throw new BadRequestError('RECONCILIATION.LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA', {
+        throw new BadRequestError('reconciliation.line_has_no_amount_account_currency', {
           id: line.id,
           currency: accountCurrency,
         });
@@ -1033,7 +1033,7 @@ export class ReconciliationService {
       accountCurrency,
     );
     if (toMinorUnits(bankSide, accountCurrency) !== toMinorUnits(ledgerSide, accountCurrency)) {
-      throw new BadRequestError('RECONCILIATION.CONCILIACION_NO_BALANCEA', {
+      throw new BadRequestError('reconciliation.bank_movements_total_bank_ledger_lines', {
         bank: bankSide,
         ledger: ledgerSide,
         currency: accountCurrency,
@@ -1257,15 +1257,15 @@ export class ReconciliationService {
     const action = rule.action ?? RuleAction.MATCH_EXISTING;
     if (action === RuleAction.CREATE_ENTRY) {
       if (!rule.targetAccountId) {
-        throw new BadRequestError('RECONCILIATION.REGLA_CREAR_ASIENTO_REQUIERE_CUENTA');
+        throw new BadRequestError('reconciliation.rule_creates_entries_must_name_target');
       }
       const account = await this.dataSource.manager.findOneBy(Account, {
         id: rule.targetAccountId,
         organizationId,
       });
-      if (!account) throw new BadRequestError('RECONCILIATION.CUENTA_DESTINO_NO_VALIDA');
+      if (!account) throw new BadRequestError('reconciliation.rule_target_account_does_not_exist');
       if (!account.isPostable) {
-        throw new BadRequestError('RECONCILIATION.CUENTA_DESTINO_NO_ADMITE_MOVIMIENTOS');
+        throw new BadRequestError('reconciliation.rule_target_account_summary_account_cannot');
       }
     }
     if (
@@ -1275,7 +1275,7 @@ export class ReconciliationService {
       rule.amountMax !== undefined &&
       rule.amountMin > rule.amountMax
     ) {
-      throw new BadRequestError('RECONCILIATION.RANGO_MONTOS_INVALIDO');
+      throw new BadRequestError('reconciliation.rule_minimum_amount_greater_than_maximum');
     }
   }
 
@@ -1291,19 +1291,19 @@ export class ReconciliationService {
   ): Promise<JournalEntryLine> {
     const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!ledger) {
-      throw new BadRequestError('RECONCILIATION.NO_HAY_LIBRO_CONTABLE_POR_DEFECTO');
+      throw new BadRequestError('reconciliation.no_default_ledger_has_configured_organization');
     }
     const journal = await manager.findOneBy(Journal, { organizationId, code: 'CONCIL' });
     if (!journal) {
-      throw new BadRequestError('RECONCILIATION.DIARIO_CONCILIACION_CONCIL_NO_ENCONTRADO');
+      throw new BadRequestError('reconciliation.reconciliation_journal_concil_not_found');
     }
 
     const words = await this.narrative.describeAll(manager, organizationId, {
       header: {
-        key: 'LEDGER.RECONCILIATION.ENTRY',
+        key: 'ledger.reconciliation.entry',
         params: { description: transaction.description },
       },
-      rule: { key: 'LEDGER.RECONCILIATION.RULE_LINE', params: { rule: rule.name } },
+      rule: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
     });
 
     const entry = await this.journalEntries.createWithManager(
@@ -1343,7 +1343,7 @@ export class ReconciliationService {
 
     const line = entry.lines.find((candidate) => candidate.accountId === bankAccount.glAccountId);
     if (!line) {
-      throw new BadRequestError('RECONCILIATION.ASIENTO_GENERADO_SIN_LINEA_DE_BANCO');
+      throw new BadRequestError('reconciliation.entry_rule_generated_does_not_contain');
     }
     return line;
   }

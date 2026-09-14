@@ -1,6 +1,6 @@
 <vx-draft-shell
-  [title]="'CUSTOMER_RECEIPTS.LIST.NUEVO_RECIBO' | translate"
-  [subtitle]="'CUSTOMER_RECEIPTS.LIST.RECIBOS_CLIENTE' | translate"
+  [title]="'customer_receipts.list.new_receipt' | translate"
+  [subtitle]="'customer_receipts.list.customer_receipts' | translate"
   [dirty]="form.dirty"
   [saving]="saving()"
   [invalid]="form.invalid"
@@ -13,7 +13,7 @@
     <section class="form-section">
       <div class="form-grid">
       <label class="field">
-        <span>{{ 'CUSTOMER_RECEIPTS.LIST.CLIENTE' | translate }} *</span>
+        <span>{{ 'customer_receipts.list.customer' | translate }} *</span>
         <select formControlName="customerId" (change)="onCustomerChange($any($event.target).value)">
           <option value=""></option>
           @for (customer of customers(); track customer.id) {
@@ -23,12 +23,12 @@
       </label>
 
       <label class="field">
-        <span>{{ 'CUSTOMER_RECEIPTS.LIST.FECHA' | translate }} *</span>
+        <span>{{ 'customer_receipts.list.date' | translate }} *</span>
         <input type="date" formControlName="paymentDate" />
       </label>
 
       <label class="field">
-        <span>{{ 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA' | translate }} *</span>
+        <span>{{ 'customer_receipts.form.bank_account' | translate }} *</span>
         <select
           formControlName="bankAccountId"
           (change)="onBankAccountChange($any($event.target).value)"
@@ -40,7 +40,7 @@
       </label>
 
       <label class="field">
-        <span>{{ 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO' | translate }} *</span>
+        <span>{{ 'customer_receipts.form.amount_received' | translate }} *</span>
         <input type="number" step="0.01" min="0" formControlName="amountReceived" />
       </label>
 
@@ -50,7 +50,7 @@
       -->
       @if (availableAdvance() > 0) {
         <label class="field">
-          <span>{{ 'CUSTOMER_RECEIPTS.FORM.ANTICIPO_APLICADO' | translate }}</span>
+          <span>{{ 'customer_receipts.form.advance_applied' | translate }}</span>
           <input
             type="number"
             step="0.01"
@@ -59,34 +59,34 @@
             formControlName="advanceApplied"
           />
           <small class="field__note">
-            {{ 'CUSTOMER_RECEIPTS.FORM.ANTICIPO_DISPONIBLE' | translate }}:
+            {{ 'customer_receipts.form.available_account' | translate }}:
             {{ availableAdvance() | vxMoney: form.get('currencyCode')?.value }}
             <button class="link-button" type="button" (click)="applyFullAdvance()">
-              {{ 'CUSTOMER_RECEIPTS.FORM.USAR_ANTICIPO' | translate }}
+              {{ 'customer_receipts.form.use_advance' | translate }}
             </button>
           </small>
         </label>
       }
 
       <label class="field">
-        <span>{{ 'TREASURY.MONEDA' | translate }}</span>
+        <span>{{ 'treasury.currency' | translate }}</span>
         <input type="text" formControlName="currencyCode" readonly />
-        <small class="field__note">{{ 'CUSTOMER_RECEIPTS.FORM.MONEDA_DE_LA_CUENTA' | translate }}</small>
+        <small class="field__note">{{ 'customer_receipts.form.bank_account_decides_currency' | translate }}</small>
       </label>
 
       <label class="field">
-        <span>{{ 'CUSTOMER_RECEIPTS.FORM.FORMA_DE_PAGO' | translate }}</span>
+        <span>{{ 'customer_receipts.form.payment_method' | translate }}</span>
         <select formControlName="paymentMethod">
-          <option value="BANK_TRANSFER">{{ 'CUSTOMER_RECEIPTS.METHOD.BANK_TRANSFER' | translate }}</option>
-          <option value="CASH">{{ 'CUSTOMER_RECEIPTS.METHOD.CASH' | translate }}</option>
-          <option value="CHEQUE">{{ 'CUSTOMER_RECEIPTS.METHOD.CHEQUE' | translate }}</option>
-          <option value="CARD">{{ 'CUSTOMER_RECEIPTS.METHOD.CARD' | translate }}</option>
-          <option value="OTHER">{{ 'CUSTOMER_RECEIPTS.METHOD.OTHER' | translate }}</option>
+          <option value="BANK_TRANSFER">{{ 'customer_receipts.method.bank_transfer' | translate }}</option>
+          <option value="CASH">{{ 'customer_receipts.method.cash' | translate }}</option>
+          <option value="CHEQUE">{{ 'customer_receipts.method.cheque' | translate }}</option>
+          <option value="CARD">{{ 'customer_receipts.method.card' | translate }}</option>
+          <option value="OTHER">{{ 'customer_receipts.method.other' | translate }}</option>
         </select>
       </label>
 
       <label class="field">
-        <span>{{ 'ACCOUNTING.RECONCILIATION.REFERENCIA' | translate }}</span>
+        <span>{{ 'accounting.reconciliation.reference' | translate }}</span>
         <input type="text" formControlName="reference" maxlength="120" />
       </label>
       </div>
@@ -94,18 +94,18 @@
 
     <section class="form-section">
       <h2 class="form-section-title">
-        {{ 'CUSTOMER_RECEIPTS.FORM.FACTURAS_A_APLICAR' | translate }}
+        {{ 'customer_receipts.form.invoices_apply' | translate }}
       </h2>
 
     @if (openInvoices().length === 0) {
-      <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.SIN_FACTURAS_ABIERTAS' | translate }}</p>
+      <p class="section-note">{{ 'customer_receipts.form.customer_has_no_invoices_with_outstanding' | translate }}</p>
     } @else {
       <!--
         Se pulsan. Parecían etiquetas: mismo tamaño, mismo color, sin icono y sin nada que dijera
         qué pasa al tocarlas, así que había que descubrir por prueba y error que una factura se
         añade al recibo pulsándola. El «+» y la frase de abajo lo dicen en vez de esperarlo.
       -->
-      <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.PULSA_PARA_APLICAR' | translate }}</p>
+      <p class="section-note">{{ 'customer_receipts.form.press_invoice_add_receipt' | translate }}</p>
       <div class="invoice-picker">
         @for (invoice of openInvoices(); track invoice.id) {
           <button
@@ -113,7 +113,7 @@
             type="button"
             (click)="addInvoice(invoice)"
             [attr.aria-label]="
-              'CUSTOMER_RECEIPTS.FORM.APLICAR_FACTURA'
+              'customer_receipts.form.apply_invoice_number_receipt'
                 | translate: { number: invoice.invoiceNumber }
             "
           >
@@ -129,13 +129,13 @@
         <table class="lines-table" formArrayName="lines">
           <thead>
             <tr>
-              <th>{{ 'CUSTOMER_RECEIPTS.FORM.FACTURA' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.SALDO' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.EFECTIVO' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.ITBIS_RETENIDO' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.ISR_RETENIDO' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.DESCUENTO' | translate }}</th>
-              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.SALDA' | translate }}</th>
+              <th>{{ 'customer_receipts.form.invoice' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.balance' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.cash' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.itbis_withheld' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.income_tax_withheld' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.discount' | translate }}</th>
+              <th class="numeric">{{ 'customer_receipts.form.settles' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -168,12 +168,12 @@
 
     <div class="totals">
       <div class="totals__line">
-        <span>{{ 'CUSTOMER_RECEIPTS.FORM.APLICADO' | translate }}</span>
+        <span>{{ 'customer_receipts.form.applied_invoices' | translate }}</span>
         <span class="amount">{{ totals().applied | vxNumber: '1.2-2' }}</span>
       </div>
       <!-- What the receipt will carry as a customer credit. Worth seeing before it is posted. -->
       <div class="totals__line" [class.totals__line--warn]="totals().unapplied !== 0">
-        <span>{{ 'CUSTOMER_RECEIPTS.FORM.NO_APLICADO' | translate }}</span>
+        <span>{{ 'customer_receipts.form.unapplied_advance_overpayment' | translate }}</span>
         <span class="amount">{{ totals().unapplied | vxNumber: '1.2-2' }}</span>
       </div>
     </div>

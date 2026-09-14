@@ -7,7 +7,7 @@
     <div class="pvm-header">
       <div class="pvm-header__title">
         <lucide-icon [img]="PhoneIcon" size="18"></lucide-icon>
-        {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.TITLE' | translate }}
+        {{ 'settings.profile.phone_verification.title' | translate }}
       </div>
       <button class="pvm-header__close" (click)="closed.emit()">
         <lucide-icon [img]="XIcon" size="18"></lucide-icon>
@@ -20,13 +20,13 @@
       <!-- Step 1: Enter phone number -->
       @if (!otpSent()) {
         <div class="pvm-step">
-          <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.DESCRIPTION' | translate }}</p>
+          <p class="pvm-info">{{ 'settings.profile.phone_verification.description' | translate }}</p>
 
           <div class="pvm-field">
             <app-intl-phone-input
               [formControl]="phoneControl"
               [required]="true"
-              [label]="'SETTINGS.PROFILE.PHONE_NUMBER' | translate"
+              [label]="'settings.profile.phone_number' | translate"
               placeholder="809 555 0000">
             </app-intl-phone-input>
           </div>
@@ -37,7 +37,7 @@
             @if (isLoading()) {
               <span class="pvm-spinner"></span>
             }
-            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.SEND_CODE' | translate }}
+            {{ 'settings.profile.phone_verification.send_code' | translate }}
           </button>
         </div>
       }
@@ -46,12 +46,12 @@
       @if (otpSent()) {
         <div class="pvm-step pvm-step--otp">
           <div class="pvm-otp-info">
-            <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.OTP_SENT_TO' | translate }}</p>
+            <p class="pvm-info">{{ 'settings.profile.phone_verification.otp_sent_to' | translate }}</p>
             <p class="pvm-phone-display">{{ phoneControl.value }}</p>
           </div>
 
           <div class="pvm-field">
-            <label class="pvm-label pvm-label--center" for="field-2">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.ENTER_CODE' | translate }}</label>
+            <label class="pvm-label pvm-label--center" for="field-2">{{ 'settings.profile.phone_verification.enter_code' | translate }}</label>
             <input id="field-2" type="text"
                    [formControl]="otpControl"
                    maxlength="6"
@@ -66,12 +66,12 @@
             @if (isLoading()) {
               <span class="pvm-spinner"></span>
             }
-            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.VERIFY' | translate }}
+            {{ 'settings.profile.phone_verification.verify' | translate }}
           </button>
 
           <div class="pvm-back">
             <button class="pvm-link" (click)="otpSent.set(false)">
-              {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.WRONG_NUMBER' | translate }}
+              {{ 'settings.profile.phone_verification.wrong_number' | translate }}
             </button>
           </div>
         </div>

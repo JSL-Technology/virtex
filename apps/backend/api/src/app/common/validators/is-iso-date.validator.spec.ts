@@ -41,7 +41,7 @@ describe('IsIsoDate', () => {
     ['', 'the empty string'],
   ])('rejects %s (%s)', (value) => {
     expect(isCalendarDate(value)).toBe(false);
-    expect(errorsFor(value)).toEqual(['VALIDATION.CONSTRAINTS.IS_ISO_DATE']);
+    expect(errorsFor(value)).toEqual(['validation.constraints.is_iso_date']);
   });
 
   /**

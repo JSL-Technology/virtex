@@ -1,10 +1,10 @@
 <div class="closing-container">
   <div class="closing-header">
-    <h3>{{ 'ACCOUNTING.CHECKLIST.CLOSING_PROCESS_CHECKLISTS' | translate }}</h3>
+    <h3>{{ 'accounting.checklist.closing_process_checklists' | translate }}</h3>
     <div class="header-actions">
       @if (periods().length > 0) {
         <label class="field">
-          <span>{{ 'ACCOUNTING.PERIODS.PERIOD' | translate }}</span>
+          <span>{{ 'accounting.periods.period' | translate }}</span>
           <select
             [value]="selectedPeriodId()"
             (change)="selectPeriod($any($event.target).value)"
@@ -19,22 +19,22 @@
       }
       <button class="secondary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+        <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
     </div>
   </div>
 
   @if (loading()) {
-    <p class="checklist-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+    <p class="checklist-state">{{ 'reports.common.loading' | translate }}</p>
   } @else if (failed()) {
     <p class="checklist-state checklist-state--error">
-      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      {{ 'reports.common.report_could_not_loaded' | translate }}
       <button class="secondary-button" type="button" (click)="load()">
-        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+        {{ 'reports.common.try_again' | translate }}
       </button>
     </p>
   } @else if (periods().length === 0) {
-    <p class="checklist-state">{{ 'ACCOUNTING.CHECKLIST.NO_CHECKLISTS_HAVE_BEEN_CREATED_YET' | translate }}</p>
+    <p class="checklist-state">{{ 'accounting.checklist.no_checklists_have_been_created_yet' | translate }}</p>
   } @else {
     @if (selectedPeriod(); as period) {
       <p class="checklist-progress">
@@ -46,13 +46,13 @@
     }
 
     @if (isEmpty()) {
-      <p class="checklist-state">{{ 'ACCOUNTING.CHECKLIST.NO_CHECKLISTS_HAVE_BEEN_CREATED_YET' | translate }}</p>
+      <p class="checklist-state">{{ 'accounting.checklist.no_checklists_have_been_created_yet' | translate }}</p>
     } @else {
       <div class="table-container card">
         <table class="data-table">
           <thead>
             <tr>
-              <th>{{ 'ACCOUNTING.CHECKLIST.CHECKLIST_NAME' | translate }}</th>
+              <th>{{ 'accounting.checklist.checklist_name' | translate }}</th>
               <th class="actions-column"></th>
             </tr>
           </thead>
@@ -71,7 +71,7 @@
                 <td class="actions-column">
                   @if (item.resolutionLink && !item.isCompleted) {
                     <a class="table-link" [routerLink]="item.resolutionLink">
-                      {{ 'ACCOUNTING.CHECKLIST.RESOLVE' | translate }}
+                      {{ 'accounting.checklist.resolve' | translate }}
                     </a>
                   }
                 </td>

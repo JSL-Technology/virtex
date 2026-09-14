@@ -101,7 +101,7 @@ export class ProductFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('INVENTORY.PRODUCT_FORM.PUDO_CARGAR_PRODUCTO');
+        this.notificationService.showError('inventory.product_form.product_could_not_loaded');
         this.router.navigate(['/inventory/products']);
       }
     });
@@ -125,15 +125,15 @@ export class ProductFormPage implements OnInit {
       this.productForm.markAllAsTouched();
       this.problems.set(
         draftProblems(this.productForm, {
-          name: 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO',
-          sku: 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO',
-          description: 'INVENTORY.PRODUCT_FORM.DESCRIPCION',
-          price: 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA',
-          cost: 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO',
-          stock: 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK',
-          reorderLevel: 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN',
-          categoryId: 'INVENTORY.PRODUCT_FORM.CATEGORIA',
-          status: 'INVENTORY.PRODUCT_FORM.ESTADO',
+          name: 'inventory.product_form.product_name',
+          sku: 'inventory.product_form.sku_product_code',
+          description: 'inventory.product_form.description',
+          price: 'inventory.product_form.sale_price',
+          cost: 'inventory.product_form.unit_cost',
+          stock: 'inventory.product_form.quantity_stock',
+          reorderLevel: 'inventory.product_form.reorder_level',
+          categoryId: 'inventory.product_form.category',
+          status: 'inventory.product_form.status',
         }),
       );
       return;
@@ -151,11 +151,11 @@ export class ProductFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'INVENTORY.PRODUCT_FORM.PRODUCTO_ACTUALIZADO_EXITOSAMENTE' : 'INVENTORY.PRODUCT_FORM.PRODUCTO_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'inventory.product_form.product_updated' : 'inventory.product_form.product_created');
         this.router.navigate(['/inventory/products']);
       },
       error: (err) => {
-        this.notificationService.showError(this.isEditMode() ? 'INVENTORY.PRODUCT_FORM.ERROR_ACTUALIZAR_PRODUCTO' : 'INVENTORY.PRODUCT_FORM.ERROR_CREAR_PRODUCTO');
+        this.notificationService.showError(this.isEditMode() ? 'inventory.product_form.error_updating_product' : 'inventory.product_form.error_creating_product');
         this.isLoading.set(false);
       }
     });

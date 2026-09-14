@@ -28,10 +28,10 @@ export class KpiRoa implements OnInit {
   ngOnInit(): void {
     this.kpi$ = this.dashboardApiService.getROA().pipe(
       map(data => ({
-        title: 'DASH.WIDGET.KPI_ROA.TITLE',
+        title: 'dash.widget.kpi_roa.title',
         value: (data.roa / 100).toString(), // CORRECCIÓN: Se envía como decimal para el pipe 'percent'
         comparisonValue: '', // El backend no provee comparación aún
-        comparisonPeriod: 'DASH.WIDGET.KPI_ROA.COMP_PERIOD',
+        comparisonPeriod: 'dash.widget.kpi_roa.vs_prior_year',
         isPositive: data.roa > 0, // Un ROA positivo es bueno
         iconName: 'Target',
         color: 'green'

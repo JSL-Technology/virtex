@@ -1212,6 +1212,11 @@
     "en": "Account",
     "pt": "Conta"
   },
+  "accounting.journal_entry_form.accounts_load_failed": {
+    "es": "No pudimos cargar el catálogo de cuentas.",
+    "en": "We could not load the chart of accounts.",
+    "pt": "Não foi possível carregar o plano de contas."
+  },
   "accounting.journal_entry_form.add_line": {
     "es": "Añadir línea",
     "en": "Add line",
@@ -1262,6 +1267,11 @@
     "en": "Enter a description for the entry",
     "pt": "Informe uma descrição para o lançamento"
   },
+  "accounting.journal_entry_form.entry_created": {
+    "es": "Asiento contable creado.",
+    "en": "Journal entry created.",
+    "pt": "Lançamento contabilístico criado."
+  },
   "accounting.journal_entry_form.entry_modified_original_reversed_new_one": {
     "es": "Asiento modificado: se reversó el original y se contabilizó el nuevo.",
     "en": "Entry modified: the original was reversed and the new one posted.",
@@ -1277,10 +1287,20 @@
     "en": "Journal",
     "pt": "Diário"
   },
+  "accounting.journal_entry_form.journals_load_failed": {
+    "es": "No pudimos cargar los diarios.",
+    "en": "We could not load the journals.",
+    "pt": "Não foi possível carregar os diários."
+  },
   "accounting.journal_entry_form.ledger_label": {
     "es": "Libro Mayor",
     "en": "General Ledger",
     "pt": "Livro Razão"
+  },
+  "accounting.journal_entry_form.ledgers_load_failed": {
+    "es": "No pudimos cargar los libros contables.",
+    "en": "We could not load the ledgers.",
+    "pt": "Não foi possível carregar os livros contabilísticos."
   },
   "accounting.journal_entry_form.modification_reason_label": {
     "es": "Razón de la modificación*",

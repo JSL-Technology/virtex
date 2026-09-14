@@ -229,13 +229,13 @@ export class AfipBuilder {
 
   private assertIssuable(input: AfipBuildInput): void {
     if ((input.organization.taxId ?? '').replace(/\D/g, '').length !== 11) {
-      throw new BadRequestError('EINVOICING.AFIP_EMISOR_SIN_CUIT');
+      throw new BadRequestError('einvoicing.organization_has_no_valid_cuit_afip');
     }
     if (!input.salesPoint || input.salesPoint < 1) {
-      throw new BadRequestError('EINVOICING.AFIP_SIN_PUNTO_VENTA');
+      throw new BadRequestError('einvoicing.point_sale_afip_assigned_establishment_missing');
     }
     if (!input.nextNumber || input.nextNumber < 1) {
-      throw new BadRequestError('EINVOICING.AFIP_SIN_NUMERO_COMPROBANTE');
+      throw new BadRequestError('einvoicing.document_number_afip_expects_next_missing');
     }
   }
 

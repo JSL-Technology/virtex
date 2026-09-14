@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.GENERAL_LEDGER.LIBRO_MAYOR"
+  titleKey="accounting.general_ledger.general_ledger"
   [subtitleKey]="null"
   [count]="ledgerLines().length"
   [loading]="loading()"
@@ -9,35 +9,35 @@
 >
   <button listActions class="primary-button" type="button" [disabled]="loading()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.GENERAL_LEDGER.EXPORTAR' | translate }}</span>
+    <span>{{ 'accounting.general_ledger.export' | translate }}</span>
   </button>
 
   <div listFilters class="ledger-filters">
     <div class="filter-group">
-      <label for="startDate">{{ 'ACCOUNTING.GENERAL_LEDGER.DESDE' | translate }}</label>
+      <label for="startDate">{{ 'accounting.general_ledger.from' | translate }}</label>
       <input type="date" id="startDate" [(ngModel)]="startDate" [disabled]="loading()" />
     </div>
     <div class="filter-group">
-      <label for="endDate">{{ 'ACCOUNTING.GENERAL_LEDGER.HASTA' | translate }}</label>
+      <label for="endDate">{{ 'accounting.general_ledger.to' | translate }}</label>
       <input type="date" id="endDate" [(ngModel)]="endDate" [disabled]="loading()" />
     </div>
     <button class="secondary-button" type="button" (click)="loadLedgerData()" [disabled]="loading()">
-      {{ 'ACCOUNTING.GENERAL_LEDGER.CONSULTAR' | translate }}
+      {{ 'accounting.general_ledger.run' | translate }}
     </button>
   </div>
 
   <div listEmpty class="empty-invite">
     @if (!selectedAccount()) {
-      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.FAVOR_SELECCIONE_CUENTA_VER_LIBRO_MAYOR' | translate }}</p>
+      <p>{{ 'accounting.general_ledger.select_account_see_ledger' | translate }}</p>
     } @else {
-      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO' | translate }}</p>
+      <p>{{ 'accounting.general_ledger.no_movements_found_account_selected_period' | translate }}</p>
     }
   </div>
 
   @if (selectedAccount(); as account) {
     <p class="ledger-account">
       {{
-        'ACCOUNTING.GENERAL_LEDGER.CUENTA_CODE_NAME'
+        'accounting.general_ledger.account_code_name'
           | translate: { code: account.code, name: account.name }
       }}
     </p>
@@ -50,19 +50,19 @@
   -->
   <div class="ledger-summary">
     <div class="summary-card">
-      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_INICIAL' | translate }}</span>
+      <span>{{ 'accounting.general_ledger.opening_balance' | translate }}</span>
       <strong>{{ initialBalance() | vxNumber: '1.2-2' }}</strong>
     </div>
     <div class="summary-card">
-      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_DEBITOS' | translate }}</span>
+      <span>{{ 'accounting.general_ledger.total_debits' | translate }}</span>
       <strong class="amount-debit">{{ totalDebits() | vxNumber: '1.2-2' }}</strong>
     </div>
     <div class="summary-card">
-      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_CREDITOS' | translate }}</span>
+      <span>{{ 'accounting.general_ledger.total_credits' | translate }}</span>
       <strong class="amount-credit">{{ totalCredits() | vxNumber: '1.2-2' }}</strong>
     </div>
     <div class="summary-card">
-      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_FINAL' | translate }}</span>
+      <span>{{ 'accounting.general_ledger.ending_balance' | translate }}</span>
       <strong>{{ finalBalance() | vxNumber: '1.2-2' }}</strong>
     </div>
   </div>
@@ -71,12 +71,12 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.FECHA' | translate }}</th>
-          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.REFERENCIA' | translate }}</th>
-          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.DESCRIPCION' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.DEBITO' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.CREDITO' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.BALANCE' | translate }}</th>
+          <th>{{ 'accounting.general_ledger.date' | translate }}</th>
+          <th>{{ 'accounting.general_ledger.reference' | translate }}</th>
+          <th>{{ 'accounting.general_ledger.description' | translate }}</th>
+          <th class="text-right">{{ 'accounting.general_ledger.debit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.general_ledger.credit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.general_ledger.balance' | translate }}</th>
         </tr>
       </thead>
       <tbody>

@@ -25,12 +25,12 @@ export class CreateIntercompanyTransactionDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currency: string;
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   description: string;
 
   @IsUUID()

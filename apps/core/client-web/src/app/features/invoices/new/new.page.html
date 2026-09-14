@@ -1,13 +1,13 @@
 <vx-draft-shell
-  [title]="'INVOICES.NEW.CREAR_FACTURA_VENTA' | translate"
-  [subtitle]="'INVOICES.NEW.FACTURAS' | translate"
+  [title]="'invoices.new.create_sales_invoice' | translate"
+  [subtitle]="'invoices.new.invoices' | translate"
   [dirty]="invoiceForm.dirty"
   [saving]="isSaving()"
   [invalid]="invoiceForm.invalid"
   [problems]="problems()"
   [form]="invoiceForm"
-  saveLabelKey="INVOICES.NEW.GUARDAR_BORRADOR"
-  cancelLabelKey="INVOICES.NEW.CANCELAR"
+  saveLabelKey="invoices.new.save_draft"
+  cancelLabelKey="invoices.new.cancel"
   (save)="saveDraft()"
   (cancelled)="router.navigate(['/invoices'])"
 >
@@ -27,19 +27,19 @@
     [disabled]="isSaving() || !(context()?.ready ?? false)"
     (click)="issue()"
   >
-    {{ (isSaving() ? 'INVOICES.NEW.GUARDANDO' : 'INVOICES.NEW.EMITIR_FACTURA') | translate }}
+    {{ (isSaving() ? 'invoices.new.saving' : 'invoices.new.issue_invoice') | translate }}
   </button>
 
   <div class="form-body">
   @if (blockers().length > 0) {
     <div class="alert alert-warning" role="alert">
-      <strong>{{ 'INVOICES.NEW.TODAVIA_NO_PUEDES_EMITIR_COMPROBANTES' | translate }}</strong>
+      <strong>{{ 'invoices.new.you_cannot_issue_fiscal_documents_yet' | translate }}</strong>
       <ul>
         @for (item of blockers(); track item) {
           <li>{{ item }}</li>
         }
       </ul>
-      <a routerLink="/settings/fiscal">{{ 'INVOICES.NEW.IR_CONFIGURACION_FISCAL' | translate }}</a>
+      <a routerLink="/settings/fiscal">{{ 'invoices.new.go_tax_settings' | translate }}</a>
     </div>
   }
 
@@ -50,8 +50,8 @@
   ></app-invoice-toolbar>
 
   <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'INVOICES.NEW.CONTENIDO' | translate }}</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'INVOICES.NEW.FISCAL_COBRO' | translate }}</button>
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'invoices.new.content' | translate }}</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'invoices.new.tax_collection' | translate }}</button>
   </div>
 
   <div [formGroup]="invoiceForm">
@@ -62,9 +62,9 @@
           <div class="card-body">
             <div class="invoice-header-section">
               <div class="form-group customer-select">
-                <label class="form-label" for="customerId">{{ 'INVOICES.NEW.CLIENTE' | translate }}</label>
+                <label class="form-label" for="customerId">{{ 'invoices.new.customer' | translate }}</label>
                 <select id="customerId" formControlName="customerId" class="form-control">
-                  <option value="" disabled>{{ 'INVOICES.NEW.SELECCIONAR_CLIENTE' | translate }}</option>
+                  <option value="" disabled>{{ 'invoices.new.select_customer' | translate }}</option>
                   @for (client of customers(); track client.id) {
                     <option [value]="client.id">{{ client.companyName }}</option>
                   }
@@ -72,17 +72,17 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="issueDate">{{ 'INVOICES.NEW.FECHA_EMISION' | translate }}</label>
+                <label class="form-label" for="issueDate">{{ 'invoices.new.issue_date' | translate }}</label>
                 <input id="issueDate" type="date" formControlName="issueDate" class="form-control" />
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="dueDate">{{ 'INVOICES.NEW.FECHA_VENCIMIENTO' | translate }}</label>
+                <label class="form-label" for="dueDate">{{ 'invoices.new.due_date' | translate }}</label>
                 <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="currencyCode">{{ 'INVOICES.NEW.MONEDA' | translate }}</label>
+                <label class="form-label" for="currencyCode">{{ 'invoices.new.currency' | translate }}</label>
                 <select id="currencyCode" formControlName="currencyCode" class="form-control">
                   @for (currency of currencies(); track currency.code) {
                     <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
@@ -94,12 +94,12 @@
             <table class="line-items-table">
               <thead>
                 <tr>
-                  <th style="width: 24%">{{ 'INVOICES.NEW.ARTICULO' | translate }}</th>
-                  <th>{{ 'INVOICES.NEW.DESCRIPCION' | translate }}</th>
-                  <th style="width: 10%" class="text-right">{{ 'INVOICES.NEW.CANTIDAD' | translate }}</th>
-                  <th style="width: 13%" class="text-right">{{ 'INVOICES.NEW.PRECIO' | translate }}</th>
-                  <th style="width: 9%" class="text-right">{{ 'INVOICES.NEW.DESC' | translate }}</th>
-                  <th style="width: 13%">{{ 'INVOICES.NEW.TRATAMIENTO' | translate }}</th>
+                  <th style="width: 24%">{{ 'invoices.new.item' | translate }}</th>
+                  <th>{{ 'invoices.new.description' | translate }}</th>
+                  <th style="width: 10%" class="text-right">{{ 'invoices.new.quantity' | translate }}</th>
+                  <th style="width: 13%" class="text-right">{{ 'invoices.new.price' | translate }}</th>
+                  <th style="width: 9%" class="text-right">{{ 'invoices.new.disc' | translate }}</th>
+                  <th style="width: 13%">{{ 'invoices.new.treatment' | translate }}</th>
                   <th style="width: 10%">ITBIS</th>
                   <th style="width: 4%"></th>
                 </tr>
@@ -109,7 +109,7 @@
                   <tr [formGroupName]="i">
                     <td>
                       <select formControlName="productId" class="form-control" (change)="onProductSelect(i)">
-                        <option value="">{{ 'INVOICES.NEW.CONCEPTO_LIBRE' | translate }}</option>
+                        <option value="">{{ 'invoices.new.free_text_line' | translate }}</option>
                         @for (product of products(); track product.id) {
                           <option [value]="product.id">{{ product.name }}</option>
                         }
@@ -121,7 +121,7 @@
                              class="form-control text-right" />
                       @if (stockShortfall(i) > 0) {
                         <small class="field-error">
-                          {{ 'INVOICES.NEW.STOCK_SHORTFALL' | translate: { units: (stockShortfall(i) | vxNumber: '1.0-6') } }}
+                          {{ 'invoices.new.stock_shortfall' | translate: { units: (stockShortfall(i) | vxNumber: '1.0-6') } }}
                         </small>
                       }
                     </td>
@@ -135,9 +135,9 @@
                     </td>
                     <td>
                       <select formControlName="taxTreatment" class="form-control">
-                        <option value="TAXED">{{ 'INVOICES.NEW.GRAVADO' | translate }}</option>
-                        <option value="ZERO_RATED">{{ 'INVOICES.NEW.TASA_CERO' | translate }}</option>
-                        <option value="EXEMPT">{{ 'INVOICES.NEW.EXENTO' | translate }}</option>
+                        <option value="TAXED">{{ 'invoices.new.taxed' | translate }}</option>
+                        <option value="ZERO_RATED">{{ 'invoices.new.zero_rated' | translate }}</option>
+                        <option value="EXEMPT">{{ 'invoices.new.exempt' | translate }}</option>
                       </select>
                     </td>
                     <td>
@@ -154,17 +154,17 @@
                     </td>
                     <td>
                       <button type="button" class="btn-icon" (click)="removeLineItem(i)"
-                              [disabled]="lineItems.length === 1" [attr.aria-label]="'INVOICES.NEW.ELIMINAR_LINEA' | translate">×</button>
+                              [disabled]="lineItems.length === 1" [attr.aria-label]="'invoices.new.remove_line' | translate">×</button>
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
 
-            <button type="button" class="btn btn-link" (click)="addLineItem()">{{ 'INVOICES.NEW.ANADIR_LINEA' | translate }}</button>
+            <button type="button" class="btn btn-link" (click)="addLineItem()">{{ 'invoices.new.add_line_button' | translate }}</button>
 
             <div class="form-group">
-              <label class="form-label" for="notes">{{ 'INVOICES.NEW.NOTAS' | translate }}</label>
+              <label class="form-label" for="notes">{{ 'invoices.new.notes' | translate }}</label>
               <textarea id="notes" formControlName="notes" class="form-control" rows="2"></textarea>
             </div>
           </div>
@@ -174,7 +174,7 @@
       <aside class="summary-panel">
         <div class="card">
           <div class="card-body">
-            <h3>{{ 'INVOICES.NEW.RESUMEN' | translate }}</h3>
+            <h3>{{ 'invoices.new.summary' | translate }}</h3>
             <!--
               The server's own figures, from the same code that will issue the document. This panel
               used to compute them here, and had already diverged: it taxed the base before the
@@ -182,31 +182,31 @@
               form carried instead of the buyer's regime.
             -->
             @if (totalsPending()) {
-              <p class="hint">{{ 'INVOICES.NEW.CALCULANDO_IMPORTES' | translate }}</p>
+              <p class="hint">{{ 'invoices.new.calculating_amounts' | translate }}</p>
             }
             <dl class="summary-totals" [class.summary-totals--stale]="totalsPending()">
-              <dt>{{ 'INVOICES.NEW.SUBTOTAL' | translate }}</dt>
+              <dt>{{ 'invoices.new.subtotal' | translate }}</dt>
               <dd>{{ totals().subtotal | vxNumber: '1.2-2' }}</dd>
               @if (totals().discountTotal > 0) {
-                <dt>{{ 'INVOICES.NEW.DESCUENTO' | translate }}</dt>
+                <dt>{{ 'invoices.new.discount' | translate }}</dt>
                 <dd>−{{ totals().discountTotal | vxNumber: '1.2-2' }}</dd>
               }
-              <dt>{{ 'INVOICES.NEW.IMPUESTO' | translate }}</dt>
+              <dt>{{ 'invoices.new.tax_column' | translate }}</dt>
               <dd>{{ totals().tax | vxNumber: '1.2-2' }}</dd>
               @if (totals().excise > 0) {
-                <dt>{{ 'INVOICES.NEW.IMPUESTO_SELECTIVO' | translate }}</dt>
+                <dt>{{ 'invoices.new.excise_duty' | translate }}</dt>
                 <dd>{{ totals().excise | vxNumber: '1.2-2' }}</dd>
               }
               @if (totals().serviceCharge > 0) {
-                <dt>{{ 'INVOICES.NEW.PROPINA_LEGAL' | translate }}</dt>
+                <dt>{{ 'invoices.new.service_charge' | translate }}</dt>
                 <dd>{{ totals().serviceCharge | vxNumber: '1.2-2' }}</dd>
               }
-              <dt class="grand">{{ 'INVOICES.NEW.TOTAL' | translate }}</dt>
+              <dt class="grand">{{ 'invoices.new.total' | translate }}</dt>
               <dd class="grand">{{ totals().total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
               @if (totals().taxWithheld + totals().incomeTaxWithheld > 0) {
-                <dt>{{ 'INVOICES.NEW.RETENCIONES' | translate }}</dt>
+                <dt>{{ 'invoices.new.withholdings' | translate }}</dt>
                 <dd>−{{ totals().taxWithheld + totals().incomeTaxWithheld | vxNumber: '1.2-2' }}</dd>
-                <dt>{{ 'INVOICES.NEW.NETO_A_COBRAR' | translate }}</dt>
+                <dt>{{ 'invoices.new.net_receivable' | translate }}</dt>
                 <dd>{{ totals().netReceivable | vxNumber: '1.2-2' }}</dd>
               }
             </dl>
@@ -220,18 +220,18 @@
       <div class="main-content">
         <div class="card">
           <div class="card-body">
-            <h3>{{ 'INVOICES.NEW.COMPROBANTE_FISCAL' | translate }}</h3>
+            <h3>{{ 'invoices.new.fiscal_document' | translate }}</h3>
 
             @if (fiscalTypes().length > 0) {
               <div class="form-group">
-                <label class="form-label" for="fiscalDocumentType">{{ 'INVOICES.NEW.TIPO_COMPROBANTE' | translate }}</label>
+                <label class="form-label" for="fiscalDocumentType">{{ 'invoices.new.document_type' | translate }}</label>
                 <select id="fiscalDocumentType" formControlName="fiscalDocumentType" class="form-control">
                   <!--
                     Selectable at last. The type used to be inferred from the LENGTH of the buyer's
                     tax id, so exports, government sales and special regimes could not be issued at
                     all. Left empty, the market's adapter still chooses.
                   -->
-                  <option value="">{{ 'INVOICES.NEW.AUTOMATICO_SEGUN_COMPRADOR' | translate }}</option>
+                  <option value="">{{ 'invoices.new.automatic_according_buyer' | translate }}</option>
                   @for (type of fiscalTypes(); track type.code) {
                     <option [value]="type.code">{{ type.labelKey | translate }}</option>
                   }
@@ -239,22 +239,22 @@
               </div>
             } @else {
               <p class="hint">
-                {{ 'INVOICES.NEW.ESTE_MERCADO_TODAVIA_NO_TIENE_REGIMEN' | translate }}
+                {{ 'invoices.new.market_has_no_electronic_invoicing_regime' | translate }}
               </p>
             }
 
             <div class="form-group">
-              <label class="form-label" for="paymentMethod">{{ 'INVOICES.NEW.FORMA_PAGO' | translate }}</label>
+              <label class="form-label" for="paymentMethod">{{ 'invoices.new.payment_method' | translate }}</label>
               <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
-                <option value="CASH">{{ 'INVOICES.NEW.EFECTIVO' | translate }}</option>
-                <option value="CHECK">{{ 'INVOICES.NEW.CHEQUE' | translate }}</option>
-                <option value="BANK_TRANSFER">{{ 'INVOICES.NEW.TRANSFERENCIA' | translate }}</option>
-                <option value="CREDIT_CARD">{{ 'INVOICES.NEW.TARJETA_CREDITO' | translate }}</option>
-                <option value="DEBIT_CARD">{{ 'INVOICES.NEW.TARJETA_DEBITO' | translate }}</option>
-                <option value="CREDIT">{{ 'INVOICES.NEW.VENTA_CREDITO' | translate }}</option>
-                <option value="GIFT_CARD">{{ 'INVOICES.NEW.BONO_CERTIFICADO_REGALO' | translate }}</option>
-                <option value="SWAP">{{ 'INVOICES.NEW.PERMUTA' | translate }}</option>
-                <option value="OTHER">{{ 'INVOICES.NEW.OTRA' | translate }}</option>
+                <option value="CASH">{{ 'invoices.new.payment_method_cash' | translate }}</option>
+                <option value="CHECK">{{ 'invoices.new.cheque' | translate }}</option>
+                <option value="BANK_TRANSFER">{{ 'invoices.new.bank_transfer' | translate }}</option>
+                <option value="CREDIT_CARD">{{ 'invoices.new.credit_card' | translate }}</option>
+                <option value="DEBIT_CARD">{{ 'invoices.new.debit_card' | translate }}</option>
+                <option value="CREDIT">{{ 'invoices.new.credit_sale' | translate }}</option>
+                <option value="GIFT_CARD">{{ 'invoices.new.voucher_gift_certificate' | translate }}</option>
+                <option value="SWAP">{{ 'invoices.new.barter' | translate }}</option>
+                <option value="OTHER">{{ 'invoices.new.other' | translate }}</option>
               </select>
             </div>
           </div>
@@ -262,9 +262,9 @@
 
         <div class="card">
           <div class="card-body">
-            <h3>{{ 'INVOICES.NEW.DESCUENTOS_CARGOS' | translate }}</h3>
+            <h3>{{ 'invoices.new.discounts_charges' | translate }}</h3>
             <div class="form-group">
-              <label class="form-label" for="documentDiscountRate">{{ 'INVOICES.NEW.DESCUENTO_DOCUMENTO_FRACCION' | translate }}</label>
+              <label class="form-label" for="documentDiscountRate">{{ 'invoices.new.document_discount_fraction' | translate }}</label>
               <input id="documentDiscountRate" type="number" step="0.01" min="0" max="0.99"
                      formControlName="documentDiscountRate" class="form-control" />
             </div>
@@ -276,7 +276,7 @@
                 -->
                 <label class="form-label" for="serviceChargeRate">
                   {{
-                    'INVOICES.NEW.PROPINA_LEGAL_FRACCION'
+                    'invoices.new.service_charge_fraction_market_rate'
                       | translate: { rate: (context()?.serviceChargeRate ?? 0) * 100 }
                   }}
                 </label>
@@ -289,17 +289,17 @@
 
         <div class="card">
           <div class="card-body">
-            <h3>{{ 'INVOICES.NEW.RETENCIONES_FUENTE' | translate }}</h3>
+            <h3>{{ 'invoices.new.withholding_source' | translate }}</h3>
             <p class="hint">
-              {{ 'INVOICES.NEW.COMPRADOR_RETIENE_REMITE_CUENTA_VENDEDOR_REDUCE' | translate }}
+              {{ 'invoices.new.what_buyer_withholds_remits_seller_behalf' | translate }}
             </p>
             <div class="form-group">
-              <label class="form-label" for="taxWithholdingRate">{{ 'INVOICES.NEW.ITBIS_RETENIDO_FRACCION_IMPUESTO' | translate }}</label>
+              <label class="form-label" for="taxWithholdingRate">{{ 'invoices.new.tax_withheld_fraction_tax' | translate }}</label>
               <input id="taxWithholdingRate" type="number" step="0.01" min="0" max="1"
                      formControlName="taxWithholdingRate" class="form-control" />
             </div>
             <div class="form-group">
-              <label class="form-label" for="incomeTaxWithholdingRate">{{ 'INVOICES.NEW.ISR_RETENIDO_FRACCION_BASE' | translate }}</label>
+              <label class="form-label" for="incomeTaxWithholdingRate">{{ 'invoices.new.income_tax_withheld_fraction_base' | translate }}</label>
               <input id="incomeTaxWithholdingRate" type="number" step="0.01" min="0" max="1"
                      formControlName="incomeTaxWithholdingRate" class="form-control" />
             </div>

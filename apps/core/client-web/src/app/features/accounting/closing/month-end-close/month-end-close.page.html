@@ -3,12 +3,12 @@
     @if (period(); as open) {
       <h3>
         {{
-          'ACCOUNTING.MONTH_END_CLOSE.TITLE'
+          'accounting.month_end_close.title'
             | translate: { period: open.startDate | vxDate: 'monthYear' : true }
         }}
       </h3>
     } @else {
-      <h3>{{ 'ACCOUNTING.MONTH_END_CLOSE.TITLE_NO_PERIOD' | translate }}</h3>
+      <h3>{{ 'accounting.month_end_close.title_no_period' | translate }}</h3>
     }
 
     <div
@@ -21,19 +21,19 @@
       <div class="progress" [style.width.%]="progress()"></div>
     </div>
     <p class="progress-caption">
-      {{ 'ACCOUNTING.MONTH_END_CLOSE.PROGRESS' | translate: { percent: progress() / 100 | vxPercent } }}
+      {{ 'accounting.month_end_close.progress' | translate: { percent: progress() / 100 | vxPercent } }}
     </p>
   </div>
 
   <div class="tasks-list card">
     @if (loading()) {
-      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.LOADING' | translate }}</p>
+      <p class="empty-state">{{ 'accounting.month_end_close.loading' | translate }}</p>
     } @else if (failed()) {
-      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.LOAD_FAILED' | translate }}</p>
+      <p class="empty-state">{{ 'accounting.month_end_close.load_failed' | translate }}</p>
     } @else if (!period()) {
-      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.NO_OPEN_PERIOD' | translate }}</p>
+      <p class="empty-state">{{ 'accounting.month_end_close.no_open_period' | translate }}</p>
     } @else if (isEmpty()) {
-      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.EMPTY' | translate }}</p>
+      <p class="empty-state">{{ 'accounting.month_end_close.empty' | translate }}</p>
     } @else {
       @for (item of items(); track item.id) {
         <div class="task-item" [ngClass]="statusClass(item)">
@@ -49,7 +49,7 @@
           <div class="task-action">
             @if (item.resolutionLink && !item.isCompleted) {
               <a [routerLink]="item.resolutionLink" class="secondary-button">
-                {{ 'ACCOUNTING.MONTH_END_CLOSE.GO_TASK' | translate }}
+                {{ 'accounting.month_end_close.go_task' | translate }}
               </a>
             }
           </div>

@@ -90,7 +90,7 @@ export class AuthWebAuthnController {
       // H-03 FIX: Same cookie-based pending session as the password login flow.
       const pendingId = await this.authService.create2faPendingSession(user, undefined, undefined);
       this.cookieService.set2faPendingCookie(res, pendingId);
-      return { require2fa: true, messageKey: 'AUTH.2FA_VERIFICATION_REQUIRED' };
+      return { require2fa: true, messageKey: 'auth.2_fa_verification_required' };
     }
 
     const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);

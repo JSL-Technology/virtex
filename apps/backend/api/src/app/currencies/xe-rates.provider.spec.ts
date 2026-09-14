@@ -176,7 +176,7 @@ describe('XeRatesProvider', () => {
 
       await expect(
         provider.fetchMidRates('USD', ['DOP'], '2026-09-05'),
-      ).rejects.toMatchObject({ messageKey: 'CURRENCIES.PROVEEDOR_TASAS_ERROR' });
+      ).rejects.toMatchObject({ messageKey: 'currencies.provider_responded_with_status_status_detail' });
     });
   });
 });

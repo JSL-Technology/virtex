@@ -39,7 +39,7 @@ export class SuppliersPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('CONTACTS.SUPPLIERS.PUDIERON_CARGAR_PROVEEDORES');
+        this.notificationService.showError('contacts.suppliers.suppliers_could_not_loaded');
         this.isLoading.set(false);
       },
     });
@@ -47,19 +47,19 @@ export class SuppliersPage implements OnInit {
 
   async deleteSupplier(id: string): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_SUPPLIER.TITLE',
-      message: 'DIALOG.DELETE_SUPPLIER.MESSAGE',
-      confirmText: 'COMMON.DELETE',
+      title: 'dialog.delete_supplier.title',
+      message: 'dialog.delete_supplier.message',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) {
       this.suppliersService.deleteSupplier(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('CONTACTS.SUPPLIERS.PROVEEDOR_ELIMINADO_EXITOSAMENTE');
+          this.notificationService.showSuccess('contacts.suppliers.supplier_deleted');
           this.loadSuppliers();
         },
         error: () => {
-          this.notificationService.showError('CONTACTS.SUPPLIERS.PUDO_ELIMINAR_PROVEEDOR');
+          this.notificationService.showError('contacts.suppliers.supplier_could_not_deleted');
         }
       });
     }

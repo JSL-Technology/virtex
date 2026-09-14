@@ -53,7 +53,7 @@ export class QuotesService {
               rateType,
             );
             if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-              throw new BadRequestError('SALES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
+              throw new BadRequestError('sales.exchange_rate_configured_currency_code_not', { currencyCode });
             }
         }
 
@@ -113,15 +113,15 @@ export class QuotesService {
       where: { id: quoteId, organizationId },
       relations: ['customer', 'lines', 'lines.product'],
     });
-    if (!quote) throw new NotFoundError('SALES.COTIZACION_NO_ENCONTRADA');
+    if (!quote) throw new NotFoundError('sales.quote_not_found');
     if (quote.status === QuoteStatus.INVOICED) {
-      throw new ConflictError('SALES.COTIZACION_YA_FUE_FACTURADA', { quoteNumber: quote.quoteNumber });
+      throw new ConflictError('sales.quote_quote_number_has_already_invoiced', { quoteNumber: quote.quoteNumber });
     }
     if (quote.status !== QuoteStatus.ACCEPTED) {
-      throw new BadRequestError('SALES.SOLO_PUEDEN_FACTURAR_COTIZACIONES_ACEPTADAS');
+      throw new BadRequestError('sales.only_accepted_quotes_can_invoiced');
     }
     if (!quote.lines?.length) {
-      throw new BadRequestError('SALES.COTIZACION_NO_TIENE_LINEAS_FACTURAR');
+      throw new BadRequestError('sales.quote_has_no_lines_invoice');
     }
 
     const today = new Date().toISOString().split('T')[0];

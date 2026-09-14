@@ -797,7 +797,7 @@ describeWithDb('bank reconciliation', () => {
 
       await expect(
         reconciliation.reopenStatement(statement.id, organizationId, ACTOR, '   '),
-      ).rejects.toMatchObject({ messageKey: 'RECONCILIATION.REAPERTURA_REQUIERE_MOTIVO' });
+      ).rejects.toMatchObject({ messageKey: 'reconciliation.reopening_closed_reconciliation_requires_stated_reason' });
     });
 
     it('lets the tenant be deleted once it has an accounting history', async () => {

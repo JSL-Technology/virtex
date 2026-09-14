@@ -29,7 +29,7 @@ export class ConsolidationMappingService {
 
     const parentOrg = await this.orgRepository.findOneBy({ id: parentOrganizationId });
     const subOrg = await this.orgRepository.findOneBy({ id: subsidiaryOrganizationId });
-    if (!parentOrg || !subOrg) throw new NotFoundError('CONSOLIDATION.ORGANIZACION_NO_ENCONTRADA');
+    if (!parentOrg || !subOrg) throw new NotFoundError('consolidation.organization_not_found');
 
     await this.mapRepository.delete({ parentOrganizationId, subsidiaryOrganizationId });
 

@@ -93,12 +93,12 @@ export class OrganizationsController {
     if (!(await this.membershipService.isMember(user.id, dto.organizationId))) {
       // Same message whether the organization does not exist or the user is simply not a member,
       // so the endpoint cannot be used to enumerate tenants by id.
-      throw new ForbiddenError('ORGANIZATIONS.NO_TIENES_ACCESO_ESA_ORGANIZACION');
+      throw new ForbiddenError('organizations.you_do_not_have_access_organization');
     }
 
     const fullUser = await this.usersService.findUserByIdForAuth(user.id);
     if (!fullUser) {
-      throw new ForbiddenError('ORGANIZATIONS.NO_TIENES_ACCESO_ESA_ORGANIZACION');
+      throw new ForbiddenError('organizations.you_do_not_have_access_organization');
     }
 
     // The session being replaced. Switching tenant issues a NEW session family, so without

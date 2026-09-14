@@ -21,7 +21,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
 export function normalizeToE164(phone: string): string {
   const stripped = phone.replace(/[\s\-().]/g, '');
   if (!/^\+[1-9]\d{6,14}$/.test(stripped)) {
-    throw new BadRequestError('AUTH.NUMERO_DEBE_ESTAR_FORMATO_INTERNACIONAL_164_INCLUYENDO');
+    throw new BadRequestError('auth.number_must_international_164_format_including');
   }
   return stripped;
 }

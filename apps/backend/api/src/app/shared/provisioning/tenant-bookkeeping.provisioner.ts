@@ -60,20 +60,20 @@ export class TenantBookkeepingProvisioner {
     nameKey: string;
     type: JournalType;
   }> = Object.freeze([
-    { code: 'VENTAS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.SALES', type: 'SALES' },
-    { code: 'COMPRAS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PURCHASES', type: 'PURCHASES' },
-    { code: 'COBROS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.COLLECTIONS', type: 'BANK' },
-    { code: 'PAGOS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PAYMENTS', type: 'BANK' },
+    { code: 'VENTAS', nameKey: 'ledger.provisioning.journals.sales', type: 'SALES' },
+    { code: 'COMPRAS', nameKey: 'ledger.provisioning.journals.purchases', type: 'PURCHASES' },
+    { code: 'COBROS', nameKey: 'ledger.provisioning.journals.collections', type: 'BANK' },
+    { code: 'PAGOS', nameKey: 'ledger.provisioning.journals.payments', type: 'BANK' },
     // `BANCOS` is what `TreasuryService` looks up for the opening entry of a bank account and for
     // transfers between accounts. It was missing from this list, so both refused with "The Banks
     // journal (BANCOS) was not found" on every tenant the product has ever created — the one
     // journal no tenant had, and the only two treasury operations that need it. The unit tests
     // did not catch it because they insert the journal themselves instead of provisioning a
     // tenant, which is exactly the gap this list exists to close.
-    { code: 'BANCOS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.BANKS', type: 'BANK' },
-    { code: 'CAJA', nameKey: 'LEDGER.PROVISIONING.JOURNALS.CASH', type: 'CASH' },
-    { code: 'NOMINA', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PAYROLL', type: 'GENERAL' },
-    { code: 'GENERAL', nameKey: 'LEDGER.PROVISIONING.JOURNALS.GENERAL', type: 'GENERAL' },
+    { code: 'BANCOS', nameKey: 'ledger.provisioning.journals.banks', type: 'BANK' },
+    { code: 'CAJA', nameKey: 'ledger.provisioning.journals.cash', type: 'CASH' },
+    { code: 'NOMINA', nameKey: 'ledger.provisioning.journals.payroll', type: 'GENERAL' },
+    { code: 'GENERAL', nameKey: 'ledger.provisioning.journals.general', type: 'GENERAL' },
   ]);
 
   /** Prefixes for the internal document numbering. Fiscal numbering (NCF) is separate. */
@@ -207,9 +207,9 @@ export class TenantBookkeepingProvisioner {
     return repo.save(
       repo.create({
         organizationId,
-        name: this.i18n.translate('LEDGER.PROVISIONING.DEFAULT_LEDGER_NAME', language),
+        name: this.i18n.translate('ledger.provisioning.default_ledger_name', language),
         description: this.i18n.translate(
-          'LEDGER.PROVISIONING.DEFAULT_LEDGER_DESCRIPTION',
+          'ledger.provisioning.default_ledger_description',
           language,
         ),
         currency: baseCurrency,
@@ -319,7 +319,7 @@ export class TenantBookkeepingProvisioner {
   async assertCanInvoice(organizationId: string, manager: EntityManager): Promise<void> {
     const missing = await this.invoicingGaps(organizationId, manager);
     if (missing.length > 0) {
-      throw new InternalServerError('SHARED.ORGANIZACION_NO_ESTA_LISTA_FACTURAR_FALTA', { p1: missing.join('; ') });
+      throw new InternalServerError('shared.organization_not_ready_invoice_missing_p1', { p1: missing.join('; ') });
     }
   }
 

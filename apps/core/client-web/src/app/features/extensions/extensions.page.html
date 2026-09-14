@@ -6,7 +6,7 @@
   only part that is specific to extensions.
 -->
 <vx-list-shell
-  titleKey="PAGE_TITLES.EXTENSIONS"
+  titleKey="page_titles.extensions"
   [count]="extensions().length"
   [loading]="loading()"
   [error]="error()"
@@ -16,27 +16,27 @@
   <ng-container listActions>
     <a class="secondary-button" routerLink="/masters/extensions/run">
       <lucide-icon [img]="PlayIcon" [size]="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'EXTENSIONS.OPEN_RUNTIME' | translate }}</span>
+      <span>{{ 'extensions.open_runtime' | translate }}</span>
     </a>
     <button type="button" class="secondary-button" (click)="refresh()" [disabled]="loading()">
       <lucide-icon [img]="RefreshIcon" [size]="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'COMMON.REFRESH' | translate }}</span>
+      <span>{{ 'common.refresh' | translate }}</span>
     </button>
   </ng-container>
 
   <ng-container listEmpty>
     <lucide-icon [img]="PuzzleIcon" [size]="28" aria-hidden="true"></lucide-icon>
-    <p class="ls__state-title">{{ 'EXTENSIONS.NONE_REGISTERED' | translate }}</p>
+    <p class="ls__state-title">{{ 'extensions.none_registered' | translate }}</p>
   </ng-container>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'EXTENSIONS.FIELDS.NAME' | translate }}</th>
-          <th>{{ 'EXTENSIONS.FIELDS.DESCRIPTION' | translate }}</th>
-          <th>{{ 'EXTENSIONS.GRANTED_CAPABILITIES' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'extensions.fields.name' | translate }}</th>
+          <th>{{ 'extensions.fields.description' | translate }}</th>
+          <th>{{ 'extensions.granted_capabilities' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -45,10 +45,10 @@
             <td>
               <span class="ext__name">{{ ext.name }}</span>
               <span class="ext__badge" [class.ext__badge--revoked]="ext.status === 'REVOKED'">
-                {{ 'EXTENSIONS.STATUS.' + ext.status | translate }}
+                {{ 'extensions.status.' + ext.status | translate }}
               </span>
               <span class="ext__versions">
-                {{ 'EXTENSIONS.VERSION_COUNT' | translate: { count: ext.versionCount } }}
+                {{ 'extensions.version_count' | translate: { count: ext.versionCount } }}
               </span>
             </td>
             <td>{{ ext.description || '—' }}</td>
@@ -62,11 +62,11 @@
                   [checked]="consentByPlugin().get(ext.name)?.enabled ?? false"
                   (change)="toggleEnabled(ext)"
                 />
-                <span>{{ 'EXTENSIONS.ENABLED' | translate }}</span>
+                <span>{{ 'extensions.enabled' | translate }}</span>
               </label>
               <button type="button" class="danger-button" (click)="revoke(ext)">
                 <lucide-icon [img]="TrashIcon" [size]="14" aria-hidden="true"></lucide-icon>
-                <span>{{ 'EXTENSIONS.REVOKE' | translate }}</span>
+                <span>{{ 'extensions.revoke' | translate }}</span>
               </button>
             </td>
           </tr>
@@ -82,67 +82,67 @@
   -->
   <div listFooter class="ext__panels">
     <section class="ext__card">
-      <h2>{{ 'EXTENSIONS.REGISTER' | translate }}</h2>
+      <h2>{{ 'extensions.register' | translate }}</h2>
       <form [formGroup]="registerForm" (ngSubmit)="register()" class="ext__form">
         <label>
-          {{ 'EXTENSIONS.FIELDS.NAME' | translate }}
+          {{ 'extensions.fields.name' | translate }}
           <input
             type="text"
             formControlName="name"
-            [placeholder]="'EXTENSIONS.PLACEHOLDERS.NAME' | translate"
+            [placeholder]="'extensions.placeholders.name' | translate"
           />
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.VERSION' | translate }}
+          {{ 'extensions.fields.version' | translate }}
           <input type="text" formControlName="version" placeholder="1.0.0" />
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.DESCRIPTION' | translate }}
+          {{ 'extensions.fields.description' | translate }}
           <input type="text" formControlName="description" />
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.CAPABILITIES' | translate }}
+          {{ 'extensions.fields.capabilities' | translate }}
           <input
             type="text"
             formControlName="capabilities"
-            [placeholder]="'EXTENSIONS.PLACEHOLDERS.CAPABILITIES' | translate"
+            [placeholder]="'extensions.placeholders.capabilities' | translate"
           />
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.EGRESS' | translate }}
+          {{ 'extensions.fields.egress' | translate }}
           <input
             type="text"
             formControlName="requestedEgress"
-            [placeholder]="'EXTENSIONS.PLACEHOLDERS.EGRESS' | translate"
+            [placeholder]="'extensions.placeholders.egress' | translate"
           />
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.CODE' | translate }}
+          {{ 'extensions.fields.code' | translate }}
           <textarea rows="5" formControlName="code"></textarea>
         </label>
         <label>
-          {{ 'EXTENSIONS.FIELDS.UI_CODE' | translate }}
+          {{ 'extensions.fields.ui_code' | translate }}
           <textarea
             rows="5"
             formControlName="uiEntry"
-            [placeholder]="'EXTENSIONS.PLACEHOLDERS.UI_CODE' | translate"
+            [placeholder]="'extensions.placeholders.ui_code' | translate"
           ></textarea>
         </label>
         <button type="submit" class="primary-button" [disabled]="registerForm.invalid || busy()">
           <lucide-icon [img]="ShieldIcon" [size]="16" aria-hidden="true"></lucide-icon>
-          <span>{{ 'EXTENSIONS.ADMIT_AND_REGISTER' | translate }}</span>
+          <span>{{ 'extensions.admit_and_register' | translate }}</span>
         </button>
-        <p class="ext__hint">{{ 'EXTENSIONS.ADMISSION_HINT' | translate }}</p>
+        <p class="ext__hint">{{ 'extensions.code_passes_admission_pipeline_sbom_heuristics' | translate }}</p>
       </form>
     </section>
 
     <section class="ext__card">
-      <h2>{{ 'EXTENSIONS.RUN_IN_SANDBOX' | translate }}</h2>
+      <h2>{{ 'extensions.run_in_sandbox' | translate }}</h2>
       <form [formGroup]="executeForm" (ngSubmit)="execute()" class="ext__run">
         <input
           type="text"
           formControlName="pluginName"
-          [placeholder]="'EXTENSIONS.PLACEHOLDERS.EXTENSION_NAME' | translate"
+          [placeholder]="'extensions.placeholders.extension_name' | translate"
         />
         <button type="submit" class="primary-button" [disabled]="executeForm.invalid || busy()">
           @if (busy()) {
@@ -150,7 +150,7 @@
           } @else {
             <lucide-icon [img]="PlayIcon" [size]="16" aria-hidden="true"></lucide-icon>
           }
-          <span>{{ 'EXTENSIONS.EXECUTE' | translate }}</span>
+          <span>{{ 'extensions.execute' | translate }}</span>
         </button>
       </form>
 
@@ -166,12 +166,12 @@
             gets each one whole.
           -->
           <div class="ext__result-head">
-            <span class="ext__result-status">{{ 'EXTENSIONS.RUN_STATUS.' + r.status | translate }}</span>
+            <span class="ext__result-status">{{ 'extensions.run_status.' + r.status | translate }}</span>
             <span class="ext__result-time">
-              {{ 'EXTENSIONS.EXECUTION_TIME' | translate: { ms: r.executionTimeMs ?? 0 } }}
+              {{ 'extensions.execution_time' | translate: { ms: r.executionTimeMs ?? 0 } }}
             </span>
             @if (r.meteringId) {
-              <span class="ext__result-metered">{{ 'EXTENSIONS.METERED' | translate }}</span>
+              <span class="ext__result-metered">{{ 'extensions.metered' | translate }}</span>
             }
           </div>
           @if (r.error) {

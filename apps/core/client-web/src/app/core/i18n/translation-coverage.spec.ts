@@ -7,7 +7,7 @@ import { RUNTIME_COMPOSED_KEYS } from './runtime-composed-keys';
  * A translation key that is used must be a translation key that exists.
  *
  * `@ngx-translate` renders a missing key as the key itself, so the failure mode is a screen that
- * shows `REGISTER.INDUSTRIES.TECHNOLOGY` in a dropdown instead of "Tecnología". That is exactly
+ * shows `register.industries.technology` in a dropdown instead of "Tecnología". That is exactly
  * what the signup wizard did: the whole industry list — a REQUIRED field on the step that takes
  * the customer's money — was missing from both locale files, along with fourteen other keys
  * across password reset, the security settings and the dashboard widgets.
@@ -112,7 +112,7 @@ describe('translation coverage', () => {
    * A key referenced in code that NO catalogue defines.
    *
    * Separated from the check above because the failure is different: that one is a translation
-   * gap, this one is a key that will render as itself in every language. `USER.STATUS.INACTIVE`
+   * gap, this one is a key that will render as itself in every language. `user.status.inactive`
    * was exactly this — composed at runtime from an enum with five members against a catalogue
    * with four.
    */
@@ -130,8 +130,8 @@ describe('translation coverage', () => {
   /**
    * Every value of every enum a template composes a key from.
    *
-   * `{{ "USER.STATUS." + user.status | translate }}` cannot be checked by a sweep for literals:
-   * the key never appears in the source. It appeared on screen instead — `USER.STATUS.INACTIVE`,
+   * `{{ "user.status." + user.status | translate }}` cannot be checked by a sweep for literals:
+   * the key never appears in the source. It appeared on screen instead — `user.status.inactive`,
    * in a table cell, because the enum has five members and the catalogue had four.
    */
   describe('runtime-composed keys', () => {
@@ -153,7 +153,7 @@ describe('translation coverage', () => {
   /**
    * One naming convention per catalogue, or at most the two that already exist.
    *
-   * `NAV.DASHBOARD` and `sidebar.general.dashboard` coexist for historical reasons and the
+   * `nav.dashboard` and `sidebar.general.dashboard` coexist for historical reasons and the
    * coverage pattern above recognises both. A third shape would be one the pattern does not
    * match, which is how 38 % of the catalogue became invisible to this very check.
    */

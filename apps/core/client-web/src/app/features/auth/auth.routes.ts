@@ -17,7 +17,7 @@ export const REGISTER_ROUTES: Routes = [
     children: [
       {
         path: 'register',
-        title: 'AUTH.TITLES.REGISTER',
+        title: 'auth.titles.register',
         canActivate: [publicGuard],
         data: { authWidth: 'wide' },
         loadComponent: () =>

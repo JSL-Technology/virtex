@@ -4,26 +4,26 @@
   [subtitle]="billData.vendor?.name ?? billData.vendorId"
   [statusKey]="statusKey(billData.status)"
   [statusTone]="statusTone(billData.status)"
-  backLabelKey="ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO"
+  backLabelKey="accounts_payable.detail.back_list"
   (back)="goToList()"
 >
   <ng-container documentActions>
     @if (canEdit()) {
       <a [routerLink]="['/accounts-payable', billData.id, 'edit']" class="secondary-button">
         <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.EDITAR' | translate }}</span>
+        <span>{{ 'accounts_payable.detail.edit' | translate }}</span>
       </a>
     }
     @if (canSubmit()) {
       <button type="button" (click)="submitForApproval()" class="primary-button">
         <lucide-icon [img]="SubmitIcon" size="16" aria-hidden="true"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ENVIAR_APROBACION' | translate }}</span>
+        <span>{{ 'accounts_payable.detail.submit_approval' | translate }}</span>
       </button>
     }
     @if (canVoid()) {
       <button type="button" (click)="voidBill()" class="danger-button">
         <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ANULAR' | translate }}</span>
+        <span>{{ 'accounts_payable.detail.void' | translate }}</span>
       </button>
     }
   </ng-container>
@@ -31,39 +31,39 @@
   <div class="view-content">
       @if (billData.status === 'VOID') {
         <div class="banner banner--danger">
-          <strong>{{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_ANULADA' | translate }}</strong>
+          <strong>{{ 'accounts_payable.detail.bill_annulled' | translate }}</strong>
           @if (billData.voidReason) {
             <span>{{ billData.voidReason }}</span>
           }
           @if (billData.reversalJournalEntryId) {
-            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ASIENTO_REVERSION_REGISTRADO' | translate }}</span>
+            <span>{{ 'accounts_payable.detail.reversing_entry_posted_general_ledger' | translate }}</span>
           }
         </div>
       }
 
       <div class="card">
         <div class="card-header">
-          <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.INFORMACION_GENERAL' | translate }}</h2>
+          <h2>{{ 'accounts_payable.detail.general_information' | translate }}</h2>
         </div>
         <div class="card-body grid-details">
           <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA_EMISION' | translate }}</span>
+            <span class="detail-label">{{ 'accounts_payable.detail.issue_date' | translate }}</span>
             <span>{{ billData.date | vxDate: 'date' }}</span>
           </div>
           <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA_VENCIMIENTO' | translate }}</span>
+            <span class="detail-label">{{ 'accounts_payable.detail.due_date' | translate }}</span>
             <span>{{ billData.dueDate | vxDate: 'date' }}</span>
           </div>
           <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.MONEDA' | translate }}</span>
+            <span class="detail-label">{{ 'accounts_payable.detail.currency' | translate }}</span>
             <span>{{ billData.currencyCode }}</span>
           </div>
           <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.TOTAL' | translate }}</span>
+            <span class="detail-label">{{ 'accounts_payable.detail.total' | translate }}</span>
             <span class="text-bold">{{ billData.total | vxNumber:'1.2-2' }}</span>
           </div>
           <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.BALANCE_PENDIENTE' | translate }}</span>
+            <span class="detail-label">{{ 'accounts_payable.detail.outstanding_balance' | translate }}</span>
             <span class="text-bold">{{ billData.balance | vxNumber:'1.2-2' }}</span>
           </div>
         </div>
@@ -71,20 +71,20 @@
 
       <div class="card">
         <div class="card-header">
-          <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.LINEAS_FACTURA' | translate }}</h2>
+          <h2>{{ 'accounts_payable.detail.invoice_lines' | translate }}</h2>
         </div>
         <div class="card-body">
           @if ((billData.lines ?? []).length === 0) {
-            <p class="text-muted">{{ 'ACCOUNTS_PAYABLE.DETAIL.SIN_LINEAS' | translate }}</p>
+            <p class="text-muted">{{ 'accounts_payable.detail.bill_has_no_lines' | translate }}</p>
           } @else {
             <div class="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>{{ 'ACCOUNTS_PAYABLE.DETAIL.CONCEPTO' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.CANTIDAD' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.PRECIO_UNITARIO' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.TOTAL' | translate }}</th>
+                    <th>{{ 'accounts_payable.detail.item' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.quantity' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.unit_price' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.total' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -106,39 +106,39 @@
       @if (hasFiscalDetail()) {
         <div class="card">
           <div class="card-header">
-            <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.DESGLOSE_FISCAL' | translate }}</h2>
+            <h2>{{ 'accounts_payable.detail.tax_breakdown' | translate }}</h2>
           </div>
           <div class="card-body grid-details">
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_FACTURADO' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.tax_charged' | translate }}</span>
               <span>{{ billData.taxAmount | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_RETENIDO' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.tax_withheld' | translate }}</span>
               <span>{{ billData.taxWithheld | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.ISR_RETENIDO' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.income_tax_withheld' | translate }}</span>
               <span>{{ billData.incomeTaxWithheld | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_AL_COSTO' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.tax_carried_cost' | translate }}</span>
               <span>{{ billData.taxToCost | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_PROPORCIONAL' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.proportional_tax' | translate }}</span>
               <span>{{ billData.taxProportional | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_SELECTIVO' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.excise_tax' | translate }}</span>
               <span>{{ billData.exciseAmount | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.PROPINA_LEGAL' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.legal_service_charge' | translate }}</span>
               <span>{{ billData.serviceCharge | vxNumber:'1.2-2' }}</span>
             </div>
             <div>
-              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</span>
+              <span class="detail-label">{{ 'accounts_payable.form.withholdings' | translate }}</span>
               <span class="text-bold">{{ withheldTotal() | vxNumber:'1.2-2' }}</span>
             </div>
           </div>
@@ -147,21 +147,21 @@
 
       <div class="card">
         <div class="card-header">
-          <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.PAGOS_APLICADOS' | translate }}</h2>
+          <h2>{{ 'accounts_payable.detail.payments_applied' | translate }}</h2>
         </div>
         <div class="card-body">
           @if (payments().length === 0) {
-            <p class="text-muted">{{ 'ACCOUNTS_PAYABLE.DETAIL.SIN_PAGOS' | translate }}</p>
+            <p class="text-muted">{{ 'accounts_payable.detail.nothing_has_paid_against_bill_yet' | translate }}</p>
           } @else {
             <div class="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.EFECTIVO' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.DESCUENTO' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.APLICADO' | translate }}</th>
+                    <th>{{ 'accounts_payable.detail.date' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.cash' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.form.withholdings' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.discount' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.detail.applied' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,10 +186,10 @@
 </vx-document-shell>
 } @else {
 <vx-document-shell
-  [title]="'ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR' | translate"
+  [title]="'accounts_payable.detail.supplier_bill' | translate"
   [loading]="isLoading()"
   [error]="errorKey()"
-  backLabelKey="ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO"
+  backLabelKey="accounts_payable.detail.back_list"
   (back)="goToList()"
   (reload)="goToList()"
 ></vx-document-shell>

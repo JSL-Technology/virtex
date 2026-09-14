@@ -1,14 +1,14 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>{{ 'REPORTS.CASH_FLOW.TITULO' | translate }}</h3>
+    <h3>{{ 'reports.cash_flow.statement_cash_flows' | translate }}</h3>
     <div class="header-actions">
       <label class="date-picker">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'REPORTS.COMMON.DESDE' | translate }}</span>
+        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
         <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
       </label>
       <label class="date-picker">
-        <span class="date-picker__label">{{ 'REPORTS.COMMON.HASTA' | translate }}</span>
+        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
         <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
       </label>
       <!--
@@ -18,28 +18,28 @@
       -->
       <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+        <span>{{ 'reports.common.export' | translate }}</span>
       </button>
       <button class="primary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+        <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
     </div>
   </div>
 
   @if (loading()) {
-    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+    <p class="report-state">{{ 'reports.common.loading' | translate }}</p>
   } @else if (failed()) {
     <p class="report-state report-state--error">
-      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      {{ 'reports.common.report_could_not_loaded' | translate }}
       <button class="secondary-button" type="button" (click)="load()">
-        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+        {{ 'reports.common.try_again' | translate }}
       </button>
     </p>
   } @else if (report(); as data) {
     <div class="report-container card">
       <div class="report-header">
-        <h2>{{ 'REPORTS.CASH_FLOW.TITULO' | translate }}</h2>
+        <h2>{{ 'reports.cash_flow.statement_cash_flows' | translate }}</h2>
         <p>
           {{ data.period.startDate | vxDate: 'long' }} — {{ data.period.endDate | vxDate: 'long' }}
           · {{ data.ledger.name }} ({{ data.ledger.currency }})
@@ -49,27 +49,27 @@
       @if (data.unexplainedDifference !== 0) {
         <p class="out-of-balance" role="alert">
           <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
-          {{ 'REPORTS.CASH_FLOW.DIFERENCIA_NO_EXPLICADA' | translate }}:
+          {{ 'reports.cash_flow.unexplained_difference' | translate }}:
           {{ data.unexplainedDifference | vxMoney: data.ledger.currency }}
         </p>
       }
 
       <div class="report-body">
         <div class="report-line subtotal-line">
-          <span>{{ 'REPORTS.CASH_FLOW.EFECTIVO_INICIAL' | translate }}</span>
+          <span>{{ 'reports.cash_flow.cash_beginning' | translate }}</span>
           <span class="amount">{{ data.openingCash | vxNumber: '1.2-2' }}</span>
         </div>
 
         <div class="report-section">
-          <div class="section-title"><span>{{ 'REPORTS.CASH_FLOW.OPERACION' | translate }}</span></div>
+          <div class="section-title"><span>{{ 'reports.cash_flow.operating_activities' | translate }}</span></div>
           <div class="report-line">
-            <span>{{ 'REPORTS.CASH_FLOW.RESULTADO_NETO' | translate }}</span>
+            <span>{{ 'reports.cash_flow.net_income' | translate }}</span>
             <span class="amount">{{ data.operating.netIncome | vxNumber: '1.2-2' }}</span>
           </div>
 
           @if (data.operating.nonCashAdjustments.length > 0) {
             <div class="subsection">
-              <div class="subsection-title">{{ 'REPORTS.CASH_FLOW.PARTIDAS_NO_MONETARIAS' | translate }}</div>
+              <div class="subsection-title">{{ 'reports.cash_flow.items_did_not_move_cash' | translate }}</div>
               @for (movement of data.operating.nonCashAdjustments; track movement.accountId) {
                 <div class="report-line">
                   <span class="account-code">{{ movement.code }}</span>
@@ -81,7 +81,7 @@
 
           @if (data.operating.workingCapitalChanges.length > 0) {
             <div class="subsection">
-              <div class="subsection-title">{{ 'REPORTS.CASH_FLOW.CAPITAL_DE_TRABAJO' | translate }}</div>
+              <div class="subsection-title">{{ 'reports.cash_flow.changes_working_capital' | translate }}</div>
               @for (movement of data.operating.workingCapitalChanges; track movement.accountId) {
                 <div class="report-line">
                   <span class="account-code">{{ movement.code }}</span>
@@ -92,7 +92,7 @@
           }
 
           <div class="report-line subtotal-line">
-            <span>{{ 'REPORTS.CASH_FLOW.TOTAL_OPERACION' | translate }}</span>
+            <span>{{ 'reports.cash_flow.cash_from_operations' | translate }}</span>
             <span class="amount">{{ data.operating.total | vxNumber: '1.2-2' }}</span>
           </div>
         </div>
@@ -104,11 +104,11 @@
         -->
         <div class="report-section">
           <div class="section-title">
-            <span>{{ 'REPORTS.CASH_FLOW.INVERSION' | translate }}</span>
+            <span>{{ 'reports.cash_flow.investing_activities' | translate }}</span>
             <span class="gross-heading">
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.ENTRADAS' | translate }}</span>
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.SALIDAS' | translate }}</span>
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.NETO' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.inflows' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.outflows' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.net' | translate }}</span>
             </span>
           </div>
           @for (movement of data.investing.movements; track movement.accountId) {
@@ -120,7 +120,7 @@
             </div>
           }
           <div class="report-line subtotal-line gross-line">
-            <span>{{ 'REPORTS.CASH_FLOW.INVERSION' | translate }}</span>
+            <span>{{ 'reports.cash_flow.investing_activities' | translate }}</span>
             <span class="amount">{{ data.investing.inflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.investing.outflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.investing.total | vxNumber: '1.2-2' }}</span>
@@ -129,11 +129,11 @@
 
         <div class="report-section">
           <div class="section-title">
-            <span>{{ 'REPORTS.CASH_FLOW.FINANCIAMIENTO' | translate }}</span>
+            <span>{{ 'reports.cash_flow.financing_activities' | translate }}</span>
             <span class="gross-heading">
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.ENTRADAS' | translate }}</span>
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.SALIDAS' | translate }}</span>
-              <span class="amount">{{ 'REPORTS.CASH_FLOW.NETO' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.inflows' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.outflows' | translate }}</span>
+              <span class="amount">{{ 'reports.cash_flow.net' | translate }}</span>
             </span>
           </div>
           @for (movement of data.financing.movements; track movement.accountId) {
@@ -145,7 +145,7 @@
             </div>
           }
           <div class="report-line subtotal-line gross-line">
-            <span>{{ 'REPORTS.CASH_FLOW.FINANCIAMIENTO' | translate }}</span>
+            <span>{{ 'reports.cash_flow.financing_activities' | translate }}</span>
             <span class="amount">{{ data.financing.inflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.financing.outflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.financing.total | vxNumber: '1.2-2' }}</span>
@@ -161,17 +161,17 @@
         -->
         @if (data.effectOfExchangeRateOnCash !== 0) {
           <div class="report-line subtotal-line">
-            <span>{{ 'REPORTS.CASH_FLOW.EFECTO_TIPO_CAMBIO' | translate }}</span>
+            <span>{{ 'reports.cash_flow.effect_exchange_rate_changes_cash' | translate }}</span>
             <span class="amount">{{ data.effectOfExchangeRateOnCash | vxNumber: '1.2-2' }}</span>
           </div>
         }
 
         <div class="report-line total-line">
-          <span>{{ 'REPORTS.CASH_FLOW.VARIACION_NETA' | translate }}</span>
+          <span>{{ 'reports.cash_flow.net_change_cash' | translate }}</span>
           <span class="amount">{{ data.netChangeInCash | vxNumber: '1.2-2' }}</span>
         </div>
         <div class="report-line total-line grand-total">
-          <span>{{ 'REPORTS.CASH_FLOW.EFECTIVO_FINAL' | translate }}</span>
+          <span>{{ 'reports.cash_flow.cash_end' | translate }}</span>
           <span class="amount">{{ data.closingCash | vxMoney: data.ledger.currency }}</span>
         </div>
       </div>
@@ -185,9 +185,9 @@
       @if (data.nonCashTransactions.length > 0) {
         <div class="report-section non-cash">
           <div class="section-title">
-            <span>{{ 'REPORTS.CASH_FLOW.TRANSACCIONES_NO_MONETARIAS' | translate }}</span>
+            <span>{{ 'reports.cash_flow.investing_financing_transactions_used_no_cash' | translate }}</span>
           </div>
-          <p class="section-note">{{ 'REPORTS.CASH_FLOW.NO_MONETARIAS_NOTA' | translate }}</p>
+          <p class="section-note">{{ 'reports.cash_flow.excluded_from_statement_because_no_cash' | translate }}</p>
           @for (line of data.nonCashTransactions; track line.accountId) {
             <div class="report-line gross-line">
               <span class="account-code">{{ line.code }}</span>

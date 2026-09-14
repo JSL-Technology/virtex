@@ -1,6 +1,6 @@
 <vx-inbox-shell
-  titleKey="APPROVALS.CENTRO_APROBACIONES"
-  subtitleKey="APPROVALS.REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES"
+  titleKey="approvals.approvals_centre"
+  subtitleKey="approvals.review_approve_reject_every_pending_request"
   [sections]="sections()"
   [loading]="loading()"
   [error]="error()"
@@ -21,7 +21,7 @@
     (click)="reject(item.id)"
   >
     <lucide-icon [img]="RejectIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'APPROVALS.RECHAZAR' | translate }}</span>
+    <span>{{ 'approvals.reject' | translate }}</span>
   </button>
   <button
     type="button"
@@ -30,6 +30,6 @@
     (click)="approve(item.id)"
   >
     <lucide-icon [img]="ApproveIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'APPROVALS.APROBAR' | translate }}</span>
+    <span>{{ 'approvals.approve' | translate }}</span>
   </button>
 </ng-template>

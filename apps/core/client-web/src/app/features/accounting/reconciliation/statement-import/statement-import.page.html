@@ -1,12 +1,12 @@
 <vx-draft-shell
-  [title]="'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate"
-  [subtitle]="'ACCOUNTING.RECONCILIATION.TITULO' | translate"
+  [title]="'accounting.reconciliation.import_statement' | translate"
+  [subtitle]="'accounting.reconciliation.bank_reconciliation' | translate"
   [dirty]="form.dirty"
   [saving]="uploading()"
   [invalid]="form.invalid"
   [problems]="problems()"
   [form]="form"
-  saveLabelKey="ACCOUNTING.RECONCILIATION.IMPORTAR"
+  saveLabelKey="accounting.reconciliation.import_statement"
   (save)="submit()"
   (cancelled)="cancel()"
 >
@@ -15,12 +15,12 @@
       <!--
         Sin cuenta bancaria no hay extracto que importar. Es una precondición, no un campo mal.
       -->
-      <p class="import-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+      <p class="import-state">{{ 'treasury.no_bank_accounts_have_registered' | translate }}</p>
     } @else {
       <section class="form-section">
         <div class="form-grid">
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.SELECCIONE_CUENTA' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.choose_bank_account' | translate }} *</span>
           <select formControlName="bankAccountId">
             @for (account of bankAccounts(); track account.id) {
               <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
@@ -29,68 +29,68 @@
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.ARCHIVO' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.import.csv_file' | translate }} *</span>
           <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
         </label>
 
         <label class="field">
-          <span>{{ 'REPORTS.COMMON.DESDE' | translate }} *</span>
+          <span>{{ 'reports.common.from' | translate }} *</span>
           <input type="date" formControlName="startDate" />
         </label>
 
         <label class="field">
-          <span>{{ 'REPORTS.COMMON.HASTA' | translate }} *</span>
+          <span>{{ 'reports.common.to' | translate }} *</span>
           <input type="date" formControlName="endDate" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_INICIAL' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.opening_balance' | translate }} *</span>
           <input type="number" step="0.01" formControlName="startingBalance" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_FINAL' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.closing_balance' | translate }} *</span>
           <input type="number" step="0.01" formControlName="endingBalance" />
         </label>
       </div>
 
-      <h4 class="section-heading">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.MAPEO' | translate }}</h4>
-      <p class="section-note">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.MAPEO_AYUDA' | translate }}</p>
+      <h4 class="section-heading">{{ 'accounting.reconciliation.import.column_mapping' | translate }}</h4>
+      <p class="section-note">{{ 'accounting.reconciliation.import.type_each_column_name_exactly_appears' | translate }}</p>
 
       <div class="form-grid">
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_FECHA' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.import.date_column' | translate }} *</span>
           <input type="text" formControlName="dateColumn" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_CONCEPTO' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.import.description_column' | translate }} *</span>
           <input type="text" formControlName="descriptionColumn" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_REFERENCIA' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.reference_column' | translate }}</span>
           <input type="text" formControlName="referenceColumn" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_ENTRADA' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.money_column' | translate }}</span>
           <input type="text" formControlName="debitColumn" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_SALIDA' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.money_out_column' | translate }}</span>
           <input type="text" formControlName="creditColumn" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_MONTO' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.signed_amount_column' | translate }}</span>
           <input type="text" formControlName="amountColumn" />
         </label>
       </div>
 
       @if (!hasAmountMapping()) {
-        <p class="field__error">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.FALTA_MONTO' | translate }}</p>
+        <p class="field__error">{{ 'accounting.reconciliation.import.give_amount_column_money_money_out' | translate }}</p>
       }
 
       <div class="form-grid">
@@ -100,7 +100,7 @@
           of magnitude apart.
         -->
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.FORMATO_FECHA' | translate }} *</span>
+          <span>{{ 'accounting.reconciliation.import.bank_date_format' | translate }} *</span>
           <select formControlName="dateFormat">
             @for (format of dateFormats; track format) {
               <option [value]="format">{{ format }}</option>
@@ -109,7 +109,7 @@
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.SEPARADOR_DECIMAL' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.number_format' | translate }}</span>
           <select formControlName="decimalSeparator">
             @for (format of numberFormats; track format.separator) {
               <option [value]="format.separator">{{ format.sample }}</option>
@@ -119,13 +119,13 @@
 
         <label class="field field--checkbox">
           <input type="checkbox" formControlName="positiveAmountIsMoneyIn" />
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.POSITIVO_ES_ENTRADA' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.import.positive_amount_money_arriving' | translate }}</span>
         </label>
       </div>
 
       @if (importError(); as detail) {
         <p class="import-error" role="alert">
-          {{ 'ACCOUNTING.RECONCILIATION.IMPORT.FALLO' | translate }}
+          {{ 'accounting.reconciliation.import.file_could_not_read' | translate }}
           <code>{{ detail }}</code>
         </p>
       }

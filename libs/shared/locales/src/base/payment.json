@@ -1,4 +1,19 @@
 {
+  "payment.cancel.back_to_plans": {
+    "es": "Volver a los planes",
+    "en": "Back to the plans",
+    "pt": "Voltar aos planos"
+  },
+  "payment.cancel.body": {
+    "es": "No se realizó ningún cargo. Puedes elegir un plan cuando quieras.",
+    "en": "You were not charged. You can choose a plan whenever you like.",
+    "pt": "Não foste cobrado. Podes escolher um plano quando quiseres."
+  },
+  "payment.cancel.title": {
+    "es": "Pago cancelado",
+    "en": "Payment canceled",
+    "pt": "Pagamento cancelado"
+  },
   "payment.failed_create_stripe_session_url": {
     "es": "No se pudo crear la sesión de pago.",
     "en": "The payment session could not be created.",
@@ -34,10 +49,127 @@
     "en": "Plan not found.",
     "pt": "Plano não encontrado."
   },
+  "payment.plans.checkout_error": {
+    "es": "No pudimos iniciar el pago.",
+    "en": "We could not start the checkout.",
+    "pt": "Não foi possível iniciar o pagamento."
+  },
+  "payment.plans.choose": {
+    "es": "Elegir {{plan}}",
+    "en": "Choose {{plan}}",
+    "pt": "Escolher {{plan}}"
+  },
+  "payment.plans.enterprise.description": {
+    "es": "Para organizaciones grandes.",
+    "en": "For large organizations.",
+    "pt": "Para organizações grandes."
+  },
+  "payment.plans.enterprise.name": {
+    "literal": "Enterprise"
+  },
+  "payment.plans.feature.basic_invoicing": {
+    "es": "Facturación básica",
+    "en": "Basic invoicing",
+    "pt": "Faturação básica"
+  },
+  "payment.plans.feature.dedicated_support": {
+    "es": "Soporte dedicado",
+    "en": "Dedicated support",
+    "pt": "Suporte dedicado"
+  },
+  "payment.plans.feature.email_support": {
+    "es": "Soporte por correo",
+    "en": "Email support",
+    "pt": "Suporte por e-mail"
+  },
+  "payment.plans.feature.full_invoicing": {
+    "es": "Facturación completa",
+    "en": "Full invoicing",
+    "pt": "Faturação completa"
+  },
+  "payment.plans.feature.priority_support": {
+    "es": "Soporte prioritario",
+    "en": "Priority support",
+    "pt": "Suporte prioritário"
+  },
+  "payment.plans.feature.unlimited_users": {
+    "es": "Usuarios ilimitados",
+    "en": "Unlimited users",
+    "pt": "Utilizadores ilimitados"
+  },
+  "payment.plans.feature.users": {
+    "es": "{{count}} usuarios",
+    "en": "{{count}} users",
+    "pt": "{{count}} utilizadores"
+  },
+  "payment.plans.feature.users_one": {
+    "es": "{{count}} usuario",
+    "en": "{{count}} user",
+    "pt": "{{count}} utilizador"
+  },
+  "payment.plans.feature.users_other": {
+    "es": "{{count}} usuarios",
+    "en": "{{count}} users",
+    "pt": "{{count}} utilizadores"
+  },
+  "payment.plans.load_error": {
+    "es": "No pudimos cargar los planes.",
+    "en": "We could not load the plans.",
+    "pt": "Não foi possível carregar os planos."
+  },
+  "payment.plans.per_month": {
+    "es": "/mes",
+    "en": "/month",
+    "pt": "/mês"
+  },
+  "payment.plans.popular": {
+    "literal": "Popular"
+  },
+  "payment.plans.pro.description": {
+    "es": "Para empresas en crecimiento.",
+    "en": "For growing companies.",
+    "pt": "Para empresas em crescimento."
+  },
+  "payment.plans.pro.name": {
+    "literal": "Pro"
+  },
+  "payment.plans.processing": {
+    "es": "Procesando…",
+    "en": "Processing…",
+    "pt": "A processar…"
+  },
+  "payment.plans.starter.description": {
+    "es": "Para startups y negocios pequeños.",
+    "en": "For startups and small businesses.",
+    "pt": "Para startups e pequenos negócios."
+  },
+  "payment.plans.starter.name": {
+    "literal": "Starter"
+  },
+  "payment.plans.title": {
+    "es": "Elige tu plan",
+    "en": "Choose your plan",
+    "pt": "Escolhe o teu plano"
+  },
   "payment.raw_request_body_unavailable_webhook_signature_cannot": {
     "es": "No se pudo verificar la firma del webhook porque el cuerpo original de la solicitud no está disponible.",
     "en": "The webhook signature could not be verified because the raw request body is unavailable.",
     "pt": "Não foi possível verificar a assinatura do webhook porque o corpo original da requisição não está disponível."
+  },
+  "payment.success.body": {
+    "es": "Tu suscripción quedó activada.",
+    "en": "Your subscription is now active.",
+    "pt": "A tua subscrição está agora ativa."
+  },
+  "payment.success.go_to_dashboard": {
+    "es": "Ir al panel",
+    "en": "Go to the dashboard",
+    "pt": "Ir para o painel"
+  },
+  "payment.success.title": {
+    "es": "¡Pago exitoso!",
+    "en": "Payment successful",
+    "pt": "Pagamento bem-sucedido"
   },
   "payment.user_does_not_belong_organization": {
     "es": "El usuario no pertenece a ninguna organización.",

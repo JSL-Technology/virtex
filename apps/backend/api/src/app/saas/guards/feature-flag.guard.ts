@@ -40,12 +40,12 @@ export class FeatureFlagGuard implements CanActivate {
     const user = request.user;
 
     if (!user || !user.organizationId) {
-       throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_FEATURE_CHECK');
+       throw new ForbiddenError('saas.organization_context_required_for_feature_check');
     }
 
     const isEnabled = await this.saasService.checkFeature(user.organizationId, featureKey);
     if (!isEnabled) {
-        throw new ForbiddenError('SAAS.FEATURE_DISABLED', { featureKey });
+        throw new ForbiddenError('saas.feature_disabled', { featureKey });
     }
 
     return true;

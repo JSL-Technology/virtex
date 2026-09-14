@@ -1,31 +1,31 @@
 <vx-list-shell
-  titleKey="PURCHASING.REQUISITIONS.TITLE"
+  titleKey="purchasing.requisitions.title"
   [count]="requisitions().length"
   [empty]="!loading() && requisitions().length === 0"
 >
   <a listActions routerLink="/purchasing/requisitions/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'PURCHASING.REQUISITIONS.NEW_REQUISITION' | translate }}</span>
+    <span>{{ 'purchasing.requisitions.new_requisition' | translate }}</span>
   </a>
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'PURCHASING.REQUISITIONS.REQUISITION' | translate }}</th>
+          <th>{{ 'purchasing.requisitions.requisition' | translate }}</th>
           <!--
             The "department" column is gone: the data model never had one, so it showed a value
             invented in the browser. What it shows instead is how many things were asked for, which
             is the figure an approver actually scans the list for.
           -->
-          <th class="text-center">{{ 'PURCHASING.REQUISITIONS.ITEMS' | translate }}</th>
-          <th>{{ 'PURCHASING.REQUISITIONS.DATE' | translate }}</th>
-          <th>{{ 'PURCHASING.REQUISITIONS.REQUIRED_DATE' | translate }}</th>
-          <th class="text-right">{{ 'PURCHASING.REQUISITIONS.TOTAL' | translate }}</th>
-          <th class="text-center">{{ 'PURCHASING.REQUISITIONS.STATUS' | translate }}</th>
+          <th class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
+          <th>{{ 'purchasing.requisitions.date' | translate }}</th>
+          <th>{{ 'purchasing.requisitions.required_date' | translate }}</th>
+          <th class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
+          <th class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -42,7 +42,7 @@
             <td class="text-right">{{ req.totalAmount | vxMoney }}</td>
             <td class="text-center">
               <span class="status-badge" [class]="getStatusClass(req.status)">
-                {{ 'PURCHASING.REQUISITIONS.STATUS_LABEL.' + req.status | translate }}
+                {{ 'purchasing.requisitions.status_label.' + req.status | translate }}
               </span>
             </td>
           </tr>

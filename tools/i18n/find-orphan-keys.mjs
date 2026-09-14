@@ -11,7 +11,7 @@
  *
  * ## Why the runtime-composed prefixes are protected
  *
- * `INVOICES.STATUS.PARTIALLY_PAID` is never written as a literal anywhere: the component builds
+ * `invoices.status.partially_paid` is never written as a literal anywhere: the component builds
  * it from a stored value. Pruning by "no literal occurrence" would delete exactly the keys whose
  * absence is hardest to notice, so any key under a prefix that IS referenced as a literal is kept.
  */
@@ -25,7 +25,7 @@ const PRUNE = process.argv.includes('--prune');
 /**
  * A quoted string that looks like a catalogue key.
  *
- * Single-segment keys are matched too — `APP_TITLE` is one, and reporting it as dead would have
+ * Single-segment keys are matched too — `app_title` is one, and reporting it as dead would have
  * deleted the product name out of every page title. The coverage spec deliberately requires two
  * segments (a lone word is a value far more often than a key); here the trade-off runs the other
  * way, because a false positive DELETES something.

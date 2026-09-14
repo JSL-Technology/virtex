@@ -144,8 +144,8 @@ export class StepConfiguration {
   errorForFiscalField(key: string): string {
     const control = this.fiscalProfileGroup?.get(key);
     if (!control?.touched || !control.errors) return '';
-    if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
-    return 'REGISTER.ERRORS.INVALID_FORMAT';
+    if (control.errors['required']) return 'register.errors.required';
+    return 'register.errors.invalid_format';
   }
 
   onFlagError(event: Event) {
@@ -168,9 +168,9 @@ export class StepConfiguration {
   errorFor(controlName: string): string {
     const control = this.group.get(controlName);
     if (!control?.touched || !control.errors) return '';
-    if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
-    if (control.errors['pattern']) return 'REGISTER.ERRORS.INVALID_FORMAT';
-    return 'REGISTER.ERRORS.INVALID_FORMAT';
+    if (control.errors['required']) return 'register.errors.required';
+    if (control.errors['pattern']) return 'register.errors.invalid_format';
+    return 'register.errors.invalid_format';
   }
 
   /** Kept for the template's tax-id field, which has a country-specific hint. */
@@ -178,7 +178,7 @@ export class StepConfiguration {
     const control = this.group.get('taxId');
     if (control?.touched && control.errors?.['pattern']) {
       const config = this.config();
-      return this.taxIdPlaceholder() ? 'REGISTER.TAXID_FORMAT' : 'REGISTER.ERRORS.INVALID_FORMAT';
+      return this.taxIdPlaceholder() ? 'register.taxid_format' : 'register.errors.invalid_format';
     }
     return this.errorFor('taxId');
   }

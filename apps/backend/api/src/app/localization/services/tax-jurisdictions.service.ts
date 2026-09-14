@@ -48,7 +48,7 @@ export class TaxJurisdictionsService {
     organizationId: string,
   ): Promise<TaxJurisdiction> {
     const row = await this.jurisdictions.findOne({ where: { id, organizationId } });
-    if (!row) throw new NotFoundError('LOCALIZATION.JURISDICCION_NO_ENCONTRADA');
+    if (!row) throw new NotFoundError('localization.jurisdiction_does_not_exist');
 
     this.assertWindow(dto.effectiveFrom ?? row.effectiveFrom, dto.effectiveTo ?? row.effectiveTo);
     return this.jurisdictions.save(this.jurisdictions.merge(row, dto));
@@ -56,7 +56,7 @@ export class TaxJurisdictionsService {
 
   async remove(id: string, organizationId: string): Promise<void> {
     const row = await this.jurisdictions.findOne({ where: { id, organizationId } });
-    if (!row) throw new NotFoundError('LOCALIZATION.JURISDICCION_NO_ENCONTRADA');
+    if (!row) throw new NotFoundError('localization.jurisdiction_does_not_exist');
     // Deleted rather than closed: a row created by mistake was never in force. A rate that changed
     // is superseded by giving the old row an `effectiveTo`, which keeps old documents priceable.
     await this.jurisdictions.delete({ id, organizationId });
@@ -64,7 +64,7 @@ export class TaxJurisdictionsService {
 
   private assertWindow(from: string, to: string | null | undefined): void {
     if (to && to < from) {
-      throw new BadRequestError('LOCALIZATION.VIGENCIA_FIN_ANTERIOR_INICIO', { from, to });
+      throw new BadRequestError('localization.period_ends_before_begins_from', { from, to });
     }
   }
 }

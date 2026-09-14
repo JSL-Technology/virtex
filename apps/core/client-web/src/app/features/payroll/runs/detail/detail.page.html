@@ -4,8 +4,8 @@
   [statusKey]="statusKey()"
   [statusTone]="statusTone()"
   [loading]="loading()"
-  [error]="failed() ? 'PAYROLL.RUN_NOT_FOUND' : null"
-  backLabelKey="PAYROLL.RUNS.TITLE"
+  [error]="failed() ? 'payroll.run_not_found' : null"
+  backLabelKey="payroll.runs.title"
   (back)="back()"
   (reload)="reload()"
 >
@@ -13,31 +13,31 @@
     @if (canCalculate()) {
       <button type="button" class="primary-button" [disabled]="busy()" (click)="calculate()">
         <lucide-icon [img]="CalculateIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'PAYROLL.RUNS.CALCULATE' | translate }}</span>
+        <span>{{ 'payroll.runs.calculate' | translate }}</span>
       </button>
     }
     @if (canApprove()) {
       <button type="button" class="primary-button" [disabled]="busy()" (click)="approve()">
         <lucide-icon [img]="ApproveIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'PAYROLL.RUNS.APPROVE' | translate }}</span>
+        <span>{{ 'payroll.runs.approve' | translate }}</span>
       </button>
     }
     @if (canPay()) {
       <button type="button" class="primary-button" [disabled]="busy()" (click)="pay()">
         <lucide-icon [img]="PayIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'PAYROLL.RUNS.PAY' | translate }}</span>
+        <span>{{ 'payroll.runs.pay' | translate }}</span>
       </button>
     }
     @if (canExport()) {
       <button type="button" class="secondary-button" (click)="downloadSuir()">
         <lucide-icon [img]="ExportIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'PAYROLL.RUNS.EXPORT_SUIR' | translate }}</span>
+        <span>{{ 'payroll.runs.export_suir' | translate }}</span>
       </button>
     }
     @if (canCancel()) {
       <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">
         <lucide-icon [img]="CancelIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'PAYROLL.RUNS.CANCEL' | translate }}</span>
+        <span>{{ 'payroll.runs.cancel' | translate }}</span>
       </button>
     }
   </ng-container>
@@ -51,21 +51,21 @@
       -->
       <section class="totals-row">
         <div class="total-card">
-          <span class="total-card__label">{{ 'PAYROLL.RUNS.GROSS' | translate }}</span>
+          <span class="total-card__label">{{ 'payroll.runs.gross' | translate }}</span>
           <span class="total-card__value">{{ payrollRun.totalGross | vxMoney: payrollRun.currencyCode }}</span>
         </div>
         <div class="total-card">
-          <span class="total-card__label">{{ 'PAYROLL.RUNS.DEDUCTIONS' | translate }}</span>
+          <span class="total-card__label">{{ 'payroll.runs.deductions' | translate }}</span>
           <span class="total-card__value">
             {{ payrollRun.totalEmployeeDeductions | vxMoney: payrollRun.currencyCode }}
           </span>
         </div>
         <div class="total-card">
-          <span class="total-card__label">{{ 'PAYROLL.RUNS.NET' | translate }}</span>
+          <span class="total-card__label">{{ 'payroll.runs.net' | translate }}</span>
           <span class="total-card__value">{{ payrollRun.totalNet | vxMoney: payrollRun.currencyCode }}</span>
         </div>
         <div class="total-card">
-          <span class="total-card__label">{{ 'PAYROLL.RUNS.EMPLOYER_COST' | translate }}</span>
+          <span class="total-card__label">{{ 'payroll.runs.employer_cost' | translate }}</span>
           <span class="total-card__value">
             {{ payrollRun.totalEmployerContributions | vxMoney: payrollRun.currencyCode }}
           </span>
@@ -75,27 +75,27 @@
       @if (editable()) {
         <section class="panel">
           <header class="panel__head">
-            <h2 class="panel__title">{{ 'PAYROLL.RUNS.INPUTS' | translate }}</h2>
+            <h2 class="panel__title">{{ 'payroll.runs.inputs' | translate }}</h2>
             <div class="panel__actions">
               <button type="button" class="secondary-button" (click)="addInput()">
                 <lucide-icon [img]="AddIcon" size="14" aria-hidden="true"></lucide-icon>
-                <span>{{ 'PAYROLL.RUNS.ADD_INPUT' | translate }}</span>
+                <span>{{ 'payroll.runs.add_input' | translate }}</span>
               </button>
               <button type="button" class="primary-button" [disabled]="busy()" (click)="saveInputs()">
-                {{ 'PAYROLL.RUNS.SAVE_INPUTS' | translate }}
+                {{ 'payroll.runs.save_inputs' | translate }}
               </button>
             </div>
           </header>
-          <p class="section-note">{{ 'PAYROLL.RUNS.INPUTS_HELP' | translate }}</p>
+          <p class="section-note">{{ 'payroll.runs.inputs_help' | translate }}</p>
 
           <div class="table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>{{ 'PAYROLL.RUNS.EMPLOYEE' | translate }}</th>
-                  <th>{{ 'PAYROLL.RUNS.CONCEPT' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate }}</th>
-                  <th>{{ 'PAYROLL.RUNS.NOTE' | translate }}</th>
+                  <th>{{ 'payroll.runs.employee' | translate }}</th>
+                  <th>{{ 'payroll.runs.concept' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.runs.amount_or_hours' | translate }}</th>
+                  <th>{{ 'payroll.runs.note' | translate }}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -105,7 +105,7 @@
                     <td>
                       <select
                         [value]="input.employeeId"
-                        [attr.aria-label]="'PAYROLL.RUNS.EMPLOYEE' | translate"
+                        [attr.aria-label]="'payroll.runs.employee' | translate"
                         (change)="setInput(i, { employeeId: $any($event.target).value })"
                       >
                         @for (employee of employees(); track employee.id) {
@@ -116,7 +116,7 @@
                     <td>
                       <select
                         [value]="input.conceptCode"
-                        [attr.aria-label]="'PAYROLL.RUNS.CONCEPT' | translate"
+                        [attr.aria-label]="'payroll.runs.concept' | translate"
                         (change)="setInput(i, { conceptCode: $any($event.target).value })"
                       >
                         @for (concept of enterableConcepts(); track concept.id) {
@@ -132,7 +132,7 @@
                           step="0.25"
                           min="0"
                           [value]="input.quantity ?? 0"
-                          [attr.aria-label]="'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate"
+                          [attr.aria-label]="'payroll.runs.amount_or_hours' | translate"
                           (input)="setInput(i, { quantity: +$any($event.target).value })"
                         />
                       } @else {
@@ -141,7 +141,7 @@
                           step="0.01"
                           min="0"
                           [value]="input.amount ?? 0"
-                          [attr.aria-label]="'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate"
+                          [attr.aria-label]="'payroll.runs.amount_or_hours' | translate"
                           (input)="setInput(i, { amount: +$any($event.target).value })"
                         />
                       }
@@ -151,7 +151,7 @@
                         type="text"
                         maxlength="200"
                         [value]="input.note ?? ''"
-                        [attr.aria-label]="'PAYROLL.RUNS.NOTE' | translate"
+                        [attr.aria-label]="'payroll.runs.note' | translate"
                         (input)="setInput(i, { note: $any($event.target).value })"
                       />
                     </td>
@@ -160,7 +160,7 @@
                         type="button"
                         class="icon-button"
                         (click)="removeInput(i)"
-                        [attr.aria-label]="'COMMON.DELETE' | translate"
+                        [attr.aria-label]="'common.delete' | translate"
                       >
                         <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
                       </button>
@@ -168,7 +168,7 @@
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="5" class="muted">{{ 'PAYROLL.RUNS.NO_INPUTS' | translate }}</td>
+                    <td colspan="5" class="muted">{{ 'payroll.runs.no_inputs' | translate }}</td>
                   </tr>
                 }
               </tbody>
@@ -179,22 +179,22 @@
 
       <section class="panel">
         <header class="panel__head">
-          <h2 class="panel__title">{{ 'PAYROLL.RUNS.PAYSLIPS' | translate }}</h2>
+          <h2 class="panel__title">{{ 'payroll.runs.payslips' | translate }}</h2>
         </header>
 
         @if (payslips().length === 0) {
-          <p class="section-note">{{ 'PAYROLL.RUNS.NO_PAYSLIPS' | translate }}</p>
+          <p class="section-note">{{ 'payroll.runs.no_payslips' | translate }}</p>
         } @else {
           <div class="table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>{{ 'PAYROLL.RUNS.EMPLOYEE' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.GROSS' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.AFP' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.SFS' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.ISR' | translate }}</th>
-                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.NET' | translate }}</th>
+                  <th>{{ 'payroll.runs.employee' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
+                  <th class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -216,7 +216,7 @@
                               <tr>
                                 <td>{{ line.conceptName }}</td>
                                 <td class="muted">
-                                  {{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + line.kind | translate }}
+                                  {{ 'payroll.concepts.type_label.' + line.kind | translate }}
                                 </td>
                                 <td class="numeric">{{ line.amount | vxNumber: '1.2-2' }}</td>
                               </tr>

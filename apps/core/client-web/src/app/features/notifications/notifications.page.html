@@ -1,18 +1,18 @@
 <vx-list-shell
-  titleKey="NOTIFICATIONS.NOTIFICACIONES"
-  subtitleKey="NOTIFICATIONS.MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU"
+  titleKey="notifications.notifications"
+  subtitleKey="notifications.keep_up_with_latest_updates_alerts"
   [count]="unreadCount()"
   [empty]="notificationGroups().length === 0"
 >
   <button listActions class="secondary-button" type="button" (click)="markAllAsRead()">
     <lucide-icon [img]="MarkAllReadIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'NOTIFICATIONS.MARCAR_TODAS_COMO_LEIDAS' | translate }}</span>
+    <span>{{ 'notifications.mark_all_read' | translate }}</span>
   </button>
 
   <div listEmpty class="empty-invite">
     <lucide-icon [img]="NoNotificationsIcon" size="40" aria-hidden="true"></lucide-icon>
-    <h2>{{ 'NOTIFICATIONS.TODO_ESTA_DIA' | translate }}</h2>
-    <p>{{ 'NOTIFICATIONS.NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO' | translate }}</p>
+    <h2>{{ 'notifications.you_all_caught_up' | translate }}</h2>
+    <p>{{ 'notifications.you_have_no_new_notifications_right' | translate }}</p>
   </div>
 
   <div class="notifications-list card">
@@ -36,7 +36,7 @@
                   @if (!notification.read) {
                     <span
                       class="unread-indicator"
-                      [attr.aria-label]="'NOTIFICATIONS.NO_LEIDO' | translate"
+                      [attr.aria-label]="'notifications.unread' | translate"
                     ></span>
                   }
                 </span>

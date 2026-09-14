@@ -29,7 +29,7 @@ import { TranslateService } from '@ngx-translate/core';
  *   1. `ERRORS.<code>` from the client catalogue — the client knows the screen context.
  *   2. The server's `message`, which is now localised server-side.
  *   3. `ERRORS.HTTP_<status>` — a generic, translated sentence for the status class.
- *   4. `ERRORS.UNEXPECTED`.
+ *   4. `errors.unexpected`.
  *
  * A raw backend string is never shown without one of the first three having had its chance, and
  * a stack trace or SQL fragment is never shown at all.
@@ -82,7 +82,7 @@ export class ErrorHandlerService {
     // A browser-level failure: DNS, TLS, or the device being offline. There is no server answer
     // to read, and the browser's own message is neither translated nor meaningful to a reader.
     if (error?.error instanceof ProgressEvent || error?.status === 0) {
-      return this.translate.instant('ERRORS.NETWORK');
+      return this.translate.instant('errors.network');
     }
 
     if (code) {
@@ -97,7 +97,7 @@ export class ErrorHandlerService {
     const byStatus = this.translate.instant(statusKey);
     if (byStatus !== statusKey) return byStatus;
 
-    return this.translate.instant('ERRORS.UNEXPECTED');
+    return this.translate.instant('errors.unexpected');
   }
 
   /**

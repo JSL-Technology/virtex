@@ -29,7 +29,7 @@ export class IsE164PhoneNumberConstraint implements ValidatorConstraintInterface
   }
 
   defaultMessage() {
-    return 'VALIDATION.CONSTRAINTS.IS_E164_PHONE_NUMBER';
+    return 'validation.constraints.is_e164_phone_number';
   }
 }
 

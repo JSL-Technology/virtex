@@ -81,7 +81,7 @@ export class PayrollRunsPage {
         error: (error: { error?: { message?: string } }) => {
           this.busy.set(false);
           this.notifications.showError(
-            error?.error?.message ?? 'PAYROLL.RUNS.CREATE_FAILED',
+            error?.error?.message ?? 'payroll.runs.create_failed',
           );
         },
       });

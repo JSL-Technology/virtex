@@ -27,13 +27,13 @@ export class StepBusiness {
   readonly GlobeIcon = Globe;
 
   industries = [
-    { id: 'TECHNOLOGY', label: 'REGISTER.INDUSTRIES.TECHNOLOGY' },
-    { id: 'RETAIL', label: 'REGISTER.INDUSTRIES.RETAIL' },
-    { id: 'MANUFACTURING', label: 'REGISTER.INDUSTRIES.MANUFACTURING' },
-    { id: 'SERVICES', label: 'REGISTER.INDUSTRIES.SERVICES' },
-    { id: 'HEALTHCARE', label: 'REGISTER.INDUSTRIES.HEALTHCARE' },
-    { id: 'CONSTRUCTION', label: 'REGISTER.INDUSTRIES.CONSTRUCTION' },
-    { id: 'OTHER', label: 'REGISTER.INDUSTRIES.OTHER' }
+    { id: 'TECHNOLOGY', label: 'register.industries.technology' },
+    { id: 'RETAIL', label: 'register.industries.retail' },
+    { id: 'MANUFACTURING', label: 'register.industries.manufacturing' },
+    { id: 'SERVICES', label: 'register.industries.services' },
+    { id: 'HEALTHCARE', label: 'register.industries.healthcare' },
+    { id: 'CONSTRUCTION', label: 'register.industries.construction' },
+    { id: 'OTHER', label: 'register.industries.other' }
   ];
 
   companySizes = [
@@ -47,7 +47,7 @@ export class StepBusiness {
   getErrorMessage(controlName: string): string {
     const control = this.group.get(controlName);
     if (control?.touched && control?.errors) {
-      if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
+      if (control.errors['required']) return 'register.errors.required';
     }
     return '';
   }

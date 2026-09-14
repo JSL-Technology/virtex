@@ -39,7 +39,7 @@ export class CustomersPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('CONTACTS.CUSTOMERS.PUDIERON_CARGAR_CLIENTES');
+        this.notificationService.showError('contacts.customers.customers_could_not_loaded');
         this.isLoading.set(false);
       },
     });
@@ -47,19 +47,19 @@ export class CustomersPage implements OnInit {
 
   async deleteCustomer(id: string): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_CUSTOMER.TITLE',
-      message: 'DIALOG.DELETE_CUSTOMER.MESSAGE',
-      confirmText: 'COMMON.DELETE',
+      title: 'dialog.delete_customer.title',
+      message: 'dialog.delete_customer.message',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) {
       this.customersService.deleteCustomer(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('CONTACTS.CUSTOMERS.CLIENTE_ELIMINADO_EXITOSAMENTE');
+          this.notificationService.showSuccess('contacts.customers.customer_deleted');
           this.loadCustomers();
         },
         error: () => {
-          this.notificationService.showError('CONTACTS.CUSTOMERS.PUDO_ELIMINAR_CLIENTE');
+          this.notificationService.showError('contacts.customers.customer_could_not_deleted');
         }
       });
     }

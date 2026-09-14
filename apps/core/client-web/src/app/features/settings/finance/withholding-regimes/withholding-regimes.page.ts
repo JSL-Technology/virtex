@@ -17,6 +17,7 @@ import {
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * The withholding regimes the tenant maintains, and what the product covers in their market.
@@ -54,21 +55,21 @@ export class WithholdingRegimesPage implements OnInit {
   readonly showForm = signal(false);
 
   protected readonly kinds = [
-    { value: 'VAT', labelKey: 'SETTINGS.PAGES.WITHHOLDING.KIND_VAT' },
-    { value: 'INCOME', labelKey: 'SETTINGS.PAGES.WITHHOLDING.KIND_INCOME' },
+    { value: 'VAT', labelKey: 'settings.pages.withholding.kind_vat' },
+    { value: 'INCOME', labelKey: 'settings.pages.withholding.kind_income' },
   ] as const;
 
   protected readonly scopes = [
-    { value: 'ANY', labelKey: 'SETTINGS.PAGES.WITHHOLDING.SCOPE_ANY' },
-    { value: 'SERVICES', labelKey: 'SETTINGS.PAGES.WITHHOLDING.SCOPE_SERVICES' },
-    { value: 'GOODS', labelKey: 'SETTINGS.PAGES.WITHHOLDING.SCOPE_GOODS' },
+    { value: 'ANY', labelKey: 'settings.pages.withholding.scope_any' },
+    { value: 'SERVICES', labelKey: 'settings.pages.withholding.scope_services' },
+    { value: 'GOODS', labelKey: 'settings.pages.withholding.scope_goods' },
   ] as const;
 
   protected readonly payerTypes = [
-    { value: 'COMPANY', labelKey: 'SETTINGS.PAGES.WITHHOLDING.PAYER_COMPANY' },
-    { value: 'WITHHOLDING_AGENT', labelKey: 'SETTINGS.PAGES.WITHHOLDING.PAYER_AGENT' },
-    { value: 'GOVERNMENT', labelKey: 'SETTINGS.PAGES.WITHHOLDING.PAYER_GOVERNMENT' },
-    { value: 'INDIVIDUAL', labelKey: 'SETTINGS.PAGES.WITHHOLDING.PAYER_INDIVIDUAL' },
+    { value: 'COMPANY', labelKey: 'settings.pages.withholding.company' },
+    { value: 'WITHHOLDING_AGENT', labelKey: 'settings.pages.withholding.designated_withholding_agent' },
+    { value: 'GOVERNMENT', labelKey: 'settings.pages.withholding.government' },
+    { value: 'INDIVIDUAL', labelKey: 'settings.pages.withholding.individual' },
   ] as const;
 
   readonly form = this.fb.group({
@@ -106,7 +107,7 @@ export class WithholdingRegimesPage implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.notifications.showError('SETTINGS.PAGES.WITHHOLDING.LOAD_FAILED');
+          this.notifications.showError('settings.pages.withholding.load_failed');
         },
       });
   }
@@ -129,7 +130,7 @@ export class WithholdingRegimesPage implements OnInit {
   save(): void {
     if (this.form.invalid || (this.form.controls.payers.value ?? []).length === 0) {
       this.form.markAllAsTouched();
-      this.notifications.showError('SETTINGS.PAGES.WITHHOLDING.NEEDS_PAYER');
+      this.notifications.showError('settings.pages.withholding.name_least_one_kind_buyer_applies');
       return;
     }
     const value = this.form.getRawValue();
@@ -159,7 +160,7 @@ export class WithholdingRegimesPage implements OnInit {
         error: (error) => {
           this.saving.set(false);
           this.notifications.showError(
-            error?.error?.message ?? 'SETTINGS.PAGES.WITHHOLDING.SAVE_FAILED',
+            error?.error?.message ?? 'settings.pages.withholding.save_failed',
           );
         },
       });
@@ -171,7 +172,7 @@ export class WithholdingRegimesPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.load(),
-        error: () => this.notifications.showError('SETTINGS.PAGES.WITHHOLDING.DELETE_FAILED'),
+        error: () => this.notifications.showError('settings.pages.withholding.delete_failed'),
       });
   }
 
@@ -181,7 +182,7 @@ export class WithholdingRegimesPage implements OnInit {
 
   /** The catalogue key for a coverage level, so the reader's language decides how it is worded. */
   levelKey(level: string): string {
-    return `SETTINGS.PAGES.WITHHOLDING.COVERAGE_${level.toUpperCase().replace(/-/g, '_')}`;
+    return composeKey('settings.pages.withholding.coverage', level);
   }
 
   capabilityKey(capability: string): string {

@@ -40,7 +40,7 @@ export class RecentActivity {
   /** The sentence, in the reader's language. */
   text(item: ActivityItem): string {
     return this.translate.instant(item.titleKey, {
-      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+      reference: item.reference ?? this.translate.instant('overview.activity.no_reference'),
     });
   }
 

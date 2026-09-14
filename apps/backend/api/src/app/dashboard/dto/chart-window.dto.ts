@@ -5,15 +5,15 @@ import { IsInt, IsOptional, Max, Min } from 'class-validator';
 export class ChartWindowDto {
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(60, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":60}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(60, { message: 'validation.constraints.max|{"max":60}' })
   @IsOptional()
   months?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(50, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":50}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(50, { message: 'validation.constraints.max|{"max":50}' })
   @IsOptional()
   limit?: number;
 }

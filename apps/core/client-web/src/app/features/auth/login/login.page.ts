@@ -111,9 +111,9 @@ export class LoginPage implements OnInit {
     if (control?.touched && control?.errors) {
       let key = '';
       if (control.errors['required']) {
-        key = controlName === 'email' ? 'LOGIN.ERRORS.EMAIL_REQUIRED' : 'LOGIN.ERRORS.PASSWORD_REQUIRED';
+        key = controlName === 'email' ? 'login.errors.email_required' : 'login.errors.password_required';
       } else if (control.errors['email']) {
-        key = 'LOGIN.ERRORS.EMAIL_INVALID';
+        key = 'login.errors.email_invalid';
       }
 
       if (key) {
@@ -155,12 +155,12 @@ export class LoginPage implements OnInit {
             ? res.startUrl
             : `${window.location.origin}${res.startUrl}`;
         } else {
-          this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+          this.ssoMessage.set('login.sso.not_found');
         }
       },
       error: () => {
         this.ssoChecking.set(false);
-        this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+        this.ssoMessage.set('login.sso.not_found');
       },
     });
   }
@@ -174,16 +174,16 @@ export class LoginPage implements OnInit {
   private mapSocialErrorCode(code: string): string {
     switch (code) {
       case 'account_exists':
-        return 'LOGIN.ERRORS.SOCIAL_ACCOUNT_EXISTS';
+        return 'login.errors.social_account_exists';
       case 'email_not_verified':
-        return 'LOGIN.ERRORS.SOCIAL_EMAIL_NOT_VERIFIED';
+        return 'login.errors.social_email_not_verified';
       case 'account_inactive':
-        return 'LOGIN.ERRORS.ACCOUNT_LOCKED';
+        return 'errors.auth_account_locked';
       case 'provider_unavailable':
       case 'sso_unavailable':
-        return 'LOGIN.ERRORS.SOCIAL_UNAVAILABLE';
+        return 'login.errors.social_unavailable';
       default:
-        return 'LOGIN.ERRORS.SOCIAL_FAILED';
+        return 'login.errors.social_failed';
     }
   }
 
@@ -206,7 +206,7 @@ export class LoginPage implements OnInit {
         if (!environment.production) {
           console.warn('Passkey login failed', { status: (err as any)?.status });
         }
-        this.errorMessage.set('LOGIN.ERRORS.PASSKEY_ERROR');
+        this.errorMessage.set('login.errors.passkey_error');
         this.isLoggingIn.set(false);
       });
   }
@@ -239,7 +239,7 @@ export class LoginPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
+        this.errorMessage.set('errors.internal');
         this.isLoggingIn.set(false);
       }
     });
@@ -272,12 +272,12 @@ export class LoginPage implements OnInit {
         this.handleSuccess(user);
       },
       error: (err) => {
-        this.errorMessage.set('LOGIN.ERRORS.INVALID_CODE');
+        this.errorMessage.set('errors.auth_two_factor_invalid');
         this.isLoggingIn.set(false);
         if (this.otpComponent) {
              // We can use the translation service here if needed, or pass the key.
              // But handleError expects string.
-             this.translate.get('LOGIN.ERRORS.INVALID_CODE').subscribe(res => {
+             this.translate.get('errors.auth_two_factor_invalid').subscribe(res => {
                   this.otpComponent.handleError(res);
              });
         }
@@ -306,13 +306,13 @@ export class LoginPage implements OnInit {
     }
     if (err && err.status) {
       switch (err.status) {
-        case 401: this.errorMessage.set('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS'); break;
-        case 429: this.errorMessage.set('LOGIN.ERRORS.TOO_MANY_ATTEMPTS'); break;
-        case 403: this.errorMessage.set('LOGIN.ERRORS.ACCOUNT_LOCKED'); break;
-        default: this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
+        case 401: this.errorMessage.set('errors.auth_invalid_credentials'); break;
+        case 429: this.errorMessage.set('errors.http_429'); break;
+        case 403: this.errorMessage.set('errors.auth_account_locked'); break;
+        default: this.errorMessage.set('errors.internal');
       }
     } else {
-      this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
+      this.errorMessage.set('errors.internal');
     }
   }
 }

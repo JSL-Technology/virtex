@@ -148,35 +148,35 @@ export class AuditAdjustmentFormPage implements OnInit {
   private collectProblems(): DraftProblem[] {
     const problems: DraftProblem[] = [];
     if (!this.form.get('fiscalYearId')?.value) {
-      problems.push({ message: 'AUDIT_ADJUSTMENTS.PROBLEM.YEAR', fieldId: 'aa-fiscal-year' });
+      problems.push({ message: 'audit_adjustments.problem.year', fieldId: 'aa-fiscal-year' });
     }
     if (!this.form.get('journalId')?.value) {
-      problems.push({ message: 'AUDIT_ADJUSTMENTS.PROBLEM.JOURNAL', fieldId: 'aa-journal' });
+      problems.push({ message: 'audit_adjustments.problem.journal', fieldId: 'aa-journal' });
     }
     if (!this.form.get('description')?.value?.trim()) {
       problems.push({
-        message: 'AUDIT_ADJUSTMENTS.PROBLEM.DESCRIPTION',
+        message: 'audit_adjustments.problem.description',
         fieldId: 'aa-description',
       });
     }
     this.lines.controls.forEach((line, index) => {
       if (!line.get('accountId')?.value) {
         problems.push({
-          message: 'AUDIT_ADJUSTMENTS.PROBLEM.LINE_ACCOUNT',
+          message: 'audit_adjustments.problem.line_account',
           params: { line: index + 1 },
           fieldId: `aa-line-account-${index}`,
         });
       }
       if (!line.get('description')?.value?.trim()) {
         problems.push({
-          message: 'AUDIT_ADJUSTMENTS.PROBLEM.LINE_DESCRIPTION',
+          message: 'audit_adjustments.problem.line_description',
           params: { line: index + 1 },
           fieldId: `aa-line-description-${index}`,
         });
       }
     });
     if (!this.balanced()) {
-      problems.push({ message: 'AUDIT_ADJUSTMENTS.PROBLEM.UNBALANCED', fieldId: 'aa-lines' });
+      problems.push({ message: 'audit_adjustments.problem.adjustment_does_not_balance_debits_credits', fieldId: 'aa-lines' });
     }
     return problems;
   }
@@ -212,8 +212,8 @@ export class AuditAdjustmentFormPage implements OnInit {
           this.saving.set(false);
           this.notifications.showSuccess(
             proposal.status === 'POSTED'
-              ? 'AUDIT_ADJUSTMENTS.PROPOSED_AND_POSTED'
-              : 'AUDIT_ADJUSTMENTS.PROPOSED_PENDING',
+              ? 'audit_adjustments.proposed_and_posted'
+              : 'audit_adjustments.proposed_pending',
           );
           this.router.navigate(['/accounting/audit-adjustments']);
         },
@@ -221,7 +221,7 @@ export class AuditAdjustmentFormPage implements OnInit {
           this.saving.set(false);
           const message = error?.error?.message;
           this.notifications.showError(
-            typeof message === 'string' ? message : 'AUDIT_ADJUSTMENTS.PROPOSE_FAILED',
+            typeof message === 'string' ? message : 'audit_adjustments.propose_failed',
           );
         },
       });

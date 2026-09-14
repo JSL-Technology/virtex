@@ -1,9 +1,9 @@
 <vx-list-shell
-  titleKey="INVENTORY.CATEGORIES.CATEGORIAS"
-  subtitleKey="INVENTORY.CATEGORIES.ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS"
+  titleKey="inventory.categories.categories"
+  subtitleKey="inventory.categories.organize_your_products_into_categories"
   [count]="categories().length"
   [loading]="loading()"
-  [error]="failed() ? 'COMMON.LOAD_FAILED' : null"
+  [error]="failed() ? 'common.load_failed' : null"
   [empty]="isEmpty()"
   (reload)="reload()"
 >
@@ -15,26 +15,26 @@
     (click)="creating.set(!creating())"
   >
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'INVENTORY.CATEGORIES.NUEVA_CATEGORIA' | translate }}</span>
+    <span>{{ 'inventory.categories.new_category' | translate }}</span>
   </button>
 
   <label listFilters class="inline-toggle">
     <input type="checkbox" [checked]="includeInactive()" (change)="toggleInactive()" />
-    <span>{{ 'INVENTORY.CATEGORIES.SHOW_INACTIVE' | translate }}</span>
+    <span>{{ 'inventory.categories.show_inactive' | translate }}</span>
   </label>
 
   <ng-container listEmpty>
-    <p class="ls__state-title">{{ 'INVENTORY.CATEGORIES.EMPTY' | translate }}</p>
+    <p class="ls__state-title">{{ 'inventory.categories.empty' | translate }}</p>
   </ng-container>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'INVENTORY.CATEGORIES.NAME' | translate }}</th>
-          <th>{{ 'INVENTORY.CATEGORIES.CODE' | translate }}</th>
-          <th>{{ 'INVENTORY.CATEGORIES.STATUS' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'inventory.categories.name' | translate }}</th>
+          <th>{{ 'inventory.categories.code' | translate }}</th>
+          <th>{{ 'inventory.categories.status' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -48,18 +48,18 @@
                     type="text"
                     maxlength="100"
                     [value]="row.category.name"
-                    [attr.aria-label]="'INVENTORY.CATEGORIES.NAME' | translate"
+                    [attr.aria-label]="'inventory.categories.name' | translate"
                   />
                   <input
                     #editCode
                     type="text"
                     maxlength="32"
                     [value]="row.category.code ?? ''"
-                    [placeholder]="'INVENTORY.CATEGORIES.CODE' | translate"
-                    [attr.aria-label]="'INVENTORY.CATEGORIES.CODE' | translate"
+                    [placeholder]="'inventory.categories.code' | translate"
+                    [attr.aria-label]="'inventory.categories.code' | translate"
                   />
-                  <select #editParent [attr.aria-label]="'INVENTORY.CATEGORIES.PARENT' | translate">
-                    <option value="">{{ 'INVENTORY.CATEGORIES.NO_PARENT' | translate }}</option>
+                  <select #editParent [attr.aria-label]="'inventory.categories.parent' | translate">
+                    <option value="">{{ 'inventory.categories.no_parent' | translate }}</option>
                     @for (option of parentOptions(); track option.id) {
                       <option [value]="option.id" [selected]="option.id === row.category.parentId">
                         {{ option.name }}
@@ -72,10 +72,10 @@
                     [disabled]="busy()"
                     (click)="update(row.category, editName.value, editCode.value, editParent.value)"
                   >
-                    {{ 'COMMON.SAVE' | translate }}
+                    {{ 'common.save' | translate }}
                   </button>
                   <button type="button" class="secondary-button" (click)="editing.set(null)">
-                    {{ 'COMMON.CANCEL' | translate }}
+                    {{ 'common.cancel' | translate }}
                   </button>
                 </div>
               </td>
@@ -94,8 +94,8 @@
                 <span class="status-badge" [class.draft]="!row.category.isActive">
                   {{
                     (row.category.isActive
-                      ? 'INVENTORY.CATEGORIES.ACTIVE'
-                      : 'INVENTORY.CATEGORIES.INACTIVE'
+                      ? 'inventory.categories.active'
+                      : 'inventory.categories.inactive'
                     ) | translate
                   }}
                 </span>
@@ -106,7 +106,7 @@
                   class="icon-button"
                   [disabled]="busy()"
                   (click)="editing.set(row.category.id)"
-                  [attr.aria-label]="'COMMON.EDIT' | translate"
+                  [attr.aria-label]="'common.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="15" aria-hidden="true"></lucide-icon>
                 </button>
@@ -118,8 +118,8 @@
                 >
                   {{
                     (row.category.isActive
-                      ? 'INVENTORY.CATEGORIES.DEACTIVATE'
-                      : 'INVENTORY.CATEGORIES.ACTIVATE'
+                      ? 'inventory.categories.deactivate'
+                      : 'inventory.categories.reactivate'
                     ) | translate
                   }}
                 </button>
@@ -128,7 +128,7 @@
                   class="icon-button"
                   [disabled]="busy()"
                   (click)="remove(row.category)"
-                  [attr.aria-label]="'COMMON.DELETE' | translate"
+                  [attr.aria-label]="'common.delete' | translate"
                 >
                   <lucide-icon [img]="DeleteIcon" size="15" aria-hidden="true"></lucide-icon>
                 </button>
@@ -150,18 +150,18 @@
         #newName
         type="text"
         maxlength="100"
-        [placeholder]="'INVENTORY.CATEGORIES.NAME' | translate"
-        [attr.aria-label]="'INVENTORY.CATEGORIES.NAME' | translate"
+        [placeholder]="'inventory.categories.name' | translate"
+        [attr.aria-label]="'inventory.categories.name' | translate"
       />
       <input
         #newCode
         type="text"
         maxlength="32"
-        [placeholder]="'INVENTORY.CATEGORIES.CODE' | translate"
-        [attr.aria-label]="'INVENTORY.CATEGORIES.CODE' | translate"
+        [placeholder]="'inventory.categories.code' | translate"
+        [attr.aria-label]="'inventory.categories.code' | translate"
       />
-      <select #newParent [attr.aria-label]="'INVENTORY.CATEGORIES.PARENT' | translate">
-        <option value="">{{ 'INVENTORY.CATEGORIES.NO_PARENT' | translate }}</option>
+      <select #newParent [attr.aria-label]="'inventory.categories.parent' | translate">
+        <option value="">{{ 'inventory.categories.no_parent' | translate }}</option>
         @for (option of categories(); track option.id) {
           <option [value]="option.id">{{ option.name }}</option>
         }
@@ -172,10 +172,10 @@
         [disabled]="busy()"
         (click)="create(newName.value, newCode.value, newParent.value); newName.value = ''; newCode.value = ''"
       >
-        {{ 'COMMON.SAVE' | translate }}
+        {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="creating.set(false)">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'common.cancel' | translate }}
       </button>
     </div>
   }

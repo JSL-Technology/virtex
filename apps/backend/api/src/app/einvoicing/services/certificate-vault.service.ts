@@ -31,7 +31,7 @@ export class CertificateVaultService {
   private key(): Buffer {
     const secret = this.config.get<string>('ECF_CERT_ENCRYPTION_KEY');
     if (!secret || secret.length < 16) {
-      throw new InternalServerError('EINVOICING.ECF_CERT_ENCRYPTION_KEY_NO_ESTA_CONFIGURADA');
+      throw new InternalServerError('einvoicing.ecf_cert_encryption_key_not_configured');
     }
     return crypto.scryptSync(secret, CertificateVaultService.SALT, 32);
   }
@@ -50,7 +50,7 @@ export class CertificateVaultService {
   decrypt(payload: string): Buffer {
     const parts = payload.split(':');
     if (parts.length !== 3) {
-      throw new InternalServerError('EINVOICING.FORMATO_DATO_CIFRADO_CERTIFICADO_INVALIDO');
+      throw new InternalServerError('einvoicing.certificate_encrypted_data_format_invalid');
     }
     const [ivB64, tagB64, dataB64] = parts;
     const decipher = crypto.createDecipheriv('aes-256-gcm', this.key(), Buffer.from(ivB64, 'base64'));
@@ -69,7 +69,7 @@ export class CertificateVaultService {
       const asn1 = forge.asn1.fromDer(forge.util.createBuffer(pfx.toString('binary')));
       p12 = forge.pkcs12.pkcs12FromAsn1(asn1, password);
     } catch {
-      throw new BadRequestError('EINVOICING.NO_PUDO_ABRIR_CERTIFICADO_ARCHIVO_INVALIDO_CONTRASENA');
+      throw new BadRequestError('einvoicing.certificate_could_not_opened_invalid_file');
     }
 
     const keyBags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
@@ -78,7 +78,7 @@ export class CertificateVaultService {
     const certBag = certBags[forge.pki.oids.certBag]?.[0];
 
     if (!keyBag?.key || !certBag?.cert) {
-      throw new BadRequestError('EINVOICING.CERTIFICADO_NO_CONTIENE_CLAVE_PRIVADA_CERTIFICADO_509');
+      throw new BadRequestError('einvoicing.certificate_does_not_contain_valid_private');
     }
 
     const cert = certBag.cert;

@@ -313,7 +313,7 @@ export class AccountReconciliationPage {
   // ── presentation ───────────────────────────────────────────────────────────
 
   statusKey(status: BankStatement['status']): string {
-    return `ACCOUNTING.RECONCILIATION.ESTATUS.${status}`;
+    return `accounting.reconciliation.status.${status}`;
   }
 
   statusClass(status: BankStatement['status']): string {

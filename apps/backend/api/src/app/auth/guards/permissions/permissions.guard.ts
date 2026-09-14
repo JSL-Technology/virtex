@@ -63,7 +63,7 @@ export class PermissionsGuard implements CanActivate {
       if (authenticatedOnly) {
         // Being signed in IS the authorisation for this route, and the author said why.
         if (!user) {
-          throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+          throw new ForbiddenError('auth.you_do_not_have_permission_perform');
         }
         return true;
       }
@@ -74,11 +74,11 @@ export class PermissionsGuard implements CanActivate {
         `Route declares neither @HasPermission nor @AuthenticatedOnly and is therefore denied: ` +
           `${context.getClass().name}.${context.getHandler().name}`,
       );
-      throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+      throw new ForbiddenError('auth.you_do_not_have_permission_perform');
     }
 
     if (!user || !user.permissions) {
-        throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+        throw new ForbiddenError('auth.you_do_not_have_permission_perform');
     }
 
     // L-07 FIX: delegate permission matching to the shared `hasPermission` util so the
@@ -97,7 +97,7 @@ export class PermissionsGuard implements CanActivate {
                 // Log the detail internally; return a generic message to the client
                 // (OWASP Error Handling Cheat Sheet; CWE-209).
                 this.logger.warn(`Permission denied: user=${user.id}, missing=${requirement}`);
-                throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+                throw new ForbiddenError('auth.you_do_not_have_permission_perform');
             }
         } else if (typeof requirement === 'function') { // It's a Class (Constructor)
              try {
@@ -110,19 +110,19 @@ export class PermissionsGuard implements CanActivate {
                     // If not found in DI container, we log error and fail secure.
                     // We do NOT manually instantiate, as that breaks DI contract.
                      this.logger.error(`Policy ${requirement.name} not found in DI container. Make sure it is decorated with @Injectable() and provided in the module.`);
-                     throw new ForbiddenError('AUTH.CONFIGURATION_ERROR_POLICY_NOT_FOUND');
+                     throw new ForbiddenError('auth.configuration_error_policy_not_found');
                 }
 
                 if (policy) {
                     const allowed = await policy.can(user, request);
                     if (!allowed) {
-                        throw new ForbiddenError('AUTH.NO_CUMPLES_POLITICA_ACCESO_REQUERIDA');
+                        throw new ForbiddenError('auth.you_do_not_meet_required_access');
                     }
                 }
              } catch (e) {
                  if (e instanceof ForbiddenException) throw e;
                  this.logger.error(`Policy check failed: ${(e as Error).message}`, (e as Error).stack);
-                 throw new ForbiddenError('AUTH.ERROR_VALIDANDO_POLITICA_SEGURIDAD');
+                 throw new ForbiddenError('auth.security_policy_could_not_validated');
              }
         }
     }

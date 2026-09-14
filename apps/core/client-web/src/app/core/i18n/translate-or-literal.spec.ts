@@ -35,7 +35,7 @@ describe('translateOrLiteral', () => {
   });
 
   it('translates a key the catalogue carries', () => {
-    expect(translateOrLiteral(translate, 'BILLING.PLANS.PRO.DESCRIPTION')).toBe(
+    expect(translateOrLiteral(translate, 'billing.plans.pro.description')).toBe(
       'For growing companies',
     );
   });
@@ -52,15 +52,15 @@ describe('translateOrLiteral', () => {
    *
    * `VirtexMissingTranslationHandler` answers a missing key with the key in production and
    * `[[KEY]]` in development, so `result === key` misses the development case and the screen shows
-   * `[[BILLING.PLANS.STARTER.DESCRIPTION]]`.
+   * `[[billing.plans.starter.description]]`.
    */
   it('treats the development marker as a miss, not as a translation', () => {
     jest
       .spyOn(translate, 'instant')
-      .mockReturnValue('[[BILLING.PLANS.STARTER.DESCRIPTION]]' as never);
+      .mockReturnValue('[[billing.plans.starter.description]]' as never);
 
-    expect(translateOrLiteral(translate, 'BILLING.PLANS.STARTER.DESCRIPTION')).toBe(
-      'BILLING.PLANS.STARTER.DESCRIPTION',
+    expect(translateOrLiteral(translate, 'billing.plans.starter.description')).toBe(
+      'billing.plans.starter.description',
     );
   });
 

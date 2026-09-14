@@ -73,14 +73,14 @@ export class InventoryPostingService {
     const inventoryId = settings.defaultInventoryId;
     const openingId = settings.defaultOpeningBalanceEquityAccountId;
     if (!inventoryId || !openingId) {
-      throw new BadRequestError('INVENTORY.CUENTAS_INVENTARIO_NO_CONFIGURADAS');
+      throw new BadRequestError('inventory.organization_has_no_inventory_opening_balance');
     }
 
     //  El relato en el idioma en que se llevan los libros del inquilino, no en castellano fijo.
     const words = await this.narrative.describeAll(manager, product.organizationId, {
-      entry: { key: 'LEDGER.INVENTORY.OPENING_ENTRY', params: { product: product.name } },
-      stock: { key: 'LEDGER.INVENTORY.OPENING_STOCK', params: { product: product.name } },
-      counterpart: { key: 'LEDGER.INVENTORY.OPENING_COUNTERPART' },
+      entry: { key: 'ledger.inventory.opening_entry', params: { product: product.name } },
+      stock: { key: 'ledger.inventory.opening_stock', params: { product: product.name } },
+      counterpart: { key: 'ledger.inventory.opening_counterpart' },
     });
 
     return this.post(
@@ -139,19 +139,19 @@ export class InventoryPostingService {
     const inventoryId = settings.defaultInventoryId;
     const adjustmentId = settings.defaultInventoryAdjustmentAccountId;
     if (!inventoryId || !adjustmentId) {
-      throw new BadRequestError('INVENTORY.CUENTAS_AJUSTE_NO_CONFIGURADAS');
+      throw new BadRequestError('inventory.organization_has_no_inventory_inventory_adjustment');
     }
 
     const amount = Math.abs(delta);
     const increase = delta > 0;
     const words = await this.narrative.describeAll(manager, product.organizationId, {
-      entry: { key: 'LEDGER.INVENTORY.ADJUSTMENT_ENTRY', params: { product: product.name } },
+      entry: { key: 'ledger.inventory.adjustment_entry', params: { product: product.name } },
       movement: {
-        key: increase ? 'LEDGER.INVENTORY.ADJUSTMENT_IN' : 'LEDGER.INVENTORY.ADJUSTMENT_OUT',
+        key: increase ? 'ledger.inventory.adjustment_in' : 'ledger.inventory.adjustment_out',
         params: { product: product.name },
       },
       counterpart: {
-        key: increase ? 'LEDGER.INVENTORY.ADJUSTMENT_SURPLUS' : 'LEDGER.INVENTORY.ADJUSTMENT_SHORTFALL',
+        key: increase ? 'ledger.inventory.adjustment_surplus' : 'ledger.inventory.adjustment_shortfall',
       },
     });
     return this.post(
@@ -209,11 +209,11 @@ export class InventoryPostingService {
   ): Promise<{ settings: OrganizationSettings; journal: Journal }> {
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings) {
-      throw new BadRequestError('INVENTORY.CUENTAS_INVENTARIO_NO_CONFIGURADAS');
+      throw new BadRequestError('inventory.organization_has_no_inventory_opening_balance');
     }
     const journal = await manager.findOneBy(Journal, { organizationId, code: 'GENERAL' });
     if (!journal) {
-      throw new BadRequestError('INVENTORY.DIARIO_GENERAL_NO_ENCONTRADO');
+      throw new BadRequestError('inventory.no_general_general_journal_organization_create');
     }
     return { settings, journal };
   }

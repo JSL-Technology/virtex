@@ -104,7 +104,7 @@ export class VendorBillDetailPage implements OnInit {
         switchMap((params) => {
           const id = params.get('id');
           if (!id) {
-            this.handleError('ACCOUNTS_PAYABLE.DETAIL.FACTURA_NO_ENCONTRADA');
+            this.handleError('accounts_payable.detail.bill_not_found');
             return EMPTY;
           }
           this.isLoading.set(true);
@@ -118,7 +118,7 @@ export class VendorBillDetailPage implements OnInit {
           });
         }),
         catchError(() => {
-          this.handleError('ACCOUNTS_PAYABLE.DETAIL.ERROR_CARGAR_FACTURA');
+          this.handleError('accounts_payable.detail.supplier_bill_could_not_loaded');
           return EMPTY;
         }),
       )
@@ -137,20 +137,20 @@ export class VendorBillDetailPage implements OnInit {
     if (!id) return;
 
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.SUBMIT_BILL.TITLE',
-      message: 'DIALOG.SUBMIT_BILL.MESSAGE',
+      title: 'dialog.submit_bill.title',
+      message: 'dialog.submit_bill.message',
     });
     if (!confirmed) return;
 
     this.isLoading.set(true);
     this.accountsPayable.submitForApproval(id).subscribe({
       next: () => {
-        this.notifications.showSuccess('ACCOUNTS_PAYABLE.DETAIL.FACTURA_ENVIADA_APROBACION');
+        this.notifications.showSuccess('accounts_payable.detail.bill_submitted_approval');
         this.load();
       },
       error: (error: unknown) => {
         this.notifications.showError(
-          serverMessage(error) ?? 'ACCOUNTS_PAYABLE.DETAIL.ERROR_ENVIAR_APROBACION',
+          serverMessage(error) ?? 'accounts_payable.detail.bill_could_not_submitted_approval',
         );
         this.isLoading.set(false);
       },
@@ -162,11 +162,11 @@ export class VendorBillDetailPage implements OnInit {
     if (!id) return;
 
     const reason = await this.dialog.prompt({
-      title: 'DIALOG.VOID_BILL.TITLE',
-      message: 'DIALOG.VOID_BILL.MESSAGE',
-      placeholder: 'DIALOG.VOID_BILL.PLACEHOLDER',
+      title: 'dialog.void_bill.title',
+      message: 'dialog.void_bill.message',
+      placeholder: 'dialog.void_bill.reason_voiding',
       minLength: 10,
-      tooShort: 'DIALOG.VOID_BILL.TOO_SHORT',
+      tooShort: 'dialog.void_bill.too_short',
       variant: 'danger',
     });
     if (!reason) return;
@@ -174,12 +174,12 @@ export class VendorBillDetailPage implements OnInit {
     this.isLoading.set(true);
     this.accountsPayable.voidBill(id, reason).subscribe({
       next: () => {
-        this.notifications.showSuccess('ACCOUNTS_PAYABLE.DETAIL.FACTURA_ANULADA_EXITO');
+        this.notifications.showSuccess('accounts_payable.detail.invoice_voided');
         this.load();
       },
       error: (error: unknown) => {
         this.notifications.showError(
-          serverMessage(error) ?? 'ACCOUNTS_PAYABLE.DETAIL.ERROR_ANULAR_FACTURA',
+          serverMessage(error) ?? 'accounts_payable.detail.bill_could_not_annulled',
         );
         this.isLoading.set(false);
       },
@@ -187,7 +187,7 @@ export class VendorBillDetailPage implements OnInit {
   }
 
   statusKey(status: string): string {
-    return `ACCOUNTS_PAYABLE.STATUS.${status}`;
+    return `accounts_payable.status.${status}`;
   }
 
   /**
@@ -218,8 +218,8 @@ export class VendorBillDetailPage implements OnInit {
 
   /** Nombre del documento, ya compuesto: el armazón lo pone junto al estado. */
   documentTitle(bill: VendorBill): string {
-    const ncf = bill.ncf || this.translate.instant('ACCOUNTS_PAYABLE.LIST.SIN_NCF');
-    return `${this.translate.instant('ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR')} ${ncf}`;
+    const ncf = bill.ncf || this.translate.instant('accounts_payable.list.no_fiscal_number');
+    return `${this.translate.instant('accounts_payable.detail.supplier_bill')} ${ncf}`;
   }
 
   goToList(): void {

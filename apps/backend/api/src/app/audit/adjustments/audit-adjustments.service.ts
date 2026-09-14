@@ -112,7 +112,7 @@ export class AuditAdjustmentsService {
       relations: ['evidence', 'proposer', 'fiscalYear', 'journal'],
     });
     if (!adjustment) {
-      throw new NotFoundError('AUDIT.PROPUESTA_AJUSTE_ID_NO_ENCONTRADA', { adjustmentId: id });
+      throw new NotFoundError('audit.adjustment_proposal_adjustment_id_not_found', { adjustmentId: id });
     }
     return adjustment;
   }
@@ -126,10 +126,10 @@ export class AuditAdjustmentsService {
     return this.dataSource.transaction(async (manager) => {
       const adjustment = await manager.findOneBy(ProposedAdjustment, { id: adjustmentId, organizationId });
       if (!adjustment) {
-        throw new NotFoundError('AUDIT.PROPUESTA_AJUSTE_ID_NO_ENCONTRADA', { adjustmentId });
+        throw new NotFoundError('audit.adjustment_proposal_adjustment_id_not_found', { adjustmentId });
       }
       if (adjustment.status !== AdjustmentStatus.PENDING_APPROVAL) {
-        throw new ForbiddenError('AUDIT.SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION');
+        throw new ForbiddenError('audit.evidence_can_only_added_proposals_awaiting');
       }
 
       const storedFile = await this.storageService.upload(
@@ -192,7 +192,7 @@ export class AuditAdjustmentsService {
             description: await this.narrative.describe(
               manager,
               organizationId,
-              'LEDGER.ADJUSTMENT.AUDIT',
+              'ledger.adjustment.audit',
               { description: adjustment.description },
             ),
             journalId: adjustment.journalId,
@@ -224,7 +224,7 @@ export class AuditAdjustmentsService {
         this.logger.error(`Fallo al contabilizar el ajuste de auditoría ${documentId}. Revirtiendo estado.`, (error as Error).stack);
         adjustment.status = AdjustmentStatus.FAILED;
         await adjustmentRepo.save(adjustment);
-        throw new InternalServerError('AUDIT.FALLO_PROCESAR_AJUSTE_APROBADO', { p1: (error as Error).message });
+        throw new InternalServerError('audit.approved_adjustment_could_not_processed_p1', { p1: (error as Error).message });
       }
     }
   }

@@ -24,13 +24,13 @@ import { DraftProblem } from './draft-shell.component';
 
 /** Clave i18n del mensaje para cada tipo de error, en el orden en que se comprueban. */
 const MESSAGE_BY_ERROR: Record<string, string> = {
-  required: 'SHELL.PROBLEM_REQUIRED',
-  email: 'SHELL.PROBLEM_EMAIL',
-  min: 'SHELL.PROBLEM_MIN',
-  max: 'SHELL.PROBLEM_MAX',
-  minlength: 'SHELL.PROBLEM_MINLENGTH',
-  maxlength: 'SHELL.PROBLEM_MAXLENGTH',
-  pattern: 'SHELL.PROBLEM_PATTERN',
+  required: 'shell.problem_required',
+  email: 'shell.problem_email',
+  min: 'shell.problem_min',
+  max: 'shell.problem_max',
+  minlength: 'shell.problem_minlength',
+  maxlength: 'shell.problem_maxlength',
+  pattern: 'shell.field_not_expected_format',
 };
 
 function describe(name: string, label: string, errors: ValidationErrors): DraftProblem {
@@ -49,7 +49,7 @@ function describe(name: string, label: string, errors: ValidationErrors): DraftP
   }
   //  Un validador propio que este mapa no conoce. Se nombra el campo en vez de callarse: el
   //  usuario no puede arreglar lo que no sabe que está mal.
-  return { message: 'SHELL.PROBLEM_INVALID', fieldId: name, params: { field: label } };
+  return { message: 'shell.problem_invalid', fieldId: name, params: { field: label } };
 }
 
 /**

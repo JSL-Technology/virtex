@@ -74,9 +74,9 @@ export class OverviewPage implements OnInit, TabAware {
   /** Clave i18n del saludo según la hora del día. */
   readonly greetingKey = computed(() => {
     const h = new Date().getHours();
-    if (h < 12) return 'OVERVIEW.GREETING.MORNING';
-    if (h < 19) return 'OVERVIEW.GREETING.AFTERNOON';
-    return 'OVERVIEW.GREETING.EVENING';
+    if (h < 12) return 'overview.greeting.morning';
+    if (h < 19) return 'overview.greeting.afternoon';
+    return 'overview.greeting.evening';
   });
 
   /** Accesos rápidos visibles (reactivo a permisos del usuario). */
@@ -134,14 +134,14 @@ export class OverviewPage implements OnInit, TabAware {
    */
   activityTitle(item: ActivityItem): string {
     return this.translate.instant(item.titleKey, {
-      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+      reference: item.reference ?? this.translate.instant('overview.activity.no_reference'),
     });
   }
 
   /** The sentence for one due date, in the reader's language. */
   eventTitle(item: EventItem): string {
     return this.translate.instant(item.titleKey, {
-      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+      reference: item.reference ?? this.translate.instant('overview.activity.no_reference'),
     });
   }
 

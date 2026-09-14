@@ -233,7 +233,7 @@ async function main(): Promise<void> {
     );
   } catch (e) {
     const key = (e as { messageKey?: string }).messageKey ?? (e as Error).message;
-    unjustifiedRefused = key === 'INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN';
+    unjustifiedRefused = key === 'invoices.withholding_stated_stated_not_what_applicable';
     unjustifiedDetail = key;
   }
   check(

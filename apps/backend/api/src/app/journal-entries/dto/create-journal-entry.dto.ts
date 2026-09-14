@@ -19,42 +19,42 @@ import {
 import { JournalEntryType } from '../entities/journal-entry.entity';
 
 class LineValuationDto {
-  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_LIBRO_CONTABLE_LEDGERID_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO_CADA_VALORACION' })
+  @IsUUID('4', { message: 'validation.create_journal_entry.ledger_id_ledger_id_must_valid' })
+  @IsNotEmpty({ message: 'validation.create_journal_entry.ledger_id_ledger_id_required_every' })
   ledgerId: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_DEBE_NUMERO_VALIDO' })
-  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_DEBITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_must_valid_number' })
+  @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
+  @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_DEBE_NUMERO_VALIDO' })
-  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_CREDITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_must_valid_number' })
+  @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
+  @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
   credit: number;
 }
 
 
 export class CreateJournalEntryLineDto {
-  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_CUENTA_ACCOUNTID_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_CUENTA_ACCOUNTID_OBLIGATORIO' })
+  @IsUUID('4', { message: 'validation.create_journal_entry.account_id_account_id_must_valid' })
+  @IsNotEmpty({ message: 'validation.create_journal_entry.account_id_account_id_required' })
   accountId: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
-  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_DEBITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
+  @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
+  @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
-  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_CREDITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
+  @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
+  @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
   credit: number;
 
-  @IsString({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_LINEA_DEBE_TEXTO' })
+  @IsString({ message: 'validation.create_journal_entry.line_description_must_text' })
   @IsOptional()
   description?: string;
   
-  @IsObject({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DIMENSIONES_DEBEN_OBJETO' })
+  @IsObject({ message: 'validation.create_journal_entry.dimensions_must_object' })
   @IsOptional()
   dimensions?: Record<string, string>;
 
@@ -80,25 +80,25 @@ export class CreateJournalEntryLineDto {
    */
   @IsString()
   @IsOptional()
-  @Length(3, 3, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CODIGO_MONEDA_DEBE_TENER_EXACTAMENTE_3_CARACTERES' })
+  @Length(3, 3, { message: 'validation.create_journal_entry.currency_code_must_exactly_characters' })
   currencyCode?: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO' })
+  @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   foreignCurrencyDebit?: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_NO_PUEDE_NEGATIVO' })
+  @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
   foreignCurrencyCredit?: number;
 
-  @IsNumber({}, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_DEBE_NUMERO' })
+  @IsNumber({}, { message: 'validation.create_journal_entry.exchange_rate_must_number' })
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_NO_PUEDE_NEGATIVA' })
+  @Min(0, { message: 'validation.create_journal_entry.exchange_rate_cannot_negative' })
   exchangeRate?: number;
 
-  @IsArray({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.VALORACIONES_DEBEN_ARREGLO' })
+  @IsArray({ message: 'validation.create_journal_entry.valuations_must_array' })
   @ValidateNested({ each: true })
   @Type(() => LineValuationDto)
   @IsOptional()
@@ -106,34 +106,34 @@ export class CreateJournalEntryLineDto {
 }
 
 export class CreateJournalEntryDto {
-  @IsDateString({}, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.FECHA_DEBE_TENER_FORMATO_FECHA_ISO_8601_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.FECHA_ASIENTO_OBLIGATORIA' })
+  @IsDateString({}, { message: 'validation.create_journal_entry.date_must_valid_iso_8601_format' })
+  @IsNotEmpty({ message: 'validation.create_journal_entry.entry_date_required' })
   date: string;
 
-  @IsString({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_DEBE_TEXTO' })
-  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_ASIENTO_OBLIGATORIA' })
+  @IsString({ message: 'validation.create_journal_entry.description_must_text' })
+  @IsNotEmpty({ message: 'validation.create_journal_entry.entry_description_required' })
   description: string;
   
   @IsString()
   @IsOptional()
-  @Length(3, 3, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CODIGO_MONEDA_DEBE_TENER_EXACTAMENTE_3_CARACTERES' })
+  @Length(3, 3, { message: 'validation.create_journal_entry.currency_code_must_exactly_characters' })
   currencyCode?: string;
 
-  @IsNumber({}, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_DEBE_NUMERO'})
+  @IsNumber({}, { message: 'validation.create_journal_entry.exchange_rate_must_number'})
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_NO_PUEDE_NEGATIVA'})
+  @Min(0, { message: 'validation.create_journal_entry.exchange_rate_cannot_negative'})
   exchangeRate?: number;
 
-  @IsArray({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.LINEAS_ASIENTO_DEBEN_ARREGLO' })
+  @IsArray({ message: 'validation.create_journal_entry.entry_lines_must_array' })
   @ValidateNested({ each: true })
   @Type(() => CreateJournalEntryLineDto)
   lines: CreateJournalEntryLineDto[];
 
-  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_DIARIO_JOURNALID_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_DIARIO_JOURNALID_OBLIGATORIO' })
+  @IsUUID('4', { message: 'validation.create_journal_entry.journal_id_journal_id_must_valid' })
+  @IsNotEmpty({ message: 'validation.create_journal_entry.journal_id_journal_id_required' })
   journalId: string;
 
-  @IsEnum(JournalEntryType, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TIPO_ASIENTO_ENTRYTYPE_NO_VALIDO'})
+  @IsEnum(JournalEntryType, { message: 'validation.create_journal_entry.entry_type_entry_type_not_valid'})
   @IsOptional()
   entryType?: JournalEntryType;
 }

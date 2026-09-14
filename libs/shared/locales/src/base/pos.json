@@ -1,22 +1,148 @@
 {
+  "pos.charge": {
+    "es": "Cobrar {{amount}}",
+    "en": "Charge {{amount}}",
+    "pt": "Cobrar {{amount}}"
+  },
+  "pos.charging": {
+    "es": "Procesando…",
+    "en": "Processing…",
+    "pt": "A processar…"
+  },
+  "pos.close_shift": {
+    "es": "Cerrar turno",
+    "en": "Close shift",
+    "pt": "Fechar turno"
+  },
+  "pos.close_shift_error": {
+    "es": "No pudimos cerrar el turno.",
+    "en": "We could not close the shift.",
+    "pt": "Não foi possível fechar o turno."
+  },
+  "pos.current_order": {
+    "es": "Pedido actual",
+    "en": "Current order",
+    "pt": "Pedido atual"
+  },
+  "pos.email": {
+    "es": "Correo",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "pos.empty_order": {
+    "es": "Agrega productos para empezar.",
+    "en": "Add products to begin.",
+    "pt": "Adiciona produtos para começar."
+  },
+  "pos.load_products_error": {
+    "es": "No pudimos cargar el catálogo de productos.",
+    "en": "We could not load the product catalogue.",
+    "pt": "Não foi possível carregar o catálogo de produtos."
+  },
   "pos.no_open_shift": {
     "en": "There is no open shift on this terminal. Open a shift before selling.",
     "es": "No hay un turno abierto en esta terminal. Abre un turno antes de vender.",
     "pt": "Não há um turno aberto neste terminal. Abre um turno antes de vender."
+  },
+  "pos.open_shift": {
+    "es": "Abrir turno",
+    "en": "Open shift",
+    "pt": "Abrir turno"
+  },
+  "pos.open_shift_error": {
+    "es": "No pudimos abrir el turno.",
+    "en": "We could not open the shift.",
+    "pt": "Não foi possível abrir o turno."
+  },
+  "pos.out_of_stock": {
+    "es": "Sin existencias",
+    "en": "Out of stock",
+    "pt": "Sem stock"
+  },
+  "pos.password": {
+    "es": "Contraseña",
+    "en": "Password",
+    "pt": "Senha"
+  },
+  "pos.remove_line": {
+    "es": "Quitar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "pos.sale_completed": {
+    "es": "Venta registrada.",
+    "en": "Sale recorded.",
+    "pt": "Venda registada."
+  },
+  "pos.sale_error": {
+    "es": "No pudimos completar la venta.",
+    "en": "We could not complete the sale.",
+    "pt": "Não foi possível concluir a venda."
+  },
+  "pos.search_products": {
+    "es": "Busca productos por nombre o SKU…",
+    "en": "Search products by name or SKU…",
+    "pt": "Procura produtos por nome ou SKU…"
   },
   "pos.shift_already_closed": {
     "en": "That shift is already closed.",
     "es": "El turno ya está cerrado.",
     "pt": "Esse turno já está fechado."
   },
+  "pos.shift_closed": {
+    "es": "Turno cerrado.",
+    "en": "Shift closed.",
+    "pt": "Turno fechado."
+  },
   "pos.shift_not_found": {
     "en": "We could not find that shift.",
     "es": "No encontramos el turno.",
     "pt": "Não encontrámos esse turno."
   },
+  "pos.shift_total": {
+    "es": "Turno: {{amount}}",
+    "en": "Shift: {{amount}}",
+    "pt": "Turno: {{amount}}"
+  },
+  "pos.sign_in": {
+    "es": "Iniciar sesión",
+    "en": "Sign in",
+    "pt": "Iniciar sessão"
+  },
+  "pos.sign_in_title": {
+    "es": "Inicia sesión para abrir la caja",
+    "en": "Sign in to open the till",
+    "pt": "Inicia sessão para abrir a caixa"
+  },
+  "pos.sign_out": {
+    "es": "Cerrar sesión",
+    "en": "Sign out",
+    "pt": "Terminar sessão"
+  },
+  "pos.signing_in": {
+    "es": "Iniciando sesión…",
+    "en": "Signing in…",
+    "pt": "A iniciar sessão…"
+  },
+  "pos.step_up_required": {
+    "es": "Se requiere verificación adicional. Termina de iniciar sesión en la aplicación principal.",
+    "en": "Additional verification is required. Finish signing in on the main application.",
+    "pt": "É necessária verificação adicional. Termina de iniciar sessão na aplicação principal."
+  },
+  "pos.subtotal": {
+    "literal": "Subtotal"
+  },
+  "pos.tax_with_rate": {
+    "es": "Impuesto ({{rate}} %)",
+    "en": "Tax ({{rate}}%)",
+    "pt": "Imposto ({{rate}} %)"
+  },
   "pos.there_already_active_shift_for_this_terminal": {
     "en": "There is already an open shift on this terminal.",
     "es": "Ya hay un turno abierto en esta terminal.",
     "pt": "Já existe um turno aberto neste terminal."
+  },
+  "pos.total": {
+    "literal": "Total"
   }
 }

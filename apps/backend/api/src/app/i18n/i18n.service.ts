@@ -99,7 +99,7 @@ export class I18nService {
    * Three conventions, each of which exists because the alternative is worse:
    *
    * 1. **A value that is itself a catalogue key is translated.** `{{resource}}` receiving
-   *    `'SAAS.RESOURCES.INVOICES'` renders "facturas"/"invoices"/"faturas". Without this, a
+   *    `'saas.resources.invoices'` renders "facturas"/"invoices"/"faturas". Without this, a
    *    notification about a quota would have to build its noun in the emitter — where the
    *    reader's language is not known — which is how the listener ended up with a table of
    *    Spanish literals in it.

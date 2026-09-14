@@ -12,13 +12,13 @@ import { MAX_PAGE_SIZE } from '../pagination';
 export class PaginationQueryDto {
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @Max(MAX_PAGE_SIZE)
   @IsOptional()
   pageSize?: number;

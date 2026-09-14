@@ -93,11 +93,11 @@ export class PayrollRunDetailPage implements OnInit {
     const run = this.run();
     if (!run) return null;
     const period = `${this.formatDate(run.periodStart)} – ${this.formatDate(run.periodEnd)}`;
-    return `${period} · ${this.translate.instant('PAYROLL.RUNS.TYPE_LABEL.' + run.runType)}`;
+    return `${period} · ${this.translate.instant('payroll.runs.type_label.' + run.runType)}`;
   });
 
   readonly statusKey = computed(() =>
-    this.status() ? `PAYROLL.RUNS.STATUS_LABEL.${this.status()}` : null,
+    this.status() ? `payroll.runs.status_label.${this.status()}` : null,
   );
 
   /**
@@ -141,9 +141,9 @@ export class PayrollRunDetailPage implements OnInit {
   async approve(): Promise<void> {
     // Approving posts to the ledger and closes the run to edits. Worth asking once.
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.APPROVE_PAYROLL_RUN.TITLE',
-      message: 'DIALOG.APPROVE_PAYROLL_RUN.MESSAGE',
-      confirmText: 'PAYROLL.RUNS.APPROVE',
+      title: 'dialog.approve_payroll_run.title',
+      message: 'dialog.approve_payroll_run.message',
+      confirmText: 'payroll.runs.approve',
       variant: 'warning',
     });
     if (!confirmed) return;
@@ -154,9 +154,9 @@ export class PayrollRunDetailPage implements OnInit {
 
   async cancel(): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.CANCEL_PAYROLL_RUN.TITLE',
-      message: 'DIALOG.CANCEL_PAYROLL_RUN.MESSAGE',
-      confirmText: 'PAYROLL.RUNS.CANCEL',
+      title: 'dialog.cancel_payroll_run.title',
+      message: 'dialog.cancel_payroll_run.message',
+      confirmText: 'payroll.runs.cancel',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -173,7 +173,7 @@ export class PayrollRunDetailPage implements OnInit {
     const employee = this.employees()[0];
     const concept = this.enterableConcepts()[0];
     if (!employee || !concept) {
-      this.notifications.showError('PAYROLL.RUNS.NO_EMPLOYEES_OR_CONCEPTS');
+      this.notifications.showError('payroll.runs.no_employees_or_concepts');
       return;
     }
     this.inputs.update((rows) => [
@@ -196,7 +196,7 @@ export class PayrollRunDetailPage implements OnInit {
       next: (rows) => {
         this.busy.set(false);
         this.inputs.set(rows);
-        this.notifications.showSuccess('PAYROLL.RUNS.INPUTS_SAVED');
+        this.notifications.showSuccess('payroll.runs.inputs_saved');
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
     });
@@ -285,7 +285,7 @@ export class PayrollRunDetailPage implements OnInit {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PAYROLL.RUNS.ACTION_FAILED',
+      typeof message === 'string' ? message : 'payroll.runs.action_failed',
     );
   }
 }

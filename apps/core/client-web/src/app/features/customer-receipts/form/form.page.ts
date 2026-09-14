@@ -239,12 +239,12 @@ export class CustomerReceiptFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          customerId: 'CUSTOMER_RECEIPTS.LIST.CLIENTE',
-          paymentDate: 'CUSTOMER_RECEIPTS.LIST.FECHA',
-          bankAccountId: 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA',
-          amountReceived: 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO',
-          currencyCode: 'TREASURY.MONEDA',
-          reference: 'ACCOUNTING.RECONCILIATION.REFERENCIA',
+          customerId: 'customer_receipts.list.customer',
+          paymentDate: 'customer_receipts.list.date',
+          bankAccountId: 'customer_receipts.form.bank_account',
+          amountReceived: 'customer_receipts.form.amount_received',
+          currencyCode: 'treasury.currency',
+          reference: 'accounting.reconciliation.reference',
         }),
       );
       return;
@@ -254,21 +254,21 @@ export class CustomerReceiptFormPage implements OnInit {
     const raw0 = this.form.getRawValue();
     const drawn = Number(raw0.advanceApplied || 0);
     if (Number(raw0.amountReceived || 0) + drawn <= 0) {
-      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.SIN_FONDOS');
+      this.notifications.showError('customer_receipts.form.enter_amount_received_advance_apply');
       return;
     }
     if (drawn > this.availableAdvance()) {
-      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.ANTICIPO_INSUFICIENTE');
+      this.notifications.showError('customer_receipts.form.advance_apply_exceeds_what_customer_holds');
       return;
     }
     if (this.totals().unapplied < 0) {
-      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.APLICADO_EXCEDE_RECIBIDO');
+      this.notifications.showError('customer_receipts.form.what_applied_invoices_exceeds_amount_received');
       return;
     }
     // Taking money off account only to put it straight back is not a transaction, and the server
     // refuses it — better said here, before the round trip.
     if (drawn > 0 && this.totals().unapplied > 0) {
-      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.ANTICIPO_EXCEDE_LO_APLICADO');
+      this.notifications.showError('customer_receipts.form.you_drawing_more_advance_than_receipt');
       return;
     }
 
@@ -295,14 +295,14 @@ export class CustomerReceiptFormPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.notifications.showSuccess('CUSTOMER_RECEIPTS.FORM.RECIBO_REGISTRADO');
+          this.notifications.showSuccess('customer_receipts.form.collection_recorded');
           this.router.navigate(['/customer-receipts']);
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);
           const message = error?.error?.message;
           this.notifications.showError(
-            typeof message === 'string' ? message : 'CUSTOMER_RECEIPTS.FORM.NO_SE_PUDO_GUARDAR',
+            typeof message === 'string' ? message : 'customer_receipts.form.collection_could_not_recorded',
           );
         },
       });

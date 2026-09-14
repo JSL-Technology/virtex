@@ -1,6 +1,6 @@
 <vx-inbox-shell
-  titleKey="MY_WORK.MY_WORK"
-  subtitleKey="MY_WORK.YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS"
+  titleKey="my_work.my_work"
+  subtitleKey="my_work.your_central_inbox_tasks_approvals_notifications"
   [sections]="sections()"
   [loading]="loading()"
   [error]="error()"
@@ -13,6 +13,6 @@
   -->
   <button inboxActions type="button" class="secondary-button" (click)="registerPasskey()">
     <lucide-icon [img]="SecurityIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MY_WORK.SECURITY' | translate }}</span>
+    <span>{{ 'my_work.security' | translate }}</span>
   </button>
 </vx-inbox-shell>

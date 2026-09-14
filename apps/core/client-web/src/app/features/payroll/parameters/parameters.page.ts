@@ -148,7 +148,7 @@ export class PayrollParametersPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PAYROLL.PARAMETERS.SAVE_FAILED',
+      typeof message === 'string' ? message : 'payroll.parameters.save_failed',
     );
   }
 }

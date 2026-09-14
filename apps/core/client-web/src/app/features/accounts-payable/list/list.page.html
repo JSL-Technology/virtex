@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR"
+  titleKey="accounts_payable.list.vendor_bills"
   [count]="vendorBills().length"
   [loading]="isLoading()"
   [error]="error()"
@@ -7,19 +7,19 @@
   (reload)="loadVendorBills()"
 >
   <a listActions routerLink="/accounts-payable/payments" class="secondary-button">
-    <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}</span>
+    <span>{{ 'accounts_payable.payment.record_payment' | translate }}</span>
   </a>
   <a listActions routerLink="/accounts-payable/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
+    <span>{{ 'accounts_payable.list.new_invoice' | translate }}</span>
   </a>
 
   <div listEmpty class="empty-invite">
-    <h2>{{ 'ACCOUNTS_PAYABLE.LIST.NO_HAY_FACTURAS_PROVEEDOR' | translate }}</h2>
-    <p>{{ 'ACCOUNTS_PAYABLE.LIST.CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR' | translate }}</p>
+    <h2>{{ 'accounts_payable.list.no_vendor_bills' | translate }}</h2>
+    <p>{{ 'accounts_payable.list.create_your_first_vendor_bill_get' | translate }}</p>
     <a routerLink="/accounts-payable/new" class="primary-button">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'ACCOUNTS_PAYABLE.LIST.CREAR_FACTURA' | translate }}</span>
+      <span>{{ 'accounts_payable.list.create_invoice' | translate }}</span>
     </a>
   </div>
 
@@ -27,13 +27,13 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTS_PAYABLE.LIST.PROVEEDOR' | translate }}</th>
-          <th>{{ 'ACCOUNTS_PAYABLE.LIST.NUMERO' | translate }}</th>
-          <th>{{ 'ACCOUNTS_PAYABLE.LIST.FECHA' | translate }}</th>
-          <th>{{ 'ACCOUNTS_PAYABLE.LIST.VENCIMIENTO' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.TOTAL' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.BALANCE' | translate }}</th>
-          <th class="text-center">{{ 'ACCOUNTS_PAYABLE.LIST.ESTADO' | translate }}</th>
+          <th>{{ 'accounts_payable.list.supplier' | translate }}</th>
+          <th>{{ 'accounts_payable.list.number' | translate }}</th>
+          <th>{{ 'accounts_payable.list.date' | translate }}</th>
+          <th>{{ 'accounts_payable.list.due' | translate }}</th>
+          <th class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
+          <th class="text-right">{{ 'accounts_payable.list.balance' | translate }}</th>
+          <th class="text-center">{{ 'accounts_payable.list.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -46,7 +46,7 @@
                 is the fallback rather than an empty cell with nothing to click.
               -->
               <a [routerLink]="['/accounts-payable', bill.id]" class="table-link">
-                {{ bill.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}
+                {{ bill.ncf || ('accounts_payable.list.no_fiscal_number' | translate) }}
               </a>
             </td>
             <td>{{ bill.date | vxDate: 'date' }}</td>

@@ -29,7 +29,7 @@ export class TaxesService {
   async findOne(id: string, organizationId: string): Promise<Tax> {
     const tax = await this.taxRepository.findOne({ where: { id, organizationId } });
     if (!tax) {
-      throw new NotFoundError('TAXES.IMPUESTO_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('taxes.tax_id_not_found', { id });
     }
     return tax;
   }

@@ -1,11 +1,11 @@
-{{#> shell title=(t 'MAIL.REGISTRATION_FAILED.NO_PUDIMOS_CREAR_TU_CUENTA') preheader=(t 'MAIL.REGISTRATION_FAILED.YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.REGISTRATION_FAILED.NO_PUDIMOS_CREAR_TU_CUENTA'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.PAYMENT_OK_ACCOUNT_NOT_CREATED' appName=appName}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO'}} {{t 'MAIL.REGISTRATION_FAILED.SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR'}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.NO_HACE_FALTA_HAGAS_NADA_SI'}}</p>
+{{#> shell title=(t 'mail.registration_failed.we_could_not_create_your_account') preheader=(t 'mail.registration_failed.we_have_already_cancelled_subscription_requested')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.registration_failed.we_could_not_create_your_account'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_failed.payment_ok_account_not_created' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_failed.we_have_already_cancelled_subscription_requested'}} {{t 'mail.registration_failed.depending_your_bank_refund_can_take'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_failed.nothing_you_need_do_if_you'}}</p>
 
-{{> button href=registerUrl label=(t 'MAIL.REGISTRATION_FAILED.CREAR_MI_CUENTA')}}
+{{> button href=registerUrl label=(t 'mail.registration_failed.create_my_account')}}
 
-{{#> note}}{{t 'MAIL.REGISTRATION_FAILED.SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{reference}}</strong>{{/note}}
+{{#> note}}{{t 'mail.registration_failed.if_you_have_any_question_about'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{reference}}</strong>{{/note}}
 {{/shell}}

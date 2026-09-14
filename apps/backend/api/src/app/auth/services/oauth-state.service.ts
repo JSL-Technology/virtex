@@ -79,7 +79,7 @@ export class OauthStateService implements OnModuleInit {
   /** Verify + decrypt a token string back into a transaction. Throws on any tampering. */
   private open(token: string): OauthTransaction {
     const parts = token.split('.');
-    if (parts.length !== 3) throw new BadRequestError('AUTH.INVALID_OAUTH_STATE');
+    if (parts.length !== 3) throw new BadRequestError('auth.invalid_oauth_state');
     try {
       const iv = Buffer.from(parts[0], 'base64url');
       const ciphertext = Buffer.from(parts[1], 'base64url');
@@ -90,7 +90,7 @@ export class OauthStateService implements OnModuleInit {
       return JSON.parse(plaintext.toString('utf8')) as OauthTransaction;
     } catch {
       // GCM auth failure (tampered cookie) or malformed payload — fail closed.
-      throw new BadRequestError('AUTH.INVALID_OR_TAMPERED_OAUTH_STATE');
+      throw new BadRequestError('auth.invalid_or_tampered_oauth_state');
     }
   }
 
@@ -149,10 +149,10 @@ export class OauthStateService implements OnModuleInit {
   /** Read + validate the transaction from the request, enforcing TTL. Does not clear it. */
   readTransaction(req: Request): OauthTransaction {
     const raw = req.cookies?.[this.cookieName()] || req.cookies?.['oauth_tx'] || req.cookies?.['__Secure-oauth_tx'];
-    if (!raw) throw new BadRequestError('AUTH.MISSING_OAUTH_STATE_PLEASE_RESTART_SIGN_IN');
+    if (!raw) throw new BadRequestError('auth.oauth_state_missing_start_process_again');
     const tx = this.open(raw);
     if (!tx.iat || Date.now() - tx.iat > TX_TTL_MS) {
-      throw new BadRequestError('AUTH.OAUTH_STATE_EXPIRED_PLEASE_RESTART_SIGN_IN');
+      throw new BadRequestError('auth.oauth_state_expired_start_process_again');
     }
     return tx;
   }
@@ -170,12 +170,12 @@ export class OauthStateService implements OnModuleInit {
    */
   verifyState(expected: string, actual: unknown): void {
     if (typeof actual !== 'string' || actual.length === 0) {
-      throw new BadRequestError('AUTH.MISSING_OAUTH_STATE_PARAMETER');
+      throw new BadRequestError('auth.missing_oauth_state_parameter');
     }
     const a = Buffer.from(expected);
     const b = Buffer.from(actual);
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-      throw new BadRequestError('AUTH.OAUTH_STATE_MISMATCH_POSSIBLE_CSRF');
+      throw new BadRequestError('auth.oauth_state_mismatch_possible_csrf');
     }
   }
 }

@@ -80,7 +80,7 @@ export class CsrfGuard implements CanActivate {
         { event: 'csrf_cross_site_blocked', method, url: request.url },
         '[SECURITY] Blocked a cross-site state-changing request (Sec-Fetch-Site)',
       );
-      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
+      throw new ForbiddenError('auth.invalid_csrf_token');
     }
 
     // CSRF is an attack on AMBIENT authority: the browser attaches a credential the user did not
@@ -108,7 +108,7 @@ export class CsrfGuard implements CanActivate {
         { event: 'csrf_mismatch', method, url: request.url },
         '[SECURITY] CSRF token header/cookie mismatch',
       );
-      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
+      throw new ForbiddenError('auth.invalid_csrf_token');
     }
 
     // The global JwtAuthGuard runs before this one, so on authenticated routes `request.user` is
@@ -121,7 +121,7 @@ export class CsrfGuard implements CanActivate {
         { event: 'csrf_invalid', method, url: request.url, bound: Boolean(currentUserId) },
         '[SECURITY] CSRF token signature or binding invalid',
       );
-      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
+      throw new ForbiddenError('auth.invalid_csrf_token');
     }
 
     return true;

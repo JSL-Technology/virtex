@@ -1,16 +1,16 @@
 <vx-list-shell
-  titleKey="DOCUMENTS.REPOSITORY.FILE_REPOSITORY"
+  titleKey="documents.repository.file_repository"
   [count]="files().length"
   [empty]="!loading() && files().length === 0"
   [searchable]="true"
   [search]="search()"
   (searchChange)="onSearch($event)"
-  searchPlaceholderKey="DOCUMENTS.REPOSITORY.SEARCH_ALL"
+  searchPlaceholderKey="documents.repository.search_all"
 >
   <button listActions type="button" class="secondary-button" [disabled]="busy()"
     (click)="newFolderOpen.set(!newFolderOpen())">
     <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'DOCUMENTS.REPOSITORY.NEW_FOLDER' | translate }}</span>
+    <span>{{ 'documents.repository.new_folder' | translate }}</span>
   </button>
 
   <!--
@@ -19,13 +19,13 @@
   -->
   <label listActions class="primary-button upload-label">
     <lucide-icon [img]="UploadIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'DOCUMENTS.REPOSITORY.UPLOAD_FILE' | translate }}</span>
+    <span>{{ 'documents.repository.upload_file' | translate }}</span>
     <input type="file" class="sr-only" [disabled]="busy()" (change)="onFileChosen($event)" />
   </label>
 
-  <nav listFilters class="path-breadcrumbs" [attr.aria-label]="'DOCUMENTS.REPOSITORY.HOME' | translate">
+  <nav listFilters class="path-breadcrumbs" [attr.aria-label]="'documents.repository.home' | translate">
     <button type="button" class="path-item path-item--link" (click)="goTo(null)">
-      {{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}
+      {{ 'documents.repository.home' | translate }}
     </button>
     @for (crumb of breadcrumb(); track crumb.id) {
       <span class="path-sep" aria-hidden="true">/</span>
@@ -41,30 +41,30 @@
         #folderName
         type="text"
         maxlength="255"
-        [placeholder]="'DOCUMENTS.REPOSITORY.FOLDER_NAME' | translate"
+        [placeholder]="'documents.repository.folder_name' | translate"
         (keydown.enter)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)"
       />
       <button type="button" class="primary-button" [disabled]="busy()"
         (click)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)">
-        {{ 'COMMON.SAVE' | translate }}
+        {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="newFolderOpen.set(false)">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'common.cancel' | translate }}
       </button>
     </div>
   }
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'DOCUMENTS.REPOSITORY.NAME' | translate }}</th>
-          <th>{{ 'DOCUMENTS.REPOSITORY.LAST_MODIFIED' | translate }}</th>
-          <th>{{ 'DOCUMENTS.REPOSITORY.FILE_SIZE' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'documents.repository.name' | translate }}</th>
+          <th>{{ 'documents.repository.last_modified' | translate }}</th>
+          <th>{{ 'documents.repository.file_size' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -85,7 +85,7 @@
                 <lucide-icon [img]="iconFor(item)" size="20" [class]="item.kind" aria-hidden="true"></lucide-icon>
                 <span class="file-name">{{ item.name }}</span>
                 @if (item.templateType !== 'NONE') {
-                  <span class="tag">{{ 'DOCUMENTS.TEMPLATES.TYPE.' + item.templateType | translate }}</span>
+                  <span class="tag">{{ 'documents.templates.type.' + item.templateType | translate }}</span>
                 }
               </span>
             </td>
@@ -95,17 +95,17 @@
             <td class="text-right row-actions">
               @if (item.kind === 'FILE') {
                 <button type="button" class="icon-button" (click)="download(item)"
-                  [attr.aria-label]="'DOCUMENTS.REPOSITORY.DOWNLOAD' | translate">
+                  [attr.aria-label]="'documents.repository.download' | translate">
                   <lucide-icon [img]="DownloadIcon" size="15"></lucide-icon>
                 </button>
               }
               <button type="button" class="icon-button" [disabled]="busy()"
                 (click)="renaming.set(item.id)"
-                [attr.aria-label]="'DOCUMENTS.REPOSITORY.RENAME' | translate">
+                [attr.aria-label]="'documents.repository.rename' | translate">
                 <lucide-icon [img]="RenameIcon" size="15"></lucide-icon>
               </button>
               <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(item)"
-                [attr.aria-label]="'COMMON.DELETE' | translate">
+                [attr.aria-label]="'common.delete' | translate">
                 <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
               </button>
             </td>
@@ -118,10 +118,10 @@
                     (keydown.enter)="rename(item, newName.value); renaming.set(null)" />
                   <button type="button" class="primary-button"
                     (click)="rename(item, newName.value); renaming.set(null)">
-                    {{ 'COMMON.SAVE' | translate }}
+                    {{ 'common.save' | translate }}
                   </button>
                   <button type="button" class="secondary-button" (click)="renaming.set(null)">
-                    {{ 'COMMON.CANCEL' | translate }}
+                    {{ 'common.cancel' | translate }}
                   </button>
                 </div>
               </td>

@@ -54,7 +54,7 @@ export class HcmService {
       where: { id, organizationId },
     });
     if (!employee) {
-      throw new NotFoundError('HCM.EMPLOYEE_NOT_FOUND', { id });
+      throw new NotFoundError('hcm.employee_not_found', { id });
     }
     return employee;
   }
@@ -94,7 +94,7 @@ export class HcmService {
       return await this.employeeRepository.save(employee);
     } catch (error) {
       if ((error as { code?: string }).code === '23505') {
-        throw new ConflictError('HCM.EMPLEADO_YA_EXISTE_CON_ESA_CEDULA_O_CORREO');
+        throw new ConflictError('hcm.employee_with_national_id_email_already');
       }
       throw error;
     }
@@ -118,7 +118,7 @@ export class HcmService {
       return await this.compensationRepository.save(compensation);
     } catch (error) {
       if ((error as { code?: string }).code === '23505') {
-        throw new ConflictError('HCM.YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA');
+        throw new ConflictError('hcm.compensation_with_effective_date_already_exists');
       }
       throw error;
     }
@@ -150,7 +150,7 @@ export class HcmService {
       where: { id, organizationId },
     });
     if (!department) {
-      throw new NotFoundError('HCM.DEPARTMENT_NOT_FOUND', { id });
+      throw new NotFoundError('hcm.department_not_found', { id });
     }
     return department;
   }

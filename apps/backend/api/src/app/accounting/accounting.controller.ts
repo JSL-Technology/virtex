@@ -132,7 +132,7 @@ export class AccountingController {
       user.id,
     );
     return {
-      messageKey: 'ACCOUNTING.PERIOD_CLOSED',
+      messageKey: 'accounting.period_closed',
       messageParams: { name: closedPeriod.name },
       period: closedPeriod,
     };
@@ -156,7 +156,7 @@ export class AccountingController {
       user.id,
     );
     return {
-      messageKey: 'ACCOUNTING.PERIOD_REOPENED',
+      messageKey: 'accounting.period_reopened',
       messageParams: { name: reopenedPeriod.name },
       period: reopenedPeriod,
     };
@@ -178,7 +178,7 @@ export class AccountingController {
       user.id,
     );
     return {
-      messageKey: 'ACCOUNTING.MODULE_PERIOD_CLOSED',
+      messageKey: 'accounting.module_period_closed',
       messageParams: { module: dto.module, name: period.name },
       period,
     };
@@ -200,7 +200,7 @@ export class AccountingController {
       user.id,
     );
     return {
-      messageKey: 'ACCOUNTING.MODULE_PERIOD_REOPENED',
+      messageKey: 'accounting.module_period_reopened',
       messageParams: { module: dto.module, name: period.name },
       period,
     };

@@ -11,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * Dominican Republic fiscal configuration: DGII signing certificate, authorized e-NCF ranges, and
@@ -57,7 +58,7 @@ export class FiscalSettingsPage implements OnInit {
     'E45',
     'E46',
     'E47',
-  ].map((value) => ({ value: value as NcfType, labelKey: `FISCAL.DO.${value}` }));
+  ].map((value) => ({ value: value as NcfType, labelKey: `fiscal.do.${value}` }));
 
   /**
    * What this product does and does not do in the tenant's market.
@@ -73,19 +74,19 @@ export class FiscalSettingsPage implements OnInit {
   readonly isDominican = signal(true);
 
   /**
-   * `needs-credentials` → `SETTINGS.FISCAL.LEVEL_NEEDS_CREDENTIALS`.
+   * `needs-credentials` → `settings.fiscal.level_needs_credentials`.
    *
    * The coverage levels are kebab-case in the API, and the translation-coverage sweep only
    * recognises keys without hyphens — deliberately, since that grammar is what lets it find keys
    * statically rather than guessing. Mapping here keeps the guard's teeth.
    */
   levelKey(level: string): string {
-    return `SETTINGS.FISCAL.LEVEL_${level.toUpperCase().replace(/-/g, '_')}`;
+    return composeKey('settings.fiscal.level', level);
   }
 
-  /** `taxDetermination` → `SETTINGS.FISCAL.CAPABILITY_TAX_DETERMINATION`. */
+  /** `taxDetermination` → `settings.fiscal.tax_determination`. */
   capabilityKey(capability: string): string {
-    return `SETTINGS.FISCAL.CAPABILITY_${capability.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    return composeKey('settings.fiscal.capability', capability);
   }
 
   certForm = this.fb.group({
@@ -129,14 +130,14 @@ export class FiscalSettingsPage implements OnInit {
   private loadCertificates(): void {
     this.einvoicing.listCertificates().subscribe({
       next: (c) => this.certificates.set(c),
-      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDIERON_CARGAR_CERTIFICADOS'),
+      error: () => this.notifications.showError('settings.fiscal.certificates_could_not_loaded'),
     });
   }
 
   private loadSequences(): void {
     this.einvoicing.listSequences().subscribe({
       next: (s) => this.sequences.set(s),
-      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDIERON_CARGAR_SECUENCIAS_NCF'),
+      error: () => this.notifications.showError('settings.fiscal.do.ncf_sequences_load_failed'),
     });
   }
 
@@ -148,7 +149,7 @@ export class FiscalSettingsPage implements OnInit {
   uploadCertificate(): void {
     const file = this.selectedFile();
     if (!file) {
-      this.notifications.showError('SETTINGS.FISCAL.SELECCIONE_ARCHIVO_CERTIFICADO_P12_PFX');
+      this.notifications.showError('settings.fiscal.select_certificate_file_p12_pfx');
       return;
     }
     if (this.certForm.invalid) {
@@ -159,14 +160,14 @@ export class FiscalSettingsPage implements OnInit {
     const { alias, password } = this.certForm.getRawValue();
     this.einvoicing.uploadCertificate(file, password!, alias!).subscribe({
       next: () => {
-        this.notifications.showSuccess('SETTINGS.FISCAL.CERTIFICADO_CARGADO_VALIDADO_CORRECTAMENTE');
+        this.notifications.showSuccess('settings.fiscal.certificate_uploaded_validated_successfully');
         this.certForm.reset();
         this.selectedFile.set(null);
         this.uploading.set(false);
         this.loadCertificates();
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'ERRORS.LOAD_CERTIFICATE');
+        this.notifications.showError(err?.error?.message || 'errors.load_certificate');
         this.uploading.set(false);
       },
     });
@@ -175,10 +176,10 @@ export class FiscalSettingsPage implements OnInit {
   deactivateCertificate(id: string): void {
     this.einvoicing.deactivateCertificate(id).subscribe({
       next: () => {
-        this.notifications.showInfo('SETTINGS.FISCAL.CERTIFICADO_DESACTIVADO');
+        this.notifications.showInfo('settings.fiscal.certificate_deactivated');
         this.loadCertificates();
       },
-      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDO_DESACTIVAR_CERTIFICADO'),
+      error: () => this.notifications.showError('settings.fiscal.certificate_could_not_deactivated'),
     });
   }
 
@@ -189,7 +190,7 @@ export class FiscalSettingsPage implements OnInit {
     }
     const value = this.sequenceForm.getRawValue();
     if (value.endsAt! < value.startsAt!) {
-      this.notifications.showError('SETTINGS.FISCAL.NUMERO_FINAL_PUEDE_SER_MENOR_INICIAL');
+      this.notifications.showError('settings.fiscal.ending_number_cannot_lower_than_starting');
       return;
     }
     this.provisioning.set(true);
@@ -202,12 +203,12 @@ export class FiscalSettingsPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.notifications.showSuccess('SETTINGS.FISCAL.RANGO_NCF_REGISTRADO');
+          this.notifications.showSuccess('settings.fiscal.do.ncf_range_registered');
           this.provisioning.set(false);
           this.loadSequences();
         },
         error: (err) => {
-          this.notifications.showError(err?.error?.message || 'ERRORS.REGISTER_RANGE');
+          this.notifications.showError(err?.error?.message || 'errors.register_range');
           this.provisioning.set(false);
         },
       });
@@ -226,7 +227,7 @@ export class FiscalSettingsPage implements OnInit {
         this.downloading.set(false);
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'ERRORS.GENERATE_REPORT');
+        this.notifications.showError(err?.error?.message || 'errors.generate_report');
         this.downloading.set(false);
       },
     });

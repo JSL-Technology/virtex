@@ -65,7 +65,7 @@ export class LocalStorageStrategy implements StorageService {
     try {
       stat = await fs.promises.stat(fullPath);
     } catch {
-      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
+      throw new NotFoundError('storage.file_not_available');
     }
 
     return {
@@ -97,7 +97,7 @@ export class LocalStorageStrategy implements StorageService {
   private resolve(storageKey: string): string {
     const full = path.resolve(this.uploadDir, storageKey);
     if (full !== this.uploadDir && !full.startsWith(this.uploadDir + path.sep)) {
-      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
+      throw new NotFoundError('storage.file_not_available');
     }
     return full;
   }

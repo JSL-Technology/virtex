@@ -134,9 +134,9 @@ export class PayrollTssService {
   /** The Autodeterminación for a run, derived from its payslips. The run must be approved. */
   async autodeterminacion(runId: string, organizationId: string): Promise<Autodeterminacion> {
     const run = await this.runs.findOne({ where: { id: runId, organizationId } });
-    if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
+    if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
     if (run.status !== PayrollRunStatus.APPROVED && run.status !== PayrollRunStatus.PAID) {
-      throw new ConflictError('PAYROLL.AUTODETERMINACION_REQUIERE_CORRIDA_APROBADA');
+      throw new ConflictError('payroll.self_assessment_requires_approved_run');
     }
 
     const slips = await this.payslips.find({ where: { organizationId, runId } });

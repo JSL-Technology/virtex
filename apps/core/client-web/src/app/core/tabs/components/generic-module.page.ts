@@ -22,7 +22,7 @@ import { TAB_CONTEXT } from '../tab-context';
           <lucide-icon [img]="ConstructionIcon" size="34"></lucide-icon>
         </div>
         <h1 class="generic-title">{{ title() }}</h1>
-        <p class="generic-subtitle">{{ 'TABS.UNDER_CONSTRUCTION' | translate }}</p>
+        <p class="generic-subtitle">{{ 'tabs.under_construction' | translate }}</p>
         <code class="generic-route">{{ route() }}</code>
       </div>
     </section>
@@ -101,7 +101,7 @@ export class GenericModulePage {
 
   private prettify(route?: string): string {
     const last = route?.split('/').filter(Boolean).pop();
-    if (!last) return this.translate.instant('TABS.GENERIC_MODULE');
+    if (!last) return this.translate.instant('tabs.module');
     return last
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase());

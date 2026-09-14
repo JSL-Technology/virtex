@@ -102,7 +102,7 @@ export class WorkflowsService {
       where: { id: policyId, organizationId },
       relations: ['steps'],
     });
-    if (!policy) throw new NotFoundError('WORKFLOWS.POLITICA_APROBACION_NO_ENCONTRADA');
+    if (!policy) throw new NotFoundError('workflows.approval_policy_not_found');
 
     const updated = this.policyRepository.merge(policy, dto);
     return this.policyRepository.save(updated);
@@ -115,11 +115,11 @@ export class WorkflowsService {
     if (pending > 0) {
       // Deleting the policy would strand them: `approve` cannot find the step to check the role
       // against, so every one of them becomes undecidable and its document unpostable.
-      throw new BadRequestError('WORKFLOWS.POLITICA_TIENE_SOLICITUDES_PENDIENTES', { pending });
+      throw new BadRequestError('workflows.policy_cannot_deleted_has_pending_pending', { pending });
     }
     const result = await this.policyRepository.delete({ id: policyId, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundError('WORKFLOWS.POLITICA_APROBACION_NO_ENCONTRADA');
+      throw new NotFoundError('workflows.approval_policy_not_found');
     }
   }
 
@@ -128,7 +128,7 @@ export class WorkflowsService {
     if (!steps || steps.length === 0) return;
     const orders = new Set(steps.map((step) => step.order));
     if (orders.size !== steps.length) {
-      throw new BadRequestError('WORKFLOWS.PASOS_CON_ORDEN_DUPLICADO');
+      throw new BadRequestError('workflows.two_steps_policy_share_same_order');
     }
   }
 
@@ -225,7 +225,7 @@ export class WorkflowsService {
       // Segregation of duties. Configurable later if a tenant genuinely wants it off; closed by
       // default, because an approval a submitter can grant themselves is not a control.
       if (request.requestedByUserId && request.requestedByUserId === actor.userId) {
-        throw new ForbiddenError('WORKFLOWS.NO_PUEDE_APROBAR_SU_PROPIA_SOLICITUD');
+        throw new ForbiddenError('workflows.you_cannot_approve_request_you_raised');
       }
 
       await manager.save(
@@ -264,7 +264,7 @@ export class WorkflowsService {
       const handler = this.handlers.get(approved.typedDocumentType);
       if (!handler) {
         // Better to refuse the approval than to grant one that will never take effect.
-        throw new InternalServerError('WORKFLOWS.SIN_MANEJADOR_PARA_TIPO_DOCUMENTO', {
+        throw new InternalServerError('workflows.no_handler_registered_documents_type_document', {
           documentType: approved.documentType,
         });
       }
@@ -288,7 +288,7 @@ export class WorkflowsService {
   /** Refuse the request. The document is told, in the same transaction. */
   async reject(requestId: string, actor: ApprovalActor, reason: string): Promise<ApprovalRequest> {
     const trimmed = (reason ?? '').trim();
-    if (!trimmed) throw new BadRequestError('WORKFLOWS.RAZON_RECHAZO_OBLIGATORIA');
+    if (!trimmed) throw new BadRequestError('workflows.reason_rejection_required');
 
     return this.dataSource.transaction(async (manager) => {
       const { request, step } = await this.loadDecidable(manager, requestId, actor);
@@ -341,7 +341,7 @@ export class WorkflowsService {
     const request = await this.requestRepository.findOne({
       where: { id: requestId, organizationId },
     });
-    if (!request) throw new NotFoundError('WORKFLOWS.SOLICITUD_APROBACION_NO_ENCONTRADA');
+    if (!request) throw new NotFoundError('workflows.approval_request_not_found');
     return this.dataSource.manager.find(ApprovalStepAction, {
       where: { requestId, organizationId },
       order: { createdAt: 'ASC' },
@@ -362,9 +362,9 @@ export class WorkflowsService {
     const request = await manager.findOne(ApprovalRequest, {
       where: { id: requestId, organizationId: actor.organizationId },
     });
-    if (!request) throw new NotFoundError('WORKFLOWS.SOLICITUD_APROBACION_NO_ENCONTRADA');
+    if (!request) throw new NotFoundError('workflows.approval_request_not_found');
     if (request.status !== ApprovalStatus.PENDING) {
-      throw new BadRequestError('WORKFLOWS.SOLICITUD_YA_HA_SIDO_PROCESADA');
+      throw new BadRequestError('workflows.request_has_already_processed');
     }
 
     const policy = await manager.findOne(ApprovalPolicy, {
@@ -372,19 +372,19 @@ export class WorkflowsService {
       relations: ['steps'],
     });
     if (!policy) {
-      throw new InternalServerError('WORKFLOWS.NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA', {
+      throw new InternalServerError('workflows.approval_policy_policy_id_linked_request', {
         policyId: request.policyId,
       });
     }
 
     const step = policy.steps.find((candidate) => candidate.order === request.currentStep);
     if (!step) {
-      throw new InternalServerError('WORKFLOWS.PASO_ACTUAL_NO_EXISTE_EN_LA_POLITICA', {
+      throw new InternalServerError('workflows.step_step_no_longer_exists_approval', {
         step: request.currentStep,
       });
     }
     if (!actor.roleIds.includes(step.roleId)) {
-      throw new ForbiddenError('WORKFLOWS.NO_TIENES_PERMISOS_APROBAR_ESTE_PASO');
+      throw new ForbiddenError('workflows.you_do_not_have_permission_approve');
     }
 
     return { request, policy, step };

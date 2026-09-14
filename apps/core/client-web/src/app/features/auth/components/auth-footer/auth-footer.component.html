@@ -3,15 +3,15 @@
 
     <app-language-selector variant="compact" />
 
-    <nav class="footer-nav" [attr.aria-label]="'AUTH.LEGAL_LINKS' | translate">
-      <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
-      <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
-      <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
-      <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
+    <nav class="footer-nav" [attr.aria-label]="'auth.legal_links' | translate">
+      <a routerLink="/terms">{{ 'auth.terms' | translate }}</a>
+      <a routerLink="/privacy">{{ 'auth.privacy' | translate }}</a>
+      <a routerLink="/security">{{ 'auth.security' | translate }}</a>
+      <a routerLink="/contact">{{ 'auth.contact' | translate }}</a>
     </nav>
 
     <p class="copyright">
-      {{ 'AUTH.COPYRIGHT' | translate: { year: currentYear, app: ('APP_TITLE' | translate) } }}
+      {{ 'auth.year_app_all_rights_reserved' | translate: { year: currentYear, app: ('app_title' | translate) } }}
     </p>
 
     <!--
@@ -19,10 +19,10 @@
       formulario: es un texto legal fijo que no cambia entre pantallas.
     -->
     <p class="recaptcha-notice">
-      {{ 'AUTH.RECAPTCHA_PROTECTED' | translate }}
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ 'AUTH.PRIVACY' | translate }}</a>
+      {{ 'auth.recaptcha_protected' | translate }}
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ 'auth.privacy' | translate }}</a>
       &amp;
-      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ 'AUTH.TERMS' | translate }}</a>.
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ 'auth.terms' | translate }}</a>.
     </p>
 
   </div>

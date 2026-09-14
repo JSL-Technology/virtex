@@ -21,7 +21,7 @@
     @switch (state()) {
       @case ('loading') {
         <div class="ib__skeleton" role="status" [attr.aria-busy]="true">
-          <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+          <span class="sr-only">{{ 'common.loading' | translate }}</span>
           @for (row of SKELETON; track row) {
             <div class="ib__skeleton-row" aria-hidden="true"></div>
           }
@@ -33,7 +33,7 @@
           <p class="ib__state-title">{{ error() | translate }}</p>
           <button type="button" class="ib__retry" (click)="reload.emit()">
             <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
-            <span>{{ 'COMMON.RETRY' | translate }}</span>
+            <span>{{ 'common.retry' | translate }}</span>
           </button>
         </div>
       }
@@ -41,7 +41,7 @@
         <!-- La bandeja vacía es la respuesta buena, y se dice como tal. -->
         <div class="ib__state ib__state--clear">
           <lucide-icon [img]="ClearIcon" size="28" aria-hidden="true"></lucide-icon>
-          <p class="ib__state-title">{{ 'SHELL.INBOX_ALL_CLEAR' | translate }}</p>
+          <p class="ib__state-title">{{ 'shell.inbox_all_clear' | translate }}</p>
         </div>
       }
       @default {
@@ -59,7 +59,7 @@
                 Un tramo vacío se encoge a una línea en vez de desaparecer: «no hay nada» también
                 es una respuesta, y esconderla obliga a comprobarlo por otro camino.
               -->
-              <p class="ib__section-clear">{{ 'SHELL.INBOX_SECTION_CLEAR' | translate }}</p>
+              <p class="ib__section-clear">{{ 'shell.inbox_section_clear' | translate }}</p>
             } @else {
               <ul class="ib__list">
                 @for (item of section.items; track item.id) {
@@ -83,7 +83,7 @@
                         <span class="ib__item-when">
                           @if (item.overdue) {
                             <lucide-icon [img]="OverdueIcon" size="14" aria-hidden="true"></lucide-icon>
-                            <span class="sr-only">{{ 'SHELL.INBOX_OVERDUE' | translate }}</span>
+                            <span class="sr-only">{{ 'shell.inbox_overdue' | translate }}</span>
                           }
                           {{ item.when }}
                         </span>

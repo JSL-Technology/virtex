@@ -5,9 +5,9 @@
     <div class="p-avatar-wrap">
       <div class="p-avatar-halo" aria-hidden="true"></div>
       <div class="p-avatar">
-        <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" [alt]="'SETTINGS.MY_PROFILE.AVATAR' | translate">
+        <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" [alt]="'settings.my_profile.avatar' | translate">
       </div>
-      <label class="p-avatar-upload" [title]="'SETTINGS.PROFILE.CHANGE_AVATAR' | translate" for="field">
+      <label class="p-avatar-upload" [title]="'settings.profile.change_avatar' | translate" for="field">
         <lucide-icon [img]="ImageIcon" size="16"></lucide-icon>
         <input id="field" type="file" class="visually-hidden" (change)="onFileSelected($event)" accept="image/*">
       </label>
@@ -27,23 +27,23 @@
     <div class="profile-card">
       <div class="profile-card__head">
         <lucide-icon [img]="UserIcon" size="18"></lucide-icon>
-        <h2>{{ 'SETTINGS.PROFILE.PERSONAL_INFO' | translate }}</h2>
+        <h2>{{ 'settings.profile.personal_information' | translate }}</h2>
       </div>
       <div class="profile-card__body">
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="pf-grid-2">
             <div class="pf-field">
-              <label class="pf-label" for="firstname">{{ 'SETTINGS.PROFILE.FIRST_NAME' | translate }}</label>
-              <input id="firstname" type="text" formControlName="firstName" [placeholder]="'SETTINGS.MY_PROFILE.JUAN' | translate">
+              <label class="pf-label" for="firstname">{{ 'settings.profile.first_name' | translate }}</label>
+              <input id="firstname" type="text" formControlName="firstName" [placeholder]="'settings.my_profile.jane' | translate">
             </div>
             <div class="pf-field">
-              <label class="pf-label" for="lastname">{{ 'SETTINGS.PROFILE.LAST_NAME' | translate }}</label>
-              <input id="lastname" type="text" formControlName="lastName" [placeholder]="'SETTINGS.MY_PROFILE.PEREZ' | translate">
+              <label class="pf-label" for="lastname">{{ 'settings.profile.last_name' | translate }}</label>
+              <input id="lastname" type="text" formControlName="lastName" [placeholder]="'settings.my_profile.doe' | translate">
             </div>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label" for="email">{{ 'SETTINGS.PROFILE.EMAIL' | translate }}</label>
+            <label class="pf-label" for="email">{{ 'settings.profile.email' | translate }}</label>
 
             <!-- Read-only, with the two-step change flow behind the button. The address cannot be
                  edited in place: a silent change would redirect account recovery, so it is
@@ -55,7 +55,7 @@
                   <input id="email" type="email" formControlName="email" class="has-icon" readonly>
                 </div>
                 <button type="button" class="pf-verify-btn" (click)="startEmailChange()">
-                  {{ 'SETTINGS.PROFILE.CHANGE_EMAIL' | translate }}
+                  {{ 'settings.profile.change_email' | translate }}
                 </button>
               </div>
             </ng-container>
@@ -67,50 +67,50 @@
                   <input id="new-email" type="email" class="has-icon"
                          [value]="newEmail()"
                          (input)="newEmail.set($any($event.target).value)"
-                         [placeholder]="'SETTINGS.MY_PROFILE.NUEVO_CORREO_COM' | translate" autocomplete="email">
+                         [placeholder]="'settings.my_profile.new_email_com' | translate" autocomplete="email">
                 </div>
                 <button type="button" class="pf-verify-btn" (click)="requestEmailChange()">
-                  {{ 'SETTINGS.PROFILE.SEND_CONFIRMATION' | translate }}
+                  {{ 'settings.profile.send_confirmation' | translate }}
                 </button>
                 <button type="button" class="pf-verify-btn" (click)="cancelEmailChange()">
-                  {{ 'COMMON.CANCEL' | translate }}
+                  {{ 'common.cancel' | translate }}
                 </button>
               </div>
               <p class="pf-hint">
-                {{ 'SETTINGS.PROFILE.EMAIL_CHANGE_HINT' | translate }}
+                {{ 'settings.profile.we_will_send_confirmation_link_new' | translate }}
               </p>
             </ng-template>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label" for="phone">{{ 'SETTINGS.PROFILE.PHONE' | translate }}</label>
+            <label class="pf-label" for="phone">{{ 'settings.profile.phone' | translate }}</label>
             <div class="pf-phone-row">
               <div class="pf-icon-wrap pf-icon-wrap--grow">
                 <lucide-icon [img]="PhoneIcon" size="16" class="pf-icon"></lucide-icon>
                 <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000">
               </div>
               <button type="button" class="pf-verify-btn" (click)="openPhoneVerification()">
-                {{ 'SETTINGS.PROFILE.VERIFY' | translate }}
+                {{ 'settings.profile.verify' | translate }}
               </button>
             </div>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label" for="jobtitle">{{ 'SETTINGS.PROFILE.JOB_TITLE' | translate }}</label>
+            <label class="pf-label" for="jobtitle">{{ 'settings.profile.job_title' | translate }}</label>
             <div class="pf-icon-wrap">
               <lucide-icon [img]="CompanyIcon" size="16" class="pf-icon"></lucide-icon>
               <select id="jobtitle" formControlName="jobTitle" class="has-icon">
-                <option value="" disabled>{{ 'SETTINGS.PROFILE.SELECT_JOB_TITLE' | translate }}</option>
+                <option value="" disabled>{{ 'settings.profile.select_job_title' | translate }}</option>
                 <option *ngFor="let title of jobTitles()" [value]="title">{{ title }}</option>
               </select>
             </div>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label" for="preferredlanguage">{{ 'SETTINGS.MY_PROFILE.IDIOMA_PREFERIDO' | translate }}</label>
+            <label class="pf-label" for="preferredlanguage">{{ 'settings.my_profile.preferred_language' | translate }}</label>
             <select id="preferredlanguage" formControlName="preferredLanguage">
-              <option value="es">{{ 'SETTINGS.MY_PROFILE.ESPANOL' | translate }}</option>
-              <option value="en">{{ 'SETTINGS.MY_PROFILE.ENGLISH' | translate }}</option>
+              <option value="es">{{ 'settings.my_profile.language_spanish' | translate }}</option>
+              <option value="en">{{ 'settings.my_profile.english' | translate }}</option>
             </select>
           </div>
 
@@ -123,7 +123,7 @@
               } @else {
                 <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
               }
-              {{ 'SETTINGS.PROFILE.SAVE_CHANGES' | translate }}
+              {{ 'settings.profile.save_changes' | translate }}
             </button>
           </div>
         </form>
@@ -137,7 +137,7 @@
       <div class="profile-card">
         <div class="profile-card__head">
           <lucide-icon [img]="ShieldIcon" size="18"></lucide-icon>
-          <h2>{{ 'SETTINGS.PROFILE.SECURITY' | translate }}</h2>
+          <h2>{{ 'settings.profile.security' | translate }}</h2>
         </div>
         <div class="profile-card__body">
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
@@ -147,17 +147,17 @@
                    [value]="currentUser()?.email">
 
             <div class="pf-field">
-              <label class="pf-label" for="newpassword">{{ 'SETTINGS.PROFILE.NEW_PASSWORD' | translate }}</label>
+              <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }}</label>
               <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••">
             </div>
             <div class="pf-field">
-              <label class="pf-label" for="confirmpassword">{{ 'SETTINGS.PROFILE.CONFIRM_PASSWORD' | translate }}</label>
+              <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }}</label>
               <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••">
             </div>
 
             <div class="pf-actions">
               <button type="submit" [disabled]="passwordForm.invalid" class="pf-btn-secondary">
-                {{ 'SETTINGS.PROFILE.UPDATE_PASSWORD' | translate }}
+                {{ 'settings.profile.update_password' | translate }}
               </button>
             </div>
           </form>

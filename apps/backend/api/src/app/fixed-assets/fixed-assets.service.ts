@@ -58,7 +58,7 @@ export class FixedAssetsService {
   async findOne(id: string, organizationId: string): Promise<FixedAsset> {
     const asset = await this.fixedAssetRepository.findOneBy({ id, organizationId });
     if (!asset) {
-        throw new NotFoundError('FIXED_ASSETS.ACTIVO_FIJO_ID_NO_ENCONTRADO', { id });
+        throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
     }
     return asset;
   }
@@ -72,7 +72,7 @@ export class FixedAssetsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.fixedAssetRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-        throw new NotFoundError('FIXED_ASSETS.ACTIVO_FIJO_ID_NO_ENCONTRADO', { id });
+        throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
     }
   }
 
@@ -85,17 +85,17 @@ export class FixedAssetsService {
 
       const asset = await manager.findOneBy(FixedAsset, { id, organizationId });
       if (!asset || asset.status !== FixedAssetStatus.IN_USE) {
-        throw new NotFoundError('FIXED_ASSETS.ACTIVO_NO_ENCONTRADO_YA_HA_SIDO_DADO');
+        throw new NotFoundError('fixed_assets.asset_not_found_has_already_disposed');
       }
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-          throw new BadRequestError('FIXED_ASSETS.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+          throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
       }
 
       const fixedAssetJournal = await manager.findOneBy(Journal, { organizationId, code: 'ACT-FIJOS' });
       if (!fixedAssetJournal) {
-          throw new BadRequestError('FIXED_ASSETS.DIARIO_ACTIVOS_FIJOS_ACT_FIJOS_NO_ENCONTRADO');
+          throw new BadRequestError('fixed_assets.fixed_assets_journal_act_fijos_not');
       }
 
       const { disposalDate, salePrice, disposalReason, cashAccountId, gainOnDisposalAccountId, lossOnDisposalAccountId } = disposeDto;
@@ -105,17 +105,17 @@ export class FixedAssetsService {
 
       const words = await this.narrative.describeAll(manager, organizationId, {
         header: {
-          key: 'LEDGER.FIXED_ASSET.DISPOSAL_ENTRY',
+          key: 'ledger.fixed_asset.disposal_entry',
           params: { asset: asset.name, reason: disposalReason },
         },
-        proceeds: { key: 'LEDGER.FIXED_ASSET.SALE_PROCEEDS', params: { asset: asset.name } },
+        proceeds: { key: 'ledger.fixed_asset.sale_proceeds', params: { asset: asset.name } },
         accumulated: {
-          key: 'LEDGER.FIXED_ASSET.ACCUMULATED_REVERSAL',
+          key: 'ledger.fixed_asset.accumulated_reversal',
           params: { asset: asset.name },
         },
-        cost: { key: 'LEDGER.FIXED_ASSET.COST_REVERSAL', params: { asset: asset.name } },
-        gain: { key: 'LEDGER.FIXED_ASSET.GAIN', params: { asset: asset.name } },
-        loss: { key: 'LEDGER.FIXED_ASSET.LOSS', params: { asset: asset.name } },
+        cost: { key: 'ledger.fixed_asset.cost_reversal', params: { asset: asset.name } },
+        gain: { key: 'ledger.fixed_asset.gain', params: { asset: asset.name } },
+        loss: { key: 'ledger.fixed_asset.loss', params: { asset: asset.name } },
       });
       
       const journalLines = [
@@ -169,7 +169,7 @@ export class FixedAssetsService {
 
 
       if (!manager.queryRunner) {
-        throw new InternalServerError('FIXED_ASSETS.NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION');
+        throw new InternalServerError('fixed_assets.transaction_query_runner_could_not_obtained');
       }
       await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, entryDto, organizationId);
 
@@ -177,7 +177,7 @@ export class FixedAssetsService {
       asset.status = FixedAssetStatus.DISPOSED;
       await manager.save(asset);
       
-      return { messageKey: 'FIXED_ASSETS.ACTIVO_DADO_BAJA_EXITOSAMENTE' };
+      return { messageKey: 'fixed_assets.asset_has_disposed' };
     });
   }
 }

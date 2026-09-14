@@ -61,7 +61,7 @@ export class StepUpGuard implements CanActivate {
     const token = STEP_UP_COOKIE_NAMES.map((name) => request.cookies?.[name]).find(Boolean);
 
     if (!token) {
-      throw new UnauthorizedError('AUTH.STEP_UP_AUTHENTICATION_REQUIRED');
+      throw new UnauthorizedError('auth.step_up_authentication_required');
     }
 
     let payload: StepUpPayload;
@@ -72,11 +72,11 @@ export class StepUpGuard implements CanActivate {
         audience: 'virteex-step-up',
       });
     } catch {
-      throw new UnauthorizedError('AUTH.INVALID_OR_EXPIRED_STEP_UP_TOKEN');
+      throw new UnauthorizedError('auth.invalid_or_expired_step_up_token');
     }
 
     if (!payload.stepup || payload.scope !== requiredScope) {
-      throw new UnauthorizedError('AUTH.INVALID_STEP_UP_TOKEN_SCOPE');
+      throw new UnauthorizedError('auth.invalid_step_up_token_scope');
     }
 
     // Ownership is checked BEFORE the token is consumed. The previous order burned the jti
@@ -87,7 +87,7 @@ export class StepUpGuard implements CanActivate {
         { event: 'step_up_subject_mismatch', userId: request.user?.id },
         '[SECURITY] Step-up token does not belong to the authenticated user',
       );
-      throw new UnauthorizedError('AUTH.STEP_UP_TOKEN_MISMATCH');
+      throw new UnauthorizedError('auth.step_up_token_mismatch');
     }
 
     if (SINGLE_USE_SCOPES.has(payload.scope)) {
@@ -112,7 +112,7 @@ export class StepUpGuard implements CanActivate {
    */
   private async consumeSingleUse(jti: string): Promise<void> {
     if (!jti) {
-      throw new UnauthorizedError('AUTH.MALFORMED_STEP_UP_TOKEN');
+      throw new UnauthorizedError('auth.malformed_step_up_token');
     }
 
     const claimed = await this.atomicCache.claimOnce(
@@ -121,7 +121,7 @@ export class StepUpGuard implements CanActivate {
     );
 
     if (!claimed) {
-      throw new UnauthorizedError('AUTH.STEP_UP_TOKEN_ALREADY_USED');
+      throw new UnauthorizedError('auth.step_up_token_already_used');
     }
   }
 }

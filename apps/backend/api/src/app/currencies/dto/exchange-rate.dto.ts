@@ -17,11 +17,11 @@ import { ExchangeRateType } from '../entities/exchange-rate.entity';
 
 export class RecordRateDto {
   @IsString()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   fromCurrency: string;
 
   @IsString()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   toCurrency: string;
 
   /**
@@ -34,7 +34,7 @@ export class RecordRateDto {
   @IsPositive()
   rate: number;
 
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   date: string;
 
   @IsEnum(ExchangeRateType)
@@ -44,16 +44,16 @@ export class RecordRateDto {
   /** `DGII`, `DOF`, `TRM`, `BCRA`, `SUNAT`… The authority or provider the figure comes from. */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(32, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":32}' })
+  @MaxLength(32, { message: 'validation.constraints.max_length|{"max":32}' })
   @IsOptional()
   source?: string;
 }
 
 export class BackfillRatesDto {
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   startDate: string;
 
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   endDate: string;
 
   /**
@@ -62,22 +62,22 @@ export class BackfillRatesDto {
    */
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(370, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":370}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(370, { message: 'validation.constraints.max|{"max":370}' })
   @IsOptional()
   maxDays?: number;
 }
 
 export class RateLookupDto {
   @IsString()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   from: string;
 
   @IsString()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   to: string;
 
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   date: string;
 
   @IsEnum(ExchangeRateType)

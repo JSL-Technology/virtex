@@ -1,35 +1,35 @@
 <div class="widget-header">
-  <h3>{{ 'CHARTS.CASHFLOW.CONSOLIDATED_TITLE' | translate }}</h3>
+  <h3>{{ 'charts.cashflow.consolidated_title' | translate }}</h3>
   <div class="header-actions" (mousedown)="$event.stopPropagation()">
     <div class="widget-edit-menu">
-      <button class="icon-button" [title]="'CHARTS.MENU.TITLE' | translate" (mousedown)="toggleExportMenu($event)">
+      <button class="icon-button" [title]="'charts.menu.title' | translate" (mousedown)="toggleExportMenu($event)">
         <lucide-icon [img]="MenuIcon" size="18"></lucide-icon>
       </button>
       @if (isExportMenuOpen()) {
         <div class="edit-dropdown export-dropdown" (mousedown)="$event.stopPropagation()">
           <button (mousedown)="viewFullscreen($event)">
             <lucide-icon [img]="FullscreenIcon" size="14"></lucide-icon>
-            {{ 'CHARTS.MENU.FULL_SCREEN' | translate }}
+            {{ 'charts.menu.full_screen' | translate }}
           </button>
           <button (mousedown)="printChart($event)">
             <lucide-icon [img]="PrintIcon" size="14"></lucide-icon>
-            {{ 'CHARTS.MENU.PRINT' | translate }}
+            {{ 'charts.menu.print' | translate }}
           </button>
           <hr/>
-          <span class="dropdown-title">{{ 'CHARTS.MENU.DOWNLOAD' | translate }}</span>
+          <span class="dropdown-title">{{ 'charts.menu.download' | translate }}</span>
           <button (mousedown)="downloadPNG($event)">
             <lucide-icon [img]="PngIcon" size="14"></lucide-icon>
-            {{ 'CHARTS.MENU.PNG' | translate }}
+            {{ 'charts.menu.png' | translate }}
           </button>
-          <button (mousedown)="downloadJPEG($event)">{{ 'CHARTS.MENU.JPEG' | translate }}</button>
-          <button (mousedown)="downloadPDF($event)">{{ 'CHARTS.MENU.PDF' | translate }}</button>
-          <button (mousedown)="downloadSVG($event)">{{ 'CHARTS.MENU.SVG' | translate }}</button>
+          <button (mousedown)="downloadJPEG($event)">{{ 'charts.menu.jpeg' | translate }}</button>
+          <button (mousedown)="downloadPDF($event)">{{ 'charts.menu.pdf' | translate }}</button>
+          <button (mousedown)="downloadSVG($event)">{{ 'charts.menu.svg' | translate }}</button>
           <hr/>
           <button (mousedown)="downloadCSV($event)">
             <lucide-icon [img]="CsvIcon" size="14"></lucide-icon>
-            {{ 'CHARTS.MENU.CSV' | translate }}
+            {{ 'charts.menu.csv' | translate }}
           </button>
-          <button (mousedown)="downloadXLS($event)">{{ 'CHARTS.MENU.XLS' | translate }}</button>
+          <button (mousedown)="downloadXLS($event)">{{ 'charts.menu.xls' | translate }}</button>
         </div>
       }
     </div>
@@ -40,7 +40,7 @@
       @case (Object) {
           @if ('error' in cashFlowData()!) {
               <div class="error-state">
-                  <span>{{ 'WIDGETS.ERRORS.UNABLE_TO_LOAD' | translate }}</span>
+                  <span>{{ 'widgets.errors.data_could_not_loaded' | translate }}</span>
               </div>
           } @else {
               <highcharts-chart
@@ -52,7 +52,7 @@
       }
       @default {
           <div class="loading-state">
-              <span>{{ 'WIDGETS.LOADING' | translate }}</span>
+              <span>{{ 'widgets.loading' | translate }}</span>
           </div>
       }
   }

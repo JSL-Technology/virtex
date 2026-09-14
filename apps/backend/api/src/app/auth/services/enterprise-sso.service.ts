@@ -85,7 +85,7 @@ export class EnterpriseSsoService {
   async getEnabledIdpOrThrow(idpId: string): Promise<IdentityProvider> {
     const idp = await this.idpRepository.findOne({ where: { id: idpId, enabled: true } });
     if (!idp) {
-      throw new NotFoundError('AUTH.SSO_CONNECTION_NOT_FOUND_OR_DISABLED');
+      throw new NotFoundError('auth.sso_connection_not_found_or_disabled');
     }
     return idp;
   }
@@ -117,7 +117,7 @@ export class EnterpriseSsoService {
   ): Promise<{ user: User; tokens: any }> {
     // The IdP must assert a verified email; otherwise account takeover is possible.
     if (!socialUser.emailVerified) {
-      throw new UnauthorizedError('AUTH.IDENTITY_PROVIDER_DID_NOT_VERIFY_EMAIL_ADDRESS');
+      throw new UnauthorizedError('auth.identity_provider_did_not_verify_email_address');
     }
 
     // Defense in depth: the email domain must be a verified domain of the IdP's organization.
@@ -128,7 +128,7 @@ export class EnterpriseSsoService {
         })
       : null;
     if (!orgDomain) {
-      throw new UnauthorizedError('AUTH.EMAIL_DOMAIN_NOT_AUTHORIZED_FOR_THIS_SSO');
+      throw new UnauthorizedError('auth.email_domain_not_authorized_for_this_sso');
     }
 
     let user = await this.usersService.findUserForAuth(socialUser.email);
@@ -136,10 +136,10 @@ export class EnterpriseSsoService {
     if (user) {
       // Never let an SSO login cross tenant boundaries.
       if (user.organizationId !== idp.organizationId) {
-        throw new UnauthorizedError('AUTH.THIS_ACCOUNT_BELONGS_DIFFERENT_ORGANIZATION');
+        throw new UnauthorizedError('auth.this_account_belongs_different_organization');
       }
       if (user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedError('AUTH.USER_INACTIVE_OR_BLOCKED');
+        throw new UnauthorizedError('auth.user_inactive_or_blocked');
       }
     } else {
       user = await this.provisionUser(idp, socialUser);
@@ -197,7 +197,7 @@ export class EnterpriseSsoService {
       // Reload through the auth path so org/roles/security relations are populated for token issuance.
       const fullUser = await this.usersService.findUserForAuth(socialUser.email);
       if (!fullUser) {
-        throw new BadRequestError('AUTH.FAILED_LOAD_NEWLY_PROVISIONED_USER');
+        throw new BadRequestError('auth.newly_created_user_could_not_loaded');
       }
       this.logger.log(`JIT-provisioned SSO user ${this.hashPii(socialUser.email)} in org ${idp.organizationId}`);
       return fullUser;
@@ -220,7 +220,7 @@ export class EnterpriseSsoService {
     // Fall back to a non-admin role in the org, preferring the least-privileged one.
     const roles = await this.roleRepository.find({ where: { organizationId: idp.organizationId } });
     if (!roles.length) {
-      throw new BadRequestError('AUTH.ORGANIZATION_HAS_NO_ROLES_ASSIGN_SSO_USERS');
+      throw new BadRequestError('auth.organization_has_no_roles_assign_sso_users');
     }
     const nonAdmin = roles.find((r) => !/admin/i.test(r.name));
     return nonAdmin ?? roles[0];

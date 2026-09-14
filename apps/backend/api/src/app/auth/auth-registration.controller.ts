@@ -87,7 +87,7 @@ export class AuthRegistrationController {
     const plans = await this.saasService.getPlans();
     const plan = plans.find((p) => p.id === dto.planId || p.slug === dto.planId);
     if (!plan) {
-      throw new BadRequestError('AUTH.PLAN_NO_ENCONTRADO');
+      throw new BadRequestError('auth.plan_not_found');
     }
     const billingPeriod = dto.billingPeriod ?? 'monthly';
     const priceId = SaasService.priceIdFor(plan, billingPeriod);
@@ -163,7 +163,7 @@ export class AuthRegistrationController {
       (req as unknown as { cookies?: Record<string, string | undefined> }).cookies,
     );
     if (!transactionId) {
-      throw new UnauthorizedError('AUTH.NO_ENCONTRAMOS_TU_SESION_REGISTRO_ESTE_NAVEGADOR');
+      throw new UnauthorizedError('auth.we_could_not_find_your_registration');
     }
 
     const session = await this.paymentService.getCheckoutSession(dto.sessionId);
@@ -171,10 +171,10 @@ export class AuthRegistrationController {
     // Accept paid checkouts and trials (no_payment_required) but never unpaid/open.
     const settled = session.paymentStatus === 'paid' || session.paymentStatus === 'no_payment_required';
     if (session.status !== 'complete' || !settled) {
-      throw new BadRequestError('AUTH.PAGO_AUN_NO_HA_COMPLETADO');
+      throw new BadRequestError('auth.payment_has_not_completed_yet');
     }
     if (!session.pendingRegistrationId) {
-      throw new BadRequestError('AUTH.SESION_REGISTRO_NO_VALIDA');
+      throw new BadRequestError('auth.invalid_registration_session');
     }
 
     // The cookie and the checkout session must describe the SAME signup. Comparing them stops a
@@ -184,7 +184,7 @@ export class AuthRegistrationController {
         { event: 'register_confirm_transaction_mismatch' },
         '[SECURITY] register-confirm presented a checkout session that does not match its transaction cookie',
       );
-      throw new UnauthorizedError('AUTH.ESTA_SESION_PAGO_NO_CORRESPONDE_ESTE_NAVEGADOR');
+      throw new UnauthorizedError('auth.payment_session_does_not_belong_browser');
     }
 
     const user = await this.authFacade.completePendingRegistration(session.pendingRegistrationId, {
@@ -251,12 +251,12 @@ export class AuthRegistrationController {
     const plans = await this.saasService.getPlans();
     const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
     if (!plan) {
-      throw new BadRequestError('AUTH.PLAN_NOT_FOUND');
+      throw new BadRequestError('auth.plan_not_found');
     }
 
     const priceId = SaasService.priceIdFor(plan, body.billingPeriod ?? 'monthly');
     if (!priceId) {
-      throw new BadRequestError('AUTH.ESTE_PLAN_NO_ADMITE_ESE_PERIODO_FACTURACION');
+      throw new BadRequestError('auth.plan_does_not_support_billing_period');
     }
 
     // Redirect URLs are built server-side. Never pass client-supplied URLs to Stripe — the

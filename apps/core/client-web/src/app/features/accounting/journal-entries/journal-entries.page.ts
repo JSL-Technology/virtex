@@ -104,12 +104,12 @@ export class JournalEntriesPage {
    */
   statusKey(status: JournalEntryStatus): string {
     const keys: Record<string, string> = {
-      Draft: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_DRAFT',
-      'Pending Approval': 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_PENDING_APPROVAL',
-      Posted: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_POSTED',
-      Modified: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_MODIFIED',
-      Void: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_VOID',
-      Rejected: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_REJECTED',
+      Draft: 'accounting.journal_entries.status_draft',
+      'Pending Approval': 'accounting.journal_entries.status_pending_approval',
+      Posted: 'accounting.journal_entries.status_posted',
+      Modified: 'accounting.journal_entries.status_modified',
+      Void: 'accounting.journal_entries.status_void',
+      Rejected: 'accounting.journal_entries.status_rejected',
     };
     return keys[status] ?? status;
   }

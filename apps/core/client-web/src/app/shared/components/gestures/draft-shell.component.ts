@@ -132,7 +132,7 @@ export class DraftShellComponent {
    * `draftProblems` recoge CLAVES i18n —la misma que usa el `<label>` del campo— y las deja en
    * `params.field` para que las traduzca el armazón. No las traducía nadie: la plantilla pasaba el
    * parámetro tal cual al pipe, que solo traduce el mensaje, así que el resumen de errores decía
-   * «"CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA" es obligatorio» en todos los formularios que usan
+   * «"contacts.customer_form.company_name" es obligatorio» en todos los formularios que usan
    * este gesto. Un control sin clave declarada conserva su propio nombre: `instant` devuelve la
    * cadena intacta cuando no es una clave conocida, que es justo el comportamiento que la función
    * documenta como deliberado.
@@ -148,8 +148,8 @@ export class DraftShellComponent {
   /** Error de servidor al guardar, ya localizado. */
   readonly error = input<string | null>(null);
 
-  readonly saveLabelKey = input('COMMON.SAVE');
-  readonly cancelLabelKey = input('COMMON.CANCEL');
+  readonly saveLabelKey = input('common.save');
+  readonly cancelLabelKey = input('common.cancel');
 
   readonly save = output<void>();
   /**

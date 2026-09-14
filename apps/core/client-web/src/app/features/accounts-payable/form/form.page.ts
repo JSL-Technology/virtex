@@ -300,7 +300,7 @@ export class VendorBillFormPage implements OnInit {
           this.recomputeTotals();
         },
         error: () => {
-          this.notifications.showError('ACCOUNTS_PAYABLE.FORM.ERROR_CARGAR_FACTURA');
+          this.notifications.showError('accounts_payable.form.invoice_could_not_loaded');
           this.isLoading.set(false);
         },
       });
@@ -318,14 +318,14 @@ export class VendorBillFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          vendorId: 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR',
-          ncf: 'ACCOUNTS_PAYABLE.LIST.NUMERO',
-          date: 'ACCOUNTS_PAYABLE.DETAIL.FECHA_EMISION',
-          dueDate: 'ACCOUNTS_PAYABLE.DETAIL.FECHA_VENCIMIENTO',
-          currencyCode: 'ACCOUNTS_PAYABLE.DETAIL.MONEDA',
-          description: 'ACCOUNTS_PAYABLE.DETAIL.CONCEPTO',
-          quantity: 'ACCOUNTS_PAYABLE.DETAIL.CANTIDAD',
-          unitPrice: 'ACCOUNTS_PAYABLE.DETAIL.PRECIO_UNITARIO',
+          vendorId: 'accounts_payable.form.supplier',
+          ncf: 'accounts_payable.list.number',
+          date: 'accounts_payable.detail.issue_date',
+          dueDate: 'accounts_payable.detail.due_date',
+          currencyCode: 'accounts_payable.detail.currency',
+          description: 'accounts_payable.detail.item',
+          quantity: 'accounts_payable.detail.quantity',
+          unitPrice: 'accounts_payable.detail.unit_price',
         }),
       );
       return;
@@ -377,8 +377,8 @@ export class VendorBillFormPage implements OnInit {
       next: (bill) => {
         this.notifications.showSuccess(
           this.isEditMode()
-            ? 'ACCOUNTS_PAYABLE.FORM.FACTURA_ACTUALIZADA_EXITO'
-            : 'ACCOUNTS_PAYABLE.FORM.FACTURA_CREADA_EXITO',
+            ? 'accounts_payable.form.invoice_updated'
+            : 'accounts_payable.form.invoice_created',
         );
         this.isLoading.set(false);
         this.router.navigate(['/accounts-payable', bill.id]);
@@ -388,7 +388,7 @@ export class VendorBillFormPage implements OnInit {
         // reported as "could not save the bill", which is why a DTO that could never validate went
         // unnoticed for as long as it did.
         this.notifications.showError(
-          serverMessage(error) ?? 'ACCOUNTS_PAYABLE.FORM.ERROR_GUARDAR_FACTURA',
+          serverMessage(error) ?? 'accounts_payable.form.error_saving_invoice',
         );
         this.isLoading.set(false);
       },

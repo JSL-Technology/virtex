@@ -1,21 +1,21 @@
 <vx-list-shell
-  titleKey="MASTERS.WAREHOUSES.WAREHOUSES"
+  titleKey="masters.warehouses.warehouses"
   [count]="warehouses().length"
   [empty]="warehouses().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.WAREHOUSES.NEW_WAREHOUSE' | translate }}</span>
+    <span>{{ 'masters.warehouses.new_warehouse' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.WAREHOUSES.NAME' | translate }}</th>
-          <th>{{ 'MASTERS.WAREHOUSES.LOCATION' | translate }}</th>
-          <th>{{ 'MASTERS.WAREHOUSES.MANAGER' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.WAREHOUSES.STATUS' | translate }}</th>
+          <th>{{ 'masters.warehouses.name' | translate }}</th>
+          <th>{{ 'masters.warehouses.location' | translate }}</th>
+          <th>{{ 'masters.warehouses.manager' | translate }}</th>
+          <th class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +26,7 @@
             <td>{{ wh.manager }}</td>
             <td class="text-center">
               <span class="status-badge" [class.active]="wh.isActive">
-                {{ (wh.isActive ? 'MASTERS.WAREHOUSES.ACTIVE' : 'MASTERS.WAREHOUSES.INACTIVE') | translate }}
+                {{ (wh.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
               </span>
             </td>
           </tr>

@@ -116,7 +116,7 @@ export class PlanSelectionComponent implements OnInit {
   selectPlan(planType: 'starter' | 'pro' | 'enterprise') {
     const currentPrices = this.prices();
     if (!currentPrices) {
-        this.notificationService.showError('DIALOG.NOTIFY.PRICING_NOT_LOADED');
+        this.notificationService.showError('dialog.notify.pricing_not_loaded');
         return;
     }
     const priceId = currentPrices[planType];
@@ -126,7 +126,7 @@ export class PlanSelectionComponent implements OnInit {
          console.warn(`No price ID found for ${planType}, checking env vars or using placeholder`);
          // proceed or return depending on strictness.
          // For now, blocking to force proper setup.
-         this.notificationService.showError('DIALOG.NOTIFY.PLAN_PRICE_MISSING', { plan: planType });
+         this.notificationService.showError('dialog.notify.plan_price_missing', { plan: planType });
          return;
     }
 
@@ -138,7 +138,7 @@ export class PlanSelectionComponent implements OnInit {
       error: (err) => {
         console.error('Error creating checkout session', err);
         this.isLoading.set(false);
-        this.notificationService.showError('DIALOG.NOTIFY.PAYMENT_START_FAILED');
+        this.notificationService.showError('dialog.notify.payment_start_failed');
       }
     });
   }

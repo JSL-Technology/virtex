@@ -1,13 +1,13 @@
-{{#> shell title=(t 'MAIL.USER_INVITATION.INVITACION_PLATAFORMA') preheader=(t 'MAIL.USER_INVITATION.HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.USER_INVITATION.INVITACION_PLATAFORMA'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.USER_INVITATION.HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA'}}</p>
+{{#> shell title=(t 'mail.user_invitation.invitation_platform') preheader=(t 'mail.user_invitation.you_have_invited_join_our_platform')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.user_invitation.invitation_platform'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.user_invitation.you_have_invited_join_our_platform'}}</p>
 
-{{> button href=url label=(t 'MAIL.USER_INVITATION.CONFIGURAR_MI_CUENTA')}}
+{{> button href=url label=(t 'mail.user_invitation.set_up_my_account')}}
 
-<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'MAIL.USER_INVITATION.ESTE_ENLACE_EXPIRARA_DIAS'}}</p>
+<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'mail.user_invitation.link_expires_days'}}</p>
 
-{{> link-fallback href=url label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+{{> link-fallback href=url label=(t 'mail.common.if_button_does_not_work_copy')}}
 
-{{#> note}}{{t 'MAIL.USER_INVITATION.SI_NO_HAS_SOLICITADO_ESTA_INVITACION'}}{{/note}}
+{{#> note}}{{t 'mail.user_invitation.if_you_did_not_request_invitation'}}{{/note}}
 {{/shell}}

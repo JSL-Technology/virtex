@@ -41,9 +41,9 @@ export class PayrollInputService {
     organizationId: string,
   ): Promise<PayrollInput[]> {
     const run = await this.runs.findOne({ where: { id: runId, organizationId } });
-    if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
+    if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
     if (run.status !== PayrollRunStatus.DRAFT && run.status !== PayrollRunStatus.CALCULATED) {
-      throw new ConflictError('PAYROLL.NOVEDADES_SOLO_EN_CORRIDA_EDITABLE');
+      throw new ConflictError('payroll.inputs_can_only_changed_while_run');
     }
 
     await this.validateReferences(dto, organizationId);
@@ -80,7 +80,7 @@ export class PayrollInputService {
       const known = new Set(found.map((c) => c.code));
       const missing = codes.filter((c) => !known.has(c));
       if (missing.length > 0) {
-        throw new BadRequestError('PAYROLL.CONCEPTO_DESCONOCIDO_EN_NOVEDADES', {
+        throw new BadRequestError('payroll.unknown_concept_inputs_p1', {
           p1: missing.join(', '),
         });
       }
@@ -91,7 +91,7 @@ export class PayrollInputService {
         where: { organizationId, id: In(employeeIds) },
       });
       if (count !== employeeIds.length) {
-        throw new BadRequestError('PAYROLL.EMPLEADO_DESCONOCIDO_EN_NOVEDADES');
+        throw new BadRequestError('payroll.one_more_inputs_reference_employee_outside');
       }
     }
   }

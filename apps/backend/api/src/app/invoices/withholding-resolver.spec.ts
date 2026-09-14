@@ -265,7 +265,7 @@ describeWithDb('withholding resolution', () => {
       await expect(
         resolve(buyer(TaxpayerType.COMPANY), 'SERVICES', { taxWithholdingRate: 0.3 }),
       ).rejects.toMatchObject({
-        messageKey: 'INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN',
+        messageKey: 'invoices.withholding_stated_stated_not_what_applicable',
       });
     });
 
@@ -294,7 +294,7 @@ describeWithDb('withholding resolution', () => {
       await expect(
         resolve(buyer(TaxpayerType.COMPANY), 'GOODS', { incomeTaxWithholdingRate: 0.3 }),
       ).rejects.toMatchObject({
-        messageKey: 'INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN',
+        messageKey: 'invoices.withholding_stated_stated_not_what_applicable',
       });
     });
 
@@ -305,7 +305,7 @@ describeWithDb('withholding resolution', () => {
           withholdingOverrideReason: '   ',
         }),
       ).rejects.toMatchObject({
-        messageKey: 'INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN',
+        messageKey: 'invoices.withholding_stated_stated_not_what_applicable',
       });
     });
   });

@@ -1,35 +1,35 @@
 <vx-list-shell
-  titleKey="HCM.EMPLOYEES.TITLE"
+  titleKey="hcm.employees.title"
   [count]="visible().length"
   [empty]="!loading() && visible().length === 0"
   [searchable]="true"
   [search]="search()"
   (searchChange)="search.set($event)"
-  searchPlaceholderKey="HCM.EMPLOYEES.SEARCH"
+  searchPlaceholderKey="hcm.employees.search"
 >
   <a listActions routerLink="/hcm/employees/new" class="primary-button">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'HCM.EMPLOYEES.NEW' | translate }}</span>
+    <span>{{ 'hcm.employees.new' | translate }}</span>
   </a>
 
   <label listFilters class="inline-field">
     <input type="checkbox" [checked]="includeInactive()"
       (change)="includeInactive.set($any($event.target).checked)" />
-    <span>{{ 'HCM.EMPLOYEES.INCLUDE_TERMINATED' | translate }}</span>
+    <span>{{ 'hcm.employees.include_people_who_have_left' | translate }}</span>
   </label>
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'HCM.EMPLOYEES.NAME' | translate }}</th>
-          <th>{{ 'HCM.EMPLOYEES.JOB_TITLE' | translate }}</th>
-          <th>{{ 'HCM.EMPLOYEES.DEPARTMENT' | translate }}</th>
-          <th>{{ 'HCM.EMPLOYEES.HIRE_DATE' | translate }}</th>
-          <th class="text-center">{{ 'HCM.EMPLOYEES.STATUS' | translate }}</th>
+          <th>{{ 'hcm.employees.name' | translate }}</th>
+          <th>{{ 'hcm.employees.job_title' | translate }}</th>
+          <th>{{ 'hcm.employees.department' | translate }}</th>
+          <th>{{ 'hcm.employees.hire_date' | translate }}</th>
+          <th class="text-center">{{ 'hcm.employees.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -46,7 +46,7 @@
             <td>{{ employee.hireDate ? (employee.hireDate | vxDate) : '—' }}</td>
             <td class="text-center">
               <span class="status-badge" [class]="statusClass(employee.employmentStatus)">
-                {{ 'HCM.EMPLOYEES.STATUS_LABEL.' + employee.employmentStatus | translate }}
+                {{ 'hcm.employees.status_label.' + employee.employmentStatus | translate }}
               </span>
             </td>
           </tr>

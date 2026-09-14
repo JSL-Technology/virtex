@@ -111,7 +111,7 @@ export class StatementImportPage implements OnInit {
   submit(): void {
     const file = this.file();
     if (!file) {
-      this.problems.set([{ message: 'ACCOUNTING.RECONCILIATION.IMPORT.SELECCIONE_ARCHIVO' }]);
+      this.problems.set([{ message: 'accounting.reconciliation.import.choose_statement_file' }]);
       return;
     }
     if (this.form.invalid || !this.hasAmountMapping()) {
@@ -120,7 +120,7 @@ export class StatementImportPage implements OnInit {
         ...draftProblems(this.form),
         ...(this.hasAmountMapping()
           ? []
-          : [{ message: 'ACCOUNTING.RECONCILIATION.IMPORT.COMPLETE_EL_MAPEO' }]),
+          : [{ message: 'accounting.reconciliation.import.complete_column_mapping_file_format' }]),
       ]);
       return;
     }
@@ -132,7 +132,7 @@ export class StatementImportPage implements OnInit {
 
     this.api.importStatement(file, this.form.getRawValue()).subscribe({
       next: (statement) => {
-        this.notifications.showSuccess('ACCOUNTING.RECONCILIATION.IMPORT.IMPORTADO', {
+        this.notifications.showSuccess('accounting.reconciliation.import.statement_imported_count_movements', {
           count: statement.transactions?.length ?? 0,
         });
         this.router.navigate(['/accounting/reconciliation']);

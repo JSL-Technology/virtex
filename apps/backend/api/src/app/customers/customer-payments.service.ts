@@ -140,7 +140,7 @@ export class CustomerPaymentsService {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       if (!settings?.defaultAccountsReceivableId) {
         throw new BadRequestError(
-          'CUSTOMERS.CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION',
+          'customers.default_receivable_account_not_configured_organization',
         );
       }
       const baseCurrency = settings.baseCurrency ?? 'USD';
@@ -150,19 +150,19 @@ export class CustomerPaymentsService {
         id: dto.customerId,
         organizationId,
       });
-      if (!customer) throw new NotFoundError('CUSTOMERS.CLIENTE_NO_ENCONTRADO');
+      if (!customer) throw new NotFoundError('customers.customer_not_found');
 
       // A receipt may be funded by fresh cash, by money the customer already left on account, or by
       // both — but not by nothing.
       const advanceDraw = roundAmount(dto.advanceApplied ?? 0);
       if (toCents(dto.amountReceived) + toCents(advanceDraw) <= 0) {
-        throw new BadRequestError('CUSTOMERS.COBRO_SIN_FONDOS');
+        throw new BadRequestError('customers.receipt_has_no_funds_enter_amount');
       }
 
       const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!ledger) {
         throw new BadRequestError(
-          'CUSTOMERS.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+          'customers.no_default_ledger_has_configured_organization',
         );
       }
 
@@ -171,7 +171,7 @@ export class CustomerPaymentsService {
         code: 'COBROS',
       });
       if (!collectionJournal) {
-        throw new BadRequestError('CUSTOMERS.DIARIO_COBROS_COBROS_NO_ENCONTRADO_FAVOR_CREE');
+        throw new BadRequestError('customers.collections_journal_cobros_not_found_create');
       }
 
       // A real bank account, not a chart-of-accounts row. Which account the funds landed in is
@@ -181,9 +181,9 @@ export class CustomerPaymentsService {
         id: dto.bankAccountId,
         organizationId,
       });
-      if (!bankAccount) throw new BadRequestError('CUSTOMERS.CUENTA_BANCARIA_NO_VALIDA');
+      if (!bankAccount) throw new BadRequestError('customers.specified_bank_account_does_not_exist');
       if (!bankAccount.isActive) {
-        throw new BadRequestError('CUSTOMERS.CUENTA_BANCARIA_INACTIVA', {
+        throw new BadRequestError('customers.bank_account_name_inactive_cannot_take', {
           name: bankAccount.name,
         });
       }
@@ -195,7 +195,7 @@ export class CustomerPaymentsService {
         bankAccount.currencyCode !== currencyCode &&
         bankAccount.currencyCode !== baseCurrency
       ) {
-        throw new BadRequestError('CUSTOMERS.MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA', {
+        throw new BadRequestError('customers.receipt_receipt_cannot_land_account_account', {
           receipt: currencyCode,
           account: bankAccount.currencyCode,
         });
@@ -249,13 +249,13 @@ export class CustomerPaymentsService {
       for (const line of lines) {
         const invoice = invoicesById.get(line.invoiceId);
         if (!invoice) {
-          throw new BadRequestError('CUSTOMERS.MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN');
+          throw new BadRequestError('customers.one_more_invoices_invalid_do_not');
         }
         if (
           invoice.status !== InvoiceStatus.PENDING &&
           invoice.status !== InvoiceStatus.PARTIALLY_PAID
         ) {
-          throw new BadRequestError('CUSTOMERS.FACTURA_NO_ADMITE_COBRO', {
+          throw new BadRequestError('customers.invoice_invoice_number_status_cannot_take', {
             invoiceNumber: invoice.invoiceNumber,
             status: invoice.status,
           });
@@ -270,7 +270,7 @@ export class CustomerPaymentsService {
         );
 
         if (toCents(relieved) > toCents(invoice.balance)) {
-          throw new BadRequestError('CUSTOMERS.MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE', {
+          throw new BadRequestError('customers.payment_invoice_invoice_number_amount_exceeds', {
             invoiceNumber: invoice.invoiceNumber,
             amount: relieved,
             balance: invoice.balance,
@@ -333,7 +333,7 @@ export class CustomerPaymentsService {
           currencyCode,
         );
         if (toCents(advanceDraw) > toCents(held.amount)) {
-          throw new BadRequestError('CUSTOMERS.ANTICIPO_INSUFICIENTE', {
+          throw new BadRequestError('customers.customer_only_holds_available_currency_advances', {
             requested: advanceDraw,
             available: held.amount,
             currency: currencyCode,
@@ -351,7 +351,7 @@ export class CustomerPaymentsService {
       // Anything received beyond what was applied is held as a customer advance.
       const unapplied = roundAmount(dto.amountReceived + advanceDraw - appliedInReceiptCurrency);
       if (toCents(unapplied) < 0) {
-        throw new BadRequestError('CUSTOMERS.APLICACION_EXCEDE_MONTO_RECIBIDO', {
+        throw new BadRequestError('customers.amount_applied_invoices_applied_exceeds_amount', {
           received: roundAmount(dto.amountReceived + advanceDraw),
           applied: appliedInReceiptCurrency,
         });
@@ -359,7 +359,7 @@ export class CustomerPaymentsService {
       // Taking money off account only to put it straight back is not a transaction; it would leave
       // the drawn receipt looking spent and the ledger unchanged.
       if (toCents(advanceDraw) > 0 && toCents(unapplied) > 0) {
-        throw new BadRequestError('CUSTOMERS.ANTICIPO_EXCEDE_LO_APLICADO', {
+        throw new BadRequestError('customers.drawn_drawn_from_advance_but_unapplied', {
           drawn: advanceDraw,
           unapplied,
         });
@@ -391,16 +391,16 @@ export class CustomerPaymentsService {
       //  Eran literales castellanos, de modo que un inquilino estadounidense abría su mayor y leía
       //  su propia contabilidad en un idioma que nadie en la empresa habla.
       const words = await this.narrative.describeAll(manager, organizationId, {
-        bankIn: { key: 'LEDGER.COLLECTION.BANK_IN' },
+        bankIn: { key: 'ledger.collection.bank_in' },
         receivable: {
-          key: 'LEDGER.COLLECTION.RECEIVABLE_SETTLED',
+          key: 'ledger.collection.receivable_settled',
           params: { customer: customer.companyName ?? customer.id },
         },
-        withheld: { key: 'LEDGER.COLLECTION.WITHHELD_BY_CUSTOMER' },
-        discount: { key: 'LEDGER.COLLECTION.EARLY_PAYMENT_DISCOUNT' },
-        advanceApplied: { key: 'LEDGER.COLLECTION.ADVANCE_APPLIED' },
-        advanceHeld: { key: 'LEDGER.COLLECTION.ADVANCE_HELD' },
-        forex: { key: 'LEDGER.COLLECTION.EXCHANGE_DIFFERENCE' },
+        withheld: { key: 'ledger.collection.withheld_by_customer' },
+        discount: { key: 'ledger.collection.early_payment_discount' },
+        advanceApplied: { key: 'ledger.collection.advance_applied' },
+        advanceHeld: { key: 'ledger.collection.advance_held' },
+        forex: { key: 'ledger.collection.exchange_difference' },
       });
 
       // Only the cash that actually arrived hits the bank. The part funded from an advance moved
@@ -417,7 +417,7 @@ export class CustomerPaymentsService {
           settings.defaultTaxWithheldReceivableId,
         );
         if (!withholdingReceivableId) {
-          throw new BadRequestError('CUSTOMERS.CUENTA_RETENCIONES_RECIBIDAS_NO_CONFIGURADA');
+          throw new BadRequestError('customers.no_withholding_receivable_account_configured_customer');
         }
         // An asset: the customer paid it to the authority on our behalf and we recover it.
         push(
@@ -436,7 +436,7 @@ export class CustomerPaymentsService {
           settings.defaultSalesDiscountsId,
         );
         if (!discountAccountId) {
-          throw new BadRequestError('CUSTOMERS.CUENTA_DESCUENTOS_NO_CONFIGURADA');
+          throw new BadRequestError('customers.no_discount_account_configured_receipt_grants');
         }
         push(discountAccountId, discountBase, 0, words.discount);
       }
@@ -465,7 +465,7 @@ export class CustomerPaymentsService {
           settings.defaultForexGainLossAccountId,
         );
         if (!forexAccountId) {
-          throw new BadRequestError('CUSTOMERS.CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA');
+          throw new BadRequestError('customers.no_exchange_difference_account_configured_receipt');
         }
         push(
           forexAccountId,
@@ -482,7 +482,7 @@ export class CustomerPaymentsService {
           description: await this.narrative.describe(
             manager,
             organizationId,
-            'LEDGER.COLLECTION.RECEIPT',
+            'ledger.collection.receipt',
             { number: payment.receiptNumber ?? payment.id.slice(0, 8) },
           ),
           journalId: collectionJournal.id,
@@ -520,9 +520,9 @@ export class CustomerPaymentsService {
         where: { id, organizationId },
         relations: ['lines'],
       });
-      if (!payment) throw new NotFoundError('CUSTOMERS.COBRO_NO_ENCONTRADO');
+      if (!payment) throw new NotFoundError('customers.receipt_not_found');
       if (payment.status === CustomerPaymentStatus.VOID) {
-        throw new BadRequestError('CUSTOMERS.COBRO_YA_ANULADO');
+        throw new BadRequestError('customers.receipt_has_already_voided');
       }
 
       // An advance this receipt created may already have been spent on a later invoice. Reversing
@@ -539,7 +539,7 @@ export class CustomerPaymentsService {
           held.amount - (payment.unappliedAmount - payment.advanceAppliedAmount),
         );
         if (toCents(remaining) < 0) {
-          throw new BadRequestError('CUSTOMERS.ANTICIPO_YA_APLICADO_NO_ANULABLE', {
+          throw new BadRequestError('customers.receipt_receipt_cannot_voided_applied_advance', {
             receipt: payment.receiptNumber ?? payment.id,
             applied: roundAmount(Math.abs(remaining)),
           });
@@ -601,7 +601,7 @@ export class CustomerPaymentsService {
       where: { id, organizationId },
       relations: ['lines', 'lines.invoice', 'customer'],
     });
-    if (!payment) throw new NotFoundError('CUSTOMERS.COBRO_NO_ENCONTRADO');
+    if (!payment) throw new NotFoundError('customers.receipt_not_found');
     return payment;
   }
 
@@ -756,7 +756,7 @@ export class CustomerPaymentsService {
       settings.defaultCustomerAdvancesAccountId,
     );
     if (!advanceId) {
-      throw new BadRequestError('CUSTOMERS.CUENTA_ANTICIPOS_NO_CONFIGURADA');
+      throw new BadRequestError('customers.customer_advances_account_not_configured_organization');
     }
     return advanceId;
   }

@@ -11,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
  * meanwhile called itself Virtex in its translation files and Virteex in the backend, so a
  * customer signing up saw three brands across one flow and none of them agreed.
  *
- * A route now names a translation key. The product name comes from `APP_TITLE`, so it is one
+ * A route now names a translation key. The product name comes from `app_title`, so it is one
  * value in two files rather than a literal repeated at every route, and the tab reads in the
  * language the user chose.
  *
@@ -48,7 +48,7 @@ export class TranslatedTitleStrategy extends TitleStrategy {
     this.lastSnapshot = snapshot;
 
     const key = this.buildTitle(snapshot);
-    const appName = this.translate.instant('APP_TITLE');
+    const appName = this.translate.instant('app_title');
 
     if (!key) {
       this.title.setTitle(appName);

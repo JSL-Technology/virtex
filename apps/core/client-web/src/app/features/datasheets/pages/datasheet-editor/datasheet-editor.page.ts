@@ -197,7 +197,7 @@ async ngOnInit(): Promise<void> {
        mode: 'live',
        sheets: [{ name: 'Sheet1', cells: data }]
     }));
-    this.notificationService.showSuccess('DIALOG.NOTIFY.WORKBOOK_SAVED');
+    this.notificationService.showSuccess('dialog.notify.workbook_saved');
   }
 
   onImportRequested(formula: string) {

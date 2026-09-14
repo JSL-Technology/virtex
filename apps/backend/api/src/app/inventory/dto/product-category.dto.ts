@@ -11,13 +11,13 @@ import {
 
 export class CreateProductCategoryDto {
   @IsString()
-  @IsNotEmpty({ message: 'VALIDATION.PRODUCT_CATEGORY.NAME_REQUIRED' })
-  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
+  @IsNotEmpty({ message: 'validation.product_category.name_required' })
+  @MaxLength(100, { message: 'validation.constraints.max_length|{"max":100}' })
   name: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(32, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":32}' })
+  @MaxLength(32, { message: 'validation.constraints.max_length|{"max":32}' })
   code?: string;
 
   @IsString()
@@ -25,7 +25,7 @@ export class CreateProductCategoryDto {
   description?: string;
 
   /** `null` puts the category at the top level; the service refuses a parent that is a descendant. */
-  @IsUUID('4', { message: 'VALIDATION.PRODUCT_CATEGORY.PARENT_MUST_BE_UUID' })
+  @IsUUID('4', { message: 'validation.product_category.parent_must_be_uuid' })
   @IsOptional()
   parentId?: string | null;
 
@@ -34,7 +34,7 @@ export class CreateProductCategoryDto {
   isActive?: boolean;
 
   @IsInt()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   sortOrder?: number;
 }
@@ -47,20 +47,20 @@ export class CreateProductCategoryDto {
 export class UpdateProductCategoryDto {
   @IsString()
   @IsOptional()
-  @IsNotEmpty({ message: 'VALIDATION.PRODUCT_CATEGORY.NAME_REQUIRED' })
-  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
+  @IsNotEmpty({ message: 'validation.product_category.name_required' })
+  @MaxLength(100, { message: 'validation.constraints.max_length|{"max":100}' })
   name?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(32, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":32}' })
+  @MaxLength(32, { message: 'validation.constraints.max_length|{"max":32}' })
   code?: string | null;
 
   @IsString()
   @IsOptional()
   description?: string | null;
 
-  @IsUUID('4', { message: 'VALIDATION.PRODUCT_CATEGORY.PARENT_MUST_BE_UUID' })
+  @IsUUID('4', { message: 'validation.product_category.parent_must_be_uuid' })
   @IsOptional()
   parentId?: string | null;
 
@@ -69,7 +69,7 @@ export class UpdateProductCategoryDto {
   isActive?: boolean;
 
   @IsInt()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   sortOrder?: number;
 }

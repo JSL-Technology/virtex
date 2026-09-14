@@ -1,16 +1,16 @@
-{{#> shell title=(t 'MAIL.DUPLICATE_REGISTRATION.INTENTO_REGISTRO') preheader=(t 'MAIL.DUPLICATE_REGISTRATION.SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.DUPLICATE_REGISTRATION.INTENTO_REGISTRO'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.DUPLICATE_REGISTRATION.REQUEST_INTRO' appName=appName}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.DUPLICATE_REGISTRATION.SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA'}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.DUPLICATE_REGISTRATION.SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE'}}</p>
+{{#> shell title=(t 'mail.duplicate_registration.registration_attempt') preheader=(t 'mail.duplicate_registration.however_account_already_exists_address')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.duplicate_registration.registration_attempt'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.duplicate_registration.we_received_request_register_new_account' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.duplicate_registration.however_account_already_exists_address'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.duplicate_registration.if_you_who_tried_sign_up'}}</p>
 
-{{> button href=loginUrl label=(t 'MAIL.DUPLICATE_REGISTRATION.INICIAR_SESION')}}
+{{> button href=loginUrl label=(t 'mail.duplicate_registration.sign')}}
 
 <p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">
-  {{t 'MAIL.DUPLICATE_REGISTRATION.SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA'}}
-  <a class="link hover-underline" href="{{resetPasswordUrl}}" style="color:{{brand 'accentText'}}; font-weight:600;">{{t 'MAIL.DUPLICATE_REGISTRATION.RESTABLECER_CONTRASENA'}}</a>
+  {{t 'mail.duplicate_registration.if_you_have_forgotten_your_password'}}
+  <a class="link hover-underline" href="{{resetPasswordUrl}}" style="color:{{brand 'accentText'}}; font-weight:600;">{{t 'mail.duplicate_registration.reset_password'}}</a>
 </p>
 
-{{#> note}}{{t 'MAIL.DUPLICATE_REGISTRATION.SI_NO_FUISTE_TU_PUEDES_IGNORAR'}}{{/note}}
+{{#> note}}{{t 'mail.duplicate_registration.if_not_you_you_can_safely'}}{{/note}}
 {{/shell}}

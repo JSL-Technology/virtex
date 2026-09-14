@@ -56,7 +56,7 @@ export class TaxFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.TAX_FORM.PUDO_CARGAR_IMPUESTO');
+        this.notificationService.showError('masters.tax_form.tax_could_not_loaded');
         this.router.navigate(['/masters/taxes']);
       },
     });
@@ -69,10 +69,10 @@ export class TaxFormPage implements OnInit {
       //  formulario que dice qué le falta.
       this.problems.set(
         draftProblems(this.taxForm, {
-          name: 'MASTERS.TAX_FORM.NOMBRE_IMPUESTO',
-          rate: 'MASTERS.TAX_FORM.TASA',
-          type: 'MASTERS.TAX_FORM.TIPO',
-          countryCode: 'MASTERS.TAX_FORM.CODIGO_PAIS_OPCIONAL',
+          name: 'masters.tax_form.tax_name',
+          rate: 'masters.tax_form.rate',
+          type: 'masters.tax_form.type',
+          countryCode: 'masters.tax_form.country_code_optional',
         }),
       );
       return;
@@ -85,11 +85,11 @@ export class TaxFormPage implements OnInit {
       : this.taxesService.createTax(formValue as CreateTaxDto);
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.TAX_FORM.IMPUESTO_ACTUALIZADO_EXITOSAMENTE' : 'MASTERS.TAX_FORM.IMPUESTO_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'masters.tax_form.tax_updated' : 'masters.tax_form.tax_created');
         this.router.navigate(['/masters/taxes']);
       },
       error: () => {
-        this.notificationService.showError(this.isEditMode() ? 'MASTERS.TAX_FORM.ERROR_ACTUALIZAR_IMPUESTO' : 'MASTERS.TAX_FORM.ERROR_CREAR_IMPUESTO');
+        this.notificationService.showError(this.isEditMode() ? 'masters.tax_form.error_updating_tax' : 'masters.tax_form.error_creating_tax');
         this.isLoading.set(false);
       },
     });

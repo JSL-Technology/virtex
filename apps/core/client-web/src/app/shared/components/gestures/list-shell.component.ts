@@ -49,7 +49,7 @@ export class ListShellComponent {
   /**
    * Qué salió mal, o `null`.
    *
-   * Acepta indistintamente una clave i18n (`ACCOUNTING.PERIODS.LOAD_FAILED`) o un mensaje ya
+   * Acepta indistintamente una clave i18n (`accounting.periods.load_failed`) o un mensaje ya
    * localizado del servidor: se pasa por el pipe de traducción, que devuelve intacto lo que no
    * resuelve. Dos entradas para lo mismo obligarían a cada página a elegir, y la mitad elegiría mal.
    */
@@ -63,7 +63,7 @@ export class ListShellComponent {
    */
   readonly searchable = input(false);
   readonly search = model('');
-  readonly searchPlaceholderKey = input('SHELL.SEARCH_PLACEHOLDER');
+  readonly searchPlaceholderKey = input('shell.search');
 
   /** Emite cuando el usuario pide recargar tras un error o desde la barra. */
   readonly reload = output<void>();

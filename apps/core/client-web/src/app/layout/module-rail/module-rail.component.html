@@ -1,4 +1,4 @@
-<nav class="rail" [attr.aria-label]="'SHELL.MODULE_RAIL' | translate">
+<nav class="rail" [attr.aria-label]="'shell.module_rail' | translate">
   @for (item of items(); track item.module.id) {
     <button
       type="button"
@@ -10,7 +10,7 @@
       [title]="
         item.allowed
           ? (item.module.titleKey | translate)
-          : (item.module.titleKey | translate) + ' — ' + ('SHELL.MODULE_LOCKED' | translate)
+          : (item.module.titleKey | translate) + ' — ' + ('shell.module_locked' | translate)
       "
       (click)="open(item)"
     >

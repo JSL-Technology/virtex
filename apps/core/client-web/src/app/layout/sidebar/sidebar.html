@@ -1,4 +1,4 @@
-<nav class="sidebar" [attr.aria-label]="'SHELL.MODULE_PANEL' | translate">
+<nav class="sidebar" [attr.aria-label]="'shell.module_panel' | translate">
   @if (module(); as active) {
     <h2 class="module-title">{{ active.titleKey | translate }}</h2>
   }
@@ -21,7 +21,7 @@
         }
       </div>
     } @empty {
-      <p class="menu-empty">{{ 'SHELL.NO_ENTRIES' | translate }}</p>
+      <p class="menu-empty">{{ 'shell.no_entries' | translate }}</p>
     }
   </div>
 </nav>

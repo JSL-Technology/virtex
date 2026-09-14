@@ -1,29 +1,29 @@
 <div class="widget-header">
-    <h3>{{ 'DASH.WIDGET.TOP_PRODUCTS.NAME' | translate }}</h3>
+    <h3>{{ 'dash.widget.top_products.name' | translate }}</h3>
 
     <div class="header-actions" (mousedown)="$event.stopPropagation()">
         @if (!isEditMode) {
         <div class="widget-edit-menu">
-            <button class="icon-button" [title]="'DASHBOARD.TOP_PRODUCTS_CHART.EXPORTAR' | translate" (mousedown)="toggleExportMenu($event)">
+            <button class="icon-button" [title]="'dashboard.top_products_chart.export' | translate" (mousedown)="toggleExportMenu($event)">
                 <lucide-icon [img]="MenuIcon" size="18"></lucide-icon>
             </button>
             @if (isExportMenuOpen()) {
             <div class="edit-dropdown export-dropdown" (mousedown)="$event.stopPropagation()">
                 <button (mousedown)="viewFullscreen($event)">
-                    <lucide-icon [img]="FullscreenIcon" size="14"></lucide-icon> {{ 'DASHBOARD.TOP_PRODUCTS_CHART.PANTALLA_COMPLETA' | translate }}
+                    <lucide-icon [img]="FullscreenIcon" size="14"></lucide-icon> {{ 'dashboard.top_products_chart.full_screen' | translate }}
                 </button>
                 <button (mousedown)="printChart($event)">
-                    <lucide-icon [img]="PrintIcon" size="14"></lucide-icon> {{ 'DASHBOARD.TOP_PRODUCTS_CHART.IMPRIMIR_GRAFICO' | translate }}
+                    <lucide-icon [img]="PrintIcon" size="14"></lucide-icon> {{ 'dashboard.top_products_chart.print_chart' | translate }}
                 </button>
                 <hr />
-                <span class="dropdown-title">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.DESCARGAR' | translate }}</span>
-                <button (mousedown)="downloadPNG($event)"><lucide-icon [img]="PngIcon" size="14"></lucide-icon> {{ 'DASHBOARD.TOP_PRODUCTS_CHART.IMAGEN_PNG' | translate }}</button>
-                <button (mousedown)="downloadJPEG($event)">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.IMAGEN_JPEG' | translate }}</button>
-                <button (mousedown)="downloadPDF($event)">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.DOCUMENTO_PDF' | translate }}</button>
-                <button (mousedown)="downloadSVG($event)">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.VECTOR_SVG' | translate }}</button>
+                <span class="dropdown-title">{{ 'dashboard.top_products_chart.download' | translate }}</span>
+                <button (mousedown)="downloadPNG($event)"><lucide-icon [img]="PngIcon" size="14"></lucide-icon> {{ 'dashboard.top_products_chart.png_image' | translate }}</button>
+                <button (mousedown)="downloadJPEG($event)">{{ 'dashboard.top_products_chart.jpeg_image' | translate }}</button>
+                <button (mousedown)="downloadPDF($event)">{{ 'dashboard.top_products_chart.pdf_document' | translate }}</button>
+                <button (mousedown)="downloadSVG($event)">{{ 'dashboard.top_products_chart.vector_svg' | translate }}</button>
                 <hr />
-                <button (mousedown)="downloadCSV($event)"><lucide-icon [img]="CsvIcon" size="14"></lucide-icon> {{ 'DASHBOARD.TOP_PRODUCTS_CHART.DATOS_CSV' | translate }}</button>
-                <button (mousedown)="downloadXLS($event)">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.HOJA_CALCULO_XLS' | translate }}</button>
+                <button (mousedown)="downloadCSV($event)"><lucide-icon [img]="CsvIcon" size="14"></lucide-icon> {{ 'dashboard.top_products_chart.csv_data' | translate }}</button>
+                <button (mousedown)="downloadXLS($event)">{{ 'dashboard.top_products_chart.xls_spreadsheet' | translate }}</button>
             </div>
             }
         </div>
@@ -31,24 +31,24 @@
 
         @if (isEditMode) {
         <div class="widget-edit-menu">
-            <button class="icon-button" [title]="'DASHBOARD.TOP_PRODUCTS_CHART.CONFIGURAR_WIDGET' | translate" (mousedown)="toggleSettings($event)">
+            <button class="icon-button" [title]="'dashboard.top_products_chart.configure_widget' | translate" (mousedown)="toggleSettings($event)">
                 <lucide-icon [img]="SettingsIcon" size="18"></lucide-icon>
             </button>
             @if (isSettingsOpen()) {
             <div class="edit-dropdown" (mousedown)="$event.stopPropagation()">
                 <div class="dropdown-section">
-                    <span class="dropdown-title">{{ 'CHARTS.COMMON.CHART_TYPE' | translate }}</span>
+                    <span class="dropdown-title">{{ 'charts.common.chart_type' | translate }}</span>
                     <button (mousedown)="changeChartType('bar', $event)"
                         [class.active]="widget.chartType === 'bar' || !widget.chartType">
-                        <lucide-icon [img]="BarIcon" size="14"></lucide-icon> {{ 'CHARTS.TYPE.BAR' | translate }}
+                        <lucide-icon [img]="BarIcon" size="14"></lucide-icon> {{ 'charts.type.bar' | translate }}
                     </button>
                     <button (mousedown)="changeChartType('line', $event)" [class.active]="widget.chartType === 'line'">
-                        <lucide-icon [img]="LineIcon" size="14"></lucide-icon> {{ 'CHARTS.TYPE.LINE' | translate }}
+                        <lucide-icon [img]="LineIcon" size="14"></lucide-icon> {{ 'charts.type.line' | translate }}
                     </button>
                 </div>
 
                 <div class="dropdown-section">
-                    <span class="dropdown-title">{{ 'DASHBOARD.TOP_PRODUCTS_CHART.PERSONALIZAR_COLORES' | translate }}</span>
+                    <span class="dropdown-title">{{ 'dashboard.top_products_chart.customize_colours' | translate }}</span>
                     @for (point of chartDataPoints(); track point.name) {
                     <div class="color-picker-item">
                         <label [for]="point.name">{{ point.name }}</label>
@@ -60,7 +60,7 @@
             </div>
             }
         </div>
-        <button class="icon-button danger" [title]="'DASHBOARD.TOP_PRODUCTS_CHART.ELIMINAR_WIDGET' | translate" (mousedown)="removeWidget($event)">
+        <button class="icon-button danger" [title]="'dashboard.top_products_chart.remove_widget' | translate" (mousedown)="removeWidget($event)">
             <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
         </button>
         }

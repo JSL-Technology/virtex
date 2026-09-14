@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.LEDGER_LIST.LIBROS_CONTABLES"
+  titleKey="accounting.ledger_list.ledgers"
   [count]="ledgers().length"
   [loading]="loading()"
   [error]="error()"
@@ -8,16 +8,16 @@
 >
   <a listActions [routerLink]="['/accounting/general-ledger/new']" class="primary-button">
     <lucide-icon [img]="CreateIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.LEDGER_LIST.CREAR_NUEVO_LIBRO' | translate }}</span>
+    <span>{{ 'accounting.ledger_list.create_ledger' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.LEDGER_LIST.NOMBRE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.LEDGER_LIST.DESCRIPCION' | translate }}</th>
-          <th class="text-center">{{ 'ACCOUNTING.LEDGER_LIST.DEFECTO' | translate }}</th>
+          <th>{{ 'accounting.ledger_list.name' | translate }}</th>
+          <th>{{ 'accounting.ledger_list.description' | translate }}</th>
+          <th class="text-center">{{ 'accounting.ledger_list.default' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
@@ -28,12 +28,12 @@
             <td>{{ ledger.description }}</td>
             <td class="text-center">
               @if (ledger.isDefault) {
-                <span class="status-badge active">{{ 'COMMON.ACCEPT' | translate }}</span>
+                <span class="status-badge active">{{ 'common.accept' | translate }}</span>
               }
             </td>
             <td class="actions-column">
               <a [routerLink]="['/accounting/general-ledger', ledger.id, 'edit']" class="secondary-button">
-                {{ 'ACCOUNTING.LEDGER_LIST.EDITAR' | translate }}
+                {{ 'accounting.ledger_list.edit' | translate }}
               </a>
             </td>
           </tr>

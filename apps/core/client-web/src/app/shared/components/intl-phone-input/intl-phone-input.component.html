@@ -12,7 +12,7 @@
       (change)="onRegionChange($any($event.target).value)"
       (blur)="markTouched()"
       [disabled]="disabled()"
-      [attr.aria-label]="'REGISTER.PHONE_COUNTRY' | translate">
+      [attr.aria-label]="'register.phone_country' | translate">
       @for (c of countries(); track c.countryCode) {
         <option [value]="c.countryCode">{{ c.name }} (+{{ c.callingCode }})</option>
       }
@@ -34,6 +34,6 @@
   </div>
 
   @if (showError()) {
-    <p class="intl-phone__error">{{ 'REGISTER.ERRORS.PHONE_INVALID' | translate }}</p>
+    <p class="intl-phone__error">{{ 'register.errors.phone_invalid' | translate }}</p>
   }
 </div>

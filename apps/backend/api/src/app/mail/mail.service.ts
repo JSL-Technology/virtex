@@ -94,7 +94,7 @@ export class MailService {
 
     await this.enqueue({
       to: user.email,
-      subjectKey: 'MAIL.PASSWORD_RESET.SUBJECT',
+      subjectKey: 'mail.password_reset.subject',
       language,
       template: 'password-reset',
       context: {
@@ -115,7 +115,7 @@ export class MailService {
    *
    * Always returns both fields. The mail templates run with Handlebars `strict: true`, which
    * throws on a missing property rather than rendering an empty string, so an unparseable value
-   * must still produce something renderable — `TIME.UNSPECIFIED` says "a limited time", which is
+   * must still produce something renderable — `time.limited_time` says "a limited time", which is
    * true, rather than inventing a number that is not.
    */
   private parseDuration(time: string): { count: number; unitKey: string } {
@@ -127,7 +127,7 @@ export class MailService {
 
     if (!unitKey || Number.isNaN(count)) {
       this.logger.warn(`Unparseable link expiry "${time}"; the email will not name a duration.`);
-      return { count: 0, unitKey: 'TIME.UNSPECIFIED' };
+      return { count: 0, unitKey: 'time.limited_time' };
     }
     return { count, unitKey };
   }
@@ -137,7 +137,7 @@ export class MailService {
 
     await this.enqueue({
       to: user.email,
-      subjectKey: 'MAIL.INVITATION.SUBJECT',
+      subjectKey: 'mail.invitation.subject',
       subjectParams: { appName: this.appName },
       language,
       template: 'user-invitation',
@@ -163,7 +163,7 @@ export class MailService {
 
     await this.enqueue({
       to: user.email,
-      subjectKey: 'MAIL.ORGANIZATION_ADDED.SUBJECT',
+      subjectKey: 'mail.organization_added.subject',
       subjectParams: { organization: organizationName },
       language,
       template: 'organization-added',
@@ -189,7 +189,7 @@ export class MailService {
 
     await this.enqueue({
       to: email,
-      subjectKey: 'MAIL.DUPLICATE_REGISTRATION.SUBJECT',
+      subjectKey: 'mail.duplicate_registration.subject',
       language,
       template: 'duplicate-registration',
       context: {
@@ -214,7 +214,7 @@ export class MailService {
 
     await this.enqueue({
       to: email,
-      subjectKey: 'MAIL.REGISTRATION_FAILED.SUBJECT',
+      subjectKey: 'mail.registration_failed.subject',
       language,
       template: 'registration-failed',
       context: {
@@ -229,7 +229,7 @@ export class MailService {
   async sendVerificationCodeEmail(email: string, code: string, name: string) {
     await this.enqueue({
       to: email,
-      subjectKey: 'MAIL.VERIFICATION_CODE.SUBJECT',
+      subjectKey: 'mail.verification_code.subject',
       language: this.languageFor(null),
       template: 'verification-code',
       context: { ...this.baseContext(), name, code },
@@ -241,7 +241,7 @@ export class MailService {
   async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
     await this.enqueue({
       to: newEmail,
-      subjectKey: 'MAIL.EMAIL_CHANGE.SUBJECT',
+      subjectKey: 'mail.email_change.subject',
       language: this.languageFor(null),
       template: 'email-change-confirm',
       context: {
@@ -264,7 +264,7 @@ export class MailService {
   async sendEmailChangedNotice(previousEmail: string, firstName: string, newEmail: string) {
     await this.enqueue({
       to: previousEmail,
-      subjectKey: 'MAIL.EMAIL_CHANGED_NOTICE.SUBJECT',
+      subjectKey: 'mail.email_changed_notice.subject',
       language: this.languageFor(null),
       template: 'email-changed-notice',
       context: { ...this.baseContext(), name: firstName, newEmail },
@@ -317,7 +317,7 @@ export class MailService {
 
     await this.enqueue({
       to: user.email,
-      subjectKey: 'MAIL.WELCOME.SUBJECT',
+      subjectKey: 'mail.welcome.subject',
       subjectParams: { appName: this.appName },
       language,
       template: 'welcome',
@@ -348,7 +348,7 @@ export class MailService {
   ) {
     await this.enqueue({
       to: email,
-      subjectKey: 'MAIL.REGISTRATION_VERIFY.SUBJECT',
+      subjectKey: 'mail.registration_verify.subject',
       language: this.languageFor({ preferredLanguage: language ?? null }),
       template: 'registration-email-verify',
       context: { ...this.baseContext(), name, code, magicLinkUrl, expiresMinutes },

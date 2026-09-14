@@ -38,7 +38,7 @@ function sourceFiles(dir) {
   });
 }
 
-/** `features/settings/roles/roles.page.ts` → `SETTINGS.ROLES`. */
+/** `features/settings/roles/roles.page.ts` → `settings.roles`. */
 function namespaceFor(file) {
   const parts = relative(ROOT, file).split(sep);
   const folder = parts.at(-2) ?? parts.at(-1);

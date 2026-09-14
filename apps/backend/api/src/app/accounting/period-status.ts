@@ -60,14 +60,14 @@ export async function resolvePostingPeriod(
 
   if (!period) {
     throw new ForbiddenError(
-      'ACCOUNTING.FECHA_TRANSACCION_NO_PERTENECE_NINGUN_PERIODO_CONTABLE',
+      'accounting.transaction_date_p1_does_not_fall',
       { p1: isoDate },
     );
   }
 
   if (period.status === PeriodStatus.CLOSED && !options.allowClosedPeriod) {
     throw new ForbiddenError(
-      'ACCOUNTING.FECHA_TRANSACCION_ESTA_DENTRO_PERIODO_CONTABLE_YA',
+      'accounting.transaction_date_falls_accounting_period_name',
       { name: period.name },
     );
   }
@@ -76,7 +76,7 @@ export async function resolvePostingPeriod(
   // ledger entry, and letting it into a closed payables month would put it in a subledger the
   // taxpayer has already reported from.
   if (moduleStatusOf(period, module) === PeriodStatus.CLOSED) {
-    throw new ForbiddenError('ACCOUNTING.MODULO_CERRADO_PARA_PERIODO', {
+    throw new ForbiddenError('accounting.module_module_closed_period_name', {
       name: period.name,
       module,
     });

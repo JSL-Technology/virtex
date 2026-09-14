@@ -31,7 +31,7 @@ export class ComplianceController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (dto.endsAt < dto.startsAt) {
-      throw new BadRequestError('COMPLIANCE.NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL');
+      throw new BadRequestError('compliance.ending_number_cannot_lower_than_starting');
     }
     return this.complianceService.provisionNcfSequence(user.organizationId, dto);
   }
@@ -143,7 +143,7 @@ export class ComplianceController {
           numTramite: query.numTramite,
         });
       default:
-        throw new BadRequestError('COMPLIANCE.DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO', {
+        throw new BadRequestError('compliance.document_not_electronic_accounting_document_available', {
           document,
           available: 'catalogo, balanza, polizas',
         });
@@ -170,15 +170,15 @@ export class ComplianceController {
 
   private assertKind(kind: string): ReportKind {
     if (kind === '606' || kind === '607' || kind === '608' || kind === '609') return kind;
-    throw new BadRequestError('COMPLIANCE.FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606', { kind });
+    throw new BadRequestError('compliance.format_kind_not_recognised_available_formats', { kind });
   }
 
   private assertPeriod(year: number, month: number): void {
     if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new BadRequestError('COMPLIANCE.MES_DEBE_ESTAR_ENTRE_12');
+      throw new BadRequestError('compliance.month_must_between_12');
     }
     if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-      throw new BadRequestError('COMPLIANCE.ANO_NO_ES_VALIDO');
+      throw new BadRequestError('compliance.year_not_valid');
     }
   }
 }

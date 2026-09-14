@@ -79,11 +79,11 @@ export class ChartOfAccountsService {
     });
 
     if (segmentDefinitions.length === 0) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.ESTRUCTURA_SEGMENTOS_CUENTA_NO_HA_SIDO_CONFIGURADA');
+      throw new BadRequestError('chart_of_accounts.account_segment_structure_has_not_configured');
     }
 
     if (segmentValues.length !== segmentDefinitions.length) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.NUMERO_SEGMENTOS_PROPORCIONADOS_NO_COINCIDE_DEFINICION_ORGANIZACION', { length: segmentValues.length, length2: segmentDefinitions.length });
+      throw new BadRequestError('chart_of_accounts.number_segments_supplied_length_does_not', { length: segmentValues.length, length2: segmentDefinitions.length });
     }
 
     const fullCode = segmentValues.join('-');
@@ -97,7 +97,7 @@ export class ChartOfAccountsService {
     });
 
     if (existingAccount) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CODIGO_CUENTA_YA_EXISTE', { fullCode });
+      throw new BadRequestError('chart_of_accounts.account_code_full_code_already_exists', { fullCode });
     }
 
     // The nature must match the type's normal balance — UNLESS the account declares itself a
@@ -146,7 +146,7 @@ export class ChartOfAccountsService {
     const segments = segmentValues.map((value, index) => {
       const def = segmentDefinitions[index];
       if (value.length !== def.length) {
-        throw new BadRequestError('CHART_OF_ACCOUNTS.SEGMENTO_VALOR_DEBE_TENER_LONGITUD_CARACTERES', { name: def.name, value, length: def.length });
+        throw new BadRequestError('chart_of_accounts.segment_name_value_value_must_length', { name: def.name, value, length: def.length });
       }
       return manager.create(AccountSegment, { order: def.order, value });
     });
@@ -186,7 +186,7 @@ export class ChartOfAccountsService {
       relations: ['children', 'parent', 'segments', 'history'],
     });
     if (!account) {
-      throw new NotFoundError('CHART_OF_ACCOUNTS.CUENTA_CONTABLE_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('chart_of_accounts.account_id_not_found', { id });
     }
     return account;
   }
@@ -208,17 +208,17 @@ export class ChartOfAccountsService {
       });
 
       if (!account) {
-        throw new NotFoundError('CHART_OF_ACCOUNTS.CUENTA_CONTABLE_ID_NO_ENCONTRADA', { id });
+        throw new NotFoundError('chart_of_accounts.account_id_not_found', { id });
       }
 
       if (
         updateAccountDto.segments &&
         updateAccountDto.segments.join('-') !== account.code
       ) {
-        throw new BadRequestError('CHART_OF_ACCOUNTS.CODIGO_CUENTA_SEGMENTOS_NO_PUEDE_SER_MODIFICADO');
+        throw new BadRequestError('chart_of_accounts.account_code_segments_cannot_changed');
       }
       if (updateAccountDto.type && updateAccountDto.type !== account.type) {
-        throw new BadRequestError('CHART_OF_ACCOUNTS.TIPO_CUENTA_NO_PUEDE_SER_MODIFICADO');
+        throw new BadRequestError('chart_of_accounts.account_type_cannot_changed');
       }
 
       const { reasonForChange, parentId, segments, ...accountDataDto } =
@@ -247,7 +247,7 @@ export class ChartOfAccountsService {
           where: { accountId: id },
         });
         if (transactionCount > 0) {
-          throw new BadRequestError('CHART_OF_ACCOUNTS.NO_PUEDE_CAMBIAR_JERARQUIA_CUENTA_PORQUE_TIENE', { p1: account.name['es'] });
+          throw new BadRequestError('chart_of_accounts.hierarchy_account_p1_cannot_changed_because', { p1: account.name['es'] });
         }
 
         const hierarchyVersion = hierarchyRepo.create({
@@ -299,7 +299,7 @@ export class ChartOfAccountsService {
       case AccountType.REVENUE:
         return AccountNature.CREDIT;
       default:
-        throw new BadRequestError('CHART_OF_ACCOUNTS.TIPO_CUENTA_INVALIDO', { type });
+        throw new BadRequestError('chart_of_accounts.invalid_account_type_type', { type });
     }
   }
 
@@ -312,7 +312,7 @@ export class ChartOfAccountsService {
     const { sourceAccountId, destinationAccountId } = dto;
 
     if (sourceAccountId === destinationAccountId) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
+      throw new BadRequestError('chart_of_accounts.source_destination_accounts_cannot_same');
     }
 
 
@@ -326,13 +326,13 @@ export class ChartOfAccountsService {
     ]);
 
     if (!sourceAccount || !destAccount) {
-      throw new NotFoundError('CHART_OF_ACCOUNTS.AMBAS_CUENTAS_NO_FUERON_ENCONTRADAS');
+      throw new NotFoundError('chart_of_accounts.one_both_accounts_not_found');
     }
     if (!sourceAccount.isPostable || !destAccount.isPostable) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER');
+      throw new BadRequestError('chart_of_accounts.both_accounts_must_postable_merged');
     }
     if (sourceAccount.isSystemAccount) {
-      throw new ForbiddenError('CHART_OF_ACCOUNTS.CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS');
+      throw new ForbiddenError('chart_of_accounts.system_accounts_cannot_merged');
     }
 
 
@@ -367,7 +367,7 @@ export class ChartOfAccountsService {
   ): Promise<Account> {
     const account = await this.findOne(accountId, organizationId);
     if (account.isBlockedForPosting) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_YA_ESTA_BLOQUEADA');
+      throw new BadRequestError('chart_of_accounts.account_already_locked');
     }
     const previousValue = { isBlockedForPosting: account.isBlockedForPosting };
     account.isBlockedForPosting = true;
@@ -392,7 +392,7 @@ export class ChartOfAccountsService {
   ): Promise<Account> {
     const account = await this.findOne(accountId, organizationId);
     if (!account.isBlockedForPosting) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_ESTA_BLOQUEADA');
+      throw new BadRequestError('chart_of_accounts.account_not_locked');
     }
     const previousValue = { isBlockedForPosting: account.isBlockedForPosting };
     account.isBlockedForPosting = false;
@@ -416,16 +416,16 @@ export class ChartOfAccountsService {
   ): Promise<{ message: string; account: Account }> {
     const account = await this.findOne(id, organizationId);
     if (account.isSystemAccount) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS');
+      throw new BadRequestError('chart_of_accounts.system_accounts_cannot_deactivated');
     }
     if (account.children && account.children.length > 0) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE');
+      throw new BadRequestError('chart_of_accounts.account_cannot_deactivated_because_has_child');
     }
     const firstTransaction = await this.journalEntryLineRepository.findOne({
       where: { accountId: id },
     });
     if (firstTransaction) {
-      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE_2');
+      throw new BadRequestError('chart_of_accounts.account_cannot_deactivated_because_has_transactions');
     }
     account.isActive = false;
     const deactivatedAccount = await this.accountRepository.save(account);
@@ -467,7 +467,7 @@ export class ChartOfAccountsService {
         relations: ['children', 'segments'],
       });
       if (accounts.length !== accountIds.length) {
-        throw new BadRequestError('CHART_OF_ACCOUNTS.MAS_CUENTAS_ESPECIFICADAS_NO_FUERON_ENCONTRADAS');
+        throw new BadRequestError('chart_of_accounts.one_more_specified_accounts_not_found');
       }
       const errors: string[] = [];
       const accountsToDeactivate: Account[] = [];

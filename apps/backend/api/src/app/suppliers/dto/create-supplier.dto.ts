@@ -32,7 +32,7 @@ export class CreateSupplierDto {
    */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.COUNTRY_CODE' })
+  @Length(2, 2, { message: 'validation.constraints.country_code' })
   country?: string;
 
   /**

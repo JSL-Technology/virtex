@@ -451,13 +451,13 @@ export class SessionService {
     if (!result.affected) {
       // Either it does not exist, belongs to someone else, or is already revoked. The message is
       // deliberately identical in all three cases so it cannot be used to probe other users' ids.
-      throw new NotFoundError('AUTH.SESION_NO_ENCONTRADA_NO_PERTENECE_USUARIO');
+      throw new NotFoundError('auth.session_not_found_does_not_belong');
     }
 
     await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(userId);
 
-    return { messageKey: 'AUTH.SESION_REVOCADA_EXITOSAMENTE' };
+    return { messageKey: 'auth.session_revoked' };
   }
 
   /** Revoke every session except the caller's own — "cerrar las demás sesiones". */

@@ -21,26 +21,26 @@ import { Precondition } from './transition-preview';
  * screen rather than at a specific cure.
  */
 export const REMEDIES: Record<string, Precondition['remedy']> = {
-  'ACCOUNTING.PERIOD_CLOSED': {
-    labelKey: 'REMEDY.OPEN_PERIOD',
+  'accounting.period_closed': {
+    labelKey: 'remedy.open_period',
     route: '/accounting/periods',
   },
-  'ACCOUNTING.MODULE_PERIOD_CLOSED': {
-    labelKey: 'REMEDY.OPEN_PERIOD',
+  'accounting.module_period_closed': {
+    labelKey: 'remedy.open_period',
     route: '/accounting/periods',
   },
-  'COMPLIANCE.SECUENCIA_NCF_NO_ENCONTRADA': {
-    labelKey: 'REMEDY.CONFIGURE_SEQUENCES',
+  'compliance.ncf_sequence_not_found': {
+    labelKey: 'remedy.configure_sequences',
     route: '/overview#settings/fiscal',
   },
-  'INVENTORY.STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS': {
-    labelKey: 'REMEDY.VIEW_STOCK',
+  'inventory.not_enough_stock_name_available_available': {
+    labelKey: 'remedy.view_stock',
     route: '/inventory/products',
   },
   // The SaaS layer raises its own codes rather than localized keys (`SaasErrorCode`), so the plan
   // limit is matched on the code it really carries.
   SAAS_LIMIT_REACHED: {
-    labelKey: 'REMEDY.REVIEW_PLAN',
+    labelKey: 'remedy.review_plan',
     route: '/overview#settings/billing',
   },
 };

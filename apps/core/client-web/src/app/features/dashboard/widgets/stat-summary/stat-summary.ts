@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of, shareReplay } from 'rxjs';
 import { DashboardApiService, DashboardSummary } from '../../../../core/api/dashboard-api.service';
 import { FormatService } from '../../../../core/i18n/format.service';
+import { composeKey } from '@virteex/shared/types';
 
 /** Which of the four headline figures this instance shows. */
 export type SummaryStat = 'sales-today' | 'pending-invoices' | 'low-stock' | 'active-customers';
@@ -60,7 +61,7 @@ export class StatSummary {
     }
   });
 
-  readonly titleKey = computed(() => `DASHBOARD.SUMMARY.${keyOf(this.stat)}.TITLE`);
+  readonly titleKey = computed(() => composeKey('dashboard.summary', keyOf(this.stat), 'title'));
 
   readonly value = computed(() => {
     const summary = this.summary();
@@ -83,7 +84,7 @@ export class StatSummary {
         return this.format.money(summary.pendingInvoicesAmount);
       case 'low-stock':
         return summary.outOfStockProducts > 0
-          ? { key: 'DASHBOARD.SUMMARY.LOW_STOCK.OUT_OF_STOCK', params: { count: summary.outOfStockProducts } }
+          ? { key: 'dashboard.summary.low_stock.out_of_stock', params: { count: summary.outOfStockProducts } }
           : null;
       default:
         return null;

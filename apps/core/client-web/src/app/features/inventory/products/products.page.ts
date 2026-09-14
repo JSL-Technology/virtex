@@ -63,7 +63,7 @@ export class ProductsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('INVENTORY.PRODUCTS.LOAD_FAILED');
+        this.error.set('inventory.products.load_failed');
         this.isLoading.set(false);
         this.notificationService.showError(this.error()!);
       }
@@ -80,19 +80,19 @@ export class ProductsPage implements OnInit {
 
   async deleteProduct(product: Product): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_PRODUCT.TITLE',
-      message: 'DIALOG.DELETE_PRODUCT.MESSAGE',
+      title: 'dialog.delete_product.title',
+      message: 'dialog.delete_product.message',
       messageParams: { name: product.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) {
       this.inventoryService.deleteProduct(product.id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('INVENTORY.PRODUCTS.PRODUCTO_ELIMINADO_EXITOSAMENTE');
+          this.notificationService.showSuccess('inventory.products.product_deleted');
           this.loadProducts(); // Recargar la lista
         },
-        error: () => this.notificationService.showError('INVENTORY.PRODUCTS.ERROR_ELIMINAR_PRODUCTO')
+        error: () => this.notificationService.showError('inventory.products.error_deleting_product')
       });
     }
   }

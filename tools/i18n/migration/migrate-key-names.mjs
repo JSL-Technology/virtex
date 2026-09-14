@@ -3,10 +3,10 @@
  *
  * ## Three shapes a reference takes
  *
- *  1. A whole key written out: `translate.instant('ACCOUNTING.LEDGER.TITLE')`, `| translate`,
- *     `titleKey: 'PAGE_TITLES.PRODUCTS'`, `new NotFoundError('USERS.EMAIL_IN_USE')`.
- *  2. A PREFIX, with the leaf composed at runtime: `` `FISCAL.DO.${code}` `` or
- *     `'PAYROLL.RUNS.TYPE_LABEL.' + run.runType`. The prefix has to move with its children, and
+ *  1. A whole key written out: `translate.instant('accounting.ledger.title')`, `| translate`,
+ *     `titleKey: 'page_titles.products'`, `new NotFoundError('USERS.EMAIL_IN_USE')`.
+ *  2. A PREFIX, with the leaf composed at runtime: `` `fiscal.do.${code}` `` or
+ *     `'payroll.runs.type_label.' + run.runType`. The prefix has to move with its children, and
  *     a prefix is only rewritten where it is immediately followed by a dot and the end of the
  *     string — never on its own, because `'AUTH'` as a bare word is a dozen other things.
  *  3. A redirect: the eight authentication messages that existed a second time under
@@ -15,8 +15,8 @@
  *
  * ## Why longest-first matters
  *
- * `AUTH.PLAN_NOT_FOUND` is a prefix of nothing, but `ACCOUNTING.PERIODS` is a prefix of
- * `ACCOUNTING.PERIODS.STATUS_OPEN`. Replacing the short one first would leave
+ * `auth.plan_not_found` is a prefix of nothing, but `accounting.periods` is a prefix of
+ * `accounting.periods.status_open`. Replacing the short one first would leave
  * `accounting.periods.STATUS_OPEN` — half migrated, and still matching nothing. Sorting by
  * descending length means a longer key is always consumed before any of its own prefixes.
  */
@@ -71,7 +71,22 @@ for (const [oldPrefix, targets] of prefixCandidates) {
 // ---------------------------------------------------------------------------
 // Files to rewrite.
 // ---------------------------------------------------------------------------
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.nx', '_shots', 'base', 'regional']);
+/**
+ * Directories the rewrite must not touch.
+ *
+ * `base/` and `regional/` already hold new keys. `migration/` holds the map itself and the
+ * documents describing what changed, which have to keep naming the OLD keys to stay readable.
+ * The two old catalogue directories are the rewrite's own input: migrating them in place would
+ * make re-running `build-locale-source.mjs` impossible.
+ */
+const SKIP_DIRS = new Set([
+  'node_modules', '.git', 'dist', 'coverage', '.nx', '_shots',
+  'base', 'regional', 'migration', 'i18n-legacy',
+]);
+const SKIP_PATHS = [
+  'apps/core/client-web/src/assets/i18n',
+  'apps/backend/api/src/app/i18n/messages',
+];
 const EXTENSIONS = /\.(ts|tsx|html|hbs|mjs|cts|json|md)$/;
 const SKIP_FILES = new Set([
   'rename-map.json', 'rename-overrides.json', 'key-redirects.json',
@@ -79,6 +94,8 @@ const SKIP_FILES = new Set([
 ]);
 
 function walk(dir) {
+  const relative = path.relative(ROOT, dir).split(path.sep).join('/');
+  if (SKIP_PATHS.includes(relative)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return SKIP_DIRS.has(entry.name) ? [] : walk(full);
@@ -102,7 +119,7 @@ for (const file of targets) {
   let after = before;
 
   // A composed prefix: the key text ends with a dot, then the string ends or an interpolation
-  // begins. Done before whole keys so `'PAYROLL.RUNS.TYPE_LABEL.'` is not left half-rewritten.
+  // begins. Done before whole keys so `'payroll.runs.type_label.'` is not left half-rewritten.
   for (const [oldPrefix, newPrefix] of prefixOrdered) {
     const re = new RegExp(`(?<![A-Za-z0-9_.])${escape(oldPrefix)}\\.(?=['"\`]|\\$\\{)`, 'g');
     after = after.replace(re, () => {

@@ -93,7 +93,7 @@ export class S3StorageStrategy implements StorageService {
       };
     } catch (error) {
       this.logger.warn(`S3 object unavailable (${storageKey}): ${(error as Error).message}`);
-      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
+      throw new NotFoundError('storage.file_not_available');
     }
   }
 

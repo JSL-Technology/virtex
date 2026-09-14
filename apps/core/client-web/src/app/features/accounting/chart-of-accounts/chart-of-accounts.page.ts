@@ -91,10 +91,10 @@ export class ChartOfAccountsPage implements OnInit {
   
   async deleteAccount(account: FlattenedAccount): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_ACCOUNT.TITLE',
-      message: 'DIALOG.DELETE_ACCOUNT.MESSAGE',
+      title: 'dialog.delete_account.title',
+      message: 'dialog.delete_account.message',
       messageParams: { name: account.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) this.state.deleteAccount(account.id);

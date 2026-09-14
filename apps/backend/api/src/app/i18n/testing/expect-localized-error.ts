@@ -14,7 +14,7 @@ import { isLocalizedError } from '../localized.exception';
  *
  *     await expectLocalizedError(
  *       service.enableTwoFactor(user, '000000'),
- *       'AUTH.INVALID_2FA_TOKEN',
+ *       'auth.invalid_2_fa_token',
  *     );
  *
  *     await expectLocalizedError(

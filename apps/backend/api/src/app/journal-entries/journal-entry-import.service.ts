@@ -93,9 +93,9 @@ export class JournalEntryImportService {
     userId: string,
   ): Promise<PreviewImportResponseDto> {
     const { data } = await this.fileParser.parse(file);
-    if (data.length === 0) throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_NO_CONTIENE_DATOS');
+    if (data.length === 0) throw new BadRequestError('journal_entries.file_contains_no_data');
     if (data.length > MAX_ROWS) {
-      throw new BadRequestError('JOURNAL_ENTRIES.IMPORT.DEMASIADAS_FILAS', {
+      throw new BadRequestError('journal_entries.import.file_has_rows_rows_maximum_per', {
         rows: data.length,
         max: MAX_ROWS,
       });
@@ -112,7 +112,7 @@ export class JournalEntryImportService {
       .findOneBy({ organizationId, code: 'GENERAL' });
     if (!generalJournal) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_NECESARIO_IMPORTACION',
+        'journal_entries.general_journal_general_not_found_import',
       );
     }
 
@@ -121,7 +121,7 @@ export class JournalEntryImportService {
       .findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'journal_entries.no_default_ledger_has_configured_organization',
       );
     }
 
@@ -210,7 +210,7 @@ export class JournalEntryImportService {
 
     if (debitCents !== creditCents) {
       entryErrors.push({
-        messageKey: 'JOURNAL_ENTRIES.IMPORT.ASIENTO_NO_CUADRA',
+        messageKey: 'journal_entries.import.entry_does_not_balance_debits_debit',
         params: { debit: debitCents / 100, credit: creditCents / 100 },
       });
     }
@@ -223,14 +223,14 @@ export class JournalEntryImportService {
     const parsed = parseDate(rawDate, mapping.dateFormat, new Date());
     if (!rawDate || !isValid(parsed)) {
       entryErrors.push({
-        messageKey: 'JOURNAL_ENTRIES.IMPORT.FECHA_NO_LEGIBLE',
+        messageKey: 'journal_entries.import.date_value_does_not_match_format',
         params: { value: rawDate, format: mapping.dateFormat },
       });
     }
 
     const description = String(first[columns.description] ?? '').trim();
     if (!description) {
-      entryErrors.push({ messageKey: 'JOURNAL_ENTRIES.IMPORT.SIN_DESCRIPCION' });
+      entryErrors.push({ messageKey: 'journal_entries.import.entry_has_no_description' });
     }
 
     const isBalanced = debitCents === creditCents;
@@ -270,7 +270,7 @@ export class JournalEntryImportService {
       const raw = row[column];
       if (parseDecimal(raw, decimalSeparator) === null) {
         return {
-          messageKey: 'JOURNAL_ENTRIES.IMPORT.IMPORTE_NO_LEGIBLE',
+          messageKey: 'journal_entries.import.amount_value_cannot_read_with_decimal',
           params: { value: String(raw ?? ''), separator: decimalSeparator },
         };
       }
@@ -282,30 +282,30 @@ export class JournalEntryImportService {
     // A negative debit is a credit written in the wrong column; accepting it would let one line
     // silently reverse the sense of the entry.
     if (debit < 0 || credit < 0) {
-      return { messageKey: 'JOURNAL_ENTRIES.IMPORT.IMPORTE_NEGATIVO' };
+      return { messageKey: 'journal_entries.import.debit_credit_cannot_negative_use_opposite' };
     }
     if (toCents(debit) !== 0 && toCents(credit) !== 0) {
-      return { messageKey: 'JOURNAL_ENTRIES.IMPORT.LINEA_CON_AMBOS_LADOS' };
+      return { messageKey: 'journal_entries.import.line_cannot_carry_both_debit_credit' };
     }
     if (toCents(debit) === 0 && toCents(credit) === 0) {
-      return { messageKey: 'JOURNAL_ENTRIES.IMPORT.LINEA_SIN_MOVIMIENTO' };
+      return { messageKey: 'journal_entries.import.line_has_neither_debit_nor_credit' };
     }
 
     const code = String(row[columns.accountCode] ?? '').trim();
     const account = accountsByCode.get(code);
     if (!account) {
-      return { messageKey: 'JOURNAL_ENTRIES.IMPORT.CUENTA_NO_EXISTE', params: { code } };
+      return { messageKey: 'journal_entries.import.no_account_with_code_code_exists', params: { code } };
     }
     // Nothing checked either of these. An import could post to a grouping account, which no other
     // path in the product allows, and to an account someone had deactivated.
     if (!account.isPostable) {
       return {
-        messageKey: 'JOURNAL_ENTRIES.IMPORT.CUENTA_NO_ADMITE_MOVIMIENTOS',
+        messageKey: 'journal_entries.import.account_code_grouping_account_cannot_take',
         params: { code },
       };
     }
     if (!account.isActive) {
-      return { messageKey: 'JOURNAL_ENTRIES.IMPORT.CUENTA_INACTIVA', params: { code } };
+      return { messageKey: 'journal_entries.import.account_code_inactive', params: { code } };
     }
 
     return null;
@@ -321,11 +321,11 @@ export class JournalEntryImportService {
       organizationId,
     });
     if (!batch || batch.status !== ImportBatchStatus.PENDING || batch.expiresAt <= new Date()) {
-      throw new NotFoundError('JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO');
+      throw new NotFoundError('journal_entries.import_batch_not_found_has_expired');
     }
     // A batch is a draft of one person's work, not a shared resource.
     if (batch.createdByUserId !== userId) {
-      throw new BadRequestError('JOURNAL_ENTRIES.IMPORT.LOTE_DE_OTRO_USUARIO');
+      throw new BadRequestError('journal_entries.import.import_batch_prepared_another_user');
     }
 
     const totalEntries = batch.entries.length;
@@ -346,7 +346,7 @@ export class JournalEntryImportService {
           .execute();
         if (claimed.affected === 0) {
           throw new NotFoundError(
-            'JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO',
+            'journal_entries.import_batch_not_found_has_expired',
           );
         }
 
@@ -380,14 +380,14 @@ export class JournalEntryImportService {
     this.eventsGateway.sendToUser(userId, 'import-complete', {
       batchId: batch.id,
       status: 'SUCCESS',
-      messageKey: 'JOURNAL_ENTRIES.IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE',
+      messageKey: 'journal_entries.import_confirmed_processed',
       createdEntriesCount: totalEntries,
     });
 
     this.logger.log(`Lote de importación ${batch.id} confirmado: ${totalEntries} asientos.`);
 
     return {
-      messageKey: 'JOURNAL_ENTRIES.IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE',
+      messageKey: 'journal_entries.import_confirmed_processed',
       createdEntriesCount: totalEntries,
     };
   }

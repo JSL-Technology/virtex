@@ -37,13 +37,13 @@ const CORE_PROVIDERS = [
   // The active message catalogue is loaded before the first route is evaluated. `instant()` is
   // synchronous and returns the KEY when the table is empty, and both the title strategy and the
   // HTTP error handler call it — so without this the first screen after a cold start can show
-  // `AUTH.TITLES.LOGIN` in the browser tab.
+  // `auth.titles.login` in the browser tab.
   provideAppInitializer(() => inject(LanguageService).preload()),
   provideAppInitializer(() => inject(AuthService).resolveSession()),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),
-  // One title strategy: route titles are translation keys, composed with APP_TITLE.
+  // One title strategy: route titles are translation keys, composed with app_title.
   { provide: TitleStrategy, useClass: TranslatedTitleStrategy },
   provideRouter(
     APP_ROUTES,

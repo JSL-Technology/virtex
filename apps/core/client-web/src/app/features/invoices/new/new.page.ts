@@ -194,7 +194,7 @@ export class NewInvoicePage implements OnInit {
         }
       },
       error: () =>
-        this.notificationService.showError('INVOICES.NEW.PUDO_CARGAR_CONFIGURACION_FACTURACION'),
+        this.notificationService.showError('invoices.new.invoicing_configuration_could_not_loaded'),
     });
   }
 
@@ -253,7 +253,7 @@ export class NewInvoicePage implements OnInit {
         });
         this.lineItems.push(group);
       }
-      this.notificationService.showInfo('INVOICES.NEW.DATOS_CARGADOS_DESDE', { invoiceNumber: invoice.invoiceNumber });
+      this.notificationService.showInfo('invoices.new.data_loaded_from_invoice_number', { invoiceNumber: invoice.invoiceNumber });
     });
   }
 
@@ -459,7 +459,7 @@ export class NewInvoicePage implements OnInit {
     }
     if (issue && this.hasStockShortfall()) {
       //  No es un campo mal escrito: es que no hay existencias. Emitir lo rechazaría el servidor.
-      this.problems.set([{ message: 'INVOICES.NEW.STOCK_INSUFICIENTE' }]);
+      this.problems.set([{ message: 'invoices.new.insufficient_stock' }]);
       return;
     }
 
@@ -474,7 +474,7 @@ export class NewInvoicePage implements OnInit {
         //  revisión de plantillas los habría encontrado.
         this.notificationService.showSuccess(
           this.translate.instant(
-            issue ? 'INVOICES.NEW.FACTURA_EMITIDA' : 'INVOICES.NEW.BORRADOR_GUARDADO',
+            issue ? 'invoices.new.invoice_number_issued' : 'invoices.new.draft_number_saved',
             { number: issue ? (invoice.ncfNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
           ),
         );
@@ -482,7 +482,7 @@ export class NewInvoicePage implements OnInit {
       },
       error: (err) => {
         this.notificationService.showError(
-          err?.error?.message || this.translate.instant('ERRORS.SAVE_DOCUMENT'),
+          err?.error?.message || this.translate.instant('errors.save_document'),
         );
         this.isSaving.set(false);
       },
@@ -537,14 +537,14 @@ const EMPTY_TOTALS: InvoicePreview = {
 
 /** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
 const INVOICE_FIELD_LABELS: Record<string, string> = {
-  customerId: 'INVOICES.LIST.CLIENTE',
-  issueDate: 'INVOICES.LIST.CREACION',
-  dueDate: 'INVOICES.LIST.VENCIMIENTO',
-  currencyCode: 'TREASURY.MONEDA',
-  fiscalDocumentTypeId: 'INVOICES.DETAIL.NCF',
-  description: 'INVOICES.DETAIL.DESCRIPCION',
-  quantity: 'INVOICES.DETAIL.CANT',
-  price: 'INVOICES.DETAIL.PRECIO',
-  taxWithholdingRate: 'INVOICES.NEW.ITBIS_RETENIDO_FRACCION_IMPUESTO',
-  incomeTaxWithholdingRate: 'INVOICES.NEW.ISR_RETENIDO_FRACCION_BASE',
+  customerId: 'invoices.list.customer',
+  issueDate: 'invoices.list.created',
+  dueDate: 'invoices.list.due',
+  currencyCode: 'treasury.currency',
+  fiscalDocumentTypeId: 'invoices.detail.ncf',
+  description: 'invoices.detail.description',
+  quantity: 'invoices.detail.qty',
+  price: 'invoices.detail.price',
+  taxWithholdingRate: 'invoices.new.tax_withheld_fraction_tax',
+  incomeTaxWithholdingRate: 'invoices.new.income_tax_withheld_fraction_base',
 };

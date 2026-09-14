@@ -81,7 +81,7 @@ export class ProcurementService {
       relations: ['lines', 'lines.product'],
     });
     if (!requisition) {
-      throw new NotFoundError('PROCUREMENT.REQUISITION_NOT_FOUND', { id });
+      throw new NotFoundError('procurement.requisition_not_found', { id });
     }
     return requisition;
   }
@@ -122,7 +122,7 @@ export class ProcurementService {
     return this.dataSource.transaction(async (manager) => {
       const requisition = await this.findOneWithManager(manager, id, organizationId);
       if (requisition.status !== PurchaseRequisitionStatus.DRAFT) {
-        throw new BadRequestError('PROCUREMENT.REQUISITION_NOT_EDITABLE', {
+        throw new BadRequestError('procurement.requisition_not_editable', {
           status: requisition.status,
         });
       }
@@ -181,7 +181,7 @@ export class ProcurementService {
     // Only a draft disappears. Once it has been through an approver it is part of the record of
     // what the business decided, and deleting it erases their decision along with it.
     if (requisition.status !== PurchaseRequisitionStatus.DRAFT) {
-      throw new BadRequestError('PROCUREMENT.REQUISITION_NOT_DELETABLE', {
+      throw new BadRequestError('procurement.requisition_status_cannot_deleted_part_record', {
         status: requisition.status,
       });
     }
@@ -223,7 +223,7 @@ export class ProcurementService {
 
   private assertTransition(from: PurchaseRequisitionStatus, to: PurchaseRequisitionStatus): void {
     if (!REQUISITION_TRANSITIONS[from].includes(to)) {
-      throw new BadRequestError('PROCUREMENT.REQUISITION_TRANSITION_NOT_ALLOWED', { from, to });
+      throw new BadRequestError('procurement.requisition_cannot_move_from_from', { from, to });
     }
   }
 
@@ -237,7 +237,7 @@ export class ProcurementService {
       relations: ['lines', 'lines.product'],
     });
     if (!requisition) {
-      throw new NotFoundError('PROCUREMENT.REQUISITION_NOT_FOUND', { id });
+      throw new NotFoundError('procurement.requisition_not_found', { id });
     }
     return requisition;
   }

@@ -62,10 +62,10 @@ export class ConfirmationModalComponent {
   @Input() isOpen = false;
 
   /** Translation keys, resolved by the template — never prose. */
-  @Input() title = 'COMMON.CONFIRMATION';
-  @Input() message = 'COMMON.ARE_YOU_SURE';
-  @Input() confirmText = 'COMMON.CONFIRM';
-  @Input() cancelText = 'COMMON.CANCEL';
+  @Input() title = 'common.confirmation';
+  @Input() message = 'common.are_you_sure';
+  @Input() confirmText = 'common.confirm';
+  @Input() cancelText = 'common.cancel';
 
   /** `danger` paints the confirm button red; anything destructive should look destructive. */
   @Input() variant: 'default' | 'danger' = 'default';

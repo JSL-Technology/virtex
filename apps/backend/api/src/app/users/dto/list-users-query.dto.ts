@@ -23,37 +23,37 @@ export class ListUsersQueryDto {
   @ApiPropertyOptional({ default: 1, minimum: 1 })
   @IsOptional()
   @Transform(({ value }) => (value === undefined || value === '' ? 1 : Number(value)))
-  @IsInt({ message: 'VALIDATION.LIST_USERS_QUERY.PAGINA_DEBE_NUMERO_ENTERO' })
-  @Min(1, { message: 'VALIDATION.LIST_USERS_QUERY.PAGINA_DEBE_1_MAYOR' })
+  @IsInt({ message: 'validation.list_users_query.page_must_whole_number' })
+  @Min(1, { message: 'validation.list_users_query.page_must_greater' })
   page = 1;
 
   @ApiPropertyOptional({ default: 25, minimum: 1, maximum: 100 })
   @IsOptional()
   @Transform(({ value }) => (value === undefined || value === '' ? 25 : Number(value)))
-  @IsInt({ message: 'VALIDATION.LIST_USERS_QUERY.TAMANO_PAGINA_DEBE_NUMERO_ENTERO' })
-  @Min(1, { message: 'VALIDATION.LIST_USERS_QUERY.TAMANO_PAGINA_DEBE_1_MAYOR' })
-  @Max(100, { message: 'VALIDATION.LIST_USERS_QUERY.TAMANO_PAGINA_NO_PUEDE_MAYOR_100' })
+  @IsInt({ message: 'validation.list_users_query.page_size_must_whole_number' })
+  @Min(1, { message: 'validation.list_users_query.page_size_must_greater' })
+  @Max(100, { message: 'validation.list_users_query.page_size_cannot_greater_than_100' })
   pageSize = 25;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(120, { message: 'VALIDATION.LIST_USERS_QUERY.BUSQUEDA_NO_PUEDE_TENER_MAS_120_CARACTERES' })
+  @MaxLength(120, { message: 'validation.list_users_query.search_cannot_longer_than_120_characters' })
   search = '';
 
   @ApiPropertyOptional({ enum: [...Object.values(UserStatus), 'all'], default: 'all' })
   @IsOptional()
-  @IsEnum([...Object.values(UserStatus), 'all'], { message: 'VALIDATION.LIST_USERS_QUERY.ESTADO_NO_VALIDO' })
+  @IsEnum([...Object.values(UserStatus), 'all'], { message: 'validation.list_users_query.status_not_valid' })
   status = 'all';
 
   @ApiPropertyOptional({ enum: USER_SORT_COLUMNS, default: 'createdAt' })
   @IsOptional()
-  @IsEnum(USER_SORT_COLUMNS, { message: 'VALIDATION.LIST_USERS_QUERY.NO_PUEDE_ORDENAR_POR_ESA_COLUMNA' })
+  @IsEnum(USER_SORT_COLUMNS, { message: 'validation.list_users_query.column_cannot_sorted' })
   sortColumn: UserSortColumn = 'createdAt';
 
   @ApiPropertyOptional({ enum: ['ASC', 'DESC'], default: 'DESC' })
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value))
-  @IsEnum(['ASC', 'DESC'], { message: 'VALIDATION.LIST_USERS_QUERY.DIRECCION_ORDEN_NO_VALIDA' })
+  @IsEnum(['ASC', 'DESC'], { message: 'validation.list_users_query.sort_direction_not_valid' })
   sortDirection: 'ASC' | 'DESC' = 'DESC';
 }

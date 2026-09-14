@@ -1,21 +1,21 @@
 <vx-list-shell
-  titleKey="AUDIT_ADJUSTMENTS.TITLE"
-  subtitleKey="AUDIT_ADJUSTMENTS.SUBTITLE"
+  titleKey="audit_adjustments.title"
+  subtitleKey="audit_adjustments.corrections_audit_has_proposed_year_already"
   [count]="rows().length"
   [loading]="loading()"
-  [error]="failed() ? 'COMMON.LOAD_FAILED' : null"
+  [error]="failed() ? 'common.load_failed' : null"
   [empty]="isEmpty()"
   (reload)="reload()"
 >
   <button listActions type="button" class="primary-button" (click)="propose()">
     <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'AUDIT_ADJUSTMENTS.PROPOSE' | translate }}</span>
+    <span>{{ 'audit_adjustments.propose' | translate }}</span>
   </button>
 
   <label listFilters class="field-inline">
-    <span>{{ 'AUDIT_ADJUSTMENTS.FISCAL_YEAR' | translate }}</span>
+    <span>{{ 'audit_adjustments.fiscal_year' | translate }}</span>
     <select [value]="fiscalYearId()" (change)="filterByYear($any($event.target).value)">
-      <option value="">{{ 'AUDIT_ADJUSTMENTS.ALL_YEARS' | translate }}</option>
+      <option value="">{{ 'audit_adjustments.all_years' | translate }}</option>
       @for (year of years(); track year.id) {
         <option [value]="year.id">{{ year.startDate }} – {{ year.endDate }}</option>
       }
@@ -23,21 +23,21 @@
   </label>
 
   <ng-container listEmpty>
-    <p class="ls__state-title">{{ 'AUDIT_ADJUSTMENTS.EMPTY_TITLE' | translate }}</p>
-    <p class="ls__state-body">{{ 'AUDIT_ADJUSTMENTS.EMPTY_BODY' | translate }}</p>
+    <p class="ls__state-title">{{ 'audit_adjustments.empty_title' | translate }}</p>
+    <p class="ls__state-body">{{ 'audit_adjustments.empty_body' | translate }}</p>
   </ng-container>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'AUDIT_ADJUSTMENTS.DATE' | translate }}</th>
-          <th>{{ 'AUDIT_ADJUSTMENTS.FISCAL_YEAR' | translate }}</th>
-          <th>{{ 'AUDIT_ADJUSTMENTS.DESCRIPTION' | translate }}</th>
-          <th class="text-right">{{ 'AUDIT_ADJUSTMENTS.AMOUNT' | translate }}</th>
-          <th>{{ 'AUDIT_ADJUSTMENTS.PROPOSER' | translate }}</th>
-          <th>{{ 'AUDIT_ADJUSTMENTS.STATE' | translate }}</th>
-          <th class="text-center">{{ 'AUDIT_ADJUSTMENTS.EVIDENCE' | translate }}</th>
+          <th>{{ 'audit_adjustments.date' | translate }}</th>
+          <th>{{ 'audit_adjustments.fiscal_year' | translate }}</th>
+          <th>{{ 'audit_adjustments.description' | translate }}</th>
+          <th class="text-right">{{ 'audit_adjustments.amount' | translate }}</th>
+          <th>{{ 'audit_adjustments.proposed' | translate }}</th>
+          <th>{{ 'audit_adjustments.state' | translate }}</th>
+          <th class="text-center">{{ 'audit_adjustments.evidence' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +51,7 @@
               @if (row.proposer) {
                 {{ row.proposer.firstName }} {{ row.proposer.lastName }}
               } @else {
-                <span class="muted">{{ 'AUDIT_ADJUSTMENTS.PROPOSER_GONE' | translate }}</span>
+                <span class="muted">{{ 'audit_adjustments.account_deleted' | translate }}</span>
               }
             </td>
             <td>

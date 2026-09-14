@@ -57,7 +57,7 @@ const CONFIG = HBS
       catalogue: 'apps/backend/api/src/app/i18n/messages/es.json',
       namespace: (file) =>
         file.includes(`invoices${sep}templates`)
-          ? 'INVOICE.PDF'
+          ? 'invoice.pdf'
           : `MAIL.${basename(file, '.hbs').replace(/-/g, '_').toUpperCase()}`,
       wrap: (key) => `{{t '${key}'}}`,
       wrapAttribute: (key) => `{{t '${key}'}}`,

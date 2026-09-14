@@ -32,7 +32,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
         {
           id: 'inicio',
           type: TabType.PINNED,
-          title: 'PAGE_TITLES.HOME',
+          title: 'page_titles.home',
           icon: 'Home',
           route: '/overview',
           routeParams: {},

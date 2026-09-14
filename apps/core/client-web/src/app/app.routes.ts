@@ -51,7 +51,7 @@ export const APP_ROUTES: Routes = [
   // session_id so the account is never confirmed/created.
   {
     path: 'auth/checkout-complete',
-    title: 'AUTH.TITLES.CHECKOUT',
+    title: 'auth.titles.confirming_payment',
     loadComponent: () =>
       import('./features/auth/checkout-complete/checkout-complete.page').then(
         (m) => m.CheckoutCompletePage
@@ -102,7 +102,7 @@ export const APP_ROUTES: Routes = [
             // persistente): la confirmación de pago y la selección de plan.
             {
                 path: 'checkout-complete',
-                title: 'AUTH.TITLES.CHECKOUT',
+                title: 'auth.titles.confirming_payment',
                 loadComponent: () =>
                 import('./features/auth/checkout-complete/checkout-complete.page').then(
                     (m) => m.CheckoutCompletePage
@@ -110,7 +110,7 @@ export const APP_ROUTES: Routes = [
             },
             {
                 path: 'plan-selection',
-                title: 'AUTH.TITLES.PLAN',
+                title: 'auth.titles.plan',
                 loadComponent: () =>
                 import('./features/payment/components/plan-selection/plan-selection.component').then(
                     (m) => m.PlanSelectionComponent
@@ -128,7 +128,7 @@ export const APP_ROUTES: Routes = [
                 children: [
                     {
                         path: 'login',
-                        title: 'AUTH.TITLES.LOGIN',
+                        title: 'auth.titles.login',
                         loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
                     },
                     {
@@ -147,7 +147,7 @@ export const APP_ROUTES: Routes = [
                     },
                     {
                         path: 'set-password',
-                        title: 'AUTH.TITLES.SET_PASSWORD',
+                        title: 'auth.titles.set_password',
                         loadComponent: () =>
                         import('./features/auth/set-password/set-password.page').then((m) => m.SetPasswordPage),
                     },
@@ -217,7 +217,7 @@ export const APP_ROUTES: Routes = [
     path: 'unauthorized',
     loadComponent: () =>
       import('./features/unauthorized/unauthorized.page').then((m) => m.UnauthorizedPage),
-    title: 'UNAUTHORIZED.TITLE',
+    title: 'unauthorized.title',
   },
 
   // 5. Fallback

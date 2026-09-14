@@ -9,7 +9,7 @@
   @if (periodLabel(); as label) {
     <span class="sb__item" [class.sb__item--ok]="periodOpen()" [class.sb__item--closed]="!periodOpen()">
       <lucide-icon [img]="periodOpen() ? OpenIcon : ClosedIcon" size="13"></lucide-icon>
-      {{ (periodOpen() ? 'STATUS_BAR.PERIOD_OPEN' : 'STATUS_BAR.PERIOD_CLOSED') | translate: { period: label } }}
+      {{ (periodOpen() ? 'status_bar.period_open' : 'status_bar.period_closed') | translate: { period: label } }}
     </span>
   }
 
@@ -24,6 +24,6 @@
 
   <span class="sb__item" [class.sb__item--closed]="!online()">
     <lucide-icon [img]="online() ? OnlineIcon : OfflineIcon" size="13"></lucide-icon>
-    {{ (online() ? 'STATUS_BAR.ONLINE' : 'STATUS_BAR.OFFLINE') | translate }}
+    {{ (online() ? 'status_bar.online' : 'status_bar.offline') | translate }}
   </span>
 </footer>

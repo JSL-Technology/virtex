@@ -92,7 +92,7 @@ export class ResultTransferService {
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings?.defaultRetainedEarningsAccountId) {
       throw new BadRequestError(
-        'ACCOUNTING.CUENTA_RESULTADOS_EJERCICIO_GANANCIAS_RETENIDAS_NO_ESTA',
+        'accounting.retained_earnings_account_not_configured_organization',
       );
     }
 
@@ -101,7 +101,7 @@ export class ResultTransferService {
       code: 'CIERRE',
     });
     if (!closingJournal) {
-      throw new BadRequestError('ACCOUNTING.DIARIO_CIERRE_CIERRE_NO_ENCONTRADO_FAVOR_CREE');
+      throw new BadRequestError('accounting.closing_journal_cierre_not_found_create');
     }
 
     const defaultLedger = await manager.findOneBy(Ledger, {
@@ -110,7 +110,7 @@ export class ResultTransferService {
     });
     if (!defaultLedger) {
       throw new BadRequestError(
-        'ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'accounting.no_default_ledger_has_configured_organization',
       );
     }
 
@@ -144,9 +144,9 @@ export class ResultTransferService {
       range.label.params ?? {},
     );
     const words = await this.narrative.describeAll(manager, organizationId, {
-      closingLine: { key: 'LEDGER.RESULT_TRANSFER.CLOSING_LINE', params: { period } },
-      retained: { key: 'LEDGER.RESULT_TRANSFER.RETAINED', params: { period } },
-      header: { key: 'LEDGER.RESULT_TRANSFER.ENTRY', params: { period } },
+      closingLine: { key: 'ledger.result_transfer.closing_line', params: { period } },
+      retained: { key: 'ledger.result_transfer.retained', params: { period } },
+      header: { key: 'ledger.result_transfer.entry', params: { period } },
     });
 
     const lines: CreateJournalEntryLineDto[] = [];

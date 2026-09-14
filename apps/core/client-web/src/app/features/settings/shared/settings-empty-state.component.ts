@@ -12,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
         <ng-content select="[slot=icon]"></ng-content>
       </div>
 
-      <div class="ses__badge">{{ 'SETTINGS.PAGES.IN_DEVELOPMENT' | translate }}</div>
+      <div class="ses__badge">{{ 'settings.pages.in_development' | translate }}</div>
 
       <h2 class="ses__title">{{ title | translate }}</h2>
       <p class="ses__desc">{{ description | translate: descriptionParams }}</p>
@@ -137,9 +137,9 @@ export class SettingsEmptyStateComponent {
    *
    * One of these pages said "Conecta Virteex con tus herramientas" — a third spelling of a product
    * that calls itself Virtex in the catalogues. A name repeated as a literal is a name that
-   * eventually disagrees with itself, so it comes from `APP_TITLE` like every other mention.
+   * eventually disagrees with itself, so it comes from `app_title` like every other mention.
    */
   protected get descriptionParams(): Record<string, string> {
-    return { app: this.translate.instant('APP_TITLE') };
+    return { app: this.translate.instant('app_title') };
   }
 }

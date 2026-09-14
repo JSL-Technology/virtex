@@ -15,22 +15,22 @@ import {
 } from 'class-validator';
 
 export class ProposedAdjustmentLineDto {
-  @IsUUID('4', { message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_CUENTA_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_CUENTA_OBLIGATORIO_CADA_LINEA' })
+  @IsUUID('4', { message: 'validation.proposed_adjustment.account_id_must_valid_uuid' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.account_id_required_every_line' })
   accountId: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.PROPOSED_ADJUSTMENT.DEBITO_DEBE_NUMERO_VALIDO' })
-  @IsDefined({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.CAMPO_DEBITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.PROPOSED_ADJUSTMENT.DEBITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.proposed_adjustment.debit_must_valid_number' })
+  @IsDefined({ message: 'validation.proposed_adjustment.debit_field_required' })
+  @Min(0, { message: 'validation.proposed_adjustment.debit_cannot_negative' })
   debit: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.PROPOSED_ADJUSTMENT.CREDITO_DEBE_NUMERO_VALIDO' })
-  @IsDefined({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.CAMPO_CREDITO_OBLIGATORIO' })
-  @Min(0, { message: 'VALIDATION.PROPOSED_ADJUSTMENT.CREDITO_NO_PUEDE_NEGATIVO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.proposed_adjustment.credit_must_valid_number' })
+  @IsDefined({ message: 'validation.proposed_adjustment.credit_field_required' })
+  @Min(0, { message: 'validation.proposed_adjustment.credit_cannot_negative' })
   credit: number;
 
   @IsString()
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.DESCRIPCION_LINEA_NO_PUEDE_ESTAR_VACIA' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.line_description_cannot_empty' })
   description: string;
 
   @IsObject()
@@ -39,20 +39,20 @@ export class ProposedAdjustmentLineDto {
 }
 
 export class CreateProposedAdjustmentDto {
-  @IsUUID('4', { message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_ANO_FISCAL_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_ANO_FISCAL_OBLIGATORIO' })
+  @IsUUID('4', { message: 'validation.proposed_adjustment.fiscal_year_id_must_valid_uuid' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.fiscal_year_id_required' })
   fiscalYearId: string;
 
-  @IsDateString({}, { message: 'VALIDATION.PROPOSED_ADJUSTMENT.FECHA_DEBE_TENER_FORMATO_ISO_8601_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.FECHA_AJUSTE_OBLIGATORIA' })
+  @IsDateString({}, { message: 'validation.proposed_adjustment.date_must_valid_iso_8601_format' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.adjustment_date_required' })
   date: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.DESCRIPCION_PRINCIPAL_AJUSTE_NO_PUEDE_ESTAR_VACIA' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.adjustment_main_description_cannot_empty' })
   description: string;
 
-  @IsUUID('4', { message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_DIARIO_DEBE_UUID_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.PROPOSED_ADJUSTMENT.ID_DIARIO_OBLIGATORIO' })
+  @IsUUID('4', { message: 'validation.proposed_adjustment.journal_id_must_valid_uuid' })
+  @IsNotEmpty({ message: 'validation.proposed_adjustment.journal_id_required' })
   journalId: string;
 
   @IsArray()

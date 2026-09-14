@@ -53,7 +53,7 @@ export class LedgerFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('ACCOUNTING.LEDGER_FORM.PUDO_CARGAR_LIBRO_MAYOR');
+        this.notificationService.showError('accounting.ledger_form.ledger_could_not_loaded');
         this.router.navigate(['/accounting']);
       }
     });
@@ -68,9 +68,9 @@ export class LedgerFormPage implements OnInit {
       this.ledgerForm.markAllAsTouched();
       this.problems.set(
         draftProblems(this.ledgerForm, {
-          name: 'ACCOUNTING.LEDGER_FORM.NOMBRE_LIBRO',
-          description: 'ACCOUNTING.LEDGER_FORM.DESCRIPCION',
-          isDefault: 'ACCOUNTING.LEDGER_FORM.ESTABLECER_COMO_LIBRO_DEFECTO',
+          name: 'accounting.ledger_form.ledger_name',
+          description: 'accounting.ledger_form.description',
+          isDefault: 'accounting.ledger_form.set_default_ledger',
         }),
       );
       return;
@@ -88,11 +88,11 @@ export class LedgerFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'ACCOUNTING.LEDGER_FORM.LIBRO_MAYOR_ACTUALIZADO_EXITOSAMENTE' : 'ACCOUNTING.LEDGER_FORM.LIBRO_MAYOR_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'accounting.ledger_form.ledger_updated_successfully' : 'accounting.ledger_form.ledger_created_successfully');
         this.router.navigate(['/accounting/general-ledger']);
       },
       error: (err) => {
-        this.notificationService.showError(this.isEditMode() ? 'ACCOUNTING.LEDGER_FORM.ERROR_ACTUALIZAR_LIBRO_MAYOR' : 'ACCOUNTING.LEDGER_FORM.ERROR_CREAR_LIBRO_MAYOR');
+        this.notificationService.showError(this.isEditMode() ? 'accounting.ledger_form.error_updating_ledger' : 'accounting.ledger_form.error_creating_ledger');
         this.isLoading.set(false);
       }
     });

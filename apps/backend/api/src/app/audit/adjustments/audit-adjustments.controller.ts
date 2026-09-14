@@ -102,7 +102,7 @@ export class AuditAdjustmentsController {
     @UploadedFile() file: FastifyFile,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file) throw new BadRequestError('AUDIT.EVIDENCIA_ARCHIVO_OBLIGATORIO');
+    if (!file) throw new BadRequestError('audit.attach_evidence_file');
     return this.adjustments.addEvidence(id, file, user.organizationId, user.id);
   }
 }

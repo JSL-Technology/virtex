@@ -215,7 +215,7 @@ export class ConsolidationService {
       : (`${asOfDate.slice(0, 4)}-01-01` as IsoDate);
 
     if (startDate > asOfDate) {
-      throw new BadRequestError('CONSOLIDATION.RANGO_FECHAS_INVALIDO', { startDate, asOfDate });
+      throw new BadRequestError('consolidation.period_start_start_date_later_than', { startDate, asOfDate });
     }
 
     this.logger.log(
@@ -227,11 +227,11 @@ export class ConsolidationService {
       relations: ['subsidiaries', 'subsidiaries.subsidiary'],
     });
     if (!parentOrg) {
-      throw new NotFoundError('CONSOLIDATION.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
+      throw new NotFoundError('consolidation.parent_organization_not_found');
     }
     if (!parentOrg.subsidiaries || parentOrg.subsidiaries.length === 0) {
       throw new BadRequestError(
-        'CONSOLIDATION.ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR',
+        'consolidation.organization_has_no_subsidiaries_configured_consolidate',
       );
     }
 
@@ -240,7 +240,7 @@ export class ConsolidationService {
     });
     if (!parentSettings) {
       throw new NotFoundError(
-        'CONSOLIDATION.CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS',
+        'consolidation.settings_parent_organization_parent_organization_id',
         { parentOrganizationId },
       );
     }
@@ -303,7 +303,7 @@ export class ConsolidationService {
         warnings.push({
           code: 'ENTITY_OUT_OF_BALANCE',
           organizationId: member.organizationId,
-          detail: this.say('CONSOLIDATION.WARNING.MEMBER_OUT_OF_BALANCE', {
+          detail: this.say('consolidation.warning.member_out_of_balance', {
             member: member.legalName,
             amount: balanceSheet.outOfBalanceBy,
           }),
@@ -578,7 +578,7 @@ export class ConsolidationService {
       warnings.push({
         code: 'NO_EXCHANGE_RATE',
         organizationId,
-        detail: this.say('CONSOLIDATION.WARNING.NO_AVERAGE_RATE', {
+        detail: this.say('consolidation.warning.no_average_rate', {
           from: functionalCurrency,
           to: presentationCurrency,
         }),
@@ -599,7 +599,7 @@ export class ConsolidationService {
         warnings.push({
           code: 'NO_EXCHANGE_RATE',
           organizationId,
-          detail: this.say('CONSOLIDATION.WARNING.NO_ACQUISITION_RATE', {
+          detail: this.say('consolidation.warning.no_acquisition_rate', {
             from: functionalCurrency,
             to: presentationCurrency,
             date: acquisitionDate,
@@ -610,7 +610,7 @@ export class ConsolidationService {
       warnings.push({
         code: 'NO_ACQUISITION_DATE',
         organizationId,
-        detail: this.say('CONSOLIDATION.WARNING.NO_ACQUISITION_DATE'),
+        detail: this.say('consolidation.warning.no_acquisition_date'),
       });
     }
 
@@ -646,7 +646,7 @@ export class ConsolidationService {
       warnings.push({
         code: 'NO_CONSOLIDATION_MAP',
         organizationId: member.organizationId,
-        detail: this.say('CONSOLIDATION.WARNING.NO_CONSOLIDATION_MAP', {
+        detail: this.say('consolidation.warning.no_consolidation_map', {
           member: member.legalName,
         }),
       });
@@ -691,7 +691,7 @@ export class ConsolidationService {
         warnings.push({
           code: 'UNMAPPED_ACCOUNT',
           organizationId: member.organizationId,
-          detail: this.say('CONSOLIDATION.WARNING.ACCOUNT_NOT_MAPPED', {
+          detail: this.say('consolidation.warning.account_not_mapped', {
             code: line.code,
             member: member.legalName,
           }),
@@ -781,7 +781,7 @@ export class ConsolidationService {
 
     eliminations.push({
       kind: 'INVESTMENT_IN_SUBSIDIARY',
-      description: this.say('CONSOLIDATION.ELIMINATION.INVESTMENT_IN_SUBSIDIARY', {
+      description: this.say('consolidation.elimination.investment_in_subsidiary', {
         member: member.legalName,
         date: member.acquisitionDate,
       }),
@@ -793,7 +793,7 @@ export class ConsolidationService {
       warnings.push({
         code: 'INTRAGROUP_MISMATCH',
         organizationId: member.organizationId,
-        detail: this.say('CONSOLIDATION.WARNING.BARGAIN_PURCHASE', {
+        detail: this.say('consolidation.warning.bargain_purchase', {
           cost: member.acquisitionCost,
           share: parentShare,
           currency: presentationCurrency,
@@ -849,7 +849,7 @@ export class ConsolidationService {
         warnings.push({
           code: 'INTRAGROUP_MISMATCH',
           organizationId: transaction.fromOrganizationId,
-          detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_ONE_SIDED', {
+          detail: this.say('consolidation.warning.intercompany_transaction_transaction_status_only_one', {
             transaction: transaction.id,
             status: transaction.status,
           }),
@@ -875,7 +875,7 @@ export class ConsolidationService {
           warnings.push({
             code: 'NO_EXCHANGE_RATE',
             organizationId: transaction.fromOrganizationId,
-            detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_NO_RATE', {
+            detail: this.say('consolidation.warning.intercompany_no_rate', {
               from: currency,
               to: presentationCurrency,
               date: toIsoDate(transaction.transactionDate),
@@ -905,7 +905,7 @@ export class ConsolidationService {
         warnings.push({
           code: 'INTRAGROUP_MISMATCH',
           organizationId: transaction.fromOrganizationId,
-          detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_ACCOUNTS_MISSING', {
+          detail: this.say('consolidation.warning.intercompany_accounts_missing', {
             transaction: transaction.id,
           }),
         });

@@ -27,19 +27,19 @@ export interface DefaultRole {
 export const DEFAULT_ROLES: DefaultRole[] = [
     {
       name: RoleEnum.ADMINISTRATOR,
-      description: 'ROLES.SYSTEM.ADMINISTRATOR.DESCRIPTION',
+      description: 'roles.system.administrator.description',
       permissions: ['*'],
       isSystemRole: true,
     },
     {
       name: RoleEnum.MEMBER,
-      description: 'ROLES.SYSTEM.MEMBER.DESCRIPTION',
+      description: 'roles.system.member.description',
       permissions: [PERMISSIONS.INVOICES_VIEW, PERMISSIONS.PRODUCTS_VIEW],
       isSystemRole: true,
     },
     {
       name: RoleEnum.SELLER,
-      description: 'ROLES.SYSTEM.SELLER.DESCRIPTION',
+      description: 'roles.system.seller.description',
       permissions: [
         PERMISSIONS.CUSTOMERS_VIEW,
         PERMISSIONS.CUSTOMERS_CREATE,
@@ -53,7 +53,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
     },
     {
       name: RoleEnum.ACCOUNTANT,
-      description: 'ROLES.SYSTEM.ACCOUNTANT.DESCRIPTION',
+      description: 'roles.system.accountant.description',
       permissions: [
         // An accountant reconciles the subscription against the books, so they read billing —
         // but they do not change the plan or the payment method. Administrators keep '*'.

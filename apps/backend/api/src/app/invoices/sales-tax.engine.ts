@@ -188,7 +188,7 @@ export function assertAllowedTaxRate(
   // A key, like every other refusal in this module. This one was a Spanish sentence built in the
   // service and thrown as a bare `BadRequestException`, so a reader in another language got
   // Spanish and the i18n coverage check could not see it.
-  throw new BadRequestError('INVOICES.TASA_IMPUESTO_NO_VALIDA_PARA_PAIS', {
+  throw new BadRequestError('invoices.tax_rate_rate_not_valid_country', {
     rate: `${(requestedFraction * 100).toFixed(2)}%`,
     countryCode: countryCode ?? '—',
     allowed: list,
@@ -221,18 +221,18 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
     const discountRate = line.discountRate ?? 0;
     if (discountRate < 0 || discountRate >= 1) {
-      throw new BadRequestError('INVOICES.DESCUENTO_LINEA_DEBE_ESTAR_ENTRE_100_EXCLUSIVO');
+      throw new BadRequestError('invoices.line_discount_must_between_100_exclusive');
     }
 
     const effectiveRate = line.taxTreatment === TaxTreatment.TAXED ? line.taxRate : 0;
     if (effectiveRate < 0 || effectiveRate > 1) {
-      throw new BadRequestError('INVOICES.TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE');
+      throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
     }
     assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates);
 
     const exciseRate = line.exciseRate ?? 0;
     if (exciseRate < 0 || exciseRate > 1) {
-      throw new BadRequestError('INVOICES.TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE');
+      throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
     }
 
     const gross = round(line.quantity * line.unitPrice);
@@ -251,7 +251,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
   // two, and dropping it makes the invoice total stop matching the sum of its lines.
   const documentDiscountRate = input.documentDiscountRate ?? 0;
   if (documentDiscountRate < 0 || documentDiscountRate >= 1) {
-    throw new BadRequestError('INVOICES.DESCUENTO_DOCUMENTO_DEBE_ESTAR_ENTRE_100_EXCLUSIVO');
+    throw new BadRequestError('invoices.document_discount_must_between_100_exclusive');
   }
   const discountTotal = round(subtotal * documentDiscountRate);
   const documentDiscountShares = allocate(
@@ -303,7 +303,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
   const serviceChargeRate = input.serviceChargeRate ?? 0;
   if (serviceChargeRate < 0 || serviceChargeRate > 0.5) {
-    throw new BadRequestError('INVOICES.PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50');
+    throw new BadRequestError('invoices.statutory_service_charge_must_between_50');
   }
   // The service charge is levied on the amount actually billed for goods and services, never on the
   // tax, and it is itself outside the tax base.
@@ -340,18 +340,18 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
 function assertFinitePositive(value: number, label: string): void {
   if (!Number.isFinite(value) || value <= 0) {
-    throw new BadRequestError('INVOICES.DEBE_SER_NUMERO_MAYOR_CERO', { label });
+    throw new BadRequestError('invoices.label_must_number_greater_than_zero', { label });
   }
 }
 
 function assertFiniteNonNegative(value: number, label: string): void {
   if (!Number.isFinite(value) || value < 0) {
-    throw new BadRequestError('INVOICES.DEBE_SER_NUMERO_MAYOR_IGUAL_CERO', { label });
+    throw new BadRequestError('invoices.label_must_number_greater_than_equal', { label });
   }
 }
 
 function assertRateBetweenZeroAndOne(value: number, label: string): void {
   if (!Number.isFinite(value) || value < 0 || value > 1) {
-    throw new BadRequestError('INVOICES.DEBE_EXPRESARSE_COMO_FRACCION_ENTRE', { label });
+    throw new BadRequestError('invoices.label_must_expressed_fraction_between', { label });
   }
 }

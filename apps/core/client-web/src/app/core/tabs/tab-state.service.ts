@@ -73,7 +73,7 @@ export class TabStateService {
 
     // §5.3 / §10: permisos (espejo de permissionsGuard).
     if (!this.registry.canOpen(definition)) {
-      this.notify.showWarning('CORE.TABS.TIENES_PERMISO_ABRIR_ESTE_MODULO');
+      this.notify.showWarning('core.tabs.you_do_not_have_permission_open');
       return;
     }
 
@@ -102,14 +102,14 @@ export class TabStateService {
       }
     }
 
-    // `definition.title` es una CLAVE de i18n (`PAGE_TITLES.INVOICES`), no texto: hay que
+    // `definition.title` es una CLAVE de i18n (`page_titles.invoices`), no texto: hay que
     // traducirla o la pestaña muestra la clave en crudo. `config.title` y `titleFn(...)` ya vienen
     // resueltos (p. ej. «Factura n.º 123»), así que no se tocan. Si i18n aún no cargó, `instant`
     // devuelve la clave y el pipe `translate` de la cabecera la resuelve al terminar de cargar.
     const title = config.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)
       ?? (definition.title ? this.translate.instant(definition.title) : undefined)
-      ?? this.translate.instant('TABS.NEW_TAB');
+      ?? this.translate.instant('tabs.new_tab');
     const icon = config.icon || definition.icon || 'File';
     const routeParams = { ...params, ...(config.routeParams ?? {}) };
 
@@ -241,7 +241,7 @@ export class TabStateService {
 
     if (tab.isDirty) {
       const decision = await this.dialog.confirmClose({
-        message: 'DIALOG.UNSAVED_CHANGES.MESSAGE_IN_TAB',
+        message: 'dialog.unsaved_changes.message_in_tab',
         messageParams: { tab: tab.title },
         // Sin handler de guardado registrado, no se ofrece «Guardar»: sería un botón que solo sabe
         // decir «guarda desde la vista». Solo Descartar / Cancelar.
@@ -255,7 +255,7 @@ export class TabStateService {
           if (!ok) return false; // guardar falló → no cerrar
         } else {
           // Sin handler de guardado: avisar y conservar la pestaña.
-          this.notify.showInfo('CORE.TABS.GUARDA_CAMBIOS_DESDE_PROPIA_VISTA_ANTES');
+          this.notify.showInfo('core.tabs.save_your_changes_from_view_itself');
           return false;
         }
       }
@@ -402,7 +402,7 @@ export class TabStateService {
       isPinned: false,
       isPreview: false,
       isDirty: false,
-      title: this.translate.instant('TABS.COPY_OF', { title: tab.title }),
+      title: this.translate.instant('tabs.copy_of', { title: tab.title }),
       createdAt: now,
       lastActivatedAt: now,
       order: this.tabsSignal().length,
@@ -426,7 +426,7 @@ export class TabStateService {
       .sort((a, b) => a.lastActivatedAt.getTime() - b.lastActivatedAt.getTime())[0];
 
     if (!candidate) {
-      this.notify.showWarning('CORE.TABS.HAS_ALCANZADO_MAXIMO_PESTANAS_CIERRA_ALGUNA', { maxTabs: this.maxTabs });
+      this.notify.showWarning('core.tabs.you_have_reached_maximum_max_tabs', { maxTabs: this.maxTabs });
       return false;
     }
     // Desalojo automático por límite: no se ofrece reabrir (no lo cerró el usuario).

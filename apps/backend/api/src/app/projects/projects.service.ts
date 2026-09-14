@@ -52,7 +52,7 @@ export class ProjectsService {
       where: { id, organizationId },
     });
     if (!project) {
-      throw new NotFoundError('PROJECTS.PROJECT_NOT_FOUND', { id });
+      throw new NotFoundError('projects.project_not_found', { id });
     }
     return project;
   }
@@ -88,7 +88,7 @@ export class ProjectsService {
   async findOneTask(id: string, organizationId: string): Promise<ProjectTask> {
     const task = await this.taskRepository.findOne({ where: { id, organizationId } });
     if (!task) {
-      throw new NotFoundError('PROJECTS.TASK_NOT_FOUND', { id });
+      throw new NotFoundError('projects.task_not_found', { id });
     }
     return task;
   }
@@ -130,7 +130,7 @@ export class ProjectsService {
       where: { id, organizationId },
     });
     if (!timesheet) {
-      throw new NotFoundError('PROJECTS.TIMESHEET_NOT_FOUND', { id });
+      throw new NotFoundError('projects.timesheet_not_found', { id });
     }
     return timesheet;
   }

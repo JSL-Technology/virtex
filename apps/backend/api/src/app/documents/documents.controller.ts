@@ -111,7 +111,7 @@ export class DocumentsController {
     @Body() body: { parentId?: string; templateType?: DocumentTemplateType; description?: string },
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file) throw new BadRequestError('DOCUMENTS.FILE_REQUIRED');
+    if (!file) throw new BadRequestError('documents.file_required');
     return this.documents.upload(
       toUploadableFile(file),
       {

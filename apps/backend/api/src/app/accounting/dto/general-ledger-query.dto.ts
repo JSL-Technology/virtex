@@ -22,10 +22,10 @@ export class GeneralLedgerQueryDto {
   @IsUUID()
   accountId: string;
 
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   startDate: string;
 
-  @IsDateString({}, { message: 'VALIDATION.CONSTRAINTS.IS_DATE_STRING' })
+  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
   endDate: string;
 
   /** Which book. The tenant's default ledger when omitted. */
@@ -35,14 +35,14 @@ export class GeneralLedgerQueryDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(500, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":500}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(500, { message: 'validation.constraints.max|{"max":500}' })
   @IsOptional()
   pageSize?: number;
 

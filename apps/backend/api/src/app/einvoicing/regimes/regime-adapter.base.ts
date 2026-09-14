@@ -49,7 +49,7 @@ export abstract class RegimeAdapterBase {
       where: { id: context.organizationId },
     });
     if (!organization) {
-      throw new BadRequestError('EINVOICING.EMISOR_NO_ENCONTRADO');
+      throw new BadRequestError('einvoicing.issuing_organization_not_found');
     }
     return organization;
   }
@@ -59,7 +59,7 @@ export abstract class RegimeAdapterBase {
       where: { id: context.invoice.customerId, organizationId: context.organizationId },
     });
     if (!customer) {
-      throw new BadRequestError('EINVOICING.RECEPTOR_NO_ENCONTRADO');
+      throw new BadRequestError('einvoicing.receiving_customer_not_found');
     }
     return customer;
   }

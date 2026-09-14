@@ -78,7 +78,7 @@ export class SubscriptionActiveGuard implements CanActivate {
         { event: 'entitlement_no_organization', userId: user.id, url: request.url },
         '[BILLING] Authenticated principal has no organization; refusing.',
       );
-      throw new ForbiddenError('SAAS.SUBSCRIPTION_REQUIRED');
+      throw new ForbiddenError('saas.subscription_required');
     }
 
     const status = organization.subscriptionStatus;
@@ -91,7 +91,7 @@ export class SubscriptionActiveGuard implements CanActivate {
         { event: 'entitlement_no_status', organizationId: organization.id, url: request.url },
         '[BILLING] Organization has no subscription status; refusing.',
       );
-      throw new ForbiddenError('SAAS.SUBSCRIPTION_REQUIRED');
+      throw new ForbiddenError('saas.subscription_required');
     }
 
     if (SubscriptionActiveGuard.ALLOWED_STATUSES.has(status)) {
@@ -109,6 +109,6 @@ export class SubscriptionActiveGuard implements CanActivate {
       { event: 'entitlement_denied', organizationId: organization.id, status, url: request.url },
       '[BILLING] Refusing request for a tenant whose subscription is not in good standing.',
     );
-    throw new ForbiddenError('SAAS.SUBSCRIPTION_SUSPENDED', { status });
+    throw new ForbiddenError('saas.subscription_suspended', { status });
   }
 }

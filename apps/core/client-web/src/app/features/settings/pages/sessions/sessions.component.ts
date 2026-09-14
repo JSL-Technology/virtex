@@ -44,7 +44,7 @@ export class SessionsComponent implements OnInit {
       .pipe(finalize(() => { this.loading.set(false); this.cdr.markForCheck(); }))
       .subscribe({
         next: (data) => this.sessions.set(data),
-        error: () => this.notificationService.showError('SETTINGS.SESSIONS.PUDIERON_CARGAR_SESIONES'),
+        error: () => this.notificationService.showError('settings.sessions.sessions_could_not_loaded'),
       });
   }
 
@@ -55,9 +55,9 @@ export class SessionsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.sessions.update(s => s.filter(x => x.id !== sessionId));
-          this.notificationService.showSuccess('SETTINGS.SESSIONS.SESION_REVOCADA_CORRECTAMENTE');
+          this.notificationService.showSuccess('settings.sessions.session_revoked_successfully');
         },
-        error: () => this.notificationService.showError('SETTINGS.SESSIONS.PUDO_REVOCAR_SESION'),
+        error: () => this.notificationService.showError('settings.sessions.session_could_not_revoked'),
       });
   }
 }

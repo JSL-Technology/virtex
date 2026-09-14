@@ -56,8 +56,8 @@ export class ForgotPasswordPage {
   getErrorMessage(controlName: string): string {
     const control = this.forgotPasswordForm.get(controlName);
     if (control?.touched && control?.errors) {
-      if (control.errors['required']) return 'LOGIN.ERRORS.EMAIL_REQUIRED';
-      if (control.errors['email']) return 'LOGIN.ERRORS.EMAIL_INVALID';
+      if (control.errors['required']) return 'login.errors.email_required';
+      if (control.errors['email']) return 'login.errors.email_invalid';
     }
     return '';
   }
@@ -80,12 +80,12 @@ export class ForgotPasswordPage {
     ).subscribe({
       next: (response) => {
         this.isLoading.set(false);
-        this.successMessage.set('FORGOT_PASSWORD.SUCCESS'); // Will be translated in template
+        this.successMessage.set('forgot_password.success'); // Will be translated in template
         this.forgotPasswordForm.reset();
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
+        this.errorMessage.set('errors.internal');
       }
     });
   }

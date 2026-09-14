@@ -1,12 +1,12 @@
 <div class="widget-header">
-    <h3>{{ 'DASHBOARD.ALERTS_PANEL.ALERTAS_TEMPRANAS' | translate }}</h3>
+    <h3>{{ 'dashboard.alerts_panel.early_warnings' | translate }}</h3>
 </div>
 <div class="widget-content">
     @if (alerts().length === 0) {
     <!-- Nothing wrong is a result, and saying so beats an empty panel that looks broken. -->
     <div class="empty-state">
         <lucide-icon [img]="CheckIcon" size="40"></lucide-icon>
-        <p>{{ 'DASHBOARD.ALERTS_PANEL.SIN_ALERTAS' | translate }}</p>
+        <p>{{ 'dashboard.alerts_panel.nothing_needs_attention_right_now' | translate }}</p>
     </div>
     } @else {
     <ul class="alerts-list">

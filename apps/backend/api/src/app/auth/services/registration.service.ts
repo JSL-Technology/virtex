@@ -135,7 +135,7 @@ export class RegistrationService {
       if (!recaptchaResult.success) {
         const emailHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex').slice(0, 12);
         this.logger.warn({ event: 'recaptcha_failed', emailHash, errors: recaptchaResult.errors }, 'Recaptcha validation failed');
-        throw new ForbiddenError('AUTH.ERROR_VALIDACION_SEGURIDAD_RECAPTCHA');
+        throw new ForbiddenError('auth.security_validation_failed_re_captcha');
       }
     }
 
@@ -145,14 +145,14 @@ export class RegistrationService {
     }
 
     if (!emailVerificationCode) {
-      throw new BadRequestError('AUTH.CODIGO_VERIFICACION_CORREO_ES_OBLIGATORIO');
+      throw new BadRequestError('auth.email_verification_code_required');
     }
     await this.verifyCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
 
     if (phone && phoneVerificationCode) {
       await this.verifyCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
     } else if (phone && !phoneVerificationCode) {
-      throw new BadRequestError('AUTH.CODIGO_VERIFICACION_CELULAR_ES_OBLIGATORIO');
+      throw new BadRequestError('auth.mobile_verification_code_required');
     }
 
     // The country's registration rules are not conditional on anything. This used to run only
@@ -180,7 +180,7 @@ export class RegistrationService {
         { event: 'fiscal_region_missing', countryCode },
         '[REGISTRATION] Supported country has no fiscal_regions row; boot seeding failed.',
       );
-      throw new InternalServerError('AUTH.CONFIGURACION_FISCAL_ESE_PAIS_NO_ESTA_DISPONIBLE');
+      throw new InternalServerError('auth.tax_configuration_country_not_available_right');
     }
     return region.id;
   }
@@ -236,7 +236,7 @@ export class RegistrationService {
       }
       const existingOrg = await manager.findOne(Organization, { where: whereClause });
       if (existingOrg) {
-        throw new ConflictError('AUTH.NO_PUDO_COMPLETAR_REGISTRO_VERIFIQUE_DATOS_SEAN');
+        throw new ConflictError('auth.registration_could_not_completed_check_details');
       }
     }
 
@@ -270,7 +270,7 @@ export class RegistrationService {
 
     const adminRole = roleEntities.find((r) => r.name === RoleEnum.ADMINISTRATOR);
     if (!adminRole) {
-      throw new InternalServerError('AUTH.NO_PUDO_ENCONTRAR_ROL_ADMINISTRADOR_PREDETERMINADO');
+      throw new InternalServerError('auth.default_administrator_role_could_not_found');
     }
 
     let user: User;
@@ -729,7 +729,7 @@ export class RegistrationService {
     return this.dataSource.transaction(async (manager) => {
       const pending = await manager.findOne(PendingRegistration, { where: { id: pendingId } });
       if (!pending) {
-        throw new BadRequestError('AUTH.REGISTRO_PENDIENTE_NO_ENCONTRADO_EXPIRADO');
+        throw new BadRequestError('auth.pending_registration_not_found_has_expired');
       }
 
       // Idempotency: the Stripe webhook and the browser's confirm call race each other, and both
@@ -797,7 +797,7 @@ export class RegistrationService {
           { event: 'registration_plan_missing', pendingId, planSlug: pending.planSlug },
           '[BILLING] Paid registration references a plan that does not exist.',
         );
-        throw new InternalServerError('AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO', { pendingId });
+        throw new InternalServerError('auth.your_plan_could_not_activated_your', { pendingId });
       }
       organization.plan = plan;
       organization.planId = plan.id;
@@ -828,10 +828,10 @@ export class RegistrationService {
           secret: AuthConfig.JWT_PREVERIFY_SECRET,
         });
       } catch {
-        throw new BadRequestError('AUTH.CODIGO_VERIFICACION_HA_EXPIRADO_NO_ES_VALIDO');
+        throw new BadRequestError('auth.verification_code_has_expired_invalid');
       }
       if (payload.type !== 'VERIFICATION_PRE_VERIFIED' || payload.sub !== target || payload.verType !== type) {
-        throw new BadRequestError('AUTH.CODIGO_VERIFICACION_NO_COINCIDE');
+        throw new BadRequestError('auth.verification_code_does_not_match');
       }
     } else {
       await this.mfaOrchestratorService.verifyPublicCode(target, type, code);

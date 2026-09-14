@@ -369,6 +369,86 @@
     "en": "The email cannot be longer than 254 characters (RFC 5321).",
     "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
   },
+  "validation.fields.account_id": {
+    "es": "cuenta",
+    "en": "account",
+    "pt": "conta"
+  },
+  "validation.fields.amount": {
+    "es": "importe",
+    "en": "amount",
+    "pt": "valor"
+  },
+  "validation.fields.country": {
+    "es": "país",
+    "en": "country",
+    "pt": "país"
+  },
+  "validation.fields.currency": {
+    "es": "moneda",
+    "en": "currency",
+    "pt": "moeda"
+  },
+  "validation.fields.customer_id": {
+    "es": "cliente",
+    "en": "customer",
+    "pt": "cliente"
+  },
+  "validation.fields.date": {
+    "es": "fecha",
+    "en": "date",
+    "pt": "data"
+  },
+  "validation.fields.description": {
+    "es": "descripción",
+    "en": "description",
+    "pt": "descrição"
+  },
+  "validation.fields.email": {
+    "es": "correo electrónico",
+    "en": "email address",
+    "pt": "endereço de e-mail"
+  },
+  "validation.fields.first_name": {
+    "es": "nombre",
+    "en": "first name",
+    "pt": "nome"
+  },
+  "validation.fields.last_name": {
+    "es": "apellido",
+    "en": "last name",
+    "pt": "sobrenome"
+  },
+  "validation.fields.password": {
+    "es": "contraseña",
+    "en": "password",
+    "pt": "senha"
+  },
+  "validation.fields.phone": {
+    "es": "teléfono",
+    "en": "phone number",
+    "pt": "telefone"
+  },
+  "validation.fields.product_id": {
+    "es": "producto",
+    "en": "product",
+    "pt": "produto"
+  },
+  "validation.fields.quantity": {
+    "es": "cantidad",
+    "en": "quantity",
+    "pt": "quantidade"
+  },
+  "validation.fields.supplier_id": {
+    "es": "proveedor",
+    "en": "supplier",
+    "pt": "fornecedor"
+  },
+  "validation.fields.tax_id": {
+    "es": "identificación fiscal",
+    "en": "tax ID",
+    "pt": "identificação fiscal"
+  },
   "validation.fiscal.country_not_available": {
     "es": "Ese país todavía no está disponible para registro.",
     "en": "That country is not available for registration yet.",

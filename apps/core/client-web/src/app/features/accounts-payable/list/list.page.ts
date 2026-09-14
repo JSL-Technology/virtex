@@ -38,8 +38,8 @@ export class VendorBillsListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('ACCOUNTS_PAYABLE.LIST.LOAD_FAILED');
-        this.notificationService.showError('ACCOUNTS_PAYABLE.LIST.LOAD_FAILED');
+        this.error.set('accounts_payable.list.load_failed');
+        this.notificationService.showError('accounts_payable.list.load_failed');
         this.isLoading.set(false);
       },
     });
@@ -53,7 +53,7 @@ export class VendorBillsListPage implements OnInit {
    * fell through to `status-draft`, and the badge printed the raw enum member next to it.
    */
   statusKey(status: VendorBill['status']): string {
-    return `ACCOUNTS_PAYABLE.STATUS.${status}`;
+    return `accounts_payable.status.${status}`;
   }
 
   getStatusClass(status: VendorBill['status']): string {

@@ -1,30 +1,30 @@
 <vx-draft-shell
-  [title]="(isEditMode() ? 'MASTERS.TAX_FORM.TITLE_EDIT' : 'MASTERS.TAX_FORM.TITLE_NEW') | translate"
-  [subtitle]="'MASTERS.TAX_FORM.CONFIGURA_NUEVA_TASA_IMPUESTO_TUS_TRANSACCIONES' | translate"
+  [title]="(isEditMode() ? 'masters.tax_form.title_edit' : 'masters.tax_form.title_new') | translate"
+  [subtitle]="'masters.tax_form.configure_new_tax_rate_your_transactions' | translate"
   [dirty]="taxForm.dirty"
   [saving]="isLoading()"
   [invalid]="taxForm.invalid"
   [problems]="problems()"
   [form]="taxForm"
-  saveLabelKey="MASTERS.TAX_FORM.GUARDAR_IMPUESTO"
-  cancelLabelKey="MASTERS.TAX_FORM.CANCELAR"
+  saveLabelKey="masters.tax_form.save_tax"
+  cancelLabelKey="masters.tax_form.cancel"
   (save)="saveTax()"
   (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="taxForm">
     <div class="form-section">
       <div class="form-field">
-        <label for="name">{{ 'MASTERS.TAX_FORM.NOMBRE_IMPUESTO' | translate }}</label>
-        <input id="name" formControlName="name" [placeholder]="'MASTERS.TAX_FORM.EJ_ITBIS_18' | translate" />
+        <label for="name">{{ 'masters.tax_form.tax_name' | translate }}</label>
+        <input id="name" formControlName="name" [placeholder]="'masters.tax_form.name_placeholder' | translate" />
       </div>
 
       <div class="form-grid">
         <div class="form-field">
-          <label for="rate">{{ 'MASTERS.TAX_FORM.TASA' | translate }}</label>
+          <label for="rate">{{ 'masters.tax_form.rate' | translate }}</label>
           <input id="rate" type="number" formControlName="rate" />
         </div>
         <div class="form-field">
-          <label for="type">{{ 'MASTERS.TAX_FORM.TIPO' | translate }}</label>
+          <label for="type">{{ 'masters.tax_form.type' | translate }}</label>
           <select id="type" formControlName="type">
             @for (type of taxTypes; track type) {
               <option [value]="type">{{ type }}</option>
@@ -34,7 +34,7 @@
       </div>
 
       <div class="form-field">
-        <label for="countryCode">{{ 'MASTERS.TAX_FORM.CODIGO_PAIS_OPCIONAL' | translate }}</label>
+        <label for="countryCode">{{ 'masters.tax_form.country_code_optional' | translate }}</label>
         <input id="countryCode" formControlName="countryCode" placeholder="DO, US, MX" />
       </div>
     </div>

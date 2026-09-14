@@ -9,7 +9,7 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 export class ExcludeTransactionDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(5, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":5}' })
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MinLength(5, { message: 'validation.constraints.min_length|{"min":5}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   reason: string;
 }

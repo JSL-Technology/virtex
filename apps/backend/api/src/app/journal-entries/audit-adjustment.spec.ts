@@ -244,7 +244,7 @@ describeWithDb('audit adjustments to a closed year', () => {
         { accountId: account['payable'], credit: 100 },
       ]),
     ).rejects.toMatchObject({
-      messageKey: 'JOURNAL_ENTRIES.AJUSTES_AUDITORIA_SOLO_PUEDEN_APLICARSE_ANOS_FISCALES',
+      messageKey: 'journal_entries.audit_adjustments_can_only_applied_closed',
     });
   });
 
@@ -261,7 +261,7 @@ describeWithDb('audit adjustments to a closed year', () => {
         { accountId: account['payable'], credit: 100 },
       ]),
     ).rejects.toMatchObject({
-      messageKey: 'JOURNAL_ENTRIES.ANO_FISCAL_ESTA_ARCHIVADO_NO_PUEDE_MODIFICAR',
+      messageKey: 'journal_entries.fiscal_year_archived_cannot_changed',
     });
   });
 
@@ -295,7 +295,7 @@ describeWithDb('audit adjustments to a closed year', () => {
         { actorUserId: ACTOR },
       ),
     ).rejects.toMatchObject({
-      messageKey: 'ACCOUNTING.FECHA_TRANSACCION_ESTA_DENTRO_PERIODO_CONTABLE_YA',
+      messageKey: 'accounting.transaction_date_falls_accounting_period_name',
     });
   });
 });

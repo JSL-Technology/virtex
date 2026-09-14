@@ -2,33 +2,33 @@
     <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
         <div class="page-header">
             <!-- <h2>Personalización Avanzada</h2> -->
-                   <h2>{{ 'SETTINGS.BRANDING.TITLE' | translate }}</h2>
+                   <h2>{{ 'settings.branding.title' | translate }}</h2>
             <button type="submit" class="primary-button" [disabled]="brandingForm.pristine">
                 <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                <span>{{ 'SETTINGS.BRANDING.GUARDAR_CAMBIOS' | translate }}</span>
+                <span>{{ 'settings.branding.save_changes' | translate }}</span>
             </button>
         </div>
 
         <div class="branding-grid">
             <div class="controls-column">
                 <div class="form-section">
-                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.PREFERENCIAS_IDIOMA' | translate }}</h3>
+                    <h3 class="section-title">{{ 'settings.branding.language_preferences' | translate }}</h3>
                     <app-language-selector />
                 </div>
                 <div class="form-section">
-                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.LOGO_COLORES' | translate }}</h3>
-                    <div class="form-field"><label for="logoFile">{{ 'SETTINGS.BRANDING.LOGO_EMPRESA' | translate }}</label>
+                    <h3 class="section-title">{{ 'settings.branding.logo_colours' | translate }}</h3>
+                    <div class="form-field"><label for="logoFile">{{ 'settings.branding.company_logo' | translate }}</label>
                         <div class="file-input-container logo-container">
                             <input type="file" id="logoFile" (change)="onFileSelected($event)"
                                 accept="image/png, image/jpeg, image/svg+xml">
                             <label for="logoFile" class="file-input-label">
-                                @if (logoPreview()) { <img [src]="logoPreview()" [alt]="'SETTINGS.BRANDING.VISTA_PREVIA_LOGO' | translate"> }
-                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>{{ 'SETTINGS.BRANDING.SUBIR_LOGO' | translate }}</span> }
+                                @if (logoPreview()) { <img [src]="logoPreview()" [alt]="'settings.branding.logo_preview' | translate"> }
+                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>{{ 'settings.branding.upload_logo' | translate }}</span> }
                             </label>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-field"><label for="accentColor">{{ 'SETTINGS.BRANDING.COLOR_ACENTO' | translate }}</label><input type="color"
+                        <div class="form-field"><label for="accentColor">{{ 'settings.branding.accent_colour' | translate }}</label><input type="color"
                                 id="accentColor" formControlName="accentColor"></div>
                         <!--
                           El campo «Color Neutro» se retira a propósito. Los
@@ -42,29 +42,29 @@
                 </div>
 
                 <div class="form-section">
-                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.APARIENCIA_LAYOUT' | translate }}</h3>
-                    <div class="form-field"><label for="fontFamily">{{ 'SETTINGS.BRANDING.TIPOGRAFIA' | translate }}</label><select id="fontFamily"
+                    <h3 class="section-title">{{ 'settings.branding.appearance_layout' | translate }}</h3>
+                    <div class="form-field"><label for="fontFamily">{{ 'settings.branding.typeface' | translate }}</label><select id="fontFamily"
                             formControlName="fontFamily">@for(font of fonts; track font.id){<option [value]="font.id">
                                 {{font.name}}</option>}</select></div>
-                    <div class="form-field"><label for="borderRadius">{{ 'SETTINGS.BRANDING.BORDER_RADIUS' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label><input type="range" id="borderRadius"
+                    <div class="form-field"><label for="borderRadius">{{ 'settings.branding.corner_radius_value_px' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label><input type="range" id="borderRadius"
                             formControlName="borderRadius" min="0" max="24" step="2"></div>
 
                     <div class="form-row">
-                        <div class="form-field"><span class="input-label" id="branding-group-2">{{ 'SETTINGS.BRANDING.DENSIDAD' | translate }}</span>
+                        <div class="form-field"><span class="input-label" id="branding-group-2">{{ 'settings.branding.density' | translate }}</span>
                             <div class="button-group" role="group" aria-labelledby="branding-group-2">
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='compact'"
-                                    (click)="brandingForm.get('density')?.setValue('compact')">{{ 'SETTINGS.BRANDING.COMPACTA' | translate }}</button>
+                                    (click)="brandingForm.get('density')?.setValue('compact')">{{ 'settings.branding.compact' | translate }}</button>
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='comfy'"
-                                    (click)="brandingForm.get('density')?.setValue('comfy')">{{ 'SETTINGS.BRANDING.COMODA' | translate }}</button>
+                                    (click)="brandingForm.get('density')?.setValue('comfy')">{{ 'settings.branding.comfortable' | translate }}</button>
                             </div>
                         </div>
-                        <div class="form-field"><span class="input-label" id="branding-group-3">{{ 'SETTINGS.BRANDING.ANCHO_CONTENIDO' | translate }}</span>
+                        <div class="form-field"><span class="input-label" id="branding-group-3">{{ 'settings.branding.content_width' | translate }}</span>
                             <div class="button-group" role="group" aria-labelledby="branding-group-3">
                                 <button type="button"
                                     [class.active]="brandingForm.get('contentWidth')?.value==='normal'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">{{ 'SETTINGS.BRANDING.NORMAL' | translate }}</button>
+                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">{{ 'settings.branding.normal' | translate }}</button>
                                 <button type="button" [class.active]="brandingForm.get('contentWidth')?.value==='wide'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">{{ 'SETTINGS.BRANDING.ANCHO' | translate }}</button>
+                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">{{ 'settings.branding.wide' | translate }}</button>
                             </div>
                         </div>
                     </div>
@@ -76,20 +76,20 @@
                       que se contradecían entre sí.
                     -->
                     <div class="form-field">
-                        <span class="input-label" id="ui-mode-label">{{ 'SETTINGS.BRANDING.TEMA' | translate }}</span>
+                        <span class="input-label" id="ui-mode-label">{{ 'settings.branding.theme' | translate }}</span>
                         <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'light'"
                                 [attr.aria-checked]="themeService.mode() === 'light'"
-                                (click)="themeService.setMode('light')">{{ 'SETTINGS.BRANDING.CLARO' | translate }}</button>
+                                (click)="themeService.setMode('light')">{{ 'settings.branding.light' | translate }}</button>
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'dark'"
                                 [attr.aria-checked]="themeService.mode() === 'dark'"
-                                (click)="themeService.setMode('dark')">{{ 'SETTINGS.BRANDING.OSCURO' | translate }}</button>
+                                (click)="themeService.setMode('dark')">{{ 'settings.branding.dark' | translate }}</button>
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'system'"
                                 [attr.aria-checked]="themeService.mode() === 'system'"
-                                (click)="themeService.setMode('system')">{{ 'SETTINGS.BRANDING.SISTEMA' | translate }}</button>
+                                (click)="themeService.setMode('system')">{{ 'settings.branding.system_settings' | translate }}</button>
                         </div>
                     </div>
 
@@ -105,17 +105,17 @@
                                 [checked]="themeService.contrast() === 'high'"
                                 (change)="themeService.setContrast(
                                     themeService.contrast() === 'high' ? 'normal' : 'high')">
-                            <span>{{ 'SETTINGS.BRANDING.ALTO_CONTRASTE' | translate }}</span>
+                            <span>{{ 'settings.branding.high_contrast' | translate }}</span>
                         </label>
                         <small class="field-hint">
-                            {{ 'SETTINGS.BRANDING.REFUERZA_BORDES_TEXTO_SECUNDARIO_COMPATIBLE_TEMA' | translate }}
+                            {{ 'settings.branding.strengthens_borders_secondary_text_works_with' | translate }}
                         </small>
                     </div>
                 </div>
             </div>
 
             <div class="preview-column">
-                <h3 class="section-title">{{ 'SETTINGS.BRANDING.VISTA_PREVIA_VIVO' | translate }}</h3>
+                <h3 class="section-title">{{ 'settings.branding.live_preview' | translate }}</h3>
                 <app-live-preview />
             </div>
         </div>

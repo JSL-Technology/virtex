@@ -51,7 +51,7 @@ export class TwoFactorAuthService {
     const security = await this.ensureSecurityEntity(user);
 
     if (security.isTwoFactorEnabled) {
-      throw new BadRequestError('AUTH.VERIFICACION_DOS_PASOS_YA_ESTA_ACTIVA_DESACTIVALA');
+      throw new BadRequestError('auth.two_step_verification_already_turn_off');
     }
 
     const secret = authenticator.generateSecret();
@@ -216,7 +216,7 @@ export class TwoFactorAuthService {
     });
 
     if (!freshUser?.security?.pendingTwoFactorSecret) {
-      throw new BadRequestError('AUTH.2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET');
+      throw new BadRequestError('auth.two_step_verification_setup_has_not');
     }
 
     // Validate against the STAGED secret. Only once the user has proved they can generate a
@@ -225,7 +225,7 @@ export class TwoFactorAuthService {
     const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.pendingTwoFactorSecret);
     const isValid = authenticator.verify({ token, secret: decryptedSecret });
     if (!isValid) {
-      throw new UnauthorizedError('AUTH.INVALID_2FA_TOKEN');
+      throw new UnauthorizedError('auth.invalid_2_fa_token');
     }
 
     freshUser.security.twoFactorSecret = freshUser.security.pendingTwoFactorSecret;
@@ -240,7 +240,7 @@ export class TwoFactorAuthService {
     await this.userSecurityRepository.save(freshUser.security);
     await this.userCacheService.clearUserSession(user.id);
 
-    return { messageKey: 'AUTH.2FA_ENABLED_SUCCESSFULLY', backupCodes: codes };
+    return { messageKey: 'auth.2_fa_enabled_successfully', backupCodes: codes };
   }
 
   async disableTwoFactor(user: UserIdentity) {
@@ -266,7 +266,7 @@ export class TwoFactorAuthService {
       }
 
       await this.userCacheService.clearUserSession(user.id);
-      return { messageKey: 'AUTH.2FA_DISABLED_SUCCESSFULLY' };
+      return { messageKey: 'auth.2_fa_disabled_successfully' };
   }
 
   // 10/10 SECURITY: Backup Codes Management
@@ -274,7 +274,7 @@ export class TwoFactorAuthService {
       const security = await this.ensureSecurityEntity(user);
 
       if (!security.isTwoFactorEnabled) {
-          throw new BadRequestError('AUTH.CANNOT_GENERATE_BACKUP_CODES_IF_2FA_NOT');
+          throw new BadRequestError('auth.cannot_generate_backup_codes_if_2_fa_not');
       }
 
       const { codes, hashedCodes } = await this.createBackupCodes();
@@ -330,7 +330,7 @@ export class TwoFactorAuthService {
 
       if (!security) {
           const freshUser = await this.userRepository.findOne({ where: { id: user.id }, relations: ['security'] });
-          if (!freshUser) throw new UnauthorizedError('AUTH.USER_NOT_FOUND');
+          if (!freshUser) throw new UnauthorizedError('auth.user_not_found');
           if (freshUser.security) return freshUser.security;
       } else {
           return security;

@@ -1,6 +1,6 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT' | translate }}</h3>
+    <h3>{{ 'reports.profitability_by_product.profitability_by_product' | translate }}</h3>
     <div class="header-actions">
       <!--
         A real date range. The two buttons here were a "Last 90 days" label and a "Filters" label,
@@ -8,7 +8,7 @@
       -->
       <label class="date-picker">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'REPORTS.COMMON.DESDE' | translate }}</span>
+        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
         <input
           type="date"
           [value]="startDate()"
@@ -16,7 +16,7 @@
         />
       </label>
       <label class="date-picker">
-        <span class="date-picker__label">{{ 'REPORTS.COMMON.HASTA' | translate }}</span>
+        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
         <input
           type="date"
           [value]="endDate()"
@@ -25,22 +25,22 @@
       </label>
       <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+        <span>{{ 'reports.common.export' | translate }}</span>
       </button>
       <button class="primary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+        <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
     </div>
   </div>
 
   @if (loading()) {
-    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+    <p class="report-state">{{ 'reports.common.loading' | translate }}</p>
   } @else if (failed()) {
     <p class="report-state report-state--error">
-      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      {{ 'reports.common.report_could_not_loaded' | translate }}
       <button class="secondary-button" type="button" (click)="load()">
-        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+        {{ 'reports.common.try_again' | translate }}
       </button>
     </p>
   } @else if (report(); as data) {
@@ -52,7 +52,7 @@
       <p class="report-state report-state--warning">
         <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
         {{
-          'REPORTS.COMMON.LINEAS_SIN_COSTO'
+          'reports.common.count_line_earned_revenue_with_no'
             | translate: { count: data.linesWithoutCost }
         }}
       </p>
@@ -62,21 +62,21 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PRODUCT' | translate }}</th>
+            <th>{{ 'reports.profitability_by_product.product' | translate }}</th>
             <th class="text-center">
-              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.UNITS_SOLD' | translate }}
+              {{ 'reports.profitability_by_product.units_sold' | translate }}
             </th>
             <th class="text-right">
-              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_REVENUE' | translate }}
+              {{ 'reports.profitability_by_product.total_revenue' | translate }}
             </th>
             <th class="text-right">
-              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_COST' | translate }}
+              {{ 'reports.profitability_by_product.total_cost' | translate }}
             </th>
             <th class="text-right">
-              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_PROFIT' | translate }}
+              {{ 'reports.profitability_by_product.gross_profit' | translate }}
             </th>
             <th class="text-right">
-              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_MARGIN' | translate }}
+              {{ 'reports.profitability_by_product.gross_margin' | translate }}
             </th>
           </tr>
         </thead>
@@ -102,7 +102,7 @@
             <tr>
               <td colspan="6" class="empty-state">
                 {{
-                  'REPORTS.PROFITABILITY_BY_PRODUCT.NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED'
+                  'reports.profitability_by_product.no_profitability_data_available_for_selected'
                     | translate
                 }}
               </td>
@@ -112,7 +112,7 @@
         @if (!isEmpty()) {
           <tfoot>
             <tr class="totals-row">
-              <td>{{ 'REPORTS.EXPORT.TOTALS' | translate }}</td>
+              <td>{{ 'reports.export.totals' | translate }}</td>
               <td class="text-center">{{ data.totals.unitsSold | vxNumber: '1.0-2' }}</td>
               <td class="text-right">{{ data.totals.totalRevenue | vxMoney: data.currency }}</td>
               <td class="text-right">{{ data.totals.totalCost | vxMoney: data.currency }}</td>

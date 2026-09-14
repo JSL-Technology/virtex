@@ -46,7 +46,7 @@ export class SuppliersService {
       where: { id, organizationId },
     });
     if (!supplier) {
-      throw new NotFoundError('SUPPLIERS.PROVEEDOR_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('suppliers.supplier_id_not_found', { id });
     }
     return supplier;
   }

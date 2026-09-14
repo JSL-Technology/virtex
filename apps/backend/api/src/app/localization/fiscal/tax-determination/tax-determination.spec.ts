@@ -132,7 +132,7 @@ describeWithDb('sales tax determination', () => {
     // inferred — and the document says the sale was untaxed for want of nexus.
     expect(result.outcome).toBe('NO_NEXUS');
     expect(result.rate).toBe(0);
-    expect(result.reasonKey).toBe('LOCALIZATION.SIN_REGISTRO_EN_JURISDICCION');
+    expect(result.reasonKey).toBe('localization.you_not_registered_collect_state_code');
   });
 
   it('honours a registration the tenant has switched off', async () => {
@@ -148,7 +148,7 @@ describeWithDb('sales tax determination', () => {
     const result = await determine({ city: 'Dallas' });
 
     expect(result.outcome).toBe('NOT_DETERMINABLE');
-    expect(result.reasonKey).toBe('LOCALIZATION.DETERMINACION_REQUIERE_DIVISION');
+    expect(result.reasonKey).toBe('localization.determining_tax_country_code_needs_destination');
   });
 
   it("prices an intrastate sale at the seller's rate in an origin-sourced state", async () => {
@@ -240,6 +240,6 @@ describeWithDb('sales tax determination', () => {
     const result = await determine({ stateCode: 'TX' });
 
     expect(result.outcome).toBe('NO_NEXUS');
-    expect(result.reasonKey).toBe('LOCALIZATION.SIN_JURISDICCIONES_REGISTRADAS_PAIS');
+    expect(result.reasonKey).toBe('localization.no_jurisdictions_registered_country_code_so');
   });
 });

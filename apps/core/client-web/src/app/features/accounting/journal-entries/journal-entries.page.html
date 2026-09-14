@@ -1,26 +1,26 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.JOURNAL_ENTRIES.JOURNAL_ENTRIES"
+  titleKey="accounting.journal_entries.journal_entries"
   [count]="total()"
   [loading]="loading()"
-  [error]="failed() ? 'ACCOUNTING.JOURNAL_ENTRIES.LOAD_FAILED' : null"
+  [error]="failed() ? 'accounting.journal_entries.load_failed' : null"
   [empty]="isEmpty()"
   (reload)="load()"
 >
   <a listActions [routerLink]="['./new']" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.JOURNAL_ENTRIES.NEW_ENTRY' | translate }}</span>
+    <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.JOURNAL_ENTRIES.DATE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.JOURNAL_ENTRIES.ENTRY' | translate }}</th>
-          <th>{{ 'ACCOUNTING.JOURNAL_ENTRIES.DESCRIPTION' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRIES.DEBIT' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRIES.CREDIT' | translate }}</th>
-          <th class="text-center">{{ 'ACCOUNTING.JOURNAL_ENTRIES.STATUS' | translate }}</th>
+          <th>{{ 'accounting.journal_entries.date' | translate }}</th>
+          <th>{{ 'accounting.journal_entries.entry' | translate }}</th>
+          <th>{{ 'accounting.journal_entries.description' | translate }}</th>
+          <th class="text-right">{{ 'accounting.journal_entries.debit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.journal_entries.credit' | translate }}</th>
+          <th class="text-center">{{ 'accounting.journal_entries.status' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
@@ -34,7 +34,7 @@
                 and says so, rather than borrowing a primary key to look like one.
               -->
               <a [routerLink]="['./', entry.id, 'edit']" class="table-link">
-                {{ entry.entryNumber || ('ACCOUNTING.JOURNAL_ENTRIES.UNNUMBERED' | translate) }}
+                {{ entry.entryNumber || ('accounting.journal_entries.unnumbered' | translate) }}
               </a>
             </td>
             <td>{{ entry.description }}</td>
@@ -49,7 +49,7 @@
               <a
                 class="icon-button"
                 [routerLink]="['./', entry.id, 'edit']"
-                [attr.aria-label]="'ACCOUNTING.JOURNAL_ENTRIES.ROW_ACTIONS' | translate"
+                [attr.aria-label]="'accounting.journal_entries.row_actions' | translate"
               >
                 <lucide-icon [img]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>
               </a>
@@ -65,15 +65,15 @@
     and give no sign that the rest exist, which is worse than the unbounded query it replaces.
   -->
   @if (total() > 0) {
-    <nav listFooter class="pager" [attr.aria-label]="'COMMON.PAGINATION' | translate">
+    <nav listFooter class="pager" [attr.aria-label]="'common.pagination' | translate">
       <button type="button" class="pager-button" [disabled]="page() <= 1" (click)="previousPage()">
-        {{ 'COMMON.PREVIOUS' | translate }}
+        {{ 'common.previous' | translate }}
       </button>
       <span class="pager-status">
-        {{ 'COMMON.PAGE_OF_TOTAL' | translate: { page: page(), total: total() } }}
+        {{ 'common.page_of_total' | translate: { page: page(), total: total() } }}
       </span>
       <button type="button" class="pager-button" [disabled]="!hasMore()" (click)="nextPage()">
-        {{ 'COMMON.NEXT' | translate }}
+        {{ 'common.next' | translate }}
       </button>
     </nav>
   }

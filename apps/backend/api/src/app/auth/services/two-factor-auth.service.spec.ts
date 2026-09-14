@@ -167,7 +167,7 @@ describe('TwoFactorAuthService', () => {
 
           await expectLocalizedError(
               service.enableTwoFactor({ id: 'user-1' } as User, '000000'),
-              'AUTH.INVALID_2FA_TOKEN',
+              'auth.invalid_2_fa_token',
           );
           expect(userSecurityRepo.save).not.toHaveBeenCalled();
       });
@@ -177,7 +177,7 @@ describe('TwoFactorAuthService', () => {
 
           await expectLocalizedError(
               service.enableTwoFactor({ id: 'user-1' } as User, '123456'),
-              'AUTH.2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET',
+              'auth.two_step_verification_setup_has_not',
           );
       });
   });

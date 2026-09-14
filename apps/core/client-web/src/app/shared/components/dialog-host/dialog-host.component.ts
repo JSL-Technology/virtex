@@ -27,7 +27,7 @@ import { DialogService } from '../../../core/services/dialog.service';
           [attr.aria-label]="d.title"
 
         >
-          <button class="dialog-close" type="button" [attr.aria-label]="'COMMON.CLOSE' | translate" (click)="cancel()">
+          <button class="dialog-close" type="button" [attr.aria-label]="'common.close' | translate" (click)="cancel()">
             <lucide-icon [img]="XIcon" size="18"></lucide-icon>
           </button>
 

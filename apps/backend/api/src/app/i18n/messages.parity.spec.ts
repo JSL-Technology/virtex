@@ -107,7 +107,7 @@ describe('server message catalogues', () => {
    * The parity checks above compare the three catalogues to **each other**, and pass perfectly
    * while a key that no catalogue has is thrown from production code — because being equally
    * absent everywhere is parity. The reader then gets the raw key as their error message:
-   * `SAAS.SUBSCRIPTION_SUSPENDED` instead of a sentence telling them why they were refused.
+   * `saas.subscription_suspended` instead of a sentence telling them why they were refused.
    *
    * Sixteen such keys were live when this check was written, in guards and services that had
    * never been read back in a language. That is the same shape of blind spot as the schema-drift
@@ -134,7 +134,7 @@ describe('server message catalogues', () => {
      * The client's catalogue, because some keys the backend names are the client's to render.
      *
      * `FiscalDocumentTypeOption.labelKey` is the example: the server says a Chilean document type
-     * is `FISCAL.CL.33` and the invoice screen translates it. Requiring it in the server's own
+     * is `fiscal.cl.33` and the invoice screen translates it. Requiring it in the server's own
      * catalogue would mean storing the same label twice, and the failure this guards against —
      * a reader seeing a raw key — is equally prevented by it existing on the side that renders it.
      */

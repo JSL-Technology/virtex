@@ -30,7 +30,7 @@ import spanish from '../../../assets/i18n/es.json';
  * It is the default and the majority language, so the common path must not pay a round trip
  * before the first paint — and it doubles as the last-resort catalogue when a chunk cannot be
  * fetched at all. A user on a bad connection sees Spanish, which is a worse experience than
- * their own language and a much better one than a screen of `SETTINGS.SECURITY.2FA_TITLE`.
+ * their own language and a much better one than a screen of `settings.security.2_fa_title`.
  */
 
 type Catalogue = Record<string, unknown>;

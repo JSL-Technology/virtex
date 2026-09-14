@@ -121,12 +121,12 @@ export class AuthStepUpController {
     @Res() res: Response,
   ) {
     if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
-      throw new BadRequestError('AUTH.ALCANCE_VERIFICACION_NO_VALIDO');
+      throw new BadRequestError('auth.invalid_verification_scope');
     }
 
     const federated = await this.resolveFederatedProvider(user);
     if (!federated) {
-      throw new BadRequestError('AUTH.ESTA_CUENTA_NO_ESTA_VINCULADA_PROVEEDOR_IDENTIDAD');
+      throw new BadRequestError('auth.account_not_linked_identity_provider');
     }
 
     // Where to put the user back afterwards. It is sealed into the transaction cookie rather
@@ -179,16 +179,16 @@ export class AuthStepUpController {
       const tx = this.oauthStateService.readTransaction(req);
       const [marker, provider, scope] = tx.flow.split(':');
       if (marker !== 'stepup' || !provider || !scope) {
-        throw new BadRequestError('AUTH.FLUJO_VERIFICACION_NO_VALIDO');
+        throw new BadRequestError('auth.invalid_verification_flow');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
       if (!query.code) {
-        throw new BadRequestError('AUTH.FALTA_CODIGO_AUTORIZACION');
+        throw new BadRequestError('auth.authorization_code_missing');
       }
 
       const federated = await this.resolveFederatedProvider(user);
       if (!federated || federated.flow !== provider) {
-        throw new UnauthorizedError('AUTH.PROVEEDOR_IDENTIDAD_NO_COINCIDE');
+        throw new UnauthorizedError('auth.identity_provider_does_not_match');
       }
 
       const { claims } = await this.oidcProviderService.exchangeAndValidate(federated.config, {
@@ -205,7 +205,7 @@ export class AuthStepUpController {
           { event: 'step_up_sso_subject_mismatch', userId: user.id },
           '[SECURITY] IdP re-authentication returned a different identity than the signed-in user',
         );
-        throw new UnauthorizedError('AUTH.IDENTIDAD_VERIFICADA_NO_COINCIDE_TU_SESION');
+        throw new UnauthorizedError('auth.verified_identity_does_not_match_your');
       }
 
       this.oauthStateService.clearTransactionCookie(res);
@@ -298,7 +298,7 @@ export class AuthStepUpController {
       @Req() req: Request,
   ) {
       if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
-          throw new BadRequestError('AUTH.ALCANCE_VERIFICACION_NO_VALIDO');
+          throw new BadRequestError('auth.invalid_verification_scope');
       }
       const cookies = req.cookies as Record<string, string | undefined> | undefined;
       const token = STEP_UP_COOKIE_NAMES.map((name) => cookies?.[name]).find(Boolean);

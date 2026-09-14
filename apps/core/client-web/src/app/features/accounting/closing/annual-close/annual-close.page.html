@@ -1,6 +1,6 @@
 <div class="closing-container">
   <div class="closing-header">
-    <h3>{{ 'ACCOUNTING.ANNUAL_CLOSE.TITLE' | translate }}</h3>
+    <h3>{{ 'accounting.annual_close.title' | translate }}</h3>
     <div
       class="progress-bar"
       role="progressbar"
@@ -27,13 +27,13 @@
         <div class="task-action">
           @if (task.resolutionLink && !task.isCompleted) {
             <a [routerLink]="task.resolutionLink" class="secondary-button">
-              {{ 'ACCOUNTING.ANNUAL_CLOSE.GO_TASK' | translate }}
+              {{ 'accounting.annual_close.go_task' | translate }}
             </a>
           }
         </div>
       </div>
     } @empty {
-      <p class="empty-state">{{ 'ACCOUNTING.ANNUAL_CLOSE.EMPTY' | translate }}</p>
+      <p class="empty-state">{{ 'accounting.annual_close.empty' | translate }}</p>
     }
   </div>
 </div>

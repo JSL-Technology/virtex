@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.SECURITY.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.SECURITY.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.security.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.security.password_policies_audit_logs_organisation_wide' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.SECURITY.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.SECURITY.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.SECURITY.FEATURES.F1','SETTINGS.PAGES.SECURITY.FEATURES.F2','SETTINGS.PAGES.SECURITY.FEATURES.F3','SETTINGS.PAGES.SECURITY.FEATURES.F4','SETTINGS.PAGES.SECURITY.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.security.empty_title'"
+        [description]="'settings.pages.security.empty_description'"
+        [features]="['settings.pages.security.features.f1','settings.pages.security.features.f2','settings.pages.security.features.f3','settings.pages.security.features.f4','settings.pages.security.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -109,7 +109,7 @@ export class PurchaseOrdersService {
   ): Promise<PurchaseOrder> {
     return this.dataSource.transaction(async (manager) => {
       const supplier = await manager.findOneBy(Supplier, { id: dto.supplierId, organizationId });
-      if (!supplier) throw new BadRequestError('PROCUREMENT.SUPPLIER_NOT_FOUND');
+      if (!supplier) throw new BadRequestError('procurement.supplier_not_found');
 
       const orderDate = toIsoDate(dto.orderDate ?? new Date());
       const order = await manager.save(
@@ -140,12 +140,12 @@ export class PurchaseOrdersService {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
       if (!EDITABLE.includes(order.status)) {
-        throw new BadRequestError('PROCUREMENT.ORDER_NOT_EDITABLE', { status: order.status });
+        throw new BadRequestError('procurement.order_not_editable', { status: order.status });
       }
 
       if (dto.supplierId !== undefined) {
         const supplier = await manager.findOneBy(Supplier, { id: dto.supplierId, organizationId });
-        if (!supplier) throw new BadRequestError('PROCUREMENT.SUPPLIER_NOT_FOUND');
+        if (!supplier) throw new BadRequestError('procurement.supplier_not_found');
         order.supplierId = dto.supplierId;
       }
       if (dto.orderDate !== undefined) order.orderDate = toIsoDate(dto.orderDate);
@@ -178,9 +178,9 @@ export class PurchaseOrdersService {
         where: { id: requisitionId, organizationId },
         relations: ['lines'],
       });
-      if (!requisition) throw new NotFoundError('PROCUREMENT.REQUISITION_NOT_FOUND', { id: requisitionId });
+      if (!requisition) throw new NotFoundError('procurement.requisition_not_found', { id: requisitionId });
       if (!requisition.lines?.length) {
-        throw new BadRequestError('PROCUREMENT.REQUISITION_HAS_NO_LINES');
+        throw new BadRequestError('procurement.requisition_has_no_lines');
       }
 
       const order = await this.create(
@@ -257,17 +257,17 @@ export class PurchaseOrdersService {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
       if (![PurchaseOrderStatus.SENT, PurchaseOrderStatus.PARTIALLY_RECEIVED].includes(order.status)) {
-        throw new BadRequestError('PROCUREMENT.ORDER_NOT_RECEIVABLE', { status: order.status });
+        throw new BadRequestError('procurement.order_not_receivable', { status: order.status });
       }
 
       const byId = new Map(order.lines.map((line) => [line.id, line]));
       for (const received of dto.lines) {
         const line = byId.get(received.lineId);
-        if (!line) throw new BadRequestError('PROCUREMENT.ORDER_LINE_NOT_FOUND', { id: received.lineId });
+        if (!line) throw new BadRequestError('procurement.order_line_not_found', { id: received.lineId });
 
         const total = roundAmount(line.receivedQuantity + received.quantity);
         if (toCents(total) > toCents(line.quantity)) {
-          throw new BadRequestError('PROCUREMENT.RECEIPT_EXCEEDS_ORDERED', {
+          throw new BadRequestError('procurement.receipt_exceeds_ordered', {
             description: line.description,
             ordered: line.quantity,
             received: total,
@@ -292,7 +292,7 @@ export class PurchaseOrdersService {
   async remove(id: string, organizationId: string): Promise<void> {
     const order = await this.findOne(id, organizationId);
     if (order.status !== PurchaseOrderStatus.DRAFT) {
-      throw new BadRequestError('PROCUREMENT.ORDER_NOT_DELETABLE', { status: order.status });
+      throw new BadRequestError('procurement.only_draft_order_can_deleted_one', { status: order.status });
     }
     await this.orderRepository.delete({ id, organizationId });
   }
@@ -308,7 +308,7 @@ export class PurchaseOrdersService {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
       if (!ORDER_TRANSITIONS[order.status].includes(to)) {
-        throw new BadRequestError('PROCUREMENT.ORDER_TRANSITION_NOT_ALLOWED', {
+        throw new BadRequestError('procurement.order_cannot_move_from_from', {
           from: order.status,
           to,
         });
@@ -331,7 +331,7 @@ export class PurchaseOrdersService {
       relations: ['lines', 'lines.product', 'supplier'],
       order: { lines: { sortOrder: 'ASC' } },
     });
-    if (!order) throw new NotFoundError('PROCUREMENT.ORDER_NOT_FOUND', { id });
+    if (!order) throw new NotFoundError('procurement.order_not_found', { id });
     return order;
   }
 

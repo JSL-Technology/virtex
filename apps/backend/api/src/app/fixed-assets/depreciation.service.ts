@@ -142,7 +142,7 @@ export class DepreciationService {
       });
       if (!depreciationJournal) {
         throw new BadRequestError(
-          'FIXED_ASSETS.DIARIO_DEPRECIACION_DEPREC_NO_ENCONTRADO_FAVOR_CREE',
+          'fixed_assets.depreciation_journal_deprec_not_found_create',
         );
       }
 
@@ -172,7 +172,7 @@ export class DepreciationService {
             description: await this.narrative.describe(
               em,
               organizationId,
-              'LEDGER.DEPRECIATION.EXPENSE',
+              'ledger.depreciation.expense',
               { month, asset: asset.name },
             ),
             valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
@@ -184,7 +184,7 @@ export class DepreciationService {
             description: await this.narrative.describe(
               em,
               organizationId,
-              'LEDGER.DEPRECIATION.ACCUMULATED',
+              'ledger.depreciation.accumulated',
               { month, asset: asset.name },
             ),
             valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
@@ -206,7 +206,7 @@ export class DepreciationService {
           description: await this.narrative.describe(
             em,
             organizationId,
-            'LEDGER.DEPRECIATION.ENTRY',
+            'ledger.depreciation.entry',
             { month },
           ),
           journalId: depreciationJournal.id,

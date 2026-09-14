@@ -214,7 +214,7 @@ describeWithDb('Mexican electronic accounting', () => {
       // The SAT rejects the upload; discovering that at the Buzón Tributario on the deadline is a
       // worse way to learn it. The message names how many and gives one example.
       await expect(accounting.catalogo({ organizationId, ...period })).rejects.toMatchObject({
-        messageKey: 'COMPLIANCE.CUENTAS_SIN_CODIGO_AGRUPADOR_SAT',
+        messageKey: 'compliance.count_account_have_no_sat_grouping',
       });
     });
 
@@ -222,7 +222,7 @@ describeWithDb('Mexican electronic accounting', () => {
       await dataSource.getRepository(Organization).update({ id: organizationId }, { taxId: null });
 
       await expect(accounting.catalogo({ organizationId, ...period })).rejects.toMatchObject({
-        messageKey: 'COMPLIANCE.ORGANIZACION_SIN_RFC',
+        messageKey: 'compliance.organization_has_no_rfc_file_sat',
       });
     });
   });

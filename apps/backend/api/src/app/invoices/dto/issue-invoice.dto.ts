@@ -14,8 +14,8 @@ export class IssueInvoiceDto {
    * means anything is the adapter's to say, and each one refuses a code that is not its own.
    */
   @IsString()
-  @MaxLength(8, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":8}' })
-  @Matches(/^[A-Za-z0-9]+$/, { message: 'INVOICES.TIPO_COMPROBANTE_FORMATO_INVALIDO' })
+  @MaxLength(8, { message: 'validation.constraints.max_length|{"max":8}' })
+  @Matches(/^[A-Za-z0-9]+$/, { message: 'invoices.document_type_may_contain_only_letters' })
   @IsOptional()
   fiscalDocumentType?: string;
 }

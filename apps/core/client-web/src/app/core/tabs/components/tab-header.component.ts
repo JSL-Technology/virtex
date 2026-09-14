@@ -51,7 +51,7 @@ import { resolveTabIcon } from './tab-icon';
           <button
             class="tab-close"
             type="button"
-            [attr.aria-label]="'TABS.CLOSE_TAB' | translate"
+            [attr.aria-label]="'tabs.close_tab' | translate"
             (pointerdown)="$event.stopPropagation()"
             (click)="close($event)"
           >

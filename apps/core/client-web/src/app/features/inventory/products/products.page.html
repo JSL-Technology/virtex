@@ -1,13 +1,13 @@
 <vx-list-shell
-  titleKey="INVENTORY.PRODUCTS.INVENTARIO_PRODUCTOS"
-  subtitleKey="INVENTORY.PRODUCTS.GESTIONA_TODOS_PRODUCTOS_SERVICIOS_TU_EMPRESA"
+  titleKey="inventory.products.product_inventory"
+  subtitleKey="inventory.products.manage_every_product_service_your_company"
   [count]="filteredProducts().length"
   [loading]="isLoading()"
   [error]="error()"
   [empty]="filteredProducts().length === 0"
   [searchable]="true"
   [(search)]="searchTerm"
-  searchPlaceholderKey="INVENTORY.PRODUCTS.BUSCAR_NOMBRE_SKU_CATEGORIA"
+  searchPlaceholderKey="inventory.products.search_name_sku_category"
   (reload)="loadProducts()"
 >
   <a
@@ -17,19 +17,19 @@
     *appHasPermission="'products:create'"
   >
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'INVENTORY.PRODUCTS.NUEVO_PRODUCTO' | translate }}</span>
+    <span>{{ 'inventory.products.new_product' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'INVENTORY.PRODUCTS.PRODUCTO' | translate }}</th>
-          <th>{{ 'INVENTORY.PRODUCTS.CATEGORIA' | translate }}</th>
-          <th class="text-right">{{ 'INVENTORY.PRODUCTS.PRECIO' | translate }}</th>
-          <th class="text-right">{{ 'INVENTORY.PRODUCTS.COSTO' | translate }}</th>
-          <th class="text-right">{{ 'INVENTORY.PRODUCTS.STOCK' | translate }}</th>
-          <th>{{ 'INVENTORY.PRODUCTS.ESTADO' | translate }}</th>
+          <th>{{ 'inventory.products.product' | translate }}</th>
+          <th>{{ 'inventory.products.category' | translate }}</th>
+          <th class="text-right">{{ 'inventory.products.price' | translate }}</th>
+          <th class="text-right">{{ 'inventory.products.cost' | translate }}</th>
+          <th class="text-right">{{ 'inventory.products.stock' | translate }}</th>
+          <th>{{ 'inventory.products.status' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
@@ -53,9 +53,9 @@
                 {{
                   (product.status === 'Active'
                     ? product.stock > 0
-                      ? 'INVENTORY.PRODUCTS.STOCK_IN'
-                      : 'INVENTORY.PRODUCTS.STOCK_OUT'
-                    : 'INVENTORY.PRODUCTS.STATUS_INACTIVE'
+                      ? 'inventory.products.stock_in'
+                      : 'inventory.products.stock_out'
+                    : 'inventory.products.status_inactive'
                   ) | translate
                 }}
               </span>
@@ -66,7 +66,7 @@
                   [routerLink]="['/inventory/products', product.id, 'edit']"
                   class="icon-button"
                   *appHasPermission="'products:edit'"
-                  [attr.aria-label]="'INVENTORY.PRODUCTS.EDITAR' | translate"
+                  [attr.aria-label]="'inventory.products.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
                 </a>
@@ -74,7 +74,7 @@
                   type="button"
                   class="icon-button delete"
                   *appHasPermission="'products:delete'"
-                  [attr.aria-label]="'INVENTORY.PRODUCTS.ELIMINAR' | translate"
+                  [attr.aria-label]="'inventory.products.delete' | translate"
                   (click)="deleteProduct(product)"
                 >
                   <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>

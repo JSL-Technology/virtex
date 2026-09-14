@@ -138,10 +138,10 @@ export class TreasuryService {
         organizationId,
       });
       if (!glAccount) {
-        throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_VALIDA');
+        throw new BadRequestError('treasury.ledger_account_given_does_not_exist');
       }
       if (!glAccount.isPostable) {
-        throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS');
+        throw new BadRequestError('treasury.ledger_account_given_summary_account_cannot');
       }
 
       const openingBalance = roundAmount(dto.openingBalance ?? 0);
@@ -202,10 +202,10 @@ export class TreasuryService {
     if (toCents(openingBalance) === 0) return null;
 
     if (!dto.openingBalanceAccountId) {
-      throw new BadRequestError('TREASURY.SALDO_APERTURA_REQUIERE_CONTRAPARTIDA');
+      throw new BadRequestError('treasury.opening_balance_must_name_counterpart_account');
     }
     if (!dto.openingDate) {
-      throw new BadRequestError('TREASURY.SALDO_APERTURA_REQUIERE_FECHA');
+      throw new BadRequestError('treasury.opening_balance_must_state_date_which');
     }
 
     const counterpart = await manager.findOneBy(Account, {
@@ -213,13 +213,13 @@ export class TreasuryService {
       organizationId,
     });
     if (!counterpart) {
-      throw new BadRequestError('TREASURY.CUENTA_CONTRAPARTIDA_NO_VALIDA');
+      throw new BadRequestError('treasury.counterpart_account_does_not_exist_organisation');
     }
     if (!counterpart.isPostable) {
-      throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS');
+      throw new BadRequestError('treasury.ledger_account_given_summary_account_cannot');
     }
     if (counterpart.id === dto.glAccountId) {
-      throw new BadRequestError('TREASURY.CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA');
+      throw new BadRequestError('treasury.opening_balance_counterpart_cannot_bank_own');
     }
 
     return {
@@ -239,12 +239,12 @@ export class TreasuryService {
   ) {
     const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!ledger) {
-      throw new BadRequestError('TREASURY.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+      throw new BadRequestError('treasury.no_default_ledger_has_configured_organization');
     }
 
     const journal = await manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
     if (!journal) {
-      throw new BadRequestError('TREASURY.DIARIO_BANCOS_BANCOS_NO_ENCONTRADO');
+      throw new BadRequestError('treasury.banks_journal_bancos_not_found');
     }
 
     const rate = await this.exchangeRates.rateFor(
@@ -263,9 +263,9 @@ export class TreasuryService {
           };
 
     const words = await this.narrative.describeAll(manager, organizationId, {
-      opening: { key: 'LEDGER.TREASURY.OPENING_BALANCE', params: { account: account.name } },
+      opening: { key: 'ledger.treasury.opening_balance', params: { account: account.name } },
       counterpart: {
-        key: 'LEDGER.TREASURY.OPENING_COUNTERPART',
+        key: 'ledger.treasury.opening_counterpart',
         params: { account: account.name },
       },
     });
@@ -315,7 +315,7 @@ export class TreasuryService {
       where: { id, organizationId },
       relations: ['glAccount'],
     });
-    if (!account) throw new NotFoundError('TREASURY.CUENTA_BANCARIA_NO_ENCONTRADA');
+    if (!account) throw new NotFoundError('treasury.bank_account_does_not_exist_does');
     return account;
   }
 
@@ -372,7 +372,7 @@ export class TreasuryService {
 
     if (!ledger) {
       throw new BadRequestError(
-        'TREASURY.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'treasury.no_default_ledger_has_configured_organization',
       );
     }
 
@@ -484,7 +484,7 @@ export class TreasuryService {
   ): Promise<BankTransfer> {
     return this.dataSource.transaction(async (manager) => {
       if (dto.fromBankAccountId === dto.toBankAccountId) {
-        throw new BadRequestError('TREASURY.CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
+        throw new BadRequestError('treasury.source_destination_accounts_cannot_same');
       }
 
       const [from, to] = await Promise.all([
@@ -495,7 +495,7 @@ export class TreasuryService {
       const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!ledger) {
         throw new BadRequestError(
-          'TREASURY.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+          'treasury.no_default_ledger_has_configured_organization',
         );
       }
 
@@ -504,7 +504,7 @@ export class TreasuryService {
         code: 'BANCOS',
       });
       if (!bankJournal) {
-        throw new BadRequestError('TREASURY.DIARIO_BANCOS_BANCOS_NO_ENCONTRADO');
+        throw new BadRequestError('treasury.banks_journal_bancos_not_found');
       }
 
       const sameCurrency = from.currencyCode === to.currencyCode;
@@ -513,7 +513,7 @@ export class TreasuryService {
         : dto.amountReceived;
 
       if (!sameCurrency && amountReceived === undefined) {
-        throw new BadRequestError('TREASURY.TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO');
+        throw new BadRequestError('treasury.transfer_between_accounts_different_currencies_must');
       }
 
       const fee = roundAmount(dto.fee ?? 0);
@@ -662,9 +662,9 @@ export class TreasuryService {
     organizationId: string,
   ): Promise<BankAccount> {
     const account = await manager.findOneBy(BankAccount, { id, organizationId });
-    if (!account) throw new NotFoundError('TREASURY.CUENTA_BANCARIA_NO_ENCONTRADA');
+    if (!account) throw new NotFoundError('treasury.bank_account_does_not_exist_does');
     if (!account.isActive) {
-      throw new BadRequestError('TREASURY.CUENTA_BANCARIA_INACTIVA', { name: account.name });
+      throw new BadRequestError('treasury.bank_account_name_inactive_cannot_take', { name: account.name });
     }
     return account;
   }
@@ -683,7 +683,7 @@ export class TreasuryService {
     const feeAccountId =
       settings?.defaultBankFeesAccountId ?? settings?.defaultForexGainLossAccountId;
     if (!feeAccountId) {
-      throw new BadRequestError('TREASURY.CUENTA_COMISIONES_NO_CONFIGURADA');
+      throw new BadRequestError('treasury.no_bank_fees_account_has_configured');
     }
     return feeAccountId;
   }
@@ -699,7 +699,7 @@ export class TreasuryService {
 
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings?.defaultForexGainLossAccountId) {
-      throw new BadRequestError('TREASURY.CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA');
+      throw new BadRequestError('treasury.no_exchange_difference_account_has_configured');
     }
     return settings.defaultForexGainLossAccountId;
   }

@@ -223,7 +223,7 @@ describeWithDb('journal entry import', () => {
       const result = await preview(rows);
       expect(result.validEntriesCount).toBe(0);
       expect(result.previews[0].rows[0].error?.messageKey).toBe(
-        'JOURNAL_ENTRIES.IMPORT.IMPORTE_NO_LEGIBLE',
+        'journal_entries.import.amount_value_cannot_read_with_decimal',
       );
     });
 
@@ -233,7 +233,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].rows[0].error?.messageKey).toBe(
-        'JOURNAL_ENTRIES.IMPORT.LINEA_CON_AMBOS_LADOS',
+        'journal_entries.import.line_cannot_carry_both_debit_credit',
       );
     });
 
@@ -243,7 +243,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].rows[0].error?.messageKey).toBe(
-        'JOURNAL_ENTRIES.IMPORT.IMPORTE_NEGATIVO',
+        'journal_entries.import.debit_credit_cannot_negative_use_opposite',
       );
     });
   });
@@ -261,7 +261,7 @@ describeWithDb('journal entry import', () => {
       expect(result.validEntriesCount).toBe(0);
       expect(result.previews[0].isBalanced).toBe(false);
       expect(result.previews[0].errors.map((error) => error.messageKey)).toContain(
-        'JOURNAL_ENTRIES.IMPORT.ASIENTO_NO_CUADRA',
+        'journal_entries.import.entry_does_not_balance_debits_debit',
       );
     });
 
@@ -316,7 +316,7 @@ describeWithDb('journal entry import', () => {
       const result = await preview(rows);
       expect(result.validEntriesCount).toBe(0);
       expect(result.previews[0].errors.map((error) => error.messageKey)).toContain(
-        'JOURNAL_ENTRIES.IMPORT.FECHA_NO_LEGIBLE',
+        'journal_entries.import.date_value_does_not_match_format',
       );
     });
 
@@ -326,7 +326,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].errors.map((error) => error.messageKey)).toContain(
-        'JOURNAL_ENTRIES.IMPORT.FECHA_NO_LEGIBLE',
+        'journal_entries.import.date_value_does_not_match_format',
       );
     });
   });
@@ -338,7 +338,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].rows[0].error).toEqual({
-        messageKey: 'JOURNAL_ENTRIES.IMPORT.CUENTA_NO_EXISTE',
+        messageKey: 'journal_entries.import.no_account_with_code_code_exists',
         params: { code: '9999' },
       });
     });
@@ -350,7 +350,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].rows[0].error?.messageKey).toBe(
-        'JOURNAL_ENTRIES.IMPORT.CUENTA_NO_ADMITE_MOVIMIENTOS',
+        'journal_entries.import.account_code_grouping_account_cannot_take',
       );
     });
 
@@ -360,7 +360,7 @@ describeWithDb('journal entry import', () => {
 
       const result = await preview(rows);
       expect(result.previews[0].rows[0].error?.messageKey).toBe(
-        'JOURNAL_ENTRIES.IMPORT.CUENTA_INACTIVA',
+        'journal_entries.import.account_code_inactive',
       );
     });
   });
@@ -401,7 +401,7 @@ describeWithDb('journal entry import', () => {
       await expect(
         importer.confirm({ batchId: result.batchId }, organizationId, ACTOR),
       ).rejects.toMatchObject({
-        messageKey: 'JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO',
+        messageKey: 'journal_entries.import_batch_not_found_has_expired',
       });
     });
 
@@ -410,7 +410,7 @@ describeWithDb('journal entry import', () => {
 
       await expect(
         importer.confirm({ batchId: result.batchId }, organizationId, OTHER_USER),
-      ).rejects.toMatchObject({ messageKey: 'JOURNAL_ENTRIES.IMPORT.LOTE_DE_OTRO_USUARIO' });
+      ).rejects.toMatchObject({ messageKey: 'journal_entries.import.import_batch_prepared_another_user' });
     });
 
     it('cannot be confirmed by another tenant', async () => {
@@ -425,7 +425,7 @@ describeWithDb('journal entry import', () => {
       await expect(
         importer.confirm({ batchId: result.batchId }, other.id, ACTOR),
       ).rejects.toMatchObject({
-        messageKey: 'JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO',
+        messageKey: 'journal_entries.import_batch_not_found_has_expired',
       });
 
       await dataSource.getRepository(Organization).delete({ id: other.id });
@@ -440,7 +440,7 @@ describeWithDb('journal entry import', () => {
       await expect(
         importer.confirm({ batchId: result.batchId }, organizationId, ACTOR),
       ).rejects.toMatchObject({
-        messageKey: 'JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO',
+        messageKey: 'journal_entries.import_batch_not_found_has_expired',
       });
     });
 

@@ -171,12 +171,12 @@ export class RepositoryPage {
 
   async remove(node: DocumentNode): Promise<void> {
     // A folder takes everything under it, so the confirmation says which it is.
-    const dialogKey = node.kind === 'FOLDER' ? 'DIALOG.DELETE_FOLDER' : 'DIALOG.DELETE_DOCUMENT';
+    const dialogKey = node.kind === 'FOLDER' ? 'dialog.delete_folder' : 'dialog.delete_document';
     const confirmed = await this.dialog.confirm({
       title: `${dialogKey}.TITLE`,
       message: `${dialogKey}.MESSAGE`,
       messageParams: { name: node.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -251,7 +251,7 @@ export class RepositoryPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'DOCUMENTS.REPOSITORY.ACTION_FAILED',
+      typeof message === 'string' ? message : 'documents.repository.action_failed',
     );
   }
 }

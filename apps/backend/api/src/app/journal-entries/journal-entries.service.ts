@@ -292,13 +292,13 @@ export class JournalEntriesService {
     const entryDate = new Date(`${String(date).slice(0, 10)}T00:00:00.000Z`);
     if (Number.isNaN(entryDate.getTime())) {
       throw new BadRequestError(
-        'VALIDATION.CREATE_JOURNAL_ENTRY.FECHA_DEBE_TENER_FORMATO_FECHA_ISO_8601_VALIDO',
+        'validation.create_journal_entry.date_must_valid_iso_8601_format',
       );
     }
 
     if (!lines || lines.length < 2) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.ASIENTO_CONTABLE_DEBE_TENER_MENOS_DOS_LINEAS',
+        'journal_entries.journal_entry_must_have_least_two',
       );
     }
 
@@ -308,13 +308,13 @@ export class JournalEntriesService {
     });
     if (!defaultLedger) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'journal_entries.no_default_ledger_has_configured_organization',
       );
     }
 
     const journal = await manager.findOneBy(Journal, { id: journalId, organizationId });
     if (!journal) {
-      throw new BadRequestError('JOURNAL_ENTRIES.DIARIO_NO_ENCONTRADO');
+      throw new BadRequestError('journal_entries.specified_journal_does_not_exist_organization');
     }
 
     // ── Amounts ───────────────────────────────────────────────────────────────
@@ -331,16 +331,16 @@ export class JournalEntriesService {
 
       if (debit < 0 || credit < 0) {
         throw new BadRequestError(
-          'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO',
+          'validation.create_journal_entry.debit_cannot_negative',
         );
       }
       if (debit > 0 && credit > 0) {
-        throw new BadRequestError('JOURNAL_ENTRIES.LINEA_DEBITO_Y_CREDITO', {
+        throw new BadRequestError('journal_entries.line_line_carries_both_debit_credit', {
           line: index + 1,
         });
       }
       if (debit === 0 && credit === 0) {
-        throw new BadRequestError('JOURNAL_ENTRIES.LINEA_SIN_IMPORTE', {
+        throw new BadRequestError('journal_entries.line_line_has_no_amount', {
           line: index + 1,
         });
       }
@@ -354,7 +354,7 @@ export class JournalEntriesService {
     // not balance, and nothing downstream was ever going to find the difference again.
     if (totalDebitCents !== totalCreditCents) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.ASIENTO_CONTABLE_NO_ESTA_BALANCEADO',
+        'journal_entries.journal_entry_does_not_balance',
       );
     }
 
@@ -387,7 +387,7 @@ export class JournalEntriesService {
     });
     if (accounts.length !== accountIds.length) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.MAS_CUENTAS_CONTABLES_NO_FUERON_ENCONTRADAS_ESTAN',
+        'journal_entries.one_more_accounts_not_found_inactive',
       );
     }
     const accountMap = new Map(accounts.map((account) => [account.id, account]));
@@ -395,13 +395,13 @@ export class JournalEntriesService {
     for (const account of accounts) {
       if (!account.isPostable) {
         throw new BadRequestError(
-          'JOURNAL_ENTRIES.CUENTA_NO_PERMITE_CONTABILIZACION',
+          'journal_entries.account_code_p2_does_not_accept',
           { code: account.code, p2: this.accountLabel(account) },
         );
       }
       if (account.isBlockedForPosting) {
         throw new ForbiddenError(
-          'JOURNAL_ENTRIES.CUENTA_ESTA_BLOQUEADA_NUEVAS_TRANSACCIONES',
+          'journal_entries.account_code_p2_locked_new_transactions',
           { code: account.code, p2: this.accountLabel(account) },
         );
       }
@@ -429,7 +429,7 @@ export class JournalEntriesService {
       .getOne();
 
     if (locked) {
-      throw new ForbiddenError('ACCOUNTING.CUENTA_ESTA_BLOQUEADA_TRANSACCIONES_PERIODO', {
+      throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
         code: locked.account?.code ?? locked.accountId,
         name: period.name,
       });
@@ -554,7 +554,7 @@ export class JournalEntriesService {
       const roundingAccountId = settings?.defaultForexGainLossAccountId;
       if (!roundingAccountId) {
         throw new BadRequestError(
-          'JOURNAL_ENTRIES.DIFERENCIA_REDONDEO_SIN_CUENTA_CONFIGURADA',
+          'journal_entries.currency_conversion_left_rounding_difference_no',
         );
       }
       const differenceCents = convertedDebitCents - convertedCreditCents;
@@ -564,7 +564,7 @@ export class JournalEntriesService {
         description: await this.narrative.describe(
           manager,
           organizationId,
-          'LEDGER.ROUNDING_DIFFERENCE',
+          'ledger.rounding_difference',
         ),
         journalEntry: savedEntry,
         debit: differenceCents < 0 ? amount : 0,
@@ -626,7 +626,7 @@ export class JournalEntriesService {
       // rules are keyed by (ledger, account), so a rule on some of the entry's accounts and not
       // the rest derives a partial entry into the target book. Naming the ledger and the gap is
       // what makes that diagnosable instead of mysterious.
-      throw new BadRequestError('JOURNAL_ENTRIES.VALORACIONES_LIBRO_NO_BALANCEAN', {
+      throw new BadRequestError('journal_entries.entry_does_not_balance_ledger_ledger', {
         ledgerId,
         difference: roundAmount((totals.debit - totals.credit) / 100),
       });
@@ -729,7 +729,7 @@ export class JournalEntriesService {
       return roundAmount(requireFiniteAmount(value, field));
     } catch (error) {
       if (error instanceof MoneyError) {
-        throw new BadRequestError('JOURNAL_ENTRIES.IMPORTE_NO_VALIDO', {
+        throw new BadRequestError('journal_entries.amount_field_not_valid_number', {
           field,
           detail: error.message,
         });
@@ -897,7 +897,7 @@ export class JournalEntriesService {
       );
 
       if (check.isExceeded) {
-        throw new ForbiddenError('JOURNAL_ENTRIES.CONTROL_PRESUPUESTARIO_FALLIDO', {
+        throw new ForbiddenError('journal_entries.entry_exceeds_budget_detail', {
           detail: check.messageKey,
           ...(check.messageParams ?? {}),
         });
@@ -932,7 +932,7 @@ export class JournalEntriesService {
         if (!line.dimensions?.[dimensionKey]) {
           const account = accountMap.get(line.accountId);
           throw new BadRequestError(
-            'JOURNAL_ENTRIES.CUENTA_CONTABLE_REQUIERE_DIMENSION_OBLIGATORIA',
+            'journal_entries.account_code_p2_requires_mandatory_dimension',
             {
               code: account?.code,
               p2: account ? this.accountLabel(account) : undefined,
@@ -958,10 +958,10 @@ export class JournalEntriesService {
         where: { id: journalEntryId, organizationId },
         relations: ['lines'],
       });
-      if (!entry) throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_NO_ENCONTRADO');
+      if (!entry) throw new NotFoundError('journal_entries.entry_not_found');
       if (entry.status !== JournalEntryStatus.DRAFT) {
         throw new BadRequestError(
-          'JOURNAL_ENTRIES.SOLO_ASIENTOS_BORRADOR_PUEDEN_SER_ENVIADOS_APROBACION',
+          'journal_entries.only_draft_entries_can_submitted_approval',
         );
       }
 
@@ -1070,30 +1070,30 @@ export class JournalEntriesService {
       relations: ['lines', 'lines.valuations'],
     });
     if (!original) {
-      throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_REVERSAR_NO_ENCONTRADO');
+      throw new NotFoundError('journal_entries.entry_reverse_not_found');
     }
     if (original.status !== JournalEntryStatus.POSTED) {
-      throw new BadRequestError('JOURNAL_ENTRIES.SOLO_PUEDEN_REVERSAR_ASIENTOS_CONTABILIZADOS');
+      throw new BadRequestError('journal_entries.only_posted_entries_can_reversed');
     }
     if (original.isReversed) {
-      throw new BadRequestError('JOURNAL_ENTRIES.ESTE_ASIENTO_YA_HA_SIDO_REVERSADO');
+      throw new BadRequestError('journal_entries.entry_has_already_reversed');
     }
     if (original.lines.some((line) => line.isReconciled)) {
       throw new ForbiddenError(
-        'JOURNAL_ENTRIES.NO_PUEDE_REVERSAR_ASIENTO_CONTIENE_LINEAS_CONCILIADAS',
+        'journal_entries.entry_containing_reconciled_lines_cannot_reversed',
       );
     }
 
     //  El relato en el idioma en que se llevan los libros del inquilino.
     const reversalWords = await this.narrative.describeAll(manager, organizationId, {
       entry: {
-        key: 'LEDGER.REVERSAL.ENTRY',
+        key: 'ledger.reversal.entry',
         params: {
           number: original.entryNumber ?? original.id.slice(0, 8),
           reason: reverseDto.reason,
         },
       },
-      linePrefix: { key: 'LEDGER.REVERSAL.LINE_PREFIX' },
+      linePrefix: { key: 'ledger.reversal.line_prefix' },
     });
 
     const reversalDto: CreateJournalEntryDto = {
@@ -1164,10 +1164,10 @@ export class JournalEntriesService {
     const original = await this.journalEntryRepository.findOne({
       where: { id, organizationId },
     });
-    if (!original) throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_NO_ENCONTRADO');
+    if (!original) throw new NotFoundError('journal_entries.entry_not_found');
     if (!original.reversesNextPeriod) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.ESTE_ASIENTO_NO_ESTA_MARCADO_REVERSION_AUTOMATICA',
+        'journal_entries.entry_not_marked_automatic_reversal',
       );
     }
 
@@ -1208,16 +1208,16 @@ export class JournalEntriesService {
         relations: ['lines'],
       });
       if (!original) {
-        throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_ORIGINAL_NO_ENCONTRADO');
+        throw new NotFoundError('journal_entries.original_entry_not_found');
       }
       if (original.status !== JournalEntryStatus.POSTED) {
         throw new BadRequestError(
-          'JOURNAL_ENTRIES.SOLO_PUEDEN_MODIFICAR_ASIENTOS_CONTABILIZADOS',
+          'journal_entries.only_posted_entries_can_modified',
         );
       }
       if (original.lines.some((line) => line.isReconciled)) {
         throw new ForbiddenError(
-          'JOURNAL_ENTRIES.NO_PUEDE_MODIFICAR_ASIENTO_CONTIENE_LINEAS_CONCILIADAS',
+          'journal_entries.entry_containing_reconciled_lines_cannot_modified',
         );
       }
 
@@ -1301,7 +1301,7 @@ export class JournalEntriesService {
       ],
     });
     if (!entry) {
-      throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_CONTABLE_ID_NO_ENCONTRADO', {
+      throw new NotFoundError('journal_entries.journal_entry_id_not_found', {
         id,
       });
     }
@@ -1351,7 +1351,7 @@ export class JournalEntriesService {
       id: attachmentId,
       organizationId,
     });
-    if (!attachment) throw new NotFoundError('JOURNAL_ENTRIES.ADJUNTO_NO_ENCONTRADO');
+    if (!attachment) throw new NotFoundError('journal_entries.attachment_not_found');
 
     const { stream, fileSize, mimeType } = await this.storageService.getStream(
       attachment.storageKey,
@@ -1367,7 +1367,7 @@ export class JournalEntriesService {
       id: attachmentId,
       organizationId,
     });
-    if (!attachment) throw new NotFoundError('JOURNAL_ENTRIES.ADJUNTO_NO_ENCONTRADO');
+    if (!attachment) throw new NotFoundError('journal_entries.attachment_not_found');
 
     await this.storageService.delete(attachment.storageKey);
     await this.attachmentRepository.remove(attachment);

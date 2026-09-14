@@ -37,7 +37,7 @@ export class PriceListsService {
       where: { id, organizationId },
     });
     if (!priceList) {
-      throw new NotFoundError('PRICE_LISTS.PRICE_LIST_WITH_ID_NOT_FOUND', { id });
+      throw new NotFoundError('price_lists.price_list_with_id_not_found', { id });
     }
     return priceList;
   }

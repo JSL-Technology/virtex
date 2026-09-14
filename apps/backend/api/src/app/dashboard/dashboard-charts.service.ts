@@ -344,7 +344,7 @@ export class DashboardChartsService {
       alerts.push({
         id: 'receivables-overdue',
         severity: 'critical',
-        messageKey: 'DASHBOARD.ALERTS.RECEIVABLES_OVERDUE',
+        messageKey: 'dashboard.alerts.receivables_overdue',
         params: { count: Number(overdue.count), amount: roundAmount(Number(overdue.amount)) },
         route: '/invoices',
       });
@@ -356,7 +356,7 @@ export class DashboardChartsService {
       alerts.push({
         id: 'stock-depleted',
         severity: 'critical',
-        messageKey: 'DASHBOARD.ALERTS.STOCK_DEPLETED',
+        messageKey: 'dashboard.alerts.count_product_out_stock',
         params: { count: depleted.length },
         route: '/inventory',
       });
@@ -364,7 +364,7 @@ export class DashboardChartsService {
       alerts.push({
         id: 'stock-low',
         severity: 'warning',
-        messageKey: 'DASHBOARD.ALERTS.STOCK_LOW',
+        messageKey: 'dashboard.alerts.stock_low',
         params: { count: outOfStock.length },
         route: '/inventory',
       });
@@ -384,7 +384,7 @@ export class DashboardChartsService {
       alerts.push({
         id: 'period-unclosed',
         severity: 'warning',
-        messageKey: 'DASHBOARD.ALERTS.PERIOD_UNCLOSED',
+        messageKey: 'dashboard.alerts.period_period_still_open_closing_date',
         params: { period: stalePeriod.name },
         route: '/accounting/periods',
       });

@@ -96,7 +96,7 @@ export class IntercompanyService {
 
     if (fromOrganizationId === toOrganizationId) {
       throw new BadRequestError(
-        'INTERCOMPANY.TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES',
+        'intercompany.intercompany_transactions_must_between_different_organizations',
       );
     }
 
@@ -108,7 +108,7 @@ export class IntercompanyService {
         manager.findOneBy(Organization, { id: toOrganizationId }),
       ]);
       if (!fromOrg || !toOrg) {
-        throw new NotFoundError('INTERCOMPANY.ORGANIZACIONES_NO_FUE_ENCONTRADA');
+        throw new NotFoundError('intercompany.one_organizations_not_found');
       }
 
       const [fromSettings, toSettings] = await Promise.all([
@@ -120,7 +120,7 @@ export class IntercompanyService {
         !toSettings?.defaultIntercompanyPayableAccountId
       ) {
         throw new BadRequestError(
-          'INTERCOMPANY.CUENTAS_INTERCOMPANIA_DEFECTO_NO_ESTAN_CONFIGURADAS_AMBAS',
+          'intercompany.default_intercompany_accounts_not_configured_one',
         );
       }
 
@@ -139,7 +139,7 @@ export class IntercompanyService {
         isDefault: true,
       });
       if (!sourceLedger) {
-        throw new BadRequestError('INTERCOMPANY.ORGANIZACION_ORIGEN_SIN_LIBRO_CONTABLE');
+        throw new BadRequestError('intercompany.sending_organization_has_no_default_ledger');
       }
 
       // The destination amount is fixed here, at the transaction's date, and stored. Deriving it
@@ -160,14 +160,14 @@ export class IntercompanyService {
       // members of one group can be kept in two languages, and each set of books reads in its own.
       const sourceWords = await this.narrative.describeAll(manager, fromOrganizationId, {
         header: {
-          key: 'LEDGER.INTERCOMPANY.SOURCE_ENTRY',
+          key: 'ledger.intercompany.source_entry',
           params: { organization: toOrg.legalName, description },
         },
         receivable: {
-          key: 'LEDGER.INTERCOMPANY.RECEIVABLE',
+          key: 'ledger.intercompany.receivable',
           params: { organization: toOrg.legalName },
         },
-        fundsOut: { key: 'LEDGER.INTERCOMPANY.FUNDS_OUT' },
+        fundsOut: { key: 'ledger.intercompany.funds_out' },
       });
 
       const sourceEntry = await this.journalEntriesService.createWithManager(
@@ -251,7 +251,7 @@ export class IntercompanyService {
         id: intercompanyTransactionId,
       });
       if (!transaction) {
-        throw new NotFoundError('INTERCOMPANY.TRANSACCION_NO_ENCONTRADA', {
+        throw new NotFoundError('intercompany.intercompany_transaction_id_not_found', {
           id: intercompanyTransactionId,
         });
       }
@@ -270,16 +270,16 @@ export class IntercompanyService {
         }),
       ]);
       if (!toOrg || !fromOrg) {
-        throw new NotFoundError('INTERCOMPANY.ORGANIZACIONES_NO_FUE_ENCONTRADA');
+        throw new NotFoundError('intercompany.one_organizations_not_found');
       }
       if (!toSettings?.defaultIntercompanyPayableAccountId) {
         throw new BadRequestError(
-          'INTERCOMPANY.CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA',
+          'intercompany.default_intercompany_payable_account_not_configured',
           { toOrganizationId: transaction.toOrganizationId },
         );
       }
       if (!transaction.toAccountId || transaction.destinationAmount === null) {
-        throw new BadRequestError('INTERCOMPANY.TRANSACCION_SIN_DATOS_DE_DESTINO');
+        throw new BadRequestError('intercompany.transaction_has_no_destination_account_amount');
       }
 
       const journal = await this.requireGeneralJournal(manager, transaction.toOrganizationId);
@@ -288,18 +288,18 @@ export class IntercompanyService {
         isDefault: true,
       });
       if (!ledger) {
-        throw new BadRequestError('INTERCOMPANY.ORGANIZACION_DESTINO_SIN_LIBRO_CONTABLE');
+        throw new BadRequestError('intercompany.receiving_organization_has_no_default_ledger');
       }
 
       const amount = transaction.destinationAmount;
       const words = await this.narrative.describeAll(manager, transaction.toOrganizationId, {
         header: {
-          key: 'LEDGER.INTERCOMPANY.DESTINATION_ENTRY',
+          key: 'ledger.intercompany.destination_entry',
           params: { organization: fromOrg.legalName, description: transaction.description },
         },
-        fundsIn: { key: 'LEDGER.INTERCOMPANY.FUNDS_IN' },
+        fundsIn: { key: 'ledger.intercompany.funds_in' },
         payable: {
-          key: 'LEDGER.INTERCOMPANY.PAYABLE',
+          key: 'ledger.intercompany.payable',
           params: { organization: fromOrg.legalName },
         },
       });
@@ -393,9 +393,9 @@ export class IntercompanyService {
   async retry(id: string, organizationId: string): Promise<IntercompanyTransaction> {
     const repository = this.dataSource.getRepository(IntercompanyTransaction);
     const transaction = await repository.findOneBy({ id, fromOrganizationId: organizationId });
-    if (!transaction) throw new NotFoundError('INTERCOMPANY.TRANSACCION_NO_ENCONTRADA', { id });
+    if (!transaction) throw new NotFoundError('intercompany.intercompany_transaction_id_not_found', { id });
     if (transaction.destinationJournalEntryId) {
-      throw new BadRequestError('INTERCOMPANY.TRANSACCION_YA_COMPLETADA');
+      throw new BadRequestError('intercompany.transaction_already_has_destination_entry');
     }
 
     transaction.status = IntercompanyTransactionStatus.PENDING;
@@ -446,7 +446,7 @@ export class IntercompanyService {
     );
     if (shared) return;
 
-    throw new ForbiddenError('INTERCOMPANY.ORGANIZACIONES_NO_PERTENECEN_AL_MISMO_GRUPO');
+    throw new ForbiddenError('intercompany.organizations_not_same_group_record_relationship');
   }
 
   private async requireAccount(
@@ -456,12 +456,12 @@ export class IntercompanyService {
   ): Promise<Account> {
     const account = await manager.findOneBy(Account, { id: accountId, organizationId });
     if (!account) {
-      throw new BadRequestError('INTERCOMPANY.CUENTA_NO_PERTENECE_A_LA_ORGANIZACION', {
+      throw new BadRequestError('intercompany.account_account_id_does_not_belong', {
         accountId,
       });
     }
     if (!account.isPostable) {
-      throw new BadRequestError('INTERCOMPANY.CUENTA_NO_ADMITE_MOVIMIENTOS', { accountId });
+      throw new BadRequestError('intercompany.account_account_id_does_not_accept', { accountId });
     }
     return account;
   }
@@ -472,7 +472,7 @@ export class IntercompanyService {
   ): Promise<Journal> {
     const journal = await manager.findOneBy(Journal, { organizationId, type: 'GENERAL' });
     if (!journal) {
-      throw new BadRequestError('INTERCOMPANY.ORGANIZACION_NO_TIENE_DIARIO_TIPO_GENERAL', {
+      throw new BadRequestError('intercompany.organization_organization_id_has_no_general', {
         organizationId,
       });
     }

@@ -6,7 +6,7 @@ export class RequestEmailChangeDto {
   // unique LOWER(email) index enforces — `Nuevo@x.com` cannot slip past a stored `nuevo@x.com`.
   @NormalizeEmail()
   @IsEmail()
-  @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
+  @MaxLength(254, { message: 'validation.constraints.max_length|{"max":254}' })
   newEmail!: string;
 
   @IsString()
@@ -32,8 +32,8 @@ export class ConfirmEmailChangeDto {
  */
 export class AdminChangeEmailDto {
   @NormalizeEmail()
-  @IsEmail({}, { message: 'VALIDATION.EMAIL_CHANGE.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.EMAIL_CHANGE.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
-  @MaxLength(254, { message: 'VALIDATION.EMAIL_CHANGE.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })
+  @IsEmail({}, { message: 'validation.email_change.email_address_not_valid' })
+  @IsNotEmpty({ message: 'validation.email_change.email_address_cannot_empty' })
+  @MaxLength(254, { message: 'validation.email_change.email_cannot_longer_than_254_characters' })
   email!: string;
 }

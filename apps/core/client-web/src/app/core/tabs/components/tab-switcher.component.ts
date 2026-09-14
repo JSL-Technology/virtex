@@ -30,7 +30,7 @@ import { resolveTabIcon } from './tab-icon';
         <button
           type="button"
           class="icon-button ts-trigger"
-          [attr.aria-label]="'TABS.OPEN_TABS_ARIA' | translate"
+          [attr.aria-label]="'tabs.open_tabs_aria' | translate"
           [attr.aria-expanded]="open()"
           aria-haspopup="true"
           (click)="toggle()"
@@ -43,7 +43,7 @@ import { resolveTabIcon } from './tab-icon';
 
         @if (open()) {
           <div class="ts-dropdown" role="menu">
-            <div class="ts-header">{{ 'TABS.OPEN_TABS' | translate }}</div>
+            <div class="ts-header">{{ 'tabs.open_tabs' | translate }}</div>
             <ul class="ts-list">
               @for (tab of tabState.tabs(); track tab.id) {
                 <li class="ts-item" [class.is-active]="tab.id === tabState.activeTabId()">
@@ -58,7 +58,7 @@ import { resolveTabIcon } from './tab-icon';
                     <button
                       type="button"
                       class="ts-item__close"
-                      [attr.aria-label]="'TABS.CLOSE_TAB' | translate"
+                      [attr.aria-label]="'tabs.close_tab' | translate"
                       (click)="close(tab.id)"
                     >
                       <lucide-icon [img]="XIcon" size="14" aria-hidden="true"></lucide-icon>
@@ -66,7 +66,7 @@ import { resolveTabIcon } from './tab-icon';
                   }
                 </li>
               } @empty {
-                <li class="ts-empty">{{ 'TABS.NO_OPEN_TABS' | translate }}</li>
+                <li class="ts-empty">{{ 'tabs.no_open_tabs' | translate }}</li>
               }
             </ul>
           </div>

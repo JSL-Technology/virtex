@@ -43,7 +43,7 @@ export class SocialAuthService {
         // provider asserts the email is verified. A malicious/custom IdP could otherwise claim
         // a victim's email and take over the account (pre-account-hijacking).
         if (!socialUser.emailVerified) {
-          throw new UnauthorizedError('AUTH.PROVEEDOR_NO_HA_VERIFICADO_TU_CORREO_NO');
+          throw new UnauthorizedError('auth.provider_has_not_verified_your_email');
         }
 
         // M-02 FIX: If the account already has a local password (or a different provider),
@@ -51,7 +51,7 @@ export class SocialAuthService {
         // sign in with their original method first). This prevents a second sign-in method
         // from hijacking an existing account.
         if (user.security?.passwordHash || (user.authProvider && user.authProvider !== socialUser.provider)) {
-          throw new ConflictError('AUTH.YA_EXISTE_CUENTA_ESTE_CORREO_INICIA_SESION');
+          throw new ConflictError('auth.account_already_exists_email_sign_with');
         }
 
         await this.usersService.update(user.id, {
@@ -62,7 +62,7 @@ export class SocialAuthService {
       }
 
       if (user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedError('AUTH.USUARIO_INACTIVO_BLOQUEADO');
+        throw new UnauthorizedError('auth.user_inactive_blocked');
       }
 
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
@@ -115,7 +115,7 @@ export class SocialAuthService {
       });
 
       if (payload.type !== 'social-register') {
-        throw new UnauthorizedError('AUTH.TOKEN_INVALIDO_REGISTRO');
+        throw new UnauthorizedError('auth.invalid_registration_token');
       }
 
       return {
@@ -128,7 +128,7 @@ export class SocialAuthService {
         accessToken: ''
       };
     } catch (e) {
-      throw new UnauthorizedError('AUTH.TOKEN_REGISTRO_INVALIDO_EXPIRADO');
+      throw new UnauthorizedError('auth.registration_token_invalid_has_expired');
     }
   }
 }

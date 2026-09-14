@@ -3,6 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { LanguageCode } from '@virteex/shared/types';
 import { I18nService } from './i18n.service';
 import { currentLanguage } from './request-locale';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * Validation errors, in the reader's language.
@@ -22,7 +23,7 @@ import { currentLanguage } from './request-locale';
  *  1. The decorator's `message` names a catalogue key — the bespoke wording somebody wrote for
  *     this specific field, kept because "La dirección fiscal es obligatoria" says more than "this
  *     field is required".
- *  2. No key: the CONSTRAINT's own key, `VALIDATION.CONSTRAINTS.IS_EMAIL`, with the field's
+ *  2. No key: the CONSTRAINT's own key, `validation.constraints.is_email`, with the field's
  *     translated name interpolated. One string per rule covers every field that uses it.
  *  3. Neither exists: `class-validator`'s English. Visible, and therefore fixable — a silent
  *     fallback is a defect that survives.
@@ -39,7 +40,7 @@ import { currentLanguage } from './request-locale';
  *
  * "must be shorter than 254 characters" loses its point without the 254, and a `ValidationError`
  * does not carry the constraint's arguments. So a bounded decorator writes them into the message
- * itself: `'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}'`. The separator is a pipe because a
+ * itself: `'validation.constraints.max_length|{"max":254}'`. The separator is a pipe because a
  * catalogue key never contains one, and the suffix is JSON because the alternative is inventing
  * a second escaping convention.
  */
@@ -76,20 +77,14 @@ export function parseValidationMessage(raw: string): ParsedValidationMessage {
   return { key, params: {} };
 }
 
-/** `maxLength` → `VALIDATION.CONSTRAINTS.MAX_LENGTH`. */
+/** `maxLength` → `validation.constraints.max_length`. */
 export function constraintKey(constraint: string): string {
-  return `VALIDATION.CONSTRAINTS.${constraint
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    .toUpperCase()}`;
+  return composeKey('validation.constraints', constraint);
 }
 
-/** `taxId` → `VALIDATION.FIELDS.TAX_ID`, falling back to the property name itself. */
+/** `taxId` → `validation.fields.tax_id`, falling back to the property name itself. */
 export function fieldLabel(i18n: I18nService, property: string, language: LanguageCode): string {
-  const key = `VALIDATION.FIELDS.${property
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    .toUpperCase()}`;
+  const key = composeKey('validation.fields', property);
   return i18n.has(key) ? i18n.translate(key, language) : property;
 }
 
@@ -175,7 +170,7 @@ export function localizedValidationExceptionFactory(i18n: I18nService) {
 
     return new BadRequestException({
       statusCode: 400,
-      message: messages.length > 0 ? messages : [i18n.translate('ERRORS.HTTP_400', language)],
+      message: messages.length > 0 ? messages : [i18n.translate('errors.http_400', language)],
       error: 'Bad Request',
     });
   };

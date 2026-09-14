@@ -52,7 +52,7 @@ export class ExtensionsService {
 
   async getByName(name: string) {
     const plugin = await this.plugins.findOne({ where: { name }, relations: { versions: true } });
-    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
+    if (!plugin) throw new NotFoundError('extensions.plugin_not_found');
     return plugin;
   }
 
@@ -107,7 +107,7 @@ export class ExtensionsService {
 
   async revoke(name: string) {
     const plugin = await this.plugins.findOne({ where: { name } });
-    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
+    if (!plugin) throw new NotFoundError('extensions.plugin_not_found');
     plugin.status = PluginStatus.REVOKED;
     await this.plugins.save(plugin);
     return { status: 'revoked', plugin: name };
@@ -115,7 +115,7 @@ export class ExtensionsService {
 
   async setConsent(organizationId: string, name: string, dto: GrantConsentDto) {
     const plugin = await this.plugins.findOne({ where: { name } });
-    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
+    if (!plugin) throw new NotFoundError('extensions.plugin_not_found');
 
     let consent = await this.consents.findOne({
       where: { organizationId, pluginId: plugin.id },
@@ -157,14 +157,14 @@ export class ExtensionsService {
       where: { name: pluginName },
       relations: { versions: true },
     });
-    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND_2', { pluginName });
-    if (plugin.status === PluginStatus.REVOKED) throw new ForbiddenError('EXTENSIONS.PLUGIN_REVOKED');
+    if (!plugin) throw new NotFoundError('extensions.named_plugin_not_found', { pluginName });
+    if (plugin.status === PluginStatus.REVOKED) throw new ForbiddenError('extensions.plugin_revoked');
 
     const items = plugin.versions ?? [];
     const resolved = version
       ? items.find((v) => v.version === version)
       : [...items].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
-    if (!resolved) throw new NotFoundError('EXTENSIONS.VERSION_NOT_FOUND');
+    if (!resolved) throw new NotFoundError('extensions.version_not_found');
     resolved.plugin = plugin;
     return resolved;
   }
@@ -186,7 +186,7 @@ export class ExtensionsService {
     }
 
     if (!codeToRun) {
-      throw new BadRequestError('EXTENSIONS.CODE_OR_VALID_PLUGINNAME_REQUIRED');
+      throw new BadRequestError('extensions.code_or_valid_pluginname_required');
     }
 
     // Direct code is re-validated and re-signed every time — never trusted just for being inline.
@@ -197,7 +197,7 @@ export class ExtensionsService {
         sbom: dto.sbom ?? EMPTY_SBOM,
       });
       if (admission.status === 'rejected') {
-        throw new ForbiddenError('EXTENSIONS.DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY');
+        throw new ForbiddenError('extensions.direct_code_rejected_by_admission_policy');
       }
       signature = admission.signature;
     }
@@ -210,7 +210,7 @@ export class ExtensionsService {
         where: { organizationId, pluginId: plugin!.id },
       });
       if (!consent?.enabled) {
-        throw new ForbiddenError('EXTENSIONS.EXTENSION_NOT_ENABLED_FOR_THIS_TENANT');
+        throw new ForbiddenError('extensions.extension_not_enabled_for_this_tenant');
       }
       const granted = consent?.grantedCapabilities ?? [];
       const missing = requiredCapabilities.filter((cap) => !granted.includes(cap));

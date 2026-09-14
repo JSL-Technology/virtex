@@ -1,21 +1,21 @@
-{{#> shell title=(t 'MAIL.REGISTRATION_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO') preheader=(t 'MAIL.REGISTRATION_EMAIL_VERIFY.COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO'}}</h1>
+{{#> shell title=(t 'mail.registration_email_verify.confirm_your_email_address') preheader=(t 'mail.registration_email_verify.finish_signing_up_you_need_confirm')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.registration_email_verify.confirm_your_email_address'}}</h1>
 {{!-- El saludo lleva el nombre solo si se conoce. Se enviaba siempre el literal «Usuario», así
       que el correo abría «Hola Usuario»: un mail-merge que se ve fallado. --}}
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{#if name}}{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HOLA'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{name}}</strong>{{else}}{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HOLA_SIN_NOMBRE'}}{{/if}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{#if name}}{{t 'mail.registration_email_verify.hello'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{name}}</strong>{{else}}{{t 'mail.registration_email_verify.greeting_without_name'}}{{/if}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_email_verify.finish_signing_up_you_need_confirm'}}</p>
 
-<p class="ink3" style="margin:26px 0 0; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.OPCION_CLIC'}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HAZ_CLIC_BOTON_ABAJO_CONFIRMAR_TU'}}</p>
+<p class="ink3" style="margin:26px 0 0; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'mail.registration_email_verify.option_one_click'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_email_verify.click_button_below_confirm_your_address'}}</p>
 
-{{> button href=magicLinkUrl label=(t 'MAIL.REGISTRATION_EMAIL_VERIFY.CONFIRMAR_CORREO_ELECTRONICO')}}
+{{> button href=magicLinkUrl label=(t 'mail.registration_email_verify.confirm_email_address')}}
 
-<p class="ink3" style="margin:26px 0 0; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.OPCION_CODIGO_VERIFICACION'}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.INGRESA_ESTE_CODIGO_FORMULARIO_REGISTRO'}}</p>
+<p class="ink3" style="margin:26px 0 0; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'mail.registration_email_verify.option_verification_code'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_email_verify.enter_code_sign_up_form'}}</p>
 
 {{> code value=code}}
 
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.ESTE_CODIGO_ENLACE_EXPIRAN'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'TIME.MINUTES' count=expiresMinutes}}</strong>.</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.registration_email_verify.code_link_expire'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'TIME.MINUTES' count=expiresMinutes}}</strong>.</p>
 
-{{#> note}}{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO'}} {{t 'MAIL.REGISTRATION_EMAIL_VERIFY.SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR'}}{{/note}}
+{{#> note}}{{t 'mail.registration_email_verify.do_not_share_code_with_anyone'}} {{t 'mail.registration_email_verify.if_you_did_not_request_you'}}{{/note}}
 {{/shell}}

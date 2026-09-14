@@ -116,7 +116,7 @@ export class InvoicePostingService {
     const withholding = invoice.taxWithheld + invoice.incomeTaxWithheld;
     if (roundToCurrency(withholding, currency) > 0) {
       if (!settings.defaultTaxWithheldReceivableId) {
-        throw new BadRequestError('INVOICES.CUENTA_RETENCIONES_RECIBIDAS_NO_CONFIGURADA');
+        throw new BadRequestError('invoices.no_account_configured_withholding_suffered_document');
       }
       push(
         debits,
@@ -177,7 +177,7 @@ export class InvoicePostingService {
         settings.defaultExciseTaxPayableId,
       );
       if (!exciseAccountId) {
-        throw new BadRequestError('INVOICES.CUENTA_IMPUESTO_SELECTIVO_NO_CONFIGURADA');
+        throw new BadRequestError('invoices.no_account_configured_excise_tax_payable');
       }
       push(credits, exciseAccountId, invoice.excise, 'Impuesto selectivo al consumo');
     }
@@ -185,7 +185,7 @@ export class InvoicePostingService {
     if (roundToCurrency(invoice.serviceCharge, currency) > 0) {
       // Never revenue: it is collected for the staff and owed to them.
       if (!settings.defaultServiceChargePayableId) {
-        throw new BadRequestError('INVOICES.CUENTA_PROPINA_LEGAL_NO_CONFIGURADA');
+        throw new BadRequestError('invoices.no_account_configured_legal_service_charge');
       }
       push(
         credits,
@@ -207,7 +207,7 @@ export class InvoicePostingService {
     const debitSum = sumInCurrency(debits.map((line) => line.amount), currency);
     const creditSum = sumInCurrency(credits.map((line) => line.amount), currency);
     if (toMinorUnits(debitSum, currency) !== toMinorUnits(creditSum, currency)) {
-      throw new BadRequestError('INVOICES.ASIENTO_DOCUMENTO_NO_CUADRA', {
+      throw new BadRequestError('invoices.entry_document_invoice_number_does_not', {
         invoiceNumber: invoice.invoiceNumber,
         debit: debitSum,
         credit: creditSum,
@@ -264,8 +264,8 @@ export class InvoicePostingService {
 
     const journal = await this.requireJournal(invoice.organizationId, 'GENERAL', manager);
     const words = await this.narrative.describeAll(manager, invoice.organizationId, {
-      cost: { key: 'LEDGER.SALES.COST_OF_SALES' },
-      stock: { key: 'LEDGER.SALES.STOCK_RELEASED' },
+      cost: { key: 'ledger.sales.cost_of_sales' },
+      stock: { key: 'ledger.sales.stock_released' },
     });
     const debits: PostingLine[] = [
       { accountId: settings.defaultCostOfGoodsSoldId, amount: cost, description: words.cost },
@@ -279,7 +279,7 @@ export class InvoicePostingService {
       description: await this.narrative.describe(
         manager,
         invoice.organizationId,
-        'LEDGER.SALES.COST_OF',
+        'ledger.sales.cost_of',
         { document: await this.describe(manager, invoice) },
       ),
       journalId: journal.id,
@@ -366,7 +366,7 @@ export class InvoicePostingService {
         : invoice.type === InvoiceType.DEBIT_NOTE
           ? 'DEBIT_NOTE'
           : 'INVOICE';
-    return this.narrative.describe(manager, invoice.organizationId, `LEDGER.SALES.${kind}`, {
+    return this.narrative.describe(manager, invoice.organizationId, `ledger.sales.${kind}`, {
       number: invoice.invoiceNumber,
       // The fiscal number in parentheses when there is one, and nothing at all when there is not —
       // an empty pair of brackets reads as a field that failed to fill.
@@ -391,7 +391,7 @@ export class InvoicePostingService {
     ) {
       // A catalogue key, not a Spanish sentence: this reaches an accountant who may be reading the
       // product in English or Portuguese, and every other error in this module is already localized.
-      throw new BadRequestError('INVOICES.CONFIGURACION_CONTABLE_INCOMPLETA');
+      throw new BadRequestError('invoices.organization_accounting_setup_incomplete_accounts_receivable');
     }
     return settings;
   }
@@ -404,7 +404,7 @@ export class InvoicePostingService {
       .getRepository(Ledger)
       .findOne({ where: { organizationId, isDefault: true } });
     if (!ledger) {
-      throw new BadRequestError('INVOICES.ORGANIZACION_NO_TIENE_LIBRO_CONTABLE_DEFECTO_CREALO');
+      throw new BadRequestError('invoices.organization_has_no_default_ledger_create');
     }
     return ledger;
   }
@@ -416,7 +416,7 @@ export class InvoicePostingService {
   ): Promise<Journal> {
     const journal = await manager.getRepository(Journal).findOne({ where: { organizationId, code } });
     if (!journal) {
-      throw new BadRequestError('INVOICES.NO_EXISTE_DIARIO_ESTA_ORGANIZACION_CREALO_AJUSTES', { code });
+      throw new BadRequestError('invoices.no_journal_code_organization_create_under', { code });
     }
     return journal;
   }
@@ -444,7 +444,7 @@ function push(
 ): void {
   if (!Number.isFinite(amount) || amount <= 0) return;
   if (!accountId) {
-    throw new BadRequestError('INVOICES.CUENTA_CONTABLE_NO_CONFIGURADA', { description });
+    throw new BadRequestError('invoices.account_description_not_configured', { description });
   }
   target.push({ accountId, amount, description });
 }

@@ -110,7 +110,7 @@ describe('translation catalogues', () => {
    */
   it.each(
     SUPPORTED_LANGUAGES.flatMap((language) =>
-      ['SETTINGS.SECURITY', 'SETTINGS.PROFILE', 'AUTH.STEP_UP', 'REGISTER', 'LOGIN', 'ERRORS'].map(
+      ['settings.security', 'settings.profile', 'auth.step_up', 'REGISTER', 'LOGIN', 'ERRORS'].map(
         (namespace) => [language, namespace] as const,
       ),
     ),

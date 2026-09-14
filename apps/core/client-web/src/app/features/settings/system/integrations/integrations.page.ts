@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.INTEGRATIONS.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.INTEGRATIONS.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.integrations.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.integrations.manage_api_keys_webhooks_connections_external' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.INTEGRATIONS.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.INTEGRATIONS.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.INTEGRATIONS.FEATURES.F1','SETTINGS.PAGES.INTEGRATIONS.FEATURES.F2','SETTINGS.PAGES.INTEGRATIONS.FEATURES.F3','SETTINGS.PAGES.INTEGRATIONS.FEATURES.F4','SETTINGS.PAGES.INTEGRATIONS.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.integrations.empty_title'"
+        [description]="'settings.pages.integrations.empty_description'"
+        [features]="['settings.pages.integrations.features.f1','settings.pages.integrations.features.f2','settings.pages.integrations.features.f3','settings.pages.integrations.features.f4','settings.pages.integrations.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

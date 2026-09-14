@@ -193,7 +193,7 @@ describe('UsersService', () => {
 
       await expectLocalizedError(
         service.inviteUser(invite as never, 'org-1', actor),
-        'USERS.NO_PUDO_ENVIAR_INVITACION_DATOS_PROPORCIONADOS',
+        'users.invitation_could_not_sent_with_details',
       );
       expect(rolesServiceMock.assertCanAssignRole).not.toHaveBeenCalled();
     });

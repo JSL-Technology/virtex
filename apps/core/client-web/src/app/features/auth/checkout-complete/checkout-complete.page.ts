@@ -37,7 +37,7 @@ export class CheckoutCompletePage implements OnInit {
     this.sessionId = this.route.snapshot.queryParamMap.get('session_id');
     if (!this.sessionId) {
       this.state.set('error');
-      this.errorMessage.set('CHECKOUT.NO_SESSION');
+      this.errorMessage.set('checkout.no_session');
       return;
     }
     this.confirm();
@@ -63,7 +63,7 @@ export class CheckoutCompletePage implements OnInit {
         }
         this.state.set('error');
         this.errorMessage.set(
-          err?.error?.message || 'CHECKOUT.UNCONFIRMED'
+          err?.error?.message || 'checkout.we_couldn_confirm_your_payment_automatically'
         );
       },
     });

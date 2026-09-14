@@ -1,26 +1,26 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.DAILY_JOURNAL.DAILY_JOURNAL"
+  titleKey="accounting.daily_journal.daily_journal"
   [count]="total()"
   [loading]="loading()"
-  [error]="failed() ? 'ACCOUNTING.DAILY_JOURNAL.LOAD_FAILED' : null"
+  [error]="failed() ? 'accounting.daily_journal.load_failed' : null"
   [empty]="isEmpty()"
   (reload)="load()"
 >
   <button listActions class="primary-button" type="button" [disabled]="isEmpty()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.DAILY_JOURNAL.EXPORT' | translate }}</span>
+    <span>{{ 'accounting.daily_journal.export' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table journal-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.DAILY_JOURNAL.DATE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.DAILY_JOURNAL.ENTRY' | translate }}</th>
-          <th>{{ 'ACCOUNTING.DAILY_JOURNAL.ACCOUNT' | translate }}</th>
-          <th>{{ 'ACCOUNTING.DAILY_JOURNAL.DESCRIPTION' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.DAILY_JOURNAL.DEBIT' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.DAILY_JOURNAL.CREDIT' | translate }}</th>
+          <th>{{ 'accounting.daily_journal.date' | translate }}</th>
+          <th>{{ 'accounting.daily_journal.entry' | translate }}</th>
+          <th>{{ 'accounting.daily_journal.account' | translate }}</th>
+          <th>{{ 'accounting.daily_journal.description' | translate }}</th>
+          <th class="text-right">{{ 'accounting.daily_journal.debit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.daily_journal.credit' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -56,15 +56,15 @@
     and give no sign that the rest exist, which is worse than the unbounded query it replaces.
   -->
   @if (total() > 0) {
-    <nav listFooter class="pager" [attr.aria-label]="'COMMON.PAGINATION' | translate">
+    <nav listFooter class="pager" [attr.aria-label]="'common.pagination' | translate">
       <button type="button" class="pager-button" [disabled]="page() <= 1" (click)="previousPage()">
-        {{ 'COMMON.PREVIOUS' | translate }}
+        {{ 'common.previous' | translate }}
       </button>
       <span class="pager-status">
-        {{ 'COMMON.PAGE_OF_TOTAL' | translate: { page: page(), total: total() } }}
+        {{ 'common.page_of_total' | translate: { page: page(), total: total() } }}
       </span>
       <button type="button" class="pager-button" [disabled]="!hasMore()" (click)="nextPage()">
-        {{ 'COMMON.NEXT' | translate }}
+        {{ 'common.next' | translate }}
       </button>
     </nav>
   }

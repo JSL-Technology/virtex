@@ -176,13 +176,13 @@ export class DatasheetImportService {
       (candidate) => candidate.module === module && candidate.set === set,
     );
     if (!dataset) {
-      throw new BadRequestError('DATASHEETS.CONJUNTO_DATOS_NO_DISPONIBLE', {
+      throw new BadRequestError('datasheets.dataset_requested_does_not_exist_available', {
         requested: `${module}:${set}`,
         available: this.datasets.map((d) => `${d.module}:${d.set}`).join(', '),
       });
     }
     if (!this.holds(user, dataset.permission)) {
-      throw new ForbiddenError('DATASHEETS.SIN_PERMISO_PARA_CONJUNTO', {
+      throw new ForbiddenError('datasheets.you_do_not_have_permission_import', {
         dataset: `${module}:${set}`,
         permission: dataset.permission,
       });
@@ -190,7 +190,7 @@ export class DatasheetImportService {
 
     const requested = (columns ?? []).filter((column) => column in dataset.columns);
     if (requested.length === 0) {
-      throw new BadRequestError('DATASHEETS.COLUMNAS_NO_VALIDAS', {
+      throw new BadRequestError('datasheets.none_requested_columns_exist_available_available', {
         available: Object.keys(dataset.columns).join(', '),
       });
     }

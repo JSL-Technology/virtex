@@ -33,9 +33,9 @@ export class MyWorkPage implements OnInit {
    * aprobaciones van primero porque son lo que bloquea a otra persona.
    */
   readonly sections = computed<InboxSection[]>(() => [
-    { labelKey: 'MY_WORK.APPROVALS', items: this.approvals().map(toInboxItem) },
-    { labelKey: 'MY_WORK.TASKS', items: this.tasks().map(toInboxItem) },
-    { labelKey: 'MY_WORK.NOTIFICATIONS', items: this.notifications().map(toInboxItem) },
+    { labelKey: 'my_work.approvals', items: this.approvals().map(toInboxItem) },
+    { labelKey: 'my_work.tasks', items: this.tasks().map(toInboxItem) },
+    { labelKey: 'my_work.notifications', items: this.notifications().map(toInboxItem) },
   ]);
 
   ngOnInit(): void {
@@ -55,7 +55,7 @@ export class MyWorkPage implements OnInit {
       //  No había rama de error: un fallo del servidor dejaba la bandeja vacía, que se lee como
       //  «no tienes nada pendiente» — la afirmación más cara que esta pantalla puede hacer.
       error: () => {
-        this.error.set('MY_WORK.LOAD_FAILED');
+        this.error.set('my_work.load_failed');
         this.loading.set(false);
       },
     });

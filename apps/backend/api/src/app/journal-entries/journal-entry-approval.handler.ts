@@ -47,7 +47,7 @@ export class JournalEntryApprovalHandler implements ApprovalHandler, OnModuleIni
       where: { id: documentId, organizationId },
     });
     if (!entry) {
-      throw new NotFoundError('JOURNAL_ENTRIES.ASIENTO_NO_ENCONTRADO');
+      throw new NotFoundError('journal_entries.entry_not_found');
     }
     if (entry.status !== JournalEntryStatus.PENDING_APPROVAL) {
       // Already resolved — a retry of the same decision, or a second approval racing the first.

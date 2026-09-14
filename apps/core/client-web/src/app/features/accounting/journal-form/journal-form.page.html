@@ -1,14 +1,14 @@
 <vx-draft-shell
   [title]="
-    (isEditMode ? 'ACCOUNTING.JOURNAL_FORM.TITLE_EDIT' : 'ACCOUNTING.JOURNAL_FORM.TITLE_CREATE')
+    (isEditMode ? 'accounting.journal_form.title_edit' : 'accounting.journal_form.title_create')
       | translate
   "
   [dirty]="journalForm.dirty"
   [invalid]="journalForm.invalid"
   [problems]="problems()"
   [form]="journalForm"
-  saveLabelKey="ACCOUNTING.JOURNAL_FORM.SAVE"
-  cancelLabelKey="ACCOUNTING.JOURNAL_FORM.CANCEL"
+  saveLabelKey="accounting.journal_form.save"
+  cancelLabelKey="accounting.journal_form.cancel"
   (save)="onSubmit()"
   (cancelled)="cancel()"
 >
@@ -16,21 +16,21 @@
     <section class="form-section">
       <div class="form-grid">
         <div class="form-field">
-          <label for="name">{{ 'ACCOUNTING.JOURNAL_FORM.NAME' | translate }}</label>
+          <label for="name">{{ 'accounting.journal_form.name' | translate }}</label>
           <input type="text" id="name" formControlName="name" />
         </div>
         <div class="form-field">
-          <label for="code">{{ 'ACCOUNTING.JOURNAL_FORM.CODE' | translate }}</label>
+          <label for="code">{{ 'accounting.journal_form.code' | translate }}</label>
           <input type="text" id="code" formControlName="code" />
         </div>
         <div class="form-field">
-          <label for="type">{{ 'ACCOUNTING.JOURNAL_FORM.TYPE' | translate }}</label>
+          <label for="type">{{ 'accounting.journal_form.type' | translate }}</label>
           <select id="type" formControlName="type">
-            <option value="SALES">{{ 'ACCOUNTING.JOURNAL_FORM.SALES' | translate }}</option>
-            <option value="PURCHASES">{{ 'ACCOUNTING.JOURNAL_FORM.PURCHASES' | translate }}</option>
-            <option value="CASH">{{ 'ACCOUNTING.JOURNAL_FORM.CASH' | translate }}</option>
-            <option value="BANK">{{ 'ACCOUNTING.JOURNAL_FORM.BANK' | translate }}</option>
-            <option value="GENERAL">{{ 'ACCOUNTING.JOURNAL_FORM.GENERAL' | translate }}</option>
+            <option value="SALES">{{ 'accounting.journal_form.sales' | translate }}</option>
+            <option value="PURCHASES">{{ 'accounting.journal_form.purchases' | translate }}</option>
+            <option value="CASH">{{ 'accounting.journal_form.cash' | translate }}</option>
+            <option value="BANK">{{ 'accounting.journal_form.bank' | translate }}</option>
+            <option value="GENERAL">{{ 'accounting.journal_form.general' | translate }}</option>
           </select>
         </div>
       </div>

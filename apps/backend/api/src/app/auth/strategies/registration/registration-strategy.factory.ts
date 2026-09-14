@@ -22,7 +22,7 @@ export class RegistrationStrategyFactory {
 
   getStrategy(countryCode: string): CountryRegistrationStrategy {
     if (!findCountryProfile(countryCode)) {
-      throw new BadRequestError('AUTH.PAIS_TODAVIA_NO_ESTA_DISPONIBLE_REGISTRO', { countryCode });
+      throw new BadRequestError('auth.country_country_code_not_available_registration', { countryCode });
     }
     return this.profileStrategy;
   }

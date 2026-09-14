@@ -34,13 +34,13 @@ export class UpsertFiscalRegimeSettingsDto {
 
   /** Ecuador: the SRI's three-digit establishment. */
   @IsString()
-  @Matches(/^\d{3}$/, { message: 'EINVOICING.SRI_ESTABLECIMIENTO_TRES_DIGITOS' })
+  @Matches(/^\d{3}$/, { message: 'einvoicing.sri_establishment_must_three_digits' })
   @IsOptional()
   establishment?: string;
 
   /** Ecuador: the SRI's three-digit emission point. */
   @IsString()
-  @Matches(/^\d{3}$/, { message: 'EINVOICING.SRI_PUNTO_EMISION_TRES_DIGITOS' })
+  @Matches(/^\d{3}$/, { message: 'einvoicing.sri_emission_point_must_three_digits' })
   @IsOptional()
   emissionPoint?: string;
 
@@ -52,43 +52,43 @@ export class UpsertFiscalRegimeSettingsDto {
    * taxpayer believes they issued under.
    */
   @IsString()
-  @Matches(/^\d{8}$/, { message: 'EINVOICING.CODIGO_NUMERICO_OCHO_DIGITOS' })
+  @Matches(/^\d{8}$/, { message: 'einvoicing.numeric_code_must_exactly_eight_digits' })
   @IsOptional()
   numericCode?: string;
 
   /** Brazil: IBGE code of the issuer's state, two digits. */
   @IsString()
-  @Matches(/^\d{2}$/, { message: 'EINVOICING.NFE_CODIGO_ESTADO_DOS_DIGITOS' })
+  @Matches(/^\d{2}$/, { message: 'einvoicing.state_ibge_code_must_two_digits' })
   @IsOptional()
   stateCode?: string;
 
   /** Brazil: IBGE code of the issuing municipality, seven digits. */
   @IsString()
-  @Matches(/^\d{7}$/, { message: 'EINVOICING.NFE_CODIGO_MUNICIPIO_SIETE_DIGITOS' })
+  @Matches(/^\d{7}$/, { message: 'einvoicing.municipality_ibge_code_must_seven_digits' })
   @IsOptional()
   municipalityCode?: string;
 
   /** Colombia: the invoicing resolution the ranges were granted by. */
   @IsString()
-  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
   @IsOptional()
   resolutionNumber?: string;
 
   /** Chile: the economic activity code the SII requires on every DTE. */
   @IsString()
-  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
+  @MaxLength(16, { message: 'validation.constraints.max_length|{"max":16}' })
   @IsOptional()
   activityCode?: string;
 
   /** Chile: comuna of the issuing address, which the SII requires and an address line is not. */
   @IsString()
-  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
   @IsOptional()
   originComuna?: string;
 
   /** Chile: city of the issuing address. */
   @IsString()
-  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
   @IsOptional()
   originCity?: string;
 }
@@ -102,8 +102,8 @@ export class UpsertFiscalRegimeSettingsDto {
 export class RegisterFiscalRangeDto {
   /** The authority's own document-type code: `01`, `33`, `55`. */
   @IsString()
-  @MaxLength(8, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":8}' })
-  @Matches(/^[A-Za-z0-9]+$/, { message: 'INVOICES.TIPO_COMPROBANTE_FORMATO_INVALIDO' })
+  @MaxLength(8, { message: 'validation.constraints.max_length|{"max":8}' })
+  @Matches(/^[A-Za-z0-9]+$/, { message: 'invoices.document_type_may_contain_only_letters' })
   documentType!: string;
 
   /**
@@ -111,16 +111,16 @@ export class RegisterFiscalRangeDto {
    * in Brazil. Empty where the market has none.
    */
   @IsString()
-  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
+  @MaxLength(16, { message: 'validation.constraints.max_length|{"max":16}' })
   @IsOptional()
   series?: string;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   startsAt!: number;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   endsAt!: number;
 
   /**
@@ -135,7 +135,7 @@ export class RegisterFiscalRangeDto {
 
   /** The administrative act that granted the range: resolution number, CAF id, authorisation. */
   @IsString()
-  @MaxLength(128, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":128}' })
+  @MaxLength(128, { message: 'validation.constraints.max_length|{"max":128}' })
   @IsOptional()
   authorizationCode?: string;
 

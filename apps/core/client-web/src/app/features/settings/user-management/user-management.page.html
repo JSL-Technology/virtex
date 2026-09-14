@@ -2,16 +2,16 @@
   <div class="page-container">
     <div class="page-header">
       <div>
-        <h1>{{ 'SETTINGS.USER_MANAGEMENT.GESTION_USUARIOS' | translate }}</h1>
+        <h1>{{ 'settings.user_management.user_management' | translate }}</h1>
         <div class="breadcrumb">
-          <a href="javascript:void(0)" onclick="window.history.back()">{{ 'SETTINGS.USER_MANAGEMENT.ADMINISTRACION' | translate }}</a>
+          <a href="javascript:void(0)" onclick="window.history.back()">{{ 'settings.user_management.administration' | translate }}</a>
           <span class="divider">/</span>
-          <span>{{ 'SETTINGS.USER_MANAGEMENT.USUARIOS' | translate }}</span>
+          <span>{{ 'settings.user_management.users' | translate }}</span>
         </div>
       </div>
       <div class="page-header-actions">
         <button class="btn btn-primary" (click)="openInviteModal()">
-          <lucide-icon [name]="UserPlusIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.INVITAR_USUARIO' | translate }}
+          <lucide-icon [name]="UserPlusIcon" size="16"></lucide-icon> {{ 'settings.user_management.invite_user' | translate }}
         </button>
       </div>
     </div>
@@ -20,25 +20,25 @@
       <div class="toolbar">
         <div class="view-toggles" style="display: flex; gap: 0.5rem">
           <button class="btn view-toggle" [class.active]="statusFilter() === 'all'" (click)="applyStatusFilter('all')">
-            {{ "USERS.VIEWS.ALL" | translate }}
+            {{ "users.views.all" | translate }}
           </button>
           <button class="btn view-toggle" [class.active]="statusFilter() === 'ACTIVE'" (click)="applyStatusFilter('ACTIVE')">
-            {{ "USER.STATUS.ACTIVE" | translate }}
+            {{ "user.status.active" | translate }}
           </button>
            <button class="btn view-toggle" [class.active]="statusFilter() === 'ARCHIVED'" (click)="applyStatusFilter('ARCHIVED')">
-            {{ "USER.STATUS.ARCHIVED" | translate }}
+            {{ "user.status.archived" | translate }}
           </button>
           <button class="btn view-toggle" [class.active]="statusFilter() === 'PENDING'" (click)="applyStatusFilter('PENDING')">
-            {{ "USER.STATUS.PENDING" | translate }}
+            {{ "user.status.pending" | translate }}
           </button>
           <button class="btn view-toggle" [class.active]="statusFilter() === 'BLOCKED'" (click)="applyStatusFilter('BLOCKED')">
-            {{ "USER.STATUS.BLOCKED" | translate }}
+            {{ "user.status.blocked" | translate }}
           </button>
         </div>
 
         <div class="search-bar">
           <lucide-icon [name]="SearchIcon" class="search-icon" size="18"></lucide-icon>
-          <input type="text" placeholder="{{ 'USERS.SEARCH_PLACEHOLDER' | translate }}" #searchInput (input)="onSearch($event)" [value]="searchTerm()" />
+          <input type="text" placeholder="{{ 'users.search_users' | translate }}" #searchInput (input)="onSearch($event)" [value]="searchTerm()" />
         </div>
 
         <button class="btn" id="btnRefresh" (click)="loadUsers()">
@@ -57,25 +57,25 @@
               <tr>
                 <th style="width: 30px"><input type="checkbox" /></th>
                 <th (click)="sortTable('firstName')" tabindex="0" (keydown.enter)="sortTable('firstName')" (keydown.space)="$event.preventDefault(); sortTable('firstName')">
-                  {{ "USERS.TABLE.NAME" | translate }}
+                  {{ "users.table.name" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'firstName'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'ASC'"></lucide-icon>
                   <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'DESC'"></lucide-icon>
                 </th>
                 <th (click)="sortTable('email')" tabindex="0" (keydown.enter)="sortTable('email')" (keydown.space)="$event.preventDefault(); sortTable('email')">
-                  {{ "USERS.TABLE.EMAIL" | translate }}
+                  {{ "users.table.email" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'email'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'ASC'"></lucide-icon>
                   <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'DESC'"></lucide-icon>
                 </th>
-                <th>{{ "USERS.TABLE.ROLE" | translate }}</th>
+                <th>{{ "users.table.role" | translate }}</th>
                 <th (click)="sortTable('status')" tabindex="0" (keydown.enter)="sortTable('status')" (keydown.space)="$event.preventDefault(); sortTable('status')">
-                  {{ "USERS.TABLE.STATUS" | translate }}
+                  {{ "users.table.status" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'status'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'ASC'"></lucide-icon>
                   <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'DESC'"></lucide-icon>
                 </th>
-                <th>{{ "USERS.TABLE.ACTIONS" | translate }}</th>
+                <th>{{ "users.table.actions" | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -94,7 +94,7 @@
                 <td>{{ getRoleNames(user) }}</td>
                 <td>
                   <span class="badge" [ngClass]="getStatusClass(user.status)">
-                    {{ "USER.STATUS." + user.status | translate }}
+                    {{ "user.status." + user.status | translate }}
                   </span>
                 </td>
                 <td>
@@ -106,7 +106,7 @@
                 </td>
               </tr>
               <tr *ngIf="!loading() && users().length === 0">
-                <td colspan="6" style="text-align: center;">{{ 'SETTINGS.USER_MANAGEMENT.NO_ENCONTRARON_USUARIOS' | translate }}</td>
+                <td colspan="6" style="text-align: center;">{{ 'settings.user_management.no_users_found' | translate }}</td>
               </tr>
             </tbody>
           </table>
@@ -121,7 +121,7 @@
         -->
         <div class="pagination-info">
           {{
-            'SETTINGS.USER_MANAGEMENT.MOSTRANDO_DE'
+            'settings.user_management.showing_shown_total_users'
               | translate: { shown: users().length, total: totalUsers() }
           }}
         </div>
@@ -149,39 +149,39 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="modal-title">{{ isEditMode() ? "Editar Usuario" : "Invitar Nuevo Usuario" }}</h3>
-      <button class="modal-close" (click)="closeUserModal()">{{ 'SETTINGS.USER_MANAGEMENT.TIMES' | translate }}</button>
+      <button class="modal-close" (click)="closeUserModal()">{{ 'settings.user_management.value' | translate }}</button>
     </div>
     <div class="modal-body">
       <form [formGroup]="userForm">
         <div class="form-row">
           <div class="form-col">
-            <label class="form-label" for="firstname">{{ 'SETTINGS.USER_MANAGEMENT.NOMBRE' | translate }}</label>
-            <input id="firstname" type="text" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.NOMBRE' | translate" formControlName="firstName" required />
+            <label class="form-label" for="firstname">{{ 'settings.user_management.name' | translate }}</label>
+            <input id="firstname" type="text" class="form-control" [placeholder]="'settings.user_management.name' | translate" formControlName="firstName" required />
           </div>
           <div class="form-col">
-            <label class="form-label" for="lastname">{{ 'SETTINGS.USER_MANAGEMENT.APELLIDO' | translate }}</label>
-            <input id="lastname" type="text" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.APELLIDO' | translate" formControlName="lastName" required />
+            <label class="form-label" for="lastname">{{ 'settings.user_management.last_name' | translate }}</label>
+            <input id="lastname" type="text" class="form-control" [placeholder]="'settings.user_management.last_name' | translate" formControlName="lastName" required />
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">{{ 'SETTINGS.USER_MANAGEMENT.CORREO_ELECTRONICO' | translate }}</label>
-          <input id="email" type="email" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.USUARIO_EMPRESA_COM' | translate" formControlName="email" required />
+          <label class="form-label" for="email">{{ 'settings.user_management.email' | translate }}</label>
+          <input id="email" type="email" class="form-control" [placeholder]="'settings.user_management.user_company_com' | translate" formControlName="email" required />
         </div>
         <div class="form-group">
-          <label class="form-label" for="roleid">{{ 'SETTINGS.USER_MANAGEMENT.ROL' | translate }}</label>
+          <label class="form-label" for="roleid">{{ 'settings.user_management.role' | translate }}</label>
           <select id="roleid" class="form-control" formControlName="roleId" required>
-            <option [ngValue]="null" disabled>{{ 'SETTINGS.USER_MANAGEMENT.SELECCIONAR_ROL' | translate }}</option>
+            <option [ngValue]="null" disabled>{{ 'settings.user_management.select_role' | translate }}</option>
             <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
           </select>
         </div>
          <div class="form-group" *ngIf="!isEditMode()">
-            <label class="form-label" for="invitationmessage">{{ 'SETTINGS.USER_MANAGEMENT.MENSAJE_INVITACION_OPCIONAL' | translate }}</label>
-            <textarea id="invitationmessage" class="form-control" rows="3" [placeholder]="'SETTINGS.USER_MANAGEMENT.MENSAJE_PERSONALIZADO_USUARIO' | translate" formControlName="invitationMessage"></textarea>
+            <label class="form-label" for="invitationmessage">{{ 'settings.user_management.invitation_message_optional' | translate }}</label>
+            <textarea id="invitationmessage" class="form-control" rows="3" [placeholder]="'settings.user_management.custom_message_user' | translate" formControlName="invitationMessage"></textarea>
           </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn" (click)="closeUserModal()">{{ 'SETTINGS.USER_MANAGEMENT.CANCELAR' | translate }}</button>
+      <button class="btn" (click)="closeUserModal()">{{ 'settings.user_management.cancel' | translate }}</button>
       <button class="btn btn-primary" (click)="save()" [disabled]="userForm.invalid">
         {{ isEditMode() ? "Guardar Cambios" : "Enviar Invitación" }}
       </button>
@@ -193,28 +193,28 @@
 <div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="modal-title">{{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_USUARIO' | translate }}</h3>
-      <button class="modal-close" (click)="closeDeleteModal()">{{ 'SETTINGS.USER_MANAGEMENT.TIMES' | translate }}</button>
+      <h3 class="modal-title">{{ 'settings.user_management.delete_user' | translate }}</h3>
+      <button class="modal-close" (click)="closeDeleteModal()">{{ 'settings.user_management.value' | translate }}</button>
     </div>
     <div class="modal-body">
-      <p>{{ 'SETTINGS.USER_MANAGEMENT.ESTA_SEGURO_DESEA_ELIMINAR_PERMANENTEMENTE_USUARIO' | translate }} <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?</p>
-      <p class="danger-zone-content">{{ 'SETTINGS.USER_MANAGEMENT.ESTA_ACCION_NO_PUEDE_DESHACER' | translate }}</p>
+      <p>{{ 'settings.user_management.you_sure_you_want_permanently_delete' | translate }} <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?</p>
+      <p class="danger-zone-content">{{ 'settings.user_management.action_cannot_undone' | translate }}</p>
     </div>
     <div class="modal-footer">
-      <button class="btn" (click)="closeDeleteModal()">{{ 'SETTINGS.USER_MANAGEMENT.CANCELAR' | translate }}</button>
-      <button class="btn btn-danger" (click)="confirmDelete()">{{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_PERMANENTEMENTE' | translate }}</button>
+      <button class="btn" (click)="closeDeleteModal()">{{ 'settings.user_management.cancel' | translate }}</button>
+      <button class="btn btn-danger" (click)="confirmDelete()">{{ 'settings.user_management.delete_permanently' | translate }}</button>
     </div>
   </div>
 </div>
 
 <!-- Context Menu -->
 <div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
-  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.EDITAR_USUARIO' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.RESETEAR_CONTRASENA' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'settings.user_management.edit_user' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'settings.user_management.reset_password' | translate }}</div>
   <div class="menu-divider"></div>
-  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.SUPLANTAR_USUARIO' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.FORZAR_CIERRE_SESION' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.BLOQUEAR_CERRAR_SESION' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'settings.user_management.impersonate_user' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> {{ 'settings.user_management.force_sign_out' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> {{ 'settings.user_management.block_sign_out' | translate }}</div>
   <div class="menu-divider"></div>
-  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_CUENTA' | translate }}</div>
+  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> {{ 'settings.user_management.delete_account' | translate }}</div>
 </div>

@@ -32,7 +32,7 @@ import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './
 export class TransitionPreviewComponent {
   readonly preview = input.required<TransitionPreview>();
   readonly busy = input(false);
-  readonly confirmLabelKey = input('COMMON.CONFIRM');
+  readonly confirmLabelKey = input('common.confirm');
 
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();

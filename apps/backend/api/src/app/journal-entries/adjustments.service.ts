@@ -65,7 +65,7 @@ export class AdjustmentsService {
     actorUserId: string,
   ): Promise<JournalEntry> {
     if (dto.fromAccountId === dto.toAccountId) {
-      throw new BadRequestError('JOURNAL_ENTRIES.CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
+      throw new BadRequestError('journal_entries.source_destination_accounts_cannot_same');
     }
 
 
@@ -77,9 +77,9 @@ export class AdjustmentsService {
       this.accountLabel(manager, organizationId, dto.toAccountId),
     ]);
     const words = await this.narrative.describeAll(manager, organizationId, {
-      header: { key: 'LEDGER.ADJUSTMENT.RECLASSIFICATION', params: { description: dto.description } },
-      out: { key: 'LEDGER.ADJUSTMENT.TRANSFER_OUT', params: { account: toLabel } },
-      in: { key: 'LEDGER.ADJUSTMENT.TRANSFER_IN', params: { account: fromLabel } },
+      header: { key: 'ledger.adjustment.reclassification', params: { description: dto.description } },
+      out: { key: 'ledger.adjustment.transfer_out', params: { account: toLabel } },
+      in: { key: 'ledger.adjustment.transfer_in', params: { account: fromLabel } },
     });
 
     const entryDto = {
@@ -110,7 +110,7 @@ export class AdjustmentsService {
   async createPeriodEndAdjustment(dto: CreatePeriodEndAdjustmentDto, organizationId: string): Promise<{ adjustment: JournalEntry }> {
     return this.dataSource.transaction(async manager => {
         if (!manager.queryRunner) {
-            throw new InternalServerError('JOURNAL_ENTRIES.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
+            throw new InternalServerError('journal_entries.transaction_query_runner_could_not_obtained');
         }
         
 
@@ -125,7 +125,7 @@ export class AdjustmentsService {
             description: await this.narrative.describe(
               manager,
               organizationId,
-              'LEDGER.ADJUSTMENT.PERIOD_END',
+              'ledger.adjustment.period_end',
               { type: dto.adjustmentType, description: dto.description },
             ),
             journalId: dto.journalId,
@@ -196,15 +196,15 @@ export class AdjustmentsService {
       });
 
       if (!fiscalYear) {
-        throw new NotFoundError('JOURNAL_ENTRIES.ANO_FISCAL_NO_ENCONTRADO');
+        throw new NotFoundError('journal_entries.fiscal_year_not_found');
       }
       if (fiscalYear.status === FiscalYearStatus.OPEN) {
         throw new BadRequestError(
-          'JOURNAL_ENTRIES.AJUSTES_AUDITORIA_SOLO_PUEDEN_APLICARSE_ANOS_FISCALES',
+          'journal_entries.audit_adjustments_can_only_applied_closed',
         );
       }
       if (fiscalYear.status === FiscalYearStatus.LOCKED) {
-        throw new BadRequestError('JOURNAL_ENTRIES.ANO_FISCAL_ESTA_ARCHIVADO_NO_PUEDE_MODIFICAR');
+        throw new BadRequestError('journal_entries.fiscal_year_archived_cannot_changed');
       }
 
       // A `date` column arrives as a string. `toIsoDate` accepts either and validates what it is
@@ -276,30 +276,30 @@ export class AdjustmentsService {
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings?.defaultRetainedEarningsAccountId) {
       throw new BadRequestError(
-        'ACCOUNTING.CUENTA_RESULTADOS_EJERCICIO_GANANCIAS_RETENIDAS_NO_ESTA',
+        'accounting.retained_earnings_account_not_configured_organization',
       );
     }
 
     const closingJournal = await manager.findOneBy(Journal, { organizationId, code: 'CIERRE' });
     if (!closingJournal) {
-      throw new BadRequestError('ACCOUNTING.DIARIO_CIERRE_CIERRE_NO_ENCONTRADO_FAVOR_CREE');
+      throw new BadRequestError('accounting.closing_journal_cierre_not_found_create');
     }
 
     const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!defaultLedger) {
       throw new BadRequestError(
-        'ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'accounting.no_default_ledger_has_configured_organization',
       );
     }
 
     const reference = entry.entryNumber ?? entry.id;
     const words = await this.narrative.describeAll(manager, organizationId, {
-      closeLine: { key: 'LEDGER.ADJUSTMENT.AUDIT_CLOSE_LINE' },
+      closeLine: { key: 'ledger.adjustment.audit_close_line' },
       resultTransfer: {
-        key: 'LEDGER.ADJUSTMENT.AUDIT_RESULT_TRANSFER',
+        key: 'ledger.adjustment.audit_result_transfer',
         params: { entry: reference },
       },
-      closeEntry: { key: 'LEDGER.ADJUSTMENT.AUDIT_CLOSE_ENTRY', params: { entry: reference } },
+      closeEntry: { key: 'ledger.adjustment.audit_close_entry', params: { entry: reference } },
     });
 
     // Each result line is closed by its opposite side, and retained earnings takes the net. In

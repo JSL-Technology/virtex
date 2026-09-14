@@ -1,13 +1,13 @@
 <vx-draft-shell
-  [title]="'ACCOUNTING.SEGMENT_CONFIGURATION.CONFIGURACION_SEGMENTOS' | translate"
-  [subtitle]="'ACCOUNTING.SEGMENT_CONFIGURATION.DEFINE_ESTRUCTURA_LONGITUD_NIVELES_TUS_CUENTAS' | translate"
+  [title]="'accounting.segment_configuration.segment_configuration' | translate"
+  [subtitle]="'accounting.segment_configuration.define_structure_length_levels_your_accounts' | translate"
   [dirty]="configForm.dirty"
   [saving]="isSaving()"
   [invalid]="configForm.invalid"
   [problems]="problems()"
   [form]="configForm"
-  saveLabelKey="ACCOUNTING.SEGMENT_CONFIGURATION.GUARDAR_ESTRUCTURA"
-  cancelLabelKey="ACCOUNTING.SEGMENT_CONFIGURATION.CANCELAR"
+  saveLabelKey="accounting.segment_configuration.save_structure"
+  cancelLabelKey="accounting.segment_configuration.cancel"
   (save)="onSave()"
   (cancelled)="onCancel()"
 >
@@ -19,7 +19,7 @@
     (click)="onInitializeDefaults()"
   >
     <lucide-icon [img]="ResetIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.CARGAR_PLANTILLA' | translate }}</span>
+    <span>{{ 'accounting.segment_configuration.load_template' | translate }}</span>
   </button>
 
   <div class="form-body">
@@ -27,21 +27,21 @@
     @if (isLoading()) {
         <div class="loading-state card">
             <span class="spinner"></span>
-            <p>{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.CARGANDO_CONFIGURACION' | translate }}</p>
+            <p>{{ 'accounting.segment_configuration.loading_configuration' | translate }}</p>
         </div>
     } @else {
         <div class="card info-banner">
-            <p><strong>{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.NOTA_IMPORTANTE' | translate }}</strong> {{ 'ACCOUNTING.SEGMENT_CONFIGURATION.VEZ_COMIENCES_CREAR_CUENTAS_CONTABLES_NO' | translate }}</p>
+            <p><strong>{{ 'accounting.segment_configuration.important' | translate }}</strong> {{ 'accounting.segment_configuration.once_you_start_creating_accounts_you' | translate }}</p>
         </div>
 
         <div class="form-container card">
             <div [formGroup]="configForm">
                 <div class="segments-list" formArrayName="segments">
                     <div class="list-header">
-                        <div class="col-order">{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.ORDEN' | translate }}</div>
-                        <div class="col-name">{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.NOMBRE_NIVEL' | translate }}</div>
-                        <div class="col-length">{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.LONGITUD_CARACTERES' | translate }}</div>
-                        <div class="col-required">{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.REQUERIDO' | translate }}</div>
+                        <div class="col-order">{{ 'accounting.segment_configuration.order' | translate }}</div>
+                        <div class="col-name">{{ 'accounting.segment_configuration.level_name' | translate }}</div>
+                        <div class="col-length">{{ 'accounting.segment_configuration.length_characters' | translate }}</div>
+                        <div class="col-required">{{ 'accounting.segment_configuration.required' | translate }}</div>
                         <div class="col-actions"></div>
                     </div>
 
@@ -51,9 +51,9 @@
                                 <span class="order-badge">{{ i + 1 }}</span>
                             </div>
                             <div class="col-name">
-                                <input type="text" formControlName="name" [placeholder]="'ACCOUNTING.SEGMENT_CONFIGURATION.EJ_MAYOR_SUB_CUENTA' | translate">
+                                <input type="text" formControlName="name" [placeholder]="'accounting.segment_configuration.ledger_sub_account' | translate">
                                 @if (segment.get('name')?.touched && segment.get('name')?.invalid) {
-                                    <span class="error-text">{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.REQUERIDO' | translate }}</span>
+                                    <span class="error-text">{{ 'accounting.segment_configuration.required' | translate }}</span>
                                 }
                             </div>
                             <div class="col-length">
@@ -66,7 +66,7 @@
                                 <input type="checkbox" formControlName="isRequired">
                             </div>
                             <div class="col-actions">
-                                <button type="button" class="icon-button delete" (click)="removeSegment(i)" [title]="'ACCOUNTING.SEGMENT_CONFIGURATION.ELIMINAR_NIVEL' | translate">
+                                <button type="button" class="icon-button delete" (click)="removeSegment(i)" [title]="'accounting.segment_configuration.remove_level' | translate">
                                     <lucide-icon [img]="TrashIcon" size="16"></lucide-icon>
                                 </button>
                             </div>
@@ -75,14 +75,14 @@
 
                     @if (segments.length === 0) {
                         <div class="empty-state">
-                            <p>{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.NO_HAY_NIVELES_DEFINIDOS_AGREGA_UNO' | translate }}</p>
+                            <p>{{ 'accounting.segment_configuration.no_levels_defined_add_one_load' | translate }}</p>
                         </div>
                     }
 
                     <div class="list-footer">
                         <button type="button" class="ghost-button" (click)="addSegment()">
                             <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                            <span>{{ 'ACCOUNTING.SEGMENT_CONFIGURATION.AGREGAR_NIVEL' | translate }}</span>
+                            <span>{{ 'accounting.segment_configuration.add_level' | translate }}</span>
                         </button>
                     </div>
                 </div>

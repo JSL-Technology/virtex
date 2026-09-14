@@ -326,7 +326,7 @@ export class MainLayout implements OnInit {
    * este método desaparecerá.
    */
   comingSoon(): void {
-    this.notifications.showInfo('FEEDBACK.COMING_SOON');
+    this.notifications.showInfo('feedback.coming_soon');
     this.closeUserMenu();
   }
 

@@ -33,7 +33,7 @@ export class DimensionsService {
       where: { id, organizationId },
       relations: ['values'],
     });
-    if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
+    if (!dimension) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
     return dimension;
   }
 
@@ -56,7 +56,7 @@ export class DimensionsService {
             relations: ['values'],
         });
 
-        if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
+        if (!dimension) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
         if (updateDto.name) dimension.name = updateDto.name;
 
         if (updateDto.values) {
@@ -87,12 +87,12 @@ export class DimensionsService {
 
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.dimensionRepository.delete({ id, organizationId });
-    if (result.affected === 0) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
+    if (result.affected === 0) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
   }
   
   async getRulesForAccount(accountId: string, organizationId: string): Promise<DimensionRule[]> {
       const account = await this.dataSource.getRepository(Account).findOneBy({ id: accountId, organizationId });
-      if (!account) throw new NotFoundError('DIMENSIONS.CUENTA_ID_NO_ENCONTRADA', { accountId });
+      if (!account) throw new NotFoundError('dimensions.account_account_id_not_found', { accountId });
       
       return this.dimensionRuleRepository.find({ where: { accountId }, relations: ['dimension'] });
   }
@@ -105,8 +105,8 @@ export class DimensionsService {
           this.dimensionRepository.findOneBy({ id: dimensionId, organizationId }),
       ]);
 
-      if (!account) throw new NotFoundError('DIMENSIONS.CUENTA_ID_NO_ENCONTRADA_ORGANIZACION', { accountId });
-      if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA_ORGANIZACION', { dimensionId });
+      if (!account) throw new NotFoundError('dimensions.account_account_id_not_found_your', { accountId });
+      if (!dimension) throw new NotFoundError('dimensions.dimension_dimension_id_not_found_your', { dimensionId });
       
       const rule = this.dimensionRuleRepository.create({ ...dto, isRequired: true });
       return this.dimensionRuleRepository.save(rule);
@@ -119,7 +119,7 @@ export class DimensionsService {
       });
 
       if (!rule || rule.account.organizationId !== organizationId) {
-          throw new NotFoundError('DIMENSIONS.REGLA_DIMENSION_ESPECIFICADA_NO_FUE_ENCONTRADA');
+          throw new NotFoundError('dimensions.specified_dimension_rule_not_found');
       }
       
       await this.dimensionRuleRepository.remove(rule);

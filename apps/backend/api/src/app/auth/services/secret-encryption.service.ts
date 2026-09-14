@@ -38,7 +38,7 @@ export class SecretEncryptionService implements OnModuleInit {
   decrypt(payload: string): string {
     const parts = payload.split(':');
     if (parts.length !== 3) {
-      throw new InternalServerError('AUTH.MALFORMED_ENCRYPTED_SECRET');
+      throw new InternalServerError('auth.malformed_encrypted_secret');
     }
     try {
       const iv = Buffer.from(parts[0], 'hex');
@@ -48,7 +48,7 @@ export class SecretEncryptionService implements OnModuleInit {
       decipher.setAuthTag(tag);
       return Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8');
     } catch {
-      throw new InternalServerError('AUTH.FAILED_DECRYPT_STORED_SECRET');
+      throw new InternalServerError('auth.stored_secret_could_not_decrypted');
     }
   }
 }

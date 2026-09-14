@@ -1,19 +1,19 @@
 <vx-list-shell
-  titleKey="MASTERS.PAYMENT_TERMS.PAYMENT_TERMS"
+  titleKey="masters.payment_terms.payment_terms"
   [count]="terms().length"
   [empty]="terms().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.PAYMENT_TERMS.NEW_TERM' | translate }}</span>
+    <span>{{ 'masters.payment_terms.new_term' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.PAYMENT_TERMS.NAME' | translate }}</th>
-          <th class="text-right">{{ 'MASTERS.PAYMENT_TERMS.NET_DAYS' | translate }}</th>
+          <th>{{ 'masters.payment_terms.name' | translate }}</th>
+          <th class="text-right">{{ 'masters.payment_terms.net_days' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
@@ -26,7 +26,7 @@
               <button
                 type="button"
                 class="icon-button"
-                [attr.aria-label]="'MASTERS.PAYMENT_TERMS.NAME' | translate"
+                [attr.aria-label]="'masters.payment_terms.name' | translate"
               >
                 <lucide-icon [img]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>
               </button>

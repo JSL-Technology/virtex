@@ -98,7 +98,7 @@ export class SsoAdminService {
         where: { organizationId, verified: true },
       });
       if (verifiedCount === 0) {
-        throw new BadRequestError('AUTH.VERIFY_AT_LEAST_ONE_DOMAIN_BEFORE_ENABLING');
+        throw new BadRequestError('auth.verify_at_least_one_domain_before_enabling');
       }
     }
 
@@ -121,7 +121,7 @@ export class SsoAdminService {
 
   private async getOwnedProvider(organizationId: string, id: string): Promise<IdentityProvider> {
     const idp = await this.idpRepository.findOne({ where: { id, organizationId } });
-    if (!idp) throw new NotFoundError('AUTH.IDENTITY_PROVIDER_NOT_FOUND');
+    if (!idp) throw new NotFoundError('auth.identity_provider_not_found');
     return idp;
   }
 
@@ -147,7 +147,7 @@ export class SsoAdminService {
     const existing = await this.domainRepository.findOne({ where: { domain } });
     if (existing) {
       // Unique across all orgs — prevents two tenants claiming the same domain.
-      throw new ConflictError('AUTH.THIS_DOMAIN_ALREADY_REGISTERED');
+      throw new ConflictError('auth.this_domain_already_registered');
     }
     const created = this.domainRepository.create({
       organizationId,
@@ -166,7 +166,7 @@ export class SsoAdminService {
 
   async deleteDomain(organizationId: string, id: string): Promise<void> {
     const domain = await this.domainRepository.findOne({ where: { id, organizationId } });
-    if (!domain) throw new NotFoundError('AUTH.DOMAIN_NOT_FOUND');
+    if (!domain) throw new NotFoundError('auth.domain_not_found');
     await this.domainRepository.remove(domain);
   }
 
@@ -176,7 +176,7 @@ export class SsoAdminService {
    */
   async verifyDomain(organizationId: string, id: string) {
     const domain = await this.domainRepository.findOne({ where: { id, organizationId } });
-    if (!domain) throw new NotFoundError('AUTH.DOMAIN_NOT_FOUND');
+    if (!domain) throw new NotFoundError('auth.domain_not_found');
     if (domain.verified) return { verified: true };
 
     const host = `${DNS_VERIFICATION_PREFIX}.${domain.domain}`;
@@ -185,13 +185,13 @@ export class SsoAdminService {
       records = await dns.resolveTxt(host);
     } catch (err) {
       this.logger.warn(`DNS TXT lookup failed for ${host}: ${(err as Error)?.message}`);
-      throw new BadRequestError('AUTH.NO_TXT_RECORD_FOUND_AT_ADD_IT', { host });
+      throw new BadRequestError('auth.no_txt_record_found_at_add_it', { host });
     }
 
     const flattened = records.map((chunks) => chunks.join(''));
     const matches = flattened.some((value) => value.trim() === domain.verificationToken);
     if (!matches) {
-      throw new BadRequestError('AUTH.TXT_RECORD_FOUND_BUT_VALUE_DOES_NOT');
+      throw new BadRequestError('auth.txt_record_found_but_value_does_not');
     }
 
     domain.verified = true;

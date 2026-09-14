@@ -61,11 +61,11 @@ export class SalesChart {
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       yAxis: {
-        title: { text: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES') },
+        title: { text: this.i18n.instant('dashboard.sales_chart.monthly_revenue') },
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       series: [{
-        name: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES'),
+        name: this.i18n.instant('dashboard.sales_chart.monthly_revenue'),
         type: chartType as any,
         data: points.map((point) => point.amount),
         color: 'var(--accent-primary)',

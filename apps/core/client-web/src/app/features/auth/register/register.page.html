@@ -6,8 +6,8 @@
 
     <!-- ── Cabecera ────────────────────────────────────────────────────── -->
     <header class="auth-head">
-      <h1 class="auth-title">{{ 'REGISTER.TITLE' | translate }}</h1>
-      <p class="auth-subtitle">{{ 'REGISTER.SUBTITLE' | translate }}</p>
+      <h1 class="auth-title">{{ 'register.title' | translate }}</h1>
+      <p class="auth-subtitle">{{ 'register.start_your_30_day_free_trial' | translate }}</p>
     </header>
 
     <!--
@@ -22,7 +22,7 @@
       cuál es el paso activo. Sin él, el riel es una fila de botones sin
       significado.
     -->
-    <nav class="stepper" [attr.aria-label]="'REGISTER.STEP_OF' | translate:{ current: currentStep(), total: steps.length }">
+    <nav class="stepper" [attr.aria-label]="'register.step_of' | translate:{ current: currentStep(), total: steps.length }">
       <div class="stepper-rail" aria-hidden="true">
         <span class="stepper-rail__fill"
               [style.width.%]="((currentStep() - 1) / (steps.length - 1)) * 100"></span>
@@ -51,7 +51,7 @@
     </nav>
 
     <p class="stepper-counter" aria-hidden="true">
-      {{ 'REGISTER.STEP_OF' | translate: { current: currentStep(), total: steps.length } }}
+      {{ 'register.step_of' | translate: { current: currentStep(), total: steps.length } }}
     </p>
 
     <!-- ── Contenido del paso ──────────────────────────────────────────── -->
@@ -114,7 +114,7 @@
         @if (currentStep() > 1) {
           <button type="button" class="btn-back" (click)="prevStep()">
             <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
-            {{ 'COMMON.BACK' | translate }}
+            {{ 'common.back' | translate }}
           </button>
         }
 
@@ -128,7 +128,7 @@
               el alta más allá del primer paso.
             -->
             <app-auth-button type="button" variant="primary" (clicked)="nextStep()">
-              {{ 'COMMON.NEXT' | translate }}
+              {{ 'common.next' | translate }}
               <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
             </app-auth-button>
           } @else {
@@ -136,7 +136,7 @@
               type="submit"
               variant="primary"
               [loading]="isRegistering()">
-              {{ (isRegistering() ? 'REGISTER.REGISTERING' : 'REGISTER.SUBMIT_BUTTON') | translate }}
+              {{ (isRegistering() ? 'register.registering' : 'register.submit_button') | translate }}
               @if (!isRegistering()) {
                 <lucide-icon [img]="RocketIcon" size="17"></lucide-icon>
               }
@@ -150,8 +150,8 @@
   </div>
 
   <p class="cross-link">
-    {{ 'REGISTER.HAS_ACCOUNT' | translate }}
+    {{ 'register.has_account' | translate }}
     <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']">
-      {{ 'REGISTER.LOGIN_LINK' | translate }}
+      {{ 'register.login_link' | translate }}
     </a>
   </p>

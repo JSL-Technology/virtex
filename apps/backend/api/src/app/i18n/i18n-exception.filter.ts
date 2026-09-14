@@ -103,7 +103,7 @@ export class I18nExceptionFilter implements ExceptionFilter {
       // Some exceptions already carry a machine code as their message — the whole `AuthError`
       // enum does (`new UnauthorizedException(AuthError.USER_NOT_FOUND)`), and the client has
       // switched on those codes since before any of this existed. Recognising the shape means
-      // that contract keeps working, and the sentence comes from `ERRORS.AUTH_USER_NOT_FOUND`
+      // that contract keeps working, and the sentence comes from `errors.auth_user_not_found`
       // instead of the code being shown to a reader as if it were prose.
       const messageIsCode =
         typeof raw === 'string' && /^[A-Z][A-Z0-9_]{2,}$/.test(raw) && !REASON_PHRASES.has(raw);
@@ -147,7 +147,7 @@ export class I18nExceptionFilter implements ExceptionFilter {
       return {
         status: HttpStatus.NOT_FOUND,
         code: 'NOT_FOUND',
-        message: this.i18n.translate('ERRORS.NOT_FOUND', language),
+        message: this.i18n.translate('errors.not_found', language),
         extra: {},
       };
     }
@@ -155,7 +155,7 @@ export class I18nExceptionFilter implements ExceptionFilter {
     return {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 'INTERNAL_ERROR',
-      message: this.i18n.translate('ERRORS.INTERNAL', language),
+      message: this.i18n.translate('errors.internal', language),
       extra: {},
     };
   }
@@ -168,7 +168,7 @@ export class I18nExceptionFilter implements ExceptionFilter {
   ): string {
     // A 5xx message is written for an operator, never for a customer.
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      return this.i18n.translate('ERRORS.INTERNAL', language);
+      return this.i18n.translate('errors.internal', language);
     }
 
     const candidate = Array.isArray(raw) ? raw[0] : raw;
@@ -188,7 +188,7 @@ export class I18nExceptionFilter implements ExceptionFilter {
     const byStatus = `ERRORS.HTTP_${status}`;
     if (this.i18n.has(byStatus)) return this.i18n.translate(byStatus, language);
 
-    return this.i18n.translate('ERRORS.UNEXPECTED', language);
+    return this.i18n.translate('errors.unexpected', language);
   }
 
   private codeForStatus(status: number): string {

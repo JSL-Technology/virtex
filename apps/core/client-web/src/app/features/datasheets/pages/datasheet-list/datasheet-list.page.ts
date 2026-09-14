@@ -35,7 +35,7 @@ interface Datasheet {
   template: `
     <vx-list-shell
       titleKey="datasheets.title"
-      subtitleKey="datasheets.subtitle"
+      subtitleKey="datasheets.analysis_spreadsheets_connected_erp_real_time"
       [count]="documents().length"
       [empty]="documents().length === 0"
     >

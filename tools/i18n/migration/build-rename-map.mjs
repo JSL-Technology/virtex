@@ -118,7 +118,7 @@ for (const dir of SIDES) {
     let newKey = rebuilt.join('.');
     if (taken.has(newKey) && taken.get(newKey) !== oldKey) {
       // Two old keys landing on one name and saying exactly the same thing in all three languages
-      // are one key that was written twice — `INVOICE.PDF.DESCRIPCION` and `INVOICE.PDF.DESCRIPTION`
+      // are one key that was written twice — `invoice.pdf.description` and `invoice.pdf.description`
       // both held "Descripción". Merging them is the point of the rename, not a collision to work
       // around: every reference to either name is rewritten to the one that survives.
       if (content(oldKey) === content(taken.get(newKey))) {

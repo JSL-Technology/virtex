@@ -3,7 +3,7 @@
 {{!-- El cuerpo es una clave más sus valores, resuelta en el idioma del destinatario. --}}
 <p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t bodyKey params=params}}</p>
 
-{{> button href=billingUrl label=(t 'MAIL.BILLING_NOTICE.IR_FACTURACION')}}
+{{> button href=billingUrl label=(t 'mail.billing_notice.go_billing')}}
 
-{{> link-fallback href=billingUrl label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+{{> link-fallback href=billingUrl label=(t 'mail.common.if_button_does_not_work_copy')}}
 {{/shell}}

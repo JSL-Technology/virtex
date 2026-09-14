@@ -111,15 +111,15 @@ export class TabContainerComponent {
     const gridActions: ContextMenuItem[] = inGrid
       ? [
           {
-            label: t('TABS.SPLIT_RIGHT'),
+            label: t('tabs.split_right'),
             action: () => this.splitPanel(panel, 'right'),
           },
           {
-            label: t('TABS.SPLIT_BELOW'),
+            label: t('tabs.split_below'),
             action: () => this.splitPanel(panel, 'below'),
           },
           {
-            label: t('TABS.FLOAT'),
+            label: t('tabs.float'),
             action: () => this.floatPanel(panel),
           },
         ]
@@ -132,13 +132,13 @@ export class TabContainerComponent {
         //  Sacar a una ventana del sistema operativo (no una pestaña del navegador): comparar un
         //  documento en un segundo monitor sin ceder ancho ni perder la sesión de la empresa. Se
         //  ofrece en cualquier modo y también desde grupos flotantes/pop-out.
-        label: t('TABS.POPOUT'),
+        label: t('tabs.pop_out_window'),
         action: () => this.popoutPanel(panel),
       },
       ...(inGrid
         ? [
             {
-              label: maximized ? t('TABS.RESTORE') : t('TABS.MAXIMIZE'),
+              label: maximized ? t('tabs.restore') : t('tabs.maximise'),
               action: () => (maximized ? api.exitMaximizedGroup() : api.maximizeGroup(panel)),
             } as ContextMenuItem,
           ]
@@ -150,7 +150,7 @@ export class TabContainerComponent {
     const keepOpen: ContextMenuItem[] = tab?.isPreview
       ? [
           {
-            label: t('TABS.KEEP_OPEN'),
+            label: t('tabs.keep_open'),
             action: () => this.tabState.markPermanent(panel.id),
           },
           'separator',
@@ -162,29 +162,29 @@ export class TabContainerComponent {
       //  Los rótulos estaban escritos en español dentro del componente, así que el menú
       //  contextual del área de trabajo salía en español en las tres lenguas del producto.
       {
-        label: t('TABS.CLOSE'),
+        label: t('tabs.close'),
         disabled: tab?.isCloseable === false,
         action: () => void this.tabState.closeTab(panel.id),
       },
       {
-        label: t('TABS.CLOSE_OTHERS'),
+        label: t('tabs.close_others'),
         action: () => this.tabState.closeOthers(panel.id),
       },
       {
-        label: t('TABS.CLOSE_RIGHT'),
+        label: t('tabs.close_right'),
         action: () => this.tabState.closeToRight(panel.id),
       },
       {
-        label: t('TABS.CLOSE_ALL'),
+        label: t('tabs.close_all'),
         action: () => this.tabState.closeAll(),
       },
       'separator',
       {
-        label: t('TABS.DUPLICATE'),
+        label: t('tabs.duplicate'),
         action: () => this.tabState.duplicateTab(panel.id),
       },
       {
-        label: tab?.isPinned ? t('TABS.UNPIN') : t('TABS.PIN'),
+        label: tab?.isPinned ? t('tabs.unpin') : t('tabs.pin'),
         disabled: isPinnedType,
         action: () =>
           tab?.isPinned
@@ -195,7 +195,7 @@ export class TabContainerComponent {
       {
         //  Ajuste global de comportamiento, no de esta pestaña: si el usuario prefiere que cada
         //  apertura sea permanente, lo desactiva desde aquí (equivale a enablePreview de VS Code).
-        label: (this.prefs.enablePreview() ? '✓ ' : '') + t('TABS.PREVIEW_ON_OPEN'),
+        label: (this.prefs.enablePreview() ? '✓ ' : '') + t('tabs.preview_on_open'),
         action: () => this.prefs.toggleEnablePreview(),
       },
       ...windowActions,

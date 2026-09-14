@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
  *
  * `instant` hands a missing key to `VirtexMissingTranslationHandler`, which returns the key itself
  * in production and `[[KEY]]` in development. Comparing only against the key therefore misses the
- * development case, and the screen shows `[[BILLING.PLANS.PRO.DESCRIPTION]]` — which is exactly
+ * development case, and the screen shows `[[billing.plans.pro.description]]` — which is exactly
  * the bug this helper exists to stop repeating, once per call site.
  */
 export function translateOrLiteral(

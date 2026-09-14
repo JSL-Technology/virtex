@@ -36,7 +36,7 @@ export class SupplierListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.SUPPLIER_LIST.PUDIERON_CARGAR_PROVEEDORES');
+        this.notificationService.showError('masters.supplier_list.suppliers_could_not_loaded');
         this.isLoading.set(false);
       },
     });

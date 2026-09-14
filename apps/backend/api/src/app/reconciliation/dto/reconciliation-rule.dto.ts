@@ -27,7 +27,7 @@ import {
 export class CreateReconciliationRuleDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   name: string;
 
   @IsEnum(RuleConditionField)
@@ -38,7 +38,7 @@ export class CreateReconciliationRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   conditionValue: string;
 
   @IsEnum(RuleDirection)
@@ -46,12 +46,12 @@ export class CreateReconciliationRuleDto {
   direction?: RuleDirection;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   amountMin?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   amountMax?: number;
 
@@ -69,7 +69,7 @@ export class CreateReconciliationRuleDto {
   targetAccountId?: string;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @Max(10_000)
   @IsOptional()
   priority?: number;
@@ -82,7 +82,7 @@ export class CreateReconciliationRuleDto {
 export class UpdateReconciliationRuleDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   @IsOptional()
   name?: string;
 
@@ -96,7 +96,7 @@ export class UpdateReconciliationRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   @IsOptional()
   conditionValue?: string;
 
@@ -105,12 +105,12 @@ export class UpdateReconciliationRuleDto {
   direction?: RuleDirection;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   amountMin?: number | null;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   amountMax?: number | null;
 
@@ -123,7 +123,7 @@ export class UpdateReconciliationRuleDto {
   targetAccountId?: string | null;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @Max(10_000)
   @IsOptional()
   priority?: number;

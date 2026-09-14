@@ -258,7 +258,7 @@ export class PayrollCalculationService {
     // salary is partly unembargable under the Código de Trabajo, so an impossible net is refused here
     // rather than paid negative. Corrections are made by adjusting the offending deduction.
     if (netPay < 0) {
-      throw new BadRequestError('PAYROLL.NETO_NEGATIVO_DEDUCCIONES_EXCEDEN_SALARIO', {
+      throw new BadRequestError('payroll.deductions_p1_exceed_salary_net_pay', {
         p1: employee.employeeName,
       });
     }

@@ -5,12 +5,12 @@ import { Type } from 'class-transformer';
 
 export class CsvParsingOptionsDto {
   @IsString()
-  @Length(1, 1, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":1}' })
+  @Length(1, 1, { message: 'validation.constraints.length|{"min":1,"max":1}' })
   @IsOptional()
   delimiter?: string;
 
   @IsString()
-  @Length(1, 1, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":1}' })
+  @Length(1, 1, { message: 'validation.constraints.length|{"min":1,"max":1}' })
   @IsOptional()
   quoteChar?: string;
 }
@@ -135,7 +135,7 @@ export class PreviewImportRequestDto {
      */
     @IsString()
     @IsNotEmpty()
-    @Length(1, 32, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":32}' })
+    @Length(1, 32, { message: 'validation.constraints.length|{"min":1,"max":32}' })
     @ApiProperty({ example: 'dd/MM/yyyy' })
     dateFormat: string;
 

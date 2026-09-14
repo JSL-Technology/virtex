@@ -64,7 +64,7 @@ export class SupportedCountryConstraint implements ValidatorConstraintInterface 
   }
 
   defaultMessage(): string {
-    return message('VALIDATION.FISCAL.COUNTRY_NOT_AVAILABLE');
+    return message('validation.fiscal.country_not_available');
   }
 }
 
@@ -98,7 +98,7 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments): string {
     const country = countryOf(args);
     const profile = findCountryProfile(country);
-    if (!profile) return message('VALIDATION.FISCAL.TAX_ID_INVALID');
+    if (!profile) return message('validation.fiscal.tax_id_invalid');
 
     // The kind note is a separate key rather than a suffix on this one: where the country's
     // algorithm distinguishes a company identifier from an individual's, telling the reader
@@ -106,13 +106,13 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
     if (taxpayerKindAffectsValidation(country) && kindOf(args)) {
       return message(
         kindOf(args) === TaxpayerKind.COMPANY
-          ? 'VALIDATION.FISCAL.TAX_ID_INVALID_FOR_COMPANY'
-          : 'VALIDATION.FISCAL.TAX_ID_INVALID_FOR_INDIVIDUAL',
+          ? 'validation.fiscal.tax_id_invalid_for_company'
+          : 'validation.fiscal.tax_id_invalid_for_individual',
         { label: profile.taxId.label, example: profile.taxId.example },
       );
     }
 
-    return message('VALIDATION.FISCAL.TAX_ID_INVALID_FOR_COUNTRY', {
+    return message('validation.fiscal.tax_id_invalid_for_country', {
       label: profile.taxId.label,
       example: profile.taxId.example,
     });
@@ -150,10 +150,10 @@ export class StateForCountryConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments): string {
     const profile = findCountryProfile(countryOf(args));
     return profile
-      ? message('VALIDATION.FISCAL.DIVISION_INVALID_FOR_COUNTRY', {
+      ? message('validation.fiscal.division_invalid_for_country', {
           label: profile.address.divisionLabel,
         })
-      : message('VALIDATION.FISCAL.DIVISION_INVALID');
+      : message('validation.fiscal.division_invalid');
   }
 }
 
@@ -191,8 +191,8 @@ export class PostalCodeForCountryConstraint implements ValidatorConstraintInterf
 
   defaultMessage(args: ValidationArguments): string {
     const profile = findCountryProfile(countryOf(args));
-    if (!profile) return message('VALIDATION.FISCAL.POSTAL_CODE_INVALID');
-    return message('VALIDATION.FISCAL.POSTAL_CODE_INVALID_FOR_COUNTRY', {
+    if (!profile) return message('validation.fiscal.postal_code_invalid');
+    return message('validation.fiscal.postal_code_invalid_for_country', {
       label: profile.address.postalCodeLabel,
       country: profile.name,
     });
@@ -243,19 +243,19 @@ export class FiscalProfileForCountryConstraint implements ValidatorConstraintInt
     const values =
       raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
     const errors = validateFiscalFields(country, kind, values);
-    if (errors.length === 0) return message('VALIDATION.FISCAL.PROFILE_INVALID');
+    if (errors.length === 0) return message('validation.fiscal.profile_invalid');
 
     // Each problem is its own key with its own field label; the factory translates them and joins
     // them with `Intl.ListFormat`, so the separator is the reader's, not a hardcoded semicolon.
     const reasons: Record<string, string> = {
-      required: 'VALIDATION.FISCAL.FIELD_REQUIRED',
-      unknown_option: 'VALIDATION.FISCAL.FIELD_UNKNOWN_OPTION',
-      bad_format: 'VALIDATION.FISCAL.FIELD_BAD_FORMAT',
+      required: 'validation.fiscal.field_required',
+      unknown_option: 'validation.fiscal.field_unknown_option',
+      bad_format: 'validation.fiscal.label_not_expected_format',
     };
 
-    return message('VALIDATION.FISCAL.PROFILE_INCOMPLETE', {
+    return message('validation.fiscal.profile_incomplete', {
       details: errors.map((error) => ({
-        key: reasons[error.reason] ?? 'VALIDATION.FISCAL.FIELD_NOT_FOR_COUNTRY',
+        key: reasons[error.reason] ?? 'validation.fiscal.field_not_for_country',
         params: { label: error.label },
       })),
     });

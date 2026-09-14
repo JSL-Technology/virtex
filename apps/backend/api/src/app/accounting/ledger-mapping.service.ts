@@ -42,7 +42,7 @@ export class LedgerMappingService {
         manager.findOneBy(Ledger, { id: targetLedgerId, organizationId }),
       ]);
       if (!sourceLedger || !targetLedger) {
-        throw new NotFoundError('ACCOUNTING.UNO_AMBOS_LIBROS_CONTABLES_NO_FUERON_ENCONTRADOS');
+        throw new NotFoundError('accounting.one_both_ledgers_not_found');
       }
 
 
@@ -53,7 +53,7 @@ export class LedgerMappingService {
       });
 
       if (mappings.length === 0) {
-        return { messageKey: 'ACCOUNTING.TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS', created: 0 };
+        return { messageKey: 'accounting.all_existing_rules_deleted', created: 0 };
       }
 
 
@@ -72,7 +72,7 @@ export class LedgerMappingService {
       await manager.save(newRules);
 
       return {
-        messageKey: 'ACCOUNTING.LEDGER_MAP_UPDATED',
+        messageKey: 'accounting.ledger_map_updated',
         messageParams: { source: sourceLedger.name, target: targetLedger.name },
         created: newRules.length,
       };

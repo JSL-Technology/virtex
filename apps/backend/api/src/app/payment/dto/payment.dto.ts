@@ -13,28 +13,28 @@ import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-pe
  */
 export class CreateCheckoutSessionDto {
   @ApiProperty({ example: 'pro', description: 'Slug of the plan to subscribe to' })
-  @IsString({ message: 'VALIDATION.PAYMENT.PLAN_SELECCIONADO_NO_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.PAYMENT.DEBES_SELECCIONAR_PLAN' })
-  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
+  @IsString({ message: 'validation.payment.selected_plan_not_valid' })
+  @IsNotEmpty({ message: 'validation.payment.you_must_select_plan' })
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
   // Slugs are internal identifiers: lowercase, digits and hyphens. Constraining the shape keeps
   // anything that is not a plan slug from reaching the lookup at all.
-  @Matches(/^[a-z0-9][a-z0-9-]*$/, { message: 'VALIDATION.PAYMENT.PLAN_SELECCIONADO_NO_VALIDO' })
+  @Matches(/^[a-z0-9][a-z0-9-]*$/, { message: 'validation.payment.selected_plan_not_valid' })
   planSlug!: string;
 
   /** Monthly or annual. Defaults to monthly. */
   @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
   @IsOptional()
-  @IsIn(BILLING_PERIODS, { message: 'VALIDATION.PAYMENT.PERIODO_FACTURACION_NO_VALIDO' })
+  @IsIn(BILLING_PERIODS, { message: 'validation.payment.billing_period_not_valid' })
   billingPeriod?: BillingPeriod;
 }
 
 /** Reconcile an organization's subscription after the browser returns from Checkout. */
 export class ConfirmCheckoutDto {
   @ApiProperty({ example: 'cs_test_a1B2c3', description: 'Stripe Checkout session id' })
-  @IsString({ message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
-  @IsNotEmpty({ message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
-  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
+  @IsString({ message: 'validation.payment.payment_session_not_valid' })
+  @IsNotEmpty({ message: 'validation.payment.payment_session_not_valid' })
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   // Stripe checkout session ids are `cs_` followed by an alphanumeric body.
-  @Matches(/^cs_[A-Za-z0-9_]+$/, { message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
+  @Matches(/^cs_[A-Za-z0-9_]+$/, { message: 'validation.payment.payment_session_not_valid' })
   sessionId!: string;
 }

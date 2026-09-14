@@ -70,10 +70,10 @@ export class InvoicesListPage implements OnInit {
   rangeLabel = computed(() => {
     // Estaba compuesto con literales en español —«Sin facturas», «… de …»— dentro de un `computed`,
     // donde ninguna revisión de plantillas lo iba a encontrar.
-    if (this.total() === 0) return this.translate.instant('INVOICES.LIST.RANGE_EMPTY');
+    if (this.total() === 0) return this.translate.instant('invoices.list.range_empty');
     const from = (this.page() - 1) * this.limit() + 1;
     const to = Math.min(this.total(), from + this.invoices().length - 1);
-    return this.translate.instant('INVOICES.LIST.RANGE', { from, to, total: this.total() });
+    return this.translate.instant('invoices.list.range', { from, to, total: this.total() });
   });
 
   constructor() {
@@ -128,8 +128,8 @@ export class InvoicesListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set('INVOICES.LIST.LOAD_FAILED');
-        this.notificationService.showError('INVOICES.LIST.LOAD_FAILED');
+        this.error.set('invoices.list.load_failed');
+        this.notificationService.showError('invoices.list.load_failed');
         this.isLoading.set(false);
       },
     });
@@ -152,7 +152,7 @@ export class InvoicesListPage implements OnInit {
    * The status, as a catalogue key and as a badge class.
    *
    * Both come from `core/services/invoice-status`, which every screen that shows a status now
-   * shares. This page used to keep its own: five cases and a default of `INVOICES.LIST.ESTADO_2`,
+   * shares. This page used to keep its own: five cases and a default of `invoices.list.status_filter`,
    * which is the column heading "Estado" — so a draft invoice in the register wore a badge reading
    * **Status**, in a table whose own column was already called that.
    */
@@ -195,20 +195,20 @@ export class InvoicesListPage implements OnInit {
           // `NCF` and `RNC/Cédula` are Dominican terms on a product sold across the region and the
           // United States: a reader in São Paulo or Miami got a column heading meaning nothing.
           const header = [
-            'INVOICES.EXPORT.DOCUMENTO',
-            'INVOICES.EXPORT.COMPROBANTE_FISCAL',
-            'INVOICES.EXPORT.TIPO_DOCUMENTO',
-            'INVOICES.EXPORT.CLIENTE',
-            'INVOICES.EXPORT.IDENTIFICACION_FISCAL',
-            'INVOICES.EXPORT.FECHA_EMISION',
-            'INVOICES.EXPORT.FECHA_VENCIMIENTO',
-            'INVOICES.EXPORT.GRAVADO',
-            'INVOICES.EXPORT.EXENTO',
-            'INVOICES.EXPORT.IMPUESTO',
-            'INVOICES.EXPORT.TOTAL',
-            'INVOICES.EXPORT.SALDO',
-            'INVOICES.EXPORT.MONEDA',
-            'INVOICES.EXPORT.ESTADO',
+            'invoices.export.document',
+            'invoices.export.fiscal_document_number',
+            'invoices.export.document_type',
+            'invoices.export.customer',
+            'invoices.export.tax_id',
+            'invoices.export.issue_date',
+            'invoices.export.due_date',
+            'invoices.export.taxed',
+            'invoices.export.exempt',
+            'invoices.export.tax',
+            'invoices.export.total',
+            'invoices.export.balance',
+            'invoices.export.currency',
+            'invoices.export.status',
           ].map((key) => this.translate.instant(key) as string);
 
           const rows: CsvValue[][] = [
@@ -234,20 +234,20 @@ export class InvoicesListPage implements OnInit {
           ];
 
           downloadCsv(
-            reportFilename(this.translate.instant('INVOICES.EXPORT.NOMBRE_ARCHIVO'), this.today),
+            reportFilename(this.translate.instant('invoices.export.invoices'), this.today),
             toCsv(rows, { locale: this.translate.currentLang }),
           );
 
           this.notificationService.showSuccess(
             result.total > result.items.length
-              ? this.translate.instant('INVOICES.EXPORT.PARCIAL', {
+              ? this.translate.instant('invoices.export.exported_exported_total_invoices_narrow_filter', {
                   exported: result.items.length,
                   total: result.total,
                 })
-              : this.translate.instant('INVOICES.EXPORT.COMPLETADA'),
+              : this.translate.instant('invoices.export.export_complete'),
           );
         },
-        error: () => this.notificationService.showError('INVOICES.LIST.PUDO_EXPORTAR_LISTADO'),
+        error: () => this.notificationService.showError('invoices.list.list_could_not_exported'),
       });
   }
 }

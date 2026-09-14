@@ -35,5 +35,5 @@ export const IsRecaptchaToken = () =>
     }),
     ValidateIf(() => !recaptchaDisabled()),
     IsString(),
-    IsNotEmpty({ message: 'VALIDATION.CONSTRAINTS.IS_RECAPTCHA_TOKEN' }),
+    IsNotEmpty({ message: 'validation.constraints.is_recaptcha_token' }),
   );

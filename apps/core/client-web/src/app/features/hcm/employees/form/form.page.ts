@@ -118,9 +118,9 @@ export class EmployeeFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          firstName: 'HCM.EMPLOYEES.FORM.FIRST_NAME',
-          lastName: 'HCM.EMPLOYEES.FORM.LAST_NAME',
-          email: 'HCM.EMPLOYEES.FORM.EMAIL',
+          firstName: 'hcm.employees.form.first_name',
+          lastName: 'hcm.employees.form.last_name',
+          email: 'hcm.employees.form.email',
         }),
       );
       return;
@@ -142,7 +142,7 @@ export class EmployeeFormPage implements OnInit {
     request.subscribe({
       next: (employee) => {
         this.saving.set(false);
-        this.notifications.showSuccess('HCM.EMPLOYEES.FORM.SAVED');
+        this.notifications.showSuccess('hcm.employees.form.saved');
         this.load(employee.id);
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
@@ -187,7 +187,7 @@ export class EmployeeFormPage implements OnInit {
       next: (preview) => this.severance.set(preview),
       error: (error: { error?: { message?: string } }) => {
         this.severance.set(null);
-        this.severanceError.set(error?.error?.message ?? 'HCM.EMPLOYEES.FORM.SEVERANCE_FAILED');
+        this.severanceError.set(error?.error?.message ?? 'hcm.employees.form.severance_failed');
       },
     });
   }
@@ -228,7 +228,7 @@ export class EmployeeFormPage implements OnInit {
         );
         this.loadCompensation(id);
       },
-      error: () => this.notifications.showError('HCM.EMPLOYEE_NOT_FOUND'),
+      error: () => this.notifications.showError('hcm.employee_not_found'),
     });
   }
 
@@ -246,7 +246,7 @@ export class EmployeeFormPage implements OnInit {
     this.saving.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'HCM.EMPLOYEES.FORM.SAVE_FAILED',
+      typeof message === 'string' ? message : 'hcm.employees.form.save_failed',
     );
   }
 }

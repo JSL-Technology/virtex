@@ -123,7 +123,7 @@ export class InvoiceStatus {
 
     const baseOptions: Highcharts.Options = {
       chart: { type: chartType as any },
-      title: { text: this.i18n.instant('DASHBOARD.INVOICE_STATUS.TITLE'), style: { color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' } },
+      title: { text: this.i18n.instant('dashboard.invoice_status.title'), style: { color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' } },
       // subtitle: { text: 'Estado actual de la cartera de clientes', style: { color: 'var(--text-secondary)' } },
       plotOptions: {
         pie: { dataLabels: { enabled: false }, showInLegend: true, borderWidth: 3, borderColor: 'var(--bg-layer-1)', allowPointSelect: true },
@@ -136,7 +136,7 @@ export class InvoiceStatus {
         crosshair: true
       },
       series: [{
-        name: this.i18n.instant('DASHBOARD.INVOICE_STATUS.SERIES'), type: chartType as any, data,
+        name: this.i18n.instant('dashboard.invoice_status.series'), type: chartType as any, data,
         states: { hover: { halo: { size: 8 } } }
       }],
 

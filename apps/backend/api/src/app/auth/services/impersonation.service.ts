@@ -45,7 +45,7 @@ export class ImpersonationService {
 
     // The wildcard is absolute: only another super-admin may assume it.
     if (targetPermissions.includes('*') && !actorPermissions.includes('*')) {
-      throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_PRIVILEGIOS_TOTALES');
+      throw new ForbiddenError('auth.you_cannot_impersonate_user_with_full');
     }
 
     for (const permission of targetPermissions) {
@@ -53,7 +53,7 @@ export class ImpersonationService {
       // 'users:*' legitimately covers a target's 'users:read'. This keeps the decision
       // consistent with PermissionsGuard and RolesService.
       if (!hasPermission(actorPermissions, [permission])) {
-        throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_PERMISOS_TU_NO');
+        throw new ForbiddenError('auth.you_cannot_impersonate_user_who_holds');
       }
     }
   }
@@ -69,11 +69,11 @@ export class ImpersonationService {
     // Impersonating while already impersonating would make the audit trail ambiguous about who
     // the real operator is, and would let a chain launder privileges one hop at a time.
     if (adminUser.isImpersonating) {
-      throw new ForbiddenError('AUTH.YA_ESTAS_SUPLANTANDO_OTRO_USUARIO_FINALIZA_SESION');
+      throw new ForbiddenError('auth.you_already_impersonating_another_user_end');
     }
 
     if (adminUser.id === targetUserId) {
-      throw new BadRequestError('AUTH.NO_PUEDES_SUPLANTARTE_TI_MISMO');
+      throw new BadRequestError('auth.you_cannot_impersonate_yourself');
     }
 
     const actorPermissions = this.permissionsOf(adminUser);
@@ -82,7 +82,7 @@ export class ImpersonationService {
         { event: 'impersonation_denied', adminId: adminUser.id, reason: 'missing_permission' },
         '[SECURITY] Impersonation denied',
       );
-      throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_SUPLANTAR_USUARIOS');
+      throw new ForbiddenError('auth.you_do_not_have_permission_impersonate');
     }
 
     const targetUser = await this.userRepository.findOne({
@@ -91,7 +91,7 @@ export class ImpersonationService {
     });
 
     if (!targetUser) {
-      throw new NotFoundError('AUTH.USUARIO_SUPLANTAR_NO_FUE_ENCONTRADO');
+      throw new NotFoundError('auth.user_impersonate_not_found');
     }
 
     // Strict tenant isolation: impersonation must never cross an organization boundary.
@@ -102,12 +102,12 @@ export class ImpersonationService {
       );
       // Deliberately the same message as "not found" would be, so this cannot be used to probe
       // for the existence of user ids in other tenants.
-      throw new NotFoundError('AUTH.USUARIO_SUPLANTAR_NO_FUE_ENCONTRADO');
+      throw new NotFoundError('auth.user_impersonate_not_found');
     }
 
     // Assuming a suspended or archived account would resurrect access that was deliberately cut.
     if (targetUser.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_NO_ESTA_ACTIVO');
+      throw new ForbiddenError('auth.you_cannot_impersonate_user_who_not');
     }
 
     this.assertNoPrivilegeGain(actorPermissions, targetUser);
@@ -121,7 +121,7 @@ export class ImpersonationService {
 
   async validateStopImpersonation(impersonatingUser: AuthenticatedUser): Promise<User> {
     if (!impersonatingUser.isImpersonating || !impersonatingUser.originalUserId) {
-      throw new BadRequestError('AUTH.NO_ENCONTRO_SESION_SUPLANTACION_ACTIVA_DETENER');
+      throw new BadRequestError('auth.no_active_impersonation_session_found_stop');
     }
 
     const adminUser = await this.userRepository.findOne({
@@ -130,10 +130,10 @@ export class ImpersonationService {
     });
 
     if (!adminUser) {
-      throw new NotFoundError('AUTH.CUENTA_ADMINISTRADOR_ORIGINAL_NO_FUE_ENCONTRADA');
+      throw new NotFoundError('auth.original_administrator_account_not_found');
     }
     if (adminUser.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenError('AUTH.CUENTA_ADMINISTRADOR_ORIGINAL_YA_NO_ESTA_ACTIVA');
+      throw new ForbiddenError('auth.original_administrator_account_no_longer_active');
     }
 
     await this.userCacheService.clearUserSession(impersonatingUser.id);

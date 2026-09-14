@@ -27,7 +27,7 @@ export class DocumentSequencesService {
       .getOne();
 
     if (!sequence) {
-      throw new InternalServerError('SHARED.NO_ENCONTRO_SECUENCIA_DOCUMENTO_ACTIVA_TIPO_FAVOR', { type });
+      throw new InternalServerError('shared.no_active_document_sequence_found_type', { type });
     }
 
     const nextNumber = sequence.nextNumber;

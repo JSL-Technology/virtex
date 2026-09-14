@@ -190,7 +190,7 @@ export class ExchangeRateResolver {
     }
 
     throw new BadRequestError(
-      'CURRENCIES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA',
+      'currencies.no_exchange_rate_from_from_force',
       { from, to, date },
     );
   }
@@ -246,7 +246,7 @@ export class ExchangeRateResolver {
       new Date(`${resolved.quotedOn}T00:00:00.000Z`),
     );
     if (ageDays > maxAgeDays) {
-      throw new BadRequestError('CURRENCIES.TASA_CAMBIO_DEMASIADO_ANTIGUA', {
+      throw new BadRequestError('currencies.from_quote_from_quoted_age_days', {
         from: resolved.from,
         to: resolved.to,
         date,
@@ -260,14 +260,14 @@ export class ExchangeRateResolver {
 
     if (!Number.isFinite(requestedRate) || requestedRate <= 0) {
       throw new BadRequestError(
-        'JOURNAL_ENTRIES.REQUIERE_TASA_CAMBIO_EXCHANGERATE_POSITIVA_TRANSACCIONES_MONEDA',
+        'journal_entries.positive_exchange_rate_required_foreign_currency',
       );
     }
 
     const tolerance = Math.max(0, settings?.fxRateTolerance ?? DEFAULT_RATE_TOLERANCE);
     const deviation = Math.abs(requestedRate - resolved.rate) / resolved.rate;
     if (deviation > tolerance) {
-      throw new BadRequestError('CURRENCIES.TASA_CAMBIO_FUERA_DE_RANGO', {
+      throw new BadRequestError('currencies.stated_rate_requested_deviates_too_far', {
         requested: roundAmount(requestedRate, 6),
         resolved: roundAmount(resolved.rate, 6),
         tolerance,

@@ -1,6 +1,6 @@
 <vx-draft-shell
-  [title]="(isEditMode() ? 'TREASURY.FORM.EDITAR_CUENTA' : 'TREASURY.FORM.NUEVA_CUENTA') | translate"
-  [subtitle]="'TREASURY.CUENTAS_BANCARIAS' | translate"
+  [title]="(isEditMode() ? 'treasury.form.edit_bank_account' : 'treasury.form.new_bank_account') | translate"
+  [subtitle]="'treasury.bank_accounts' | translate"
   [dirty]="form.dirty"
   [saving]="saving()"
   [invalid]="form.invalid"
@@ -13,27 +13,27 @@
     <section class="form-section">
       <div class="form-grid">
       <label class="field">
-        <span>{{ 'TREASURY.FORM.NOMBRE' | translate }} *</span>
+        <span>{{ 'treasury.form.name' | translate }} *</span>
         <input type="text" formControlName="name" maxlength="120" />
       </label>
 
       <label class="field">
-        <span>{{ 'TREASURY.BANCO' | translate }}</span>
+        <span>{{ 'treasury.bank' | translate }}</span>
         <input type="text" formControlName="bankName" maxlength="120" />
       </label>
 
       <label class="field">
-        <span>{{ 'TREASURY.NUMERO' | translate }}</span>
+        <span>{{ 'treasury.number' | translate }}</span>
         <input type="text" formControlName="accountNumber" maxlength="60" />
       </label>
 
       <label class="field">
-        <span>{{ 'TREASURY.FORM.TIPO' | translate }} *</span>
+        <span>{{ 'treasury.form.account_type' | translate }} *</span>
         <select formControlName="accountType">
-          <option value="CHECKING">{{ 'TREASURY.FORM.TIPOS.CHECKING' | translate }}</option>
-          <option value="SAVINGS">{{ 'TREASURY.FORM.TIPOS.SAVINGS' | translate }}</option>
-          <option value="CASH">{{ 'TREASURY.FORM.TIPOS.CASH' | translate }}</option>
-          <option value="CREDIT_CARD">{{ 'TREASURY.FORM.TIPOS.CREDIT_CARD' | translate }}</option>
+          <option value="CHECKING">{{ 'treasury.form.account_type.checking' | translate }}</option>
+          <option value="SAVINGS">{{ 'treasury.form.account_type.savings' | translate }}</option>
+          <option value="CASH">{{ 'treasury.form.account_type.cash' | translate }}</option>
+          <option value="CREDIT_CARD">{{ 'treasury.form.account_type.credit_card' | translate }}</option>
         </select>
       </label>
 
@@ -43,7 +43,7 @@
         rather than appearing to accept an edit that will not happen.
       -->
       <label class="field">
-        <span>{{ 'TREASURY.MONEDA' | translate }} *</span>
+        <span>{{ 'treasury.currency' | translate }} *</span>
         <select formControlName="currencyCode">
           <option value=""></option>
           @for (code of currencyCodes(); track code) {
@@ -51,12 +51,12 @@
           }
         </select>
         @if (isEditMode()) {
-          <small class="field__note">{{ 'TREASURY.FORM.NO_MODIFICABLE' | translate }}</small>
+          <small class="field__note">{{ 'treasury.form.cannot_changed_movements_already_posted_measured' | translate }}</small>
         }
       </label>
 
       <label class="field">
-        <span>{{ 'TREASURY.FORM.CUENTA_CONTABLE' | translate }} *</span>
+        <span>{{ 'treasury.form.ledger_account' | translate }} *</span>
         <select formControlName="glAccountId">
           <option value=""></option>
           @for (account of postableAccounts(); track account.id) {
@@ -64,60 +64,60 @@
           }
         </select>
         @if (isEditMode()) {
-          <small class="field__note">{{ 'TREASURY.FORM.NO_MODIFICABLE' | translate }}</small>
+          <small class="field__note">{{ 'treasury.form.cannot_changed_movements_already_posted_measured' | translate }}</small>
         }
       </label>
 
       @if (!isEditMode()) {
         <label class="field">
-          <span>{{ 'TREASURY.FORM.SALDO_INICIAL' | translate }}</span>
+          <span>{{ 'treasury.form.opening_balance' | translate }}</span>
           <input type="number" step="0.01" formControlName="openingBalance" />
           <!--
             An opening balance is now a journal entry, not a field stored beside the account. It
             used to be written and read by nothing, so a treasurer who typed a figure here saw a
             cash position of zero and had nothing to tell them why.
           -->
-          <small class="field__note">{{ 'TREASURY.FORM.SALDO_INICIAL_NOTA' | translate }}</small>
+          <small class="field__note">{{ 'treasury.form.posted_opening_journal_entry_against_account' | translate }}</small>
         </label>
 
         @if (declaresOpeningBalance()) {
           <label class="field">
-            <span>{{ 'TREASURY.FORM.FECHA_APERTURA' | translate }}</span>
+            <span>{{ 'treasury.form.opening_date' | translate }}</span>
             <input type="date" formControlName="openingDate" required />
           </label>
 
           <label class="field">
-            <span>{{ 'TREASURY.FORM.CUENTA_CONTRAPARTIDA' | translate }}</span>
+            <span>{{ 'treasury.form.counterpart_account' | translate }}</span>
             <select formControlName="openingBalanceAccountId" required>
-              <option value="">{{ 'TREASURY.FORM.SELECCIONE' | translate }}</option>
+              <option value="">{{ 'treasury.form.select' | translate }}</option>
               @for (account of equityAccounts(); track account.id) {
                 <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
               }
             </select>
-            <small class="field__note">{{ 'TREASURY.FORM.CUENTA_CONTRAPARTIDA_NOTA' | translate }}</small>
+            <small class="field__note">{{ 'treasury.form.normally_opening_balance_equity_not_chosen' | translate }}</small>
           </label>
         }
       }
 
       <label class="field">
-        <span>{{ 'TREASURY.FORM.IBAN' | translate }}</span>
+        <span>{{ 'treasury.form.iban' | translate }}</span>
         <input type="text" formControlName="iban" maxlength="34" />
       </label>
 
       <label class="field">
-        <span>{{ 'TREASURY.FORM.SWIFT_BIC' | translate }}</span>
+        <span>{{ 'treasury.form.swift_bic' | translate }}</span>
         <input type="text" formControlName="swiftBic" maxlength="11" />
       </label>
 
       <label class="field field--wide">
-        <span>{{ 'TREASURY.FORM.NOTAS' | translate }}</span>
+        <span>{{ 'treasury.form.notes' | translate }}</span>
         <textarea formControlName="notes" rows="3"></textarea>
       </label>
 
       @if (isEditMode()) {
         <label class="field field--checkbox">
           <input type="checkbox" formControlName="isActive" />
-          <span>{{ 'TREASURY.FORM.ACTIVA' | translate }}</span>
+          <span>{{ 'treasury.form.active_account' | translate }}</span>
         </label>
       }
       </div>

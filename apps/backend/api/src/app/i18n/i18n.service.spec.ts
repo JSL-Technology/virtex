@@ -12,15 +12,15 @@ describe('I18nService', () => {
 
   describe('lookup', () => {
     it('resolves a nested key by its dotted path', () => {
-      expect(i18n.translate('ERRORS.NOT_FOUND', 'es')).not.toBe('ERRORS.NOT_FOUND');
-      expect(i18n.translate('ERRORS.NOT_FOUND', 'en')).not.toBe('ERRORS.NOT_FOUND');
-      expect(i18n.translate('ERRORS.NOT_FOUND', 'pt')).not.toBe('ERRORS.NOT_FOUND');
+      expect(i18n.translate('errors.not_found', 'es')).not.toBe('errors.not_found');
+      expect(i18n.translate('errors.not_found', 'en')).not.toBe('errors.not_found');
+      expect(i18n.translate('errors.not_found', 'pt')).not.toBe('errors.not_found');
     });
 
     it('answers in the language asked for', () => {
-      const spanish = i18n.translate('ERRORS.FORBIDDEN', 'es');
-      const english = i18n.translate('ERRORS.FORBIDDEN', 'en');
-      const portuguese = i18n.translate('ERRORS.FORBIDDEN', 'pt');
+      const spanish = i18n.translate('errors.forbidden', 'es');
+      const english = i18n.translate('errors.forbidden', 'en');
+      const portuguese = i18n.translate('errors.forbidden', 'pt');
       expect(new Set([spanish, english, portuguese]).size).toBe(3);
     });
 
@@ -33,14 +33,14 @@ describe('I18nService', () => {
     it('falls back to the default language before giving up', () => {
       // Proven through `has`, which only consults the default catalogue: a key present there is
       // resolvable from any language even if that language has drifted.
-      expect(i18n.has('ERRORS.INTERNAL')).toBe(true);
+      expect(i18n.has('errors.internal')).toBe(true);
       expect(i18n.has('ERRORS.DEFINITELY_NOT_A_KEY')).toBe(false);
     });
   });
 
   describe('interpolation', () => {
     it('substitutes named parameters', () => {
-      const message = i18n.translate('AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO', 'es', {
+      const message = i18n.translate('auth.your_plan_could_not_activated_your', 'es', {
         pendingId: 'pending-1',
       });
       expect(message).toContain('pending-1');
@@ -50,7 +50,7 @@ describe('I18nService', () => {
     it('leaves an unsupplied placeholder visible instead of printing "undefined"', () => {
       // A stray `{{pendingId}}` on screen is a bug report. The word "undefined" in the middle of
       // a sentence is a mystery, and reads as if the value were legitimately absent.
-      const message = i18n.translate('AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO', 'es', {});
+      const message = i18n.translate('auth.your_plan_could_not_activated_your', 'es', {});
       expect(message).toContain('{{pendingId}}');
       expect(message).not.toContain('undefined');
     });
@@ -80,7 +80,7 @@ describe('I18nService', () => {
 
     it('ignores a non-numeric count rather than building a broken key', () => {
       expect(() =>
-        i18n.translate('ERRORS.NOT_FOUND', 'es', { count: 'many' as unknown as number }),
+        i18n.translate('errors.not_found', 'es', { count: 'many' as unknown as number }),
       ).not.toThrow();
     });
   });

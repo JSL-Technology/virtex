@@ -37,7 +37,7 @@ export class YearEndCloseController {
     // A message key, not a Spanish sentence composed here. The response used to carry a literal,
     // which is untranslatable and bypasses the catalogue every other endpoint answers through.
     return {
-      messageKey: 'ACCOUNTING.ANO_FISCAL_CERRADO_EXITOSAMENTE',
+      messageKey: 'accounting.fiscal_year_ending_has_closed',
       messageParams: { to: toIsoDate(closedYear.endDate) },
       fiscalYear: closedYear,
     };
@@ -66,7 +66,7 @@ export class YearEndCloseController {
       user.id,
     );
     return {
-      messageKey: 'ACCOUNTING.ANO_FISCAL_REABIERTO_EXITOSAMENTE',
+      messageKey: 'accounting.fiscal_year_ending_has_reopened_closing',
       messageParams: { to: toIsoDate(reopened.endDate) },
       fiscalYear: reopened,
     };

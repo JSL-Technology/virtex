@@ -79,7 +79,7 @@ export class PeriodsPage {
   }
 
   statusKey(status: AccountingPeriod['status']): string {
-    return status === 'OPEN' ? 'ACCOUNTING.PERIODS.STATUS_OPEN' : 'ACCOUNTING.PERIODS.STATUS_CLOSED';
+    return status === 'OPEN' ? 'accounting.periods.status_open' : 'accounting.periods.status_closed';
   }
 
   statusClass(status: AccountingPeriod['status']): string {
@@ -104,11 +104,11 @@ export class PeriodsPage {
    */
   async reopen(period: AccountingPeriod): Promise<void> {
     const reason = await this.dialog.prompt({
-      title: 'DIALOG.REOPEN_PERIOD.TITLE',
-      message: 'ACCOUNTING.PERIODS.REOPEN_REASON_PROMPT',
-      placeholder: 'DIALOG.REOPEN_PERIOD.PLACEHOLDER',
+      title: 'dialog.reopen_period.title',
+      message: 'accounting.periods.state_why_accounting_period_being_reopened',
+      placeholder: 'dialog.reopen_period.reason_reopening',
       minLength: 10,
-      tooShort: 'ACCOUNTING.PERIODS.REASON_TOO_SHORT',
+      tooShort: 'accounting.periods.reason_too_short',
       variant: 'warning',
     });
     if (!reason) return;

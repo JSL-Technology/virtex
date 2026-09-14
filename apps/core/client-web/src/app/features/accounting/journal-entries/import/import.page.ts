@@ -17,16 +17,16 @@ import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
  *
  * Each carries its own label key rather than the template composing one from `key`:
  * `translation-coverage.spec.ts` sweeps templates for literal keys, and a key assembled in the
- * markup is invisible to it — which is how `USER.STATUS.INACTIVE` reached the screen as itself.
+ * markup is invisible to it — which is how `user.status.inactive` reached the screen as itself.
  */
 const MAPPED_FIELDS = [
-  { key: 'entryId', label: 'ACCOUNTING.IMPORT.CAMPO_ENTRYID', required: true },
-  { key: 'date', label: 'ACCOUNTING.IMPORT.CAMPO_DATE', required: true },
-  { key: 'description', label: 'ACCOUNTING.IMPORT.CAMPO_DESCRIPTION', required: true },
-  { key: 'accountCode', label: 'ACCOUNTING.IMPORT.CAMPO_ACCOUNTCODE', required: true },
-  { key: 'debit', label: 'ACCOUNTING.IMPORT.CAMPO_DEBIT', required: true },
-  { key: 'credit', label: 'ACCOUNTING.IMPORT.CAMPO_CREDIT', required: true },
-  { key: 'lineDescription', label: 'ACCOUNTING.IMPORT.CAMPO_LINEDESCRIPTION', required: false },
+  { key: 'entryId', label: 'accounting.import.entry_identifier', required: true },
+  { key: 'date', label: 'accounting.import.date', required: true },
+  { key: 'description', label: 'accounting.import.description', required: true },
+  { key: 'accountCode', label: 'accounting.import.account_code', required: true },
+  { key: 'debit', label: 'accounting.import.debit', required: true },
+  { key: 'credit', label: 'accounting.import.credit', required: true },
+  { key: 'lineDescription', label: 'accounting.import.line_detail', required: false },
 ] as const;
 
 type MappedField = (typeof MAPPED_FIELDS)[number]['key'];

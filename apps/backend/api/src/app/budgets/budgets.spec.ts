@@ -362,7 +362,7 @@ describeWithDb('budget control', () => {
 
     const check = await control.checkBudget(organizationId, account['cash'], 999_999, '2026-03-10');
     expect(check.isExceeded).toBe(false);
-    expect(check.messageKey).toBe('BUDGETS.CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS');
+    expect(check.messageKey).toBe('budgets.account_dimensions_not_budgeted');
   });
 
   it('does not consult a month with no budget', async () => {

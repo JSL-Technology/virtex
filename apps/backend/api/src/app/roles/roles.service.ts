@@ -45,7 +45,7 @@ export class RolesService {
     async findOne(id: string, organizationId: string): Promise<Role> {
         const role = await this.roleRepository.findOne({ where: { id, organizationId } });
         if (!role) {
-            throw new NotFoundError('ROLES.ROL_ID_NO_ENCONTRADO', { id });
+            throw new NotFoundError('roles.role_id_not_found', { id });
         }
         return role;
     }
@@ -65,14 +65,14 @@ export class RolesService {
         // The global wildcard is never delegated into a role: a role carrying '*' would be a
         // second, unaudited super-admin grant.
         if (permissions.includes('*')) {
-            throw new ForbiddenError('ROLES.PERMISO_TOTAL_NO_PUEDE_DELEGARSE_ROL');
+            throw new ForbiddenError('roles.full_permission_cannot_delegated_role');
         }
 
         if (actorPermissions.includes('*')) return;
 
         for (const permission of permissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO', { permission });
+                throw new ForbiddenError('roles.you_cannot_assign_permission_permission_because', { permission });
             }
         }
     }
@@ -92,7 +92,7 @@ export class RolesService {
             select: ['id'],
         });
         if (existing && existing.id !== ignoreId) {
-            throw new ConflictError('ROLES.YA_EXISTE_ROL_LLAMADO_TU_ORGANIZACION', { name });
+            throw new ConflictError('roles.role_named_name_already_exists_your', { name });
         }
     }
 
@@ -109,7 +109,7 @@ export class RolesService {
         // Assigning a role that grants the full wildcard requires the actor to be a super-admin.
         if (rolePermissions.includes('*')) {
             if (!actorIsWildcard) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_PRIVILEGIOS_TOTALES');
+                throw new ForbiddenError('roles.you_cannot_assign_role_with_full');
             }
             return;
         }
@@ -124,7 +124,7 @@ export class RolesService {
         // with PermissionsGuard and the shared frontend util.
         for (const permission of rolePermissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_INCLUYE_PERMISO_TU', { permission });
+                throw new ForbiddenError('roles.you_cannot_assign_role_includes_permission', { permission });
             }
         }
     }
@@ -155,7 +155,7 @@ export class RolesService {
         const roleToClone = await this.findOne(id, organizationId);
 
         if (roleToClone.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_CLONAR');
+            throw new ForbiddenError('roles.system_roles_cannot_cloned');
         }
 
         const newRoleDto: CreateRoleDto = {
@@ -171,7 +171,7 @@ export class RolesService {
     async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor: AuthenticatedUser): Promise<Role> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_MODIFICADOS');
+            throw new ForbiddenError('roles.system_roles_cannot_modified');
         }
 
         // Privilege-escalation guard. `actor` is mandatory for the same fail-closed reason as in
@@ -225,7 +225,7 @@ export class RolesService {
     async remove(id: string, organizationId: string): Promise<void> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_ELIMINADOS');
+            throw new ForbiddenError('roles.system_roles_cannot_deleted');
         }
 
         // H2 FIX: Deleting a role is an authorization-graph mutation. Previously `remove` only
@@ -242,7 +242,7 @@ export class RolesService {
                 .getCount();
 
             if (assignedCount > 0) {
-                throw new ForbiddenError('ROLES.NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA', { assignedCount });
+                throw new ForbiddenError('roles.role_assigned_assigned_count_user_cannot', { assignedCount });
             }
 
             await manager.getRepository(Role).remove(role);

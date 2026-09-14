@@ -1,25 +1,25 @@
 <vx-list-shell
-  titleKey="PURCHASING.ORDERS.TITLE"
+  titleKey="purchasing.orders.title"
   [count]="orders().length"
   [empty]="!loading() && orders().length === 0"
 >
   <a listActions routerLink="/purchasing/orders/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'PURCHASING.ORDERS.NEW_ORDER' | translate }}</span>
+    <span>{{ 'purchasing.orders.new_order' | translate }}</span>
   </a>
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'PURCHASING.ORDERS.ORDER' | translate }}</th>
-          <th>{{ 'PURCHASING.ORDERS.SUPPLIER' | translate }}</th>
-          <th>{{ 'PURCHASING.ORDERS.ORDER_DATE' | translate }}</th>
-          <th class="text-right">{{ 'PURCHASING.ORDERS.TOTAL' | translate }}</th>
-          <th class="text-center">{{ 'PURCHASING.ORDERS.STATUS' | translate }}</th>
+          <th>{{ 'purchasing.orders.order' | translate }}</th>
+          <th>{{ 'purchasing.orders.supplier' | translate }}</th>
+          <th>{{ 'purchasing.orders.order_date' | translate }}</th>
+          <th class="text-right">{{ 'purchasing.orders.total' | translate }}</th>
+          <th class="text-center">{{ 'purchasing.orders.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -36,7 +36,7 @@
             <td class="text-right">{{ order.total | vxMoney: order.currencyCode }}</td>
             <td class="text-center">
               <span class="status-badge" [class]="getStatusClass(order.status)">
-                {{ 'PURCHASING.ORDERS.STATUS_LABEL.' + order.status | translate }}
+                {{ 'purchasing.orders.status_label.' + order.status | translate }}
               </span>
             </td>
           </tr>

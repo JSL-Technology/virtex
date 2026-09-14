@@ -36,14 +36,14 @@ export class SupplierForm implements OnInit {
    * could establish the rate.
    */
   protected readonly taxpayerTypes = [
-    { value: 'INDIVIDUAL', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_INDIVIDUAL' },
-    { value: 'COMPANY', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_COMPANY' },
+    { value: 'INDIVIDUAL', labelKey: 'contacts.customer_form.individual' },
+    { value: 'COMPANY', labelKey: 'contacts.customer_form.company' },
     {
       value: 'WITHHOLDING_AGENT',
-      labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT',
+      labelKey: 'contacts.customer_form.designated_withholding_agent',
     },
-    { value: 'GOVERNMENT', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_GOVERNMENT' },
-    { value: 'FOREIGN', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_FOREIGN' },
+    { value: 'GOVERNMENT', labelKey: 'contacts.customer_form.government_body' },
+    { value: 'FOREIGN', labelKey: 'contacts.customer_form.customer_abroad' },
   ] as const;
 
   /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
@@ -85,7 +85,7 @@ export class SupplierForm implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.SUPPLIER_FORM.PUDO_CARGAR_PROVEEDOR');
+        this.notificationService.showError('masters.supplier_form.supplier_could_not_loaded');
         this.router.navigate(['/masters/suppliers']);
       },
     });
@@ -102,14 +102,14 @@ export class SupplierForm implements OnInit {
       //  lleva al campo, que es lo que separa un formulario que no guarda de uno que explica.
       this.problems.set(
         draftProblems(this.supplierForm, {
-          name: 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR',
-          contactPerson: 'MASTERS.SUPPLIER_FORM.PERSONA_CONTACTO',
-          taxId: 'MASTERS.SUPPLIER_FORM.ID_FISCAL_RNC_ETC',
-          address: 'MASTERS.SUPPLIER_FORM.DIRECCION',
-          email: 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO',
-          phone: 'MASTERS.SUPPLIER_FORM.TELEFONO',
-          country: 'MASTERS.SUPPLIER_FORM.PAIS',
-          taxpayerType: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE',
+          name: 'masters.supplier_form.supplier_name',
+          contactPerson: 'masters.supplier_form.contact_person',
+          taxId: 'masters.supplier_form.tax_id',
+          address: 'masters.supplier_form.address',
+          email: 'masters.supplier_form.email',
+          phone: 'masters.supplier_form.phone',
+          country: 'masters.supplier_form.country',
+          taxpayerType: 'contacts.customer_form.taxpayer_type',
         }),
       );
       return;
@@ -131,11 +131,11 @@ export class SupplierForm implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.SUPPLIER_FORM.PROVEEDOR_ACTUALIZADO_EXITOSAMENTE' : 'MASTERS.SUPPLIER_FORM.PROVEEDOR_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'masters.supplier_form.supplier_updated' : 'masters.supplier_form.supplier_created');
         this.router.navigate(['/masters/suppliers']);
       },
       error: () => {
-        this.notificationService.showError(this.isEditMode() ? 'MASTERS.SUPPLIER_FORM.ERROR_ACTUALIZAR_PROVEEDOR' : 'MASTERS.SUPPLIER_FORM.ERROR_CREAR_PROVEEDOR');
+        this.notificationService.showError(this.isEditMode() ? 'masters.supplier_form.error_updating_supplier' : 'masters.supplier_form.error_creating_supplier');
         this.isLoading.set(false);
       },
     });

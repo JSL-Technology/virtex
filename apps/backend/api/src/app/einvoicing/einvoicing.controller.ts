@@ -52,13 +52,13 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file?.buffer?.length) {
-      throw new BadRequestError('EINVOICING.DEBE_ADJUNTAR_ARCHIVO_CERTIFICADO_P12_PFX');
+      throw new BadRequestError('einvoicing.you_must_attach_certificate_file_p12');
     }
 
     // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
     const password = this.field(body, 'password');
     const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestError('EINVOICING.CONTRASENA_CERTIFICADO_ES_OBLIGATORIA');
+    if (!password) throw new BadRequestError('einvoicing.certificate_password_required');
 
     return this.certificates.upload(user.organizationId, { pfx: file.buffer, password, alias });
   }
@@ -116,7 +116,7 @@ export class EinvoicingController {
     @Res() res: Response,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission?.signedXml) throw new NotFoundError('EINVOICING.NO_HAY_CF_FIRMADO_ESTA_FACTURA');
+    if (!submission?.signedXml) throw new NotFoundError('einvoicing.no_signed_cf_invoice');
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${submission.ncf}.xml"`)
@@ -168,7 +168,7 @@ export class EinvoicingController {
     @Query('kind') kind?: string,
   ) {
     if (kind && !(kind in EcfMessageKind)) {
-      throw new BadRequestError('EINVOICING.TIPO_MENSAJE_DESCONOCIDO_USA_COMMERCIAL_APPROVAL_SEQUENCE', { kind });
+      throw new BadRequestError('einvoicing.unknown_message_type_kind_use_commercial', { kind });
     }
     const messages = await this.lifecycle.list(
       user.organizationId,

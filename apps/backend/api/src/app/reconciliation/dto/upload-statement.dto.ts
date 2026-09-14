@@ -29,52 +29,52 @@ export class UploadStatementDto {
   @IsNotEmpty()
   bankAccountId: string;
 
-  @IsDateString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_INICIO_DEBE_FECHA_VALIDA' })
-  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_INICIO_NO_PUEDE_ESTAR_VACIA' })
+  @IsDateString({}, { message: 'validation.upload_statement.start_date_must_valid_date' })
+  @IsNotEmpty({ message: 'validation.upload_statement.start_date_cannot_empty' })
   startDate: string;
 
-  @IsDateString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_FIN_DEBE_FECHA_VALIDA' })
-  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_FIN_NO_PUEDE_ESTAR_VACIA' })
+  @IsDateString({}, { message: 'validation.upload_statement.end_date_must_valid_date' })
+  @IsNotEmpty({ message: 'validation.upload_statement.end_date_cannot_empty' })
   endDate: string;
 
   @Transform(toNumber)
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_INICIAL_DEBE_NUMERO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.upload_statement.opening_balance_must_number' })
   startingBalance: number;
 
   @Transform(toNumber)
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_FINAL_DEBE_NUMERO' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.upload_statement.closing_balance_must_number' })
   endingBalance: number;
 
   // ── column mapping ─────────────────────────────────────────────────────────
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   dateColumn: string;
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   descriptionColumn: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   referenceColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   debitColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   creditColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   amountColumn?: string;
 
   // ── format ─────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ export class UploadStatementDto {
    */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(40, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":40}' })
+  @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
   dateFormat: string;
 
   @IsIn(['.', ','])

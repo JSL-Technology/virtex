@@ -22,11 +22,11 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
  * invented here.
  */
 const STATUS: Record<AdjustmentStatus, { key: string; badge: string }> = {
-  PENDING_APPROVAL: { key: 'AUDIT_ADJUSTMENTS.STATUS.PENDING_APPROVAL', badge: 'badge-warning' },
-  APPROVED: { key: 'AUDIT_ADJUSTMENTS.STATUS.APPROVED', badge: 'badge-info' },
-  REJECTED: { key: 'AUDIT_ADJUSTMENTS.STATUS.REJECTED', badge: 'badge' },
-  POSTED: { key: 'AUDIT_ADJUSTMENTS.STATUS.POSTED', badge: 'badge-success' },
-  FAILED: { key: 'AUDIT_ADJUSTMENTS.STATUS.FAILED', badge: 'badge-error' },
+  PENDING_APPROVAL: { key: 'audit_adjustments.status.pending_approval', badge: 'badge-warning' },
+  APPROVED: { key: 'audit_adjustments.status.approved', badge: 'badge-info' },
+  REJECTED: { key: 'audit_adjustments.status.rejected', badge: 'badge' },
+  POSTED: { key: 'audit_adjustments.status.posted', badge: 'badge-success' },
+  FAILED: { key: 'audit_adjustments.status.failed', badge: 'badge-error' },
 };
 
 /**

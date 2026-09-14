@@ -1,20 +1,20 @@
 <vx-list-shell
-  titleKey="MASTERS.UNITS_OF_MEASURE.UNITS_MEASURE"
+  titleKey="masters.units_of_measure.units_measure"
   [count]="units().length"
   [empty]="units().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.UNITS_OF_MEASURE.NEW_UNIT' | translate }}</span>
+    <span>{{ 'masters.units_of_measure.new_unit' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.UNITS_OF_MEASURE.NAME' | translate }}</th>
-          <th>{{ 'MASTERS.UNITS_OF_MEASURE.SYMBOL' | translate }}</th>
-          <th>{{ 'MASTERS.UNITS_OF_MEASURE.TYPE' | translate }}</th>
+          <th>{{ 'masters.units_of_measure.name' | translate }}</th>
+          <th>{{ 'masters.units_of_measure.symbol' | translate }}</th>
+          <th>{{ 'masters.units_of_measure.type' | translate }}</th>
         </tr>
       </thead>
       <tbody>

@@ -11,6 +11,6 @@ export class MergeAccountsDto {
   destinationAccountId: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'VALIDATION.MERGE_ACCOUNTS.REQUIERE_RAZON_PARA_FUSION' })
+  @IsNotEmpty({ message: 'validation.merge_accounts.reason_merge_required' })
   reason: string;
 }

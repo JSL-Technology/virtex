@@ -1,6 +1,6 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>{{ 'REPORTS.BALANCE_SHEET.BALANCE_GENERAL' | translate }}</h3>
+    <h3>{{ 'reports.balance_sheet.balance_general' | translate }}</h3>
     <div class="header-actions">
       <label class="date-picker">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
@@ -8,7 +8,7 @@
           type="date"
           [value]="asOfDate()"
           (change)="onDateChange($any($event.target).value)"
-          [attr.aria-label]="'REPORTS.BALANCE_SHEET.AL_CORTE' | translate"
+          [attr.aria-label]="'reports.balance_sheet.as_of' | translate"
         />
       </label>
       <!--
@@ -18,30 +18,30 @@
       -->
       <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+        <span>{{ 'reports.common.export' | translate }}</span>
       </button>
       <button class="primary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+        <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
     </div>
   </div>
 
   @if (loading()) {
-    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+    <p class="report-state">{{ 'reports.common.loading' | translate }}</p>
   } @else if (failed()) {
     <p class="report-state report-state--error">
-      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      {{ 'reports.common.report_could_not_loaded' | translate }}
       <button class="secondary-button" type="button" (click)="load()">
-        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+        {{ 'reports.common.try_again' | translate }}
       </button>
     </p>
   } @else if (report(); as data) {
     <div class="report-container card">
       <div class="report-header">
-        <h2>{{ 'REPORTS.BALANCE_SHEET.BALANCE_GENERAL' | translate }}</h2>
+        <h2>{{ 'reports.balance_sheet.balance_general' | translate }}</h2>
         <p>
-          {{ 'REPORTS.BALANCE_SHEET.AL_CORTE' | translate }}
+          {{ 'reports.balance_sheet.as_of' | translate }}
           {{ data.asOfDate | vxDate: 'long' }} — {{ data.ledger.name }} ({{ data.ledger.currency }})
         </p>
       </div>
@@ -54,21 +54,21 @@
       @if (!data.isBalanced) {
         <p class="out-of-balance" role="alert">
           <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
-          {{ 'REPORTS.BALANCE_SHEET.NO_CUADRA' | translate: { amount: (data.outOfBalanceBy | vxMoney: data.ledger.currency) } }}
+          {{ 'reports.balance_sheet.balance_sheet_does_not_balance_assets' | translate: { amount: (data.outOfBalanceBy | vxMoney: data.ledger.currency) } }}
         </p>
       }
 
       @if (isEmpty()) {
-        <p class="report-state">{{ 'REPORTS.COMMON.SIN_MOVIMIENTOS' | translate }}</p>
+        <p class="report-state">{{ 'reports.common.no_posted_movements_range' | translate }}</p>
       } @else {
         <div class="report-body">
           <div class="report-section">
-            <div class="section-title"><span>{{ 'REPORTS.BALANCE_SHEET.ACTIVOS' | translate }}</span></div>
+            <div class="section-title"><span>{{ 'reports.balance_sheet.assets' | translate }}</span></div>
 
             @for (section of data.assets.sections; track section.category) {
               <div class="subsection">
                 <div class="subsection-title">
-                  {{ 'ACCOUNTING.CATEGORIES.' + section.category | translate }}
+                  {{ 'accounting.categories.' + section.category | translate }}
                 </div>
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
@@ -77,25 +77,25 @@
                   </div>
                 }
                 <div class="report-line subtotal-line">
-                  <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: ('ACCOUNTING.CATEGORIES.' + section.category | translate) } }}</span>
+                  <span>{{ 'reports.balance_sheet.total_title' | translate: { title: ('accounting.categories.' + section.category | translate) } }}</span>
                   <span class="amount">{{ section.subtotal | vxNumber: '1.2-2' }}</span>
                 </div>
               </div>
             }
 
             <div class="report-line total-line">
-              <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_ACTIVOS' | translate }}</span>
+              <span>{{ 'reports.balance_sheet.total_assets' | translate }}</span>
               <span class="amount">{{ data.assets.total | vxMoney: data.ledger.currency }}</span>
             </div>
           </div>
 
           <div class="report-section">
-            <div class="section-title"><span>{{ 'REPORTS.BALANCE_SHEET.PASIVOS_PATRIMONIO' | translate }}</span></div>
+            <div class="section-title"><span>{{ 'reports.balance_sheet.liabilities_equity' | translate }}</span></div>
 
             @for (section of data.liabilities.sections; track section.category) {
               <div class="subsection">
                 <div class="subsection-title">
-                  {{ 'ACCOUNTING.CATEGORIES.' + section.category | translate }}
+                  {{ 'accounting.categories.' + section.category | translate }}
                 </div>
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
@@ -104,20 +104,20 @@
                   </div>
                 }
                 <div class="report-line subtotal-line">
-                  <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: ('ACCOUNTING.CATEGORIES.' + section.category | translate) } }}</span>
+                  <span>{{ 'reports.balance_sheet.total_title' | translate: { title: ('accounting.categories.' + section.category | translate) } }}</span>
                   <span class="amount">{{ section.subtotal | vxNumber: '1.2-2' }}</span>
                 </div>
               </div>
             }
             <div class="report-line subtotal-line">
-              <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_PASIVOS' | translate }}</span>
+              <span>{{ 'reports.balance_sheet.total_liabilities' | translate }}</span>
               <span class="amount">{{ data.liabilities.total | vxNumber: '1.2-2' }}</span>
             </div>
 
             @for (section of data.equity.sections; track section.category) {
               <div class="subsection">
                 <div class="subsection-title">
-                  {{ 'ACCOUNTING.CATEGORIES.' + section.category | translate }}
+                  {{ 'accounting.categories.' + section.category | translate }}
                 </div>
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
@@ -134,16 +134,16 @@
               had no concept of it at all.
             -->
             <div class="report-line">
-              <span>{{ 'REPORTS.BALANCE_SHEET.RESULTADO_DEL_EJERCICIO' | translate }}</span>
+              <span>{{ 'reports.balance_sheet.result_year' | translate }}</span>
               <span class="amount">{{ data.equity.unclosedResult | vxNumber: '1.2-2' }}</span>
             </div>
             <div class="report-line subtotal-line">
-              <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_PATRIMONIO' | translate }}</span>
+              <span>{{ 'reports.balance_sheet.total_equity' | translate }}</span>
               <span class="amount">{{ data.equity.total | vxNumber: '1.2-2' }}</span>
             </div>
 
             <div class="report-line total-line">
-              <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_PASIVOS_PATRIMONIO' | translate }}</span>
+              <span>{{ 'reports.balance_sheet.total_liabilities_equity' | translate }}</span>
               <span class="amount">{{ data.totalLiabilitiesAndEquity | vxMoney: data.ledger.currency }}</span>
             </div>
           </div>

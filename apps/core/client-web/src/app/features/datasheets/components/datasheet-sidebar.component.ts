@@ -103,7 +103,7 @@ import { firstValueFrom } from 'rxjs';
         </div>
 
         <div *ngIf="activeTab === 'charts'">
-           <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.chart_config' | translate }}</h3>
+           <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.chart_configuration' | translate }}</h3>
            <p class="text-sm text-slate-500 italic">Selecciona un rango de datos para crear un gráfico.</p>
         </div>
       </div>

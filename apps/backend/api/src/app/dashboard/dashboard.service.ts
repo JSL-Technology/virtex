@@ -46,7 +46,7 @@ export class DashboardService {
   private async getFinancialMetrics(organizationId: string) {
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestError('DASHBOARD.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+        throw new BadRequestError('dashboard.no_default_ledger_has_configured_organization');
     }
 
     // Signed balances, `debit − credit`, straight from the journal. The previous version summed
@@ -322,7 +322,7 @@ export class DashboardService {
     });
 
     if (!parentOrg) {
-        throw new NotFoundError('DASHBOARD.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
+        throw new NotFoundError('dashboard.parent_organization_not_found');
     }
 
     const organizationIds = [parentOrganizationId, ...parentOrg.subsidiaries.map(s => s.subsidiary.id)];

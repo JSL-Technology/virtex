@@ -167,10 +167,10 @@ export class CategoriesPage {
 
   async remove(category: ProductCategory): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_PRODUCT_CATEGORY.TITLE',
-      message: 'DIALOG.DELETE_PRODUCT_CATEGORY.MESSAGE',
+      title: 'dialog.delete_product_category.title',
+      message: 'dialog.delete_product_category.message',
       messageParams: { name: category.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -207,7 +207,7 @@ export class CategoriesPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'INVENTORY.CATEGORIES.SAVE_FAILED',
+      typeof message === 'string' ? message : 'inventory.categories.save_failed',
     );
   }
 }

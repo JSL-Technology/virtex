@@ -17,7 +17,7 @@ import { InboxShellComponent, InboxSection } from './inbox-shell.component';
   imports: [InboxShellComponent],
   template: `
     <vx-inbox-shell
-      titleKey="MY_WORK.MY_WORK"
+      titleKey="my_work.my_work"
       [sections]="sections()"
       [loading]="loading()"
       [error]="error()"
@@ -85,14 +85,14 @@ describe('InboxShellComponent', () => {
     fixture.detectChanges();
 
     expect(el.querySelectorAll('.ib__section').length).toBe(2);
-    expect(el.textContent).toContain('SHELL.INBOX_SECTION_CLEAR');
+    expect(el.textContent).toContain('shell.inbox_section_clear');
   });
 
   it('la bandeja vacía se celebra en vez de parecer una avería', () => {
     host.sections.set([{ labelKey: 'A', items: [] }]);
     fixture.detectChanges();
 
-    expect(el.querySelector('.ib__state--clear')?.textContent).toContain('SHELL.INBOX_ALL_CLEAR');
+    expect(el.querySelector('.ib__state--clear')?.textContent).toContain('shell.inbox_all_clear');
     expect(el.querySelector('.ib__count')).toBeNull();
   });
 
@@ -102,7 +102,7 @@ describe('InboxShellComponent', () => {
 
     const row = el.querySelector('.ib__item--overdue');
     expect(row).not.toBeNull();
-    expect(row?.textContent).toContain('SHELL.INBOX_OVERDUE');
+    expect(row?.textContent).toContain('shell.inbox_overdue');
   });
 
   it('la acción que resuelve el elemento viaja con él', () => {
@@ -116,7 +116,7 @@ describe('InboxShellComponent', () => {
 
   it('un error no se confunde con una bandeja vacía', () => {
     // La afirmación más cara que esta pantalla puede hacer es «no tienes nada pendiente».
-    host.error.set('MY_WORK.LOAD_FAILED');
+    host.error.set('my_work.load_failed');
     fixture.detectChanges();
 
     expect(el.querySelector('[role="alert"]')).not.toBeNull();

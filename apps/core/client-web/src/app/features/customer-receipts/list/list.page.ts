@@ -57,7 +57,7 @@ export class CustomerReceiptsListPage implements OnInit {
       },
       error: () => {
         this.notifications.showError(
-          'CUSTOMER_RECEIPTS.LIST.COULD_NOT_LOAD_CUSTOMER_RECEIPTS',
+          'customer_receipts.list.could_not_load_customer_receipts',
         );
         this.isLoading.set(false);
       },

@@ -28,10 +28,10 @@ export class KpiWorkingCapital implements OnInit {
   ngOnInit(): void {
     this.kpi$ = this.dashboardApiService.getWorkingCapital().pipe(
       map(data => ({
-        title: 'DASH.WIDGET.KPI_WORKING_CAPITAL.TITLE', // Usamos clave de traducción
+        title: 'dash.widget.kpi_working_capital.title', // Usamos clave de traducción
         value: data.workingCapital.toString(), // CORRECCIÓN: Se envía el número directamente
         comparisonValue: '', // El backend no provee comparación aún
-        comparisonPeriod: 'DASH.WIDGET.KPI_WORKING_CAPITAL.COMP_PERIOD', // O 'Actual'
+        comparisonPeriod: 'dash.widget.kpi_working_capital.current', // O 'Actual'
         isPositive: data.workingCapital > 0, // Lógica simple de ejemplo
         iconName: 'Wallet',
         color: 'blue'

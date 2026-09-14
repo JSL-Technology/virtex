@@ -54,11 +54,13 @@ const renameMap = read(`${HERE}/rename-map.json`);
 const redirects = read(`${HERE}/key-redirects.json`);
 const resolutions = read(`${HERE}/conflict-resolutions.json`);
 const valueFixes = read(`${HERE}/value-fixes.json`);
+const additions = read(`${HERE}/additions.json`);
 
 const strip = (o) => Object.fromEntries(Object.entries(o).filter(([k]) => !k.startsWith('$')));
 const redirectOf = strip(redirects);
 const resolved = strip(resolutions);
 const fixed = strip(valueFixes);
+const added = strip(additions);
 
 // ---------------------------------------------------------------------------
 // 1. Collect every old key under its new name, per side.
@@ -127,6 +129,16 @@ if (unresolved.length) {
 }
 
 // ---------------------------------------------------------------------------
+// 3b. Keys the code asks for that no catalogue ever defined.
+// ---------------------------------------------------------------------------
+let addedCount = 0;
+for (const [key, entry] of Object.entries(added)) {
+  if (source.has(key)) continue;
+  source.set(key, entry);
+  addedCount++;
+}
+
+// ---------------------------------------------------------------------------
 // 4. Collapse entries identical in every language into `literal`.
 // ---------------------------------------------------------------------------
 let literals = 0;
@@ -164,6 +176,7 @@ const missing = [...source].filter(([, e]) =>
 console.log(`wrote ${byNamespace.size} namespace files, ${source.size} keys`);
 console.log(`  duplicates dropped by redirect ${dropped} · keys moved by redirect ${moved}`);
 console.log(`  conflicts resolved by hand ${Object.keys(resolved).length} · values corrected ${Object.keys(fixed).length}`);
+console.log(`  keys added that no catalogue defined: ${addedCount}`);
 console.log(`  entries identical in all languages stored as literal: ${literals}`);
 if (missing.length) {
   console.log(`\n${missing.length} entries are missing a language:`);

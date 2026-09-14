@@ -1,7 +1,7 @@
 <div class="s-page">
   <div class="s-header">
-    <h1 class="s-header__title">{{ 'SETTINGS.PAGES.WITHHOLDING.TITLE' | translate }}</h1>
-    <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.WITHHOLDING.SUBTITLE' | translate }}</p>
+    <h1 class="s-header__title">{{ 'settings.pages.withholding.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.pages.withholding.what_your_buyers_withhold_when_they' | translate }}</p>
   </div>
 
   <!--
@@ -11,7 +11,7 @@
   -->
   @if (coverage(); as market) {
     <section class="card w-coverage">
-      <h2>{{ 'SETTINGS.PAGES.WITHHOLDING.COVERAGE_TITLE' | translate: { country: market.countryCode } }}</h2>
+      <h2>{{ 'settings.pages.withholding.what_product_covers_country' | translate: { country: market.countryCode } }}</h2>
       <ul>
         @for (capability of market.capabilities; track capability.capability) {
           <li [class]="'w-level w-level--' + capability.level">
@@ -20,7 +20,7 @@
             @if (capability.detail) { <span class="w-detail">{{ capability.detail }}</span> }
             @if (capability.requires) {
               <span class="w-requires">
-                {{ 'SETTINGS.PAGES.WITHHOLDING.REQUIRES' | translate }}: {{ capability.requires }}
+                {{ 'settings.pages.withholding.requires' | translate }}: {{ capability.requires }}
               </span>
             }
           </li>
@@ -30,36 +30,36 @@
   }
 
   <button class="primary-button" type="button" (click)="toggleForm()">
-    {{ (showForm() ? 'SETTINGS.PAGES.WITHHOLDING.CANCEL'
-                   : 'SETTINGS.PAGES.WITHHOLDING.ADD') | translate }}
+    {{ (showForm() ? 'settings.pages.withholding.cancel'
+                   : 'settings.pages.withholding.add') | translate }}
   </button>
 
   @if (showForm()) {
     <form class="card w-form" [formGroup]="form" (ngSubmit)="save()">
       <div class="w-grid">
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.CODE' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.code' | translate }}</span>
           <input formControlName="code" maxlength="40" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.LABEL' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.label' | translate }}</span>
           <input formControlName="label" maxlength="160" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.KIND' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.kind' | translate }}</span>
           <select formControlName="kind">
             @for (kind of kinds; track kind.value) {
               <option [value]="kind.value">{{ kind.labelKey | translate }}</option>
             }
           </select>
-          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.KIND_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.withholding.tax_withholds_part_tax_charged_base' | translate }}</small>
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.RATE' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.rate' | translate }}</span>
           <input type="number" step="0.01" min="0" max="100" formControlName="ratePercent" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.SCOPE' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.scope' | translate }}</span>
           <select formControlName="scope">
             @for (scope of scopes; track scope.value) {
               <option [value]="scope.value">{{ scope.labelKey | translate }}</option>
@@ -67,7 +67,7 @@
           </select>
         </label>
         <div class="form-field form-field--wide">
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.PAYERS' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.payers' | translate }}</span>
           <div class="w-payers">
             @for (payer of payerTypes; track payer.value) {
               <label class="w-payer">
@@ -80,36 +80,36 @@
               </label>
             }
           </div>
-          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.PAYERS_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.withholding.buyer_fiscal_classification_regime_with_no' | translate }}</small>
         </div>
         <label class="form-field form-field--wide">
           <!-- Required: a regime with no stated authority is a number somebody typed. -->
-          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS' | translate }}</span>
+          <span>{{ 'settings.pages.withholding.legal_basis' | translate }}</span>
           <input formControlName="legalBasis" maxlength="500" />
-          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.withholding.instrument_establishes_required_regime_with_no' | translate }}</small>
         </label>
       </div>
 
       <button class="primary-button" type="submit" [disabled]="saving()">
-        {{ 'SETTINGS.PAGES.WITHHOLDING.SAVE' | translate }}
+        {{ 'settings.pages.withholding.save' | translate }}
       </button>
     </form>
   }
 
   @if (loading()) {
-    <p class="s-state">{{ 'SETTINGS.PAGES.WITHHOLDING.LOADING' | translate }}</p>
+    <p class="s-state">{{ 'settings.pages.withholding.loading' | translate }}</p>
   } @else if (regimes().length === 0) {
-    <p class="s-state">{{ 'SETTINGS.PAGES.WITHHOLDING.EMPTY' | translate }}</p>
+    <p class="s-state">{{ 'settings.pages.withholding.empty' | translate }}</p>
   } @else {
     <div class="card">
       <table class="w-table">
         <thead>
           <tr>
-            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.CODE' | translate }}</th>
-            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.LABEL' | translate }}</th>
-            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.KIND' | translate }}</th>
-            <th class="numeric">{{ 'SETTINGS.PAGES.WITHHOLDING.RATE' | translate }}</th>
-            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.code' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.label' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.kind' | translate }}</th>
+            <th class="numeric">{{ 'settings.pages.withholding.rate' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.legal_basis' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -123,7 +123,7 @@
               <td class="w-basis">{{ row.legalBasis }}</td>
               <td>
                 <button class="secondary-button" type="button" (click)="remove(row)">
-                  {{ 'SETTINGS.PAGES.WITHHOLDING.DELETE' | translate }}
+                  {{ 'settings.pages.withholding.delete' | translate }}
                 </button>
               </td>
             </tr>

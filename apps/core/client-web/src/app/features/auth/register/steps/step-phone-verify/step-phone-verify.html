@@ -3,34 +3,34 @@
     <div class="verify-icon">
       <lucide-icon [img]="PhoneIcon" size="28"></lucide-icon>
     </div>
-    <h3 class="verify-title">{{ 'AUTH.STEP_PHONE_VERIFY.CONFIRMA_TU_NUMERO_CELULAR' | translate }}</h3>
+    <h3 class="verify-title">{{ 'auth.step_phone_verify.confirm_your_mobile_number' | translate }}</h3>
     <p class="verify-subtitle" *ngIf="hasPhone && !isSending()">
-      {{ 'AUTH.STEP_PHONE_VERIFY.ENVIAMOS_SMS_CODIGO' | translate }}
+      {{ 'auth.step_phone_verify.we_sent_sms_with_code' | translate }}
       <strong>{{ phone }}</strong>
     </p>
     <p class="verify-subtitle" *ngIf="hasPhone && isSending()">
       <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
-      {{ 'AUTH.STEP_PHONE_VERIFY.ENVIANDO_SMS_PHONE' | translate: { phone: phone } }}
+      {{ 'auth.step_phone_verify.sending_sms_phone' | translate: { phone: phone } }}
     </p>
     <p class="verify-subtitle" *ngIf="!hasPhone">
-      {{ 'AUTH.STEP_PHONE_VERIFY.OPTIONAL_SKIP' | translate }}
+      {{ 'auth.step_phone_verify.optional_skip' | translate }}
     </p>
   </div>
 
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
     {{ sendError()! | translate }}
-    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'AUTH.STEP_PHONE_VERIFY.REINTENTAR' | translate }}</button>
+    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_phone_verify.try_again' | translate }}</button>
   </div>
 
   <p *ngIf="channelDown()" class="verify-subtitle">
-    {{ 'AUTH.STEP_PHONE_VERIFY.SMS_UNAVAILABLE_CONTINUE' | translate }}
+    {{ 'auth.step_phone_verify.sms_unavailable_continue' | translate }}
   </p>
 
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
-      [title]="'AUTH.STEP_PHONE_VERIFY.CODIGO_VERIFICACION_SMS' | translate"
-      [description]="'AUTH.STEP_PHONE_VERIFY.DESCRIPCION_CODIGO_SMS' | translate"
+      [title]="'auth.step_phone_verify.sms_verification_code' | translate"
+      [description]="'auth.step_phone_verify.enter_digit_code_we_sent_your' | translate"
       [timerDuration]="300"
       [resendCooldown]="60"
       mode="email"

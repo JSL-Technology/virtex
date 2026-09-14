@@ -1,21 +1,21 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO_CUENTAS"
+  titleKey="accounting.chart_of_accounts.chart_accounts"
   [count]="state.displayAccounts().length"
   [loading]="state.isLoading()"
   [error]="state.error()"
   [empty]="state.displayAccounts().length === 0"
   [searchable]="true"
   [(search)]="search"
-  searchPlaceholderKey="ACCOUNTING.CHART_OF_ACCOUNTS.BUSCAR_CODIGO_NOMBRE"
+  searchPlaceholderKey="accounting.chart_of_accounts.search_code_name"
   (reload)="state.refreshAccounts()"
 >
   <button listActions class="secondary-button" type="button">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.EXPORTAR' | translate }}</span>
+    <span>{{ 'accounting.chart_of_accounts.export' | translate }}</span>
   </button>
   <button listActions class="primary-button" type="button" (click)="goToAccountForm()">
     <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NUEVA_CUENTA' | translate }}</span>
+    <span>{{ 'accounting.chart_of_accounts.new_account' | translate }}</span>
   </button>
 
   <!--
@@ -26,30 +26,30 @@
   <div listFilters class="filters">
     <select
       class="filter-select"
-      [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.ESTADO' | translate"
+      [attr.aria-label]="'accounting.chart_of_accounts.status' | translate"
       [ngModel]="state.filters().status"
       (ngModelChange)="onFilterChange('status', $event)"
     >
-      <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_ESTADOS' | translate }}</option>
-      <option value="ACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA' | translate }}</option>
-      <option value="INACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA' | translate }}</option>
+      <option value="ALL">{{ 'accounting.chart_of_accounts.all_statuses' | translate }}</option>
+      <option value="ACTIVE">{{ 'accounting.chart_of_accounts.active' | translate }}</option>
+      <option value="INACTIVE">{{ 'accounting.chart_of_accounts.inactive' | translate }}</option>
     </select>
     <select
       class="filter-select"
-      [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.TIPO' | translate"
+      [attr.aria-label]="'accounting.chart_of_accounts.type' | translate"
       [ngModel]="state.filters().type"
       (ngModelChange)="onFilterChange('type', $event)"
     >
-      <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_TIPOS' | translate }}</option>
+      <option value="ALL">{{ 'accounting.chart_of_accounts.all_types' | translate }}</option>
       @for (type of accountTypes; track type) {
-        <option [value]="type">{{ 'ACCOUNTING.ACCOUNT_TYPE.' + type | translate }}</option>
+        <option [value]="type">{{ 'accounting.account_type.' + type | translate }}</option>
       }
     </select>
   </div>
 
   <div listEmpty class="empty-invite">
-    <h2>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NO_ENCONTRARON_CUENTAS' | translate }}</h2>
-    <p>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ANADE_NUEVA_CUENTA_EMPEZAR_GESTIONAR_TU' | translate }}</p>
+    <h2>{{ 'accounting.chart_of_accounts.no_accounts_found' | translate }}</h2>
+    <p>{{ 'accounting.chart_of_accounts.add_account_start_managing_your_chart' | translate }}</p>
   </div>
 
   <div class="table-container card">
@@ -58,29 +58,29 @@
         <tr>
           <th class="col-name">
             <button type="button" class="sortable" (click)="onSort('name')">
-              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CUENTA' | translate }}</span>
+              <span>{{ 'accounting.chart_of_accounts.account' | translate }}</span>
               <lucide-icon [img]="getSortIcon('name')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
           <th class="col-type">
             <button type="button" class="sortable" (click)="onSort('type')">
-              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TIPO' | translate }}</span>
+              <span>{{ 'accounting.chart_of_accounts.type' | translate }}</span>
               <lucide-icon [img]="getSortIcon('type')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
           <th class="col-balance text-right">
             <button type="button" class="sortable" (click)="onSort('balance')">
-              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.BALANCE' | translate }}</span>
+              <span>{{ 'accounting.chart_of_accounts.balance' | translate }}</span>
               <lucide-icon [img]="getSortIcon('balance')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
           <th class="col-status text-center">
             <button type="button" class="sortable" (click)="onSort('isActive')">
-              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ESTADO' | translate }}</span>
+              <span>{{ 'accounting.chart_of_accounts.status' | translate }}</span>
               <lucide-icon [img]="getSortIcon('isActive')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
-          <th class="actions-column">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACCIONES' | translate }}</th>
+          <th class="actions-column">{{ 'accounting.chart_of_accounts.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -119,7 +119,7 @@
             </td>
             <!-- El tipo es un enum del backend en inglés; `titlecase` solo lo capitalizaba, así
                  que la columna decía Asset / Liability / Equity en una pantalla en español. -->
-            <td>{{ 'ACCOUNTING.ACCOUNT_TYPE.' + account.type | translate }}</td>
+            <td>{{ 'accounting.account_type.' + account.type | translate }}</td>
             <td class="text-right balance-cell" [class.negative]="account.balance < 0">
               {{ account.balance | vxNumber: '1.2-2' }}
             </td>
@@ -127,8 +127,8 @@
               <span class="status-badge" [class.active]="account.isActive">
                 {{
                   (account.isActive
-                    ? 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA'
-                    : 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA'
+                    ? 'accounting.chart_of_accounts.active'
+                    : 'accounting.chart_of_accounts.inactive'
                   ) | translate
                 }}
               </span>
@@ -139,7 +139,7 @@
                   type="button"
                   class="icon-button"
                   (click)="goToAccountForm(account.id)"
-                  [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.EDITAR' | translate"
+                  [attr.aria-label]="'accounting.chart_of_accounts.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
                 </button>
@@ -147,7 +147,7 @@
                   type="button"
                   class="icon-button delete"
                   (click)="deleteAccount(account)"
-                  [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.ELIMINAR' | translate"
+                  [attr.aria-label]="'accounting.chart_of_accounts.delete' | translate"
                   [disabled]="account.isSystemAccount"
                 >
                   <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -165,7 +165,7 @@
   -->
   <p listFooter class="pagination-info">
     {{
-      'ACCOUNTING.CHART_OF_ACCOUNTS.MOSTRANDO_N'
+      'accounting.chart_of_accounts.showing_count_accounts'
         | translate: { count: state.displayAccounts().length }
     }}
   </p>

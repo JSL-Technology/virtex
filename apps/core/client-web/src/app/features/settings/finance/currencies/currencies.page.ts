@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.CURRENCIES.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.CURRENCIES.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.currencies.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.currencies.manage_active_currencies_exchange_rates_used' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.CURRENCIES.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.CURRENCIES.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.CURRENCIES.FEATURES.F1','SETTINGS.PAGES.CURRENCIES.FEATURES.F2','SETTINGS.PAGES.CURRENCIES.FEATURES.F3','SETTINGS.PAGES.CURRENCIES.FEATURES.F4','SETTINGS.PAGES.CURRENCIES.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.currencies.empty_title'"
+        [description]="'settings.pages.currencies.empty_description'"
+        [features]="['settings.pages.currencies.features.f1','settings.pages.currencies.features.f2','settings.pages.currencies.features.f3','settings.pages.currencies.features.f4','settings.pages.currencies.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

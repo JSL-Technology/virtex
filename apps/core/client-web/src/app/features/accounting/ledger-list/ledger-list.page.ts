@@ -50,7 +50,7 @@ export class LedgerListPage implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('ACCOUNTING.LEDGER_LIST.LOAD_FAILED');
+        this.error.set('accounting.ledger_list.load_failed');
         this.loading.set(false);
       },
     });
