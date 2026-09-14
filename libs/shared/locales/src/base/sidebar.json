@@ -1,0 +1,1688 @@
+{
+  "sidebar.configuration.accounting_accounts": {
+    "es": "Cuentas contables",
+    "en": "Chart of accounts",
+    "pt": "Contas contábeis"
+  },
+  "sidebar.configuration.alerts": {
+    "es": "Alertas",
+    "en": "Alerts",
+    "pt": "Alertas"
+  },
+  "sidebar.configuration.digital_signatures": {
+    "es": "Firmas digitales",
+    "en": "Digital signatures",
+    "pt": "Assinaturas digitais"
+  },
+  "sidebar.configuration.email_templates": {
+    "es": "Plantillas de email",
+    "en": "Email templates",
+    "pt": "Modelos de e-mail"
+  },
+  "sidebar.configuration.integrations": {
+    "es": "Integraciones",
+    "en": "Integrations & API",
+    "pt": "Integrações"
+  },
+  "sidebar.configuration.permissions": {
+    "es": "Permisos",
+    "en": "Permissions",
+    "pt": "Permissões"
+  },
+  "sidebar.configuration.security": {
+    "es": "Seguridad",
+    "en": "Security",
+    "pt": "Segurança"
+  },
+  "sidebar.configuration.system": {
+    "es": "Sistema",
+    "en": "System Settings",
+    "pt": "Sistema"
+  },
+  "sidebar.data.catalog": {
+    "es": "Catálogo de datos",
+    "en": "Data catalog",
+    "pt": "Catálogo de dados"
+  },
+  "sidebar.data.lineage": {
+    "es": "Linaje de datos",
+    "en": "Data lineage",
+    "pt": "Linhagem de dados"
+  },
+  "sidebar.data.masking_sandbox": {
+    "es": "Máscara sandbox",
+    "en": "Sandbox masking",
+    "pt": "Máscara de sandbox"
+  },
+  "sidebar.esg.audit": {
+    "es": "Auditoría",
+    "en": "Audit",
+    "pt": "Auditoria"
+  },
+  "sidebar.esg.data": {
+    "es": "Datos",
+    "en": "Data",
+    "pt": "Dados"
+  },
+  "sidebar.esg.reports": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
+  "sidebar.expenses.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.expenses.cards": {
+    "es": "Tarjetas",
+    "en": "Cards",
+    "pt": "Cartões"
+  },
+  "sidebar.expenses.reports": {
+    "es": "Reportes de gastos",
+    "en": "Expense reports",
+    "pt": "Relatórios de despesas"
+  },
+  "sidebar.finance.ap": {
+    "es": "Cuentas por Pagar",
+    "en": "Accounts Payable",
+    "pt": "Contas a Pagar"
+  },
+  "sidebar.finance.ap_sub.advances": {
+    "es": "Anticipos",
+    "en": "Advances",
+    "pt": "Adiantamentos"
+  },
+  "sidebar.finance.ap_sub.aging": {
+    "es": "Antigüedad de saldos",
+    "en": "Ageing",
+    "pt": "Idade dos saldos"
+  },
+  "sidebar.finance.ap_sub.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.finance.ap_sub.credit_notes": {
+    "es": "Notas de crédito",
+    "en": "Credit notes",
+    "pt": "Notas de crédito"
+  },
+  "sidebar.finance.ap_sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.finance.ap_sub.dynamic_discounting": {
+    "es": "Descuento dinámico",
+    "en": "Dynamic discounting",
+    "pt": "Desconto dinâmico"
+  },
+  "sidebar.finance.ap_sub.invoices": {
+    "es": "Facturas",
+    "en": "Supplier Invoices",
+    "pt": "Faturas de Fornecedor"
+  },
+  "sidebar.finance.ap_sub.ocr": {
+    "literal": "OCR"
+  },
+  "sidebar.finance.ap_sub.payments": {
+    "es": "Pagos",
+    "en": "Payments",
+    "pt": "Pagamentos"
+  },
+  "sidebar.finance.ap_sub.scf_confirming": {
+    "literal": "Confirming (SCF)"
+  },
+  "sidebar.finance.ap_sub.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "sidebar.finance.ap_sub.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "sidebar.finance.ar": {
+    "es": "Cuentas por Cobrar",
+    "en": "Accounts Receivable",
+    "pt": "Contas a Receber"
+  },
+  "sidebar.finance.ar_sub.aging": {
+    "es": "Antigüedad de saldos",
+    "en": "Ageing",
+    "pt": "Idade dos saldos"
+  },
+  "sidebar.finance.ar_sub.cash_application": {
+    "es": "Aplicación de cobros",
+    "en": "Cash application",
+    "pt": "Baixa de recebimentos"
+  },
+  "sidebar.finance.ar_sub.chargebacks": {
+    "es": "Contracargos",
+    "en": "Chargebacks",
+    "pt": "Chargebacks"
+  },
+  "sidebar.finance.ar_sub.credit_notes": {
+    "es": "Notas de crédito",
+    "en": "Credit notes",
+    "pt": "Notas de crédito"
+  },
+  "sidebar.finance.ar_sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.finance.ar_sub.debit_notes": {
+    "es": "Notas de débito",
+    "en": "Debit notes",
+    "pt": "Notas de débito"
+  },
+  "sidebar.finance.ar_sub.disputes": {
+    "es": "Disputas",
+    "en": "Disputes",
+    "pt": "Disputas"
+  },
+  "sidebar.finance.ar_sub.dunning": {
+    "es": "Cobranza (dunning)",
+    "en": "Dunning",
+    "pt": "Cobrança (dunning)"
+  },
+  "sidebar.finance.ar_sub.factoring": {
+    "literal": "Factoring"
+  },
+  "sidebar.finance.ar_sub.invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "sidebar.finance.ar_sub.online_payments": {
+    "es": "Pagos en línea",
+    "en": "Online payments",
+    "pt": "Pagamentos on-line"
+  },
+  "sidebar.finance.ar_sub.payment_plans": {
+    "es": "Planes de pago",
+    "en": "Payment plans",
+    "pt": "Planos de pagamento"
+  },
+  "sidebar.finance.ar_sub.psp": {
+    "es": "Proveedores de pago (PSP)",
+    "en": "Payment providers (PSP)",
+    "pt": "Provedores de pagamento (PSP)"
+  },
+  "sidebar.finance.ar_sub.psp_reconciliation": {
+    "es": "Conciliación PSP",
+    "en": "PSP reconciliation",
+    "pt": "Conciliação PSP"
+  },
+  "sidebar.finance.ar_sub.receipts": {
+    "es": "Recibos",
+    "en": "Receipts & Collections",
+    "pt": "Recibos"
+  },
+  "sidebar.finance.ar_sub.settings": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "sidebar.finance.ar_sub.statements": {
+    "es": "Estados de cuenta",
+    "en": "Customer Statements",
+    "pt": "Extratos"
+  },
+  "sidebar.finance.closing": {
+    "es": "Cierre contable",
+    "en": "Period close",
+    "pt": "Fechamento contábil"
+  },
+  "sidebar.finance.gl": {
+    "es": "Contabilidad General",
+    "en": "General Ledger",
+    "pt": "Contabilidade Geral"
+  },
+  "sidebar.finance.gl_sub.allocations": {
+    "es": "Prorrateos",
+    "en": "Allocations",
+    "pt": "Rateios"
+  },
+  "sidebar.finance.gl_sub.audit": {
+    "es": "Auditoría",
+    "en": "Audit",
+    "pt": "Auditoria"
+  },
+  "sidebar.finance.gl_sub.book_gl": {
+    "es": "Libro: Mayor",
+    "en": "Book: General ledger",
+    "pt": "Livro: Razão"
+  },
+  "sidebar.finance.gl_sub.book_journal": {
+    "es": "Libro: Diario",
+    "en": "Book: Journal",
+    "pt": "Livro: Diário"
+  },
+  "sidebar.finance.gl_sub.book_subledgers": {
+    "es": "Libro: Auxiliares",
+    "en": "Book: Subledgers",
+    "pt": "Livro: Auxiliares"
+  },
+  "sidebar.finance.gl_sub.closing": {
+    "es": "Cierre",
+    "en": "Closing",
+    "pt": "Fechamento"
+  },
+  "sidebar.finance.gl_sub.closing_annual": {
+    "es": "Cierre — Anual",
+    "en": "Closing — Annual",
+    "pt": "Fechamento — Anual"
+  },
+  "sidebar.finance.gl_sub.closing_checklist": {
+    "es": "Cierre — Checklist",
+    "en": "Closing — Checklist",
+    "pt": "Fechamento — Checklist"
+  },
+  "sidebar.finance.gl_sub.closing_monthly": {
+    "es": "Cierre — Mensual",
+    "en": "Closing — Monthly",
+    "pt": "Fechamento — Mensal"
+  },
+  "sidebar.finance.gl_sub.closing_tasks": {
+    "es": "Cierre — Tareas",
+    "en": "Closing — Tasks",
+    "pt": "Fechamento — Tarefas"
+  },
+  "sidebar.finance.gl_sub.coa": {
+    "es": "Plan de cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de contas"
+  },
+  "sidebar.finance.gl_sub.consolidation_cta": {
+    "es": "Consolidación — CTA",
+    "en": "Consolidation — CTA",
+    "pt": "Consolidação — CTA"
+  },
+  "sidebar.finance.gl_sub.consolidation_eliminations": {
+    "es": "Consolidación — Eliminaciones",
+    "en": "Consolidation — Eliminations",
+    "pt": "Consolidação — Eliminações"
+  },
+  "sidebar.finance.gl_sub.consolidation_hyperinflation": {
+    "es": "Consolidación — Hiperinflación",
+    "en": "Consolidation — Hyperinflation",
+    "pt": "Consolidação — Hiperinflação"
+  },
+  "sidebar.finance.gl_sub.consolidation_ownership": {
+    "es": "Consolidación — Participaciones",
+    "en": "Consolidation — Ownership",
+    "pt": "Consolidação — Participações"
+  },
+  "sidebar.finance.gl_sub.consolidation_ownership_changes": {
+    "es": "Consolidación — Cambios de participación",
+    "en": "Consolidation — Ownership changes",
+    "pt": "Consolidação — Mudanças de participação"
+  },
+  "sidebar.finance.gl_sub.consolidation_structure": {
+    "es": "Consolidación — Estructura",
+    "en": "Consolidation — Structure",
+    "pt": "Consolidação — Estrutura"
+  },
+  "sidebar.finance.gl_sub.ic_billing": {
+    "es": "Intercompany — Facturación",
+    "en": "Intercompany — Billing",
+    "pt": "Intercompany — Faturamento"
+  },
+  "sidebar.finance.gl_sub.ic_netting": {
+    "en": "Intercompany — Netting",
+    "es": "Intercompañía — Neteo",
+    "pt": "Intercompanhia — Netting"
+  },
+  "sidebar.finance.gl_sub.ic_reconciliation": {
+    "es": "Intercompany — Conciliación",
+    "en": "Intercompany — Reconciliation",
+    "pt": "Intercompany — Conciliação"
+  },
+  "sidebar.finance.gl_sub.ic_transactions": {
+    "es": "Intercompany — Transacciones",
+    "en": "Intercompany — Transactions",
+    "pt": "Intercompany — Transações"
+  },
+  "sidebar.finance.gl_sub.journal": {
+    "es": "Asientos",
+    "en": "Journal Entries",
+    "pt": "Lançamentos"
+  },
+  "sidebar.finance.gl_sub.journals": {
+    "es": "Diarios",
+    "en": "Journals",
+    "pt": "Diários"
+  },
+  "sidebar.finance.gl_sub.monetary_revaluation": {
+    "es": "Revaluación monetaria",
+    "en": "Monetary revaluation",
+    "pt": "Reavaliação monetária"
+  },
+  "sidebar.finance.gl_sub.multi_gaap": {
+    "es": "Multi‑GAAP",
+    "en": "Multi-GAAP",
+    "pt": "Multi-GAAP"
+  },
+  "sidebar.finance.gl_sub.multi_ledger": {
+    "es": "Multilibros",
+    "en": "Multi-ledger",
+    "pt": "Multilivros"
+  },
+  "sidebar.finance.gl_sub.periods": {
+    "es": "Periodos contables",
+    "en": "Period Management",
+    "pt": "Períodos contábeis"
+  },
+  "sidebar.finance.gl_sub.periods_subledger": {
+    "es": "Periodos de subledger",
+    "en": "Subledger periods",
+    "pt": "Períodos de subledger"
+  },
+  "sidebar.finance.gl_sub.reconciliation": {
+    "es": "Conciliación",
+    "en": "Reconciliation",
+    "pt": "Conciliação"
+  },
+  "sidebar.finance.gl_sub.reconciliation_accounts": {
+    "es": "Conciliaciones de cuentas",
+    "en": "Account reconciliations",
+    "pt": "Conciliações de contas"
+  },
+  "sidebar.finance.gl_sub.reconciliation_subledger_gl": {
+    "es": "Conciliación — Subledger↔GL",
+    "en": "Reconciliation — Subledger ↔ GL",
+    "pt": "Conciliação — Subledger↔GL"
+  },
+  "sidebar.finance.gl_sub.revaluation_subledger": {
+    "es": "Revaluación de subledger",
+    "en": "Subledger revaluation",
+    "pt": "Reavaliação de subledger"
+  },
+  "sidebar.finance.gl_sub.rules_engine": {
+    "es": "Motor de reglas",
+    "en": "Rules engine",
+    "pt": "Motor de regras"
+  },
+  "sidebar.finance.gl_sub.simulator": {
+    "es": "Simulador",
+    "en": "Simulator",
+    "pt": "Simulador"
+  },
+  "sidebar.finance.gl_sub.variance_analysis": {
+    "es": "Análisis de variaciones",
+    "en": "Variance analysis",
+    "pt": "Análise de variações"
+  },
+  "sidebar.finance.statements": {
+    "es": "Estados financieros",
+    "en": "Financial statements",
+    "pt": "Demonstrações financeiras"
+  },
+  "sidebar.finance.statements_sub.balance_sheet": {
+    "es": "Balance General",
+    "en": "Balance Sheet",
+    "pt": "Balanço Patrimonial"
+  },
+  "sidebar.finance.statements_sub.cash_flow": {
+    "es": "Flujo de Efectivo",
+    "en": "Cash Flow",
+    "pt": "Fluxo de Caixa"
+  },
+  "sidebar.finance.statements_sub.income_statement": {
+    "es": "Estado de Resultados",
+    "en": "Income Statement",
+    "pt": "Demonstração do Resultado"
+  },
+  "sidebar.finance.statements_sub.trial_balance": {
+    "es": "Balanza de Comprobación",
+    "en": "Trial Balance",
+    "pt": "Balancete de Verificação"
+  },
+  "sidebar.finance.treasury": {
+    "es": "Tesorería y Bancos",
+    "en": "Treasury & Banks",
+    "pt": "Tesouraria e Bancos"
+  },
+  "sidebar.finance.treasury_sub.accounts": {
+    "es": "Cuentas bancarias",
+    "en": "Bank Accounts",
+    "pt": "Contas bancárias"
+  },
+  "sidebar.finance.treasury_sub.bank_files": {
+    "es": "Archivos bancarios",
+    "en": "Bank files",
+    "pt": "Arquivos bancários"
+  },
+  "sidebar.finance.treasury_sub.bank_validations": {
+    "es": "Validaciones bancarias",
+    "en": "Bank validations",
+    "pt": "Validações bancárias"
+  },
+  "sidebar.finance.treasury_sub.bulk_payments": {
+    "es": "Pagos masivos",
+    "en": "Bulk payments",
+    "pt": "Pagamentos em massa"
+  },
+  "sidebar.finance.treasury_sub.cash_flow": {
+    "es": "Flujo de efectivo",
+    "en": "Cash Flow Forecast",
+    "pt": "Fluxo de caixa"
+  },
+  "sidebar.finance.treasury_sub.cash_flow_actual": {
+    "es": "Flujo de efectivo — Real",
+    "en": "Cash flow — Actual",
+    "pt": "Fluxo de caixa — Real"
+  },
+  "sidebar.finance.treasury_sub.cash_flow_forecast": {
+    "es": "Flujo de efectivo — Proyectado",
+    "en": "Cash flow — Forecast",
+    "pt": "Fluxo de caixa — Projetado"
+  },
+  "sidebar.finance.treasury_sub.cash_pooling": {
+    "es": "Cash pooling (centralización de tesorería)",
+    "en": "Cash pooling",
+    "pt": "Cash pooling (centralização de tesouraria)"
+  },
+  "sidebar.finance.treasury_sub.checkbooks": {
+    "es": "Chequeras",
+    "en": "Checkbooks",
+    "pt": "Talões de cheques"
+  },
+  "sidebar.finance.treasury_sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.finance.treasury_sub.debt": {
+    "es": "Deuda",
+    "en": "Debt",
+    "pt": "Dívida"
+  },
+  "sidebar.finance.treasury_sub.derivatives": {
+    "es": "Derivados",
+    "en": "Derivatives",
+    "pt": "Derivativos"
+  },
+  "sidebar.finance.treasury_sub.exchange_rates": {
+    "es": "Tipos de cambio",
+    "en": "Exchange rates",
+    "pt": "Taxas de câmbio"
+  },
+  "sidebar.finance.treasury_sub.exposures": {
+    "es": "Exposiciones",
+    "en": "Exposures",
+    "pt": "Exposições"
+  },
+  "sidebar.finance.treasury_sub.file_adapters": {
+    "es": "Adaptadores de archivos",
+    "en": "File adapters",
+    "pt": "Adaptadores de arquivos"
+  },
+  "sidebar.finance.treasury_sub.forecasting": {
+    "es": "Pronóstico",
+    "en": "Forecasting",
+    "pt": "Previsão"
+  },
+  "sidebar.finance.treasury_sub.fx_hedging": {
+    "es": "Coberturas FX",
+    "en": "FX hedging",
+    "pt": "Hedge cambial"
+  },
+  "sidebar.finance.treasury_sub.guarantees": {
+    "es": "Garantías",
+    "en": "Guarantees",
+    "pt": "Garantias"
+  },
+  "sidebar.finance.treasury_sub.hedge_accounting": {
+    "es": "Contabilidad de coberturas",
+    "en": "Hedge accounting",
+    "pt": "Contabilidade de hedge"
+  },
+  "sidebar.finance.treasury_sub.in_house_bank": {
+    "es": "Banco in‑house",
+    "en": "In-house bank",
+    "pt": "Banco in-house"
+  },
+  "sidebar.finance.treasury_sub.investments": {
+    "es": "Inversiones",
+    "en": "Investments",
+    "pt": "Investimentos"
+  },
+  "sidebar.finance.treasury_sub.mandates": {
+    "es": "Mandatos",
+    "en": "Mandates",
+    "pt": "Mandatos"
+  },
+  "sidebar.finance.treasury_sub.payments": {
+    "es": "Pagos",
+    "en": "Payments",
+    "pt": "Pagamentos"
+  },
+  "sidebar.finance.treasury_sub.positive_pay": {
+    "literal": "Positive Pay"
+  },
+  "sidebar.finance.treasury_sub.reconciliation": {
+    "es": "Conciliación",
+    "en": "Reconciliation",
+    "pt": "Conciliação"
+  },
+  "sidebar.finance.treasury_sub.reconciliation_automatic": {
+    "es": "Conciliación — Automática",
+    "en": "Reconciliation — Automatic",
+    "pt": "Conciliação — Automática"
+  },
+  "sidebar.finance.treasury_sub.reconciliation_manual": {
+    "es": "Conciliación — Manual",
+    "en": "Reconciliation — Manual",
+    "pt": "Conciliação — Manual"
+  },
+  "sidebar.finance.treasury_sub.scheduled_payments": {
+    "es": "Pagos programados",
+    "en": "Scheduled payments",
+    "pt": "Pagamentos agendados"
+  },
+  "sidebar.general.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.general.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.general.documents": {
+    "es": "Documentos",
+    "en": "Documents",
+    "pt": "Documentos"
+  },
+  "sidebar.general.documents_sub.all": {
+    "es": "Todos los documentos",
+    "en": "All documents",
+    "pt": "Todos os documentos"
+  },
+  "sidebar.general.documents_sub.templates": {
+    "es": "Plantillas",
+    "en": "Templates",
+    "pt": "Modelos"
+  },
+  "sidebar.general.etl": {
+    "literal": "ETL"
+  },
+  "sidebar.general.etl_sub.export": {
+    "es": "Exportaciones",
+    "en": "Exports",
+    "pt": "Exportações"
+  },
+  "sidebar.general.etl_sub.import": {
+    "es": "Importaciones",
+    "en": "Imports",
+    "pt": "Importações"
+  },
+  "sidebar.general.home": {
+    "es": "Inicio",
+    "en": "Home",
+    "pt": "Início"
+  },
+  "sidebar.general.my_work": {
+    "es": "Mi trabajo",
+    "en": "My Work",
+    "pt": "Meu trabalho"
+  },
+  "sidebar.general.notifications": {
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "pt": "Notificações"
+  },
+  "sidebar.general.search": {
+    "es": "Búsqueda global",
+    "en": "Global Search",
+    "pt": "Busca global"
+  },
+  "sidebar.grc.certifications": {
+    "es": "Certificaciones",
+    "en": "Certifications",
+    "pt": "Certificações"
+  },
+  "sidebar.grc.controls": {
+    "es": "Controles",
+    "en": "Controls",
+    "pt": "Controles"
+  },
+  "sidebar.grc.risks": {
+    "es": "Riesgos",
+    "en": "Risks",
+    "pt": "Riscos"
+  },
+  "sidebar.groups.configuration": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "sidebar.groups.data": {
+    "es": "Gobierno de Datos",
+    "en": "Data Governance",
+    "pt": "Governança de Dados"
+  },
+  "sidebar.groups.esg": {
+    "literal": "ESG"
+  },
+  "sidebar.groups.expenses": {
+    "es": "Gastos y Tarjetas",
+    "en": "Expenses & Cards",
+    "pt": "Despesas e Cartões"
+  },
+  "sidebar.groups.finance": {
+    "es": "Finanzas",
+    "en": "Finance",
+    "pt": "Finanças"
+  },
+  "sidebar.groups.general": {
+    "es": "Global",
+    "en": "General",
+    "pt": "Global"
+  },
+  "sidebar.groups.grc": {
+    "literal": "GRC"
+  },
+  "sidebar.groups.hr": {
+    "es": "RR.HH. y Nómina",
+    "en": "HR & Payroll",
+    "pt": "RH e Folha de Pagamento"
+  },
+  "sidebar.groups.intelligence": {
+    "es": "Inteligencia y Planificación",
+    "en": "Intelligence & Planning",
+    "pt": "Inteligência e Planejamento"
+  },
+  "sidebar.groups.logistics": {
+    "es": "Logística",
+    "en": "Logistics",
+    "pt": "Logística"
+  },
+  "sidebar.groups.master_data": {
+    "es": "Maestros",
+    "en": "Master data",
+    "pt": "Dados Mestres"
+  },
+  "sidebar.groups.mobile": {
+    "es": "Móvil / PWA",
+    "en": "Mobile / PWA",
+    "pt": "Móvel / PWA"
+  },
+  "sidebar.groups.operations": {
+    "es": "Operaciones",
+    "en": "Operations",
+    "pt": "Operações"
+  },
+  "sidebar.groups.organization": {
+    "es": "Organización",
+    "en": "Organization",
+    "pt": "Organização"
+  },
+  "sidebar.groups.platform": {
+    "es": "Plataforma e Integraciones",
+    "en": "Platform & Integrations",
+    "pt": "Plataforma e Integrações"
+  },
+  "sidebar.groups.portals": {
+    "es": "Portales",
+    "en": "Portals",
+    "pt": "Portais"
+  },
+  "sidebar.groups.psa": {
+    "es": "Proyectos y Costeo",
+    "en": "Projects & Costing",
+    "pt": "Projetos e Custeio"
+  },
+  "sidebar.groups.reports": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
+  "sidebar.groups.revenue": {
+    "es": "Reconocimiento de Ingresos",
+    "en": "Revenue Recognition",
+    "pt": "Reconhecimento de Receita"
+  },
+  "sidebar.groups.security": {
+    "es": "Usuarios y Seguridad",
+    "en": "Users & Security",
+    "pt": "Usuários e Segurança"
+  },
+  "sidebar.groups.support": {
+    "es": "Soporte y Ayuda",
+    "en": "Support & Help",
+    "pt": "Suporte e Ajuda"
+  },
+  "sidebar.groups.tax": {
+    "es": "Impuestos y Cumplimiento",
+    "en": "Tax & Compliance",
+    "pt": "Tributos e Conformidade"
+  },
+  "sidebar.hr.departments": {
+    "es": "Departamentos",
+    "en": "Departments",
+    "pt": "Departamentos"
+  },
+  "sidebar.hr.employees": {
+    "es": "Empleados",
+    "en": "Employees",
+    "pt": "Funcionários"
+  },
+  "sidebar.hr.my_payslips": {
+    "es": "Mis volantes",
+    "en": "My payslips",
+    "pt": "Os meus recibos"
+  },
+  "sidebar.hr.payroll_concepts": {
+    "es": "Conceptos",
+    "en": "Concepts",
+    "pt": "Conceitos"
+  },
+  "sidebar.hr.payroll_parameters": {
+    "es": "Parámetros de ley",
+    "en": "Statutory parameters",
+    "pt": "Parâmetros legais"
+  },
+  "sidebar.hr.payroll_runs": {
+    "es": "Nóminas",
+    "en": "Payroll runs",
+    "pt": "Folhas"
+  },
+  "sidebar.intelligence.analytics": {
+    "es": "Inteligencia y Planificación",
+    "en": "Intelligence & Planning",
+    "pt": "Inteligência e Planejamento"
+  },
+  "sidebar.intelligence.sub.budget_execution": {
+    "es": "Ejecución de presupuesto",
+    "en": "Budget execution",
+    "pt": "Execução orçamentária"
+  },
+  "sidebar.intelligence.sub.budget_models": {
+    "es": "Modelos de presupuesto",
+    "en": "Budget models",
+    "pt": "Modelos de orçamento"
+  },
+  "sidebar.intelligence.sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.intelligence.sub.kpis": {
+    "literal": "KPIs"
+  },
+  "sidebar.intelligence.sub.process_mining": {
+    "es": "Minería de procesos",
+    "en": "Process mining",
+    "pt": "Mineração de processos"
+  },
+  "sidebar.intelligence.sub.rolling_forecast": {
+    "es": "Forecast continuo",
+    "en": "Rolling forecast",
+    "pt": "Forecast contínuo"
+  },
+  "sidebar.intelligence.sub.semantic": {
+    "es": "Capa semántica",
+    "en": "Semantic layer",
+    "pt": "Camada semântica"
+  },
+  "sidebar.intelligence.sub.what_if": {
+    "es": "What‑if",
+    "en": "What-if",
+    "pt": "What-if"
+  },
+  "sidebar.logistics.pl": {
+    "literal": "3PL"
+  },
+  "sidebar.logistics.tms": {
+    "es": "Gestión de Transporte (TMS)",
+    "en": "Transportation Management (TMS)",
+    "pt": "Gestão de Transporte (TMS)"
+  },
+  "sidebar.master_data.banks": {
+    "es": "Bancos",
+    "en": "Banks",
+    "pt": "Bancos"
+  },
+  "sidebar.master_data.branches": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "sidebar.master_data.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "sidebar.master_data.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "sidebar.master_data.data_governance": {
+    "es": "Gobernanza de datos",
+    "en": "Data governance",
+    "pt": "Governança de dados"
+  },
+  "sidebar.master_data.data_quality": {
+    "es": "Calidad de datos",
+    "en": "Data quality",
+    "pt": "Qualidade de dados"
+  },
+  "sidebar.master_data.dimensions": {
+    "es": "Dimensiones",
+    "en": "Dimensions",
+    "pt": "Dimensões"
+  },
+  "sidebar.master_data.duplicates": {
+    "es": "Duplicados",
+    "en": "Duplicates",
+    "pt": "Duplicados"
+  },
+  "sidebar.master_data.extensions": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
+  },
+  "sidebar.master_data.payment_methods": {
+    "es": "Formas de pago",
+    "en": "Payment methods",
+    "pt": "Formas de pagamento"
+  },
+  "sidebar.master_data.payment_terms": {
+    "es": "Condiciones de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "sidebar.master_data.price_lists": {
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
+  },
+  "sidebar.master_data.products": {
+    "es": "Productos",
+    "en": "Products & Services",
+    "pt": "Produtos"
+  },
+  "sidebar.master_data.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "sidebar.master_data.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "sidebar.master_data.uom": {
+    "es": "Unidades de medida",
+    "en": "Units of measure",
+    "pt": "Unidades de medida"
+  },
+  "sidebar.master_data.warehouses": {
+    "es": "Almacenes",
+    "en": "Warehouses",
+    "pt": "Depósitos"
+  },
+  "sidebar.mobile.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.mobile.expenses": {
+    "es": "Gastos",
+    "en": "Expenses",
+    "pt": "Despesas"
+  },
+  "sidebar.operations.deliveries_sub.detail": {
+    "es": "Detalle del conduce",
+    "en": "Delivery note detail",
+    "pt": "Detalhe da nota de remessa"
+  },
+  "sidebar.operations.deliveries_sub.list": {
+    "es": "Conduces",
+    "en": "Delivery notes",
+    "pt": "Notas de remessa"
+  },
+  "sidebar.operations.deliveries_sub.new": {
+    "es": "Nuevo conduce",
+    "en": "New delivery note",
+    "pt": "Nova nota de remessa"
+  },
+  "sidebar.operations.delivery_notes": {
+    "es": "Remisiones / Entregas",
+    "en": "Delivery notes",
+    "pt": "Remessas / Entregas"
+  },
+  "sidebar.operations.inventory": {
+    "es": "Inventario y WMS Ligero",
+    "en": "Inventory & WMS",
+    "pt": "Estoque e WMS Leve"
+  },
+  "sidebar.operations.inventory_sub.adjustments": {
+    "es": "Ajustes",
+    "en": "Adjustments & Counts",
+    "pt": "Ajustes"
+  },
+  "sidebar.operations.inventory_sub.costs_close": {
+    "es": "Costeo — Cierre",
+    "en": "Costing — Close",
+    "pt": "Custeio — Fechamento"
+  },
+  "sidebar.operations.inventory_sub.costs_landed": {
+    "es": "Costos — Landed",
+    "en": "Costs — Landed",
+    "pt": "Custos — Landed"
+  },
+  "sidebar.operations.inventory_sub.costs_methods": {
+    "es": "Costeo — Métodos",
+    "en": "Costing — Methods",
+    "pt": "Custeio — Métodos"
+  },
+  "sidebar.operations.inventory_sub.costs_revaluations": {
+    "es": "Costeo — Revaluaciones",
+    "en": "Costing — Revaluations",
+    "pt": "Custeio — Reavaliações"
+  },
+  "sidebar.operations.inventory_sub.cycle_counts": {
+    "es": "Conteos cíclicos",
+    "en": "Cycle counts",
+    "pt": "Contagens cíclicas"
+  },
+  "sidebar.operations.inventory_sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.operations.inventory_sub.kits_bom": {
+    "es": "Kits y BOM",
+    "en": "Kits & BOM",
+    "pt": "Kits e BOM"
+  },
+  "sidebar.operations.inventory_sub.locations": {
+    "es": "Ubicaciones",
+    "en": "Locations",
+    "pt": "Localizações"
+  },
+  "sidebar.operations.inventory_sub.lots_serials": {
+    "es": "Lotes y series",
+    "en": "Lots & serials",
+    "pt": "Lotes e séries"
+  },
+  "sidebar.operations.inventory_sub.mobile_warehouse": {
+    "es": "Móvil — Almacén",
+    "en": "Mobile — Warehouse",
+    "pt": "Móvel — Depósito"
+  },
+  "sidebar.operations.inventory_sub.movements": {
+    "es": "Movimientos",
+    "en": "Movements History",
+    "pt": "Movimentações"
+  },
+  "sidebar.operations.inventory_sub.picking_packing": {
+    "es": "Picking y packing",
+    "en": "Picking & packing",
+    "pt": "Separação e embalagem"
+  },
+  "sidebar.operations.inventory_sub.planning": {
+    "es": "Planeación",
+    "en": "Planning",
+    "pt": "Planejamento"
+  },
+  "sidebar.operations.inventory_sub.quality": {
+    "es": "Calidad",
+    "en": "Quality",
+    "pt": "Qualidade"
+  },
+  "sidebar.operations.inventory_sub.quarantines": {
+    "es": "Cuarentenas",
+    "en": "Quarantines",
+    "pt": "Quarentenas"
+  },
+  "sidebar.operations.inventory_sub.reservations": {
+    "es": "Reservas",
+    "en": "Reservations",
+    "pt": "Reservas"
+  },
+  "sidebar.operations.inventory_sub.shipments": {
+    "es": "Envíos",
+    "en": "Shipments",
+    "pt": "Remessas"
+  },
+  "sidebar.operations.inventory_sub.stock": {
+    "es": "Stock",
+    "en": "Stock Levels",
+    "pt": "Estoque"
+  },
+  "sidebar.operations.inventory_sub.transfers": {
+    "es": "Transferencias",
+    "en": "Transfers",
+    "pt": "Transferências"
+  },
+  "sidebar.operations.manufacturing": {
+    "es": "Manufactura",
+    "en": "Manufacturing",
+    "pt": "Manufatura"
+  },
+  "sidebar.operations.manufacturing_sub.costing": {
+    "es": "Costeo",
+    "en": "Production Costing",
+    "pt": "Custeio"
+  },
+  "sidebar.operations.manufacturing_sub.master_data": {
+    "es": "Maestros",
+    "en": "Master data",
+    "pt": "Dados Mestres"
+  },
+  "sidebar.operations.manufacturing_sub.mrp": {
+    "es": "MRP",
+    "en": "MRP Planning",
+    "pt": "MRP"
+  },
+  "sidebar.operations.manufacturing_sub.orders": {
+    "es": "Órdenes de producción",
+    "en": "Production Orders",
+    "pt": "Ordens de produção"
+  },
+  "sidebar.operations.manufacturing_sub.shop_floor": {
+    "es": "Shop floor",
+    "en": "Shop floor",
+    "pt": "Chão de fábrica"
+  },
+  "sidebar.operations.manufacturing_sub.wip": {
+    "literal": "WIP"
+  },
+  "sidebar.operations.purchasing": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "sidebar.operations.purchasing_sub.analytics": {
+    "es": "Análisis",
+    "en": "Analytics",
+    "pt": "Análise"
+  },
+  "sidebar.operations.purchasing_sub.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.operations.purchasing_sub.catalogs": {
+    "es": "Catálogos",
+    "en": "Catalogs",
+    "pt": "Catálogos"
+  },
+  "sidebar.operations.purchasing_sub.contracts": {
+    "es": "Contratos",
+    "en": "Contracts",
+    "pt": "Contratos"
+  },
+  "sidebar.operations.purchasing_sub.four_way_match": {
+    "es": "4‑Way Match",
+    "en": "4-way match",
+    "pt": "4-Way Match"
+  },
+  "sidebar.operations.purchasing_sub.invoice_matching": {
+    "es": "Conciliación de facturas",
+    "en": "Invoice matching",
+    "pt": "Conciliação de faturas"
+  },
+  "sidebar.operations.purchasing_sub.matching": {
+    "es": "Conciliación",
+    "en": "Reconciliation",
+    "pt": "Conciliação"
+  },
+  "sidebar.operations.purchasing_sub.orders": {
+    "es": "Órdenes de compra",
+    "en": "Purchase Orders",
+    "pt": "Pedidos de compra"
+  },
+  "sidebar.operations.purchasing_sub.receipts": {
+    "es": "Recepciones",
+    "en": "Receipts",
+    "pt": "Recebimentos"
+  },
+  "sidebar.operations.purchasing_sub.requisitions": {
+    "es": "Requisiciones",
+    "en": "Requisitions",
+    "pt": "Requisições"
+  },
+  "sidebar.operations.purchasing_sub.returns": {
+    "es": "Devoluciones",
+    "en": "Returns",
+    "pt": "Devoluções"
+  },
+  "sidebar.operations.purchasing_sub.rfq": {
+    "literal": "RFQ"
+  },
+  "sidebar.operations.purchasing_sub.supplier_onboarding": {
+    "es": "Onboarding de proveedores",
+    "en": "Supplier onboarding",
+    "pt": "Onboarding de fornecedores"
+  },
+  "sidebar.operations.purchasing_sub.supplier_performance": {
+    "es": "Desempeño de proveedores",
+    "en": "Supplier performance",
+    "pt": "Desempenho de fornecedores"
+  },
+  "sidebar.operations.purchasing_sub.three_way_match": {
+    "es": "3‑Way Match",
+    "en": "3-way match",
+    "pt": "3-Way Match"
+  },
+  "sidebar.operations.sales": {
+    "es": "Ventas y Facturación",
+    "en": "Sales (O2C)",
+    "pt": "Vendas e Faturamento"
+  },
+  "sidebar.operations.sales_sub.commissions": {
+    "es": "Comisiones",
+    "en": "Commissions",
+    "pt": "Comissões"
+  },
+  "sidebar.operations.sales_sub.contracts": {
+    "es": "Contratos",
+    "en": "Contracts",
+    "pt": "Contratos"
+  },
+  "sidebar.operations.sales_sub.cpq": {
+    "literal": "CPQ"
+  },
+  "sidebar.operations.sales_sub.credit_notes": {
+    "es": "Notas de crédito",
+    "en": "Credit notes",
+    "pt": "Notas de crédito"
+  },
+  "sidebar.operations.sales_sub.invoices_list": {
+    "es": "Facturas — Listado",
+    "en": "Invoices — List",
+    "pt": "Faturas — Listagem"
+  },
+  "sidebar.operations.sales_sub.invoices_new": {
+    "es": "Facturas — Nueva",
+    "en": "Invoices — New",
+    "pt": "Faturas — Nova"
+  },
+  "sidebar.operations.sales_sub.orders": {
+    "es": "Órdenes de venta",
+    "en": "Sales Orders",
+    "pt": "Pedidos de venda"
+  },
+  "sidebar.operations.sales_sub.pricing_lists": {
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
+  },
+  "sidebar.operations.sales_sub.quotes": {
+    "es": "Cotizaciones",
+    "en": "Quotes",
+    "pt": "Orçamentos"
+  },
+  "sidebar.operations.sales_sub.returns": {
+    "es": "Devoluciones",
+    "en": "Returns",
+    "pt": "Devoluções"
+  },
+  "sidebar.operations.sales_sub.subscriptions": {
+    "es": "Suscripciones",
+    "en": "Subscriptions",
+    "pt": "Assinaturas"
+  },
+  "sidebar.operations.sales_sub.subscriptions_rating": {
+    "es": "Suscripciones — Rating",
+    "en": "Subscriptions — Rating",
+    "pt": "Assinaturas — Rating"
+  },
+  "sidebar.operations.sales_sub.subscriptions_usage": {
+    "es": "Suscripciones — Uso",
+    "en": "Subscriptions — Usage",
+    "pt": "Assinaturas — Uso"
+  },
+  "sidebar.organization.companies": {
+    "es": "Compañías",
+    "en": "Companies",
+    "pt": "Empresas"
+  },
+  "sidebar.platform.api": {
+    "literal": "API"
+  },
+  "sidebar.platform.api_sub.audit": {
+    "es": "Auditoría de API",
+    "en": "API audit",
+    "pt": "Auditoria da API"
+  },
+  "sidebar.platform.api_sub.credentials": {
+    "es": "Credenciales",
+    "en": "Credentials",
+    "pt": "Credenciais"
+  },
+  "sidebar.platform.api_sub.rate_limits": {
+    "es": "Límites de tasa",
+    "en": "Rate limits",
+    "pt": "Limites de taxa"
+  },
+  "sidebar.platform.api_sub.webhooks": {
+    "literal": "Webhooks"
+  },
+  "sidebar.platform.automation": {
+    "es": "Automatización",
+    "en": "Automation",
+    "pt": "Automação"
+  },
+  "sidebar.platform.automation_sub.ocr": {
+    "literal": "OCR"
+  },
+  "sidebar.platform.automation_sub.workflows": {
+    "en": "Workflows",
+    "es": "Flujos de trabajo",
+    "pt": "Fluxos de trabalho"
+  },
+  "sidebar.platform.data_warehouse": {
+    "en": "Data warehouse",
+    "es": "Almacén de datos",
+    "pt": "Armazém de dados"
+  },
+  "sidebar.platform.integrations": {
+    "es": "Integraciones (Configuración)",
+    "en": "Integrations (Settings)",
+    "pt": "Integrações (Configuração)"
+  },
+  "sidebar.platform.integrations_area": {
+    "es": "Integraciones",
+    "en": "Integrations & API",
+    "pt": "Integrações"
+  },
+  "sidebar.platform.integrations_sub.edi": {
+    "literal": "EDI"
+  },
+  "sidebar.platform.integrations_sub.monitoring": {
+    "es": "Monitoreo",
+    "en": "Monitoring",
+    "pt": "Monitoramento"
+  },
+  "sidebar.platform.integrations_sub.reprocessing": {
+    "es": "Reprocesos",
+    "en": "Reprocessing",
+    "pt": "Reprocessamentos"
+  },
+  "sidebar.platform.marketplace_connectors": {
+    "es": "Marketplace — Conectores",
+    "en": "Marketplace — Connectors",
+    "pt": "Marketplace — Conectores"
+  },
+  "sidebar.platform.operations": {
+    "es": "Operaciones",
+    "en": "Operations",
+    "pt": "Operações"
+  },
+  "sidebar.platform.operations_sub.apm": {
+    "literal": "APM"
+  },
+  "sidebar.platform.operations_sub.archiving": {
+    "es": "Archivado",
+    "en": "Archiving",
+    "pt": "Arquivado"
+  },
+  "sidebar.platform.operations_sub.capacity": {
+    "es": "Planeación de capacidad",
+    "en": "Capacity planning",
+    "pt": "Planejamento de capacidade"
+  },
+  "sidebar.platform.operations_sub.environments": {
+    "es": "Ambientes",
+    "en": "Environments",
+    "pt": "Ambientes"
+  },
+  "sidebar.platform.operations_sub.feature_flags": {
+    "literal": "Feature flags"
+  },
+  "sidebar.platform.operations_sub.jobs": {
+    "en": "Jobs",
+    "es": "Trabajos",
+    "pt": "Tarefas"
+  },
+  "sidebar.platform.operations_sub.logs": {
+    "en": "Logs",
+    "es": "Registros",
+    "pt": "Registos"
+  },
+  "sidebar.platform.operations_sub.transports": {
+    "es": "Transportes",
+    "en": "Transports",
+    "pt": "Transportes"
+  },
+  "sidebar.portals.customers": {
+    "es": "Portal de clientes",
+    "en": "Customer portal",
+    "pt": "Portal do cliente"
+  },
+  "sidebar.portals.employees": {
+    "es": "Portal de empleados",
+    "en": "Employee portal",
+    "pt": "Portal do funcionário"
+  },
+  "sidebar.portals.suppliers": {
+    "es": "Portal de proveedores",
+    "en": "Supplier portal",
+    "pt": "Portal do fornecedor"
+  },
+  "sidebar.psa.cost_allocation": {
+    "es": "Asignación de costos",
+    "en": "Cost allocation",
+    "pt": "Alocação de custos"
+  },
+  "sidebar.psa.cost_centers": {
+    "es": "Centros de costo",
+    "en": "Cost centers",
+    "pt": "Centros de custo"
+  },
+  "sidebar.psa.projects": {
+    "es": "Proyectos",
+    "en": "Projects",
+    "pt": "Projetos"
+  },
+  "sidebar.psa.projects_sub.billing": {
+    "es": "Facturación",
+    "en": "Billing",
+    "pt": "Faturamento"
+  },
+  "sidebar.psa.projects_sub.budgeting": {
+    "es": "Presupuesto",
+    "en": "Budgeting",
+    "pt": "Orçamento"
+  },
+  "sidebar.psa.projects_sub.capitalization": {
+    "es": "Capitalización",
+    "en": "Capitalization",
+    "pt": "Capitalização"
+  },
+  "sidebar.psa.projects_sub.list": {
+    "es": "Proyectos",
+    "en": "Projects",
+    "pt": "Projetos"
+  },
+  "sidebar.psa.projects_sub.milestones_wip": {
+    "es": "Hitos y WIP",
+    "en": "Milestones & WIP",
+    "pt": "Marcos e WIP"
+  },
+  "sidebar.psa.projects_sub.resources": {
+    "es": "Recursos",
+    "en": "Resources",
+    "pt": "Recursos"
+  },
+  "sidebar.psa.projects_sub.timesheets": {
+    "es": "Timesheets",
+    "en": "Timesheets",
+    "pt": "Apontamento de horas"
+  },
+  "sidebar.psa.projects_sub.wbs": {
+    "es": "WBS",
+    "en": "WBS",
+    "pt": "EAP"
+  },
+  "sidebar.reports.bi": {
+    "es": "Inteligencia de Negocio",
+    "en": "Business Intelligence",
+    "pt": "Inteligência de Negócios"
+  },
+  "sidebar.reports.bi_sub.dashboards": {
+    "es": "Tableros",
+    "en": "BI Dashboards",
+    "pt": "Painéis"
+  },
+  "sidebar.reports.bi_sub.kpis": {
+    "literal": "KPIs"
+  },
+  "sidebar.reports.reporting": {
+    "es": "Reportes Financieros",
+    "en": "Reporting",
+    "pt": "Relatórios Financeiros"
+  },
+  "sidebar.reports.reporting_sub.ap_aging": {
+    "es": "Cartera AP",
+    "en": "AP aging",
+    "pt": "Carteira AP"
+  },
+  "sidebar.reports.reporting_sub.ar_aging": {
+    "es": "Cartera AR",
+    "en": "AR aging",
+    "pt": "Carteira AR"
+  },
+  "sidebar.reports.reporting_sub.assets": {
+    "es": "Activos",
+    "en": "Assets",
+    "pt": "Ativos"
+  },
+  "sidebar.reports.reporting_sub.audit": {
+    "es": "Auditoría",
+    "en": "Audit",
+    "pt": "Auditoria"
+  },
+  "sidebar.reports.reporting_sub.closing": {
+    "es": "Cierre",
+    "en": "Closing",
+    "pt": "Fechamento"
+  },
+  "sidebar.reports.reporting_sub.comparatives": {
+    "es": "Comparativos",
+    "en": "Comparatives",
+    "pt": "Comparativos"
+  },
+  "sidebar.reports.reporting_sub.consolidated": {
+    "es": "Consolidados",
+    "en": "Consolidated",
+    "pt": "Consolidados"
+  },
+  "sidebar.reports.reporting_sub.costs_analytics": {
+    "es": "Analítica de costos",
+    "en": "Cost analytics",
+    "pt": "Análise de custos"
+  },
+  "sidebar.reports.reporting_sub.datasheets": {
+    "literal": "DataSheets"
+  },
+  "sidebar.reports.reporting_sub.financial": {
+    "es": "Financieros",
+    "en": "Financial Statements",
+    "pt": "Financeiros"
+  },
+  "sidebar.reports.reporting_sub.financial_statements": {
+    "es": "Estados financieros",
+    "en": "Financial statements",
+    "pt": "Demonstrações financeiras"
+  },
+  "sidebar.reports.reporting_sub.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "sidebar.reports.reporting_sub.profitability": {
+    "es": "Rentabilidad",
+    "en": "Profitability",
+    "pt": "Rentabilidade"
+  },
+  "sidebar.reports.reporting_sub.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "sidebar.reports.reporting_sub.tax": {
+    "es": "Reportes fiscales",
+    "en": "Tax reports",
+    "pt": "Relatórios fiscais"
+  },
+  "sidebar.reports.reporting_sub.treasury": {
+    "es": "Tesorería",
+    "en": "Treasury",
+    "pt": "Tesouraria"
+  },
+  "sidebar.reports.reporting_sub.xbrl": {
+    "literal": "XBRL"
+  },
+  "sidebar.revenue.contracts": {
+    "es": "Contratos",
+    "en": "Contracts",
+    "pt": "Contratos"
+  },
+  "sidebar.revenue.deferrals": {
+    "es": "Diferidos",
+    "en": "Deferrals",
+    "pt": "Diferimentos"
+  },
+  "sidebar.revenue.performance_obligations": {
+    "es": "Obligaciones de desempeño",
+    "en": "Performance obligations",
+    "pt": "Obrigações de desempenho"
+  },
+  "sidebar.revenue.reports": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
+  "sidebar.revenue.schedules": {
+    "es": "Programaciones",
+    "en": "Schedules",
+    "pt": "Cronogramas"
+  },
+  "sidebar.security.audit": {
+    "es": "Auditoría",
+    "en": "Audit",
+    "pt": "Auditoria"
+  },
+  "sidebar.security.dsar": {
+    "literal": "DSAR"
+  },
+  "sidebar.security.policies": {
+    "es": "Políticas",
+    "en": "Policies",
+    "pt": "Políticas"
+  },
+  "sidebar.security.sod": {
+    "es": "Segregación de funciones",
+    "en": "Segregation of duties",
+    "pt": "Segregação de funções"
+  },
+  "sidebar.security.sso_mfa": {
+    "es": "SSO y MFA",
+    "en": "SSO & MFA",
+    "pt": "SSO e MFA"
+  },
+  "sidebar.security.third_party_screening": {
+    "es": "Screening de terceros",
+    "en": "Third-party screening",
+    "pt": "Triagem de terceiros"
+  },
+  "sidebar.security.user_permissions": {
+    "es": "Permisos de usuario",
+    "en": "User permissions",
+    "pt": "Permissões de usuário"
+  },
+  "sidebar.security.users": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "sidebar.support.help": {
+    "es": "Ayuda",
+    "en": "Help",
+    "pt": "Ajuda"
+  },
+  "sidebar.support.status": {
+    "es": "Estado del servicio",
+    "en": "Service status",
+    "pt": "Status do serviço"
+  },
+  "sidebar.support.support": {
+    "es": "Soporte",
+    "en": "Support",
+    "pt": "Suporte"
+  },
+  "sidebar.tax.sub.calendar": {
+    "es": "Calendario",
+    "en": "Calendar",
+    "pt": "Calendário"
+  },
+  "sidebar.tax.sub.cbcr": {
+    "es": "CBCR",
+    "en": "CbCR",
+    "pt": "CbCR"
+  },
+  "sidebar.tax.sub.certificates": {
+    "es": "Certificados",
+    "en": "Certificates",
+    "pt": "Certificados"
+  },
+  "sidebar.tax.sub.deferred": {
+    "es": "Impuestos diferidos",
+    "en": "Deferred tax",
+    "pt": "Tributos diferidos"
+  },
+  "sidebar.tax.sub.determination_engine": {
+    "es": "Motor de determinación",
+    "en": "Determination engine",
+    "pt": "Motor de determinação"
+  },
+  "sidebar.tax.sub.e_invoicing": {
+    "es": "Facturación electrónica",
+    "en": "E-invoicing",
+    "pt": "Emissão eletrônica"
+  },
+  "sidebar.tax.sub.e_invoicing_country": {
+    "es": "Facturación electrónica por país",
+    "en": "E-invoicing by country",
+    "pt": "Emissão eletrônica por país"
+  },
+  "sidebar.tax.sub.filings": {
+    "es": "Declaraciones",
+    "en": "Filings",
+    "pt": "Declarações"
+  },
+  "sidebar.tax.sub.localizations": {
+    "es": "Localizaciones",
+    "en": "Localizations",
+    "pt": "Localizações fiscais"
+  },
+  "sidebar.tax.sub.localizations_country": {
+    "es": "Localización — País",
+    "en": "Localization — Country",
+    "pt": "Localização — País"
+  },
+  "sidebar.tax.sub.reconciliation": {
+    "es": "Conciliación",
+    "en": "Reconciliation",
+    "pt": "Conciliação"
+  },
+  "sidebar.tax.sub.saft": {
+    "es": "SAF‑T",
+    "en": "SAF-T",
+    "pt": "SAF-T"
+  },
+  "sidebar.tax.sub.summary": {
+    "es": "Resumen",
+    "en": "Summary",
+    "pt": "Resumo"
+  },
+  "sidebar.tax.sub.transfer_pricing": {
+    "es": "Precios de transferencia",
+    "en": "Transfer pricing",
+    "pt": "Preços de transferência"
+  },
+  "sidebar.tax.sub.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "sidebar.tax.tax": {
+    "es": "Impuestos y Cumplimiento",
+    "en": "Tax & Compliance",
+    "pt": "Tributos e Conformidade"
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "invoice.pdf.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "invoice.pdf.buyer": {
+    "es": "Comprador",
+    "en": "Buyer",
+    "pt": "Comprador"
+  },
+  "invoice.pdf.currency_currency_code": {
+    "es": "Moneda: {{currencyCode}}",
+    "en": "Currency: {{currencyCode}}",
+    "pt": "Moeda: {{currencyCode}}"
+  },
+  "invoice.pdf.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "invoice.pdf.dgii_verification": {
+    "es": "Verificación DGII",
+    "en": "DGII verification",
+    "pt": "Verificação DGII"
+  },
+  "invoice.pdf.disc": {
+    "es": "Desc.",
+    "en": "Disc.",
+    "pt": "Desc."
+  },
+  "invoice.pdf.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "invoice.pdf.document": {
+    "es": "Documento",
+    "en": "Document",
+    "pt": "Documento"
+  },
+  "invoice.pdf.due_date": {
+    "es": "Fecha de vencimiento:",
+    "en": "Due date:",
+    "pt": "Data de vencimento:"
+  },
+  "invoice.pdf.due_date_due_date": {
+    "es": "Fecha de vencimiento: {{dueDate}}",
+    "en": "Due date: {{dueDate}}",
+    "pt": "Data de vencimento: {{dueDate}}"
+  },
+  "invoice.pdf.electronic_title": {
+    "es": "{{title}} ELECTRÓNICA",
+    "en": "ELECTRONIC {{title}}",
+    "pt": "{{title}} ELETRÔNICA"
+  },
+  "invoice.pdf.exempt_amount": {
+    "es": "Monto exento",
+    "en": "Exempt amount",
+    "pt": "Valor isento"
+  },
+  "invoice.pdf.income_tax_withheld": {
+    "es": "ISR retenido",
+    "en": "Income tax withheld",
+    "pt": "Imposto de renda retido"
+  },
+  "invoice.pdf.internal_number": {
+    "es": "Documento interno: {{number}}",
+    "en": "Internal document: {{number}}",
+    "pt": "Documento interno: {{number}}"
+  },
+  "invoice.pdf.issue_date": {
+    "es": "Fecha de emisión:",
+    "en": "Issue date:",
+    "pt": "Data de emissão:"
+  },
+  "invoice.pdf.itbis_withheld": {
+    "es": "ITBIS retenido",
+    "en": "ITBIS withheld",
+    "pt": "ITBIS retido"
+  },
+  "invoice.pdf.legal_draft": {
+    "es": "Este documento es un borrador interno, no ampara crédito fiscal y no ha sido transmitido a la DGII.",
+    "en": "This document is an internal draft. It supports no tax credit and has not been transmitted to the DGII.",
+    "pt": "Este documento é um rascunho interno. Não gera crédito fiscal e não foi transmitido à DGII."
+  },
+  "invoice.pdf.legal_issued": {
+    "es": "Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el portal de la DGII con el código QR o el código de seguridad mostrados arriba.",
+    "en": "Printed representation of an Electronic Fiscal Document (e-CF). Verify its validity on the DGII portal using the QR code or the security code shown above.",
+    "pt": "Representação impressa de um Comprovante Fiscal Eletrônico (e-CF). Verifique sua validade no portal da DGII com o QR code ou o código de segurança exibidos acima."
+  },
+  "invoice.pdf.line_total": {
+    "literal": "Total"
+  },
+  "invoice.pdf.net_payable": {
+    "es": "Neto a pagar",
+    "en": "Net payable",
+    "pt": "Líquido a pagar"
+  },
+  "invoice.pdf.no_fiscal_value": {
+    "es": "Sin valor fiscal",
+    "en": "No fiscal value",
+    "pt": "Sem valor fiscal"
+  },
+  "invoice.pdf.notes": {
+    "es": "Notas:",
+    "en": "Notes:",
+    "pt": "Observações:"
+  },
+  "invoice.pdf.number": {
+    "es": "Factura n.º:",
+    "en": "Invoice no.:",
+    "pt": "Fatura n.º:"
+  },
+  "invoice.pdf.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "invoice.pdf.qr_code_verify_document": {
+    "es": "Código QR de verificación del comprobante",
+    "en": "QR code to verify the document",
+    "pt": "QR code de verificação do documento"
+  },
+  "invoice.pdf.qty": {
+    "es": "Cant.",
+    "en": "Qty",
+    "pt": "Qtd."
+  },
+  "invoice.pdf.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "invoice.pdf.security_code": {
+    "es": "Código de seguridad",
+    "en": "Security code",
+    "pt": "Código de segurança"
+  },
+  "invoice.pdf.signed_signed": {
+    "es": "Fecha y hora de firma: {{signedAt}}",
+    "en": "Signed at: {{signedAt}}",
+    "pt": "Data e hora da assinatura: {{signedAt}}"
+  },
+  "invoice.pdf.statutory_service_charge_10": {
+    "es": "Propina legal (10%)",
+    "en": "Statutory service charge (10%)",
+    "pt": "Taxa de serviço legal (10%)"
+  },
+  "invoice.pdf.subtotal": {
+    "literal": "Subtotal"
+  },
+  "invoice.pdf.taxed_amount": {
+    "es": "Monto gravado",
+    "en": "Taxed amount",
+    "pt": "Valor tributado"
+  },
+  "invoice.pdf.tel_phone": {
+    "literal": "Tel.: {{phone}}"
+  },
+  "invoice.pdf.title": {
+    "es": "Factura {{number}}",
+    "en": "Invoice {{number}}",
+    "pt": "Fatura {{number}}"
+  },
+  "invoice.pdf.total": {
+    "literal": "Total"
+  },
+  "invoice.pdf.total_currencycode": {
+    "literal": "Total {{currencyCode}}"
+  },
+  "invoice.pdf.type.credit_note": {
+    "es": "NOTA DE CRÉDITO",
+    "en": "CREDIT NOTE",
+    "pt": "NOTA DE CRÉDITO"
+  },
+  "invoice.pdf.type.debit_note": {
+    "es": "NOTA DE DÉBITO",
+    "en": "DEBIT NOTE",
+    "pt": "NOTA DE DÉBITO"
+  },
+  "invoice.pdf.type.invoice": {
+    "es": "FACTURA",
+    "en": "INVOICE",
+    "pt": "FATURA"
+  },
+  "invoice.pdf.unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "invoice.pdf.valid_until": {
+    "es": "Válido hasta: {{date}}",
+    "en": "Valid until: {{date}}",
+    "pt": "Válido até: {{date}}"
+  }
+}

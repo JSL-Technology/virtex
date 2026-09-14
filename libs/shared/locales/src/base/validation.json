@@ -1,0 +1,1007 @@
+{
+  "validation.batch_operations.each_account_id_must_valid_uuid": {
+    "es": "Cada ID de cuenta debe ser un UUID válido.",
+    "en": "Each account ID must be a valid UUID.",
+    "pt": "Cada ID de conta deve ser um UUID válido."
+  },
+  "validation.batch_operations.list_account_ids_cannot_empty": {
+    "es": "La lista de IDs de cuenta no puede estar vacía.",
+    "en": "The list of account IDs cannot be empty.",
+    "pt": "A lista de IDs de conta não pode estar vazia."
+  },
+  "validation.change_password.current_password_cannot_empty": {
+    "es": "La contraseña actual no puede estar vacía.",
+    "en": "The current password cannot be empty.",
+    "pt": "A senha atual não pode ficar vazia."
+  },
+  "validation.change_password.new_password_cannot_empty": {
+    "es": "La nueva contraseña no puede estar vacía.",
+    "en": "The new password cannot be empty.",
+    "pt": "A nova senha não pode ficar vazia."
+  },
+  "validation.close_period.accounting_period_id_required": {
+    "es": "El ID del período contable es obligatorio.",
+    "en": "The accounting period ID is required.",
+    "pt": "O ID do período contábil é obrigatório."
+  },
+  "validation.commercial_approval.issue_date_must_iso_date_yyyy": {
+    "es": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
+    "en": "The issue date must be an ISO date (YYYY-MM-DD).",
+    "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
+  },
+  "validation.commercial_approval.issuer_rnc_not_valid_format": {
+    "es": "El RNC del emisor no tiene un formato válido.",
+    "en": "The issuer's RNC is not in a valid format.",
+    "pt": "O RNC do emissor não está em um formato válido."
+  },
+  "validation.commercial_approval.ncf_must_followed_12_digits_example": {
+    "es": "El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).",
+    "en": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
+    "pt": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001)."
+  },
+  "validation.commercial_approval.status_must_approved_rejected": {
+    "es": "El estado debe ser 1 (aprobado) o 2 (rechazado).",
+    "en": "The status must be 1 (approved) or 2 (rejected).",
+    "pt": "A situação deve ser 1 (aprovado) ou 2 (rejeitado)."
+  },
+  "validation.constraints.array_max_size": {
+    "es": "{{property}} no puede tener más de {{max}} elementos.",
+    "en": "{{property}} cannot have more than {{max}} items.",
+    "pt": "{{property}} não pode ter mais de {{max}} itens."
+  },
+  "validation.constraints.array_min_size": {
+    "es": "{{property}} debe tener al menos {{min}} elementos.",
+    "en": "{{property}} must have at least {{min}} items.",
+    "pt": "{{property}} deve ter pelo menos {{min}} itens."
+  },
+  "validation.constraints.array_not_empty": {
+    "es": "{{property}} no puede estar vacío.",
+    "en": "{{property}} cannot be empty.",
+    "pt": "{{property}} não pode ficar vazio."
+  },
+  "validation.constraints.country_code": {
+    "es": "El código de país debe tener exactamente 2 letras (ISO 3166-1 alfa-2).",
+    "en": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
+    "pt": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2)."
+  },
+  "validation.constraints.is_array": {
+    "es": "{{property}} debe ser una lista.",
+    "en": "{{property}} must be a list.",
+    "pt": "{{property}} deve ser uma lista."
+  },
+  "validation.constraints.is_date": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
+  },
+  "validation.constraints.is_defined": {
+    "es": "{{property}} es obligatorio.",
+    "en": "{{property}} is required.",
+    "pt": "{{property}} é obrigatório."
+  },
+  "validation.constraints.is_e164_phone_number": {
+    "es": "El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).",
+    "en": "The number must be in international E.164 format (for example, +18095551234).",
+    "pt": "O número deve estar no formato internacional E.164 (por exemplo, +18095551234)."
+  },
+  "validation.constraints.is_email": {
+    "es": "{{property}} no es un correo electrónico válido.",
+    "en": "{{property}} is not a valid email address.",
+    "pt": "{{property}} não é um e-mail válido."
+  },
+  "validation.constraints.is_in": {
+    "es": "{{property}} no admite ese valor.",
+    "en": "{{property}} does not accept that value.",
+    "pt": "{{property}} não aceita esse valor."
+  },
+  "validation.constraints.is_iso_date": {
+    "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
+    "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
+    "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
+  },
+  "validation.constraints.is_iso8601": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
+  },
+  "validation.constraints.is_not_empty": {
+    "es": "{{property}} es obligatorio.",
+    "en": "{{property}} is required.",
+    "pt": "{{property}} é obrigatório."
+  },
+  "validation.constraints.is_number": {
+    "es": "{{property}} debe ser un número.",
+    "en": "{{property}} must be a number.",
+    "pt": "{{property}} deve ser um número."
+  },
+  "validation.constraints.is_object": {
+    "es": "{{property}} no tiene el formato esperado.",
+    "en": "{{property}} is not in the expected format.",
+    "pt": "{{property}} não está no formato esperado."
+  },
+  "validation.constraints.is_positive": {
+    "es": "{{property}} debe ser mayor que cero.",
+    "en": "{{property}} must be greater than zero.",
+    "pt": "{{property}} deve ser maior que zero."
+  },
+  "validation.constraints.is_recaptcha_token": {
+    "es": "No se pudo verificar que la solicitud viene de una persona. Vuelve a intentarlo.",
+    "en": "We could not verify that this request came from a person. Try again.",
+    "pt": "Não conseguimos verificar que esta solicitação veio de uma pessoa. Tente novamente."
+  },
+  "validation.constraints.is_url": {
+    "es": "{{property}} no es una dirección web válida.",
+    "en": "{{property}} is not a valid web address.",
+    "pt": "{{property}} não é um endereço web válido."
+  },
+  "validation.constraints.is_uuid": {
+    "es": "{{property}} no es un identificador válido.",
+    "en": "{{property}} is not a valid identifier.",
+    "pt": "{{property}} não é um identificador válido."
+  },
+  "validation.constraints.is_verification_target": {
+    "es": "El destino no es un correo electrónico ni un número de teléfono válido.",
+    "en": "The target is neither a valid email address nor a valid phone number.",
+    "pt": "O destino não é um e-mail nem um número de telefone válido."
+  },
+  "validation.constraints.length": {
+    "es": "{{property}} debe tener entre {{min}} y {{max}} caracteres.",
+    "en": "{{property}} must be between {{min}} and {{max}} characters long.",
+    "pt": "{{property}} deve ter entre {{min}} e {{max}} caracteres."
+  },
+  "validation.constraints.matches": {
+    "es": "{{property}} no tiene el formato esperado.",
+    "en": "{{property}} is not in the expected format.",
+    "pt": "{{property}} não está no formato esperado."
+  },
+  "validation.constraints.max": {
+    "es": "{{property}} no puede ser mayor que {{max}}.",
+    "en": "{{property}} cannot be greater than {{max}}.",
+    "pt": "{{property}} não pode ser maior que {{max}}."
+  },
+  "validation.constraints.max_length": {
+    "es": "{{property}} no puede tener más de {{max}} caracteres.",
+    "en": "{{property}} cannot be longer than {{max}} characters.",
+    "pt": "{{property}} não pode ter mais de {{max}} caracteres."
+  },
+  "validation.constraints.min": {
+    "es": "{{property}} no puede ser menor que {{min}}.",
+    "en": "{{property}} cannot be lower than {{min}}.",
+    "pt": "{{property}} não pode ser menor que {{min}}."
+  },
+  "validation.constraints.min_length": {
+    "es": "{{property}} debe tener al menos {{min}} caracteres.",
+    "en": "{{property}} must be at least {{min}} characters long.",
+    "pt": "{{property}} deve ter pelo menos {{min}} caracteres."
+  },
+  "validation.constraints.period_start_after_end": {
+    "es": "La fecha inicial no puede ser posterior a la fecha final.",
+    "en": "The start date cannot be later than the end date.",
+    "pt": "A data inicial não pode ser posterior à data final."
+  },
+  "validation.constraints.property_contains_data_not_valid": {
+    "es": "{{property}} contiene datos que no son válidos.",
+    "en": "{{property}} contains data that is not valid.",
+    "pt": "{{property}} contém dados que não são válidos."
+  },
+  "validation.constraints.property_does_not_accept_value": {
+    "es": "{{property}} no admite ese valor.",
+    "en": "{{property}} does not accept that value.",
+    "pt": "{{property}} não aceita esse valor."
+  },
+  "validation.constraints.property_must_number": {
+    "es": "{{property}} debe ser un número.",
+    "en": "{{property}} must be a number.",
+    "pt": "{{property}} deve ser um número."
+  },
+  "validation.constraints.property_must_text": {
+    "es": "{{property}} debe ser texto.",
+    "en": "{{property}} must be text.",
+    "pt": "{{property}} deve ser texto."
+  },
+  "validation.constraints.property_must_true_false": {
+    "es": "{{property}} debe ser verdadero o falso.",
+    "en": "{{property}} must be true or false.",
+    "pt": "{{property}} deve ser verdadeiro ou falso."
+  },
+  "validation.constraints.property_must_whole_number": {
+    "es": "{{property}} debe ser un número entero.",
+    "en": "{{property}} must be a whole number.",
+    "pt": "{{property}} deve ser um número inteiro."
+  },
+  "validation.constraints.property_not_allowed_field": {
+    "es": "{{property}} no es un campo permitido.",
+    "en": "{{property}} is not an allowed field.",
+    "pt": "{{property}} não é um campo permitido."
+  },
+  "validation.constraints.property_not_valid_date": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
+  },
+  "validation.create_employee.tss_nss_format": {
+    "en": "The social security number must be between 7 and 11 digits.",
+    "es": "El número de seguridad social debe tener entre 7 y 11 dígitos.",
+    "pt": "O número de segurança social deve ter entre 7 e 11 dígitos."
+  },
+  "validation.create_journal_entry.account_id_account_id_must_valid": {
+    "es": "El ID de la cuenta (accountId) debe ser un UUID válido.",
+    "en": "The account ID (accountId) must be a valid UUID.",
+    "pt": "O ID da conta (accountId) deve ser um UUID válido."
+  },
+  "validation.create_journal_entry.account_id_account_id_required": {
+    "es": "El ID de la cuenta (accountId) es obligatorio.",
+    "en": "The account ID (accountId) is required.",
+    "pt": "O ID da conta (accountId) é obrigatório."
+  },
+  "validation.create_journal_entry.credit_cannot_negative": {
+    "es": "El crédito no puede ser negativo.",
+    "en": "The credit cannot be negative.",
+    "pt": "O crédito não pode ser negativo."
+  },
+  "validation.create_journal_entry.credit_field_required": {
+    "es": "El campo de crédito es obligatorio.",
+    "en": "The credit field is required.",
+    "pt": "O campo de crédito é obrigatório."
+  },
+  "validation.create_journal_entry.credit_must_valid_number": {
+    "es": "El crédito debe ser un número válido.",
+    "en": "The credit must be a valid number.",
+    "pt": "O crédito deve ser um número válido."
+  },
+  "validation.create_journal_entry.credit_transaction_currency_must_number": {
+    "es": "El crédito en moneda de transacción debe ser un número.",
+    "en": "The credit in transaction currency must be a number.",
+    "pt": "O crédito na moeda da transação deve ser um número."
+  },
+  "validation.create_journal_entry.currency_code_must_exactly_characters": {
+    "es": "El código de moneda debe tener exactamente 3 caracteres.",
+    "en": "The currency code must be exactly 3 characters.",
+    "pt": "O código da moeda deve ter exatamente 3 caracteres."
+  },
+  "validation.create_journal_entry.date_must_valid_iso_8601_format": {
+    "es": "La fecha debe tener un formato de fecha ISO 8601 válido.",
+    "en": "The date must be in valid ISO 8601 format.",
+    "pt": "A data deve estar em formato ISO 8601 válido."
+  },
+  "validation.create_journal_entry.debit_cannot_negative": {
+    "es": "El débito no puede ser negativo.",
+    "en": "The debit cannot be negative.",
+    "pt": "O débito não pode ser negativo."
+  },
+  "validation.create_journal_entry.debit_field_required": {
+    "es": "El campo de débito es obligatorio.",
+    "en": "The debit field is required.",
+    "pt": "O campo de débito é obrigatório."
+  },
+  "validation.create_journal_entry.debit_must_valid_number": {
+    "es": "El débito debe ser un número válido.",
+    "en": "The debit must be a valid number.",
+    "pt": "O débito deve ser um número válido."
+  },
+  "validation.create_journal_entry.debit_transaction_currency_must_number": {
+    "es": "El débito en moneda de transacción debe ser un número.",
+    "en": "The debit in transaction currency must be a number.",
+    "pt": "O débito na moeda da transação deve ser um número."
+  },
+  "validation.create_journal_entry.description_must_text": {
+    "es": "La descripción debe ser un texto.",
+    "en": "The description must be text.",
+    "pt": "A descrição deve ser texto."
+  },
+  "validation.create_journal_entry.dimensions_must_object": {
+    "es": "Las dimensiones deben ser un objeto.",
+    "en": "The dimensions must be an object.",
+    "pt": "As dimensões devem ser um objeto."
+  },
+  "validation.create_journal_entry.entry_date_required": {
+    "es": "La fecha del asiento es obligatoria.",
+    "en": "The entry date is required.",
+    "pt": "A data do lançamento é obrigatória."
+  },
+  "validation.create_journal_entry.entry_description_required": {
+    "es": "La descripción del asiento es obligatoria.",
+    "en": "The entry description is required.",
+    "pt": "A descrição do lançamento é obrigatória."
+  },
+  "validation.create_journal_entry.entry_lines_must_array": {
+    "es": "Las líneas del asiento deben ser un arreglo.",
+    "en": "The entry lines must be an array.",
+    "pt": "As linhas do lançamento devem ser um array."
+  },
+  "validation.create_journal_entry.entry_type_entry_type_not_valid": {
+    "es": "El tipo de asiento (entryType) no es válido.",
+    "en": "The entry type (entryType) is not valid.",
+    "pt": "O tipo de lançamento (entryType) não é válido."
+  },
+  "validation.create_journal_entry.exchange_rate_cannot_negative": {
+    "es": "La tasa de cambio no puede ser negativa.",
+    "en": "The exchange rate cannot be negative.",
+    "pt": "A taxa de câmbio não pode ser negativa."
+  },
+  "validation.create_journal_entry.exchange_rate_must_number": {
+    "es": "La tasa de cambio debe ser un número.",
+    "en": "The exchange rate must be a number.",
+    "pt": "A taxa de câmbio deve ser um número."
+  },
+  "validation.create_journal_entry.journal_id_journal_id_must_valid": {
+    "es": "El ID del diario (journalId) debe ser un UUID válido.",
+    "en": "The journal ID (journalId) must be a valid UUID.",
+    "pt": "O ID do diário (journalId) deve ser um UUID válido."
+  },
+  "validation.create_journal_entry.journal_id_journal_id_required": {
+    "es": "El ID del diario (journalId) es obligatorio.",
+    "en": "The journal ID (journalId) is required.",
+    "pt": "O ID do diário (journalId) é obrigatório."
+  },
+  "validation.create_journal_entry.ledger_id_ledger_id_must_valid": {
+    "es": "El ID del libro contable (ledgerId) debe ser un UUID válido.",
+    "en": "The ledger ID (ledgerId) must be a valid UUID.",
+    "pt": "O ID do livro contábil (ledgerId) deve ser um UUID válido."
+  },
+  "validation.create_journal_entry.ledger_id_ledger_id_required_every": {
+    "es": "El ID del libro contable (ledgerId) es obligatorio en cada valoración.",
+    "en": "The ledger ID (ledgerId) is required on every valuation.",
+    "pt": "O ID do livro contábil (ledgerId) é obrigatório em cada valoração."
+  },
+  "validation.create_journal_entry.line_description_must_text": {
+    "es": "La descripción de la línea debe ser un texto.",
+    "en": "The line description must be text.",
+    "pt": "A descrição da linha deve ser texto."
+  },
+  "validation.create_journal_entry.valuations_must_array": {
+    "es": "Las valoraciones deben ser un arreglo.",
+    "en": "The valuations must be an array.",
+    "pt": "As valorações devem ser um array."
+  },
+  "validation.email_change.email_address_cannot_empty": {
+    "es": "El correo electrónico no puede estar vacío.",
+    "en": "The email address cannot be empty.",
+    "pt": "O e-mail não pode ficar vazio."
+  },
+  "validation.email_change.email_address_not_valid": {
+    "es": "El formato del correo electrónico no es válido.",
+    "en": "That email address is not valid.",
+    "pt": "O formato do e-mail não é válido."
+  },
+  "validation.email_change.email_cannot_longer_than_254_characters": {
+    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "en": "The email cannot be longer than 254 characters (RFC 5321).",
+    "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
+  },
+  "validation.fiscal.country_not_available": {
+    "es": "Ese país todavía no está disponible para registro.",
+    "en": "That country is not available for registration yet.",
+    "pt": "Esse país ainda não está disponível para cadastro."
+  },
+  "validation.fiscal.division_invalid": {
+    "es": "Selecciona una división administrativa válida.",
+    "en": "Select a valid administrative division.",
+    "pt": "Selecione uma divisão administrativa válida."
+  },
+  "validation.fiscal.division_invalid_for_country": {
+    "es": "Selecciona un valor válido para {{label}}.",
+    "en": "Select a valid value for {{label}}.",
+    "pt": "Selecione um valor válido para {{label}}."
+  },
+  "validation.fiscal.field_not_for_country": {
+    "es": "{{label}} no corresponde a este país",
+    "en": "{{label}} does not apply to this country",
+    "pt": "{{label}} não se aplica a este país"
+  },
+  "validation.fiscal.field_required": {
+    "es": "{{label}} es obligatorio",
+    "en": "{{label}} is required",
+    "pt": "{{label}} é obrigatório"
+  },
+  "validation.fiscal.field_unknown_option": {
+    "es": "{{label}} no es una opción válida",
+    "en": "{{label}} is not a valid option",
+    "pt": "{{label}} não é uma opção válida"
+  },
+  "validation.fiscal.label_not_expected_format": {
+    "es": "{{label}} no tiene el formato esperado",
+    "en": "{{label}} is not in the expected format",
+    "pt": "{{label}} não está no formato esperado"
+  },
+  "validation.fiscal.postal_code_invalid": {
+    "es": "El código postal no es válido.",
+    "en": "The postal code is not valid.",
+    "pt": "O CEP não é válido."
+  },
+  "validation.fiscal.postal_code_invalid_for_country": {
+    "es": "El {{label}} no es válido para {{country}}.",
+    "en": "The {{label}} is not valid for {{country}}.",
+    "pt": "O {{label}} não é válido para {{country}}."
+  },
+  "validation.fiscal.profile_incomplete": {
+    "es": "Datos fiscales incompletos: {{details}}.",
+    "en": "Incomplete tax details: {{details}}.",
+    "pt": "Dados fiscais incompletos: {{details}}."
+  },
+  "validation.fiscal.profile_invalid": {
+    "es": "Los datos fiscales no son válidos.",
+    "en": "The tax details are not valid.",
+    "pt": "Os dados fiscais não são válidos."
+  },
+  "validation.fiscal.tax_id_invalid": {
+    "es": "El identificador fiscal no es válido.",
+    "en": "The tax identifier is not valid.",
+    "pt": "A identificação fiscal não é válida."
+  },
+  "validation.fiscal.tax_id_invalid_for_company": {
+    "es": "El {{label}} no es válido para una empresa. Verifica el dígito verificador (ejemplo: {{example}}).",
+    "en": "The {{label}} is not valid for a company. Check the check digit (example: {{example}}).",
+    "pt": "O {{label}} não é válido para uma empresa. Verifique o dígito verificador (exemplo: {{example}})."
+  },
+  "validation.fiscal.tax_id_invalid_for_country": {
+    "es": "El {{label}} no es válido. Verifica el dígito verificador (ejemplo: {{example}}).",
+    "en": "The {{label}} is not valid. Check the check digit (example: {{example}}).",
+    "pt": "O {{label}} não é válido. Verifique o dígito verificador (exemplo: {{example}})."
+  },
+  "validation.fiscal.tax_id_invalid_for_individual": {
+    "es": "El {{label}} no es válido para una persona física. Verifica el dígito verificador (ejemplo: {{example}}).",
+    "en": "The {{label}} is not valid for an individual. Check the check digit (example: {{example}}).",
+    "pt": "O {{label}} não é válido para uma pessoa física. Verifique o dígito verificador (exemplo: {{example}})."
+  },
+  "validation.forgot_password.email_address_cannot_empty": {
+    "es": "El correo electrónico no puede estar vacío.",
+    "en": "The email address cannot be empty.",
+    "pt": "O e-mail não pode ficar vazio."
+  },
+  "validation.forgot_password.email_address_not_valid": {
+    "es": "El formato del correo electrónico no es válido.",
+    "en": "That email address is not valid.",
+    "pt": "O formato do e-mail não é válido."
+  },
+  "validation.general_ledger_report.each_account_id_must_valid_uuid": {
+    "es": "Cada ID de cuenta debe ser un UUID válido.",
+    "en": "Each account ID must be a valid UUID.",
+    "pt": "Cada ID de conta deve ser um UUID válido."
+  },
+  "validation.general_ledger_report.end_date_required": {
+    "es": "La fecha de fin es obligatoria.",
+    "en": "The end date is required.",
+    "pt": "A data final é obrigatória."
+  },
+  "validation.general_ledger_report.least_one_account_required": {
+    "es": "Debe indicar al menos una cuenta.",
+    "en": "At least one account is required.",
+    "pt": "É necessário indicar pelo menos uma conta."
+  },
+  "validation.general_ledger_report.ledger_id_required": {
+    "es": "El ID del libro contable es obligatorio.",
+    "en": "The ledger ID is required.",
+    "pt": "O ID do livro contábil é obrigatório."
+  },
+  "validation.general_ledger_report.start_date_required": {
+    "es": "La fecha de inicio es obligatoria.",
+    "en": "The start date is required.",
+    "pt": "A data inicial é obrigatória."
+  },
+  "validation.general_ledger_report.too_many_accounts_requested_single_report": {
+    "es": "Se solicitaron demasiadas cuentas para un solo informe.",
+    "en": "Too many accounts were requested for a single report.",
+    "pt": "Foram solicitadas demasiadas contas para um único relatório."
+  },
+  "validation.generate_report.output_format_not_supported": {
+    "es": "El formato de salida no está soportado.",
+    "en": "The output format is not supported.",
+    "pt": "O formato de saída não é suportado."
+  },
+  "validation.generate_report.report_type_not_supported": {
+    "es": "El tipo de informe no está soportado.",
+    "en": "The report type is not supported.",
+    "pt": "O tipo de relatório não é suportado."
+  },
+  "validation.journal_entry_actions.reason_change_required": {
+    "es": "Se requiere una razón para la modificación.",
+    "en": "A reason for the change is required.",
+    "pt": "É necessário informar o motivo da alteração."
+  },
+  "validation.journal_entry_actions.reason_reversal_required": {
+    "es": "Se requiere una razón para la reversión.",
+    "en": "A reason for the reversal is required.",
+    "pt": "É necessário informar o motivo do estorno."
+  },
+  "validation.journal_entry_actions.reversal_date_must_valid_date": {
+    "es": "La fecha de reversión debe ser una fecha válida.",
+    "en": "The reversal date must be a valid date.",
+    "pt": "A data do estorno deve ser uma data válida."
+  },
+  "validation.journal_entry_actions.reversal_date_required": {
+    "es": "La fecha de reversión es obligatoria.",
+    "en": "The reversal date is required.",
+    "pt": "A data do estorno é obrigatória."
+  },
+  "validation.journal_report.each_journal_id_must_valid_uuid": {
+    "es": "Cada ID de diario debe ser un UUID válido.",
+    "en": "Each journal ID must be a valid UUID.",
+    "pt": "Cada ID de diário deve ser um UUID válido."
+  },
+  "validation.journal_report.end_date_required": {
+    "es": "La fecha de fin es obligatoria.",
+    "en": "The end date is required.",
+    "pt": "A data final é obrigatória."
+  },
+  "validation.journal_report.start_date_required": {
+    "es": "La fecha de inicio es obligatoria.",
+    "en": "The start date is required.",
+    "pt": "A data inicial é obrigatória."
+  },
+  "validation.list_users_query.column_cannot_sorted": {
+    "es": "No se puede ordenar por esa columna.",
+    "en": "That column cannot be sorted on.",
+    "pt": "Não é possível ordenar por essa coluna."
+  },
+  "validation.list_users_query.page_must_greater": {
+    "es": "La página debe ser 1 o mayor.",
+    "en": "The page must be 1 or greater.",
+    "pt": "A página deve ser 1 ou maior."
+  },
+  "validation.list_users_query.page_must_whole_number": {
+    "es": "La página debe ser un número entero.",
+    "en": "The page must be a whole number.",
+    "pt": "A página deve ser um número inteiro."
+  },
+  "validation.list_users_query.page_size_cannot_greater_than_100": {
+    "es": "El tamaño de página no puede ser mayor que 100.",
+    "en": "The page size cannot be greater than 100.",
+    "pt": "O tamanho da página não pode ser maior que 100."
+  },
+  "validation.list_users_query.page_size_must_greater": {
+    "es": "El tamaño de página debe ser 1 o mayor.",
+    "en": "The page size must be 1 or greater.",
+    "pt": "O tamanho da página deve ser 1 ou maior."
+  },
+  "validation.list_users_query.page_size_must_whole_number": {
+    "es": "El tamaño de página debe ser un número entero.",
+    "en": "The page size must be a whole number.",
+    "pt": "O tamanho da página deve ser um número inteiro."
+  },
+  "validation.list_users_query.search_cannot_longer_than_120_characters": {
+    "es": "La búsqueda no puede tener más de 120 caracteres.",
+    "en": "The search cannot be longer than 120 characters.",
+    "pt": "A busca não pode ter mais de 120 caracteres."
+  },
+  "validation.list_users_query.sort_direction_not_valid": {
+    "es": "La dirección de orden no es válida.",
+    "en": "The sort direction is not valid.",
+    "pt": "A direção de ordenação não é válida."
+  },
+  "validation.list_users_query.status_not_valid": {
+    "es": "El estado no es válido.",
+    "en": "That status is not valid.",
+    "pt": "Essa situação não é válida."
+  },
+  "validation.login_user.email_address_cannot_empty": {
+    "es": "El correo electrónico no puede estar vacío.",
+    "en": "The email address cannot be empty.",
+    "pt": "O e-mail não pode ficar vazio."
+  },
+  "validation.login_user.email_address_not_valid": {
+    "es": "El formato del correo electrónico no es válido.",
+    "en": "That email address is not valid.",
+    "pt": "O formato do e-mail não é válido."
+  },
+  "validation.login_user.email_cannot_longer_than_254_characters": {
+    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "en": "The email cannot be longer than 254 characters (RFC 5321).",
+    "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
+  },
+  "validation.login_user.password_cannot_empty": {
+    "es": "La contraseña no puede estar vacía.",
+    "en": "The password cannot be empty.",
+    "pt": "A senha não pode ficar vazia."
+  },
+  "validation.login_user.password_must_text": {
+    "es": "La contraseña debe ser un texto.",
+    "en": "The password must be text.",
+    "pt": "A senha deve ser texto."
+  },
+  "validation.merge_accounts.reason_merge_required": {
+    "es": "Se requiere una razón para la fusión.",
+    "en": "A reason for the merge is required.",
+    "pt": "É necessário informar o motivo da fusão."
+  },
+  "validation.payment.billing_period_not_valid": {
+    "es": "El periodo de facturación no es válido.",
+    "en": "The billing period is not valid.",
+    "pt": "O período de cobrança não é válido."
+  },
+  "validation.payment.payment_session_not_valid": {
+    "es": "La sesión de pago no es válida.",
+    "en": "The payment session is not valid.",
+    "pt": "A sessão de pagamento não é válida."
+  },
+  "validation.payment.selected_plan_not_valid": {
+    "es": "El plan seleccionado no es válido.",
+    "en": "The selected plan is not valid.",
+    "pt": "O plano selecionado não é válido."
+  },
+  "validation.payment.you_must_select_plan": {
+    "es": "Debes seleccionar un plan.",
+    "en": "You must select a plan.",
+    "pt": "Você precisa selecionar um plano."
+  },
+  "validation.period_end_adjustment.ledger_id_ledger_id_required": {
+    "es": "El ID del libro contable (ledgerId) es obligatorio.",
+    "en": "The ledger ID (ledgerId) is required.",
+    "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+  },
+  "validation.product_category.name_required": {
+    "es": "El nombre de la categoría es obligatorio.",
+    "en": "The category name is required.",
+    "pt": "O nome da categoria é obrigatório."
+  },
+  "validation.product_category.parent_must_be_uuid": {
+    "es": "El identificador de la categoría debe ser un UUID válido.",
+    "en": "The category identifier must be a valid UUID.",
+    "pt": "O identificador da categoria deve ser um UUID válido."
+  },
+  "validation.proposed_adjustment.account_id_must_valid_uuid": {
+    "es": "El ID de la cuenta debe ser un UUID válido.",
+    "en": "The account ID must be a valid UUID.",
+    "pt": "O ID da conta deve ser um UUID válido."
+  },
+  "validation.proposed_adjustment.account_id_required_every_line": {
+    "es": "El ID de la cuenta es obligatorio en cada línea.",
+    "en": "The account ID is required on every line.",
+    "pt": "O ID da conta é obrigatório em cada linha."
+  },
+  "validation.proposed_adjustment.adjustment_date_required": {
+    "es": "La fecha del ajuste es obligatoria.",
+    "en": "The adjustment date is required.",
+    "pt": "A data do ajuste é obrigatória."
+  },
+  "validation.proposed_adjustment.adjustment_main_description_cannot_empty": {
+    "es": "La descripción principal del ajuste no puede estar vacía.",
+    "en": "The adjustment's main description cannot be empty.",
+    "pt": "A descrição principal do ajuste não pode ficar vazia."
+  },
+  "validation.proposed_adjustment.credit_cannot_negative": {
+    "es": "El crédito no puede ser negativo.",
+    "en": "The credit cannot be negative.",
+    "pt": "O crédito não pode ser negativo."
+  },
+  "validation.proposed_adjustment.credit_field_required": {
+    "es": "El campo de crédito es obligatorio.",
+    "en": "The credit field is required.",
+    "pt": "O campo de crédito é obrigatório."
+  },
+  "validation.proposed_adjustment.credit_must_valid_number": {
+    "es": "El crédito debe ser un número válido.",
+    "en": "The credit must be a valid number.",
+    "pt": "O crédito deve ser um número válido."
+  },
+  "validation.proposed_adjustment.date_must_valid_iso_8601_format": {
+    "es": "La fecha debe tener un formato ISO 8601 válido.",
+    "en": "The date must be in valid ISO 8601 format.",
+    "pt": "A data deve estar em formato ISO 8601 válido."
+  },
+  "validation.proposed_adjustment.debit_cannot_negative": {
+    "es": "El débito no puede ser negativo.",
+    "en": "The debit cannot be negative.",
+    "pt": "O débito não pode ser negativo."
+  },
+  "validation.proposed_adjustment.debit_field_required": {
+    "es": "El campo de débito es obligatorio.",
+    "en": "The debit field is required.",
+    "pt": "O campo de débito é obrigatório."
+  },
+  "validation.proposed_adjustment.debit_must_valid_number": {
+    "es": "El débito debe ser un número válido.",
+    "en": "The debit must be a valid number.",
+    "pt": "O débito deve ser um número válido."
+  },
+  "validation.proposed_adjustment.fiscal_year_id_must_valid_uuid": {
+    "es": "El ID del año fiscal debe ser un UUID válido.",
+    "en": "The fiscal year ID must be a valid UUID.",
+    "pt": "O ID do exercício fiscal deve ser um UUID válido."
+  },
+  "validation.proposed_adjustment.fiscal_year_id_required": {
+    "es": "El ID del año fiscal es obligatorio.",
+    "en": "The fiscal year ID is required.",
+    "pt": "O ID do exercício fiscal é obrigatório."
+  },
+  "validation.proposed_adjustment.journal_id_must_valid_uuid": {
+    "es": "El ID del diario debe ser un UUID válido.",
+    "en": "The journal ID must be a valid UUID.",
+    "pt": "O ID do diário deve ser um UUID válido."
+  },
+  "validation.proposed_adjustment.journal_id_required": {
+    "es": "El ID del diario es obligatorio.",
+    "en": "The journal ID is required.",
+    "pt": "O ID do diário é obrigatório."
+  },
+  "validation.proposed_adjustment.line_description_cannot_empty": {
+    "es": "La descripción de la línea no puede estar vacía.",
+    "en": "The line description cannot be empty.",
+    "pt": "A descrição da linha não pode ficar vazia."
+  },
+  "validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format": {
+    "es": "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31.",
+    "en": "The prefix must follow the DGII series format, e.g. B01 or E31.",
+    "pt": "O prefixo deve seguir o formato de série da DGII, por exemplo B01 ou E31."
+  },
+  "validation.reclassification_entry.ledger_id_ledger_id_required": {
+    "es": "El ID del libro contable (ledgerId) es obligatorio.",
+    "en": "The ledger ID (ledgerId) is required.",
+    "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+  },
+  "validation.register_checkout.billing_period_not_valid": {
+    "es": "El periodo de facturación no es válido.",
+    "en": "The billing period is not valid.",
+    "pt": "O período de cobrança não é válido."
+  },
+  "validation.register_checkout.selected_plan_not_valid": {
+    "es": "El plan seleccionado no es válido.",
+    "en": "The selected plan is not valid.",
+    "pt": "O plano selecionado não é válido."
+  },
+  "validation.register_checkout.you_must_select_plan": {
+    "es": "Debes seleccionar un plan.",
+    "en": "You must select a plan.",
+    "pt": "Você precisa selecionar um plano."
+  },
+  "validation.register_confirm.session_not_valid": {
+    "es": "La sesión no es válida.",
+    "en": "The session is not valid.",
+    "pt": "A sessão não é válida."
+  },
+  "validation.register_confirm.session_required": {
+    "es": "La sesión es obligatoria.",
+    "en": "The session is required.",
+    "pt": "A sessão é obrigatória."
+  },
+  "validation.register_user.address_cannot_longer_than_200_characters": {
+    "es": "La dirección no puede tener más de 200 caracteres.",
+    "en": "The address cannot be longer than 200 characters.",
+    "pt": "O endereço não pode ter mais de 200 caracteres."
+  },
+  "validation.register_user.address_must_text": {
+    "es": "La dirección debe ser un texto.",
+    "en": "The address must be text.",
+    "pt": "O endereço deve ser texto."
+  },
+  "validation.register_user.city_cannot_longer_than_120_characters": {
+    "es": "La ciudad no puede tener más de 120 caracteres.",
+    "en": "The city cannot be longer than 120 characters.",
+    "pt": "A cidade não pode ter mais de 120 caracteres."
+  },
+  "validation.register_user.city_must_text": {
+    "es": "La ciudad debe ser un texto.",
+    "en": "The city must be text.",
+    "pt": "A cidade deve ser texto."
+  },
+  "validation.register_user.city_required": {
+    "es": "La ciudad es obligatoria.",
+    "en": "The city is required.",
+    "pt": "A cidade é obrigatória."
+  },
+  "validation.register_user.country_required": {
+    "es": "El país es obligatorio.",
+    "en": "The country is required.",
+    "pt": "O país é obrigatório."
+  },
+  "validation.register_user.email_address_cannot_empty": {
+    "es": "El correo electrónico no puede estar vacío.",
+    "en": "The email address cannot be empty.",
+    "pt": "O e-mail não pode ficar vazio."
+  },
+  "validation.register_user.email_address_not_valid": {
+    "es": "El formato del correo electrónico no es válido.",
+    "en": "That email address is not valid.",
+    "pt": "O formato do e-mail não é válido."
+  },
+  "validation.register_user.email_cannot_longer_than_254_characters": {
+    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "en": "The email cannot be longer than 254 characters (RFC 5321).",
+    "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
+  },
+  "validation.register_user.first_name_cannot_empty": {
+    "es": "El nombre no puede estar vacío.",
+    "en": "The first name cannot be empty.",
+    "pt": "O nome não pode ficar vazio."
+  },
+  "validation.register_user.first_name_must_text": {
+    "es": "El nombre debe ser un texto.",
+    "en": "The first name must be text.",
+    "pt": "O nome deve ser texto."
+  },
+  "validation.register_user.last_name_cannot_empty": {
+    "es": "El apellido no puede estar vacío.",
+    "en": "The last name cannot be empty.",
+    "pt": "O sobrenome não pode ficar vazio."
+  },
+  "validation.register_user.last_name_must_text": {
+    "es": "El apellido debe ser un texto.",
+    "en": "The last name must be text.",
+    "pt": "O sobrenome deve ser texto."
+  },
+  "validation.register_user.organization_name_cannot_empty": {
+    "es": "El nombre de la organización no puede estar vacío.",
+    "en": "The organization name cannot be empty.",
+    "pt": "O nome da organização não pode ficar vazio."
+  },
+  "validation.register_user.organization_name_must_least_characters_long": {
+    "es": "El nombre de la organización debe tener al menos 2 caracteres.",
+    "en": "The organization name must be at least 2 characters long.",
+    "pt": "O nome da organização deve ter pelo menos 2 caracteres."
+  },
+  "validation.register_user.organization_name_must_text": {
+    "es": "El nombre de la organización debe ser un texto.",
+    "en": "The organization name must be text.",
+    "pt": "O nome da organização deve ser texto."
+  },
+  "validation.register_user.password_cannot_empty": {
+    "es": "La contraseña no puede estar vacía.",
+    "en": "The password cannot be empty.",
+    "pt": "A senha não pode ficar vazia."
+  },
+  "validation.register_user.password_must_text": {
+    "es": "La contraseña debe ser un texto.",
+    "en": "The password must be text.",
+    "pt": "A senha deve ser texto."
+  },
+  "validation.register_user.phone_must_international_164_format_example": {
+    "es": "El teléfono debe estar en formato internacional E.164 (por ejemplo, +18095551234).",
+    "en": "The phone must be in international E.164 format (for example, +18095551234).",
+    "pt": "O telefone deve estar no formato internacional E.164 (por exemplo, +18095551234)."
+  },
+  "validation.register_user.registered_address_required": {
+    "es": "La dirección fiscal es obligatoria.",
+    "en": "The registered address is required.",
+    "pt": "O endereço fiscal é obrigatório."
+  },
+  "validation.register_user.state_whether_taxpayer_company_individual": {
+    "es": "Indica si el contribuyente es una empresa o una persona física.",
+    "en": "State whether the taxpayer is a company or an individual.",
+    "pt": "Informe se o contribuinte é uma empresa ou uma pessoa física."
+  },
+  "validation.register_user.tax_id_must_text": {
+    "es": "El ID Fiscal debe ser un texto.",
+    "en": "The Tax ID must be text.",
+    "pt": "A identificação fiscal deve ser texto."
+  },
+  "validation.register_user.tax_id_required": {
+    "es": "El ID Fiscal es obligatorio.",
+    "en": "The Tax ID is required.",
+    "pt": "A identificação fiscal é obrigatória."
+  },
+  "validation.register_user.tax_region_id_not_valid": {
+    "es": "El ID de la región fiscal no es válido.",
+    "en": "The tax region ID is not valid.",
+    "pt": "O ID da região fiscal não é válido."
+  },
+  "validation.run_consolidation.consolidation_cut_off_date_required": {
+    "es": "La fecha de corte para la consolidación es obligatoria.",
+    "en": "The consolidation cut-off date is required.",
+    "pt": "A data de corte da consolidação é obrigatória."
+  },
+  "validation.security_audit.billing_period_not_valid": {
+    "es": "El periodo de facturación no es válido.",
+    "en": "The billing period is not valid.",
+    "pt": "O período de cobrança não é válido."
+  },
+  "validation.set_password_from_invitation.password_cannot_exceed_128_characters": {
+    "es": "La contraseña no puede superar los 128 caracteres.",
+    "en": "The password cannot exceed 128 characters.",
+    "pt": "A senha não pode ultrapassar 128 caracteres."
+  },
+  "validation.set_password_from_invitation.password_must_contain_uppercase_letter_lowercase": {
+    "es": "La contraseña debe contener mayúscula, minúscula y un número o símbolo.",
+    "en": "The password must contain an uppercase letter, a lowercase letter and a number or symbol.",
+    "pt": "A senha deve conter letra maiúscula, minúscula e um número ou símbolo."
+  },
+  "validation.set_password_from_invitation.password_must_least_characters_long": {
+    "es": "La contraseña debe tener al menos 8 caracteres.",
+    "en": "The password must be at least 8 characters long.",
+    "pt": "A senha deve ter pelo menos 8 caracteres."
+  },
+  "validation.sso_admin.domain_must_be_valid_bare_domain_name_e": {
+    "es": "El dominio debe ser un nombre de dominio simple, por ejemplo acme.com.",
+    "en": "The domain must be a bare domain name, for example acme.com.",
+    "pt": "O domínio deve ser um nome de domínio simples, por exemplo acme.com."
+  },
+  "validation.step_up.invalid_verification_scope": {
+    "es": "Ámbito de verificación no válido.",
+    "en": "Invalid verification scope.",
+    "pt": "Escopo de verificação inválido."
+  },
+  "validation.step_up.verification_code_not_valid": {
+    "es": "El código de verificación no es válido.",
+    "en": "The verification code is not valid.",
+    "pt": "O código de verificação não é válido."
+  },
+  "validation.switch_organization.organization_identifier_not_valid": {
+    "es": "El identificador de la organización no es válido.",
+    "en": "The organization identifier is not valid.",
+    "pt": "O identificador da organização não é válido."
+  },
+  "validation.update_account.reason_change_required": {
+    "es": "Se requiere una razón para la modificación.",
+    "en": "A reason for the change is required.",
+    "pt": "É necessário informar o motivo da alteração."
+  },
+  "validation.update_profile.avatar_url_must_valid_https_address": {
+    "es": "La URL del avatar debe ser una dirección HTTPS válida.",
+    "en": "The avatar URL must be a valid HTTPS address.",
+    "pt": "A URL do avatar deve ser um endereço HTTPS válido."
+  },
+  "validation.update_profile.phone_number_must_be_in_e_164_format": {
+    "es": "El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).",
+    "en": "The number must be in international E.164 format (for example, +18095551234).",
+    "pt": "O número deve estar no formato internacional E.164 (por exemplo, +18095551234)."
+  },
+  "validation.upload_statement.account_id_cannot_empty": {
+    "es": "El ID de la cuenta no puede estar vacío.",
+    "en": "The account ID cannot be empty.",
+    "pt": "O ID da conta não pode ficar vazio."
+  },
+  "validation.upload_statement.closing_balance_cannot_empty": {
+    "es": "El saldo final no puede estar vacío.",
+    "en": "The closing balance cannot be empty.",
+    "pt": "O saldo final não pode ficar vazio."
+  },
+  "validation.upload_statement.closing_balance_must_number": {
+    "es": "El saldo final debe ser un número.",
+    "en": "The closing balance must be a number.",
+    "pt": "O saldo final deve ser um número."
+  },
+  "validation.upload_statement.end_date_cannot_empty": {
+    "es": "La fecha de fin no puede estar vacía.",
+    "en": "The end date cannot be empty.",
+    "pt": "A data final não pode ficar vazia."
+  },
+  "validation.upload_statement.end_date_must_valid_date": {
+    "es": "La fecha de fin debe ser una fecha válida.",
+    "en": "The end date must be a valid date.",
+    "pt": "A data final deve ser uma data válida."
+  },
+  "validation.upload_statement.opening_balance_cannot_empty": {
+    "es": "El saldo inicial no puede estar vacío.",
+    "en": "The opening balance cannot be empty.",
+    "pt": "O saldo inicial não pode ficar vazio."
+  },
+  "validation.upload_statement.opening_balance_must_number": {
+    "es": "El saldo inicial debe ser un número.",
+    "en": "The opening balance must be a number.",
+    "pt": "O saldo inicial deve ser um número."
+  },
+  "validation.upload_statement.start_date_cannot_empty": {
+    "es": "La fecha de inicio no puede estar vacía.",
+    "en": "The start date cannot be empty.",
+    "pt": "A data inicial não pode ficar vazia."
+  },
+  "validation.upload_statement.start_date_must_valid_date": {
+    "es": "La fecha de inicio debe ser una fecha válida.",
+    "en": "The start date must be a valid date.",
+    "pt": "A data inicial deve ser uma data válida."
+  },
+  "validation.void_sequence_range.unknown_document_type": {
+    "es": "Tipo de comprobante desconocido.",
+    "en": "Unknown document type.",
+    "pt": "Tipo de documento desconhecido."
+  },
+  "validation.year_end_close.fiscal_year_id_required": {
+    "es": "El ID del año fiscal es obligatorio.",
+    "en": "The fiscal year ID is required.",
+    "pt": "O ID do exercício fiscal é obrigatório."
+  },
+  "validation.year_end_close.retained_earnings_account_required": {
+    "es": "La cuenta de Ganancias Retenidas es obligatoria.",
+    "en": "The Retained Earnings account is required.",
+    "pt": "A conta de Lucros Acumulados é obrigatória."
+  },
+  "validation.year_must_whole_number": {
+    "es": "El año debe ser un número entero.",
+    "en": "The year must be a whole number.",
+    "pt": "O ano deve ser um número inteiro."
+  },
+  "validation.year_out_of_range": {
+    "es": "El año está fuera del rango permitido.",
+    "en": "The year is outside the allowed range.",
+    "pt": "O ano está fora do intervalo permitido."
+  }
+}

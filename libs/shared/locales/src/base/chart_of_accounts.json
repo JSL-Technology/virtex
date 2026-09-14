@@ -1,0 +1,192 @@
+{
+  "chart_of_accounts.account_already_locked": {
+    "es": "La cuenta ya está bloqueada.",
+    "en": "The account is already locked.",
+    "pt": "A conta já está bloqueada."
+  },
+  "chart_of_accounts.account_cannot_deactivated_because_has_child": {
+    "es": "La cuenta no puede ser desactivada porque tiene cuentas hijas.",
+    "en": "The account cannot be deactivated because it has child accounts.",
+    "pt": "A conta não pode ser desativada porque tem contas filhas."
+  },
+  "chart_of_accounts.account_cannot_deactivated_because_has_transactions": {
+    "es": "La cuenta no puede ser desactivada porque tiene transacciones asociadas.",
+    "en": "The account cannot be deactivated because it has transactions.",
+    "pt": "A conta não pode ser desativada porque tem lançamentos associados."
+  },
+  "chart_of_accounts.account_code_full_code_already_exists": {
+    "es": "El código de cuenta '{{fullCode}}' ya existe.",
+    "en": "The account code '{{fullCode}}' already exists.",
+    "pt": "O código de conta '{{fullCode}}' já existe."
+  },
+  "chart_of_accounts.account_code_segments_cannot_changed": {
+    "es": "El código de la cuenta (segmentos) no puede ser modificado.",
+    "en": "The account code (its segments) cannot be changed.",
+    "pt": "O código da conta (seus segmentos) não pode ser alterado."
+  },
+  "chart_of_accounts.account_id_not_found": {
+    "es": "Cuenta contable con ID \"{{id}}\" no encontrada.",
+    "en": "Account \"{{id}}\" was not found.",
+    "pt": "Conta contábil \"{{id}}\" não encontrada."
+  },
+  "chart_of_accounts.account_not_locked": {
+    "es": "La cuenta no está bloqueada.",
+    "en": "The account is not locked.",
+    "pt": "A conta não está bloqueada."
+  },
+  "chart_of_accounts.account_segment_structure_has_not_configured": {
+    "es": "La estructura de segmentos de cuenta no ha sido configurada para esta organización.",
+    "en": "The account segment structure has not been configured for this organization.",
+    "pt": "A estrutura de segmentos das contas não foi configurada para esta organização."
+  },
+  "chart_of_accounts.account_type_cannot_changed": {
+    "es": "El tipo de cuenta no puede ser modificado.",
+    "en": "The account type cannot be changed.",
+    "pt": "O tipo de conta não pode ser alterado."
+  },
+  "chart_of_accounts.both_accounts_must_postable_merged": {
+    "es": "Ambas cuentas deben permitir contabilización para poder ser fusionadas.",
+    "en": "Both accounts must be postable to be merged.",
+    "pt": "Ambas as contas devem ser analíticas para poderem ser fundidas."
+  },
+  "chart_of_accounts.consistency_error_parent_account_parent_code": {
+    "es": "Error de consistencia: La cuenta padre '{{parentCode}}' para la cuenta '{{p2}}' no fue encontrada. La transacción será revertida.",
+    "en": "Consistency error: the parent account '{{parentCode}}' for account '{{p2}}' was not found. The transaction will be rolled back.",
+    "pt": "Erro de consistência: a conta superior '{{parentCode}}' da conta '{{p2}}' não foi encontrada. A transação será revertida."
+  },
+  "chart_of_accounts.deactivating_source_account_recalculating_balances": {
+    "es": "Desactivando cuenta de origen y recalculando saldos...",
+    "en": "Deactivating the source account and recalculating balances...",
+    "pt": "Desativando a conta de origem e recalculando os saldos..."
+  },
+  "chart_of_accounts.file_empty": {
+    "en": "The file is empty.",
+    "es": "El archivo está vacío.",
+    "pt": "O ficheiro está vazio."
+  },
+  "chart_of_accounts.hierarchy_account_p1_cannot_changed_because": {
+    "es": "No se puede cambiar la jerarquía de la cuenta \"{{p1}}\" porque tiene transacciones. Considere la fusión de cuentas.",
+    "en": "The hierarchy of account \"{{p1}}\" cannot be changed because it has transactions. Consider merging accounts instead.",
+    "pt": "A hierarquia da conta \"{{p1}}\" não pode ser alterada porque ela tem lançamentos. Considere fundir as contas."
+  },
+  "chart_of_accounts.import_batch_not_found_or_expired": {
+    "es": "El lote de importación no existe o ha expirado.",
+    "en": "The import batch does not exist or has expired.",
+    "pt": "O lote de importação não existe ou expirou."
+  },
+  "chart_of_accounts.import_failed_rolled_back_p1": {
+    "es": "La importación falló y fue revertida: {{p1}}",
+    "en": "The import failed and was rolled back: {{p1}}",
+    "pt": "A importação falhou e foi revertida: {{p1}}"
+  },
+  "chart_of_accounts.import.account_code_required": {
+    "es": "El código de cuenta es obligatorio.",
+    "en": "The account code is required.",
+    "pt": "O código da conta é obrigatório."
+  },
+  "chart_of_accounts.import.account_name_required": {
+    "es": "El nombre de la cuenta es obligatorio.",
+    "en": "The account name is required.",
+    "pt": "O nome da conta é obrigatório."
+  },
+  "chart_of_accounts.import.code_code_already_exists_chart_repeated": {
+    "es": "El código «{{code}}» ya existe en el catálogo o está repetido en el archivo.",
+    "en": "Code “{{code}}” already exists in the chart or is repeated in the file.",
+    "pt": "O código «{{code}}» já existe no plano ou está repetido no arquivo."
+  },
+  "chart_of_accounts.import.parent_account_code_neither_chart_nor": {
+    "es": "La cuenta padre «{{code}}» no existe en el catálogo ni en el archivo.",
+    "en": "Parent account “{{code}}” is neither in the chart nor in the file.",
+    "pt": "A conta pai «{{code}}» não existe no plano nem no arquivo."
+  },
+  "chart_of_accounts.import.value_not_valid_account_category_valid": {
+    "es": "«{{value}}» no es una categoría de cuenta válida. Las válidas son: {{allowed}}.",
+    "en": "“{{value}}” is not a valid account category. The valid ones are: {{allowed}}.",
+    "pt": "«{{value}}» não é uma categoria de conta válida. As válidas são: {{allowed}}."
+  },
+  "chart_of_accounts.import.value_not_valid_account_nature_valid": {
+    "es": "«{{value}}» no es una naturaleza válida. Las válidas son: {{allowed}}.",
+    "en": "“{{value}}” is not a valid account nature. The valid ones are: {{allowed}}.",
+    "pt": "«{{value}}» não é uma natureza válida. As válidas são: {{allowed}}."
+  },
+  "chart_of_accounts.import.value_not_valid_account_type_valid": {
+    "es": "«{{value}}» no es un tipo de cuenta válido. Los válidos son: {{allowed}}.",
+    "en": "“{{value}}” is not a valid account type. The valid ones are: {{allowed}}.",
+    "pt": "«{{value}}» não é um tipo de conta válido. Os válidos são: {{allowed}}."
+  },
+  "chart_of_accounts.invalid_account_type_type": {
+    "es": "Tipo de cuenta inválido: {{type}}",
+    "en": "Invalid account type: {{type}}",
+    "pt": "Tipo de conta inválido: {{type}}"
+  },
+  "chart_of_accounts.merge_completed": {
+    "es": "Fusión completada: la cuenta {{source}} ha sido fusionada en {{destination}}.",
+    "en": "Merge complete: account {{source}} has been merged into {{destination}}.",
+    "pt": "Fusão concluída: a conta {{source}} foi fundida em {{destination}}."
+  },
+  "chart_of_accounts.merge_failed": {
+    "es": "La fusión de cuentas no pudo completarse.",
+    "en": "The account merge could not be completed.",
+    "pt": "A fusão de contas não pôde ser concluída."
+  },
+  "chart_of_accounts.number_segments_supplied_length_does_not": {
+    "es": "El número de segmentos proporcionados ({{length}}) no coincide con la definición de la organización ({{length2}}).",
+    "en": "The number of segments supplied ({{length}}) does not match the organization's definition ({{length2}}).",
+    "pt": "O número de segmentos informados ({{length}}) não corresponde à definição da organização ({{length2}})."
+  },
+  "chart_of_accounts.one_both_accounts_not_found": {
+    "es": "Una o ambas cuentas no fueron encontradas.",
+    "en": "One or both accounts were not found.",
+    "pt": "Uma ou ambas as contas não foram encontradas."
+  },
+  "chart_of_accounts.one_more_specified_accounts_not_found": {
+    "es": "Una o más de las cuentas especificadas no fueron encontradas.",
+    "en": "One or more of the specified accounts were not found.",
+    "pt": "Uma ou mais das contas informadas não foram encontradas."
+  },
+  "chart_of_accounts.reassigning_child_accounts": {
+    "es": "Reasignando cuentas hijas...",
+    "en": "Reassigning child accounts...",
+    "pt": "Reatribuindo contas filhas..."
+  },
+  "chart_of_accounts.reassigning_transactions_may_take_while": {
+    "es": "Reasignando transacciones (esto puede tardar)...",
+    "en": "Reassigning transactions (this may take a while)...",
+    "pt": "Reatribuindo lançamentos (isso pode demorar)..."
+  },
+  "chart_of_accounts.segment_name_value_value_must_length": {
+    "es": "El segmento '{{name}}' (valor: {{value}}) debe tener una longitud de {{length}} caracteres.",
+    "en": "Segment '{{name}}' (value: {{value}}) must be {{length}} characters long.",
+    "pt": "O segmento '{{name}}' (valor: {{value}}) deve ter {{length}} caracteres."
+  },
+  "chart_of_accounts.segment_structure_cannot_changed_because_accounts": {
+    "es": "No se puede modificar la estructura de segmentos porque ya existen cuentas contables creadas para esta organización.",
+    "en": "The segment structure cannot be changed because accounts already exist for this organization.",
+    "pt": "A estrutura de segmentos não pode ser alterada porque já existem contas criadas para esta organização."
+  },
+  "chart_of_accounts.source_destination_accounts_cannot_same": {
+    "es": "La cuenta de origen y destino no pueden ser la misma.",
+    "en": "The source and destination accounts cannot be the same.",
+    "pt": "As contas de origem e destino não podem ser a mesma."
+  },
+  "chart_of_accounts.starting_account_merge": {
+    "es": "Iniciando la fusión de cuentas...",
+    "en": "Starting the account merge...",
+    "pt": "Iniciando a fusão de contas..."
+  },
+  "chart_of_accounts.system_accounts_cannot_deactivated": {
+    "es": "Las cuentas del sistema no pueden ser desactivadas.",
+    "en": "System accounts cannot be deactivated.",
+    "pt": "Contas do sistema não podem ser desativadas."
+  },
+  "chart_of_accounts.system_accounts_cannot_merged": {
+    "es": "Las cuentas de sistema no pueden ser fusionadas.",
+    "en": "System accounts cannot be merged.",
+    "pt": "Contas do sistema não podem ser fundidas."
+  },
+  "chart_of_accounts.unknown_job_ignored": {
+    "es": "Job desconocido ignorado.",
+    "en": "Unknown job ignored.",
+    "pt": "Job desconhecido ignorado."
+  }
+}

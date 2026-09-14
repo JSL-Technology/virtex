@@ -1,0 +1,85 @@
+{
+  "data_exports.action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "data_exports.data_export": {
+    "es": "Datos a exportar*",
+    "en": "Data to export*",
+    "pt": "Dados a exportar*"
+  },
+  "data_exports.data_exports": {
+    "es": "Exportaciones de datos",
+    "en": "Data exports",
+    "pt": "Exportações de dados"
+  },
+  "data_exports.data_type": {
+    "es": "Tipo de dato",
+    "en": "Data type",
+    "pt": "Tipo de dado"
+  },
+  "data_exports.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "data_exports.download": {
+    "es": "Descargar",
+    "en": "Download",
+    "pt": "Baixar"
+  },
+  "data_exports.excel_xlsx": {
+    "literal": "Excel (XLSX)"
+  },
+  "data_exports.format_label": {
+    "es": "Formato",
+    "en": "Format",
+    "pt": "Formato"
+  },
+  "data_exports.format_required_label": {
+    "es": "Formato*",
+    "en": "Format*",
+    "pt": "Formato*"
+  },
+  "data_exports.generate_and_download_your_master_or": {
+    "es": "Genera y descarga tus datos maestros o transaccionales en distintos formatos.",
+    "en": "Generate and download your master or transactional data in different formats.",
+    "pt": "Gere e baixe seus dados mestres ou transacionais em diferentes formatos."
+  },
+  "data_exports.generate_file": {
+    "es": "Generar archivo",
+    "en": "Generate the file",
+    "pt": "Gerar o arquivo"
+  },
+  "data_exports.generating": {
+    "es": "Generando...",
+    "en": "Generating...",
+    "pt": "Gerando..."
+  },
+  "data_exports.new_export": {
+    "es": "Nueva exportación",
+    "en": "New export",
+    "pt": "Nova exportação"
+  },
+  "data_exports.recent_exports": {
+    "es": "Exportaciones recientes",
+    "en": "Recent exports",
+    "pt": "Exportações recentes"
+  },
+  "data_exports.select_data_type": {
+    "es": "Selecciona un tipo de dato...",
+    "en": "Select a data type...",
+    "pt": "Selecione um tipo de dado..."
+  },
+  "data_exports.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "data_exports.user": {
+    "es": "Usuario",
+    "en": "User",
+    "pt": "Usuário"
+  }
+}

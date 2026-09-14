@@ -1,0 +1,272 @@
+{
+  "customer_receipts.form.advance_applied": {
+    "es": "Anticipo aplicado",
+    "en": "Advance applied",
+    "pt": "Adiantamento aplicado"
+  },
+  "customer_receipts.form.advance_apply_exceeds_what_customer_holds": {
+    "es": "El anticipo a aplicar excede lo que el cliente tiene disponible.",
+    "en": "The advance to apply exceeds what this customer holds on account.",
+    "pt": "O adiantamento a aplicar excede o que o cliente tem disponível."
+  },
+  "customer_receipts.form.amount_received": {
+    "es": "Monto recibido",
+    "en": "Amount received",
+    "pt": "Valor recebido"
+  },
+  "customer_receipts.form.applied_invoices": {
+    "es": "Aplicado a facturas",
+    "en": "Applied to invoices",
+    "pt": "Aplicado a faturas"
+  },
+  "customer_receipts.form.apply_invoice_number_receipt": {
+    "es": "Aplicar la factura {{number}} a este recibo",
+    "en": "Apply invoice {{number}} to this receipt",
+    "pt": "Aplicar a fatura {{number}} a este recibo"
+  },
+  "customer_receipts.form.apply_invoices": {
+    "es": "Aplicar a Facturas",
+    "en": "Apply to Invoices",
+    "pt": "Aplicar às Faturas"
+  },
+  "customer_receipts.form.available_account": {
+    "es": "Disponible en anticipos",
+    "en": "Available on account",
+    "pt": "Disponível em adiantamentos"
+  },
+  "customer_receipts.form.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "customer_receipts.form.bank_account": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "customer_receipts.form.bank_account_decides_currency": {
+    "es": "La moneda la determina la cuenta bancaria.",
+    "en": "The bank account decides the currency.",
+    "pt": "A moeda é a da conta bancária."
+  },
+  "customer_receipts.form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "customer_receipts.form.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "customer_receipts.form.collection_could_not_recorded": {
+    "es": "No se pudo registrar el cobro.",
+    "en": "The collection could not be recorded.",
+    "pt": "Não foi possível registrar a cobrança."
+  },
+  "customer_receipts.form.collection_recorded": {
+    "es": "Cobro registrado.",
+    "en": "Collection recorded.",
+    "pt": "Cobrança registrada."
+  },
+  "customer_receipts.form.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "customer_receipts.form.customer_has_no_invoices_with_outstanding": {
+    "es": "Este cliente no tiene facturas con saldo pendiente.",
+    "en": "This customer has no invoices with an outstanding balance.",
+    "pt": "Este cliente não tem faturas com saldo em aberto."
+  },
+  "customer_receipts.form.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "customer_receipts.form.enter_amount_received_advance_apply": {
+    "es": "Indique un monto recibido o un anticipo a aplicar.",
+    "en": "Enter an amount received or an advance to apply.",
+    "pt": "Informe um valor recebido ou um adiantamento a aplicar."
+  },
+  "customer_receipts.form.fill_every_required_field": {
+    "es": "Por favor, completa todos los campos requeridos.",
+    "en": "Fill in every required field.",
+    "pt": "Preencha todos os campos obrigatórios."
+  },
+  "customer_receipts.form.income_tax_withheld": {
+    "es": "ISR retenido",
+    "en": "Income tax withheld",
+    "pt": "Imposto de renda retido"
+  },
+  "customer_receipts.form.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "customer_receipts.form.invoices_apply": {
+    "es": "Facturas a aplicar",
+    "en": "Invoices to apply",
+    "pt": "Faturas a aplicar"
+  },
+  "customer_receipts.form.itbis_withheld": {
+    "es": "ITBIS retenido",
+    "en": "ITBIS withheld",
+    "pt": "ITBIS retido"
+  },
+  "customer_receipts.form.new_customer_receipt": {
+    "es": "Nuevo Recibo de Cliente",
+    "en": "New Customer Receipt",
+    "pt": "Novo Recibo de Cliente"
+  },
+  "customer_receipts.form.payment_date": {
+    "es": "Fecha de Pago",
+    "en": "Payment Date",
+    "pt": "Data do Pagamento"
+  },
+  "customer_receipts.form.payment_information": {
+    "es": "Información del Pago",
+    "en": "Payment Information",
+    "pt": "Informações do Pagamento"
+  },
+  "customer_receipts.form.payment_method": {
+    "es": "Forma de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
+  },
+  "customer_receipts.form.press_invoice_add_receipt": {
+    "es": "Pulsa una factura para añadirla al recibo.",
+    "en": "Press an invoice to add it to the receipt.",
+    "pt": "Pressione uma fatura para a adicionar ao recibo."
+  },
+  "customer_receipts.form.select_customer": {
+    "es": "Seleccionar cliente",
+    "en": "Select a customer",
+    "pt": "Selecionar cliente"
+  },
+  "customer_receipts.form.selected_customer_outstanding_invoices_will_listed": {
+    "es": "Aquí se mostrará una lista de facturas pendientes del cliente seleccionado para aplicar el pago.",
+    "en": "The selected customer's outstanding invoices will be listed here so the payment can be applied.",
+    "pt": "As faturas em aberto do cliente selecionado serão listadas aqui para aplicar o pagamento."
+  },
+  "customer_receipts.form.settles": {
+    "es": "Salda",
+    "en": "Settles",
+    "pt": "Liquida"
+  },
+  "customer_receipts.form.unapplied_advance_overpayment": {
+    "es": "No aplicado (anticipo o excedente)",
+    "en": "Unapplied (advance or overpayment)",
+    "pt": "Não aplicado (adiantamento ou excedente)"
+  },
+  "customer_receipts.form.use_advance": {
+    "es": "Usar el anticipo",
+    "en": "Use the advance",
+    "pt": "Usar o adiantamento"
+  },
+  "customer_receipts.form.what_applied_invoices_exceeds_amount_received": {
+    "es": "Lo aplicado a facturas excede el monto recibido.",
+    "en": "What is applied to invoices exceeds the amount received.",
+    "pt": "O aplicado às faturas excede o valor recebido."
+  },
+  "customer_receipts.form.you_drawing_more_advance_than_receipt": {
+    "es": "Está tomando más anticipo del que aplica a facturas. Aplíquelo a facturas o redúzcalo.",
+    "en": "You are drawing more advance than this receipt applies to invoices. Apply it to invoices or reduce it.",
+    "pt": "Está a usar mais adiantamento do que este recibo aplica a faturas. Aplique-o a faturas ou reduza-o."
+  },
+  "customer_receipts.list.amount": {
+    "es": "Monto",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "customer_receipts.list.could_not_load_customer_receipts": {
+    "es": "No se pudieron cargar los recibos de clientes.",
+    "en": "The customer receipts could not be loaded.",
+    "pt": "Não foi possível carregar os recibos de clientes."
+  },
+  "customer_receipts.list.create_your_first_receipt_record_payment": {
+    "es": "Crea tu primer recibo para registrar un pago.",
+    "en": "Create your first receipt to record a payment.",
+    "pt": "Crie seu primeiro recibo para registrar um pagamento."
+  },
+  "customer_receipts.list.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "customer_receipts.list.customer_receipts": {
+    "es": "Recibos de Cliente",
+    "en": "Customer Receipts",
+    "pt": "Recibos de Cliente"
+  },
+  "customer_receipts.list.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "customer_receipts.list.loading_receipts": {
+    "es": "Cargando recibos...",
+    "en": "Loading receipts...",
+    "pt": "Carregando recibos..."
+  },
+  "customer_receipts.list.new_receipt": {
+    "es": "Nuevo Recibo",
+    "en": "New Receipt",
+    "pt": "Novo Recibo"
+  },
+  "customer_receipts.list.no_customer_receipts": {
+    "es": "No hay recibos de cliente",
+    "en": "There are no customer receipts",
+    "pt": "Não há recibos de cliente"
+  },
+  "customer_receipts.list.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "customer_receipts.list.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "customer_receipts.list.unapplied": {
+    "es": "No aplicado",
+    "en": "Unapplied",
+    "pt": "Não aplicado"
+  },
+  "customer_receipts.method.bank_transfer": {
+    "es": "Transferencia",
+    "en": "Transfer",
+    "pt": "Transferência"
+  },
+  "customer_receipts.method.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "customer_receipts.method.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "customer_receipts.method.cheque": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "customer_receipts.method.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
+  "customer_receipts.status.posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Contabilizado"
+  },
+  "customer_receipts.status.void": {
+    "es": "Anulado",
+    "en": "Voided",
+    "pt": "Cancelado"
+  }
+}

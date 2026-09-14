@@ -1,0 +1,22 @@
+{
+  "audit.adjustment_proposal_adjustment_id_not_found": {
+    "es": "Propuesta de ajuste con ID \"{{adjustmentId}}\" no encontrada.",
+    "en": "Adjustment proposal \"{{adjustmentId}}\" was not found.",
+    "pt": "Proposta de ajuste \"{{adjustmentId}}\" não encontrada."
+  },
+  "audit.approved_adjustment_could_not_processed_p1": {
+    "es": "Fallo al procesar el ajuste aprobado: {{p1}}",
+    "en": "The approved adjustment could not be processed: {{p1}}",
+    "pt": "Falha ao processar o ajuste aprovado: {{p1}}"
+  },
+  "audit.attach_evidence_file": {
+    "es": "Adjunta el archivo de la evidencia.",
+    "en": "Attach the evidence file.",
+    "pt": "Anexe o ficheiro da evidência."
+  },
+  "audit.evidence_can_only_added_proposals_awaiting": {
+    "es": "Solo se puede añadir evidencia a propuestas pendientes de aprobación.",
+    "en": "Evidence can only be added to proposals awaiting approval.",
+    "pt": "Evidências só podem ser adicionadas a propostas aguardando aprovação."
+  }
+}

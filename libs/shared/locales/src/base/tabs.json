@@ -1,0 +1,152 @@
+{
+  "tabs.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "tabs.close_all": {
+    "es": "Cerrar todas",
+    "en": "Close all",
+    "pt": "Fechar todas"
+  },
+  "tabs.close_others": {
+    "es": "Cerrar las demás",
+    "en": "Close others",
+    "pt": "Fechar as outras"
+  },
+  "tabs.close_right": {
+    "es": "Cerrar las de la derecha",
+    "en": "Close to the right",
+    "pt": "Fechar as da direita"
+  },
+  "tabs.close_tab": {
+    "es": "Cerrar pestaña",
+    "en": "Close tab",
+    "pt": "Fechar aba"
+  },
+  "tabs.compact": {
+    "es": "Compacto",
+    "en": "Compact",
+    "pt": "Compacto"
+  },
+  "tabs.copy_of": {
+    "es": "{{title}} (copia)",
+    "en": "{{title}} (copy)",
+    "pt": "{{title}} (cópia)"
+  },
+  "tabs.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "tabs.float": {
+    "es": "Sacar a ventana flotante",
+    "en": "Move to a floating window",
+    "pt": "Levar para uma janela flutuante"
+  },
+  "tabs.focused": {
+    "es": "Enfocado",
+    "en": "Focused",
+    "pt": "Focado"
+  },
+  "tabs.keep_open": {
+    "es": "Mantener abierta",
+    "en": "Keep open",
+    "pt": "Manter aberta"
+  },
+  "tabs.maximise": {
+    "es": "Maximizar",
+    "en": "Maximise",
+    "pt": "Maximizar"
+  },
+  "tabs.module": {
+    "es": "Módulo",
+    "en": "Module",
+    "pt": "Módulo"
+  },
+  "tabs.narrow_screen_one_window_no_splitting": {
+    "es": "Pantalla estrecha: una ventana, sin divisiones.",
+    "en": "Narrow screen: one window, no splitting.",
+    "pt": "Tela estreita: uma janela, sem divisões."
+  },
+  "tabs.new_tab": {
+    "es": "Nueva pestaña",
+    "en": "New tab",
+    "pt": "Nova aba"
+  },
+  "tabs.no_open_tabs": {
+    "es": "No hay pestañas abiertas",
+    "en": "No open tabs",
+    "pt": "Nenhuma aba aberta"
+  },
+  "tabs.one_window_view_rest_tabs": {
+    "es": "Una ventana a la vista; las demás, en pestañas.",
+    "en": "One window in view; the rest as tabs.",
+    "pt": "Uma janela à vista; as demais em abas."
+  },
+  "tabs.open_tabs": {
+    "es": "Pestañas abiertas",
+    "en": "Open tabs",
+    "pt": "Abas abertas"
+  },
+  "tabs.open_tabs_aria": {
+    "es": "Cambiar de pestaña abierta",
+    "en": "Switch open tab",
+    "pt": "Alternar aba aberta"
+  },
+  "tabs.pin": {
+    "es": "Fijar",
+    "en": "Pin",
+    "pt": "Fixar"
+  },
+  "tabs.pop_out_window": {
+    "es": "Sacar a ventana",
+    "en": "Pop out to a window",
+    "pt": "Abrir em nova janela"
+  },
+  "tabs.preview_on_open": {
+    "es": "Vista previa al abrir",
+    "en": "Open in preview",
+    "pt": "Abrir em pré-visualização"
+  },
+  "tabs.restore": {
+    "es": "Restaurar tamaño",
+    "en": "Restore size",
+    "pt": "Restaurar tamanho"
+  },
+  "tabs.several_windows_once_split_tile_float": {
+    "es": "Varias ventanas a la vez: dividir, mosaico y flotantes.",
+    "en": "Several windows at once: split, tile and float.",
+    "pt": "Várias janelas ao mesmo tempo: dividir, mosaico e flutuantes."
+  },
+  "tabs.split_below": {
+    "es": "Dividir abajo",
+    "en": "Split below",
+    "pt": "Dividir abaixo"
+  },
+  "tabs.split_right": {
+    "es": "Dividir a la derecha",
+    "en": "Split right",
+    "pt": "Dividir à direita"
+  },
+  "tabs.under_construction": {
+    "es": "Este módulo está en construcción. La ruta ya está registrada y la pestaña funciona; la vista detallada estará disponible pronto.",
+    "en": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon.",
+    "pt": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
+  },
+  "tabs.unpin": {
+    "es": "Desfijar",
+    "en": "Unpin",
+    "pt": "Desafixar"
+  },
+  "tabs.window_layout": {
+    "es": "Disposición de ventanas",
+    "en": "Window layout",
+    "pt": "Disposição das janelas"
+  },
+  "tabs.workshop": {
+    "es": "Taller",
+    "en": "Workshop",
+    "pt": "Oficina"
+  }
+}

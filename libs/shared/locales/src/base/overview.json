@@ -1,0 +1,302 @@
+{
+  "overview.activity.empty": {
+    "es": "Aún no hay actividad reciente.",
+    "en": "No recent activity yet.",
+    "pt": "Ainda não há atividade recente."
+  },
+  "overview.activity.item.customer_payments.create": {
+    "es": "Cobro {{reference}} registrado",
+    "en": "Receipt {{reference}} recorded",
+    "pt": "Recebimento {{reference}} registado"
+  },
+  "overview.activity.item.customer_payments.delete": {
+    "es": "Cobro {{reference}} eliminado",
+    "en": "Receipt {{reference}} deleted",
+    "pt": "Recebimento {{reference}} eliminado"
+  },
+  "overview.activity.item.customer_payments.update": {
+    "es": "Cobro {{reference}} modificado",
+    "en": "Receipt {{reference}} changed",
+    "pt": "Recebimento {{reference}} alterado"
+  },
+  "overview.activity.item.customers.create": {
+    "es": "Cliente «{{reference}}» registrado",
+    "en": "Customer “{{reference}}” added",
+    "pt": "Cliente «{{reference}}» registado"
+  },
+  "overview.activity.item.customers.delete": {
+    "es": "Cliente «{{reference}}» eliminado",
+    "en": "Customer “{{reference}}” deleted",
+    "pt": "Cliente «{{reference}}» eliminado"
+  },
+  "overview.activity.item.customers.update": {
+    "es": "Cliente «{{reference}}» actualizado",
+    "en": "Customer “{{reference}}” updated",
+    "pt": "Cliente «{{reference}}» atualizado"
+  },
+  "overview.activity.item.generic.create": {
+    "es": "{{reference}} creado",
+    "en": "{{reference}} created",
+    "pt": "{{reference}} criado"
+  },
+  "overview.activity.item.generic.delete": {
+    "es": "{{reference}} eliminado",
+    "en": "{{reference}} deleted",
+    "pt": "{{reference}} eliminado"
+  },
+  "overview.activity.item.generic.update": {
+    "es": "{{reference}} actualizado",
+    "en": "{{reference}} updated",
+    "pt": "{{reference}} atualizado"
+  },
+  "overview.activity.item.invoices.create": {
+    "es": "Factura {{reference}} emitida",
+    "en": "Invoice {{reference}} issued",
+    "pt": "Fatura {{reference}} emitida"
+  },
+  "overview.activity.item.invoices.delete": {
+    "es": "Factura {{reference}} eliminada",
+    "en": "Invoice {{reference}} deleted",
+    "pt": "Fatura {{reference}} eliminada"
+  },
+  "overview.activity.item.invoices.update": {
+    "es": "Factura {{reference}} actualizada",
+    "en": "Invoice {{reference}} updated",
+    "pt": "Fatura {{reference}} atualizada"
+  },
+  "overview.activity.item.journal_entries.create": {
+    "es": "Asiento {{reference}} contabilizado",
+    "en": "Entry {{reference}} posted",
+    "pt": "Lançamento {{reference}} contabilizado"
+  },
+  "overview.activity.item.journal_entries.delete": {
+    "es": "Asiento {{reference}} eliminado",
+    "en": "Entry {{reference}} deleted",
+    "pt": "Lançamento {{reference}} eliminado"
+  },
+  "overview.activity.item.journal_entries.update": {
+    "es": "Asiento {{reference}} modificado",
+    "en": "Entry {{reference}} changed",
+    "pt": "Lançamento {{reference}} alterado"
+  },
+  "overview.activity.item.products.create": {
+    "es": "Producto «{{reference}}» añadido al catálogo",
+    "en": "Product “{{reference}}” added to the catalogue",
+    "pt": "Produto «{{reference}}» adicionado ao catálogo"
+  },
+  "overview.activity.item.products.delete": {
+    "es": "Producto «{{reference}}» eliminado",
+    "en": "Product “{{reference}}” deleted",
+    "pt": "Produto «{{reference}}» eliminado"
+  },
+  "overview.activity.item.products.update": {
+    "es": "Producto «{{reference}}» actualizado",
+    "en": "Product “{{reference}}” updated",
+    "pt": "Produto «{{reference}}» atualizado"
+  },
+  "overview.activity.item.suppliers.create": {
+    "es": "Proveedor «{{reference}}» registrado",
+    "en": "Supplier “{{reference}}” added",
+    "pt": "Fornecedor «{{reference}}» registado"
+  },
+  "overview.activity.item.suppliers.delete": {
+    "es": "Proveedor «{{reference}}» eliminado",
+    "en": "Supplier “{{reference}}” deleted",
+    "pt": "Fornecedor «{{reference}}» eliminado"
+  },
+  "overview.activity.item.suppliers.update": {
+    "es": "Proveedor «{{reference}}» actualizado",
+    "en": "Supplier “{{reference}}” updated",
+    "pt": "Fornecedor «{{reference}}» atualizado"
+  },
+  "overview.activity.item.vendor_bills.create": {
+    "es": "Factura de proveedor {{reference}} registrada",
+    "en": "Vendor bill {{reference}} recorded",
+    "pt": "Fatura de fornecedor {{reference}} registada"
+  },
+  "overview.activity.item.vendor_bills.delete": {
+    "es": "Factura de proveedor {{reference}} eliminada",
+    "en": "Vendor bill {{reference}} deleted",
+    "pt": "Fatura de fornecedor {{reference}} eliminada"
+  },
+  "overview.activity.item.vendor_bills.update": {
+    "es": "Factura de proveedor {{reference}} actualizada",
+    "en": "Vendor bill {{reference}} updated",
+    "pt": "Fatura de fornecedor {{reference}} atualizada"
+  },
+  "overview.activity.item.vendor_payments.create": {
+    "es": "Pago a proveedor {{reference}} registrado",
+    "en": "Vendor payment {{reference}} recorded",
+    "pt": "Pagamento a fornecedor {{reference}} registado"
+  },
+  "overview.activity.item.vendor_payments.delete": {
+    "es": "Pago a proveedor {{reference}} eliminado",
+    "en": "Vendor payment {{reference}} deleted",
+    "pt": "Pagamento a fornecedor {{reference}} eliminado"
+  },
+  "overview.activity.item.vendor_payments.update": {
+    "es": "Pago a proveedor {{reference}} modificado",
+    "en": "Vendor payment {{reference}} changed",
+    "pt": "Pagamento a fornecedor {{reference}} alterado"
+  },
+  "overview.activity.no_reference": {
+    "es": "sin número",
+    "en": "unnumbered",
+    "pt": "sem número"
+  },
+  "overview.activity.title": {
+    "es": "Actividad reciente",
+    "en": "Recent activity",
+    "pt": "Atividade recente"
+  },
+  "overview.events.empty": {
+    "es": "No hay vencimientos ni cierres en los próximos 30 días.",
+    "en": "Nothing falls due and no period closes in the next 30 days.",
+    "pt": "Não há vencimentos nem fechos nos próximos 30 dias."
+  },
+  "overview.events.item.payable_due": {
+    "es": "Vence la factura de proveedor {{reference}}",
+    "en": "Vendor bill {{reference}} falls due",
+    "pt": "Vence a fatura de fornecedor {{reference}}"
+  },
+  "overview.events.item.payable_overdue": {
+    "es": "Factura de proveedor {{reference}} vencida",
+    "en": "Vendor bill {{reference}} is overdue",
+    "pt": "Fatura de fornecedor {{reference}} vencida"
+  },
+  "overview.events.item.period_close": {
+    "es": "Cierre del período «{{reference}}»",
+    "en": "Period “{{reference}}” closes",
+    "pt": "Fecho do período «{{reference}}»"
+  },
+  "overview.events.item.receivable_due": {
+    "es": "Vence la factura {{reference}}",
+    "en": "Invoice {{reference}} falls due",
+    "pt": "Vence a fatura {{reference}}"
+  },
+  "overview.events.item.receivable_overdue": {
+    "es": "Factura {{reference}} vencida",
+    "en": "Invoice {{reference}} is overdue",
+    "pt": "Fatura {{reference}} vencida"
+  },
+  "overview.events.kind.payable_due": {
+    "es": "Por pagar",
+    "en": "Payable",
+    "pt": "A pagar"
+  },
+  "overview.events.kind.payable_overdue": {
+    "es": "Vencida",
+    "en": "Overdue",
+    "pt": "Vencida"
+  },
+  "overview.events.kind.period_close": {
+    "es": "Cierre contable",
+    "en": "Period close",
+    "pt": "Fecho contabilístico"
+  },
+  "overview.events.kind.receivable_due": {
+    "es": "Por cobrar",
+    "en": "Receivable",
+    "pt": "A receber"
+  },
+  "overview.events.kind.receivable_overdue": {
+    "es": "Vencida",
+    "en": "Overdue",
+    "pt": "Vencida"
+  },
+  "overview.events.title": {
+    "es": "Próximos vencimientos",
+    "en": "What falls due",
+    "pt": "Próximos vencimentos"
+  },
+  "overview.greeting.afternoon": {
+    "es": "Buenas tardes",
+    "en": "Good afternoon",
+    "pt": "Boa tarde"
+  },
+  "overview.greeting.evening": {
+    "es": "Buenas noches",
+    "en": "Good evening",
+    "pt": "Boa noite"
+  },
+  "overview.greeting.morning": {
+    "es": "Buenos días",
+    "en": "Good morning",
+    "pt": "Bom dia"
+  },
+  "overview.hero.here_snapshot_your_day": {
+    "es": "Aquí tienes un resumen de tu día.",
+    "en": "Here's a snapshot of your day.",
+    "pt": "Aqui está um resumo do seu dia."
+  },
+  "overview.hero.new_invoice": {
+    "es": "Nueva factura",
+    "en": "New invoice",
+    "pt": "Nova fatura"
+  },
+  "overview.hero.open_dashboard": {
+    "es": "Ver dashboard financiero",
+    "en": "Open financial dashboard",
+    "pt": "Abrir o painel financeiro"
+  },
+  "overview.news.empty": {
+    "es": "No hay novedades por ahora.",
+    "en": "No news right now.",
+    "pt": "Nenhuma novidade por enquanto."
+  },
+  "overview.news.title": {
+    "es": "Novedades de Virtex",
+    "en": "Virtex news",
+    "pt": "Novidades do Virtex"
+  },
+  "overview.quick.invoices": {
+    "es": "Ver facturas",
+    "en": "View invoices",
+    "pt": "Ver faturas"
+  },
+  "overview.quick.new_customer": {
+    "es": "Nuevo cliente",
+    "en": "New customer",
+    "pt": "Novo cliente"
+  },
+  "overview.quick.new_invoice": {
+    "es": "Nueva factura",
+    "en": "New invoice",
+    "pt": "Nova fatura"
+  },
+  "overview.quick.new_product": {
+    "es": "Nuevo producto",
+    "en": "New product",
+    "pt": "Novo produto"
+  },
+  "overview.quick.new_quote": {
+    "es": "Nueva cotización",
+    "en": "New quote",
+    "pt": "Novo orçamento"
+  },
+  "overview.quick.reports": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
+  "overview.quick.title": {
+    "es": "Accesos rápidos",
+    "en": "Quick actions",
+    "pt": "Atalhos"
+  },
+  "overview.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "overview.state.error": {
+    "es": "No se pudo cargar la información.",
+    "en": "We couldn't load this information.",
+    "pt": "Não foi possível carregar as informações."
+  },
+  "overview.state.retry": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar novamente"
+  }
+}

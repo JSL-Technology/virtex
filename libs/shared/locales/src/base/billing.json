@@ -1,0 +1,22 @@
+{
+  "billing.plans.enterprise.description": {
+    "es": "Solución completa sin límites para grandes organizaciones",
+    "en": "The complete product, without limits, for large organizations",
+    "pt": "Solução completa sem limites para grandes organizações"
+  },
+  "billing.plans.pro.description": {
+    "es": "Para empresas en crecimiento con necesidades avanzadas",
+    "en": "For growing companies with more demanding needs",
+    "pt": "Para empresas em crescimento com necessidades avançadas"
+  },
+  "billing.plans.starter.description": {
+    "es": "Ideal para equipos pequeños que empiezan",
+    "en": "Built for small teams getting started",
+    "pt": "Ideal para equipas pequenas a começar"
+  },
+  "billing.unlimited_resource": {
+    "es": "{{resource}}: sin límite",
+    "en": "{{resource}}: unlimited",
+    "pt": "{{resource}}: sem limite"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "price_lists.price_list_with_id_not_found": {
+    "es": "No se encontró la lista de precios \"{{id}}\".",
+    "en": "Price list \"{{id}}\" was not found.",
+    "pt": "A tabela de preços \"{{id}}\" não foi encontrada."
+  }
+}

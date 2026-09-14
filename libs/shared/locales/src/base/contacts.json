@@ -1,0 +1,357 @@
+{
+  "contacts.customer_form.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "contacts.customer_form.address_line": {
+    "es": "Línea de Dirección",
+    "en": "Address Line",
+    "pt": "Logradouro"
+  },
+  "contacts.customer_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "contacts.customer_form.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "contacts.customer_form.commercial_terms": {
+    "es": "Condiciones comerciales",
+    "en": "Commercial terms",
+    "pt": "Condições comerciais"
+  },
+  "contacts.customer_form.company": {
+    "es": "Persona jurídica",
+    "en": "Company",
+    "pt": "Pessoa jurídica"
+  },
+  "contacts.customer_form.company_name": {
+    "es": "Nombre de la Empresa*",
+    "en": "Company Name*",
+    "pt": "Nome da Empresa*"
+  },
+  "contacts.customer_form.contact_details": {
+    "es": "Datos de Contacto",
+    "en": "Contact Details",
+    "pt": "Dados de Contato"
+  },
+  "contacts.customer_form.contact_person": {
+    "es": "Persona de Contacto*",
+    "en": "Contact Person*",
+    "pt": "Pessoa de Contato*"
+  },
+  "contacts.customer_form.country": {
+    "es": "País*",
+    "en": "Country*",
+    "pt": "País*"
+  },
+  "contacts.customer_form.credit_days": {
+    "es": "Días de crédito",
+    "en": "Credit days",
+    "pt": "Dias de crédito"
+  },
+  "contacts.customer_form.customer_abroad": {
+    "es": "Cliente del exterior",
+    "en": "Customer abroad",
+    "pt": "Cliente no exterior"
+  },
+  "contacts.customer_form.customer_could_not_loaded": {
+    "es": "No se pudo cargar el cliente.",
+    "en": "The customer could not be loaded.",
+    "pt": "Não foi possível carregar o cliente."
+  },
+  "contacts.customer_form.customer_created": {
+    "es": "Cliente creado exitosamente.",
+    "en": "Customer created.",
+    "pt": "Cliente criado."
+  },
+  "contacts.customer_form.customer_updated": {
+    "es": "Cliente actualizado exitosamente.",
+    "en": "Customer updated.",
+    "pt": "Cliente atualizado."
+  },
+  "contacts.customer_form.days_added_issue_date_work_out": {
+    "es": "Días que se le suman a la fecha de emisión para calcular el vencimiento. En blanco usa el valor por defecto de la organización; 0 significa al contado.",
+    "en": "Days added to the issue date to work out the due date. Blank uses the organization default; 0 means due on receipt.",
+    "pt": "Dias somados à data de emissão para calcular o vencimento. Em branco usa o valor por omissão da organização; 0 significa a pronto pagamento."
+  },
+  "contacts.customer_form.decides_what_customer_withholds_when_paying": {
+    "es": "Determina qué retiene este cliente al pagarte. Lo asigna la administración tributaria: si no lo sabes, déjalo sin clasificar y no se retendrá nada automáticamente.",
+    "en": "Decides what this customer withholds when paying you. The tax authority assigns it: if you do not know, leave it unclassified and nothing is withheld automatically.",
+    "pt": "Determina o que este cliente retém ao te pagar. É a administração tributária que atribui: se não souber, deixe sem classificação e nada será retido automaticamente."
+  },
+  "contacts.customer_form.designated_withholding_agent": {
+    "es": "Agente de retención designado",
+    "en": "Designated withholding agent",
+    "pt": "Agente de retenção designado"
+  },
+  "contacts.customer_form.dominican_republic": {
+    "es": "República Dominicana",
+    "en": "Dominican Republic",
+    "pt": "República Dominicana"
+  },
+  "contacts.customer_form.email": {
+    "es": "Correo Electrónico*",
+    "en": "Email*",
+    "pt": "E-mail*"
+  },
+  "contacts.customer_form.error_creating_customer": {
+    "es": "Error al crear el cliente.",
+    "en": "Error creating the customer.",
+    "pt": "Erro ao criar o cliente."
+  },
+  "contacts.customer_form.error_updating_customer": {
+    "es": "Error al actualizar el cliente.",
+    "en": "Error updating the customer.",
+    "pt": "Erro ao atualizar o cliente."
+  },
+  "contacts.customer_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "contacts.customer_form.fill_your_customer_details": {
+    "es": "Completa la información detallada de tu cliente.",
+    "en": "Fill in your customer's details.",
+    "pt": "Preencha os dados do seu cliente."
+  },
+  "contacts.customer_form.government_body": {
+    "es": "Estado y sus dependencias",
+    "en": "Government body",
+    "pt": "Estado e suas dependências"
+  },
+  "contacts.customer_form.individual": {
+    "es": "Persona física",
+    "en": "Individual",
+    "pt": "Pessoa física"
+  },
+  "contacts.customer_form.main_information": {
+    "es": "Información Principal",
+    "en": "Main Information",
+    "pt": "Informações Principais"
+  },
+  "contacts.customer_form.payment_terms": {
+    "es": "Términos de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "contacts.customer_form.payment_terms_placeholder": {
+    "es": "Neto 30",
+    "en": "Net 30",
+    "pt": "Líquido 30"
+  },
+  "contacts.customer_form.phone": {
+    "es": "Teléfono*",
+    "en": "Phone*",
+    "pt": "Telefone*"
+  },
+  "contacts.customer_form.postal_code": {
+    "es": "Código Postal",
+    "en": "Postal Code",
+    "pt": "CEP"
+  },
+  "contacts.customer_form.save_customer": {
+    "es": "Guardar cliente",
+    "en": "Save customer",
+    "pt": "Salvar cliente"
+  },
+  "contacts.customer_form.state_province": {
+    "es": "Estado/Provincia",
+    "en": "State/Province",
+    "pt": "Estado/Província"
+  },
+  "contacts.customer_form.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "contacts.customer_form.taxpayer_type": {
+    "es": "Tipo de contribuyente",
+    "en": "Taxpayer type",
+    "pt": "Tipo de contribuinte"
+  },
+  "contacts.customer_form.title_edit": {
+    "es": "Editar cliente",
+    "en": "Edit customer",
+    "pt": "Editar cliente"
+  },
+  "contacts.customer_form.title_new": {
+    "es": "Nuevo cliente",
+    "en": "New customer",
+    "pt": "Novo cliente"
+  },
+  "contacts.customer_form.unclassified": {
+    "es": "Sin clasificar",
+    "en": "Unclassified",
+    "pt": "Sem classificação"
+  },
+  "contacts.customer_form.united_states": {
+    "es": "Estados Unidos",
+    "en": "United States",
+    "pt": "Estados Unidos"
+  },
+  "contacts.customers.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "contacts.customers.add_customer": {
+    "es": "Añadir Cliente",
+    "en": "Add Customer",
+    "pt": "Adicionar Cliente"
+  },
+  "contacts.customers.company_name": {
+    "es": "Nombre de la Empresa",
+    "en": "Company Name",
+    "pt": "Nome da Empresa"
+  },
+  "contacts.customers.contact_person": {
+    "es": "Persona de Contacto",
+    "en": "Contact Person",
+    "pt": "Pessoa de Contato"
+  },
+  "contacts.customers.customer_could_not_deleted": {
+    "es": "No se pudo eliminar el cliente.",
+    "en": "The customer could not be deleted.",
+    "pt": "Não foi possível excluir o cliente."
+  },
+  "contacts.customers.customer_deleted": {
+    "es": "Cliente eliminado exitosamente.",
+    "en": "Customer deleted.",
+    "pt": "Cliente excluído."
+  },
+  "contacts.customers.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "contacts.customers.customers_could_not_loaded": {
+    "es": "No se pudieron cargar los clientes.",
+    "en": "The customers could not be loaded.",
+    "pt": "Não foi possível carregar os clientes."
+  },
+  "contacts.customers.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "contacts.customers.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "contacts.customers.email": {
+    "es": "Email",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "contacts.customers.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "contacts.customers.loading_customers": {
+    "es": "Cargando clientes...",
+    "en": "Loading customers...",
+    "pt": "Carregando clientes..."
+  },
+  "contacts.customers.manage_your_customer_database_history": {
+    "es": "Administra tu base de datos de clientes y su historial.",
+    "en": "Manage your customer database and its history.",
+    "pt": "Gerencie sua base de clientes e o histórico deles."
+  },
+  "contacts.customers.no_customers_record": {
+    "es": "No hay clientes registrados.",
+    "en": "There are no customers on record.",
+    "pt": "Não há clientes cadastrados."
+  },
+  "contacts.customers.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "contacts.suppliers.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "contacts.suppliers.company_name": {
+    "es": "Nombre de la Empresa",
+    "en": "Company Name",
+    "pt": "Nome da Empresa"
+  },
+  "contacts.suppliers.contact_person": {
+    "es": "Persona de Contacto",
+    "en": "Contact Person",
+    "pt": "Pessoa de Contato"
+  },
+  "contacts.suppliers.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "contacts.suppliers.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "contacts.suppliers.email": {
+    "es": "Email",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "contacts.suppliers.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "contacts.suppliers.loading_suppliers": {
+    "es": "Cargando proveedores...",
+    "en": "Loading suppliers...",
+    "pt": "Carregando fornecedores..."
+  },
+  "contacts.suppliers.manage_your_suppliers_information": {
+    "es": "Administra la información de tus proveedores.",
+    "en": "Manage your suppliers' information.",
+    "pt": "Gerencie as informações dos seus fornecedores."
+  },
+  "contacts.suppliers.new_supplier": {
+    "es": "Nuevo Proveedor",
+    "en": "New Supplier",
+    "pt": "Novo Fornecedor"
+  },
+  "contacts.suppliers.no_suppliers_record": {
+    "es": "No hay proveedores registrados.",
+    "en": "There are no suppliers on record.",
+    "pt": "Não há fornecedores cadastrados."
+  },
+  "contacts.suppliers.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "contacts.suppliers.supplier_could_not_deleted": {
+    "es": "No se pudo eliminar el proveedor.",
+    "en": "The supplier could not be deleted.",
+    "pt": "Não foi possível excluir o fornecedor."
+  },
+  "contacts.suppliers.supplier_deleted": {
+    "es": "Proveedor eliminado exitosamente.",
+    "en": "Supplier deleted.",
+    "pt": "Fornecedor excluído."
+  },
+  "contacts.suppliers.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "contacts.suppliers.suppliers_could_not_loaded": {
+    "es": "No se pudieron cargar los proveedores.",
+    "en": "The suppliers could not be loaded.",
+    "pt": "Não foi possível carregar os fornecedores."
+  }
+}

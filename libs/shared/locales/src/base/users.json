@@ -1,0 +1,172 @@
+{
+  "users.confirmation_link_has_expired_request_new": {
+    "es": "El enlace de confirmación ha expirado. Solicita uno nuevo.",
+    "en": "The confirmation link has expired. Request a new one.",
+    "pt": "O link de confirmação expirou. Solicite um novo."
+  },
+  "users.email_already_use_another_user": {
+    "es": "El email ya está en uso por otro usuario.",
+    "en": "That email is already in use by another user.",
+    "pt": "Esse e-mail já está em uso por outro usuário."
+  },
+  "users.email_change_could_not_completed": {
+    "es": "No se pudo completar el cambio de correo electrónico.",
+    "en": "The email change could not be completed.",
+    "pt": "Não foi possível concluir a alteração de e-mail."
+  },
+  "users.email_updated_user_session_has_invalidated": {
+    "es": "Email actualizado. La sesión del usuario ha sido invalidada.",
+    "en": "Email updated. The user's session has been invalidated.",
+    "pt": "E-mail atualizado. A sessão do usuário foi invalidada."
+  },
+  "users.email_updated_your_session_has_invalidated": {
+    "es": "Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.",
+    "en": "Email updated. Your session has been invalidated for security.",
+    "pt": "E-mail atualizado. Sua sessão foi invalidada por segurança."
+  },
+  "users.file_required": {
+    "es": "El archivo es obligatorio.",
+    "en": "The file is required.",
+    "pt": "O arquivo é obrigatório."
+  },
+  "users.if_details_correct_confirmation_link_has": {
+    "es": "Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.",
+    "en": "If the details are correct, a confirmation link has been sent to the new address.",
+    "pt": "Se os dados estiverem corretos, um link de confirmação foi enviado ao novo endereço."
+  },
+  "users.incorrect_credentials": {
+    "es": "Credenciales incorrectas.",
+    "en": "Incorrect credentials.",
+    "pt": "Credenciais incorretas."
+  },
+  "users.invalid_confirmation_token": {
+    "es": "Token de confirmación inválido.",
+    "en": "Invalid confirmation token.",
+    "pt": "Token de confirmação inválido."
+  },
+  "users.invalid_email_format": {
+    "es": "Formato de email inválido.",
+    "en": "Invalid email format.",
+    "pt": "Formato de e-mail inválido."
+  },
+  "users.invitation_could_not_sent_with_details": {
+    "es": "No se pudo enviar la invitación con los datos proporcionados.",
+    "en": "The invitation could not be sent with the details provided.",
+    "pt": "Não foi possível enviar o convite com os dados informados."
+  },
+  "users.no_department": {
+    "es": "Sin departamento",
+    "en": "No department",
+    "pt": "Sem departamento"
+  },
+  "users.no_pending_email_change": {
+    "es": "No hay ningún cambio de correo pendiente.",
+    "en": "There is no pending email change.",
+    "pt": "Não há alteração de e-mail pendente."
+  },
+  "users.only_image_files_are_allowed": {
+    "en": "Only image files are allowed.",
+    "es": "Solo se permiten archivos de imagen.",
+    "pt": "Apenas são permitidos ficheiros de imagem."
+  },
+  "users.password_reset_email_sent": {
+    "es": "Enviamos un enlace para restablecer la contraseña.",
+    "en": "We sent a password reset link.",
+    "pt": "Enviamos um link para redefinir a senha."
+  },
+  "users.role_role_id_not_found": {
+    "es": "Rol con ID {{roleId}} no encontrado.",
+    "en": "Role {{roleId}} was not found.",
+    "pt": "Perfil {{roleId}} não encontrado."
+  },
+  "users.search_users": {
+    "es": "Buscar usuarios...",
+    "en": "Search users...",
+    "pt": "Buscar usuários..."
+  },
+  "users.table.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "users.table.department": {
+    "es": "Departamento",
+    "en": "Department",
+    "pt": "Departamento"
+  },
+  "users.table.email": {
+    "es": "Email",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "users.table.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "users.table.role": {
+    "es": "Rol",
+    "en": "Role",
+    "pt": "Perfil"
+  },
+  "users.table.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "users.user_has_blocked_their_session_closed": {
+    "es": "Se ha bloqueado y cerrado la sesión del usuario.",
+    "en": "The user has been blocked and their session closed.",
+    "pt": "O usuário foi bloqueado e sua sessão encerrada."
+  },
+  "users.user_holding_system_role_cannot_deleted": {
+    "es": "No se puede eliminar un usuario con un rol de sistema.",
+    "en": "A user holding a system role cannot be deleted.",
+    "pt": "Um usuário com perfil de sistema não pode ser excluído."
+  },
+  "users.user_id_not_found": {
+    "es": "Usuario con id {{id}} no encontrado",
+    "en": "User {{id}} was not found",
+    "pt": "Usuário {{id}} não encontrado"
+  },
+  "users.user_id_not_found_in_your_organization": {
+    "es": "Usuario con ID {{id}} no encontrado en tu organización.",
+    "en": "User {{id}} was not found in your organization.",
+    "pt": "Usuário {{id}} não encontrado na sua organização."
+  },
+  "users.user_id_not_found_your_organization": {
+    "es": "Usuario con id {{id}} no encontrado en tu organización",
+    "en": "User {{id}} was not found in your organization",
+    "pt": "Usuário {{id}} não encontrado na sua organização"
+  },
+  "users.user_not_found": {
+    "es": "Usuario no encontrado",
+    "en": "User not found",
+    "pt": "Usuário não encontrado"
+  },
+  "users.user_session_has_closed": {
+    "es": "Se ha cerrado la sesión del usuario.",
+    "en": "The user's session has been closed.",
+    "pt": "A sessão do usuário foi encerrada."
+  },
+  "users.views.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "users.you_cannot_block_your_own_account": {
+    "es": "No puedes bloquear tu propia cuenta.",
+    "en": "You cannot block your own account.",
+    "pt": "Você não pode bloquear a própria conta."
+  },
+  "users.you_cannot_deactivate_block_your_own": {
+    "es": "No puedes desactivar o bloquear tu propia cuenta.",
+    "en": "You cannot deactivate or block your own account.",
+    "pt": "Você não pode desativar ou bloquear a própria conta."
+  },
+  "users.you_cannot_delete_your_own_account": {
+    "es": "No puedes eliminar tu propia cuenta desde la administración de usuarios.",
+    "en": "You cannot delete your own account from user management.",
+    "pt": "Você não pode excluir sua própria conta pela gestão de usuários."
+  }
+}

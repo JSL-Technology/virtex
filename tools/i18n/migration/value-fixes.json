@@ -1,0 +1,291 @@
+{
+  "$note": "Values the old catalogues got wrong in a way parity checking cannot see: the key exists in all three languages, so nothing failed, but the Spanish entry held English text (or, for one Brazilian e-invoicing message, Portuguese). A missing key is loud; a key whose value is in the wrong language is silent, which is why these survived. Each entry replaces all three languages so the triple is consistent.",
+  "accounts_payable.form.ncf": {
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
+  },
+  "accounts_payable.list.no_fiscal_number": {
+    "en": "No fiscal document",
+    "es": "Sin comprobante fiscal",
+    "pt": "Sem documento fiscal"
+  },
+  "auth.identity_provider_metadata_incomplete": {
+    "en": "The identity provider's metadata is incomplete.",
+    "es": "Los metadatos del proveedor de identidad están incompletos.",
+    "pt": "Os metadados do provedor de identidade estão incompletos."
+  },
+  "auth.identity_provider_temporarily_unavailable": {
+    "en": "The identity provider is temporarily unavailable.",
+    "es": "El proveedor de identidad no está disponible temporalmente.",
+    "pt": "O provedor de identidade está temporariamente indisponível."
+  },
+  "auth.session_context_changed_please_log_in_again": {
+    "en": "Your session context changed. Sign in again.",
+    "es": "El contexto de tu sesión cambió. Inicia sesión de nuevo.",
+    "pt": "O contexto da tua sessão mudou. Inicia sessão novamente."
+  },
+  "auth.session_invalidated_please_log_in_again": {
+    "en": "Your session was invalidated. Sign in again.",
+    "es": "Tu sesión fue invalidada. Inicia sesión de nuevo.",
+    "pt": "A tua sessão foi invalidada. Inicia sessão novamente."
+  },
+  "auth.step_up_token_already_used": {
+    "en": "That step-up verification code has already been used.",
+    "es": "Ese código de verificación adicional ya fue usado.",
+    "pt": "Esse código de verificação adicional já foi utilizado."
+  },
+  "auth.this_domain_already_registered": {
+    "en": "That domain is already registered.",
+    "es": "Ese dominio ya está registrado.",
+    "pt": "Esse domínio já está registado."
+  },
+  "auth.too_many_2_fa_attempts_please_log_in": {
+    "en": "Too many two-step verification attempts. Sign in again.",
+    "es": "Demasiados intentos de verificación en dos pasos. Inicia sesión de nuevo.",
+    "pt": "Demasiadas tentativas de verificação em duas etapas. Inicia sessão novamente."
+  },
+  "auth.too_many_attempts_please_request_new_code": {
+    "en": "Too many attempts. Request a new code.",
+    "es": "Demasiados intentos. Solicita un código nuevo.",
+    "pt": "Demasiadas tentativas. Solicita um novo código."
+  },
+  "auth.user_inactive_or_blocked": {
+    "en": "That account is inactive or blocked.",
+    "es": "La cuenta está inactiva o bloqueada.",
+    "pt": "Essa conta está inativa ou bloqueada."
+  },
+  "chart_of_accounts.file_empty": {
+    "en": "The file is empty.",
+    "es": "El archivo está vacío.",
+    "pt": "O ficheiro está vazio."
+  },
+  "common.file_too_large": {
+    "en": "That file is too large.",
+    "es": "El archivo es demasiado grande.",
+    "pt": "Esse ficheiro é demasiado grande."
+  },
+  "common.named_file_too_large": {
+    "en": "The file “{{filename}}” is too large.",
+    "es": "El archivo «{{filename}}» es demasiado grande.",
+    "pt": "O ficheiro «{{filename}}» é demasiado grande."
+  },
+  "common.too_many_files": {
+    "en": "You selected too many files.",
+    "es": "Seleccionaste demasiados archivos.",
+    "pt": "Selecionaste demasiados ficheiros."
+  },
+  "contacts.customer_form.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "customer_receipts.method.cheque": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "einvoicing.nfe_line_without_classification": {
+    "en": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the goods and CFOP the operation.",
+    "es": "La línea «{{line}}» no tiene {{key}}. Defínelo en el producto: la NCM clasifica la mercancía y el CFOP la operación.",
+    "note": "The Spanish entry held the Portuguese text, because the message was written while working on the Brazilian NF-e adapter.",
+    "pt": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação."
+  },
+  "extensions.code_or_valid_pluginname_required": {
+    "en": "Provide either the code or a valid extension name.",
+    "es": "Indica el código o un nombre de extensión válido.",
+    "pt": "Indica o código ou um nome de extensão válido."
+  },
+  "extensions.direct_code_rejected_by_admission_policy": {
+    "en": "The admission policy rejected directly submitted code.",
+    "es": "La política de admisión rechazó el código enviado directamente.",
+    "pt": "A política de admissão rejeitou o código enviado diretamente."
+  },
+  "extensions.extension_not_enabled_for_this_tenant": {
+    "en": "That extension is not enabled for this organization.",
+    "es": "La extensión no está habilitada para esta organización.",
+    "pt": "Essa extensão não está ativada para esta organização."
+  },
+  "extensions.named_plugin_not_found": {
+    "en": "We could not find the extension “{{pluginName}}”.",
+    "es": "No encontramos la extensión «{{pluginName}}».",
+    "pt": "Não encontrámos a extensão «{{pluginName}}»."
+  },
+  "extensions.plugin_not_found": {
+    "en": "We could not find that extension.",
+    "es": "No encontramos la extensión.",
+    "pt": "Não encontrámos essa extensão."
+  },
+  "extensions.plugin_revoked": {
+    "en": "That extension has been revoked and cannot run.",
+    "es": "La extensión fue revocada y no puede ejecutarse.",
+    "pt": "Essa extensão foi revogada e não pode ser executada."
+  },
+  "extensions.version_not_found": {
+    "en": "We could not find that version of the extension.",
+    "es": "No encontramos esa versión de la extensión.",
+    "pt": "Não encontrámos essa versão da extensão."
+  },
+  "feedback.title": {
+    "en": "Feedback",
+    "es": "Comentarios",
+    "pt": "Comentários"
+  },
+  "hcm.employees.form.document_type.national_id": {
+    "en": "National ID",
+    "es": "Documento de identidad",
+    "pt": "Documento de identidade"
+  },
+  "hcm.employees.form.document_type.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "hcm.employees.form.proportional_bonus": {
+    "en": "Proportional year-end bonus",
+    "es": "Bonificación proporcional de fin de año",
+    "pt": "Bónus proporcional de fim de ano"
+  },
+  "hcm.employees.form.severance_help": {
+    "en": "What the termination would cost, before deciding on it. Includes notice, severance, accrued vacation and the proportional year-end bonus under the country's own law.",
+    "es": "Lo que costaría la desvinculación, antes de decidirla. Incluye preaviso, cesantía, vacaciones y bonificación proporcional de fin de año según la legislación del país.",
+    "note": "The previous text cited articles 76, 80 and 177 of the Dominican labour code from a screen every market sees. The article numbers now live in regional/es-do.json.",
+    "pt": "Quanto custaria a rescisão, antes de a decidir. Inclui aviso prévio, indemnização, férias e o bónus proporcional de fim de ano segundo a legislação do país."
+  },
+  "hcm.employees.form.tss_nss": {
+    "en": "Social security number",
+    "es": "Número de seguridad social",
+    "pt": "Número de segurança social"
+  },
+  "invoices.detail.ncf": {
+    "en": "Fiscal document no.:",
+    "es": "N.º de comprobante fiscal:",
+    "pt": "N.º do documento fiscal:"
+  },
+  "invoices.detail.trackid": {
+    "en": "Tracking ID:",
+    "es": "Id. de seguimiento:",
+    "pt": "ID de rastreio:"
+  },
+  "invoices.new.cheque": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "invoices.payment_method.check": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "masters.customer_form.rnc_nif": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "masters.supplier_form.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "payroll.concepts.tss_base": {
+    "en": "Contributes to social security",
+    "es": "Cotiza a la seguridad social",
+    "pt": "Contribui para a segurança social"
+  },
+  "payroll.parameters.key_label.bonus_employee_levy_rate": {
+    "en": "Training-levy rate on the bonus",
+    "es": "Tasa de aporte de formación sobre la bonificación",
+    "pt": "Taxa de contribuição para formação sobre o bónus"
+  },
+  "payroll.runs.type_label.christmas_bonus": {
+    "en": "Year-end bonus",
+    "es": "Bonificación de fin de año",
+    "note": "Named after the concept because every market calls it something else: regalía pascual (DO), aguinaldo (MX, AR, CL, CR), prima de navidad (CO), gratificación (PE). Each of those is a regional override.",
+    "pt": "Bónus de fim de ano"
+  },
+  "permissions.groups.tss": {
+    "en": "Social security",
+    "es": "Seguridad social",
+    "pt": "Segurança social"
+  },
+  "pos.no_open_shift": {
+    "en": "There is no open shift on this terminal. Open a shift before selling.",
+    "es": "No hay un turno abierto en esta terminal. Abre un turno antes de vender.",
+    "pt": "Não há um turno aberto neste terminal. Abre um turno antes de vender."
+  },
+  "pos.shift_already_closed": {
+    "en": "That shift is already closed.",
+    "es": "El turno ya está cerrado.",
+    "pt": "Esse turno já está fechado."
+  },
+  "pos.shift_not_found": {
+    "en": "We could not find that shift.",
+    "es": "No encontramos el turno.",
+    "pt": "Não encontrámos esse turno."
+  },
+  "pos.there_already_active_shift_for_this_terminal": {
+    "en": "There is already an open shift on this terminal.",
+    "es": "Ya hay un turno abierto en esta terminal.",
+    "pt": "Já existe um turno aberto neste terminal."
+  },
+  "settings.company_profile.id_fiscal_rnc_tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "settings.layout.intercompany": {
+    "en": "Intercompany",
+    "es": "Intercompañía",
+    "pt": "Intercompanhia"
+  },
+  "settings.modal.intercompany": {
+    "en": "Intercompany",
+    "es": "Intercompañía",
+    "pt": "Intercompanhia"
+  },
+  "settings.sso.issuer_url_discovery": {
+    "en": "Issuer URL (discovery)",
+    "es": "URL del emisor (discovery)",
+    "pt": "URL do emissor (discovery)"
+  },
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "sidebar.finance.gl_sub.ic_netting": {
+    "en": "Intercompany — Netting",
+    "es": "Intercompañía — Neteo",
+    "pt": "Intercompanhia — Netting"
+  },
+  "sidebar.platform.automation_sub.workflows": {
+    "en": "Workflows",
+    "es": "Flujos de trabajo",
+    "pt": "Fluxos de trabalho"
+  },
+  "sidebar.platform.data_warehouse": {
+    "en": "Data warehouse",
+    "es": "Almacén de datos",
+    "pt": "Armazém de dados"
+  },
+  "sidebar.platform.operations_sub.jobs": {
+    "en": "Jobs",
+    "es": "Trabajos",
+    "pt": "Tarefas"
+  },
+  "sidebar.platform.operations_sub.logs": {
+    "en": "Logs",
+    "es": "Registros",
+    "pt": "Registos"
+  },
+  "users.only_image_files_are_allowed": {
+    "en": "Only image files are allowed.",
+    "es": "Solo se permiten archivos de imagen.",
+    "pt": "Apenas são permitidos ficheiros de imagem."
+  },
+  "validation.create_employee.tss_nss_format": {
+    "en": "The social security number must be between 7 and 11 digits.",
+    "es": "El número de seguridad social debe tener entre 7 y 11 dígitos.",
+    "pt": "O número de segurança social deve ter entre 7 e 11 dígitos."
+  }
+}

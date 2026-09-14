@@ -1,0 +1,970 @@
+{
+  "masters.banks.bank_name": {
+    "es": "Nombre del banco",
+    "en": "Bank name",
+    "pt": "Nome do banco"
+  },
+  "masters.banks.banks": {
+    "es": "Bancos",
+    "en": "Banks",
+    "pt": "Bancos"
+  },
+  "masters.banks.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "masters.banks.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.banks.new_bank": {
+    "es": "Nuevo banco",
+    "en": "New bank",
+    "pt": "Novo banco"
+  },
+  "masters.banks.no_banks_configured": {
+    "es": "No hay bancos configurados.",
+    "en": "No banks are configured.",
+    "pt": "Nenhum banco configurado."
+  },
+  "masters.banks.swift_code": {
+    "es": "Código SWIFT",
+    "en": "SWIFT code",
+    "pt": "Código SWIFT"
+  },
+  "masters.branches.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "masters.branches.branches_locations": {
+    "es": "Sucursales y ubicaciones",
+    "en": "Branches and locations",
+    "pt": "Filiais e localizações"
+  },
+  "masters.branches.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "masters.branches.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.branches.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.branches.new_branch": {
+    "es": "Nueva sucursal",
+    "en": "New branch",
+    "pt": "Nova filial"
+  },
+  "masters.branches.no_branches_configured": {
+    "es": "No hay sucursales configuradas.",
+    "en": "No branches are configured.",
+    "pt": "Nenhuma filial configurada."
+  },
+  "masters.branches.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "masters.currencies.base_currency": {
+    "es": "Moneda base",
+    "en": "Base currency",
+    "pt": "Moeda base"
+  },
+  "masters.currencies.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "masters.currencies.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "masters.currencies.currency_name": {
+    "es": "Nombre de la moneda",
+    "en": "Currency name",
+    "pt": "Nome da moeda"
+  },
+  "masters.currencies.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.currencies.new_currency": {
+    "es": "Nueva moneda",
+    "en": "New currency",
+    "pt": "Nova moeda"
+  },
+  "masters.currencies.no_currencies_configured": {
+    "es": "No hay monedas configuradas.",
+    "en": "No currencies are configured.",
+    "pt": "Nenhuma moeda configurada."
+  },
+  "masters.currencies.symbol": {
+    "es": "Símbolo",
+    "en": "Symbol",
+    "pt": "Símbolo"
+  },
+  "masters.currencies.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
+  },
+  "masters.customer_form.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "masters.customer_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "masters.customer_form.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "masters.customer_form.company_name": {
+    "es": "Nombre de empresa*",
+    "en": "Company name*",
+    "pt": "Nome da empresa*"
+  },
+  "masters.customer_form.contact_person": {
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
+  },
+  "masters.customer_form.country": {
+    "es": "País*",
+    "en": "Country*",
+    "pt": "País*"
+  },
+  "masters.customer_form.customer_could_not_loaded": {
+    "es": "No se pudo cargar el cliente.",
+    "en": "The customer could not be loaded.",
+    "pt": "Não foi possível carregar o cliente."
+  },
+  "masters.customer_form.customer_created": {
+    "es": "Cliente creado exitosamente.",
+    "en": "Customer created.",
+    "pt": "Cliente criado."
+  },
+  "masters.customer_form.customer_updated": {
+    "es": "Cliente actualizado exitosamente.",
+    "en": "Customer updated.",
+    "pt": "Cliente atualizado."
+  },
+  "masters.customer_form.email": {
+    "es": "Correo*",
+    "en": "Email*",
+    "pt": "E-mail*"
+  },
+  "masters.customer_form.error_creating_customer": {
+    "es": "Error al crear el cliente.",
+    "en": "Error creating the customer.",
+    "pt": "Erro ao criar o cliente."
+  },
+  "masters.customer_form.error_updating_customer": {
+    "es": "Error al actualizar el cliente.",
+    "en": "Error updating the customer.",
+    "pt": "Erro ao atualizar o cliente."
+  },
+  "masters.customer_form.fill_customer_billing_contact_details": {
+    "es": "Completa la información del cliente para facturación y contacto.",
+    "en": "Fill in the customer's billing and contact details.",
+    "pt": "Preencha os dados de faturamento e contato do cliente."
+  },
+  "masters.customer_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "masters.customer_form.general_information": {
+    "es": "Información General",
+    "en": "General Information",
+    "pt": "Informações Gerais"
+  },
+  "masters.customer_form.phone": {
+    "es": "Teléfono*",
+    "en": "Phone*",
+    "pt": "Telefone*"
+  },
+  "masters.customer_form.postal_code": {
+    "es": "Código Postal",
+    "en": "Postal Code",
+    "pt": "CEP"
+  },
+  "masters.customer_form.province_state": {
+    "es": "Provincia/Estado",
+    "en": "Province/State",
+    "pt": "Estado/Província"
+  },
+  "masters.customer_form.rnc_nif": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "masters.customer_form.save_customer": {
+    "es": "Guardar Cliente",
+    "en": "Save Customer",
+    "pt": "Salvar Cliente"
+  },
+  "masters.customer_list.company_name": {
+    "es": "Razón social",
+    "en": "Legal name",
+    "pt": "Razão social"
+  },
+  "masters.customer_list.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "masters.customer_list.email": {
+    "es": "Email",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "masters.customer_list.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.customer_list.location": {
+    "es": "Ubicación",
+    "en": "Location",
+    "pt": "Localização"
+  },
+  "masters.customer_list.new_customer": {
+    "es": "Nuevo cliente",
+    "en": "New customer",
+    "pt": "Novo cliente"
+  },
+  "masters.customer_list.no_customers_found_start_by_adding": {
+    "es": "No se encontraron clientes. Empieza agregando uno.",
+    "en": "No customers were found. Start by adding one.",
+    "pt": "Nenhum cliente encontrado. Comece adicionando um."
+  },
+  "masters.customer_list.phone": {
+    "es": "Phone",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "masters.customer_list.tax_id": {
+    "es": "Identificación fiscal",
+    "en": "Tax ID",
+    "pt": "Identificação fiscal"
+  },
+  "masters.layout.banks": {
+    "es": "Bancos",
+    "en": "Banks",
+    "pt": "Bancos"
+  },
+  "masters.layout.branches": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "masters.layout.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "masters.layout.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "masters.layout.manage_your_organization_master_data": {
+    "es": "Administra los datos maestros de tu organización.",
+    "en": "Manage your organization's master data.",
+    "pt": "Gerencie os dados mestres da sua organização."
+  },
+  "masters.layout.master_data": {
+    "es": "Datos maestros",
+    "en": "Master data",
+    "pt": "Dados mestres"
+  },
+  "masters.layout.payment_methods": {
+    "es": "Formas de pago",
+    "en": "Payment methods",
+    "pt": "Formas de pagamento"
+  },
+  "masters.layout.payment_terms": {
+    "es": "Condiciones de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "masters.layout.price_lists": {
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
+  },
+  "masters.layout.products": {
+    "es": "Productos",
+    "en": "Products & Services",
+    "pt": "Produtos"
+  },
+  "masters.layout.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "masters.layout.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "masters.layout.units": {
+    "es": "Unidades",
+    "en": "Units",
+    "pt": "Unidades"
+  },
+  "masters.layout.warehouses": {
+    "es": "Almacenes",
+    "en": "Warehouses",
+    "pt": "Depósitos"
+  },
+  "masters.payment_methods.default_method": {
+    "es": "Forma predeterminada",
+    "en": "Default method",
+    "pt": "Forma padrão"
+  },
+  "masters.payment_methods.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.payment_methods.new_method": {
+    "es": "Nuevo método",
+    "en": "New method",
+    "pt": "Nova forma"
+  },
+  "masters.payment_methods.payment_methods": {
+    "es": "Formas de pago",
+    "en": "Payment methods",
+    "pt": "Formas de pagamento"
+  },
+  "masters.payment_methods.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "masters.payment_methods.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
+  },
+  "masters.payment_terms.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.payment_terms.net_days": {
+    "es": "Días netos",
+    "en": "Net days",
+    "pt": "Dias líquidos"
+  },
+  "masters.payment_terms.new_term": {
+    "es": "Nueva condición",
+    "en": "New term",
+    "pt": "Nova condição"
+  },
+  "masters.payment_terms.payment_terms": {
+    "es": "Condiciones de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "masters.price_lists_form.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "masters.price_lists_form.add_line": {
+    "es": "Añadir Línea",
+    "en": "Add Line",
+    "pt": "Adicionar Linha"
+  },
+  "masters.price_lists_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "masters.price_lists_form.currency": {
+    "es": "Moneda*",
+    "en": "Currency*",
+    "pt": "Moeda*"
+  },
+  "masters.price_lists_form.define_prices_specific_set_products": {
+    "es": "Define precios para un conjunto específico de productos.",
+    "en": "Define prices for a specific set of products.",
+    "pt": "Defina preços para um conjunto específico de produtos."
+  },
+  "masters.price_lists_form.dop_dominican_peso": {
+    "es": "DOP - Peso Dominicano",
+    "en": "DOP - Dominican Peso",
+    "pt": "DOP - Peso Dominicano"
+  },
+  "masters.price_lists_form.error_creating_price_list": {
+    "es": "Error al crear la lista de precios.",
+    "en": "Error creating the price list.",
+    "pt": "Erro ao criar a tabela de preços."
+  },
+  "masters.price_lists_form.error_updating_price_list": {
+    "es": "Error al actualizar la lista de precios.",
+    "en": "Error updating the price list.",
+    "pt": "Erro ao atualizar a tabela de preços."
+  },
+  "masters.price_lists_form.eur_euro": {
+    "literal": "EUR - Euro"
+  },
+  "masters.price_lists_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "masters.price_lists_form.list_name": {
+    "es": "Nombre de la Lista*",
+    "en": "List Name*",
+    "pt": "Nome da Tabela*"
+  },
+  "masters.price_lists_form.price": {
+    "es": "Precio*",
+    "en": "Price*",
+    "pt": "Preço*"
+  },
+  "masters.price_lists_form.price_list_could_not_loaded": {
+    "es": "No se pudo cargar la lista de precios.",
+    "en": "The price list could not be loaded.",
+    "pt": "Não foi possível carregar a tabela de preços."
+  },
+  "masters.price_lists_form.price_list_created": {
+    "es": "Lista de precios creada exitosamente.",
+    "en": "Price list created.",
+    "pt": "Tabela de preços criada."
+  },
+  "masters.price_lists_form.price_list_items": {
+    "es": "Ítems de la Lista de Precios",
+    "en": "Price List Items",
+    "pt": "Itens da Tabela de Preços"
+  },
+  "masters.price_lists_form.price_list_updated": {
+    "es": "Lista de precios actualizada exitosamente.",
+    "en": "Price list updated.",
+    "pt": "Tabela de preços atualizada."
+  },
+  "masters.price_lists_form.product": {
+    "es": "Producto*",
+    "en": "Product*",
+    "pt": "Produto*"
+  },
+  "masters.price_lists_form.products_could_not_loaded": {
+    "es": "No se pudieron cargar los productos.",
+    "en": "The products could not be loaded.",
+    "pt": "Não foi possível carregar os produtos."
+  },
+  "masters.price_lists_form.save_list": {
+    "es": "Guardar lista",
+    "en": "Save list",
+    "pt": "Salvar lista"
+  },
+  "masters.price_lists_form.select_product": {
+    "es": "Selecciona un producto...",
+    "en": "Select a product...",
+    "pt": "Selecione um produto..."
+  },
+  "masters.price_lists_form.status": {
+    "es": "Estado*",
+    "en": "Status*",
+    "pt": "Situação*"
+  },
+  "masters.price_lists_form.title_edit": {
+    "es": "Editar lista de precios",
+    "en": "Edit price list",
+    "pt": "Editar tabela de preços"
+  },
+  "masters.price_lists_form.title_new": {
+    "es": "Nueva lista de precios",
+    "en": "New price list",
+    "pt": "Nova tabela de preços"
+  },
+  "masters.price_lists_form.usd_united_states_dollar": {
+    "es": "USD - Dólar Estadounidense",
+    "en": "USD - United States Dollar",
+    "pt": "USD - Dólar Americano"
+  },
+  "masters.price_lists_form.valid_from": {
+    "es": "Válido Desde*",
+    "en": "Valid From*",
+    "pt": "Válido De*"
+  },
+  "masters.price_lists_form.valid_until": {
+    "es": "Válido Hasta*",
+    "en": "Valid Until*",
+    "pt": "Válido Até*"
+  },
+  "masters.price_lists.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "masters.price_lists.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "masters.price_lists.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "masters.price_lists.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "masters.price_lists.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.price_lists.items": {
+    "es": "Ítems",
+    "en": "Items",
+    "pt": "Itens"
+  },
+  "masters.price_lists.loading_price_lists": {
+    "es": "Cargando listas de precios...",
+    "en": "Loading price lists...",
+    "pt": "Carregando tabelas de preços..."
+  },
+  "masters.price_lists.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.price_lists.new_list": {
+    "es": "Nueva Lista",
+    "en": "New List",
+    "pt": "Nova Tabela"
+  },
+  "masters.price_lists.no_price_lists_found": {
+    "es": "No se encontraron listas de precios.",
+    "en": "No price lists were found.",
+    "pt": "Nenhuma tabela de preços encontrada."
+  },
+  "masters.price_lists.price_list_could_not_deleted": {
+    "es": "No se pudo eliminar la lista de precios.",
+    "en": "The price list could not be deleted.",
+    "pt": "Não foi possível excluir a tabela de preços."
+  },
+  "masters.price_lists.price_list_deleted": {
+    "es": "Lista de precios eliminada exitosamente.",
+    "en": "Price list deleted.",
+    "pt": "Tabela de preços excluída."
+  },
+  "masters.price_lists.price_lists": {
+    "es": "Listas de Precios",
+    "en": "Price Lists",
+    "pt": "Tabelas de Preços"
+  },
+  "masters.price_lists.price_lists_could_not_loaded": {
+    "es": "No se pudieron cargar las listas de precios.",
+    "en": "The price lists could not be loaded.",
+    "pt": "Não foi possível carregar as tabelas de preços."
+  },
+  "masters.price_lists.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "masters.price_lists.valid_from": {
+    "es": "Válido Desde",
+    "en": "Valid From",
+    "pt": "Válido De"
+  },
+  "masters.price_lists.valid_until": {
+    "es": "Válido Hasta",
+    "en": "Valid Until",
+    "pt": "Válido Até"
+  },
+  "masters.supplier_form.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "masters.supplier_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "masters.supplier_form.contact_person": {
+    "es": "Persona de Contacto",
+    "en": "Contact Person",
+    "pt": "Pessoa de Contato"
+  },
+  "masters.supplier_form.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "masters.supplier_form.decides_what_withheld_when_you_pay": {
+    "es": "Determina qué se le retiene al pagarle. Si no lo sabes, déjalo sin clasificar: no se retendrá nada automáticamente.",
+    "en": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically.",
+    "pt": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
+  },
+  "masters.supplier_form.email": {
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "masters.supplier_form.error_creating_supplier": {
+    "es": "Error al crear el proveedor.",
+    "en": "Error creating the supplier.",
+    "pt": "Erro ao criar o fornecedor."
+  },
+  "masters.supplier_form.error_updating_supplier": {
+    "es": "Error al actualizar el proveedor.",
+    "en": "Error updating the supplier.",
+    "pt": "Erro ao atualizar o fornecedor."
+  },
+  "masters.supplier_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "masters.supplier_form.fill_your_supplier_details": {
+    "es": "Completa la información detallada de tu proveedor.",
+    "en": "Fill in your supplier's details.",
+    "pt": "Preencha os dados do seu fornecedor."
+  },
+  "masters.supplier_form.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "masters.supplier_form.save_supplier": {
+    "es": "Guardar Proveedor",
+    "en": "Save Supplier",
+    "pt": "Salvar Fornecedor"
+  },
+  "masters.supplier_form.supplier_could_not_loaded": {
+    "es": "No se pudo cargar el proveedor.",
+    "en": "The supplier could not be loaded.",
+    "pt": "Não foi possível carregar o fornecedor."
+  },
+  "masters.supplier_form.supplier_created": {
+    "es": "Proveedor creado exitosamente.",
+    "en": "Supplier created.",
+    "pt": "Fornecedor criado."
+  },
+  "masters.supplier_form.supplier_information": {
+    "es": "Información del Proveedor",
+    "en": "Supplier Information",
+    "pt": "Informações do Fornecedor"
+  },
+  "masters.supplier_form.supplier_name": {
+    "es": "Nombre del Proveedor*",
+    "en": "Supplier Name*",
+    "pt": "Nome do Fornecedor*"
+  },
+  "masters.supplier_form.supplier_updated": {
+    "es": "Proveedor actualizado exitosamente.",
+    "en": "Supplier updated.",
+    "pt": "Fornecedor atualizado."
+  },
+  "masters.supplier_form.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "masters.supplier_form.title_edit": {
+    "es": "Editar proveedor",
+    "en": "Edit supplier",
+    "pt": "Editar fornecedor"
+  },
+  "masters.supplier_form.title_new": {
+    "es": "Nuevo proveedor",
+    "en": "New supplier",
+    "pt": "Novo fornecedor"
+  },
+  "masters.supplier_form.two_letter_iso_code_tells_domestic": {
+    "es": "Código ISO de dos letras. Separa una compra local de un pago al exterior, que el 609 reporta aparte.",
+    "en": "Two-letter ISO code. Tells a domestic purchase from a payment abroad, which the 609 reports separately.",
+    "pt": "Código ISO de duas letras. Separa uma compra local de um pagamento ao exterior, que o 609 reporta à parte."
+  },
+  "masters.supplier_list.company_name": {
+    "es": "Razón social",
+    "en": "Legal name",
+    "pt": "Razão social"
+  },
+  "masters.supplier_list.email": {
+    "es": "Email",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "masters.supplier_list.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.supplier_list.new_supplier": {
+    "es": "Nuevo proveedor",
+    "en": "New supplier",
+    "pt": "Novo fornecedor"
+  },
+  "masters.supplier_list.no_suppliers_found": {
+    "es": "No se encontraron proveedores.",
+    "en": "No suppliers were found.",
+    "pt": "Nenhum fornecedor encontrado."
+  },
+  "masters.supplier_list.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "masters.supplier_list.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "masters.supplier_list.suppliers_could_not_loaded": {
+    "es": "No se pudieron cargar los proveedores.",
+    "en": "The suppliers could not be loaded.",
+    "pt": "Não foi possível carregar os fornecedores."
+  },
+  "masters.supplier_list.tax_id": {
+    "es": "Identificación fiscal",
+    "en": "Tax ID",
+    "pt": "Identificação fiscal"
+  },
+  "masters.tax_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "masters.tax_form.configure_new_tax_rate_your_transactions": {
+    "es": "Configura una nueva tasa de impuesto para tus transacciones.",
+    "en": "Configure a new tax rate for your transactions.",
+    "pt": "Configure uma nova alíquota para suas transações."
+  },
+  "masters.tax_form.country_code_optional": {
+    "es": "Código de País (Opcional)",
+    "en": "Country Code (optional)",
+    "pt": "Código do País (opcional)"
+  },
+  "masters.tax_form.error_creating_tax": {
+    "es": "Error al crear el impuesto.",
+    "en": "Error creating the tax.",
+    "pt": "Erro ao criar o imposto."
+  },
+  "masters.tax_form.error_updating_tax": {
+    "es": "Error al actualizar el impuesto.",
+    "en": "Error updating the tax.",
+    "pt": "Erro ao atualizar o imposto."
+  },
+  "masters.tax_form.fill_required_fields": {
+    "es": "Por favor, complete los campos requeridos.",
+    "en": "Fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "masters.tax_form.name_placeholder": {
+    "es": "Ej: IVA general",
+    "en": "e.g. Standard VAT",
+    "pt": "Ex.: ICMS padrão"
+  },
+  "masters.tax_form.rate": {
+    "es": "Tasa*",
+    "en": "Rate*",
+    "pt": "Alíquota*"
+  },
+  "masters.tax_form.save_tax": {
+    "es": "Guardar Impuesto",
+    "en": "Save Tax",
+    "pt": "Salvar Imposto"
+  },
+  "masters.tax_form.tax_could_not_loaded": {
+    "es": "No se pudo cargar el impuesto.",
+    "en": "The tax could not be loaded.",
+    "pt": "Não foi possível carregar o imposto."
+  },
+  "masters.tax_form.tax_created": {
+    "es": "Impuesto creado exitosamente.",
+    "en": "Tax created.",
+    "pt": "Imposto criado."
+  },
+  "masters.tax_form.tax_name": {
+    "es": "Nombre del Impuesto*",
+    "en": "Tax Name*",
+    "pt": "Nome do Imposto*"
+  },
+  "masters.tax_form.tax_updated": {
+    "es": "Impuesto actualizado exitosamente.",
+    "en": "Tax updated.",
+    "pt": "Imposto atualizado."
+  },
+  "masters.tax_form.title_edit": {
+    "es": "Editar impuesto",
+    "en": "Edit tax",
+    "pt": "Editar imposto"
+  },
+  "masters.tax_form.title_new": {
+    "es": "Nuevo impuesto",
+    "en": "New tax",
+    "pt": "Novo imposto"
+  },
+  "masters.tax_form.type": {
+    "es": "Tipo*",
+    "en": "Type*",
+    "pt": "Tipo*"
+  },
+  "masters.taxes.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "masters.taxes.error_deleting_tax": {
+    "es": "Error al eliminar el impuesto.",
+    "en": "Error deleting the tax.",
+    "pt": "Erro ao excluir o imposto."
+  },
+  "masters.taxes.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.taxes.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.taxes.new_tax": {
+    "es": "Nuevo impuesto",
+    "en": "New tax",
+    "pt": "Novo imposto"
+  },
+  "masters.taxes.no_taxes_configured": {
+    "es": "No hay impuestos configurados.",
+    "en": "No taxes are configured.",
+    "pt": "Nenhum imposto configurado."
+  },
+  "masters.taxes.rate": {
+    "es": "Tasa (%)",
+    "en": "Rate (%)",
+    "pt": "Alíquota (%)"
+  },
+  "masters.taxes.tax_deleted": {
+    "es": "Impuesto eliminado exitosamente.",
+    "en": "Tax deleted.",
+    "pt": "Imposto excluído."
+  },
+  "masters.taxes.tax_rates": {
+    "es": "Tasas de impuesto",
+    "en": "Tax rates",
+    "pt": "Alíquotas"
+  },
+  "masters.taxes.taxes_could_not_loaded": {
+    "es": "No se pudieron cargar los impuestos.",
+    "en": "The taxes could not be loaded.",
+    "pt": "Não foi possível carregar os impostos."
+  },
+  "masters.taxes.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "masters.units_of_measure.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.units_of_measure.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.units_of_measure.new_unit": {
+    "es": "Nueva unidad",
+    "en": "New unit",
+    "pt": "Nova unidade"
+  },
+  "masters.units_of_measure.no_units_measure_configured": {
+    "es": "No hay unidades de medida configuradas.",
+    "en": "No units of measure are configured.",
+    "pt": "Nenhuma unidade de medida configurada."
+  },
+  "masters.units_of_measure.symbol": {
+    "es": "Símbolo",
+    "en": "Symbol",
+    "pt": "Símbolo"
+  },
+  "masters.units_of_measure.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "masters.units_of_measure.units_measure": {
+    "es": "Unidades de medida",
+    "en": "Units of measure",
+    "pt": "Unidades de medida"
+  },
+  "masters.warehouses.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "masters.warehouses.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "masters.warehouses.inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
+  },
+  "masters.warehouses.location": {
+    "es": "Ubicación",
+    "en": "Location",
+    "pt": "Localização"
+  },
+  "masters.warehouses.manager": {
+    "es": "Encargado",
+    "en": "Manager",
+    "pt": "Responsável"
+  },
+  "masters.warehouses.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.warehouses.new_warehouse": {
+    "es": "Nuevo almacén",
+    "en": "New warehouse",
+    "pt": "Novo depósito"
+  },
+  "masters.warehouses.no_warehouses_configured": {
+    "es": "No hay almacenes configurados.",
+    "en": "No warehouses are configured.",
+    "pt": "Nenhum depósito configurado."
+  },
+  "masters.warehouses.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "masters.warehouses.warehouses": {
+    "es": "Almacenes",
+    "en": "Warehouses",
+    "pt": "Depósitos"
+  }
+}

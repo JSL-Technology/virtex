@@ -1,0 +1,27 @@
+{
+  "financial_reporting.account_code_expired_effective": {
+    "es": "La cuenta {{code}} expiró el {{effectiveTo}}.",
+    "en": "Account {{code}} expired on {{effectiveTo}}.",
+    "pt": "A conta {{code}} expirou em {{effectiveTo}}."
+  },
+  "financial_reporting.account_code_not_valid_until_effective": {
+    "es": "La cuenta {{code}} no es válida hasta {{effectiveFrom}}.",
+    "en": "Account {{code}} is not valid until {{effectiveFrom}}.",
+    "pt": "A conta {{code}} não é válida até {{effectiveFrom}}."
+  },
+  "financial_reporting.ledger_ledger_id_not_found_does": {
+    "es": "El libro contable con ID \"{{ledgerId}}\" no fue encontrado o no pertenece a su organización.",
+    "en": "Ledger \"{{ledgerId}}\" was not found, or does not belong to your organization.",
+    "pt": "O livro contábil \"{{ledgerId}}\" não foi encontrado ou não pertence à sua organização."
+  },
+  "financial_reporting.no_cash_bank_accounts_configured_assign": {
+    "es": "No hay cuentas de efectivo o banco configuradas. Asigne el rol correspondiente antes de generar el flujo de efectivo.",
+    "en": "No cash or bank accounts are configured. Assign the corresponding role before producing the cash flow statement.",
+    "pt": "Não há contas de caixa ou banco configuradas. Atribua a função correspondente antes de gerar o fluxo de caixa."
+  },
+  "financial_reporting.no_ledger_specified_organization_has_no": {
+    "es": "No se ha especificado un libro contable y no hay uno configurado por defecto para la organización.",
+    "en": "No ledger was specified and the organization has no default one configured.",
+    "pt": "Nenhum livro contábil foi informado e a organização não tem um padrão configurado."
+  }
+}

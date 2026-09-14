@@ -1,0 +1,517 @@
+{
+  "permissions.actions.access": {
+    "es": "Acceder",
+    "en": "Access",
+    "pt": "Aceder"
+  },
+  "permissions.actions.adjust": {
+    "es": "Ajustar",
+    "en": "Adjust",
+    "pt": "Ajustar"
+  },
+  "permissions.actions.approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "permissions.actions.approve_adjustment": {
+    "es": "Aprobar ajuste",
+    "en": "Approve adjustment",
+    "pt": "Aprovar ajuste"
+  },
+  "permissions.actions.builder_manage": {
+    "es": "Administrar el constructor",
+    "en": "Manage the builder",
+    "pt": "Administrar o construtor"
+  },
+  "permissions.actions.close_period": {
+    "es": "Cerrar período",
+    "en": "Close period",
+    "pt": "Encerrar período"
+  },
+  "permissions.actions.close_year": {
+    "es": "Cerrar año fiscal",
+    "en": "Close fiscal year",
+    "pt": "Encerrar ano fiscal"
+  },
+  "permissions.actions.collect": {
+    "es": "Cobrar",
+    "en": "Charge",
+    "pt": "Cobrar"
+  },
+  "permissions.actions.consolidate": {
+    "es": "Consolidar",
+    "en": "Consolidate",
+    "pt": "Consolidar"
+  },
+  "permissions.actions.create": {
+    "es": "Crear",
+    "en": "Create",
+    "pt": "Criar"
+  },
+  "permissions.actions.decide": {
+    "es": "Decidir",
+    "en": "Decide",
+    "pt": "Decidir"
+  },
+  "permissions.actions.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "permissions.actions.dispose": {
+    "es": "Dar de baja",
+    "en": "Dispose",
+    "pt": "Dar baixa"
+  },
+  "permissions.actions.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "permissions.actions.edit_branding": {
+    "es": "Editar la personalización",
+    "en": "Edit branding",
+    "pt": "Editar a personalização"
+  },
+  "permissions.actions.edit_company": {
+    "es": "Editar los datos de la empresa",
+    "en": "Edit company details",
+    "pt": "Editar os dados da empresa"
+  },
+  "permissions.actions.edit_compensation": {
+    "es": "Editar remuneración",
+    "en": "Edit pay",
+    "pt": "Editar remuneração"
+  },
+  "permissions.actions.execute": {
+    "es": "Ejecutar",
+    "en": "Execute",
+    "pt": "Executar"
+  },
+  "permissions.actions.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "permissions.actions.force_sign_out": {
+    "es": "Forzar cierre de sesión",
+    "en": "Force sign out",
+    "pt": "Forçar encerramento de sessão"
+  },
+  "permissions.actions.impersonate": {
+    "es": "Suplantar identidad",
+    "en": "Impersonate",
+    "pt": "Personificar"
+  },
+  "permissions.actions.import": {
+    "es": "Importar",
+    "en": "Import",
+    "pt": "Importar"
+  },
+  "permissions.actions.install": {
+    "es": "Instalar",
+    "en": "Install",
+    "pt": "Instalar"
+  },
+  "permissions.actions.manage": {
+    "es": "Administrar",
+    "en": "Manage",
+    "pt": "Administrar"
+  },
+  "permissions.actions.manage_accounts": {
+    "es": "Administrar cuentas",
+    "en": "Manage accounts",
+    "pt": "Gerir contas"
+  },
+  "permissions.actions.manage_ledgers": {
+    "es": "Administrar libros contables",
+    "en": "Manage ledgers",
+    "pt": "Gerir livros contábeis"
+  },
+  "permissions.actions.manage_rules": {
+    "es": "Administrar reglas",
+    "en": "Manage rules",
+    "pt": "Gerir regras"
+  },
+  "permissions.actions.manage_status": {
+    "es": "Cambiar el estado",
+    "en": "Change status",
+    "pt": "Alterar a situação"
+  },
+  "permissions.actions.manage_views": {
+    "es": "Administrar vistas",
+    "en": "Manage views",
+    "pt": "Administrar visões"
+  },
+  "permissions.actions.match": {
+    "es": "Conciliar",
+    "en": "Match",
+    "pt": "Conciliar"
+  },
+  "permissions.actions.merge": {
+    "es": "Fusionar",
+    "en": "Merge",
+    "pt": "Fundir"
+  },
+  "permissions.actions.operate": {
+    "es": "Operar",
+    "en": "Operate",
+    "pt": "Operar"
+  },
+  "permissions.actions.parameters_manage": {
+    "es": "Administrar parámetros",
+    "en": "Manage parameters",
+    "pt": "Gerir parâmetros"
+  },
+  "permissions.actions.password_reset": {
+    "es": "Restablecer contraseña",
+    "en": "Reset password",
+    "pt": "Redefinir senha"
+  },
+  "permissions.actions.pay": {
+    "es": "Pagar",
+    "en": "Pay",
+    "pt": "Pagar"
+  },
+  "permissions.actions.process": {
+    "es": "Procesar",
+    "en": "Process",
+    "pt": "Processar"
+  },
+  "permissions.actions.propose_adjustment": {
+    "es": "Proponer ajuste",
+    "en": "Propose adjustment",
+    "pt": "Propor ajuste"
+  },
+  "permissions.actions.query": {
+    "es": "Consultar",
+    "en": "Query",
+    "pt": "Consultar"
+  },
+  "permissions.actions.record_movements": {
+    "es": "Registrar movimientos",
+    "en": "Record movements",
+    "pt": "Registar movimentos"
+  },
+  "permissions.actions.reopen_period": {
+    "es": "Reabrir período",
+    "en": "Reopen period",
+    "pt": "Reabrir período"
+  },
+  "permissions.actions.reopen_year": {
+    "es": "Reabrir año fiscal",
+    "en": "Reopen fiscal year",
+    "pt": "Reabrir exercício fiscal"
+  },
+  "permissions.actions.reverse": {
+    "es": "Reversar",
+    "en": "Reverse",
+    "pt": "Estornar"
+  },
+  "permissions.actions.run_inflation_adjustment": {
+    "es": "Ejecutar ajuste por inflación",
+    "en": "Run inflation adjustment",
+    "pt": "Executar ajuste inflacionário"
+  },
+  "permissions.actions.sessions_revoke": {
+    "es": "Revocar sesiones",
+    "en": "Revoke sessions",
+    "pt": "Revogar sessões"
+  },
+  "permissions.actions.transfer": {
+    "es": "Transferir",
+    "en": "Transfer",
+    "pt": "Transferir"
+  },
+  "permissions.actions.view": {
+    "es": "Ver",
+    "en": "View",
+    "pt": "Ver"
+  },
+  "permissions.actions.view_compensation": {
+    "es": "Ver remuneración",
+    "en": "View pay",
+    "pt": "Ver remuneração"
+  },
+  "permissions.actions.view_financial": {
+    "es": "Ver reportes financieros",
+    "en": "View financial reports",
+    "pt": "Ver relatórios financeiros"
+  },
+  "permissions.actions.view_own": {
+    "es": "Ver lo propio",
+    "en": "View own",
+    "pt": "Ver os próprios"
+  },
+  "permissions.actions.view_sales": {
+    "es": "Ver reportes de ventas",
+    "en": "View sales reports",
+    "pt": "Ver relatórios de vendas"
+  },
+  "permissions.actions.view_sensitive": {
+    "es": "Ver datos sensibles",
+    "en": "View sensitive data",
+    "pt": "Ver dados sensíveis"
+  },
+  "permissions.actions.view_stock": {
+    "es": "Ver existencias",
+    "en": "View stock",
+    "pt": "Ver estoque"
+  },
+  "permissions.actions.view_trail": {
+    "es": "Ver pista de auditoría",
+    "en": "View audit trail",
+    "pt": "Ver trilha de auditoria"
+  },
+  "permissions.actions.void": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Cancelar"
+  },
+  "permissions.groups.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "permissions.groups.accounts_payable": {
+    "es": "Cuentas por pagar",
+    "en": "Accounts payable",
+    "pt": "Contas a pagar"
+  },
+  "permissions.groups.accounts_receivable": {
+    "es": "Cuentas por cobrar",
+    "en": "Accounts receivable",
+    "pt": "Contas a receber"
+  },
+  "permissions.groups.analytics": {
+    "es": "Analítica",
+    "en": "Analytics",
+    "pt": "Analítica"
+  },
+  "permissions.groups.audit": {
+    "es": "Auditoría",
+    "en": "Audit",
+    "pt": "Auditoria"
+  },
+  "permissions.groups.bi": {
+    "es": "Inteligencia de negocio",
+    "en": "Business intelligence",
+    "pt": "Inteligência de negócio"
+  },
+  "permissions.groups.billing": {
+    "es": "Facturación del plan",
+    "en": "Plan billing",
+    "pt": "Faturamento do plano"
+  },
+  "permissions.groups.bills": {
+    "es": "Facturas de compra",
+    "en": "Vendor bills",
+    "pt": "Faturas de compra"
+  },
+  "permissions.groups.budgets": {
+    "es": "Presupuestos",
+    "en": "Budgets",
+    "pt": "Orçamentos"
+  },
+  "permissions.groups.cases": {
+    "es": "Casos de soporte",
+    "en": "Support cases",
+    "pt": "Casos de suporte"
+  },
+  "permissions.groups.coa": {
+    "es": "Plan de cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de contas"
+  },
+  "permissions.groups.cost_accounting": {
+    "es": "Contabilidad de costos",
+    "en": "Cost accounting",
+    "pt": "Contabilidade de custos"
+  },
+  "permissions.groups.crm": {
+    "es": "Oportunidades de venta",
+    "en": "Sales pipeline",
+    "pt": "Oportunidades de venda"
+  },
+  "permissions.groups.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "permissions.groups.customer_portal": {
+    "es": "Portal del cliente",
+    "en": "Customer portal",
+    "pt": "Portal do cliente"
+  },
+  "permissions.groups.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "permissions.groups.dashboard": {
+    "es": "Panel financiero",
+    "en": "Finance dashboard",
+    "pt": "Painel financeiro"
+  },
+  "permissions.groups.datasheets": {
+    "es": "Hojas de datos",
+    "en": "DataSheets",
+    "pt": "Planilhas"
+  },
+  "permissions.groups.dimensions": {
+    "es": "Dimensiones analíticas",
+    "en": "Analytical dimensions",
+    "pt": "Dimensões analíticas"
+  },
+  "permissions.groups.documents": {
+    "es": "Documentos",
+    "en": "Documents",
+    "pt": "Documentos"
+  },
+  "permissions.groups.exchange_rates": {
+    "es": "Tasas de cambio",
+    "en": "Exchange rates",
+    "pt": "Taxas de câmbio"
+  },
+  "permissions.groups.extensions": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
+  },
+  "permissions.groups.financial_statements": {
+    "es": "Estados financieros",
+    "en": "Financial statements",
+    "pt": "Demonstrações financeiras"
+  },
+  "permissions.groups.fixed_assets": {
+    "es": "Activos fijos",
+    "en": "Fixed assets",
+    "pt": "Ativos fixos"
+  },
+  "permissions.groups.hcm": {
+    "es": "Personal",
+    "en": "People",
+    "pt": "Pessoal"
+  },
+  "permissions.groups.intercompany": {
+    "es": "Intercompañía",
+    "en": "Intercompany",
+    "pt": "Intercompanhias"
+  },
+  "permissions.groups.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "permissions.groups.invoices": {
+    "es": "Facturas de venta",
+    "en": "Sales invoices",
+    "pt": "Faturas de venda"
+  },
+  "permissions.groups.journal_entries": {
+    "es": "Asientos contables",
+    "en": "Journal entries",
+    "pt": "Lançamentos contábeis"
+  },
+  "permissions.groups.manufacturing": {
+    "es": "Producción",
+    "en": "Manufacturing",
+    "pt": "Produção"
+  },
+  "permissions.groups.payroll": {
+    "es": "Nómina",
+    "en": "Payroll",
+    "pt": "Folha de pagamento"
+  },
+  "permissions.groups.pos": {
+    "es": "Punto de venta",
+    "en": "Point of sale",
+    "pt": "Ponto de venda"
+  },
+  "permissions.groups.price_lists": {
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
+  },
+  "permissions.groups.procurement": {
+    "es": "Adquisiciones",
+    "en": "Procurement",
+    "pt": "Aquisições"
+  },
+  "permissions.groups.products": {
+    "es": "Productos",
+    "en": "Products & Services",
+    "pt": "Produtos"
+  },
+  "permissions.groups.projects": {
+    "es": "Proyectos",
+    "en": "Projects",
+    "pt": "Projetos"
+  },
+  "permissions.groups.reconciliation": {
+    "es": "Conciliación bancaria",
+    "en": "Bank reconciliation",
+    "pt": "Conciliação bancária"
+  },
+  "permissions.groups.reports": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
+  "permissions.groups.roles": {
+    "es": "Roles",
+    "en": "Roles",
+    "pt": "Perfis"
+  },
+  "permissions.groups.settings": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "permissions.groups.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "permissions.groups.system": {
+    "es": "Sistema",
+    "en": "System Settings",
+    "pt": "Sistema"
+  },
+  "permissions.groups.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "permissions.groups.treasury": {
+    "es": "Tesorería",
+    "en": "Treasury",
+    "pt": "Tesouraria"
+  },
+  "permissions.groups.tss": {
+    "en": "Social security",
+    "es": "Seguridad social",
+    "pt": "Segurança social"
+  },
+  "permissions.groups.units_of_measure": {
+    "es": "Unidades de medida",
+    "en": "Units of measure",
+    "pt": "Unidades de medida"
+  },
+  "permissions.groups.users": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "permissions.groups.wms": {
+    "es": "Gestión de almacenes",
+    "en": "Warehouse management",
+    "pt": "Gestão de armazéns"
+  },
+  "permissions.groups.workflows": {
+    "es": "Flujos de trabajo",
+    "en": "Workflows",
+    "pt": "Fluxos de trabalho"
+  }
+}

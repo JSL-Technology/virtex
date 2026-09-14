@@ -1,0 +1,17 @@
+{
+  "search.aria_global": {
+    "es": "Búsqueda global",
+    "en": "Global Search",
+    "pt": "Busca global"
+  },
+  "search.organizations": {
+    "es": "Buscar organizaciones",
+    "en": "Search organizations",
+    "pt": "Buscar organizações"
+  },
+  "search.search_invoices_customers_products": {
+    "es": "Buscar facturas, clientes, productos…",
+    "en": "Search invoices, customers, products…",
+    "pt": "Buscar faturas, clientes, produtos…"
+  }
+}

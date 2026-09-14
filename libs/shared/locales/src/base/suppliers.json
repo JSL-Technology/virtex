@@ -1,0 +1,7 @@
+{
+  "suppliers.supplier_id_not_found": {
+    "es": "Proveedor con ID \"{{id}}\" no encontrado.",
+    "en": "Supplier \"{{id}}\" was not found.",
+    "pt": "Fornecedor \"{{id}}\" não encontrado."
+  }
+}

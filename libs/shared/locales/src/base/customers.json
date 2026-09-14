@@ -1,0 +1,127 @@
+{
+  "customers.amount_applied_invoices_applied_exceeds_amount": {
+    "es": "Lo aplicado a facturas ({{applied}}) excede el monto recibido ({{received}}).",
+    "en": "The amount applied to invoices ({{applied}}) exceeds the amount received ({{received}}).",
+    "pt": "O valor aplicado às faturas ({{applied}}) excede o valor recebido ({{received}})."
+  },
+  "customers.bank_account_name_inactive_cannot_take": {
+    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{name}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+  },
+  "customers.collections_journal_cobros_not_found_create": {
+    "es": "Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.",
+    "en": "The Collections journal (COBROS) was not found. Create a journal with that code.",
+    "pt": "O diário de Recebimentos (COBROS) não foi encontrado. Crie um diário com esse código."
+  },
+  "customers.customer_advances_account_not_configured_organization": {
+    "es": "La cuenta de anticipos de clientes no está configurada para la organización.",
+    "en": "The customer advances account is not configured for this organization.",
+    "pt": "A conta de adiantamentos de clientes não está configurada para a organização."
+  },
+  "customers.customer_group_id_not_found": {
+    "es": "Grupo de clientes con ID \"{{id}}\" no encontrado.",
+    "en": "Customer group \"{{id}}\" was not found.",
+    "pt": "Grupo de clientes \"{{id}}\" não encontrado."
+  },
+  "customers.customer_id_not_found": {
+    "es": "Cliente con ID \"{{id}}\" no encontrado.",
+    "en": "Customer \"{{id}}\" was not found.",
+    "pt": "Cliente \"{{id}}\" não encontrado."
+  },
+  "customers.customer_not_found": {
+    "es": "Cliente no encontrado.",
+    "en": "Customer not found.",
+    "pt": "Cliente não encontrado."
+  },
+  "customers.customer_only_holds_available_currency_advances": {
+    "es": "El cliente solo tiene {{available}} {{currency}} en anticipos; se intentó aplicar {{requested}}.",
+    "en": "The customer only holds {{available}} {{currency}} in advances; {{requested}} was requested.",
+    "pt": "O cliente possui apenas {{available}} {{currency}} em adiantamentos; foram solicitados {{requested}}."
+  },
+  "customers.default_receivable_account_not_configured_organization": {
+    "es": "La cuenta por cobrar por defecto no está configurada para la organización.",
+    "en": "The default receivable account is not configured for the organization.",
+    "pt": "A conta a receber padrão não está configurada para a organização."
+  },
+  "customers.drawn_drawn_from_advance_but_unapplied": {
+    "es": "Se tomaron {{drawn}} de anticipo pero quedan {{unapplied}} sin aplicar. Aplique el anticipo a facturas o redúzcalo.",
+    "en": "{{drawn}} was drawn from the advance but {{unapplied}} remains unapplied. Apply the advance to invoices or reduce it.",
+    "pt": "Foram usados {{drawn}} do adiantamento, mas restam {{unapplied}} sem aplicar. Aplique o adiantamento a faturas ou reduza-o."
+  },
+  "customers.invoice_invoice_id_not_found_batch": {
+    "es": "Factura con ID {{invoiceId}} no encontrada en el lote.",
+    "en": "Invoice {{invoiceId}} was not found in the batch.",
+    "pt": "Fatura {{invoiceId}} não encontrada no lote."
+  },
+  "customers.invoice_invoice_number_status_cannot_take": {
+    "es": "La factura {{invoiceNumber}} está en estado {{status}} y no admite cobros.",
+    "en": "Invoice {{invoiceNumber}} is {{status}} and cannot take a collection.",
+    "pt": "A fatura {{invoiceNumber}} está em {{status}} e não admite recebimentos."
+  },
+  "customers.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "customers.no_discount_account_configured_receipt_grants": {
+    "es": "No hay cuenta de descuentos configurada y el cobro concede uno.",
+    "en": "No discount account is configured and this receipt grants one.",
+    "pt": "Não há conta de descontos configurada e este recebimento concede um."
+  },
+  "customers.no_exchange_difference_account_configured_receipt": {
+    "es": "No hay cuenta de diferencia cambiaria configurada y este cobro genera una.",
+    "en": "No exchange difference account is configured and this receipt produces one.",
+    "pt": "Não há conta de variação cambial configurada e este recebimento gera uma."
+  },
+  "customers.no_withholding_receivable_account_configured_customer": {
+    "es": "No hay cuenta de retenciones recibidas configurada y el cliente practicó retención.",
+    "en": "No withholding receivable account is configured and the customer withheld tax.",
+    "pt": "Não há conta de retenções recebidas configurada e o cliente reteve imposto."
+  },
+  "customers.one_more_invoices_invalid_do_not": {
+    "es": "Una o más facturas no son válidas o no pertenecen al cliente especificado.",
+    "en": "One or more invoices are invalid, or do not belong to the given customer.",
+    "pt": "Uma ou mais faturas são inválidas ou não pertencem ao cliente informado."
+  },
+  "customers.payment_invoice_invoice_number_amount_exceeds": {
+    "es": "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).",
+    "en": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
+    "pt": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}})."
+  },
+  "customers.receipt_has_already_voided": {
+    "es": "Este cobro ya fue anulado.",
+    "en": "This receipt has already been voided.",
+    "pt": "Este recebimento já foi anulado."
+  },
+  "customers.receipt_has_no_funds_enter_amount": {
+    "es": "El cobro no tiene fondos: indique un monto recibido o un anticipo a aplicar.",
+    "en": "The receipt has no funds: enter an amount received or an advance to apply.",
+    "pt": "O recebimento não tem fundos: informe um valor recebido ou um adiantamento a aplicar."
+  },
+  "customers.receipt_not_found": {
+    "es": "El cobro no fue encontrado.",
+    "en": "The receipt was not found.",
+    "pt": "O recebimento não foi encontrado."
+  },
+  "customers.receipt_receipt_cannot_land_account_account": {
+    "es": "No se puede recibir un cobro en {receipt} en una cuenta en {account}; use una cuenta en {receipt} o en la moneda de los libros.",
+    "en": "A receipt in {receipt} cannot land in an account in {account}; use an account in {receipt} or in the books’ currency.",
+    "pt": "Não é possível receber uma cobrança em {receipt} numa conta em {account}; use uma conta em {receipt} ou na moeda dos livros."
+  },
+  "customers.receipt_receipt_cannot_voided_applied_advance": {
+    "es": "No se puede anular el recibo {{receipt}}: {{applied}} de su anticipo ya fueron aplicados a otras facturas. Anule primero esos cobros.",
+    "en": "Receipt {{receipt}} cannot be voided: {{applied}} of its advance has already been applied to other invoices. Void those receipts first.",
+    "pt": "O recibo {{receipt}} não pode ser cancelado: {{applied}} do seu adiantamento já foi aplicado a outras faturas. Cancele primeiro esses recebimentos."
+  },
+  "customers.specified_bank_account_does_not_exist": {
+    "es": "La cuenta bancaria indicada no existe en esta organización.",
+    "en": "The specified bank account does not exist in this organization.",
+    "pt": "A conta bancária indicada não existe nesta organização."
+  },
+  "customers.transaction_query_runner_could_not_obtained": {
+    "es": "No se pudo obtener el Query Runner de la transacción.",
+    "en": "The transaction's query runner could not be obtained.",
+    "pt": "Não foi possível obter o query runner da transação."
+  }
+}

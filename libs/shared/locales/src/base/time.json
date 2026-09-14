@@ -1,0 +1,37 @@
+{
+  "time.days_one": {
+    "es": "{{count}} día",
+    "en": "{{count}} day",
+    "pt": "{{count}} dia"
+  },
+  "time.days_other": {
+    "es": "{{count}} días",
+    "en": "{{count}} days",
+    "pt": "{{count}} dias"
+  },
+  "time.hours_one": {
+    "es": "{{count}} hora",
+    "en": "{{count}} hour",
+    "pt": "{{count}} hora"
+  },
+  "time.hours_other": {
+    "es": "{{count}} horas",
+    "en": "{{count}} hours",
+    "pt": "{{count}} horas"
+  },
+  "time.limited_time": {
+    "es": "un tiempo limitado",
+    "en": "a limited time",
+    "pt": "um tempo limitado"
+  },
+  "time.minutes_one": {
+    "es": "{{count}} minuto",
+    "en": "{{count}} minute",
+    "pt": "{{count}} minuto"
+  },
+  "time.minutes_other": {
+    "es": "{{count}} minutos",
+    "en": "{{count}} minutes",
+    "pt": "{{count}} minutos"
+  }
+}

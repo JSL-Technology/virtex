@@ -1,0 +1,3197 @@
+{
+  "settings.billing.amount": {
+    "es": "Monto",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "settings.billing.billing_history": {
+    "es": "Historial de Facturación",
+    "en": "Billing History",
+    "pt": "Histórico de Faturamento"
+  },
+  "settings.billing.billing_plan": {
+    "es": "Facturación y Plan",
+    "en": "Billing and Plan",
+    "pt": "Faturamento e Plano"
+  },
+  "settings.billing.choose_plan_best_fits_your_organization": {
+    "es": "Selecciona el plan que mejor se adapte a tu organización y gestiona tu suscripción.",
+    "en": "Choose the plan that best fits your organization and manage your subscription.",
+    "pt": "Escolha o plano que melhor se adapta à sua organização e gerencie sua assinatura."
+  },
+  "settings.billing.choose_plan_prompt": {
+    "es": "Selecciona el plan que mejor se adapte a tu organización.",
+    "en": "Choose the plan that best fits your organization.",
+    "pt": "Escolha o plano que melhor se adapta à sua organização."
+  },
+  "settings.billing.current_plan_heading": {
+    "es": "Plan Actual",
+    "en": "Current Plan",
+    "pt": "Plano Atual"
+  },
+  "settings.billing.current_plan_label": {
+    "es": "Plan actual",
+    "en": "Current plan",
+    "pt": "Plano atual"
+  },
+  "settings.billing.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "settings.billing.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "settings.billing.download_invoice": {
+    "es": "Descargar factura",
+    "en": "Download invoice",
+    "pt": "Baixar fatura"
+  },
+  "settings.billing.expires_exp_month_exp_year": {
+    "es": "Expira {{expMonth}}/{{expYear}}",
+    "en": "Expires {{expMonth}}/{{expYear}}",
+    "pt": "Expira em {{expMonth}}/{{expYear}}"
+  },
+  "settings.billing.loading_plans": {
+    "es": "Cargando planes...",
+    "en": "Loading plans...",
+    "pt": "Carregando planos..."
+  },
+  "settings.billing.mo": {
+    "es": "/mes",
+    "en": "/mo",
+    "pt": "/mês"
+  },
+  "settings.billing.no_active_subscription": {
+    "es": "Sin suscripción activa",
+    "en": "No active subscription",
+    "pt": "Sem assinatura ativa"
+  },
+  "settings.billing.no_payment_method_file": {
+    "es": "No hay un método de pago registrado.",
+    "en": "There is no payment method on file.",
+    "pt": "Não há forma de pagamento cadastrada."
+  },
+  "settings.billing.no_plan": {
+    "es": "Sin plan",
+    "en": "No plan",
+    "pt": "Sem plano"
+  },
+  "settings.billing.no_plans_available_moment": {
+    "es": "No hay planes disponibles en este momento.",
+    "en": "There are no plans available at the moment.",
+    "pt": "Não há planos disponíveis no momento."
+  },
+  "settings.billing.paid": {
+    "es": "Pagada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "settings.billing.payment_method": {
+    "es": "Método de Pago",
+    "en": "Payment Method",
+    "pt": "Forma de Pagamento"
+  },
+  "settings.billing.plans_could_not_loaded_check_your": {
+    "es": "No se pudieron cargar los planes. Verifica tu conexión e intenta de nuevo.",
+    "en": "The plans could not be loaded. Check your connection and try again.",
+    "pt": "Não foi possível carregar os planos. Verifique sua conexão e tente novamente."
+  },
+  "settings.billing.redirecting": {
+    "es": "Redirigiendo...",
+    "en": "Redirecting...",
+    "pt": "Redirecionando..."
+  },
+  "settings.billing.resource_usage": {
+    "es": "Uso de Recursos",
+    "en": "Resource Usage",
+    "pt": "Uso de Recursos"
+  },
+  "settings.billing.selected_plan": {
+    "es": "Plan seleccionado:",
+    "en": "Selected plan:",
+    "pt": "Plano selecionado:"
+  },
+  "settings.billing.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "settings.billing.switch_plan": {
+    "es": "Para cambiar al plan",
+    "en": "To switch to the plan",
+    "pt": "Para mudar para o plano"
+  },
+  "settings.billing.try_again": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar novamente"
+  },
+  "settings.billing.you_do_not_have_plan_yet": {
+    "es": "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.",
+    "en": "You do not have a plan yet. Choose one below to get started.",
+    "pt": "Você ainda não contratou um plano. Escolha um abaixo para começar."
+  },
+  "settings.billing.you_will_redirected_stripe_complete_payment": {
+    "es": ". Serás redirigido a Stripe para completar el pago de forma segura.",
+    "en": ". You will be redirected to Stripe to complete the payment securely.",
+    "pt": ". Você será redirecionado à Stripe para concluir o pagamento com segurança."
+  },
+  "settings.billing.you_will_redirected_stripe_secure_portal": {
+    "es": "serás redirigido al portal seguro de Stripe.",
+    "en": "you will be redirected to Stripe's secure portal.",
+    "pt": "você será redirecionado ao portal seguro da Stripe."
+  },
+  "settings.branding.accent_colour": {
+    "es": "Color de Acento",
+    "en": "Accent colour",
+    "pt": "Cor de destaque"
+  },
+  "settings.branding.appearance_layout": {
+    "es": "Apariencia y Layout",
+    "en": "Appearance and layout",
+    "pt": "Aparência e layout"
+  },
+  "settings.branding.application_layout": {
+    "es": "Diseño de la Aplicación",
+    "en": "Application layout",
+    "pt": "Layout do aplicativo"
+  },
+  "settings.branding.comfortable": {
+    "es": "Cómoda",
+    "en": "Comfortable",
+    "pt": "Confortável"
+  },
+  "settings.branding.compact": {
+    "es": "Compacta",
+    "en": "Compact",
+    "pt": "Compacta"
+  },
+  "settings.branding.company_logo": {
+    "es": "Logo de la Empresa",
+    "en": "Company logo",
+    "pt": "Logotipo da empresa"
+  },
+  "settings.branding.content_width": {
+    "es": "Ancho de Contenido",
+    "en": "Content width",
+    "pt": "Largura do conteúdo"
+  },
+  "settings.branding.corner_radius_value_px": {
+    "es": "Radio de bordes ({{value}} px)",
+    "en": "Corner radius ({{value}} px)",
+    "pt": "Raio das bordas ({{value}} px)"
+  },
+  "settings.branding.dark": {
+    "es": "Oscuro",
+    "en": "Dark",
+    "pt": "Escuro"
+  },
+  "settings.branding.density": {
+    "es": "Densidad",
+    "en": "Density",
+    "pt": "Densidade"
+  },
+  "settings.branding.description": {
+    "es": "Completa la información para personalizar la apariencia de tu aplicación.",
+    "en": "Complete the information to customize your application's appearance.",
+    "pt": "Preencha as informações para personalizar a aparência do seu aplicativo."
+  },
+  "settings.branding.high_contrast": {
+    "es": "Alto contraste",
+    "en": "High contrast",
+    "pt": "Alto contraste"
+  },
+  "settings.branding.language_preferences": {
+    "es": "Preferencias de Idioma",
+    "en": "Language preferences",
+    "pt": "Preferências de idioma"
+  },
+  "settings.branding.light": {
+    "es": "Claro",
+    "en": "Light",
+    "pt": "Claro"
+  },
+  "settings.branding.live_preview": {
+    "es": "Vista Previa en Vivo",
+    "en": "Live preview",
+    "pt": "Visualização ao vivo"
+  },
+  "settings.branding.logo_colours": {
+    "es": "Logo y Colores",
+    "en": "Logo and colours",
+    "pt": "Logotipo e cores"
+  },
+  "settings.branding.logo_preview": {
+    "es": "Vista previa del logo",
+    "en": "Logo preview",
+    "pt": "Visualização do logotipo"
+  },
+  "settings.branding.normal": {
+    "literal": "Normal"
+  },
+  "settings.branding.save_button": {
+    "es": "Guardar Cambios",
+    "en": "Save changes",
+    "pt": "Salvar alterações"
+  },
+  "settings.branding.save_changes": {
+    "es": "Guardar Cambios",
+    "en": "Save changes",
+    "pt": "Salvar alterações"
+  },
+  "settings.branding.side": {
+    "es": "Lateral",
+    "en": "Side",
+    "pt": "Lateral"
+  },
+  "settings.branding.strengthens_borders_secondary_text_works_with": {
+    "es": "Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.",
+    "en": "Strengthens borders and secondary text. Works with both the light and dark themes.",
+    "pt": "Reforça bordas e texto secundário. Compatível com os temas claro e escuro."
+  },
+  "settings.branding.system_settings": {
+    "es": "Sistema",
+    "en": "System Settings",
+    "pt": "Sistema"
+  },
+  "settings.branding.theme": {
+    "es": "Tema",
+    "en": "Theme",
+    "pt": "Tema"
+  },
+  "settings.branding.title": {
+    "es": "Personalización Avanzada",
+    "en": "Advanced Customization",
+    "pt": "Personalização avançada"
+  },
+  "settings.branding.top": {
+    "es": "Superior",
+    "en": "Top",
+    "pt": "Superior"
+  },
+  "settings.branding.typeface": {
+    "es": "Tipografía",
+    "en": "Typeface",
+    "pt": "Tipografia"
+  },
+  "settings.branding.upload_logo": {
+    "es": "Subir logo",
+    "en": "Upload logo",
+    "pt": "Enviar logotipo"
+  },
+  "settings.branding.wide": {
+    "es": "Ancho",
+    "en": "Wide",
+    "pt": "Largo"
+  },
+  "settings.company_profile.123_main_street_district": {
+    "es": "Calle Principal #123, Sector",
+    "en": "123 Main Street, District",
+    "pt": "Rua Principal, 123 – Bairro"
+  },
+  "settings.company_profile.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "settings.company_profile.address_contact": {
+    "es": "Dirección y Contacto",
+    "en": "Address and Contact",
+    "pt": "Endereço e Contato"
+  },
+  "settings.company_profile.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "settings.company_profile.company_legal_identification_details": {
+    "es": "Datos legales y de identificación de la empresa.",
+    "en": "The company's legal and identification details.",
+    "pt": "Dados legais e de identificação da empresa."
+  },
+  "settings.company_profile.company_profile": {
+    "es": "Perfil de la Empresa",
+    "en": "Company Profile",
+    "pt": "Perfil da Empresa"
+  },
+  "settings.company_profile.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "settings.company_profile.country_required": {
+    "es": "El país es requerido.",
+    "en": "The country is required.",
+    "pt": "O país é obrigatório."
+  },
+  "settings.company_profile.dominican_republic": {
+    "es": "Ej. República Dominicana",
+    "en": "e.g. Dominican Republic",
+    "pt": "Ex.: República Dominicana"
+  },
+  "settings.company_profile.ej_santo_domingo": {
+    "es": "Ej. Santo Domingo",
+    "en": "e.g. Santo Domingo",
+    "pt": "Ex.: Santo Domingo"
+  },
+  "settings.company_profile.ej_virteex_corp": {
+    "es": "Ej. Virtex Corp S.A.",
+    "en": "e.g. Virtex Corp Inc.",
+    "pt": "Ex.: Virtex Corp Ltda."
+  },
+  "settings.company_profile.error_loading_company_profile": {
+    "es": "Error cargando el perfil de la empresa",
+    "en": "Error loading the company profile",
+    "pt": "Erro ao carregar o perfil da empresa"
+  },
+  "settings.company_profile.error_updating_profile": {
+    "es": "Error actualizando el perfil",
+    "en": "Error updating the profile",
+    "pt": "Erro ao atualizar o perfil"
+  },
+  "settings.company_profile.general_information": {
+    "es": "Información General",
+    "en": "General Information",
+    "pt": "Informações Gerais"
+  },
+  "settings.company_profile.https_example_com": {
+    "es": "https://ejemplo.com",
+    "en": "https://example.com",
+    "pt": "https://exemplo.com"
+  },
+  "settings.company_profile.id_fiscal_rnc_tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "settings.company_profile.industry": {
+    "es": "Industria",
+    "en": "Industry",
+    "pt": "Setor"
+  },
+  "settings.company_profile.legal_name": {
+    "es": "Nombre Legal",
+    "en": "Legal Name",
+    "pt": "Razão Social"
+  },
+  "settings.company_profile.legal_name_required": {
+    "es": "El nombre legal es requerido.",
+    "en": "The legal name is required.",
+    "pt": "A razão social é obrigatória."
+  },
+  "settings.company_profile.manage_your_organization_legal_contact_information": {
+    "es": "Gestiona la información legal y de contacto de tu organización.",
+    "en": "Manage your organization's legal and contact information.",
+    "pt": "Gerencie as informações legais e de contato da sua organização."
+  },
+  "settings.company_profile.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "settings.company_profile.phone_number_required": {
+    "es": "El teléfono es requerido.",
+    "en": "The phone number is required.",
+    "pt": "O telefone é obrigatório."
+  },
+  "settings.company_profile.primary_location_contact_details": {
+    "es": "Información de ubicación y comunicación principal.",
+    "en": "Primary location and contact details.",
+    "pt": "Informações de localização e contato principal."
+  },
+  "settings.company_profile.profile_updated_successfully": {
+    "es": "Perfil actualizado correctamente",
+    "en": "Profile updated successfully",
+    "pt": "Perfil atualizado com sucesso"
+  },
+  "settings.company_profile.tax_id_required": {
+    "es": "El ID Fiscal es requerido.",
+    "en": "The Tax ID is required.",
+    "pt": "A identificação fiscal é obrigatória."
+  },
+  "settings.company_profile.technology_retail_manufacturing": {
+    "es": "Ej. Tecnología, Retail, Manufactura…",
+    "en": "e.g. Technology, Retail, Manufacturing…",
+    "pt": "Ex.: Tecnologia, Varejo, Indústria…"
+  },
+  "settings.company_profile.website": {
+    "es": "Sitio Web",
+    "en": "Website",
+    "pt": "Site"
+  },
+  "settings.description": {
+    "es": "Administra los detalles de tu cuenta, empresa y usuarios.",
+    "en": "Manage your account, company, and user details.",
+    "pt": "Gerencie os detalhes da sua conta, empresa e usuários."
+  },
+  "settings.fiscal.accounting_operations": {
+    "es": "Contabilidad y operación",
+    "en": "Accounting and operations",
+    "pt": "Contabilidade e operação"
+  },
+  "settings.fiscal.alias": {
+    "es": "Alias",
+    "en": "Alias",
+    "pt": "Apelido"
+  },
+  "settings.fiscal.certificate_could_not_deactivated": {
+    "es": "No se pudo desactivar el certificado.",
+    "en": "The certificate could not be deactivated.",
+    "pt": "Não foi possível desativar o certificado."
+  },
+  "settings.fiscal.certificate_deactivated": {
+    "es": "Certificado desactivado.",
+    "en": "Certificate deactivated.",
+    "pt": "Certificado desativado."
+  },
+  "settings.fiscal.certificate_password": {
+    "es": "Contraseña del certificado",
+    "en": "Certificate password",
+    "pt": "Senha do certificado"
+  },
+  "settings.fiscal.certificate_uploaded_validated_successfully": {
+    "es": "Certificado cargado y validado correctamente.",
+    "en": "Certificate uploaded and validated successfully.",
+    "pt": "Certificado enviado e validado com sucesso."
+  },
+  "settings.fiscal.certificates_could_not_loaded": {
+    "es": "No se pudieron cargar los certificados.",
+    "en": "The certificates could not be loaded.",
+    "pt": "Não foi possível carregar os certificados."
+  },
+  "settings.fiscal.current": {
+    "es": "Actual",
+    "en": "Current",
+    "pt": "Atual"
+  },
+  "settings.fiscal.digital_certificate": {
+    "es": "Certificado digital",
+    "en": "Digital certificate",
+    "pt": "Certificado digital"
+  },
+  "settings.fiscal.do.authorized_ncf_ranges": {
+    "es": "Rangos de e-NCF autorizados",
+    "en": "Authorized e-NCF ranges",
+    "pt": "Faixas de e-NCF autorizadas"
+  },
+  "settings.fiscal.do.certificate_description": {
+    "es": "Sube tu certificado (.p12 / .pfx) emitido por una entidad autorizada por la DGII. Se cifra en\n      reposo y solo se usa para firmar e-CF.",
+    "en": "Upload your certificate (.p12 / .pfx) issued by a DGII-authorized entity. It is encrypted at\n      rest and used only to sign e-CF documents.",
+    "pt": "Envie seu certificado (.p12 / .pfx) emitido por uma entidade autorizada pela DGII. Ele é\n      criptografado em repouso e usado apenas para assinar e-CF."
+  },
+  "settings.fiscal.do.certificate_example_name": {
+    "es": "Certificado DGII 2025",
+    "en": "DGII certificate 2025",
+    "pt": "Certificado DGII 2025"
+  },
+  "settings.fiscal.do.dgii_reports_description": {
+    "es": "Genera los formatos de envío de compras (606) y ventas (607) para un período.",
+    "en": "Generate the purchase (606) and sales (607) filing formats for a period.",
+    "pt": "Gere os formatos de envio de compras (606) e vendas (607) para um período."
+  },
+  "settings.fiscal.do.dgii_reports_heading": {
+    "es": "Reportes DGII (606 / 607)",
+    "en": "DGII reports (606 / 607)",
+    "pt": "Relatórios DGII (606 / 607)"
+  },
+  "settings.fiscal.do.ncf_range_registered": {
+    "es": "Rango de e-NCF registrado.",
+    "en": "e-NCF range registered.",
+    "pt": "Faixa de e-NCF registrada."
+  },
+  "settings.fiscal.do.ncf_ranges_description": {
+    "es": "Registra los rangos que la DGII te autorizó. Sin un rango activo del tipo correspondiente no se\n      puede emitir el comprobante.",
+    "en": "Register the ranges the DGII authorized for you. Without an active range of the matching type the\n      document cannot be issued.",
+    "pt": "Registre as faixas autorizadas pela DGII. Sem uma faixa ativa do tipo correspondente o\n      comprovante não pode ser emitido."
+  },
+  "settings.fiscal.do.ncf_sequences_load_failed": {
+    "es": "No se pudieron cargar las secuencias NCF.",
+    "en": "The NCF sequences could not be loaded.",
+    "pt": "Não foi possível carregar as sequências NCF."
+  },
+  "settings.fiscal.do.no_ncf_ranges_yet": {
+    "es": "Aún no has registrado rangos de e-NCF.",
+    "en": "You have not registered any e-NCF ranges yet.",
+    "pt": "Você ainda não registrou faixas de e-NCF."
+  },
+  "settings.fiscal.do.page_description": {
+    "es": "Configura el certificado de firma, los rangos de e-NCF autorizados y descarga los reportes 606/607.",
+    "en": "Configure the signing certificate and the authorized e-NCF ranges, and download the 606/607 reports.",
+    "pt": "Configure o certificado de assinatura, as faixas de e-NCF autorizadas e baixe os relatórios 606/607."
+  },
+  "settings.fiscal.do.page_title": {
+    "es": "Facturación electrónica (RD · DGII)",
+    "en": "Electronic invoicing (DR · DGII)",
+    "pt": "Faturamento eletrônico (RD · DGII)"
+  },
+  "settings.fiscal.do.report_606_purchases": {
+    "es": "606 · Compras",
+    "en": "606 · Purchases",
+    "pt": "606 · Compras"
+  },
+  "settings.fiscal.do.report_607_sales": {
+    "es": "607 · Ventas",
+    "en": "607 · Sales",
+    "pt": "607 · Vendas"
+  },
+  "settings.fiscal.electronic_accounting": {
+    "es": "Contabilidad electrónica",
+    "en": "Electronic accounting",
+    "pt": "Contabilidade eletrônica"
+  },
+  "settings.fiscal.ending_number_cannot_lower_than_starting": {
+    "es": "El número final no puede ser menor que el inicial.",
+    "en": "The ending number cannot be lower than the starting one.",
+    "pt": "O número final não pode ser menor que o inicial."
+  },
+  "settings.fiscal.expires": {
+    "es": "Vence",
+    "en": "Expires",
+    "pt": "Vence"
+  },
+  "settings.fiscal.file_p12_pfx": {
+    "es": "Archivo (.p12 / .pfx)",
+    "en": "File (.p12 / .pfx)",
+    "pt": "Arquivo (.p12 / .pfx)"
+  },
+  "settings.fiscal.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "settings.fiscal.holder": {
+    "es": "Titular",
+    "en": "Holder",
+    "pt": "Titular"
+  },
+  "settings.fiscal.invoicing": {
+    "es": "Facturación electrónica",
+    "en": "E-invoicing",
+    "pt": "Emissão eletrônica"
+  },
+  "settings.fiscal.level_implemented": {
+    "es": "Implementado",
+    "en": "Implemented",
+    "pt": "Implementado"
+  },
+  "settings.fiscal.level_needs_credentials": {
+    "es": "Necesita tus credenciales",
+    "en": "Needs your credentials",
+    "pt": "Precisa das suas credenciais"
+  },
+  "settings.fiscal.level_not_implemented": {
+    "es": "No implementado",
+    "en": "Not implemented",
+    "pt": "Não implementado"
+  },
+  "settings.fiscal.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "settings.fiscal.periodic_returns": {
+    "es": "Declaraciones periódicas",
+    "en": "Periodic returns",
+    "pt": "Declarações periódicas"
+  },
+  "settings.fiscal.prefix": {
+    "es": "Prefijo",
+    "en": "Prefix",
+    "pt": "Prefixo"
+  },
+  "settings.fiscal.report": {
+    "es": "Reporte",
+    "en": "Report",
+    "pt": "Relatório"
+  },
+  "settings.fiscal.requires": {
+    "es": "Necesita",
+    "en": "Requires",
+    "pt": "Precisa de"
+  },
+  "settings.fiscal.screen_configures_dominican_regime_your_market": {
+    "es": "Esta pantalla configura el régimen de la República Dominicana. Para tu mercado, la configuración está en Ajustes → Finanzas → Facturación electrónica.",
+    "en": "This screen configures the Dominican regime. For your market, the configuration is under Settings → Finance → Electronic invoicing.",
+    "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações → Finanças → Nota fiscal eletrônica."
+  },
+  "settings.fiscal.select_certificate_file_p12_pfx": {
+    "es": "Seleccione el archivo del certificado (.p12 / .pfx).",
+    "en": "Select the certificate file (.p12 / .pfx).",
+    "pt": "Selecione o arquivo do certificado (.p12 / .pfx)."
+  },
+  "settings.fiscal.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "settings.fiscal.tax_determination": {
+    "es": "Determinación de impuestos",
+    "en": "Tax determination",
+    "pt": "Determinação de impostos"
+  },
+  "settings.fiscal.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "settings.fiscal.turn_off": {
+    "es": "Desactivar",
+    "en": "Turn off",
+    "pt": "Desativar"
+  },
+  "settings.fiscal.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "settings.fiscal.what_product_covers_country": {
+    "es": "Qué cubre este producto en {{country}}",
+    "en": "What this product covers in {{country}}",
+    "pt": "O que este produto cobre em {{country}}"
+  },
+  "settings.fiscal.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "settings.fiscal.year": {
+    "es": "Año",
+    "en": "Year",
+    "pt": "Ano"
+  },
+  "settings.fiscal.you_have_not_uploaded_certificate_yet": {
+    "es": "Aún no has cargado un certificado.",
+    "en": "You have not uploaded a certificate yet.",
+    "pt": "Você ainda não enviou um certificado."
+  },
+  "settings.language.choose": {
+    "es": "Elegir idioma",
+    "en": "Choose a language",
+    "pt": "Escolher idioma"
+  },
+  "settings.language.description": {
+    "es": "El idioma de la interfaz. Los documentos fiscales conservan el idioma que exige la ley del país de la empresa.",
+    "en": "The interface language. Statutory documents keep the language the law of the company's country requires.",
+    "pt": "O idioma da interface. Os documentos fiscais mantêm o idioma exigido pela lei do país da empresa."
+  },
+  "settings.language.label": {
+    "es": "Idioma",
+    "en": "Language",
+    "pt": "Idioma"
+  },
+  "settings.layout.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "settings.layout.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "settings.layout.billing_plan": {
+    "es": "Facturación y Plan",
+    "en": "Billing and Plan",
+    "pt": "Faturamento e Plano"
+  },
+  "settings.layout.cierre_fiscal": {
+    "es": "Cierre Fiscal",
+    "en": "Fiscal Close",
+    "pt": "Fechamento Fiscal"
+  },
+  "settings.layout.company_profile": {
+    "es": "Perfil de la Empresa",
+    "en": "Company Profile",
+    "pt": "Perfil da Empresa"
+  },
+  "settings.layout.company_structure": {
+    "es": "Estructura Empresarial",
+    "en": "Company Structure",
+    "pt": "Estrutura Empresarial"
+  },
+  "settings.layout.electronic_invoicing": {
+    "es": "Facturación Electrónica",
+    "en": "Electronic Invoicing",
+    "pt": "Faturamento Eletrônico"
+  },
+  "settings.layout.finance": {
+    "es": "Finanzas",
+    "en": "Finance",
+    "pt": "Finanças"
+  },
+  "settings.layout.integrations_api": {
+    "es": "Integraciones",
+    "en": "Integrations & API",
+    "pt": "Integrações"
+  },
+  "settings.layout.intercompany": {
+    "en": "Intercompany",
+    "es": "Intercompañía",
+    "pt": "Intercompanhia"
+  },
+  "settings.layout.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "settings.layout.mail_server": {
+    "es": "Servidor de Correo",
+    "en": "Mail Server",
+    "pt": "Servidor de E-mail"
+  },
+  "settings.layout.multi_currency": {
+    "es": "Multimoneda",
+    "en": "Multi-currency",
+    "pt": "Multimoeda"
+  },
+  "settings.layout.my_account": {
+    "es": "Mi Cuenta",
+    "en": "My Account",
+    "pt": "Minha Conta"
+  },
+  "settings.layout.my_profile": {
+    "es": "Mi Perfil",
+    "en": "My Profile",
+    "pt": "Meu Perfil"
+  },
+  "settings.layout.operations": {
+    "es": "Operaciones",
+    "en": "Operations",
+    "pt": "Operações"
+  },
+  "settings.layout.organization": {
+    "es": "Organización",
+    "en": "Organization",
+    "pt": "Organização"
+  },
+  "settings.layout.personalization": {
+    "es": "Personalización",
+    "en": "Personalization",
+    "pt": "Personalização"
+  },
+  "settings.layout.roles_permissions": {
+    "es": "Roles y Permisos",
+    "en": "Roles and Permissions",
+    "pt": "Perfis e Permissões"
+  },
+  "settings.layout.security_audit": {
+    "es": "Seguridad y Auditoría",
+    "en": "Security and Audit",
+    "pt": "Segurança e Auditoria"
+  },
+  "settings.layout.sequences": {
+    "es": "Secuencias",
+    "en": "Sequences",
+    "pt": "Sequências"
+  },
+  "settings.layout.settings": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "settings.layout.system_settings": {
+    "es": "Sistema",
+    "en": "System Settings",
+    "pt": "Sistema"
+  },
+  "settings.layout.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "settings.layout.users": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "settings.modal.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "settings.modal.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "settings.modal.billing_plan": {
+    "es": "Facturación y Plan",
+    "en": "Billing and Plan",
+    "pt": "Faturamento e Plano"
+  },
+  "settings.modal.cierre_fiscal": {
+    "es": "Cierre Fiscal",
+    "en": "Fiscal Close",
+    "pt": "Fechamento Fiscal"
+  },
+  "settings.modal.close_settings": {
+    "es": "Cerrar configuración",
+    "en": "Close settings",
+    "pt": "Fechar configurações"
+  },
+  "settings.modal.company_profile": {
+    "es": "Perfil de la Empresa",
+    "en": "Company Profile",
+    "pt": "Perfil da Empresa"
+  },
+  "settings.modal.company_structure": {
+    "es": "Estructura Empresarial",
+    "en": "Company Structure",
+    "pt": "Estrutura Empresarial"
+  },
+  "settings.modal.electronic_invoicing": {
+    "es": "Facturación Electrónica",
+    "en": "Electronic Invoicing",
+    "pt": "Faturamento Eletrônico"
+  },
+  "settings.modal.finance": {
+    "es": "Finanzas",
+    "en": "Finance",
+    "pt": "Finanças"
+  },
+  "settings.modal.integrations_api": {
+    "es": "Integraciones",
+    "en": "Integrations & API",
+    "pt": "Integrações"
+  },
+  "settings.modal.intercompany": {
+    "en": "Intercompany",
+    "es": "Intercompañía",
+    "pt": "Intercompanhia"
+  },
+  "settings.modal.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "settings.modal.loading": {
+    "es": "Cargando...",
+    "en": "Loading...",
+    "pt": "Carregando..."
+  },
+  "settings.modal.mail_server": {
+    "es": "Servidor de Correo",
+    "en": "Mail Server",
+    "pt": "Servidor de E-mail"
+  },
+  "settings.modal.multi_currency": {
+    "es": "Multimoneda",
+    "en": "Multi-currency",
+    "pt": "Multimoeda"
+  },
+  "settings.modal.my_account": {
+    "es": "Mi Cuenta",
+    "en": "My Account",
+    "pt": "Minha Conta"
+  },
+  "settings.modal.my_profile": {
+    "es": "Mi Perfil",
+    "en": "My Profile",
+    "pt": "Meu Perfil"
+  },
+  "settings.modal.operations": {
+    "es": "Operaciones",
+    "en": "Operations",
+    "pt": "Operações"
+  },
+  "settings.modal.organization": {
+    "es": "Organización",
+    "en": "Organization",
+    "pt": "Organização"
+  },
+  "settings.modal.personalization": {
+    "es": "Personalización",
+    "en": "Personalization",
+    "pt": "Personalização"
+  },
+  "settings.modal.roles_permissions": {
+    "es": "Roles y Permisos",
+    "en": "Roles and Permissions",
+    "pt": "Perfis e Permissões"
+  },
+  "settings.modal.security_audit": {
+    "es": "Seguridad y Auditoría",
+    "en": "Security and Audit",
+    "pt": "Segurança e Auditoria"
+  },
+  "settings.modal.sequences": {
+    "es": "Secuencias",
+    "en": "Sequences",
+    "pt": "Sequências"
+  },
+  "settings.modal.settings": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "settings.modal.system_settings": {
+    "es": "Sistema",
+    "en": "System Settings",
+    "pt": "Sistema"
+  },
+  "settings.modal.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "settings.modal.users": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "settings.my_profile.avatar": {
+    "literal": "Avatar"
+  },
+  "settings.my_profile.doe": {
+    "es": "Pérez",
+    "en": "Doe",
+    "pt": "Silva"
+  },
+  "settings.my_profile.english": {
+    "literal": "English"
+  },
+  "settings.my_profile.jane": {
+    "es": "Juan",
+    "en": "Jane",
+    "pt": "João"
+  },
+  "settings.my_profile.language_spanish": {
+    "literal": "Español"
+  },
+  "settings.my_profile.new_email_com": {
+    "es": "nuevo@correo.com",
+    "en": "new@email.com",
+    "pt": "novo@email.com"
+  },
+  "settings.my_profile.preferred_language": {
+    "es": "Idioma Preferido",
+    "en": "Preferred Language",
+    "pt": "Idioma Preferido"
+  },
+  "settings.pages.accounting.empty_description": {
+    "es": "Configura las cuentas del catálogo que se usarán automáticamente en cada transacción, eliminando errores de asignación manual.",
+    "en": "Choose the chart-of-accounts entries used automatically on every transaction, so nothing depends on picking the right account by hand.",
+    "pt": "Configure as contas do plano que serão usadas automaticamente em cada transação, eliminando erros de atribuição manual."
+  },
+  "settings.pages.accounting.empty_title": {
+    "es": "Preferencias contables",
+    "en": "Accounting preferences",
+    "pt": "Preferências contábeis"
+  },
+  "settings.pages.accounting.features.f1": {
+    "es": "Cuenta por cobrar predeterminada",
+    "en": "Default receivables account",
+    "pt": "Conta a receber padrão"
+  },
+  "settings.pages.accounting.features.f2": {
+    "es": "Cuenta por pagar predeterminada",
+    "en": "Default payables account",
+    "pt": "Conta a pagar padrão"
+  },
+  "settings.pages.accounting.features.f3": {
+    "es": "Cuenta de ingresos por ventas",
+    "en": "Sales revenue account",
+    "pt": "Conta de receita de vendas"
+  },
+  "settings.pages.accounting.features.f4": {
+    "es": "Cuenta de ganancias y pérdidas por diferencial cambiario",
+    "en": "Foreign-exchange gain and loss account",
+    "pt": "Conta de ganhos e perdas cambiais"
+  },
+  "settings.pages.accounting.features.f5": {
+    "es": "Cuenta de depreciación acumulada",
+    "en": "Accumulated depreciation account",
+    "pt": "Conta de depreciação acumulada"
+  },
+  "settings.pages.accounting.features.f6": {
+    "es": "Cuenta de impuestos sobre ventas y compras",
+    "en": "Sales and purchase tax account",
+    "pt": "Conta de impostos sobre vendas e compras"
+  },
+  "settings.pages.accounting.set_default_accounts_posting_rules_your": {
+    "es": "Define las cuentas contables predeterminadas y las reglas de registro para tu organización.",
+    "en": "Set the default accounts and posting rules for your organisation.",
+    "pt": "Defina as contas contábeis padrão e as regras de lançamento da sua organização."
+  },
+  "settings.pages.accounting.title": {
+    "es": "Preferencias contables",
+    "en": "Accounting preferences",
+    "pt": "Preferências contábeis"
+  },
+  "settings.pages.approvals.define_who_approves_what_what_order": {
+    "es": "Define quién aprueba qué, en qué orden y bajo qué condiciones en tu organización.",
+    "en": "Define who approves what, in what order, and under which conditions.",
+    "pt": "Defina quem aprova o quê, em que ordem e sob quais condições."
+  },
+  "settings.pages.approvals.empty_description": {
+    "es": "Diseña flujos de aprobación basados en reglas (monto, tipo de documento, departamento) con aprobadores secuenciales o paralelos y escalamiento automático.",
+    "en": "Design rule-based approval flows (amount, document type, department) with sequential or parallel approvers and automatic escalation.",
+    "pt": "Desenhe fluxos de aprovação baseados em regras (valor, tipo de documento, departamento) com aprovadores sequenciais ou paralelos e escalonamento automático."
+  },
+  "settings.pages.approvals.empty_title": {
+    "es": "Políticas de aprobación",
+    "en": "Approval policies",
+    "pt": "Políticas de aprovação"
+  },
+  "settings.pages.approvals.features.f1": {
+    "es": "Flujos de varios niveles con aprobadores secuenciales o paralelos",
+    "en": "Multi-level flows with sequential or parallel approvers",
+    "pt": "Fluxos de vários níveis com aprovadores sequenciais ou paralelos"
+  },
+  "settings.pages.approvals.features.f2": {
+    "es": "Reglas por monto, tipo de documento y departamento",
+    "en": "Rules by amount, document type and department",
+    "pt": "Regras por valor, tipo de documento e departamento"
+  },
+  "settings.pages.approvals.features.f3": {
+    "es": "Escalamiento automático por inactividad",
+    "en": "Automatic escalation when nobody responds",
+    "pt": "Escalonamento automático por inatividade"
+  },
+  "settings.pages.approvals.features.f4": {
+    "es": "Aprobación por correo sin necesidad de iniciar sesión",
+    "en": "Approval by e-mail without signing in",
+    "pt": "Aprovação por e-mail sem precisar entrar no sistema"
+  },
+  "settings.pages.approvals.features.f5": {
+    "es": "Historial completo de decisiones con comentarios",
+    "en": "A full history of decisions, with comments",
+    "pt": "Histórico completo de decisões, com comentários"
+  },
+  "settings.pages.approvals.title": {
+    "es": "Flujos de aprobación",
+    "en": "Approval workflows",
+    "pt": "Fluxos de aprovação"
+  },
+  "settings.pages.closing_rules.empty_description": {
+    "es": "Define y controla los periodos contables de tu organización, bloquea los periodos cerrados para evitar modificaciones y programa el cierre automático.",
+    "en": "Define and control your accounting periods, lock closed periods against changes, and schedule the close.",
+    "pt": "Defina e controle os períodos contábeis da sua organização, bloqueie os períodos fechados contra alterações e programe o fechamento."
+  },
+  "settings.pages.closing_rules.empty_title": {
+    "es": "Cierre de periodos contables",
+    "en": "Accounting period close",
+    "pt": "Fechamento de períodos contábeis"
+  },
+  "settings.pages.closing_rules.features.f1": {
+    "es": "Creación y gestión de periodos contables",
+    "en": "Creating and managing accounting periods",
+    "pt": "Criação e gestão de períodos contábeis"
+  },
+  "settings.pages.closing_rules.features.f2": {
+    "es": "Bloqueo automático de periodos cerrados",
+    "en": "Automatic locking of closed periods",
+    "pt": "Bloqueio automático de períodos fechados"
+  },
+  "settings.pages.closing_rules.features.f3": {
+    "es": "Cierre mensual, trimestral y anual",
+    "en": "Monthly, quarterly and annual close",
+    "pt": "Fechamento mensal, trimestral e anual"
+  },
+  "settings.pages.closing_rules.features.f4": {
+    "es": "Permisos diferenciados para reabrir periodos",
+    "en": "Separate permissions for reopening a period",
+    "pt": "Permissões específicas para reabrir períodos"
+  },
+  "settings.pages.closing_rules.features.f5": {
+    "es": "Proceso guiado de cierre con lista de verificación",
+    "en": "A guided close with a checklist",
+    "pt": "Processo guiado de fechamento com checklist"
+  },
+  "settings.pages.closing_rules.manage_accounting_periods_locking_rules_govern": {
+    "es": "Gestiona los periodos contables y las reglas de bloqueo para el cierre fiscal.",
+    "en": "Manage accounting periods and the locking rules that govern the fiscal close.",
+    "pt": "Gerencie os períodos contábeis e as regras de bloqueio do fechamento fiscal."
+  },
+  "settings.pages.closing_rules.title": {
+    "es": "Periodos y cierre fiscal",
+    "en": "Fiscal periods and closing",
+    "pt": "Períodos e fechamento fiscal"
+  },
+  "settings.pages.currencies.empty_description": {
+    "es": "Activa varias monedas para tus transacciones, define la moneda funcional de cada subsidiaria y configura la actualización automática de las tasas de cambio.",
+    "en": "Enable several currencies for your transactions, set each subsidiary functional currency, and keep exchange rates updated automatically.",
+    "pt": "Ative várias moedas para suas transações, defina a moeda funcional de cada subsidiária e configure a atualização automática das taxas de câmbio."
+  },
+  "settings.pages.currencies.empty_title": {
+    "es": "Multimoneda",
+    "en": "Multi-currency",
+    "pt": "Multimoeda"
+  },
+  "settings.pages.currencies.features.f1": {
+    "es": "Moneda base y monedas secundarias activas",
+    "en": "Base currency and active secondary currencies",
+    "pt": "Moeda base e moedas secundárias ativas"
+  },
+  "settings.pages.currencies.features.f2": {
+    "es": "Actualización automática de tasas de cambio (banco central, BCE)",
+    "en": "Automatic exchange-rate updates (central bank, ECB)",
+    "pt": "Atualização automática de taxas de câmbio (banco central, BCE)"
+  },
+  "settings.pages.currencies.features.f3": {
+    "es": "Revaluación periódica de saldos en moneda extranjera",
+    "en": "Periodic revaluation of foreign-currency balances",
+    "pt": "Reavaliação periódica de saldos em moeda estrangeira"
+  },
+  "settings.pages.currencies.features.f4": {
+    "es": "Diferencial cambiario reconocido automáticamente",
+    "en": "Exchange differences recognised automatically",
+    "pt": "Diferenças cambiais reconhecidas automaticamente"
+  },
+  "settings.pages.currencies.features.f5": {
+    "es": "Reportes de ganancia y pérdida por tipo de cambio",
+    "en": "Foreign-exchange gain and loss reports",
+    "pt": "Relatórios de ganhos e perdas cambiais"
+  },
+  "settings.pages.currencies.manage_active_currencies_exchange_rates_used": {
+    "es": "Gestiona las monedas activas y las tasas de cambio para transacciones internacionales.",
+    "en": "Manage active currencies and the exchange rates used for international transactions.",
+    "pt": "Gerencie as moedas ativas e as taxas de câmbio para transações internacionais."
+  },
+  "settings.pages.currencies.title": {
+    "es": "Multimoneda y tasas de cambio",
+    "en": "Multicurrency and exchange rates",
+    "pt": "Multimoeda e taxas de câmbio"
+  },
+  "settings.pages.einvoicing.activity_code": {
+    "es": "Código de actividad económica",
+    "en": "Economic activity code",
+    "pt": "Código de atividade econômica"
+  },
+  "settings.pages.einvoicing.add_range": {
+    "es": "Registrar rango",
+    "en": "Register range",
+    "pt": "Registrar faixa"
+  },
+  "settings.pages.einvoicing.authorization": {
+    "es": "Autorización",
+    "en": "Authorization",
+    "pt": "Autorização"
+  },
+  "settings.pages.einvoicing.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.pages.einvoicing.delete_failed": {
+    "es": "No se pudo retirar el rango.",
+    "en": "The range could not be retired.",
+    "pt": "Não foi possível retirar a faixa."
+  },
+  "settings.pages.einvoicing.dian_resolution_sii_caf_both_expire": {
+    "es": "Una resolución de la DIAN y un CAF del SII vencen; una série brasileña no.",
+    "en": "A DIAN resolution and an SII CAF both expire; a Brazilian série does not.",
+    "pt": "Uma resolução da DIAN e um CAF do SII vencem; uma série brasileira não."
+  },
+  "settings.pages.einvoicing.document_sent_test_environment_has_no": {
+    "es": "Un documento enviado al ambiente de pruebas no tiene efecto fiscal alguno. Cambia a producción sólo cuando hayas superado la homologación.",
+    "en": "A document sent to the test environment has no fiscal effect at all. Switch to production only once you have passed homologation.",
+    "pt": "Um documento enviado ao ambiente de testes não tem efeito fiscal algum. Mude para produção somente após passar pela homologação."
+  },
+  "settings.pages.einvoicing.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "settings.pages.einvoicing.eight_digits_you_choose_part_document": {
+    "es": "Ocho dígitos que eliges tú. Forma parte de la clave del documento.",
+    "en": "Eight digits you choose. It is part of the document key.",
+    "pt": "Oito dígitos que você escolhe. Faz parte da chave do documento."
+  },
+  "settings.pages.einvoicing.emission_point": {
+    "es": "Punto de emisión (SRI)",
+    "en": "Emission point (SRI)",
+    "pt": "Ponto de emissão (SRI)"
+  },
+  "settings.pages.einvoicing.ends_at": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "settings.pages.einvoicing.env_certification": {
+    "es": "Certificación (pruebas)",
+    "en": "Certification (test)",
+    "pt": "Homologação (testes)"
+  },
+  "settings.pages.einvoicing.env_production": {
+    "es": "Producción",
+    "en": "Production",
+    "pt": "Produção"
+  },
+  "settings.pages.einvoicing.environment": {
+    "es": "Ambiente",
+    "en": "Environment",
+    "pt": "Ambiente"
+  },
+  "settings.pages.einvoicing.establishment": {
+    "es": "Establecimiento (SRI)",
+    "en": "Establishment (SRI)",
+    "pt": "Estabelecimento (SRI)"
+  },
+  "settings.pages.einvoicing.expired": {
+    "es": "vencido",
+    "en": "expired",
+    "pt": "vencida"
+  },
+  "settings.pages.einvoicing.f001_peru_resolution_prefix_colombia_serie": {
+    "es": "F001 en Perú, el prefijo de la resolución en Colombia, la série en Brasil. Vacío donde el mercado no usa serie.",
+    "en": "F001 in Peru, the resolution prefix in Colombia, the série in Brazil. Empty where the market uses no series.",
+    "pt": "F001 no Peru, o prefixo da resolução na Colômbia, a série no Brasil. Vazio onde o mercado não usa série."
+  },
+  "settings.pages.einvoicing.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "settings.pages.einvoicing.has_secret": {
+    "es": "con material",
+    "en": "with material",
+    "pt": "com material"
+  },
+  "settings.pages.einvoicing.load_failed": {
+    "es": "No se pudo cargar la configuración de facturación electrónica.",
+    "en": "The electronic invoicing configuration could not be loaded.",
+    "pt": "Não foi possível carregar a configuração de nota fiscal eletrônica."
+  },
+  "settings.pages.einvoicing.municipality_code": {
+    "es": "Código IBGE del municipio",
+    "en": "Municipality IBGE code",
+    "pt": "Código IBGE do município"
+  },
+  "settings.pages.einvoicing.no_ranges": {
+    "es": "No hay rangos registrados. Sin uno, la emisión se niega.",
+    "en": "No ranges registered. Without one, issuing is refused.",
+    "pt": "Não há faixas registradas. Sem uma, a emissão é recusada."
+  },
+  "settings.pages.einvoicing.no_regime": {
+    "es": "Este producto no implementa un régimen de facturación electrónica para tu país. La contabilidad, el inventario, las compras y los reportes funcionan; los documentos no llevan sello fiscal.",
+    "en": "This product does not implement an electronic invoicing regime for your country. Accounting, inventory, purchasing and reporting work; documents carry no fiscal stamp.",
+    "pt": "Este produto não implementa um regime de nota fiscal eletrônica para o seu país. Contabilidade, estoque, compras e relatórios funcionam; os documentos não levam selo fiscal."
+  },
+  "settings.pages.einvoicing.numeric_code": {
+    "es": "Código numérico",
+    "en": "Numeric code",
+    "pt": "Código numérico"
+  },
+  "settings.pages.einvoicing.origin_city": {
+    "es": "Ciudad de origen",
+    "en": "Origin city",
+    "pt": "Cidade de origem"
+  },
+  "settings.pages.einvoicing.origin_comuna": {
+    "es": "Comuna de origen",
+    "en": "Origin comuna",
+    "pt": "Comuna de origem"
+  },
+  "settings.pages.einvoicing.range": {
+    "es": "Rango",
+    "en": "Range",
+    "pt": "Faixa"
+  },
+  "settings.pages.einvoicing.range_bounds": {
+    "es": "El número final no puede ser menor que el inicial.",
+    "en": "The ending number cannot be lower than the starting one.",
+    "pt": "O número final não pode ser menor que o inicial."
+  },
+  "settings.pages.einvoicing.ranges_note": {
+    "es": "Sin un rango activo no se puede emitir: el número lo concede la autoridad, no el sistema. Los rangos retirados se conservan porque son la autorización bajo la que se emitieron documentos anteriores.",
+    "en": "Without an active range nothing can be issued: the number is granted by the authority, not by the system. Retired ranges are kept because they are the authorization earlier documents were issued under.",
+    "pt": "Sem uma faixa ativa não é possível emitir: o número é concedido pela autoridade, não pelo sistema. As faixas retiradas são mantidas porque são a autorização sob a qual documentos anteriores foram emitidos."
+  },
+  "settings.pages.einvoicing.ranges_title": {
+    "es": "Rangos autorizados",
+    "en": "Authorized ranges",
+    "pt": "Faixas autorizadas"
+  },
+  "settings.pages.einvoicing.register": {
+    "es": "Registrar",
+    "en": "Register",
+    "pt": "Registrar"
+  },
+  "settings.pages.einvoicing.remaining": {
+    "es": "Disponibles",
+    "en": "Remaining",
+    "pt": "Disponíveis"
+  },
+  "settings.pages.einvoicing.resolution": {
+    "es": "Resolución de facturación",
+    "en": "Invoicing resolution",
+    "pt": "Resolução de faturamento"
+  },
+  "settings.pages.einvoicing.retire": {
+    "es": "Retirar",
+    "en": "Retire",
+    "pt": "Retirar"
+  },
+  "settings.pages.einvoicing.retired": {
+    "es": "Retirado",
+    "en": "Retired",
+    "pt": "Retirada"
+  },
+  "settings.pages.einvoicing.running_out": {
+    "es": "por agotarse",
+    "en": "running out",
+    "pt": "acabando"
+  },
+  "settings.pages.einvoicing.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "settings.pages.einvoicing.save_failed": {
+    "es": "No se pudo guardar.",
+    "en": "Could not save.",
+    "pt": "Não foi possível salvar."
+  },
+  "settings.pages.einvoicing.saved": {
+    "es": "Configuración guardada.",
+    "en": "Configuration saved.",
+    "pt": "Configuração salva."
+  },
+  "settings.pages.einvoicing.secret": {
+    "es": "Material entregado con el rango",
+    "en": "Material issued with the range",
+    "pt": "Material entregue com a faixa"
+  },
+  "settings.pages.einvoicing.series": {
+    "es": "Serie",
+    "en": "Series",
+    "pt": "Série"
+  },
+  "settings.pages.einvoicing.settings_title": {
+    "es": "Configuración del régimen",
+    "en": "Regime configuration",
+    "pt": "Configuração do regime"
+  },
+  "settings.pages.einvoicing.state_code": {
+    "es": "Código IBGE del estado",
+    "en": "State IBGE code",
+    "pt": "Código IBGE do estado"
+  },
+  "settings.pages.einvoicing.title": {
+    "es": "Facturación electrónica",
+    "en": "E-invoicing",
+    "pt": "Emissão eletrônica"
+  },
+  "settings.pages.einvoicing.valid_until": {
+    "es": "Vigente hasta",
+    "en": "Valid until",
+    "pt": "Válida até"
+  },
+  "settings.pages.einvoicing.whole_caf_file_chile_technical_key": {
+    "es": "El archivo CAF completo en Chile, la clave técnica en Colombia. Se guarda cifrado y nunca se devuelve: para reemplazarlo, carga uno nuevo.",
+    "en": "The whole CAF file in Chile, the technical key in Colombia. Stored encrypted and never returned: to replace it, upload a new one.",
+    "pt": "O arquivo CAF completo no Chile, a chave técnica na Colômbia. Guardado criptografado e nunca devolvido: para substituí-lo, carregue um novo."
+  },
+  "settings.pages.einvoicing.your_regime_configuration_numbering_ranges_your": {
+    "es": "La configuración de tu régimen y los rangos de numeración que te autorizó la autoridad.",
+    "en": "Your regime configuration and the numbering ranges your authority granted you.",
+    "pt": "A configuração do seu regime e as faixas de numeração que a autoridade lhe concedeu."
+  },
+  "settings.pages.in_development": {
+    "es": "En desarrollo",
+    "en": "In development",
+    "pt": "Em desenvolvimento"
+  },
+  "settings.pages.integrations.empty_description": {
+    "es": "Conecta {{app}} con tus herramientas empresariales, crea claves de API para desarrolladores y configura webhooks para eventos en tiempo real.",
+    "en": "Connect {{app}} to your business tools, create API keys for developers, and configure webhooks for real-time events.",
+    "pt": "Conecte o {{app}} às suas ferramentas empresariais, crie chaves de API para desenvolvedores e configure webhooks para eventos em tempo real."
+  },
+  "settings.pages.integrations.empty_title": {
+    "es": "Centro de integraciones",
+    "en": "Integration centre",
+    "pt": "Central de integrações"
+  },
+  "settings.pages.integrations.features.f1": {
+    "es": "Claves de API con permisos granulares y expiración configurable",
+    "en": "API keys with granular permissions and a configurable expiry",
+    "pt": "Chaves de API com permissões granulares e expiração configurável"
+  },
+  "settings.pages.integrations.features.f2": {
+    "es": "Webhooks para notificaciones de eventos en tiempo real",
+    "en": "Webhooks for real-time event notifications",
+    "pt": "Webhooks para notificações de eventos em tempo real"
+  },
+  "settings.pages.integrations.features.f3": {
+    "es": "Integraciones con ERP, CRM y herramientas de productividad",
+    "en": "Integrations with ERP, CRM and productivity tools",
+    "pt": "Integrações com ERP, CRM e ferramentas de produtividade"
+  },
+  "settings.pages.integrations.features.f4": {
+    "es": "Documentación interactiva de la API REST",
+    "en": "Interactive REST API documentation",
+    "pt": "Documentação interativa da API REST"
+  },
+  "settings.pages.integrations.features.f5": {
+    "es": "Registro de llamadas y monitoreo de salud de las integraciones",
+    "en": "Call logs and integration health monitoring",
+    "pt": "Registro de chamadas e monitoramento da saúde das integrações"
+  },
+  "settings.pages.integrations.manage_api_keys_webhooks_connections_external": {
+    "es": "Gestiona claves de API, webhooks y conexiones con servicios externos.",
+    "en": "Manage API keys, webhooks and connections to external services.",
+    "pt": "Gerencie chaves de API, webhooks e conexões com serviços externos."
+  },
+  "settings.pages.integrations.title": {
+    "es": "Integraciones y API",
+    "en": "Integrations and API",
+    "pt": "Integrações e API"
+  },
+  "settings.pages.intercompany.automate_control_transactions_between_companies_your": {
+    "es": "Automatiza y controla las transacciones entre las empresas de tu grupo corporativo.",
+    "en": "Automate and control transactions between the companies in your group.",
+    "pt": "Automatize e controle as transações entre as empresas do seu grupo."
+  },
+  "settings.pages.intercompany.empty_description": {
+    "es": "Configura las reglas para eliminar las transacciones intragrupo en la consolidación, generar asientos espejo automáticos y gestionar los saldos entre subsidiarias.",
+    "en": "Set the rules that eliminate intragroup transactions on consolidation, generate mirror entries automatically, and manage balances between subsidiaries.",
+    "pt": "Configure as regras para eliminar transações intragrupo na consolidação, gerar lançamentos espelho automáticos e gerenciar os saldos entre subsidiárias."
+  },
+  "settings.pages.intercompany.empty_title": {
+    "es": "Gestión intercompañía",
+    "en": "Intercompany management",
+    "pt": "Gestão intercompanhia"
+  },
+  "settings.pages.intercompany.title": {
+    "es": "Reglas intercompañía",
+    "en": "Intercompany rules",
+    "pt": "Regras intercompanhia"
+  },
+  "settings.pages.inventory_policies.define_valuation_replenishment_stock_control_rules": {
+    "es": "Define las reglas de valuación, reposición y control de existencias para tu inventario.",
+    "en": "Define the valuation, replenishment and stock-control rules for your inventory.",
+    "pt": "Defina as regras de valoração, reposição e controle de estoque."
+  },
+  "settings.pages.inventory_policies.empty_description": {
+    "es": "Configura el método de valuación de inventario, los umbrales de reposición automática y las reglas de conteo cíclico para mantener existencias precisas.",
+    "en": "Set the inventory valuation method, the automatic replenishment thresholds and the cycle-count rules that keep stock figures accurate.",
+    "pt": "Configure o método de valoração de estoque, os limites de reposição automática e as regras de contagem cíclica que mantêm o estoque preciso."
+  },
+  "settings.pages.inventory_policies.empty_title": {
+    "es": "Políticas de inventario",
+    "en": "Inventory policies",
+    "pt": "Políticas de estoque"
+  },
+  "settings.pages.inventory_policies.features.f1": {
+    "es": "Método de valuación: PEPS, UEPS o costo promedio",
+    "en": "Valuation method: FIFO, LIFO or average cost",
+    "pt": "Método de valoração: PEPS, UEPS ou custo médio"
+  },
+  "settings.pages.inventory_policies.features.f2": {
+    "es": "Puntos de reorden y cantidades mínimas de existencias",
+    "en": "Reorder points and minimum stock levels",
+    "pt": "Pontos de ressuprimento e quantidades mínimas de estoque"
+  },
+  "settings.pages.inventory_policies.features.f3": {
+    "es": "Conteo cíclico automatizado por categoría",
+    "en": "Automated cycle counting by category",
+    "pt": "Contagem cíclica automatizada por categoria"
+  },
+  "settings.pages.inventory_policies.features.f4": {
+    "es": "Ajustes de inventario con aprobación requerida",
+    "en": "Inventory adjustments that require approval",
+    "pt": "Ajustes de estoque que exigem aprovação"
+  },
+  "settings.pages.inventory_policies.features.f5": {
+    "es": "Alertas de existencias bajas y productos vencidos",
+    "en": "Low-stock and expired-product alerts",
+    "pt": "Alertas de estoque baixo e produtos vencidos"
+  },
+  "settings.pages.inventory_policies.title": {
+    "es": "Políticas de inventario",
+    "en": "Inventory policies",
+    "pt": "Políticas de estoque"
+  },
+  "settings.pages.security.empty_description": {
+    "es": "Configura las políticas de seguridad de tu organización, revisa los registros de auditoría y gestiona controles de acceso avanzados.",
+    "en": "Configure your security policies, review the audit logs, and manage advanced access controls.",
+    "pt": "Configure as políticas de segurança da sua organização, revise os registros de auditoria e gerencie controles de acesso avançados."
+  },
+  "settings.pages.security.empty_title": {
+    "es": "Centro de seguridad de la organización",
+    "en": "Organisation security centre",
+    "pt": "Central de segurança da organização"
+  },
+  "settings.pages.security.features.f1": {
+    "es": "Políticas de contraseñas: longitud, complejidad y expiración",
+    "en": "Password policies: length, complexity and expiry",
+    "pt": "Políticas de senha: comprimento, complexidade e expiração"
+  },
+  "settings.pages.security.features.f2": {
+    "es": "Registros de auditoría filtrados por usuario, acción y fecha",
+    "en": "Audit logs filtered by user, action and date",
+    "pt": "Registros de auditoria filtrados por usuário, ação e data"
+  },
+  "settings.pages.security.features.f3": {
+    "es": "Detección y alertas de accesos sospechosos",
+    "en": "Detection of and alerts for suspicious access",
+    "pt": "Detecção e alertas de acessos suspeitos"
+  },
+  "settings.pages.security.features.f4": {
+    "es": "Lista blanca de direcciones IP permitidas",
+    "en": "An allowlist of permitted IP addresses",
+    "pt": "Lista de endereços IP permitidos"
+  },
+  "settings.pages.security.features.f5": {
+    "es": "Notificaciones de seguridad automáticas",
+    "en": "Automatic security notifications",
+    "pt": "Notificações de segurança automáticas"
+  },
+  "settings.pages.security.password_policies_audit_logs_organisation_wide": {
+    "es": "Políticas de contraseñas, registros de auditoría y controles de acceso de la organización.",
+    "en": "Password policies, audit logs and organisation-wide access controls.",
+    "pt": "Políticas de senhas, registros de auditoria e controles de acesso da organização."
+  },
+  "settings.pages.security.title": {
+    "es": "Seguridad y auditoría",
+    "en": "Security and audit",
+    "pt": "Segurança e auditoria"
+  },
+  "settings.pages.sequences.configure_automatic_numbering_invoices_receipts_other": {
+    "es": "Configura la numeración automática de facturas, recibos y demás documentos fiscales.",
+    "en": "Configure the automatic numbering of invoices, receipts and other fiscal documents.",
+    "pt": "Configure a numeração automática de faturas, recibos e demais documentos fiscais."
+  },
+  "settings.pages.sequences.empty_description": {
+    "es": "Define los prefijos, sufijos y rangos numéricos de cada tipo de documento fiscal, garantizando la correlatividad y el cumplimiento ante la autoridad tributaria.",
+    "en": "Define the prefixes, suffixes and number ranges for each type of fiscal document, keeping the sequence unbroken and the tax authority satisfied.",
+    "pt": "Defina os prefixos, sufixos e faixas numéricas de cada tipo de documento fiscal, garantindo a sequência ininterrupta e a conformidade fiscal."
+  },
+  "settings.pages.sequences.empty_title": {
+    "es": "Secuencias de documentos",
+    "en": "Document sequences",
+    "pt": "Sequências de documentos"
+  },
+  "settings.pages.sequences.features.f1": {
+    "es": "Secuencias independientes por tipo de documento",
+    "en": "Independent sequences per document type",
+    "pt": "Sequências independentes por tipo de documento"
+  },
+  "settings.pages.sequences.features.f2": {
+    "es": "Prefijos y sufijos personalizados por subsidiaria",
+    "en": "Custom prefixes and suffixes per subsidiary",
+    "pt": "Prefixos e sufixos personalizados por subsidiária"
+  },
+  "settings.pages.sequences.features.f3": {
+    "es": "Reinicio automático por año fiscal",
+    "en": "Automatic reset each fiscal year",
+    "pt": "Reinício automático a cada ano fiscal"
+  },
+  "settings.pages.sequences.features.f4": {
+    "es": "Reserva de rangos para contingencia",
+    "en": "Reserved ranges for contingency",
+    "pt": "Reserva de faixas para contingência"
+  },
+  "settings.pages.sequences.features.f5": {
+    "es": "Alertas cuando una secuencia está por agotarse",
+    "en": "Alerts when a sequence is about to run out",
+    "pt": "Alertas quando uma sequência está prestes a se esgotar"
+  },
+  "settings.pages.sequences.title": {
+    "es": "Secuencias fiscales",
+    "en": "Fiscal sequences",
+    "pt": "Sequências fiscais"
+  },
+  "settings.pages.smtp.configure_outgoing_mail_server_used_system": {
+    "es": "Configura el servidor de correo saliente para las notificaciones y comunicaciones del sistema.",
+    "en": "Configure the outgoing mail server used for system notifications and messages.",
+    "pt": "Configure o servidor de e-mail de saída usado nas notificações e comunicações do sistema."
+  },
+  "settings.pages.smtp.empty_description": {
+    "es": "Define el servidor SMTP de tu organización para que todas las notificaciones del sistema —facturas, alertas, invitaciones— salgan desde tu dominio corporativo.",
+    "en": "Point the system at your own SMTP server, so every notification it sends — invoices, alerts, invitations — leaves from your corporate domain.",
+    "pt": "Defina o servidor SMTP da sua organização para que todas as notificações do sistema — faturas, alertas, convites — saiam do seu domínio corporativo."
+  },
+  "settings.pages.smtp.empty_title": {
+    "es": "Configuración de correo",
+    "en": "Mail configuration",
+    "pt": "Configuração de e-mail"
+  },
+  "settings.pages.smtp.features.f1": {
+    "es": "Configuración SMTP con soporte TLS/SSL",
+    "en": "SMTP configuration with TLS/SSL support",
+    "pt": "Configuração SMTP com suporte a TLS/SSL"
+  },
+  "settings.pages.smtp.features.f2": {
+    "es": "Verificación de la conexión con un envío de prueba",
+    "en": "Connection check with a test message",
+    "pt": "Verificação da conexão com um envio de teste"
+  },
+  "settings.pages.smtp.features.f3": {
+    "es": "Remitente personalizado: nombre y dirección",
+    "en": "Custom sender: name and address",
+    "pt": "Remetente personalizado: nome e endereço"
+  },
+  "settings.pages.smtp.features.f4": {
+    "es": "Plantillas de correo personalizables por evento",
+    "en": "Mail templates you can customise per event",
+    "pt": "Modelos de e-mail personalizáveis por evento"
+  },
+  "settings.pages.smtp.features.f5": {
+    "es": "Historial de envíos y registro de errores",
+    "en": "A history of what was sent, and a log of what failed",
+    "pt": "Histórico de envios e registro de erros"
+  },
+  "settings.pages.smtp.title": {
+    "es": "Servidor de correo (SMTP)",
+    "en": "Mail server (SMTP)",
+    "pt": "Servidor de e-mail (SMTP)"
+  },
+  "settings.pages.tax_jurisdictions.add": {
+    "es": "Agregar jurisdicción",
+    "en": "Add jurisdiction",
+    "pt": "Adicionar jurisdição"
+  },
+  "settings.pages.tax_jurisdictions.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.pages.tax_jurisdictions.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "settings.pages.tax_jurisdictions.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "settings.pages.tax_jurisdictions.county": {
+    "es": "Condado",
+    "en": "County",
+    "pt": "Condado"
+  },
+  "settings.pages.tax_jurisdictions.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "settings.pages.tax_jurisdictions.delete_failed": {
+    "es": "No se pudo eliminar la jurisdicción.",
+    "en": "The jurisdiction could not be deleted.",
+    "pt": "Não foi possível excluir a jurisdição."
+  },
+  "settings.pages.tax_jurisdictions.effective_from": {
+    "es": "Vigente desde",
+    "en": "Effective from",
+    "pt": "Vigente desde"
+  },
+  "settings.pages.tax_jurisdictions.effective_to": {
+    "es": "Vigente hasta",
+    "en": "Effective to",
+    "pt": "Vigente até"
+  },
+  "settings.pages.tax_jurisdictions.empty": {
+    "es": "Todavía no hay jurisdicciones registradas.",
+    "en": "No jurisdictions registered yet.",
+    "pt": "Ainda não há jurisdições cadastradas."
+  },
+  "settings.pages.tax_jurisdictions.empty_while_current_superseded_rate_keeps": {
+    "es": "Vacío mientras siga vigente. Una tasa sustituida conserva su ventana para que los documentos antiguos se sigan pudiendo valorar.",
+    "en": "Empty while current. A superseded rate keeps its own window so older documents stay priceable.",
+    "pt": "Vazio enquanto vigente. Uma alíquota substituída mantém sua janela para que documentos antigos continuem valoráveis."
+  },
+  "settings.pages.tax_jurisdictions.level": {
+    "es": "Nivel",
+    "en": "Level",
+    "pt": "Nível"
+  },
+  "settings.pages.tax_jurisdictions.level_city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "settings.pages.tax_jurisdictions.level_county": {
+    "es": "Condado",
+    "en": "County",
+    "pt": "Condado"
+  },
+  "settings.pages.tax_jurisdictions.level_special": {
+    "es": "Distrito especial",
+    "en": "Special district",
+    "pt": "Distrito especial"
+  },
+  "settings.pages.tax_jurisdictions.level_state": {
+    "es": "Estado",
+    "en": "State",
+    "pt": "Estado"
+  },
+  "settings.pages.tax_jurisdictions.load_failed": {
+    "es": "No se pudieron cargar las jurisdicciones.",
+    "en": "The jurisdictions could not be loaded.",
+    "pt": "Não foi possível carregar as jurisdições."
+  },
+  "settings.pages.tax_jurisdictions.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "settings.pages.tax_jurisdictions.most_states_charge_destination_address_minority": {
+    "es": "La mayoría de los estados cobran a la dirección de destino; una minoría cobra las ventas internas a la del vendedor.",
+    "en": "Most states charge at the destination address; a minority source intrastate sales to the seller's.",
+    "pt": "A maioria dos estados cobra no endereço de destino; uma minoria cobra as vendas internas no do vendedor."
+  },
+  "settings.pages.tax_jurisdictions.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "settings.pages.tax_jurisdictions.nexus_note": {
+    "es": "Sin jurisdicciones registradas no se cobra impuesto y la factura deja constancia de que la venta no se gravó por falta de nexo. Es lo correcto para quien no tiene obligación; si la tienes, regístralas aquí.",
+    "en": "With no jurisdictions registered no tax is charged, and the invoice records that the sale was untaxed for want of nexus. That is correct for a seller with no obligation; if you have one, register them here.",
+    "pt": "Sem jurisdições cadastradas nenhum imposto é cobrado, e a nota registra que a venda não foi tributada por falta de nexo. É o correto para quem não tem obrigação; se você tiver, cadastre-as aqui."
+  },
+  "settings.pages.tax_jurisdictions.no": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
+  },
+  "settings.pages.tax_jurisdictions.optional_narrows_row_does_not_define": {
+    "es": "Opcional. Acota la fila; no define una jurisdicción, porque un código postal puede abarcar dos ciudades.",
+    "en": "Optional. It narrows a row; it does not define a jurisdiction, because one postal code can straddle two cities.",
+    "pt": "Opcional. Restringe a linha; não define uma jurisdição, pois um CEP pode abranger duas cidades."
+  },
+  "settings.pages.tax_jurisdictions.postal_code": {
+    "es": "Código postal",
+    "en": "Postal code",
+    "pt": "CEP"
+  },
+  "settings.pages.tax_jurisdictions.rate": {
+    "es": "Tasa (%)",
+    "en": "Rate (%)",
+    "pt": "Alíquota (%)"
+  },
+  "settings.pages.tax_jurisdictions.registered": {
+    "es": "Registrado",
+    "en": "Registered",
+    "pt": "Registrado"
+  },
+  "settings.pages.tax_jurisdictions.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "settings.pages.tax_jurisdictions.save_failed": {
+    "es": "No se pudo guardar la jurisdicción.",
+    "en": "The jurisdiction could not be saved.",
+    "pt": "Não foi possível salvar a jurisdição."
+  },
+  "settings.pages.tax_jurisdictions.sourcing": {
+    "es": "Criterio",
+    "en": "Sourcing",
+    "pt": "Critério"
+  },
+  "settings.pages.tax_jurisdictions.sourcing_destination": {
+    "es": "Destino",
+    "en": "Destination",
+    "pt": "Destino"
+  },
+  "settings.pages.tax_jurisdictions.sourcing_origin": {
+    "es": "Origen",
+    "en": "Origin",
+    "pt": "Origem"
+  },
+  "settings.pages.tax_jurisdictions.state": {
+    "es": "Estado o provincia",
+    "en": "State or province",
+    "pt": "Estado"
+  },
+  "settings.pages.tax_jurisdictions.title": {
+    "es": "Jurisdicciones fiscales",
+    "en": "Tax jurisdictions",
+    "pt": "Jurisdições fiscais"
+  },
+  "settings.pages.tax_jurisdictions.where_you_registered_collect_sales_tax": {
+    "es": "Dónde estás registrado para recaudar impuesto sobre las ventas, y a qué tasa.",
+    "en": "Where you are registered to collect sales tax, and at what rate.",
+    "pt": "Onde você está registrado para recolher imposto sobre vendas, e a que alíquota."
+  },
+  "settings.pages.tax_jurisdictions.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
+  },
+  "settings.pages.taxes.configure_rates_apply_sales_purchases_withholding": {
+    "es": "Configura las tasas impositivas aplicables a ventas, compras y retenciones por jurisdicción.",
+    "en": "Configure the rates that apply to sales, purchases and withholding, by jurisdiction.",
+    "pt": "Configure as alíquotas aplicáveis a vendas, compras e retenções, por jurisdição."
+  },
+  "settings.pages.taxes.empty_description": {
+    "es": "Define las reglas fiscales de tu organización para que los impuestos se calculen y contabilicen automáticamente en cada transacción según la jurisdicción.",
+    "en": "Define your tax rules so that tax is calculated and posted automatically on every transaction, according to the jurisdiction.",
+    "pt": "Defina as regras fiscais da sua organização para que os impostos sejam calculados e contabilizados automaticamente em cada transação, conforme a jurisdição."
+  },
+  "settings.pages.taxes.empty_title": {
+    "es": "Motor de impuestos",
+    "en": "Tax engine",
+    "pt": "Motor de impostos"
+  },
+  "settings.pages.taxes.features.f1": {
+    "es": "Tasas de ITBIS/IVA por tipo de producto o servicio",
+    "en": "VAT rates by product or service type",
+    "pt": "Alíquotas de IVA por tipo de produto ou serviço"
+  },
+  "settings.pages.taxes.features.f2": {
+    "es": "Retenciones en la fuente (ISR, ITBIS)",
+    "en": "Withholding at source (income tax, VAT)",
+    "pt": "Retenções na fonte (imposto de renda, IVA)"
+  },
+  "settings.pages.taxes.features.f3": {
+    "es": "Impuestos por jurisdicción y subsidiaria",
+    "en": "Tax by jurisdiction and subsidiary",
+    "pt": "Impostos por jurisdição e subsidiária"
+  },
+  "settings.pages.taxes.features.f4": {
+    "es": "Exenciones fiscales por cliente o categoría",
+    "en": "Exemptions by customer or category",
+    "pt": "Isenções por cliente ou categoria"
+  },
+  "settings.pages.taxes.features.f5": {
+    "es": "Reportes de declaración de impuestos",
+    "en": "Tax return reports",
+    "pt": "Relatórios de declaração de impostos"
+  },
+  "settings.pages.taxes.title": {
+    "es": "Reglas de impuestos",
+    "en": "Tax rules",
+    "pt": "Regras de impostos"
+  },
+  "settings.pages.withholding.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "settings.pages.withholding.add": {
+    "es": "Agregar régimen",
+    "en": "Add regime",
+    "pt": "Adicionar regime"
+  },
+  "settings.pages.withholding.buyer_fiscal_classification_regime_with_no": {
+    "es": "La clasificación fiscal del comprador. Un régimen sin pagadores no aplica a nadie.",
+    "en": "The buyer's fiscal classification. A regime with no payers applies to nobody.",
+    "pt": "A classificação fiscal do comprador. Um regime sem pagadores não se aplica a ninguém."
+  },
+  "settings.pages.withholding.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.pages.withholding.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "settings.pages.withholding.company": {
+    "es": "Persona jurídica",
+    "en": "Company",
+    "pt": "Pessoa jurídica"
+  },
+  "settings.pages.withholding.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "settings.pages.withholding.delete_failed": {
+    "es": "No se pudo eliminar el régimen.",
+    "en": "The regime could not be deleted.",
+    "pt": "Não foi possível excluir o regime."
+  },
+  "settings.pages.withholding.designated_withholding_agent": {
+    "es": "Agente de retención designado",
+    "en": "Designated withholding agent",
+    "pt": "Agente de retenção designado"
+  },
+  "settings.pages.withholding.electronic_accounting": {
+    "es": "Contabilidad electrónica",
+    "en": "Electronic accounting",
+    "pt": "Contabilidade eletrônica"
+  },
+  "settings.pages.withholding.empty": {
+    "es": "Todavía no hay regímenes configurados.",
+    "en": "No regimes configured yet.",
+    "pt": "Ainda não há regimes configurados."
+  },
+  "settings.pages.withholding.government": {
+    "es": "Estado",
+    "en": "Government",
+    "pt": "Estado"
+  },
+  "settings.pages.withholding.implemented": {
+    "es": "Implementado",
+    "en": "Implemented",
+    "pt": "Implementado"
+  },
+  "settings.pages.withholding.individual": {
+    "es": "Persona física",
+    "en": "Individual",
+    "pt": "Pessoa física"
+  },
+  "settings.pages.withholding.instrument_establishes_required_regime_with_no": {
+    "es": "El instrumento que lo establece. Es obligatorio: un régimen sin fundamento declarado es un número que alguien escribió.",
+    "en": "The instrument that establishes it. Required: a regime with no stated authority is a number somebody typed.",
+    "pt": "O instrumento que o estabelece. Obrigatório: um regime sem fundamento declarado é um número que alguém digitou."
+  },
+  "settings.pages.withholding.invoicing": {
+    "es": "Facturación electrónica",
+    "en": "E-invoicing",
+    "pt": "Emissão eletrônica"
+  },
+  "settings.pages.withholding.kind": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "settings.pages.withholding.kind_income": {
+    "es": "Sobre la base",
+    "en": "On the base",
+    "pt": "Sobre a base"
+  },
+  "settings.pages.withholding.kind_vat": {
+    "es": "Sobre el impuesto",
+    "en": "On the tax",
+    "pt": "Sobre o imposto"
+  },
+  "settings.pages.withholding.label": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "settings.pages.withholding.legal_basis": {
+    "es": "Base legal",
+    "en": "Legal basis",
+    "pt": "Base legal"
+  },
+  "settings.pages.withholding.load_failed": {
+    "es": "No se pudieron cargar los regímenes.",
+    "en": "The regimes could not be loaded.",
+    "pt": "Não foi possível carregar os regimes."
+  },
+  "settings.pages.withholding.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "settings.pages.withholding.name_least_one_kind_buyer_applies": {
+    "es": "Indica al menos un tipo de comprador que aplique la retención.",
+    "en": "Name at least one kind of buyer that applies this withholding.",
+    "pt": "Indique ao menos um tipo de comprador que aplique a retenção."
+  },
+  "settings.pages.withholding.needs_your_configuration": {
+    "es": "Falta configuración tuya",
+    "en": "Needs your configuration",
+    "pt": "Falta configuração sua"
+  },
+  "settings.pages.withholding.not_implemented": {
+    "es": "No implementado",
+    "en": "Not implemented",
+    "pt": "Não implementado"
+  },
+  "settings.pages.withholding.payers": {
+    "es": "Quién retiene",
+    "en": "Who withholds",
+    "pt": "Quem retém"
+  },
+  "settings.pages.withholding.periodic_returns": {
+    "es": "Declaraciones periódicas",
+    "en": "Periodic returns",
+    "pt": "Declarações periódicas"
+  },
+  "settings.pages.withholding.rate": {
+    "es": "Tasa (%)",
+    "en": "Rate (%)",
+    "pt": "Alíquota (%)"
+  },
+  "settings.pages.withholding.requires": {
+    "es": "Necesita que aportes",
+    "en": "Needs you to supply",
+    "pt": "Precisa que você forneça"
+  },
+  "settings.pages.withholding.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "settings.pages.withholding.save_failed": {
+    "es": "No se pudo guardar el régimen.",
+    "en": "The regime could not be saved.",
+    "pt": "Não foi possível salvar o regime."
+  },
+  "settings.pages.withholding.scope": {
+    "es": "Alcance",
+    "en": "Scope",
+    "pt": "Alcance"
+  },
+  "settings.pages.withholding.scope_any": {
+    "es": "Bienes y servicios",
+    "en": "Goods and services",
+    "pt": "Bens e serviços"
+  },
+  "settings.pages.withholding.scope_goods": {
+    "es": "Sólo bienes",
+    "en": "Goods only",
+    "pt": "Apenas bens"
+  },
+  "settings.pages.withholding.scope_services": {
+    "es": "Sólo servicios",
+    "en": "Services only",
+    "pt": "Apenas serviços"
+  },
+  "settings.pages.withholding.tax_determination": {
+    "es": "Determinación de impuesto",
+    "en": "Tax determination",
+    "pt": "Determinação de imposto"
+  },
+  "settings.pages.withholding.tax_withholds_part_tax_charged_base": {
+    "es": "«Sobre el impuesto» retiene parte del impuesto facturado; «sobre la base» retiene parte de la base imponible.",
+    "en": "“On the tax” withholds part of the tax charged; “on the base” withholds part of the taxable base.",
+    "pt": "«Sobre o imposto» retém parte do imposto faturado; «sobre a base» retém parte da base de cálculo."
+  },
+  "settings.pages.withholding.title": {
+    "es": "Regímenes de retención",
+    "en": "Withholding regimes",
+    "pt": "Regimes de retenção"
+  },
+  "settings.pages.withholding.what_product_covers_country": {
+    "es": "Qué cubre el producto en {{country}}",
+    "en": "What the product covers in {{country}}",
+    "pt": "O que o produto cobre em {{country}}"
+  },
+  "settings.pages.withholding.what_your_buyers_withhold_when_they": {
+    "es": "Lo que tus compradores retienen al pagarte, y con qué fundamento.",
+    "en": "What your buyers withhold when they pay you, and on what authority.",
+    "pt": "O que seus compradores retêm ao te pagar, e com que fundamento."
+  },
+  "settings.pages.withholding.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "settings.profile.avatar_updated": {
+    "es": "Imagen actualizada exitosamente.",
+    "en": "Picture updated.",
+    "pt": "Imagem atualizada."
+  },
+  "settings.profile.change_avatar": {
+    "es": "Cambiar foto",
+    "en": "Change photo",
+    "pt": "Alterar foto"
+  },
+  "settings.profile.change_email": {
+    "es": "Cambiar correo",
+    "en": "Change email",
+    "pt": "Alterar e-mail"
+  },
+  "settings.profile.confirm_password": {
+    "es": "Confirmar Contraseña",
+    "en": "Confirm Password",
+    "pt": "Confirmar senha"
+  },
+  "settings.profile.current_password": {
+    "es": "Contraseña Actual",
+    "en": "Current password",
+    "pt": "Senha atual"
+  },
+  "settings.profile.email": {
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "settings.profile.email_change_requested": {
+    "es": "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo.",
+    "en": "If the details are correct, we sent a confirmation link to the new address.",
+    "pt": "Se os dados estiverem corretos, enviamos um link de confirmação para o novo e-mail."
+  },
+  "settings.profile.errors.avatar_upload": {
+    "es": "Error al subir la imagen.",
+    "en": "We couldn't upload the image.",
+    "pt": "Não foi possível enviar a imagem."
+  },
+  "settings.profile.errors.email_change_failed": {
+    "es": "No se pudo iniciar el cambio de correo.",
+    "en": "The email change could not be started.",
+    "pt": "Não foi possível iniciar a alteração de e-mail."
+  },
+  "settings.profile.errors.email_unchanged": {
+    "es": "Ese ya es tu correo actual.",
+    "en": "That is already your current address.",
+    "pt": "Esse já é o seu e-mail atual."
+  },
+  "settings.profile.errors.file_too_large": {
+    "es": "El archivo es demasiado grande (Máx 2MB).",
+    "en": "That file is too large (2 MB max).",
+    "pt": "O arquivo é grande demais (máximo 2 MB)."
+  },
+  "settings.profile.errors.invalid_email": {
+    "es": "El formato del correo electrónico no es válido.",
+    "en": "That email address is not valid.",
+    "pt": "O formato do e-mail não é válido."
+  },
+  "settings.profile.errors.invalid_format": {
+    "es": "Formato de imagen no válido.",
+    "en": "That image format isn't supported.",
+    "pt": "Formato de imagem inválido."
+  },
+  "settings.profile.errors.otp_invalid": {
+    "es": "Código incorrecto.",
+    "en": "That code isn't right.",
+    "pt": "Código incorreto."
+  },
+  "settings.profile.errors.otp_send": {
+    "es": "Error al enviar código.",
+    "en": "We couldn't send the code.",
+    "pt": "Não foi possível enviar o código."
+  },
+  "settings.profile.errors.password_change_failed": {
+    "es": "Error al cambiar la contraseña.",
+    "en": "We couldn't change your password.",
+    "pt": "Não foi possível alterar a senha."
+  },
+  "settings.profile.errors.passwords_do_not_match": {
+    "es": "Las contraseñas no coinciden.",
+    "en": "Passwords do not match.",
+    "pt": "As senhas não coincidem."
+  },
+  "settings.profile.errors.update_failed": {
+    "es": "Error al actualizar el perfil.",
+    "en": "We couldn't update your profile.",
+    "pt": "Não foi possível atualizar o perfil."
+  },
+  "settings.profile.first_name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "settings.profile.job_title": {
+    "es": "Cargo",
+    "en": "Job Title",
+    "pt": "Cargo"
+  },
+  "settings.profile.last_name": {
+    "es": "Apellidos",
+    "en": "Last Name",
+    "pt": "Sobrenome"
+  },
+  "settings.profile.new_password": {
+    "es": "Nueva Contraseña",
+    "en": "New password",
+    "pt": "Nova senha"
+  },
+  "settings.profile.otp_sent": {
+    "es": "Código enviado.",
+    "en": "Code sent.",
+    "pt": "Código enviado."
+  },
+  "settings.profile.password_changed": {
+    "es": "Contraseña actualizada exitosamente.",
+    "en": "Password updated.",
+    "pt": "Senha atualizada."
+  },
+  "settings.profile.personal_information": {
+    "es": "Información Personal",
+    "en": "Personal information",
+    "pt": "Informações pessoais"
+  },
+  "settings.profile.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "settings.profile.phone_number": {
+    "es": "Número de teléfono",
+    "en": "Phone number",
+    "pt": "Número de telefone"
+  },
+  "settings.profile.phone_verification.description": {
+    "es": "Para asegurar tu cuenta, necesitamos verificar tu número de teléfono.",
+    "en": "To secure your account, we need to verify your phone number.",
+    "pt": "Para proteger sua conta, precisamos verificar seu número de telefone."
+  },
+  "settings.profile.phone_verification.enter_code": {
+    "es": "Ingresa el código",
+    "en": "Enter the code",
+    "pt": "Digite o código"
+  },
+  "settings.profile.phone_verification.otp_sent_to": {
+    "es": "Código enviado a",
+    "en": "Code sent to",
+    "pt": "Código enviado para"
+  },
+  "settings.profile.phone_verification.resend": {
+    "es": "Reenviar",
+    "en": "Resend",
+    "pt": "Reenviar"
+  },
+  "settings.profile.phone_verification.send_code": {
+    "es": "Enviar Código",
+    "en": "Send code",
+    "pt": "Enviar código"
+  },
+  "settings.profile.phone_verification.title": {
+    "es": "Verificación de Teléfono",
+    "en": "Phone verification",
+    "pt": "Verificação de telefone"
+  },
+  "settings.profile.phone_verification.verify": {
+    "es": "Verificar Código",
+    "en": "Verify code",
+    "pt": "Verificar código"
+  },
+  "settings.profile.phone_verification.wrong_number": {
+    "es": "¿Número equivocado?",
+    "en": "Wrong number?",
+    "pt": "Número errado?"
+  },
+  "settings.profile.phone_verified": {
+    "es": "Teléfono verificado exitosamente.",
+    "en": "Phone verified.",
+    "pt": "Telefone verificado."
+  },
+  "settings.profile.save_changes": {
+    "es": "Guardar Cambios",
+    "en": "Save changes",
+    "pt": "Salvar alterações"
+  },
+  "settings.profile.security": {
+    "es": "Seguridad",
+    "en": "Security",
+    "pt": "Segurança"
+  },
+  "settings.profile.select_job_title": {
+    "es": "Selecciona un cargo",
+    "en": "Select a job title",
+    "pt": "Selecione um cargo"
+  },
+  "settings.profile.send_confirmation": {
+    "es": "Enviar confirmación",
+    "en": "Send confirmation",
+    "pt": "Enviar confirmação"
+  },
+  "settings.profile.update_password": {
+    "es": "Actualizar Contraseña",
+    "en": "Update password",
+    "pt": "Atualizar senha"
+  },
+  "settings.profile.updated": {
+    "es": "Perfil actualizado exitosamente.",
+    "en": "Profile updated.",
+    "pt": "Perfil atualizado."
+  },
+  "settings.profile.verify": {
+    "es": "Verificar",
+    "en": "Verify",
+    "pt": "Verificar"
+  },
+  "settings.profile.we_will_send_confirmation_link_new": {
+    "es": "Te enviaremos un enlace de confirmación al nuevo correo. El cambio se aplica cuando lo abras, y avisamos al correo anterior.",
+    "en": "We will send a confirmation link to the new address. The change takes effect when you open it, and we notify the previous address.",
+    "pt": "Enviaremos um link de confirmação para o novo e-mail. A alteração é aplicada quando você o abrir, e avisamos o endereço anterior."
+  },
+  "settings.roles.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "settings.roles.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.roles.clone_role": {
+    "es": "Clonar Rol",
+    "en": "Clone Role",
+    "pt": "Clonar Perfil"
+  },
+  "settings.roles.create_role": {
+    "es": "Crear Rol",
+    "en": "Create Role",
+    "pt": "Criar Perfil"
+  },
+  "settings.roles.delete_role": {
+    "es": "Eliminar Rol",
+    "en": "Delete Role",
+    "pt": "Excluir Perfil"
+  },
+  "settings.roles.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "settings.roles.edit_role": {
+    "es": "Editar Rol",
+    "en": "Edit Role",
+    "pt": "Editar Perfil"
+  },
+  "settings.roles.permissions": {
+    "es": "Permisos",
+    "en": "Permissions",
+    "pt": "Permissões"
+  },
+  "settings.roles.role_created_successfully": {
+    "es": "Rol creado exitosamente.",
+    "en": "Role created successfully.",
+    "pt": "Perfil criado com sucesso."
+  },
+  "settings.roles.role_deleted_successfully": {
+    "es": "Rol eliminado exitosamente.",
+    "en": "Role deleted successfully.",
+    "pt": "Perfil excluído com sucesso."
+  },
+  "settings.roles.role_name": {
+    "es": "Nombre del Rol",
+    "en": "Role Name",
+    "pt": "Nome do Perfil"
+  },
+  "settings.roles.role_name_cloned_successfully": {
+    "es": "Rol \"{{name}}\" clonado exitosamente.",
+    "en": "Role \"{{name}}\" cloned successfully.",
+    "pt": "Perfil \"{{name}}\" clonado com sucesso."
+  },
+  "settings.roles.role_updated_successfully": {
+    "es": "Rol actualizado exitosamente.",
+    "en": "Role updated successfully.",
+    "pt": "Perfil atualizado com sucesso."
+  },
+  "settings.roles.roles_permissions": {
+    "es": "Roles y Permisos",
+    "en": "Roles and Permissions",
+    "pt": "Perfis e Permissões"
+  },
+  "settings.roles.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "settings.roles.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "settings.security_settings.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "settings.security_settings.revoke_session": {
+    "es": "Revoke session",
+    "en": "Revoke session",
+    "pt": "Revogar sessão"
+  },
+  "settings.security.2_fa_activated": {
+    "es": "2FA Activado exitosamente.",
+    "en": "2FA is on.",
+    "pt": "2FA ativado."
+  },
+  "settings.security.2_fa_deactivated": {
+    "es": "2FA Desactivado.",
+    "en": "2FA is off.",
+    "pt": "2FA desativado."
+  },
+  "settings.security.2_fa_description": {
+    "es": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
+    "en": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
+    "pt": "Adicione um segundo fator ao seu login. Pediremos um código além da sua senha."
+  },
+  "settings.security.2_fa_disabled": {
+    "es": "2FA Desactivado exitosamente.",
+    "en": "2FA is off.",
+    "pt": "2FA foi desativado."
+  },
+  "settings.security.2_fa_enabled": {
+    "es": "2FA Activado exitosamente.",
+    "en": "2FA is on.",
+    "pt": "2FA ativado."
+  },
+  "settings.security.2_fa_title": {
+    "es": "Autenticación de Dos Factores (2FA)",
+    "en": "Two-Factor Authentication (2FA)",
+    "pt": "Autenticação de dois fatores (2FA)"
+  },
+  "settings.security.account_not_protected": {
+    "es": "Tu cuenta no está protegida.",
+    "en": "Your account is not protected.",
+    "pt": "Sua conta não está protegida."
+  },
+  "settings.security.account_protected": {
+    "es": "Tu cuenta está protegida.",
+    "en": "Your account is protected.",
+    "pt": "Sua conta está protegida."
+  },
+  "settings.security.active_sessions": {
+    "es": "Sesiones Activas",
+    "en": "Active sessions",
+    "pt": "Sessões ativas"
+  },
+  "settings.security.backup_codes": {
+    "es": "Códigos de Recuperación",
+    "en": "Recovery codes",
+    "pt": "Códigos de recuperação"
+  },
+  "settings.security.backup_codes_title": {
+    "es": "Verificación de 2 Pasos Activada",
+    "en": "Two-step verification is on",
+    "pt": "Verificação em duas etapas ativada"
+  },
+  "settings.security.backup_codes_warning": {
+    "es": "Guarda tus códigos de respaldo seguros",
+    "en": "Keep your backup codes safe",
+    "pt": "Guarde seus códigos de backup em segurança"
+  },
+  "settings.security.can_scan_qr_code": {
+    "es": "¿No puedes escanear el código QR?",
+    "en": "Can't scan the QR code?",
+    "pt": "Não consegue escanear o código QR?"
+  },
+  "settings.security.check_email": {
+    "es": "Revisa tu correo",
+    "en": "Check your inbox",
+    "pt": "Verifique seu e-mail"
+  },
+  "settings.security.confirm_backup_codes": {
+    "es": "Por favor confirma que has guardado los códigos.",
+    "en": "Please confirm you've saved the codes.",
+    "pt": "Confirme que você salvou os códigos."
+  },
+  "settings.security.copied": {
+    "es": "Copiado al portapapeles",
+    "en": "Copied to clipboard",
+    "pt": "Copiado para a área de transferência"
+  },
+  "settings.security.copy_code": {
+    "es": "Copiar código",
+    "en": "Copy code",
+    "pt": "Copiar código"
+  },
+  "settings.security.current": {
+    "es": "Actual",
+    "en": "Current",
+    "pt": "Atual"
+  },
+  "settings.security.current_session": {
+    "es": "Este dispositivo",
+    "en": "This device",
+    "pt": "Este dispositivo"
+  },
+  "settings.security.deactivate": {
+    "es": "Desactivar",
+    "en": "Turn off",
+    "pt": "Desativar"
+  },
+  "settings.security.disabled": {
+    "es": "Desactivada",
+    "en": "Off",
+    "pt": "Desativada"
+  },
+  "settings.security.email_code_sent": {
+    "es": "Código de verificación enviado.",
+    "en": "Verification code sent.",
+    "pt": "Código de verificação enviado."
+  },
+  "settings.security.email_sent_to": {
+    "es": "Hemos enviado un código de verificación a: {{email}}",
+    "en": "We sent a verification code to: {{email}}",
+    "pt": "Enviamos um código de verificação para {{email}}"
+  },
+  "settings.security.enable": {
+    "es": "Activar",
+    "en": "Turn on",
+    "pt": "Ativar"
+  },
+  "settings.security.enabled": {
+    "es": "Activada",
+    "en": "On",
+    "pt": "Ativada"
+  },
+  "settings.security.enter_6_digit": {
+    "es": "Ingresa el código de 6 dígitos que ves en tu app autenticadora.",
+    "en": "Enter the 6-digit code shown in your authenticator app.",
+    "pt": "Digite o código de seis dígitos exibido no seu aplicativo autenticador."
+  },
+  "settings.security.enter_code": {
+    "es": "Ingresa el código",
+    "en": "Enter the code",
+    "pt": "Digite o código"
+  },
+  "settings.security.enter_manually": {
+    "es": "O ingresa esta clave manualmente",
+    "en": "Or enter this key by hand",
+    "pt": "Ou digite esta chave manualmente"
+  },
+  "settings.security.enter_secret": {
+    "es": "Ingresa este secreto en su lugar:",
+    "en": "Enter this secret instead:",
+    "pt": "Digite esta chave secreta:"
+  },
+  "settings.security.enter_verification_code": {
+    "es": "Obtener código de verificación",
+    "en": "Get verification code",
+    "pt": "Obter código de verificação"
+  },
+  "settings.security.errors.generate_codes": {
+    "es": "Error al generar códigos.",
+    "en": "We couldn't generate the codes.",
+    "pt": "Não foi possível gerar os códigos."
+  },
+  "settings.security.errors.invalid_code": {
+    "es": "Código incorrecto.",
+    "en": "That code isn't right.",
+    "pt": "Código incorreto."
+  },
+  "settings.security.errors.load_sessions": {
+    "es": "Error al cargar sesiones.",
+    "en": "We couldn't load your sessions.",
+    "pt": "Não foi possível carregar as sessões."
+  },
+  "settings.security.errors.revoke_failed": {
+    "es": "No se pudo cerrar esa sesión.",
+    "en": "That session could not be signed out.",
+    "pt": "Não foi possível encerrar essa sessão."
+  },
+  "settings.security.errors.revoke_session": {
+    "es": "Error al cerrar sesión.",
+    "en": "We couldn't sign that session out.",
+    "pt": "Não foi possível encerrar essa sessão."
+  },
+  "settings.security.errors.send_failed": {
+    "es": "Error al enviar el código.",
+    "en": "We couldn't send the code.",
+    "pt": "Não foi possível enviar o código."
+  },
+  "settings.security.errors.setup_failed": {
+    "es": "No se pudo iniciar la configuración. Inténtalo de nuevo.",
+    "en": "Setup could not be started. Please try again.",
+    "pt": "Não foi possível iniciar a configuração. Tente novamente."
+  },
+  "settings.security.errors.two_step_verification_could_not_turned": {
+    "es": "No se pudo desactivar la verificación en dos pasos.",
+    "en": "Two-step verification could not be turned off.",
+    "pt": "Não foi possível desativar a verificação em duas etapas."
+  },
+  "settings.security.errors.we_couldn_start_fa_setup": {
+    "es": "Error al iniciar configuración 2FA.",
+    "en": "We couldn't start 2FA setup.",
+    "pt": "Não foi possível iniciar a configuração do 2FA."
+  },
+  "settings.security.errors.we_couldn_turn_fa_off": {
+    "es": "Error al desactivar 2FA.",
+    "en": "We couldn't turn 2FA off.",
+    "pt": "Não foi possível desativar o 2FA."
+  },
+  "settings.security.generate_new": {
+    "es": "Generar Nuevos",
+    "en": "Generate new",
+    "pt": "Gerar novos"
+  },
+  "settings.security.i_have_saved_codes": {
+    "es": "He guardado mis códigos de respaldo",
+    "en": "I've saved my backup codes",
+    "pt": "Salvei meus códigos de backup"
+  },
+  "settings.security.identity_verification": {
+    "es": "Verificación de identidad",
+    "en": "Identity verification",
+    "pt": "Verificação de identidade"
+  },
+  "settings.security.manage_devices_you_re_signed": {
+    "es": "Gestiona los dispositivos donde has iniciado sesión.",
+    "en": "Manage the devices you're signed in on.",
+    "pt": "Gerencie os dispositivos onde você iniciou sessão."
+  },
+  "settings.security.new_codes_generated": {
+    "es": "Nuevos códigos generados.",
+    "en": "New codes generated.",
+    "pt": "Novos códigos gerados."
+  },
+  "settings.security.open_auth_app": {
+    "es": "(Abre tu App de Autenticación)",
+    "en": "(Open your authenticator app)",
+    "pt": "(Abra seu aplicativo autenticador)"
+  },
+  "settings.security.protect_your_account_with_extra_layer": {
+    "es": "Protege tu cuenta con una capa extra de seguridad.",
+    "en": "Protect your account with an extra layer of security.",
+    "pt": "Proteja sua conta com uma camada extra de segurança."
+  },
+  "settings.security.resend": {
+    "es": "Reenviar código",
+    "en": "Resend code",
+    "pt": "Reenviar código"
+  },
+  "settings.security.save_backup_codes": {
+    "es": "Guarda estos códigos de recuperación en un lugar seguro. Cada uno sirve una sola vez y son la única forma de entrar si pierdes tu dispositivo.",
+    "en": "Keep these recovery codes somewhere safe. Each one works once, and they are the only way back in if you lose your device.",
+    "pt": "Guarde estes códigos de recuperação em um lugar seguro. Cada um funciona uma única vez e são a única forma de entrar se você perder seu dispositivo."
+  },
+  "settings.security.save_codes_warning": {
+    "es": "Guarda estos códigos en un lugar seguro.",
+    "en": "Store these codes somewhere safe.",
+    "pt": "Guarde estes códigos em um lugar seguro."
+  },
+  "settings.security.scan_code_with_your_authenticator_app": {
+    "es": "Escanea el código con tu aplicación de autenticación y escribe el código de seis dígitos que muestre.",
+    "en": "Scan the code with your authenticator app and enter the six-digit code it shows.",
+    "pt": "Escaneie o código com seu aplicativo autenticador e digite o código de seis dígitos exibido."
+  },
+  "settings.security.scan_qr": {
+    "es": "Escanea el código QR",
+    "en": "Scan the QR code",
+    "pt": "Escaneie o código QR"
+  },
+  "settings.security.scan_qr_code_enter_secret_key": {
+    "es": "Escanea el código QR o ingresa la clave secreta manualmente.",
+    "en": "Scan the QR code, or enter the secret key by hand.",
+    "pt": "Escaneie o código QR ou digite a chave secreta manualmente."
+  },
+  "settings.security.session_revoked": {
+    "es": "Sesión cerrada.",
+    "en": "Session signed out.",
+    "pt": "Sessão encerrada."
+  },
+  "settings.security.sessions_description": {
+    "es": "Dispositivos donde tu cuenta tiene la sesión abierta. Si no reconoces alguno, ciérralo.",
+    "en": "Devices where your account is signed in. If you do not recognise one, sign it out.",
+    "pt": "Dispositivos onde sua conta está conectada. Se você não reconhecer algum, encerre a sessão."
+  },
+  "settings.security.sessions_title": {
+    "es": "Sesiones activas",
+    "en": "Active sessions",
+    "pt": "Sessões ativas"
+  },
+  "settings.security.setup_2_fa": {
+    "es": "Configurar 2FA",
+    "en": "Set up 2FA",
+    "pt": "Configurar 2FA"
+  },
+  "settings.security.setup_2_fa_title": {
+    "es": "Verificación en dos pasos",
+    "en": "Two-step verification",
+    "pt": "Verificação em duas etapas"
+  },
+  "settings.security.setup_authenticator": {
+    "es": "Configurar App Autenticadora",
+    "en": "Set up authenticator app",
+    "pt": "Configurar aplicativo autenticador"
+  },
+  "settings.security.sign_out": {
+    "es": "Cerrar sesión",
+    "en": "Sign out",
+    "pt": "Encerrar sessão"
+  },
+  "settings.security.turn_fa": {
+    "es": "Activar 2FA",
+    "en": "Turn on 2FA",
+    "pt": "Ativar 2FA"
+  },
+  "settings.security.turn_off": {
+    "es": "Desactivar",
+    "en": "Turn off",
+    "pt": "Desativar"
+  },
+  "settings.security.turn_off_fa": {
+    "es": "¿Desactivar 2FA?",
+    "en": "Turn off 2FA?",
+    "pt": "Desativar 2FA?"
+  },
+  "settings.security.two_step_verification": {
+    "es": "Verificación en dos pasos",
+    "en": "Two-step verification",
+    "pt": "Verificação em duas etapas"
+  },
+  "settings.security.use_if_you_lose_access_your": {
+    "es": "Úsalos si pierdes acceso a tu dispositivo.",
+    "en": "Use these if you lose access to your device.",
+    "pt": "Use-os se perder o acesso ao seu dispositivo."
+  },
+  "settings.security.you_ve_added_two_step_verification": {
+    "es": "Has añadido exitosamente la verificación de 2 pasos a tu cuenta.",
+    "en": "You've added two-step verification to your account.",
+    "pt": "A verificação em duas etapas foi adicionada à sua conta."
+  },
+  "settings.security.your_account_will_less_secure_you": {
+    "es": "Tu cuenta será menos segura. ¿Estás seguro?",
+    "en": "Your account will be less secure. Are you sure?",
+    "pt": "Sua conta ficará menos segura. Tem certeza?"
+  },
+  "settings.security.your_security_we_need_confirm_you": {
+    "es": "Por motivos de seguridad, necesitamos verificar que eres tú antes de configurar el método de verificación en dos pasos.",
+    "en": "For your security, we need to confirm it's you before setting up two-step verification.",
+    "pt": "Por motivos de segurança, precisamos confirmar que é você antes de configurar a verificação em duas etapas."
+  },
+  "settings.sessions.active_sessions": {
+    "es": "Sesiones Activas",
+    "en": "Active sessions",
+    "pt": "Sessões ativas"
+  },
+  "settings.sessions.current_session": {
+    "es": "Sesión actual",
+    "en": "Current session",
+    "pt": "Sessão atual"
+  },
+  "settings.sessions.loading_sessions": {
+    "es": "Cargando sesiones…",
+    "en": "Loading sessions…",
+    "pt": "Carregando sessões…"
+  },
+  "settings.sessions.no_active_sessions_record": {
+    "es": "No hay sesiones activas registradas.",
+    "en": "There are no active sessions on record.",
+    "pt": "Não há sessões ativas registradas."
+  },
+  "settings.sessions.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "settings.sessions.review_manage_devices_with_active_access": {
+    "es": "Revisa y administra los dispositivos con acceso activo a tu cuenta.",
+    "en": "Review and manage the devices with active access to your account.",
+    "pt": "Revise e gerencie os dispositivos com acesso ativo à sua conta."
+  },
+  "settings.sessions.revoke_session": {
+    "es": "Revocar sesión",
+    "en": "Revoke session",
+    "pt": "Revogar sessão"
+  },
+  "settings.sessions.session_could_not_revoked": {
+    "es": "No se pudo revocar la sesión.",
+    "en": "The session could not be revoked.",
+    "pt": "Não foi possível revogar a sessão."
+  },
+  "settings.sessions.session_revoked_successfully": {
+    "es": "Sesión revocada correctamente.",
+    "en": "Session revoked successfully.",
+    "pt": "Sessão revogada com sucesso."
+  },
+  "settings.sessions.sessions_could_not_loaded": {
+    "es": "No se pudieron cargar las sesiones.",
+    "en": "The sessions could not be loaded.",
+    "pt": "Não foi possível carregar as sessões."
+  },
+  "settings.sso.acme_com": {
+    "literal": "acme.com"
+  },
+  "settings.sso.acme_okta": {
+    "literal": "Acme Okta"
+  },
+  "settings.sso.add_domain": {
+    "es": "Agregar dominio",
+    "en": "Add domain",
+    "pt": "Adicionar domínio"
+  },
+  "settings.sso.add_provider": {
+    "es": "Añadir proveedor",
+    "en": "Add provider",
+    "pt": "Adicionar provedor"
+  },
+  "settings.sso.blank_unchanged": {
+    "es": "(en blanco = sin cambios)",
+    "en": "(blank = unchanged)",
+    "pt": "(em branco = sem alterações)"
+  },
+  "settings.sso.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.sso.client_id": {
+    "literal": "Client ID"
+  },
+  "settings.sso.client_secret": {
+    "literal": "Client Secret"
+  },
+  "settings.sso.configure_your_oidc_provider_least_one": {
+    "es": "Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.",
+    "en": "Configure your OIDC provider. At least one verified domain is required to enable it.",
+    "pt": "Configure seu provedor OIDC. É necessário ao menos um domínio verificado para ativá-lo."
+  },
+  "settings.sso.connect_your_organization_identity_provider_okta": {
+    "es": "Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos\n      automáticamente a tu SSO al iniciar sesión.",
+    "en": "Connect your organization's identity provider (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Users from verified domains are redirected\n      automatically to your SSO when they sign in.",
+    "pt": "Conecte o provedor de identidade da sua organização (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Os usuários de domínios verificados serão redirecionados\n      automaticamente ao seu SSO ao entrar."
+  },
+  "settings.sso.copy": {
+    "es": "copiar",
+    "en": "copy",
+    "pt": "copiar"
+  },
+  "settings.sso.default_role": {
+    "es": "Rol por defecto",
+    "en": "Default role",
+    "pt": "Perfil padrão"
+  },
+  "settings.sso.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "settings.sso.dns_record_txt": {
+    "es": "Registro DNS (TXT)",
+    "en": "DNS record (TXT)",
+    "pt": "Registro DNS (TXT)"
+  },
+  "settings.sso.domain": {
+    "es": "Dominio",
+    "en": "Domain",
+    "pt": "Domínio"
+  },
+  "settings.sso.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "settings.sso.host": {
+    "literal": "Host:"
+  },
+  "settings.sso.https_acme_okta_com_oauth2_default": {
+    "literal": "https://acme.okta.com/oauth2/default"
+  },
+  "settings.sso.identity_providers_oidc": {
+    "es": "Proveedores de Identidad (OIDC)",
+    "en": "Identity Providers (OIDC)",
+    "pt": "Provedores de Identidade (OIDC)"
+  },
+  "settings.sso.issuer": {
+    "literal": "Issuer"
+  },
+  "settings.sso.issuer_url_discovery": {
+    "en": "Issuer URL (discovery)",
+    "es": "URL del emisor (discovery)",
+    "pt": "URL do emissor (discovery)"
+  },
+  "settings.sso.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "settings.sso.no_providers_configured": {
+    "es": "No hay proveedores configurados.",
+    "en": "No providers are configured.",
+    "pt": "Nenhum provedor configurado."
+  },
+  "settings.sso.only_users_from_verified_domain_routed": {
+    "es": "Solo los usuarios de un dominio verificado serán enrutados a tu SSO.",
+    "en": "Only users from a verified domain are routed to your SSO.",
+    "pt": "Apenas usuários de um domínio verificado são encaminhados ao seu SSO."
+  },
+  "settings.sso.openid_email_profile": {
+    "literal": "openid email profile"
+  },
+  "settings.sso.redirect_uri": {
+    "literal": "Redirect URI"
+  },
+  "settings.sso.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "settings.sso.scopes": {
+    "literal": "Scopes"
+  },
+  "settings.sso.single_sign_sso": {
+    "es": "Inicio de Sesión Único (SSO)",
+    "en": "Single Sign-On (SSO)",
+    "pt": "Login Único (SSO)"
+  },
+  "settings.sso.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "settings.sso.type": {
+    "es": "Tipo:",
+    "en": "Type:",
+    "pt": "Tipo:"
+  },
+  "settings.sso.uuid_optional": {
+    "es": "(UUID, opcional)",
+    "en": "(UUID, optional)",
+    "pt": "(UUID, opcional)"
+  },
+  "settings.sso.value": {
+    "es": "Valor:",
+    "en": "Value:",
+    "pt": "Valor:"
+  },
+  "settings.sso.verified_domains": {
+    "es": "Dominios Verificados",
+    "en": "Verified Domains",
+    "pt": "Domínios Verificados"
+  },
+  "settings.sso.verify": {
+    "es": "Verificar",
+    "en": "Verify",
+    "pt": "Verificar"
+  },
+  "settings.sso.you_have_not_added_any_domains": {
+    "es": "Aún no has agregado dominios.",
+    "en": "You have not added any domains yet.",
+    "pt": "Você ainda não adicionou domínios."
+  },
+  "settings.sso.you_must_verify_least_one_domain": {
+    "es": "Debes verificar al menos un dominio antes de poder activar un proveedor.",
+    "en": "You must verify at least one domain before enabling a provider.",
+    "pt": "Você precisa verificar ao menos um domínio antes de ativar um provedor."
+  },
+  "settings.subsidiaries.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.subsidiaries.company_structure": {
+    "es": "Estructura Empresarial",
+    "en": "Company Structure",
+    "pt": "Estrutura Empresarial"
+  },
+  "settings.subsidiaries.country": {
+    "es": "País:",
+    "en": "Country:",
+    "pt": "País:"
+  },
+  "settings.subsidiaries.country_column": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "settings.subsidiaries.create_first_subsidiary": {
+    "es": "Crear primera subsidiaria",
+    "en": "Create the first subsidiary",
+    "pt": "Criar a primeira subsidiária"
+  },
+  "settings.subsidiaries.dominican_republic": {
+    "es": "Ej. República Dominicana",
+    "en": "e.g. Dominican Republic",
+    "pt": "Ex.: República Dominicana"
+  },
+  "settings.subsidiaries.ej_virteex_latam": {
+    "es": "Ej. Virtex Latam S.A.",
+    "en": "e.g. Virtex Latam Inc.",
+    "pt": "Ex.: Virtex Latam Ltda."
+  },
+  "settings.subsidiaries.id_fiscal": {
+    "es": "ID Fiscal:",
+    "en": "Tax ID:",
+    "pt": "Identificação fiscal:"
+  },
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "settings.subsidiaries.legal_name": {
+    "es": "Nombre Legal",
+    "en": "Legal Name",
+    "pt": "Razão Social"
+  },
+  "settings.subsidiaries.loading_subsidiaries": {
+    "es": "Cargando subsidiarias...",
+    "en": "Loading subsidiaries...",
+    "pt": "Carregando subsidiárias..."
+  },
+  "settings.subsidiaries.manage_your_organization_subsidiaries_branches": {
+    "es": "Gestiona las subsidiarias y sucursales de tu organización.",
+    "en": "Manage your organization's subsidiaries and branches.",
+    "pt": "Gerencie as subsidiárias e filiais da sua organização."
+  },
+  "settings.subsidiaries.new_subsidiary": {
+    "es": "Nueva Subsidiaria",
+    "en": "New Subsidiary",
+    "pt": "Nova Subsidiária"
+  },
+  "settings.subsidiaries.no_subsidiaries_record": {
+    "es": "No hay subsidiarias registradas",
+    "en": "There are no subsidiaries on record",
+    "pt": "Não há subsidiárias registradas"
+  },
+  "settings.subsidiaries.ownership_ownership": {
+    "es": "{{ownership}}% Propiedad",
+    "en": "{{ownership}}% Ownership",
+    "pt": "{{ownership}}% de participação"
+  },
+  "settings.subsidiaries.ownership_percentage": {
+    "es": "Porcentaje de Propiedad (%)",
+    "en": "Ownership Percentage (%)",
+    "pt": "Percentual de Participação (%)"
+  },
+  "settings.subsidiaries.start_adding_subsidiary_branch_expand_your": {
+    "es": "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.",
+    "en": "Start by adding a subsidiary or branch to expand your structure.",
+    "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
+  },
+  "settings.title": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "settings.user_management.action_cannot_undone": {
+    "es": "Esta acción no se puede deshacer.",
+    "en": "This action cannot be undone.",
+    "pt": "Esta ação não pode ser desfeita."
+  },
+  "settings.user_management.administration": {
+    "es": "Administración",
+    "en": "Administration",
+    "pt": "Administração"
+  },
+  "settings.user_management.block_sign_out": {
+    "es": "Bloquear y Cerrar Sesión",
+    "en": "Block and Sign Out",
+    "pt": "Bloquear e Encerrar Sessão"
+  },
+  "settings.user_management.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "settings.user_management.custom_message_user": {
+    "es": "Mensaje personalizado para el usuario...",
+    "en": "Custom message for the user...",
+    "pt": "Mensagem personalizada para o usuário..."
+  },
+  "settings.user_management.delete_account": {
+    "es": "Eliminar Cuenta",
+    "en": "Delete Account",
+    "pt": "Excluir Conta"
+  },
+  "settings.user_management.delete_permanently": {
+    "es": "Eliminar Permanentemente",
+    "en": "Delete Permanently",
+    "pt": "Excluir Permanentemente"
+  },
+  "settings.user_management.delete_user": {
+    "es": "Eliminar Usuario",
+    "en": "Delete User",
+    "pt": "Excluir Usuário"
+  },
+  "settings.user_management.edit_user": {
+    "es": "Editar Usuario",
+    "en": "Edit User",
+    "pt": "Editar Usuário"
+  },
+  "settings.user_management.email": {
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "settings.user_management.force_sign_out": {
+    "es": "Forzar Cierre de Sesión",
+    "en": "Force Sign Out",
+    "pt": "Forçar Encerramento de Sessão"
+  },
+  "settings.user_management.impersonate_user": {
+    "es": "Suplantar Usuario",
+    "en": "Impersonate User",
+    "pt": "Personificar Usuário"
+  },
+  "settings.user_management.invitation_message_optional": {
+    "es": "Mensaje de invitación (opcional)",
+    "en": "Invitation message (optional)",
+    "pt": "Mensagem do convite (opcional)"
+  },
+  "settings.user_management.invite_user": {
+    "es": "Invitar Usuario",
+    "en": "Invite User",
+    "pt": "Convidar Usuário"
+  },
+  "settings.user_management.last_name": {
+    "es": "Apellido",
+    "en": "Last name",
+    "pt": "Sobrenome"
+  },
+  "settings.user_management.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "settings.user_management.no_users_found": {
+    "es": "No se encontraron usuarios.",
+    "en": "No users were found.",
+    "pt": "Nenhum usuário encontrado."
+  },
+  "settings.user_management.reset_password": {
+    "es": "Resetear Contraseña",
+    "en": "Reset Password",
+    "pt": "Redefinir Senha"
+  },
+  "settings.user_management.role": {
+    "es": "Rol",
+    "en": "Role",
+    "pt": "Perfil"
+  },
+  "settings.user_management.select_role": {
+    "es": "Seleccionar rol",
+    "en": "Select a role",
+    "pt": "Selecionar perfil"
+  },
+  "settings.user_management.showing": {
+    "es": "Mostrando",
+    "en": "Showing",
+    "pt": "Exibindo"
+  },
+  "settings.user_management.showing_shown_total_users": {
+    "es": "Mostrando {{shown}} de {{total}} usuarios",
+    "en": "Showing {{shown}} of {{total}} users",
+    "pt": "A mostrar {{shown}} de {{total}} utilizadores"
+  },
+  "settings.user_management.user_company_com": {
+    "es": "usuario@empresa.com",
+    "en": "user@company.com",
+    "pt": "usuario@empresa.com"
+  },
+  "settings.user_management.user_deleted_successfully": {
+    "es": "Usuario eliminado con éxito.",
+    "en": "User deleted successfully.",
+    "pt": "Usuário excluído com sucesso."
+  },
+  "settings.user_management.user_has_blocked_their_session_closed": {
+    "es": "El usuario ha sido bloqueado y su sesión cerrada.",
+    "en": "The user has been blocked and their session closed.",
+    "pt": "O usuário foi bloqueado e sua sessão encerrada."
+  },
+  "settings.user_management.user_invited_successfully": {
+    "es": "Usuario invitado con éxito.",
+    "en": "User invited successfully.",
+    "pt": "Usuário convidado com sucesso."
+  },
+  "settings.user_management.user_management": {
+    "es": "Gestión de Usuarios",
+    "en": "User Management",
+    "pt": "Gestão de Usuários"
+  },
+  "settings.user_management.user_session_has_closed": {
+    "es": "La sesión del usuario ha sido cerrada.",
+    "en": "The user's session has been closed.",
+    "pt": "A sessão do usuário foi encerrada."
+  },
+  "settings.user_management.user_updated_successfully": {
+    "es": "Usuario actualizado con éxito.",
+    "en": "User updated successfully.",
+    "pt": "Usuário atualizado com sucesso."
+  },
+  "settings.user_management.users": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "settings.user_management.users_could_not_loaded": {
+    "es": "No se pudieron cargar los usuarios.",
+    "en": "The users could not be loaded.",
+    "pt": "Não foi possível carregar os usuários."
+  },
+  "settings.user_management.users_count_label": {
+    "es": "usuarios",
+    "en": "users",
+    "pt": "usuários"
+  },
+  "settings.user_management.value": {
+    "literal": "×"
+  },
+  "settings.user_management.you_sure_you_want_permanently_delete": {
+    "es": "¿Está seguro que desea eliminar permanentemente al usuario",
+    "en": "Are you sure you want to permanently delete the user",
+    "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
+  }
+}

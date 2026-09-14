@@ -1,0 +1,175 @@
+{
+  "datasheets.analysis_spreadsheets_connected_erp_real_time": {
+    "es": "Análisis y hojas de cálculo conectadas al ERP en tiempo real.",
+    "en": "Analysis and spreadsheets connected to the ERP in real-time.",
+    "pt": "Análises e planilhas conectadas ao ERP em tempo real."
+  },
+  "datasheets.cell_format": {
+    "es": "Formato de Celda",
+    "en": "Cell Format",
+    "pt": "Formato da Célula"
+  },
+  "datasheets.chart_configuration": {
+    "es": "Configuración de Gráfico",
+    "en": "Chart Configuration",
+    "pt": "Configuração do Gráfico"
+  },
+  "datasheets.charts": {
+    "es": "Gráficos",
+    "en": "Charts",
+    "pt": "Gráficos"
+  },
+  "datasheets.country_country_has_no_single_national": {
+    "es": "El país {country} no tiene una tasa nacional única; el impuesto se determina por jurisdicción.",
+    "en": "Country {country} has no single national rate; tax is determined per jurisdiction.",
+    "pt": "O país {country} não tem uma alíquota nacional única; o imposto é determinado por jurisdição."
+  },
+  "datasheets.dataset_requested_does_not_exist_available": {
+    "es": "El conjunto «{requested}» no existe. Disponibles: {available}.",
+    "en": "Dataset “{requested}” does not exist. Available: {available}.",
+    "pt": "O conjunto “{requested}” não existe. Disponíveis: {available}."
+  },
+  "datasheets.datasheet_with_id_not_found": {
+    "es": "No se encontró la hoja de datos {{id}}.",
+    "en": "Datasheet {{id}} was not found.",
+    "pt": "A planilha {{id}} não foi encontrada."
+  },
+  "datasheets.import": {
+    "es": "Importar",
+    "en": "Import",
+    "pt": "Importar"
+  },
+  "datasheets.import_erp": {
+    "es": "Importar ERP",
+    "en": "Import ERP",
+    "pt": "Importar do ERP"
+  },
+  "datasheets.import_wizard": {
+    "es": "Asistente de Importación",
+    "en": "Import Wizard",
+    "pt": "Assistente de Importação"
+  },
+  "datasheets.insert_chart": {
+    "es": "Insertar Gráfico",
+    "en": "Insert Chart",
+    "pt": "Inserir Gráfico"
+  },
+  "datasheets.last_modified": {
+    "es": "Última Modificación",
+    "en": "Last Modified",
+    "pt": "Última Modificação"
+  },
+  "datasheets.my_documents": {
+    "es": "Mis Documentos",
+    "en": "My Documents",
+    "pt": "Meus Documentos"
+  },
+  "datasheets.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "datasheets.new_document": {
+    "es": "Nuevo Libro",
+    "en": "New Book",
+    "pt": "Nova Pasta de Trabalho"
+  },
+  "datasheets.no_invoiced_sales_period": {
+    "es": "No hay ventas facturadas en el período.",
+    "en": "There are no invoiced sales in the period.",
+    "pt": "Não há vendas faturadas no período."
+  },
+  "datasheets.no_product_has_sku_sku": {
+    "es": "No hay ningún producto con el SKU «{sku}».",
+    "en": "No product has SKU “{sku}”.",
+    "pt": "Não há produto com o SKU “{sku}”."
+  },
+  "datasheets.no_revenue_budget_period_no_goal": {
+    "es": "No hay presupuesto de ingresos para {period}; no hay meta contra la cual medir.",
+    "en": "There is no revenue budget for {period}; there is no goal to measure against.",
+    "pt": "Não há orçamento de receitas para {period}; não há meta para comparar."
+  },
+  "datasheets.no_variable_called_name": {
+    "es": "No existe una variable llamada «{name}».",
+    "en": "There is no variable called “{name}”.",
+    "pt": "Não existe uma variável chamada “{name}”."
+  },
+  "datasheets.none_requested_columns_exist_available_available": {
+    "es": "Ninguna de las columnas solicitadas existe. Disponibles: {available}.",
+    "en": "None of the requested columns exist. Available: {available}.",
+    "pt": "Nenhuma das colunas solicitadas existe. Disponíveis: {available}."
+  },
+  "datasheets.only_owner_can_delete_this_document": {
+    "es": "Solo el propietario puede eliminar este documento.",
+    "en": "Only the owner can delete this document.",
+    "pt": "Somente o proprietário pode excluir este documento."
+  },
+  "datasheets.owner": {
+    "es": "Propietario",
+    "en": "Owner",
+    "pt": "Proprietário"
+  },
+  "datasheets.param_parameter_required": {
+    "es": "Falta el parámetro «{param}».",
+    "en": "The “{param}” parameter is required.",
+    "pt": "Falta o parâmetro “{param}”."
+  },
+  "datasheets.projection_horizon_days_must_between_365": {
+    "es": "El horizonte de proyección ({days}) debe estar entre 0 y 365 días.",
+    "en": "The projection horizon ({days}) must be between 0 and 365 days.",
+    "pt": "O horizonte de projeção ({days}) deve estar entre 0 e 365 dias."
+  },
+  "datasheets.properties": {
+    "es": "Propiedades",
+    "en": "Properties",
+    "pt": "Propriedades"
+  },
+  "datasheets.recent": {
+    "es": "Recientes",
+    "en": "Recent",
+    "pt": "Recentes"
+  },
+  "datasheets.share": {
+    "es": "Compartir",
+    "en": "Share",
+    "pt": "Compartilhar"
+  },
+  "datasheets.shared": {
+    "es": "Compartidos",
+    "en": "Shared",
+    "pt": "Compartilhados"
+  },
+  "datasheets.templates": {
+    "es": "Plantillas",
+    "en": "Templates",
+    "pt": "Modelos"
+  },
+  "datasheets.title": {
+    "literal": "DataSheets"
+  },
+  "datasheets.trash": {
+    "es": "Papelera",
+    "en": "Trash",
+    "pt": "Lixeira"
+  },
+  "datasheets.variable_name_catalogued_but_has_no": {
+    "es": "La variable «{name}» está en el catálogo pero no tiene implementación.",
+    "en": "Variable “{name}” is catalogued but has no implementation.",
+    "pt": "A variável “{name}” está no catálogo mas não tem implementação."
+  },
+  "datasheets.you_do_not_have_permission_edit": {
+    "es": "No tienes permiso para editar este libro.",
+    "en": "You do not have permission to edit this book.",
+    "pt": "Você não tem permissão para editar esta pasta."
+  },
+  "datasheets.you_do_not_have_permission_import": {
+    "es": "No tienes permiso para importar «{dataset}». Requiere {permission}.",
+    "en": "You do not have permission to import “{dataset}”. It requires {permission}.",
+    "pt": "Você não tem permissão para importar “{dataset}”. Requer {permission}."
+  },
+  "datasheets.you_do_not_have_permission_read": {
+    "es": "No tienes permiso para consultar «{variable}». Requiere {permission}.",
+    "en": "You do not have permission to read “{variable}”. It requires {permission}.",
+    "pt": "Você não tem permissão para consultar “{variable}”. Requer {permission}."
+  }
+}

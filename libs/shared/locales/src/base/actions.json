@@ -1,0 +1,27 @@
+{
+  "actions.create_new": {
+    "es": "Crear Nuevo",
+    "en": "Create New",
+    "pt": "Criar Novo"
+  },
+  "actions.new_customer": {
+    "es": "Nuevo cliente",
+    "en": "New customer",
+    "pt": "Novo cliente"
+  },
+  "actions.new_invoice": {
+    "es": "Nueva factura",
+    "en": "New invoice",
+    "pt": "Nova fatura"
+  },
+  "actions.new_product": {
+    "es": "Nuevo producto",
+    "en": "New product",
+    "pt": "Novo produto"
+  },
+  "actions.new_quote": {
+    "es": "Nueva cotización",
+    "en": "New quote",
+    "pt": "Novo orçamento"
+  }
+}

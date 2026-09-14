@@ -1,0 +1,421 @@
+{
+  "purchasing.layout.manage_requisitions_purchase_orders_and_goods": {
+    "es": "Administra las requisiciones, las órdenes de compra y las recepciones de mercancía.",
+    "en": "Manage requisitions, purchase orders and goods receipts.",
+    "pt": "Gerencie as requisições, os pedidos de compra e os recebimentos de mercadoria."
+  },
+  "purchasing.layout.purchase_orders": {
+    "es": "Órdenes de compra",
+    "en": "Purchase Orders",
+    "pt": "Pedidos de compra"
+  },
+  "purchasing.layout.receipts": {
+    "es": "Recepciones",
+    "en": "Receipts",
+    "pt": "Recebimentos"
+  },
+  "purchasing.layout.requisitions": {
+    "es": "Requisiciones",
+    "en": "Requisitions",
+    "pt": "Requisições"
+  },
+  "purchasing.orders.description": {
+    "es": "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.",
+    "en": "Create, track, and manage all your purchase orders to suppliers.",
+    "pt": "Crie, acompanhe e gerencie todos os pedidos de compra aos fornecedores."
+  },
+  "purchasing.orders.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "purchasing.orders.form.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "purchasing.orders.form.approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "purchasing.orders.form.cancel_order": {
+    "es": "Cancelar orden",
+    "en": "Cancel order",
+    "pt": "Cancelar ordem"
+  },
+  "purchasing.orders.form.cancel_reason": {
+    "es": "Motivo de la cancelación",
+    "en": "Why it is being cancelled",
+    "pt": "Motivo do cancelamento"
+  },
+  "purchasing.orders.form.confirm_cancel": {
+    "es": "Confirmar cancelación",
+    "en": "Confirm cancellation",
+    "pt": "Confirmar cancelamento"
+  },
+  "purchasing.orders.form.confirm_receipt": {
+    "es": "Confirmar recepción",
+    "en": "Confirm delivery",
+    "pt": "Confirmar receção"
+  },
+  "purchasing.orders.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "purchasing.orders.form.expected_date": {
+    "es": "Fecha esperada",
+    "en": "Expected date",
+    "pt": "Data prevista"
+  },
+  "purchasing.orders.form.expected_date_help": {
+    "es": "Lo que prometió el proveedor.",
+    "en": "What the supplier promised.",
+    "pt": "O que o fornecedor prometeu."
+  },
+  "purchasing.orders.form.from_requisition": {
+    "es": "Ver la requisición de origen",
+    "en": "Open the requisition it came from",
+    "pt": "Abrir a requisição de origem"
+  },
+  "purchasing.orders.form.lines": {
+    "es": "Líneas de la orden",
+    "en": "Order lines",
+    "pt": "Linhas da ordem"
+  },
+  "purchasing.orders.form.not_in_catalogue": {
+    "es": "Fuera del catálogo",
+    "en": "Not in the catalogue",
+    "pt": "Fora do catálogo"
+  },
+  "purchasing.orders.form.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
+  },
+  "purchasing.orders.form.outstanding": {
+    "es": "Pendiente",
+    "en": "Pending",
+    "pt": "Pendente"
+  },
+  "purchasing.orders.form.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "purchasing.orders.form.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "purchasing.orders.form.receive": {
+    "es": "Registrar recepción",
+    "en": "Record a delivery",
+    "pt": "Registar receção"
+  },
+  "purchasing.orders.form.receive_title": {
+    "es": "Qué llegó",
+    "en": "What arrived",
+    "pt": "O que chegou"
+  },
+  "purchasing.orders.form.received": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "purchasing.orders.form.receiving_now": {
+    "es": "Recibiendo ahora",
+    "en": "Receiving now",
+    "pt": "A receber agora"
+  },
+  "purchasing.orders.form.save_failed": {
+    "es": "No se pudo guardar la orden.",
+    "en": "The order could not be saved.",
+    "pt": "Não foi possível guardar a ordem."
+  },
+  "purchasing.orders.form.saved": {
+    "es": "Orden guardada.",
+    "en": "Order saved.",
+    "pt": "Ordem guardada."
+  },
+  "purchasing.orders.form.send": {
+    "es": "Marcar como enviada al proveedor",
+    "en": "Mark as sent to the supplier",
+    "pt": "Marcar como enviada ao fornecedor"
+  },
+  "purchasing.orders.form.submit": {
+    "es": "Enviar a aprobación",
+    "en": "Send for approval",
+    "pt": "Enviar para aprovação"
+  },
+  "purchasing.orders.form.subtotal": {
+    "literal": "Subtotal"
+  },
+  "purchasing.orders.form.tax": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "purchasing.orders.form.tax_rate": {
+    "es": "ITBIS",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "purchasing.orders.form.unit_price": {
+    "es": "Precio acordado",
+    "en": "Agreed price",
+    "pt": "Preço acordado"
+  },
+  "purchasing.orders.new_order": {
+    "es": "Nueva Orden",
+    "en": "New Order",
+    "pt": "Novo Pedido"
+  },
+  "purchasing.orders.no_purchase_orders_found": {
+    "es": "No se encontraron órdenes de compra.",
+    "en": "No purchase orders were found.",
+    "pt": "Nenhum pedido de compra encontrado."
+  },
+  "purchasing.orders.order": {
+    "es": "N.º de orden",
+    "en": "Order no.",
+    "pt": "N.º do pedido"
+  },
+  "purchasing.orders.order_date": {
+    "es": "Fecha de la orden",
+    "en": "Order date",
+    "pt": "Data do pedido"
+  },
+  "purchasing.orders.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "purchasing.orders.status_label.approved": {
+    "es": "Aprobada",
+    "en": "Approved",
+    "pt": "Aprovada"
+  },
+  "purchasing.orders.status_label.cancelled": {
+    "es": "Cancelada",
+    "en": "Cancelled",
+    "pt": "Cancelada"
+  },
+  "purchasing.orders.status_label.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "purchasing.orders.status_label.partially_received": {
+    "es": "Recibida parcialmente",
+    "en": "Partially received",
+    "pt": "Recebida parcialmente"
+  },
+  "purchasing.orders.status_label.pending_approval": {
+    "es": "Por aprobar",
+    "en": "Awaiting approval",
+    "pt": "A aguardar aprovação"
+  },
+  "purchasing.orders.status_label.received": {
+    "es": "Recibida",
+    "en": "Received",
+    "pt": "Recebida"
+  },
+  "purchasing.orders.status_label.sent": {
+    "es": "Enviada",
+    "en": "Sent",
+    "pt": "Enviada"
+  },
+  "purchasing.orders.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "purchasing.orders.title": {
+    "es": "Órdenes de Compra",
+    "en": "Purchase Orders",
+    "pt": "Pedidos de Compra"
+  },
+  "purchasing.orders.total": {
+    "literal": "Total"
+  },
+  "purchasing.requisitions.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "purchasing.requisitions.department": {
+    "es": "Departamento",
+    "en": "Department",
+    "pt": "Departamento"
+  },
+  "purchasing.requisitions.description": {
+    "es": "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.",
+    "en": "Review, approve, and track all internal purchase requests.",
+    "pt": "Revise, aprove e acompanhe todas as solicitações internas de compra."
+  },
+  "purchasing.requisitions.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "purchasing.requisitions.form.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "purchasing.requisitions.form.approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "purchasing.requisitions.form.confirm_reject": {
+    "es": "Confirmar rechazo",
+    "en": "Confirm rejection",
+    "pt": "Confirmar rejeição"
+  },
+  "purchasing.requisitions.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "purchasing.requisitions.form.estimate_note": {
+    "es": "Estimado: todavía nadie ha cotizado.",
+    "en": "An estimate: nobody has quoted yet.",
+    "pt": "Uma estimativa: ainda ninguém cotou."
+  },
+  "purchasing.requisitions.form.estimated_price": {
+    "es": "Precio estimado",
+    "en": "Estimated price",
+    "pt": "Preço estimado"
+  },
+  "purchasing.requisitions.form.items": {
+    "es": "Artículos solicitados",
+    "en": "What is being requested",
+    "pt": "Artigos solicitados"
+  },
+  "purchasing.requisitions.form.not_in_catalogue": {
+    "es": "Fuera del catálogo",
+    "en": "Not in the catalogue",
+    "pt": "Fora do catálogo"
+  },
+  "purchasing.requisitions.form.notes": {
+    "es": "Justificación",
+    "en": "Justification",
+    "pt": "Justificação"
+  },
+  "purchasing.requisitions.form.notes_help": {
+    "es": "Lo que leerá quien apruebe.",
+    "en": "What the approver will read.",
+    "pt": "O que quem aprova vai ler."
+  },
+  "purchasing.requisitions.form.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "purchasing.requisitions.form.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "purchasing.requisitions.form.reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
+  "purchasing.requisitions.form.reject_reason": {
+    "es": "Motivo del rechazo",
+    "en": "Why it is being rejected",
+    "pt": "Motivo da rejeição"
+  },
+  "purchasing.requisitions.form.reopen": {
+    "es": "Devolver a borrador",
+    "en": "Send back to draft",
+    "pt": "Devolver a rascunho"
+  },
+  "purchasing.requisitions.form.save_failed": {
+    "es": "No se pudo guardar la requisición.",
+    "en": "The requisition could not be saved.",
+    "pt": "Não foi possível guardar a requisição."
+  },
+  "purchasing.requisitions.form.saved": {
+    "es": "Requisición guardada.",
+    "en": "Requisition saved.",
+    "pt": "Requisição guardada."
+  },
+  "purchasing.requisitions.form.submit": {
+    "es": "Enviar a aprobación",
+    "en": "Send for approval",
+    "pt": "Enviar para aprovação"
+  },
+  "purchasing.requisitions.items": {
+    "es": "Artículos",
+    "en": "Items",
+    "pt": "Artigos"
+  },
+  "purchasing.requisitions.new_requisition": {
+    "es": "Nueva Requisición",
+    "en": "New Requisition",
+    "pt": "Nova Requisição"
+  },
+  "purchasing.requisitions.no_purchase_requisitions_found": {
+    "es": "No se encontraron requisiciones de compra.",
+    "en": "No purchase requisitions were found.",
+    "pt": "Nenhuma requisição de compra encontrada."
+  },
+  "purchasing.requisitions.requester": {
+    "es": "Solicitante",
+    "en": "Requester",
+    "pt": "Solicitante"
+  },
+  "purchasing.requisitions.required_date": {
+    "es": "Fecha requerida",
+    "en": "Needed by",
+    "pt": "Necessária até"
+  },
+  "purchasing.requisitions.requisition": {
+    "es": "N.º de requisición",
+    "en": "Requisition no.",
+    "pt": "N.º da requisição"
+  },
+  "purchasing.requisitions.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "purchasing.requisitions.status_label.approved": {
+    "es": "Aprobada",
+    "en": "Approved",
+    "pt": "Aprovada"
+  },
+  "purchasing.requisitions.status_label.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "purchasing.requisitions.status_label.ordered": {
+    "es": "Convertida en orden",
+    "en": "Ordered",
+    "pt": "Encomendada"
+  },
+  "purchasing.requisitions.status_label.pending_approval": {
+    "es": "Por aprobar",
+    "en": "Awaiting approval",
+    "pt": "A aguardar aprovação"
+  },
+  "purchasing.requisitions.status_label.rejected": {
+    "es": "Rechazada",
+    "en": "Rejected",
+    "pt": "Rejeitada"
+  },
+  "purchasing.requisitions.title": {
+    "es": "Requisiciones de Compra",
+    "en": "Purchase Requisitions",
+    "pt": "Requisições de Compra"
+  },
+  "purchasing.requisitions.total": {
+    "literal": "Total"
+  }
+}

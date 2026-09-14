@@ -1,0 +1,42 @@
+{
+  "global_search.no_results": {
+    "es": "No se encontraron resultados para «{{query}}»",
+    "en": "No results found for “{{query}}”",
+    "pt": "Nenhum resultado encontrado para “{{query}}”"
+  },
+  "global_search.results_found": {
+    "es": "Se encontraron {{count}} resultados para «{{query}}»",
+    "en": "{{count}} results found for “{{query}}”",
+    "pt": "{{count}} resultados encontrados para “{{query}}”"
+  },
+  "global_search.results_found_one": {
+    "es": "Se encontró 1 resultado para «{{query}}»",
+    "en": "1 result found for “{{query}}”",
+    "pt": "1 resultado encontrado para “{{query}}”"
+  },
+  "global_search.results_found_other": {
+    "es": "Se encontraron {{count}} resultados para «{{query}}»",
+    "en": "{{count}} results found for “{{query}}”",
+    "pt": "{{count}} resultados encontrados para “{{query}}”"
+  },
+  "global_search.search_everywhere": {
+    "es": "Buscar en todo el sistema...",
+    "en": "Search everywhere...",
+    "pt": "Buscar em todo o sistema..."
+  },
+  "global_search.searching": {
+    "es": "Buscando...",
+    "en": "Searching...",
+    "pt": "Buscando..."
+  },
+  "global_search.try_different_search_terms": {
+    "es": "Prueba con otros términos de búsqueda",
+    "en": "Try different search terms",
+    "pt": "Tente outros termos de busca"
+  },
+  "global_search.try_searching_invoice_number_customer_name": {
+    "es": "Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.",
+    "en": "Try searching by invoice number, customer name, product SKU, and so on.",
+    "pt": "Tente buscar por número da fatura, nome do cliente, SKU do produto e assim por diante."
+  }
+}

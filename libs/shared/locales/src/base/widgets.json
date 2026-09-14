@@ -1,0 +1,12 @@
+{
+  "widgets.errors.data_could_not_loaded": {
+    "es": "No se pudieron cargar los datos.",
+    "en": "The data could not be loaded.",
+    "pt": "Não foi possível carregar os dados."
+  },
+  "widgets.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  }
+}

@@ -1,0 +1,849 @@
+{
+  "reports.aging.30_days": {
+    "es": "1–30 días",
+    "en": "1–30 days",
+    "pt": "1–30 dias"
+  },
+  "reports.aging.31_60_days": {
+    "es": "31–60 días",
+    "en": "31–60 days",
+    "pt": "31–60 dias"
+  },
+  "reports.aging.61_90_days": {
+    "es": "61–90 días",
+    "en": "61–90 days",
+    "pt": "61–90 dias"
+  },
+  "reports.aging.accounts_payable_ageing": {
+    "es": "Antigüedad de cuentas por pagar",
+    "en": "Accounts payable ageing",
+    "pt": "Idade das contas a pagar"
+  },
+  "reports.aging.accounts_receivable_ageing": {
+    "es": "Antigüedad de cuentas por cobrar",
+    "en": "Accounts receivable ageing",
+    "pt": "Idade das contas a receber"
+  },
+  "reports.aging.count_document_with_no_exchange_rate": {
+    "es": "{{count}} documento(s) sin tasa de cambio a esta fecha: se muestran a la tasa con que se registraron, no a la de cierre.",
+    "en": "{{count}} document(s) with no exchange rate on this date: they are shown at the rate they were booked at, not at the closing rate.",
+    "pt": "{{count}} documento(s) sem taxa de câmbio nesta data: são exibidos pela taxa de registro, não pela taxa de fechamento."
+  },
+  "reports.aging.current": {
+    "es": "Corriente",
+    "en": "Current",
+    "pt": "A vencer"
+  },
+  "reports.aging.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "reports.aging.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "reports.aging.general_ledger_balance": {
+    "es": "Saldo en el mayor",
+    "en": "General ledger balance",
+    "pt": "Saldo no razão geral"
+  },
+  "reports.aging.nothing_outstanding_date": {
+    "es": "No hay saldos pendientes a esta fecha.",
+    "en": "Nothing outstanding at this date.",
+    "pt": "Não há saldos em aberto nesta data."
+  },
+  "reports.aging.over_90_days": {
+    "es": "Más de 90 días",
+    "en": "Over 90 days",
+    "pt": "Mais de 90 dias"
+  },
+  "reports.aging.reconciliation_control_account": {
+    "es": "Conciliación con la cuenta de control",
+    "en": "Reconciliation to the control account",
+    "pt": "Conciliação com a conta de controle"
+  },
+  "reports.aging.subledger_agrees_with_control_account": {
+    "es": "El submayor cuadra con la cuenta de control.",
+    "en": "The subledger agrees with its control account.",
+    "pt": "O razão auxiliar confere com a conta de controle."
+  },
+  "reports.aging.subledger_does_not_agree_with_control": {
+    "es": "El submayor no cuadra con la cuenta de control. Hay que investigar la diferencia antes de usar este reporte como sustento.",
+    "en": "The subledger does not agree with its control account. The difference must be investigated before this report is used as support.",
+    "pt": "O razão auxiliar não confere com a conta de controle. A diferença precisa ser investigada antes de este relatório ser usado como suporte."
+  },
+  "reports.aging.subledger_total": {
+    "es": "Total del submayor",
+    "en": "Subledger total",
+    "pt": "Total do razão auxiliar"
+  },
+  "reports.aging.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "reports.aging.total": {
+    "literal": "Total"
+  },
+  "reports.balance_sheet.as_of": {
+    "es": "Al",
+    "en": "As of",
+    "pt": "Em"
+  },
+  "reports.balance_sheet.assets": {
+    "es": "Activos",
+    "en": "Assets",
+    "pt": "Ativos"
+  },
+  "reports.balance_sheet.balance_general": {
+    "es": "Balance General",
+    "en": "Balance Sheet",
+    "pt": "Balanço Patrimonial"
+  },
+  "reports.balance_sheet.balance_sheet_does_not_balance_assets": {
+    "es": "El balance no cuadra: activos y pasivos más patrimonio difieren en {{amount}}.",
+    "en": "The balance sheet does not balance: assets and liabilities plus equity differ by {{amount}}.",
+    "pt": "O balanço não fecha: ativo e passivo mais patrimônio diferem em {{amount}}."
+  },
+  "reports.balance_sheet.export_pdf": {
+    "es": "Exportar PDF",
+    "en": "Export to PDF",
+    "pt": "Exportar para PDF"
+  },
+  "reports.balance_sheet.liabilities_equity": {
+    "es": "Pasivos y Patrimonio",
+    "en": "Liabilities and Equity",
+    "pt": "Passivo e Patrimônio Líquido"
+  },
+  "reports.balance_sheet.result_year": {
+    "es": "Resultado del ejercicio",
+    "en": "Result for the year",
+    "pt": "Resultado do exercício"
+  },
+  "reports.balance_sheet.total_assets": {
+    "es": "Total Activos",
+    "en": "Total Assets",
+    "pt": "Total do Ativo"
+  },
+  "reports.balance_sheet.total_equity": {
+    "es": "Total patrimonio",
+    "en": "Total equity",
+    "pt": "Total do patrimônio"
+  },
+  "reports.balance_sheet.total_liabilities": {
+    "es": "Total pasivos",
+    "en": "Total liabilities",
+    "pt": "Total do passivo"
+  },
+  "reports.balance_sheet.total_liabilities_equity": {
+    "es": "Total Pasivos y Patrimonio",
+    "en": "Total Liabilities and Equity",
+    "pt": "Total do Passivo e Patrimônio Líquido"
+  },
+  "reports.balance_sheet.total_title": {
+    "literal": "Total {{title}}"
+  },
+  "reports.cash_flow.cash_beginning": {
+    "es": "Efectivo al inicio",
+    "en": "Cash at the beginning",
+    "pt": "Caixa no início"
+  },
+  "reports.cash_flow.cash_end": {
+    "es": "Efectivo al cierre",
+    "en": "Cash at the end",
+    "pt": "Caixa no fim"
+  },
+  "reports.cash_flow.cash_from_operations": {
+    "es": "Efectivo generado por la operación",
+    "en": "Cash from operations",
+    "pt": "Caixa gerado pela operação"
+  },
+  "reports.cash_flow.changes_working_capital": {
+    "es": "Cambios en el capital de trabajo",
+    "en": "Changes in working capital",
+    "pt": "Variações no capital de giro"
+  },
+  "reports.cash_flow.effect_exchange_rate_changes_cash": {
+    "es": "Efecto de la variación del tipo de cambio sobre el efectivo",
+    "en": "Effect of exchange rate changes on cash",
+    "pt": "Efeito da variação cambial sobre o caixa"
+  },
+  "reports.cash_flow.excluded_from_statement_because_no_cash": {
+    "es": "Excluidas del estado porque no hubo movimiento de efectivo, y reveladas aquí conforme a la NIC 7.43. Débito y crédito del período.",
+    "en": "Excluded from the statement because no cash moved, and disclosed here under IAS 7.43. Period debit and credit.",
+    "pt": "Excluídas da demonstração porque não houve movimento de caixa, e divulgadas aqui conforme a IAS 7.43. Débito e crédito do período."
+  },
+  "reports.cash_flow.financing_activities": {
+    "es": "Actividades de financiamiento",
+    "en": "Financing activities",
+    "pt": "Atividades de financiamento"
+  },
+  "reports.cash_flow.inflows": {
+    "es": "Entradas",
+    "en": "Inflows",
+    "pt": "Entradas"
+  },
+  "reports.cash_flow.investing_activities": {
+    "es": "Actividades de inversión",
+    "en": "Investing activities",
+    "pt": "Atividades de investimento"
+  },
+  "reports.cash_flow.investing_financing_transactions_used_no_cash": {
+    "es": "Transacciones de inversión y financiamiento que no usaron efectivo",
+    "en": "Investing and financing transactions that used no cash",
+    "pt": "Transações de investimento e financiamento que não usaram caixa"
+  },
+  "reports.cash_flow.items_did_not_move_cash": {
+    "es": "Partidas que no movieron efectivo",
+    "en": "Items that did not move cash",
+    "pt": "Itens que não movimentaram caixa"
+  },
+  "reports.cash_flow.net": {
+    "es": "Neto",
+    "en": "Net",
+    "pt": "Líquido"
+  },
+  "reports.cash_flow.net_change_cash": {
+    "es": "Variación neta de efectivo",
+    "en": "Net change in cash",
+    "pt": "Variação líquida de caixa"
+  },
+  "reports.cash_flow.net_income": {
+    "es": "Resultado neto",
+    "en": "Net income",
+    "pt": "Resultado líquido"
+  },
+  "reports.cash_flow.operating_activities": {
+    "es": "Actividades de operación",
+    "en": "Operating activities",
+    "pt": "Atividades operacionais"
+  },
+  "reports.cash_flow.outflows": {
+    "es": "Salidas",
+    "en": "Outflows",
+    "pt": "Saídas"
+  },
+  "reports.cash_flow.statement_cash_flows": {
+    "es": "Estado de Flujo de Efectivo",
+    "en": "Statement of Cash Flows",
+    "pt": "Demonstração dos Fluxos de Caixa"
+  },
+  "reports.cash_flow.unexplained_difference": {
+    "es": "Diferencia sin explicar",
+    "en": "Unexplained difference",
+    "pt": "Diferença não explicada"
+  },
+  "reports.common.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "reports.common.count_line_earned_revenue_with_no": {
+    "es": "{{count}} línea(s) generaron ingreso sin costo registrado; su margen está sobrestimado.",
+    "en": "{{count}} line(s) earned revenue with no recorded cost; their margin is overstated.",
+    "pt": "{{count}} linha(s) geraram receita sem custo registado; a sua margem está sobrestimada."
+  },
+  "reports.common.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "reports.common.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "reports.common.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "reports.common.no_posted_movements_range": {
+    "es": "No hay movimientos contabilizados en este rango.",
+    "en": "No posted movements in this range.",
+    "pt": "Não há movimentos lançados neste intervalo."
+  },
+  "reports.common.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "reports.common.report_could_not_loaded": {
+    "es": "No se pudo cargar el reporte.",
+    "en": "The report could not be loaded.",
+    "pt": "Não foi possível carregar o relatório."
+  },
+  "reports.common.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "reports.common.total": {
+    "literal": "Total"
+  },
+  "reports.common.try_again": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar novamente"
+  },
+  "reports.count_accounts_requested_maximum_per_report": {
+    "es": "Se solicitaron {{count}} cuentas y el máximo por informe es {{max}}.",
+    "en": "{{count}} accounts were requested and the maximum per report is {{max}}.",
+    "pt": "Foram solicitadas {{count}} contas e o máximo por relatório é {{max}}."
+  },
+  "reports.default_accounts_receivable_account_not_configured": {
+    "es": "La cuenta de Cuentas por Cobrar por defecto no está configurada.",
+    "en": "The default Accounts Receivable account is not configured.",
+    "pt": "A conta padrão de Contas a Receber não está configurada."
+  },
+  "reports.export.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "reports.export.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "reports.export.assets": {
+    "es": "Activo",
+    "en": "Assets",
+    "pt": "Ativo"
+  },
+  "reports.export.category": {
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
+  },
+  "reports.export.closing_cash": {
+    "es": "Efectivo al cierre",
+    "en": "Closing cash",
+    "pt": "Caixa no fim"
+  },
+  "reports.export.closing_credit": {
+    "es": "Crédito final",
+    "en": "Closing credit",
+    "pt": "Crédito final"
+  },
+  "reports.export.closing_debit": {
+    "es": "Débito final",
+    "en": "Closing debit",
+    "pt": "Débito final"
+  },
+  "reports.export.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "reports.export.concept": {
+    "es": "Concepto",
+    "en": "Concept",
+    "pt": "Conceito"
+  },
+  "reports.export.cost_of_sales": {
+    "es": "Costo de ventas",
+    "en": "Cost of sales",
+    "pt": "Custo das vendas"
+  },
+  "reports.export.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "reports.export.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "reports.export.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "reports.export.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "reports.export.equity": {
+    "es": "Patrimonio",
+    "en": "Equity",
+    "pt": "Património"
+  },
+  "reports.export.financing": {
+    "es": "Actividades de financiamiento",
+    "en": "Financing activities",
+    "pt": "Atividades de financiamento"
+  },
+  "reports.export.generated_at": {
+    "es": "Generado el",
+    "en": "Generated at",
+    "pt": "Gerado em"
+  },
+  "reports.export.gross_margin": {
+    "es": "Margen bruto %",
+    "en": "Gross margin %",
+    "pt": "Margem bruta %"
+  },
+  "reports.export.gross_profit": {
+    "es": "Utilidad bruta",
+    "en": "Gross profit",
+    "pt": "Lucro bruto"
+  },
+  "reports.export.investing": {
+    "es": "Actividades de inversión",
+    "en": "Investing activities",
+    "pt": "Atividades de investimento"
+  },
+  "reports.export.is_balanced": {
+    "es": "¿Cuadra?",
+    "en": "Balanced?",
+    "pt": "Confere?"
+  },
+  "reports.export.ledger": {
+    "es": "Libro contable",
+    "en": "Ledger",
+    "pt": "Livro contábil"
+  },
+  "reports.export.liabilities": {
+    "es": "Pasivo",
+    "en": "Liabilities",
+    "pt": "Passivo"
+  },
+  "reports.export.lines_without_cost": {
+    "es": "Líneas con ingreso y sin costo registrado",
+    "en": "Lines with revenue and no recorded cost",
+    "pt": "Linhas com receita e sem custo registado"
+  },
+  "reports.export.net_change_in_cash": {
+    "es": "Variación neta del efectivo",
+    "en": "Net change in cash",
+    "pt": "Variação líquida do caixa"
+  },
+  "reports.export.net_income": {
+    "es": "Resultado neto",
+    "en": "Net income",
+    "pt": "Resultado líquido"
+  },
+  "reports.export.non_operating": {
+    "es": "No operativo",
+    "en": "Non-operating",
+    "pt": "Não operacional"
+  },
+  "reports.export.opening_cash": {
+    "es": "Efectivo al inicio",
+    "en": "Opening cash",
+    "pt": "Caixa no início"
+  },
+  "reports.export.opening_credit": {
+    "es": "Crédito inicial",
+    "en": "Opening credit",
+    "pt": "Crédito inicial"
+  },
+  "reports.export.opening_debit": {
+    "es": "Débito inicial",
+    "en": "Opening debit",
+    "pt": "Débito inicial"
+  },
+  "reports.export.operating": {
+    "es": "Actividades de operación",
+    "en": "Operating activities",
+    "pt": "Atividades operacionais"
+  },
+  "reports.export.operating_expenses": {
+    "es": "Gastos operativos",
+    "en": "Operating expenses",
+    "pt": "Despesas operacionais"
+  },
+  "reports.export.operating_income": {
+    "es": "Utilidad operativa",
+    "en": "Operating income",
+    "pt": "Lucro operacional"
+  },
+  "reports.export.out_of_balance_by": {
+    "es": "Descuadre",
+    "en": "Out of balance by",
+    "pt": "Descompasso"
+  },
+  "reports.export.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "reports.export.period_credit": {
+    "es": "Crédito del período",
+    "en": "Period credit",
+    "pt": "Crédito do período"
+  },
+  "reports.export.period_debit": {
+    "es": "Débito del período",
+    "en": "Period debit",
+    "pt": "Débito do período"
+  },
+  "reports.export.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "reports.export.result_year_not_yet_closed": {
+    "es": "Resultado del ejercicio no cerrado",
+    "en": "Result for the year not yet closed",
+    "pt": "Resultado do exercício não encerrado"
+  },
+  "reports.export.revenue": {
+    "es": "Ingresos",
+    "en": "Revenue",
+    "pt": "Receitas"
+  },
+  "reports.export.subtotal": {
+    "literal": "Subtotal"
+  },
+  "reports.export.total_assets": {
+    "es": "Total activo",
+    "en": "Total assets",
+    "pt": "Total do ativo"
+  },
+  "reports.export.total_cost": {
+    "es": "Costo total",
+    "en": "Total cost",
+    "pt": "Custo total"
+  },
+  "reports.export.total_cost_of_sales": {
+    "es": "Total costo de ventas",
+    "en": "Total cost of sales",
+    "pt": "Total do custo das vendas"
+  },
+  "reports.export.total_equity": {
+    "es": "Total patrimonio",
+    "en": "Total equity",
+    "pt": "Total do património"
+  },
+  "reports.export.total_financing": {
+    "es": "Total financiamiento",
+    "en": "Total financing",
+    "pt": "Total de financiamento"
+  },
+  "reports.export.total_investing": {
+    "es": "Total inversión",
+    "en": "Total investing",
+    "pt": "Total de investimento"
+  },
+  "reports.export.total_liabilities": {
+    "es": "Total pasivo",
+    "en": "Total liabilities",
+    "pt": "Total do passivo"
+  },
+  "reports.export.total_liabilities_and_equity": {
+    "es": "Total pasivo y patrimonio",
+    "en": "Total liabilities and equity",
+    "pt": "Total do passivo e do património"
+  },
+  "reports.export.total_non_operating": {
+    "es": "Total no operativo",
+    "en": "Total non-operating",
+    "pt": "Total não operacional"
+  },
+  "reports.export.total_operating": {
+    "es": "Total operación",
+    "en": "Total operating",
+    "pt": "Total operacional"
+  },
+  "reports.export.total_operating_expenses": {
+    "es": "Total gastos operativos",
+    "en": "Total operating expenses",
+    "pt": "Total das despesas operacionais"
+  },
+  "reports.export.total_revenue": {
+    "es": "Total ingresos",
+    "en": "Total revenue",
+    "pt": "Total de receitas"
+  },
+  "reports.export.totals": {
+    "es": "Totales",
+    "en": "Totals",
+    "pt": "Totais"
+  },
+  "reports.export.unexplained_difference": {
+    "es": "Diferencia sin explicar",
+    "en": "Unexplained difference",
+    "pt": "Diferença por explicar"
+  },
+  "reports.export.units_sold": {
+    "es": "Unidades",
+    "en": "Units",
+    "pt": "Unidades"
+  },
+  "reports.general_ledger_needs_least_one_account": {
+    "es": "El libro mayor necesita al menos una cuenta seleccionada.",
+    "en": "The general ledger needs at least one account selected.",
+    "pt": "O razão precisa de pelo menos uma conta selecionada."
+  },
+  "reports.income_statement.cost_sales": {
+    "es": "Costo de ventas",
+    "en": "Cost of sales",
+    "pt": "Custo das vendas"
+  },
+  "reports.income_statement.gross_margin": {
+    "es": "Margen bruto",
+    "en": "Gross margin",
+    "pt": "Margem bruta"
+  },
+  "reports.income_statement.gross_profit": {
+    "es": "Utilidad bruta",
+    "en": "Gross profit",
+    "pt": "Lucro bruto"
+  },
+  "reports.income_statement.income_statement": {
+    "es": "Estado de Resultados",
+    "en": "Income Statement",
+    "pt": "Demonstração do Resultado"
+  },
+  "reports.income_statement.net_income": {
+    "es": "Resultado neto",
+    "en": "Net income",
+    "pt": "Resultado líquido"
+  },
+  "reports.income_statement.operating_expenses": {
+    "es": "Gastos operacionales",
+    "en": "Operating expenses",
+    "pt": "Despesas operacionais"
+  },
+  "reports.income_statement.operating_income": {
+    "es": "Utilidad operacional",
+    "en": "Operating income",
+    "pt": "Resultado operacional"
+  },
+  "reports.income_statement.other_income_expenses": {
+    "es": "Otros ingresos y gastos",
+    "en": "Other income and expenses",
+    "pt": "Outras receitas e despesas"
+  },
+  "reports.income_statement.revenue": {
+    "es": "Ingresos",
+    "en": "Revenue",
+    "pt": "Receitas"
+  },
+  "reports.income_statement.total_revenue": {
+    "es": "Total ingresos",
+    "en": "Total revenue",
+    "pt": "Total de receitas"
+  },
+  "reports.layout.analyse_your_business_performance_with_detailed": {
+    "es": "Analiza el desempeño de tu negocio con reportes financieros y operativos detallados.",
+    "en": "Analyse your business performance with detailed financial and operational reports.",
+    "pt": "Analise o desempenho do seu negócio com relatórios financeiros e operacionais detalhados."
+  },
+  "reports.layout.comparative_analysis": {
+    "es": "Análisis comparativo",
+    "en": "Comparative analysis",
+    "pt": "Análise comparativa"
+  },
+  "reports.layout.financial_statements": {
+    "es": "Estados financieros",
+    "en": "Financial statements",
+    "pt": "Demonstrações financeiras"
+  },
+  "reports.layout.profitability_by_customer": {
+    "es": "Rentabilidad por cliente",
+    "en": "Profitability by customer",
+    "pt": "Rentabilidade por cliente"
+  },
+  "reports.layout.profitability_by_product": {
+    "es": "Rentabilidad por producto",
+    "en": "Profitability by product",
+    "pt": "Rentabilidade por produto"
+  },
+  "reports.layout.reports_analytics": {
+    "es": "Reportes y análisis",
+    "en": "Reports and analytics",
+    "pt": "Relatórios e análises"
+  },
+  "reports.ledger_ledger_id_not_found": {
+    "es": "Libro contable con ID \"{{ledgerId}}\" no encontrado.",
+    "en": "Ledger \"{{ledgerId}}\" was not found.",
+    "pt": "Livro contábil \"{{ledgerId}}\" não encontrado."
+  },
+  "reports.ledger_report_could_not_determined_none": {
+    "es": "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.",
+    "en": "The ledger for the report could not be determined: none was specified and there is no default.",
+    "pt": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
+  },
+  "reports.no_default_ledger_configured_set_one": {
+    "es": "No hay un libro contable por defecto configurado. Defínelo en Ajustes → Contabilidad antes de generar el reporte.",
+    "en": "No default ledger is configured. Set one in Settings → Accounting before generating the report.",
+    "pt": "Não há um livro contábil padrão configurado. Defina-o em Configurações → Contabilidade antes de gerar o relatório."
+  },
+  "reports.no_outstanding_invoices_build_report_from": {
+    "es": "No hay facturas pendientes de pago para generar el reporte.",
+    "en": "There are no outstanding invoices to build the report from.",
+    "pt": "Não há faturas em aberto para gerar o relatório."
+  },
+  "reports.profitability_by_customer.customer_name": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "reports.profitability_by_customer.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "reports.profitability_by_customer.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "reports.profitability_by_customer.gross_margin": {
+    "es": "Margen bruto (%)",
+    "en": "Gross margin (%)",
+    "pt": "Margem bruta (%)"
+  },
+  "reports.profitability_by_customer.gross_profit": {
+    "es": "Utilidad bruta",
+    "en": "Gross profit",
+    "pt": "Lucro bruto"
+  },
+  "reports.profitability_by_customer.last_90_days": {
+    "es": "Últimos 90 días",
+    "en": "Last 90 days",
+    "pt": "Últimos 90 dias"
+  },
+  "reports.profitability_by_customer.no_profitability_data_available_for_selected": {
+    "es": "No hay datos de rentabilidad para el período seleccionado.",
+    "en": "There is no profitability data for the selected period.",
+    "pt": "Não há dados de rentabilidade para o período selecionado."
+  },
+  "reports.profitability_by_customer.profitability_by_customer": {
+    "es": "Rentabilidad por cliente",
+    "en": "Profitability by customer",
+    "pt": "Rentabilidade por cliente"
+  },
+  "reports.profitability_by_customer.total_cost": {
+    "es": "Costo total",
+    "en": "Total cost",
+    "pt": "Custo total"
+  },
+  "reports.profitability_by_customer.total_revenue": {
+    "es": "Ingreso total",
+    "en": "Total revenue",
+    "pt": "Receita total"
+  },
+  "reports.profitability_by_customer.units_sold": {
+    "es": "Unidades",
+    "en": "Units",
+    "pt": "Unidades"
+  },
+  "reports.profitability_by_product.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "reports.profitability_by_product.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "reports.profitability_by_product.gross_margin": {
+    "es": "Margen bruto (%)",
+    "en": "Gross margin (%)",
+    "pt": "Margem bruta (%)"
+  },
+  "reports.profitability_by_product.gross_profit": {
+    "es": "Utilidad bruta",
+    "en": "Gross profit",
+    "pt": "Lucro bruto"
+  },
+  "reports.profitability_by_product.last_90_days": {
+    "es": "Últimos 90 días",
+    "en": "Last 90 days",
+    "pt": "Últimos 90 dias"
+  },
+  "reports.profitability_by_product.no_profitability_data_available_for_selected": {
+    "es": "No hay datos de rentabilidad para el período seleccionado.",
+    "en": "There is no profitability data for the selected period.",
+    "pt": "Não há dados de rentabilidade para o período selecionado."
+  },
+  "reports.profitability_by_product.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "reports.profitability_by_product.profitability_by_product": {
+    "es": "Rentabilidad por producto",
+    "en": "Profitability by product",
+    "pt": "Rentabilidade por produto"
+  },
+  "reports.profitability_by_product.total_cost": {
+    "es": "Costo total",
+    "en": "Total cost",
+    "pt": "Custo total"
+  },
+  "reports.profitability_by_product.total_revenue": {
+    "es": "Ingreso total",
+    "en": "Total revenue",
+    "pt": "Receita total"
+  },
+  "reports.profitability_by_product.units_sold": {
+    "es": "Unidades vendidas",
+    "en": "Units sold",
+    "pt": "Unidades vendidas"
+  },
+  "reports.report_type_kind_does_not_exist": {
+    "es": "El tipo de reporte {kind} no existe.",
+    "en": "Report type {kind} does not exist.",
+    "pt": "O tipo de relatório {kind} não existe."
+  },
+  "reports.requested_range_spans_days_days_maximum": {
+    "es": "El rango solicitado abarca {{days}} días y el máximo por informe es {{max}}.",
+    "en": "The requested range spans {{days}} days and the maximum per report is {{max}}.",
+    "pt": "O intervalo solicitado abrange {{days}} dias e o máximo por relatório é {{max}}."
+  },
+  "reports.start_date_cannot_later_than_end": {
+    "es": "La fecha inicial no puede ser posterior a la final.",
+    "en": "The start date cannot be later than the end date.",
+    "pt": "A data inicial não pode ser posterior à final."
+  },
+  "reports.trial_balance.closing_balance": {
+    "es": "Saldo final",
+    "en": "Closing balance",
+    "pt": "Saldo final"
+  },
+  "reports.trial_balance.credit": {
+    "es": "Haber",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "reports.trial_balance.debit": {
+    "es": "Debe",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "reports.trial_balance.movements_period": {
+    "es": "Movimientos del período",
+    "en": "Movements in the period",
+    "pt": "Movimentos do período"
+  },
+  "reports.trial_balance.opening_balance": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
+  "reports.trial_balance.trial_balance": {
+    "es": "Balanza de Comprobación",
+    "en": "Trial Balance",
+    "pt": "Balancete de Verificação"
+  },
+  "reports.trial_balance.trial_balance_agrees_debits_credits_match": {
+    "es": "La balanza cuadra: el debe y el haber coinciden en cada columna.",
+    "en": "The trial balance agrees: debits and credits match in every column.",
+    "pt": "O balancete fecha: débitos e créditos coincidem em cada coluna."
+  },
+  "reports.trial_balance.trial_balance_does_not_agree_total": {
+    "es": "La balanza no cuadra: el total del debe y el del haber difieren.",
+    "en": "The trial balance does not agree: total debits and total credits differ.",
+    "pt": "O balancete não fecha: o total de débitos e o de créditos diferem."
+  }
+}

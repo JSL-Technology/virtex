@@ -1,0 +1,28 @@
+{
+  "apps.crm": {
+    "literal": "Virtex CRM"
+  },
+  "apps.hr": {
+    "literal": "Virtex HR"
+  },
+  "apps.lunch": {
+    "literal": "Virtex Lunch"
+  },
+  "apps.pos": {
+    "literal": "Virtex POS"
+  },
+  "apps.shopfloor": {
+    "literal": "Virtex Shopfloor"
+  },
+  "apps.store": {
+    "literal": "Virtex Store"
+  },
+  "apps.title": {
+    "es": "Apps de Virtex",
+    "en": "Virtex Apps",
+    "pt": "Apps do Virtex"
+  },
+  "apps.wms": {
+    "literal": "Virtex WMS"
+  }
+}

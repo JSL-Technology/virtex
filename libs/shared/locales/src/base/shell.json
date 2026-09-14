@@ -1,0 +1,152 @@
+{
+  "shell.aside": {
+    "es": "Panel del documento",
+    "en": "Document panel",
+    "pt": "Painel do documento"
+  },
+  "shell.clear_search": {
+    "es": "Quitar el filtro",
+    "en": "Clear the filter",
+    "pt": "Remover o filtro"
+  },
+  "shell.count": {
+    "es": "{{count}} registros",
+    "en": "{{count}} records",
+    "pt": "{{count}} registros"
+  },
+  "shell.empty": {
+    "es": "Todavía no hay nada aquí.",
+    "en": "There is nothing here yet.",
+    "pt": "Ainda não há nada aqui."
+  },
+  "shell.field_not_expected_format": {
+    "es": "«{{field}}» no tiene el formato esperado",
+    "en": "“{{field}}” is not in the expected format",
+    "pt": "“{{field}}” não está no formato esperado"
+  },
+  "shell.group_analysis": {
+    "es": "Análisis",
+    "en": "Analytics",
+    "pt": "Análise"
+  },
+  "shell.group_documents": {
+    "es": "Documentos",
+    "en": "Documents",
+    "pt": "Documentos"
+  },
+  "shell.group_inbox": {
+    "es": "Bandeja",
+    "en": "Inbox",
+    "pt": "Caixa de entrada"
+  },
+  "shell.group_masters": {
+    "es": "Maestros",
+    "en": "Master data",
+    "pt": "Dados Mestres"
+  },
+  "shell.inbox_all_clear": {
+    "es": "No tienes nada pendiente.",
+    "en": "You have nothing pending.",
+    "pt": "Você não tem nada pendente."
+  },
+  "shell.inbox_overdue": {
+    "es": "Vencido",
+    "en": "Overdue",
+    "pt": "Vencido"
+  },
+  "shell.inbox_section_clear": {
+    "es": "Al día.",
+    "en": "All clear.",
+    "pt": "Em dia."
+  },
+  "shell.module_locked": {
+    "es": "Sin acceso",
+    "en": "No access",
+    "pt": "Sem acesso"
+  },
+  "shell.module_panel": {
+    "es": "Secciones del módulo",
+    "en": "Module sections",
+    "pt": "Seções do módulo"
+  },
+  "shell.module_rail": {
+    "es": "Módulos",
+    "en": "Modules",
+    "pt": "Módulos"
+  },
+  "shell.no_changes": {
+    "es": "Sin cambios",
+    "en": "No changes",
+    "pt": "Sem alterações"
+  },
+  "shell.no_entries": {
+    "es": "Este módulo no tiene secciones disponibles con tus permisos.",
+    "en": "This module has no sections available with your permissions.",
+    "pt": "Este módulo não tem seções disponíveis com suas permissões."
+  },
+  "shell.no_matches": {
+    "es": "Nada coincide con «{{term}}».",
+    "en": "Nothing matches “{{term}}”.",
+    "pt": "Nada corresponde a “{{term}}”."
+  },
+  "shell.problem_email": {
+    "es": "«{{field}}» no es un correo válido",
+    "en": "“{{field}}” is not a valid email address",
+    "pt": "“{{field}}” não é um e-mail válido"
+  },
+  "shell.problem_invalid": {
+    "es": "Revisa «{{field}}»",
+    "en": "Check “{{field}}”",
+    "pt": "Revise “{{field}}”"
+  },
+  "shell.problem_max": {
+    "es": "«{{field}}» no puede ser mayor que {{max}}",
+    "en": "“{{field}}” cannot be higher than {{max}}",
+    "pt": "“{{field}}” não pode ser maior que {{max}}"
+  },
+  "shell.problem_maxlength": {
+    "es": "«{{field}}» admite como mucho {{max}} caracteres",
+    "en": "“{{field}}” takes at most {{max}} characters",
+    "pt": "“{{field}}” aceita no máximo {{max}} caracteres"
+  },
+  "shell.problem_min": {
+    "es": "«{{field}}» no puede ser menor que {{min}}",
+    "en": "“{{field}}” cannot be lower than {{min}}",
+    "pt": "“{{field}}” não pode ser menor que {{min}}"
+  },
+  "shell.problem_minlength": {
+    "es": "«{{field}}» necesita al menos {{min}} caracteres",
+    "en": "“{{field}}” needs at least {{min}} characters",
+    "pt": "“{{field}}” precisa de pelo menos {{min}} caracteres"
+  },
+  "shell.problem_required": {
+    "es": "«{{field}}» es obligatorio",
+    "en": "“{{field}}” is required",
+    "pt": "“{{field}}” é obrigatório"
+  },
+  "shell.problems": {
+    "es": "Revisa {{count}} punto(s) antes de guardar",
+    "en": "Check {{count}} item(s) before saving",
+    "pt": "Revise {{count}} ponto(s) antes de salvar"
+  },
+  "shell.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "shell.search": {
+    "es": "Buscar…",
+    "en": "Search…",
+    "pt": "Pesquisar…"
+  },
+  "shell.show_hide_side_panel": {
+    "es": "Mostrar u ocultar el panel lateral",
+    "en": "Show or hide the side panel",
+    "pt": "Mostrar ou ocultar o painel lateral"
+  },
+  "shell.unsaved": {
+    "es": "Sin guardar",
+    "en": "Unsaved",
+    "pt": "Não salvo"
+  }
+}

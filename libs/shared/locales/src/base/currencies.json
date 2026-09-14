@@ -1,0 +1,102 @@
+{
+  "currencies.currency_not_configured_codes": {
+    "es": "Divisa no configurada: {{codes}}.",
+    "en": "Currency not configured: {{codes}}.",
+    "pt": "Moeda não configurada: {{codes}}."
+  },
+  "currencies.currency_pair_cannot_have_same_currency": {
+    "es": "El par de divisas no puede tener la misma moneda en ambos lados ({{currency}}).",
+    "en": "A currency pair cannot have the same currency on both sides ({{currency}}).",
+    "pt": "Um par de moedas não pode ter a mesma moeda dos dois lados ({{currency}})."
+  },
+  "currencies.exchange_rate_must_greater_than_zero": {
+    "es": "La tasa de cambio debe ser mayor que cero; se recibió {{rate}}.",
+    "en": "The exchange rate must be greater than zero; received {{rate}}.",
+    "pt": "A taxa de câmbio deve ser maior que zero; recebeu-se {{rate}}."
+  },
+  "currencies.exchange_rate_recorded_successfully": {
+    "es": "Tasa de cambio registrada correctamente.",
+    "en": "Exchange rate recorded successfully.",
+    "pt": "Taxa de câmbio registrada com sucesso."
+  },
+  "currencies.exchange_rates_date_could_not_retrieved": {
+    "es": "No se pudieron obtener las tasas de cambio del {{date}}.",
+    "en": "Exchange rates for {{date}} could not be retrieved.",
+    "pt": "Não foi possível obter as taxas de câmbio de {{date}}."
+  },
+  "currencies.exchange_rates_updated": {
+    "es": "Tasas de cambio actualizadas exitosamente.",
+    "en": "Exchange rates updated.",
+    "pt": "Taxas de câmbio atualizadas."
+  },
+  "currencies.from_quote_from_quoted_age_days": {
+    "es": "La cotización de {from} a {to} es del {quotedOn} ({ageDays} días de antigüedad) y el máximo permitido es {maxAgeDays}. Actualiza las tasas antes de contabilizar en {date}.",
+    "en": "The {from}→{to} quote is from {quotedOn} ({ageDays} days old) and the maximum allowed is {maxAgeDays}. Refresh the rates before posting on {date}.",
+    "pt": "A cotação de {from} para {to} é de {quotedOn} ({ageDays} dias) e o máximo permitido é {maxAgeDays}. Atualize as taxas antes de lançar em {date}."
+  },
+  "currencies.future_rates_cannot_requested_end_date": {
+    "es": "No se pueden consultar tasas futuras: {{endDate}} es posterior a hoy ({{today}}).",
+    "en": "Future rates cannot be requested: {{endDate}} is later than today ({{today}}).",
+    "pt": "Não é possível consultar taxas futuras: {{endDate}} é posterior a hoje ({{today}})."
+  },
+  "currencies.general_journal_general_not_found": {
+    "es": "Diario General (GENERAL) no encontrado.",
+    "en": "The General journal (GENERAL) was not found.",
+    "pt": "O diário Geral (GENERAL) não foi encontrado."
+  },
+  "currencies.historical_backfill_complete_days_days_processed": {
+    "es": "Relleno histórico completado: {{days}} días procesados, {{updated}} tasas almacenadas, {{failed}} días sin datos.",
+    "en": "Historical backfill complete: {{days}} days processed, {{updated}} rates stored, {{failed}} days without data.",
+    "pt": "Preenchimento histórico concluído: {{days}} dias processados, {{updated}} taxas armazenadas, {{failed}} dias sem dados."
+  },
+  "currencies.invalid_date_range_start_date_later": {
+    "es": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}.",
+    "en": "Invalid date range: {{startDate}} is later than {{endDate}}.",
+    "pt": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}."
+  },
+  "currencies.no_currencies_update": {
+    "es": "No hay divisas para actualizar.",
+    "en": "There are no currencies to update.",
+    "pt": "Não há moedas para atualizar."
+  },
+  "currencies.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "currencies.no_exchange_rate_from_from_force": {
+    "es": "No se encontró una tasa de cambio de {{from}} a {{to}} vigente al {{date}}.",
+    "en": "No exchange rate from {{from}} to {{to}} was in force on {{date}}.",
+    "pt": "Não foi encontrada uma taxa de câmbio de {{from}} para {{to}} vigente em {{date}}."
+  },
+  "currencies.no_exchange_rate_provider_configured_record": {
+    "es": "No hay un proveedor de tasas de cambio configurado. Registre las tasas manualmente o configure las credenciales del proveedor.",
+    "en": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",
+    "pt": "Não há um provedor de taxas de câmbio configurado. Registre as taxas manualmente ou configure as credenciais do provedor."
+  },
+  "currencies.provider_account_plan_plan_which_returns": {
+    "es": "La cuenta de {provider} está en el plan «{plan}», que devuelve tasas simuladas. No se almacenará ninguna tasa: contrata un plan con datos reales o registra las tasas oficiales manualmente.",
+    "en": "The {provider} account is on the “{plan}” plan, which returns mock rates. No rate will be stored: subscribe to a plan with real data, or record official rates manually.",
+    "pt": "A conta de {provider} está no plano “{plan}”, que devolve taxas simuladas. Nenhuma taxa será armazenada: contrate um plano com dados reais ou registre as taxas oficiais manualmente."
+  },
+  "currencies.provider_responded_with_status_status_detail": {
+    "es": "{provider} respondió con el estado {status}: {detail}.",
+    "en": "{provider} responded with status {status}: {detail}.",
+    "pt": "{provider} respondeu com o status {status}: {detail}."
+  },
+  "currencies.provider_response_contains_no_rates_date": {
+    "es": "La respuesta del proveedor no contiene tasas para el {{date}}.",
+    "en": "The provider response contains no rates for {{date}}.",
+    "pt": "A resposta do provedor não contém taxas para {{date}}."
+  },
+  "currencies.requested_range_spans_days_days_maximum": {
+    "es": "El rango solicitado abarca {{days}} días y el máximo permitido es {{limit}}.",
+    "en": "The requested range spans {{days}} days and the maximum allowed is {{limit}}.",
+    "pt": "O intervalo solicitado abrange {{days}} dias e o máximo permitido é {{limit}}."
+  },
+  "currencies.stated_rate_requested_deviates_too_far": {
+    "es": "La tasa indicada ({requested}) se aparta demasiado de la registrada ({resolved}, {source}, {quotedOn}). La tolerancia configurada es {tolerance}.",
+    "en": "The stated rate ({requested}) deviates too far from the one on file ({resolved}, {source}, {quotedOn}). The configured tolerance is {tolerance}.",
+    "pt": "A taxa informada ({requested}) afasta-se demais da registrada ({resolved}, {source}, {quotedOn}). A tolerância configurada é {tolerance}."
+  }
+}

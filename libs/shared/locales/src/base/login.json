@@ -1,0 +1,188 @@
+{
+  "login.2_fa.verify_button": {
+    "es": "Verificar",
+    "en": "Verify",
+    "pt": "Verificar"
+  },
+  "login.2_fa.verifying": {
+    "es": "Verificando...",
+    "en": "Verifying...",
+    "pt": "Verificando..."
+  },
+  "login.access_your_workspace_continue": {
+    "es": "Accede a tu espacio de trabajo para continuar.",
+    "en": "Access your workspace to continue.",
+    "pt": "Acesse sua área de trabalho para continuar."
+  },
+  "login.continue_with": {
+    "es": "Continuar con {{provider}}",
+    "en": "Continue with {{provider}}",
+    "pt": "Continuar com {{provider}}"
+  },
+  "login.email_label": {
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "login.errors.email_invalid": {
+    "es": "Por favor, introduce un correo electrónico válido.",
+    "en": "Please enter a valid email address.",
+    "pt": "Informe um e-mail válido."
+  },
+  "login.errors.email_required": {
+    "es": "El correo electrónico es obligatorio.",
+    "en": "Email address is required.",
+    "pt": "O e-mail é obrigatório."
+  },
+  "login.errors.passkey_error": {
+    "es": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña.",
+    "en": "Error signing in with passkey. Please try again or use your password.",
+    "pt": "Falha ao entrar com a chave de acesso. Tente novamente ou use sua senha."
+  },
+  "login.errors.password_required": {
+    "es": "La contraseña es obligatoria.",
+    "en": "Password is required.",
+    "pt": "A senha é obrigatória."
+  },
+  "login.errors.social_account_exists": {
+    "es": "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.",
+    "en": "An account already exists for this email. Sign in with your original method, then link the provider from your profile.",
+    "pt": "Já existe uma conta com este e-mail. Entre pelo método original e vincule o provedor no seu perfil."
+  },
+  "login.errors.social_email_not_verified": {
+    "es": "Tu proveedor no ha verificado tu correo, así que no podemos iniciar tu sesión.",
+    "en": "Your provider hasn't verified your email, so we can't sign you in.",
+    "pt": "Seu provedor não verificou seu e-mail, então não podemos entrar."
+  },
+  "login.errors.social_failed": {
+    "es": "No pudimos completar el inicio de sesión con ese proveedor. Intenta de nuevo.",
+    "en": "We couldn't complete sign-in with that provider. Please try again.",
+    "pt": "Não conseguimos concluir o login com esse provedor. Tente novamente."
+  },
+  "login.errors.social_unavailable": {
+    "es": "Ese método de inicio de sesión no está disponible por ahora. Prueba con otro.",
+    "en": "That sign-in method is currently unavailable. Please try another.",
+    "pt": "Esse método de login não está disponível no momento. Tente outro."
+  },
+  "login.forgot_password": {
+    "es": "¿Olvidaste tu contraseña?",
+    "en": "Forgot your password?",
+    "pt": "Esqueceu sua senha?"
+  },
+  "login.keep_me_logged": {
+    "es": "Mantener la sesión iniciada",
+    "en": "Keep me logged in",
+    "pt": "Manter conectado"
+  },
+  "login.logging_in": {
+    "es": "Iniciando sesión",
+    "en": "Logging in",
+    "pt": "Entrando"
+  },
+  "login.name_company_com": {
+    "es": "nombre@empresa.com",
+    "en": "name@company.com",
+    "pt": "nome@empresa.com"
+  },
+  "login.no_account": {
+    "es": "¿No tienes una cuenta?",
+    "en": "Don't have an account?",
+    "pt": "Ainda não tem uma conta?"
+  },
+  "login.or": {
+    "es": "o",
+    "en": "or",
+    "pt": "ou"
+  },
+  "login.or_with_email": {
+    "es": "o usa tu correo electrónico",
+    "en": "or use your email",
+    "pt": "ou use seu e-mail"
+  },
+  "login.passkey_button": {
+    "es": "Iniciar con Llave de Acceso (Passkey)",
+    "en": "Sign in with Passkey",
+    "pt": "Entrar com chave de acesso (passkey)"
+  },
+  "login.passkey_button_short": {
+    "es": "Continuar con llave de acceso",
+    "en": "Continue with Passkey",
+    "pt": "Continuar com chave de acesso"
+  },
+  "login.password_label": {
+    "es": "Contraseña",
+    "en": "Password",
+    "pt": "Senha"
+  },
+  "login.passwordless_just_one_step": {
+    "es": "Sin contraseña, en un solo paso.",
+    "en": "Passwordless, in just one step.",
+    "pt": "Sem senha, em uma única etapa."
+  },
+  "login.register_link": {
+    "es": "Regístrate",
+    "en": "Sign up",
+    "pt": "Cadastre-se"
+  },
+  "login.sso_button": {
+    "literal": "SSO"
+  },
+  "login.sso.cancel": {
+    "es": "Volver al inicio de sesión",
+    "en": "Back to login",
+    "pt": "Voltar ao login"
+  },
+  "login.sso.continue": {
+    "es": "Continuar",
+    "en": "Continue",
+    "pt": "Continuar"
+  },
+  "login.sso.enter_your_work_email_continue_with": {
+    "es": "Ingresa tu correo corporativo para continuar con el inicio de sesión único de tu empresa.",
+    "en": "Enter your work email to continue with your company's single sign-on.",
+    "pt": "Informe seu e-mail corporativo para continuar com o login único da sua empresa."
+  },
+  "login.sso.not_found": {
+    "es": "No hay inicio de sesión único configurado para ese dominio de correo. Usa otro método.",
+    "en": "No single sign-on is configured for that email domain. Please use another method.",
+    "pt": "Não há login único configurado para esse domínio de e-mail. Use outro método."
+  },
+  "login.sso.title": {
+    "es": "Acceso corporativo",
+    "en": "Company sign-in",
+    "pt": "Acesso corporativo"
+  },
+  "login.submit_button": {
+    "es": "Entrar",
+    "en": "Sign In",
+    "pt": "Entrar"
+  },
+  "login.title": {
+    "es": "Iniciar sesión",
+    "en": "Sign in",
+    "pt": "Entrar"
+  },
+  "login.two_factor.back_to_login": {
+    "es": "Volver al login",
+    "en": "Back to login",
+    "pt": "Voltar ao login"
+  },
+  "login.two_factor.code_label": {
+    "es": "Código de Verificación",
+    "en": "Verification Code",
+    "pt": "Código de Verificação"
+  },
+  "login.two_factor.code_placeholder": {
+    "literal": "123456"
+  },
+  "login.two_factor.subtitle": {
+    "es": "Ingresa el código de 6 dígitos enviado a tu dispositivo.",
+    "en": "Enter the 6-digit code sent to your device.",
+    "pt": "Digite o código de 6 dígitos enviado ao seu dispositivo."
+  },
+  "login.two_factor.title": {
+    "es": "Verificación de 2 Pasos",
+    "en": "2-Step Verification",
+    "pt": "Verificação em Duas Etapas"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "analytical_reporting.analytical_view_could_not_synchronized_p1": {
+    "es": "No se pudo sincronizar la vista analítica: {{p1}}",
+    "en": "The analytical view could not be synchronized: {{p1}}",
+    "pt": "Não foi possível sincronizar a visão analítica: {{p1}}"
+  },
+  "analytical_reporting.analytical_view_synchronization_has_started": {
+    "es": "La sincronización de la vista analítica ha sido iniciada.",
+    "en": "The analytical view synchronization has started.",
+    "pt": "A sincronização da visão analítica foi iniciada."
+  },
+  "analytical_reporting.dimension_field_name_contains_invalid_characters": {
+    "es": "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}",
+    "en": "The dimension or field name contains invalid characters: {{name}}",
+    "pt": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}"
+  },
+  "analytical_reporting.materialized_view_has_synchronized_rebuilt_with": {
+    "es": "Vista materializada sincronizada y recreada con las dimensiones actuales.",
+    "en": "The materialized view has been synchronized and rebuilt with the current dimensions.",
+    "pt": "A visão materializada foi sincronizada e recriada com as dimensões atuais."
+  },
+  "analytical_reporting.materialized_view_refresh_has_started": {
+    "es": "El refresco de la vista materializada ha sido iniciado.",
+    "en": "The materialized view refresh has started.",
+    "pt": "A atualização da visão materializada foi iniciada."
+  },
+  "analytical_reporting.unsupported_filter_operator_operator": {
+    "es": "Operador de filtro no soportado: {{operator}}",
+    "en": "Unsupported filter operator: {{operator}}",
+    "pt": "Operador de filtro não suportado: {{operator}}"
+  },
+  "analytical_reporting.value_operator_must_array": {
+    "es": "El valor para el operador 'in' debe ser un array.",
+    "en": "The value for the 'in' operator must be an array.",
+    "pt": "O valor do operador 'in' deve ser um array."
+  }
+}

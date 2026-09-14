@@ -1,0 +1,107 @@
+{
+  "compliance.already_issued_document_have_already_issued": {
+    "es": "Ya existen {{alreadyIssued}} comprobante(s) emitidos con números dentro del rango {{first}}–{{last}}.",
+    "en": "{{alreadyIssued}} document(s) have already been issued with numbers inside the range {{first}}–{{last}}.",
+    "pt": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}."
+  },
+  "compliance.authorisation_ncf_sequence_type_type_expired": {
+    "es": "La autorización de la secuencia de NCF para el tipo {{type}} venció el {{expiresAt}}. Registra el nuevo rango autorizado antes de emitir.",
+    "en": "The authorisation for the NCF sequence of type {{type}} expired on {{expiresAt}}. Register the new authorised range before issuing.",
+    "pt": "A autorização da sequência de NCF do tipo {{type}} expirou em {{expiresAt}}. Registe o novo intervalo autorizado antes de emitir."
+  },
+  "compliance.authorization_expiry_date_has_passed_range": {
+    "es": "La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.",
+    "en": "The authorization's expiry date has passed; the range could not be used.",
+    "pt": "A data de vencimento da autorização já passou; a faixa não poderia ser usada."
+  },
+  "compliance.count_account_have_no_sat_grouping": {
+    "es": "{{count}} cuenta(s) no tienen código agrupador del SAT (por ejemplo {{example}}). El catálogo no se puede generar sin él: asígnalo en el catálogo de cuentas.",
+    "en": "{{count}} account(s) have no SAT grouping code (for example {{example}}). The catalogue cannot be generated without it: assign it in the chart of accounts.",
+    "pt": "{{count}} conta(s) não têm código agrupador do SAT (por exemplo {{example}}). O catálogo não pode ser gerado sem ele: atribua-o no plano de contas."
+  },
+  "compliance.document_not_electronic_accounting_document_available": {
+    "es": "«{{document}}» no es un documento de contabilidad electrónica. Disponibles: {{available}}.",
+    "en": "“{{document}}” is not an electronic accounting document. Available: {{available}}.",
+    "pt": "«{{document}}» não é um documento de contabilidade eletrônica. Disponíveis: {{available}}."
+  },
+  "compliance.ending_number_cannot_lower_than_starting": {
+    "es": "El número final no puede ser menor que el inicial.",
+    "en": "The ending number cannot be lower than the starting one.",
+    "pt": "O número final não pode ser menor que o inicial."
+  },
+  "compliance.ends_cannot_lower_than_starts": {
+    "es": "endsAt no puede ser menor que startsAt.",
+    "en": "endsAt cannot be lower than startsAt.",
+    "pt": "endsAt não pode ser menor que startsAt."
+  },
+  "compliance.format_kind_not_recognised_available_formats": {
+    "es": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
+    "en": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
+    "pt": "Formato \"{{kind}}\" não reconhecido. Os formatos disponíveis são 606, 607, 608 e 609."
+  },
+  "compliance.month_must_between_12": {
+    "es": "El mes debe estar entre 1 y 12.",
+    "en": "The month must be between 1 and 12.",
+    "pt": "O mês deve estar entre 1 e 12."
+  },
+  "compliance.ncf_sequence_not_found": {
+    "es": "Secuencia NCF no encontrada.",
+    "en": "NCF sequence not found.",
+    "pt": "Sequência NCF não encontrada."
+  },
+  "compliance.ncf_sequence_range_invalid_ending_number": {
+    "es": "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.",
+    "en": "The NCF sequence range is invalid: the ending number must be greater than or equal to the starting one.",
+    "pt": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial."
+  },
+  "compliance.ncf_sequence_range_invalid_starts_ends": {
+    "es": "El rango de la secuencia NCF es inválido (startsAt/endsAt).",
+    "en": "The NCF sequence range is invalid (startsAt/endsAt).",
+    "pt": "A faixa da sequência NCF é inválida (startsAt/endsAt)."
+  },
+  "compliance.ncf_sequence_type_type_exhausted_range": {
+    "es": "La secuencia de NCF para el tipo {{type}} se agotó (rango {{startsAt}}–{{endsAt}}). Solicita un nuevo rango a la DGII y regístralo antes de continuar facturando.",
+    "en": "The NCF sequence for type {{type}} is exhausted (range {{startsAt}}–{{endsAt}}). Request a new range from the DGII and register it before invoicing again.",
+    "pt": "A sequência de NCF para o tipo {{type}} esgotou-se (intervalo {{startsAt}}–{{endsAt}}). Solicite um novo intervalo à DGII e registe-o antes de continuar a faturar."
+  },
+  "compliance.ncf_sequence_type_type_has_non": {
+    "es": "La secuencia de NCF para el tipo {{type}} tiene límites no numéricos.",
+    "en": "The NCF sequence for type {{type}} has non-numeric bounds.",
+    "pt": "A sequência NCF do tipo {{type}} tem limites não numéricos."
+  },
+  "compliance.no_active_ncf_sequence_type_type": {
+    "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Ajustes → Facturación Electrónica antes de emitir este comprobante.",
+    "en": "There is no active NCF sequence for type {{type}}. Register the range authorised by the DGII under Settings → Electronic Invoicing before issuing this document.",
+    "pt": "Não há uma sequência de NCF ativa para o tipo {{type}}. Registe o intervalo autorizado pela DGII em Definições → Faturação Eletrónica antes de emitir este documento."
+  },
+  "compliance.organization_has_no_default_ledger": {
+    "es": "La organización no tiene libro contable por defecto.",
+    "en": "The organization has no default ledger.",
+    "pt": "A organização não tem razão contábil padrão."
+  },
+  "compliance.organization_has_no_rfc_file_sat": {
+    "es": "La organización no tiene RFC registrado; el SAT rechaza un archivo sin él.",
+    "en": "The organization has no RFC on file; the SAT rejects a filing without one.",
+    "pt": "A organização não tem RFC cadastrado; o SAT rejeita um arquivo sem ele."
+  },
+  "compliance.organization_not_found": {
+    "es": "Organización no encontrada.",
+    "en": "Organization not found.",
+    "pt": "Organização não encontrada."
+  },
+  "compliance.prefix_prefix_does_not_match_document": {
+    "es": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
+    "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
+    "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
+  },
+  "compliance.report_format_dgii_dominican_republic_filing": {
+    "es": "El formato {{report}} es un envío de la DGII (República Dominicana) y no aplica a una organización registrada en {{country}}.",
+    "en": "The {{report}} format is a DGII (Dominican Republic) filing and does not apply to an organization registered in {{country}}.",
+    "pt": "O formato {{report}} é uma declaração da DGII (República Dominicana) e não se aplica a uma organização registada em {{country}}."
+  },
+  "compliance.year_not_valid": {
+    "es": "El año no es válido.",
+    "en": "The year is not valid.",
+    "pt": "O ano não é válido."
+  }
+}

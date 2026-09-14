@@ -1,0 +1,12 @@
+{
+  "customer_service.article_not_found": {
+    "es": "Artículo no encontrado.",
+    "en": "The article was not found.",
+    "pt": "O artigo não foi encontrado."
+  },
+  "customer_service.article_not_found_not_published": {
+    "es": "Artículo no encontrado o no está publicado.",
+    "en": "The article was not found, or is not published.",
+    "pt": "O artigo não foi encontrado ou não está publicado."
+  }
+}

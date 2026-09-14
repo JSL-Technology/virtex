@@ -1,0 +1,7 @@
+{
+  "taxes.tax_id_not_found": {
+    "es": "Impuesto con ID \"{{id}}\" no encontrado.",
+    "en": "Tax \"{{id}}\" was not found.",
+    "pt": "Imposto \"{{id}}\" não encontrado."
+  }
+}

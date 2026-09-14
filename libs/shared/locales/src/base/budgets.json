@@ -1,0 +1,32 @@
+{
+  "budgets.account_dimensions_not_budgeted": {
+    "es": "La cuenta y/o sus dimensiones no están presupuestadas.",
+    "en": "The account and/or its dimensions are not budgeted.",
+    "pt": "A conta e/ou suas dimensões não estão orçadas."
+  },
+  "budgets.amount_exceeds_budget": {
+    "es": "El monto propuesto de {{amount}} excede el presupuesto de {{budgeted}} para la cuenta {{account}}. Gasto actual: {{actual}}.",
+    "en": "The proposed amount of {{amount}} exceeds the {{budgeted}} budget for account {{account}}. Spent so far: {{actual}}.",
+    "pt": "O valor proposto de {{amount}} excede o orçamento de {{budgeted}} da conta {{account}}. Gasto atual: {{actual}}."
+  },
+  "budgets.budget_id_not_found": {
+    "es": "Presupuesto con ID \"{{id}}\" no encontrado.",
+    "en": "Budget \"{{id}}\" was not found.",
+    "pt": "Orçamento \"{{id}}\" não encontrado."
+  },
+  "budgets.invalid_date_range_start_date_later": {
+    "es": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}.",
+    "en": "Invalid date range: {{startDate}} is later than {{endDate}}.",
+    "pt": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}."
+  },
+  "budgets.no_active_budget_found_current_period": {
+    "es": "No se encontró un presupuesto activo para el período actual.",
+    "en": "No active budget was found for the current period.",
+    "pt": "Nenhum orçamento ativo foi encontrado para o período atual."
+  },
+  "budgets.within_budget": {
+    "es": "Dentro del presupuesto.",
+    "en": "Within budget.",
+    "pt": "Dentro do orçamento."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "$locale": "es-CO",
+  "$note": "Colombia. The year-end payment is the 'prima de navidad'; the tax identifier is the NIT and the identity document the cédula de ciudadanía.",
+
+  "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
+  "hcm.employees.form.proportional_bonus": "Prima proporcional",
+  "hcm.employees.form.document_type.national_id": "Cédula de ciudadanía",
+  "hcm.employees.form.document_type.tax_id": "NIT",
+  "permissions.groups.tss": "Seguridad social (PILA)",
+  "contacts.customer_form.tax_id": "NIT",
+  "masters.customer_form.rnc_nif": "NIT",
+  "masters.supplier_form.tax_id": "NIT",
+  "settings.company_profile.id_fiscal_rnc_tax_id": "NIT",
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "NIT"
+}

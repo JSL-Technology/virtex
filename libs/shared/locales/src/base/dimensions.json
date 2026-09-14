@@ -1,0 +1,27 @@
+{
+  "dimensions.account_account_id_not_found": {
+    "es": "Cuenta con ID \"{{accountId}}\" no encontrada.",
+    "en": "Account \"{{accountId}}\" was not found.",
+    "pt": "Conta \"{{accountId}}\" não encontrada."
+  },
+  "dimensions.account_account_id_not_found_your": {
+    "es": "Cuenta con ID \"{{accountId}}\" no encontrada en su organización.",
+    "en": "Account \"{{accountId}}\" was not found in your organization.",
+    "pt": "Conta \"{{accountId}}\" não encontrada na sua organização."
+  },
+  "dimensions.dimension_dimension_id_not_found_your": {
+    "es": "Dimensión con ID \"{{dimensionId}}\" no encontrada en su organización.",
+    "en": "Dimension \"{{dimensionId}}\" was not found in your organization.",
+    "pt": "Dimensão \"{{dimensionId}}\" não encontrada na sua organização."
+  },
+  "dimensions.dimension_id_not_found": {
+    "es": "Dimensión con ID \"{{id}}\" no encontrada.",
+    "en": "Dimension \"{{id}}\" was not found.",
+    "pt": "Dimensão \"{{id}}\" não encontrada."
+  },
+  "dimensions.specified_dimension_rule_not_found": {
+    "es": "La regla de dimensión especificada no fue encontrada.",
+    "en": "The specified dimension rule was not found.",
+    "pt": "A regra de dimensão informada não foi encontrada."
+  }
+}

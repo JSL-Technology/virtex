@@ -1,0 +1,122 @@
+{
+  "$note": "Keys the two old catalogues both defined, with different text. One wording is chosen here on purpose, because 'whichever catalogue the resolver happened to reach first' is what produced the divergence. Register is second person informal throughout — the majority of the tree already used it, and es-419 B2B products (Google Workspace, Microsoft 365) use it too; 'Por favor' is dropped because it padded every sentence without adding anything.",
+
+  "errors.auth_invalid_credentials": {
+    "es": "Correo o contraseña incorrectos.",
+    "en": "Incorrect email or password.",
+    "pt": "E-mail ou senha incorretos.",
+    "note": "Must read identically to errors.auth_user_not_found. A message that distinguishes 'no such account' from 'wrong password' confirms to an attacker which addresses are registered (CWE-204)."
+  },
+  "errors.auth_user_not_found": {
+    "es": "Correo o contraseña incorrectos.",
+    "en": "Incorrect email or password.",
+    "pt": "E-mail ou senha incorretos.",
+    "note": "Deliberately identical to errors.auth_invalid_credentials — see that key."
+  },
+  "errors.auth_user_inactive": {
+    "es": "Tu cuenta está inactiva. Contacta al administrador de tu organización.",
+    "en": "Your account is inactive. Contact your organization's administrator.",
+    "pt": "A tua conta está inativa. Contacta o administrador da tua organização."
+  },
+  "errors.auth_user_blocked": {
+    "es": "Tu cuenta está bloqueada. Contacta al administrador de tu organización.",
+    "en": "Your account is blocked. Contact your organization's administrator.",
+    "pt": "A tua conta está bloqueada. Contacta o administrador da tua organização."
+  },
+  "errors.auth_token_invalid": {
+    "es": "El enlace o el código no es válido.",
+    "en": "That link or code is not valid.",
+    "pt": "Esse link ou código não é válido.",
+    "note": "This code covers a verification link or e-mail token, not the session. The client copy said 'your session is no longer valid', which described a different failure."
+  },
+  "errors.auth_session_expired": {
+    "es": "Tu sesión expiró. Inicia sesión de nuevo.",
+    "en": "Your session has expired. Sign in again.",
+    "pt": "A tua sessão expirou. Inicia sessão novamente."
+  },
+  "errors.auth_refresh_token_invalid": {
+    "es": "Tu sesión ya no es válida. Inicia sesión de nuevo.",
+    "en": "Your session is no longer valid. Sign in again.",
+    "pt": "A tua sessão já não é válida. Inicia sessão novamente."
+  },
+  "errors.auth_refresh_token_revoked": {
+    "es": "Tu sesión fue cerrada desde otro dispositivo. Inicia sesión de nuevo.",
+    "en": "Your session was closed from another device. Sign in again.",
+    "pt": "A tua sessão foi encerrada noutro dispositivo. Inicia sessão novamente."
+  },
+  "errors.auth_device_mismatch": {
+    "es": "Detectamos un cambio de dispositivo. Por seguridad, inicia sesión de nuevo.",
+    "en": "We detected a change of device. For your security, sign in again.",
+    "pt": "Detetámos uma mudança de dispositivo. Por segurança, inicia sessão novamente."
+  },
+  "errors.auth_two_factor_required": {
+    "es": "Introduce el código de verificación en dos pasos.",
+    "en": "Enter your two-step verification code.",
+    "pt": "Introduz o código de verificação em duas etapas."
+  },
+  "errors.auth_two_factor_invalid": {
+    "es": "El código de verificación no es correcto.",
+    "en": "That verification code is not correct.",
+    "pt": "Esse código de verificação não está correto."
+  },
+  "errors.auth_phone_mismatch": {
+    "es": "El número de teléfono no coincide con el registrado.",
+    "en": "That phone number does not match the one on record.",
+    "pt": "Esse número de telefone não corresponde ao registado."
+  },
+  "errors.auth_verification_code_expired": {
+    "es": "El código de verificación expiró. Solicita uno nuevo.",
+    "en": "That verification code has expired. Request a new one.",
+    "pt": "Esse código de verificação expirou. Solicita um novo."
+  },
+  "errors.auth_verification_code_invalid": {
+    "es": "El código de verificación no es correcto.",
+    "en": "That verification code is not correct.",
+    "pt": "Esse código de verificação não está correto."
+  },
+  "errors.auth_verification_code_not_found": {
+    "es": "No hay un código de verificación pendiente. Solicita uno nuevo.",
+    "en": "There is no pending verification code. Request a new one.",
+    "pt": "Não há um código de verificação pendente. Solicita um novo."
+  },
+  "errors.network": {
+    "es": "No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.",
+    "en": "There is no connection to the server. Check your internet connection and try again.",
+    "pt": "Não há ligação ao servidor. Verifica a tua ligação à internet e tenta novamente."
+  },
+  "errors.unexpected": {
+    "es": "No pudimos completar la operación. Vuelve a intentarlo.",
+    "en": "We could not complete that operation. Try again.",
+    "pt": "Não foi possível concluir a operação. Tenta novamente."
+  },
+  "errors.http_400": {
+    "es": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",
+    "en": "That request is not valid. Check the data and try again.",
+    "pt": "O pedido não é válido. Verifica os dados e tenta novamente."
+  },
+  "errors.http_401": {
+    "es": "Tu sesión no es válida o expiró. Inicia sesión de nuevo.",
+    "en": "Your session is not valid or has expired. Sign in again.",
+    "pt": "A tua sessão não é válida ou expirou. Inicia sessão novamente."
+  },
+  "errors.http_404": {
+    "es": "No encontramos lo que buscabas.",
+    "en": "We could not find what you were looking for.",
+    "pt": "Não encontrámos o que procuravas."
+  },
+  "errors.http_409": {
+    "es": "La operación entra en conflicto con el estado actual del registro.",
+    "en": "That operation conflicts with the record's current state.",
+    "pt": "A operação entra em conflito com o estado atual do registo."
+  },
+  "errors.http_422": {
+    "es": "Los datos son válidos en forma pero no se pueden procesar. Revisa el detalle.",
+    "en": "The data is well-formed but cannot be processed. Check the details.",
+    "pt": "Os dados estão bem formados mas não podem ser processados. Verifica os detalhes."
+  },
+  "errors.http_429": {
+    "es": "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
+    "en": "Too many attempts. Wait a moment before trying again.",
+    "pt": "Demasiadas tentativas. Aguarda um momento antes de tentar novamente."
+  }
+}

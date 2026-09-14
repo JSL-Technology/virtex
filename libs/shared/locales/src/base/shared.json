@@ -1,0 +1,122 @@
+{
+  "shared.geo_mismatch_modal.but_you_trying_reach_version": {
+    "es": ",\n        pero estás intentando acceder a la versión de",
+    "en": ",\n        but you are trying to reach the version for",
+    "pt": ",\n        mas você está tentando acessar a versão de"
+  },
+  "shared.geo_mismatch_modal.location_detected": {
+    "es": "Ubicación Detectada",
+    "en": "Location Detected",
+    "pt": "Localização Detectada"
+  },
+  "shared.geo_mismatch_modal.we_detected_you": {
+    "es": "Hemos detectado que estás en",
+    "en": "We detected that you are in",
+    "pt": "Detectamos que você está em"
+  },
+  "shared.geo_mismatch_modal.we_recommend_switching_your_local_region": {
+    "es": "Recomendamos cambiar a tu región local para asegurar la configuración fiscal correcta.",
+    "en": "We recommend switching to your local region so the tax configuration is correct.",
+    "pt": "Recomendamos mudar para sua região local para garantir a configuração fiscal correta."
+  },
+  "shared.live_preview.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "shared.live_preview.dashboard": {
+    "es": "Dashboard",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "shared.live_preview.ok": {
+    "es": "Aceptar",
+    "en": "OK",
+    "pt": "OK"
+  },
+  "shared.live_preview.sample_card": {
+    "es": "Ejemplo de Tarjeta",
+    "en": "Sample Card",
+    "pt": "Cartão de Exemplo"
+  },
+  "shared.live_preview.sample_field": {
+    "es": "Campo de ejemplo",
+    "en": "Sample field",
+    "pt": "Campo de exemplo"
+  },
+  "shared.live_preview.sample_text_so_you_can_see": {
+    "es": "Este es un texto de ejemplo para ver la tipografía.",
+    "en": "This is sample text so you can see the typography.",
+    "pt": "Este é um texto de exemplo para ver a tipografia."
+  },
+  "shared.live_preview.tu_logo": {
+    "es": "Tu Logo",
+    "en": "Your Logo",
+    "pt": "Seu Logotipo"
+  },
+  "shared.live_preview.type_here": {
+    "es": "Escribe aquí...",
+    "en": "Type here...",
+    "pt": "Digite aqui..."
+  },
+  "shared.modal.close": {
+    "es": "Close",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "shared.no_active_document_sequence_found_type": {
+    "es": "No se encontró una secuencia de documento activa para el tipo {{type}}. Por favor, configure las secuencias.",
+    "en": "No active document sequence was found for type {{type}}. Configure the sequences.",
+    "pt": "Nenhuma sequência de documento ativa encontrada para o tipo {{type}}. Configure as sequências."
+  },
+  "shared.organization_not_ready_invoice_missing_p1": {
+    "es": "La organización no está lista para facturar. Falta: {{p1}}.",
+    "en": "The organization is not ready to invoice. Missing: {{p1}}.",
+    "pt": "A organização não está pronta para faturar. Falta: {{p1}}."
+  },
+  "shared.otp.clear": {
+    "es": "Limpiar",
+    "en": "Clear",
+    "pt": "Limpar"
+  },
+  "shared.otp.never_share_code_our_team_will": {
+    "es": "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.",
+    "en": "Never share this code. Our team will never ask you for it.",
+    "pt": "Nunca compartilhe este código. Nossa equipe jamais o pedirá."
+  },
+  "shared.otp.opt_digits": {
+    "es": "{{opt}} dígitos",
+    "en": "{{opt}} digits",
+    "pt": "{{opt}} dígitos"
+  },
+  "shared.otp.otp_code": {
+    "es": "Código OTP",
+    "en": "OTP code",
+    "pt": "Código OTP"
+  },
+  "shared.otp.resend_code": {
+    "es": "Reenviar código",
+    "en": "Resend code",
+    "pt": "Reenviar código"
+  },
+  "shared.otp.resend_cooldown": {
+    "es": "Reenviar ({{cooldown}}s)",
+    "en": "Resend ({{cooldown}}s)",
+    "pt": "Reenviar ({{cooldown}}s)"
+  },
+  "shared.otp.verify": {
+    "es": "Verificar",
+    "en": "Verify",
+    "pt": "Verificar"
+  },
+  "shared.theme_toggle.appearance": {
+    "es": "Apariencia",
+    "en": "Appearance",
+    "pt": "Aparência"
+  },
+  "shared.toast.close": {
+    "es": "Close",
+    "en": "Close",
+    "pt": "Fechar"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "main.attention": {
+    "es": "¡Atención!",
+    "en": "Attention",
+    "pt": "Atenção"
+  },
+  "main.back_my_account": {
+    "es": "Volver a mi cuenta",
+    "en": "Back to my account",
+    "pt": "Voltar à minha conta"
+  },
+  "main.company_switcher.companies": {
+    "es": "Empresas",
+    "en": "Companies",
+    "pt": "Empresas"
+  },
+  "main.company_switcher.create_new_company": {
+    "es": "Crear nueva empresa",
+    "en": "Create a new company",
+    "pt": "Criar nova empresa"
+  },
+  "main.company_switcher.current_company": {
+    "es": "Empresa actual",
+    "en": "Current company",
+    "pt": "Empresa atual"
+  },
+  "main.company_switcher.manage_organizations": {
+    "es": "Gestionar organizaciones",
+    "en": "Manage organizations",
+    "pt": "Gerenciar organizações"
+  },
+  "main.company_switcher.no_companies_found": {
+    "es": "No se encontraron empresas",
+    "en": "No companies were found",
+    "pt": "Nenhuma empresa encontrada"
+  },
+  "main.company_switcher.switching_company": {
+    "es": "Cambiando de empresa…",
+    "en": "Switching company…",
+    "pt": "Trocando de empresa…"
+  },
+  "main.no_results_found": {
+    "es": "No se encontraron resultados",
+    "en": "No results were found",
+    "pt": "Nenhum resultado encontrado"
+  },
+  "main.resolve_now": {
+    "es": "Resolver Ahora",
+    "en": "Resolve Now",
+    "pt": "Resolver Agora"
+  },
+  "main.search_results": {
+    "es": "Resultados de la Búsqueda",
+    "en": "Search Results",
+    "pt": "Resultados da Busca"
+  },
+  "main.see_all_results": {
+    "es": "Ver todos los resultados",
+    "en": "See all results",
+    "pt": "Ver todos os resultados"
+  },
+  "main.shortcut_open_customers": {
+    "literal": "Alt + Shift + C"
+  },
+  "main.shortcut_open_invoices": {
+    "literal": "Alt + Shift + I"
+  },
+  "main.shortcut_open_products": {
+    "literal": "Alt + Shift + P"
+  },
+  "main.shortcut_open_quotes": {
+    "literal": "Alt + Shift + Q"
+  },
+  "main.try_another_keyword_check_spelling": {
+    "es": "Intenta con otra palabra clave o revisa la ortografía.",
+    "en": "Try another keyword, or check the spelling.",
+    "pt": "Tente outra palavra-chave ou verifique a grafia."
+  },
+  "main.you_viewing_system": {
+    "es": "Estás viendo el sistema como:",
+    "en": "You are viewing the system as:",
+    "pt": "Você está vendo o sistema como:"
+  },
+  "main.your_payment_pending_you_have_temporary": {
+    "es": "Tu pago está pendiente. Tienes acceso temporal hasta el {{date}}.",
+    "en": "Your payment is pending. You have temporary access until {{date}}.",
+    "pt": "Seu pagamento está pendente. Você tem acesso temporário até {{date}}."
+  }
+}

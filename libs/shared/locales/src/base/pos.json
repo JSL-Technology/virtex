@@ -1,0 +1,22 @@
+{
+  "pos.no_open_shift": {
+    "en": "There is no open shift on this terminal. Open a shift before selling.",
+    "es": "No hay un turno abierto en esta terminal. Abre un turno antes de vender.",
+    "pt": "Não há um turno aberto neste terminal. Abre um turno antes de vender."
+  },
+  "pos.shift_already_closed": {
+    "en": "That shift is already closed.",
+    "es": "El turno ya está cerrado.",
+    "pt": "Esse turno já está fechado."
+  },
+  "pos.shift_not_found": {
+    "en": "We could not find that shift.",
+    "es": "No encontramos el turno.",
+    "pt": "Não encontrámos esse turno."
+  },
+  "pos.there_already_active_shift_for_this_terminal": {
+    "en": "There is already an open shift on this terminal.",
+    "es": "Ya hay un turno abierto en esta terminal.",
+    "pt": "Já existe um turno aberto neste terminal."
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "extensions.admit_and_register": {
+    "es": "Admitir y registrar",
+    "en": "Admit & register",
+    "pt": "Admitir e registar"
+  },
+  "extensions.code_or_valid_pluginname_required": {
+    "en": "Provide either the code or a valid extension name.",
+    "es": "Indica el código o un nombre de extensión válido.",
+    "pt": "Indica o código ou um nome de extensão válido."
+  },
+  "extensions.code_passes_admission_pipeline_sbom_heuristics": {
+    "es": "El código pasa por el proceso de admisión (SBOM, heurísticas, políticas) y se firma antes de poder ejecutarse.",
+    "en": "The code passes the admission pipeline (SBOM, heuristics, policy) and is signed before it can run.",
+    "pt": "O código passa pelo processo de admissão (SBOM, heurísticas, políticas) e é assinado antes de poder ser executado."
+  },
+  "extensions.direct_code_rejected_by_admission_policy": {
+    "en": "The admission policy rejected directly submitted code.",
+    "es": "La política de admisión rechazó el código enviado directamente.",
+    "pt": "A política de admissão rejeitou o código enviado diretamente."
+  },
+  "extensions.enabled": {
+    "es": "Habilitada",
+    "en": "Enabled",
+    "pt": "Ativada"
+  },
+  "extensions.execute": {
+    "es": "Ejecutar",
+    "en": "Execute",
+    "pt": "Executar"
+  },
+  "extensions.execution_time": {
+    "literal": "{{ms}} ms"
+  },
+  "extensions.extension_not_enabled_for_this_tenant": {
+    "en": "That extension is not enabled for this organization.",
+    "es": "La extensión no está habilitada para esta organización.",
+    "pt": "Essa extensão não está ativada para esta organização."
+  },
+  "extensions.fields.capabilities": {
+    "es": "Capacidades (separadas por comas)",
+    "en": "Capabilities (comma-separated)",
+    "pt": "Capacidades (separadas por vírgulas)"
+  },
+  "extensions.fields.code": {
+    "es": "Código (lógica de servidor, se ejecuta en el aislamiento)",
+    "en": "Code (server logic, runs in the isolate)",
+    "pt": "Código (lógica de servidor, executa no isolamento)"
+  },
+  "extensions.fields.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "extensions.fields.egress": {
+    "es": "Hosts de salida solicitados",
+    "en": "Requested egress hosts",
+    "pt": "Anfitriões de saída solicitados"
+  },
+  "extensions.fields.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "extensions.fields.ui_code": {
+    "es": "Código de interfaz (opcional, se ejecuta en el host de navegador aislado)",
+    "en": "UI code (optional, runs in the sandboxed browser host)",
+    "pt": "Código de interface (opcional, executa no host de navegador isolado)"
+  },
+  "extensions.fields.version": {
+    "es": "Versión",
+    "en": "Version",
+    "pt": "Versão"
+  },
+  "extensions.go_to_manager": {
+    "es": "Ir al gestor de extensiones →",
+    "en": "Go to the extensions manager →",
+    "pt": "Ir para o gestor de extensões →"
+  },
+  "extensions.granted_capabilities": {
+    "es": "Capacidades concedidas",
+    "en": "Granted capabilities",
+    "pt": "Capacidades concedidas"
+  },
+  "extensions.loading_runtime": {
+    "es": "Cargando extensiones…",
+    "en": "Loading extensions…",
+    "pt": "A carregar extensões…"
+  },
+  "extensions.metered": {
+    "es": "Medida",
+    "en": "Metered",
+    "pt": "Medida"
+  },
+  "extensions.named_plugin_not_found": {
+    "en": "We could not find the extension “{{pluginName}}”.",
+    "es": "No encontramos la extensión «{{pluginName}}».",
+    "pt": "Não encontrámos a extensão «{{pluginName}}»."
+  },
+  "extensions.none_enabled": {
+    "es": "Este inquilino no tiene ninguna extensión de interfaz habilitada.",
+    "en": "No UI extensions are enabled for this tenant.",
+    "pt": "Este inquilino não tem nenhuma extensão de interface ativada."
+  },
+  "extensions.none_registered": {
+    "es": "Todavía no hay extensiones registradas. Registra una a la derecha.",
+    "en": "No extensions registered yet. Register one on the right.",
+    "pt": "Ainda não há extensões registadas. Registe uma à direita."
+  },
+  "extensions.open_runtime": {
+    "es": "Abrir ejecución",
+    "en": "Open runtime",
+    "pt": "Abrir execução"
+  },
+  "extensions.placeholders.capabilities": {
+    "literal": "egress:http"
+  },
+  "extensions.placeholders.egress": {
+    "literal": "api.taxjar.com"
+  },
+  "extensions.placeholders.extension_name": {
+    "es": "nombre de la extensión",
+    "en": "extension name",
+    "pt": "nome da extensão"
+  },
+  "extensions.placeholders.name": {
+    "es": "mi-extension",
+    "en": "my-extension",
+    "pt": "a-minha-extensao"
+  },
+  "extensions.placeholders.ui_code": {
+    "es": "root.innerHTML = '<h3>Hola</h3>'; // usa virtex.api(), virtex.toast()",
+    "en": "root.innerHTML = '<h3>Hello</h3>'; // use virtex.api(), virtex.toast()",
+    "pt": "root.innerHTML = '<h3>Olá</h3>'; // usa virtex.api(), virtex.toast()"
+  },
+  "extensions.plugin_not_found": {
+    "en": "We could not find that extension.",
+    "es": "No encontramos la extensión.",
+    "pt": "Não encontrámos essa extensão."
+  },
+  "extensions.plugin_revoked": {
+    "en": "That extension has been revoked and cannot run.",
+    "es": "La extensión fue revocada y no puede ejecutarse.",
+    "pt": "Essa extensão foi revogada e não pode ser executada."
+  },
+  "extensions.register": {
+    "es": "Registrar extensión",
+    "en": "Register extension",
+    "pt": "Registar extensão"
+  },
+  "extensions.revoke": {
+    "es": "Revocar",
+    "en": "Revoke",
+    "pt": "Revogar"
+  },
+  "extensions.run_in_sandbox": {
+    "es": "Ejecutar en el aislamiento",
+    "en": "Run in sandbox",
+    "pt": "Executar no isolamento"
+  },
+  "extensions.run_status.execution_failed": {
+    "es": "Falló la ejecución",
+    "en": "Execution failed",
+    "pt": "Falhou a execução"
+  },
+  "extensions.run_status.success": {
+    "es": "Correcta",
+    "en": "Succeeded",
+    "pt": "Bem-sucedida"
+  },
+  "extensions.status.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "extensions.status.disabled": {
+    "es": "Deshabilitada",
+    "en": "Disabled",
+    "pt": "Desativada"
+  },
+  "extensions.status.revoked": {
+    "es": "Revocada",
+    "en": "Revoked",
+    "pt": "Revogada"
+  },
+  "extensions.version": {
+    "literal": "v{{version}}"
+  },
+  "extensions.version_count": {
+    "es": "{{count}} versión(es)",
+    "en": "{{count}} version(s)",
+    "pt": "{{count}} versão(ões)"
+  },
+  "extensions.version_not_found": {
+    "en": "We could not find that version of the extension.",
+    "es": "No encontramos esa versión de la extensión.",
+    "pt": "Não encontrámos essa versão da extensão."
+  }
+}

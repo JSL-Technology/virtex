@@ -1,0 +1,671 @@
+{
+  "payroll.adjustment_must_correct_approved_run_same": {
+    "es": "Un ajuste debe corregir una corrida aprobada del mismo período, país y organización.",
+    "en": "An adjustment must correct an approved run of the same period, country and organization.",
+    "pt": "Um ajuste deve corrigir uma folha aprovada do mesmo período, país e organização."
+  },
+  "payroll.adjustment_run_must_reference_run_corrects": {
+    "es": "Una corrida de ajuste requiere indicar la corrida que corrige.",
+    "en": "An adjustment run must reference the run it corrects.",
+    "pt": "Uma folha de ajuste deve referenciar a folha que corrige."
+  },
+  "payroll.approved_run_cannot_cancelled_use_adjustment": {
+    "es": "Una corrida aprobada no puede cancelarse; use una corrida de ajuste.",
+    "en": "An approved run cannot be cancelled; use an adjustment run.",
+    "pt": "Uma folha aprovada não pode ser cancelada; use uma folha de ajuste."
+  },
+  "payroll.concept_id_not_found": {
+    "es": "No se encontró el concepto \"{{id}}\".",
+    "en": "Concept \"{{id}}\" was not found.",
+    "pt": "Conceito \"{{id}}\" não encontrado."
+  },
+  "payroll.concept_with_code_p1_already_exists": {
+    "es": "Ya existe un concepto con el código \"{{p1}}\".",
+    "en": "A concept with code \"{{p1}}\" already exists.",
+    "pt": "Já existe um conceito com o código \"{{p1}}\"."
+  },
+  "payroll.concepts.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "payroll.concepts.calc_label.fixed": {
+    "es": "Monto fijo",
+    "en": "Fixed amount",
+    "pt": "Valor fixo"
+  },
+  "payroll.concepts.calc_label.hourly": {
+    "es": "Por horas",
+    "en": "Hourly",
+    "pt": "Por horas"
+  },
+  "payroll.concepts.calc_label.percentage": {
+    "es": "Porcentaje",
+    "en": "Percentage",
+    "pt": "Percentagem"
+  },
+  "payroll.concepts.calc_label.statutory": {
+    "es": "De ley",
+    "en": "Statutory",
+    "pt": "Legal"
+  },
+  "payroll.concepts.calculation": {
+    "es": "Cálculo",
+    "en": "Calculation",
+    "pt": "Cálculo"
+  },
+  "payroll.concepts.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "payroll.concepts.include_inactive": {
+    "es": "Incluir inactivos",
+    "en": "Include inactive",
+    "pt": "Incluir inativos"
+  },
+  "payroll.concepts.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "payroll.concepts.new": {
+    "es": "Nuevo concepto",
+    "en": "New concept",
+    "pt": "Novo conceito"
+  },
+  "payroll.concepts.rate": {
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Taxa"
+  },
+  "payroll.concepts.rate_help": {
+    "es": "Fracción para un porcentaje (0,03) o multiplicador para horas (1,35).",
+    "en": "A fraction for a percentage (0.03) or a multiplier for hours (1.35).",
+    "pt": "Uma fração para uma percentagem (0,03) ou um multiplicador para horas (1,35)."
+  },
+  "payroll.concepts.save_failed": {
+    "es": "No se pudo guardar el concepto.",
+    "en": "The concept could not be saved.",
+    "pt": "Não foi possível guardar o conceito."
+  },
+  "payroll.concepts.system": {
+    "es": "De ley",
+    "en": "Statutory",
+    "pt": "Legal"
+  },
+  "payroll.concepts.taxable": {
+    "es": "Gravable",
+    "en": "Taxable",
+    "pt": "Tributável"
+  },
+  "payroll.concepts.title": {
+    "es": "Conceptos de nómina",
+    "en": "Payroll concepts",
+    "pt": "Conceitos da folha"
+  },
+  "payroll.concepts.tss_base": {
+    "en": "Contributes to social security",
+    "es": "Cotiza a la seguridad social",
+    "pt": "Contribui para a segurança social"
+  },
+  "payroll.concepts.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "payroll.concepts.type_label.deduction": {
+    "es": "Deducción",
+    "en": "Deduction",
+    "pt": "Desconto"
+  },
+  "payroll.concepts.type_label.earning": {
+    "es": "Ingreso",
+    "en": "Earning",
+    "pt": "Rendimento"
+  },
+  "payroll.concepts.type_label.employer_contribution": {
+    "es": "Aporte patronal",
+    "en": "Employer contribution",
+    "pt": "Encargo patronal"
+  },
+  "payroll.deductions_p1_exceed_salary_net_pay": {
+    "es": "Las deducciones de {{p1}} exceden su salario; el neto no puede ser negativo.",
+    "en": "Deductions for {{p1}} exceed the salary; net pay cannot be negative.",
+    "pt": "As deduções de {{p1}} excedem o salário; o líquido não pode ser negativo."
+  },
+  "payroll.employee_has_no_compensation_force_cannot": {
+    "es": "El empleado no tiene una compensación vigente; no puede liquidarse.",
+    "en": "The employee has no compensation in force and cannot be settled.",
+    "pt": "O funcionário não tem remuneração vigente e não pode ser liquidado."
+  },
+  "payroll.employee_has_no_hire_date_cannot": {
+    "es": "El empleado no tiene fecha de ingreso; no puede liquidarse.",
+    "en": "The employee has no hire date and cannot be settled.",
+    "pt": "O funcionário não tem data de admissão e não pode ser liquidado."
+  },
+  "payroll.inputs_can_only_changed_while_run": {
+    "es": "Las novedades solo pueden modificarse mientras la corrida es editable.",
+    "en": "Inputs can only be changed while the run is editable.",
+    "pt": "Os lançamentos só podem ser alterados enquanto a folha for editável."
+  },
+  "payroll.my_payslips.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "payroll.my_payslips.title": {
+    "es": "Mis volantes de pago",
+    "en": "My payslips",
+    "pt": "Os meus recibos"
+  },
+  "payroll.no_account_configured_other_deductions_benefits": {
+    "es": "No hay una cuenta configurada para otras deducciones/beneficios por pagar.",
+    "en": "No account is configured for other deductions/benefits payable.",
+    "pt": "Nenhuma conta configurada para outras deduções/benefícios a pagar."
+  },
+  "payroll.no_contribution_parameters_p1_p2": {
+    "es": "No hay parámetros de contribución para {{p1}} en {{p2}}.",
+    "en": "No contribution parameters for {{p1}} on {{p2}}.",
+    "pt": "Sem parâmetros de contribuição para {{p1}} em {{p2}}."
+  },
+  "payroll.no_minimum_contributory_wage_p1_p2": {
+    "es": "No hay salario mínimo cotizable para {{p1}} en {{p2}}.",
+    "en": "No minimum contributory wage for {{p1}} on {{p2}}.",
+    "pt": "Sem salário mínimo de contribuição para {{p1}} em {{p2}}."
+  },
+  "payroll.one_more_inputs_reference_employee_outside": {
+    "es": "Una o más novedades referencian un empleado que no pertenece a la organización.",
+    "en": "One or more inputs reference an employee outside the organization.",
+    "pt": "Um ou mais lançamentos referenciam um funcionário fora da organização."
+  },
+  "payroll.only_approved_run_can_paid": {
+    "es": "Solo una corrida aprobada puede pagarse.",
+    "en": "Only an approved run can be paid.",
+    "pt": "Somente uma folha aprovada pode ser paga."
+  },
+  "payroll.only_calculated_run_can_approved": {
+    "es": "Solo una corrida calculada puede aprobarse.",
+    "en": "Only a calculated run can be approved.",
+    "pt": "Somente uma folha calculada pode ser aprovada."
+  },
+  "payroll.organization_has_no_default_ledger_configured": {
+    "es": "La organización no tiene un libro contable por defecto configurado.",
+    "en": "The organization has no default ledger configured.",
+    "pt": "A organização não tem um livro contábil padrão configurado."
+  },
+  "payroll.parameters.accumulated": {
+    "es": "Impuesto acumulado",
+    "en": "Accumulated tax",
+    "pt": "Imposto acumulado"
+  },
+  "payroll.parameters.base": {
+    "literal": "Base"
+  },
+  "payroll.parameters.base_label.payroll_uncapped": {
+    "es": "Nómina sin tope",
+    "en": "Payroll, uncapped",
+    "pt": "Folha sem teto"
+  },
+  "payroll.parameters.base_label.salary_capped": {
+    "es": "Salario con tope",
+    "en": "Salary, capped",
+    "pt": "Salário com teto"
+  },
+  "payroll.parameters.cap": {
+    "es": "Tope (× salario mínimo)",
+    "en": "Cap (× minimum wage)",
+    "pt": "Teto (× salário mínimo)"
+  },
+  "payroll.parameters.cap_help": {
+    "es": "Múltiplo del salario mínimo cotizable.",
+    "en": "A multiple of the minimum contributory wage.",
+    "pt": "Um múltiplo do salário mínimo contributivo."
+  },
+  "payroll.parameters.contributions": {
+    "es": "Aportes de seguridad social",
+    "en": "Social-security contributions",
+    "pt": "Contribuições para a segurança social"
+  },
+  "payroll.parameters.effective_from": {
+    "es": "Vigente desde",
+    "en": "Effective from",
+    "pt": "Vigente desde"
+  },
+  "payroll.parameters.employee_rate": {
+    "es": "Tasa del empleado",
+    "en": "Employee rate",
+    "pt": "Taxa do colaborador"
+  },
+  "payroll.parameters.employer_rate": {
+    "es": "Tasa patronal",
+    "en": "Employer rate",
+    "pt": "Taxa patronal"
+  },
+  "payroll.parameters.from_annual": {
+    "es": "Desde (anual)",
+    "en": "From (annual)",
+    "pt": "De (anual)"
+  },
+  "payroll.parameters.in_force": {
+    "es": "Vigencia",
+    "en": "In force",
+    "pt": "Vigência"
+  },
+  "payroll.parameters.key": {
+    "es": "Parámetro",
+    "en": "Parameter",
+    "pt": "Parâmetro"
+  },
+  "payroll.parameters.key_label.bonus_employee_levy_rate": {
+    "en": "Training-levy rate on the bonus",
+    "es": "Tasa de aporte de formación sobre la bonificación",
+    "pt": "Taxa de contribuição para formação sobre o bónus"
+  },
+  "payroll.parameters.key_label.isr_annual_exempt": {
+    "es": "Exención anual del ISR",
+    "en": "Annual income-tax exemption",
+    "pt": "Isenção anual de IRS"
+  },
+  "payroll.parameters.key_label.minimum_contributory_wage": {
+    "es": "Salario mínimo cotizable",
+    "en": "Minimum contributory wage",
+    "pt": "Salário mínimo contributivo"
+  },
+  "payroll.parameters.new_rate": {
+    "es": "Nueva tasa",
+    "en": "New rate",
+    "pt": "Nova taxa"
+  },
+  "payroll.parameters.new_reference": {
+    "es": "Nuevo valor",
+    "en": "New value",
+    "pt": "Novo valor"
+  },
+  "payroll.parameters.rate": {
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Taxa"
+  },
+  "payroll.parameters.rate_fact_about_moment_nothing_here": {
+    "es": "Una tasa es un hecho de un momento: nada se edita en su sitio. Un cambio es una fila nueva con su fecha de vigencia, para que una nómina recalculada después siga produciendo lo que produjo entonces.",
+    "en": "A rate is a fact about a moment: nothing here is edited in place. A change is a new row with the date it takes effect, so a payroll recomputed later still produces what it produced then.",
+    "pt": "Uma taxa é um facto de um momento: nada aqui se edita no lugar. Uma alteração é uma linha nova com a data em que passa a vigorar, para que uma folha recalculada depois continue a produzir o que produziu então."
+  },
+  "payroll.parameters.references": {
+    "es": "Valores de referencia",
+    "en": "Reference values",
+    "pt": "Valores de referência"
+  },
+  "payroll.parameters.regime": {
+    "es": "Régimen",
+    "en": "Regime",
+    "pt": "Regime"
+  },
+  "payroll.parameters.save_failed": {
+    "es": "No se pudo guardar el parámetro.",
+    "en": "The parameter could not be saved.",
+    "pt": "Não foi possível guardar o parâmetro."
+  },
+  "payroll.parameters.supersede": {
+    "es": "Sustituir",
+    "en": "Supersede",
+    "pt": "Substituir"
+  },
+  "payroll.parameters.tax_scale": {
+    "es": "Escala del ISR",
+    "en": "Income-tax scale",
+    "pt": "Escalão de IRS"
+  },
+  "payroll.parameters.tax_scale_help": {
+    "es": "La escala es un conjunto: se reemplaza completa con una fecha de vigencia, no fila por fila.",
+    "en": "A scale is a set: it is replaced whole as of a date, not row by row.",
+    "pt": "Um escalão é um conjunto: substitui-se por inteiro numa data, não linha a linha."
+  },
+  "payroll.parameters.title": {
+    "es": "Parámetros de ley",
+    "en": "Statutory parameters",
+    "pt": "Parâmetros legais"
+  },
+  "payroll.parameters.to_annual": {
+    "es": "Hasta (anual)",
+    "en": "To (annual)",
+    "pt": "Até (anual)"
+  },
+  "payroll.parameters.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "payroll.paying_payroll_requires_selecting_bank_account": {
+    "es": "El pago de la nómina requiere seleccionar una cuenta bancaria.",
+    "en": "Paying the payroll requires selecting a bank account.",
+    "pt": "O pagamento da folha requer a seleção de uma conta bancária."
+  },
+  "payroll.payroll_currency_p1_differs_from_ledger": {
+    "es": "La moneda de la nómina ({{p1}}) difiere de la del libro contable ({{p2}}).",
+    "en": "The payroll currency ({{p1}}) differs from the ledger currency ({{p2}}).",
+    "pt": "A moeda da folha ({{p1}}) difere da moeda do livro ({{p2}})."
+  },
+  "payroll.payroll_journal_nomina_not_found_create": {
+    "es": "No se encontró el diario de nómina (NOMINA); favor créelo.",
+    "en": "The payroll journal (NOMINA) was not found; please create it.",
+    "pt": "O diário da folha (NOMINA) não foi encontrado; crie-o."
+  },
+  "payroll.payroll_jurisdiction_p1_not_supported": {
+    "es": "La jurisdicción de nómina \"{{p1}}\" no está soportada.",
+    "en": "Payroll jurisdiction \"{{p1}}\" is not supported.",
+    "pt": "A jurisdição de folha \"{{p1}}\" não é suportada."
+  },
+  "payroll.payroll_ledger_accounts_not_configured_p1": {
+    "es": "Faltan cuentas contables de nómina por configurar: {{p1}}.",
+    "en": "Payroll ledger accounts are not configured: {{p1}}.",
+    "pt": "Contas contábeis da folha não configuradas: {{p1}}."
+  },
+  "payroll.payroll_run_id_not_found": {
+    "es": "No se encontró la corrida de nómina \"{{id}}\".",
+    "en": "Payroll run \"{{id}}\" was not found.",
+    "pt": "Folha de pagamento \"{{id}}\" não encontrada."
+  },
+  "payroll.payslip.afp": {
+    "es": "AFP",
+    "en": "Pension",
+    "pt": "Pensões"
+  },
+  "payroll.payslip.base_salary": {
+    "es": "Salario base",
+    "en": "Base salary",
+    "pt": "Salário base"
+  },
+  "payroll.payslip.deductions": {
+    "es": "Deducciones",
+    "en": "Deductions",
+    "pt": "Descontos"
+  },
+  "payroll.payslip.gross": {
+    "es": "Devengado",
+    "en": "Gross",
+    "pt": "Bruto"
+  },
+  "payroll.payslip.isr": {
+    "es": "ISR",
+    "en": "Income tax",
+    "pt": "IRS"
+  },
+  "payroll.payslip.net": {
+    "es": "Neto",
+    "en": "Net",
+    "pt": "Líquido"
+  },
+  "payroll.payslip.sfs": {
+    "es": "SFS",
+    "en": "Health",
+    "pt": "Saúde"
+  },
+  "payroll.period_month_invalid_p1": {
+    "es": "El mes del período es inválido: {{p1}}.",
+    "en": "The period month is invalid: {{p1}}.",
+    "pt": "O mês do período é inválido: {{p1}}."
+  },
+  "payroll.run_already_exists_p1": {
+    "es": "Ya existe una corrida para {{p1}}.",
+    "en": "A run already exists for {{p1}}.",
+    "pt": "Já existe uma folha para {{p1}}."
+  },
+  "payroll.run_approved_immutable_use_adjustment_run": {
+    "es": "La corrida está aprobada y es inmutable; use una corrida de ajuste.",
+    "en": "The run is approved and immutable; use an adjustment run.",
+    "pt": "A folha está aprovada e é imutável; use uma folha de ajuste."
+  },
+  "payroll.run_cancelled_cannot_edited": {
+    "es": "La corrida está cancelada y no puede editarse.",
+    "en": "The run is cancelled and cannot be edited.",
+    "pt": "A folha está cancelada e não pode ser editada."
+  },
+  "payroll.run_correct_id_not_found": {
+    "es": "No se encontró la corrida a corregir \"{{id}}\".",
+    "en": "The run to correct \"{{id}}\" was not found.",
+    "pt": "A folha a corrigir \"{{id}}\" não foi encontrada."
+  },
+  "payroll.run_has_no_amounts_post": {
+    "es": "La corrida no tiene montos que contabilizar.",
+    "en": "The run has no amounts to post.",
+    "pt": "A folha não tem valores a lançar."
+  },
+  "payroll.run_has_no_payslips_cannot_approved": {
+    "es": "La corrida no tiene volantes y no puede aprobarse.",
+    "en": "The run has no payslips and cannot be approved.",
+    "pt": "A folha não tem holerites e não pode ser aprovada."
+  },
+  "payroll.run_not_found": {
+    "es": "No se encontró la nómina.",
+    "en": "The payroll run was not found.",
+    "pt": "A folha de pagamento não foi encontrada."
+  },
+  "payroll.runs.action_failed": {
+    "es": "No se pudo completar la operación.",
+    "en": "The operation could not be completed.",
+    "pt": "Não foi possível concluir a operação."
+  },
+  "payroll.runs.add_input": {
+    "es": "Agregar novedad",
+    "en": "Add an input",
+    "pt": "Adicionar variável"
+  },
+  "payroll.runs.amount_or_hours": {
+    "es": "Monto / horas",
+    "en": "Amount / hours",
+    "pt": "Valor / horas"
+  },
+  "payroll.runs.approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "payroll.runs.calculate": {
+    "es": "Calcular",
+    "en": "Calculate",
+    "pt": "Calcular"
+  },
+  "payroll.runs.cancel": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Cancelar"
+  },
+  "payroll.runs.concept": {
+    "es": "Concepto",
+    "en": "Concept",
+    "pt": "Conceito"
+  },
+  "payroll.runs.create": {
+    "es": "Crear",
+    "en": "Create",
+    "pt": "Criar"
+  },
+  "payroll.runs.create_failed": {
+    "es": "No se pudo crear la nómina.",
+    "en": "The run could not be created.",
+    "pt": "Não foi possível criar a folha."
+  },
+  "payroll.runs.deductions": {
+    "es": "Deducciones",
+    "en": "Deductions",
+    "pt": "Descontos"
+  },
+  "payroll.runs.employee": {
+    "es": "Empleado",
+    "en": "Employee",
+    "pt": "Colaborador"
+  },
+  "payroll.runs.employer_cost": {
+    "es": "Aportes patronales",
+    "en": "Employer contributions",
+    "pt": "Encargos patronais"
+  },
+  "payroll.runs.export_suir": {
+    "es": "Descargar SUIR",
+    "en": "Download SUIR",
+    "pt": "Descarregar SUIR"
+  },
+  "payroll.runs.gross": {
+    "es": "Devengado",
+    "en": "Gross",
+    "pt": "Bruto"
+  },
+  "payroll.runs.inputs": {
+    "es": "Novedades del período",
+    "en": "This period’s variable inputs",
+    "pt": "Variáveis do período"
+  },
+  "payroll.runs.inputs_help": {
+    "es": "Horas extra, comisiones, descuentos: lo que cambia de un mes a otro. Se envían como conjunto completo antes de calcular.",
+    "en": "Overtime, commission, a deduction: what changes from one month to the next. Submitted as a whole set before calculating.",
+    "pt": "Horas extra, comissões, descontos: o que muda de um mês para o outro. Enviadas como conjunto completo antes de calcular."
+  },
+  "payroll.runs.inputs_saved": {
+    "es": "Novedades guardadas.",
+    "en": "Inputs saved.",
+    "pt": "Variáveis guardadas."
+  },
+  "payroll.runs.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "payroll.runs.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "payroll.runs.net": {
+    "es": "Neto a pagar",
+    "en": "Net payable",
+    "pt": "Líquido a pagar"
+  },
+  "payroll.runs.new": {
+    "es": "Nueva nómina",
+    "en": "New run",
+    "pt": "Nova folha"
+  },
+  "payroll.runs.no_employees_or_concepts": {
+    "es": "Hace falta al menos un empleado activo y un concepto para registrar novedades.",
+    "en": "At least one active employee and one concept are needed to record inputs.",
+    "pt": "É preciso pelo menos um colaborador ativo e um conceito para registar variáveis."
+  },
+  "payroll.runs.no_inputs": {
+    "es": "Sin novedades para este período.",
+    "en": "Nothing variable this period.",
+    "pt": "Sem variáveis neste período."
+  },
+  "payroll.runs.no_payslips": {
+    "es": "Todavía no se ha calculado la nómina.",
+    "en": "The run has not been calculated yet.",
+    "pt": "A folha ainda não foi calculada."
+  },
+  "payroll.runs.note": {
+    "es": "Nota",
+    "en": "Note",
+    "pt": "Nota"
+  },
+  "payroll.runs.pay": {
+    "es": "Marcar como pagada",
+    "en": "Mark as paid",
+    "pt": "Marcar como paga"
+  },
+  "payroll.runs.payslips": {
+    "es": "Volantes de pago",
+    "en": "Payslips",
+    "pt": "Recibos de vencimento"
+  },
+  "payroll.runs.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "payroll.runs.save_inputs": {
+    "es": "Guardar novedades",
+    "en": "Save inputs",
+    "pt": "Guardar variáveis"
+  },
+  "payroll.runs.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "payroll.runs.status_label.approved": {
+    "es": "Aprobada",
+    "en": "Approved",
+    "pt": "Aprovada"
+  },
+  "payroll.runs.status_label.calculated": {
+    "es": "Calculada",
+    "en": "Calculated",
+    "pt": "Calculada"
+  },
+  "payroll.runs.status_label.cancelled": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Cancelada"
+  },
+  "payroll.runs.status_label.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "payroll.runs.status_label.paid": {
+    "es": "Pagada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "payroll.runs.title": {
+    "es": "Nóminas",
+    "en": "Payroll runs",
+    "pt": "Folhas de pagamento"
+  },
+  "payroll.runs.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "payroll.runs.type_label.adjustment": {
+    "es": "Ajuste",
+    "en": "Adjustment",
+    "pt": "Ajuste"
+  },
+  "payroll.runs.type_label.christmas_bonus": {
+    "en": "Year-end bonus",
+    "es": "Bonificación de fin de año",
+    "note": "Named after the concept because every market calls it something else: regalía pascual (DO), aguinaldo (MX, AR, CL, CR), prima de navidad (CO), gratificación (PE). Each of those is a regional override.",
+    "pt": "Bónus de fim de ano"
+  },
+  "payroll.runs.type_label.regular": {
+    "es": "Ordinaria",
+    "en": "Regular",
+    "pt": "Regular"
+  },
+  "payroll.runs.year": {
+    "es": "Año",
+    "en": "Year",
+    "pt": "Ano"
+  },
+  "payroll.self_assessment_requires_approved_run": {
+    "es": "La Autodeterminación requiere una corrida aprobada.",
+    "en": "The Autodeterminación requires an approved run.",
+    "pt": "A Autodeterminación requer uma folha aprovada."
+  },
+  "payroll.system_concept_cannot_deleted_deactivate_instead": {
+    "es": "Un concepto del sistema no se elimina; desactívelo.",
+    "en": "A system concept cannot be deleted; deactivate it instead.",
+    "pt": "Um conceito do sistema não pode ser excluído; desative-o."
+  },
+  "payroll.unknown_concept_inputs_p1": {
+    "es": "Concepto(s) desconocido(s) en las novedades: {{p1}}.",
+    "en": "Unknown concept(s) in the inputs: {{p1}}.",
+    "pt": "Conceito(s) desconhecido(s) nos lançamentos: {{p1}}."
+  },
+  "payroll.whoever_approves_payroll_cannot_whoever_calculated": {
+    "es": "Quien aprueba la nómina no puede ser quien la calculó (segregación de funciones).",
+    "en": "Whoever approves the payroll cannot be whoever calculated it (segregation of duties).",
+    "pt": "Quem aprova a folha não pode ser quem a calculou (segregação de funções)."
+  }
+}

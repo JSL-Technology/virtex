@@ -1,0 +1,432 @@
+{
+  "inventory.cannot_delete_category_has_count_subcategory": {
+    "es": "No se puede eliminar: la categoría tiene {{count}} subcategoría(s). Muévelas o elimínalas primero.",
+    "en": "Cannot delete: the category has {{count}} subcategory(ies). Move or delete them first.",
+    "pt": "Não é possível eliminar: a categoria tem {{count}} subcategoria(s). Mova-as ou elimine-as primeiro."
+  },
+  "inventory.categories.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "inventory.categories.categories": {
+    "es": "Categorías",
+    "en": "Categories",
+    "pt": "Categorias"
+  },
+  "inventory.categories.category_list_management_will_appear_here": {
+    "es": "Aquí se mostrará la lista y gestión de categorías.",
+    "en": "The category list and its management will appear here.",
+    "pt": "A lista e a gestão de categorias aparecerão aqui."
+  },
+  "inventory.categories.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "inventory.categories.deactivate": {
+    "es": "Retirar",
+    "en": "Retire",
+    "pt": "Retirar"
+  },
+  "inventory.categories.empty": {
+    "es": "Todavía no hay categorías. Crea la primera para empezar a organizar el catálogo.",
+    "en": "No categories yet. Create the first one to start organising the catalogue.",
+    "pt": "Ainda não há categorias. Crie a primeira para começar a organizar o catálogo."
+  },
+  "inventory.categories.inactive": {
+    "es": "Retirada",
+    "en": "Retired",
+    "pt": "Retirada"
+  },
+  "inventory.categories.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "inventory.categories.new_category": {
+    "es": "Nueva\n                    Categoría",
+    "en": "New\n                    Category",
+    "pt": "Nova\n                    Categoria"
+  },
+  "inventory.categories.no_parent": {
+    "es": "Sin categoría superior",
+    "en": "No parent category",
+    "pt": "Sem categoria superior"
+  },
+  "inventory.categories.organize_your_products_into_categories": {
+    "es": "Organiza tus productos en diferentes categorías.",
+    "en": "Organize your products into categories.",
+    "pt": "Organize seus produtos em categorias."
+  },
+  "inventory.categories.parent": {
+    "es": "Categoría superior",
+    "en": "Parent category",
+    "pt": "Categoria superior"
+  },
+  "inventory.categories.reactivate": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "inventory.categories.save_failed": {
+    "es": "No se pudo guardar la categoría.",
+    "en": "The category could not be saved.",
+    "pt": "Não foi possível guardar a categoria."
+  },
+  "inventory.categories.show_inactive": {
+    "es": "Mostrar retiradas",
+    "en": "Show retired",
+    "pt": "Mostrar retiradas"
+  },
+  "inventory.categories.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "inventory.category_called_name_already_exists": {
+    "es": "Ya existe una categoría llamada \"{{name}}\".",
+    "en": "A category called \"{{name}}\" already exists.",
+    "pt": "Já existe uma categoria chamada \"{{name}}\"."
+  },
+  "inventory.category_cannot_moved_inside_one_own": {
+    "es": "No se puede mover una categoría dentro de una de sus propias subcategorías.",
+    "en": "A category cannot be moved inside one of its own subcategories.",
+    "pt": "Não é possível mover uma categoria para dentro de uma das suas próprias subcategorias."
+  },
+  "inventory.category_in_use": {
+    "es": "No se puede eliminar: {{count}} producto(s) están clasificados en esta categoría. Reclasifícalos o retira la categoría en vez de borrarla.",
+    "en": "Cannot delete: {{count}} product(s) are filed under this category. Reclassify them, or retire the category instead of deleting it.",
+    "pt": "Não é possível eliminar: {{count}} produto(s) estão classificados nesta categoria. Reclassifique-os ou retire a categoria em vez de a apagar."
+  },
+  "inventory.category_inactive": {
+    "es": "La categoría \"{{name}}\" está retirada y no se puede asignar a un producto.",
+    "en": "The category \"{{name}}\" is retired and cannot be assigned to a product.",
+    "pt": "A categoria \"{{name}}\" está retirada e não pode ser atribuída a um produto."
+  },
+  "inventory.category_name_required": {
+    "es": "La categoría necesita un nombre.",
+    "en": "The category needs a name.",
+    "pt": "A categoria precisa de um nome."
+  },
+  "inventory.category_not_found": {
+    "es": "Categoría de producto con ID \"{{id}}\" no encontrada.",
+    "en": "Product category with ID \"{{id}}\" not found.",
+    "pt": "Categoria de produto com ID \"{{id}}\" não encontrada."
+  },
+  "inventory.category_parent_is_self": {
+    "es": "Una categoría no puede ser su propia categoría superior.",
+    "en": "A category cannot be its own parent.",
+    "pt": "Uma categoria não pode ser a sua própria categoria superior."
+  },
+  "inventory.category_too_deep": {
+    "es": "El árbol de categorías no puede tener más de {{max}} niveles.",
+    "en": "The category tree cannot be more than {{max}} levels deep.",
+    "pt": "A árvore de categorias não pode ter mais de {{max}} níveis."
+  },
+  "inventory.no_general_general_journal_organization_create": {
+    "es": "No existe el diario General (GENERAL) en esta organización; créelo en Ajustes de contabilidad.",
+    "en": "There is no General (GENERAL) journal in this organization; create it in accounting settings.",
+    "pt": "Não existe o diário Geral (GENERAL) nesta organização; crie-o nas definições de contabilidade."
+  },
+  "inventory.not_enough_stock_name_available_available": {
+    "es": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
+    "en": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",
+    "pt": "Estoque insuficiente para \"{{name}}\": {{available}} disponíveis, {{quantity}} solicitadas."
+  },
+  "inventory.not_enough_stock_product_name": {
+    "es": "Stock insuficiente para el producto \"{{name}}\".",
+    "en": "Not enough stock for the product \"{{name}}\".",
+    "pt": "Estoque insuficiente para o produto \"{{name}}\"."
+  },
+  "inventory.organization_has_no_inventory_inventory_adjustment": {
+    "es": "La organización no tiene configuradas las cuentas de inventario y de ajustes de inventario; no se puede registrar el ajuste.",
+    "en": "This organization has no inventory and inventory-adjustment accounts configured, so the adjustment cannot be recorded.",
+    "pt": "A organização não tem contas de estoque e de ajustes de estoque configuradas; não é possível registar o ajuste."
+  },
+  "inventory.organization_has_no_inventory_opening_balance": {
+    "es": "La organización no tiene configuradas las cuentas de inventario y de saldos iniciales; no se puede registrar la existencia inicial.",
+    "en": "This organization has no inventory and opening-balance accounts configured, so the opening stock cannot be recorded.",
+    "pt": "A organização não tem contas de estoque e de saldos iniciais configuradas; não é possível registar a existência inicial."
+  },
+  "inventory.product_form.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "inventory.product_form.basic_information": {
+    "es": "Información Básica",
+    "en": "Basic Information",
+    "pt": "Informações Básicas"
+  },
+  "inventory.product_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "inventory.product_form.category": {
+    "es": "Categoría*",
+    "en": "Category*",
+    "pt": "Categoria*"
+  },
+  "inventory.product_form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "inventory.product_form.error_creating_product": {
+    "es": "Error al crear el producto.",
+    "en": "Error creating the product.",
+    "pt": "Erro ao criar o produto."
+  },
+  "inventory.product_form.error_updating_product": {
+    "es": "Error al actualizar el producto.",
+    "en": "Error updating the product.",
+    "pt": "Erro ao atualizar o produto."
+  },
+  "inventory.product_form.fill_details_your_product_service": {
+    "es": "Completa la información detallada de tu producto o servicio.",
+    "en": "Fill in the details of your product or service.",
+    "pt": "Preencha os dados do seu produto ou serviço."
+  },
+  "inventory.product_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "inventory.product_form.inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
+  },
+  "inventory.product_form.no_categories_yet_create_them_under": {
+    "es": "Todavía no hay categorías. Créalas en Inventario → Categorías.",
+    "en": "No categories yet. Create them under Inventory → Categories.",
+    "pt": "Ainda não há categorias. Crie-as em Inventário → Categorias."
+  },
+  "inventory.product_form.no_category": {
+    "es": "Sin categoría",
+    "en": "No category",
+    "pt": "Sem categoria"
+  },
+  "inventory.product_form.organization": {
+    "es": "Organización",
+    "en": "Organization",
+    "pt": "Organização"
+  },
+  "inventory.product_form.preview": {
+    "es": "Vista previa",
+    "en": "Preview",
+    "pt": "Prévia"
+  },
+  "inventory.product_form.pricing_stock": {
+    "es": "Precios y Stock",
+    "en": "Pricing and Stock",
+    "pt": "Preços e Estoque"
+  },
+  "inventory.product_form.product_could_not_loaded": {
+    "es": "No se pudo cargar el producto.",
+    "en": "The product could not be loaded.",
+    "pt": "Não foi possível carregar o produto."
+  },
+  "inventory.product_form.product_created": {
+    "es": "Producto creado exitosamente.",
+    "en": "Product created.",
+    "pt": "Produto criado."
+  },
+  "inventory.product_form.product_image": {
+    "es": "Imagen del Producto",
+    "en": "Product Image",
+    "pt": "Imagem do Produto"
+  },
+  "inventory.product_form.product_name": {
+    "es": "Nombre del Producto*",
+    "en": "Product Name*",
+    "pt": "Nome do Produto*"
+  },
+  "inventory.product_form.product_updated": {
+    "es": "Producto actualizado exitosamente.",
+    "en": "Product updated.",
+    "pt": "Produto atualizado."
+  },
+  "inventory.product_form.quantity_stock": {
+    "es": "Cantidad en Stock*",
+    "en": "Quantity in Stock*",
+    "pt": "Quantidade em Estoque*"
+  },
+  "inventory.product_form.reorder_level": {
+    "es": "Nivel de Reorden",
+    "en": "Reorder Level",
+    "pt": "Ponto de Reposição"
+  },
+  "inventory.product_form.sale_price": {
+    "es": "Precio de Venta*",
+    "en": "Sale Price*",
+    "pt": "Preço de Venda*"
+  },
+  "inventory.product_form.save_product": {
+    "es": "Guardar producto",
+    "en": "Save product",
+    "pt": "Salvar produto"
+  },
+  "inventory.product_form.select": {
+    "es": "Seleccionar...",
+    "en": "Select...",
+    "pt": "Selecionar..."
+  },
+  "inventory.product_form.sku_product_code": {
+    "es": "SKU (Código de Producto)",
+    "en": "SKU (Product Code)",
+    "pt": "SKU (Código do Produto)"
+  },
+  "inventory.product_form.status": {
+    "es": "Estado*",
+    "en": "Status*",
+    "pt": "Situação*"
+  },
+  "inventory.product_form.title_edit": {
+    "es": "Editar producto",
+    "en": "Edit product",
+    "pt": "Editar produto"
+  },
+  "inventory.product_form.title_new": {
+    "es": "Nuevo producto",
+    "en": "New product",
+    "pt": "Novo produto"
+  },
+  "inventory.product_form.unit_cost": {
+    "es": "Costo Unitario",
+    "en": "Unit Cost",
+    "pt": "Custo Unitário"
+  },
+  "inventory.product_form.upload_image": {
+    "es": "Subir imagen",
+    "en": "Upload an image",
+    "pt": "Enviar imagem"
+  },
+  "inventory.product_form.what_item_cost_you_drives_cost": {
+    "es": "Lo que te costó el artículo. Determina el costo de venta y la valoración del inventario.",
+    "en": "What the item cost you. Drives cost of sale and inventory valuation.",
+    "pt": "Quanto o artigo lhe custou. Determina o custo da venda e a valorização do inventário."
+  },
+  "inventory.product_id_not_found": {
+    "es": "Producto con ID \"{{id}}\" no encontrado.",
+    "en": "Product \"{{id}}\" was not found.",
+    "pt": "Produto \"{{id}}\" não encontrado."
+  },
+  "inventory.product_product_id_not_found_organization": {
+    "es": "Producto con ID \"{{productId}}\" no encontrado en esta organización.",
+    "en": "Product \"{{productId}}\" was not found in this organization.",
+    "pt": "Produto \"{{productId}}\" não encontrado nesta organização."
+  },
+  "inventory.product_product_id_not_found_transaction": {
+    "es": "Producto con ID \"{{productId}}\" no encontrado en la transacción.",
+    "en": "Product \"{{productId}}\" was not found in the transaction.",
+    "pt": "Produto \"{{productId}}\" não encontrado na transação."
+  },
+  "inventory.products.category": {
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
+  },
+  "inventory.products.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "inventory.products.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "inventory.products.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "inventory.products.error_deleting_product": {
+    "es": "Error al eliminar el producto.",
+    "en": "Error deleting the product.",
+    "pt": "Erro ao excluir o produto."
+  },
+  "inventory.products.load_failed": {
+    "es": "No se pudieron cargar los productos. Inténtalo de nuevo.",
+    "en": "The products could not be loaded. Try again.",
+    "pt": "Não foi possível carregar os produtos. Tente novamente."
+  },
+  "inventory.products.loading_products": {
+    "es": "Cargando productos...",
+    "en": "Loading products...",
+    "pt": "Carregando produtos..."
+  },
+  "inventory.products.manage_every_product_service_your_company": {
+    "es": "Gestiona todos los productos y servicios de tu empresa.",
+    "en": "Manage every product and service your company offers.",
+    "pt": "Gerencie todos os produtos e serviços da sua empresa."
+  },
+  "inventory.products.new_product": {
+    "es": "Nuevo Producto",
+    "en": "New Product",
+    "pt": "Novo Produto"
+  },
+  "inventory.products.no_products_found": {
+    "es": "No se encontraron productos.",
+    "en": "No products were found.",
+    "pt": "Nenhum produto encontrado."
+  },
+  "inventory.products.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "inventory.products.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "inventory.products.product_deleted": {
+    "es": "Producto eliminado exitosamente.",
+    "en": "Product deleted.",
+    "pt": "Produto excluído."
+  },
+  "inventory.products.product_inventory": {
+    "es": "Inventario de Productos",
+    "en": "Product Inventory",
+    "pt": "Estoque de Produtos"
+  },
+  "inventory.products.search_name_sku_category": {
+    "es": "Buscar por nombre, SKU o categoría...",
+    "en": "Search by name, SKU or category...",
+    "pt": "Buscar por nome, SKU ou categoria..."
+  },
+  "inventory.products.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "inventory.products.status_inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
+  },
+  "inventory.products.stock": {
+    "es": "Stock",
+    "en": "Stock Levels",
+    "pt": "Estoque"
+  },
+  "inventory.products.stock_in": {
+    "es": "En existencia",
+    "en": "In stock",
+    "pt": "Em estoque"
+  },
+  "inventory.products.stock_out": {
+    "es": "Agotado",
+    "en": "Out of stock",
+    "pt": "Esgotado"
+  },
+  "inventory.products.try_adjusting_your_search_create_new": {
+    "es": "Intenta ajustar tu búsqueda o crea un nuevo producto.",
+    "en": "Try adjusting your search, or create a new product.",
+    "pt": "Tente ajustar sua busca ou crie um novo produto."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "transition.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "transition.credit": {
+    "es": "Haber",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "transition.debit": {
+    "es": "Debe",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "transition.effects": {
+    "es": "Efectos",
+    "en": "Effects",
+    "pt": "Efeitos"
+  },
+  "transition.entry_does_not_balance_review_before": {
+    "es": "El asiento no cuadra. Revísalo antes de continuar.",
+    "en": "The entry does not balance. Review it before continuing.",
+    "pt": "O lançamento não fecha. Reveja antes de continuar."
+  },
+  "transition.lines": {
+    "es": "{{count}} líneas",
+    "en": "{{count}} lines",
+    "pt": "{{count}} linhas"
+  },
+  "transition.preconditions": {
+    "es": "Precondiciones",
+    "en": "Preconditions",
+    "pt": "Precondições"
+  },
+  "transition.totals": {
+    "es": "Totales",
+    "en": "Totals",
+    "pt": "Totais"
+  }
+}

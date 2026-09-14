@@ -1,0 +1,346 @@
+{
+  "hcm.compensation_with_effective_date_already_exists": {
+    "es": "Ya existe una compensación con esa fecha de vigencia para este empleado.",
+    "en": "A compensation with that effective date already exists for this employee.",
+    "pt": "Já existe uma remuneração com essa data de vigência para este funcionário."
+  },
+  "hcm.department_not_found": {
+    "es": "No se encontró el departamento \"{{id}}\".",
+    "en": "Department \"{{id}}\" was not found.",
+    "pt": "O departamento \"{{id}}\" não foi encontrado."
+  },
+  "hcm.departments.cost_centre": {
+    "es": "Centro de costo",
+    "en": "Cost centre",
+    "pt": "Centro de custo"
+  },
+  "hcm.departments.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "hcm.departments.new": {
+    "es": "Nuevo departamento",
+    "en": "New department",
+    "pt": "Novo departamento"
+  },
+  "hcm.departments.save_failed": {
+    "es": "No se pudo guardar el departamento.",
+    "en": "The department could not be saved.",
+    "pt": "Não foi possível guardar o departamento."
+  },
+  "hcm.departments.title": {
+    "es": "Departamentos",
+    "en": "Departments",
+    "pt": "Departamentos"
+  },
+  "hcm.employee_not_found": {
+    "es": "No se encontró el empleado \"{{id}}\".",
+    "en": "Employee \"{{id}}\" was not found.",
+    "pt": "O colaborador \"{{id}}\" não foi encontrado."
+  },
+  "hcm.employee_with_national_id_email_already": {
+    "es": "Ya existe un empleado con esa cédula o correo en esta organización.",
+    "en": "An employee with that national id or email already exists in this organization.",
+    "pt": "Já existe um funcionário com esse documento ou e-mail nesta organização."
+  },
+  "hcm.employees.department": {
+    "es": "Departamento",
+    "en": "Department",
+    "pt": "Departamento"
+  },
+  "hcm.employees.form.add_pay": {
+    "es": "Registrar un cambio salarial",
+    "en": "Record a pay change",
+    "pt": "Registar uma alteração salarial"
+  },
+  "hcm.employees.form.afp": {
+    "es": "AFP",
+    "en": "Pension fund (AFP)",
+    "pt": "Fundo de pensões (AFP)"
+  },
+  "hcm.employees.form.bank": {
+    "es": "Cuenta para el pago",
+    "en": "Account wages are paid into",
+    "pt": "Conta para o pagamento"
+  },
+  "hcm.employees.form.bank_account": {
+    "es": "Número de cuenta",
+    "en": "Account number",
+    "pt": "Número da conta"
+  },
+  "hcm.employees.form.bank_account_type": {
+    "es": "Tipo de cuenta",
+    "en": "Account type",
+    "pt": "Tipo de conta"
+  },
+  "hcm.employees.form.bank_name": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "hcm.employees.form.base_salary": {
+    "es": "Salario base",
+    "en": "Base salary",
+    "pt": "Salário base"
+  },
+  "hcm.employees.form.contract": {
+    "es": "Tipo de contrato",
+    "en": "Contract type",
+    "pt": "Tipo de contrato"
+  },
+  "hcm.employees.form.contract_type.fixed_term": {
+    "es": "Tiempo determinado",
+    "en": "Fixed term",
+    "pt": "Prazo certo"
+  },
+  "hcm.employees.form.contract_type.indefinite": {
+    "es": "Indefinido",
+    "en": "Indefinite",
+    "pt": "Indeterminado"
+  },
+  "hcm.employees.form.contract_type.occasional": {
+    "es": "Ocasional",
+    "en": "Occasional",
+    "pt": "Ocasional"
+  },
+  "hcm.employees.form.document": {
+    "es": "Documento",
+    "en": "Document",
+    "pt": "Documento"
+  },
+  "hcm.employees.form.document_help": {
+    "es": "Cifrado. Déjalo en blanco para no cambiarlo.",
+    "en": "Encrypted. Leave blank to keep the current one.",
+    "pt": "Cifrado. Deixe em branco para manter o atual."
+  },
+  "hcm.employees.form.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "hcm.employees.form.document_type.national_id": {
+    "en": "National ID",
+    "es": "Documento de identidad",
+    "pt": "Documento de identidade"
+  },
+  "hcm.employees.form.document_type.passport": {
+    "es": "Pasaporte",
+    "en": "Passport",
+    "pt": "Passaporte"
+  },
+  "hcm.employees.form.document_type.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
+  "hcm.employees.form.effective_from": {
+    "es": "Vigente desde",
+    "en": "Effective from",
+    "pt": "Vigente desde"
+  },
+  "hcm.employees.form.email": {
+    "es": "Correo",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "hcm.employees.form.employment": {
+    "es": "Vínculo laboral",
+    "en": "Employment",
+    "pt": "Vínculo"
+  },
+  "hcm.employees.form.first_name": {
+    "es": "Nombres",
+    "en": "First name",
+    "pt": "Nome"
+  },
+  "hcm.employees.form.frequency": {
+    "es": "Frecuencia",
+    "en": "Frequency",
+    "pt": "Frequência"
+  },
+  "hcm.employees.form.frequency_label.fortnightly": {
+    "es": "Quincenal",
+    "en": "Fortnightly",
+    "pt": "Quinzenal"
+  },
+  "hcm.employees.form.frequency_label.monthly": {
+    "es": "Mensual",
+    "en": "Monthly",
+    "pt": "Mensal"
+  },
+  "hcm.employees.form.frequency_label.weekly": {
+    "es": "Semanal",
+    "en": "Weekly",
+    "pt": "Semanal"
+  },
+  "hcm.employees.form.holiday": {
+    "es": "Vacaciones",
+    "en": "Holiday",
+    "pt": "Férias"
+  },
+  "hcm.employees.form.identity": {
+    "es": "Identidad fiscal y seguridad social",
+    "en": "Fiscal identity and social security",
+    "pt": "Identidade fiscal e segurança social"
+  },
+  "hcm.employees.form.job_title": {
+    "es": "Puesto",
+    "en": "Job title",
+    "pt": "Cargo"
+  },
+  "hcm.employees.form.last_day": {
+    "es": "Último día laborado",
+    "en": "Last day worked",
+    "pt": "Último dia trabalhado"
+  },
+  "hcm.employees.form.last_name": {
+    "es": "Apellidos",
+    "en": "Last Name",
+    "pt": "Sobrenome"
+  },
+  "hcm.employees.form.leaving_date": {
+    "es": "Fecha de salida",
+    "en": "Leaving date",
+    "pt": "Data de saída"
+  },
+  "hcm.employees.form.no_pay": {
+    "es": "Sin salario registrado: la nómina no puede incluir a esta persona.",
+    "en": "No salary on record: payroll cannot include this person.",
+    "pt": "Sem salário registado: a folha não pode incluir esta pessoa."
+  },
+  "hcm.employees.form.notice": {
+    "es": "Preaviso",
+    "en": "Notice",
+    "pt": "Aviso prévio"
+  },
+  "hcm.employees.form.pay_history": {
+    "es": "Historial salarial",
+    "en": "Pay history",
+    "pt": "Histórico salarial"
+  },
+  "hcm.employees.form.pay_history_help": {
+    "es": "Un aumento agrega una línea con su fecha de vigencia; nunca reescribe lo que una nómina pasada calculó.",
+    "en": "A raise adds a line with the date it takes effect; it never rewrites what a past payroll was computed on.",
+    "pt": "Um aumento acrescenta uma linha com a data em que passa a vigorar; nunca reescreve o que uma folha passada calculou."
+  },
+  "hcm.employees.form.person": {
+    "es": "Datos personales",
+    "en": "Personal details",
+    "pt": "Dados pessoais"
+  },
+  "hcm.employees.form.preview_severance": {
+    "es": "Calcular",
+    "en": "Calculate",
+    "pt": "Calcular"
+  },
+  "hcm.employees.form.proportional_bonus": {
+    "en": "Proportional year-end bonus",
+    "es": "Bonificación proporcional de fin de año",
+    "pt": "Bónus proporcional de fim de ano"
+  },
+  "hcm.employees.form.save_failed": {
+    "es": "No se pudo guardar el empleado.",
+    "en": "The employee could not be saved.",
+    "pt": "Não foi possível guardar o colaborador."
+  },
+  "hcm.employees.form.saved": {
+    "es": "Empleado guardado.",
+    "en": "Employee saved.",
+    "pt": "Colaborador guardado."
+  },
+  "hcm.employees.form.severance": {
+    "es": "Auxilio de cesantía",
+    "en": "Severance",
+    "pt": "Indemnização"
+  },
+  "hcm.employees.form.severance_calculation": {
+    "es": "Cálculo de prestaciones",
+    "en": "Severance calculation",
+    "pt": "Cálculo de indemnização"
+  },
+  "hcm.employees.form.severance_failed": {
+    "es": "No se pudo calcular la liquidación.",
+    "en": "The severance could not be calculated.",
+    "pt": "Não foi possível calcular a indemnização."
+  },
+  "hcm.employees.form.severance_help": {
+    "en": "What the termination would cost, before deciding on it. Includes notice, severance, accrued vacation and the proportional year-end bonus under the country's own law.",
+    "es": "Lo que costaría la desvinculación, antes de decidirla. Incluye preaviso, cesantía, vacaciones y bonificación proporcional de fin de año según la legislación del país.",
+    "note": "The previous text cited articles 76, 80 and 177 of the Dominican labour code from a screen every market sees. The article numbers now live in regional/es-do.json.",
+    "pt": "Quanto custaria a rescisão, antes de a decidir. Inclui aviso prévio, indemnização, férias e o bónus proporcional de fim de ano segundo a legislação do país."
+  },
+  "hcm.employees.form.severance_total": {
+    "literal": "Total"
+  },
+  "hcm.employees.form.sfs": {
+    "es": "ARS / SFS",
+    "en": "Health fund (ARS/SFS)",
+    "pt": "Fundo de saúde (ARS/SFS)"
+  },
+  "hcm.employees.form.show_sensitive_fields": {
+    "es": "Ver los datos sensibles",
+    "en": "Show the sensitive fields",
+    "pt": "Ver os dados sensíveis"
+  },
+  "hcm.employees.form.tss_nss": {
+    "en": "Social security number",
+    "es": "Número de seguridad social",
+    "pt": "Número de segurança social"
+  },
+  "hcm.employees.hire_date": {
+    "es": "Fecha de ingreso",
+    "en": "Hired",
+    "pt": "Admissão"
+  },
+  "hcm.employees.include_people_who_have_left": {
+    "es": "Incluir desvinculados",
+    "en": "Include people who have left",
+    "pt": "Incluir quem já saiu"
+  },
+  "hcm.employees.job_title": {
+    "es": "Puesto",
+    "en": "Job title",
+    "pt": "Cargo"
+  },
+  "hcm.employees.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "hcm.employees.new": {
+    "es": "Nuevo empleado",
+    "en": "New employee",
+    "pt": "Novo colaborador"
+  },
+  "hcm.employees.search": {
+    "es": "Buscar por nombre, correo o puesto…",
+    "en": "Search by name, e-mail or job title…",
+    "pt": "Procurar por nome, e-mail ou cargo…"
+  },
+  "hcm.employees.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "hcm.employees.status_label.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "hcm.employees.status_label.left": {
+    "es": "Desvinculado",
+    "en": "Left",
+    "pt": "Desligado"
+  },
+  "hcm.employees.status_label.suspended": {
+    "es": "Suspendido",
+    "en": "Suspended",
+    "pt": "Suspenso"
+  },
+  "hcm.employees.title": {
+    "es": "Empleados",
+    "en": "Employees",
+    "pt": "Funcionários"
+  }
+}

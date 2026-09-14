@@ -1,0 +1,57 @@
+{
+  "modules.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "modules.administration": {
+    "es": "Administración",
+    "en": "Administration",
+    "pt": "Administração"
+  },
+  "modules.analysis": {
+    "es": "Análisis",
+    "en": "Analytics",
+    "pt": "Análise"
+  },
+  "modules.datasheets": {
+    "es": "Hojas de datos",
+    "en": "DataSheets",
+    "pt": "Planilhas"
+  },
+  "modules.hr": {
+    "es": "RR.HH. y Nómina",
+    "en": "HR & Payroll",
+    "pt": "RH e Folha de Pagamento"
+  },
+  "modules.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "modules.purchasing": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "modules.roadmap": {
+    "es": "En preparación",
+    "en": "In preparation",
+    "pt": "Em preparação"
+  },
+  "modules.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "modules.treasury": {
+    "es": "Tesorería",
+    "en": "Treasury",
+    "pt": "Tesouraria"
+  },
+  "modules.workspace": {
+    "es": "Mi trabajo",
+    "en": "My Work",
+    "pt": "Meu trabalho"
+  }
+}

@@ -1,0 +1,2660 @@
+{
+  "accounting.account_account_id_not_found": {
+    "es": "Cuenta con ID \"{{accountId}}\" no encontrada.",
+    "en": "Account \"{{accountId}}\" was not found.",
+    "pt": "Conta \"{{accountId}}\" não encontrada."
+  },
+  "accounting.account_code_locked_transactions_period_name": {
+    "es": "La cuenta #{{code}} está bloqueada para transacciones en el período {{name}}.",
+    "en": "Account #{{code}} is locked for transactions in period {{name}}.",
+    "pt": "A conta n.º {{code}} está bloqueada para lançamentos no período {{name}}."
+  },
+  "accounting.account_form.account_cannot_saved_without_configured_segment": {
+    "es": "No se puede guardar la cuenta sin una estructura de segmentos configurada.",
+    "en": "The account cannot be saved without a configured segment structure.",
+    "pt": "A conta não pode ser salva sem uma estrutura de segmentos configurada."
+  },
+  "accounting.account_form.account_code": {
+    "es": "Código de Cuenta*",
+    "en": "Account Code*",
+    "pt": "Código da Conta*"
+  },
+  "accounting.account_form.account_code_must_have_least_one": {
+    "es": "El código de cuenta debe tener al menos un segmento válido.",
+    "en": "The account code must have at least one valid segment.",
+    "pt": "O código da conta deve ter ao menos um segmento válido."
+  },
+  "accounting.account_form.account_created_successfully": {
+    "es": "Cuenta creada con éxito.",
+    "en": "Account created successfully.",
+    "pt": "Conta criada com sucesso."
+  },
+  "accounting.account_form.account_name": {
+    "es": "Nombre de la Cuenta*",
+    "en": "Account Name*",
+    "pt": "Nome da Conta*"
+  },
+  "accounting.account_form.account_type": {
+    "es": "Tipo de Cuenta*",
+    "en": "Account Type*",
+    "pt": "Tipo de Conta*"
+  },
+  "accounting.account_form.account_updated_successfully": {
+    "es": "Cuenta actualizada con éxito.",
+    "en": "Account updated successfully.",
+    "pt": "Conta atualizada com sucesso."
+  },
+  "accounting.account_form.active_account": {
+    "es": "Cuenta activa",
+    "en": "Active account",
+    "pt": "Conta ativa"
+  },
+  "accounting.account_form.advanced": {
+    "es": "Avanzado",
+    "en": "Advanced",
+    "pt": "Avançado"
+  },
+  "accounting.account_form.advanced_settings": {
+    "es": "Configuración Avanzada",
+    "en": "Advanced Settings",
+    "pt": "Configurações Avançadas"
+  },
+  "accounting.account_form.allows_intercompany_transactions": {
+    "es": "Permite Transacciones Intercompañía",
+    "en": "Allows Intercompany Transactions",
+    "pt": "Permite Transações Intercompany"
+  },
+  "accounting.account_form.balance_sheet_category": {
+    "es": "Categoría de Balance General",
+    "en": "Balance Sheet Category",
+    "pt": "Categoria do Balanço Patrimonial"
+  },
+  "accounting.account_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounting.account_form.cash_bank_account": {
+    "es": "Es Cuenta de Caja o Banco",
+    "en": "Cash or Bank Account",
+    "pt": "Conta de Caixa ou Banco"
+  },
+  "accounting.account_form.cash_flow_category": {
+    "es": "Categoría de Flujo de Efectivo",
+    "en": "Cash Flow Category",
+    "pt": "Categoria do Fluxo de Caixa"
+  },
+  "accounting.account_form.category": {
+    "es": "Categoría*",
+    "en": "Category*",
+    "pt": "Categoria*"
+  },
+  "accounting.account_form.chart_version": {
+    "es": "Versión del Catálogo",
+    "en": "Chart Version",
+    "pt": "Versão do Plano"
+  },
+  "accounting.account_form.configure_segments": {
+    "es": "Configurar Segmentos",
+    "en": "Configure Segments",
+    "pt": "Configurar Segmentos"
+  },
+  "accounting.account_form.control_audit_parameters_account": {
+    "es": "Parámetros de control y auditoría para la cuenta.",
+    "en": "Control and audit parameters for the account.",
+    "pt": "Parâmetros de controle e auditoria da conta."
+  },
+  "accounting.account_form.create_accounts_you_must_first_define": {
+    "es": "Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.",
+    "en": "To create accounts you must first define your organization's level (segment) structure.",
+    "pt": "Para criar contas contábeis, primeiro defina a estrutura de níveis (segmentos) da sua organização."
+  },
+  "accounting.account_form.current_assets": {
+    "es": "Ej: Activos Circulantes",
+    "en": "e.g. Current Assets",
+    "pt": "Ex.: Ativo Circulante"
+  },
+  "accounting.account_form.define_how_account_appears_key_financial": {
+    "es": "Define cómo se representa esta cuenta en los reportes financieros clave.",
+    "en": "Define how this account appears in the key financial reports.",
+    "pt": "Defina como esta conta aparece nos principais relatórios financeiros."
+  },
+  "accounting.account_form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.account_form.effective_from": {
+    "es": "Vigente Desde",
+    "en": "Effective From",
+    "pt": "Vigente Desde"
+  },
+  "accounting.account_form.effective_until": {
+    "es": "Vigente Hasta",
+    "en": "Effective Until",
+    "pt": "Vigente Até"
+  },
+  "accounting.account_form.error_loading_account_details": {
+    "es": "Error al cargar los datos de la cuenta.",
+    "en": "Error loading the account details.",
+    "pt": "Erro ao carregar os dados da conta."
+  },
+  "accounting.account_form.error_loading_segment_configuration": {
+    "es": "Error al cargar la configuración de segmentos.",
+    "en": "Error loading the segment configuration.",
+    "pt": "Erro ao carregar a configuração de segmentos."
+  },
+  "accounting.account_form.fill_account_details": {
+    "es": "Completa la información detallada de la cuenta.",
+    "en": "Fill in the account's details.",
+    "pt": "Preencha as informações detalhadas da conta."
+  },
+  "accounting.account_form.fill_every_required_field": {
+    "es": "Por favor, complete todos los campos requeridos.",
+    "en": "Please fill in every required field.",
+    "pt": "Preencha todos os campos obrigatórios."
+  },
+  "accounting.account_form.financial_statement_mapping": {
+    "es": "Mapeo de Estados Financieros",
+    "en": "Financial Statement Mapping",
+    "pt": "Mapeamento das Demonstrações Financeiras"
+  },
+  "accounting.account_form.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "accounting.account_form.hierarchy_type": {
+    "es": "Tipo de Jerarquía",
+    "en": "Hierarchy Type",
+    "pt": "Tipo de Hierarquia"
+  },
+  "accounting.account_form.income_statement_category": {
+    "es": "Categoría de Estado de Resultados",
+    "en": "Income Statement Category",
+    "pt": "Categoria da Demonstração de Resultados"
+  },
+  "accounting.account_form.loading_account_data": {
+    "es": "Cargando datos de la cuenta...",
+    "en": "Loading account data...",
+    "pt": "Carregando os dados da conta..."
+  },
+  "accounting.account_form.mappings": {
+    "es": "Mapeos",
+    "en": "Mappings",
+    "pt": "Mapeamentos"
+  },
+  "accounting.account_form.nature_automatic": {
+    "es": "Naturaleza (Automático)",
+    "en": "Nature (Automatic)",
+    "pt": "Natureza (Automática)"
+  },
+  "accounting.account_form.none_root_account": {
+    "es": "-- Ninguna (Cuenta Raíz) --",
+    "en": "-- None (Root Account) --",
+    "pt": "-- Nenhuma (Conta Raiz) --"
+  },
+  "accounting.account_form.operating_revenue": {
+    "es": "Ej: Ingresos Operativos",
+    "en": "e.g. Operating Revenue",
+    "pt": "Ex.: Receita Operacional"
+  },
+  "accounting.account_form.parent_account_grouping": {
+    "es": "Cuenta Padre (Agrupadora)",
+    "en": "Parent Account (Grouping)",
+    "pt": "Conta Superior (Agrupadora)"
+  },
+  "accounting.account_form.postable_account_accepts_transactions": {
+    "es": "Es una cuenta imputable (permite transacciones)",
+    "en": "Postable account (accepts transactions)",
+    "pt": "Conta analítica (aceita lançamentos)"
+  },
+  "accounting.account_form.posting_rules": {
+    "es": "Reglas de Contabilización",
+    "en": "Posting Rules",
+    "pt": "Regras de Contabilização"
+  },
+  "accounting.account_form.required_dimensions": {
+    "es": "Dimensiones Requeridas",
+    "en": "Required Dimensions",
+    "pt": "Dimensões Obrigatórias"
+  },
+  "accounting.account_form.requires_reconciliation": {
+    "es": "Requiere Reconciliación",
+    "en": "Requires Reconciliation",
+    "pt": "Exige Conciliação"
+  },
+  "accounting.account_form.rules": {
+    "es": "Reglas",
+    "en": "Rules",
+    "pt": "Regras"
+  },
+  "accounting.account_form.save_account": {
+    "es": "Guardar Cuenta",
+    "en": "Save Account",
+    "pt": "Salvar Conta"
+  },
+  "accounting.account_form.saving": {
+    "es": "Guardando...",
+    "en": "Saving...",
+    "pt": "Salvando..."
+  },
+  "accounting.account_form.segment_structure_not_configured": {
+    "es": "Estructura de segmentos no configurada",
+    "en": "Segment structure not configured",
+    "pt": "Estrutura de segmentos não configurada"
+  },
+  "accounting.account_form.select_category": {
+    "es": "Seleccionar categoría...",
+    "en": "Select a category...",
+    "pt": "Selecionar categoria..."
+  },
+  "accounting.account_form.select_type": {
+    "es": "Seleccionar tipo...",
+    "en": "Select a type...",
+    "pt": "Selecionar tipo..."
+  },
+  "accounting.account_form.set_restrictions_specific_behaviour_account": {
+    "es": "Establece restricciones y comportamientos específicos para esta cuenta.",
+    "en": "Set restrictions and specific behaviour for this account.",
+    "pt": "Defina restrições e comportamentos específicos para esta conta."
+  },
+  "accounting.account_form.subject_exchange_rate_revaluation": {
+    "es": "Aplica Revaluación por Tipo de Cambio",
+    "en": "Subject to Exchange-Rate Revaluation",
+    "pt": "Sujeita a Reavaliação Cambial"
+  },
+  "accounting.account_form.title_edit": {
+    "es": "Editar cuenta contable",
+    "en": "Edit account",
+    "pt": "Editar conta contábil"
+  },
+  "accounting.account_form.title_new": {
+    "es": "Nueva cuenta contable",
+    "en": "New account",
+    "pt": "Nova conta contábil"
+  },
+  "accounting.account_period_lock_removed": {
+    "es": "El bloqueo de la cuenta para el período ha sido removido.",
+    "en": "The account's lock for the period has been removed.",
+    "pt": "O bloqueio da conta para o período foi removido."
+  },
+  "accounting.account_type.asset": {
+    "es": "Activo",
+    "en": "Asset",
+    "pt": "Ativo"
+  },
+  "accounting.account_type.equity": {
+    "es": "Patrimonio",
+    "en": "Equity",
+    "pt": "Patrimônio"
+  },
+  "accounting.account_type.expense": {
+    "es": "Gasto",
+    "en": "Expense",
+    "pt": "Despesa"
+  },
+  "accounting.account_type.liability": {
+    "es": "Pasivo",
+    "en": "Liability",
+    "pt": "Passivo"
+  },
+  "accounting.account_type.revenue": {
+    "es": "Ingreso",
+    "en": "Revenue",
+    "pt": "Receita"
+  },
+  "accounting.accounting_period_period_id_not_found": {
+    "es": "Período contable con ID \"{{periodId}}\" no encontrado.",
+    "en": "Accounting period \"{{periodId}}\" was not found.",
+    "pt": "Período contábil \"{{periodId}}\" não encontrado."
+  },
+  "accounting.all_existing_rules_deleted": {
+    "es": "Todas las reglas existentes fueron eliminadas.",
+    "en": "All existing rules were deleted.",
+    "pt": "Todas as regras existentes foram excluídas."
+  },
+  "accounting.annual_close.empty": {
+    "es": "El checklist de cierre anual todavía no está disponible.",
+    "en": "The year-end closing checklist is not available yet.",
+    "pt": "A lista de verificação do encerramento anual ainda não está disponível."
+  },
+  "accounting.annual_close.go_task": {
+    "es": "Ir a la tarea",
+    "en": "Go to the task",
+    "pt": "Ir para a tarefa"
+  },
+  "accounting.annual_close.title": {
+    "es": "Cierre anual",
+    "en": "Year-End Close",
+    "pt": "Encerramento Anual"
+  },
+  "accounting.bulk_operations.account_code": {
+    "es": "Código de Cuenta",
+    "en": "Account Code",
+    "pt": "Código da Conta"
+  },
+  "accounting.bulk_operations.accounts_created_updated": {
+    "es": "Cuentas Creadas/Actualizadas",
+    "en": "Accounts Created/Updated",
+    "pt": "Contas Criadas/Atualizadas"
+  },
+  "accounting.bulk_operations.back_chart_accounts": {
+    "es": "Volver al Plan de Cuentas",
+    "en": "Back to the Chart of Accounts",
+    "pt": "Voltar ao Plano de Contas"
+  },
+  "accounting.bulk_operations.bulk_operations": {
+    "es": "Operaciones Masivas",
+    "en": "Bulk Operations",
+    "pt": "Operações em Massa"
+  },
+  "accounting.bulk_operations.download_sample_template_csv": {
+    "es": "Descargar plantilla de ejemplo (CSV)",
+    "en": "Download the sample template (CSV)",
+    "pt": "Baixar o modelo de exemplo (CSV)"
+  },
+  "accounting.bulk_operations.error_details": {
+    "es": "Detalle de Errores:",
+    "en": "Error details:",
+    "pt": "Detalhes dos erros:"
+  },
+  "accounting.bulk_operations.error_message": {
+    "es": "Mensaje de Error",
+    "en": "Error Message",
+    "pt": "Mensagem de Erro"
+  },
+  "accounting.bulk_operations.export_chart_accounts": {
+    "es": "Exportar Plan de Cuentas",
+    "en": "Export Chart of Accounts",
+    "pt": "Exportar Plano de Contas"
+  },
+  "accounting.bulk_operations.import_chart_accounts": {
+    "es": "Importar Plan de Cuentas",
+    "en": "Import Chart of Accounts",
+    "pt": "Importar Plano de Contas"
+  },
+  "accounting.bulk_operations.import_results": {
+    "es": "Resultados de la Importación",
+    "en": "Import Results",
+    "pt": "Resultados da Importação"
+  },
+  "accounting.bulk_operations.process_file": {
+    "es": "Procesar Archivo",
+    "en": "Process File",
+    "pt": "Processar Arquivo"
+  },
+  "accounting.bulk_operations.processing": {
+    "es": "Procesando...",
+    "en": "Processing...",
+    "pt": "Processando..."
+  },
+  "accounting.bulk_operations.records_with_errors": {
+    "es": "Registros con Errores",
+    "en": "Records with Errors",
+    "pt": "Registros com Erros"
+  },
+  "accounting.bulk_operations.row": {
+    "es": "Fila",
+    "en": "Row",
+    "pt": "Linha"
+  },
+  "accounting.bulk_operations.upload_csv_xlsx_file_create_update": {
+    "es": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
+    "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
+    "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
+  },
+  "accounting.categories.capital": {
+    "literal": "Capital"
+  },
+  "accounting.categories.cash": {
+    "es": "Efectivo y equivalentes",
+    "en": "Cash and equivalents",
+    "pt": "Caixa e equivalentes"
+  },
+  "accounting.categories.cost_of_goods_sold": {
+    "es": "Costo de ventas",
+    "en": "Cost of sales",
+    "pt": "Custo das vendas"
+  },
+  "accounting.categories.current_asset": {
+    "es": "Activos corrientes",
+    "en": "Current assets",
+    "pt": "Ativo circulante"
+  },
+  "accounting.categories.current_liability": {
+    "es": "Pasivos corrientes",
+    "en": "Current liabilities",
+    "pt": "Passivo circulante"
+  },
+  "accounting.categories.non_current_asset": {
+    "es": "Activos no corrientes",
+    "en": "Non-current assets",
+    "pt": "Ativo não circulante"
+  },
+  "accounting.categories.non_current_liability": {
+    "es": "Pasivos no corrientes",
+    "en": "Non-current liabilities",
+    "pt": "Passivo não circulante"
+  },
+  "accounting.categories.non_operating_expense": {
+    "es": "Otros gastos",
+    "en": "Other expenses",
+    "pt": "Outras despesas"
+  },
+  "accounting.categories.non_operating_revenue": {
+    "es": "Otros ingresos",
+    "en": "Other income",
+    "pt": "Outras receitas"
+  },
+  "accounting.categories.operating_expense": {
+    "es": "Gastos operacionales",
+    "en": "Operating expenses",
+    "pt": "Despesas operacionais"
+  },
+  "accounting.categories.operating_revenue": {
+    "es": "Ingresos operacionales",
+    "en": "Operating revenue",
+    "pt": "Receitas operacionais"
+  },
+  "accounting.categories.retained_earnings": {
+    "es": "Resultados acumulados",
+    "en": "Retained earnings",
+    "pt": "Lucros acumulados"
+  },
+  "accounting.chart_of_accounts.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "accounting.chart_of_accounts.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "accounting.chart_of_accounts.accounts": {
+    "es": "cuentas",
+    "en": "accounts",
+    "pt": "contas"
+  },
+  "accounting.chart_of_accounts.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "accounting.chart_of_accounts.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "accounting.chart_of_accounts.add_account_start_managing_your_chart": {
+    "es": "Añade una nueva cuenta para empezar a gestionar tu\n                      catálogo.",
+    "en": "Add an account to start managing your\n                      chart.",
+    "pt": "Adicione uma conta para começar a gerenciar seu\n                      plano."
+  },
+  "accounting.chart_of_accounts.all_statuses": {
+    "es": "Todos los Estados",
+    "en": "All Statuses",
+    "pt": "Todas as Situações"
+  },
+  "accounting.chart_of_accounts.all_types": {
+    "es": "Todos los Tipos",
+    "en": "All Types",
+    "pt": "Todos os Tipos"
+  },
+  "accounting.chart_of_accounts.balance": {
+    "es": "Balance",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "accounting.chart_of_accounts.chart": {
+    "es": "Catálogo",
+    "en": "Chart",
+    "pt": "Plano"
+  },
+  "accounting.chart_of_accounts.chart_accounts": {
+    "es": "Catálogo de Cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de Contas"
+  },
+  "accounting.chart_of_accounts.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "accounting.chart_of_accounts.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "accounting.chart_of_accounts.error_loading_accounts": {
+    "es": "Error al Cargar Cuentas",
+    "en": "Error Loading Accounts",
+    "pt": "Erro ao Carregar Contas"
+  },
+  "accounting.chart_of_accounts.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "accounting.chart_of_accounts.inactive": {
+    "es": "Inactiva",
+    "en": "Inactive",
+    "pt": "Inativa"
+  },
+  "accounting.chart_of_accounts.new_account": {
+    "es": "Nueva Cuenta",
+    "en": "New Account",
+    "pt": "Nova Conta"
+  },
+  "accounting.chart_of_accounts.no_accounts_found": {
+    "es": "No se encontraron cuentas",
+    "en": "No accounts were found",
+    "pt": "Nenhuma conta encontrada"
+  },
+  "accounting.chart_of_accounts.search_code_name": {
+    "es": "Buscar por código o nombre...",
+    "en": "Search by code or name...",
+    "pt": "Buscar por código ou nome..."
+  },
+  "accounting.chart_of_accounts.showing": {
+    "es": "Mostrando",
+    "en": "Showing",
+    "pt": "Exibindo"
+  },
+  "accounting.chart_of_accounts.showing_count_accounts": {
+    "es": "Mostrando {{count}} cuentas",
+    "en": "Showing {{count}} accounts",
+    "pt": "Mostrando {{count}} contas"
+  },
+  "accounting.chart_of_accounts.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounting.chart_of_accounts.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "accounting.checklist.checklist_name": {
+    "es": "Nombre de la lista",
+    "en": "Checklist name",
+    "pt": "Nome da lista"
+  },
+  "accounting.checklist.closing_process_checklists": {
+    "es": "Listas de verificación del cierre",
+    "en": "Closing Checklists",
+    "pt": "Listas de Verificação do Fechamento"
+  },
+  "accounting.checklist.items.accruals_from_earlier_periods_still_pending": {
+    "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
+    "en": "Accruals from earlier periods still pending reversal: {{count}}",
+    "pt": "Provisões de períodos anteriores ainda pendentes de reversão: {{count}}"
+  },
+  "accounting.checklist.items.count_journal_entries_still_drafts_awaiting_other": {
+    "es": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
+    "en": "{{count}} journal entries are still drafts or awaiting approval.",
+    "pt": "Restam {{count}} lançamentos contábeis em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.count_vendor_bills_still_drafts_awaiting_other": {
+    "es": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
+    "en": "{{count}} vendor bills are still drafts or awaiting approval.",
+    "pt": "Restam {{count}} faturas de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.currency_revaluation": {
+    "es": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
+    "en": "Run the foreign-currency revaluation for the period close.",
+    "pt": "Execute a reavaliação cambial para o fechamento do período."
+  },
+  "accounting.checklist.items.fixed_assets_depreciation": {
+    "es": "Ejecutar la depreciación de activos fijos del período.",
+    "en": "Run the fixed-asset depreciation for the period.",
+    "pt": "Execute a depreciação do ativo imobilizado do período."
+  },
+  "accounting.checklist.items.journal_entry_still_draft_awaiting_approval_one": {
+    "es": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
+    "en": "1 journal entry is still a draft or awaiting approval.",
+    "pt": "Resta 1 lançamento contábil em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.pending_approvals": {
+    "es": "Revisar y procesar todas las solicitudes de aprobación pendientes.",
+    "en": "Review and resolve every pending approval request.",
+    "pt": "Revise e resolva todas as solicitações de aprovação pendentes."
+  },
+  "accounting.checklist.items.pending_approvals_one": {
+    "es": "Queda 1 solicitud de aprobación pendiente.",
+    "en": "1 approval request is still pending.",
+    "pt": "Resta 1 solicitação de aprovação pendente."
+  },
+  "accounting.checklist.items.pending_approvals_other": {
+    "es": "Quedan {{count}} solicitudes de aprobación pendientes.",
+    "en": "{{count}} approval requests are still pending.",
+    "pt": "Restam {{count}} solicitações de aprovação pendentes."
+  },
+  "accounting.checklist.items.review_post_every_journal_entry_still": {
+    "es": "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.",
+    "en": "Review and post every journal entry that is still a draft or awaiting approval.",
+    "pt": "Revise e contabilize todos os lançamentos em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.review_post_every_vendor_bill_still": {
+    "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
+    "en": "Review and post every vendor bill that is still a draft or awaiting approval.",
+    "pt": "Revise e contabilize todas as faturas de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.unreconciled_bank_transactions": {
+    "es": "Conciliar todas las transacciones bancarias del período.",
+    "en": "Reconcile every bank transaction in the period.",
+    "pt": "Concilie todas as transações bancárias do período."
+  },
+  "accounting.checklist.items.unreconciled_bank_transactions_one": {
+    "es": "Queda 1 transacción bancaria sin conciliar.",
+    "en": "1 bank transaction is still unreconciled.",
+    "pt": "Resta 1 transação bancária sem conciliar."
+  },
+  "accounting.checklist.items.unreconciled_bank_transactions_other": {
+    "es": "Quedan {{count}} transacciones bancarias sin conciliar.",
+    "en": "{{count}} bank transactions are still unreconciled.",
+    "pt": "Restam {{count}} transações bancárias sem conciliar."
+  },
+  "accounting.checklist.items.vendor_bill_still_draft_awaiting_approval_one": {
+    "es": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
+    "en": "1 vendor bill is still a draft or awaiting approval.",
+    "pt": "Resta 1 fatura de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.manual_step": {
+    "es": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar.",
+    "en": "This is a manual step: make sure you have run it before closing.",
+    "pt": "Esta é uma etapa manual: confirme que a executou antes de encerrar."
+  },
+  "accounting.checklist.no_checklists_have_been_created_yet": {
+    "es": "Todavía no se ha creado ninguna lista de verificación.",
+    "en": "No checklist has been created yet.",
+    "pt": "Nenhuma lista de verificação foi criada ainda."
+  },
+  "accounting.checklist.resolve": {
+    "es": "Resolver",
+    "en": "Resolve",
+    "pt": "Resolver"
+  },
+  "accounting.closing_journal_cierre_not_found_create": {
+    "es": "Diario de Cierre (CIERRE) no encontrado. Por favor, cree un diario con este código.",
+    "en": "The Closing journal (CIERRE) was not found. Create a journal with that code.",
+    "pt": "O diário de Encerramento (CIERRE) não foi encontrado. Crie um diário com esse código."
+  },
+  "accounting.daily_journal.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "accounting.daily_journal.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.daily_journal.daily_journal": {
+    "es": "Libro Diario",
+    "en": "General Journal",
+    "pt": "Livro Diário"
+  },
+  "accounting.daily_journal.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.daily_journal.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.daily_journal.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.daily_journal.entry": {
+    "es": "N.º de Asiento",
+    "en": "Entry no.",
+    "pt": "N.º do Lançamento"
+  },
+  "accounting.daily_journal.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "accounting.daily_journal.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "accounting.daily_journal.load_failed": {
+    "es": "No se pudo cargar el libro diario.",
+    "en": "The journal could not be loaded.",
+    "pt": "Não foi possível carregar o livro diário."
+  },
+  "accounting.daily_journal.loading": {
+    "es": "Cargando el libro diario…",
+    "en": "Loading the journal…",
+    "pt": "Carregando o livro diário…"
+  },
+  "accounting.daily_journal.no_journal_entries_found_for_this": {
+    "es": "No se encontraron asientos contables en este período.",
+    "en": "No journal entries were found in this period.",
+    "pt": "Nenhum lançamento contábil encontrado neste período."
+  },
+  "accounting.daily_journal.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "accounting.default_ledger_cannot_unset_without_designating": {
+    "es": "No puede quitar el libro contable por defecto sin designar otro: sin él no es posible contabilizar.",
+    "en": "The default ledger cannot be unset without designating another: postings resolve against it.",
+    "pt": "Não é possível remover o livro contábil padrão sem designar outro: sem ele não há como lançar."
+  },
+  "accounting.draft_entries_entries_draft_awaiting_approval": {
+    "es": "Existen {{draftEntries}} asientos en borrador o pendientes de aprobación. Deben ser contabilizados o eliminados.",
+    "en": "There are {{draftEntries}} entries in draft or awaiting approval. They must be posted or deleted.",
+    "pt": "Há {{draftEntries}} lançamentos em rascunho ou aguardando aprovação. Eles devem ser contabilizados ou excluídos."
+  },
+  "accounting.fiscal_year_already_open": {
+    "es": "El año fiscal ya está abierto.",
+    "en": "The fiscal year is already open.",
+    "pt": "O exercício fiscal já está aberto."
+  },
+  "accounting.fiscal_year_archived_cannot_reopened": {
+    "es": "El año fiscal está archivado y no puede reabrirse.",
+    "en": "The fiscal year is archived and cannot be reopened.",
+    "pt": "O exercício fiscal está arquivado e não pode ser reaberto."
+  },
+  "accounting.fiscal_year_cannot_closed_periods_still": {
+    "es": "No se puede cerrar el año fiscal. Los siguientes períodos aún están abiertos: {{p1}}",
+    "en": "The fiscal year cannot be closed. These periods are still open: {{p1}}",
+    "pt": "O exercício não pode ser encerrado. Estes períodos ainda estão abertos: {{p1}}"
+  },
+  "accounting.fiscal_year_cannot_reopened_because_year": {
+    "es": "No se puede reabrir este año fiscal porque el año que comienza el {{from}} ya está cerrado. Reábralo primero.",
+    "en": "This fiscal year cannot be reopened because the year starting {{from}} is already closed. Reopen that one first.",
+    "pt": "Este exercício fiscal não pode ser reaberto porque o exercício que começa em {{from}} já está encerrado. Reabra-o primeiro."
+  },
+  "accounting.fiscal_year_ending_has_closed": {
+    "es": "El año fiscal que termina el {{to}} ha sido cerrado.",
+    "en": "The fiscal year ending {{to}} has been closed.",
+    "pt": "O exercício fiscal encerrado em {{to}} foi fechado."
+  },
+  "accounting.fiscal_year_ending_has_reopened_closing": {
+    "es": "El año fiscal que termina el {{to}} ha sido reabierto y su asiento de cierre revertido.",
+    "en": "The fiscal year ending {{to}} has been reopened and its closing entry reversed.",
+    "pt": "O exercício fiscal encerrado em {{to}} foi reaberto e o seu lançamento de encerramento revertido."
+  },
+  "accounting.fiscal_year_from_closed_reopen_before": {
+    "es": "El año fiscal {{from}} – {{to}} está cerrado. Reábralo antes de modificar sus períodos.",
+    "en": "The fiscal year {{from}} – {{to}} is closed. Reopen it before changing its periods.",
+    "pt": "O exercício fiscal {{from}} – {{to}} está encerrado. Reabra-o antes de alterar os seus períodos."
+  },
+  "accounting.fiscal_year_has_no_accounting_periods": {
+    "es": "El año fiscal no tiene períodos contables definidos. Cree el calendario antes de cerrarlo.",
+    "en": "The fiscal year has no accounting periods. Create the calendar before closing it.",
+    "pt": "O ano fiscal não tem períodos contábeis definidos. Crie o calendário antes de encerrá-lo."
+  },
+  "accounting.fiscal_year_not_found": {
+    "es": "Año fiscal no encontrado.",
+    "en": "Fiscal year not found.",
+    "pt": "Exercício fiscal não encontrado."
+  },
+  "accounting.fiscal_year_not_open": {
+    "es": "El año fiscal no está abierto.",
+    "en": "The fiscal year is not open.",
+    "pt": "O exercício fiscal não está aberto."
+  },
+  "accounting.general_ledger.account_code_name": {
+    "es": "Cuenta: {{code}} - {{name}}",
+    "en": "Account: {{code}} - {{name}}",
+    "pt": "Conta: {{code}} - {{name}}"
+  },
+  "accounting.general_ledger.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "accounting.general_ledger.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.general_ledger.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.general_ledger.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.general_ledger.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.general_ledger.ending_balance": {
+    "es": "Saldo Final",
+    "en": "Ending Balance",
+    "pt": "Saldo Final"
+  },
+  "accounting.general_ledger.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "accounting.general_ledger.filter": {
+    "es": "Filtrar",
+    "en": "Filter",
+    "pt": "Filtrar"
+  },
+  "accounting.general_ledger.from": {
+    "es": "Desde:",
+    "en": "From:",
+    "pt": "De:"
+  },
+  "accounting.general_ledger.general_ledger": {
+    "es": "Libro Mayor",
+    "en": "General Ledger",
+    "pt": "Livro Razão"
+  },
+  "accounting.general_ledger.load_failed": {
+    "es": "No se pudo cargar el libro mayor. Inténtalo de nuevo.",
+    "en": "The general ledger could not be loaded. Try again.",
+    "pt": "Não foi possível carregar o razão geral. Tente novamente."
+  },
+  "accounting.general_ledger.loading_account_details": {
+    "es": "Cargando información de la cuenta...",
+    "en": "Loading account details...",
+    "pt": "Carregando os dados da conta..."
+  },
+  "accounting.general_ledger.loading_general_ledger": {
+    "es": "Cargando datos del libro mayor...",
+    "en": "Loading the general ledger...",
+    "pt": "Carregando o livro razão..."
+  },
+  "accounting.general_ledger.no_account_has_specified": {
+    "es": "No se ha especificado una cuenta.",
+    "en": "No account has been specified.",
+    "pt": "Nenhuma conta foi especificada."
+  },
+  "accounting.general_ledger.no_movements_found_account_selected_period": {
+    "es": "No se encontraron movimientos para esta cuenta en el período seleccionado.",
+    "en": "No movements were found for this account in the selected period.",
+    "pt": "Nenhum lançamento encontrado para esta conta no período selecionado."
+  },
+  "accounting.general_ledger.opening_balance": {
+    "es": "Saldo Inicial",
+    "en": "Opening Balance",
+    "pt": "Saldo Inicial"
+  },
+  "accounting.general_ledger.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "accounting.general_ledger.run": {
+    "es": "Consultar",
+    "en": "Run",
+    "pt": "Consultar"
+  },
+  "accounting.general_ledger.select_account_see_ledger": {
+    "es": "Por favor, seleccione una cuenta para ver el libro mayor.",
+    "en": "Select an account to see its ledger.",
+    "pt": "Selecione uma conta para ver o livro razão."
+  },
+  "accounting.general_ledger.to": {
+    "es": "Hasta:",
+    "en": "To:",
+    "pt": "Até:"
+  },
+  "accounting.general_ledger.total_credits": {
+    "es": "Total Créditos",
+    "en": "Total Credits",
+    "pt": "Total de Créditos"
+  },
+  "accounting.general_ledger.total_debits": {
+    "es": "Total Débitos",
+    "en": "Total Debits",
+    "pt": "Total de Débitos"
+  },
+  "accounting.import.account_code": {
+    "es": "Código de cuenta",
+    "en": "Account code",
+    "pt": "Código da conta"
+  },
+  "accounting.import.analysing_file": {
+    "es": "Analizando el fichero...",
+    "en": "Analysing the file...",
+    "pt": "Analisando o arquivo..."
+  },
+  "accounting.import.click_here_choose_file_csv_excel": {
+    "es": "Haz clic aquí para seleccionar un fichero (CSV, Excel)",
+    "en": "Click here to choose a file (CSV, Excel)",
+    "pt": "Clique aqui para escolher um arquivo (CSV, Excel)"
+  },
+  "accounting.import.confirm_import": {
+    "es": "Confirmar e Importar",
+    "en": "Confirm and Import",
+    "pt": "Confirmar e Importar"
+  },
+  "accounting.import.credit": {
+    "es": "Haber",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.import.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.import.debit": {
+    "es": "Debe",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.import.decimal_separator_comma": {
+    "es": "Coma — 1.234,56",
+    "en": "Comma — 1.234,56",
+    "pt": "Vírgula — 1.234,56"
+  },
+  "accounting.import.decimal_separator_period": {
+    "es": "Punto — 1,234.56",
+    "en": "Period — 1,234.56",
+    "pt": "Ponto — 1,234.56"
+  },
+  "accounting.import.description": {
+    "es": "Concepto",
+    "en": "Description",
+    "pt": "Histórico"
+  },
+  "accounting.import.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "accounting.import.entry_identifier": {
+    "es": "Identificador del asiento",
+    "en": "Entry identifier",
+    "pt": "Identificador do lançamento"
+  },
+  "accounting.import.file_could_not_processed_check_format": {
+    "es": "No se pudo procesar el archivo. Revise el formato y vuelva a intentarlo.",
+    "en": "The file could not be processed. Check its format and try again.",
+    "pt": "Não foi possível processar o arquivo. Verifique o formato e tente novamente."
+  },
+  "accounting.import.file_date_format": {
+    "es": "Formato de fecha del archivo",
+    "en": "The file's date format",
+    "pt": "Formato de data do arquivo"
+  },
+  "accounting.import.file_decimal_separator": {
+    "es": "Separador decimal del archivo",
+    "en": "The file's decimal separator",
+    "pt": "Separador decimal do arquivo"
+  },
+  "accounting.import.import_journal_entries": {
+    "es": "Importar Asientos Contables",
+    "en": "Import Journal Entries",
+    "pt": "Importar Lançamentos Contábeis"
+  },
+  "accounting.import.journal_entries_imported_successfully": {
+    "es": "Asientos contables importados con éxito.",
+    "en": "Journal entries imported successfully.",
+    "pt": "Lançamentos contábeis importados com sucesso."
+  },
+  "accounting.import.line_detail": {
+    "es": "Detalle de la línea",
+    "en": "Line detail",
+    "pt": "Detalhe da linha"
+  },
+  "accounting.import.line_line": {
+    "es": "Línea {{line}}",
+    "en": "Line {{line}}",
+    "pt": "Linha {{line}}"
+  },
+  "accounting.import.no_import_confirm": {
+    "es": "No hay una importación para confirmar.",
+    "en": "There is no import to confirm.",
+    "pt": "Não há importação para confirmar."
+  },
+  "accounting.import.not_mapped": {
+    "es": "Sin asignar",
+    "en": "Not mapped",
+    "pt": "Não atribuído"
+  },
+  "accounting.import.preview_data_import": {
+    "es": "Previsualización de los datos a importar:",
+    "en": "Preview of the data to import:",
+    "pt": "Prévia dos dados a importar:"
+  },
+  "accounting.import.preview_import": {
+    "es": "Previsualizar importación",
+    "en": "Preview import",
+    "pt": "Pré-visualizar importação"
+  },
+  "accounting.import.required": {
+    "es": "Obligatorio",
+    "en": "Required",
+    "pt": "Obrigatório"
+  },
+  "accounting.import.select_file_import": {
+    "es": "Por favor, selecciona un fichero para importar.",
+    "en": "Select a file to import.",
+    "pt": "Selecione um arquivo para importar."
+  },
+  "accounting.import.selected_file": {
+    "es": "Fichero seleccionado:",
+    "en": "Selected file:",
+    "pt": "Arquivo selecionado:"
+  },
+  "accounting.import.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounting.import.step_preview_confirm": {
+    "es": "Paso 2: Previsualización y Confirmación",
+    "en": "Step 2: Preview and confirm",
+    "pt": "Etapa 2: Prévia e confirmação"
+  },
+  "accounting.import.step_say_which_column_which": {
+    "es": "Paso 2 · Indique qué columna es cada cosa",
+    "en": "Step 2 · Say which column is which",
+    "pt": "Passo 2 · Indique qual coluna é cada coisa"
+  },
+  "accounting.import.step_select_file": {
+    "es": "Paso 1: Seleccionar Fichero",
+    "en": "Step 1: Select a file",
+    "pt": "Etapa 1: Selecionar arquivo"
+  },
+  "accounting.import.total_entries_read_valid_will_imported": {
+    "es": "{{total}} asientos leídos: {{valid}} se importarán, {{invalid}} no.",
+    "en": "{{total}} entries read: {{valid}} will be imported, {{invalid}} will not.",
+    "pt": "{{total}} lançamentos lidos: {{valid}} serão importados, {{invalid}} não."
+  },
+  "accounting.import.will_import": {
+    "es": "Se importará",
+    "en": "Will import",
+    "pt": "Será importado"
+  },
+  "accounting.import.will_not_import": {
+    "es": "No se importará",
+    "en": "Will not import",
+    "pt": "Não será importado"
+  },
+  "accounting.inflation_adjustment_account_disappeared_mid_transaction": {
+    "es": "La cuenta de ajuste por inflación desapareció a mitad de la transacción.",
+    "en": "The inflation-adjustment account disappeared mid-transaction.",
+    "pt": "A conta de ajuste inflacionário desapareceu no meio da transação."
+  },
+  "accounting.inflation_adjustment_account_not_configured": {
+    "es": "La cuenta para el ajuste por inflación no está configurada.",
+    "en": "The inflation-adjustment account is not configured.",
+    "pt": "A conta de ajuste inflacionário não está configurada."
+  },
+  "accounting.inflation_adjustment_journal_aju_inf_not": {
+    "es": "Diario de Ajuste por Inflación (AJU-INF) no encontrado.",
+    "en": "The Inflation Adjustment journal (AJU-INF) was not found.",
+    "pt": "O diário de Ajuste Inflacionário (AJU-INF) não foi encontrado."
+  },
+  "accounting.inflation_adjustment_process_ran_successfully": {
+    "es": "Proceso de ajuste por inflación ejecutado exitosamente.",
+    "en": "The inflation-adjustment process ran successfully.",
+    "pt": "O processo de ajuste inflacionário foi executado com sucesso."
+  },
+  "accounting.journal_entries.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.journal_entries.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.journal_entries.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.journal_entries.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.journal_entries.entry": {
+    "es": "N.º de Asiento",
+    "en": "Entry no.",
+    "pt": "N.º do Lançamento"
+  },
+  "accounting.journal_entries.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "accounting.journal_entries.journal_entries": {
+    "es": "Asientos Contables",
+    "en": "Journal Entries",
+    "pt": "Lançamentos Contábeis"
+  },
+  "accounting.journal_entries.load_failed": {
+    "es": "No se pudieron cargar los asientos contables.",
+    "en": "The journal entries could not be loaded.",
+    "pt": "Não foi possível carregar os lançamentos contábeis."
+  },
+  "accounting.journal_entries.loading": {
+    "es": "Cargando los asientos contables…",
+    "en": "Loading journal entries…",
+    "pt": "Carregando os lançamentos contábeis…"
+  },
+  "accounting.journal_entries.new_entry": {
+    "es": "Nuevo Asiento",
+    "en": "New Entry",
+    "pt": "Novo Lançamento"
+  },
+  "accounting.journal_entries.no_journal_entries_found": {
+    "es": "No se encontraron asientos contables.",
+    "en": "No journal entries were found.",
+    "pt": "Nenhum lançamento contábil encontrado."
+  },
+  "accounting.journal_entries.row_actions": {
+    "es": "Más acciones",
+    "en": "More actions",
+    "pt": "Mais ações"
+  },
+  "accounting.journal_entries.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounting.journal_entries.status_draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "accounting.journal_entries.status_modified": {
+    "es": "Modificado",
+    "en": "Modified",
+    "pt": "Modificado"
+  },
+  "accounting.journal_entries.status_pending_approval": {
+    "es": "Pendiente de aprobación",
+    "en": "Pending approval",
+    "pt": "Aguardando aprovação"
+  },
+  "accounting.journal_entries.status_posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Contabilizado"
+  },
+  "accounting.journal_entries.status_rejected": {
+    "es": "Rechazado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "accounting.journal_entries.status_void": {
+    "es": "Anulado",
+    "en": "Voided",
+    "pt": "Cancelado"
+  },
+  "accounting.journal_entries.unnumbered": {
+    "es": "Sin numerar",
+    "en": "Not numbered",
+    "pt": "Sem numeração"
+  },
+  "accounting.journal_entry_form.account_column": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "accounting.journal_entry_form.add_line": {
+    "es": "Añadir línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "accounting.journal_entry_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounting.journal_entry_form.credit_column": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.journal_entry_form.date_label": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.journal_entry_form.debit_column": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.journal_entry_form.debits_credits_must_balanced": {
+    "es": "Los débitos y los créditos deben estar balanceados.",
+    "en": "Debits and credits must be balanced.",
+    "pt": "Os débitos e os créditos devem estar balanceados."
+  },
+  "accounting.journal_entry_form.description_column": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.journal_entry_form.description_label": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.journal_entry_form.edit_title": {
+    "es": "Editar Asiento Contable",
+    "en": "Edit Journal Entry",
+    "pt": "Editar Lançamento Contábil"
+  },
+  "accounting.journal_entry_form.enter_description_entry": {
+    "es": "Introduce una descripción para el asiento",
+    "en": "Enter a description for the entry",
+    "pt": "Informe uma descrição para o lançamento"
+  },
+  "accounting.journal_entry_form.entry_modified_original_reversed_new_one": {
+    "es": "Asiento modificado: se reversó el original y se contabilizó el nuevo.",
+    "en": "Entry modified: the original was reversed and the new one posted.",
+    "pt": "Lançamento modificado: o original foi estornado e o novo contabilizado."
+  },
+  "accounting.journal_entry_form.entry_not_found": {
+    "es": "No se pudo cargar el asiento.",
+    "en": "The entry could not be loaded.",
+    "pt": "Não foi possível carregar o lançamento."
+  },
+  "accounting.journal_entry_form.journal_label": {
+    "es": "Diario",
+    "en": "Journal",
+    "pt": "Diário"
+  },
+  "accounting.journal_entry_form.ledger_label": {
+    "es": "Libro Mayor",
+    "en": "General Ledger",
+    "pt": "Livro Razão"
+  },
+  "accounting.journal_entry_form.modification_reason_label": {
+    "es": "Razón de la modificación*",
+    "en": "Reason for the change*",
+    "pt": "Motivo da alteração*"
+  },
+  "accounting.journal_entry_form.modifying_posted_entry_does_not_rewrite": {
+    "es": "Modificar un asiento contabilizado no lo reescribe: el sistema lo reversa y contabiliza uno nuevo que lo cita. El original permanece en el libro.",
+    "en": "Modifying a posted entry does not rewrite it: the system reverses it and posts a new one that cites it. The original stays in the book.",
+    "pt": "Modificar um lançamento contabilizado não o reescreve: o sistema estorna-o e contabiliza um novo que o cita. O original permanece no livro."
+  },
+  "accounting.journal_entry_form.only_posted_can_be_modified": {
+    "es": "Solo se puede modificar un asiento contabilizado. Este todavía no lo está.",
+    "en": "Only a posted entry can be modified. This one is not posted yet.",
+    "pt": "Só é possível modificar um lançamento contabilizado. Este ainda não está."
+  },
+  "accounting.journal_entry_form.required_fields_error": {
+    "es": "Completa todos los campos obligatorios.",
+    "en": "Fill in all the required fields.",
+    "pt": "Preencha todos os campos obrigatórios."
+  },
+  "accounting.journal_entry_form.save": {
+    "es": "Guardar asiento",
+    "en": "Save entry",
+    "pt": "Salvar lançamento"
+  },
+  "accounting.journal_entry_form.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "accounting.journal_entry_form.select_account": {
+    "es": "Selecciona una cuenta",
+    "en": "Select an account",
+    "pt": "Selecione uma conta"
+  },
+  "accounting.journal_entry_form.select_journal": {
+    "es": "Selecciona un diario",
+    "en": "Select a journal",
+    "pt": "Selecione um diário"
+  },
+  "accounting.journal_entry_form.select_ledger": {
+    "es": "Selecciona un libro mayor",
+    "en": "Select a ledger",
+    "pt": "Selecione um livro razão"
+  },
+  "accounting.journal_entry_form.title": {
+    "es": "Nuevo Asiento Contable",
+    "en": "New Journal Entry",
+    "pt": "Novo Lançamento Contábil"
+  },
+  "accounting.journal_entry_form.totals": {
+    "es": "Totales",
+    "en": "Totals",
+    "pt": "Totais"
+  },
+  "accounting.journal_entry_form.why_original_entry_stopped_being_correct": {
+    "es": "Por qué deja de ser correcto el asiento original",
+    "en": "Why the original entry stopped being correct",
+    "pt": "Porque deixou de estar correto o lançamento original"
+  },
+  "accounting.journal_entry_form.zero_amount_error": {
+    "es": "El monto total no puede ser cero.",
+    "en": "The total amount cannot be zero.",
+    "pt": "O valor total não pode ser zero."
+  },
+  "accounting.journal_form.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "accounting.journal_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounting.journal_form.cash": {
+    "es": "Caja",
+    "en": "Cash",
+    "pt": "Caixa"
+  },
+  "accounting.journal_form.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "accounting.journal_form.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "accounting.journal_form.journal_could_not_saved": {
+    "es": "No se pudo guardar el diario.",
+    "en": "The journal could not be saved.",
+    "pt": "Não foi possível salvar o diário."
+  },
+  "accounting.journal_form.journal_created": {
+    "es": "Diario creado.",
+    "en": "Journal created.",
+    "pt": "Diário criado."
+  },
+  "accounting.journal_form.journal_updated": {
+    "es": "Diario actualizado.",
+    "en": "Journal updated.",
+    "pt": "Diário atualizado."
+  },
+  "accounting.journal_form.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "accounting.journal_form.purchases": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "accounting.journal_form.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "accounting.journal_form.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "accounting.journal_form.title_create": {
+    "es": "Nuevo diario",
+    "en": "New journal",
+    "pt": "Novo diário"
+  },
+  "accounting.journal_form.title_edit": {
+    "es": "Editar diario",
+    "en": "Edit journal",
+    "pt": "Editar diário"
+  },
+  "accounting.journal_form.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "accounting.journal_list.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "accounting.journal_list.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "accounting.journal_list.create_journal": {
+    "es": "Crear diario",
+    "en": "Create journal",
+    "pt": "Criar diário"
+  },
+  "accounting.journal_list.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "accounting.journal_list.journals": {
+    "es": "Diarios",
+    "en": "Journals",
+    "pt": "Diários"
+  },
+  "accounting.journal_list.load_failed": {
+    "es": "No se pudieron cargar los diarios. Inténtalo de nuevo.",
+    "en": "The journals could not be loaded. Try again.",
+    "pt": "Não foi possível carregar os diários. Tente novamente."
+  },
+  "accounting.journal_list.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "accounting.journal_list.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "accounting.layout.annual": {
+    "es": "Cierre anual",
+    "en": "Year-End Close",
+    "pt": "Encerramento Anual"
+  },
+  "accounting.layout.checklists": {
+    "es": "Listas de verificación",
+    "en": "Checklists",
+    "pt": "Listas de verificação"
+  },
+  "accounting.layout.month_end": {
+    "es": "Cierre mensual",
+    "en": "Month-End Close",
+    "pt": "Fechamento Mensal"
+  },
+  "accounting.layout.tasks": {
+    "es": "Tareas",
+    "en": "Tasks",
+    "pt": "Tarefas"
+  },
+  "accounting.ledger_form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounting.ledger_form.define_new_ledger_record_accounting_transactions": {
+    "es": "Define un nuevo libro para registrar transacciones contables.",
+    "en": "Define a new ledger to record accounting transactions.",
+    "pt": "Defina um novo livro para registrar transações contábeis."
+  },
+  "accounting.ledger_form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.ledger_form.error_creating_ledger": {
+    "es": "Error al crear el Libro Mayor.",
+    "en": "Error creating the ledger.",
+    "pt": "Erro ao criar o livro razão."
+  },
+  "accounting.ledger_form.error_updating_ledger": {
+    "es": "Error al actualizar el Libro Mayor.",
+    "en": "Error updating the ledger.",
+    "pt": "Erro ao atualizar o livro razão."
+  },
+  "accounting.ledger_form.fill_required_fields": {
+    "es": "Por favor, completa los campos requeridos.",
+    "en": "Please fill in the required fields.",
+    "pt": "Preencha os campos obrigatórios."
+  },
+  "accounting.ledger_form.ledger_could_not_loaded": {
+    "es": "No se pudo cargar el libro mayor.",
+    "en": "The ledger could not be loaded.",
+    "pt": "Não foi possível carregar o livro razão."
+  },
+  "accounting.ledger_form.ledger_created_successfully": {
+    "es": "Libro Mayor creado exitosamente.",
+    "en": "Ledger created successfully.",
+    "pt": "Livro razão criado com sucesso."
+  },
+  "accounting.ledger_form.ledger_name": {
+    "es": "Nombre del Libro*",
+    "en": "Ledger Name*",
+    "pt": "Nome do Livro*"
+  },
+  "accounting.ledger_form.ledger_updated_successfully": {
+    "es": "Libro Mayor actualizado exitosamente.",
+    "en": "Ledger updated successfully.",
+    "pt": "Livro razão atualizado com sucesso."
+  },
+  "accounting.ledger_form.main_ifrs_ledger": {
+    "es": "Ej: Libro Principal IFRS",
+    "en": "e.g. Main IFRS Ledger",
+    "pt": "Ex.: Livro Principal IFRS"
+  },
+  "accounting.ledger_form.save_ledger": {
+    "es": "Guardar libro",
+    "en": "Save ledger",
+    "pt": "Salvar livro"
+  },
+  "accounting.ledger_form.set_default_ledger": {
+    "es": "Establecer como libro por defecto",
+    "en": "Set as the default ledger",
+    "pt": "Definir como livro padrão"
+  },
+  "accounting.ledger_form.title_create": {
+    "es": "Nuevo libro mayor",
+    "en": "New ledger",
+    "pt": "Novo livro razão"
+  },
+  "accounting.ledger_form.title_edit": {
+    "es": "Editar libro mayor",
+    "en": "Edit ledger",
+    "pt": "Editar livro razão"
+  },
+  "accounting.ledger_form.used_ifrs_financial_reporting": {
+    "es": "Ej: Utilizado para reportes financieros bajo NIIF.",
+    "en": "e.g. Used for IFRS financial reporting.",
+    "pt": "Ex.: Usado para relatórios financeiros em IFRS."
+  },
+  "accounting.ledger_id_not_found": {
+    "es": "Libro contable con ID \"{{id}}\" no encontrado.",
+    "en": "Ledger \"{{id}}\" was not found.",
+    "pt": "Livro contábil \"{{id}}\" não encontrado."
+  },
+  "accounting.ledger_list.create_ledger": {
+    "es": "Crear Nuevo Libro",
+    "en": "Create Ledger",
+    "pt": "Criar Livro"
+  },
+  "accounting.ledger_list.default": {
+    "es": "Por Defecto",
+    "en": "Default",
+    "pt": "Padrão"
+  },
+  "accounting.ledger_list.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.ledger_list.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "accounting.ledger_list.ledgers": {
+    "es": "Libros Contables",
+    "en": "Ledgers",
+    "pt": "Livros Contábeis"
+  },
+  "accounting.ledger_list.load_failed": {
+    "es": "No se pudieron cargar los libros contables. Inténtalo de nuevo.",
+    "en": "The ledgers could not be loaded. Try again.",
+    "pt": "Não foi possível carregar os livros contábeis. Tente novamente."
+  },
+  "accounting.ledger_list.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "accounting.ledger_list.no_ledgers_found": {
+    "es": "No se han encontrado libros contables.",
+    "en": "No ledgers were found.",
+    "pt": "Nenhum livro contábil encontrado."
+  },
+  "accounting.ledger_map_updated": {
+    "es": "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado.",
+    "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
+    "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
+  },
+  "accounting.ledger.description": {
+    "es": "Administra tu plan de cuentas, asientos contables y períodos contables.",
+    "en": "Manage your chart of accounts, journal entries, and accounting periods.",
+    "pt": "Gerencie seu plano de contas, lançamentos contábeis e períodos contábeis."
+  },
+  "accounting.ledger.title": {
+    "es": "Libro Mayor",
+    "en": "General Ledger",
+    "pt": "Livro Razão"
+  },
+  "accounting.manual_step_make_sure_you_have": {
+    "es": "Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.",
+    "en": "This is a manual step. Make sure you have run the process before closing.",
+    "pt": "Esta é uma etapa manual. Confirme que executou o processo antes de encerrar."
+  },
+  "accounting.merge_tool.account_merge_tool": {
+    "es": "Herramienta de Fusión de Cuentas",
+    "en": "Account Merge Tool",
+    "pt": "Ferramenta de Fusão de Contas"
+  },
+  "accounting.merge_tool.analyse": {
+    "es": "Analizar",
+    "en": "Analyse",
+    "pt": "Analisar"
+  },
+  "accounting.merge_tool.analysis_reported_problems_correct_your_selection": {
+    "es": "El análisis reportó problemas. Corrige la selección.",
+    "en": "The analysis reported problems. Correct your selection.",
+    "pt": "A análise reportou problemas. Corrija a seleção."
+  },
+  "accounting.merge_tool.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "accounting.merge_tool.back_chart_accounts": {
+    "es": "Volver al Plan de Cuentas",
+    "en": "Back to the Chart of Accounts",
+    "pt": "Voltar ao Plano de Contas"
+  },
+  "accounting.merge_tool.clear": {
+    "es": "Limpiar",
+    "en": "Clear",
+    "pt": "Limpar"
+  },
+  "accounting.merge_tool.confirm_merge": {
+    "es": "Confirmar Fusión",
+    "en": "Confirm Merge",
+    "pt": "Confirmar Fusão"
+  },
+  "accounting.merge_tool.confirm_question": {
+    "es": "Confirma que deseas fusionar la cuenta {{source}} en {{target}}.",
+    "en": "Confirm that you want to merge account {{source}} into {{target}}.",
+    "pt": "Confirme que deseja fundir a conta {{source}} em {{target}}."
+  },
+  "accounting.merge_tool.continue": {
+    "es": "Continuar",
+    "en": "Continue",
+    "pt": "Continuar"
+  },
+  "accounting.merge_tool.destination": {
+    "es": "Destino:",
+    "en": "Destination:",
+    "pt": "Destino:"
+  },
+  "accounting.merge_tool.destination_account_receives_merge": {
+    "es": "Cuenta Destino (recibe la fusión)",
+    "en": "Destination Account (receives the merge)",
+    "pt": "Conta de Destino (recebe a fusão)"
+  },
+  "accounting.merge_tool.destination_balance": {
+    "es": "Saldo en destino:",
+    "en": "Destination balance:",
+    "pt": "Saldo no destino:"
+  },
+  "accounting.merge_tool.dry_run_summary_shown_before_merge": {
+    "es": "Se muestra un resumen del *dry-run* antes de ejecutar la fusión.",
+    "en": "A dry-run summary is shown before the merge is executed.",
+    "pt": "Um resumo do dry-run é exibido antes de executar a fusão."
+  },
+  "accounting.merge_tool.error": {
+    "es": "Error:",
+    "en": "Error:",
+    "pt": "Erro:"
+  },
+  "accounting.merge_tool.merge_another_pair": {
+    "es": "Realizar otra fusión",
+    "en": "Merge another pair",
+    "pt": "Realizar outra fusão"
+  },
+  "accounting.merge_tool.merge_complete": {
+    "es": "¡Fusión completada!",
+    "en": "Merge complete.",
+    "pt": "Fusão concluída."
+  },
+  "accounting.merge_tool.merge_did_not_complete": {
+    "es": "La fusión no se completó.",
+    "en": "The merge did not complete.",
+    "pt": "A fusão não foi concluída."
+  },
+  "accounting.merge_tool.merge_done": {
+    "es": "La cuenta {{source}} fue fusionada en {{target}}.",
+    "en": "Account {{source}} was merged into {{target}}.",
+    "pt": "A conta {{source}} foi fundida em {{target}}."
+  },
+  "accounting.merge_tool.result": {
+    "es": "Resultado",
+    "en": "Result",
+    "pt": "Resultado"
+  },
+  "accounting.merge_tool.search_code_name": {
+    "es": "Buscar por código o nombre...",
+    "en": "Search by code or name...",
+    "pt": "Buscar por código ou nome..."
+  },
+  "accounting.merge_tool.selected_account": {
+    "es": "Cuenta Seleccionada:",
+    "en": "Selected account:",
+    "pt": "Conta selecionada:"
+  },
+  "accounting.merge_tool.source": {
+    "es": "Origen:",
+    "en": "Source:",
+    "pt": "Origem:"
+  },
+  "accounting.merge_tool.source_account_merge": {
+    "es": "Cuenta Origen (a fusionar)",
+    "en": "Source Account (to merge)",
+    "pt": "Conta de Origem (a fundir)"
+  },
+  "accounting.merge_tool.source_balance": {
+    "es": "Saldo en origen:",
+    "en": "Source balance:",
+    "pt": "Saldo na origem:"
+  },
+  "accounting.merge_tool.step_1_help": {
+    "es": "Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y el saldo).",
+    "en": "Choose a <strong>source account</strong> (the one being merged) and a <strong>destination account</strong> (the one that keeps the movements and the balance).",
+    "pt": "Escolha uma <strong>conta de origem</strong> (a que será fundida) e uma <strong>conta de destino</strong> (a que manterá os lançamentos e o saldo)."
+  },
+  "accounting.merge_tool.step_confirmation": {
+    "es": "Paso 3: Confirmación",
+    "en": "Step 3: Confirmation",
+    "pt": "Etapa 3: Confirmação"
+  },
+  "accounting.merge_tool.step_impact_analysis": {
+    "es": "Paso 2: Análisis de Impacto",
+    "en": "Step 2: Impact analysis",
+    "pt": "Etapa 2: Análise de impacto"
+  },
+  "accounting.merge_tool.step_select_accounts": {
+    "es": "Paso 1: Seleccionar Cuentas",
+    "en": "Step 1: Select the accounts",
+    "pt": "Etapa 1: Selecionar as contas"
+  },
+  "accounting.merge_tool.transactions_move": {
+    "es": "Transacciones a mover:",
+    "en": "Transactions to move:",
+    "pt": "Transações a mover:"
+  },
+  "accounting.merge_tool.type_type": {
+    "es": "Tipo: {{type}}",
+    "en": "Type: {{type}}",
+    "pt": "Tipo: {{type}}"
+  },
+  "accounting.merge_tool.warnings": {
+    "es": "Advertencias:",
+    "en": "Warnings:",
+    "pt": "Avisos:"
+  },
+  "accounting.module_cannot_reopened_while_general_accounting": {
+    "es": "No se puede reabrir un módulo si el período contable general está cerrado.",
+    "en": "A module cannot be reopened while the general accounting period is closed.",
+    "pt": "Um módulo não pode ser reaberto enquanto o período contábil geral estiver encerrado."
+  },
+  "accounting.module_module_closed_period_name": {
+    "es": "El módulo {{module}} está cerrado para el período {{name}}.",
+    "en": "The {{module}} module is closed for period {{name}}.",
+    "pt": "O módulo {{module}} está encerrado para o período {{name}}."
+  },
+  "accounting.module_period_closed": {
+    "es": "El módulo {{module}} para el período \"{{name}}\" ha sido cerrado.",
+    "en": "Module {{module}} for period \"{{name}}\" has been closed.",
+    "pt": "O módulo {{module}} do período \"{{name}}\" foi encerrado."
+  },
+  "accounting.module_period_reopened": {
+    "es": "El módulo {{module}} para el período \"{{name}}\" ha sido reabierto.",
+    "en": "Module {{module}} for period \"{{name}}\" has been reopened.",
+    "pt": "O módulo {{module}} do período \"{{name}}\" foi reaberto."
+  },
+  "accounting.month_end_close.empty": {
+    "es": "No queda nada pendiente para cerrar este período.",
+    "en": "Nothing is left before this period can be closed.",
+    "pt": "Não resta nada pendente para encerrar este período."
+  },
+  "accounting.month_end_close.go_task": {
+    "es": "Ir a la tarea",
+    "en": "Go to the task",
+    "pt": "Ir para a tarefa"
+  },
+  "accounting.month_end_close.load_failed": {
+    "es": "No se pudo cargar el checklist de cierre.",
+    "en": "The closing checklist could not be loaded.",
+    "pt": "Não foi possível carregar a lista de verificação do fechamento."
+  },
+  "accounting.month_end_close.loading": {
+    "es": "Cargando el checklist de cierre…",
+    "en": "Loading the closing checklist…",
+    "pt": "Carregando a lista de verificação do fechamento…"
+  },
+  "accounting.month_end_close.no_open_period": {
+    "es": "No hay ningún período contable abierto.",
+    "en": "There is no open accounting period.",
+    "pt": "Não há nenhum período contábil aberto."
+  },
+  "accounting.month_end_close.progress": {
+    "es": "{{percent}} completado",
+    "en": "{{percent}} complete",
+    "pt": "{{percent}} concluído"
+  },
+  "accounting.month_end_close.title": {
+    "es": "Cierre mensual — {{period}}",
+    "en": "Month-End Close — {{period}}",
+    "pt": "Fechamento Mensal — {{period}}"
+  },
+  "accounting.month_end_close.title_no_period": {
+    "es": "Cierre mensual",
+    "en": "Month-End Close",
+    "pt": "Fechamento Mensal"
+  },
+  "accounting.nav.chart_of_accounts": {
+    "es": "Catálogo de Cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de Contas"
+  },
+  "accounting.nav.general_journal": {
+    "es": "Libro Diario",
+    "en": "General Journal",
+    "pt": "Livro Diário"
+  },
+  "accounting.nav.general_ledger": {
+    "es": "Libro Mayor",
+    "en": "General Ledger",
+    "pt": "Livro Razão"
+  },
+  "accounting.nav.journal_entries": {
+    "es": "Asientos Contables",
+    "en": "Journal Entries",
+    "pt": "Lançamentos Contábeis"
+  },
+  "accounting.nav.period_close": {
+    "es": "Cierre Contable",
+    "en": "Period Close",
+    "pt": "Fechamento Contábil"
+  },
+  "accounting.nav.periods": {
+    "es": "Períodos",
+    "en": "Periods",
+    "pt": "Períodos"
+  },
+  "accounting.nav.reconciliation": {
+    "es": "Conciliación",
+    "en": "Reconciliation",
+    "pt": "Conciliação"
+  },
+  "accounting.nav.subsidiary_ledgers": {
+    "es": "Libros Auxiliares",
+    "en": "Subsidiary Ledgers",
+    "pt": "Livros Auxiliares"
+  },
+  "accounting.nav.variance_analysis": {
+    "es": "Análisis de Variaciones",
+    "en": "Variance Analysis",
+    "pt": "Análise de Variações"
+  },
+  "accounting.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "accounting.no_inflation_index_found_year_month": {
+    "es": "Índice de inflación para {{year}}-{{month}} no encontrado.",
+    "en": "No inflation index was found for {{year}}-{{month}}.",
+    "pt": "Índice de inflação para {{year}}-{{month}} não encontrado."
+  },
+  "accounting.no_lock_found_given_account_period": {
+    "es": "No se encontró un bloqueo para la cuenta y período especificados.",
+    "en": "No lock was found for the given account and period.",
+    "pt": "Nenhum bloqueio encontrado para a conta e o período informados."
+  },
+  "accounting.one_both_ledgers_not_found": {
+    "es": "Uno o ambos libros contables no fueron encontrados.",
+    "en": "One or both ledgers were not found.",
+    "pt": "Um ou ambos os livros contábeis não foram encontrados."
+  },
+  "accounting.opening_journal_apertura_not_found": {
+    "es": "Diario de Apertura (APERTURA) no encontrado.",
+    "en": "The Opening journal (APERTURA) was not found.",
+    "pt": "O diário de Abertura (APERTURA) não foi encontrado."
+  },
+  "accounting.period_already_closed": {
+    "es": "El período ya se encuentra cerrado.",
+    "en": "The period is already closed.",
+    "pt": "O período já está encerrado."
+  },
+  "accounting.period_cannot_closed_draft_entries_count": {
+    "es": "No se puede cerrar el período. Existen {{draftEntriesCount}} asientos contables en borrador o pendientes de aprobación.",
+    "en": "The period cannot be closed. There are {{draftEntriesCount}} journal entries still in draft or awaiting approval.",
+    "pt": "O período não pode ser encerrado. Há {{draftEntriesCount}} lançamentos em rascunho ou aguardando aprovação."
+  },
+  "accounting.period_cannot_closed_while_name_still": {
+    "es": "No puede cerrar este período porque {{name}} sigue abierto. Los períodos se cierran en orden.",
+    "en": "This period cannot be closed while {{name}} is still open. Periods close in order.",
+    "pt": "Não é possível encerrar este período porque {{name}} continua aberto. Os períodos encerram em ordem."
+  },
+  "accounting.period_cannot_reopened_because_following_period": {
+    "es": "No se puede reabrir este período porque el período siguiente ya está cerrado.",
+    "en": "This period cannot be reopened because the following period is already closed.",
+    "pt": "Este período não pode ser reaberto porque o período seguinte já está encerrado."
+  },
+  "accounting.period_closed": {
+    "es": "El período contable \"{{name}}\" ha sido cerrado exitosamente.",
+    "en": "Accounting period \"{{name}}\" has been closed.",
+    "pt": "O período contábil \"{{name}}\" foi encerrado."
+  },
+  "accounting.period_not_closed": {
+    "es": "El período no está cerrado.",
+    "en": "The period is not closed.",
+    "pt": "O período não está encerrado."
+  },
+  "accounting.period_not_found": {
+    "es": "Período no encontrado.",
+    "en": "Period not found.",
+    "pt": "Período não encontrado."
+  },
+  "accounting.period_reopen_not_found": {
+    "es": "Período a reabrir no encontrado.",
+    "en": "The period to reopen was not found.",
+    "pt": "O período a reabrir não foi encontrado."
+  },
+  "accounting.period_reopened": {
+    "es": "El período contable \"{{name}}\" ha sido reabierto exitosamente.",
+    "en": "Accounting period \"{{name}}\" has been reopened.",
+    "pt": "O período contábil \"{{name}}\" foi reaberto."
+  },
+  "accounting.periods.accounting_periods": {
+    "es": "Períodos Contables",
+    "en": "Accounting Periods",
+    "pt": "Períodos Contábeis"
+  },
+  "accounting.periods.action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "accounting.periods.close_period": {
+    "es": "Cerrar Período",
+    "en": "Close Period",
+    "pt": "Encerrar Período"
+  },
+  "accounting.periods.empty": {
+    "es": "Todavía no hay períodos contables definidos.",
+    "en": "No accounting periods have been defined yet.",
+    "pt": "Ainda não há períodos contábeis definidos."
+  },
+  "accounting.periods.end_date": {
+    "es": "Fecha de Cierre",
+    "en": "End Date",
+    "pt": "Data de Encerramento"
+  },
+  "accounting.periods.load_failed": {
+    "es": "No se pudieron cargar los períodos contables.",
+    "en": "The accounting periods could not be loaded.",
+    "pt": "Não foi possível carregar os períodos contábeis."
+  },
+  "accounting.periods.loading": {
+    "es": "Cargando los períodos contables…",
+    "en": "Loading accounting periods…",
+    "pt": "Carregando os períodos contábeis…"
+  },
+  "accounting.periods.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "accounting.periods.re_open": {
+    "es": "Reabrir",
+    "en": "Reopen",
+    "pt": "Reabrir"
+  },
+  "accounting.periods.reason_too_short": {
+    "es": "La razón debe tener al menos 10 caracteres.",
+    "en": "The reason must be at least 10 characters long.",
+    "pt": "O motivo deve ter pelo menos 10 caracteres."
+  },
+  "accounting.periods.start_date": {
+    "es": "Fecha de Inicio",
+    "en": "Start Date",
+    "pt": "Data de Início"
+  },
+  "accounting.periods.state_why_accounting_period_being_reopened": {
+    "es": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
+    "en": "State why this accounting period is being reopened (at least 10 characters).",
+    "pt": "Informe o motivo da reabertura deste período contábil (mínimo de 10 caracteres)."
+  },
+  "accounting.periods.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounting.periods.status_closed": {
+    "es": "Cerrado",
+    "en": "Closed",
+    "pt": "Encerrado"
+  },
+  "accounting.periods.status_open": {
+    "es": "Abierto",
+    "en": "Open",
+    "pt": "Aberto"
+  },
+  "accounting.query_runner_could_not_obtained_opening": {
+    "es": "No se pudo obtener QueryRunner para el asiento de apertura.",
+    "en": "The query runner could not be obtained for the opening entry.",
+    "pt": "Não foi possível obter o query runner para o lançamento de abertura."
+  },
+  "accounting.reconciliation.adjusted_balance_per_bank": {
+    "es": "Saldo ajustado según el banco",
+    "en": "Adjusted balance per the bank",
+    "pt": "Saldo ajustado segundo o banco"
+  },
+  "accounting.reconciliation.adjusted_balance_per_books": {
+    "es": "Saldo ajustado según libros",
+    "en": "Adjusted balance per the books",
+    "pt": "Saldo ajustado segundo os livros"
+  },
+  "accounting.reconciliation.amount": {
+    "es": "Monto",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "accounting.reconciliation.apply_rules": {
+    "es": "Aplicar reglas",
+    "en": "Apply rules",
+    "pt": "Aplicar regras"
+  },
+  "accounting.reconciliation.balance_per_bank": {
+    "es": "Saldo según el banco",
+    "en": "Balance per the bank",
+    "pt": "Saldo segundo o banco"
+  },
+  "accounting.reconciliation.balance_per_books": {
+    "es": "Saldo según libros",
+    "en": "Balance per the books",
+    "pt": "Saldo segundo os livros"
+  },
+  "accounting.reconciliation.bank_movements": {
+    "es": "Movimientos del banco",
+    "en": "Bank movements",
+    "pt": "Movimentos do banco"
+  },
+  "accounting.reconciliation.bank_movements_not_yet_recorded": {
+    "es": "Movimientos del banco no registrados",
+    "en": "Bank movements not yet recorded",
+    "pt": "Movimentos do banco ainda não registrados"
+  },
+  "accounting.reconciliation.bank_reconciliation": {
+    "es": "Conciliación bancaria",
+    "en": "Bank reconciliation",
+    "pt": "Conciliação bancária"
+  },
+  "accounting.reconciliation.choose_bank_account": {
+    "es": "Seleccione una cuenta bancaria",
+    "en": "Choose a bank account",
+    "pt": "Escolha uma conta bancária"
+  },
+  "accounting.reconciliation.close_reconciliation": {
+    "es": "Cerrar conciliación",
+    "en": "Close reconciliation",
+    "pt": "Fechar conciliação"
+  },
+  "accounting.reconciliation.closing_balance": {
+    "es": "Saldo final",
+    "en": "Closing balance",
+    "pt": "Saldo final"
+  },
+  "accounting.reconciliation.combinations_add_up_movement": {
+    "es": "Combinaciones que suman este movimiento",
+    "en": "Combinations that add up to this movement",
+    "pt": "Combinações que somam este movimento"
+  },
+  "accounting.reconciliation.customer_statements": {
+    "es": "Estados de cuenta",
+    "en": "Customer Statements",
+    "pt": "Extratos"
+  },
+  "accounting.reconciliation.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.reconciliation.description": {
+    "es": "Concepto",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.reconciliation.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "accounting.reconciliation.import_statement": {
+    "es": "Importar estado de cuenta",
+    "en": "Import a statement",
+    "pt": "Importar extrato"
+  },
+  "accounting.reconciliation.import.bank_date_format": {
+    "es": "Formato de fecha del banco",
+    "en": "The bank’s date format",
+    "pt": "Formato de data do banco"
+  },
+  "accounting.reconciliation.import.choose_statement_file": {
+    "es": "Seleccione el archivo del estado de cuenta.",
+    "en": "Choose the statement file.",
+    "pt": "Escolha o arquivo do extrato."
+  },
+  "accounting.reconciliation.import.column_mapping": {
+    "es": "Mapeo de columnas",
+    "en": "Column mapping",
+    "pt": "Mapeamento de colunas"
+  },
+  "accounting.reconciliation.import.complete_column_mapping_file_format": {
+    "es": "Complete el mapeo de columnas y el formato del archivo.",
+    "en": "Complete the column mapping and the file format.",
+    "pt": "Complete o mapeamento de colunas e o formato do arquivo."
+  },
+  "accounting.reconciliation.import.csv_file": {
+    "es": "Archivo CSV",
+    "en": "CSV file",
+    "pt": "Arquivo CSV"
+  },
+  "accounting.reconciliation.import.date_column": {
+    "es": "Columna de fecha",
+    "en": "Date column",
+    "pt": "Coluna de data"
+  },
+  "accounting.reconciliation.import.description_column": {
+    "es": "Columna de concepto",
+    "en": "Description column",
+    "pt": "Coluna de descrição"
+  },
+  "accounting.reconciliation.import.file_could_not_read": {
+    "es": "No se pudo leer el archivo:",
+    "en": "The file could not be read:",
+    "pt": "Não foi possível ler o arquivo:"
+  },
+  "accounting.reconciliation.import.give_amount_column_money_money_out": {
+    "es": "Indique la columna de monto, o el par de columnas de entradas y salidas.",
+    "en": "Give the amount column, or the money-in and money-out pair.",
+    "pt": "Informe a coluna de valor, ou o par de colunas de entradas e saídas."
+  },
+  "accounting.reconciliation.import.money_column": {
+    "es": "Columna de entradas",
+    "en": "Money-in column",
+    "pt": "Coluna de entradas"
+  },
+  "accounting.reconciliation.import.money_out_column": {
+    "es": "Columna de salidas",
+    "en": "Money-out column",
+    "pt": "Coluna de saídas"
+  },
+  "accounting.reconciliation.import.number_format": {
+    "es": "Formato de números",
+    "en": "Number format",
+    "pt": "Formato de números"
+  },
+  "accounting.reconciliation.import.positive_amount_money_arriving": {
+    "es": "Un monto positivo es dinero que entra",
+    "en": "A positive amount is money arriving",
+    "pt": "Um valor positivo é dinheiro que entra"
+  },
+  "accounting.reconciliation.import.reference_column": {
+    "es": "Columna de referencia",
+    "en": "Reference column",
+    "pt": "Coluna de referência"
+  },
+  "accounting.reconciliation.import.signed_amount_column": {
+    "es": "Columna de monto (con signo)",
+    "en": "Signed amount column",
+    "pt": "Coluna de valor (com sinal)"
+  },
+  "accounting.reconciliation.import.statement_imported_count_movements": {
+    "es": "Estado de cuenta importado: {{count}} movimientos.",
+    "en": "Statement imported: {{count}} movements.",
+    "pt": "Extrato importado: {{count}} movimentos."
+  },
+  "accounting.reconciliation.import.type_each_column_name_exactly_appears": {
+    "es": "Escriba el nombre exacto de cada columna tal como aparece en el encabezado del archivo.",
+    "en": "Type each column name exactly as it appears in the file’s header row.",
+    "pt": "Escreva o nome exato de cada coluna como aparece no cabeçalho do arquivo."
+  },
+  "accounting.reconciliation.items_transit_books_not_bank": {
+    "es": "Partidas en tránsito (en libros, no en el banco)",
+    "en": "Items in transit (in the books, not at the bank)",
+    "pt": "Partidas em trânsito (nos livros, não no banco)"
+  },
+  "accounting.reconciliation.ledger_lines_could_correspond": {
+    "es": "Líneas contables que podrían corresponder",
+    "en": "Ledger lines that could correspond",
+    "pt": "Linhas contábeis que podem corresponder"
+  },
+  "accounting.reconciliation.match": {
+    "es": "Conciliar",
+    "en": "Match",
+    "pt": "Conciliar"
+  },
+  "accounting.reconciliation.matched_rule": {
+    "es": "Conciliado por regla",
+    "en": "Matched by rule",
+    "pt": "Conciliado por regra"
+  },
+  "accounting.reconciliation.no_ledger_line_matches_movement": {
+    "es": "Ninguna línea contable coincide con este movimiento.",
+    "en": "No ledger line matches this movement.",
+    "pt": "Nenhuma linha contábil coincide com este movimento."
+  },
+  "accounting.reconciliation.no_statements_have_imported_account": {
+    "es": "No hay estados de cuenta importados para esta cuenta.",
+    "en": "No statements have been imported for this account.",
+    "pt": "Não há extratos importados para esta conta."
+  },
+  "accounting.reconciliation.opening_balance": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
+  "accounting.reconciliation.operation_could_not_completed": {
+    "es": "No se pudo completar la operación.",
+    "en": "The operation could not be completed.",
+    "pt": "Não foi possível concluir a operação."
+  },
+  "accounting.reconciliation.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "accounting.reconciliation.proof": {
+    "es": "Cuadre",
+    "en": "Proof",
+    "pt": "Prova"
+  },
+  "accounting.reconciliation.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "accounting.reconciliation.reconciliation_balances": {
+    "es": "La conciliación cuadra.",
+    "en": "The reconciliation balances.",
+    "pt": "A conciliação fecha."
+  },
+  "accounting.reconciliation.reconciliation_does_not_balance_yet": {
+    "es": "La conciliación no cuadra todavía.",
+    "en": "The reconciliation does not balance yet.",
+    "pt": "A conciliação ainda não fecha."
+  },
+  "accounting.reconciliation.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "accounting.reconciliation.reopen": {
+    "es": "Reabrir",
+    "en": "Reopen",
+    "pt": "Reabrir"
+  },
+  "accounting.reconciliation.set_aside": {
+    "es": "Apartar",
+    "en": "Set aside",
+    "pt": "Apartar"
+  },
+  "accounting.reconciliation.statement_does_not_add_up_opening": {
+    "es": "El estado de cuenta no cuadra consigo mismo: saldo inicial más movimientos difiere del saldo final en {{amount}}.",
+    "en": "The statement does not add up: opening balance plus movements differs from the closing balance by {{amount}}.",
+    "pt": "O extrato não fecha consigo mesmo: saldo inicial mais movimentos difere do saldo final em {{amount}}."
+  },
+  "accounting.reconciliation.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounting.reconciliation.status.failed": {
+    "es": "Falló",
+    "en": "Failed",
+    "pt": "Falhou"
+  },
+  "accounting.reconciliation.status.imported": {
+    "es": "Importado",
+    "en": "Imported",
+    "pt": "Importado"
+  },
+  "accounting.reconciliation.status.importing": {
+    "es": "Importando",
+    "en": "Importing",
+    "pt": "Importando"
+  },
+  "accounting.reconciliation.status.reconciled": {
+    "es": "Conciliado",
+    "en": "Reconciled",
+    "pt": "Conciliado"
+  },
+  "accounting.reconciliation.undo": {
+    "es": "Deshacer",
+    "en": "Undo",
+    "pt": "Desfazer"
+  },
+  "accounting.reopening_journal_reapertura_not_found": {
+    "es": "Diario de Reapertura (REAPERTURA) no encontrado.",
+    "en": "The Reopening journal (REAPERTURA) was not found.",
+    "pt": "O diário de Reabertura (REAPERTURA) não foi encontrado."
+  },
+  "accounting.retained_earnings_account_not_configured_organization": {
+    "es": "La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.",
+    "en": "The Retained Earnings account is not configured for the organization.",
+    "pt": "A conta de Lucros Acumulados não está configurada para a organização."
+  },
+  "accounting.segment_configuration.add_level": {
+    "es": "Agregar Nivel",
+    "en": "Add Level",
+    "pt": "Adicionar Nível"
+  },
+  "accounting.segment_configuration.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounting.segment_configuration.chart_accounts": {
+    "es": "Catálogo de Cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de Contas"
+  },
+  "accounting.segment_configuration.correct_errors_form": {
+    "es": "Por favor, corrija los errores en el formulario.",
+    "en": "Please correct the errors on the form.",
+    "pt": "Corrija os erros do formulário."
+  },
+  "accounting.segment_configuration.default_structure_initialized": {
+    "es": "Estructura por defecto inicializada.",
+    "en": "Default structure initialized.",
+    "pt": "Estrutura padrão inicializada."
+  },
+  "accounting.segment_configuration.define_structure_length_levels_your_accounts": {
+    "es": "Define la estructura y longitud de los niveles para tus cuentas contables.",
+    "en": "Define the structure and length of the levels for your accounts.",
+    "pt": "Defina a estrutura e o comprimento dos níveis das suas contas contábeis."
+  },
+  "accounting.segment_configuration.error_loading_segment_configuration": {
+    "es": "Error al cargar la configuración de segmentos.",
+    "en": "Error loading the segment configuration.",
+    "pt": "Erro ao carregar a configuração de segmentos."
+  },
+  "accounting.segment_configuration.important": {
+    "es": "Nota importante:",
+    "en": "Important:",
+    "pt": "Importante:"
+  },
+  "accounting.segment_configuration.ledger_sub_account": {
+    "es": "Ej: Mayor, Sub-cuenta...",
+    "en": "e.g. Ledger, Sub-account...",
+    "pt": "Ex.: Razão, Subconta..."
+  },
+  "accounting.segment_configuration.length_characters": {
+    "es": "Longitud (caracteres)",
+    "en": "Length (characters)",
+    "pt": "Comprimento (caracteres)"
+  },
+  "accounting.segment_configuration.level_name": {
+    "es": "Nombre del Nivel",
+    "en": "Level Name",
+    "pt": "Nome do Nível"
+  },
+  "accounting.segment_configuration.load_template": {
+    "es": "Cargar Plantilla",
+    "en": "Load Template",
+    "pt": "Carregar Modelo"
+  },
+  "accounting.segment_configuration.loading_configuration": {
+    "es": "Cargando configuración...",
+    "en": "Loading configuration...",
+    "pt": "Carregando configuração..."
+  },
+  "accounting.segment_configuration.no_levels_defined_add_one_load": {
+    "es": "No hay niveles definidos. Agrega uno o carga la plantilla por defecto.",
+    "en": "No levels are defined. Add one or load the default template.",
+    "pt": "Nenhum nível definido. Adicione um ou carregue o modelo padrão."
+  },
+  "accounting.segment_configuration.once_you_start_creating_accounts_you": {
+    "es": "Una vez que comiences a crear cuentas contables, no podrás modificar esta estructura. Asegúrate de que la longitud y cantidad de niveles sean las correctas para tu organización.",
+    "en": "Once you start creating accounts you will not be able to change this structure. Make sure the length and number of levels are right for your organization.",
+    "pt": "Depois que você começar a criar contas, não será possível alterar esta estrutura. Verifique se o comprimento e a quantidade de níveis são os corretos para sua organização."
+  },
+  "accounting.segment_configuration.order": {
+    "es": "Orden",
+    "en": "Order",
+    "pt": "Ordem"
+  },
+  "accounting.segment_configuration.remove_level": {
+    "es": "Eliminar Nivel",
+    "en": "Remove Level",
+    "pt": "Remover Nível"
+  },
+  "accounting.segment_configuration.required": {
+    "es": "Requerido",
+    "en": "Required",
+    "pt": "Obrigatório"
+  },
+  "accounting.segment_configuration.save_structure": {
+    "es": "Guardar Estructura",
+    "en": "Save Structure",
+    "pt": "Salvar Estrutura"
+  },
+  "accounting.segment_configuration.saving": {
+    "es": "Guardando...",
+    "en": "Saving...",
+    "pt": "Salvando..."
+  },
+  "accounting.segment_configuration.segment_configuration": {
+    "es": "Configuración de Segmentos",
+    "en": "Segment Configuration",
+    "pt": "Configuração de Segmentos"
+  },
+  "accounting.segment_configuration.segment_structure_saved_successfully": {
+    "es": "Estructura de segmentos guardada correctamente.",
+    "en": "Segment structure saved successfully.",
+    "pt": "Estrutura de segmentos salva com sucesso."
+  },
+  "accounting.segment_configuration.you_must_define_least_one_segment": {
+    "es": "Debe definir al menos un segmento.",
+    "en": "You must define at least one segment.",
+    "pt": "É necessário definir ao menos um segmento."
+  },
+  "accounting.specified_accounting_period_not_found": {
+    "es": "El período contable especificado no fue encontrado.",
+    "en": "The specified accounting period was not found.",
+    "pt": "O período contábil especificado não foi encontrado."
+  },
+  "accounting.start_date_cannot_later_than_end": {
+    "es": "La fecha inicial no puede ser posterior a la final.",
+    "en": "The start date cannot be later than the end date.",
+    "pt": "A data inicial não pode ser posterior à final."
+  },
+  "accounting.subsidiary_ledgers.auxiliary": {
+    "es": "Auxiliar:",
+    "en": "Auxiliary:",
+    "pt": "Auxiliar:"
+  },
+  "accounting.subsidiary_ledgers.auxiliary_third_party": {
+    "es": "Auxiliar (Tercero)",
+    "en": "Auxiliary (Third Party)",
+    "pt": "Auxiliar (Terceiro)"
+  },
+  "accounting.subsidiary_ledgers.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "accounting.subsidiary_ledgers.control_account": {
+    "es": "Cuenta de Control",
+    "en": "Control Account",
+    "pt": "Conta de Controle"
+  },
+  "accounting.subsidiary_ledgers.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounting.subsidiary_ledgers.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounting.subsidiary_ledgers.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "accounting.subsidiary_ledgers.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounting.subsidiary_ledgers.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "accounting.subsidiary_ledgers.filters": {
+    "es": "Filtros",
+    "en": "Filters",
+    "pt": "Filtros"
+  },
+  "accounting.subsidiary_ledgers.final_balance": {
+    "es": "Saldo Final",
+    "en": "Ending Balance",
+    "pt": "Saldo Final"
+  },
+  "accounting.subsidiary_ledgers.load_failed": {
+    "es": "No se pudo cargar el libro auxiliar.",
+    "en": "The subsidiary ledger could not be loaded.",
+    "pt": "Não foi possível carregar o livro auxiliar."
+  },
+  "accounting.subsidiary_ledgers.loading": {
+    "es": "Cargando el libro auxiliar…",
+    "en": "Loading the subsidiary ledger…",
+    "pt": "Carregando o livro auxiliar…"
+  },
+  "accounting.subsidiary_ledgers.no_movements_found_for_this_auxiliary": {
+    "es": "No se encontraron movimientos para este auxiliar en el período seleccionado.",
+    "en": "No movements were found for this auxiliary in the selected period.",
+    "pt": "Nenhum lançamento encontrado para este auxiliar no período selecionado."
+  },
+  "accounting.subsidiary_ledgers.opening_balance": {
+    "es": "Saldo Inicial",
+    "en": "Opening Balance",
+    "pt": "Saldo Inicial"
+  },
+  "accounting.subsidiary_ledgers.opening_balance_opening_balance": {
+    "es": "Saldo de apertura",
+    "en": "Opening balance",
+    "pt": "Saldo de abertura"
+  },
+  "accounting.subsidiary_ledgers.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "accounting.subsidiary_ledgers.reference": {
+    "es": "N.º de Referencia",
+    "en": "Reference no.",
+    "pt": "N.º de Referência"
+  },
+  "accounting.subsidiary_ledgers.select_account": {
+    "es": "Selecciona una cuenta de control",
+    "en": "Select a control account",
+    "pt": "Selecione uma conta de controle"
+  },
+  "accounting.subsidiary_ledgers.select_auxiliary": {
+    "es": "Selecciona un auxiliar",
+    "en": "Select an auxiliary",
+    "pt": "Selecione um auxiliar"
+  },
+  "accounting.subsidiary_ledgers.subsidiary_ledgers": {
+    "es": "Libros Auxiliares",
+    "en": "Subsidiary Ledgers",
+    "pt": "Livros Auxiliares"
+  },
+  "accounting.transaction_date_falls_accounting_period_name": {
+    "es": "La fecha de la transacción está dentro de un período contable ({{name}}) que ya ha sido cerrado.",
+    "en": "The transaction date falls in an accounting period ({{name}}) that is already closed.",
+    "pt": "A data da transação está em um período contábil ({{name}}) que já foi encerrado."
+  },
+  "accounting.transaction_date_p1_does_not_fall": {
+    "es": "La fecha de la transacción {{p1}} no pertenece a ningún período contable definido.",
+    "en": "The transaction date {{p1}} does not fall in any defined accounting period.",
+    "pt": "A data da transação {{p1}} não pertence a nenhum período contábil definido."
+  },
+  "accounting.transaction_query_runner_could_not_obtained": {
+    "es": "No se pudo obtener el Query Runner de la transacción.",
+    "en": "The transaction's query runner could not be obtained.",
+    "pt": "Não foi possível obter o query runner da transação."
+  },
+  "accounting.transaction_query_runner_could_not_obtained_create_closing_entry": {
+    "es": "No se pudo obtener el Query Runner de la transacción para crear el asiento de cierre.",
+    "en": "The transaction's query runner could not be obtained to create the closing entry.",
+    "pt": "Não foi possível obter o query runner da transação para criar o lançamento de encerramento."
+  },
+  "accounting.transaction_query_runner_could_not_obtained_opening_entry": {
+    "es": "No se pudo obtener el Query Runner de la transacción para el asiento de apertura.",
+    "en": "The transaction's query runner could not be obtained for the opening entry.",
+    "pt": "Não foi possível obter o query runner da transação para o lançamento de abertura."
+  },
+  "accounting.unknown_module_module": {
+    "es": "Módulo desconocido: {{module}}",
+    "en": "Unknown module: {{module}}",
+    "pt": "Módulo desconhecido: {{module}}"
+  },
+  "accounting.variance_analysis.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "accounting.variance_analysis.actual": {
+    "es": "Real",
+    "en": "Actual",
+    "pt": "Real"
+  },
+  "accounting.variance_analysis.budget": {
+    "es": "Presupuesto",
+    "en": "Budgeting",
+    "pt": "Orçamento"
+  },
+  "accounting.variance_analysis.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "accounting.variance_analysis.load_failed": {
+    "es": "No se pudo cargar el análisis de variaciones.",
+    "en": "The variance analysis could not be loaded.",
+    "pt": "Não foi possível carregar a análise de variações."
+  },
+  "accounting.variance_analysis.loading": {
+    "es": "Cargando el análisis de variaciones…",
+    "en": "Loading the variance analysis…",
+    "pt": "Carregando a análise de variações…"
+  },
+  "accounting.variance_analysis.no_data_available_for_variance_analysis": {
+    "es": "No hay datos disponibles para el análisis de variaciones.",
+    "en": "There is no data available for the variance analysis.",
+    "pt": "Não há dados disponíveis para a análise de variações."
+  },
+  "accounting.variance_analysis.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "accounting.variance_analysis.variance_amount": {
+    "es": "Variación",
+    "en": "Variance",
+    "pt": "Variação"
+  },
+  "accounting.variance_analysis.variance_analysis_actual_vs_budget": {
+    "es": "Análisis de Variaciones (Real vs. Presupuesto)",
+    "en": "Variance Analysis (Actual vs. Budget)",
+    "pt": "Análise de Variações (Real vs. Orçado)"
+  },
+  "accounting.variance_analysis.variance_percent": {
+    "es": "Variación (%)",
+    "en": "Variance (%)",
+    "pt": "Variação (%)"
+  },
+  "accounting.year_end_closing_journal_cierre_anual": {
+    "es": "Diario de Cierre Anual (CIERRE-ANUAL) no encontrado.",
+    "en": "The Year-End Closing journal (CIERRE-ANUAL) was not found.",
+    "pt": "O diário de Encerramento Anual (CIERRE-ANUAL) não foi encontrado."
+  }
+}
