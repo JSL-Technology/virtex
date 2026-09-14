@@ -227,11 +227,8 @@ export class InvoicesService {
         preconditions.push({
           code: 'invoices.document_invoice_number_has_already_issued',
           status: 'failed',
-          message: this.i18n.translate(
-            'invoices.document_invoice_number_has_already_issued',
-            currentLanguage(),
-            { invoiceNumber: invoice.invoiceNumber },
-          ),
+          messageKey: 'invoices.document_invoice_number_has_already_issued',
+          params: { invoiceNumber: invoice.invoiceNumber },
         });
         return { canExecute: false, preconditions, effects };
       }
@@ -239,7 +236,8 @@ export class InvoicesService {
       preconditions.push({
         code: 'invoices.precondition.draft',
         status: 'passed',
-        message: this.i18n.translate('invoices.precondition.draft', currentLanguage(), {}),
+        messageKey: 'invoices.precondition.draft',
+        params: {},
       });
 
       const issued = await this.issueWithin(invoice, type ?? null, organizationId, manager);
@@ -255,11 +253,8 @@ export class InvoicesService {
         preconditions.push({
           code: 'invoices.precondition.sequence_available',
           status: 'passed',
-          message: this.i18n.translate(
-            'invoices.precondition.sequence_available',
-            currentLanguage(),
-            { number: issued.ncfNumber },
-          ),
+          messageKey: 'invoices.precondition.sequence_available',
+          params: { number: issued.ncfNumber },
         });
       }
 
@@ -291,7 +286,8 @@ export class InvoicesService {
         preconditions.push({
           code: error.code,
           status: 'failed',
-          message: this.i18n.translate(error.messageKey, currentLanguage(), error.params),
+          messageKey: error.messageKey,
+          params: error.params,
           remedy: REMEDIES[error.code],
         });
         return { canExecute: false, preconditions, effects };

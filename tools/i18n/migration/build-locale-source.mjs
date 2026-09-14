@@ -41,12 +41,46 @@ const ROOT = path.resolve(HERE, '../../..');
 const OUT = `${ROOT}/libs/shared/locales/src/base`;
 
 const LANGUAGES = ['es', 'en', 'pt'];
+/**
+ * The two catalogues this script folded together.
+ *
+ * They lived at `apps/core/client-web/src/assets/i18n` and
+ * `apps/backend/api/src/app/i18n/messages`. Those paths now hold GENERATED output, so the inputs
+ * are named here under a directory that is deliberately absent: re-running this script has to fail
+ * loudly rather than quietly re-read its own output and produce a source of truth from it.
+ *
+ * To re-run it, check the two directories out of the commit before `libs/shared/locales` existed:
+ *
+ *     git show <commit>:apps/core/client-web/src/assets/i18n  # etc.
+ */
 const OLD = [
-  `${ROOT}/apps/core/client-web/src/assets/i18n`,
-  `${ROOT}/apps/backend/api/src/app/i18n/messages`,
+  `${HERE}/legacy-catalogues/client-web`,
+  `${HERE}/legacy-catalogues/api`,
 ];
 
-const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
+/**
+ * This script ran once, on 2026-09-14, and its inputs no longer exist: the two legacy catalogues
+ * it folded together were deleted in the same change that added `libs/shared/locales`. It is kept
+ * because it is the record of HOW the current source was derived — which conflicts were resolved
+ * which way, which values were in the wrong language — and because that record is only checkable
+ * if the code that produced it is still here.
+ *
+ * From here on, a new key is added to `libs/shared/locales/src/base/<namespace>.json` by hand and
+ * `tools/i18n/build-catalogues.mjs` emits it.
+ */
+const LEGACY_NOTICE = [
+  'build-locale-source.mjs is a spent migration: the legacy catalogues it reads were removed once',
+  'libs/shared/locales became the source. Add new keys to libs/shared/locales/src/base/ instead,',
+  'then run: node tools/i18n/build-catalogues.mjs',
+].join('\n');
+
+const read = (p) => {
+  if (!fs.existsSync(p)) {
+    console.error(LEGACY_NOTICE);
+    process.exit(2);
+  }
+  return JSON.parse(fs.readFileSync(p, 'utf8'));
+};
 const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) =>
   v && typeof v === 'object' && !Array.isArray(v) ? flat(v, p ? `${p}.${k}` : k) : [[p ? `${p}.${k}` : k, v]]);
 

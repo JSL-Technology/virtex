@@ -64,6 +64,12 @@
     "en": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
     "pt": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2)."
   },
+  "validation.constraints.fallback": {
+    "es": "{{message}}",
+    "en": "{{message}}",
+    "pt": "{{message}}",
+    "note": "Passes class-validator's own sentence through when no catalogue key covers the rule. Visible on purpose: a rule with no wording of ours is a gap to close, and a blank field error hides it."
+  },
   "validation.constraints.is_array": {
     "es": "{{property}} debe ser una lista.",
     "en": "{{property}} must be a list.",
@@ -94,15 +100,15 @@
     "en": "{{property}} does not accept that value.",
     "pt": "{{property}} não aceita esse valor."
   },
-  "validation.constraints.is_iso_date": {
-    "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
-    "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
-    "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
-  },
   "validation.constraints.is_iso8601": {
     "es": "{{property}} no es una fecha válida.",
     "en": "{{property}} is not a valid date.",
     "pt": "{{property}} não é uma data válida."
+  },
+  "validation.constraints.is_iso_date": {
+    "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
+    "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
+    "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
   },
   "validation.constraints.is_not_empty": {
     "es": "{{property}} es obligatorio.",

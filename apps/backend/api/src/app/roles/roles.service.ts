@@ -8,11 +8,22 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
+
+/**
+ * A role as the API reports it.
+ *
+ * Exactly one of `description` and `descriptionKey` is set: the first when a customer typed the
+ * text, the second when the value is a catalogue key this product wrote at provisioning time. The
+ * client cannot guess which, so the response says.
+ */
+export type RoleView = Omit<Role, 'description'> & {
+    description: string | null;
+    descriptionKey: string | null;
+};
 import { UserSecurity } from '../users/entities/user-security.entity';
 import type { Permission } from '../shared/permissions';
 import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { I18nService } from '../i18n/i18n.service';
-import { currentLanguage } from '../i18n/request-locale';
 
 @Injectable()
 export class RolesService {
@@ -24,21 +35,26 @@ export class RolesService {
     ) { }
 
     /**
-     * The tenant's roles, with the four system ones described in the reader's language.
+     * The tenant's roles, saying which descriptions are keys and which are text somebody typed.
      *
      * A system role's `description` column holds a catalogue key, written there when the
-     * organisation was provisioned. The roles screen rendered it raw, so customers read
-     * `USER.ROLE.ADMINISTRATOR_DESC` in a table. Resolving it here keeps the client from having
-     * to know which descriptions are keys and which are text a user typed.
+     * organisation was provisioned; a role the customer created holds whatever they wrote. The
+     * screen rendered the column raw, so customers read `USER.ROLE.ADMINISTRATOR_DESC` in a table.
+     *
+     * The first fix was to translate it here and overwrite the column on the way out. That put UI
+     * prose in an API response and still left the client unable to tell the two cases apart — it
+     * got a string and hoped. The response now carries `descriptionKey` when the description IS a
+     * key, and the client translates it, which is also what lets the roles screen follow a language
+     * switch without refetching.
      */
-    async findAllByOrg(organizationId: string): Promise<Role[]> {
+    async findAllByOrg(organizationId: string): Promise<RoleView[]> {
         const roles = await this.roleRepository.find({ where: { organizationId } });
-        const language = currentLanguage();
 
         return roles.map((role) => {
-            if (!role.description || !this.i18n.has(role.description)) return role;
-            role.description = this.i18n.translate(role.description, language);
-            return role;
+            if (!role.description || !this.i18n.has(role.description)) {
+                return { ...role, descriptionKey: null } as RoleView;
+            }
+            return { ...role, description: null, descriptionKey: role.description } as RoleView;
         });
     }
 

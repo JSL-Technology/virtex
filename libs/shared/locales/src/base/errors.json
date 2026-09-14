@@ -250,7 +250,7 @@
   "errors.not_found": {
     "es": "No encontramos lo que buscabas.",
     "en": "We could not find what you were looking for.",
-    "pt": "Não encontramos o que você procurava."
+    "pt": "Não encontrámos o que procuravas."
   },
   "errors.open_billing_portal": {
     "es": "No se pudo abrir el portal de facturación. Inténtalo de nuevo.",
@@ -361,6 +361,11 @@
     "es": "No se pudo actualizar el usuario.",
     "en": "The user could not be updated.",
     "pt": "Não foi possível atualizar o usuário."
+  },
+  "errors.validation_failed": {
+    "es": "Revisa los datos del formulario.",
+    "en": "Check the form's data.",
+    "pt": "Verifica os dados do formulário."
   },
   "errors.verify_domain": {
     "es": "Todavía no se pudo verificar el dominio.",

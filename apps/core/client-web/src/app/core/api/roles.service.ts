@@ -11,7 +11,16 @@ export type Role = RoleContract;
 
 export interface CreateRoleDto {
   name: string;
-  description?: string;
+  /** What the customer typed, when they created the role themselves. */
+  description?: string | null;
+  /**
+   * Catalogue key for the description, when this is one of the four system roles.
+   *
+   * Exactly one of the two is set. The API used to send a single `description` that was sometimes a
+   * key and sometimes prose, and the screen could not tell which — so it rendered
+   * `USER.ROLE.ADMINISTRATOR_DESC` to every customer.
+   */
+  descriptionKey?: string | null;
   permissions: string[];
 }
 

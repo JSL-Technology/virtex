@@ -2,7 +2,6 @@ import { ValidationError } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
 import { LanguageCode } from '@virteex/shared/types';
 import { I18nService } from './i18n.service';
-import { currentLanguage } from './request-locale';
 import { composeKey } from '@virteex/shared/types';
 
 /**
@@ -155,23 +154,70 @@ export function translateValidationError(
   });
 }
 
+/** One field's failure, named rather than worded. */
+export interface FieldError {
+  /** Dotted path to the field, `address.city` for a nested DTO. */
+  property: string;
+  /** Catalogue key for the message. */
+  key: string;
+  /** Interpolation parameters, including `property` — the field's own translated label's key. */
+  params: Record<string, unknown>;
+}
+
+/**
+ * Every failure for one field, as keys.
+ *
+ * The resolution order is the same one `translateValidationError` uses; only the last step differs,
+ * because a key that resolves nowhere has to travel as something. `class-validator`'s own English
+ * sentence is passed through under `validation.constraints.fallback`, which renders it verbatim —
+ * visible, and therefore fixable, which a silent blank is not.
+ */
+export function describeValidationError(i18n: I18nService, error: ValidationError): FieldError[] {
+  const propertyKey = composeKey('validation.fields', error.property);
+  const property = i18n.has(propertyKey) ? propertyKey : error.property;
+
+  return Object.entries(error.constraints ?? {}).map(([constraint, fallback]) => {
+    const parsed = parseValidationMessage(fallback);
+    const params = { property, ...parsed.params };
+
+    if (i18n.has(parsed.key)) return { property: error.property, key: parsed.key, params };
+
+    const generic = constraintKey(constraint);
+    if (i18n.has(generic)) return { property: error.property, key: generic, params };
+
+    return {
+      property: error.property,
+      key: 'validation.constraints.fallback',
+      params: { ...params, message: fallback },
+    };
+  });
+}
+
 /**
  * The `exceptionFactory` for the global `ValidationPipe`.
  *
- * Keeps Nest's own response shape — `{ statusCode, message: string[], error }` — because the
- * client already renders it and changing it here would be an unrelated breaking change.
+ * ## Why this sends keys and not sentences
+ *
+ * It used to translate every message here and answer with `message: string[]`. That put prose for
+ * the UI in an API response, which is the thing this codebase has decided the server does not do:
+ * the reader's screen knows the context a sentence needs and the server does not. A form that
+ * failed three rules also wants them per field, and a flat array of sentences cannot say which
+ * field each belongs to — the client was matching them up by guessing.
+ *
+ * So the failure travels as `fieldErrors`, each entry naming its field, its key and its parameters,
+ * and `ErrorHandlerService` renders them. The server keeps `translateValidationError` for the one
+ * place that still needs a sentence with no browser in it: the e-CF submission log.
  */
 export function localizedValidationExceptionFactory(i18n: I18nService) {
   return (errors: ValidationError[]): BadRequestException => {
-    const language = currentLanguage();
-    const messages = flatten(errors).flatMap((error) =>
-      translateValidationError(i18n, error, language),
-    );
+    const fieldErrors = flatten(errors).flatMap((error) => describeValidationError(i18n, error));
 
     return new BadRequestException({
       statusCode: 400,
-      message: messages.length > 0 ? messages : [i18n.translate('errors.http_400', language)],
-      error: 'Bad Request',
+      code: 'VALIDATION_FAILED',
+      messageKey: 'errors.validation_failed',
+      params: {},
+      fieldErrors,
     });
   };
 }

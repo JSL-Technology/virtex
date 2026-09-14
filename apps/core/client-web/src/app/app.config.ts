@@ -7,10 +7,13 @@ import {
   MissingTranslationHandler,
   provideTranslateService,
   TranslateLoader,
+  TranslateStore,
 } from '@ngx-translate/core';
 import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
 import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
 import { LazyTranslateLoader } from './core/i18n/translate-loader';
+import { VirtexTranslateStore } from './core/i18n/translate-store';
+import { RegionalLocaleEffect } from './core/i18n/regional-locale.effect';
 import { VirtexMissingTranslationHandler } from './core/i18n/missing-translation.handler';
 import { LanguageService } from './core/services/language';
 
@@ -78,6 +81,12 @@ const I18N_PROVIDERS = [
     },
     fallbackLang: DEFAULT_LANGUAGE,
   }),
+  // Overrides the store `provideTranslateService` just registered, so every lookup — pipe,
+  // directive, `instant`, `get`, the fallback-language retry — passes through one key
+  // normalisation. Order matters: a later provider for the same token wins.
+  { provide: TranslateStore, useClass: VirtexTranslateStore },
+  // Rebuilds the table with the tenant's country applied, once the session says what it is.
+  provideAppInitializer(() => { inject(RegionalLocaleEffect); }),
 ];
 
 const RECAPTCHA_PROVIDERS = [

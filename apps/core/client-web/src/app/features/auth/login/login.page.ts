@@ -18,6 +18,8 @@ import { SocialAuthButtonsComponent } from '../components/social-auth-buttons/so
 import { PasskeyButtonComponent } from '../components/passkey-button/passkey-button.component';
 import { OtpComponent } from '../../../shared/components/otp/otp.component';
 import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -48,6 +50,7 @@ export class LoginPage implements OnInit {
   private route = inject(ActivatedRoute);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
   private translate = inject(TranslateService);
+  private errors = inject(ErrorHandlerService);
 
   public languageService = inject(LanguageService);
   public countryService = inject(CountryService);
@@ -300,19 +303,24 @@ export class LoginPage implements OnInit {
     this.isLoggingIn.set(false);
   }
 
-  private handleError(err: any): void {
+  /**
+   * Show what actually went wrong.
+   *
+   * This used to map the HTTP STATUS to a key of its own — 401 to "incorrect credentials", 403 to
+   * "account locked", everything else to a server error — and in doing so threw away the `code` the
+   * API sends. The server distinguishes an inactive account, a blocked account, a device change and
+   * a two-factor challenge; all of them arrive as 401 or 403, and all of them were reported as
+   * "Las credenciales no son correctas". A reader whose account was deactivated was told their
+   * password was wrong.
+   *
+   * `ErrorHandlerService` resolves the code the server actually sent, using the same order as every
+   * other screen. A key is stored rather than a sentence so the message follows a language switch.
+   */
+  private handleError(err: unknown): void {
+    const response = err as HttpErrorResponse;
     if (!environment.production) {
-      console.warn('Login failed', { status: err?.status });
+      console.warn('Login failed', { status: response?.status });
     }
-    if (err && err.status) {
-      switch (err.status) {
-        case 401: this.errorMessage.set('errors.auth_invalid_credentials'); break;
-        case 429: this.errorMessage.set('errors.http_429'); break;
-        case 403: this.errorMessage.set('errors.auth_account_locked'); break;
-        default: this.errorMessage.set('errors.internal');
-      }
-    } else {
-      this.errorMessage.set('errors.internal');
-    }
+    this.errorMessage.set(this.errors.keyFor(response));
   }
 }

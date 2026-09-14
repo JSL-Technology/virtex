@@ -10,7 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { I18nService } from './i18n.service';
 import { isLocalizedError } from './localized.exception';
-import { currentLanguage } from './request-locale';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * The single place an error becomes a sentence.
@@ -45,6 +45,22 @@ import { currentLanguage } from './request-locale';
  * be re-answered every time either changes. One `@Catch()` filter that branches internally has
  * neither problem.
  */
+/**
+ * What every failure is reduced to before it is serialised.
+ *
+ * `messageKey` and `params`, never a sentence: the reader's screen knows the context a sentence
+ * needs and the server does not. `code` stays a machine identifier, SCREAMING_SNAKE, because the
+ * client branches on it — a two-factor challenge and a blocked account both come back 401 and lead
+ * to different screens.
+ */
+interface Described {
+  status: number;
+  code: string;
+  messageKey: string;
+  params: Record<string, unknown>;
+  extra: Record<string, unknown>;
+}
+
 @Catch()
 export class I18nExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(I18nExceptionFilter.name);
@@ -58,9 +74,8 @@ export class I18nExceptionFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
-    const language = currentLanguage();
 
-    const { status, code, message, extra } = this.describe(exception, language);
+    const { status, code, messageKey, params, extra } = this.describe(exception);
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
@@ -74,7 +89,8 @@ export class I18nExceptionFilter implements ExceptionFilter {
       {
         statusCode: status,
         code,
-        message,
+        messageKey,
+        params,
         ...extra,
         timestamp: new Date().toISOString(),
         path: httpAdapter.getRequestUrl(request),
@@ -83,15 +99,13 @@ export class I18nExceptionFilter implements ExceptionFilter {
     );
   }
 
-  private describe(
-    exception: unknown,
-    language: ReturnType<typeof currentLanguage>,
-  ): { status: number; code: string; message: string; extra: Record<string, unknown> } {
+  private describe(exception: unknown): Described {
     if (isLocalizedError(exception)) {
       return {
         status: exception.getStatus(),
         code: exception.code,
-        message: this.i18n.translate(exception.messageKey, language, exception.params),
+        messageKey: exception.messageKey,
+        params: exception.params,
         extra: {},
       };
     }
@@ -115,15 +129,17 @@ export class I18nExceptionFilter implements ExceptionFilter {
         (messageIsCode ? (raw as string) : null) ??
         this.codeForStatus(status);
 
-      // `ValidationPipe` answers with an array of field messages. They are kept as a separate
-      // field rather than folded into `message`: a form needs them per field, and a wall of
-      // concatenated rules is not something to show a reader.
-      const extra = Array.isArray(raw) ? { details: raw } : {};
+      // `ValidationPipe` answers with one entry per failed field, each naming its key. They travel
+      // as their own field rather than folded into the message: a form needs them per field, and a
+      // wall of concatenated rules is not something to show a reader.
+      const fieldErrors = (body as { fieldErrors?: unknown })?.fieldErrors;
+      const extra = Array.isArray(fieldErrors) ? { fieldErrors } : {};
 
       return {
         status,
         code,
-        message: this.messageFor(messageIsCode ? undefined : raw, status, language, code),
+        messageKey: this.keyFor(messageIsCode ? undefined : raw, status, code, body),
+        params: (body as { params?: Record<string, unknown> })?.params ?? {},
         extra,
       };
     }
@@ -135,7 +151,8 @@ export class I18nExceptionFilter implements ExceptionFilter {
         return {
           status: mapped.status,
           code: mapped.code,
-          message: this.i18n.translate(`ERRORS.${mapped.code}`, language),
+          messageKey: composeKey('errors', mapped.code),
+          params: {},
           extra: {},
         };
       }
@@ -147,7 +164,8 @@ export class I18nExceptionFilter implements ExceptionFilter {
       return {
         status: HttpStatus.NOT_FOUND,
         code: 'NOT_FOUND',
-        message: this.i18n.translate('errors.not_found', language),
+        messageKey: 'errors.not_found',
+        params: {},
         extra: {},
       };
     }
@@ -155,40 +173,48 @@ export class I18nExceptionFilter implements ExceptionFilter {
     return {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 'INTERNAL_ERROR',
-      message: this.i18n.translate('errors.internal', language),
+      messageKey: 'errors.internal',
+      params: {},
       extra: {},
     };
   }
 
-  private messageFor(
-    raw: unknown,
-    status: number,
-    language: ReturnType<typeof currentLanguage>,
-    code: string,
-  ): string {
-    // A 5xx message is written for an operator, never for a customer.
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      return this.i18n.translate('errors.internal', language);
-    }
+  /**
+   * The catalogue key for a failure that did not arrive as one.
+   *
+   * Nest's own exceptions, and the handful of throws not yet migrated, carry a message rather than
+   * a key. This maps what they carry onto something the client can resolve, in the order that
+   * loses the least:
+   *
+   *  1. The message IS a key the catalogue knows — several throws already name one.
+   *  2. `errors.<code>`, for a code the catalogue words specifically.
+   *  3. `errors.http_<status>`, the generic sentence for the status class.
+   *  4. `errors.unexpected`.
+   *
+   * A raw sentence is never forwarded. It used to be, and the sentences were 197 Spanish literals,
+   * so an English-speaking reader hit Spanish the moment anything failed. A 5xx message is not
+   * forwarded either, under any circumstance: those are written for an operator, and a stack
+   * fragment or a constraint name reaching the browser is an information-disclosure defect
+   * (OWASP ASVS V7.4.1, CWE-209).
+   */
+  private keyFor(raw: unknown, status: number, code: string, body: unknown): string {
+    const declared = (body as { messageKey?: unknown })?.messageKey;
+    if (typeof declared === 'string' && declared.trim()) return declared;
+
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) return 'errors.internal';
 
     const candidate = Array.isArray(raw) ? raw[0] : raw;
-    if (typeof candidate === 'string' && candidate.trim()) {
-      // Some throws already name a catalogue key rather than a sentence.
-      if (this.i18n.has(candidate)) return this.i18n.translate(candidate, language);
-
-      // Nest fills the message with the HTTP reason phrase when a bare status exception is
-      // thrown (`new UnauthorizedException()` gives "Unauthorized"). That is a status name, not
-      // something to show a reader, so the per-status sentence is used instead.
-      if (!REASON_PHRASES.has(candidate)) return candidate;
+    if (typeof candidate === 'string' && candidate.trim() && this.i18n.has(candidate)) {
+      return candidate;
     }
 
-    const byCode = `ERRORS.${code}`;
-    if (this.i18n.has(byCode)) return this.i18n.translate(byCode, language);
+    const byCode = composeKey('errors', code);
+    if (this.i18n.has(byCode)) return byCode;
 
-    const byStatus = `ERRORS.HTTP_${status}`;
-    if (this.i18n.has(byStatus)) return this.i18n.translate(byStatus, language);
+    const byStatus = `errors.http_${status}`;
+    if (this.i18n.has(byStatus)) return byStatus;
 
-    return this.i18n.translate('errors.unexpected', language);
+    return 'errors.unexpected';
   }
 
   private codeForStatus(status: number): string {

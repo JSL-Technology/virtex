@@ -2,122 +2,202 @@ import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { composeKey } from '@virteex/shared/types';
 
 /**
- * Turns any HTTP failure into a sentence the reader's language can hold.
+ * Turns any HTTP failure into a sentence in the reader's language.
  *
- * ## What was wrong
+ * ## The contract this reads
  *
- * This service already injected `TranslateService` and still carried six hard-coded Spanish
- * fallbacks — `'Ocurrió un error inesperado…'`, `'Error interno del servidor.'`, `'No tienes
- * permiso…'`, `'El recurso solicitado no fue encontrado.'` — so an English-speaking user hit
- * Spanish the moment anything failed. Worse, the unrecognised branch did this:
+ * The API answers a failure with names, never prose:
  *
- *     customErrorMessage = serverError?.message || errorCode;
+ *     { statusCode, code, messageKey, params, fieldErrors?, timestamp, path }
  *
- * which forwarded the backend's message verbatim, and the backend's messages are 197 Spanish
- * literals (`'El asiento contable no está balanceado.'`). The interface was translated; its
- * error states were not.
+ * `code` is a stable machine identifier the client may branch on — a two-factor challenge and a
+ * blocked account are both 401 and lead to different screens. `messageKey` and `params` are the
+ * catalogue entry for the wording. Nothing in the payload is a sentence, which is the point: the
+ * screen knows the context a sentence needs and the server does not.
  *
- * ## What replaces it
+ * ## What it replaces
  *
- * The server now answers with a stable, machine-readable `code`, translated by
- * `ERRORS.<CODE>` on this side — and, because the backend has its own catalogue and negotiates
- * the language, its `message` arrives already in the reader's language as a second line of
- * defence. Order of preference:
+ * The server used to send `message` already translated, and this service forwarded it when it had
+ * nothing better — so the API carried UI prose, and the same failure was worded in two places. 57
+ * keys were defined in both catalogues, 23 of them differently, and which sentence a reader saw
+ * depended on whether the lookup here found the key before falling through to the server's text.
+ * There is now one definition per key in `libs/shared/locales`, and only the client renders it.
  *
- *   1. `ERRORS.<code>` from the client catalogue — the client knows the screen context.
- *   2. The server's `message`, which is now localised server-side.
- *   3. `ERRORS.HTTP_<status>` — a generic, translated sentence for the status class.
- *   4. `errors.unexpected`.
+ * ## Resolution order
  *
- * A raw backend string is never shown without one of the first three having had its chance, and
- * a stack trace or SQL fragment is never shown at all.
+ *  1. `errors.<code>` — wording chosen for a code the product handles specially. Tried first
+ *     because it is the deliberate one.
+ *  2. `messageKey` — the specific domain message the server named.
+ *  3. `errors.http_<status>` — the generic sentence for the status class.
+ *  4. `errors.unexpected`.
+ *
+ * A raw string from the server is never rendered, and neither is anything from a 5xx: those
+ * messages are written for an operator, and a stack fragment or a constraint name reaching the
+ * browser is an information-disclosure defect (OWASP ASVS V7.4.1, CWE-209).
  */
+
+/** One field's failure, as the API names it. */
+export interface FieldError {
+  property: string;
+  key: string;
+  params?: Record<string, unknown>;
+}
+
+/** What a caller catches: identifiers plus the sentence already resolved for display. */
+export interface AppError {
+  status: number;
+  code: string | null;
+  message: string;
+  /** Per-field messages, already translated, keyed by the field's dotted path. */
+  fieldErrors: Record<string, string[]>;
+}
+
+interface ErrorBody {
+  code?: unknown;
+  error?: unknown;
+  messageKey?: unknown;
+  params?: unknown;
+  fieldErrors?: unknown;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
   private readonly translate = inject(TranslateService);
 
   handleError(operation: string, error: HttpErrorResponse): Observable<never> {
-    const code = this.extractCode(error);
-    const message = this.resolveMessage(error, code);
+    const described = this.describe(error);
 
     if (isDevMode()) {
-      // Status and code only. The body can carry a customer's data, and a console log is the
+      // Status, code and key only. The body can carry a customer's data, and a console log is the
       // easiest place to leak it from.
-      console.error(`[http] ${operation} failed`, { status: error.status, code });
+      console.error(`[http] ${operation} failed`, {
+        status: described.status,
+        code: described.code,
+      });
     }
 
-    return throwError(() => ({ status: error.status, code, message }));
+    return throwError(() => described);
   }
 
-  /**
-   * Translate a message for a failure without re-throwing it.
-   *
-   * For call sites that already catch the error and only need the sentence.
-   */
+  /** Everything a caller needs about a failure, for the call sites that catch it themselves. */
+  describe(error: HttpErrorResponse): AppError {
+    return {
+      status: error?.status ?? 0,
+      code: this.extractCode(error),
+      message: this.resolveMessage(error),
+      fieldErrors: this.resolveFieldErrors(error),
+    };
+  }
+
+  /** The sentence alone, for a call site that only needs to show something. */
   messageFor(error: HttpErrorResponse): string {
-    return this.resolveMessage(error, this.extractCode(error));
+    return this.resolveMessage(error);
   }
 
   /**
-   * The stable identifier the server sends alongside the human sentence.
+   * The catalogue KEY a failure resolves to, for a call site that stores it and lets the template
+   * translate.
    *
-   * `error` is the field NestJS exception filters use for the code; `code` is what the domain
-   * exceptions add. Both are read because both are in the wire format today, and a response that
-   * carries neither yields null rather than a guess.
+   * Preferred over {@link messageFor} wherever the message is held in state: a key re-renders in
+   * the new language when the reader switches, and a resolved sentence does not. Same order as
+   * {@link resolveMessage}.
+   */
+  keyFor(error: HttpErrorResponse): string {
+    if (error?.error instanceof ProgressEvent || error?.status === 0) return 'errors.network';
+
+    const body = error?.error as ErrorBody | null | undefined;
+    const code = this.extractCode(error);
+    if (code) {
+      const byCode = composeKey('errors', code);
+      if (this.translate.instant(byCode) !== byCode) return byCode;
+    }
+    if (error.status < 500 && typeof body?.messageKey === 'string' && body.messageKey.trim()) {
+      if (this.translate.instant(body.messageKey) !== body.messageKey) return body.messageKey;
+    }
+    const byStatus = `errors.http_${error?.status}`;
+    if (this.translate.instant(byStatus) !== byStatus) return byStatus;
+    return 'errors.unexpected';
+  }
+
+  /**
+   * The stable identifier the API sends alongside the message key.
+   *
+   * `code` is what the domain exceptions set; `error` is where a default NestJS filter puts its
+   * own. Both are read because both are on the wire. A reason phrase ("Bad Request") is a status
+   * name rather than a domain code, so requiring the screaming-snake shape keeps it out.
    */
   private extractCode(error: HttpErrorResponse): string | null {
-    const body = error?.error as { code?: unknown; error?: unknown } | null | undefined;
+    const body = error?.error as ErrorBody | null | undefined;
     for (const candidate of [body?.code, body?.error]) {
-      // A NestJS default filter puts the reason phrase ("Bad Request") in `error`. That is a
-      // status name, not a domain code, and translating `ERRORS.BAD REQUEST` finds nothing —
-      // requiring the screaming-snake shape keeps it out.
       if (typeof candidate === 'string' && /^[A-Z][A-Z0-9_]{2,}$/.test(candidate)) return candidate;
     }
     return null;
   }
 
-  private resolveMessage(error: HttpErrorResponse, code: string | null): string {
-    // A browser-level failure: DNS, TLS, or the device being offline. There is no server answer
-    // to read, and the browser's own message is neither translated nor meaningful to a reader.
+  private resolveMessage(error: HttpErrorResponse): string {
+    // A browser-level failure: DNS, TLS, or the device being offline. There is no server answer to
+    // read, and the browser's own message is neither translated nor meaningful to a reader.
     if (error?.error instanceof ProgressEvent || error?.status === 0) {
       return this.translate.instant('errors.network');
     }
 
+    const body = error?.error as ErrorBody | null | undefined;
+    const params = this.paramsOf(body);
+    const code = this.extractCode(error);
+
     if (code) {
-      const translated = this.translate.instant(`ERRORS.${code}`);
-      if (translated !== `ERRORS.${code}`) return translated;
+      const byCode = composeKey('errors', code);
+      const translated = this.translate.instant(byCode, params);
+      if (translated !== byCode) return translated;
     }
 
-    const serverMessage = this.serverMessage(error);
-    if (serverMessage) return serverMessage;
+    // A 5xx says nothing specific: the key it names describes an operator's problem.
+    if (error.status < 500 && typeof body?.messageKey === 'string' && body.messageKey.trim()) {
+      const translated = this.translate.instant(body.messageKey, params);
+      if (translated !== body.messageKey) return translated;
+    }
 
-    const statusKey = `ERRORS.HTTP_${error?.status}`;
-    const byStatus = this.translate.instant(statusKey);
-    if (byStatus !== statusKey) return byStatus;
+    const byStatus = `errors.http_${error?.status}`;
+    const translated = this.translate.instant(byStatus);
+    if (translated !== byStatus) return translated;
 
     return this.translate.instant('errors.unexpected');
   }
 
   /**
-   * The server's own sentence, when it is one.
+   * Per-field messages, grouped by the field they belong to.
    *
-   * `class-validator` answers with an array of messages; the first is shown, because a form that
-   * failed three rules is still one thing the reader has to fix and a wall of text is not help.
-   * Anything that looks like a stack trace, a SQL statement or an internal identifier is refused:
-   * a 500 must not put the database schema on the screen.
+   * A form that failed three rules needs them per input, not concatenated: the old shape was a flat
+   * array of sentences with nothing saying which field each described, and the forms were matching
+   * them up by position.
    */
-  private serverMessage(error: HttpErrorResponse): string | null {
-    const raw = (error?.error as { message?: unknown } | null | undefined)?.message;
-    const candidate = Array.isArray(raw) ? raw[0] : raw;
-    if (typeof candidate !== 'string' || !candidate.trim()) return null;
+  private resolveFieldErrors(error: HttpErrorResponse): Record<string, string[]> {
+    const raw = (error?.error as ErrorBody | null | undefined)?.fieldErrors;
+    if (!Array.isArray(raw)) return {};
 
-    // Server faults are never forwarded: their messages are written for an operator.
-    if (error.status >= 500) return null;
-    if (/(\bat\s+\w+\.|SELECT\s|INSERT\s|relation ".*"|ECONNREFUSED|\bstack\b)/i.test(candidate)) {
-      return null;
+    const out: Record<string, string[]> = {};
+    for (const entry of raw as FieldError[]) {
+      if (!entry || typeof entry.key !== 'string') continue;
+      const params = { ...(entry.params ?? {}) };
+      // `property` carries the field's own label KEY, so it is translated before interpolation —
+      // otherwise the sentence reads "validation.fields.tax_id is required".
+      if (typeof params['property'] === 'string') {
+        params['property'] = this.translate.instant(params['property'] as string);
+      }
+      const message = this.translate.instant(entry.key, params);
+      const field = entry.property || '_';
+      (out[field] ??= []).push(message);
     }
-    return candidate;
+    return out;
+  }
+
+  private paramsOf(body: ErrorBody | null | undefined): Record<string, unknown> {
+    const params = body?.params;
+    return params !== null && typeof params === 'object' && !Array.isArray(params)
+      ? (params as Record<string, unknown>)
+      : {};
   }
 }

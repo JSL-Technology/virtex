@@ -21,7 +21,7 @@
         @for(role of roles(); track role.id) {
         <tr>
           <td>{{ role.name }}</td>
-          <td>{{ role.description }}</td>
+          <td>{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
           <td>
             <span class="badge" [class.badge-system]="role.isSystemRole">
               {{ role.isSystemRole ? 'Sistema' : 'Personalizado' }}

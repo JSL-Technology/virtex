@@ -110,7 +110,7 @@ export class MailService {
   }
 
   /**
-   * `'15m'` → `{ count: 15, unitKey: 'TIME.MINUTES' }`, which the template pluralises through
+   * `'15m'` → `{ count: 15, unitKey: 'time.minutes' }`, which the template pluralises through
    * CLDR in the reader's language.
    *
    * Always returns both fields. The mail templates run with Handlebars `strict: true`, which
@@ -121,7 +121,7 @@ export class MailService {
   private parseDuration(time: string): { count: number; unitKey: string } {
     const unitKey =
       typeof time === 'string' && time.length >= 2
-        ? { m: 'TIME.MINUTES', h: 'TIME.HOURS', d: 'TIME.DAYS' }[time.slice(-1).toLowerCase()]
+        ? { m: 'time.minutes', h: 'time.hours', d: 'time.days' }[time.slice(-1).toLowerCase()]
         : undefined;
     const count = Number.parseInt(String(time).slice(0, -1), 10);
 

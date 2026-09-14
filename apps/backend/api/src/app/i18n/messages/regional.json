@@ -1,0 +1,12 @@
+{
+  "es-DO": {
+    "invoices.detail.ncf": "e-NCF:",
+    "invoices.detail.trackid": "TrackID:"
+  },
+  "es-MX": {
+    "invoices.detail.ncf": "Folio fiscal (UUID):"
+  },
+  "pt-BR": {
+    "invoices.detail.ncf": "Chave de acesso (NF-e):"
+  }
+}
