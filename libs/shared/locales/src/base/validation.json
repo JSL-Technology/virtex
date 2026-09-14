@@ -465,6 +465,11 @@
     "en": "last name",
     "pt": "sobrenome"
   },
+  "validation.fields.opening_balance": {
+    "es": "fondo de caja",
+    "en": "opening float",
+    "pt": "fundo de caixa"
+  },
   "validation.fields.password": {
     "es": "contraseña",
     "en": "password",
@@ -494,6 +499,11 @@
     "es": "identificación fiscal",
     "en": "tax ID",
     "pt": "identificação fiscal"
+  },
+  "validation.fields.terminal_id": {
+    "es": "terminal",
+    "en": "terminal",
+    "pt": "terminal"
   },
   "validation.fiscal.country_not_available": {
     "es": "Ese país todavía no está disponible para registro.",

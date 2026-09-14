@@ -88,6 +88,113 @@ export function fieldLabel(i18n: I18nService, property: string, language: Langua
 }
 
 /**
+ * Which rule actually explains the failure.
+ *
+ * ## The rules do not fail in the order they are written
+ *
+ * A property decorator is applied bottom-up, so `class-validator` registers a field's constraints
+ * in REVERSE declaration order. With `stopAtFirstError` the one constraint that survived was
+ * therefore the LAST one written — the opposite of what the pipe intended, and the opposite of
+ * what every DTO in the product was written to produce. Measured, against the running server:
+ *
+ *   POST /pos/shifts {}                  → terminalId: "cannot be longer than 120 characters"
+ *   POST /pos/shifts {"terminalId":"T1"} → openingBalance: "cannot be greater than {{max}}"
+ *   RegisterUserDto with no organizationName → "must be at least 2 characters long"
+ *
+ * Every one of those fields was ABSENT. None was too long, too large, or too short. The field
+ * named was right and the reason was nonsense, which is the worst of both: the reader trusts the
+ * sentence enough to act on it and it tells them to shorten something they never typed. The last
+ * line is the signup form, so this was the wording on the screen that takes a customer's money.
+ *
+ * ## Why this is decided here instead of by reordering the decorators
+ *
+ * Roughly eleven hundred decorators guard the DTOs. Reordering them is eleven hundred chances to
+ * get it wrong again, and the next DTO written would restore the bug, because the order that reads
+ * correctly on the page is the order that behaves incorrectly at runtime. So the pipe now reports
+ * every failure and the choice is made once, here, from the value itself.
+ *
+ * ## The choice
+ *
+ * A value that is not there has exactly one thing wrong with it. Length, bounds and format cannot
+ * be evaluated on `undefined` at all — `maxLength(undefined)` is false the way `minLength` is
+ * false, and neither is a fact about what the user did. So an absent value reports presence and
+ * nothing else: the DTO's own presence rule when it declares one, so its bespoke wording survives,
+ * and `is_defined` — "{{property}} is required" — when it does not.
+ *
+ * A value that IS there is reported by the most fundamental rule it breaks: wrong kind before
+ * wrong shape before wrong size. `terminalId: 12345` is not text; saying it is also too long is
+ * noise about a rule that never got to run. An unfamiliar constraint — a custom validator — ranks
+ * last on purpose: whatever it checks, it is a statement about the value, and "it is missing" or
+ * "it is the wrong kind" outranks it.
+ */
+
+/** Rules that say the value is not there. */
+const PRESENCE_CONSTRAINTS = new Set([
+  'isDefined',
+  'isNotEmpty',
+  'isNotEmptyObject',
+  'arrayNotEmpty',
+]);
+
+/**
+ * Rules that say the value is of the wrong kind or shape, so nothing about its size can apply.
+ *
+ * `class-validator`'s own names, spelled as it reports them.
+ */
+const SHAPE_CONSTRAINTS = new Set([
+  'isString', 'isNumber', 'isInt', 'isBoolean', 'isArray', 'isObject', 'isDate',
+  'isDateString', 'isNumberString', 'isEnum', 'isIn', 'isUuid', 'isEmail', 'isUrl',
+  'isIso8601', 'isDecimal', 'isJson', 'isPositive', 'isNegative', 'matches',
+  'nestedValidation', 'whitelistValidation',
+]);
+
+/** The key used when a field is absent and its DTO declares no presence rule of its own. */
+const REQUIRED_KEY = 'validation.constraints.is_defined';
+
+function rank(constraint: string): number {
+  if (PRESENCE_CONSTRAINTS.has(constraint)) return 0;
+  if (SHAPE_CONSTRAINTS.has(constraint)) return 1;
+  return 2;
+}
+
+/**
+ * `true` for a value the request simply did not carry.
+ *
+ * `'value' in error` and not `error.value === undefined`: a `ValidationError` from
+ * `class-validator` always carries the key, `undefined` included, so its presence is what
+ * separates "the payload had nothing here" from "nobody recorded what was here". Errors assembled
+ * by hand — every one in this file's other tests, and the composed fiscal-profile failures — carry
+ * no `value` at all, and treating those as absent swallowed the very constraint they were built to
+ * report: three of them turned into "es obligatorio" and lost the bound, the joined detail list,
+ * and the library's own fallback text.
+ *
+ * An empty string is a value. It fails `isNotEmpty`, which says so precisely, and it does not
+ * belong here.
+ */
+function isAbsent(error: ValidationError): boolean {
+  return 'value' in error && (error.value === undefined || error.value === null);
+}
+
+/**
+ * The failing constraints worth reporting for one field, in `[constraint, rawMessage]` pairs.
+ *
+ * Never empty for a failing field: when nothing can be chosen — an absent value whose DTO declares
+ * no presence rule — a synthetic `isDefined` is returned, so a failure never travels as a blank.
+ */
+export function explanatoryConstraints(error: ValidationError): [string, string][] {
+  const entries = Object.entries(error.constraints ?? {});
+  if (entries.length === 0) return [];
+
+  if (isAbsent(error)) {
+    const presence = entries.filter(([constraint]) => PRESENCE_CONSTRAINTS.has(constraint));
+    return presence.length > 0 ? [presence[0]] : [['isDefined', REQUIRED_KEY]];
+  }
+
+  const best = Math.min(...entries.map(([constraint]) => rank(constraint)));
+  return entries.filter(([constraint]) => rank(constraint) === best).slice(0, 1);
+}
+
+/**
  * Flatten nested errors into `address.city`-style paths.
  *
  * `@ValidateNested()` produces a tree, and a tree reported as "address is invalid" tells the
@@ -138,7 +245,7 @@ export function translateValidationError(
 ): string[] {
   const label = fieldLabel(i18n, error.property, language);
 
-  return Object.entries(error.constraints ?? {}).map(([constraint, fallback]) => {
+  return explanatoryConstraints(error).map(([constraint, fallback]) => {
     const parsed = parseValidationMessage(fallback);
     const params = expandDetails(i18n, parsed.params, language);
     if (i18n.has(parsed.key)) {
@@ -176,7 +283,7 @@ export function describeValidationError(i18n: I18nService, error: ValidationErro
   const propertyKey = composeKey('validation.fields', error.property);
   const property = i18n.has(propertyKey) ? propertyKey : error.property;
 
-  return Object.entries(error.constraints ?? {}).map(([constraint, fallback]) => {
+  return explanatoryConstraints(error).map(([constraint, fallback]) => {
     const parsed = parseValidationMessage(fallback);
     const params = { property, ...parsed.params };
 

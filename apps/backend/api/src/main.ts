@@ -125,19 +125,26 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
       /**
-       * One error per field.
+       * One error per field — chosen, not taken.
        *
-       * Without this, an empty `address` on the signup form produced three messages at once —
-       * "address must be shorter than or equal to 200 characters", "La dirección fiscal es
-       * obligatoria." and "La dirección debe ser un texto." — of which the first is wrong (the
-       * value was missing, not too long), the second is the real one, and the third is noise. The
-       * client renders them joined by commas, so the customer read a contradiction on the form
-       * that takes their money.
+       * An empty `address` on the signup form breaks three rules at once: "must be shorter than
+       * 200 characters", "La dirección fiscal es obligatoria." and "must be text". Only the second
+       * is true of what happened; the client joins them with commas, so the customer read a
+       * contradiction on the form that takes their money. One message per field is right.
        *
-       * Constraints are evaluated in declaration order, and the DTOs declare presence before
-       * shape, so the first error is the one that actually explains the problem.
+       * `stopAtFirstError` was how that was done, on the stated grounds that "constraints are
+       * evaluated in declaration order, and the DTOs declare presence before shape". They are not.
+       * A property decorator is applied bottom-up, so `class-validator` registers them in REVERSE,
+       * and the survivor was the LAST rule written — the one the DTOs deliberately put last
+       * because it explains least. Against this server: a request with no `terminalId` was told
+       * the field "cannot be longer than 120 characters", and the signup form with no
+       * organization name, that it "must be at least 2 characters long". Both fields were absent.
+       *
+       * So the pipe now reports everything and `explanatoryConstraints` picks, from the value
+       * rather than from the order: an absent field is reported as required, and a present one by
+       * the most fundamental rule it breaks. That choice lives beside the catalogue lookups it
+       * feeds, and is tested there.
        */
-      stopAtFirstError: true,
       /**
        * Validation failures are answered in the reader's language.
        *

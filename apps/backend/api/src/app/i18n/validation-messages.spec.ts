@@ -2,11 +2,17 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { ValidationError } from 'class-validator';
 import { I18nService } from './i18n.service';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import {
   constraintKey,
+  describeValidationError,
+  explanatoryConstraints,
   parseValidationMessage,
   translateValidationError,
 } from './validation-messages';
+import { OpenShiftDto } from '../pos/dto/open-shift.dto';
+import { RegisterUserDto } from '../auth/dto/register-user.dto';
 
 /**
  * Eleven hundred validation rules answered in two languages, neither necessarily the reader's:
@@ -101,6 +107,106 @@ describe('validation messages', () => {
         'es',
       );
       expect(message).toBe('raw text');
+    });
+  });
+
+  /**
+   * The reason a request was refused has to be the reason it was refused.
+   *
+   * Measured against the running server before this: `POST /pos/shifts {}` answered that
+   * `terminalId` "cannot be longer than 120 characters" and `openingBalance` "cannot be greater
+   * than {{max}}" — for two fields the request did not carry at all. The signup form, with no
+   * organization name, said it "must be at least 2 characters long". The field named was right
+   * every time and the reason was nonsense, which is worse than a vague message: the reader
+   * trusts the sentence enough to act on it, and it tells them to shorten something they never
+   * typed.
+   *
+   * The cause was ordering. A property decorator is applied bottom-up, so `class-validator`
+   * registers constraints in reverse declaration order, and `stopAtFirstError` kept the LAST rule
+   * written — precisely the one a DTO puts last because it explains least.
+   *
+   * These run against the REAL DTOs, through `plainToInstance` and `validate`, because the defect
+   * lived in the order the decorators register in. A `ValidationError` built by hand chooses that
+   * order itself and would prove nothing about it.
+   */
+  describe('which rule is reported', () => {
+    const constraintsOf = async (Dto: new () => object, payload: Record<string, unknown>) => {
+      const errors = await validate(plainToInstance(Dto, payload) as object);
+      const picked: Record<string, string[]> = {};
+      for (const failure of errors) {
+        picked[failure.property] = explanatoryConstraints(failure).map(([name]) => name);
+      }
+      return { errors, picked };
+    };
+
+    it('reports an absent field as required, not as too long or too large', async () => {
+      const { errors, picked } = await constraintsOf(OpenShiftDto, {});
+
+      // What the DTO really breaks, in the order class-validator registers it: last-declared
+      // first. This is the ordering the old configuration reported verbatim.
+      expect(errors.map((e) => [e.property, Object.keys(e.constraints ?? {})])).toEqual([
+        ['terminalId', ['maxLength', 'isString']],
+        ['openingBalance', ['max', 'min', 'isNumber']],
+      ]);
+
+      expect(picked).toEqual({ terminalId: ['isDefined'], openingBalance: ['isDefined'] });
+    });
+
+    it('answers a missing field with the required key and the field label', async () => {
+      const { errors } = await constraintsOf(OpenShiftDto, {});
+
+      expect(errors.flatMap((failure) => describeValidationError(i18n, failure))).toEqual([
+        {
+          property: 'terminalId',
+          key: 'validation.constraints.is_defined',
+          params: { property: 'validation.fields.terminal_id' },
+        },
+        {
+          property: 'openingBalance',
+          key: 'validation.constraints.is_defined',
+          params: { property: 'validation.fields.opening_balance' },
+        },
+      ]);
+    });
+
+    it('keeps a DTO’s own wording for a presence rule it declares itself', async () => {
+      const { picked } = await constraintsOf(RegisterUserDto, { email: 'ana@acme.do' });
+
+      // `organizationName` declares @IsNotEmpty with bespoke copy. That is what a missing value
+      // gets — not the generic required message, and not the @MinLength that used to win.
+      expect(picked['organizationName']).toEqual(['isNotEmpty']);
+    });
+
+    it('reports a present value by the most fundamental rule it breaks', async () => {
+      const { errors, picked } = await constraintsOf(OpenShiftDto, {
+        terminalId: 12345,
+        openingBalance: 5,
+      });
+
+      // A number is not text, and `maxLength` on a number is false for a reason that has nothing
+      // to do with length. Only the first is worth saying.
+      expect(Object.keys(errors[0].constraints ?? {})).toEqual(['maxLength', 'isString']);
+      expect(picked).toEqual({ terminalId: ['isString'] });
+    });
+
+    it('still reports a genuine bound when the value is there and really is out of range', async () => {
+      const { picked } = await constraintsOf(OpenShiftDto, {
+        terminalId: 'T1',
+        openingBalance: -5,
+      });
+
+      expect(picked).toEqual({ openingBalance: ['min'] });
+    });
+
+    it('says nothing for a field that has nothing wrong with it', () => {
+      expect(explanatoryConstraints(error('x', {}))).toEqual([]);
+    });
+
+    it('never lets a failing field travel as a blank', async () => {
+      const { errors } = await constraintsOf(OpenShiftDto, {});
+      for (const failure of errors) {
+        expect(explanatoryConstraints(failure).length).toBe(1);
+      }
     });
   });
 
