@@ -106,7 +106,7 @@
               [attr.aria-label]="'accounts_payable.form.expense_account' | translate">
               <option value="">{{ 'accounts_payable.form.select_account' | translate }}</option>
               @for (account of expenseAccounts(); track account.id) {
-                <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
+                <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
               }
             </select>
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>

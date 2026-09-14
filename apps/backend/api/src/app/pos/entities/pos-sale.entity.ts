@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { numericTransformer } from '../../common/database/numeric.transformer';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PosSaleStatus {
@@ -58,13 +58,13 @@ export class PosSale {
   @Column({ type: 'jsonb', default: () => "'[]'" })
   items: PosSaleItem[];
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   subtotal: number;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   tax: number;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   total: number;
 
   @Column({ type: 'varchar', length: 60, nullable: true })

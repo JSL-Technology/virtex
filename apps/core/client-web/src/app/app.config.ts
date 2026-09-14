@@ -83,7 +83,11 @@ const I18N_PROVIDERS = [
   // Overrides the store `provideTranslateService` just registered, so every lookup — pipe,
   // directive, `instant`, `get`, the fallback-language retry — passes through one key
   // normalisation. Order matters: a later provider for the same token wins.
-  { provide: TranslateStore, useClass: VirtexTranslateStore },
+  // One instance, reachable under both tokens: `TranslateStore` is what `@ngx-translate` asks
+  // for, and the concrete class is what a caller injects to ask `hasKey` — a public question the
+  // upstream `protected getValue` cannot be asked directly.
+  VirtexTranslateStore,
+  { provide: TranslateStore, useExisting: VirtexTranslateStore },
   // Rebuilds the table with the tenant's country applied, once the session says what it is.
   provideAppInitializer(() => { inject(RegionalLocaleEffect); }),
 ];

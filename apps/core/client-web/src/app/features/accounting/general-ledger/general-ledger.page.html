@@ -38,7 +38,7 @@
     <p class="ledger-account">
       {{
         'accounting.general_ledger.account_code_name'
-          | translate: { code: account.code, name: account.name }
+          | translate: { code: account.code, name: account.name | vxName }
       }}
     </p>
   }

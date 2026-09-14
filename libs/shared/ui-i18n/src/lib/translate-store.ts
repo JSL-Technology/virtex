@@ -36,6 +36,26 @@ export class VirtexTranslateStore extends TranslateStore {
    */
   private readonly normalized = new Map<string, string>();
 
+  /**
+   * Whether the loaded catalogue can render a key — the question, asked of the code path that
+   * will answer it later.
+   *
+   * `getValue` is `protected` upstream, so a caller outside this class cannot ask it directly, and
+   * the one that needed to asked `instant(key) !== key` instead. That is the documented
+   * `@ngx-translate` behaviour and it is wrong in this product, because
+   * `VirtexMissingTranslationHandler` replaces it: a missing key comes back as `[[key]]` in
+   * development and as a humanised last segment in production, neither of which equals the key. So
+   * the check could not return false, and `resolveErrorKey` accepted the first candidate whether or
+   * not the catalogue held it — which is how a cashier came to be shown the literal text
+   * `[[errors.internal_error]]`.
+   *
+   * Exposed here rather than reimplemented at the call site so the lookup and the render walk the
+   * same normalisation and the same fallback, and cannot disagree about what exists.
+   */
+  hasKey(language: string, key: string): boolean {
+    return this.getValue(language, key) !== undefined;
+  }
+
   override getValue(language: string, key: string): InterpolatableTranslation {
     let normal = this.normalized.get(key);
     if (normal === undefined) {

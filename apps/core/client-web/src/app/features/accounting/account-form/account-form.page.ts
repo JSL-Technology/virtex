@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { accountNameOf, VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
@@ -16,7 +16,15 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, DraftShellComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    LucideAngularModule,
+    TranslateModule,
+    DraftShellComponent,
+    VxLocalizedNamePipe,
+  ],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

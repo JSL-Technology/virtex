@@ -64,7 +64,7 @@
                 <select id="parentId" formControlName="parentId">
                   <option [ngValue]="null">{{ 'accounting.account_form.none_root_account' | translate }}</option>
                   @for (opt of stateService.parentAccountOptions(); track opt.id) {
-                    <option [value]="opt.id">{{ opt.code }} - {{ opt.name }}</option>
+                    <option [value]="opt.id">{{ opt.code }} - {{ opt.name | vxName }}</option>
                   }
                 </select>
               </div>

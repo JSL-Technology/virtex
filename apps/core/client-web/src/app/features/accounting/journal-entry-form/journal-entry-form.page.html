@@ -94,7 +94,7 @@
                 <select formControlName="accountId">
                   <option value="" disabled>{{ 'accounting.journal_entry_form.select_account' | translate }}</option>
                   @for (account of accounts(); track account.id) {
-                    <option [value]="account.id">{{ account.name }}</option>
+                    <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
                   }
                 </select>
               </td>

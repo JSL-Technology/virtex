@@ -110,7 +110,14 @@ export class VendorBillFormPage implements OnInit {
   readonly showFiscalDetail = signal(false);
 
   readonly supplierOptions = signal<{ id: string; name: string }[]>([]);
-  readonly expenseAccounts = signal<{ id: string; code: string; name: string }[]>([]);
+  /**
+   * The account's name stays as the server sent it — a translation map — and `| vxName` resolves it
+   * in the template. Resolving it here instead would freeze the language at fetch time, so
+   * switching language would leave the list in the old one until the next refetch.
+   */
+  readonly expenseAccounts = signal<
+    { id: string; code: string; name: string | Record<string, string> }[]
+  >([]);
   readonly totals = signal<BillTotals>({
     subtotal: 0,
     taxAmount: 0,
@@ -237,7 +244,7 @@ export class VendorBillFormPage implements OnInit {
             .map((account) => ({
               id: account.id,
               code: account.code,
-              name: localizedName(account.name),
+              name: account.name,
             }))
             .sort((a, b) => a.code.localeCompare(b.code)),
         ),
@@ -403,11 +410,6 @@ function round2(value: number): number {
 function stripLines(dto: CreateVendorBillDto): Omit<CreateVendorBillDto, 'lines'> {
   const { lines: _lines, ...rest } = dto;
   return rest;
-}
-
-function localizedName(name: Record<string, string> | string): string {
-  if (typeof name === 'string') return name;
-  return name?.['es'] ?? Object.values(name ?? {})[0] ?? '';
 }
 
 /** The API's message key or sentence, when it sent one. */

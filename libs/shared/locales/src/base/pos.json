@@ -114,10 +114,20 @@
     "es": "El turno ya está cerrado.",
     "pt": "Esse turno já está fechado."
   },
+  "pos.shift_blocked_title": {
+    "es": "Esta caja no puede registrar ventas",
+    "en": "This till cannot record sales",
+    "pt": "Esta caixa não pode registar vendas"
+  },
   "pos.shift_closed": {
     "es": "Turno cerrado.",
     "en": "Shift closed.",
     "pt": "Turno fechado."
+  },
+  "pos.shift_error": {
+    "es": "No pudimos abrir el turno de caja. Hasta que se abra, ninguna venta puede registrarse.",
+    "en": "We could not open the till shift. Until it opens, no sale can be recorded.",
+    "pt": "Não foi possível abrir o turno de caixa. Até abrir, nenhuma venda pode ser registada."
   },
   "pos.shift_not_found": {
     "en": "We could not find that shift.",
@@ -138,6 +148,11 @@
     "es": "Turno abierto · {{count}} ventas · {{amount}}",
     "en": "Shift open · {{count}} sales · {{amount}}",
     "pt": "Turno aberto · {{count}} vendas · {{amount}}"
+  },
+  "pos.shift_retry": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar de novo"
   },
   "pos.sign_in": {
     "es": "Iniciar sesión",

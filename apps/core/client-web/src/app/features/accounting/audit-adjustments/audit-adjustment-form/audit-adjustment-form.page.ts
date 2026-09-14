@@ -12,6 +12,7 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
+import { VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 
 /**
@@ -39,6 +40,7 @@ import { isChargeable } from '../../../../core/services/account-selection';
     TranslateModule,
     LucideAngularModule,
     DraftShellComponent,
+    VxLocalizedNamePipe,
   ],
   templateUrl: './audit-adjustment-form.page.html',
   styleUrls: ['./audit-adjustment-form.page.scss'],
