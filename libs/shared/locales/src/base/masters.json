@@ -14,11 +14,6 @@
     "en": "Banks",
     "pt": "Bancos"
   },
-  "masters.banks.country": {
-    "es": "País",
-    "en": "Country",
-    "pt": "País"
-  },
   "masters.banks.currencies": {
     "es": "Monedas",
     "en": "Currencies",
@@ -139,20 +134,10 @@
     "en": "Code",
     "pt": "Código"
   },
-  "masters.payment_methods.default_method": {
-    "es": "Forma predeterminada",
-    "en": "Default method",
-    "pt": "Forma padrão"
-  },
   "masters.payment_methods.name": {
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
-  },
-  "masters.payment_methods.new_method": {
-    "es": "Nuevo método",
-    "en": "New method",
-    "pt": "Nova forma"
   },
   "masters.payment_methods.payment_methods": {
     "es": "Formas de pago",
@@ -163,16 +148,6 @@
     "es": "Las fija la DGII para los comprobantes fiscales; no se añaden ni se editan.",
     "en": "Fixed by the DGII for fiscal documents; they are not added or edited.",
     "pt": "Fixadas pela DGII para os comprovativos fiscais; não se adicionam nem editam."
-  },
-  "masters.payment_methods.type": {
-    "es": "Tipo",
-    "en": "Type",
-    "pt": "Tipo"
-  },
-  "masters.payment_methods.yes": {
-    "es": "Sí",
-    "en": "Yes",
-    "pt": "Sim"
   },
   "masters.payment_terms.customers_on_it": {
     "es": "Clientes",
@@ -198,11 +173,6 @@
     "es": "Días",
     "en": "Net days",
     "pt": "Dias"
-  },
-  "masters.payment_terms.new_term": {
-    "es": "Nueva condición",
-    "en": "New term",
-    "pt": "Nova condição"
   },
   "masters.payment_terms.payment_terms": {
     "es": "Condiciones de pago",
@@ -741,11 +711,6 @@
     "es": "Ubicación",
     "en": "Location",
     "pt": "Localização"
-  },
-  "masters.warehouses.manager": {
-    "es": "Encargado",
-    "en": "Manager",
-    "pt": "Responsável"
   },
   "masters.warehouses.name": {
     "es": "Nombre",

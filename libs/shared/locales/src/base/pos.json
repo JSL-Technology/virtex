@@ -104,17 +104,17 @@
     "en": "We could not complete the sale.",
     "pt": "Não foi possível concluir a venda."
   },
-  "pos.sale_status.PAID": {
+  "pos.sale_status.paid": {
     "es": "Cobrada",
     "en": "Paid",
     "pt": "Cobrada"
   },
-  "pos.sale_status.PENDING": {
+  "pos.sale_status.pending": {
     "es": "Pendiente",
     "en": "Pending",
     "pt": "Pendente"
   },
-  "pos.sale_status.VOID": {
+  "pos.sale_status.void": {
     "es": "Anulada",
     "en": "Voided",
     "pt": "Anulada"
