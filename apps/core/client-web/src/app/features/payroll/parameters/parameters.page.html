@@ -27,10 +27,10 @@
         <label class="field">
           <span>{{ 'payroll.parameters.regime' | translate }}</span>
           <select [value]="draft.regime" (change)="patchContribution({ regime: $any($event.target).value })">
-            <option value="AFP">AFP</option>
-            <option value="SFS">SFS</option>
-            <option value="SRL">SRL</option>
-            <option value="INFOTEP">INFOTEP</option>
+            <option value="AFP">{{ 'payroll.parameters.regime_label.afp' | translate }}</option>
+            <option value="SFS">{{ 'payroll.parameters.regime_label.sfs' | translate }}</option>
+            <option value="SRL">{{ 'payroll.parameters.regime_label.srl' | translate }}</option>
+            <option value="INFOTEP">{{ 'payroll.parameters.regime_label.infotep' | translate }}</option>
           </select>
         </label>
         <label class="field">

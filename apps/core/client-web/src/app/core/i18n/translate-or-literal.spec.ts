@@ -10,7 +10,8 @@ import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 
 class FakeLoader implements TranslateLoader {
   getTranslation(): Observable<TranslationObject> {
-    return of({ BILLING: { PLANS: { PRO: { DESCRIPTION: 'For growing companies' } } } });
+    // Flat, like the real catalogues: the key IS the property name, dots and all.
+    return of({ 'billing.plans.pro.description': 'For growing companies' } as TranslationObject);
   }
 }
 

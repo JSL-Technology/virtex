@@ -9,5 +9,7 @@
   "contacts.customer_form.tax_id": "NIT",
   "masters.supplier_form.tax_id": "NIT",
   "settings.company_profile.id_fiscal_rnc_tax_id": "NIT",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "NIT"
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "NIT",
+  "invoices.new.tax_column_header": "IVA",
+  "invoice.pdf.tax_column_header": "IVA"
 }

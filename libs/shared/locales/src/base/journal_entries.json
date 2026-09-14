@@ -114,16 +114,6 @@
     "en": "The General journal (GENERAL) was not found, and the import needs it.",
     "pt": "O diário Geral (GENERAL) não foi encontrado, e a importação precisa dele."
   },
-  "journal_entries.import_batch_not_found_has_expired": {
-    "es": "Lote de importación no encontrado, expirado o ya procesado.",
-    "en": "The import batch was not found, has expired, or has already been processed.",
-    "pt": "O lote de importação não foi encontrado, expirou ou já foi processado."
-  },
-  "journal_entries.import_confirmed_processed": {
-    "es": "Importación confirmada y procesada exitosamente.",
-    "en": "The import was confirmed and processed.",
-    "pt": "A importação foi confirmada e processada."
-  },
   "journal_entries.import.account_code_grouping_account_cannot_take": {
     "es": "La cuenta «{{code}}» es de agrupación y no admite movimientos.",
     "en": "Account “{{code}}” is a grouping account and cannot take movements.",
@@ -183,6 +173,16 @@
     "es": "La cuenta con código «{{code}}» no existe en el catálogo de esta organización.",
     "en": "No account with code “{{code}}” exists in this organisation's chart of accounts.",
     "pt": "A conta com código «{{code}}» não existe no plano de contas desta organização."
+  },
+  "journal_entries.import_batch_not_found_has_expired": {
+    "es": "Lote de importación no encontrado, expirado o ya procesado.",
+    "en": "The import batch was not found, has expired, or has already been processed.",
+    "pt": "O lote de importação não foi encontrado, expirou ou já foi processado."
+  },
+  "journal_entries.import_confirmed_processed": {
+    "es": "Importación confirmada y procesada exitosamente.",
+    "en": "The import was confirmed and processed.",
+    "pt": "A importação foi confirmada e processada."
   },
   "journal_entries.journal_entry_does_not_balance": {
     "es": "El asiento contable no está balanceado.",

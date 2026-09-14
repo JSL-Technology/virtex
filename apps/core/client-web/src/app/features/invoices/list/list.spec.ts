@@ -44,7 +44,9 @@ describe('InvoicesListPage', () => {
     // cadena en español incrustada en el componente, que era justamente el defecto.
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('es', {
-      INVOICES: { LIST: { RANGE: '{{from}}–{{to}} de {{total}}', RANGE_EMPTY: 'Sin facturas' } },
+      // Flat, like the real catalogues: the key IS the property name, dots and all.
+      'invoices.list.range': '{{from}}–{{to}} de {{total}}',
+      'invoices.list.range_empty': 'Sin facturas',
     });
     translate.use('es');
 

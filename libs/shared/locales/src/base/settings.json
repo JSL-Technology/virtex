@@ -2221,16 +2221,6 @@
     "en": "Type",
     "pt": "Tipo"
   },
-  "settings.security_settings.close": {
-    "es": "Cerrar",
-    "en": "Close",
-    "pt": "Fechar"
-  },
-  "settings.security_settings.revoke_session": {
-    "es": "Revoke session",
-    "en": "Revoke session",
-    "pt": "Revogar sessão"
-  },
   "settings.security.2_fa_description": {
     "es": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
     "en": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
@@ -2250,6 +2240,11 @@
     "es": "Autenticación de Dos Factores (2FA)",
     "en": "Two-Factor Authentication (2FA)",
     "pt": "Autenticação de dois fatores (2FA)"
+  },
+  "settings.security.backup_codes": {
+    "es": "Códigos de Recuperación",
+    "en": "Recovery codes",
+    "pt": "Códigos de recuperação"
   },
   "settings.security.backup_codes_title": {
     "es": "Verificación de 2 Pasos Activada",
@@ -2435,6 +2430,16 @@
     "es": "Por motivos de seguridad, necesitamos verificar que eres tú antes de configurar el método de verificación en dos pasos.",
     "en": "For your security, we need to confirm it's you before setting up two-step verification.",
     "pt": "Por motivos de segurança, precisamos confirmar que é você antes de configurar a verificação em duas etapas."
+  },
+  "settings.security_settings.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "settings.security_settings.revoke_session": {
+    "es": "Revoke session",
+    "en": "Revoke session",
+    "pt": "Revogar sessão"
   },
   "settings.sessions.active_sessions": {
     "es": "Sesiones Activas",

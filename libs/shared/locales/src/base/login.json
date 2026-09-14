@@ -99,9 +99,6 @@
     "en": "Sign up",
     "pt": "Cadastre-se"
   },
-  "login.sso_button": {
-    "literal": "SSO"
-  },
   "login.sso.cancel": {
     "es": "Volver al inicio de sesión",
     "en": "Back to login",
@@ -126,6 +123,9 @@
     "es": "Acceso corporativo",
     "en": "Company sign-in",
     "pt": "Acesso corporativo"
+  },
+  "login.sso_button": {
+    "literal": "SSO"
   },
   "login.submit_button": {
     "es": "Entrar",

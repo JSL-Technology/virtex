@@ -1045,6 +1045,12 @@
     "en": "Tax",
     "pt": "Imposto"
   },
+  "invoices.new.tax_column_header": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto",
+    "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
+  },
   "invoices.new.tax_withheld_fraction_tax": {
     "es": "ITBIS retenido (fracción del impuesto)",
     "en": "Tax withheld (fraction of the tax)",
@@ -1152,6 +1158,11 @@
     "es": "Transferencia bancaria",
     "en": "Bank transfer",
     "pt": "Transferência bancária"
+  },
+  "invoices.payment_method.barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
   },
   "invoices.payment_method.cash": {
     "es": "Contado",

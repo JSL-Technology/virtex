@@ -20,7 +20,8 @@ const WORKSPACE_ROOT = join(__dirname, '..', '..', '..', '..', '..', '..', '..')
 const CLIENT_SOURCE = join(WORKSPACE_ROOT, 'apps', 'core', 'client-web', 'src');
 const CATALOGUES = join(CLIENT_SOURCE, 'assets', 'i18n');
 
-const KEY = /^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$/;
+/** The key convention: dot-separated `lower_snake`. See `libs/shared/types/.../key.contract.ts`. */
+const KEY = /^[a-z0-9][a-z0-9_]*(\.[a-z0-9_]+)+$/;
 
 /** Sources that declare a route's visible title: manifests (`titleKey`) and route tables (`title`). */
 function titleSourceFiles(directory: string): string[] {
@@ -43,11 +44,14 @@ function routeTitles(): { file: string; title: string }[] {
   return found;
 }
 
+/**
+ * The catalogues are flat now: a key is a top-level property whose name contains the dots.
+ *
+ * They used to be nested, which is why this walked the path segment by segment, and which is why
+ * `"CANCELAR"` appeared under forty parents and could not be grepped for.
+ */
 function lookup(catalogue: Record<string, unknown>, key: string): unknown {
-  return key.split('.').reduce<unknown>(
-    (node, part) => (node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined),
-    catalogue,
-  );
+  return catalogue[key];
 }
 
 describe('route titles', () => {

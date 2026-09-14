@@ -561,41 +561,6 @@
     "en": "Only invoices in draft can be edited.",
     "pt": "Somente faturas em rascunho podem ser editadas."
   },
-  "accounts_payable.payment_form.barter": {
-    "es": "Permuta",
-    "en": "Barter",
-    "pt": "Permuta"
-  },
-  "accounts_payable.payment_form.card": {
-    "es": "Tarjeta",
-    "en": "Card",
-    "pt": "Cartão"
-  },
-  "accounts_payable.payment_form.cash": {
-    "es": "Efectivo",
-    "en": "Cash",
-    "pt": "Numerário"
-  },
-  "accounts_payable.payment_form.check_transfer": {
-    "es": "Cheque o transferencia",
-    "en": "Cheque or transfer",
-    "pt": "Cheque ou transferência"
-  },
-  "accounts_payable.payment_form.credit": {
-    "es": "Crédito",
-    "en": "Credit",
-    "pt": "Crédito"
-  },
-  "accounts_payable.payment_form.credit_note": {
-    "es": "Nota de crédito",
-    "en": "Credit note",
-    "pt": "Nota de crédito"
-  },
-  "accounts_payable.payment_form.mixed": {
-    "es": "Mixto",
-    "en": "Mixed",
-    "pt": "Misto"
-  },
   "accounts_payable.payment.balance": {
     "es": "Saldo",
     "en": "Balance",
@@ -685,6 +650,41 @@
     "es": "Retenciones",
     "en": "Withholdings",
     "pt": "Retenções"
+  },
+  "accounts_payable.payment_form.barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "accounts_payable.payment_form.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "accounts_payable.payment_form.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Numerário"
+  },
+  "accounts_payable.payment_form.check_transfer": {
+    "es": "Cheque o transferencia",
+    "en": "Cheque or transfer",
+    "pt": "Cheque ou transferência"
+  },
+  "accounts_payable.payment_form.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounts_payable.payment_form.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "accounts_payable.payment_form.mixed": {
+    "es": "Mixto",
+    "en": "Mixed",
+    "pt": "Misto"
   },
   "accounts_payable.payments_journal_pagos_not_found": {
     "es": "Diario de Pagos (PAGOS) no encontrado.",

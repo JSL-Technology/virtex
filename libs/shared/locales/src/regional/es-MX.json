@@ -13,5 +13,7 @@
   "settings.company_profile.id_fiscal_rnc_tax_id": "RFC",
   "settings.subsidiaries.id_fiscal_rnc_tax_id": "RFC",
   "invoices.detail.ncf": "Folio fiscal (UUID):",
-  "accounts_payable.form.ncf": "Folio fiscal"
+  "accounts_payable.form.ncf": "Folio fiscal",
+  "invoices.new.tax_column_header": "IVA",
+  "invoice.pdf.tax_column_header": "IVA"
 }

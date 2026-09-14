@@ -1,0 +1,20 @@
+{
+  "$note": "Literals that are deliberately not translated. Each entry is \"file:kind:value\", so moving the string to another file or changing a character brings it back for review instead of grandfathering it silently. Adding to this list is a decision somebody makes in a pull request; the scanner never writes to it on its own except through --allow, which is for bootstrapping.",
+
+  "$reasons": {
+    "brand names": "The product's own name is the same in every language, and a <title> element is read by the browser before any catalogue could load.",
+    "acronyms and format names": "CSV and SSO are the same three letters in Spanish, English and Portuguese. Translating them would be inventing a local name for something nobody calls anything else.",
+    "the noscript message": "It appears only when JavaScript is off, which is exactly when there is no i18n runtime to ask. All three languages are written out side by side instead — the one place in this product where that is the correct answer rather than a shortcut."
+  },
+
+  "allowed": [
+    "apps/core/client-web/src/app/features/data-exports/data-exports.page.html:text:CSV",
+    "apps/core/client-web/src/app/features/settings/modal/settings-modal.component.html:text:SSO",
+    "apps/core/client-web/src/index.html:text:Virtex",
+    "apps/core/client-web/src/index.html:text:Esta aplicación necesita JavaScript. Actívalo en tu navegador para continuar.",
+    "apps/core/client-web/src/index.html:text:This application needs JavaScript. Enable it in your browser to continue.",
+    "apps/core/client-web/src/index.html:text:Este aplicativo precisa de JavaScript. Ative-o no seu navegador para continuar.",
+    "apps/pos/src/index.html:text:Virtex POS",
+    "apps/pos/src/index.html:text:Virtex POS necesita JavaScript. Actívalo en tu navegador para continuar."
+  ]
+}

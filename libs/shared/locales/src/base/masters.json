@@ -139,6 +139,76 @@
     "en": "Payment terms",
     "pt": "Condições de pagamento"
   },
+  "masters.price_lists.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "masters.price_lists.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "masters.price_lists.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "masters.price_lists.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "masters.price_lists.items": {
+    "es": "Ítems",
+    "en": "Items",
+    "pt": "Itens"
+  },
+  "masters.price_lists.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "masters.price_lists.new_list": {
+    "es": "Nueva Lista",
+    "en": "New List",
+    "pt": "Nova Tabela"
+  },
+  "masters.price_lists.price_list_could_not_deleted": {
+    "es": "No se pudo eliminar la lista de precios.",
+    "en": "The price list could not be deleted.",
+    "pt": "Não foi possível excluir a tabela de preços."
+  },
+  "masters.price_lists.price_list_deleted": {
+    "es": "Lista de precios eliminada exitosamente.",
+    "en": "Price list deleted.",
+    "pt": "Tabela de preços excluída."
+  },
+  "masters.price_lists.price_lists": {
+    "es": "Listas de Precios",
+    "en": "Price Lists",
+    "pt": "Tabelas de Preços"
+  },
+  "masters.price_lists.price_lists_could_not_loaded": {
+    "es": "No se pudieron cargar las listas de precios.",
+    "en": "The price lists could not be loaded.",
+    "pt": "Não foi possível carregar as tabelas de preços."
+  },
+  "masters.price_lists.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "masters.price_lists.valid_from": {
+    "es": "Válido Desde",
+    "en": "Valid From",
+    "pt": "Válido De"
+  },
+  "masters.price_lists.valid_until": {
+    "es": "Válido Hasta",
+    "en": "Valid Until",
+    "pt": "Válido Até"
+  },
   "masters.price_lists_form.actions": {
     "es": "Acciones",
     "en": "Actions",
@@ -261,76 +331,6 @@
     "es": "Válido Hasta*",
     "en": "Valid Until*",
     "pt": "Válido Até*"
-  },
-  "masters.price_lists.actions": {
-    "es": "Acciones",
-    "en": "Actions",
-    "pt": "Ações"
-  },
-  "masters.price_lists.currency": {
-    "es": "Moneda",
-    "en": "Currency",
-    "pt": "Moeda"
-  },
-  "masters.price_lists.delete": {
-    "es": "Eliminar",
-    "en": "Delete",
-    "pt": "Excluir"
-  },
-  "masters.price_lists.edit": {
-    "es": "Editar",
-    "en": "Edit",
-    "pt": "Editar"
-  },
-  "masters.price_lists.items": {
-    "es": "Ítems",
-    "en": "Items",
-    "pt": "Itens"
-  },
-  "masters.price_lists.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
-  },
-  "masters.price_lists.new_list": {
-    "es": "Nueva Lista",
-    "en": "New List",
-    "pt": "Nova Tabela"
-  },
-  "masters.price_lists.price_list_could_not_deleted": {
-    "es": "No se pudo eliminar la lista de precios.",
-    "en": "The price list could not be deleted.",
-    "pt": "Não foi possível excluir a tabela de preços."
-  },
-  "masters.price_lists.price_list_deleted": {
-    "es": "Lista de precios eliminada exitosamente.",
-    "en": "Price list deleted.",
-    "pt": "Tabela de preços excluída."
-  },
-  "masters.price_lists.price_lists": {
-    "es": "Listas de Precios",
-    "en": "Price Lists",
-    "pt": "Tabelas de Preços"
-  },
-  "masters.price_lists.price_lists_could_not_loaded": {
-    "es": "No se pudieron cargar las listas de precios.",
-    "en": "The price lists could not be loaded.",
-    "pt": "Não foi possível carregar as tabelas de preços."
-  },
-  "masters.price_lists.status": {
-    "es": "Estado",
-    "en": "Status",
-    "pt": "Situação"
-  },
-  "masters.price_lists.valid_from": {
-    "es": "Válido Desde",
-    "en": "Valid From",
-    "pt": "Válido De"
-  },
-  "masters.price_lists.valid_until": {
-    "es": "Válido Hasta",
-    "en": "Valid Until",
-    "pt": "Válido Até"
   },
   "masters.supplier_form.address": {
     "es": "Dirección",

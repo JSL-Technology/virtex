@@ -169,11 +169,6 @@
     "en": "Templates",
     "pt": "Modelos"
   },
-  "documents.templates.type_column": {
-    "es": "Tipo",
-    "en": "Type",
-    "pt": "Tipo"
-  },
   "documents.templates.type.contract": {
     "es": "Contrato",
     "en": "Contract",
@@ -201,6 +196,11 @@
     "es": "Cotización",
     "en": "Quote",
     "pt": "Orçamento"
+  },
+  "documents.templates.type_column": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
   },
   "documents.templates.upload": {
     "es": "Subir plantilla",

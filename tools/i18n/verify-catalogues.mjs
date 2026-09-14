@@ -176,10 +176,27 @@ for (const [locale, patch] of Object.entries(regional)) {
 // ---------------------------------------------------------------------------
 // 6. What the code asks for.
 // ---------------------------------------------------------------------------
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.nx', '_shots', 'assets', 'i18n']);
+const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.nx', '_shots']);
+
+/**
+ * The generated catalogues, excluded by PATH rather than by directory name.
+ *
+ * Excluding any directory called `i18n` was the obvious shortcut and it was wrong: it also skipped
+ * `apps/backend/api/src/app/i18n/` and `apps/core/client-web/src/app/core/i18n/`, which is where the
+ * i18n runtime lives. Keys referenced only from there — `errors.not_found` and `errors.forbidden`, in
+ * the exception filter — looked unreferenced, and `--prune` deleted them.
+ */
+const SKIP_PATHS = new Set([
+  'apps/core/client-web/src/assets/i18n',
+  'apps/backend/api/src/app/i18n/messages',
+  'apps/pos/src/assets/i18n',
+  'apps/desktop/src/i18n',
+]);
 
 function walk(dir, extensions) {
   if (!fs.existsSync(dir)) return [];
+  const relative = path.relative(ROOT, dir).split(path.sep).join('/');
+  if (SKIP_PATHS.has(relative)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return SKIP_DIRS.has(entry.name) ? [] : walk(full, extensions);
@@ -213,17 +230,30 @@ const APP_ROOTS = {
   desktop: `${ROOT}/apps/desktop/src`,
 };
 
+/**
+ * Shared code that names keys without being an application.
+ *
+ * `libs/shared/ui-i18n` holds the runtime both browser applications use, and it names keys directly:
+ * `errors.network` in `resolveErrorKey`, for one. Leaving `libs/` out of the scan made those look
+ * unreferenced, and `--prune` deleted them. Read for the orphan check, not attributed to any single
+ * application's catalogue.
+ */
+const SHARED_ROOTS = [`${ROOT}/libs`];
+
 /** Namespaces that are not keys: paths, mime types, package names and the like. */
 const NOT_KEYS = /^(?:node|rxjs|zone|jest|process|window|document|console|import|export|https?|data|text|application|image|font|audio|video|multipart|charset|utf|en|es|pt)\b/;
 
 const referenced = {};
-for (const [app, root] of Object.entries(APP_ROOTS)) {
+for (const [app, root] of Object.entries({ ...APP_ROOTS, shared: SHARED_ROOTS[0] })) {
   const seen = new Map();
   for (const file of walk(root, /\.(ts|html|hbs|js)$/)) {
     if (/\.spec\.ts$/.test(file)) continue;
     const text = fs.readFileSync(file, 'utf8');
     const record = (key) => {
       if (!key || NOT_KEYS.test(key)) return;
+      // A quoted word with no dot is usually an object property or an enum value, not a key. Only
+      // the handful the catalogue actually defines that way count — `app_title` is the product name.
+      if (!key.includes('.') && !(key in source)) return;
       if (!seen.has(key)) seen.set(key, path.relative(ROOT, file));
     };
     for (const m of text.matchAll(KEY_LITERAL)) record(m[1]);
@@ -255,6 +285,8 @@ for (const [prefix, values] of Object.entries(composed)) {
 // 6a. Every whole key a file names must be in that application's catalogue.
 for (const [app, seen] of Object.entries(referenced)) {
   const catalogue = emitted[app];
+  // `shared` is not an application and ships no catalogue; its references count for the orphan
+  // check and cannot be checked against a target.
   if (!catalogue) continue;
   for (const [key, file] of seen) {
     if (key.endsWith('.*')) continue;

@@ -164,6 +164,11 @@
     "en": "Fortnightly",
     "pt": "Quinzenal"
   },
+  "hcm.employees.form.frequency_label.fortnightly": {
+    "es": "Quincenal",
+    "en": "Fortnightly",
+    "pt": "Quinzenal"
+  },
   "hcm.employees.form.frequency_label.monthly": {
     "es": "Mensual",
     "en": "Monthly",
@@ -327,6 +332,11 @@
     "es": "Activo",
     "en": "Active",
     "pt": "Ativo"
+  },
+  "hcm.employees.status_label.left": {
+    "es": "Desvinculado",
+    "en": "Left",
+    "pt": "Desligado"
   },
   "hcm.employees.status_label.suspended": {
     "es": "Suspendido",

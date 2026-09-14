@@ -4,10 +4,55 @@
     "en": "Analysis and spreadsheets connected to the ERP in real-time.",
     "pt": "Análises e planilhas conectadas ao ERP em tempo real."
   },
+  "datasheets.available_sets": {
+    "es": "{{count}} conjuntos disponibles",
+    "en": "{{count}} sets available",
+    "pt": "{{count}} conjuntos disponíveis"
+  },
+  "datasheets.available_sets_one": {
+    "es": "{{count}} conjunto disponible",
+    "en": "{{count}} set available",
+    "pt": "{{count}} conjunto disponível"
+  },
+  "datasheets.available_sets_other": {
+    "es": "{{count}} conjuntos disponibles",
+    "en": "{{count}} sets available",
+    "pt": "{{count}} conjuntos disponíveis"
+  },
+  "datasheets.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
   "datasheets.cell_format": {
     "es": "Formato de Celda",
     "en": "Cell Format",
     "pt": "Formato da Célula"
+  },
+  "datasheets.cell_type": {
+    "es": "Tipo de dato",
+    "en": "Data type",
+    "pt": "Tipo de dado"
+  },
+  "datasheets.cell_type.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "datasheets.cell_type.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "datasheets.cell_type.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "datasheets.cell_type.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
   },
   "datasheets.chart_configuration": {
     "es": "Configuración de Gráfico",
@@ -18,6 +63,16 @@
     "es": "Gráficos",
     "en": "Charts",
     "pt": "Gráficos"
+  },
+  "datasheets.columns_to_import": {
+    "es": "Columnas a importar",
+    "en": "Columns to import",
+    "pt": "Colunas a importar"
+  },
+  "datasheets.confirm_import": {
+    "es": "Confirmar importación",
+    "en": "Confirm import",
+    "pt": "Confirmar importação"
   },
   "datasheets.country_country_has_no_single_national": {
     "es": "El país {country} no tiene una tasa nacional única; el impuesto se determina por jurisdicción.",
@@ -34,10 +89,45 @@
     "en": "Datasheet {{id}} was not found.",
     "pt": "A planilha {{id}} não foi encontrada."
   },
+  "datasheets.erp_variables": {
+    "es": "Variables del ERP",
+    "en": "ERP variables",
+    "pt": "Variáveis do ERP"
+  },
+  "datasheets.formula_placeholder": {
+    "es": "Introduce una fórmula o un valor…",
+    "en": "Enter a formula or a value…",
+    "pt": "Introduz uma fórmula ou um valor…"
+  },
+  "datasheets.history": {
+    "es": "Historial",
+    "en": "History",
+    "pt": "Histórico"
+  },
   "datasheets.import": {
     "es": "Importar",
     "en": "Import",
     "pt": "Importar"
+  },
+  "datasheets.import_column.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "datasheets.import_column.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "datasheets.import_column.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "datasheets.import_column.stock": {
+    "es": "Existencias",
+    "en": "Stock",
+    "pt": "Stock"
   },
   "datasheets.import_erp": {
     "es": "Importar ERP",
@@ -58,6 +148,16 @@
     "es": "Última Modificación",
     "en": "Last Modified",
     "pt": "Última Modificação"
+  },
+  "datasheets.mode_live": {
+    "es": "En vivo",
+    "en": "Live",
+    "pt": "Ao vivo"
+  },
+  "datasheets.mode_snapshot": {
+    "es": "Instantánea",
+    "en": "Snapshot",
+    "pt": "Instantâneo"
   },
   "datasheets.name": {
     "es": "Nombre",
@@ -119,10 +219,30 @@
     "en": "Properties",
     "pt": "Propriedades"
   },
+  "datasheets.refresh_data": {
+    "es": "Actualizar datos",
+    "en": "Refresh data",
+    "pt": "Atualizar dados"
+  },
+  "datasheets.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Guardar"
+  },
+  "datasheets.select_range_for_chart": {
+    "es": "Selecciona un rango de datos para crear un gráfico.",
+    "en": "Select a data range to create a chart.",
+    "pt": "Seleciona um intervalo de dados para criar um gráfico."
+  },
   "datasheets.share": {
     "es": "Compartir",
     "en": "Share",
     "pt": "Compartilhar"
+  },
+  "datasheets.sheet_numbered": {
+    "es": "Hoja {{number}}",
+    "en": "Sheet {{number}}",
+    "pt": "Folha {{number}}"
   },
   "datasheets.title": {
     "literal": "DataSheets"

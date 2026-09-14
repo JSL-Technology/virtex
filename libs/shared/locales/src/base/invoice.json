@@ -39,6 +39,11 @@
     "en": "Document",
     "pt": "Documento"
   },
+  "invoice.pdf.draft_watermark": {
+    "es": "BORRADOR",
+    "en": "DRAFT",
+    "pt": "RASCUNHO"
+  },
   "invoice.pdf.due_date": {
     "es": "Fecha de vencimiento:",
     "en": "Due date:",
@@ -150,6 +155,11 @@
   "invoice.pdf.subtotal": {
     "literal": "Subtotal"
   },
+  "invoice.pdf.tax_column_header": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
   "invoice.pdf.taxed_amount": {
     "es": "Monto gravado",
     "en": "Taxed amount",
@@ -183,6 +193,11 @@
     "es": "FACTURA",
     "en": "INVOICE",
     "pt": "FATURA"
+  },
+  "invoice.pdf.unit_of_measure_short": {
+    "es": "U/M",
+    "en": "UoM",
+    "pt": "U/M"
   },
   "invoice.pdf.unit_price": {
     "es": "Precio unitario",

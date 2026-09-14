@@ -100,7 +100,7 @@ describe('CashFlowPage', () => {
     flush({ ...report, effectOfExchangeRateOnCash: 4_000 });
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('EFECTO_TIPO_CAMBIO');
+    expect(text).toContain('reports.cash_flow.effect_exchange_rate_changes_cash');
     expect(text).toContain('4,000');
   });
 

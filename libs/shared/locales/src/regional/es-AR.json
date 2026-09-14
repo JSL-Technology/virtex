@@ -9,5 +9,7 @@
   "contacts.customer_form.tax_id": "CUIT",
   "masters.supplier_form.tax_id": "CUIT",
   "settings.company_profile.id_fiscal_rnc_tax_id": "CUIT",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "CUIT"
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "CUIT",
+  "invoices.new.tax_column_header": "IVA",
+  "invoice.pdf.tax_column_header": "IVA"
 }

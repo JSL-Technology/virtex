@@ -11,5 +11,7 @@
   "masters.supplier_form.tax_id": "CNPJ / CPF",
   "settings.company_profile.id_fiscal_rnc_tax_id": "CNPJ",
   "settings.subsidiaries.id_fiscal_rnc_tax_id": "CNPJ",
-  "invoices.detail.ncf": "Chave de acesso (NF-e):"
+  "invoices.detail.ncf": "Chave de acesso (NF-e):",
+  "invoices.new.tax_column_header": "ICMS",
+  "invoice.pdf.tax_column_header": "ICMS"
 }

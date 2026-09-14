@@ -394,6 +394,9 @@
     "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
     "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
   },
+  "accounting.categories.capital": {
+    "literal": "Capital"
+  },
   "accounting.categories.cash": {
     "es": "Efectivo y equivalentes",
     "en": "Cash and equivalents",
@@ -1912,11 +1915,6 @@
     "en": "Difference",
     "pt": "Diferença"
   },
-  "accounting.reconciliation.import_statement": {
-    "es": "Importar estado de cuenta",
-    "en": "Import a statement",
-    "pt": "Importar extrato"
-  },
   "accounting.reconciliation.import.bank_date_format": {
     "es": "Formato de fecha del banco",
     "en": "The bank’s date format",
@@ -2001,6 +1999,11 @@
     "es": "Escriba el nombre exacto de cada columna tal como aparece en el encabezado del archivo.",
     "en": "Type each column name exactly as it appears in the file’s header row.",
     "pt": "Escreva o nome exato de cada coluna como aparece no cabeçalho do arquivo."
+  },
+  "accounting.reconciliation.import_statement": {
+    "es": "Importar estado de cuenta",
+    "en": "Import a statement",
+    "pt": "Importar extrato"
   },
   "accounting.reconciliation.items_transit_books_not_bank": {
     "es": "Partidas en tránsito (en libros, no en el banco)",

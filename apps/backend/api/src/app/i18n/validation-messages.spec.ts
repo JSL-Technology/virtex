@@ -131,7 +131,9 @@ describe('validation messages', () => {
 
       for (const match of source.matchAll(/\bmessage:\s*'([^']+)'/g)) {
         const text = match[1];
-        if (/^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+(\|.*)?$/.test(text)) continue;
+        // A catalogue key, optionally carrying its bounds as `|{"max":254}`. Keys are
+        // `lower_snake` since the naming convention moved there; see `libs/shared/types`.
+        if (/^[a-z0-9][a-z0-9_]*(\.[a-z0-9_]+)+(\|.*)?$/.test(text)) continue;
         // Response payloads are a different field (`messageKey`) and a different mechanism.
         if (!/[a-záéíóúñ]/i.test(text)) continue;
         offenders.push(`${file}: ${text}`);

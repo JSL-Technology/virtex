@@ -120,15 +120,15 @@
     "en": "{{property}} must be a whole number.",
     "pt": "{{property}} deve ser um número inteiro."
   },
-  "validation.constraints.is_iso_date": {
-    "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
-    "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
-    "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
-  },
   "validation.constraints.is_iso8601": {
     "es": "{{property}} no es una fecha válida.",
     "en": "{{property}} is not a valid date.",
     "pt": "{{property}} não é uma data válida."
+  },
+  "validation.constraints.is_iso_date": {
+    "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
+    "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
+    "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
   },
   "validation.constraints.is_not_empty": {
     "es": "{{property}} es obligatorio.",
@@ -219,6 +219,46 @@
     "es": "La fecha inicial no puede ser posterior a la fecha final.",
     "en": "The start date cannot be later than the end date.",
     "pt": "A data inicial não pode ser posterior à data final."
+  },
+  "validation.constraints.property_contains_data_not_valid": {
+    "es": "{{property}} contiene datos que no son válidos.",
+    "en": "{{property}} contains data that is not valid.",
+    "pt": "{{property}} contém dados que não são válidos."
+  },
+  "validation.constraints.property_does_not_accept_value": {
+    "es": "{{property}} no admite ese valor.",
+    "en": "{{property}} does not accept that value.",
+    "pt": "{{property}} não aceita esse valor."
+  },
+  "validation.constraints.property_must_number": {
+    "es": "{{property}} debe ser un número.",
+    "en": "{{property}} must be a number.",
+    "pt": "{{property}} deve ser um número."
+  },
+  "validation.constraints.property_must_text": {
+    "es": "{{property}} debe ser texto.",
+    "en": "{{property}} must be text.",
+    "pt": "{{property}} deve ser texto."
+  },
+  "validation.constraints.property_must_true_false": {
+    "es": "{{property}} debe ser verdadero o falso.",
+    "en": "{{property}} must be true or false.",
+    "pt": "{{property}} deve ser verdadeiro ou falso."
+  },
+  "validation.constraints.property_must_whole_number": {
+    "es": "{{property}} debe ser un número entero.",
+    "en": "{{property}} must be a whole number.",
+    "pt": "{{property}} deve ser um número inteiro."
+  },
+  "validation.constraints.property_not_allowed_field": {
+    "es": "{{property}} no es un campo permitido.",
+    "en": "{{property}} is not an allowed field.",
+    "pt": "{{property}} não é um campo permitido."
+  },
+  "validation.constraints.property_not_valid_date": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
   },
   "validation.constraints.whitelist_validation": {
     "es": "{{property}} no es un campo permitido.",

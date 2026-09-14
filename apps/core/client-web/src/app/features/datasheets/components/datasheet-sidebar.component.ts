@@ -42,12 +42,12 @@ import { firstValueFrom } from 'rxjs';
            <!-- Formatting tools -->
            <div class="space-y-4">
               <div>
-                <label class="text-xs text-slate-500 block mb-1" for="datasheet-cell-type">Tipo de Dato</label>
+                <label class="text-xs text-slate-500 block mb-1" for="datasheet-cell-type">{{ 'datasheets.cell_type' | translate }}</label>
                 <select id="datasheet-cell-type" class="w-full text-sm rounded-md border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-                  <option>General</option>
-                  <option>Número</option>
-                  <option>Moneda</option>
-                  <option>Fecha</option>
+                  <option>{{ 'datasheets.cell_type.general' | translate }}</option>
+                  <option>{{ 'datasheets.cell_type.number' | translate }}</option>
+                  <option>{{ 'datasheets.cell_type.currency' | translate }}</option>
+                  <option>{{ 'datasheets.cell_type.date' | translate }}</option>
                 </select>
               </div>
            </div>
@@ -64,14 +64,14 @@ import { firstValueFrom } from 'rxjs';
               >
                 <div>
                   <p class="text-sm font-medium">{{ mod.nameEn }}</p>
-                  <p class="text-xs text-slate-500">{{ mod.sets.length }} conjuntos disponibles</p>
+                  <p class="text-xs text-slate-500">{{ 'datasheets.available_sets' | translate: { count: mod.sets.length } }}</p>
                 </div>
                 <lucide-icon [name]="ChevronRightIcon" [size]="16"></lucide-icon>
               </button>
            </div>
 
            <div *ngIf="selectedModule && !selectedSet" class="space-y-2">
-              <button (click)="selectedModule = null" class="text-xs text-primary mb-2 flex items-center gap-1">← Volver</button>
+              <button (click)="selectedModule = null" class="text-xs text-primary mb-2 flex items-center gap-1">← {{ 'datasheets.back' | translate }}</button>
               <button
                 *ngFor="let set of selectedModule.sets"
                 (click)="selectedSet = set"
@@ -82,13 +82,13 @@ import { firstValueFrom } from 'rxjs';
            </div>
 
            <div *ngIf="selectedSet" class="space-y-4">
-              <button (click)="selectedSet = null" class="text-xs text-primary flex items-center gap-1">← Volver</button>
+              <button (click)="selectedSet = null" class="text-xs text-primary flex items-center gap-1">← {{ 'datasheets.back' | translate }}</button>
               <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                 <p class="text-xs font-medium mb-2">Columnas a Importar</p>
+                 <p class="text-xs font-medium mb-2">{{ 'datasheets.columns_to_import' | translate }}</p>
                  <div class="space-y-1">
-                    <label *ngFor="let col of ['Nombre', 'Precio', 'Stock', 'Referencia']" class="flex items-center gap-2 text-sm">
+                    <label *ngFor="let col of importColumnKeys" class="flex items-center gap-2 text-sm">
                        <input type="checkbox" checked class="rounded border-slate-300 text-primary focus:ring-primary">
-                       {{ col }}
+                       {{ col | translate }}
                     </label>
                  </div>
               </div>
@@ -97,14 +97,14 @@ import { firstValueFrom } from 'rxjs';
                 class="w-full py-2 bg-primary text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
               >
                  <lucide-icon [name]="CheckIcon" [size]="16"></lucide-icon>
-                 Confirmar Importación
+                 {{ 'datasheets.confirm_import' | translate }}
               </button>
            </div>
         </div>
 
         <div *ngIf="activeTab === 'charts'">
            <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.chart_configuration' | translate }}</h3>
-           <p class="text-sm text-slate-500 italic">Selecciona un rango de datos para crear un gráfico.</p>
+           <p class="text-sm text-slate-500 italic">{{ 'datasheets.select_range_for_chart' | translate }}</p>
         </div>
       </div>
     </div>
@@ -113,6 +113,19 @@ import { firstValueFrom } from 'rxjs';
 export class DatasheetSidebarComponent implements OnInit {
   activeTab: 'properties' | 'import' | 'charts' = 'properties';
   importModules: ImportModule[] = [];
+
+  /**
+   * The columns the import wizard offers, as catalogue keys.
+   *
+   * They were written into the template as `['Nombre', 'Precio', 'Stock', 'Referencia']`, so the
+   * wizard listed its columns in Spanish whatever language the reader had chosen.
+   */
+  readonly importColumnKeys = [
+    'datasheets.import_column.name',
+    'datasheets.import_column.price',
+    'datasheets.import_column.stock',
+    'datasheets.import_column.reference',
+  ];
   selectedModule: ImportModule | null = null;
   selectedSet: string | null = null;
 

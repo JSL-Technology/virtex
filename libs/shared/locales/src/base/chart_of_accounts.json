@@ -69,16 +69,6 @@
     "en": "The hierarchy of account \"{{p1}}\" cannot be changed because it has transactions. Consider merging accounts instead.",
     "pt": "A hierarquia da conta \"{{p1}}\" não pode ser alterada porque ela tem lançamentos. Considere fundir as contas."
   },
-  "chart_of_accounts.import_batch_not_found_or_expired": {
-    "es": "El lote de importación no existe o ha expirado.",
-    "en": "The import batch does not exist or has expired.",
-    "pt": "O lote de importação não existe ou expirou."
-  },
-  "chart_of_accounts.import_failed_rolled_back_p1": {
-    "es": "La importación falló y fue revertida: {{p1}}",
-    "en": "The import failed and was rolled back: {{p1}}",
-    "pt": "A importação falhou e foi revertida: {{p1}}"
-  },
   "chart_of_accounts.import.account_code_required": {
     "es": "El código de cuenta es obligatorio.",
     "en": "The account code is required.",
@@ -113,6 +103,16 @@
     "es": "«{{value}}» no es un tipo de cuenta válido. Los válidos son: {{allowed}}.",
     "en": "“{{value}}” is not a valid account type. The valid ones are: {{allowed}}.",
     "pt": "«{{value}}» não é um tipo de conta válido. Os válidos são: {{allowed}}."
+  },
+  "chart_of_accounts.import_batch_not_found_or_expired": {
+    "es": "El lote de importación no existe o ha expirado.",
+    "en": "The import batch does not exist or has expired.",
+    "pt": "O lote de importação não existe ou expirou."
+  },
+  "chart_of_accounts.import_failed_rolled_back_p1": {
+    "es": "La importación falló y fue revertida: {{p1}}",
+    "en": "The import failed and was rolled back: {{p1}}",
+    "pt": "A importação falhou e foi revertida: {{p1}}"
   },
   "chart_of_accounts.invalid_account_type_type": {
     "es": "Tipo de cuenta inválido: {{type}}",

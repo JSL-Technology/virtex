@@ -8,5 +8,7 @@
   "contacts.customer_form.tax_id": "RUC",
   "masters.supplier_form.tax_id": "RUC",
   "settings.company_profile.id_fiscal_rnc_tax_id": "RUC",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUC"
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUC",
+  "invoices.new.tax_column_header": "IGV",
+  "invoice.pdf.tax_column_header": "IGV"
 }

@@ -30,18 +30,18 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
           </div>
           <div class="separator"></div>
           <div class="actions">
-            <button (click)="saveBook()" class="btn-icon" title="Guardar">
+            <button (click)="saveBook()" class="btn-icon" [title]="'datasheets.save' | translate">
               <lucide-icon [name]="SaveIcon" [size]="18"></lucide-icon>
             </button>
-            <button class="btn-icon" title="Historial">
+            <button class="btn-icon" [title]="'datasheets.history' | translate">
               <lucide-icon [name]="HistoryIcon" [size]="18"></lucide-icon>
             </button>
-            <button (click)="refreshGrid()" class="btn-icon" title="Actualizar Datos">
+            <button (click)="refreshGrid()" class="btn-icon" [title]="'datasheets.refresh_data' | translate">
               <lucide-icon [name]="RefreshIcon" [size]="18"></lucide-icon>
             </button>
             <div class="separator"></div>
             <div class="mode-toggle">
-               <span class="mode-label">{{ isSnapshot ? 'Snapshot' : 'En Vivo' }}</span>
+               <span class="mode-label">{{ (isSnapshot ? 'datasheets.mode_snapshot' : 'datasheets.mode_live') | translate }}</span>
                <button (click)="toggleMode()" class="toggle-switch" [class.active]="!isSnapshot">
                   <div class="toggle-dot"></div>
                </button>
@@ -75,12 +75,12 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
           type="text"
           [(ngModel)]="formulaValue"
           (input)="onFormulaInput($event)"
-          placeholder="Introduce una fórmula o valor..."
+          [placeholder]="'datasheets.formula_placeholder' | translate"
         />
 
         <!-- Autocomplete Menu -->
         <div *ngIf="showSuggestions" class="autocomplete-menu">
-           <div class="menu-header">Variables del ERP</div>
+           <div class="menu-header">{{ 'datasheets.erp_variables' | translate }}</div>
            <div class="suggestions-list">
               <button
                 *ngFor="let suggestion of suggestions"
@@ -112,8 +112,8 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
       <!-- Footer / Sheet Tabs -->
       <div class="footer">
         <div class="tabs-container">
-           <button class="tab-button active">Hoja 1</button>
-           <button class="tab-button inactive">Hoja 2</button>
+           <button class="tab-button active">{{ 'datasheets.sheet_numbered' | translate: { number: 1 } }}</button>
+           <button class="tab-button inactive">{{ 'datasheets.sheet_numbered' | translate: { number: 2 } }}</button>
         </div>
         <button class="add-sheet-btn">
            <lucide-icon [name]="PlusIcon" [size]="14"></lucide-icon>

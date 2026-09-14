@@ -302,6 +302,27 @@
     "en": "Regime",
     "pt": "Regime"
   },
+  "payroll.parameters.regime_label.afp": {
+    "es": "Fondo de pensiones",
+    "en": "Pension fund",
+    "pt": "Fundo de pensões",
+    "note": "Named after what it is, not after the Dominican institution that administers it. regional/ restores AFP for es-DO."
+  },
+  "payroll.parameters.regime_label.infotep": {
+    "es": "Aporte de formación",
+    "en": "Training levy",
+    "pt": "Contribuição para formação"
+  },
+  "payroll.parameters.regime_label.sfs": {
+    "es": "Seguro de salud",
+    "en": "Health insurance",
+    "pt": "Seguro de saúde"
+  },
+  "payroll.parameters.regime_label.srl": {
+    "es": "Riesgos laborales",
+    "en": "Occupational risk",
+    "pt": "Riscos laborais"
+  },
   "payroll.parameters.save_failed": {
     "es": "No se pudo guardar el parámetro.",
     "en": "The parameter could not be saved.",

@@ -69,6 +69,11 @@
     "en": "We received a request to register a new account on {{appName}} using this email address.",
     "pt": "Recebemos uma solicitação para cadastrar uma nova conta em {{appName}} usando este endereço de e-mail."
   },
+  "mail.email_change.subject": {
+    "es": "Confirma tu nuevo correo electrónico",
+    "en": "Confirm your new email address",
+    "pt": "Confirme seu novo e-mail"
+  },
   "mail.email_change_confirm.confirm_change_your_email_address_app": {
     "es": "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.",
     "en": "Confirm the change of your email address on {{appName}}. The link expires in {{expiresMinutes}} minutes.",
@@ -103,11 +108,6 @@
     "es": "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en {{appName}}. Para confirmar el cambio, haz clic en el botón a continuación.",
     "en": "We received a request to change the email address on your account at {{appName}}. To confirm the change, click the button below.",
     "pt": "Recebemos uma solicitação para alterar o e-mail da sua conta em {{appName}}. Para confirmar a alteração, clique no botão abaixo."
-  },
-  "mail.email_change.subject": {
-    "es": "Confirma tu nuevo correo electrónico",
-    "en": "Confirm your new email address",
-    "pt": "Confirme seu novo e-mail"
   },
   "mail.email_changed_notice.address_changed": {
     "es": "El correo electrónico de tu cuenta en {{appName}} se cambió a {{newEmail}}.",

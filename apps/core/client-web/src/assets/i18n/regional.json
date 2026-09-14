@@ -17,7 +17,8 @@
     "contacts.customer_form.tax_id": "CUIT",
     "masters.supplier_form.tax_id": "CUIT",
     "settings.company_profile.id_fiscal_rnc_tax_id": "CUIT",
-    "settings.subsidiaries.id_fiscal_rnc_tax_id": "CUIT"
+    "settings.subsidiaries.id_fiscal_rnc_tax_id": "CUIT",
+    "invoices.new.tax_column_header": "IVA"
   },
   "es-CL": {
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
@@ -27,7 +28,8 @@
     "contacts.customer_form.tax_id": "RUT",
     "masters.supplier_form.tax_id": "RUT",
     "settings.company_profile.id_fiscal_rnc_tax_id": "RUT",
-    "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUT"
+    "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUT",
+    "invoices.new.tax_column_header": "IVA"
   },
   "es-CO": {
     "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
@@ -38,7 +40,8 @@
     "contacts.customer_form.tax_id": "NIT",
     "masters.supplier_form.tax_id": "NIT",
     "settings.company_profile.id_fiscal_rnc_tax_id": "NIT",
-    "settings.subsidiaries.id_fiscal_rnc_tax_id": "NIT"
+    "settings.subsidiaries.id_fiscal_rnc_tax_id": "NIT",
+    "invoices.new.tax_column_header": "IVA"
   },
   "es-DO": {
     "payroll.runs.type_label.christmas_bonus": "Regalía pascual",
@@ -58,7 +61,12 @@
     "invoices.detail.trackid": "TrackID:",
     "accounts_payable.form.ncf": "NCF",
     "accounts_payable.list.no_fiscal_number": "Sin NCF",
-    "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional."
+    "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional.",
+    "invoices.new.tax_column_header": "ITBIS",
+    "payroll.parameters.regime_label.afp": "AFP",
+    "payroll.parameters.regime_label.sfs": "SFS",
+    "payroll.parameters.regime_label.srl": "SRL",
+    "payroll.parameters.regime_label.infotep": "INFOTEP"
   },
   "es-MX": {
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
@@ -73,7 +81,8 @@
     "settings.company_profile.id_fiscal_rnc_tax_id": "RFC",
     "settings.subsidiaries.id_fiscal_rnc_tax_id": "RFC",
     "invoices.detail.ncf": "Folio fiscal (UUID):",
-    "accounts_payable.form.ncf": "Folio fiscal"
+    "accounts_payable.form.ncf": "Folio fiscal",
+    "invoices.new.tax_column_header": "IVA"
   },
   "es-PE": {
     "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
@@ -83,7 +92,8 @@
     "contacts.customer_form.tax_id": "RUC",
     "masters.supplier_form.tax_id": "RUC",
     "settings.company_profile.id_fiscal_rnc_tax_id": "RUC",
-    "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUC"
+    "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUC",
+    "invoices.new.tax_column_header": "IGV"
   },
   "pt-BR": {
     "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
@@ -96,6 +106,7 @@
     "masters.supplier_form.tax_id": "CNPJ / CPF",
     "settings.company_profile.id_fiscal_rnc_tax_id": "CNPJ",
     "settings.subsidiaries.id_fiscal_rnc_tax_id": "CNPJ",
-    "invoices.detail.ncf": "Chave de acesso (NF-e):"
+    "invoices.detail.ncf": "Chave de acesso (NF-e):",
+    "invoices.new.tax_column_header": "ICMS"
   }
 }

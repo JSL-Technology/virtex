@@ -3,15 +3,17 @@ import { I18nService } from './i18n.service';
 /**
  * The server catalogue's own behaviour, separate from whether its wording is any good.
  *
- * Wording parity between the three languages is `messages.parity.spec.ts`. This is about the
- * mechanics: interpolation, pluralisation, and what happens when a key is missing — the last of
- * which matters most, because a translation lookup that throws would turn a 404 into a 500.
+ * Whether every key has all three languages, whether any value is in the wrong one, and whether a
+ * referenced key exists at all are `tools/i18n/verify-catalogues.mjs`, which reads the single source
+ * rather than the generated catalogue. This is about the mechanics: key normalisation,
+ * interpolation, pluralisation, the regional layer, and what happens when a key is missing — the
+ * last of which matters most, because a translation lookup that throws would turn a 404 into a 500.
  */
 describe('I18nService', () => {
   const i18n = new I18nService();
 
   describe('lookup', () => {
-    it('resolves a nested key by its dotted path', () => {
+    it('resolves a key by its dotted path', () => {
       expect(i18n.translate('errors.not_found', 'es')).not.toBe('errors.not_found');
       expect(i18n.translate('errors.not_found', 'en')).not.toBe('errors.not_found');
       expect(i18n.translate('errors.not_found', 'pt')).not.toBe('errors.not_found');

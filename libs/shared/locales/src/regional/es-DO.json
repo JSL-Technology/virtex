@@ -18,5 +18,11 @@
   "invoices.detail.trackid": "TrackID:",
   "accounts_payable.form.ncf": "NCF",
   "accounts_payable.list.no_fiscal_number": "Sin NCF",
-  "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional."
+  "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional.",
+  "invoices.new.tax_column_header": "ITBIS",
+  "invoice.pdf.tax_column_header": "ITBIS",
+  "payroll.parameters.regime_label.afp": "AFP",
+  "payroll.parameters.regime_label.sfs": "SFS",
+  "payroll.parameters.regime_label.srl": "SRL",
+  "payroll.parameters.regime_label.infotep": "INFOTEP"
 }

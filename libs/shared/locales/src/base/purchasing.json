@@ -340,6 +340,11 @@
     "en": "Draft",
     "pt": "Rascunho"
   },
+  "purchasing.requisitions.status_label.ordered": {
+    "es": "Convertida en orden",
+    "en": "Ordered",
+    "pt": "Encomendada"
+  },
   "purchasing.requisitions.status_label.pending_approval": {
     "es": "Por aprobar",
     "en": "Awaiting approval",

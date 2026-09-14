@@ -189,6 +189,11 @@
     "en": "Information",
     "pt": "Informação"
   },
+  "common.toast.information": {
+    "es": "Información",
+    "en": "Information",
+    "pt": "Informação"
+  },
   "common.toast.success": {
     "es": "Éxito",
     "en": "Success",

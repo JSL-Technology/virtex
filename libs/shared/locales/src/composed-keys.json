@@ -126,6 +126,7 @@
       "CONTRACT",
       "OTHER"
     ],
+    "errors": [],
     "extensions.run_status": [
       "success",
       "execution_failed"
@@ -214,6 +215,12 @@
       "PAYROLL_UNCAPPED"
     ],
     "payroll.parameters.key_label": [],
+    "payroll.parameters.regime_label": [
+      "AFP",
+      "SFS",
+      "SRL",
+      "INFOTEP"
+    ],
     "payroll.runs.status_label": [
       "DRAFT",
       "CALCULATED",
@@ -293,11 +300,12 @@
     "validation.constraints": [],
     "validation.fields": []
   },
-  "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared.",
+  "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
   "not_keys": [
-    "user",
-    "invoice",
+    "ard",
     "cube",
-    "ard"
+    "invoice",
+    "sales",
+    "user"
   ]
 }

@@ -19,21 +19,6 @@
     "en": "A role named \"{{name}}\" already exists in your organization.",
     "pt": "Já existe um perfil chamado \"{{name}}\" na sua organização."
   },
-  "roles.system_roles_cannot_cloned": {
-    "es": "Los roles del sistema no se pueden clonar.",
-    "en": "System roles cannot be cloned.",
-    "pt": "Perfis do sistema não podem ser clonados."
-  },
-  "roles.system_roles_cannot_deleted": {
-    "es": "Los roles del sistema no pueden ser eliminados.",
-    "en": "System roles cannot be deleted.",
-    "pt": "Perfis do sistema não podem ser excluídos."
-  },
-  "roles.system_roles_cannot_modified": {
-    "es": "Los roles del sistema no pueden ser modificados.",
-    "en": "System roles cannot be modified.",
-    "pt": "Perfis do sistema não podem ser modificados."
-  },
   "roles.system.accountant.description": {
     "es": "Lleva la contabilidad: asientos, plan de cuentas y reportes financieros.",
     "en": "Keeps the books: journal entries, chart of accounts and financial reports.",
@@ -53,6 +38,21 @@
     "es": "Gestiona clientes y emite facturas de venta.",
     "en": "Manages customers and issues sales invoices.",
     "pt": "Gerencia clientes e emite faturas de venda."
+  },
+  "roles.system_roles_cannot_cloned": {
+    "es": "Los roles del sistema no se pueden clonar.",
+    "en": "System roles cannot be cloned.",
+    "pt": "Perfis do sistema não podem ser clonados."
+  },
+  "roles.system_roles_cannot_deleted": {
+    "es": "Los roles del sistema no pueden ser eliminados.",
+    "en": "System roles cannot be deleted.",
+    "pt": "Perfis do sistema não podem ser excluídos."
+  },
+  "roles.system_roles_cannot_modified": {
+    "es": "Los roles del sistema no pueden ser modificados.",
+    "en": "System roles cannot be modified.",
+    "pt": "Perfis do sistema não podem ser modificados."
   },
   "roles.you_cannot_assign_permission_permission_because": {
     "es": "No puedes asignar el permiso \"{{permission}}\" porque tú no lo posees.",

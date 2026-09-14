@@ -29,6 +29,11 @@
     "en": "New Sale",
     "pt": "Nova Venda"
   },
+  "sales.history.no_sales_found": {
+    "es": "No se encontraron ventas.",
+    "en": "No sales were found.",
+    "pt": "Nenhuma venda encontrada."
+  },
   "sales.history.payment_method": {
     "es": "Método de Pago",
     "en": "Payment Method",
@@ -56,6 +61,11 @@
     "es": "Lead no encontrado.",
     "en": "The lead was not found.",
     "pt": "O lead não foi encontrado."
+  },
+  "sales.no_valid_exchange_rate_found_currency": {
+    "es": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",
+    "en": "No valid exchange rate was found for {{currencyCode}} on the given date.",
+    "pt": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada."
   },
   "sales.only_accepted_quotes_can_invoiced": {
     "es": "Solo se pueden facturar cotizaciones aceptadas.",
@@ -87,10 +97,25 @@
     "en": "Customer:",
     "pt": "Cliente:"
   },
+  "sales.pos.load_products_error": {
+    "es": "No se pudo cargar el catálogo de productos.",
+    "en": "Could not load the product catalogue.",
+    "pt": "Não foi possível carregar o catálogo de produtos."
+  },
   "sales.pos.out_stock": {
     "es": "Agotado",
     "en": "Out of stock",
     "pt": "Esgotado"
+  },
+  "sales.pos.sale_completed": {
+    "es": "Venta completada.",
+    "en": "Sale completed.",
+    "pt": "Venda concluída."
+  },
+  "sales.pos.sale_error": {
+    "es": "No se pudo completar la venta.",
+    "en": "The sale could not be completed.",
+    "pt": "Não foi possível concluir a venda."
   },
   "sales.pos.search_products_name_sku": {
     "es": "Buscar productos por nombre o SKU...",

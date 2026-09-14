@@ -8,5 +8,7 @@
   "contacts.customer_form.tax_id": "RUT",
   "masters.supplier_form.tax_id": "RUT",
   "settings.company_profile.id_fiscal_rnc_tax_id": "RUT",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUT"
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUT",
+  "invoices.new.tax_column_header": "IVA",
+  "invoice.pdf.tax_column_header": "IVA"
 }
