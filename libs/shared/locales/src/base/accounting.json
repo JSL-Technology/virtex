@@ -15,9 +15,9 @@
     "pt": "A conta não pode ser salva sem uma estrutura de segmentos configurada."
   },
   "accounting.account_form.account_code": {
-    "es": "Código de Cuenta*",
-    "en": "Account Code*",
-    "pt": "Código da Conta*"
+    "es": "Código de Cuenta",
+    "en": "Account Code",
+    "pt": "Código da Conta"
   },
   "accounting.account_form.account_code_must_have_least_one": {
     "es": "El código de cuenta debe tener al menos un segmento válido.",
@@ -30,14 +30,14 @@
     "pt": "Conta criada com sucesso."
   },
   "accounting.account_form.account_name": {
-    "es": "Nombre de la Cuenta*",
-    "en": "Account Name*",
-    "pt": "Nome da Conta*"
+    "es": "Nombre de la Cuenta",
+    "en": "Account Name",
+    "pt": "Nome da Conta"
   },
   "accounting.account_form.account_type": {
-    "es": "Tipo de Cuenta*",
-    "en": "Account Type*",
-    "pt": "Tipo de Conta*"
+    "es": "Tipo de Cuenta",
+    "en": "Account Type",
+    "pt": "Tipo de Conta"
   },
   "accounting.account_form.account_updated_successfully": {
     "es": "Cuenta actualizada con éxito.",
@@ -85,9 +85,9 @@
     "pt": "Categoria do Fluxo de Caixa"
   },
   "accounting.account_form.category": {
-    "es": "Categoría*",
-    "en": "Category*",
-    "pt": "Categoria*"
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
   },
   "accounting.account_form.chart_version": {
     "es": "Versión del Catálogo",
@@ -1206,9 +1206,9 @@
     "pt": "Não foi possível carregar os livros contabilísticos."
   },
   "accounting.journal_entry_form.modification_reason_label": {
-    "es": "Razón de la modificación*",
-    "en": "Reason for the change*",
-    "pt": "Motivo da alteração*"
+    "es": "Razón de la modificación",
+    "en": "Reason for the change",
+    "pt": "Motivo da alteração"
   },
   "accounting.journal_entry_form.modifying_posted_entry_does_not_rewrite": {
     "es": "Modificar un asiento contabilizado no lo reescribe: el sistema lo reversa y contabiliza uno nuevo que lo cita. El original permanece en el libro.",
@@ -1411,9 +1411,9 @@
     "pt": "Livro razão criado com sucesso."
   },
   "accounting.ledger_form.ledger_name": {
-    "es": "Nombre del Libro*",
-    "en": "Ledger Name*",
-    "pt": "Nome do Livro*"
+    "es": "Nombre del Libro",
+    "en": "Ledger Name",
+    "pt": "Nome do Livro"
   },
   "accounting.ledger_form.ledger_updated_successfully": {
     "es": "Libro Mayor actualizado exitosamente.",

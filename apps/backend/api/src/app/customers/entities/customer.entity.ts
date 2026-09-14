@@ -61,8 +61,14 @@ export class Customer {
   @Column({ nullable: true })
   contactPerson?: string;
 
-  @Column()
-  email: string;
+  /**
+   * Optional, like the supplier's. See `CustomerContactOptional` for why the product held two
+   * rules for the same idea, and why this is the one that survived.
+   */
+  //  `type` stated explicitly: a `string | null` property reflects as `Object`, which TypeORM
+  //  cannot map to a Postgres type, and the failure only shows up when a migration runs.
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null;
 
   @Column({ nullable: true })
   phone: string;

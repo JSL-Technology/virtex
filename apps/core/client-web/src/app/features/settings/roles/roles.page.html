@@ -54,7 +54,7 @@
     </div>
     <div class="modal-body">
       <form [formGroup]="roleForm">
-        <div class="form-field"><label for="name">{{ 'settings.roles.role_name' | translate }}</label><input id="name" type="text" formControlName="name"></div>
+        <div class="form-field"><label for="name">{{ 'settings.roles.role_name' | translate }} *</label><input id="name" type="text" formControlName="name"></div>
         <div class="form-field"><label for="description">{{ 'settings.roles.description' | translate }}</label><textarea id="description" formControlName="description"></textarea></div>
         <div class="permissions-grid">
           <h3>{{ 'settings.roles.permissions' | translate }}</h3>

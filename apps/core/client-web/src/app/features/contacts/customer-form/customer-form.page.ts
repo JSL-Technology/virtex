@@ -73,8 +73,10 @@ export class CustomerFormPage implements OnInit {
     this.customerForm = this.fb.group({
       companyName: ['', Validators.required],
       contactPerson: [''],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      //  Optional, matching the supplier form and the server. Still validated AS an email when
+      //  one is given: an optional field is not an unchecked one.
+      email: ['', [Validators.email]],
+      phone: [''],
       taxId: [''],
       // The buyer's fiscal classification, which decides what they withhold at source. Left blank
       // the server withholds nothing automatically, which is the safe default: the classification

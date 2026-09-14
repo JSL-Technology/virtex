@@ -48,11 +48,11 @@
           @if (activeTab() === 'general') {
             <section class="form-grid">
               <div class="form-field">
-                <label for="code">{{ 'accounting.account_form.account_code' | translate }}</label>
+                <label for="code">{{ 'accounting.account_form.account_code' | translate }} *</label>
                 <input id="code" formControlName="code" [readonly]="isEditing()">
               </div>
               <div class="form-field">
-                <label for="name">{{ 'accounting.account_form.account_name' | translate }}</label>
+                <label for="name">{{ 'accounting.account_form.account_name' | translate }} *</label>
                 <input id="name" formControlName="name">
               </div>
               <div class="form-field full-width">
@@ -69,7 +69,7 @@
                 </select>
               </div>
               <div class="form-field">
-                <label for="type">{{ 'accounting.account_form.account_type' | translate }}</label>
+                <label for="type">{{ 'accounting.account_form.account_type' | translate }} *</label>
                 <select id="type" formControlName="type" [attr.disabled]="isEditing() ? true : null">
                   <option [ngValue]="null" disabled>{{ 'accounting.account_form.select_type' | translate }}</option>
                   @for (type of accountTypes; track type) {
@@ -82,7 +82,7 @@
                 <input id="nature" formControlName="nature" readonly>
               </div>
               <div class="form-field">
-                <label for="category">{{ 'accounting.account_form.category' | translate }}</label>
+                <label for="category">{{ 'accounting.account_form.category' | translate }} *</label>
                 <select id="category" formControlName="category">
                   <option [ngValue]="null" disabled>{{ 'accounting.account_form.select_category' | translate }}</option>
                   @for (cat of accountCategories; track cat) {

@@ -30,9 +30,10 @@
     "pt": "Pessoa jurídica"
   },
   "contacts.customer_form.company_name": {
-    "es": "Nombre de la Empresa*",
-    "en": "Company Name*",
-    "pt": "Nome da Empresa*"
+    "es": "Nombre del cliente",
+    "en": "Customer name",
+    "pt": "Nome do cliente",
+    "note": "Parallel to masters.supplier_form.supplier_name. It read 'Company Name' while the supplier's read 'Supplier Name', so the two sides of the ledger named the same idea differently."
   },
   "contacts.customer_form.contact_details": {
     "es": "Datos de Contacto",
@@ -40,14 +41,14 @@
     "pt": "Dados de Contato"
   },
   "contacts.customer_form.contact_person": {
-    "es": "Persona de Contacto*",
-    "en": "Contact Person*",
-    "pt": "Pessoa de Contato*"
+    "es": "Persona de Contacto",
+    "en": "Contact Person",
+    "pt": "Pessoa de Contato"
   },
   "contacts.customer_form.country": {
-    "es": "País*",
-    "en": "Country*",
-    "pt": "País*"
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
   },
   "contacts.customer_form.credit_days": {
     "es": "Días de crédito",
@@ -90,9 +91,9 @@
     "pt": "Agente de retenção designado"
   },
   "contacts.customer_form.email": {
-    "es": "Correo Electrónico*",
-    "en": "Email*",
-    "pt": "E-mail*"
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
   },
   "contacts.customer_form.error_creating_customer": {
     "es": "Error al crear el cliente.",
@@ -135,9 +136,9 @@
     "pt": "Líquido 30"
   },
   "contacts.customer_form.phone": {
-    "es": "Teléfono*",
-    "en": "Phone*",
-    "pt": "Telefone*"
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
   },
   "contacts.customer_form.postal_code": {
     "es": "Código Postal",

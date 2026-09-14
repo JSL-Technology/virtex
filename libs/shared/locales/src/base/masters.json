@@ -275,9 +275,9 @@
     "pt": "Cancelar"
   },
   "masters.price_lists_form.currency": {
-    "es": "Moneda*",
-    "en": "Currency*",
-    "pt": "Moeda*"
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
   },
   "masters.price_lists_form.define_prices_specific_set_products": {
     "es": "Define precios para un conjunto específico de productos.",
@@ -303,14 +303,14 @@
     "literal": "EUR - Euro"
   },
   "masters.price_lists_form.list_name": {
-    "es": "Nombre de la Lista*",
-    "en": "List Name*",
-    "pt": "Nome da Tabela*"
+    "es": "Nombre de la Lista",
+    "en": "List Name",
+    "pt": "Nome da Tabela"
   },
   "masters.price_lists_form.price": {
-    "es": "Precio*",
-    "en": "Price*",
-    "pt": "Preço*"
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
   },
   "masters.price_lists_form.price_list_could_not_loaded": {
     "es": "No se pudo cargar la lista de precios.",
@@ -333,9 +333,9 @@
     "pt": "Tabela de preços atualizada."
   },
   "masters.price_lists_form.product": {
-    "es": "Producto*",
-    "en": "Product*",
-    "pt": "Produto*"
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
   },
   "masters.price_lists_form.products_could_not_loaded": {
     "es": "No se pudieron cargar los productos.",
@@ -353,9 +353,9 @@
     "pt": "Selecione um produto..."
   },
   "masters.price_lists_form.status": {
-    "es": "Estado*",
-    "en": "Status*",
-    "pt": "Situação*"
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
   },
   "masters.price_lists_form.title_edit": {
     "es": "Editar lista de precios",
@@ -373,14 +373,14 @@
     "pt": "USD - Dólar Americano"
   },
   "masters.price_lists_form.valid_from": {
-    "es": "Válido Desde*",
-    "en": "Valid From*",
-    "pt": "Válido De*"
+    "es": "Válido Desde",
+    "en": "Valid From",
+    "pt": "Válido De"
   },
   "masters.price_lists_form.valid_until": {
-    "es": "Válido Hasta*",
-    "en": "Valid Until*",
-    "pt": "Válido Até*"
+    "es": "Válido Hasta",
+    "en": "Valid Until",
+    "pt": "Válido Até"
   },
   "masters.supplier_form.address": {
     "es": "Dirección",
@@ -453,9 +453,9 @@
     "pt": "Informações do Fornecedor"
   },
   "masters.supplier_form.supplier_name": {
-    "es": "Nombre del Proveedor*",
-    "en": "Supplier Name*",
-    "pt": "Nome do Fornecedor*"
+    "es": "Nombre del proveedor",
+    "en": "Supplier name",
+    "pt": "Nome do fornecedor"
   },
   "masters.supplier_form.supplier_updated": {
     "es": "Proveedor actualizado exitosamente.",
@@ -548,9 +548,9 @@
     "pt": "Ex.: ICMS padrão"
   },
   "masters.tax_form.rate": {
-    "es": "Tasa*",
-    "en": "Rate*",
-    "pt": "Alíquota*"
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Alíquota"
   },
   "masters.tax_form.save_tax": {
     "es": "Guardar Impuesto",
@@ -568,9 +568,9 @@
     "pt": "Imposto criado."
   },
   "masters.tax_form.tax_name": {
-    "es": "Nombre del Impuesto*",
-    "en": "Tax Name*",
-    "pt": "Nome do Imposto*"
+    "es": "Nombre del Impuesto",
+    "en": "Tax Name",
+    "pt": "Nome do Imposto"
   },
   "masters.tax_form.tax_updated": {
     "es": "Impuesto actualizado exitosamente.",
@@ -588,9 +588,9 @@
     "pt": "Novo imposto"
   },
   "masters.tax_form.type": {
-    "es": "Tipo*",
-    "en": "Type*",
-    "pt": "Tipo*"
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
   },
   "masters.taxes.country": {
     "es": "País",

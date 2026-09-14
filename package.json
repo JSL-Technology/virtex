@@ -36,6 +36,7 @@
     "demo:tenant": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/demo-tenant.ts",
     "verify:localized-names": "node tools/i18n/verify-localized-names.mjs",
     "verify:form-a11y": "node tools/verify/form-a11y.mjs",
+    "verify:required-markers": "node tools/verify/required-markers.mjs",
     "verify:typescript-prose": "node tools/i18n/scan-typescript-prose.mjs --list",
     "verify:numeric-transformers": "node tools/verify/numeric-transformers.mjs",
     "verify:date-columns": "node tools/verify/date-columns.mjs"

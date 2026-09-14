@@ -29,6 +29,8 @@ import {
 } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { SuppliersService } from '../../../core/api/suppliers.service';
+import { CurrenciesService, Currency } from '../../../core/api/currencies.service';
+import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -105,6 +107,8 @@ export class VendorBillFormPage implements OnInit {
   private readonly router = inject(Router);
   private readonly accountsPayable = inject(AccountsPayableService);
   private readonly suppliers = inject(SuppliersService);
+  private readonly currenciesService = inject(CurrenciesService);
+  private readonly treasury = inject(TreasuryService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
 
@@ -115,6 +119,9 @@ export class VendorBillFormPage implements OnInit {
   readonly showFiscalDetail = signal(false);
 
   readonly supplierOptions = signal<{ id: string; name: string }[]>([]);
+
+  /** The currencies the tenant transacts in. Same source the sales invoice uses. */
+  readonly currencies = signal<Currency[]>([]);
   /**
    * The account's name stays as the server sent it — a translation map — and `| vxName` resolves it
    * in the template. Resolving it here instead would freeze the language at fetch time, so
@@ -147,6 +154,10 @@ export class VendorBillFormPage implements OnInit {
       ncf: [''],
       date: [today, [Validators.required]],
       dueDate: [today, [Validators.required]],
+      //  Filled in once the books' base currency is known — see `loadBaseCurrency`. Not from
+      //  `LocaleStore.currency()`, which is the currency this READER's numbers are formatted in
+      //  and is a different fact: this tenant's locale says USD while its books are kept in DOP,
+      //  so that source preselected the wrong currency on every purchase invoice.
       currencyCode: [''],
       purchaseCategory: ['06'],
       paymentForm: ['01'],
@@ -233,6 +244,28 @@ export class VendorBillFormPage implements OnInit {
           (list ?? []).map((supplier) => ({ id: supplier.id, name: supplier.name })),
         ),
       error: () => this.supplierOptions.set([]),
+    });
+
+    this.currenciesService.getCurrencies().subscribe({
+      next: (list) => this.currencies.set(list ?? []),
+      //  A failed load must not leave an empty list that silently blanks the field.
+      error: () => this.currencies.set([]),
+    });
+
+    /**
+     * The currency the books are kept in, which is what a bill is in unless somebody says
+     * otherwise — and what the SERVER already defaults to when the field is omitted. Reading it
+     * from the same place the payment screen in this module reads it keeps one answer.
+     *
+     * Only applied while the field is still empty: an edit loads the bill's own currency, and a
+     * user who has already chosen one is not overruled by a response that arrives afterwards.
+     */
+    this.treasury.cashPosition().subscribe({
+      next: (position) => {
+        const control = this.form.get('currencyCode');
+        if (control && !control.value) control.setValue(position.baseCurrency);
+      },
+      error: () => undefined,
     });
 
     // Only accounts a purchase may actually be charged to.

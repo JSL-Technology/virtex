@@ -105,6 +105,18 @@ describe('VendorBillFormPage', () => {
   const flushPickers = () => {
     httpMock.expectOne(`${API}/suppliers`).flush(suppliers);
     httpMock.expectOne(`${API}/chart-of-accounts`).flush(accounts);
+    // The currency is chosen from the tenant's own list now, not typed into a three-character box
+    // where a code the tenant does not hold is accepted and then refused with an exchange-rate
+    // error. Same source the sales invoice uses.
+    // The books' base currency, which is what the field starts on. The sibling payment screen in
+    // this module reads it from the same place.
+    httpMock
+      .expectOne((r) => r.url === `${API}/treasury/cash-position`)
+      .flush({ asOfDate: '2026-09-14', baseCurrency: 'DOP', accounts: [], total: 0 });
+    httpMock.expectOne(`${API}/currencies`).flush([
+      { id: 'c1', code: 'DOP', name: 'Peso dominicano', symbol: 'RD$' },
+      { id: 'c2', code: 'USD', name: 'US dollar', symbol: '$' },
+    ]);
   };
 
   beforeEach(async () => {
