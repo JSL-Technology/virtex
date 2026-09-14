@@ -2470,6 +2470,8 @@
   "login.logging_in": "Iniciando sesión",
   "login.name_company_com": "nombre@empresa.com",
   "login.no_account": "¿No tienes una cuenta?",
+  "login.notice.session_expired": "Tu sesión ha caducado. Vuelve a iniciar sesión para continuar.",
+  "login.notice.signed_out_idle": "Cerramos tu sesión por inactividad. Vuelve a iniciar sesión para continuar.",
   "login.or": "o",
   "login.passkey_button_short": "Continuar con llave de acceso",
   "login.password_label": "Contraseña",

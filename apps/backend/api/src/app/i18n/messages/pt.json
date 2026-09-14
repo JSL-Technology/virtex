@@ -2623,6 +2623,8 @@
   "login.logging_in": "Entrando",
   "login.name_company_com": "nome@empresa.com",
   "login.no_account": "Ainda não tem uma conta?",
+  "login.notice.session_expired": "A sua sessão expirou. Inicie sessão novamente para continuar.",
+  "login.notice.signed_out_idle": "Terminámos a sua sessão por inatividade. Inicie sessão novamente para continuar.",
   "login.or": "ou",
   "login.passkey_button_short": "Continuar com chave de acesso",
   "login.password_label": "Senha",

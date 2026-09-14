@@ -63,6 +63,17 @@ function isTwoFactorRequired(res: LoginResult): res is TwoFactorRequiredResponse
     return (res as TwoFactorRequiredResponse).require2fa === true;
 }
 
+/**
+ * Why a session ended, when it was not the user's decision.
+ *
+ * `'expired'`: the refresh token was refused, so the session is gone server-side.
+ * `'idle'`: the client signed the user out after a period without activity.
+ *
+ * A deliberate sign-out passes none of these: there is nothing to explain to someone who pressed
+ * "Sign out".
+ */
+export type SignOutReason = 'expired' | 'idle';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -483,7 +494,7 @@ export class AuthService {
    * Cierra la sesión del usuario tanto en el frontend como en el backend.
    * @param notifyBackend Si es true, envía una petición de logout al backend. Si es false, solo limpia el estado local.
    */
-  logout(notifyBackend = true): void {
+  logout(notifyBackend = true, reason?: SignOutReason): void {
     // 1. Limpiar estado local inmediatamente para asegurar respuesta rápida de UI.
     // `applySignedOut` also pins the memoised session resolution to "signed out", so the guards
     // that run during the redirect below settle without a request — and, because the server
@@ -494,7 +505,19 @@ export class AuthService {
     // The sign-in page the user lands on must be in the language they were just using. The
     // language lives in one place — `LanguageService` — rather than being re-derived here from a
     // storage key this file also had to know the name of.
-    this.router.navigate([`/${this.languageService.currentLanguage()}/auth/login`]);
+    /**
+     * Why the session ended travels with the redirect.
+     *
+     * Being returned to the sign-in page with nothing said is indistinguishable from having
+     * clicked the wrong thing. The two cases that are not the user's doing — a refresh that
+     * failed, and an idle timeout — say so on the page they land on, in their own language,
+     * rather than leaving them to guess whether their work was saved or whether they typed
+     * something wrong. A deliberate sign-out passes no reason and says nothing, because there is
+     * nothing to explain.
+     */
+    this.router.navigate([`/${this.languageService.currentLanguage()}/auth/login`], {
+      queryParams: reason ? { reason } : {},
+    });
 
     // H5 FIX: The backend /logout endpoint is protected by CsrfGuard, which requires the
     // X-XSRF-TOKEN header to match the signed XSRF-TOKEN cookie. navigator.sendBeacon cannot set

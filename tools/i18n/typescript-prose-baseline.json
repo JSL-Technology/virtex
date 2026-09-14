@@ -1,11 +1,10 @@
 {
-  "count": 59,
+  "count": 57,
   "files": {
     "apps/core/client-web/src/app/app.ts": 3,
     "apps/core/client-web/src/app/core/services/auth.ts": 1,
     "apps/core/client-web/src/app/core/services/billing.ts": 1,
     "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
-    "apps/core/client-web/src/app/core/services/idle.service.ts": 2,
     "apps/core/client-web/src/app/features/accounting/merge-tool/merge-tool.ts": 6,
     "apps/core/client-web/src/app/features/auth/register/steps/step-account-info/step-account-info.ts": 1,
     "apps/core/client-web/src/app/features/auth/register/steps/step-configuration/step-configuration.ts": 1,

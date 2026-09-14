@@ -2623,6 +2623,8 @@
   "login.logging_in": "Logging in",
   "login.name_company_com": "name@company.com",
   "login.no_account": "Don't have an account?",
+  "login.notice.session_expired": "Your session has expired. Sign in again to continue.",
+  "login.notice.signed_out_idle": "We signed you out after a period of inactivity. Sign in again to continue.",
   "login.or": "or",
   "login.passkey_button_short": "Continue with Passkey",
   "login.password_label": "Password",

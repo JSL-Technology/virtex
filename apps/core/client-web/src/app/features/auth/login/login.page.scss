@@ -104,7 +104,8 @@
 }
 
 // ── Aviso de error ───────────────────────────────────────────────────────────
-.error-alert { @include auth.error-alert; }
+.error-alert  { @include auth.error-alert; }
+.notice-alert { @include auth.notice-alert; }
 
 // ── Zona 3 · Alternativas ────────────────────────────────────────────────────
 .alt-divider {
