@@ -29,11 +29,6 @@
     "en": "The ending number cannot be lower than the starting one.",
     "pt": "O número final não pode ser menor que o inicial."
   },
-  "compliance.ends_cannot_lower_than_starts": {
-    "es": "endsAt no puede ser menor que startsAt.",
-    "en": "endsAt cannot be lower than startsAt.",
-    "pt": "endsAt não pode ser menor que startsAt."
-  },
   "compliance.format_kind_not_recognised_available_formats": {
     "es": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
     "en": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
@@ -53,11 +48,6 @@
     "es": "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.",
     "en": "The NCF sequence range is invalid: the ending number must be greater than or equal to the starting one.",
     "pt": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial."
-  },
-  "compliance.ncf_sequence_range_invalid_starts_ends": {
-    "es": "El rango de la secuencia NCF es inválido (startsAt/endsAt).",
-    "en": "The NCF sequence range is invalid (startsAt/endsAt).",
-    "pt": "A faixa da sequência NCF é inválida (startsAt/endsAt)."
   },
   "compliance.ncf_sequence_type_type_exhausted_range": {
     "es": "La secuencia de NCF para el tipo {{type}} se agotó (rango {{startsAt}}–{{endsAt}}). Solicita un nuevo rango a la DGII y regístralo antes de continuar facturando.",

@@ -1,19 +1,4 @@
 {
-  "nav.approvals": {
-    "es": "Aprobaciones",
-    "en": "Approvals",
-    "pt": "Aprovações"
-  },
-  "nav.contacts": {
-    "es": "Contactos",
-    "en": "Contacts",
-    "pt": "Contatos"
-  },
-  "nav.customers": {
-    "es": "Clientes",
-    "en": "Customers",
-    "pt": "Clientes"
-  },
   "nav.dashboard": {
     "es": "Dashboard",
     "en": "Dashboard",
@@ -34,55 +19,15 @@
     "en": "Next",
     "pt": "Avançar"
   },
-  "nav.inventory": {
-    "es": "Inventario",
-    "en": "Inventory",
-    "pt": "Estoque"
-  },
-  "nav.invoices": {
-    "es": "Facturas",
-    "en": "Invoices",
-    "pt": "Faturas"
-  },
   "nav.menu": {
     "es": "Menú",
     "en": "Menu",
     "pt": "Menu"
   },
-  "nav.my_work": {
-    "es": "Mi Trabajo",
-    "en": "My Work",
-    "pt": "Meu Trabalho"
-  },
   "nav.notifications": {
     "es": "Notificaciones",
     "en": "Notifications",
     "pt": "Notificações"
-  },
-  "nav.price_lists": {
-    "es": "Listas de Precios",
-    "en": "Price Lists",
-    "pt": "Tabelas de Preços"
-  },
-  "nav.products": {
-    "es": "Productos",
-    "en": "Products & Services",
-    "pt": "Produtos"
-  },
-  "nav.purchasing": {
-    "es": "Compras",
-    "en": "Purchasing",
-    "pt": "Compras"
-  },
-  "nav.reports": {
-    "es": "Reportes",
-    "en": "Reports",
-    "pt": "Relatórios"
-  },
-  "nav.sales": {
-    "es": "Ventas",
-    "en": "Sales",
-    "pt": "Vendas"
   },
   "nav.settings": {
     "es": "Configuración",

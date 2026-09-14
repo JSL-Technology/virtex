@@ -43,14 +43,14 @@ describe('ChecklistPage', () => {
   const items = [
     {
       id: 'unposted-journal-entries',
-      descriptionKey: 'accounting.checklist.items.review_post_every_journal_entry_still',
+      descriptionKey: 'accounting.checklist.items.unposted_journal_entries',
       params: { count: 2 },
       isCompleted: false,
       resolutionLink: '/accounting/journal-entries',
     },
     {
       id: 'unapproved-vendor-bills',
-      descriptionKey: 'accounting.checklist.items.review_post_every_vendor_bill_still',
+      descriptionKey: 'accounting.checklist.items.unapproved_vendor_bills',
       params: { count: 0 },
       isCompleted: true,
     },

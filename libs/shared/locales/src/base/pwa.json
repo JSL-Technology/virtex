@@ -1,9 +1,4 @@
 {
-  "pwa.install": {
-    "es": "Instalar App",
-    "en": "Install App",
-    "pt": "Instalar App"
-  },
   "pwa.offline_message": {
     "es": "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea.",
     "en": "Check your network connection and come back here. Virtex will load as soon as you're back online.",

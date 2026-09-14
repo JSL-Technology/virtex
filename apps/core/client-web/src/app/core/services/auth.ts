@@ -736,7 +736,7 @@ export class AuthService {
           // as the new one and the interface must follow THAT account's language.
           this.applyAuthenticated(response.user);
           this.notificationService.showSuccess(
-            this.translate.instant('AUTH.IMPERSONATION.STARTED', { name: response.user.firstName }),
+            this.translate.instant('auth.impersonation.started', { name: response.user.firstName }),
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
@@ -759,7 +759,7 @@ export class AuthService {
         tap((response) => {
           this.applyAuthenticated(response.user);
           this.notificationService.showSuccess(
-            this.translate.instant('AUTH.IMPERSONATION.STOPPED'),
+            this.translate.instant('auth.impersonation.stopped'),
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {

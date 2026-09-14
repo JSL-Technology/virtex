@@ -49,11 +49,6 @@
     "en": "{{drawn}} was drawn from the advance but {{unapplied}} remains unapplied. Apply the advance to invoices or reduce it.",
     "pt": "Foram usados {{drawn}} do adiantamento, mas restam {{unapplied}} sem aplicar. Aplique o adiantamento a faturas ou reduza-o."
   },
-  "customers.invoice_invoice_id_not_found_batch": {
-    "es": "Factura con ID {{invoiceId}} no encontrada en el lote.",
-    "en": "Invoice {{invoiceId}} was not found in the batch.",
-    "pt": "Fatura {{invoiceId}} não encontrada no lote."
-  },
   "customers.invoice_invoice_number_status_cannot_take": {
     "es": "La factura {{invoiceNumber}} está en estado {{status}} y no admite cobros.",
     "en": "Invoice {{invoiceNumber}} is {{status}} and cannot take a collection.",
@@ -118,10 +113,5 @@
     "es": "La cuenta bancaria indicada no existe en esta organización.",
     "en": "The specified bank account does not exist in this organization.",
     "pt": "A conta bancária indicada não existe nesta organização."
-  },
-  "customers.transaction_query_runner_could_not_obtained": {
-    "es": "No se pudo obtener el Query Runner de la transacción.",
-    "en": "The transaction's query runner could not be obtained.",
-    "pt": "Não foi possível obter o query runner da transação."
   }
 }

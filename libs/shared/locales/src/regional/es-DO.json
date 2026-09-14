@@ -1,28 +1,22 @@
 {
   "$locale": "es-DO",
   "$note": "Dominican Republic. Only the keys whose wording actually differs from neutral Latin American Spanish — everything else falls through to base/. A reader in Santo Domingo expects 'regalía pascual' and would find 'bonificación de fin de año' oddly bureaucratic; a reader in Monterrey would find 'regalía pascual' meaningless. Both are served without a second catalogue.",
-
   "payroll.runs.type_label.christmas_bonus": "Regalía pascual",
   "hcm.employees.form.proportional_bonus": "Regalía proporcional",
   "payroll.parameters.key_label.bonus_employee_levy_rate": "Tasa INFOTEP sobre la regalía",
   "payroll.concepts.tss_base": "Cotiza a la TSS",
-
-  "hcm.employees.form.document_type.national_id": "Cédula",
-  "hcm.employees.form.document_type.tax_id": "RNC",
+  "hcm.employees.form.document_type.cedula": "Cédula",
+  "hcm.employees.form.document_type.rnc": "RNC",
   "hcm.employees.form.tss_nss": "NSS (TSS)",
   "validation.create_employee.tss_nss_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos.",
   "permissions.groups.tss": "TSS (Seguridad Social)",
-
   "contacts.customer_form.tax_id": "RNC / Cédula",
-  "masters.customer_form.rnc_nif": "RNC / Cédula",
   "masters.supplier_form.tax_id": "RNC / Cédula",
   "settings.company_profile.id_fiscal_rnc_tax_id": "RNC",
   "settings.subsidiaries.id_fiscal_rnc_tax_id": "RNC",
-
   "invoices.detail.ncf": "e-NCF:",
   "invoices.detail.trackid": "TrackID:",
   "accounts_payable.form.ncf": "NCF",
   "accounts_payable.list.no_fiscal_number": "Sin NCF",
-
   "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional."
 }

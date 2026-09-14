@@ -75,7 +75,17 @@
     "en": "{{property}} must be a list.",
     "pt": "{{property}} deve ser uma lista."
   },
+  "validation.constraints.is_boolean": {
+    "es": "{{property}} debe ser verdadero o falso.",
+    "en": "{{property}} must be true or false.",
+    "pt": "{{property}} deve ser verdadeiro ou falso."
+  },
   "validation.constraints.is_date": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
+  },
+  "validation.constraints.is_date_string": {
     "es": "{{property}} no es una fecha válida.",
     "en": "{{property}} is not a valid date.",
     "pt": "{{property}} não é uma data válida."
@@ -95,20 +105,30 @@
     "en": "{{property}} is not a valid email address.",
     "pt": "{{property}} não é um e-mail válido."
   },
+  "validation.constraints.is_enum": {
+    "es": "{{property}} no admite ese valor.",
+    "en": "{{property}} does not accept that value.",
+    "pt": "{{property}} não aceita esse valor."
+  },
   "validation.constraints.is_in": {
     "es": "{{property}} no admite ese valor.",
     "en": "{{property}} does not accept that value.",
     "pt": "{{property}} não aceita esse valor."
   },
-  "validation.constraints.is_iso8601": {
-    "es": "{{property}} no es una fecha válida.",
-    "en": "{{property}} is not a valid date.",
-    "pt": "{{property}} não é uma data válida."
+  "validation.constraints.is_int": {
+    "es": "{{property}} debe ser un número entero.",
+    "en": "{{property}} must be a whole number.",
+    "pt": "{{property}} deve ser um número inteiro."
   },
   "validation.constraints.is_iso_date": {
     "es": "{{property}} debe ser una fecha del calendario en formato AAAA-MM-DD.",
     "en": "{{property}} must be a calendar date in YYYY-MM-DD format.",
     "pt": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD."
+  },
+  "validation.constraints.is_iso8601": {
+    "es": "{{property}} no es una fecha válida.",
+    "en": "{{property}} is not a valid date.",
+    "pt": "{{property}} não é uma data válida."
   },
   "validation.constraints.is_not_empty": {
     "es": "{{property}} es obligatorio.",
@@ -116,6 +136,11 @@
     "pt": "{{property}} é obrigatório."
   },
   "validation.constraints.is_number": {
+    "es": "{{property}} debe ser un número.",
+    "en": "{{property}} must be a number.",
+    "pt": "{{property}} deve ser um número."
+  },
+  "validation.constraints.is_number_string": {
     "es": "{{property}} debe ser un número.",
     "en": "{{property}} must be a number.",
     "pt": "{{property}} deve ser um número."
@@ -134,6 +159,11 @@
     "es": "No se pudo verificar que la solicitud viene de una persona. Vuelve a intentarlo.",
     "en": "We could not verify that this request came from a person. Try again.",
     "pt": "Não conseguimos verificar que esta solicitação veio de uma pessoa. Tente novamente."
+  },
+  "validation.constraints.is_string": {
+    "es": "{{property}} debe ser texto.",
+    "en": "{{property}} must be text.",
+    "pt": "{{property}} deve ser texto."
   },
   "validation.constraints.is_url": {
     "es": "{{property}} no es una dirección web válida.",
@@ -180,50 +210,20 @@
     "en": "{{property}} must be at least {{min}} characters long.",
     "pt": "{{property}} deve ter pelo menos {{min}} caracteres."
   },
+  "validation.constraints.nested_validation": {
+    "es": "{{property}} contiene datos que no son válidos.",
+    "en": "{{property}} contains data that is not valid.",
+    "pt": "{{property}} contém dados que não são válidos."
+  },
   "validation.constraints.period_start_after_end": {
     "es": "La fecha inicial no puede ser posterior a la fecha final.",
     "en": "The start date cannot be later than the end date.",
     "pt": "A data inicial não pode ser posterior à data final."
   },
-  "validation.constraints.property_contains_data_not_valid": {
-    "es": "{{property}} contiene datos que no son válidos.",
-    "en": "{{property}} contains data that is not valid.",
-    "pt": "{{property}} contém dados que não são válidos."
-  },
-  "validation.constraints.property_does_not_accept_value": {
-    "es": "{{property}} no admite ese valor.",
-    "en": "{{property}} does not accept that value.",
-    "pt": "{{property}} não aceita esse valor."
-  },
-  "validation.constraints.property_must_number": {
-    "es": "{{property}} debe ser un número.",
-    "en": "{{property}} must be a number.",
-    "pt": "{{property}} deve ser um número."
-  },
-  "validation.constraints.property_must_text": {
-    "es": "{{property}} debe ser texto.",
-    "en": "{{property}} must be text.",
-    "pt": "{{property}} deve ser texto."
-  },
-  "validation.constraints.property_must_true_false": {
-    "es": "{{property}} debe ser verdadero o falso.",
-    "en": "{{property}} must be true or false.",
-    "pt": "{{property}} deve ser verdadeiro ou falso."
-  },
-  "validation.constraints.property_must_whole_number": {
-    "es": "{{property}} debe ser un número entero.",
-    "en": "{{property}} must be a whole number.",
-    "pt": "{{property}} deve ser um número inteiro."
-  },
-  "validation.constraints.property_not_allowed_field": {
+  "validation.constraints.whitelist_validation": {
     "es": "{{property}} no es un campo permitido.",
     "en": "{{property}} is not an allowed field.",
     "pt": "{{property}} não é um campo permitido."
-  },
-  "validation.constraints.property_not_valid_date": {
-    "es": "{{property}} no es una fecha válida.",
-    "en": "{{property}} is not a valid date.",
-    "pt": "{{property}} não é uma data válida."
   },
   "validation.create_employee.tss_nss_format": {
     "en": "The social security number must be between 7 and 11 digits.",
@@ -1020,16 +1020,6 @@
     "en": "The number must be in international E.164 format (for example, +18095551234).",
     "pt": "O número deve estar no formato internacional E.164 (por exemplo, +18095551234)."
   },
-  "validation.upload_statement.account_id_cannot_empty": {
-    "es": "El ID de la cuenta no puede estar vacío.",
-    "en": "The account ID cannot be empty.",
-    "pt": "O ID da conta não pode ficar vazio."
-  },
-  "validation.upload_statement.closing_balance_cannot_empty": {
-    "es": "El saldo final no puede estar vacío.",
-    "en": "The closing balance cannot be empty.",
-    "pt": "O saldo final não pode ficar vazio."
-  },
   "validation.upload_statement.closing_balance_must_number": {
     "es": "El saldo final debe ser un número.",
     "en": "The closing balance must be a number.",
@@ -1044,11 +1034,6 @@
     "es": "La fecha de fin debe ser una fecha válida.",
     "en": "The end date must be a valid date.",
     "pt": "A data final deve ser uma data válida."
-  },
-  "validation.upload_statement.opening_balance_cannot_empty": {
-    "es": "El saldo inicial no puede estar vacío.",
-    "en": "The opening balance cannot be empty.",
-    "pt": "O saldo inicial não pode ficar vazio."
   },
   "validation.upload_statement.opening_balance_must_number": {
     "es": "El saldo inicial debe ser un número.",
@@ -1074,11 +1059,6 @@
     "es": "El ID del año fiscal es obligatorio.",
     "en": "The fiscal year ID is required.",
     "pt": "O ID do exercício fiscal é obrigatório."
-  },
-  "validation.year_end_close.retained_earnings_account_required": {
-    "es": "La cuenta de Ganancias Retenidas es obligatoria.",
-    "en": "The Retained Earnings account is required.",
-    "pt": "A conta de Lucros Acumulados é obrigatória."
   },
   "validation.year_must_whole_number": {
     "es": "El año debe ser un número entero.",

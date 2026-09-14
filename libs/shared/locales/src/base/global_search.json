@@ -1,9 +1,4 @@
 {
-  "global_search.no_results": {
-    "es": "No se encontraron resultados para «{{query}}»",
-    "en": "No results found for “{{query}}”",
-    "pt": "Nenhum resultado encontrado para “{{query}}”"
-  },
   "global_search.results_found": {
     "es": "Se encontraron {{count}} resultados para «{{query}}»",
     "en": "{{count}} results found for “{{query}}”",
@@ -23,11 +18,6 @@
     "es": "Buscar en todo el sistema...",
     "en": "Search everywhere...",
     "pt": "Buscar em todo o sistema..."
-  },
-  "global_search.searching": {
-    "es": "Buscando...",
-    "en": "Searching...",
-    "pt": "Buscando..."
   },
   "global_search.try_different_search_terms": {
     "es": "Prueba con otros términos de búsqueda",

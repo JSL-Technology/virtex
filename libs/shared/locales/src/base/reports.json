@@ -107,11 +107,6 @@
     "en": "The balance sheet does not balance: assets and liabilities plus equity differ by {{amount}}.",
     "pt": "O balanço não fecha: ativo e passivo mais patrimônio diferem em {{amount}}."
   },
-  "reports.balance_sheet.export_pdf": {
-    "es": "Exportar PDF",
-    "en": "Export to PDF",
-    "pt": "Exportar para PDF"
-  },
   "reports.balance_sheet.liabilities_equity": {
     "es": "Pasivos y Patrimonio",
     "en": "Liabilities and Equity",
@@ -631,36 +626,6 @@
     "en": "Total revenue",
     "pt": "Total de receitas"
   },
-  "reports.layout.analyse_your_business_performance_with_detailed": {
-    "es": "Analiza el desempeño de tu negocio con reportes financieros y operativos detallados.",
-    "en": "Analyse your business performance with detailed financial and operational reports.",
-    "pt": "Analise o desempenho do seu negócio com relatórios financeiros e operacionais detalhados."
-  },
-  "reports.layout.comparative_analysis": {
-    "es": "Análisis comparativo",
-    "en": "Comparative analysis",
-    "pt": "Análise comparativa"
-  },
-  "reports.layout.financial_statements": {
-    "es": "Estados financieros",
-    "en": "Financial statements",
-    "pt": "Demonstrações financeiras"
-  },
-  "reports.layout.profitability_by_customer": {
-    "es": "Rentabilidad por cliente",
-    "en": "Profitability by customer",
-    "pt": "Rentabilidade por cliente"
-  },
-  "reports.layout.profitability_by_product": {
-    "es": "Rentabilidad por producto",
-    "en": "Profitability by product",
-    "pt": "Rentabilidade por produto"
-  },
-  "reports.layout.reports_analytics": {
-    "es": "Reportes y análisis",
-    "en": "Reports and analytics",
-    "pt": "Relatórios e análises"
-  },
   "reports.ledger_ledger_id_not_found": {
     "es": "Libro contable con ID \"{{ledgerId}}\" no encontrado.",
     "en": "Ledger \"{{ledgerId}}\" was not found.",
@@ -686,16 +651,6 @@
     "en": "Customer",
     "pt": "Cliente"
   },
-  "reports.profitability_by_customer.export": {
-    "es": "Exportar",
-    "en": "Export",
-    "pt": "Exportar"
-  },
-  "reports.profitability_by_customer.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "reports.profitability_by_customer.gross_margin": {
     "es": "Margen bruto (%)",
     "en": "Gross margin (%)",
@@ -705,11 +660,6 @@
     "es": "Utilidad bruta",
     "en": "Gross profit",
     "pt": "Lucro bruto"
-  },
-  "reports.profitability_by_customer.last_90_days": {
-    "es": "Últimos 90 días",
-    "en": "Last 90 days",
-    "pt": "Últimos 90 dias"
   },
   "reports.profitability_by_customer.no_profitability_data_available_for_selected": {
     "es": "No hay datos de rentabilidad para el período seleccionado.",
@@ -736,16 +686,6 @@
     "en": "Units",
     "pt": "Unidades"
   },
-  "reports.profitability_by_product.export": {
-    "es": "Exportar",
-    "en": "Export",
-    "pt": "Exportar"
-  },
-  "reports.profitability_by_product.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "reports.profitability_by_product.gross_margin": {
     "es": "Margen bruto (%)",
     "en": "Gross margin (%)",
@@ -755,11 +695,6 @@
     "es": "Utilidad bruta",
     "en": "Gross profit",
     "pt": "Lucro bruto"
-  },
-  "reports.profitability_by_product.last_90_days": {
-    "es": "Últimos 90 días",
-    "en": "Last 90 days",
-    "pt": "Últimos 90 dias"
   },
   "reports.profitability_by_product.no_profitability_data_available_for_selected": {
     "es": "No hay datos de rentabilidad para el período seleccionado.",

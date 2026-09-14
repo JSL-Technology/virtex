@@ -1,15 +1,13 @@
 {
   "$locale": "pt-BR",
   "$note": "Brazil. The year-end payment is the 'décimo terceiro salário'; the tax identifiers are the CNPJ (companies) and CPF (individuals).",
-
   "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
   "hcm.employees.form.proportional_bonus": "Décimo terceiro proporcional",
-  "hcm.employees.form.document_type.national_id": "CPF",
-  "hcm.employees.form.document_type.tax_id": "CNPJ",
+  "hcm.employees.form.document_type.cedula": "CPF",
+  "hcm.employees.form.document_type.rnc": "CNPJ",
   "hcm.employees.form.tss_nss": "NIT / PIS",
   "permissions.groups.tss": "INSS (Previdência)",
   "contacts.customer_form.tax_id": "CNPJ / CPF",
-  "masters.customer_form.rnc_nif": "CNPJ / CPF",
   "masters.supplier_form.tax_id": "CNPJ / CPF",
   "settings.company_profile.id_fiscal_rnc_tax_id": "CNPJ",
   "settings.subsidiaries.id_fiscal_rnc_tax_id": "CNPJ",

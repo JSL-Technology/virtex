@@ -144,16 +144,6 @@
     "en": "Invoice Lines",
     "pt": "Linhas da Fatura"
   },
-  "accounts_payable.detail.invoice_lines_section_will_implemented_here": {
-    "es": "La sección de líneas de la factura se implementará aquí.",
-    "en": "The invoice lines section will be implemented here.",
-    "pt": "A seção de linhas da fatura será implementada aqui."
-  },
-  "accounts_payable.detail.invoice_not_found": {
-    "es": "Factura no encontrada.",
-    "en": "Invoice not found.",
-    "pt": "Fatura não encontrada."
-  },
   "accounts_payable.detail.invoice_voided": {
     "es": "Factura anulada con éxito.",
     "en": "Invoice voided.",
@@ -168,11 +158,6 @@
     "es": "Concepto",
     "en": "Item",
     "pt": "Descrição"
-  },
-  "accounts_payable.detail.loading_invoice_details": {
-    "es": "Cargando detalle de la factura...",
-    "en": "Loading the invoice details...",
-    "pt": "Carregando os detalhes da fatura..."
   },
   "accounts_payable.detail.nothing_has_paid_against_bill_yet": {
     "es": "Todavía no se ha pagado nada contra esta factura.",
@@ -199,11 +184,6 @@
     "en": "The reversing entry was posted to the general ledger.",
     "pt": "O lançamento de reversão foi registado no razão."
   },
-  "accounts_payable.detail.status": {
-    "es": "Estado",
-    "en": "Status",
-    "pt": "Situação"
-  },
   "accounts_payable.detail.submit_approval": {
     "es": "Enviar a aprobación",
     "en": "Submit for approval",
@@ -218,16 +198,6 @@
     "es": "No se pudo cargar la factura del proveedor.",
     "en": "The supplier bill could not be loaded.",
     "pt": "Não foi possível carregar a fatura do fornecedor."
-  },
-  "accounts_payable.detail.supplier_bill_number": {
-    "es": "Factura de Proveedor #{{billNumber}}",
-    "en": "Vendor Bill #{{billNumber}}",
-    "pt": "Fatura de Fornecedor n.º {{billNumber}}"
-  },
-  "accounts_payable.detail.supplier_name": {
-    "es": "Proveedor: {{vendorName}}",
-    "en": "Supplier: {{vendorName}}",
-    "pt": "Fornecedor: {{vendorName}}"
   },
   "accounts_payable.detail.tax_breakdown": {
     "es": "Desglose fiscal",
@@ -292,11 +262,6 @@
     "en": "Expense Account",
     "pt": "Conta de Despesa"
   },
-  "accounts_payable.form.fill_every_required_field": {
-    "es": "Por favor, completa todos los campos requeridos.",
-    "en": "Fill in every required field.",
-    "pt": "Preencha todos os campos obrigatórios."
-  },
   "accounts_payable.form.general_information": {
     "es": "Información General",
     "en": "General Information",
@@ -327,11 +292,6 @@
     "en": "Invoice Details",
     "pt": "Detalhes da Fatura"
   },
-  "accounts_payable.form.invoice_number": {
-    "es": "Número de Factura",
-    "en": "Invoice Number",
-    "pt": "Número da Fatura"
-  },
   "accounts_payable.form.invoice_updated": {
     "es": "Factura actualizada con éxito.",
     "en": "Invoice updated.",
@@ -361,11 +321,6 @@
     "es": "Neto a pagar",
     "en": "Net payable",
     "pt": "Líquido a pagar"
-  },
-  "accounts_payable.form.notes": {
-    "es": "Notas",
-    "en": "Notes",
-    "pt": "Observações"
   },
   "accounts_payable.form.organization_currency": {
     "es": "Moneda de la organización",
@@ -406,11 +361,6 @@
     "es": "Guardar factura",
     "en": "Save bill",
     "pt": "Guardar fatura"
-  },
-  "accounts_payable.form.saving": {
-    "es": "Guardando…",
-    "en": "Saving…",
-    "pt": "Salvando…"
   },
   "accounts_payable.form.select_account": {
     "es": "Seleccionar cuenta",
@@ -483,9 +433,6 @@
     "en": "Type of goods and services",
     "pt": "Tipo de bens e serviços"
   },
-  "accounts_payable.form.value": {
-    "literal": "×"
-  },
   "accounts_payable.form.withholdings": {
     "es": "Retenciones",
     "en": "Withholdings",
@@ -541,11 +488,6 @@
     "en": "The vendor bills could not be loaded. Try again.",
     "pt": "Não foi possível carregar as faturas de fornecedor. Tente novamente."
   },
-  "accounts_payable.list.loading_invoices": {
-    "es": "Cargando facturas...",
-    "en": "Loading invoices...",
-    "pt": "Carregando faturas..."
-  },
   "accounts_payable.list.new_invoice": {
     "es": "Nueva Factura",
     "en": "New Invoice",
@@ -579,11 +521,6 @@
   "accounts_payable.list.total": {
     "literal": "Total"
   },
-  "accounts_payable.list.try_again": {
-    "es": "Reintentar",
-    "en": "Try again",
-    "pt": "Tentar novamente"
-  },
   "accounts_payable.list.vendor_bills": {
     "es": "Facturas de Proveedor",
     "en": "Vendor Bills",
@@ -609,20 +546,10 @@
     "en": "No purchase tax account is configured and the bill carries deductible tax.",
     "pt": "Não há conta de imposto sobre compras configurada e a fatura tem imposto dedutível."
   },
-  "accounts_payable.no_valid_exchange_rate_found_currency": {
-    "es": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",
-    "en": "No valid exchange rate was found for {{currencyCode}} on the given date.",
-    "pt": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada."
-  },
   "accounts_payable.no_withholding_payable_account_configured_document": {
     "es": "No hay cuenta de retenciones por pagar configurada y el documento tiene retenciones.",
     "en": "No withholding payable account is configured and the document carries withholdings.",
     "pt": "Não há conta de retenções a pagar configurada e o documento tem retenções."
-  },
-  "accounts_payable.none_selected_invoices_eligible_payment": {
-    "es": "Ninguna de las facturas seleccionadas es válida para el pago.",
-    "en": "None of the selected invoices is eligible for payment.",
-    "pt": "Nenhuma das faturas selecionadas é elegível para pagamento."
   },
   "accounts_payable.only_draft_invoices_can_submitted_approval": {
     "es": "Solo las facturas en estado borrador pueden ser enviadas para aprobación.",
@@ -633,11 +560,6 @@
     "es": "Solo se pueden editar facturas en estado 'Borrador'.",
     "en": "Only invoices in draft can be edited.",
     "pt": "Somente faturas em rascunho podem ser editadas."
-  },
-  "accounts_payable.paid_invoice_cannot_voided_void_payment": {
-    "es": "No se puede anular una factura pagada. Primero anule el pago.",
-    "en": "A paid invoice cannot be voided. Void the payment first.",
-    "pt": "Uma fatura paga não pode ser cancelada. Cancele o pagamento primeiro."
   },
   "accounts_payable.payment_form.barter": {
     "es": "Permuta",

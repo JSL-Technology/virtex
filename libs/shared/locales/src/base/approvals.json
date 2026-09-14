@@ -39,35 +39,10 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
-  "approvals.expense_reports": {
-    "es": "Reportes de Gastos",
-    "en": "Expense Reports",
-    "pt": "Relatórios de Despesas"
-  },
   "approvals.load_failed": {
     "es": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
     "en": "The approvals could not be loaded. Try again.",
     "pt": "Não foi possível carregar as aprovações. Tente novamente."
-  },
-  "approvals.no_expense_reports_awaiting_approval": {
-    "es": "No hay reportes de gastos pendientes de aprobación.",
-    "en": "No expense reports are awaiting approval.",
-    "pt": "Nenhum relatório de despesas aguardando aprovação."
-  },
-  "approvals.no_invoices_awaiting_approval": {
-    "es": "No hay facturas pendientes de aprobación.",
-    "en": "No invoices are awaiting approval.",
-    "pt": "Nenhuma fatura aguardando aprovação."
-  },
-  "approvals.no_purchase_orders_awaiting_approval": {
-    "es": "No hay órdenes de compra pendientes de aprobación.",
-    "en": "No purchase orders are awaiting approval.",
-    "pt": "Nenhum pedido de compra aguardando aprovação."
-  },
-  "approvals.purchase_orders": {
-    "es": "Órdenes de Compra",
-    "en": "Purchase Orders",
-    "pt": "Pedidos de Compra"
   },
   "approvals.reason_rejection": {
     "es": "Motivo del rechazo",
@@ -94,16 +69,6 @@
     "en": "Request rejected.",
     "pt": "Solicitação rejeitada."
   },
-  "approvals.requested": {
-    "es": "Solicitado por",
-    "en": "Requested by",
-    "pt": "Solicitado por"
-  },
-  "approvals.requested_who": {
-    "es": "Solicitado por {{who}}",
-    "en": "Requested by {{who}}",
-    "pt": "Solicitado por {{who}}"
-  },
   "approvals.review_approve_reject_every_pending_request": {
     "es": "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.",
     "en": "Review, approve or reject every pending request in the company.",
@@ -113,11 +78,6 @@
     "es": "Paso {{step}}",
     "en": "Step {{step}}",
     "pt": "Etapa {{step}}"
-  },
-  "approvals.vendor_bills": {
-    "es": "Facturas de Proveedores",
-    "en": "Vendor Bills",
-    "pt": "Faturas de Fornecedores"
   },
   "approvals.waiting_your_decision": {
     "es": "Pendientes de tu decisión",

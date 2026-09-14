@@ -193,15 +193,15 @@ export class JournalEntryFormPage implements OnInit {
   loadInitialData(): void {
     this.accountingService.getAccounts().subscribe({
         next: data => this.accounts.set(data),
-        error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_CUENTAS_CONTABLES')
+        error: () => this.notificationService.showError('accounting.journal_entry_form.accounts_load_failed')
     });
     this.ledgersService.getLedgers().subscribe({
       next: data => this.ledgers.set(data),
-      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_LIBROS_MAYORES')
+      error: () => this.notificationService.showError('accounting.journal_entry_form.ledgers_load_failed')
     });
     this.journalsService.getJournals().subscribe({
       next: data => this.journals.set(data),
-      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_DIARIOS')
+      error: () => this.notificationService.showError('accounting.journal_entry_form.journals_load_failed')
     });
   }
 
@@ -279,7 +279,7 @@ export class JournalEntryFormPage implements OnInit {
         this.notificationService.showSuccess(
           editing
             ? 'accounting.journal_entry_form.entry_modified_original_reversed_new_one'
-            : 'ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_CREADO_EXITO',
+            : 'accounting.journal_entry_form.entry_created',
         );
         this.router.navigate(['/accounting/journal-entries']);
       },

@@ -9,11 +9,6 @@
     "en": "As of",
     "pt": "Em"
   },
-  "treasury.balance": {
-    "es": "Saldo",
-    "en": "Balance",
-    "pt": "Saldo"
-  },
   "treasury.balance_books_currency": {
     "es": "Saldo en moneda de los libros",
     "en": "Balance in the books' currency",
@@ -133,11 +128,6 @@
     "es": "Editar cuenta bancaria",
     "en": "Edit bank account",
     "pt": "Editar conta bancária"
-  },
-  "treasury.form.fill_required_fields": {
-    "es": "Complete los campos requeridos.",
-    "en": "Fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "treasury.form.iban": {
     "literal": "IBAN"
@@ -294,10 +284,5 @@
     "es": "Transferencias entre cuentas",
     "en": "Transfers between accounts",
     "pt": "Transferências entre contas"
-  },
-  "treasury.treasury": {
-    "es": "Tesorería",
-    "en": "Treasury",
-    "pt": "Tesouraria"
   }
 }

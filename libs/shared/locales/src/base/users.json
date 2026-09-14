@@ -54,11 +54,6 @@
     "en": "The invitation could not be sent with the details provided.",
     "pt": "Não foi possível enviar o convite com os dados informados."
   },
-  "users.no_department": {
-    "es": "Sin departamento",
-    "en": "No department",
-    "pt": "Sem departamento"
-  },
   "users.no_pending_email_change": {
     "es": "No hay ningún cambio de correo pendiente.",
     "en": "There is no pending email change.",
@@ -88,11 +83,6 @@
     "es": "Acciones",
     "en": "Actions",
     "pt": "Ações"
-  },
-  "users.table.department": {
-    "es": "Departamento",
-    "en": "Department",
-    "pt": "Departamento"
   },
   "users.table.email": {
     "es": "Email",

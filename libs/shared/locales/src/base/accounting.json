@@ -149,11 +149,6 @@
     "en": "Fill in the account's details.",
     "pt": "Preencha as informações detalhadas da conta."
   },
-  "accounting.account_form.fill_every_required_field": {
-    "es": "Por favor, complete todos los campos requeridos.",
-    "en": "Please fill in every required field.",
-    "pt": "Preencha todos os campos obrigatórios."
-  },
   "accounting.account_form.financial_statement_mapping": {
     "es": "Mapeo de Estados Financieros",
     "en": "Financial Statement Mapping",
@@ -233,11 +228,6 @@
     "es": "Guardar Cuenta",
     "en": "Save Account",
     "pt": "Salvar Conta"
-  },
-  "accounting.account_form.saving": {
-    "es": "Guardando...",
-    "en": "Saving...",
-    "pt": "Salvando..."
   },
   "accounting.account_form.segment_structure_not_configured": {
     "es": "Estructura de segmentos no configurada",
@@ -404,9 +394,6 @@
     "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
     "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
   },
-  "accounting.categories.capital": {
-    "literal": "Capital"
-  },
   "accounting.categories.cash": {
     "es": "Efectivo y equivalentes",
     "en": "Cash and equivalents",
@@ -457,6 +444,9 @@
     "en": "Operating revenue",
     "pt": "Receitas operacionais"
   },
+  "accounting.categories.owners_equity": {
+    "literal": "Capital"
+  },
   "accounting.categories.retained_earnings": {
     "es": "Resultados acumulados",
     "en": "Retained earnings",
@@ -466,16 +456,6 @@
     "es": "Cuenta",
     "en": "Account",
     "pt": "Conta"
-  },
-  "accounting.chart_of_accounts.accounting": {
-    "es": "Contabilidad",
-    "en": "Accounting",
-    "pt": "Contabilidade"
-  },
-  "accounting.chart_of_accounts.accounts": {
-    "es": "cuentas",
-    "en": "accounts",
-    "pt": "contas"
   },
   "accounting.chart_of_accounts.actions": {
     "es": "Acciones",
@@ -507,11 +487,6 @@
     "en": "Balance",
     "pt": "Saldo"
   },
-  "accounting.chart_of_accounts.chart": {
-    "es": "Catálogo",
-    "en": "Chart",
-    "pt": "Plano"
-  },
   "accounting.chart_of_accounts.chart_accounts": {
     "es": "Catálogo de Cuentas",
     "en": "Chart of Accounts",
@@ -526,11 +501,6 @@
     "es": "Editar",
     "en": "Edit",
     "pt": "Editar"
-  },
-  "accounting.chart_of_accounts.error_loading_accounts": {
-    "es": "Error al Cargar Cuentas",
-    "en": "Error Loading Accounts",
-    "pt": "Erro ao Carregar Contas"
   },
   "accounting.chart_of_accounts.export": {
     "es": "Exportar",
@@ -557,11 +527,6 @@
     "en": "Search by code or name...",
     "pt": "Buscar por código ou nome..."
   },
-  "accounting.chart_of_accounts.showing": {
-    "es": "Mostrando",
-    "en": "Showing",
-    "pt": "Exibindo"
-  },
   "accounting.chart_of_accounts.showing_count_accounts": {
     "es": "Mostrando {{count}} cuentas",
     "en": "Showing {{count}} accounts",
@@ -587,21 +552,6 @@
     "en": "Closing Checklists",
     "pt": "Listas de Verificação do Fechamento"
   },
-  "accounting.checklist.items.accruals_from_earlier_periods_still_pending": {
-    "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
-    "en": "Accruals from earlier periods still pending reversal: {{count}}",
-    "pt": "Provisões de períodos anteriores ainda pendentes de reversão: {{count}}"
-  },
-  "accounting.checklist.items.count_journal_entries_still_drafts_awaiting_other": {
-    "es": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
-    "en": "{{count}} journal entries are still drafts or awaiting approval.",
-    "pt": "Restam {{count}} lançamentos contábeis em rascunho ou aguardando aprovação."
-  },
-  "accounting.checklist.items.count_vendor_bills_still_drafts_awaiting_other": {
-    "es": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
-    "en": "{{count}} vendor bills are still drafts or awaiting approval.",
-    "pt": "Restam {{count}} faturas de fornecedor em rascunho ou aguardando aprovação."
-  },
   "accounting.checklist.items.currency_revaluation": {
     "es": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
     "en": "Run the foreign-currency revaluation for the period close.",
@@ -612,10 +562,10 @@
     "en": "Run the fixed-asset depreciation for the period.",
     "pt": "Execute a depreciação do ativo imobilizado do período."
   },
-  "accounting.checklist.items.journal_entry_still_draft_awaiting_approval_one": {
-    "es": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
-    "en": "1 journal entry is still a draft or awaiting approval.",
-    "pt": "Resta 1 lançamento contábil em rascunho ou aguardando aprovação."
+  "accounting.checklist.items.pending_accrual_reversals": {
+    "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
+    "en": "Accruals from earlier periods still pending reversal: {{count}}",
+    "pt": "Provisões de períodos anteriores ainda pendentes de reversão: {{count}}"
   },
   "accounting.checklist.items.pending_approvals": {
     "es": "Revisar y procesar todas las solicitudes de aprobación pendientes.",
@@ -632,15 +582,35 @@
     "en": "{{count}} approval requests are still pending.",
     "pt": "Restam {{count}} solicitações de aprovação pendentes."
   },
-  "accounting.checklist.items.review_post_every_journal_entry_still": {
+  "accounting.checklist.items.unapproved_vendor_bills": {
+    "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
+    "en": "Review and post every vendor bill that is still a draft or awaiting approval.",
+    "pt": "Revise e contabilize todas as faturas de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.unapproved_vendor_bills_one": {
+    "es": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
+    "en": "1 vendor bill is still a draft or awaiting approval.",
+    "pt": "Resta 1 fatura de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.unapproved_vendor_bills_other": {
+    "es": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
+    "en": "{{count}} vendor bills are still drafts or awaiting approval.",
+    "pt": "Restam {{count}} faturas de fornecedor em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.unposted_journal_entries": {
     "es": "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.",
     "en": "Review and post every journal entry that is still a draft or awaiting approval.",
     "pt": "Revise e contabilize todos os lançamentos em rascunho ou aguardando aprovação."
   },
-  "accounting.checklist.items.review_post_every_vendor_bill_still": {
-    "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
-    "en": "Review and post every vendor bill that is still a draft or awaiting approval.",
-    "pt": "Revise e contabilize todas as faturas de fornecedor em rascunho ou aguardando aprovação."
+  "accounting.checklist.items.unposted_journal_entries_one": {
+    "es": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
+    "en": "1 journal entry is still a draft or awaiting approval.",
+    "pt": "Resta 1 lançamento contábil em rascunho ou aguardando aprovação."
+  },
+  "accounting.checklist.items.unposted_journal_entries_other": {
+    "es": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
+    "en": "{{count}} journal entries are still drafts or awaiting approval.",
+    "pt": "Restam {{count}} lançamentos contábeis em rascunho ou aguardando aprovação."
   },
   "accounting.checklist.items.unreconciled_bank_transactions": {
     "es": "Conciliar todas las transacciones bancarias del período.",
@@ -656,11 +626,6 @@
     "es": "Quedan {{count}} transacciones bancarias sin conciliar.",
     "en": "{{count}} bank transactions are still unreconciled.",
     "pt": "Restam {{count}} transações bancárias sem conciliar."
-  },
-  "accounting.checklist.items.vendor_bill_still_draft_awaiting_approval_one": {
-    "es": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
-    "en": "1 vendor bill is still a draft or awaiting approval.",
-    "pt": "Resta 1 fatura de fornecedor em rascunho ou aguardando aprovação."
   },
   "accounting.checklist.manual_step": {
     "es": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar.",
@@ -722,30 +687,10 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "accounting.daily_journal.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "accounting.daily_journal.load_failed": {
     "es": "No se pudo cargar el libro diario.",
     "en": "The journal could not be loaded.",
     "pt": "Não foi possível carregar o livro diário."
-  },
-  "accounting.daily_journal.loading": {
-    "es": "Cargando el libro diario…",
-    "en": "Loading the journal…",
-    "pt": "Carregando o livro diário…"
-  },
-  "accounting.daily_journal.no_journal_entries_found_for_this": {
-    "es": "No se encontraron asientos contables en este período.",
-    "en": "No journal entries were found in this period.",
-    "pt": "Nenhum lançamento contábil encontrado neste período."
-  },
-  "accounting.daily_journal.period": {
-    "es": "Período",
-    "en": "Period",
-    "pt": "Período"
   },
   "accounting.default_ledger_cannot_unset_without_designating": {
     "es": "No puede quitar el libro contable por defecto sin designar otro: sin él no es posible contabilizar.",
@@ -847,11 +792,6 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "accounting.general_ledger.filter": {
-    "es": "Filtrar",
-    "en": "Filter",
-    "pt": "Filtrar"
-  },
   "accounting.general_ledger.from": {
     "es": "Desde:",
     "en": "From:",
@@ -866,16 +806,6 @@
     "es": "No se pudo cargar el libro mayor. Inténtalo de nuevo.",
     "en": "The general ledger could not be loaded. Try again.",
     "pt": "Não foi possível carregar o razão geral. Tente novamente."
-  },
-  "accounting.general_ledger.loading_account_details": {
-    "es": "Cargando información de la cuenta...",
-    "en": "Loading account details...",
-    "pt": "Carregando os dados da conta..."
-  },
-  "accounting.general_ledger.loading_general_ledger": {
-    "es": "Cargando datos del libro mayor...",
-    "en": "Loading the general ledger...",
-    "pt": "Carregando o livro razão..."
   },
   "accounting.general_ledger.no_account_has_specified": {
     "es": "No se ha especificado una cuenta.",
@@ -1002,11 +932,6 @@
     "en": "Import Journal Entries",
     "pt": "Importar Lançamentos Contábeis"
   },
-  "accounting.import.journal_entries_imported_successfully": {
-    "es": "Asientos contables importados con éxito.",
-    "en": "Journal entries imported successfully.",
-    "pt": "Lançamentos contábeis importados com sucesso."
-  },
   "accounting.import.line_detail": {
     "es": "Detalle de la línea",
     "en": "Line detail",
@@ -1017,20 +942,10 @@
     "en": "Line {{line}}",
     "pt": "Linha {{line}}"
   },
-  "accounting.import.no_import_confirm": {
-    "es": "No hay una importación para confirmar.",
-    "en": "There is no import to confirm.",
-    "pt": "Não há importação para confirmar."
-  },
   "accounting.import.not_mapped": {
     "es": "Sin asignar",
     "en": "Not mapped",
     "pt": "Não atribuído"
-  },
-  "accounting.import.preview_data_import": {
-    "es": "Previsualización de los datos a importar:",
-    "en": "Preview of the data to import:",
-    "pt": "Prévia dos dados a importar:"
   },
   "accounting.import.preview_import": {
     "es": "Previsualizar importación",
@@ -1041,11 +956,6 @@
     "es": "Obligatorio",
     "en": "Required",
     "pt": "Obrigatório"
-  },
-  "accounting.import.select_file_import": {
-    "es": "Por favor, selecciona un fichero para importar.",
-    "en": "Select a file to import.",
-    "pt": "Selecione um arquivo para importar."
   },
   "accounting.import.selected_file": {
     "es": "Fichero seleccionado:",
@@ -1132,11 +1042,6 @@
     "en": "Entry no.",
     "pt": "N.º do Lançamento"
   },
-  "accounting.journal_entries.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "accounting.journal_entries.journal_entries": {
     "es": "Asientos Contables",
     "en": "Journal Entries",
@@ -1147,20 +1052,10 @@
     "en": "The journal entries could not be loaded.",
     "pt": "Não foi possível carregar os lançamentos contábeis."
   },
-  "accounting.journal_entries.loading": {
-    "es": "Cargando los asientos contables…",
-    "en": "Loading journal entries…",
-    "pt": "Carregando os lançamentos contábeis…"
-  },
   "accounting.journal_entries.new_entry": {
     "es": "Nuevo Asiento",
     "en": "New Entry",
     "pt": "Novo Lançamento"
-  },
-  "accounting.journal_entries.no_journal_entries_found": {
-    "es": "No se encontraron asientos contables.",
-    "en": "No journal entries were found.",
-    "pt": "Nenhum lançamento contábil encontrado."
   },
   "accounting.journal_entries.row_actions": {
     "es": "Más acciones",
@@ -1317,20 +1212,10 @@
     "en": "Only a posted entry can be modified. This one is not posted yet.",
     "pt": "Só é possível modificar um lançamento contabilizado. Este ainda não está."
   },
-  "accounting.journal_entry_form.required_fields_error": {
-    "es": "Completa todos los campos obligatorios.",
-    "en": "Fill in all the required fields.",
-    "pt": "Preencha todos os campos obrigatórios."
-  },
   "accounting.journal_entry_form.save": {
     "es": "Guardar asiento",
     "en": "Save entry",
     "pt": "Salvar lançamento"
-  },
-  "accounting.journal_entry_form.saving": {
-    "es": "Guardando…",
-    "en": "Saving…",
-    "pt": "Salvando…"
   },
   "accounting.journal_entry_form.select_account": {
     "es": "Selecciona una cuenta",
@@ -1482,26 +1367,6 @@
     "en": "Type",
     "pt": "Tipo"
   },
-  "accounting.layout.annual": {
-    "es": "Cierre anual",
-    "en": "Year-End Close",
-    "pt": "Encerramento Anual"
-  },
-  "accounting.layout.checklists": {
-    "es": "Listas de verificación",
-    "en": "Checklists",
-    "pt": "Listas de verificação"
-  },
-  "accounting.layout.month_end": {
-    "es": "Cierre mensual",
-    "en": "Month-End Close",
-    "pt": "Fechamento Mensal"
-  },
-  "accounting.layout.tasks": {
-    "es": "Tareas",
-    "en": "Tasks",
-    "pt": "Tarefas"
-  },
   "accounting.ledger_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -1526,11 +1391,6 @@
     "es": "Error al actualizar el Libro Mayor.",
     "en": "Error updating the ledger.",
     "pt": "Erro ao atualizar o livro razão."
-  },
-  "accounting.ledger_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "accounting.ledger_form.ledger_could_not_loaded": {
     "es": "No se pudo cargar el libro mayor.",
@@ -1622,30 +1482,10 @@
     "en": "Name",
     "pt": "Nome"
   },
-  "accounting.ledger_list.no_ledgers_found": {
-    "es": "No se han encontrado libros contables.",
-    "en": "No ledgers were found.",
-    "pt": "Nenhum livro contábil encontrado."
-  },
   "accounting.ledger_map_updated": {
     "es": "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado.",
     "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
     "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
-  },
-  "accounting.ledger.description": {
-    "es": "Administra tu plan de cuentas, asientos contables y períodos contables.",
-    "en": "Manage your chart of accounts, journal entries, and accounting periods.",
-    "pt": "Gerencie seu plano de contas, lançamentos contábeis e períodos contábeis."
-  },
-  "accounting.ledger.title": {
-    "es": "Libro Mayor",
-    "en": "General Ledger",
-    "pt": "Livro Razão"
-  },
-  "accounting.manual_step_make_sure_you_have": {
-    "es": "Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.",
-    "en": "This is a manual step. Make sure you have run the process before closing.",
-    "pt": "Esta é uma etapa manual. Confirme que executou o processo antes de encerrar."
   },
   "accounting.merge_tool.account_merge_tool": {
     "es": "Herramienta de Fusión de Cuentas",
@@ -1862,51 +1702,6 @@
     "en": "Month-End Close",
     "pt": "Fechamento Mensal"
   },
-  "accounting.nav.chart_of_accounts": {
-    "es": "Catálogo de Cuentas",
-    "en": "Chart of Accounts",
-    "pt": "Plano de Contas"
-  },
-  "accounting.nav.general_journal": {
-    "es": "Libro Diario",
-    "en": "General Journal",
-    "pt": "Livro Diário"
-  },
-  "accounting.nav.general_ledger": {
-    "es": "Libro Mayor",
-    "en": "General Ledger",
-    "pt": "Livro Razão"
-  },
-  "accounting.nav.journal_entries": {
-    "es": "Asientos Contables",
-    "en": "Journal Entries",
-    "pt": "Lançamentos Contábeis"
-  },
-  "accounting.nav.period_close": {
-    "es": "Cierre Contable",
-    "en": "Period Close",
-    "pt": "Fechamento Contábil"
-  },
-  "accounting.nav.periods": {
-    "es": "Períodos",
-    "en": "Periods",
-    "pt": "Períodos"
-  },
-  "accounting.nav.reconciliation": {
-    "es": "Conciliación",
-    "en": "Reconciliation",
-    "pt": "Conciliação"
-  },
-  "accounting.nav.subsidiary_ledgers": {
-    "es": "Libros Auxiliares",
-    "en": "Subsidiary Ledgers",
-    "pt": "Livros Auxiliares"
-  },
-  "accounting.nav.variance_analysis": {
-    "es": "Análisis de Variaciones",
-    "en": "Variance Analysis",
-    "pt": "Análise de Variações"
-  },
   "accounting.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
     "en": "No default ledger has been configured for the organization.",
@@ -1926,11 +1721,6 @@
     "es": "Uno o ambos libros contables no fueron encontrados.",
     "en": "One or both ledgers were not found.",
     "pt": "Um ou ambos os livros contábeis não foram encontrados."
-  },
-  "accounting.opening_journal_apertura_not_found": {
-    "es": "Diario de Apertura (APERTURA) no encontrado.",
-    "en": "The Opening journal (APERTURA) was not found.",
-    "pt": "O diário de Abertura (APERTURA) não foi encontrado."
   },
   "accounting.period_already_closed": {
     "es": "El período ya se encuentra cerrado.",
@@ -1992,11 +1782,6 @@
     "en": "Close Period",
     "pt": "Encerrar Período"
   },
-  "accounting.periods.empty": {
-    "es": "Todavía no hay períodos contables definidos.",
-    "en": "No accounting periods have been defined yet.",
-    "pt": "Ainda não há períodos contábeis definidos."
-  },
   "accounting.periods.end_date": {
     "es": "Fecha de Cierre",
     "en": "End Date",
@@ -2006,11 +1791,6 @@
     "es": "No se pudieron cargar los períodos contables.",
     "en": "The accounting periods could not be loaded.",
     "pt": "Não foi possível carregar os períodos contábeis."
-  },
-  "accounting.periods.loading": {
-    "es": "Cargando los períodos contables…",
-    "en": "Loading accounting periods…",
-    "pt": "Carregando os períodos contábeis…"
   },
   "accounting.periods.period": {
     "es": "Período",
@@ -2027,15 +1807,15 @@
     "en": "The reason must be at least 10 characters long.",
     "pt": "O motivo deve ter pelo menos 10 caracteres."
   },
+  "accounting.periods.reopen_reason_prompt": {
+    "es": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
+    "en": "State why this accounting period is being reopened (at least 10 characters).",
+    "pt": "Informe o motivo da reabertura deste período contábil (mínimo de 10 caracteres)."
+  },
   "accounting.periods.start_date": {
     "es": "Fecha de Inicio",
     "en": "Start Date",
     "pt": "Data de Início"
-  },
-  "accounting.periods.state_why_accounting_period_being_reopened": {
-    "es": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
-    "en": "State why this accounting period is being reopened (at least 10 characters).",
-    "pt": "Informe o motivo da reabertura deste período contábil (mínimo de 10 caracteres)."
   },
   "accounting.periods.status": {
     "es": "Estado",
@@ -2051,11 +1831,6 @@
     "es": "Abierto",
     "en": "Open",
     "pt": "Aberto"
-  },
-  "accounting.query_runner_could_not_obtained_opening": {
-    "es": "No se pudo obtener QueryRunner para el asiento de apertura.",
-    "en": "The query runner could not be obtained for the opening entry.",
-    "pt": "Não foi possível obter o query runner para o lançamento de abertura."
   },
   "accounting.reconciliation.adjusted_balance_per_bank": {
     "es": "Saldo ajustado según el banco",
@@ -2086,11 +1861,6 @@
     "es": "Saldo según libros",
     "en": "Balance per the books",
     "pt": "Saldo segundo os livros"
-  },
-  "accounting.reconciliation.bank_movements": {
-    "es": "Movimientos del banco",
-    "en": "Bank movements",
-    "pt": "Movimentos do banco"
   },
   "accounting.reconciliation.bank_movements_not_yet_recorded": {
     "es": "Movimientos del banco no registrados",
@@ -2247,11 +2017,6 @@
     "en": "Match",
     "pt": "Conciliar"
   },
-  "accounting.reconciliation.matched_rule": {
-    "es": "Conciliado por regla",
-    "en": "Matched by rule",
-    "pt": "Conciliado por regra"
-  },
   "accounting.reconciliation.no_ledger_line_matches_movement": {
     "es": "Ninguna línea contable coincide con este movimiento.",
     "en": "No ledger line matches this movement.",
@@ -2271,11 +2036,6 @@
     "es": "No se pudo completar la operación.",
     "en": "The operation could not be completed.",
     "pt": "Não foi possível concluir a operação."
-  },
-  "accounting.reconciliation.period": {
-    "es": "Período",
-    "en": "Period",
-    "pt": "Período"
   },
   "accounting.reconciliation.proof": {
     "es": "Cuadre",
@@ -2347,11 +2107,6 @@
     "en": "Undo",
     "pt": "Desfazer"
   },
-  "accounting.reopening_journal_reapertura_not_found": {
-    "es": "Diario de Reapertura (REAPERTURA) no encontrado.",
-    "en": "The Reopening journal (REAPERTURA) was not found.",
-    "pt": "O diário de Reabertura (REAPERTURA) não foi encontrado."
-  },
   "accounting.retained_earnings_account_not_configured_organization": {
     "es": "La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.",
     "en": "The Retained Earnings account is not configured for the organization.",
@@ -2366,16 +2121,6 @@
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
-  },
-  "accounting.segment_configuration.chart_accounts": {
-    "es": "Catálogo de Cuentas",
-    "en": "Chart of Accounts",
-    "pt": "Plano de Contas"
-  },
-  "accounting.segment_configuration.correct_errors_form": {
-    "es": "Por favor, corrija los errores en el formulario.",
-    "en": "Please correct the errors on the form.",
-    "pt": "Corrija os erros do formulário."
   },
   "accounting.segment_configuration.default_structure_initialized": {
     "es": "Estructura por defecto inicializada.",
@@ -2452,11 +2197,6 @@
     "en": "Save Structure",
     "pt": "Salvar Estrutura"
   },
-  "accounting.segment_configuration.saving": {
-    "es": "Guardando...",
-    "en": "Saving...",
-    "pt": "Salvando..."
-  },
   "accounting.segment_configuration.segment_configuration": {
     "es": "Configuración de Segmentos",
     "en": "Segment Configuration",
@@ -2527,25 +2267,10 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "accounting.subsidiary_ledgers.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "accounting.subsidiary_ledgers.final_balance": {
     "es": "Saldo Final",
     "en": "Ending Balance",
     "pt": "Saldo Final"
-  },
-  "accounting.subsidiary_ledgers.load_failed": {
-    "es": "No se pudo cargar el libro auxiliar.",
-    "en": "The subsidiary ledger could not be loaded.",
-    "pt": "Não foi possível carregar o livro auxiliar."
-  },
-  "accounting.subsidiary_ledgers.loading": {
-    "es": "Cargando el libro auxiliar…",
-    "en": "Loading the subsidiary ledger…",
-    "pt": "Carregando o livro auxiliar…"
   },
   "accounting.subsidiary_ledgers.no_movements_found_for_this_auxiliary": {
     "es": "No se encontraron movimientos para este auxiliar en el período seleccionado.",
@@ -2561,11 +2286,6 @@
     "es": "Saldo de apertura",
     "en": "Opening balance",
     "pt": "Saldo de abertura"
-  },
-  "accounting.subsidiary_ledgers.period": {
-    "es": "Período",
-    "en": "Period",
-    "pt": "Período"
   },
   "accounting.subsidiary_ledgers.reference": {
     "es": "N.º de Referencia",
@@ -2597,26 +2317,6 @@
     "en": "The transaction date {{p1}} does not fall in any defined accounting period.",
     "pt": "A data da transação {{p1}} não pertence a nenhum período contábil definido."
   },
-  "accounting.transaction_query_runner_could_not_obtained": {
-    "es": "No se pudo obtener el Query Runner de la transacción.",
-    "en": "The transaction's query runner could not be obtained.",
-    "pt": "Não foi possível obter o query runner da transação."
-  },
-  "accounting.transaction_query_runner_could_not_obtained_create_closing_entry": {
-    "es": "No se pudo obtener el Query Runner de la transacción para crear el asiento de cierre.",
-    "en": "The transaction's query runner could not be obtained to create the closing entry.",
-    "pt": "Não foi possível obter o query runner da transação para criar o lançamento de encerramento."
-  },
-  "accounting.transaction_query_runner_could_not_obtained_opening_entry": {
-    "es": "No se pudo obtener el Query Runner de la transacción para el asiento de apertura.",
-    "en": "The transaction's query runner could not be obtained for the opening entry.",
-    "pt": "Não foi possível obter o query runner da transação para o lançamento de abertura."
-  },
-  "accounting.unknown_module_module": {
-    "es": "Módulo desconocido: {{module}}",
-    "en": "Unknown module: {{module}}",
-    "pt": "Módulo desconhecido: {{module}}"
-  },
   "accounting.variance_analysis.account": {
     "es": "Cuenta",
     "en": "Account",
@@ -2636,16 +2336,6 @@
     "es": "Exportar",
     "en": "Export",
     "pt": "Exportar"
-  },
-  "accounting.variance_analysis.load_failed": {
-    "es": "No se pudo cargar el análisis de variaciones.",
-    "en": "The variance analysis could not be loaded.",
-    "pt": "Não foi possível carregar a análise de variações."
-  },
-  "accounting.variance_analysis.loading": {
-    "es": "Cargando el análisis de variaciones…",
-    "en": "Loading the variance analysis…",
-    "pt": "Carregando a análise de variações…"
   },
   "accounting.variance_analysis.no_data_available_for_variance_analysis": {
     "es": "No hay datos disponibles para el análisis de variaciones.",
@@ -2671,10 +2361,5 @@
     "es": "Variación (%)",
     "en": "Variance (%)",
     "pt": "Variação (%)"
-  },
-  "accounting.year_end_closing_journal_cierre_anual": {
-    "es": "Diario de Cierre Anual (CIERRE-ANUAL) no encontrado.",
-    "en": "The Year-End Closing journal (CIERRE-ANUAL) was not found.",
-    "pt": "O diário de Encerramento Anual (CIERRE-ANUAL) não foi encontrado."
   }
 }

@@ -119,9 +119,9 @@
     "en": "Document type",
     "pt": "Tipo de documento"
   },
-  "hcm.employees.form.document_type.national_id": {
-    "en": "National ID",
+  "hcm.employees.form.document_type.cedula": {
     "es": "Documento de identidad",
+    "en": "National ID",
     "pt": "Documento de identidade"
   },
   "hcm.employees.form.document_type.passport": {
@@ -129,9 +129,9 @@
     "en": "Passport",
     "pt": "Passaporte"
   },
-  "hcm.employees.form.document_type.tax_id": {
-    "en": "Tax ID",
+  "hcm.employees.form.document_type.rnc": {
     "es": "Identificación fiscal",
+    "en": "Tax ID",
     "pt": "Identificação fiscal"
   },
   "hcm.employees.form.effective_from": {
@@ -159,7 +159,7 @@
     "en": "Frequency",
     "pt": "Frequência"
   },
-  "hcm.employees.form.frequency_label.fortnightly": {
+  "hcm.employees.form.frequency_label.biweekly": {
     "es": "Quincenal",
     "en": "Fortnightly",
     "pt": "Quinzenal"
@@ -328,15 +328,15 @@
     "en": "Active",
     "pt": "Ativo"
   },
-  "hcm.employees.status_label.left": {
-    "es": "Desvinculado",
-    "en": "Left",
-    "pt": "Desligado"
-  },
   "hcm.employees.status_label.suspended": {
     "es": "Suspendido",
     "en": "Suspended",
     "pt": "Suspenso"
+  },
+  "hcm.employees.status_label.terminated": {
+    "es": "Desvinculado",
+    "en": "Left",
+    "pt": "Desligado"
   },
   "hcm.employees.title": {
     "es": "Empleados",

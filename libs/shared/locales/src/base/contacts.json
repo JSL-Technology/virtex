@@ -89,11 +89,6 @@
     "en": "Designated withholding agent",
     "pt": "Agente de retenção designado"
   },
-  "contacts.customer_form.dominican_republic": {
-    "es": "República Dominicana",
-    "en": "Dominican Republic",
-    "pt": "República Dominicana"
-  },
   "contacts.customer_form.email": {
     "es": "Correo Electrónico*",
     "en": "Email*",
@@ -108,11 +103,6 @@
     "es": "Error al actualizar el cliente.",
     "en": "Error updating the customer.",
     "pt": "Erro ao atualizar o cliente."
-  },
-  "contacts.customer_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "contacts.customer_form.fill_your_customer_details": {
     "es": "Completa la información detallada de tu cliente.",
@@ -189,11 +179,6 @@
     "en": "Unclassified",
     "pt": "Sem classificação"
   },
-  "contacts.customer_form.united_states": {
-    "es": "Estados Unidos",
-    "en": "United States",
-    "pt": "Estados Unidos"
-  },
   "contacts.customers.actions": {
     "es": "Acciones",
     "en": "Actions",
@@ -249,25 +234,10 @@
     "en": "Email",
     "pt": "E-mail"
   },
-  "contacts.customers.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
-  "contacts.customers.loading_customers": {
-    "es": "Cargando clientes...",
-    "en": "Loading customers...",
-    "pt": "Carregando clientes..."
-  },
   "contacts.customers.manage_your_customer_database_history": {
     "es": "Administra tu base de datos de clientes y su historial.",
     "en": "Manage your customer database and its history.",
     "pt": "Gerencie sua base de clientes e o histórico deles."
-  },
-  "contacts.customers.no_customers_record": {
-    "es": "No hay clientes registrados.",
-    "en": "There are no customers on record.",
-    "pt": "Não há clientes cadastrados."
   },
   "contacts.customers.phone": {
     "es": "Teléfono",
@@ -304,16 +274,6 @@
     "en": "Email",
     "pt": "E-mail"
   },
-  "contacts.suppliers.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
-  "contacts.suppliers.loading_suppliers": {
-    "es": "Cargando proveedores...",
-    "en": "Loading suppliers...",
-    "pt": "Carregando fornecedores..."
-  },
   "contacts.suppliers.manage_your_suppliers_information": {
     "es": "Administra la información de tus proveedores.",
     "en": "Manage your suppliers' information.",
@@ -323,11 +283,6 @@
     "es": "Nuevo Proveedor",
     "en": "New Supplier",
     "pt": "Novo Fornecedor"
-  },
-  "contacts.suppliers.no_suppliers_record": {
-    "es": "No hay proveedores registrados.",
-    "en": "There are no suppliers on record.",
-    "pt": "Não há fornecedores cadastrados."
   },
   "contacts.suppliers.phone": {
     "es": "Teléfono",

@@ -69,7 +69,7 @@ export class RolesManagementPage implements OnInit {
     this.rolesService.getRoles().subscribe({
       next: (roles: Role[]) => this.roles.set(roles),
       error: () =>
-        this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_ROLES'),
+        this.notificationService.showError('settings.roles.errors.load_roles'),
     });
   }
 
@@ -84,7 +84,7 @@ export class RolesManagementPage implements OnInit {
   private loadPermissions(): void {
     this.rolesService.getAvailablePermissions().subscribe({
       next: (groups) => this.permissionGroups.set(groups),
-      error: () => this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_PERMISSIONS'),
+      error: () => this.notificationService.showError('settings.roles.errors.load_permissions'),
     });
   }
 

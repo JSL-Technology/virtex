@@ -19,11 +19,6 @@
     "en": "Exchange rate recorded successfully.",
     "pt": "Taxa de câmbio registrada com sucesso."
   },
-  "currencies.exchange_rates_date_could_not_retrieved": {
-    "es": "No se pudieron obtener las tasas de cambio del {{date}}.",
-    "en": "Exchange rates for {{date}} could not be retrieved.",
-    "pt": "Não foi possível obter as taxas de câmbio de {{date}}."
-  },
   "currencies.exchange_rates_updated": {
     "es": "Tasas de cambio actualizadas exitosamente.",
     "en": "Exchange rates updated.",
@@ -39,11 +34,6 @@
     "en": "Future rates cannot be requested: {{endDate}} is later than today ({{today}}).",
     "pt": "Não é possível consultar taxas futuras: {{endDate}} é posterior a hoje ({{today}})."
   },
-  "currencies.general_journal_general_not_found": {
-    "es": "Diario General (GENERAL) no encontrado.",
-    "en": "The General journal (GENERAL) was not found.",
-    "pt": "O diário Geral (GENERAL) não foi encontrado."
-  },
   "currencies.historical_backfill_complete_days_days_processed": {
     "es": "Relleno histórico completado: {{days}} días procesados, {{updated}} tasas almacenadas, {{failed}} días sin datos.",
     "en": "Historical backfill complete: {{days}} days processed, {{updated}} rates stored, {{failed}} days without data.",
@@ -58,11 +48,6 @@
     "es": "No hay divisas para actualizar.",
     "en": "There are no currencies to update.",
     "pt": "Não há moedas para atualizar."
-  },
-  "currencies.no_default_ledger_has_configured_organization": {
-    "es": "No se ha configurado un libro contable por defecto para la organización.",
-    "en": "No default ledger has been configured for the organization.",
-    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
   },
   "currencies.no_exchange_rate_from_from_force": {
     "es": "No se encontró una tasa de cambio de {{from}} a {{to}} vigente al {{date}}.",

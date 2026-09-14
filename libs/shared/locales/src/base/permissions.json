@@ -94,7 +94,7 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "permissions.actions.force_sign_out": {
+  "permissions.actions.force_logout": {
     "es": "Forzar cierre de sesión",
     "en": "Force sign out",
     "pt": "Forçar encerramento de sessão"
@@ -189,11 +189,6 @@
     "en": "Query",
     "pt": "Consultar"
   },
-  "permissions.actions.record_movements": {
-    "es": "Registrar movimientos",
-    "en": "Record movements",
-    "pt": "Registar movimentos"
-  },
   "permissions.actions.reopen_period": {
     "es": "Reabrir período",
     "en": "Reopen period",
@@ -218,6 +213,11 @@
     "es": "Revocar sesiones",
     "en": "Revoke sessions",
     "pt": "Revogar sessões"
+  },
+  "permissions.actions.transact": {
+    "es": "Registrar movimientos",
+    "en": "Record movements",
+    "pt": "Registar movimentos"
   },
   "permissions.actions.transfer": {
     "es": "Transferir",
@@ -379,7 +379,7 @@
     "en": "Extensions",
     "pt": "Extensões"
   },
-  "permissions.groups.financial_statements": {
+  "permissions.groups.financials": {
     "es": "Estados financieros",
     "en": "Financial statements",
     "pt": "Demonstrações financeiras"

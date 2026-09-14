@@ -1,19 +1,4 @@
 {
-  "checkout.activating": {
-    "es": "Estamos activando tu cuenta. Esto solo tomará unos segundos.",
-    "en": "We're activating your account. This will only take a few seconds.",
-    "pt": "Estamos ativando sua conta. Isso levará apenas alguns segundos."
-  },
-  "checkout.confirmed": {
-    "es": "¡Pago confirmado!",
-    "en": "Payment confirmed.",
-    "pt": "Pagamento confirmado."
-  },
-  "checkout.go_to_login": {
-    "es": "Ir a iniciar sesión",
-    "en": "Go to sign in",
-    "pt": "Ir para o login"
-  },
   "checkout.no_session": {
     "es": "No encontramos la sesión de pago.",
     "en": "We couldn't find your payment session.",

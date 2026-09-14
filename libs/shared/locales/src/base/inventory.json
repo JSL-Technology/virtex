@@ -14,11 +14,6 @@
     "en": "Categories",
     "pt": "Categorias"
   },
-  "inventory.categories.category_list_management_will_appear_here": {
-    "es": "Aquí se mostrará la lista y gestión de categorías.",
-    "en": "The category list and its management will appear here.",
-    "pt": "A lista e a gestão de categorias aparecerão aqui."
-  },
   "inventory.categories.code": {
     "es": "Código",
     "en": "Code",
@@ -134,11 +129,6 @@
     "en": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",
     "pt": "Estoque insuficiente para \"{{name}}\": {{available}} disponíveis, {{quantity}} solicitadas."
   },
-  "inventory.not_enough_stock_product_name": {
-    "es": "Stock insuficiente para el producto \"{{name}}\".",
-    "en": "Not enough stock for the product \"{{name}}\".",
-    "pt": "Estoque insuficiente para o produto \"{{name}}\"."
-  },
   "inventory.organization_has_no_inventory_inventory_adjustment": {
     "es": "La organización no tiene configuradas las cuentas de inventario y de ajustes de inventario; no se puede registrar el ajuste.",
     "en": "This organization has no inventory and inventory-adjustment accounts configured, so the adjustment cannot be recorded.",
@@ -188,11 +178,6 @@
     "es": "Completa la información detallada de tu producto o servicio.",
     "en": "Fill in the details of your product or service.",
     "pt": "Preencha os dados do seu produto ou serviço."
-  },
-  "inventory.product_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "inventory.product_form.inactive": {
     "es": "Inactivo",
@@ -269,11 +254,6 @@
     "en": "Save product",
     "pt": "Salvar produto"
   },
-  "inventory.product_form.select": {
-    "es": "Seleccionar...",
-    "en": "Select...",
-    "pt": "Selecionar..."
-  },
   "inventory.product_form.sku_product_code": {
     "es": "SKU (Código de Producto)",
     "en": "SKU (Product Code)",
@@ -319,11 +299,6 @@
     "en": "Product \"{{productId}}\" was not found in this organization.",
     "pt": "Produto \"{{productId}}\" não encontrado nesta organização."
   },
-  "inventory.product_product_id_not_found_transaction": {
-    "es": "Producto con ID \"{{productId}}\" no encontrado en la transacción.",
-    "en": "Product \"{{productId}}\" was not found in the transaction.",
-    "pt": "Produto \"{{productId}}\" não encontrado na transação."
-  },
   "inventory.products.category": {
     "es": "Categoría",
     "en": "Category",
@@ -354,11 +329,6 @@
     "en": "The products could not be loaded. Try again.",
     "pt": "Não foi possível carregar os produtos. Tente novamente."
   },
-  "inventory.products.loading_products": {
-    "es": "Cargando productos...",
-    "en": "Loading products...",
-    "pt": "Carregando produtos..."
-  },
   "inventory.products.manage_every_product_service_your_company": {
     "es": "Gestiona todos los productos y servicios de tu empresa.",
     "en": "Manage every product and service your company offers.",
@@ -368,11 +338,6 @@
     "es": "Nuevo Producto",
     "en": "New Product",
     "pt": "Novo Produto"
-  },
-  "inventory.products.no_products_found": {
-    "es": "No se encontraron productos.",
-    "en": "No products were found.",
-    "pt": "Nenhum produto encontrado."
   },
   "inventory.products.price": {
     "es": "Precio",
@@ -423,10 +388,5 @@
     "es": "Agotado",
     "en": "Out of stock",
     "pt": "Esgotado"
-  },
-  "inventory.products.try_adjusting_your_search_create_new": {
-    "es": "Intenta ajustar tu búsqueda o crea un nuevo producto.",
-    "en": "Try adjusting your search, or create a new product.",
-    "pt": "Tente ajustar sua busca ou crie um novo produto."
   }
 }

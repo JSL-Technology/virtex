@@ -14,20 +14,10 @@
     "en": "Country",
     "pt": "País"
   },
-  "masters.banks.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.banks.new_bank": {
     "es": "Nuevo banco",
     "en": "New bank",
     "pt": "Novo banco"
-  },
-  "masters.banks.no_banks_configured": {
-    "es": "No hay bancos configurados.",
-    "en": "No banks are configured.",
-    "pt": "Nenhum banco configurado."
   },
   "masters.banks.swift_code": {
     "es": "Código SWIFT",
@@ -49,11 +39,6 @@
     "en": "City",
     "pt": "Cidade"
   },
-  "masters.branches.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.branches.name": {
     "es": "Nombre",
     "en": "Name",
@@ -63,11 +48,6 @@
     "es": "Nueva sucursal",
     "en": "New branch",
     "pt": "Nova filial"
-  },
-  "masters.branches.no_branches_configured": {
-    "es": "No hay sucursales configuradas.",
-    "en": "No branches are configured.",
-    "pt": "Nenhuma filial configurada."
   },
   "masters.branches.phone": {
     "es": "Teléfono",
@@ -94,20 +74,10 @@
     "en": "Currency name",
     "pt": "Nome da moeda"
   },
-  "masters.currencies.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.currencies.new_currency": {
     "es": "Nueva moneda",
     "en": "New currency",
     "pt": "Nova moeda"
-  },
-  "masters.currencies.no_currencies_configured": {
-    "es": "No hay monedas configuradas.",
-    "en": "No currencies are configured.",
-    "pt": "Nenhuma moeda configurada."
   },
   "masters.currencies.symbol": {
     "es": "Símbolo",
@@ -118,221 +88,6 @@
     "es": "Sí",
     "en": "Yes",
     "pt": "Sim"
-  },
-  "masters.customer_form.address": {
-    "es": "Dirección",
-    "en": "Address",
-    "pt": "Endereço"
-  },
-  "masters.customer_form.cancel": {
-    "es": "Cancelar",
-    "en": "Cancel",
-    "pt": "Cancelar"
-  },
-  "masters.customer_form.city": {
-    "es": "Ciudad",
-    "en": "City",
-    "pt": "Cidade"
-  },
-  "masters.customer_form.company_name": {
-    "es": "Nombre de empresa*",
-    "en": "Company name*",
-    "pt": "Nome da empresa*"
-  },
-  "masters.customer_form.contact_person": {
-    "es": "Persona de contacto",
-    "en": "Contact person",
-    "pt": "Pessoa de contato"
-  },
-  "masters.customer_form.country": {
-    "es": "País*",
-    "en": "Country*",
-    "pt": "País*"
-  },
-  "masters.customer_form.customer_could_not_loaded": {
-    "es": "No se pudo cargar el cliente.",
-    "en": "The customer could not be loaded.",
-    "pt": "Não foi possível carregar o cliente."
-  },
-  "masters.customer_form.customer_created": {
-    "es": "Cliente creado exitosamente.",
-    "en": "Customer created.",
-    "pt": "Cliente criado."
-  },
-  "masters.customer_form.customer_updated": {
-    "es": "Cliente actualizado exitosamente.",
-    "en": "Customer updated.",
-    "pt": "Cliente atualizado."
-  },
-  "masters.customer_form.email": {
-    "es": "Correo*",
-    "en": "Email*",
-    "pt": "E-mail*"
-  },
-  "masters.customer_form.error_creating_customer": {
-    "es": "Error al crear el cliente.",
-    "en": "Error creating the customer.",
-    "pt": "Erro ao criar o cliente."
-  },
-  "masters.customer_form.error_updating_customer": {
-    "es": "Error al actualizar el cliente.",
-    "en": "Error updating the customer.",
-    "pt": "Erro ao atualizar o cliente."
-  },
-  "masters.customer_form.fill_customer_billing_contact_details": {
-    "es": "Completa la información del cliente para facturación y contacto.",
-    "en": "Fill in the customer's billing and contact details.",
-    "pt": "Preencha os dados de faturamento e contato do cliente."
-  },
-  "masters.customer_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
-  },
-  "masters.customer_form.general_information": {
-    "es": "Información General",
-    "en": "General Information",
-    "pt": "Informações Gerais"
-  },
-  "masters.customer_form.phone": {
-    "es": "Teléfono*",
-    "en": "Phone*",
-    "pt": "Telefone*"
-  },
-  "masters.customer_form.postal_code": {
-    "es": "Código Postal",
-    "en": "Postal Code",
-    "pt": "CEP"
-  },
-  "masters.customer_form.province_state": {
-    "es": "Provincia/Estado",
-    "en": "Province/State",
-    "pt": "Estado/Província"
-  },
-  "masters.customer_form.rnc_nif": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
-  },
-  "masters.customer_form.save_customer": {
-    "es": "Guardar Cliente",
-    "en": "Save Customer",
-    "pt": "Salvar Cliente"
-  },
-  "masters.customer_list.company_name": {
-    "es": "Razón social",
-    "en": "Legal name",
-    "pt": "Razão social"
-  },
-  "masters.customer_list.customers": {
-    "es": "Clientes",
-    "en": "Customers",
-    "pt": "Clientes"
-  },
-  "masters.customer_list.email": {
-    "es": "Email",
-    "en": "Email",
-    "pt": "E-mail"
-  },
-  "masters.customer_list.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
-  "masters.customer_list.location": {
-    "es": "Ubicación",
-    "en": "Location",
-    "pt": "Localização"
-  },
-  "masters.customer_list.new_customer": {
-    "es": "Nuevo cliente",
-    "en": "New customer",
-    "pt": "Novo cliente"
-  },
-  "masters.customer_list.no_customers_found_start_by_adding": {
-    "es": "No se encontraron clientes. Empieza agregando uno.",
-    "en": "No customers were found. Start by adding one.",
-    "pt": "Nenhum cliente encontrado. Comece adicionando um."
-  },
-  "masters.customer_list.phone": {
-    "es": "Phone",
-    "en": "Phone",
-    "pt": "Telefone"
-  },
-  "masters.customer_list.tax_id": {
-    "es": "Identificación fiscal",
-    "en": "Tax ID",
-    "pt": "Identificação fiscal"
-  },
-  "masters.layout.banks": {
-    "es": "Bancos",
-    "en": "Banks",
-    "pt": "Bancos"
-  },
-  "masters.layout.branches": {
-    "es": "Sucursales",
-    "en": "Branches",
-    "pt": "Filiais"
-  },
-  "masters.layout.currencies": {
-    "es": "Monedas",
-    "en": "Currencies",
-    "pt": "Moedas"
-  },
-  "masters.layout.customers": {
-    "es": "Clientes",
-    "en": "Customers",
-    "pt": "Clientes"
-  },
-  "masters.layout.manage_your_organization_master_data": {
-    "es": "Administra los datos maestros de tu organización.",
-    "en": "Manage your organization's master data.",
-    "pt": "Gerencie os dados mestres da sua organização."
-  },
-  "masters.layout.master_data": {
-    "es": "Datos maestros",
-    "en": "Master data",
-    "pt": "Dados mestres"
-  },
-  "masters.layout.payment_methods": {
-    "es": "Formas de pago",
-    "en": "Payment methods",
-    "pt": "Formas de pagamento"
-  },
-  "masters.layout.payment_terms": {
-    "es": "Condiciones de pago",
-    "en": "Payment terms",
-    "pt": "Condições de pagamento"
-  },
-  "masters.layout.price_lists": {
-    "es": "Listas de precios",
-    "en": "Price lists",
-    "pt": "Tabelas de preços"
-  },
-  "masters.layout.products": {
-    "es": "Productos",
-    "en": "Products & Services",
-    "pt": "Produtos"
-  },
-  "masters.layout.suppliers": {
-    "es": "Proveedores",
-    "en": "Suppliers",
-    "pt": "Fornecedores"
-  },
-  "masters.layout.taxes": {
-    "es": "Impuestos",
-    "en": "Taxes",
-    "pt": "Impostos"
-  },
-  "masters.layout.units": {
-    "es": "Unidades",
-    "en": "Units",
-    "pt": "Unidades"
-  },
-  "masters.layout.warehouses": {
-    "es": "Almacenes",
-    "en": "Warehouses",
-    "pt": "Depósitos"
   },
   "masters.payment_methods.default_method": {
     "es": "Forma predeterminada",
@@ -426,11 +181,6 @@
   },
   "masters.price_lists_form.eur_euro": {
     "literal": "EUR - Euro"
-  },
-  "masters.price_lists_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "masters.price_lists_form.list_name": {
     "es": "Nombre de la Lista*",
@@ -532,20 +282,10 @@
     "en": "Edit",
     "pt": "Editar"
   },
-  "masters.price_lists.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.price_lists.items": {
     "es": "Ítems",
     "en": "Items",
     "pt": "Itens"
-  },
-  "masters.price_lists.loading_price_lists": {
-    "es": "Cargando listas de precios...",
-    "en": "Loading price lists...",
-    "pt": "Carregando tabelas de preços..."
   },
   "masters.price_lists.name": {
     "es": "Nombre",
@@ -556,11 +296,6 @@
     "es": "Nueva Lista",
     "en": "New List",
     "pt": "Nova Tabela"
-  },
-  "masters.price_lists.no_price_lists_found": {
-    "es": "No se encontraron listas de precios.",
-    "en": "No price lists were found.",
-    "pt": "Nenhuma tabela de preços encontrada."
   },
   "masters.price_lists.price_list_could_not_deleted": {
     "es": "No se pudo eliminar la lista de precios.",
@@ -637,11 +372,6 @@
     "en": "Error updating the supplier.",
     "pt": "Erro ao atualizar o fornecedor."
   },
-  "masters.supplier_form.fill_required_fields": {
-    "es": "Por favor, completa los campos requeridos.",
-    "en": "Please fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
-  },
   "masters.supplier_form.fill_your_supplier_details": {
     "es": "Completa la información detallada de tu proveedor.",
     "en": "Fill in your supplier's details.",
@@ -712,20 +442,10 @@
     "en": "Email",
     "pt": "E-mail"
   },
-  "masters.supplier_list.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.supplier_list.new_supplier": {
     "es": "Nuevo proveedor",
     "en": "New supplier",
     "pt": "Novo fornecedor"
-  },
-  "masters.supplier_list.no_suppliers_found": {
-    "es": "No se encontraron proveedores.",
-    "en": "No suppliers were found.",
-    "pt": "Nenhum fornecedor encontrado."
   },
   "masters.supplier_list.phone": {
     "es": "Teléfono",
@@ -771,11 +491,6 @@
     "es": "Error al actualizar el impuesto.",
     "en": "Error updating the tax.",
     "pt": "Erro ao atualizar o imposto."
-  },
-  "masters.tax_form.fill_required_fields": {
-    "es": "Por favor, complete los campos requeridos.",
-    "en": "Fill in the required fields.",
-    "pt": "Preencha os campos obrigatórios."
   },
   "masters.tax_form.name_placeholder": {
     "es": "Ej: IVA general",
@@ -837,11 +552,6 @@
     "en": "Error deleting the tax.",
     "pt": "Erro ao excluir o imposto."
   },
-  "masters.taxes.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.taxes.name": {
     "es": "Nombre",
     "en": "Name",
@@ -851,11 +561,6 @@
     "es": "Nuevo impuesto",
     "en": "New tax",
     "pt": "Novo imposto"
-  },
-  "masters.taxes.no_taxes_configured": {
-    "es": "No hay impuestos configurados.",
-    "en": "No taxes are configured.",
-    "pt": "Nenhum imposto configurado."
   },
   "masters.taxes.rate": {
     "es": "Tasa (%)",
@@ -882,11 +587,6 @@
     "en": "Type",
     "pt": "Tipo"
   },
-  "masters.units_of_measure.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "masters.units_of_measure.name": {
     "es": "Nombre",
     "en": "Name",
@@ -896,11 +596,6 @@
     "es": "Nueva unidad",
     "en": "New unit",
     "pt": "Nova unidade"
-  },
-  "masters.units_of_measure.no_units_measure_configured": {
-    "es": "No hay unidades de medida configuradas.",
-    "en": "No units of measure are configured.",
-    "pt": "Nenhuma unidade de medida configurada."
   },
   "masters.units_of_measure.symbol": {
     "es": "Símbolo",
@@ -921,11 +616,6 @@
     "es": "Activo",
     "en": "Active",
     "pt": "Ativo"
-  },
-  "masters.warehouses.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
   },
   "masters.warehouses.inactive": {
     "es": "Inactivo",
@@ -951,11 +641,6 @@
     "es": "Nuevo almacén",
     "en": "New warehouse",
     "pt": "Novo depósito"
-  },
-  "masters.warehouses.no_warehouses_configured": {
-    "es": "No hay almacenes configurados.",
-    "en": "No warehouses are configured.",
-    "pt": "Nenhum depósito configurado."
   },
   "masters.warehouses.status": {
     "es": "Estado",

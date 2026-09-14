@@ -44,11 +44,6 @@
     "en": "Continue",
     "pt": "Continuar"
   },
-  "common.copied": {
-    "es": "Copiado",
-    "en": "Copied",
-    "pt": "Copiado"
-  },
   "common.copy": {
     "es": "Copiar",
     "en": "Copy",
@@ -169,11 +164,6 @@
     "en": "Save",
     "pt": "Salvar"
   },
-  "common.sending": {
-    "es": "Enviando...",
-    "en": "Sending...",
-    "pt": "Enviando..."
-  },
   "common.single_file_expected": {
     "es": "Single file expected",
     "en": "A single file is expected.",
@@ -194,7 +184,7 @@
     "en": "Error",
     "pt": "Erro"
   },
-  "common.toast.information": {
+  "common.toast.info": {
     "es": "Información",
     "en": "Information",
     "pt": "Informação"
@@ -213,10 +203,5 @@
     "en": "You selected too many files.",
     "es": "Seleccionaste demasiados archivos.",
     "pt": "Selecionaste demasiados ficheiros."
-  },
-  "common.verify": {
-    "es": "Verificar",
-    "en": "Verify",
-    "pt": "Verificar"
   }
 }

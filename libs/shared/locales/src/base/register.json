@@ -64,11 +64,6 @@
     "en": "Email",
     "pt": "E-mail"
   },
-  "register.employees": {
-    "es": "Empleados",
-    "en": "Employees",
-    "pt": "Funcionários"
-  },
   "register.errors.code_invalid": {
     "es": "Código incorrecto. Inténtalo de nuevo.",
     "en": "That code isn't right. Please try again.",
@@ -83,16 +78,6 @@
     "es": "El enlace de confirmación ha expirado o no es válido. Ingresa el código manualmente.",
     "en": "That confirmation link has expired or isn't valid. Enter the code by hand instead.",
     "pt": "O link de confirmação expirou ou é inválido. Digite o código manualmente."
-  },
-  "register.errors.country_list": {
-    "es": "No se pudo cargar la lista de países. Recarga la página para continuar con el registro.",
-    "en": "We couldn't load the country list. Reload the page to continue signing up.",
-    "pt": "Não foi possível carregar a lista de países. Recarregue a página para continuar o cadastro."
-  },
-  "register.errors.email_already_registered": {
-    "es": "Este correo ya está registrado.",
-    "en": "That email is already registered.",
-    "pt": "Este e-mail já está cadastrado."
   },
   "register.errors.email_invalid": {
     "es": "Escribe un correo electrónico válido.",
@@ -149,11 +134,6 @@
     "en": "Please complete the required fields correctly.",
     "pt": "Preencha corretamente os campos obrigatórios."
   },
-  "register.errors.server_error": {
-    "es": "Error al registrarse. Intente nuevamente.",
-    "en": "Error registering. Please try again.",
-    "pt": "Erro ao cadastrar. Tente novamente."
-  },
   "register.errors.terms_required": {
     "es": "Debes aceptar los términos y condiciones.",
     "en": "You must accept the terms and conditions.",
@@ -174,25 +154,10 @@
     "en": "Name",
     "pt": "Nome"
   },
-  "register.fiscal_region": {
-    "es": "Región Fiscal",
-    "en": "Fiscal Region",
-    "pt": "Região Fiscal"
-  },
-  "register.general_manager": {
-    "es": "Ej. Gerente General",
-    "en": "e.g. General Manager",
-    "pt": "Ex.: Diretor-Geral"
-  },
   "register.has_account": {
     "es": "¿Ya tienes una cuenta?",
     "en": "Already have an account?",
     "pt": "Já tem uma conta?"
-  },
-  "register.https_www_example_com": {
-    "es": "https://www.ejemplo.com",
-    "en": "https://www.example.com",
-    "pt": "https://www.exemplo.com"
   },
   "register.industries.construction": {
     "es": "Construcción",
@@ -234,11 +199,6 @@
     "en": "Industry",
     "pt": "Setor"
   },
-  "register.job_title": {
-    "es": "Cargo",
-    "en": "Job Title",
-    "pt": "Cargo"
-  },
   "register.john": {
     "es": "Ej. Juan",
     "en": "e.g. John",
@@ -258,11 +218,6 @@
     "es": "nombre@empresa.com",
     "en": "name@company.com",
     "pt": "nome@empresa.com"
-  },
-  "register.number_employees": {
-    "es": "Número de empleados",
-    "en": "Number of employees",
-    "pt": "Número de funcionários"
   },
   "register.password": {
     "es": "Contraseña",
@@ -363,16 +318,6 @@
     "es": "Estos son los datos del administrador principal.",
     "en": "These are the details of the primary administrator.",
     "pt": "Estes são os dados do administrador principal."
-  },
-  "register.steps.account.enter_your_personal_details": {
-    "es": "Ingresa tus datos personales",
-    "en": "Enter your personal details",
-    "pt": "Informe seus dados pessoais"
-  },
-  "register.steps.account.title": {
-    "es": "Información de la Cuenta",
-    "en": "Account Information",
-    "pt": "Informações da Conta"
   },
   "register.steps.account.title_internal": {
     "es": "¡Hola! Comencemos por ti",
@@ -519,11 +464,6 @@
     "en": "Sign Up",
     "pt": "Cadastrar"
   },
-  "register.tax_id": {
-    "es": "Identificación Fiscal",
-    "en": "Tax ID",
-    "pt": "Identificação Fiscal"
-  },
   "register.taxid_format": {
     "es": "Formato esperado: {{example}}",
     "en": "Expected format: {{example}}",
@@ -539,49 +479,14 @@
     "en": "Create Account",
     "pt": "Criar Conta"
   },
-  "register.upload_logo": {
-    "es": "Subir logo",
-    "en": "Upload logo",
-    "pt": "Enviar logotipo"
-  },
-  "register.upload_photo": {
-    "es": "Subir foto",
-    "en": "Upload photo",
-    "pt": "Enviar foto"
-  },
   "register.verify.email_ok": {
     "es": "¡Correo verificado!",
     "en": "Email verified.",
     "pt": "E-mail verificado."
   },
-  "register.verify.email_title": {
-    "es": "Confirma tu correo electrónico",
-    "en": "Confirm your email address",
-    "pt": "Confirme seu e-mail"
-  },
   "register.verify.phone_ok": {
     "es": "¡Número verificado!",
     "en": "Number verified.",
     "pt": "Número verificado."
-  },
-  "register.verify.phone_title": {
-    "es": "Confirma tu número de celular",
-    "en": "Confirm your mobile number",
-    "pt": "Confirme seu número de celular"
-  },
-  "register.verify.would_rather_not_type_code_look": {
-    "es": "¿Prefieres no escribir el código? Busca el botón «Confirmar correo electrónico» en el mensaje que te enviamos.",
-    "en": "Would rather not type the code? Look for the “Confirm email address” button in the message we sent you.",
-    "pt": "Prefere não digitar o código? Procure o botão «Confirmar e-mail» na mensagem que enviamos."
-  },
-  "register.we_check_verification_digit_against_authority": {
-    "es": "Verificamos el dígito verificador ante {{authority}}.",
-    "en": "We check the verification digit against {{authority}}.",
-    "pt": "Verificamos o dígito verificador junto à {{authority}}."
-  },
-  "register.website": {
-    "es": "Sitio Web",
-    "en": "Website",
-    "pt": "Site"
   }
 }

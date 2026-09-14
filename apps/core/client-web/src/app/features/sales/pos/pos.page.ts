@@ -11,6 +11,8 @@ import { InvoicesService } from '../../../core/services/invoices';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import { PosService } from './pos.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -29,6 +31,7 @@ export class PosPage {
   private readonly inventoryService = inject(InventoryService);
   private readonly posService = inject(PosService);
   private readonly notifications = inject(NotificationService);
+  private readonly errors = inject(ErrorHandlerService);
 
   /**
    * The till this screen operates. Single-terminal for now; multi-terminal is a matter of letting
@@ -158,7 +161,7 @@ export class PosPage {
     this.inventoryService.getProducts().subscribe({
       next: (products) =>
         this.allProducts.set(products.filter((p) => p.status === 'Active')),
-      error: () => this.notifications.showError('POS.LOAD_PRODUCTS_ERROR'),
+      error: () => this.notifications.showError('pos.load_products_error'),
     });
   }
 
@@ -212,14 +215,17 @@ export class PosPage {
         next: () => {
           this.saving.set(false);
           this.cartItems.clear();
-          this.notifications.showSuccess('POS.SALE_COMPLETED');
+          this.notifications.showSuccess('pos.sale_completed');
           // Reflect the stock the sale consumed.
           this.loadProducts();
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.saving.set(false);
-          const message = err?.error?.message;
-          this.notifications.showError(typeof message === 'string' ? message : 'POS.SALE_ERROR');
+          // Never the server's own sentence. It used to be forwarded when present, which put an
+          // operator's message — sometimes in the other language — in front of whoever is at the
+          // counter. `keyFor` resolves the code the API sent, and falls back to our own wording.
+          const key = this.errors.keyFor(err);
+          this.notifications.showError(key === 'errors.unexpected' ? 'pos.sale_error' : key);
         },
       });
   }

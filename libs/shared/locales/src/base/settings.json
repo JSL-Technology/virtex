@@ -154,11 +154,6 @@
     "en": "Appearance and layout",
     "pt": "Aparência e layout"
   },
-  "settings.branding.application_layout": {
-    "es": "Diseño de la Aplicación",
-    "en": "Application layout",
-    "pt": "Layout do aplicativo"
-  },
   "settings.branding.comfortable": {
     "es": "Cómoda",
     "en": "Comfortable",
@@ -194,11 +189,6 @@
     "en": "Density",
     "pt": "Densidade"
   },
-  "settings.branding.description": {
-    "es": "Completa la información para personalizar la apariencia de tu aplicación.",
-    "en": "Complete the information to customize your application's appearance.",
-    "pt": "Preencha as informações para personalizar a aparência do seu aplicativo."
-  },
   "settings.branding.high_contrast": {
     "es": "Alto contraste",
     "en": "High contrast",
@@ -232,20 +222,10 @@
   "settings.branding.normal": {
     "literal": "Normal"
   },
-  "settings.branding.save_button": {
-    "es": "Guardar Cambios",
-    "en": "Save changes",
-    "pt": "Salvar alterações"
-  },
   "settings.branding.save_changes": {
     "es": "Guardar Cambios",
     "en": "Save changes",
     "pt": "Salvar alterações"
-  },
-  "settings.branding.side": {
-    "es": "Lateral",
-    "en": "Side",
-    "pt": "Lateral"
   },
   "settings.branding.strengthens_borders_secondary_text_works_with": {
     "es": "Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.",
@@ -266,11 +246,6 @@
     "es": "Personalización Avanzada",
     "en": "Advanced Customization",
     "pt": "Personalização avançada"
-  },
-  "settings.branding.top": {
-    "es": "Superior",
-    "en": "Top",
-    "pt": "Superior"
   },
   "settings.branding.typeface": {
     "es": "Tipografía",
@@ -422,16 +397,6 @@
     "en": "Website",
     "pt": "Site"
   },
-  "settings.description": {
-    "es": "Administra los detalles de tu cuenta, empresa y usuarios.",
-    "en": "Manage your account, company, and user details.",
-    "pt": "Gerencie os detalhes da sua conta, empresa e usuários."
-  },
-  "settings.fiscal.accounting_operations": {
-    "es": "Contabilidad y operación",
-    "en": "Accounting and operations",
-    "pt": "Contabilidade e operação"
-  },
   "settings.fiscal.alias": {
     "es": "Alias",
     "en": "Alias",
@@ -567,11 +532,6 @@
     "en": "607 · Sales",
     "pt": "607 · Vendas"
   },
-  "settings.fiscal.electronic_accounting": {
-    "es": "Contabilidad electrónica",
-    "en": "Electronic accounting",
-    "pt": "Contabilidade eletrônica"
-  },
   "settings.fiscal.ending_number_cannot_lower_than_starting": {
     "es": "El número final no puede ser menor que el inicial.",
     "en": "The ending number cannot be lower than the starting one.",
@@ -597,11 +557,6 @@
     "en": "Holder",
     "pt": "Titular"
   },
-  "settings.fiscal.invoicing": {
-    "es": "Facturación electrónica",
-    "en": "E-invoicing",
-    "pt": "Emissão eletrônica"
-  },
   "settings.fiscal.level.implemented": {
     "es": "Implementado",
     "en": "Implemented",
@@ -621,11 +576,6 @@
     "es": "Mes",
     "en": "Month",
     "pt": "Mês"
-  },
-  "settings.fiscal.periodic_returns": {
-    "es": "Declaraciones periódicas",
-    "en": "Periodic returns",
-    "pt": "Declarações periódicas"
   },
   "settings.fiscal.prefix": {
     "es": "Prefijo",
@@ -682,11 +632,6 @@
     "en": "What this product covers in {{country}}",
     "pt": "O que este produto cobre em {{country}}"
   },
-  "settings.fiscal.withholdings": {
-    "es": "Retenciones",
-    "en": "Withholdings",
-    "pt": "Retenções"
-  },
   "settings.fiscal.year": {
     "es": "Año",
     "en": "Year",
@@ -711,131 +656,6 @@
     "es": "Idioma",
     "en": "Language",
     "pt": "Idioma"
-  },
-  "settings.layout.accounting": {
-    "es": "Contabilidad",
-    "en": "Accounting",
-    "pt": "Contabilidade"
-  },
-  "settings.layout.approvals": {
-    "es": "Aprobaciones",
-    "en": "Approvals",
-    "pt": "Aprovações"
-  },
-  "settings.layout.billing_plan": {
-    "es": "Facturación y Plan",
-    "en": "Billing and Plan",
-    "pt": "Faturamento e Plano"
-  },
-  "settings.layout.cierre_fiscal": {
-    "es": "Cierre Fiscal",
-    "en": "Fiscal Close",
-    "pt": "Fechamento Fiscal"
-  },
-  "settings.layout.company_profile": {
-    "es": "Perfil de la Empresa",
-    "en": "Company Profile",
-    "pt": "Perfil da Empresa"
-  },
-  "settings.layout.company_structure": {
-    "es": "Estructura Empresarial",
-    "en": "Company Structure",
-    "pt": "Estrutura Empresarial"
-  },
-  "settings.layout.electronic_invoicing": {
-    "es": "Facturación Electrónica",
-    "en": "Electronic Invoicing",
-    "pt": "Faturamento Eletrônico"
-  },
-  "settings.layout.finance": {
-    "es": "Finanzas",
-    "en": "Finance",
-    "pt": "Finanças"
-  },
-  "settings.layout.integrations_api": {
-    "es": "Integraciones",
-    "en": "Integrations & API",
-    "pt": "Integrações"
-  },
-  "settings.layout.intercompany": {
-    "en": "Intercompany",
-    "es": "Intercompañía",
-    "pt": "Intercompanhia"
-  },
-  "settings.layout.inventory": {
-    "es": "Inventario",
-    "en": "Inventory",
-    "pt": "Estoque"
-  },
-  "settings.layout.mail_server": {
-    "es": "Servidor de Correo",
-    "en": "Mail Server",
-    "pt": "Servidor de E-mail"
-  },
-  "settings.layout.multi_currency": {
-    "es": "Multimoneda",
-    "en": "Multi-currency",
-    "pt": "Multimoeda"
-  },
-  "settings.layout.my_account": {
-    "es": "Mi Cuenta",
-    "en": "My Account",
-    "pt": "Minha Conta"
-  },
-  "settings.layout.my_profile": {
-    "es": "Mi Perfil",
-    "en": "My Profile",
-    "pt": "Meu Perfil"
-  },
-  "settings.layout.operations": {
-    "es": "Operaciones",
-    "en": "Operations",
-    "pt": "Operações"
-  },
-  "settings.layout.organization": {
-    "es": "Organización",
-    "en": "Organization",
-    "pt": "Organização"
-  },
-  "settings.layout.personalization": {
-    "es": "Personalización",
-    "en": "Personalization",
-    "pt": "Personalização"
-  },
-  "settings.layout.roles_permissions": {
-    "es": "Roles y Permisos",
-    "en": "Roles and Permissions",
-    "pt": "Perfis e Permissões"
-  },
-  "settings.layout.security_audit": {
-    "es": "Seguridad y Auditoría",
-    "en": "Security and Audit",
-    "pt": "Segurança e Auditoria"
-  },
-  "settings.layout.sequences": {
-    "es": "Secuencias",
-    "en": "Sequences",
-    "pt": "Sequências"
-  },
-  "settings.layout.settings": {
-    "es": "Configuración",
-    "en": "Settings",
-    "pt": "Configurações"
-  },
-  "settings.layout.system_settings": {
-    "es": "Sistema",
-    "en": "System Settings",
-    "pt": "Sistema"
-  },
-  "settings.layout.taxes": {
-    "es": "Impuestos",
-    "en": "Taxes",
-    "pt": "Impostos"
-  },
-  "settings.layout.users": {
-    "es": "Usuarios",
-    "en": "Users",
-    "pt": "Usuários"
   },
   "settings.modal.accounting": {
     "es": "Contabilidad",
@@ -1891,11 +1711,6 @@
     "en": "Tax rules",
     "pt": "Regras de impostos"
   },
-  "settings.pages.withholding.accounting": {
-    "es": "Contabilidad",
-    "en": "Accounting",
-    "pt": "Contabilidade"
-  },
   "settings.pages.withholding.add": {
     "es": "Agregar régimen",
     "en": "Add regime",
@@ -1981,11 +1796,6 @@
     "en": "Designated withholding agent",
     "pt": "Agente de retenção designado"
   },
-  "settings.pages.withholding.electronic_accounting": {
-    "es": "Contabilidad electrónica",
-    "en": "Electronic accounting",
-    "pt": "Contabilidade eletrônica"
-  },
   "settings.pages.withholding.empty": {
     "es": "Todavía no hay regímenes configurados.",
     "en": "No regimes configured yet.",
@@ -1996,11 +1806,6 @@
     "en": "Government",
     "pt": "Estado"
   },
-  "settings.pages.withholding.implemented": {
-    "es": "Implementado",
-    "en": "Implemented",
-    "pt": "Implementado"
-  },
   "settings.pages.withholding.individual": {
     "es": "Persona física",
     "en": "Individual",
@@ -2010,11 +1815,6 @@
     "es": "El instrumento que lo establece. Es obligatorio: un régimen sin fundamento declarado es un número que alguien escribió.",
     "en": "The instrument that establishes it. Required: a regime with no stated authority is a number somebody typed.",
     "pt": "O instrumento que o estabelece. Obrigatório: um regime sem fundamento declarado é um número que alguém digitou."
-  },
-  "settings.pages.withholding.invoicing": {
-    "es": "Facturación electrónica",
-    "en": "E-invoicing",
-    "pt": "Emissão eletrônica"
   },
   "settings.pages.withholding.kind": {
     "es": "Tipo",
@@ -2056,25 +1856,10 @@
     "en": "Name at least one kind of buyer that applies this withholding.",
     "pt": "Indique ao menos um tipo de comprador que aplique a retenção."
   },
-  "settings.pages.withholding.needs_your_configuration": {
-    "es": "Falta configuración tuya",
-    "en": "Needs your configuration",
-    "pt": "Falta configuração sua"
-  },
-  "settings.pages.withholding.not_implemented": {
-    "es": "No implementado",
-    "en": "Not implemented",
-    "pt": "Não implementado"
-  },
   "settings.pages.withholding.payers": {
     "es": "Quién retiene",
     "en": "Who withholds",
     "pt": "Quem retém"
-  },
-  "settings.pages.withholding.periodic_returns": {
-    "es": "Declaraciones periódicas",
-    "en": "Periodic returns",
-    "pt": "Declarações periódicas"
   },
   "settings.pages.withholding.rate": {
     "es": "Tasa (%)",
@@ -2116,11 +1901,6 @@
     "en": "Services only",
     "pt": "Apenas serviços"
   },
-  "settings.pages.withholding.tax_determination": {
-    "es": "Determinación de impuesto",
-    "en": "Tax determination",
-    "pt": "Determinação de imposto"
-  },
   "settings.pages.withholding.tax_withholds_part_tax_charged_base": {
     "es": "«Sobre el impuesto» retiene parte del impuesto facturado; «sobre la base» retiene parte de la base imponible.",
     "en": "“On the tax” withholds part of the tax charged; “on the base” withholds part of the taxable base.",
@@ -2141,11 +1921,6 @@
     "en": "What your buyers withhold when they pay you, and on what authority.",
     "pt": "O que seus compradores retêm ao te pagar, e com que fundamento."
   },
-  "settings.pages.withholding.withholdings": {
-    "es": "Retenciones",
-    "en": "Withholdings",
-    "pt": "Retenções"
-  },
   "settings.profile.avatar_updated": {
     "es": "Imagen actualizada exitosamente.",
     "en": "Picture updated.",
@@ -2165,11 +1940,6 @@
     "es": "Confirmar Contraseña",
     "en": "Confirm Password",
     "pt": "Confirmar senha"
-  },
-  "settings.profile.current_password": {
-    "es": "Contraseña Actual",
-    "en": "Current password",
-    "pt": "Senha atual"
   },
   "settings.profile.email": {
     "es": "Correo Electrónico",
@@ -2295,11 +2065,6 @@
     "es": "Código enviado a",
     "en": "Code sent to",
     "pt": "Código enviado para"
-  },
-  "settings.profile.phone_verification.resend": {
-    "es": "Reenviar",
-    "en": "Resend",
-    "pt": "Reenviar"
   },
   "settings.profile.phone_verification.send_code": {
     "es": "Enviar Código",
@@ -2466,16 +2231,6 @@
     "en": "Revoke session",
     "pt": "Revogar sessão"
   },
-  "settings.security.2_fa_activated": {
-    "es": "2FA Activado exitosamente.",
-    "en": "2FA is on.",
-    "pt": "2FA ativado."
-  },
-  "settings.security.2_fa_deactivated": {
-    "es": "2FA Desactivado.",
-    "en": "2FA is off.",
-    "pt": "2FA desativado."
-  },
   "settings.security.2_fa_description": {
     "es": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
     "en": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
@@ -2495,26 +2250,6 @@
     "es": "Autenticación de Dos Factores (2FA)",
     "en": "Two-Factor Authentication (2FA)",
     "pt": "Autenticação de dois fatores (2FA)"
-  },
-  "settings.security.account_not_protected": {
-    "es": "Tu cuenta no está protegida.",
-    "en": "Your account is not protected.",
-    "pt": "Sua conta não está protegida."
-  },
-  "settings.security.account_protected": {
-    "es": "Tu cuenta está protegida.",
-    "en": "Your account is protected.",
-    "pt": "Sua conta está protegida."
-  },
-  "settings.security.active_sessions": {
-    "es": "Sesiones Activas",
-    "en": "Active sessions",
-    "pt": "Sessões ativas"
-  },
-  "settings.security.backup_codes": {
-    "es": "Códigos de Recuperación",
-    "en": "Recovery codes",
-    "pt": "Códigos de recuperação"
   },
   "settings.security.backup_codes_title": {
     "es": "Verificación de 2 Pasos Activada",
@@ -2551,20 +2286,10 @@
     "en": "Copy code",
     "pt": "Copiar código"
   },
-  "settings.security.current": {
-    "es": "Actual",
-    "en": "Current",
-    "pt": "Atual"
-  },
   "settings.security.current_session": {
     "es": "Este dispositivo",
     "en": "This device",
     "pt": "Este dispositivo"
-  },
-  "settings.security.deactivate": {
-    "es": "Desactivar",
-    "en": "Turn off",
-    "pt": "Desativar"
   },
   "settings.security.disabled": {
     "es": "Desactivada",
@@ -2596,16 +2321,6 @@
     "en": "Enter the 6-digit code shown in your authenticator app.",
     "pt": "Digite o código de seis dígitos exibido no seu aplicativo autenticador."
   },
-  "settings.security.enter_code": {
-    "es": "Ingresa el código",
-    "en": "Enter the code",
-    "pt": "Digite o código"
-  },
-  "settings.security.enter_manually": {
-    "es": "O ingresa esta clave manualmente",
-    "en": "Or enter this key by hand",
-    "pt": "Ou digite esta chave manualmente"
-  },
   "settings.security.enter_secret": {
     "es": "Ingresa este secreto en su lugar:",
     "en": "Enter this secret instead:",
@@ -2616,29 +2331,14 @@
     "en": "Get verification code",
     "pt": "Obter código de verificação"
   },
-  "settings.security.errors.generate_codes": {
-    "es": "Error al generar códigos.",
-    "en": "We couldn't generate the codes.",
-    "pt": "Não foi possível gerar os códigos."
-  },
   "settings.security.errors.invalid_code": {
     "es": "Código incorrecto.",
     "en": "That code isn't right.",
     "pt": "Código incorreto."
   },
-  "settings.security.errors.load_sessions": {
-    "es": "Error al cargar sesiones.",
-    "en": "We couldn't load your sessions.",
-    "pt": "Não foi possível carregar as sessões."
-  },
   "settings.security.errors.revoke_failed": {
     "es": "No se pudo cerrar esa sesión.",
     "en": "That session could not be signed out.",
-    "pt": "Não foi possível encerrar essa sessão."
-  },
-  "settings.security.errors.revoke_session": {
-    "es": "Error al cerrar sesión.",
-    "en": "We couldn't sign that session out.",
     "pt": "Não foi possível encerrar essa sessão."
   },
   "settings.security.errors.send_failed": {
@@ -2656,21 +2356,6 @@
     "en": "Two-step verification could not be turned off.",
     "pt": "Não foi possível desativar a verificação em duas etapas."
   },
-  "settings.security.errors.we_couldn_start_fa_setup": {
-    "es": "Error al iniciar configuración 2FA.",
-    "en": "We couldn't start 2FA setup.",
-    "pt": "Não foi possível iniciar a configuração do 2FA."
-  },
-  "settings.security.errors.we_couldn_turn_fa_off": {
-    "es": "Error al desactivar 2FA.",
-    "en": "We couldn't turn 2FA off.",
-    "pt": "Não foi possível desativar o 2FA."
-  },
-  "settings.security.generate_new": {
-    "es": "Generar Nuevos",
-    "en": "Generate new",
-    "pt": "Gerar novos"
-  },
   "settings.security.i_have_saved_codes": {
     "es": "He guardado mis códigos de respaldo",
     "en": "I've saved my backup codes",
@@ -2681,50 +2366,15 @@
     "en": "Identity verification",
     "pt": "Verificação de identidade"
   },
-  "settings.security.manage_devices_you_re_signed": {
-    "es": "Gestiona los dispositivos donde has iniciado sesión.",
-    "en": "Manage the devices you're signed in on.",
-    "pt": "Gerencie os dispositivos onde você iniciou sessão."
-  },
-  "settings.security.new_codes_generated": {
-    "es": "Nuevos códigos generados.",
-    "en": "New codes generated.",
-    "pt": "Novos códigos gerados."
-  },
-  "settings.security.open_auth_app": {
-    "es": "(Abre tu App de Autenticación)",
-    "en": "(Open your authenticator app)",
-    "pt": "(Abra seu aplicativo autenticador)"
-  },
-  "settings.security.protect_your_account_with_extra_layer": {
-    "es": "Protege tu cuenta con una capa extra de seguridad.",
-    "en": "Protect your account with an extra layer of security.",
-    "pt": "Proteja sua conta com uma camada extra de segurança."
-  },
-  "settings.security.resend": {
-    "es": "Reenviar código",
-    "en": "Resend code",
-    "pt": "Reenviar código"
-  },
   "settings.security.save_backup_codes": {
     "es": "Guarda estos códigos de recuperación en un lugar seguro. Cada uno sirve una sola vez y son la única forma de entrar si pierdes tu dispositivo.",
     "en": "Keep these recovery codes somewhere safe. Each one works once, and they are the only way back in if you lose your device.",
     "pt": "Guarde estes códigos de recuperação em um lugar seguro. Cada um funciona uma única vez e são a única forma de entrar se você perder seu dispositivo."
   },
-  "settings.security.save_codes_warning": {
-    "es": "Guarda estos códigos en un lugar seguro.",
-    "en": "Store these codes somewhere safe.",
-    "pt": "Guarde estes códigos em um lugar seguro."
-  },
   "settings.security.scan_code_with_your_authenticator_app": {
     "es": "Escanea el código con tu aplicación de autenticación y escribe el código de seis dígitos que muestre.",
     "en": "Scan the code with your authenticator app and enter the six-digit code it shows.",
     "pt": "Escaneie o código com seu aplicativo autenticador e digite o código de seis dígitos exibido."
-  },
-  "settings.security.scan_qr": {
-    "es": "Escanea el código QR",
-    "en": "Scan the QR code",
-    "pt": "Escaneie o código QR"
   },
   "settings.security.scan_qr_code_enter_secret_key": {
     "es": "Escanea el código QR o ingresa la clave secreta manualmente.",
@@ -2746,11 +2396,6 @@
     "en": "Active sessions",
     "pt": "Sessões ativas"
   },
-  "settings.security.setup_2_fa": {
-    "es": "Configurar 2FA",
-    "en": "Set up 2FA",
-    "pt": "Configurar 2FA"
-  },
   "settings.security.setup_2_fa_title": {
     "es": "Verificación en dos pasos",
     "en": "Two-step verification",
@@ -2760,16 +2405,6 @@
     "es": "Configurar App Autenticadora",
     "en": "Set up authenticator app",
     "pt": "Configurar aplicativo autenticador"
-  },
-  "settings.security.sign_out": {
-    "es": "Cerrar sesión",
-    "en": "Sign out",
-    "pt": "Encerrar sessão"
-  },
-  "settings.security.turn_fa": {
-    "es": "Activar 2FA",
-    "en": "Turn on 2FA",
-    "pt": "Ativar 2FA"
   },
   "settings.security.turn_off": {
     "es": "Desactivar",
@@ -2790,11 +2425,6 @@
     "es": "Úsalos si pierdes acceso a tu dispositivo.",
     "en": "Use these if you lose access to your device.",
     "pt": "Use-os se perder o acesso ao seu dispositivo."
-  },
-  "settings.security.you_ve_added_two_step_verification": {
-    "es": "Has añadido exitosamente la verificación de 2 pasos a tu cuenta.",
-    "en": "You've added two-step verification to your account.",
-    "pt": "A verificação em duas etapas foi adicionada à sua conta."
   },
   "settings.security.your_account_will_less_secure_you": {
     "es": "Tu cuenta será menos segura. ¿Estás seguro?",
@@ -3106,11 +2736,6 @@
     "en": "Start by adding a subsidiary or branch to expand your structure.",
     "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
   },
-  "settings.title": {
-    "es": "Configuración",
-    "en": "Settings",
-    "pt": "Configurações"
-  },
   "settings.user_management.action_cannot_undone": {
     "es": "Esta acción no se puede deshacer.",
     "en": "This action cannot be undone.",
@@ -3211,11 +2836,6 @@
     "en": "Select a role",
     "pt": "Selecionar perfil"
   },
-  "settings.user_management.showing": {
-    "es": "Mostrando",
-    "en": "Showing",
-    "pt": "Exibindo"
-  },
   "settings.user_management.showing_shown_total_users": {
     "es": "Mostrando {{shown}} de {{total}} usuarios",
     "en": "Showing {{shown}} of {{total}} users",
@@ -3265,11 +2885,6 @@
     "es": "No se pudieron cargar los usuarios.",
     "en": "The users could not be loaded.",
     "pt": "Não foi possível carregar os usuários."
-  },
-  "settings.user_management.users_count_label": {
-    "es": "usuarios",
-    "en": "users",
-    "pt": "usuários"
   },
   "settings.user_management.value": {
     "literal": "×"

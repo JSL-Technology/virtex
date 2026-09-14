@@ -59,11 +59,6 @@
     "en": "Last Modified",
     "pt": "Última Modificação"
   },
-  "datasheets.my_documents": {
-    "es": "Mis Documentos",
-    "en": "My Documents",
-    "pt": "Meus Documentos"
-  },
   "datasheets.name": {
     "es": "Nombre",
     "en": "Name",
@@ -124,33 +119,13 @@
     "en": "Properties",
     "pt": "Propriedades"
   },
-  "datasheets.recent": {
-    "es": "Recientes",
-    "en": "Recent",
-    "pt": "Recentes"
-  },
   "datasheets.share": {
     "es": "Compartir",
     "en": "Share",
     "pt": "Compartilhar"
   },
-  "datasheets.shared": {
-    "es": "Compartidos",
-    "en": "Shared",
-    "pt": "Compartilhados"
-  },
-  "datasheets.templates": {
-    "es": "Plantillas",
-    "en": "Templates",
-    "pt": "Modelos"
-  },
   "datasheets.title": {
     "literal": "DataSheets"
-  },
-  "datasheets.trash": {
-    "es": "Papelera",
-    "en": "Trash",
-    "pt": "Lixeira"
   },
   "datasheets.variable_name_catalogued_but_has_no": {
     "es": "La variable «{name}» está en el catálogo pero no tiene implementación.",

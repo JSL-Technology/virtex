@@ -81,7 +81,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unposted-journal-entries',
-      descriptionKey: 'accounting.checklist.items.review_post_every_journal_entry_still',
+      descriptionKey: 'accounting.checklist.items.unposted_journal_entries',
       params: { count: unpostedEntriesCount },
       isCompleted: unpostedEntriesCount === 0,
       details: { pendingCount: unpostedEntriesCount },
@@ -102,7 +102,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unapproved-vendor-bills',
-      descriptionKey: 'accounting.checklist.items.review_post_every_vendor_bill_still',
+      descriptionKey: 'accounting.checklist.items.unapproved_vendor_bills',
       params: { count: unapprovedBillsCount },
       isCompleted: unapprovedBillsCount === 0,
       details: { pendingCount: unapprovedBillsCount },
@@ -145,7 +145,7 @@ export class ClosingChecklistService {
     });
     checklist.push({
       id: 'pending-accrual-reversals',
-      descriptionKey: 'accounting.checklist.items.accruals_from_earlier_periods_still_pending',
+      descriptionKey: 'accounting.checklist.items.pending_accrual_reversals',
       params: { count: pendingReversals },
       isCompleted: pendingReversals === 0,
       details: { pendingCount: pendingReversals },

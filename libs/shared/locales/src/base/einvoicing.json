@@ -90,8 +90,8 @@
     "pt": "o código da moeda deve ser ISO 4217"
   },
   "einvoicing.customer_customer_has_neither_cnpj_nor": {
-    "es": "O cliente «{{customer}}» não tem CNPJ nem CPF.",
-    "en": "Customer “{{customer}}” has neither a CNPJ nor a CPF.",
+    "es": "El cliente «{{customer}}» no tiene CNPJ ni CPF.",
+    "en": "The customer “{{customer}}” has neither a CNPJ nor a CPF.",
     "pt": "O cliente «{{customer}}» não tem CNPJ nem CPF."
   },
   "einvoicing.customer_customer_has_no_identification_document": {
@@ -123,11 +123,6 @@
     "es": "Falta la resolución de facturación de la DIAN con su prefijo y rango autorizado.",
     "en": "The DIAN invoicing resolution, with its prefix and authorised range, is missing.",
     "pt": "Falta a resolução de faturamento da DIAN com seu prefixo e faixa autorizada."
-  },
-  "einvoicing.digital_certificate_expired_p1": {
-    "es": "El certificado digital venció el {{p1}}.",
-    "en": "The digital certificate expired on {{p1}}.",
-    "pt": "O certificado digital venceu em {{p1}}."
   },
   "einvoicing.document_document_has_no_fiscal_number": {
     "es": "El documento {document} no tiene número fiscal asignado. La numeración interna no sirve: la autoridad sólo reconoce el número del rango que autorizó.",
@@ -209,11 +204,6 @@
     "en": "The IBGE codes for the issuing state and municipality are missing.",
     "pt": "Faltam os códigos IBGE do estado e do município de emissão."
   },
-  "einvoicing.invoice_has_no_cf_associated_with": {
-    "es": "Esta factura no tiene un e-CF asociado.",
-    "en": "This invoice has no e-CF associated with it.",
-    "pt": "Esta fatura não tem um e-CF associado."
-  },
   "einvoicing.invoice_has_no_electronic_ncf_assigned": {
     "es": "La factura no tiene un e-NCF electrónico asignado.",
     "en": "The invoice has no electronic e-NCF assigned.",
@@ -290,9 +280,9 @@
     "pt": "A linha «{{line}}» não tem «{{key}}» do catálogo do SAT. Defina-o no produto: inventá-lo produziria um documento que é autorizado e descreve mal o que foi vendido."
   },
   "einvoicing.line_line_has_no_key_set": {
-    "es": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação, e nenhum dos dois se deduz da descrição.",
-    "en": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the merchandise and CFOP the operation, and neither can be inferred from a description.",
-    "pt": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação, e nenhum dos dois se deduz da descrição."
+    "es": "La línea «{{line}}» no tiene {{key}}. Defínelo en el producto: la NCM clasifica la mercancía y el CFOP la operación.",
+    "en": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the goods and CFOP the operation.",
+    "pt": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação."
   },
   "einvoicing.modification_code_must_between": {
     "es": "el código de modificación debe estar entre 1 y 5",
@@ -364,11 +354,6 @@
     "en": "The organization has no RFC; a CFDI cannot be issued without one.",
     "pt": "A organização não tem RFC; o CFDI não pode ser emitido sem ele."
   },
-  "einvoicing.organization_has_no_rnc_configured": {
-    "es": "La organización no tiene RNC configurado.",
-    "en": "The organization has no RNC configured.",
-    "pt": "A organização não tem RNC configurado."
-  },
   "einvoicing.organization_has_no_rnc_configured_fill": {
     "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
     "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
@@ -390,8 +375,8 @@
     "pt": "A organização não tem RUT; o SII não aceita um DTE sem ele."
   },
   "einvoicing.organization_has_no_valid_cnpj_nf": {
-    "es": "A organização não tem CNPJ válido; a NF-e não pode ser emitida.",
-    "en": "The organization has no valid CNPJ; an NF-e cannot be issued.",
+    "es": "La organización no tiene un CNPJ válido; la NF-e no puede emitirse.",
+    "en": "The organization has no valid CNPJ, so the NF-e cannot be issued.",
     "pt": "A organização não tem CNPJ válido; a NF-e não pode ser emitida."
   },
   "einvoicing.organization_has_no_valid_cuit_afip": {

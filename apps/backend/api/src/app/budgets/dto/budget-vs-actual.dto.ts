@@ -8,11 +8,11 @@ import { IsDateString, IsOptional, IsUUID } from 'class-validator';
  * typo away from comparing March spend against the April target.
  */
 export class BudgetVsActualQueryDto {
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   @IsOptional()
   startDate?: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   @IsOptional()
   endDate?: string;
 

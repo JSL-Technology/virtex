@@ -105,7 +105,7 @@ export class PeriodsPage {
   async reopen(period: AccountingPeriod): Promise<void> {
     const reason = await this.dialog.prompt({
       title: 'dialog.reopen_period.title',
-      message: 'accounting.periods.state_why_accounting_period_being_reopened',
+      message: 'accounting.periods.reopen_reason_prompt',
       placeholder: 'dialog.reopen_period.reason_reopening',
       minLength: 10,
       tooShort: 'accounting.periods.reason_too_short',

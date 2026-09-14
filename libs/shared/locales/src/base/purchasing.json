@@ -1,34 +1,4 @@
 {
-  "purchasing.layout.manage_requisitions_purchase_orders_and_goods": {
-    "es": "Administra las requisiciones, las órdenes de compra y las recepciones de mercancía.",
-    "en": "Manage requisitions, purchase orders and goods receipts.",
-    "pt": "Gerencie as requisições, os pedidos de compra e os recebimentos de mercadoria."
-  },
-  "purchasing.layout.purchase_orders": {
-    "es": "Órdenes de compra",
-    "en": "Purchase Orders",
-    "pt": "Pedidos de compra"
-  },
-  "purchasing.layout.receipts": {
-    "es": "Recepciones",
-    "en": "Receipts",
-    "pt": "Recebimentos"
-  },
-  "purchasing.layout.requisitions": {
-    "es": "Requisiciones",
-    "en": "Requisitions",
-    "pt": "Requisições"
-  },
-  "purchasing.orders.description": {
-    "es": "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.",
-    "en": "Create, track, and manage all your purchase orders to suppliers.",
-    "pt": "Crie, acompanhe e gerencie todos os pedidos de compra aos fornecedores."
-  },
-  "purchasing.orders.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
-  },
   "purchasing.orders.form.add_line": {
     "es": "Agregar línea",
     "en": "Add line",
@@ -172,11 +142,6 @@
     "en": "New Order",
     "pt": "Novo Pedido"
   },
-  "purchasing.orders.no_purchase_orders_found": {
-    "es": "No se encontraron órdenes de compra.",
-    "en": "No purchase orders were found.",
-    "pt": "Nenhum pedido de compra encontrado."
-  },
   "purchasing.orders.order": {
     "es": "N.º de orden",
     "en": "Order no.",
@@ -244,21 +209,6 @@
     "es": "Fecha",
     "en": "Date",
     "pt": "Data"
-  },
-  "purchasing.requisitions.department": {
-    "es": "Departamento",
-    "en": "Department",
-    "pt": "Departamento"
-  },
-  "purchasing.requisitions.description": {
-    "es": "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.",
-    "en": "Review, approve, and track all internal purchase requests.",
-    "pt": "Revise, aprove e acompanhe todas as solicitações internas de compra."
-  },
-  "purchasing.requisitions.filters": {
-    "es": "Filtros",
-    "en": "Filters",
-    "pt": "Filtros"
   },
   "purchasing.requisitions.form.add_line": {
     "es": "Agregar línea",
@@ -360,16 +310,6 @@
     "en": "New Requisition",
     "pt": "Nova Requisição"
   },
-  "purchasing.requisitions.no_purchase_requisitions_found": {
-    "es": "No se encontraron requisiciones de compra.",
-    "en": "No purchase requisitions were found.",
-    "pt": "Nenhuma requisição de compra encontrada."
-  },
-  "purchasing.requisitions.requester": {
-    "es": "Solicitante",
-    "en": "Requester",
-    "pt": "Solicitante"
-  },
   "purchasing.requisitions.required_date": {
     "es": "Fecha requerida",
     "en": "Needed by",
@@ -390,15 +330,15 @@
     "en": "Approved",
     "pt": "Aprovada"
   },
+  "purchasing.requisitions.status_label.converted_to_po": {
+    "es": "Convertida en orden",
+    "en": "Ordered",
+    "pt": "Encomendada"
+  },
   "purchasing.requisitions.status_label.draft": {
     "es": "Borrador",
     "en": "Draft",
     "pt": "Rascunho"
-  },
-  "purchasing.requisitions.status_label.ordered": {
-    "es": "Convertida en orden",
-    "en": "Ordered",
-    "pt": "Encomendada"
   },
   "purchasing.requisitions.status_label.pending_approval": {
     "es": "Por aprobar",

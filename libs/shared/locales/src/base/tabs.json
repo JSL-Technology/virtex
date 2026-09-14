@@ -24,11 +24,6 @@
     "en": "Close tab",
     "pt": "Fechar aba"
   },
-  "tabs.compact": {
-    "es": "Compacto",
-    "en": "Compact",
-    "pt": "Compacto"
-  },
   "tabs.copy_of": {
     "es": "{{title}} (copia)",
     "en": "{{title}} (copy)",
@@ -43,11 +38,6 @@
     "es": "Sacar a ventana flotante",
     "en": "Move to a floating window",
     "pt": "Levar para uma janela flutuante"
-  },
-  "tabs.focused": {
-    "es": "Enfocado",
-    "en": "Focused",
-    "pt": "Focado"
   },
   "tabs.keep_open": {
     "es": "Mantener abierta",
@@ -143,10 +133,5 @@
     "es": "Disposición de ventanas",
     "en": "Window layout",
     "pt": "Disposição das janelas"
-  },
-  "tabs.workshop": {
-    "es": "Taller",
-    "en": "Workshop",
-    "pt": "Oficina"
   }
 }

@@ -52,11 +52,6 @@
     "en": "Requested path:",
     "pt": "Caminho solicitado:"
   },
-  "unauthorized.see_our_permissions_guide": {
-    "es": "Consulta nuestra guía de permisos",
-    "en": "See our permissions guide",
-    "pt": "Consulte nosso guia de permissões"
-  },
   "unauthorized.title": {
     "es": "Acceso denegado",
     "en": "Access denied",

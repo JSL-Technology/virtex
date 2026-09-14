@@ -34,11 +34,6 @@
     "en": "The request has already been processed.",
     "pt": "A solicitação já foi processada."
   },
-  "workflows.request_not_found": {
-    "es": "Solicitud no encontrada.",
-    "en": "The request was not found.",
-    "pt": "A solicitação não foi encontrada."
-  },
   "workflows.step_step_no_longer_exists_approval": {
     "es": "El paso {step} ya no existe en la política de aprobación.",
     "en": "Step {step} no longer exists in the approval policy.",

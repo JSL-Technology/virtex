@@ -19,25 +19,10 @@
     "en": "Account Reconciliation",
     "pt": "Conciliação de Contas"
   },
-  "page_titles.accounting": {
-    "es": "Contabilidad",
-    "en": "Accounting",
-    "pt": "Contabilidade"
-  },
   "page_titles.accounting_periods": {
     "es": "Periodos contables",
     "en": "Period Management",
     "pt": "Períodos contábeis"
-  },
-  "page_titles.accounting_preferences": {
-    "es": "Preferencias contables",
-    "en": "Accounting preferences",
-    "pt": "Preferências contábeis"
-  },
-  "page_titles.accounts_payable": {
-    "es": "Cuentas por pagar",
-    "en": "Accounts payable",
-    "pt": "Contas a pagar"
   },
   "page_titles.accounts_payable_aging": {
     "es": "Antigüedad de Cuentas por Pagar",
@@ -48,16 +33,6 @@
     "es": "Antigüedad de Cuentas por Cobrar",
     "en": "Accounts Receivable Aging",
     "pt": "Aging de Contas a Receber"
-  },
-  "page_titles.active_sessions": {
-    "es": "Sesiones activas",
-    "en": "Active sessions",
-    "pt": "Sessões ativas"
-  },
-  "page_titles.approval_workflows": {
-    "es": "Flujos de aprobación",
-    "en": "Approval workflows",
-    "pt": "Fluxos de aprovação"
   },
   "page_titles.approvals": {
     "es": "Aprobaciones",
@@ -84,20 +59,10 @@
     "en": "Bank Account",
     "pt": "Conta Bancária"
   },
-  "page_titles.bank_reconciliation": {
-    "es": "Conciliación Bancaria",
-    "en": "Bank Reconciliation",
-    "pt": "Conciliação Bancária"
-  },
   "page_titles.banks": {
     "es": "Bancos",
     "en": "Banks",
     "pt": "Bancos"
-  },
-  "page_titles.billing_plan": {
-    "es": "Facturación y plan",
-    "en": "Billing and plan",
-    "pt": "Faturamento e plano"
   },
   "page_titles.branches": {
     "es": "Sucursales",
@@ -133,21 +98,6 @@
     "es": "Listas de cierre",
     "en": "Closing checklists",
     "pt": "Checklists de fechamento"
-  },
-  "page_titles.company_profile": {
-    "es": "Perfil de la empresa",
-    "en": "Company profile",
-    "pt": "Perfil da empresa"
-  },
-  "page_titles.company_structure": {
-    "es": "Estructura empresarial",
-    "en": "Company structure",
-    "pt": "Estrutura empresarial"
-  },
-  "page_titles.contacts": {
-    "es": "Contactos",
-    "en": "Contacts",
-    "pt": "Contatos"
   },
   "page_titles.currencies": {
     "es": "Monedas",
@@ -224,21 +174,6 @@
     "en": "Document templates",
     "pt": "Modelos de documento"
   },
-  "page_titles.documents": {
-    "es": "Documentos",
-    "en": "Documents",
-    "pt": "Documentos"
-  },
-  "page_titles.einvoicing": {
-    "es": "Facturación electrónica (RD)",
-    "en": "Electronic invoicing (DR)",
-    "pt": "Faturamento eletrônico (RD)"
-  },
-  "page_titles.einvoicing_regime": {
-    "es": "Facturación electrónica",
-    "en": "E-invoicing",
-    "pt": "Emissão eletrônica"
-  },
   "page_titles.employee_edit": {
     "es": "Empleado",
     "en": "Employee",
@@ -264,16 +199,6 @@
     "en": "Extensions runtime",
     "pt": "Execução de extensões"
   },
-  "page_titles.fiscal_periods": {
-    "es": "Periodos y cierre fiscal",
-    "en": "Fiscal periods and closing",
-    "pt": "Períodos e fechamento fiscal"
-  },
-  "page_titles.fiscal_sequences": {
-    "es": "Secuencias fiscales",
-    "en": "Fiscal sequences",
-    "pt": "Sequências fiscais"
-  },
   "page_titles.general_ledger": {
     "es": "Libro mayor",
     "en": "General ledger",
@@ -284,45 +209,15 @@
     "en": "Home",
     "pt": "Início"
   },
-  "page_titles.human_resources": {
-    "es": "Recursos humanos (HCM)",
-    "en": "Human resources (HCM)",
-    "pt": "Recursos humanos (HCM)"
-  },
   "page_titles.income_statement": {
     "es": "Estado de Resultados",
     "en": "Income Statement",
     "pt": "Demonstração do Resultado"
   },
-  "page_titles.integrations": {
-    "es": "Integraciones (API)",
-    "en": "Integrations (API)",
-    "pt": "Integrações (API)"
-  },
-  "page_titles.intercompany_rules": {
-    "es": "Reglas intercompañía",
-    "en": "Intercompany rules",
-    "pt": "Regras intercompanhia"
-  },
-  "page_titles.inventory": {
-    "es": "Inventario",
-    "en": "Inventory",
-    "pt": "Estoque"
-  },
-  "page_titles.inventory_policies": {
-    "es": "Políticas de inventario",
-    "en": "Inventory policies",
-    "pt": "Políticas de estoque"
-  },
   "page_titles.invoice": {
     "es": "Factura",
     "en": "Invoice",
     "pt": "Fatura"
-  },
-  "page_titles.invoice_detail": {
-    "es": "Detalle de factura",
-    "en": "Invoice detail",
-    "pt": "Detalhe da fatura"
   },
   "page_titles.invoice_new": {
     "es": "Nueva factura",
@@ -384,35 +279,15 @@
     "en": "Ledgers",
     "pt": "Livros contábeis"
   },
-  "page_titles.mail_server": {
-    "es": "Servidor de correo",
-    "en": "Mail server",
-    "pt": "Servidor de e-mail"
-  },
   "page_titles.manufacturing": {
     "es": "Manufactura (MRP)",
     "en": "Manufacturing (MRP)",
     "pt": "Manufatura (MRP)"
   },
-  "page_titles.master_data": {
-    "es": "Datos maestros",
-    "en": "Master data",
-    "pt": "Dados mestres"
-  },
-  "page_titles.multicurrency": {
-    "es": "Multimoneda y tasas",
-    "en": "Multicurrency and rates",
-    "pt": "Multimoeda e taxas"
-  },
   "page_titles.my_payslips": {
     "es": "Mis volantes de pago",
     "en": "My payslips",
     "pt": "Os meus recibos"
-  },
-  "page_titles.my_profile": {
-    "es": "Mi perfil",
-    "en": "My profile",
-    "pt": "Meu perfil"
   },
   "page_titles.my_work": {
     "es": "Mi trabajo",
@@ -453,11 +328,6 @@
     "es": "Nóminas",
     "en": "Payroll runs",
     "pt": "Folhas de pagamento"
-  },
-  "page_titles.personalization": {
-    "es": "Personalización",
-    "en": "Personalization",
-    "pt": "Personalização"
   },
   "page_titles.point_of_sale": {
     "es": "Punto de venta",
@@ -544,26 +414,6 @@
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
   },
-  "page_titles.purchasing": {
-    "es": "Compras",
-    "en": "Purchasing",
-    "pt": "Compras"
-  },
-  "page_titles.reports": {
-    "es": "Reportes",
-    "en": "Reports",
-    "pt": "Relatórios"
-  },
-  "page_titles.roles_permissions": {
-    "es": "Roles y permisos",
-    "en": "Roles and permissions",
-    "pt": "Perfis e permissões"
-  },
-  "page_titles.sales": {
-    "es": "Ventas",
-    "en": "Sales",
-    "pt": "Vendas"
-  },
   "page_titles.sales_history": {
     "es": "Historial de ventas",
     "en": "Sales history",
@@ -574,20 +424,10 @@
     "en": "Search",
     "pt": "Busca"
   },
-  "page_titles.security_audit": {
-    "es": "Seguridad y auditoría",
-    "en": "Security and audit",
-    "pt": "Segurança e auditoria"
-  },
   "page_titles.segment_configuration": {
     "es": "Configuración de segmentos",
     "en": "Segment configuration",
     "pt": "Configuração de segmentos"
-  },
-  "page_titles.sso": {
-    "es": "Inicio de sesión único (SSO)",
-    "en": "Single sign-on (SSO)",
-    "pt": "Login único (SSO)"
   },
   "page_titles.statement_import": {
     "es": "Importar Estado de Cuenta",
@@ -609,20 +449,10 @@
     "en": "Suppliers",
     "pt": "Fornecedores"
   },
-  "page_titles.tax_jurisdictions": {
-    "es": "Jurisdicciones fiscales",
-    "en": "Tax jurisdictions",
-    "pt": "Jurisdições fiscais"
-  },
   "page_titles.tax_new": {
     "es": "Nuevo impuesto",
     "en": "New tax",
     "pt": "Novo imposto"
-  },
-  "page_titles.tax_rules": {
-    "es": "Reglas de impuestos",
-    "en": "Tax rules",
-    "pt": "Regras de impostos"
   },
   "page_titles.taxes": {
     "es": "Impuestos",
@@ -644,11 +474,6 @@
     "en": "Units of measure",
     "pt": "Unidades de medida"
   },
-  "page_titles.user_management": {
-    "es": "Gestión de usuarios",
-    "en": "User management",
-    "pt": "Gestão de usuários"
-  },
   "page_titles.variance_analysis": {
     "es": "Análisis de variaciones",
     "en": "Variance analysis",
@@ -658,11 +483,6 @@
     "es": "Factura de proveedor",
     "en": "Vendor bill",
     "pt": "Fatura de fornecedor"
-  },
-  "page_titles.vendor_bill_detail": {
-    "es": "Detalle de factura de proveedor",
-    "en": "Vendor bill detail",
-    "pt": "Detalhe da fatura de fornecedor"
   },
   "page_titles.vendor_bill_edit": {
     "es": "Editar factura de proveedor",
@@ -693,10 +513,5 @@
     "es": "Almacenes",
     "en": "Warehouses",
     "pt": "Depósitos"
-  },
-  "page_titles.withholding_regimes": {
-    "es": "Regímenes de retención",
-    "en": "Withholding regimes",
-    "pt": "Regimes de retenção"
   }
 }

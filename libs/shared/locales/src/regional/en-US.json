@@ -1,12 +1,10 @@
 {
   "$locale": "en-US",
   "$note": "United States. Only where the neutral English differs from what a US reader expects: the tax identifier is the EIN for a business and the SSN for an individual.",
-
-  "hcm.employees.form.document_type.national_id": "SSN",
-  "hcm.employees.form.document_type.tax_id": "EIN",
+  "hcm.employees.form.document_type.cedula": "SSN",
+  "hcm.employees.form.document_type.rnc": "EIN",
   "hcm.employees.form.tss_nss": "Social Security Number",
   "contacts.customer_form.tax_id": "EIN / TIN",
-  "masters.customer_form.rnc_nif": "EIN / TIN",
   "masters.supplier_form.tax_id": "EIN / TIN",
   "settings.company_profile.id_fiscal_rnc_tax_id": "EIN",
   "settings.subsidiaries.id_fiscal_rnc_tax_id": "EIN"

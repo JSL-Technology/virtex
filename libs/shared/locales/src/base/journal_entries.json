@@ -49,11 +49,6 @@
     "en": "The currency conversion left a rounding difference and no exchange difference account is configured.",
     "pt": "A conversão de moeda deixou uma diferença de arredondamento e não há conta de variação cambial configurada."
   },
-  "journal_entries.default_ledger_not_found": {
-    "es": "Libro contable por defecto no encontrado.",
-    "en": "The default ledger was not found.",
-    "pt": "O livro contábil padrão não foi encontrado."
-  },
   "journal_entries.entry_containing_reconciled_lines_cannot_modified": {
     "es": "No se puede modificar un asiento que contiene líneas conciliadas.",
     "en": "An entry containing reconciled lines cannot be modified.",
@@ -63,11 +58,6 @@
     "es": "No se puede reversar un asiento que contiene líneas conciliadas.",
     "en": "An entry containing reconciled lines cannot be reversed.",
     "pt": "Um lançamento com linhas conciliadas não pode ser estornado."
-  },
-  "journal_entries.entry_date_falls_accounting_period_closed": {
-    "es": "La fecha del asiento corresponde a un período contable cerrado o no definido.",
-    "en": "The entry's date falls in an accounting period that is closed or not defined.",
-    "pt": "A data do lançamento cai em um período contábil encerrado ou não definido."
   },
   "journal_entries.entry_does_not_balance_ledger_ledger": {
     "es": "El asiento no balancea en el libro {ledgerId}: diferencia de {difference}. Revisa las reglas de mapeo entre libros.",

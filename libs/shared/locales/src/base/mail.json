@@ -19,11 +19,6 @@
     "en": "If the button does not work, copy and paste this URL into your browser:",
     "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
   },
-  "mail.common.signature": {
-    "es": "El equipo de {{appName}}",
-    "en": "The {{appName}} team",
-    "pt": "A equipe do {{appName}}"
-  },
   "mail.common.transactional_notice": {
     "es": "Este es un correo transaccional automático; no respondas a este mensaje.",
     "en": "This is an automatic transactional email; please do not reply to it.",
@@ -98,11 +93,6 @@
     "es": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.",
     "en": "Did you not request this change? You can safely ignore this email. Your current address will stay as it is.",
     "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Seu endereço atual permanecerá o mesmo."
-  },
-  "mail.email_change_confirm.if_button_does_not_work_copy": {
-    "es": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
-    "en": "If the button does not work, copy and paste this URL into your browser:",
-    "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
   },
   "mail.email_change_confirm.link_valid": {
     "es": "Este enlace es válido por",
@@ -204,25 +194,10 @@
     "en": "Did you not request this change? You can safely ignore this email. Your password will not change.",
     "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Sua senha não será alterada."
   },
-  "mail.password_reset.if_button_does_not_work_copy": {
-    "es": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
-    "en": "If the button does not work, copy and paste this URL into your browser:",
-    "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
-  },
-  "mail.password_reset.if_you_need_help_visit": {
-    "es": "Si necesitas ayuda, visita",
-    "en": "If you need help, visit",
-    "pt": "Se precisar de ajuda, acesse"
-  },
   "mail.password_reset.link_valid_for": {
     "es": "Este enlace es válido durante {{expiration}}.",
     "en": "This link is valid for {{expiration}}.",
     "pt": "Este link é válido por {{expiration}}."
-  },
-  "mail.password_reset.open_your_browser": {
-    "es": "Ábrelo en el navegador",
-    "en": "Open it in your browser",
-    "pt": "Abra no navegador"
   },
   "mail.password_reset.password_reset": {
     "es": "Restablecimiento de contraseña",
@@ -234,11 +209,6 @@
     "en": "Password reset | {{appName}}",
     "pt": "Redefinição de senha | {{appName}}"
   },
-  "mail.password_reset.privacy": {
-    "es": "Privacidad",
-    "en": "Privacy",
-    "pt": "Privacidade"
-  },
   "mail.password_reset.reset_password": {
     "es": "Restablecer contraseña",
     "en": "Reset password",
@@ -249,21 +219,6 @@
     "en": "Reset your password",
     "pt": "Redefina sua senha"
   },
-  "mail.password_reset.support": {
-    "es": "Soporte",
-    "en": "Support",
-    "pt": "Suporte"
-  },
-  "mail.password_reset.terms": {
-    "es": "Términos",
-    "en": "Terms",
-    "pt": "Termos"
-  },
-  "mail.password_reset.trouble_viewing_email": {
-    "es": "¿Problemas para ver este correo?",
-    "en": "Trouble viewing this email?",
-    "pt": "Problemas para ver este e-mail?"
-  },
   "mail.password_reset.use_link_below_reset_your_app": {
     "es": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}.",
     "en": "Use the link below to reset your {{appName}} password. It expires in {{expiration}}.",
@@ -273,16 +228,6 @@
     "es": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en {{appName}}. Para continuar, utiliza el botón seguro a continuación.",
     "en": "We received a request to reset the password on your account at {{appName}}. To continue, use the secure button below.",
     "pt": "Recebemos uma solicitação para redefinir a senha da sua conta em {{appName}}. Para continuar, use o botão seguro abaixo."
-  },
-  "mail.password_reset.write_us": {
-    "es": "o escríbenos a",
-    "en": "or write to us at",
-    "pt": "ou escreva para"
-  },
-  "mail.password_reset.you_received_message_because_app_name": {
-    "es": "Has recibido este mensaje porque existe una cuenta de {{appName}} asociada a esta dirección de correo.",
-    "en": "You received this message because there is a {{appName}} account associated with this email address.",
-    "pt": "Você recebeu esta mensagem porque existe uma conta do {{appName}} associada a este endereço de e-mail."
   },
   "mail.registration_email_verify.click_button_below_confirm_your_address": {
     "es": "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.",
@@ -413,11 +358,6 @@
     "es": "Has sido invitado a unirte a nuestra plataforma. Por favor, haz clic en el siguiente enlace para configurar tu cuenta y establecer tu contraseña.",
     "en": "You have been invited to join our platform. Click the link below to set up your account and choose a password.",
     "pt": "Você foi convidado a entrar na nossa plataforma. Clique no link abaixo para configurar sua conta e definir sua senha."
-  },
-  "mail.verification_code.best_regards": {
-    "es": "Saludos,",
-    "en": "Best regards,",
-    "pt": "Atenciosamente,"
   },
   "mail.verification_code.code_expires_10_minutes": {
     "es": "Este código expirará en 10 minutos.",

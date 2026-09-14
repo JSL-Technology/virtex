@@ -1,14 +1,4 @@
 {
-  "dashboard.alerts_panel.early_warnings": {
-    "es": "Alertas Tempranas",
-    "en": "Early Warnings",
-    "pt": "Alertas Antecipados"
-  },
-  "dashboard.alerts_panel.nothing_needs_attention_right_now": {
-    "es": "Nada requiere atención ahora mismo.",
-    "en": "Nothing needs attention right now.",
-    "pt": "Nada requer atenção neste momento."
-  },
   "dashboard.alerts.count_product_out_stock": {
     "es": "{{count}} producto(s) agotados.",
     "en": "{{count}} product(s) out of stock.",
@@ -19,55 +9,25 @@
     "en": "Period {{period}} is still open and its closing date has passed.",
     "pt": "O período {{period}} continua aberto e a sua data de fecho já passou."
   },
-  "dashboard.alerts.period_unclosed.body": {
-    "es": "El período «{{period}}» terminó y sigue abierto.",
-    "en": "Period “{{period}}” has ended and is still open.",
-    "pt": "O período «{{period}}» terminou e continua aberto."
-  },
-  "dashboard.alerts.period_unclosed.title": {
-    "es": "Período sin cerrar",
-    "en": "Period still open",
-    "pt": "Período por fechar"
-  },
   "dashboard.alerts.receivables_overdue": {
     "es": "{{count}} factura(s) vencida(s) por {{amount}} sin cobrar.",
     "en": "{{count}} overdue invoice(s) worth {{amount}} still unpaid.",
     "pt": "{{count}} fatura(s) vencida(s) no valor de {{amount}} por cobrar."
-  },
-  "dashboard.alerts.receivables_overdue.body": {
-    "es": "{{count}} factura(s) vencida(s) por {{amount}} sin cobrar.",
-    "en": "{{count}} invoice(s) past due, {{amount}} uncollected.",
-    "pt": "{{count}} fatura(s) vencida(s), {{amount}} por cobrar."
-  },
-  "dashboard.alerts.receivables_overdue.title": {
-    "es": "Cartera vencida",
-    "en": "Overdue receivables",
-    "pt": "Contas a receber vencidas"
-  },
-  "dashboard.alerts.stock_depleted.body": {
-    "es": "{{count}} producto(s) sin existencias: no se pueden facturar.",
-    "en": "{{count}} product(s) have no stock and cannot be invoiced.",
-    "pt": "{{count}} produto(s) sem existências: não podem ser faturados."
-  },
-  "dashboard.alerts.stock_depleted.title": {
-    "es": "Productos agotados",
-    "en": "Out of stock",
-    "pt": "Produtos esgotados"
   },
   "dashboard.alerts.stock_low": {
     "es": "{{count}} producto(s) por debajo de su nivel de reorden.",
     "en": "{{count}} product(s) below their reorder level.",
     "pt": "{{count}} produto(s) abaixo do seu nível de reposição."
   },
-  "dashboard.alerts.stock_low.body": {
-    "es": "{{count}} producto(s) por debajo de su punto de reorden.",
-    "en": "{{count}} product(s) below their reorder level.",
-    "pt": "{{count}} produto(s) abaixo do ponto de reposição."
+  "dashboard.alerts_panel.early_warnings": {
+    "es": "Alertas Tempranas",
+    "en": "Early Warnings",
+    "pt": "Alertas Antecipados"
   },
-  "dashboard.alerts.stock_low.title": {
-    "es": "Inventario bajo",
-    "en": "Low stock",
-    "pt": "Estoque baixo"
+  "dashboard.alerts_panel.nothing_needs_attention_right_now": {
+    "es": "Nada requiere atención ahora mismo.",
+    "en": "Nothing needs attention right now.",
+    "pt": "Nada requer atenção neste momento."
   },
   "dashboard.ar_aging_chart.accounts_receivable_ageing": {
     "es": "Envejecimiento de Cuentas por Cobrar",

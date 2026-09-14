@@ -84,11 +84,6 @@
     "en": "We could not open the shift.",
     "pt": "Não foi possível abrir o turno."
   },
-  "pos.out_of_stock": {
-    "es": "Sin existencias",
-    "en": "Out of stock",
-    "pt": "Sem stock"
-  },
   "pos.password": {
     "es": "Contraseña",
     "en": "Password",
@@ -143,11 +138,6 @@
     "es": "Turno abierto · {{count}} ventas · {{amount}}",
     "en": "Shift open · {{count}} sales · {{amount}}",
     "pt": "Turno aberto · {{count}} vendas · {{amount}}"
-  },
-  "pos.shift_total": {
-    "es": "Turno: {{amount}}",
-    "en": "Shift: {{amount}}",
-    "pt": "Turno: {{amount}}"
   },
   "pos.sign_in": {
     "es": "Iniciar sesión",

@@ -4,16 +4,6 @@
     "en": "Approvals",
     "pt": "Aprovações"
   },
-  "my_work.date_duedate": {
-    "es": "Fecha: {{dueDate}}",
-    "en": "Date: {{dueDate}}",
-    "pt": "Data: {{dueDate}}"
-  },
-  "my_work.due_duedate": {
-    "es": "Vence: {{dueDate}}",
-    "en": "Due: {{dueDate}}",
-    "pt": "Vence em: {{dueDate}}"
-  },
   "my_work.load_failed": {
     "es": "No se pudo cargar tu bandeja. Inténtalo de nuevo.",
     "en": "Your inbox could not be loaded. Try again.",
@@ -24,30 +14,10 @@
     "en": "My Work",
     "pt": "Meu trabalho"
   },
-  "my_work.no_new_notifications": {
-    "es": "No hay notificaciones nuevas.",
-    "en": "There are no new notifications.",
-    "pt": "Não há notificações novas."
-  },
-  "my_work.no_pending_approval_requests": {
-    "es": "No hay solicitudes de aprobación pendientes.",
-    "en": "There are no pending approval requests.",
-    "pt": "Não há solicitações de aprovação pendentes."
-  },
-  "my_work.no_pending_tasks": {
-    "es": "No hay tareas pendientes.",
-    "en": "There are no pending tasks.",
-    "pt": "Não há tarefas pendentes."
-  },
   "my_work.notifications": {
     "es": "Notificaciones",
     "en": "Notifications",
     "pt": "Notificações"
-  },
-  "my_work.requested_duedate": {
-    "es": "Solicitado: {{dueDate}}",
-    "en": "Requested: {{dueDate}}",
-    "pt": "Solicitado: {{dueDate}}"
   },
   "my_work.security": {
     "es": "Seguridad",

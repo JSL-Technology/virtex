@@ -8,11 +8,11 @@ import { IsDateString, IsNotEmpty } from 'class-validator';
  * silently would let two readers compare numbers that cover different months.
  */
 export class ProfitabilityQueryDto {
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   @IsNotEmpty()
   startDate: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   @IsNotEmpty()
   endDate: string;
 }

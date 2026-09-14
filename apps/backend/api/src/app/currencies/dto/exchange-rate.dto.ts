@@ -34,7 +34,7 @@ export class RecordRateDto {
   @IsPositive()
   rate: number;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   date: string;
 
   @IsEnum(ExchangeRateType)
@@ -50,10 +50,10 @@ export class RecordRateDto {
 }
 
 export class BackfillRatesDto {
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   startDate: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   endDate: string;
 
   /**
@@ -77,7 +77,7 @@ export class RateLookupDto {
   @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   to: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   date: string;
 
   @IsEnum(ExchangeRateType)

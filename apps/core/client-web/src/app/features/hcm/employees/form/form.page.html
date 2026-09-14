@@ -56,9 +56,9 @@
         <label class="field">
           <span>{{ 'hcm.employees.form.document_type' | translate }}</span>
           <select formControlName="identityDocumentType">
-            <option value="CEDULA">{{ 'hcm.employees.form.document_type.national_id' | translate }}</option>
+            <option value="CEDULA">{{ 'hcm.employees.form.document_type.cedula' | translate }}</option>
             <option value="PASSPORT">{{ 'hcm.employees.form.document_type.passport' | translate }}</option>
-            <option value="RNC">{{ 'hcm.employees.form.document_type.tax_id' | translate }}</option>
+            <option value="RNC">{{ 'hcm.employees.form.document_type.rnc' | translate }}</option>
           </select>
         </label>
         <label class="field">
@@ -123,7 +123,7 @@
           <select formControlName="employmentStatus">
             <option value="ACTIVE">{{ 'hcm.employees.status_label.active' | translate }}</option>
             <option value="SUSPENDED">{{ 'hcm.employees.status_label.suspended' | translate }}</option>
-            <option value="TERMINATED">{{ 'hcm.employees.status_label.left' | translate }}</option>
+            <option value="TERMINATED">{{ 'hcm.employees.status_label.terminated' | translate }}</option>
           </select>
         </label>
         <label class="field">

@@ -9,11 +9,6 @@
     "en": "Account {{accountId}} does not belong to the organization given.",
     "pt": "A conta {{accountId}} não pertence à organização indicada."
   },
-  "intercompany.data_consistency_error_while_preparing_destination": {
-    "es": "Error de consistencia de datos al preparar el asiento de destino.",
-    "en": "Data consistency error while preparing the destination entry.",
-    "pt": "Erro de consistência de dados ao preparar o lançamento de destino."
-  },
   "intercompany.default_intercompany_accounts_not_configured_one": {
     "es": "Las cuentas intercompañía por defecto no están configuradas en una o ambas organizaciones.",
     "en": "The default intercompany accounts are not configured in one or both organizations.",
@@ -24,11 +19,6 @@
     "en": "The default intercompany payable account is not configured in the destination organization {{toOrganizationId}}.",
     "pt": "A conta a pagar intercompany padrão não está configurada na organização de destino {{toOrganizationId}}."
   },
-  "intercompany.destination_organization_has_no_journal_type": {
-    "es": "La organización de destino no tiene un diario de tipo 'GENERAL' configurado.",
-    "en": "The destination organization has no journal of type 'GENERAL' configured.",
-    "pt": "A organização de destino não tem um diário do tipo 'GENERAL' configurado."
-  },
   "intercompany.intercompany_transaction_id_not_found": {
     "es": "No se encontró la transacción intercompañía {{id}}.",
     "en": "Intercompany transaction {{id}} was not found.",
@@ -38,11 +28,6 @@
     "es": "Las transacciones intercompañía deben ser entre organizaciones diferentes.",
     "en": "Intercompany transactions must be between different organizations.",
     "pt": "Transações intercompany devem ser entre organizações diferentes."
-  },
-  "intercompany.no_exchange_rate_found_from_base": {
-    "es": "No se encontró tasa de cambio de {{baseCurrency}} a {{baseCurrency2}}.",
-    "en": "No exchange rate was found from {{baseCurrency}} to {{baseCurrency2}}.",
-    "pt": "Nenhuma taxa de câmbio encontrada de {{baseCurrency}} para {{baseCurrency2}}."
   },
   "intercompany.one_organizations_not_found": {
     "es": "Una de las organizaciones no fue encontrada.",
@@ -59,11 +44,6 @@
     "en": "The organizations are not in the same group. Record the relationship before transacting between them.",
     "pt": "As organizações não pertencem ao mesmo grupo. Registe a relação antes de transacionar entre elas."
   },
-  "intercompany.query_runner_could_not_obtained_source": {
-    "es": "No se pudo obtener el Query Runner para el asiento de origen.",
-    "en": "The query runner could not be obtained for the source entry.",
-    "pt": "Não foi possível obter o query runner para o lançamento de origem."
-  },
   "intercompany.receiving_organization_has_no_default_ledger": {
     "es": "La organización de destino no tiene libro contable por defecto.",
     "en": "The receiving organization has no default ledger.",
@@ -73,11 +53,6 @@
     "es": "La organización de origen no tiene libro contable por defecto.",
     "en": "The sending organization has no default ledger.",
     "pt": "A organização de origem não tem livro contabilístico predefinido."
-  },
-  "intercompany.source_organization_has_no_journal_type": {
-    "es": "La organización de origen no tiene un diario de tipo 'GENERAL' configurado.",
-    "en": "The source organization has no journal of type 'GENERAL' configured.",
-    "pt": "A organização de origem não tem um diário do tipo 'GENERAL' configurado."
   },
   "intercompany.transaction_already_has_destination_entry": {
     "es": "La transacción ya tiene su asiento de destino.",

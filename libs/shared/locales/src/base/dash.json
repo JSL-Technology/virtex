@@ -4,11 +4,6 @@
     "en": "Remove Widget",
     "pt": "Remover Widget"
   },
-  "dash.add_panel.add": {
-    "es": "Añadir",
-    "en": "Add",
-    "pt": "Adicionar"
-  },
   "dash.add_panel.description": {
     "es": "Añade nuevos widgets a tu dashboard.",
     "en": "Add new widgets to your dashboard.",

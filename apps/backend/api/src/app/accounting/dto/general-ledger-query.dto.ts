@@ -22,10 +22,10 @@ export class GeneralLedgerQueryDto {
   @IsUUID()
   accountId: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   startDate: string;
 
-  @IsDateString({}, { message: 'validation.constraints.property_not_valid_date' })
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   endDate: string;
 
   /** Which book. The tenant's default ledger when omitted. */
