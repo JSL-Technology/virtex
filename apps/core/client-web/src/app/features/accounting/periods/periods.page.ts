@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, Lock, Unlock, RefreshCw } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   AccountingPeriod,
   AccountingPeriodsService,

@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { ActivityItem, OverviewService } from '../../../overview/overview.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 
 /**
  * What has happened in this tenant lately.

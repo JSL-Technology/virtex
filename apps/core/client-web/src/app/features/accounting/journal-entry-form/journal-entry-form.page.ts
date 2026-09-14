@@ -14,7 +14,7 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {

@@ -1,3 +1,4 @@
+import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -5,8 +6,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Calculator, CheckCircle, Banknote, XCircle, Download, Plus, Trash2 } from 'lucide-angular';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 import { DocumentShellComponent, DocumentTone } from '../../../../shared/components/gestures';
-import { FormatService } from '../../../../core/i18n/format.service';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
 import {

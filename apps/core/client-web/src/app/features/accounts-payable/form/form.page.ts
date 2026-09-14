@@ -32,7 +32,7 @@ import { SuppliersService } from '../../../core/api/suppliers.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */

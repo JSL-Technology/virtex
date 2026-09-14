@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { CustomerAdvance, CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';

@@ -10,7 +10,7 @@ import {
   JournalEntries,
 } from '../../../../core/services/journal-entries';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * The fields a file has to supply, and whether it may leave one out.

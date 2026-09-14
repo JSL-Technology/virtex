@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { FormatService, DatePreset } from '../format.service';
-import { LocaleStore } from '../locale.store';
+import { FormatService, DatePreset } from './format.service';
+import { LocaleStore } from './locale.store';
 import { VxLocalizedNamePipe } from './localized-name.pipe';
 
 /**

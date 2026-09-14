@@ -19,7 +19,7 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { QRCodeComponent } from 'angularx-qrcode';
 import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';

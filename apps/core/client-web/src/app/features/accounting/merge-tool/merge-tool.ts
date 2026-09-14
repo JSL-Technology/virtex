@@ -1,10 +1,9 @@
+import { FORMAT_PIPES, accountNameFor } from '@virteex/shared/ui-i18n';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
-import { accountNameFor } from '../../../core/i18n/localized-name';
 
 /**
  * Herramienta de Fusión de Cuentas (Standalone Component)

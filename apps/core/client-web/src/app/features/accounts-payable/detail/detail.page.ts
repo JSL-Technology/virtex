@@ -19,7 +19,7 @@ import {
 } from '../../../core/services/accounts-payable';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 

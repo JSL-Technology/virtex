@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 

@@ -2,7 +2,7 @@ import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { errorCodeOf, errorParamsOf, resolveErrorKey } from '@virteex/shared/ui-i18n';
 
 /**
  * Turns any HTTP failure into a sentence in the reader's language.
@@ -106,20 +106,12 @@ export class ErrorHandlerService {
    * {@link resolveMessage}.
    */
   keyFor(error: HttpErrorResponse): string {
-    if (error?.error instanceof ProgressEvent || error?.status === 0) return 'errors.network';
+    return resolveErrorKey(error, (key) => this.has(key));
+  }
 
-    const body = error?.error as ErrorBody | null | undefined;
-    const code = this.extractCode(error);
-    if (code) {
-      const byCode = composeKey('errors', code);
-      if (this.translate.instant(byCode) !== byCode) return byCode;
-    }
-    if (error.status < 500 && typeof body?.messageKey === 'string' && body.messageKey.trim()) {
-      if (this.translate.instant(body.messageKey) !== body.messageKey) return body.messageKey;
-    }
-    const byStatus = `errors.http_${error?.status}`;
-    if (this.translate.instant(byStatus) !== byStatus) return byStatus;
-    return 'errors.unexpected';
+  /** Whether the loaded catalogue can render a key. `instant` returns the key when it cannot. */
+  private has(key: string): boolean {
+    return this.translate.instant(key) !== key;
   }
 
   /**
@@ -130,41 +122,11 @@ export class ErrorHandlerService {
    * name rather than a domain code, so requiring the screaming-snake shape keeps it out.
    */
   private extractCode(error: HttpErrorResponse): string | null {
-    const body = error?.error as ErrorBody | null | undefined;
-    for (const candidate of [body?.code, body?.error]) {
-      if (typeof candidate === 'string' && /^[A-Z][A-Z0-9_]{2,}$/.test(candidate)) return candidate;
-    }
-    return null;
+    return errorCodeOf(error);
   }
 
   private resolveMessage(error: HttpErrorResponse): string {
-    // A browser-level failure: DNS, TLS, or the device being offline. There is no server answer to
-    // read, and the browser's own message is neither translated nor meaningful to a reader.
-    if (error?.error instanceof ProgressEvent || error?.status === 0) {
-      return this.translate.instant('errors.network');
-    }
-
-    const body = error?.error as ErrorBody | null | undefined;
-    const params = this.paramsOf(body);
-    const code = this.extractCode(error);
-
-    if (code) {
-      const byCode = composeKey('errors', code);
-      const translated = this.translate.instant(byCode, params);
-      if (translated !== byCode) return translated;
-    }
-
-    // A 5xx says nothing specific: the key it names describes an operator's problem.
-    if (error.status < 500 && typeof body?.messageKey === 'string' && body.messageKey.trim()) {
-      const translated = this.translate.instant(body.messageKey, params);
-      if (translated !== body.messageKey) return translated;
-    }
-
-    const byStatus = `errors.http_${error?.status}`;
-    const translated = this.translate.instant(byStatus);
-    if (translated !== byStatus) return translated;
-
-    return this.translate.instant('errors.unexpected');
+    return this.translate.instant(this.keyFor(error), errorParamsOf(error));
   }
 
   /**
@@ -194,10 +156,4 @@ export class ErrorHandlerService {
     return out;
   }
 
-  private paramsOf(body: ErrorBody | null | undefined): Record<string, unknown> {
-    const params = body?.params;
-    return params !== null && typeof params === 'object' && !Array.isArray(params)
-      ? (params as Record<string, unknown>)
-      : {};
-  }
 }

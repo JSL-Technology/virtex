@@ -9,7 +9,7 @@ import { ChartOfAccountsApiService } from '../api/chart-of-accounts.service';
 import { NotificationService } from '../services/notification';
 
 import { AccountType } from '../models/account.model';
-import { accountNameFor } from '../i18n/localized-name';
+import { accountNameFor } from '@virteex/shared/ui-i18n';
 type Sort = { field: keyof FlattenedAccount; direction: 'asc' | 'desc' };
 type Filters = { status: 'ALL' | 'ACTIVE' | 'INACTIVE'; type: 'ALL' | AccountType; };
 

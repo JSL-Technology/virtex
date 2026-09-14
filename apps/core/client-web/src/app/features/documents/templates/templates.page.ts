@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FileText, Upload, Download, Trash2 } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import {

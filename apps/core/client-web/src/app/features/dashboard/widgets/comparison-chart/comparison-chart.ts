@@ -10,7 +10,7 @@ import {
   BudgetVsActualPoint,
   DashboardApiService,
 } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lucide-angular';
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)

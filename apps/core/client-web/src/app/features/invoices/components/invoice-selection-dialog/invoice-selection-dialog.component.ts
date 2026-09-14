@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-invoice-selection-dialog',

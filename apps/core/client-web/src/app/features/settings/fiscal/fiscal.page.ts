@@ -10,7 +10,7 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 
 /**

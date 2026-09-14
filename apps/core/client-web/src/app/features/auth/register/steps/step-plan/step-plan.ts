@@ -8,7 +8,7 @@ import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
-import { translateOrLiteral } from '../../../../../core/i18n/translate-or-literal';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 
 /**

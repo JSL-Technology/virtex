@@ -9,7 +9,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { EMPTY } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 

@@ -16,7 +16,7 @@ import {
   TaxJurisdiction,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * Where the tenant is registered to collect sales tax, and at what rate.

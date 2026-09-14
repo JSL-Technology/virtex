@@ -5,7 +5,7 @@ import { LucideAngularModule, DollarSign, Receipt, Package, Users, BarChart3, Tr
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of, shareReplay } from 'rxjs';
 import { DashboardApiService, DashboardSummary } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 
 /** Which of the four headline figures this instance shows. */

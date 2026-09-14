@@ -9,7 +9,7 @@ import {
   SUPPORTED_LANGUAGES,
   matchLanguage,
 } from '@virteex/shared/types';
-import { LocaleStore } from '../i18n/locale.store';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { UsersService } from '../api/users.service';
 
 /**

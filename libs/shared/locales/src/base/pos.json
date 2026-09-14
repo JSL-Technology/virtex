@@ -34,15 +34,45 @@
     "en": "Add products to begin.",
     "pt": "Adiciona produtos para começar."
   },
+  "pos.in_stock": {
+    "es": "{{count}} en existencia",
+    "en": "{{count}} in stock",
+    "pt": "{{count}} em stock"
+  },
+  "pos.in_stock_one": {
+    "es": "{{count}} en existencia",
+    "en": "{{count}} in stock",
+    "pt": "{{count}} em stock"
+  },
+  "pos.in_stock_other": {
+    "es": "{{count}} en existencia",
+    "en": "{{count}} in stock",
+    "pt": "{{count}} em stock"
+  },
   "pos.load_products_error": {
     "es": "No pudimos cargar el catálogo de productos.",
     "en": "We could not load the product catalogue.",
     "pt": "Não foi possível carregar o catálogo de produtos."
   },
+  "pos.loading_catalogue": {
+    "es": "Cargando el catálogo…",
+    "en": "Loading the catalogue…",
+    "pt": "A carregar o catálogo…"
+  },
   "pos.no_open_shift": {
     "en": "There is no open shift on this terminal. Open a shift before selling.",
     "es": "No hay un turno abierto en esta terminal. Abre un turno antes de vender.",
     "pt": "Não há um turno aberto neste terminal. Abre um turno antes de vender."
+  },
+  "pos.no_products": {
+    "es": "No hay productos. Agrégalos primero en inventario.",
+    "en": "No products. Add them in inventory first.",
+    "pt": "Não há produtos. Adiciona-os primeiro no inventário."
+  },
+  "pos.no_shift_open": {
+    "es": "Sin turno abierto",
+    "en": "No open shift",
+    "pt": "Sem turno aberto"
   },
   "pos.open_shift": {
     "es": "Abrir turno",
@@ -98,6 +128,21 @@
     "en": "We could not find that shift.",
     "es": "No encontramos el turno.",
     "pt": "Não encontrámos esse turno."
+  },
+  "pos.shift_open_summary": {
+    "es": "Turno abierto · {{count}} ventas · {{amount}}",
+    "en": "Shift open · {{count}} sales · {{amount}}",
+    "pt": "Turno aberto · {{count}} vendas · {{amount}}"
+  },
+  "pos.shift_open_summary_one": {
+    "es": "Turno abierto · {{count}} venta · {{amount}}",
+    "en": "Shift open · {{count}} sale · {{amount}}",
+    "pt": "Turno aberto · {{count}} venda · {{amount}}"
+  },
+  "pos.shift_open_summary_other": {
+    "es": "Turno abierto · {{count}} ventas · {{amount}}",
+    "en": "Shift open · {{count}} sales · {{amount}}",
+    "pt": "Turno aberto · {{count}} vendas · {{amount}}"
   },
   "pos.shift_total": {
     "es": "Turno: {{amount}}",

@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf } from '../../../core/i18n/localized-name';
+import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';

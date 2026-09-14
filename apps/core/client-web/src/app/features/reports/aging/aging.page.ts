@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Calendar, RefreshCw } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 

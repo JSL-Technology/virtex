@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { LocaleStore } from '../locale.store';
+import { LocaleStore } from './locale.store';
 
 /**
  * An account's own name, in the reader's language.

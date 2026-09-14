@@ -1,3 +1,4 @@
+import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
@@ -7,8 +8,6 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { translateOrLiteral } from '../../../core/i18n/translate-or-literal';
-import { FormatService } from '../../../core/i18n/format.service';
 import { composeKey } from '@virteex/shared/types';
 
 @Component({

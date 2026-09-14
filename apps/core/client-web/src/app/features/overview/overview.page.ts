@@ -1,3 +1,4 @@
+import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -22,14 +23,12 @@ import {
 import { AuthService } from '../../core/services/auth';
 import { TabStateService } from '../../core/tabs/tab-state.service';
 import { TabAware } from '../../core/tabs/tab.model';
-import { FormatService } from '../../core/i18n/format.service';
 import {
   OverviewService,
   ActivityItem,
   NewsItem,
   EventItem,
 } from './overview.service';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 type SectionStatus = 'loading' | 'ready' | 'error';
 

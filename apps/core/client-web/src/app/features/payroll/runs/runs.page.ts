@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   PayrollRun,

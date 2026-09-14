@@ -8,7 +8,7 @@ import { SessionService, UserSession } from '../../../../core/services/session.s
 import { NotificationService } from '../../../../core/services/notification';
 import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-sessions',

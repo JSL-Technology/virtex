@@ -1,6 +1,6 @@
 import { Injectable, effect, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LocaleStore } from './locale.store';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 
 /**
  * Reload the catalogue when the tenant's country becomes known.

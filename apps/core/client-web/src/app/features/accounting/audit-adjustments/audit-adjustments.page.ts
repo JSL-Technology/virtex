@@ -1,3 +1,4 @@
+import { VxDatePipe, VxMoneyPipe, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -5,14 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FilePlus, Paperclip } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { VxDatePipe, VxMoneyPipe } from '../../../core/i18n/pipes/format.pipes';
 import {
   AdjustmentStatus,
   AuditAdjustmentsService,
   ProposedAdjustment,
 } from '../../../core/api/audit-adjustments.service';
 import { FiscalYear, FiscalYearsService } from '../../../core/api/fiscal-years.service';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 /**
  * How each state reads and what colour it wears. One table, so the label and the badge cannot

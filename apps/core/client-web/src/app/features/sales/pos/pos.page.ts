@@ -6,7 +6,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { InvoicesService } from '../../../core/services/invoices';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';

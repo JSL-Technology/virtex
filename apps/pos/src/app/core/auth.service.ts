@@ -2,6 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, of, tap } from 'rxjs';
 import { Observable } from 'rxjs';
+import { LocaleContextContract } from '@virteex/shared/types';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { environment } from '../../environments/environment';
 
 export interface SessionUser {
@@ -11,6 +13,15 @@ export interface SessionUser {
   lastName?: string;
   organizationId: string;
   permissions?: string[];
+  /**
+   * Language, locale, currency and timezone, resolved by the server for this tenant.
+   *
+   * The till must not infer these from the browser. A terminal on a shop counter runs whatever
+   * Windows install it came with, and `Intl.NumberFormat(undefined, …)` — which is what this app
+   * used — takes the BROWSER's locale, so a Dominican peso was grouped and punctuated the American
+   * way on any machine that had never had its region changed.
+   */
+  localeContext?: LocaleContextContract;
 }
 
 /**
@@ -21,6 +32,7 @@ export interface SessionUser {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly locale = inject(LocaleStore);
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   private readonly _user = signal<SessionUser | null>(null);
@@ -33,7 +45,11 @@ export class AuthService {
       .get<{ user?: SessionUser } | SessionUser>(`${this.apiUrl}/session`, { withCredentials: true })
       .pipe(
         map((res) => (res && 'user' in res ? res.user ?? null : (res as SessionUser)) ?? null),
-        tap((user) => this._user.set(user)),
+        tap((user) => {
+          this._user.set(user);
+          this.locale.setTenantContext(user?.localeContext ?? null);
+          if (user?.localeContext) this.locale.setLanguage(user.localeContext.language);
+        }),
         map((user) => user !== null),
         catchError(() => {
           this._user.set(null);
@@ -57,11 +73,17 @@ export class AuthService {
       );
   }
 
+  private forget(): void {
+    this._user.set(null);
+    // The tenant's currency and timezone belonged to that session, not to this browser.
+    this.locale.setTenantContext(null);
+  }
+
   logout(): Observable<unknown> {
     return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
-      tap(() => this._user.set(null)),
+      tap(() => this.forget()),
       catchError(() => {
-        this._user.set(null);
+        this.forget();
         return of(null);
       }),
     );

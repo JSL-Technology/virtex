@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';

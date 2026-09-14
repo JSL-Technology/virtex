@@ -3,7 +3,7 @@ import { LucideAngularModule, Check, BellOff } from 'lucide-angular';
 import { NotificationCenterService, Notification } from '../../core/services/notification-center.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 interface NotificationGroup {
   /**

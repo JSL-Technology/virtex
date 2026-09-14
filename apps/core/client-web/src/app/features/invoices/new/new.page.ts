@@ -29,7 +29,7 @@ import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 
 /**

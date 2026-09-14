@@ -6,7 +6,7 @@ import {
   type TranslationObject,
 } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
-import { translateOrLiteral } from './translate-or-literal';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 
 class FakeLoader implements TranslateLoader {
   getTranslation(): Observable<TranslationObject> {

@@ -18,7 +18,7 @@ import {
   MarketCoverage,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * Which configuration fields a market's regime actually needs.

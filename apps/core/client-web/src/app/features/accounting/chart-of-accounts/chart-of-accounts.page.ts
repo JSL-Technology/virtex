@@ -8,7 +8,7 @@ import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, File
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({

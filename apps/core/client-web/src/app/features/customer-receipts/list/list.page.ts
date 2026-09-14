@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   CustomerReceipt,
   CustomerReceiptsService,

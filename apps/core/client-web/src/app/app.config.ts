@@ -1,3 +1,4 @@
+import { VirtexTranslateStore, VirtexMissingTranslationHandler } from '@virteex/shared/ui-i18n';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -12,9 +13,7 @@ import {
 import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
 import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
 import { LazyTranslateLoader } from './core/i18n/translate-loader';
-import { VirtexTranslateStore } from './core/i18n/translate-store';
 import { RegionalLocaleEffect } from './core/i18n/regional-locale.effect';
-import { VirtexMissingTranslationHandler } from './core/i18n/missing-translation.handler';
 import { LanguageService } from './core/services/language';
 
 // import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';

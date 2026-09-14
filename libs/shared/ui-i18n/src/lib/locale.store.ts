@@ -103,7 +103,27 @@ export class LocaleStore {
       this.document.documentElement.lang = language;
       this.document.documentElement.dir = LANGUAGE_DIRECTION[language];
       this.write(LANGUAGE_STORAGE_KEY, language);
+      this.notifyDesktopShell(language);
     });
+  }
+
+  /**
+   * Tell the Electron shell, when there is one, so the NATIVE menu changes language too.
+   *
+   * The menu is drawn by the operating system before any page exists, so it cannot go through
+   * `TranslateService`; the main process keeps its own three-string catalogue and redraws on this
+   * signal. Without it, switching language in the web client left "Go / Portal / Point of sale" in
+   * whatever language the application had started in.
+   */
+  private notifyDesktopShell(language: LanguageCode): void {
+    const shell = (globalThis as { virtexDesktop?: { setLanguage?: (l: string) => void } })
+      .virtexDesktop;
+    try {
+      shell?.setLanguage?.(language);
+    } catch {
+      // Running outside the shell, or an older shell without the bridge. Neither is a problem
+      // worth interrupting a language change for.
+    }
   }
 
   /** Change the interface language. Returns false when the code is not one this build has. */

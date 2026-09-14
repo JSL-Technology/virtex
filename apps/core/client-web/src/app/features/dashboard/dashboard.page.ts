@@ -28,7 +28,7 @@ import { KpiNetMarginComponent } from './widgets/kpi-net-margin/kpi-net-margin';
 import { KpiEbitdaComponent } from './widgets/kpi-ebitda/kpi-ebitda';
 import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-dashboard-page',

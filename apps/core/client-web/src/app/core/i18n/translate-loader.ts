@@ -5,7 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 import { DEFAULT_LANGUAGE, LanguageCode, isLanguageCode } from '@virteex/shared/types';
 import spanish from '../../../assets/i18n/es.json';
 import regionalOverrides from '../../../assets/i18n/regional.json';
-import { LocaleStore } from './locale.store';
+import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virteex/shared/ui-i18n';
 
 /**
  * Loads one message catalogue, and only the one being used, with the tenant's country applied.
@@ -39,7 +39,7 @@ import { LocaleStore } from './locale.store';
 
 type Catalogue = Record<string, string>;
 
-const REGIONAL = regionalOverrides as Record<string, Catalogue>;
+const REGIONAL = regionalOverrides as RegionalCatalogue;
 
 /**
  * `import()` on a JSON module resolves to a namespace whose `default` holds the table, while the
@@ -81,21 +81,8 @@ export class LazyTranslateLoader implements TranslateLoader {
     );
   }
 
-  /**
-   * Apply the patch for the locale in force, if there is one.
-   *
-   * A fresh object every time rather than mutation: switching from `es-DO` to `es-MX` must not
-   * leave the Dominican wording standing on the keys Mexico does not override.
-   */
+  /** Apply the patch for the locale in force, if there is one. See `applyRegionalCatalogue`. */
   private withRegionalOverrides(base: Catalogue): Catalogue {
-    const patch = REGIONAL[this.locale.locale()];
-    if (!patch) return base;
-    const merged: Catalogue = { ...base };
-    for (const [key, value] of Object.entries(patch)) {
-      // Only override a key the catalogue has: a patch naming a key that no longer exists is a
-      // stale entry, and silently adding it would hide that from `verify-catalogues.mjs`.
-      if (key in merged) merged[key] = value;
-    }
-    return merged;
+    return applyRegionalCatalogue(base, REGIONAL, this.locale.locale());
   }
 }
