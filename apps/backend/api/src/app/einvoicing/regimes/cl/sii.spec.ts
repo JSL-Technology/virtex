@@ -86,10 +86,10 @@ describe('SII — Documento Tributario Electrónico', () => {
     // The SII verifies the timbre against the key it issued with that range. A folio from another
     // range is not a numbering slip; it is a document that cannot be validated.
     expect(() => builder.build(input({ caf: { ...input().caf, folio: 250 } }))).toThrow(
-      expect.objectContaining({ messageKey: 'einvoicing.folio_folio_outside_authorised_range_from' }),
+      expect.objectContaining({ messageKey: 'einvoicing.cl.folio_folio_outside_authorised_range_from' }),
     );
     expect(() => builder.build(input({ caf: { ...input().caf, folio: 50 } }))).toThrow(
-      expect.objectContaining({ messageKey: 'einvoicing.folio_folio_outside_authorised_range_from' }),
+      expect.objectContaining({ messageKey: 'einvoicing.cl.folio_folio_outside_authorised_range_from' }),
     );
   });
 
@@ -159,9 +159,9 @@ describe('SII — Documento Tributario Electrónico', () => {
   });
 
   it.each([
-    ['sin CAF', { caf: { ...{ folio: 150, rangeFrom: 100, rangeTo: 200, authorizedOn: '2026-01-15', rawCafXml: '' }, privateKeyPem: '' } as SiiBuildInput['caf'] }, 'einvoicing.sii_caf_missing_without_key_document'],
-    ['sin actividad económica', { activityCode: '' }, 'einvoicing.economic_activity_code_sii_requires_document'],
-    ['el receptor sin RUT', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.customer_customer_has_no_rut'],
+    ['sin CAF', { caf: { ...{ folio: 150, rangeFrom: 100, rangeTo: 200, authorizedOn: '2026-01-15', rawCafXml: '' }, privateKeyPem: '' } as SiiBuildInput['caf'] }, 'einvoicing.cl.sii_caf_missing_without_key_document'],
+    ['sin actividad económica', { activityCode: '' }, 'einvoicing.cl.economic_activity_code_sii_requires_document'],
+    ['el receptor sin RUT', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.cl.customer_customer_has_no_rut'],
   ])('refuses to build %s', (_name, overrides, messageKey) => {
     expect(() => builder.build(input(overrides as Partial<SiiBuildInput>))).toThrow(
       expect.objectContaining({ messageKey }),

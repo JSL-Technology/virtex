@@ -1,13 +1,23 @@
 {
+  "einvoicing.ar.document_number_afip_expects_next_missing": {
+    "es": "Falta el número de comprobante que AFIP espera a continuación.",
+    "en": "The document number AFIP expects next is missing.",
+    "pt": "Falta o número do comprovante que a AFIP espera a seguir."
+  },
+  "einvoicing.ar.organization_has_no_valid_cuit_afip": {
+    "es": "La organización no tiene CUIT válido; AFIP no autoriza un comprobante sin él.",
+    "en": "The organization has no valid CUIT; AFIP will not authorise a document without one.",
+    "pt": "A organização não tem CUIT válido; a AFIP não autoriza um comprovante sem ele."
+  },
+  "einvoicing.ar.point_sale_afip_assigned_establishment_missing": {
+    "es": "Falta el punto de venta que AFIP asignó al establecimiento.",
+    "en": "The point of sale AFIP assigned to this establishment is missing.",
+    "pt": "Falta o ponto de venda que a AFIP atribuiu ao estabelecimento."
+  },
   "einvoicing.authorization_type_type_range_expired_date": {
     "es": "La autorización del rango para el tipo {type} venció el {date}. Registra el nuevo rango autorizado antes de emitir.",
     "en": "The authorization for the type {type} range expired on {date}. Register the new authorized range before issuing.",
     "pt": "A autorização da faixa do tipo {type} venceu em {date}. Registre a nova faixa autorizada antes de emitir."
-  },
-  "einvoicing.authorized_range_ends_ends_you_cannot": {
-    "es": "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.",
-    "en": "The authorized range ends at {{endsAt}}; you cannot void beyond its limit.",
-    "pt": "A faixa autorizada termina em {{endsAt}}; você não pode cancelar além desse limite."
   },
   "einvoicing.authorized_range_type_type_exhausted_range": {
     "es": "El rango autorizado para el tipo {type} se agotó (rango {from}–{to}). Solicita uno nuevo a la autoridad y regístralo antes de continuar facturando.",
@@ -19,25 +29,25 @@
     "en": "The authorized range for type {type} has non-numeric bounds. Correct it before issuing.",
     "pt": "A faixa autorizada para o tipo {type} tem limites que não são numéricos. Corrija antes de emitir."
   },
-  "einvoicing.buyer_legal_name_required_for_type": {
-    "es": "un comprobante tipo {{type}} requiere la razón social del comprador",
-    "en": "a type {{type}} document requires the buyer's legal name",
-    "pt": "um documento do tipo {{type}} exige a razão social do comprador"
+  "einvoicing.br.customer_customer_has_neither_cnpj_nor": {
+    "es": "El cliente «{{customer}}» no tiene CNPJ ni CPF.",
+    "en": "The customer “{{customer}}” has neither a CNPJ nor a CPF.",
+    "pt": "O cliente «{{customer}}» não tem CNPJ nem CPF."
   },
-  "einvoicing.buyer_rnc_national_id_must_have": {
-    "es": "el RNC o cédula del comprador debe tener 9 u 11 dígitos",
-    "en": "the buyer's RNC or national ID must have 9 or 11 digits",
-    "pt": "o RNC ou documento do comprador deve ter 9 ou 11 dígitos"
+  "einvoicing.br.ibge_codes_issuing_state_municipality_missing": {
+    "es": "Faltam os códigos IBGE do estado e do município de emissão.",
+    "en": "The IBGE codes for the issuing state and municipality are missing.",
+    "pt": "Faltam os códigos IBGE do estado e do município de emissão."
   },
-  "einvoicing.buyer_tax_id_required_for_type": {
-    "es": "un comprobante tipo {{type}} requiere el RNC o cédula del comprador",
-    "en": "a type {{type}} document requires the buyer's RNC or national ID",
-    "pt": "um documento do tipo {{type}} exige o RNC ou documento do comprador"
+  "einvoicing.br.line_line_has_no_key_set": {
+    "es": "La línea «{{line}}» no tiene {{key}}. Defínelo en el producto: la NCM clasifica la mercancía y el CFOP la operación.",
+    "en": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the goods and CFOP the operation.",
+    "pt": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação."
   },
-  "einvoicing.cash_sale_must_declare_least_one": {
-    "es": "una venta al contado debe declarar al menos una forma de pago",
-    "en": "a cash sale must declare at least one payment method",
-    "pt": "uma venda à vista deve declarar ao menos uma forma de pagamento"
+  "einvoicing.br.organization_has_no_valid_cnpj_nf": {
+    "es": "La organización no tiene un CNPJ válido; la NF-e no puede emitirse.",
+    "en": "The organization has no valid CNPJ, so the NF-e cannot be issued.",
+    "pt": "A organização não tem CNPJ válido; a NF-e não pode ser emitida."
   },
   "einvoicing.certificate_could_not_opened_invalid_file": {
     "es": "No se pudo abrir el certificado: archivo inválido o contraseña incorrecta.",
@@ -54,275 +64,365 @@
     "en": "The certificate's encrypted data format is invalid.",
     "pt": "Formato inválido dos dados criptografados do certificado."
   },
-  "einvoicing.certificate_file_empty": {
-    "es": "El archivo del certificado está vacío.",
-    "en": "The certificate file is empty.",
-    "pt": "O arquivo do certificado está vazio."
-  },
-  "einvoicing.certificate_password_required": {
-    "es": "La contraseña del certificado es obligatoria.",
-    "en": "The certificate password is required.",
-    "pt": "A senha do certificado é obrigatória."
-  },
-  "einvoicing.cf_document_could_not_signed_p1": {
-    "es": "No se pudo firmar el documento e-CF: {{p1}}",
-    "en": "The e-CF document could not be signed: {{p1}}",
-    "pt": "Não foi possível assinar o documento e-CF: {{p1}}"
-  },
-  "einvoicing.commercial_rejection_must_state_reason_dgii": {
-    "es": "Un rechazo comercial debe indicar el motivo: la DGII lo exige y el emisor lo necesita para corregir.",
-    "en": "A commercial rejection must state its reason: the DGII requires it, and the issuer needs it to correct the document.",
-    "pt": "Uma rejeição comercial deve informar o motivo: a DGII o exige e o emissor precisa dele para corrigir."
-  },
-  "einvoicing.consumo_above_threshold_requires_buyer": {
-    "es": "una factura de consumo por {{amount}} supera el umbral de {{threshold}} y requiere identificar al comprador",
-    "en": "a consumer invoice for {{amount}} exceeds the {{threshold}} threshold and requires the buyer to be identified",
-    "pt": "uma fatura de consumo de {{amount}} supera o limite de {{threshold}} e exige a identificação do comprador"
-  },
-  "einvoicing.credit_debit_note_must_reference_document": {
-    "es": "una nota de crédito o débito debe referenciar el comprobante que modifica",
-    "en": "a credit or debit note must reference the document it modifies",
-    "pt": "uma nota de crédito ou débito deve referenciar o documento que modifica"
-  },
-  "einvoicing.currency_code_must_iso_4217": {
-    "es": "el código de moneda debe ser ISO 4217",
-    "en": "the currency code must be ISO 4217",
-    "pt": "o código da moeda deve ser ISO 4217"
-  },
-  "einvoicing.customer_customer_has_neither_cnpj_nor": {
-    "es": "El cliente «{{customer}}» no tiene CNPJ ni CPF.",
-    "en": "The customer “{{customer}}” has neither a CNPJ nor a CPF.",
-    "pt": "O cliente «{{customer}}» não tem CNPJ nem CPF."
-  },
-  "einvoicing.customer_customer_has_no_identification_document": {
-    "es": "El cliente «{{customer}}» no tiene documento de identificación.",
-    "en": "Customer “{{customer}}” has no identification document.",
-    "pt": "O cliente «{{customer}}» não tem documento de identificação."
-  },
-  "einvoicing.customer_customer_has_no_postal_code": {
-    "es": "El cliente «{{customer}}» no tiene código postal; el CFDI 4.0 lo exige como domicilio fiscal del receptor.",
-    "en": "Customer “{{customer}}” has no postal code; CFDI 4.0 requires it as the receiver's tax address.",
-    "pt": "O cliente «{{customer}}» não tem código postal; o CFDI 4.0 o exige como endereço fiscal do destinatário."
-  },
-  "einvoicing.customer_customer_has_no_rfc_which": {
-    "es": "El cliente «{{customer}}» no tiene RFC; el CFDI lo exige.",
-    "en": "Customer “{{customer}}” has no RFC, which the CFDI requires.",
-    "pt": "O cliente «{{customer}}» não tem RFC, exigido pelo CFDI."
-  },
-  "einvoicing.customer_customer_has_no_rut": {
+  "einvoicing.cl.customer_customer_has_no_rut": {
     "es": "El cliente «{{customer}}» no tiene RUT.",
     "en": "Customer “{{customer}}” has no RUT.",
     "pt": "O cliente «{{customer}}» não tem RUT."
   },
-  "einvoicing.date_must_dd_mm_yyyy_format": {
+  "einvoicing.cl.economic_activity_code_sii_requires_document": {
+    "es": "Falta el código de actividad económica que el SII exige en el documento.",
+    "en": "The economic activity code the SII requires on the document is missing.",
+    "pt": "Falta o código de atividade econômica exigido pelo SII no documento."
+  },
+  "einvoicing.cl.folio_folio_outside_authorised_range_from": {
+    "es": "El folio {{folio}} está fuera del rango autorizado ({{from}}–{{to}}). El SII verifica el timbre contra la clave emitida con ese rango.",
+    "en": "Folio {{folio}} is outside the authorised range ({{from}}–{{to}}). The SII verifies the stamp against the key issued with that range.",
+    "pt": "O folio {{folio}} está fora da faixa autorizada ({{from}}–{{to}}). O SII verifica o carimbo contra a chave emitida com essa faixa."
+  },
+  "einvoicing.cl.organization_has_no_rut_sii_does": {
+    "es": "La organización no tiene RUT; el SII no acepta un DTE sin él.",
+    "en": "The organization has no RUT; the SII does not accept a DTE without one.",
+    "pt": "A organização não tem RUT; o SII não aceita um DTE sem ele."
+  },
+  "einvoicing.cl.sii_caf_missing_without_key_document": {
+    "es": "Falta el CAF del SII: sin su clave no se puede timbrar el documento.",
+    "en": "The SII's CAF is missing: without its key the document cannot be stamped.",
+    "pt": "Falta o CAF do SII: sem sua chave o documento não pode ser carimbado."
+  },
+  "einvoicing.co.customer_customer_has_no_identification_document": {
+    "es": "El cliente «{{customer}}» no tiene documento de identificación.",
+    "en": "Customer “{{customer}}” has no identification document.",
+    "pt": "O cliente «{{customer}}» não tem documento de identificação."
+  },
+  "einvoicing.co.dian_invoicing_resolution_with_prefix_authorised": {
+    "es": "Falta la resolución de facturación de la DIAN con su prefijo y rango autorizado.",
+    "en": "The DIAN invoicing resolution, with its prefix and authorised range, is missing.",
+    "pt": "Falta a resolução de faturamento da DIAN com seu prefixo e faixa autorizada."
+  },
+  "einvoicing.co.invoicing_resolution_technical_key_missing_cufe": {
+    "es": "Falta la clave técnica de la resolución de facturación. Sin ella el CUFE no se puede calcular.",
+    "en": "The invoicing resolution's technical key is missing. The CUFE cannot be computed without it.",
+    "pt": "Falta a chave técnica da resolução de faturamento. Sem ela o CUFE não pode ser calculado."
+  },
+  "einvoicing.co.organization_has_no_nit_electronic_invoice": {
+    "es": "La organización no tiene NIT; la factura electrónica no se puede emitir sin él.",
+    "en": "The organization has no NIT; an electronic invoice cannot be issued without one.",
+    "pt": "A organização não tem NIT; a nota eletrônica não pode ser emitida sem ele."
+  },
+  "einvoicing.do.authorized_range_ends_ends_you_cannot": {
+    "es": "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.",
+    "en": "The authorized range ends at {{endsAt}}; you cannot void beyond its limit.",
+    "pt": "A faixa autorizada termina em {{endsAt}}; você não pode cancelar além desse limite."
+  },
+  "einvoicing.do.buyer_legal_name_required_for_type": {
+    "es": "un comprobante tipo {{type}} requiere la razón social del comprador",
+    "en": "a type {{type}} document requires the buyer's legal name",
+    "pt": "um documento do tipo {{type}} exige a razão social do comprador"
+  },
+  "einvoicing.do.buyer_rnc_national_id_must_have": {
+    "es": "el RNC o cédula del comprador debe tener 9 u 11 dígitos",
+    "en": "the buyer's RNC or national ID must have 9 or 11 digits",
+    "pt": "o RNC ou documento do comprador deve ter 9 ou 11 dígitos"
+  },
+  "einvoicing.do.buyer_tax_id_required_for_type": {
+    "es": "un comprobante tipo {{type}} requiere el RNC o cédula del comprador",
+    "en": "a type {{type}} document requires the buyer's RNC or national ID",
+    "pt": "um documento do tipo {{type}} exige o RNC ou documento do comprador"
+  },
+  "einvoicing.do.cash_sale_must_declare_least_one": {
+    "es": "una venta al contado debe declarar al menos una forma de pago",
+    "en": "a cash sale must declare at least one payment method",
+    "pt": "uma venda à vista deve declarar ao menos uma forma de pagamento"
+  },
+  "einvoicing.do.certificate_file_empty": {
+    "es": "El archivo del certificado está vacío.",
+    "en": "The certificate file is empty.",
+    "pt": "O arquivo do certificado está vazio."
+  },
+  "einvoicing.do.certificate_password_required": {
+    "es": "La contraseña del certificado es obligatoria.",
+    "en": "The certificate password is required.",
+    "pt": "A senha do certificado é obrigatória."
+  },
+  "einvoicing.do.cf_document_could_not_signed_p1": {
+    "es": "No se pudo firmar el documento e-CF: {{p1}}",
+    "en": "The e-CF document could not be signed: {{p1}}",
+    "pt": "Não foi possível assinar o documento e-CF: {{p1}}"
+  },
+  "einvoicing.do.commercial_rejection_must_state_reason_dgii": {
+    "es": "Un rechazo comercial debe indicar el motivo: la DGII lo exige y el emisor lo necesita para corregir.",
+    "en": "A commercial rejection must state its reason: the DGII requires it, and the issuer needs it to correct the document.",
+    "pt": "Uma rejeição comercial deve informar o motivo: a DGII o exige e o emissor precisa dele para corrigir."
+  },
+  "einvoicing.do.consumo_above_threshold_requires_buyer": {
+    "es": "una factura de consumo por {{amount}} supera el umbral de {{threshold}} y requiere identificar al comprador",
+    "en": "a consumer invoice for {{amount}} exceeds the {{threshold}} threshold and requires the buyer to be identified",
+    "pt": "uma fatura de consumo de {{amount}} supera o limite de {{threshold}} e exige a identificação do comprador"
+  },
+  "einvoicing.do.credit_debit_note_must_reference_document": {
+    "es": "una nota de crédito o débito debe referenciar el comprobante que modifica",
+    "en": "a credit or debit note must reference the document it modifies",
+    "pt": "uma nota de crédito ou débito deve referenciar o documento que modifica"
+  },
+  "einvoicing.do.currency_code_must_iso_4217": {
+    "es": "el código de moneda debe ser ISO 4217",
+    "en": "the currency code must be ISO 4217",
+    "pt": "o código da moeda deve ser ISO 4217"
+  },
+  "einvoicing.do.date_must_dd_mm_yyyy_format": {
     "es": "la fecha debe tener el formato DD-MM-AAAA",
     "en": "the date must be in DD-MM-YYYY format",
     "pt": "a data deve estar no formato DD-MM-AAAA"
   },
-  "einvoicing.dian_invoicing_resolution_with_prefix_authorised": {
-    "es": "Falta la resolución de facturación de la DIAN con su prefijo y rango autorizado.",
-    "en": "The DIAN invoicing resolution, with its prefix and authorised range, is missing.",
-    "pt": "Falta a resolução de faturamento da DIAN com seu prefixo e faixa autorizada."
+  "einvoicing.do.document_must_have_least_one_line": {
+    "es": "el comprobante debe tener al menos una línea",
+    "en": "the document must have at least one line",
+    "pt": "o documento deve ter ao menos uma linha"
+  },
+  "einvoicing.do.document_ncf_from_issuer_rnc_has": {
+    "es": "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente.",
+    "en": "Document {{ncf}} from {{issuerRnc}} has already been answered commercially.",
+    "pt": "O documento {{ncf}} de {{issuerRnc}} já recebeu resposta comercial."
+  },
+  "einvoicing.do.document_total_must_greater_than_zero": {
+    "es": "el total del comprobante debe ser mayor que cero",
+    "en": "the document total must be greater than zero",
+    "pt": "o total do documento deve ser maior que zero"
+  },
+  "einvoicing.do.document_type_must_two_digits": {
+    "es": "el tipo de comprobante debe ser de dos dígitos",
+    "en": "the document type must be two digits",
+    "pt": "o tipo de documento deve ter dois dígitos"
+  },
+  "einvoicing.do.encf_type_mismatch": {
+    "es": "el tipo declarado ({{declared}}) no coincide con el del e-NCF ({{encoded}})",
+    "en": "the declared type ({{declared}}) does not match the one in the e-NCF ({{encoded}})",
+    "pt": "o tipo declarado ({{declared}}) não coincide com o do e-NCF ({{encoded}})"
+  },
+  "einvoicing.do.end_range_cannot_lower_than_start": {
+    "es": "El final del rango no puede ser menor que su inicio.",
+    "en": "The end of the range cannot be lower than its start.",
+    "pt": "O fim da faixa não pode ser menor que o início."
+  },
+  "einvoicing.do.exchange_rate_must_greater_than_zero": {
+    "es": "la tasa de cambio debe ser mayor que cero",
+    "en": "the exchange rate must be greater than zero",
+    "pt": "a taxa de câmbio deve ser maior que zero"
+  },
+  "einvoicing.do.export_document_requires_foreign_buyer_identified": {
+    "es": "un comprobante de exportación requiere identificar al comprador extranjero",
+    "en": "an export document requires the foreign buyer to be identified",
+    "pt": "um documento de exportação exige a identificação do comprador estrangeiro"
+  },
+  "einvoicing.do.invoice_has_no_electronic_ncf_assigned": {
+    "es": "La factura no tiene un e-NCF electrónico asignado.",
+    "en": "The invoice has no electronic e-NCF assigned.",
+    "pt": "A fatura não tem um e-NCF eletrônico atribuído."
+  },
+  "einvoicing.do.invoice_invoice_id_not_found": {
+    "es": "Factura {{invoiceId}} no encontrada.",
+    "en": "Invoice {{invoiceId}} was not found.",
+    "pt": "Fatura {{invoiceId}} não encontrada."
+  },
+  "einvoicing.do.issuer_legal_name_required": {
+    "es": "la razón social del emisor es obligatoria",
+    "en": "the issuer's legal name is required",
+    "pt": "a razão social do emissor é obrigatória"
+  },
+  "einvoicing.do.issuer_registered_address_required_fill_under": {
+    "es": "la dirección fiscal del emisor es obligatoria; complétala en Ajustes → Empresa",
+    "en": "the issuer's registered address is required; fill it in under Settings → Company",
+    "pt": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações → Empresa"
+  },
+  "einvoicing.do.issuer_rnc_must_have_11_digits": {
+    "es": "el RNC del emisor debe tener 9 u 11 dígitos; revísalo en los datos de la empresa",
+    "en": "the issuer's RNC must have 9 or 11 digits; check it in the company details",
+    "pt": "o RNC do emissor deve ter 9 ou 11 dígitos; verifique-o nos dados da empresa"
+  },
+  "einvoicing.do.issuer_rnc_required_document": {
+    "es": "El RNC del emisor del comprobante es obligatorio.",
+    "en": "The issuer's RNC is required on the document.",
+    "pt": "O RNC do emissor do documento é obrigatório."
+  },
+  "einvoicing.do.item_must_declare_good_or_service": {
+    "es": "línea {{line}}: debe declararse como bien (1) o servicio (2)",
+    "en": "line {{line}}: it must be declared as a good (1) or a service (2)",
+    "pt": "linha {{line}}: deve ser declarada como bem (1) ou serviço (2)"
+  },
+  "einvoicing.do.item_name_required": {
+    "es": "línea {{line}}: falta la descripción del artículo",
+    "en": "line {{line}}: the item description is missing",
+    "pt": "linha {{line}}: falta a descrição do item"
+  },
+  "einvoicing.do.item_price_must_not_be_negative": {
+    "es": "línea {{line}}: el precio unitario no puede ser negativo",
+    "en": "line {{line}}: the unit price cannot be negative",
+    "pt": "linha {{line}}: o preço unitário não pode ser negativo"
+  },
+  "einvoicing.do.item_quantity_must_be_positive": {
+    "es": "línea {{line}}: la cantidad debe ser mayor que cero",
+    "en": "line {{line}}: the quantity must be greater than zero",
+    "pt": "linha {{line}}: a quantidade deve ser maior que zero"
+  },
+  "einvoicing.do.item_tax_rate_not_in_force": {
+    "es": "línea {{line}}: la tasa {{rate}} no es una tasa de ITBIS vigente",
+    "en": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
+    "pt": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente"
+  },
+  "einvoicing.do.modification_code_must_between": {
+    "es": "el código de modificación debe estar entre 1 y 5",
+    "en": "the modification code must be between 1 and 5",
+    "pt": "o código de modificação deve estar entre 1 e 5"
+  },
+  "einvoicing.do.municipality_must_declared_with_dgii_four": {
+    "es": "el municipio debe declararse con el código de cuatro dígitos de la DGII",
+    "en": "the municipality must be declared with the DGII's four-digit code",
+    "pt": "o município deve ser declarado com o código de quatro dígitos da DGII"
+  },
+  "einvoicing.do.must_dd_mm_yyyy_hh_mm": {
+    "es": "debe tener el formato DD-MM-AAAA HH:MM:SS",
+    "en": "it must be in DD-MM-YYYY HH:MM:SS format",
+    "pt": "deve estar no formato DD-MM-AAAA HH:MM:SS"
+  },
+  "einvoicing.do.no_active_digital_certificate_sign_cf": {
+    "es": "No hay un certificado digital activo para firmar e-CF. Cárgalo en Ajustes → Facturación Electrónica.",
+    "en": "There is no active digital certificate to sign e-CF documents. Upload one under Settings → Electronic Invoicing.",
+    "pt": "Não há certificado digital ativo para assinar e-CF. Envie um em Configurações → Faturamento Eletrônico."
+  },
+  "einvoicing.do.no_active_digital_certificate_sign_with": {
+    "es": "No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.",
+    "en": "There is no active digital certificate to sign with. Upload one under Settings → Electronic Invoicing.",
+    "pt": "Não há certificado digital ativo para assinar. Envie um em Configurações → Faturamento Eletrônico."
+  },
+  "einvoicing.do.no_active_type_sequence_organization": {
+    "es": "No hay una secuencia activa de {{type}} para esta organización.",
+    "en": "There is no active {{type}} sequence for this organization.",
+    "pt": "Não há sequência ativa de {{type}} para esta organização."
+  },
+  "einvoicing.do.organization_has_no_rnc_configured_fill": {
+    "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
+    "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
+    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
+  },
+  "einvoicing.do.organization_not_found": {
+    "es": "Organización no encontrada.",
+    "en": "Organization not found.",
+    "pt": "Organização não encontrada."
+  },
+  "einvoicing.do.payment_method_code_unknown": {
+    "es": "\"{{value}}\" no es un código de forma de pago de la DGII",
+    "en": "\"{{value}}\" is not a DGII payment-method code",
+    "pt": "\"{{value}}\" não é um código de forma de pagamento da DGII"
+  },
+  "einvoicing.do.payment_type_must_cash_credit": {
+    "es": "el tipo de pago debe ser 1 (contado) o 2 (crédito)",
+    "en": "the payment type must be 1 (cash) or 2 (credit)",
+    "pt": "o tipo de pagamento deve ser 1 (à vista) ou 2 (a prazo)"
+  },
+  "einvoicing.do.payments_do_not_match_total": {
+    "es": "las formas de pago suman {{declared}} y el total del comprobante es {{total}}",
+    "en": "the payment methods add up to {{declared}} while the document total is {{total}}",
+    "pt": "as formas de pagamento somam {{declared}} e o total do documento é {{total}}"
+  },
+  "einvoicing.do.province_must_declared_with_dgii_two": {
+    "es": "la provincia debe declararse con el código de dos dígitos de la DGII",
+    "en": "the province must be declared with the DGII's two-digit code",
+    "pt": "a província deve ser declarada com o código de dois dígitos da DGII"
+  },
+  "einvoicing.do.range_authorization_has_no_expiry_date": {
+    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes → Facturación Electrónica",
+    "en": "the range's authorization has no expiry date on record; add it under Settings → Electronic Invoicing",
+    "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações → Faturamento Eletrônico"
+  },
+  "einvoicing.do.signed_document_contains_no_signature_value": {
+    "es": "El documento firmado no contiene un SignatureValue.",
+    "en": "The signed document contains no SignatureValue.",
+    "pt": "O documento assinado não contém um SignatureValue."
+  },
+  "einvoicing.do.type_not_electronic_type_voiding_ranges": {
+    "es": "{{type}} no es un tipo electrónico; la anulación de rangos aplica solo a e-NCF.",
+    "en": "{{type}} is not an electronic type; voiding ranges applies only to e-NCF.",
+    "pt": "{{type}} não é um tipo eletrônico; o cancelamento de faixas aplica-se apenas a e-NCF."
+  },
+  "einvoicing.do.value_not_ncf_format": {
+    "es": "\"{{value}}\" no tiene el formato de un NCF",
+    "en": "\"{{value}}\" is not in NCF format",
+    "pt": "\"{{value}}\" não está no formato de um NCF"
+  },
+  "einvoicing.do.value_not_ncf_format_12_digits": {
+    "es": "\"{{value}}\" no tiene el formato de un e-NCF (E + 12 dígitos)",
+    "en": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
+    "pt": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)"
   },
   "einvoicing.document_document_has_no_fiscal_number": {
     "es": "El documento {document} no tiene número fiscal asignado. La numeración interna no sirve: la autoridad sólo reconoce el número del rango que autorizó.",
     "en": "Document {document} has no fiscal number assigned. The internal numbering will not do: the authority recognises only the number from the range it authorised.",
     "pt": "O documento {document} não tem número fiscal atribuído. A numeração interna não serve: a autoridade reconhece apenas o número da faixa que autorizou."
   },
-  "einvoicing.document_must_have_least_one_line": {
-    "es": "el comprobante debe tener al menos una línea",
-    "en": "the document must have at least one line",
-    "pt": "o documento deve ter ao menos uma linha"
+  "einvoicing.ec.organization_has_no_ruc_sri_does": {
+    "es": "La organización no tiene RUC; el SRI no acepta un comprobante sin él.",
+    "en": "The organization has no RUC; the SRI does not accept a document without one.",
+    "pt": "A organização não tem RUC; o SRI não aceita um comprovante sem ele."
   },
-  "einvoicing.document_ncf_from_issuer_rnc_has": {
-    "es": "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente.",
-    "en": "Document {{ncf}} from {{issuerRnc}} has already been answered commercially.",
-    "pt": "O documento {{ncf}} de {{issuerRnc}} já recebeu resposta comercial."
-  },
-  "einvoicing.document_number_afip_expects_next_missing": {
-    "es": "Falta el número de comprobante que AFIP espera a continuación.",
-    "en": "The document number AFIP expects next is missing.",
-    "pt": "Falta o número do comprovante que a AFIP espera a seguir."
-  },
-  "einvoicing.document_series_missing_f001_example": {
-    "es": "Falta la serie del comprobante (por ejemplo F001).",
-    "en": "The document series is missing (F001, for example).",
-    "pt": "Falta a série do comprovante (por exemplo F001)."
-  },
-  "einvoicing.document_total_must_greater_than_zero": {
-    "es": "el total del comprobante debe ser mayor que cero",
-    "en": "the document total must be greater than zero",
-    "pt": "o total do documento deve ser maior que zero"
-  },
-  "einvoicing.document_type_must_two_digits": {
-    "es": "el tipo de comprobante debe ser de dos dígitos",
-    "en": "the document type must be two digits",
-    "pt": "o tipo de documento deve ter dois dígitos"
+  "einvoicing.ec.sri_establishment_point_issue_missing": {
+    "es": "Faltan el establecimiento y el punto de emisión del SRI.",
+    "en": "The SRI establishment and point of issue are missing.",
+    "pt": "Faltam o estabelecimento e o ponto de emissão do SRI."
   },
   "einvoicing.ecf_cert_encryption_key_not_configured": {
     "es": "ECF_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados e-CF.",
     "en": "ECF_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt e-CF certificates.",
     "pt": "ECF_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados e-CF."
   },
-  "einvoicing.economic_activity_code_sii_requires_document": {
-    "es": "Falta el código de actividad económica que el SII exige en el documento.",
-    "en": "The economic activity code the SII requires on the document is missing.",
-    "pt": "Falta o código de atividade econômica exigido pelo SII no documento."
-  },
   "einvoicing.electronic_document_could_not_signed_detail": {
     "es": "No se pudo firmar el documento electrónico: {{detail}}",
     "en": "The electronic document could not be signed: {{detail}}",
     "pt": "Não foi possível assinar o documento eletrônico: {{detail}}"
-  },
-  "einvoicing.encf_type_mismatch": {
-    "es": "el tipo declarado ({{declared}}) no coincide con el del e-NCF ({{encoded}})",
-    "en": "the declared type ({{declared}}) does not match the one in the e-NCF ({{encoded}})",
-    "pt": "o tipo declarado ({{declared}}) não coincide com o do e-NCF ({{encoded}})"
-  },
-  "einvoicing.end_range_cannot_lower_than_start": {
-    "es": "El final del rango no puede ser menor que su inicio.",
-    "en": "The end of the range cannot be lower than its start.",
-    "pt": "O fim da faixa não pode ser menor que o início."
-  },
-  "einvoicing.exchange_rate_must_greater_than_zero": {
-    "es": "la tasa de cambio debe ser mayor que cero",
-    "en": "the exchange rate must be greater than zero",
-    "pt": "a taxa de câmbio deve ser maior que zero"
-  },
-  "einvoicing.export_document_requires_foreign_buyer_identified": {
-    "es": "un comprobante de exportación requiere identificar al comprador extranjero",
-    "en": "an export document requires the foreign buyer to be identified",
-    "pt": "um documento de exportação exige a identificação do comprador estrangeiro"
-  },
-  "einvoicing.folio_folio_outside_authorised_range_from": {
-    "es": "El folio {{folio}} está fuera del rango autorizado ({{from}}–{{to}}). El SII verifica el timbre contra la clave emitida con ese rango.",
-    "en": "Folio {{folio}} is outside the authorised range ({{from}}–{{to}}). The SII verifies the stamp against the key issued with that range.",
-    "pt": "O folio {{folio}} está fora da faixa autorizada ({{from}}–{{to}}). O SII verifica o carimbo contra a chave emitida com essa faixa."
-  },
-  "einvoicing.ibge_codes_issuing_state_municipality_missing": {
-    "es": "Faltam os códigos IBGE do estado e do município de emissão.",
-    "en": "The IBGE codes for the issuing state and municipality are missing.",
-    "pt": "Faltam os códigos IBGE do estado e do município de emissão."
-  },
-  "einvoicing.invoice_has_no_electronic_ncf_assigned": {
-    "es": "La factura no tiene un e-NCF electrónico asignado.",
-    "en": "The invoice has no electronic e-NCF assigned.",
-    "pt": "A fatura não tem um e-NCF eletrônico atribuído."
-  },
-  "einvoicing.invoice_invoice_id_not_found": {
-    "es": "Factura {{invoiceId}} no encontrada.",
-    "en": "Invoice {{invoiceId}} was not found.",
-    "pt": "Fatura {{invoiceId}} não encontrada."
-  },
-  "einvoicing.invoicing_resolution_technical_key_missing_cufe": {
-    "es": "Falta la clave técnica de la resolución de facturación. Sin ella el CUFE no se puede calcular.",
-    "en": "The invoicing resolution's technical key is missing. The CUFE cannot be computed without it.",
-    "pt": "Falta a chave técnica da resolução de faturamento. Sem ela o CUFE não pode ser calculado."
-  },
-  "einvoicing.issuer_legal_name_required": {
-    "es": "la razón social del emisor es obligatoria",
-    "en": "the issuer's legal name is required",
-    "pt": "a razão social do emissor é obrigatória"
-  },
-  "einvoicing.issuer_registered_address_required_fill_under": {
-    "es": "la dirección fiscal del emisor es obligatoria; complétala en Ajustes → Empresa",
-    "en": "the issuer's registered address is required; fill it in under Settings → Company",
-    "pt": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações → Empresa"
-  },
-  "einvoicing.issuer_rnc_must_have_11_digits": {
-    "es": "el RNC del emisor debe tener 9 u 11 dígitos; revísalo en los datos de la empresa",
-    "en": "the issuer's RNC must have 9 or 11 digits; check it in the company details",
-    "pt": "o RNC do emissor deve ter 9 ou 11 dígitos; verifique-o nos dados da empresa"
-  },
-  "einvoicing.issuer_rnc_required_document": {
-    "es": "El RNC del emisor del comprobante es obligatorio.",
-    "en": "The issuer's RNC is required on the document.",
-    "pt": "O RNC do emissor do documento é obrigatório."
-  },
-  "einvoicing.issuer_tax_regime_missing_set_under": {
-    "es": "Falta el régimen fiscal del emisor. Confígúralo en Ajustes → Fiscal.",
-    "en": "The issuer's tax regime is missing. Set it under Settings → Fiscal.",
-    "pt": "Falta o regime fiscal do emissor. Configure em Configurações → Fiscal."
   },
   "einvoicing.issuing_organization_not_found": {
     "es": "No se encontró la organización emisora del documento.",
     "en": "The issuing organization was not found.",
     "pt": "A organização emitente não foi encontrada."
   },
-  "einvoicing.item_must_declare_good_or_service": {
-    "es": "línea {{line}}: debe declararse como bien (1) o servicio (2)",
-    "en": "line {{line}}: it must be declared as a good (1) or a service (2)",
-    "pt": "linha {{line}}: deve ser declarada como bem (1) ou serviço (2)"
-  },
-  "einvoicing.item_name_required": {
-    "es": "línea {{line}}: falta la descripción del artículo",
-    "en": "line {{line}}: the item description is missing",
-    "pt": "linha {{line}}: falta a descrição do item"
-  },
-  "einvoicing.item_price_must_not_be_negative": {
-    "es": "línea {{line}}: el precio unitario no puede ser negativo",
-    "en": "line {{line}}: the unit price cannot be negative",
-    "pt": "linha {{line}}: o preço unitário não pode ser negativo"
-  },
-  "einvoicing.item_quantity_must_be_positive": {
-    "es": "línea {{line}}: la cantidad debe ser mayor que cero",
-    "en": "line {{line}}: the quantity must be greater than zero",
-    "pt": "linha {{line}}: a quantidade deve ser maior que zero"
-  },
-  "einvoicing.item_tax_rate_not_in_force": {
-    "es": "línea {{line}}: la tasa {{rate}} no es una tasa de ITBIS vigente",
-    "en": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
-    "pt": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente"
-  },
-  "einvoicing.line_line_has_no_key_from": {
-    "es": "La línea «{{line}}» no tiene «{{key}}» del catálogo del SAT. Asígnalo en el producto: inventarlo produciría un comprobante que timbra y describe mal lo vendido.",
-    "en": "Line “{{line}}” has no “{{key}}” from the SAT catalogue. Set it on the product: inventing one would produce a document that stamps and misdescribes what was sold.",
-    "pt": "A linha «{{line}}» não tem «{{key}}» do catálogo do SAT. Defina-o no produto: inventá-lo produziria um documento que é autorizado e descreve mal o que foi vendido."
-  },
-  "einvoicing.line_line_has_no_key_set": {
-    "es": "La línea «{{line}}» no tiene {{key}}. Defínelo en el producto: la NCM clasifica la mercancía y el CFOP la operación.",
-    "en": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the goods and CFOP the operation.",
-    "pt": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação."
-  },
-  "einvoicing.modification_code_must_between": {
-    "es": "el código de modificación debe estar entre 1 y 5",
-    "en": "the modification code must be between 1 and 5",
-    "pt": "o código de modificação deve estar entre 1 e 5"
-  },
   "einvoicing.municipality_ibge_code_must_seven_digits": {
     "es": "El código IBGE del municipio debe tener siete dígitos.",
     "en": "The municipality IBGE code must be seven digits.",
     "pt": "O código IBGE do município deve ter sete dígitos."
   },
-  "einvoicing.municipality_must_declared_with_dgii_four": {
-    "es": "el municipio debe declararse con el código de cuatro dígitos de la DGII",
-    "en": "the municipality must be declared with the DGII's four-digit code",
-    "pt": "o município deve ser declarado com o código de quatro dígitos da DGII"
+  "einvoicing.mx.customer_customer_has_no_postal_code": {
+    "es": "El cliente «{{customer}}» no tiene código postal; el CFDI 4.0 lo exige como domicilio fiscal del receptor.",
+    "en": "Customer “{{customer}}” has no postal code; CFDI 4.0 requires it as the receiver's tax address.",
+    "pt": "O cliente «{{customer}}» não tem código postal; o CFDI 4.0 o exige como endereço fiscal do destinatário."
   },
-  "einvoicing.must_dd_mm_yyyy_hh_mm": {
-    "es": "debe tener el formato DD-MM-AAAA HH:MM:SS",
-    "en": "it must be in DD-MM-YYYY HH:MM:SS format",
-    "pt": "deve estar no formato DD-MM-AAAA HH:MM:SS"
+  "einvoicing.mx.customer_customer_has_no_rfc_which": {
+    "es": "El cliente «{{customer}}» no tiene RFC; el CFDI lo exige.",
+    "en": "Customer “{{customer}}” has no RFC, which the CFDI requires.",
+    "pt": "O cliente «{{customer}}» não tem RFC, exigido pelo CFDI."
+  },
+  "einvoicing.mx.issuer_tax_regime_missing_set_under": {
+    "es": "Falta el régimen fiscal del emisor. Confígúralo en Ajustes → Fiscal.",
+    "en": "The issuer's tax regime is missing. Set it under Settings → Fiscal.",
+    "pt": "Falta o regime fiscal do emissor. Configure em Configurações → Fiscal."
+  },
+  "einvoicing.mx.line_line_has_no_key_from": {
+    "es": "La línea «{{line}}» no tiene «{{key}}» del catálogo del SAT. Asígnalo en el producto: inventarlo produciría un comprobante que timbra y describe mal lo vendido.",
+    "en": "Line “{{line}}” has no “{{key}}” from the SAT catalogue. Set it on the product: inventing one would produce a document that stamps and misdescribes what was sold.",
+    "pt": "A linha «{{line}}» não tem «{{key}}» do catálogo do SAT. Defina-o no produto: inventá-lo produziria um documento que é autorizado e descreve mal o que foi vendido."
+  },
+  "einvoicing.mx.organization_has_no_rfc_cfdi_cannot": {
+    "es": "La organización no tiene RFC; el CFDI no se puede emitir sin él.",
+    "en": "The organization has no RFC; a CFDI cannot be issued without one.",
+    "pt": "A organização não tem RFC; o CFDI não pode ser emitido sem ele."
+  },
+  "einvoicing.mx.postal_code_place_issue_missing": {
+    "es": "Falta el código postal del lugar de expedición.",
+    "en": "The postal code of the place of issue is missing.",
+    "pt": "Falta o código postal do local de emissão."
   },
   "einvoicing.no_active_authorized_range_document_type": {
     "es": "No hay un rango autorizado activo para el tipo de documento {type} en {country}. Registra el rango que te autorizó la autoridad antes de emitir.",
     "en": "There is no active authorized range for document type {type} in {country}. Register the range the authority granted you before issuing.",
     "pt": "Não há uma faixa autorizada ativa para o tipo de documento {type} em {country}. Registre a faixa que a autoridade concedeu antes de emitir."
-  },
-  "einvoicing.no_active_digital_certificate_sign_cf": {
-    "es": "No hay un certificado digital activo para firmar e-CF. Cárgalo en Ajustes → Facturación Electrónica.",
-    "en": "There is no active digital certificate to sign e-CF documents. Upload one under Settings → Electronic Invoicing.",
-    "pt": "Não há certificado digital ativo para assinar e-CF. Envie um em Configurações → Faturamento Eletrônico."
-  },
-  "einvoicing.no_active_digital_certificate_sign_with": {
-    "es": "No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.",
-    "en": "There is no active digital certificate to sign with. Upload one under Settings → Electronic Invoicing.",
-    "pt": "Não há certificado digital ativo para assinar. Envie um em Configurações → Faturamento Eletrônico."
-  },
-  "einvoicing.no_active_type_sequence_organization": {
-    "es": "No hay una secuencia activa de {{type}} para esta organización.",
-    "en": "There is no active {{type}} sequence for this organization.",
-    "pt": "Não há sequência ativa de {{type}} para esta organização."
   },
   "einvoicing.no_authorized_range_type_type_contains": {
     "es": "Ningún rango autorizado del tipo {type} contiene el número {number}. El documento se numeró fuera de todo rango registrado.",
@@ -344,85 +444,15 @@
     "en": "The organization has no country set, and without one there is no fiscal regime to configure.",
     "pt": "A organização não tem país declarado e, sem ele, não há regime fiscal a configurar."
   },
-  "einvoicing.organization_has_no_nit_electronic_invoice": {
-    "es": "La organización no tiene NIT; la factura electrónica no se puede emitir sin él.",
-    "en": "The organization has no NIT; an electronic invoice cannot be issued without one.",
-    "pt": "A organização não tem NIT; a nota eletrônica não pode ser emitida sem ele."
+  "einvoicing.pe.document_series_missing_f001_example": {
+    "es": "Falta la serie del comprobante (por ejemplo F001).",
+    "en": "The document series is missing (F001, for example).",
+    "pt": "Falta a série do comprovante (por exemplo F001)."
   },
-  "einvoicing.organization_has_no_rfc_cfdi_cannot": {
-    "es": "La organización no tiene RFC; el CFDI no se puede emitir sin él.",
-    "en": "The organization has no RFC; a CFDI cannot be issued without one.",
-    "pt": "A organização não tem RFC; o CFDI não pode ser emitido sem ele."
-  },
-  "einvoicing.organization_has_no_rnc_configured_fill": {
-    "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
-    "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
-    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
-  },
-  "einvoicing.organization_has_no_ruc_sri_does": {
-    "es": "La organización no tiene RUC; el SRI no acepta un comprobante sin él.",
-    "en": "The organization has no RUC; the SRI does not accept a document without one.",
-    "pt": "A organização não tem RUC; o SRI não aceita um comprovante sem ele."
-  },
-  "einvoicing.organization_has_no_ruc_sunat_does": {
+  "einvoicing.pe.organization_has_no_ruc_sunat_does": {
     "es": "La organización no tiene RUC; SUNAT no acepta un comprobante sin él.",
     "en": "The organization has no RUC; SUNAT does not accept a document without one.",
     "pt": "A organização não tem RUC; a SUNAT não aceita um comprovante sem ele."
-  },
-  "einvoicing.organization_has_no_rut_sii_does": {
-    "es": "La organización no tiene RUT; el SII no acepta un DTE sin él.",
-    "en": "The organization has no RUT; the SII does not accept a DTE without one.",
-    "pt": "A organização não tem RUT; o SII não aceita um DTE sem ele."
-  },
-  "einvoicing.organization_has_no_valid_cnpj_nf": {
-    "es": "La organización no tiene un CNPJ válido; la NF-e no puede emitirse.",
-    "en": "The organization has no valid CNPJ, so the NF-e cannot be issued.",
-    "pt": "A organização não tem CNPJ válido; a NF-e não pode ser emitida."
-  },
-  "einvoicing.organization_has_no_valid_cuit_afip": {
-    "es": "La organización no tiene CUIT válido; AFIP no autoriza un comprobante sin él.",
-    "en": "The organization has no valid CUIT; AFIP will not authorise a document without one.",
-    "pt": "A organização não tem CUIT válido; a AFIP não autoriza um comprovante sem ele."
-  },
-  "einvoicing.organization_not_found": {
-    "es": "Organización no encontrada.",
-    "en": "Organization not found.",
-    "pt": "Organização não encontrada."
-  },
-  "einvoicing.payment_method_code_unknown": {
-    "es": "\"{{value}}\" no es un código de forma de pago de la DGII",
-    "en": "\"{{value}}\" is not a DGII payment-method code",
-    "pt": "\"{{value}}\" não é um código de forma de pagamento da DGII"
-  },
-  "einvoicing.payment_type_must_cash_credit": {
-    "es": "el tipo de pago debe ser 1 (contado) o 2 (crédito)",
-    "en": "the payment type must be 1 (cash) or 2 (credit)",
-    "pt": "o tipo de pagamento deve ser 1 (à vista) ou 2 (a prazo)"
-  },
-  "einvoicing.payments_do_not_match_total": {
-    "es": "las formas de pago suman {{declared}} y el total del comprobante es {{total}}",
-    "en": "the payment methods add up to {{declared}} while the document total is {{total}}",
-    "pt": "as formas de pagamento somam {{declared}} e o total do documento é {{total}}"
-  },
-  "einvoicing.point_sale_afip_assigned_establishment_missing": {
-    "es": "Falta el punto de venta que AFIP asignó al establecimiento.",
-    "en": "The point of sale AFIP assigned to this establishment is missing.",
-    "pt": "Falta o ponto de venda que a AFIP atribuiu ao estabelecimento."
-  },
-  "einvoicing.postal_code_place_issue_missing": {
-    "es": "Falta el código postal del lugar de expedición.",
-    "en": "The postal code of the place of issue is missing.",
-    "pt": "Falta o código postal do local de emissão."
-  },
-  "einvoicing.province_must_declared_with_dgii_two": {
-    "es": "la provincia debe declararse con el código de dos dígitos de la DGII",
-    "en": "the province must be declared with the DGII's two-digit code",
-    "pt": "a província deve ser declarada com o código de dois dígitos da DGII"
-  },
-  "einvoicing.range_authorization_has_no_expiry_date": {
-    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes → Facturación Electrónica",
-    "en": "the range's authorization has no expiry date on record; add it under Settings → Electronic Invoicing",
-    "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações → Faturamento Eletrônico"
   },
   "einvoicing.range_from_not_valid_final_number": {
     "es": "El rango {from}–{to} no es válido: el número final no puede ser menor que el inicial.",
@@ -449,16 +479,6 @@
     "en": "Series {series} does not match document type {type}. An F series is a factura and a B series a boleta; SUNAT rejects the submission before reading the document.",
     "pt": "A série {series} não corresponde ao tipo de comprovante {type}. Uma série F é fatura e uma série B é boleta; a SUNAT rejeita o envio antes de ler o documento."
   },
-  "einvoicing.signed_document_contains_no_signature_value": {
-    "es": "El documento firmado no contiene un SignatureValue.",
-    "en": "The signed document contains no SignatureValue.",
-    "pt": "O documento assinado não contém um SignatureValue."
-  },
-  "einvoicing.sii_caf_missing_without_key_document": {
-    "es": "Falta el CAF del SII: sin su clave no se puede timbrar el documento.",
-    "en": "The SII's CAF is missing: without its key the document cannot be stamped.",
-    "pt": "Falta o CAF do SII: sem sua chave o documento não pode ser carimbado."
-  },
   "einvoicing.sri_emission_point_must_three_digits": {
     "es": "El punto de emisión del SRI debe tener tres dígitos.",
     "en": "The SRI emission point must be three digits.",
@@ -474,35 +494,15 @@
     "en": "The SRI establishment must be three digits.",
     "pt": "O estabelecimento do SRI deve ter três dígitos."
   },
-  "einvoicing.sri_establishment_point_issue_missing": {
-    "es": "Faltan el establecimiento y el punto de emisión del SRI.",
-    "en": "The SRI establishment and point of issue are missing.",
-    "pt": "Faltam o estabelecimento e o ponto de emissão do SRI."
-  },
   "einvoicing.state_ibge_code_must_two_digits": {
     "es": "El código IBGE del estado debe tener dos dígitos.",
     "en": "The state IBGE code must be two digits.",
     "pt": "O código IBGE do estado deve ter dois dígitos."
   },
-  "einvoicing.type_not_electronic_type_voiding_ranges": {
-    "es": "{{type}} no es un tipo electrónico; la anulación de rangos aplica solo a e-NCF.",
-    "en": "{{type}} is not an electronic type; voiding ranges applies only to e-NCF.",
-    "pt": "{{type}} não é um tipo eletrônico; o cancelamento de faixas aplica-se apenas a e-NCF."
-  },
   "einvoicing.unknown_message_type_kind_use_commercial": {
     "es": "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.",
     "en": "Unknown message type: {{kind}}. Use COMMERCIAL_APPROVAL or SEQUENCE_VOID.",
     "pt": "Tipo de mensagem desconhecido: {{kind}}. Use COMMERCIAL_APPROVAL ou SEQUENCE_VOID."
-  },
-  "einvoicing.value_not_ncf_format": {
-    "es": "\"{{value}}\" no tiene el formato de un NCF",
-    "en": "\"{{value}}\" is not in NCF format",
-    "pt": "\"{{value}}\" não está no formato de um NCF"
-  },
-  "einvoicing.value_not_ncf_format_12_digits": {
-    "es": "\"{{value}}\" no tiene el formato de un e-NCF (E + 12 dígitos)",
-    "en": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
-    "pt": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)"
   },
   "einvoicing.you_must_attach_certificate_file_p12": {
     "es": "Debe adjuntar el archivo del certificado (.p12/.pfx).",

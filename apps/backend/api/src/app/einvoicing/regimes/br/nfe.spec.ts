@@ -159,7 +159,7 @@ describe('NFe 4.00', () => {
       } as unknown as Invoice;
 
       expect(() => builder.build(input({ invoice: noNcm }))).toThrow(
-        expect.objectContaining({ messageKey: 'einvoicing.line_line_has_no_key_set' }),
+        expect.objectContaining({ messageKey: 'einvoicing.br.line_line_has_no_key_set' }),
       );
     });
 
@@ -192,9 +192,9 @@ describe('NFe 4.00', () => {
     });
 
     it.each([
-      ['el emisor sin CNPJ', { organization: { ...organization, taxId: '123' } as unknown as Organization }, 'einvoicing.organization_has_no_valid_cnpj_nf'],
-      ['el receptor sin documento', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.customer_customer_has_neither_cnpj_nor'],
-      ['sin códigos IBGE', { municipalityCode: '' }, 'einvoicing.ibge_codes_issuing_state_municipality_missing'],
+      ['el emisor sin CNPJ', { organization: { ...organization, taxId: '123' } as unknown as Organization }, 'einvoicing.br.organization_has_no_valid_cnpj_nf'],
+      ['el receptor sin documento', { customer: { ...customer, taxId: null } as unknown as Customer }, 'einvoicing.br.customer_customer_has_neither_cnpj_nor'],
+      ['sin códigos IBGE', { municipalityCode: '' }, 'einvoicing.br.ibge_codes_issuing_state_municipality_missing'],
     ])('refuses to build with %s', (_name, overrides, messageKey) => {
       expect(() => builder.build(input(overrides as Partial<NfeBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),

@@ -58,7 +58,7 @@ export class EinvoicingController {
     // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
     const password = this.field(body, 'password');
     const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestError('einvoicing.certificate_password_required');
+    if (!password) throw new BadRequestError('einvoicing.do.certificate_password_required');
 
     return this.certificates.upload(user.organizationId, { pfx: file.buffer, password, alias });
   }

@@ -205,9 +205,9 @@ export class SunatBuilder {
 
   private assertIssuable(input: SunatBuildInput): void {
     if (!(input.organization.taxId ?? '').replace(/\D/g, '')) {
-      throw new BadRequestError('einvoicing.organization_has_no_ruc_sunat_does');
+      throw new BadRequestError('einvoicing.pe.organization_has_no_ruc_sunat_does');
     }
-    if (!input.series?.trim()) throw new BadRequestError('einvoicing.document_series_missing_f001_example');
+    if (!input.series?.trim()) throw new BadRequestError('einvoicing.pe.document_series_missing_f001_example');
   }
 
   private date(value: Date | string): string {

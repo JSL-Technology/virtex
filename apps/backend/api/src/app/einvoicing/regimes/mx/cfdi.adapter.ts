@@ -51,12 +51,12 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
       where: { id: organizationId },
       select: ['id', 'legalName', 'taxId', 'postalCode', 'fiscalProfile'],
     });
-    if (!organization) throw new BadRequestError('einvoicing.organization_has_no_rfc_cfdi_cannot');
+    if (!organization) throw new BadRequestError('einvoicing.mx.organization_has_no_rfc_cfdi_cannot');
 
     const customer = await manager.findOne(Customer, {
       where: { id: invoice.customerId, organizationId },
     });
-    if (!customer) throw new BadRequestError('einvoicing.customer_customer_has_no_rfc_which', { customer: '' });
+    if (!customer) throw new BadRequestError('einvoicing.mx.customer_customer_has_no_rfc_which', { customer: '' });
 
     const certificate = await this.certificate(organizationId, manager);
 

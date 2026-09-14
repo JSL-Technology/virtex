@@ -95,12 +95,12 @@ export class EcfLifecycleService {
       request.verdict === CommercialApprovalVerdict.REJECTED &&
       !request.rejectionReason?.trim()
     ) {
-      throw new BadRequestError('einvoicing.commercial_rejection_must_state_reason_dgii');
+      throw new BadRequestError('einvoicing.do.commercial_rejection_must_state_reason_dgii');
     }
 
     const issuerRnc = digitsOf(request.issuerRnc);
     if (!issuerRnc) {
-      throw new BadRequestError('einvoicing.issuer_rnc_required_document');
+      throw new BadRequestError('einvoicing.do.issuer_rnc_required_document');
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -116,7 +116,7 @@ export class EcfLifecycleService {
       },
     });
     if (existing && isTerminalStatus(existing.status)) {
-      throw new ConflictError('einvoicing.document_ncf_from_issuer_rnc_has', { ncf: request.ncf, issuerRnc });
+      throw new ConflictError('einvoicing.do.document_ncf_from_issuer_rnc_has', { ncf: request.ncf, issuerRnc });
     }
 
     const message =
@@ -181,17 +181,17 @@ export class EcfLifecycleService {
     request: SequenceVoidRequest,
   ): Promise<EcfLifecycleMessage> {
     if (!isElectronicNcfType(request.type)) {
-      throw new BadRequestError('einvoicing.type_not_electronic_type_voiding_ranges', { type: request.type });
+      throw new BadRequestError('einvoicing.do.type_not_electronic_type_voiding_ranges', { type: request.type });
     }
     if (request.to < request.from) {
-      throw new BadRequestError('einvoicing.end_range_cannot_lower_than_start');
+      throw new BadRequestError('einvoicing.do.end_range_cannot_lower_than_start');
     }
 
     const sequence = await this.sequenceRepo.findOne({
       where: { organizationId, type: request.type, isActive: true },
     });
     if (!sequence) {
-      throw new NotFoundError('einvoicing.no_active_type_sequence_organization', { type: request.type });
+      throw new NotFoundError('einvoicing.do.no_active_type_sequence_organization', { type: request.type });
     }
 
     const current = Number(sequence.currentSequence);
@@ -209,7 +209,7 @@ export class EcfLifecycleService {
       );
     }
     if (request.to > endsAt) {
-      throw new BadRequestError('einvoicing.authorized_range_ends_ends_you_cannot', { endsAt });
+      throw new BadRequestError('einvoicing.do.authorized_range_ends_ends_you_cannot', { endsAt });
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -281,9 +281,9 @@ export class EcfLifecycleService {
 
   private async requireIssuer(organizationId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundError('einvoicing.organization_not_found');
+    if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
     if (!org.taxId) {
-      throw new BadRequestError('einvoicing.organization_has_no_rnc_configured_fill');
+      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
     }
     return org;
   }
@@ -294,7 +294,7 @@ export class EcfLifecycleService {
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestError('einvoicing.no_active_digital_certificate_sign_with');
+      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_with');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
       throw new BadRequestException(

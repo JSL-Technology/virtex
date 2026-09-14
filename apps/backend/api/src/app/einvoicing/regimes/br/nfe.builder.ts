@@ -229,7 +229,7 @@ export class NfeBuilder {
   ): string {
     const value = line.fiscalCodes?.[key];
     if (typeof value === 'string' && value.trim()) return value.trim();
-    throw new BadRequestError('einvoicing.line_line_has_no_key_set', {
+    throw new BadRequestError('einvoicing.br.line_line_has_no_key_set', {
       key: key.toUpperCase(),
       line: line.description ?? '',
     });
@@ -237,15 +237,15 @@ export class NfeBuilder {
 
   private assertIssuable(input: NfeBuildInput): void {
     if ((input.organization.taxId ?? '').replace(/\D/g, '').length !== 14) {
-      throw new BadRequestError('einvoicing.organization_has_no_valid_cnpj_nf');
+      throw new BadRequestError('einvoicing.br.organization_has_no_valid_cnpj_nf');
     }
     if (!(input.customer.taxId ?? '').replace(/\D/g, '')) {
-      throw new BadRequestError('einvoicing.customer_customer_has_neither_cnpj_nor', {
+      throw new BadRequestError('einvoicing.br.customer_customer_has_neither_cnpj_nor', {
         customer: input.customer.companyName,
       });
     }
     if (!input.stateCode?.trim() || !input.municipalityCode?.trim()) {
-      throw new BadRequestError('einvoicing.ibge_codes_issuing_state_municipality_missing');
+      throw new BadRequestError('einvoicing.br.ibge_codes_issuing_state_municipality_missing');
     }
   }
 

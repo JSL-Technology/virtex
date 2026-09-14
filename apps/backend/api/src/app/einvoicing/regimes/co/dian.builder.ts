@@ -210,15 +210,15 @@ export class DianBuilder {
   }
 
   private assertIssuable(input: DianBuildInput): void {
-    if (!input.organization.taxId?.trim()) throw new BadRequestError('einvoicing.organization_has_no_nit_electronic_invoice');
+    if (!input.organization.taxId?.trim()) throw new BadRequestError('einvoicing.co.organization_has_no_nit_electronic_invoice');
     if (!input.customer.taxId?.trim()) {
-      throw new BadRequestError('einvoicing.customer_customer_has_no_identification_document', {
+      throw new BadRequestError('einvoicing.co.customer_customer_has_no_identification_document', {
         customer: input.customer.companyName,
       });
     }
-    if (!input.technicalKey?.trim()) throw new BadRequestError('einvoicing.invoicing_resolution_technical_key_missing_cufe');
+    if (!input.technicalKey?.trim()) throw new BadRequestError('einvoicing.co.invoicing_resolution_technical_key_missing_cufe');
     if (!input.resolution?.number?.trim()) {
-      throw new BadRequestError('einvoicing.dian_invoicing_resolution_with_prefix_authorised');
+      throw new BadRequestError('einvoicing.co.dian_invoicing_resolution_with_prefix_authorised');
     }
   }
 

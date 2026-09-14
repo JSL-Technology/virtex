@@ -184,23 +184,23 @@ export class SiiBuilder {
   }
 
   private assertIssuable(input: SiiBuildInput): void {
-    if (!this.rut(input.organization.taxId)) throw new BadRequestError('einvoicing.organization_has_no_rut_sii_does');
+    if (!this.rut(input.organization.taxId)) throw new BadRequestError('einvoicing.cl.organization_has_no_rut_sii_does');
     if (!this.rut(input.customer.taxId)) {
-      throw new BadRequestError('einvoicing.customer_customer_has_no_rut', {
+      throw new BadRequestError('einvoicing.cl.customer_customer_has_no_rut', {
         customer: input.customer.companyName,
       });
     }
-    if (!input.caf?.privateKeyPem) throw new BadRequestError('einvoicing.sii_caf_missing_without_key_document');
+    if (!input.caf?.privateKeyPem) throw new BadRequestError('einvoicing.cl.sii_caf_missing_without_key_document');
     // A folio outside the authorised range is rejected: the SII verifies the timbre against the
     // key it issued *with that range*, so the two are one fact and not two.
     if (input.caf.folio < input.caf.rangeFrom || input.caf.folio > input.caf.rangeTo) {
-      throw new BadRequestError('einvoicing.folio_folio_outside_authorised_range_from', {
+      throw new BadRequestError('einvoicing.cl.folio_folio_outside_authorised_range_from', {
         folio: input.caf.folio,
         from: input.caf.rangeFrom,
         to: input.caf.rangeTo,
       });
     }
-    if (!input.activityCode?.trim()) throw new BadRequestError('einvoicing.economic_activity_code_sii_requires_document');
+    if (!input.activityCode?.trim()) throw new BadRequestError('einvoicing.cl.economic_activity_code_sii_requires_document');
   }
 
   private date(value: Date | string): string {

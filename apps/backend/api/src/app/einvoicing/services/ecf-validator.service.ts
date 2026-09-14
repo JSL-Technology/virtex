@@ -69,41 +69,41 @@ export class EcfValidatorService {
     if (!/^E\d{12}$/.test(ctx.eNCF)) {
       issues.push({
         field: 'eNCF',
-        messageKey: 'einvoicing.value_not_ncf_format_12_digits',
+        messageKey: 'einvoicing.do.value_not_ncf_format_12_digits',
         params: { value: ctx.eNCF },
       });
     }
     if (!/^\d{2}$/.test(ctx.tipoECF)) {
-      issues.push({ field: 'TipoeCF', messageKey: 'einvoicing.document_type_must_two_digits' });
+      issues.push({ field: 'TipoeCF', messageKey: 'einvoicing.do.document_type_must_two_digits' });
     }
     if (ctx.eNCF.substring(1, 3) !== ctx.tipoECF) {
       issues.push({
         field: 'eNCF',
-        messageKey: 'einvoicing.encf_type_mismatch',
+        messageKey: 'einvoicing.do.encf_type_mismatch',
         params: { declared: ctx.tipoECF, encoded: ctx.eNCF.substring(1, 3) },
       });
     }
     if (!ctx.fechaVencimientoSecuencia) {
       issues.push({
         field: 'FechaVencimientoSecuencia',
-        messageKey: 'einvoicing.range_authorization_has_no_expiry_date',
+        messageKey: 'einvoicing.do.range_authorization_has_no_expiry_date',
       });
     }
 
     // ── Dates ────────────────────────────────────────────────────────────────
     if (!this.isDgiiDate(ctx.fechaEmision)) {
-      issues.push({ field: 'FechaEmision', messageKey: 'einvoicing.date_must_dd_mm_yyyy_format' });
+      issues.push({ field: 'FechaEmision', messageKey: 'einvoicing.do.date_must_dd_mm_yyyy_format' });
     }
     if (ctx.fechaVencimientoSecuencia && !this.isDgiiDate(ctx.fechaVencimientoSecuencia)) {
       issues.push({
         field: 'FechaVencimientoSecuencia',
-        messageKey: 'einvoicing.date_must_dd_mm_yyyy_format',
+        messageKey: 'einvoicing.do.date_must_dd_mm_yyyy_format',
       });
     }
     if (ctx.fechaHoraFirma && !/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(ctx.fechaHoraFirma)) {
       issues.push({
         field: 'FechaHoraFirma',
-        messageKey: 'einvoicing.must_dd_mm_yyyy_hh_mm',
+        messageKey: 'einvoicing.do.must_dd_mm_yyyy_hh_mm',
       });
     }
 
@@ -111,28 +111,28 @@ export class EcfValidatorService {
     if (!this.isDominicanTaxId(ctx.emisor.rnc)) {
       issues.push({
         field: 'RNCEmisor',
-        messageKey: 'einvoicing.issuer_rnc_must_have_11_digits',
+        messageKey: 'einvoicing.do.issuer_rnc_must_have_11_digits',
       });
     }
     if (!ctx.emisor.razonSocial?.trim()) {
-      issues.push({ field: 'RazonSocialEmisor', messageKey: 'einvoicing.issuer_legal_name_required' });
+      issues.push({ field: 'RazonSocialEmisor', messageKey: 'einvoicing.do.issuer_legal_name_required' });
     }
     if (!ctx.emisor.direccion?.trim()) {
       issues.push({
         field: 'DireccionEmisor',
-        messageKey: 'einvoicing.issuer_registered_address_required_fill_under',
+        messageKey: 'einvoicing.do.issuer_registered_address_required_fill_under',
       });
     }
     if (ctx.emisor.provincia && !/^\d{2}$/.test(ctx.emisor.provincia)) {
       issues.push({
         field: 'Provincia',
-        messageKey: 'einvoicing.province_must_declared_with_dgii_two',
+        messageKey: 'einvoicing.do.province_must_declared_with_dgii_two',
       });
     }
     if (ctx.emisor.municipio && !/^\d{4}$/.test(ctx.emisor.municipio)) {
       issues.push({
         field: 'Municipio',
-        messageKey: 'einvoicing.municipality_must_declared_with_dgii_four',
+        messageKey: 'einvoicing.do.municipality_must_declared_with_dgii_four',
       });
     }
 
@@ -142,19 +142,19 @@ export class EcfValidatorService {
       if (!buyerTaxId && !ctx.comprador?.identificadorExtranjero) {
         issues.push({
           field: 'RNCComprador',
-          messageKey: 'einvoicing.buyer_tax_id_required_for_type',
+          messageKey: 'einvoicing.do.buyer_tax_id_required_for_type',
           params: { type: ctx.tipoECF },
         });
       } else if (buyerTaxId && !this.isDominicanTaxId(buyerTaxId)) {
         issues.push({
           field: 'RNCComprador',
-          messageKey: 'einvoicing.buyer_rnc_national_id_must_have',
+          messageKey: 'einvoicing.do.buyer_rnc_national_id_must_have',
         });
       }
       if (!ctx.comprador?.razonSocial?.trim()) {
         issues.push({
           field: 'RazonSocialComprador',
-          messageKey: 'einvoicing.buyer_legal_name_required_for_type',
+          messageKey: 'einvoicing.do.buyer_legal_name_required_for_type',
           params: { type: ctx.tipoECF },
         });
       }
@@ -168,7 +168,7 @@ export class EcfValidatorService {
     ) {
       issues.push({
         field: 'RNCComprador',
-        messageKey: 'einvoicing.consumo_above_threshold_requires_buyer',
+        messageKey: 'einvoicing.do.consumo_above_threshold_requires_buyer',
         // Amounts travel as numbers with their currency, so the catalogue's `money` formatting
         // renders them in the reader's locale rather than in `es-DO` for everybody.
         params: {
@@ -182,18 +182,18 @@ export class EcfValidatorService {
     if (ctx.tipoECF === '46' && !ctx.comprador?.identificadorExtranjero && !buyerTaxId) {
       issues.push({
         field: 'IdentificadorExtranjero',
-        messageKey: 'einvoicing.export_document_requires_foreign_buyer_identified',
+        messageKey: 'einvoicing.do.export_document_requires_foreign_buyer_identified',
       });
     }
 
     // ── Payment ──────────────────────────────────────────────────────────────
     if (!['1', '2', '3'].includes(ctx.tipoPago)) {
-      issues.push({ field: 'TipoPago', messageKey: 'einvoicing.payment_type_must_cash_credit' });
+      issues.push({ field: 'TipoPago', messageKey: 'einvoicing.do.payment_type_must_cash_credit' });
     }
     if (ctx.tipoPago === '1' && (!ctx.formasPago || ctx.formasPago.length === 0)) {
       issues.push({
         field: 'TablaFormasPago',
-        messageKey: 'einvoicing.cash_sale_must_declare_least_one',
+        messageKey: 'einvoicing.do.cash_sale_must_declare_least_one',
       });
     }
     if (ctx.formasPago) {
@@ -201,7 +201,7 @@ export class EcfValidatorService {
       if (Math.abs(declared - round2(montoTotal)) > 0.05) {
         issues.push({
           field: 'TablaFormasPago',
-          messageKey: 'einvoicing.payments_do_not_match_total',
+          messageKey: 'einvoicing.do.payments_do_not_match_total',
           params: { declared, total: montoTotal, currency: 'DOP' },
         });
       }
@@ -209,7 +209,7 @@ export class EcfValidatorService {
         if (!/^0[1-7]$/.test(pago.forma)) {
           issues.push({
             field: 'FormaPago',
-            messageKey: 'einvoicing.payment_method_code_unknown',
+            messageKey: 'einvoicing.do.payment_method_code_unknown',
             params: { value: pago.forma },
           });
         }
@@ -218,40 +218,40 @@ export class EcfValidatorService {
 
     // ── Items ────────────────────────────────────────────────────────────────
     if (!ctx.items || ctx.items.length === 0) {
-      issues.push({ field: 'DetallesItems', messageKey: 'einvoicing.document_must_have_least_one_line' });
+      issues.push({ field: 'DetallesItems', messageKey: 'einvoicing.do.document_must_have_least_one_line' });
     }
     ctx.items?.forEach((item, index) => {
       // The line number is a parameter, not a prefix: "línea 3: …" and "line 3: …" put the
       // number in the same place, but a language that does not would have no way to move it.
       const line = index + 1;
       if (!item.nombre?.trim()) {
-        issues.push({ field: 'NombreItem', messageKey: 'einvoicing.item_name_required', params: { line } });
+        issues.push({ field: 'NombreItem', messageKey: 'einvoicing.do.item_name_required', params: { line } });
       }
       if (!(item.cantidad > 0)) {
         issues.push({
           field: 'CantidadItem',
-          messageKey: 'einvoicing.item_quantity_must_be_positive',
+          messageKey: 'einvoicing.do.item_quantity_must_be_positive',
           params: { line },
         });
       }
       if (!(item.precioUnitario >= 0)) {
         issues.push({
           field: 'PrecioUnitarioItem',
-          messageKey: 'einvoicing.item_price_must_not_be_negative',
+          messageKey: 'einvoicing.do.item_price_must_not_be_negative',
           params: { line },
         });
       }
       if (!['1', '2'].includes(item.indicadorBienoServicio)) {
         issues.push({
           field: 'IndicadorBienoServicio',
-          messageKey: 'einvoicing.item_must_declare_good_or_service',
+          messageKey: 'einvoicing.do.item_must_declare_good_or_service',
           params: { line },
         });
       }
       if (![0, 0.16, 0.18].some((rate) => Math.abs(rate - item.itbisTasa) < 1e-6)) {
         issues.push({
           field: 'IndicadorFacturacion',
-          messageKey: 'einvoicing.item_tax_rate_not_in_force',
+          messageKey: 'einvoicing.do.item_tax_rate_not_in_force',
           params: { line, rate: item.itbisTasa },
         });
       }
@@ -262,19 +262,19 @@ export class EcfValidatorService {
       if (!ctx.modifica?.eNCFModificado) {
         issues.push({
           field: 'InformacionReferencia',
-          messageKey: 'einvoicing.credit_debit_note_must_reference_document',
+          messageKey: 'einvoicing.do.credit_debit_note_must_reference_document',
         });
       } else if (!/^[EB]\d{8,12}$/.test(ctx.modifica.eNCFModificado)) {
         issues.push({
           field: 'NCFModificado',
-          messageKey: 'einvoicing.value_not_ncf_format',
+          messageKey: 'einvoicing.do.value_not_ncf_format',
           params: { value: ctx.modifica.eNCFModificado },
         });
       }
       if (ctx.modifica && !/^[1-5]$/.test(ctx.modifica.codigoModificacion)) {
         issues.push({
           field: 'CodigoModificacion',
-          messageKey: 'einvoicing.modification_code_must_between',
+          messageKey: 'einvoicing.do.modification_code_must_between',
         });
       }
     }
@@ -282,15 +282,15 @@ export class EcfValidatorService {
     // ── Foreign currency ─────────────────────────────────────────────────────
     if (ctx.otraMoneda) {
       if (!/^[A-Z]{3}$/.test(ctx.otraMoneda.tipoMoneda)) {
-        issues.push({ field: 'TipoMoneda', messageKey: 'einvoicing.currency_code_must_iso_4217' });
+        issues.push({ field: 'TipoMoneda', messageKey: 'einvoicing.do.currency_code_must_iso_4217' });
       }
       if (!(ctx.otraMoneda.tipoCambio > 0)) {
-        issues.push({ field: 'TipoCambio', messageKey: 'einvoicing.exchange_rate_must_greater_than_zero' });
+        issues.push({ field: 'TipoCambio', messageKey: 'einvoicing.do.exchange_rate_must_greater_than_zero' });
       }
     }
 
     if (!(montoTotal > 0)) {
-      issues.push({ field: 'MontoTotal', messageKey: 'einvoicing.document_total_must_greater_than_zero' });
+      issues.push({ field: 'MontoTotal', messageKey: 'einvoicing.do.document_total_must_greater_than_zero' });
     }
 
     return issues;
