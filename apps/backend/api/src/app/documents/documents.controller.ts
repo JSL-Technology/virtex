@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -15,6 +14,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import type { FastifyReply } from 'fastify';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -62,7 +62,7 @@ export class DocumentsController {
   @Get(':id/breadcrumb')
   @HasPermission(PERMISSIONS.DOCUMENTS_VIEW)
   @ApiOperation({ summary: 'La cadena de carpetas desde la raíz hasta este nodo.' })
-  breadcrumb(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  breadcrumb(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.documents.breadcrumb(id, user.organizationId);
   }
 
@@ -70,7 +70,7 @@ export class DocumentsController {
   @HasPermission(PERMISSIONS.DOCUMENTS_VIEW)
   @ApiOperation({ summary: 'Descarga el archivo, en streaming.' })
   async download(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
     @Res() reply: FastifyReply,
   ): Promise<void> {
@@ -89,7 +89,7 @@ export class DocumentsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.DOCUMENTS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.documents.findOne(id, user.organizationId);
   }
 
@@ -127,7 +127,7 @@ export class DocumentsController {
   @Patch(':id/rename')
   @HasPermission(PERMISSIONS.DOCUMENTS_MANAGE)
   rename(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: RenameDocumentDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -137,7 +137,7 @@ export class DocumentsController {
   @Patch(':id/move')
   @HasPermission(PERMISSIONS.DOCUMENTS_MANAGE)
   move(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: MoveDocumentDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -148,7 +148,7 @@ export class DocumentsController {
   @HasPermission(PERMISSIONS.DOCUMENTS_MANAGE)
   @ApiOperation({ summary: 'Marca un archivo como plantilla, o cambia su descripción.' })
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateDocumentDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -159,7 +159,7 @@ export class DocumentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.DOCUMENTS_MANAGE)
   @ApiOperation({ summary: 'Borra un nodo y todo lo que cuelga de él, objetos incluidos.' })
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.documents.remove(id, user.organizationId);
   }
 }

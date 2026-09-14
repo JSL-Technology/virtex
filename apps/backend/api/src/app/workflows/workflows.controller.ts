@@ -4,11 +4,11 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { WorkflowsService, ApprovalActor } from './workflows.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -62,7 +62,7 @@ export class WorkflowsController {
   @Get('approvals/:requestId/history')
   @HasPermission(PERMISSIONS.WORKFLOWS_DECIDE)
   history(
-    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @Param('requestId', UuidParamPipe) requestId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workflowsService.historyFor(requestId, user.organizationId);
@@ -71,7 +71,7 @@ export class WorkflowsController {
   @Post('approve/:requestId')
   @HasPermission(PERMISSIONS.WORKFLOWS_DECIDE)
   approve(
-    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @Param('requestId', UuidParamPipe) requestId: string,
     @Body() dto: DecideApprovalDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -81,7 +81,7 @@ export class WorkflowsController {
   @Post('reject/:requestId')
   @HasPermission(PERMISSIONS.WORKFLOWS_DECIDE)
   reject(
-    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @Param('requestId', UuidParamPipe) requestId: string,
     @Body() dto: RejectApprovalDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -108,7 +108,7 @@ export class WorkflowsController {
   @Patch('policies/:policyId')
   @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
   updatePolicy(
-    @Param('policyId', ParseUUIDPipe) policyId: string,
+    @Param('policyId', UuidParamPipe) policyId: string,
     @Body() dto: UpdateApprovalPolicyDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -118,7 +118,7 @@ export class WorkflowsController {
   @Delete('policies/:policyId')
   @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
   deletePolicy(
-    @Param('policyId', ParseUUIDPipe) policyId: string,
+    @Param('policyId', UuidParamPipe) policyId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workflowsService.deletePolicy(policyId, user.organizationId);

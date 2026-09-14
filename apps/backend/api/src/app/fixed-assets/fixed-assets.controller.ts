@@ -7,9 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
 import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
@@ -50,7 +50,7 @@ export class FixedAssetsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.fixedAssetsService.findOne(id, user.organizationId);
   }
@@ -58,7 +58,7 @@ export class FixedAssetsController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateFixedAssetDto: UpdateFixedAssetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -68,7 +68,7 @@ export class FixedAssetsController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.fixedAssetsService.remove(id, user.organizationId);
   }
@@ -77,7 +77,7 @@ export class FixedAssetsController {
   @Idempotent()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_DISPOSE)
   dispose(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() disposeDto: DisposeAssetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

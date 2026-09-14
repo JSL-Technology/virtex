@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Param, Body, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { NotificationsService } from './notifications.service';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -36,7 +37,7 @@ export class NotificationsController {
     'The caller\'s own notification inbox: reading it, and marking their own items as read.',
   )
   markAsRead(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser
     ) {
     return this.notificationsService.markAsRead(id, user.id);

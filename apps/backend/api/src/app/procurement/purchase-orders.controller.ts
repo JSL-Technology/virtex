@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -53,7 +53,7 @@ export class PurchaseOrdersController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.findOne(id, user.organizationId);
   }
 
@@ -70,7 +70,7 @@ export class PurchaseOrdersController {
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   @ApiOperation({ summary: 'Convierte una requisición aprobada en una orden a un proveedor.' })
   fromRequisition(
-    @Param('requisitionId', ParseUUIDPipe) requisitionId: string,
+    @Param('requisitionId', UuidParamPipe) requisitionId: string,
     @Body() body: { supplierId: string },
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -85,7 +85,7 @@ export class PurchaseOrdersController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdatePurchaseOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -95,21 +95,21 @@ export class PurchaseOrdersController {
   @Post(':id/submit')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
-  submit(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  submit(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.submit(id, user.organizationId);
   }
 
   @Post(':id/approve')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
-  approve(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  approve(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.approve(id, user.organizationId, user.id);
   }
 
   @Post(':id/reopen')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
-  reopen(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  reopen(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.reopen(id, user.organizationId);
   }
 
@@ -117,7 +117,7 @@ export class PurchaseOrdersController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   @ApiOperation({ summary: 'Marca la orden como enviada al proveedor.' })
-  send(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  send(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.send(id, user.organizationId);
   }
 
@@ -126,7 +126,7 @@ export class PurchaseOrdersController {
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   @ApiOperation({ summary: 'Registra lo recibido contra la orden, línea por línea.' })
   receive(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: ReceivePurchaseOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -137,7 +137,7 @@ export class PurchaseOrdersController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
   cancel(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: RejectDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -147,7 +147,7 @@ export class PurchaseOrdersController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.orders.remove(id, user.organizationId);
   }
 }

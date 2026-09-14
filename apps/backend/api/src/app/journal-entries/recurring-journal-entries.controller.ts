@@ -8,8 +8,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -46,14 +46,14 @@ export class RecurringJournalEntriesController {
 
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.findOne(id, user.organizationId);
   }
 
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Patch(':id')
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateRecurringJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -62,7 +62,7 @@ export class RecurringJournalEntriesController {
 
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.remove(id, user.organizationId);
   }
 }

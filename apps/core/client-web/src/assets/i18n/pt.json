@@ -4543,6 +4543,7 @@
   "validation.constraints.is_uuid": "{{property}} não é um identificador válido.",
   "validation.constraints.is_verification_target": "O destino não é um e-mail nem um número de telefone válido.",
   "validation.constraints.length": "{{property}} deve ter entre {{min}} e {{max}} caracteres.",
+  "validation.constraints.malformed_identifier": "O link não é válido: {{property}} não é um identificador.",
   "validation.constraints.matches": "{{property}} não está no formato esperado.",
   "validation.constraints.max": "{{property}} não pode ser maior que {{max}}.",
   "validation.constraints.max_length": "{{property}} não pode ter mais de {{max}} caracteres.",

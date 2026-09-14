@@ -7,8 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -38,14 +38,14 @@ export class SuppliersController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.SUPPLIERS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.suppliersService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.SUPPLIERS_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateSupplierDto: UpdateSupplierDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -54,7 +54,7 @@ export class SuppliersController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.SUPPLIERS_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.suppliersService.remove(id, user.organizationId);
   }
 }

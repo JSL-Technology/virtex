@@ -6,9 +6,9 @@ import {
   HttpStatus,
   UseGuards,
   Param,
-  ParseUUIDPipe,
   Ip,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -83,7 +83,7 @@ export class AuthSessionController {
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('id', ParseUUIDPipe) sessionId: string,
+    @Param('id', UuidParamPipe) sessionId: string,
     @Ip() ip: string
   ) {
     try {

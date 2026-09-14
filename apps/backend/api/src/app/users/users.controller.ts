@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseUUIDPipe, UseInterceptors, UploadedFile, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { toUploadableFile, FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -229,7 +230,7 @@ export class UsersController {
   @Get(':id')
   @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'Get user by ID' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  async findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     // H2 FIX: Scope query to current user's organization to prevent IDOR cross-tenant reads.
     const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
     return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
@@ -241,7 +242,7 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -262,7 +263,7 @@ export class UsersController {
   // overwritten by @HasPermission because both write the same 'permissions' metadata key).
   @HasPermission(PERMISSIONS.USERS_DELETE, IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
-  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
+  async remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
     try {
       const result = await this.usersService.remove(id, user.organizationId, user.id);
       await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user' }, undefined, ip, user.organizationId);
@@ -278,7 +279,7 @@ export class UsersController {
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
-      @Param('id', ParseUUIDPipe) id: string,
+      @Param('id', UuidParamPipe) id: string,
       @Body() dto: UpdateUserStatusDto,
       @CurrentUser() user: AuthenticatedUser
   ) {
@@ -295,7 +296,7 @@ export class UsersController {
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
-      @Param('id', ParseUUIDPipe) id: string,
+      @Param('id', UuidParamPipe) id: string,
       @CurrentUser() user: AuthenticatedUser
   ) {
       await this.usersService.resetPassword(id, user.organizationId);
@@ -310,7 +311,7 @@ export class UsersController {
   // privileged user from reading another tenant's activity via a cross-org userId
   // (OWASP API1 BOLA; CWE-639). findOneByOrg also verifies the target belongs to the org.
   async getActivityLog(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
       await this.usersService.findOneByOrg(id, user.organizationId);
@@ -321,7 +322,7 @@ export class UsersController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
-  async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  async forceLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.usersService.forceLogout(id, user.organizationId);
   }
 
@@ -334,7 +335,7 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Admin: change user email with session invalidation' })
   async adminChangeEmail(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: AdminChangeEmailDto,
     @CurrentUser() user: AuthenticatedUser,
     @Ip() ip: string,
@@ -351,7 +352,7 @@ export class UsersController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
-  async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  async blockAndLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.usersService.blockAndLogout(id, user.organizationId);
   }
 }

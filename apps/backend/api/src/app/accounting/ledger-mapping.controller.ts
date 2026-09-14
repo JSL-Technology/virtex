@@ -1,5 +1,6 @@
 
-import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -17,8 +18,8 @@ export class LedgerMappingController {
   @HasPermission(PERMISSIONS.ACCOUNTING_MANAGE_LEDGERS)
   @Get(':sourceLedgerId/:targetLedgerId')
   getMap(
-    @Param('sourceLedgerId', ParseUUIDPipe) sourceLedgerId: string,
-    @Param('targetLedgerId', ParseUUIDPipe) targetLedgerId: string,
+    @Param('sourceLedgerId', UuidParamPipe) sourceLedgerId: string,
+    @Param('targetLedgerId', UuidParamPipe) targetLedgerId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.mappingService.getMapForLedgerPair(

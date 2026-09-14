@@ -8,8 +8,8 @@ import {
   Param,
   Patch,
   Delete,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { CreateVendorDebitNoteDto } from './dto/create-vendor-debit-note.dto';
 import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
@@ -44,14 +44,14 @@ export class VendorDebitNotesController {
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.vendorDebitNotesService.findOne(id, user.organizationId);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
   @Patch(':id')
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateVendorDebitNoteDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -64,7 +64,7 @@ export class VendorDebitNotesController {
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.vendorDebitNotesService.remove(id, user.organizationId);
   }
 }

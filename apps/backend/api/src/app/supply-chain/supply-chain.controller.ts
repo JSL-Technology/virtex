@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { SupplyChainService } from './supply-chain.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -41,7 +41,7 @@ export class SupplyChainController {
   @Get('warehouses/:id')
   @HasPermission(PERMISSIONS.WMS_VIEW)
   findOneWarehouse(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.supplyChainService.findOneWarehouse(id, user.organizationId);
@@ -56,7 +56,7 @@ export class SupplyChainController {
   @Patch('warehouses/:id')
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   updateWarehouse(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateWarehouseDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -67,7 +67,7 @@ export class SupplyChainController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   removeWarehouse(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.supplyChainService.removeWarehouse(id, user.organizationId);
@@ -93,7 +93,7 @@ export class SupplyChainController {
   @Patch('bin-locations/:id')
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   updateBinLocation(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateBinLocationDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -104,7 +104,7 @@ export class SupplyChainController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   removeBinLocation(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.supplyChainService.removeBinLocation(id, user.organizationId);
@@ -127,7 +127,7 @@ export class SupplyChainController {
   @Patch('landed-costs/:id')
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   updateLandedCost(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateLandedCostDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -138,7 +138,7 @@ export class SupplyChainController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.WMS_MANAGE)
   removeLandedCost(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.supplyChainService.removeLandedCost(id, user.organizationId);

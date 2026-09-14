@@ -1,5 +1,6 @@
 
-import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ConsolidationMappingService } from './consolidation-mapping.service';
 import { CreateConsolidationMapDto } from './dto/create-consolidation-map.dto';
@@ -17,7 +18,7 @@ export class ConsolidationMappingController {
   @HasPermission(PERMISSIONS.FINANCIALS_CONSOLIDATE)
   @Get(':subsidiaryId')
   getMap(
-      @Param('subsidiaryId', ParseUUIDPipe) subsidiaryId: string,
+      @Param('subsidiaryId', UuidParamPipe) subsidiaryId: string,
       @CurrentUser() user: AuthenticatedUser
   ) {
     return this.mappingService.getMapForSubsidiary(user.organizationId, subsidiaryId);

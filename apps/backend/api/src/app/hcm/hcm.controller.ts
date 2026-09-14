@@ -6,13 +6,13 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { HcmService } from './hcm.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -52,7 +52,7 @@ export class HcmController {
   @Get('employees/:id')
   @HasPermission(PERMISSIONS.HCM_VIEW)
   async findOneEmployee(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.redact(await this.hcmService.findOneEmployee(id, user.organizationId), user);
@@ -68,7 +68,7 @@ export class HcmController {
   @Get('employees/:id/sensitive')
   @HasPermission(PERMISSIONS.HCM_VIEW_SENSITIVE)
   @AuditAccess({ entity: 'employee_pii', action: ActionType.READ, identifiers: ['id'] })
-  async sensitive(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  async sensitive(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     const e = await this.hcmService.findOneEmployee(id, user.organizationId);
     return {
       id: e.id,
@@ -89,7 +89,7 @@ export class HcmController {
   @Patch('employees/:id')
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   async updateEmployee(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateEmployeeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -100,7 +100,7 @@ export class HcmController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   removeEmployee(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.hcmService.removeEmployee(id, user.organizationId);
@@ -112,7 +112,7 @@ export class HcmController {
   @HasPermission(PERMISSIONS.PAYROLL_VIEW_COMPENSATION)
   @AuditAccess({ entity: 'employee_compensation', action: ActionType.READ, identifiers: ['id'] })
   listCompensation(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.hcmService.listCompensations(id, user.organizationId);
@@ -123,7 +123,7 @@ export class HcmController {
   @Post('employees/:id/compensation')
   @HasPermission(PERMISSIONS.PAYROLL_EDIT_COMPENSATION)
   addCompensation(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: CreateCompensationDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -141,7 +141,7 @@ export class HcmController {
   @Get('departments/:id')
   @HasPermission(PERMISSIONS.HCM_VIEW)
   findOneDepartment(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.hcmService.findOneDepartment(id, user.organizationId);
@@ -156,7 +156,7 @@ export class HcmController {
   @Patch('departments/:id')
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   updateDepartment(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateDepartmentDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -167,7 +167,7 @@ export class HcmController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   removeDepartment(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.hcmService.removeDepartment(id, user.organizationId);

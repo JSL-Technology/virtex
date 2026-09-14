@@ -1,4 +1,5 @@
-import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
@@ -29,7 +30,7 @@ export class QuotesController {
   @Post(':id/convert-to-invoice')
   @Idempotent()
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
-  convertToInvoice(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  convertToInvoice(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.quotesService.convertToInvoice(id, user.organizationId);
   }
 }

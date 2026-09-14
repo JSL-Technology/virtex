@@ -6,10 +6,10 @@ import {
   Param,
   Query,
   UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { CustomerPaymentsService } from './customer-payments.service';
 import {
@@ -81,7 +81,7 @@ export class CustomerPaymentsController {
     summary: 'Anticipos disponibles de un cliente, por moneda, para aplicarlos a una factura.',
   })
   advances(
-    @Param('customerId', ParseUUIDPipe) customerId: string,
+    @Param('customerId', UuidParamPipe) customerId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.customerPaymentsService.advances(user.organizationId, customerId);
@@ -90,7 +90,7 @@ export class CustomerPaymentsController {
   @Get(':id')
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.customerPaymentsService.findOne(id, user.organizationId);
@@ -104,7 +104,7 @@ export class CustomerPaymentsController {
     summary: 'Anula un cobro y repone el saldo de las facturas — cheque devuelto o error.',
   })
   voidPayment(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: VoidCustomerPaymentDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

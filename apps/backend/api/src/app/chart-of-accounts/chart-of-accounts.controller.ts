@@ -8,13 +8,13 @@ import {
   Patch,
   Param,
   UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   Query,
   DefaultValuePipe,
   ParseIntPipe,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -68,7 +68,7 @@ export class ChartOfAccountsController {
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get('tree/children/:parentId')
   findTreeChildren(
-    @Param('parentId', ParseUUIDPipe) parentId: string,
+    @Param('parentId', UuidParamPipe) parentId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.findChildrenOf(
@@ -79,14 +79,14 @@ export class ChartOfAccountsController {
 
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.findOne(id, user.organizationId);
   }
 
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id')
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateAccountDto: UpdateAccountDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -104,7 +104,7 @@ export class ChartOfAccountsController {
   @Patch(':id/deactivate')
   @HttpCode(HttpStatus.OK)
   deactivate(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.deactivate(id, user.organizationId);
@@ -113,7 +113,7 @@ export class ChartOfAccountsController {
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id/block')
   @HttpCode(HttpStatus.OK)
-  block(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  block(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.blockForPosting(
       id,
       user.organizationId,
@@ -124,7 +124,7 @@ export class ChartOfAccountsController {
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id/unblock')
   @HttpCode(HttpStatus.OK)
-  unblock(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  unblock(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.unblockForPosting(
       id,
       user.organizationId,

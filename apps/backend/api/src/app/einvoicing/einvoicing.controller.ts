@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Delete, Query, Param, Body, UseGuards, UseInterceptors, UploadedFile, ParseUUIDPipe, Res } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Query, Param, Body, UseGuards, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -72,7 +73,7 @@ export class EinvoicingController {
   @Delete('certificates/:id')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
   async deactivateCertificate(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     await this.certificates.deactivate(user.organizationId, id);
@@ -91,7 +92,7 @@ export class EinvoicingController {
   @Get('invoices/:invoiceId/status')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async status(
-    @Param('invoiceId', ParseUUIDPipe) invoiceId: string,
+    @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
@@ -101,7 +102,7 @@ export class EinvoicingController {
   @Post('invoices/:invoiceId/submit')
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   async submit(
-    @Param('invoiceId', ParseUUIDPipe) invoiceId: string,
+    @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.submitInvoice(invoiceId, user.organizationId);
@@ -111,7 +112,7 @@ export class EinvoicingController {
   @Get('invoices/:invoiceId/xml')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async downloadXml(
-    @Param('invoiceId', ParseUUIDPipe) invoiceId: string,
+    @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {

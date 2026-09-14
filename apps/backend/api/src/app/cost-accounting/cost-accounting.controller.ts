@@ -6,11 +6,11 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CostAccountingService } from './cost-accounting.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -34,7 +34,7 @@ export class CostAccountingController {
   @Get(':id')
   @HasPermission(PERMISSIONS.COST_ACCOUNTING_VIEW)
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.costAccountingService.findOne(id, user.organizationId);
@@ -49,7 +49,7 @@ export class CostAccountingController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.COST_ACCOUNTING_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateCostCenterDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -60,7 +60,7 @@ export class CostAccountingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.COST_ACCOUNTING_MANAGE)
   remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.costAccountingService.remove(id, user.organizationId);

@@ -4,13 +4,13 @@ import {
   Post,
   Get,
   Param,
-  ParseUUIDPipe,
   Body,
   Query,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PeriodClosingService } from './period-closing.service';
@@ -108,7 +108,7 @@ export class AccountingController {
   @ApiResponse({ status: 200, description: 'Puntos pendientes para cerrar el período.' })
   @ApiResponse({ status: 404, description: 'Período no encontrado.' })
   closingChecklist(
-    @Param('periodId', ParseUUIDPipe) periodId: string,
+    @Param('periodId', UuidParamPipe) periodId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.closingChecklistService.getChecklist(periodId, user.organizationId);
