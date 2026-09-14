@@ -91,8 +91,15 @@ export class LazyTranslateLoader implements TranslateLoader {
     );
   }
 
-  /** Apply the patch for the locale in force, if there is one. See `applyRegionalCatalogue`. */
+  /**
+   * Apply the patch for the tenant's country, if there is one. See `applyRegionalCatalogue`.
+   *
+   * `wordingLocale` and not `locale`: the second always answers, falling back to `en-US` for an
+   * English reader wherever they are, and applying THAT patch told a Dominican company its tax
+   * identifier was an EIN. A country's fiscal vocabulary belongs to the country, not to the
+   * language the reader happens to have chosen.
+   */
   private withRegionalOverrides(base: Catalogue): Catalogue {
-    return applyRegionalCatalogue(base, REGIONAL, this.locale.locale());
+    return applyRegionalCatalogue(base, REGIONAL, this.locale.wordingLocale());
   }
 }
