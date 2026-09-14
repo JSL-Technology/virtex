@@ -14,12 +14,12 @@ import { ProductStatus } from '../entities/product.entity';
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   name: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(50, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":50}' })
+  @MaxLength(50, { message: 'validation.constraints.max_length|{"max":50}' })
   sku?: string;
 
   @IsString()
@@ -33,26 +33,26 @@ export class CreateProductDto {
    * `Electronics` as two different things. `null` files the product under nothing, which is a
    * normal state.
    */
-  @IsUUID('4', { message: 'VALIDATION.PRODUCT_CATEGORY.PARENT_MUST_BE_UUID' })
+  @IsUUID('4', { message: 'validation.product_category.parent_must_be_uuid' })
   @IsOptional()
   categoryId?: string | null;
 
   @IsNumber()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   price: number;
   
   @IsNumber()
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   cost?: number;
 
   @IsNumber()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   stock: number;
 
   @IsNumber()
   @IsOptional()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   reorderLevel?: number;
 
   @IsString()

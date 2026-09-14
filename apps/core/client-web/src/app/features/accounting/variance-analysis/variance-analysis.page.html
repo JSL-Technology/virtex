@@ -1,14 +1,14 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET' | translate }}</h3>
+        <h3>{{ 'accounting.variance_analysis.variance_analysis_actual_vs_budget' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button" type="button" disabled>
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.PERIOD' | translate }}</span>
+                <span>{{ 'accounting.variance_analysis.period' | translate }}</span>
             </button>
             <button class="primary-button" type="button" [disabled]="isEmpty()">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.EXPORT' | translate }}</span>
+                <span>{{ 'accounting.variance_analysis.export' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,11 +16,11 @@
         <table class="data-table variance-table">
             <thead>
                 <tr>
-                    <th>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.ACCOUNT' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.ACTUAL' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.BUDGET' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_AMOUNT' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_PERCENT' | translate }}</th>
+                    <th>{{ 'accounting.variance_analysis.account' | translate }}</th>
+                    <th class="text-right">{{ 'accounting.variance_analysis.actual' | translate }}</th>
+                    <th class="text-right">{{ 'accounting.variance_analysis.budget' | translate }}</th>
+                    <th class="text-right">{{ 'accounting.variance_analysis.variance_amount' | translate }}</th>
+                    <th class="text-right">{{ 'accounting.variance_analysis.variance_percent' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,7 +46,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.NO_DATA_AVAILABLE_FOR_VARIANCE_ANALYSIS' | translate }}</td>
+                    <td colspan="5" class="empty-state">{{ 'accounting.variance_analysis.no_data_available_for_variance_analysis' | translate }}</td>
                 </tr>
                 }
             </tbody>

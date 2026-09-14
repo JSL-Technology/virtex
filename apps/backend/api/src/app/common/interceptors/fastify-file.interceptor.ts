@@ -65,7 +65,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
       // OR if it's an array of files, it returns an array.
 
       if (Array.isArray(filePart)) {
-         throw new BadRequestError('COMMON.SINGLE_FILE_EXPECTED');
+         throw new BadRequestError('common.single_file_expected');
       }
 
       try {
@@ -79,7 +79,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
            });
 
            if (error || !accepted) {
-              throw error || new BadRequestError('COMMON.FILE_TYPE_NOT_ALLOWED');
+              throw error || new BadRequestError('common.file_type_not_allowed');
            }
         }
 
@@ -88,13 +88,13 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
           options.allowedMimeTypes.length > 0 &&
           !options.allowedMimeTypes.includes(filePart.mimetype)
         ) {
-          throw new BadRequestError('COMMON.TIPO_ARCHIVO_NO_PERMITIDO', { mimetype: filePart.mimetype });
+          throw new BadRequestError('common.file_type_not_allowed_mimetype', { mimetype: filePart.mimetype });
         }
 
         const buffer = await filePart.toBuffer();
 
         if (options.limits?.fileSize && buffer.length > options.limits.fileSize) {
-           throw new BadRequestError('COMMON.FILE_TOO_LARGE');
+           throw new BadRequestError('common.file_too_large');
         }
 
         // The original file name is never used as a path component: `extname` of attacker-supplied

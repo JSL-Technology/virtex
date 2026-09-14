@@ -117,7 +117,7 @@ export class DatasheetVariablesService {
       (candidate) => candidate.nameEn === name || candidate.nameEs === name,
     );
     if (!variable) {
-      throw new NotFoundError('DATASHEETS.VARIABLE_NO_EXISTE', { name });
+      throw new NotFoundError('datasheets.no_variable_called_name', { name });
     }
     this.assertPermitted(variable, user);
 
@@ -176,7 +176,7 @@ export class DatasheetVariablesService {
       ),
     );
     if (!held.has(variable.permission)) {
-      throw new ForbiddenError('DATASHEETS.SIN_PERMISO_PARA_VARIABLE', {
+      throw new ForbiddenError('datasheets.you_do_not_have_permission_read', {
         variable: variable.nameEs,
         permission: variable.permission,
       });
@@ -222,7 +222,7 @@ export class DatasheetVariablesService {
         const budgeted = await this.revenueBudgetFor(org, today.slice(0, 7));
         if (budgeted === 0) {
           // No budget is not a goal of zero, and it is not a goal of a million either.
-          throw new BadRequestError('DATASHEETS.SIN_PRESUPUESTO_DE_INGRESOS', {
+          throw new BadRequestError('datasheets.no_revenue_budget_period_no_goal', {
             period: today.slice(0, 7),
           });
         }
@@ -283,9 +283,9 @@ export class DatasheetVariablesService {
       case 'PRODUCT_COST':
       case 'PRODUCT_STOCK': {
         const sku = String(params[0] ?? '').trim();
-        if (!sku) throw new BadRequestError('DATASHEETS.PARAMETRO_REQUERIDO', { param: 'ref' });
+        if (!sku) throw new BadRequestError('datasheets.param_parameter_required', { param: 'ref' });
         const product = await this.products.findOne({ where: { sku, organizationId: org } });
-        if (!product) throw new NotFoundError('DATASHEETS.PRODUCTO_NO_ENCONTRADO', { sku });
+        if (!product) throw new NotFoundError('datasheets.no_product_has_sku_sku', { sku });
         return variable.nameEn === 'PRODUCT_COST'
           ? roundAmount(product.cost)
           : roundAmount(product.stock, 6);
@@ -305,7 +305,7 @@ export class DatasheetVariablesService {
       }
       case 'CUSTOMER_DEBT': {
         const customerId = String(params[0] ?? '').trim();
-        if (!customerId) throw new BadRequestError('DATASHEETS.PARAMETRO_REQUERIDO', { param: 'id' });
+        if (!customerId) throw new BadRequestError('datasheets.param_parameter_required', { param: 'id' });
         return this.receivableBalance(org, null, customerId);
       }
 
@@ -335,7 +335,7 @@ export class DatasheetVariablesService {
       case 'PROJECTED_CASH_FLOW': {
         const days = Number(params[0] ?? DEFAULT_PROJECTION_DAYS);
         if (!Number.isFinite(days) || days < 0 || days > 365) {
-          throw new BadRequestError('DATASHEETS.HORIZONTE_PROYECCION_NO_VALIDO', { days });
+          throw new BadRequestError('datasheets.projection_horizon_days_must_between_365', { days });
         }
         const horizon = addDaysIso(today, Math.trunc(days));
         const [position, collections, payments] = await Promise.all([
@@ -360,7 +360,7 @@ export class DatasheetVariablesService {
         const standard = scheme?.taxes.find((tax) => tax.rate > 0);
         if (!standard) {
           // A country whose base is sub-national (US, BR) has no single national rate to state.
-          throw new BadRequestError('DATASHEETS.PAIS_SIN_TASA_NACIONAL_UNICA', {
+          throw new BadRequestError('datasheets.country_country_has_no_single_national', {
             country: organization?.country ?? '',
           });
         }
@@ -369,7 +369,7 @@ export class DatasheetVariablesService {
       case 'EXCHANGE_RATE': {
         const from = String(params[0] ?? '').trim().toUpperCase();
         if (!/^[A-Z]{3}$/.test(from)) {
-          throw new BadRequestError('DATASHEETS.PARAMETRO_REQUERIDO', { param: 'moneda' });
+          throw new BadRequestError('datasheets.param_parameter_required', { param: 'moneda' });
         }
         const base = await this.baseCurrency(org);
         const resolved = await this.exchangeRates.resolve(from, base, today);
@@ -394,7 +394,7 @@ export class DatasheetVariablesService {
           .orderBy('SUM(line.taxable_base)', 'DESC')
           .limit(1)
           .getRawOne<{ description: string }>();
-        if (!row) throw new NotFoundError('DATASHEETS.SIN_VENTAS_EN_EL_PERIODO');
+        if (!row) throw new NotFoundError('datasheets.no_invoiced_sales_period');
         return row.description;
       }
 
@@ -422,7 +422,7 @@ export class DatasheetVariablesService {
         // Unreachable while the registry and this switch agree; if they ever diverge, the caller is
         // told rather than handed a zero.
         const exhaustive: string = variable.nameEn;
-        throw new NotFoundError('DATASHEETS.VARIABLE_SIN_IMPLEMENTACION', { name: exhaustive });
+        throw new NotFoundError('datasheets.variable_name_catalogued_but_has_no', { name: exhaustive });
       }
     }
   }

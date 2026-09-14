@@ -51,7 +51,7 @@ export class CoaImportService {
     userId: string,
   ): Promise<PreviewCoaImportResponseDto> {
     const { data } = await this.fileParser.parse(file);
-    if (data.length === 0) throw new BadRequestError('CHART_OF_ACCOUNTS.FILE_EMPTY');
+    if (data.length === 0) throw new BadRequestError('chart_of_accounts.file_empty');
 
     const existingAccounts =
       await this.coaService.findAllForOrg(organizationId);
@@ -74,10 +74,10 @@ export class CoaImportService {
 
       const code = row[mapping.code];
       if (!code) {
-        validatedRow.errors.push({ messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CODIGO_OBLIGATORIO' });
+        validatedRow.errors.push({ messageKey: 'chart_of_accounts.import.account_code_required' });
       }
       if (!row[mapping.name]) {
-        validatedRow.errors.push({ messageKey: 'CHART_OF_ACCOUNTS.IMPORT.NOMBRE_OBLIGATORIO' });
+        validatedRow.errors.push({ messageKey: 'chart_of_accounts.import.account_name_required' });
       }
 
       const declaredType = row[mapping.type];
@@ -85,7 +85,7 @@ export class CoaImportService {
       // be stated rather than assumed.
       if (!ACCOUNT_TYPES.includes(declaredType as AccountType)) {
         validatedRow.errors.push({
-          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.TIPO_NO_VALIDO',
+          messageKey: 'chart_of_accounts.import.value_not_valid_account_type_valid',
           params: { value: declaredType ?? '', allowed: ACCOUNT_TYPES.join(', ') },
         });
       }
@@ -97,7 +97,7 @@ export class CoaImportService {
       const declaredCategory = row[mapping.category];
       if (!ACCOUNT_CATEGORIES.includes(declaredCategory as AccountCategory)) {
         validatedRow.errors.push({
-          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CATEGORIA_NO_VALIDA',
+          messageKey: 'chart_of_accounts.import.value_not_valid_account_category_valid',
           params: { value: declaredCategory ?? '', allowed: ACCOUNT_CATEGORIES.join(', ') },
         });
       }
@@ -105,14 +105,14 @@ export class CoaImportService {
       const declaredNature = row[mapping.nature];
       if (!ACCOUNT_NATURES.includes(declaredNature as AccountNature)) {
         validatedRow.errors.push({
-          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.NATURALEZA_NO_VALIDA',
+          messageKey: 'chart_of_accounts.import.value_not_valid_account_nature_valid',
           params: { value: declaredNature ?? '', allowed: ACCOUNT_NATURES.join(', ') },
         });
       }
 
       if (existingCodeMap.has(code) || newCodeMap.has(code)) {
         validatedRow.errors.push({
-          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CODIGO_DUPLICADO',
+          messageKey: 'chart_of_accounts.import.code_code_already_exists_chart_repeated',
           params: { code },
         });
       }
@@ -133,7 +133,7 @@ export class CoaImportService {
         if (!existingCodeMap.has(parentCode) && !newCodeMap.has(parentCode)) {
           row.isValid = false;
           row.errors.push({
-            messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CUENTA_PADRE_NO_ENCONTRADA',
+            messageKey: 'chart_of_accounts.import.parent_account_code_neither_chart_nor',
             params: { code: parentCode },
           });
           validCount--;
@@ -172,7 +172,7 @@ export class CoaImportService {
       batch.organizationId !== organizationId ||
       batch.userId !== userId
     ) {
-      throw new NotFoundError('CHART_OF_ACCOUNTS.IMPORT_BATCH_NOT_FOUND_OR_EXPIRED');
+      throw new NotFoundError('chart_of_accounts.import_batch_not_found_or_expired');
     }
 
     this.logger.log(
@@ -211,7 +211,7 @@ export class CoaImportService {
             } else if (parentInDb) {
               parentId = parentInDb.id;
             } else {
-              throw new BadRequestError('CHART_OF_ACCOUNTS.ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE', { parentCode, p2: rowData[batch.mapping.code] });
+              throw new BadRequestError('chart_of_accounts.consistency_error_parent_account_parent_code', { parentCode, p2: rowData[batch.mapping.code] });
             }
           }
 
@@ -260,7 +260,7 @@ export class CoaImportService {
         status: 'FAILED',
         message: (error as Error).message,
       });
-      throw new InternalServerError('CHART_OF_ACCOUNTS.IMPORTACION_FALLO_FUE_REVERTIDA', { p1: (error as Error).message });
+      throw new InternalServerError('chart_of_accounts.import_failed_rolled_back_p1', { p1: (error as Error).message });
     }
 
     await this.cacheManager.del(`coa-import-batch:${batchId}`);

@@ -25,15 +25,15 @@ export const MAX_LEDGER_REPORT_DAYS = 1_900;
 
 export class GeneralLedgerReportDto {
   @IsUUID()
-  @IsNotEmpty({ message: 'VALIDATION.GENERAL_LEDGER_REPORT.ID_LIBRO_CONTABLE_OBLIGATORIO' })
+  @IsNotEmpty({ message: 'validation.general_ledger_report.ledger_id_required' })
   ledgerId: string;
 
   @IsDateString()
-  @IsNotEmpty({ message: 'VALIDATION.GENERAL_LEDGER_REPORT.FECHA_INICIO_OBLIGATORIA' })
+  @IsNotEmpty({ message: 'validation.general_ledger_report.start_date_required' })
   startDate: string;
 
   @IsDateString()
-  @IsNotEmpty({ message: 'VALIDATION.GENERAL_LEDGER_REPORT.FECHA_FIN_OBLIGATORIA' })
+  @IsNotEmpty({ message: 'validation.general_ledger_report.end_date_required' })
   endDate: string;
 
   /**
@@ -44,13 +44,13 @@ export class GeneralLedgerReportDto {
    * it was required.
    */
   @IsArray()
-  @ArrayNotEmpty({ message: 'VALIDATION.GENERAL_LEDGER_REPORT.AL_MENOS_UNA_CUENTA' })
+  @ArrayNotEmpty({ message: 'validation.general_ledger_report.least_one_account_required' })
   @ArrayMaxSize(MAX_LEDGER_REPORT_ACCOUNTS, {
-    message: 'VALIDATION.GENERAL_LEDGER_REPORT.DEMASIADAS_CUENTAS',
+    message: 'validation.general_ledger_report.too_many_accounts_requested_single_report',
   })
   @IsUUID('4', {
     each: true,
-    message: 'VALIDATION.GENERAL_LEDGER_REPORT.CADA_ID_CUENTA_DEBE_UUID_VALIDO',
+    message: 'validation.general_ledger_report.each_account_id_must_valid_uuid',
   })
   accountIds: string[];
 

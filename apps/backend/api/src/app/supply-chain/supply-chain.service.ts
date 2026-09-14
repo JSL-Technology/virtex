@@ -44,7 +44,7 @@ export class SupplyChainService {
       where: { id, organizationId },
     });
     if (!warehouse) {
-      throw new NotFoundError('WMS.WAREHOUSE_NOT_FOUND', { id });
+      throw new NotFoundError('wms.warehouse_not_found', { id });
     }
     return warehouse;
   }
@@ -84,7 +84,7 @@ export class SupplyChainService {
       where: { id, organizationId },
     });
     if (!bin) {
-      throw new NotFoundError('WMS.BIN_LOCATION_NOT_FOUND', { id });
+      throw new NotFoundError('wms.bin_location_not_found', { id });
     }
     return bin;
   }
@@ -129,7 +129,7 @@ export class SupplyChainService {
       where: { id, organizationId },
     });
     if (!landedCost) {
-      throw new NotFoundError('WMS.LANDED_COST_NOT_FOUND', { id });
+      throw new NotFoundError('wms.landed_cost_not_found', { id });
     }
     return landedCost;
   }

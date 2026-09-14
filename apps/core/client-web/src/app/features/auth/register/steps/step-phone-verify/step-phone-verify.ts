@@ -87,7 +87,7 @@ export class StepPhoneVerify implements OnInit {
         this.isSending.set(false);
       },
       error: (err) => {
-        this.sendError.set('AUTH.STEP_PHONE_VERIFY.SMS_SEND_FAILED');
+        this.sendError.set('auth.step_phone_verify.sms_send_failed');
         this.isSending.set(false);
 
         // 5xx is the channel, not the number: an unconfigured or failing provider. Retrying will
@@ -115,12 +115,12 @@ export class StepPhoneVerify implements OnInit {
     ).subscribe({
       next: (response) => {
         this.isVerifying.set(false);
-        this.otpComponent?.handleSuccess('REGISTER.VERIFY.PHONE_OK');
+        this.otpComponent?.handleSuccess('register.verify.phone_ok');
         setTimeout(() => this.verified.emit(response.preVerifiedToken), 600);
       },
       error: (err) => {
         this.isVerifying.set(false);
-        const msg = err?.error?.message || 'REGISTER.ERRORS.CODE_INVALID';
+        const msg = err?.error?.message || 'register.errors.code_invalid';
         this.otpComponent?.handleError(msg);
       },
     });

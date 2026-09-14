@@ -191,7 +191,7 @@ export class TopProductsChart {
     const lineColor = seriesColors['__series'] ?? semanticColors().positive;
 
     const series: Highcharts.SeriesOptionsType[] = [{
-      name: this.i18n.instant('CHARTS.TOP_PRODUCTS.SERIES_NAME'),
+      name: this.i18n.instant('charts.top_products.series_name'),
       type: chartType as any,
       data: isBarLike ? (barData as any) : (values as any),
       ...(isBarLike ? { colorByPoint: true, borderRadius: 4 } : { color: lineColor })
@@ -203,7 +203,7 @@ export class TopProductsChart {
       xAxis: { categories },
       yAxis: {
         min: 0,
-        title: { text: this.i18n.instant('CHARTS.TOP_PRODUCTS.Y_AXIS_TITLE') }
+        title: { text: this.i18n.instant('charts.top_products.units_sold') }
       },
       colors: palette,
       plotOptions: {
@@ -228,7 +228,7 @@ export class TopProductsChart {
         ((this.widget?.data as any)?.seriesColors as Record<string, string> | undefined)
         ?? this.getDefaultSeriesColors([], 'line');
       const color = seriesColors['__series'] ?? semanticColors().positive;
-      const label = this.i18n.instant('CHARTS.TOP_PRODUCTS.SERIES_NAME') || 'Serie';
+      const label = this.i18n.instant('charts.top_products.series_name') || 'Serie';
       const point: PointOptionsObject = { name: label, color };
       return [point];
     }

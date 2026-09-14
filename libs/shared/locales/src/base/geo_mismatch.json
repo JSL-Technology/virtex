@@ -1,0 +1,12 @@
+{
+  "geo_mismatch.stay_in": {
+    "es": "Continuar en {{country}}",
+    "en": "Stay in {{country}}",
+    "pt": "Continuar em {{country}}"
+  },
+  "geo_mismatch.switch_to": {
+    "es": "Cambiar a {{country}}",
+    "en": "Switch to {{country}}",
+    "pt": "Mudar para {{country}}"
+  }
+}

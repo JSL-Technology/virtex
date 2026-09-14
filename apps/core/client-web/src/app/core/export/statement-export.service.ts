@@ -9,7 +9,7 @@ import {
   TrialBalanceReport,
 } from '../api/financial-reporting.service';
 import { ProfitabilityReport } from '../api/profitability.service';
-import { accountNameOf } from '../i18n/localized-name';
+import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { CsvValue, downloadCsv, reportFilename, toCsv } from './csv-export';
 
 /**
@@ -47,10 +47,10 @@ export class StatementExportService {
   private preamble(title: string, ledgerName: string, currency: string, period: string[]): CsvValue[][] {
     return [
       [title],
-      [this.t('REPORTS.EXPORT.LEDGER'), ledgerName],
-      [this.t('REPORTS.EXPORT.CURRENCY'), currency],
-      ...period.map((line) => [this.t('REPORTS.EXPORT.PERIOD'), line]),
-      [this.t('REPORTS.EXPORT.GENERATED_AT'), new Date().toISOString()],
+      [this.t('reports.export.ledger'), ledgerName],
+      [this.t('reports.export.currency'), currency],
+      ...period.map((line) => [this.t('reports.export.period'), line]),
+      [this.t('reports.export.generated_at'), new Date().toISOString()],
       [],
     ];
   }
@@ -68,47 +68,47 @@ export class StatementExportService {
     return sections.flatMap((section) => [
       [section.category],
       ...this.lineRows(section.accounts),
-      ['', this.t('REPORTS.EXPORT.SUBTOTAL'), '', section.subtotal],
+      ['', this.t('reports.export.subtotal'), '', section.subtotal],
       [],
     ]);
   }
 
   private get accountHeader(): CsvValue[] {
     return [
-      this.t('REPORTS.EXPORT.CODE'),
-      this.t('REPORTS.EXPORT.ACCOUNT'),
-      this.t('REPORTS.EXPORT.CATEGORY'),
-      this.t('REPORTS.EXPORT.AMOUNT'),
+      this.t('reports.export.code'),
+      this.t('reports.export.account'),
+      this.t('reports.export.category'),
+      this.t('reports.export.amount'),
     ];
   }
 
   exportBalanceSheet(report: BalanceSheetReport): void {
     const rows: CsvValue[][] = [
       this.accountHeader,
-      [this.t('REPORTS.EXPORT.ASSETS')],
+      [this.t('reports.export.assets')],
       ...this.sectionRows(report.assets.sections),
-      ['', this.t('REPORTS.EXPORT.TOTAL_ASSETS'), '', report.assets.total],
+      ['', this.t('reports.export.total_assets'), '', report.assets.total],
       [],
-      [this.t('REPORTS.EXPORT.LIABILITIES')],
+      [this.t('reports.export.liabilities')],
       ...this.sectionRows(report.liabilities.sections),
-      ['', this.t('REPORTS.EXPORT.TOTAL_LIABILITIES'), '', report.liabilities.total],
+      ['', this.t('reports.export.total_liabilities'), '', report.liabilities.total],
       [],
-      [this.t('REPORTS.EXPORT.EQUITY')],
+      [this.t('reports.export.equity')],
       ...this.sectionRows(report.equity.sections),
-      ['', this.t('REPORTS.EXPORT.UNCLOSED_RESULT'), '', report.equity.unclosedResult],
-      ['', this.t('REPORTS.EXPORT.TOTAL_EQUITY'), '', report.equity.total],
+      ['', this.t('reports.export.result_year_not_yet_closed'), '', report.equity.unclosedResult],
+      ['', this.t('reports.export.total_equity'), '', report.equity.total],
       [],
       [
         '',
-        this.t('REPORTS.EXPORT.TOTAL_LIABILITIES_AND_EQUITY'),
+        this.t('reports.export.total_liabilities_and_equity'),
         '',
         report.totalLiabilitiesAndEquity,
       ],
       // Exported deliberately. A statement that does not balance must say so in the file as
       // plainly as it does on the screen; an export that quietly drops the warning is how an
       // unbalanced set of books reaches an auditor looking correct.
-      ['', this.t('REPORTS.EXPORT.IS_BALANCED'), '', report.isBalanced],
-      ['', this.t('REPORTS.EXPORT.OUT_OF_BALANCE_BY'), '', report.outOfBalanceBy],
+      ['', this.t('reports.export.is_balanced'), '', report.isBalanced],
+      ['', this.t('reports.export.out_of_balance_by'), '', report.outOfBalanceBy],
     ];
 
     downloadCsv(
@@ -116,7 +116,7 @@ export class StatementExportService {
       toCsv(rows, {
         locale: this.locale,
         preamble: this.preamble(
-          this.t('REPORTS.BALANCE_SHEET.BALANCE_GENERAL'),
+          this.t('reports.balance_sheet.balance_general'),
           report.ledger.name,
           report.ledger.currency,
           [report.asOfDate],
@@ -128,25 +128,25 @@ export class StatementExportService {
   exportIncomeStatement(report: IncomeStatementReport): void {
     const rows: CsvValue[][] = [
       this.accountHeader,
-      [this.t('REPORTS.EXPORT.REVENUE')],
+      [this.t('reports.export.revenue')],
       ...this.sectionRows(report.revenue.sections),
-      ['', this.t('REPORTS.EXPORT.TOTAL_REVENUE'), '', report.revenue.total],
+      ['', this.t('reports.export.total_revenue'), '', report.revenue.total],
       [],
-      [this.t('REPORTS.EXPORT.COST_OF_SALES')],
+      [this.t('reports.export.cost_of_sales')],
       ...this.lineRows(report.costOfSales.accounts),
-      ['', this.t('REPORTS.EXPORT.TOTAL_COST_OF_SALES'), '', report.costOfSales.total],
-      ['', this.t('REPORTS.EXPORT.GROSS_PROFIT'), '', report.grossProfit],
+      ['', this.t('reports.export.total_cost_of_sales'), '', report.costOfSales.total],
+      ['', this.t('reports.export.gross_profit'), '', report.grossProfit],
       [],
-      [this.t('REPORTS.EXPORT.OPERATING_EXPENSES')],
+      [this.t('reports.export.operating_expenses')],
       ...this.lineRows(report.operatingExpenses.accounts),
-      ['', this.t('REPORTS.EXPORT.TOTAL_OPERATING_EXPENSES'), '', report.operatingExpenses.total],
-      ['', this.t('REPORTS.EXPORT.OPERATING_INCOME'), '', report.operatingIncome],
+      ['', this.t('reports.export.total_operating_expenses'), '', report.operatingExpenses.total],
+      ['', this.t('reports.export.operating_income'), '', report.operatingIncome],
       [],
-      [this.t('REPORTS.EXPORT.NON_OPERATING')],
+      [this.t('reports.export.non_operating')],
       ...this.lineRows(report.nonOperating.accounts),
-      ['', this.t('REPORTS.EXPORT.TOTAL_NON_OPERATING'), '', report.nonOperating.total],
+      ['', this.t('reports.export.total_non_operating'), '', report.nonOperating.total],
       [],
-      ['', this.t('REPORTS.EXPORT.NET_INCOME'), '', report.netIncome],
+      ['', this.t('reports.export.net_income'), '', report.netIncome],
     ];
 
     downloadCsv(
@@ -154,7 +154,7 @@ export class StatementExportService {
       toCsv(rows, {
         locale: this.locale,
         preamble: this.preamble(
-          this.t('REPORTS.INCOME_STATEMENT.TITULO'),
+          this.t('reports.income_statement.income_statement'),
           report.ledger.name,
           report.ledger.currency,
           [`${report.period.startDate} – ${report.period.endDate}`],
@@ -166,14 +166,14 @@ export class StatementExportService {
   exportTrialBalance(report: TrialBalanceReport): void {
     const rows: CsvValue[][] = [
       [
-        this.t('REPORTS.EXPORT.CODE'),
-        this.t('REPORTS.EXPORT.ACCOUNT'),
-        this.t('REPORTS.EXPORT.OPENING_DEBIT'),
-        this.t('REPORTS.EXPORT.OPENING_CREDIT'),
-        this.t('REPORTS.EXPORT.PERIOD_DEBIT'),
-        this.t('REPORTS.EXPORT.PERIOD_CREDIT'),
-        this.t('REPORTS.EXPORT.CLOSING_DEBIT'),
-        this.t('REPORTS.EXPORT.CLOSING_CREDIT'),
+        this.t('reports.export.code'),
+        this.t('reports.export.account'),
+        this.t('reports.export.opening_debit'),
+        this.t('reports.export.opening_credit'),
+        this.t('reports.export.period_debit'),
+        this.t('reports.export.period_credit'),
+        this.t('reports.export.closing_debit'),
+        this.t('reports.export.closing_credit'),
       ],
       ...report.rows.map((row) => [
         row.code,
@@ -187,7 +187,7 @@ export class StatementExportService {
       ]),
       [
         '',
-        this.t('REPORTS.EXPORT.TOTALS'),
+        this.t('reports.export.totals'),
         report.totals.openingDebit,
         report.totals.openingCredit,
         report.totals.periodDebit,
@@ -195,7 +195,7 @@ export class StatementExportService {
         report.totals.closingDebit,
         report.totals.closingCredit,
       ],
-      ['', this.t('REPORTS.EXPORT.IS_BALANCED'), report.isBalanced],
+      ['', this.t('reports.export.is_balanced'), report.isBalanced],
     ];
 
     downloadCsv(
@@ -203,7 +203,7 @@ export class StatementExportService {
       toCsv(rows, {
         locale: this.locale,
         preamble: this.preamble(
-          this.t('REPORTS.TRIAL_BALANCE.TITULO'),
+          this.t('reports.trial_balance.trial_balance'),
           report.ledger.name,
           report.ledger.currency,
           [`${report.period.startDate} – ${report.period.endDate}`],
@@ -231,47 +231,47 @@ export class StatementExportService {
 
     const rows: CsvValue[][] = [
       [
-        this.t('REPORTS.EXPORT.CONCEPT'),
-        this.t('REPORTS.CASH_FLOW.ENTRADAS'),
-        this.t('REPORTS.CASH_FLOW.SALIDAS'),
-        this.t('REPORTS.EXPORT.AMOUNT'),
+        this.t('reports.export.concept'),
+        this.t('reports.cash_flow.inflows'),
+        this.t('reports.cash_flow.outflows'),
+        this.t('reports.export.amount'),
       ],
-      [this.t('REPORTS.EXPORT.OPENING_CASH'), '', '', report.openingCash],
+      [this.t('reports.export.opening_cash'), '', '', report.openingCash],
       [],
-      [this.t('REPORTS.EXPORT.OPERATING')],
-      [this.t('REPORTS.EXPORT.NET_INCOME'), '', '', report.operating.netIncome],
+      [this.t('reports.export.operating')],
+      [this.t('reports.export.net_income'), '', '', report.operating.netIncome],
       ...adjustmentRows(report.operating.nonCashAdjustments),
       ...adjustmentRows(report.operating.workingCapitalChanges),
-      [this.t('REPORTS.EXPORT.TOTAL_OPERATING'), '', '', report.operating.total],
+      [this.t('reports.export.total_operating'), '', '', report.operating.total],
       [],
-      [this.t('REPORTS.EXPORT.INVESTING')],
+      [this.t('reports.export.investing')],
       ...grossRows(report.investing.movements),
       [
-        this.t('REPORTS.EXPORT.TOTAL_INVESTING'),
+        this.t('reports.export.total_investing'),
         report.investing.inflows,
         report.investing.outflows,
         report.investing.total,
       ],
       [],
-      [this.t('REPORTS.EXPORT.FINANCING')],
+      [this.t('reports.export.financing')],
       ...grossRows(report.financing.movements),
       [
-        this.t('REPORTS.EXPORT.TOTAL_FINANCING'),
+        this.t('reports.export.total_financing'),
         report.financing.inflows,
         report.financing.outflows,
         report.financing.total,
       ],
       [],
       [
-        this.t('REPORTS.CASH_FLOW.EFECTO_TIPO_CAMBIO'),
+        this.t('reports.cash_flow.effect_exchange_rate_changes_cash'),
         '',
         '',
         report.effectOfExchangeRateOnCash,
       ],
-      [this.t('REPORTS.EXPORT.NET_CHANGE_IN_CASH'), '', '', report.netChangeInCash],
-      [this.t('REPORTS.EXPORT.CLOSING_CASH'), '', '', report.closingCash],
+      [this.t('reports.export.net_change_in_cash'), '', '', report.netChangeInCash],
+      [this.t('reports.export.closing_cash'), '', '', report.closingCash],
       [
-        this.t('REPORTS.EXPORT.UNEXPLAINED_DIFFERENCE'),
+        this.t('reports.export.unexplained_difference'),
         '',
         '',
         report.unexplainedDifference,
@@ -281,11 +281,11 @@ export class StatementExportService {
       ...(report.nonCashTransactions.length > 0
         ? ([
             [],
-            [this.t('REPORTS.CASH_FLOW.TRANSACCIONES_NO_MONETARIAS')],
+            [this.t('reports.cash_flow.investing_financing_transactions_used_no_cash')],
             [
-              this.t('REPORTS.EXPORT.CODE'),
-              this.t('REPORTS.EXPORT.DEBIT'),
-              this.t('REPORTS.EXPORT.CREDIT'),
+              this.t('reports.export.code'),
+              this.t('reports.export.debit'),
+              this.t('reports.export.credit'),
             ],
             ...report.nonCashTransactions.map((line) => [line.code, line.debit, line.credit]),
           ] as CsvValue[][])
@@ -297,7 +297,7 @@ export class StatementExportService {
       toCsv(rows, {
         locale: this.locale,
         preamble: this.preamble(
-          this.t('REPORTS.CASH_FLOW.TITULO'),
+          this.t('reports.cash_flow.statement_cash_flows'),
           report.ledger.name,
           report.ledger.currency,
           [`${report.period.startDate} – ${report.period.endDate}`],
@@ -315,17 +315,17 @@ export class StatementExportService {
    */
   exportProfitability(report: ProfitabilityReport, dimension: 'product' | 'customer'): void {
     const subjectKey =
-      dimension === 'product' ? 'REPORTS.EXPORT.PRODUCT' : 'REPORTS.EXPORT.CUSTOMER';
+      dimension === 'product' ? 'reports.export.product' : 'reports.export.customer';
 
     const rows: CsvValue[][] = [
       [
-        this.t('REPORTS.EXPORT.CODE'),
+        this.t('reports.export.code'),
         this.t(subjectKey),
-        this.t('REPORTS.EXPORT.UNITS_SOLD'),
-        this.t('REPORTS.EXPORT.TOTAL_REVENUE'),
-        this.t('REPORTS.EXPORT.TOTAL_COST'),
-        this.t('REPORTS.EXPORT.GROSS_PROFIT'),
-        this.t('REPORTS.EXPORT.GROSS_MARGIN'),
+        this.t('reports.export.units_sold'),
+        this.t('reports.export.total_revenue'),
+        this.t('reports.export.total_cost'),
+        this.t('reports.export.gross_profit'),
+        this.t('reports.export.gross_margin'),
       ],
       ...report.rows.map((row) => [
         row.code,
@@ -338,7 +338,7 @@ export class StatementExportService {
       ]),
       [
         '',
-        this.t('REPORTS.EXPORT.TOTALS'),
+        this.t('reports.export.totals'),
         report.totals.unitsSold,
         report.totals.totalRevenue,
         report.totals.totalCost,
@@ -346,7 +346,7 @@ export class StatementExportService {
         report.totals.grossMargin,
       ],
       [],
-      ['', this.t('REPORTS.EXPORT.LINES_WITHOUT_COST'), report.linesWithoutCost],
+      ['', this.t('reports.export.lines_without_cost'), report.linesWithoutCost],
     ];
 
     downloadCsv(
@@ -361,16 +361,16 @@ export class StatementExportService {
           [
             this.t(
               dimension === 'product'
-                ? 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT'
-                : 'REPORTS.PROFITABILITY_BY_CUSTOMER.PROFITABILITY_BY_CUSTOMER',
+                ? 'reports.profitability_by_product.profitability_by_product'
+                : 'reports.profitability_by_customer.profitability_by_customer',
             ),
           ],
-          [this.t('REPORTS.EXPORT.CURRENCY'), report.currency],
+          [this.t('reports.export.currency'), report.currency],
           [
-            this.t('REPORTS.EXPORT.PERIOD'),
+            this.t('reports.export.period'),
             `${report.period.startDate} – ${report.period.endDate}`,
           ],
-          [this.t('REPORTS.EXPORT.GENERATED_AT'), new Date().toISOString()],
+          [this.t('reports.export.generated_at'), new Date().toISOString()],
           [],
         ],
       }),

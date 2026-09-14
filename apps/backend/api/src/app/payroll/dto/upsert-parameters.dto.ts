@@ -14,7 +14,7 @@ import { ContributionBase, ContributionRegime } from '../entities/statutory-cont
 import { StatutoryReferenceKey } from '../entities/statutory-reference.entity';
 
 export class UpsertContributionDto {
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
   @IsEnum(ContributionRegime)
@@ -28,11 +28,11 @@ export class UpsertContributionDto {
   effectiveTo?: string | null;
 
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   employeeRate: number;
 
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   employerRate: number;
 
   @IsEnum(ContributionBase)
@@ -49,7 +49,7 @@ export class UpsertContributionDto {
 }
 
 export class UpsertReferenceDto {
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
   @IsEnum(StatutoryReferenceKey)
@@ -63,17 +63,17 @@ export class UpsertReferenceDto {
   effectiveTo?: string | null;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   value: number;
 
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   @IsOptional()
   currencyCode?: string;
 }
 
 export class TaxBracketDto {
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   lowerAnnual: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -81,17 +81,17 @@ export class TaxBracketDto {
   upperAnnual?: number | null;
 
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   rate: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   accumulatedTax: number;
 }
 
 /** Replace a whole income-tax scale for a country as of a date — the brackets are a set, not rows. */
 export class ReplaceTaxScaleDto {
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
   @IsDateString()

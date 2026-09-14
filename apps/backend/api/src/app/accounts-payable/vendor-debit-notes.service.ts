@@ -42,30 +42,30 @@ export class VendorDebitNotesService {
         organizationId,
       });
       if (!vendorBill) {
-        throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_PROVEEDOR_NO_FUE_ENCONTRADA');
+        throw new NotFoundError('accounts_payable.vendor_bill_not_found');
       }
       if (vendorBill.status !== VendorBillStatus.OPEN && vendorBill.status !== VendorBillStatus.PARTIALLY_PAID) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS');
+          throw new BadRequestError('accounts_payable.debit_notes_can_only_applied_open');
       }
       if (vendorBill.balance < amount) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR');
+        throw new BadRequestError('accounts_payable.debit_note_cannot_larger_than_invoice');
       }
 
       const settings = await manager.findOneBy(OrganizationSettings, {
         organizationId,
       });
       if (!settings || !settings.defaultAccountsPayableId) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_PAGAR_DEFECTO_NO_ESTA_CONFIGURADA');
+        throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
       }
 
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+        throw new BadRequestError('accounts_payable.no_default_ledger_has_configured_organization');
       }
 
       const journal = await manager.findOneBy(Journal, { organizationId, code: 'COMPRAS' });
       if (!journal) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO_REGISTRAR_NOTA');
+          throw new BadRequestError('accounts_payable.purchases_journal_compras_not_found_record');
       }
 
       const debitNote = manager.create(VendorDebitNote, {
@@ -79,16 +79,16 @@ export class VendorDebitNotesService {
       await manager.save(vendorBill);
 
       if (!manager.queryRunner) {
-        throw new InternalServerError('ACCOUNTS_PAYABLE.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
+        throw new InternalServerError('accounts_payable.transaction_query_runner_could_not_obtained');
       }
 
       const words = await this.narrative.describeAll(manager, organizationId, {
-        header: { key: 'LEDGER.DEBIT_NOTE.VENDOR_ENTRY', params: { reason } },
+        header: { key: 'ledger.debit_note.vendor_entry', params: { reason } },
         payable: {
-          key: 'LEDGER.DEBIT_NOTE.VENDOR_PAYABLE',
+          key: 'ledger.debit_note.vendor_payable',
           params: { bill: vendorBill.ncf || vendorBill.id.substring(0, 8) },
         },
-        counterpart: { key: 'LEDGER.DEBIT_NOTE.VENDOR_COUNTERPART', params: { reason } },
+        counterpart: { key: 'ledger.debit_note.vendor_counterpart', params: { reason } },
       });
 
       const entryDto: CreateJournalEntryDto = {
@@ -143,7 +143,7 @@ export class VendorDebitNotesService {
       where: { id, organizationId },
     });
     if (!debitNote) {
-      throw new NotFoundError('ACCOUNTS_PAYABLE.NOTA_DEBITO_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('accounts_payable.debit_note_id_not_found', { id });
     }
     return debitNote;
   }
@@ -164,7 +164,7 @@ export class VendorDebitNotesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.vendorDebitNoteRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundError('ACCOUNTS_PAYABLE.NOTA_DEBITO_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('accounts_payable.debit_note_id_not_found', { id });
     }
   }
 
@@ -177,6 +177,6 @@ export class VendorDebitNotesService {
     this.logger.warn(
       `Funcionalidad de anulación de nota de débito (ID: ${id}) no implementada completamente. Razón de anulación: ${reason}`,
     );
-    throw new BadRequestError('ACCOUNTS_PAYABLE.FUNCIONALIDAD_ANULACION_NOTAS_DEBITO_AUN_NO_ESTA');
+    throw new BadRequestError('accounts_payable.voiding_debit_notes_not_implemented_yet');
   }
 }

@@ -48,12 +48,12 @@ export class OverviewService {
   // Configuración declarativa. Se filtra por permisos en `getQuickActions()`, que
   // es la fuente de verdad de la UI. El backend sigue siendo la autoridad real.
   private readonly quickActions: QuickAction[] = [
-    { id: 'new-invoice',  labelKey: 'OVERVIEW.QUICK.NEW_INVOICE',  icon: FilePlus,  route: '/invoices/new',  permissions: ['invoices:view'], accent: 'primary' },
-    { id: 'new-quote',    labelKey: 'OVERVIEW.QUICK.NEW_QUOTE',    icon: FileText,  route: '/quotes/new',    permissions: ['sales:view'],    accent: 'purple'  },
-    { id: 'new-customer', labelKey: 'OVERVIEW.QUICK.NEW_CUSTOMER', icon: UserPlus,  route: '/customers/new', permissions: ['contacts:view'], accent: 'green'   },
-    { id: 'new-product',  labelKey: 'OVERVIEW.QUICK.NEW_PRODUCT',  icon: Package,   route: '/products/new',  permissions: ['inventory:view'],accent: 'orange'  },
-    { id: 'invoices',     labelKey: 'OVERVIEW.QUICK.INVOICES',     icon: Receipt,   route: '/invoices',      permissions: ['invoices:view'], accent: 'blue'    },
-    { id: 'reports',      labelKey: 'OVERVIEW.QUICK.REPORTS',      icon: FileBarChart, route: '/reports',    permissions: ['reports:view'],  accent: 'primary' },
+    { id: 'new-invoice',  labelKey: 'overview.quick.new_invoice',  icon: FilePlus,  route: '/invoices/new',  permissions: ['invoices:view'], accent: 'primary' },
+    { id: 'new-quote',    labelKey: 'overview.quick.new_quote',    icon: FileText,  route: '/quotes/new',    permissions: ['sales:view'],    accent: 'purple'  },
+    { id: 'new-customer', labelKey: 'overview.quick.new_customer', icon: UserPlus,  route: '/customers/new', permissions: ['contacts:view'], accent: 'green'   },
+    { id: 'new-product',  labelKey: 'overview.quick.new_product',  icon: Package,   route: '/products/new',  permissions: ['inventory:view'],accent: 'orange'  },
+    { id: 'invoices',     labelKey: 'overview.quick.invoices',     icon: Receipt,   route: '/invoices',      permissions: ['invoices:view'], accent: 'blue'    },
+    { id: 'reports',      labelKey: 'overview.quick.reports',      icon: FileBarChart, route: '/reports',    permissions: ['reports:view'],  accent: 'primary' },
   ];
 
   /** Accesos rápidos visibles para el usuario actual (espejo de RBAC). */
@@ -134,7 +134,7 @@ function toActivityItem(row: ActivityDto): ActivityItem {
     icon: view.icon,
     // Composed by the template through `translate`, so the sentence is in the reader's language
     // rather than in whichever language the server happens to be written in.
-    titleKey: `OVERVIEW.ACTIVITY.ITEM.${view.key}.${row.action}`,
+    titleKey: `overview.activity.item.${view.key}.${row.action}`,
     reference: row.reference,
     counterparty: row.counterparty,
     amount: row.amount,
@@ -151,8 +151,8 @@ function toEventItem(row: EventDto): EventItem {
     id: row.id,
     icon: view.icon,
     overdue: view.overdue,
-    titleKey: `OVERVIEW.EVENTS.ITEM.${row.kind}`,
-    typeKey: `OVERVIEW.EVENTS.KIND.${row.kind}`,
+    titleKey: `overview.events.item.${row.kind}`,
+    typeKey: `overview.events.kind.${row.kind}`,
     reference: row.reference,
     counterparty: row.counterparty,
     amount: row.amount,

@@ -1,0 +1,153 @@
+{
+  "sales.exchange_rate_configured_currency_code_not": {
+    "es": "La tasa de cambio configurada para {{currencyCode}} no es válida.",
+    "en": "The exchange rate configured for {{currencyCode}} is not valid.",
+    "pt": "A taxa de câmbio configurada para {{currencyCode}} não é válida."
+  },
+  "sales.history.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "sales.history.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "sales.history.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "sales.history.id_venta": {
+    "es": "ID Venta",
+    "en": "Sale ID",
+    "pt": "ID da Venda"
+  },
+  "sales.history.new_sale": {
+    "es": "Nueva Venta",
+    "en": "New Sale",
+    "pt": "Nova Venda"
+  },
+  "sales.history.no_sales_found": {
+    "es": "No se encontraron ventas.",
+    "en": "No sales were found.",
+    "pt": "Nenhuma venda encontrada."
+  },
+  "sales.history.payment_method": {
+    "es": "Método de Pago",
+    "en": "Payment Method",
+    "pt": "Forma de Pagamento"
+  },
+  "sales.history.review_filter_manage_every_recorded_transaction": {
+    "es": "Consulta, filtra y gestiona todas las transacciones registradas.",
+    "en": "Review, filter and manage every recorded transaction.",
+    "pt": "Consulte, filtre e gerencie todas as transações registradas."
+  },
+  "sales.history.sales_history": {
+    "es": "Historial de Ventas",
+    "en": "Sales History",
+    "pt": "Histórico de Vendas"
+  },
+  "sales.history.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "sales.history.total": {
+    "literal": "Total"
+  },
+  "sales.lead_not_found": {
+    "es": "Lead no encontrado.",
+    "en": "The lead was not found.",
+    "pt": "O lead não foi encontrado."
+  },
+  "sales.no_valid_exchange_rate_found_currency": {
+    "es": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",
+    "en": "No valid exchange rate was found for {{currencyCode}} on the given date.",
+    "pt": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada."
+  },
+  "sales.only_accepted_quotes_can_invoiced": {
+    "es": "Solo se pueden facturar cotizaciones aceptadas.",
+    "en": "Only accepted quotes can be invoiced.",
+    "pt": "Somente orçamentos aceitos podem ser faturados."
+  },
+  "sales.pos.add_products_start_sale": {
+    "es": "Añade productos para comenzar una venta.",
+    "en": "Add products to start a sale.",
+    "pt": "Adicione produtos para iniciar uma venda."
+  },
+  "sales.pos.amount_due": {
+    "es": "Total a Pagar",
+    "en": "Amount Due",
+    "pt": "Total a Pagar"
+  },
+  "sales.pos.charge": {
+    "es": "Cobrar",
+    "en": "Charge",
+    "pt": "Cobrar"
+  },
+  "sales.pos.current_order": {
+    "es": "Orden Actual",
+    "en": "Current Order",
+    "pt": "Pedido Atual"
+  },
+  "sales.pos.customer": {
+    "es": "Cliente:",
+    "en": "Customer:",
+    "pt": "Cliente:"
+  },
+  "sales.pos.load_products_error": {
+    "es": "No se pudo cargar el catálogo de productos.",
+    "en": "Could not load the product catalogue.",
+    "pt": "Não foi possível carregar o catálogo de produtos."
+  },
+  "sales.pos.out_stock": {
+    "es": "Agotado",
+    "en": "Out of stock",
+    "pt": "Esgotado"
+  },
+  "sales.pos.sale_completed": {
+    "es": "Venta completada.",
+    "en": "Sale completed.",
+    "pt": "Venda concluída."
+  },
+  "sales.pos.sale_error": {
+    "es": "No se pudo completar la venta.",
+    "en": "The sale could not be completed.",
+    "pt": "Não foi possível concluir a venda."
+  },
+  "sales.pos.search_products_name_sku": {
+    "es": "Buscar productos por nombre o SKU...",
+    "en": "Search products by name or SKU...",
+    "pt": "Buscar produtos por nome ou SKU..."
+  },
+  "sales.pos.subtotal": {
+    "literal": "Subtotal"
+  },
+  "sales.pos.tax_at_rate": {
+    "es": "Impuestos ({{rate}})",
+    "en": "Tax ({{rate}})",
+    "pt": "Impostos ({{rate}})"
+  },
+  "sales.pos.tax_needs_configuration": {
+    "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.",
+    "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
+    "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
+  },
+  "sales.quote_has_no_lines_invoice": {
+    "es": "La cotización no tiene líneas que facturar.",
+    "en": "The quote has no lines to invoice.",
+    "pt": "O orçamento não tem linhas a faturar."
+  },
+  "sales.quote_not_found": {
+    "es": "Cotización no encontrada.",
+    "en": "The quote was not found.",
+    "pt": "O orçamento não foi encontrado."
+  },
+  "sales.quote_quote_number_has_already_invoiced": {
+    "es": "La cotización {{quoteNumber}} ya fue facturada.",
+    "en": "Quote {{quoteNumber}} has already been invoiced.",
+    "pt": "O orçamento {{quoteNumber}} já foi faturado."
+  }
+}

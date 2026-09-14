@@ -87,9 +87,9 @@ export class App implements OnInit {
     this.stepUpService.consumePendingScope();
 
     if (outcome === 'ok') {
-      this.notificationService.showSuccess('AUTH.STEP_UP.FEDERATED_OK');
+      this.notificationService.showSuccess('auth.step_up.identity_verified_click_action_you_wanted');
     } else {
-      this.notificationService.showError('AUTH.STEP_UP.FEDERATED_FAILED');
+      this.notificationService.showError('auth.step_up.we_couldn_verify_your_identity_with');
     }
 
     // Strip the marker so it does not survive a refresh or get shared in a copied URL.

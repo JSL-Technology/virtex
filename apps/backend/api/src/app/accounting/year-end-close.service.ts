@@ -68,9 +68,9 @@ export class YearEndCloseService {
         id: dto.fiscalYearId,
         organizationId,
       });
-      if (!fiscalYear) throw new NotFoundError('ACCOUNTING.ANO_FISCAL_NO_ENCONTRADO');
+      if (!fiscalYear) throw new NotFoundError('accounting.fiscal_year_not_found');
       if (fiscalYear.status !== FiscalYearStatus.OPEN) {
-        throw new BadRequestError('ACCOUNTING.ANO_FISCAL_NO_ESTA_ABIERTO');
+        throw new BadRequestError('accounting.fiscal_year_not_open');
       }
 
       const periodsInYear = await manager.find(AccountingPeriod, {
@@ -82,7 +82,7 @@ export class YearEndCloseService {
       });
 
       if (periodsInYear.length === 0) {
-        throw new BadRequestError('ACCOUNTING.ANO_FISCAL_SIN_PERIODOS');
+        throw new BadRequestError('accounting.fiscal_year_has_no_accounting_periods');
       }
 
       const openPeriods = periodsInYear.filter(
@@ -90,7 +90,7 @@ export class YearEndCloseService {
       );
       if (openPeriods.length > 0) {
         throw new BadRequestError(
-          'ACCOUNTING.NO_PUEDE_CERRAR_ANO_FISCAL_SIGUIENTES_PERIODOS',
+          'accounting.fiscal_year_cannot_closed_periods_still',
           { p1: openPeriods.map((period) => period.name).join(', ') },
         );
       }
@@ -107,7 +107,7 @@ export class YearEndCloseService {
       });
       if (unpostedCount > 0) {
         throw new BadRequestError(
-          'ACCOUNTING.EXISTEN_ASIENTOS_BORRADOR_PENDIENTES_APROBACION_DEBEN_SER',
+          'accounting.draft_entries_entries_draft_awaiting_approval',
           { draftEntries: unpostedCount },
         );
       }
@@ -126,7 +126,7 @@ export class YearEndCloseService {
             from: fiscalYear.startDate,
             to: fiscalYear.endDate,
             label: {
-              key: 'LEDGER.RESULT_TRANSFER.FISCAL_YEAR',
+              key: 'ledger.result_transfer.fiscal_year',
               params: {
                 from: toIsoDate(fiscalYear.startDate),
                 to: toIsoDate(fiscalYear.endDate),
@@ -185,12 +185,12 @@ export class YearEndCloseService {
         id: dto.fiscalYearId,
         organizationId,
       });
-      if (!fiscalYear) throw new NotFoundError('ACCOUNTING.ANO_FISCAL_NO_ENCONTRADO');
+      if (!fiscalYear) throw new NotFoundError('accounting.fiscal_year_not_found');
       if (fiscalYear.status === FiscalYearStatus.OPEN) {
-        throw new BadRequestError('ACCOUNTING.ANO_FISCAL_YA_ESTA_ABIERTO');
+        throw new BadRequestError('accounting.fiscal_year_already_open');
       }
       if (fiscalYear.status === FiscalYearStatus.LOCKED) {
-        throw new BadRequestError('ACCOUNTING.ANO_FISCAL_ARCHIVADO_NO_SE_PUEDE_REABRIR');
+        throw new BadRequestError('accounting.fiscal_year_archived_cannot_reopened');
       }
 
       // A later year cannot already be settled: reopening 2025 while 2026 is closed would leave
@@ -204,7 +204,7 @@ export class YearEndCloseService {
         order: { startDate: 'ASC' },
       });
       if (laterClosed) {
-        throw new ForbiddenError('ACCOUNTING.NO_PUEDE_REABRIR_ANO_FISCAL_POSTERIOR_CERRADO', {
+        throw new ForbiddenError('accounting.fiscal_year_cannot_reopened_because_year', {
           from: toIsoDate(laterClosed.startDate),
         });
       }

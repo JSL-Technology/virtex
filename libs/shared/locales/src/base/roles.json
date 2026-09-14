@@ -1,0 +1,72 @@
+{
+  "roles.full_permission_cannot_delegated_role": {
+    "es": "El permiso total (*) no puede delegarse a un rol.",
+    "en": "The full permission (*) cannot be delegated to a role.",
+    "pt": "A permissão total (*) não pode ser delegada a um perfil."
+  },
+  "roles.role_assigned_assigned_count_user_cannot": {
+    "es": "No se puede eliminar un rol asignado a {{assignedCount}} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo.",
+    "en": "A role assigned to {{assignedCount}} user(s) cannot be deleted. Move those users to another role first.",
+    "pt": "Um perfil atribuído a {{assignedCount}} usuário(s) não pode ser excluído. Mova esses usuários para outro perfil antes."
+  },
+  "roles.role_id_not_found": {
+    "es": "Rol con ID \"{{id}}\" no encontrado.",
+    "en": "Role \"{{id}}\" was not found.",
+    "pt": "Perfil \"{{id}}\" não encontrado."
+  },
+  "roles.role_named_name_already_exists_your": {
+    "es": "Ya existe un rol llamado \"{{name}}\" en tu organización.",
+    "en": "A role named \"{{name}}\" already exists in your organization.",
+    "pt": "Já existe um perfil chamado \"{{name}}\" na sua organização."
+  },
+  "roles.system.accountant.description": {
+    "es": "Lleva la contabilidad: asientos, plan de cuentas y reportes financieros.",
+    "en": "Keeps the books: journal entries, chart of accounts and financial reports.",
+    "pt": "Cuida da contabilidade: lançamentos, plano de contas e relatórios financeiros."
+  },
+  "roles.system.administrator.description": {
+    "es": "Acceso completo a todos los módulos y a la configuración de la organización.",
+    "en": "Full access to every module and to the organization's settings.",
+    "pt": "Acesso completo a todos os módulos e às configurações da organização."
+  },
+  "roles.system.member.description": {
+    "es": "Acceso de solo lectura a facturas y productos.",
+    "en": "Read-only access to invoices and products.",
+    "pt": "Acesso somente leitura a faturas e produtos."
+  },
+  "roles.system.seller.description": {
+    "es": "Gestiona clientes y emite facturas de venta.",
+    "en": "Manages customers and issues sales invoices.",
+    "pt": "Gerencia clientes e emite faturas de venda."
+  },
+  "roles.system_roles_cannot_cloned": {
+    "es": "Los roles del sistema no se pueden clonar.",
+    "en": "System roles cannot be cloned.",
+    "pt": "Perfis do sistema não podem ser clonados."
+  },
+  "roles.system_roles_cannot_deleted": {
+    "es": "Los roles del sistema no pueden ser eliminados.",
+    "en": "System roles cannot be deleted.",
+    "pt": "Perfis do sistema não podem ser excluídos."
+  },
+  "roles.system_roles_cannot_modified": {
+    "es": "Los roles del sistema no pueden ser modificados.",
+    "en": "System roles cannot be modified.",
+    "pt": "Perfis do sistema não podem ser modificados."
+  },
+  "roles.you_cannot_assign_permission_permission_because": {
+    "es": "No puedes asignar el permiso \"{{permission}}\" porque tú no lo posees.",
+    "en": "You cannot assign the permission \"{{permission}}\" because you do not hold it.",
+    "pt": "Você não pode atribuir a permissão \"{{permission}}\" porque não a possui."
+  },
+  "roles.you_cannot_assign_role_includes_permission": {
+    "es": "No puedes asignar un rol que incluye el permiso \"{{permission}}\" que tú no posees.",
+    "en": "You cannot assign a role that includes the permission \"{{permission}}\", which you do not hold.",
+    "pt": "Você não pode atribuir um perfil que inclui a permissão \"{{permission}}\", que você não possui."
+  },
+  "roles.you_cannot_assign_role_with_full": {
+    "es": "No puedes asignar un rol con privilegios totales (*).",
+    "en": "You cannot assign a role with full privileges (*).",
+    "pt": "Você não pode atribuir um perfil com privilégios totais (*)."
+  }
+}

@@ -17,7 +17,7 @@ import { ModuleSlug } from '../../accounting/entities/accounting-period.entity';
  * refuse than to grant one that will never take effect. `AUDIT_ADJUSTMENT` has been a
  * `DocumentTypeForApproval` since the baseline migration and no handler ever registered for it, so
  * a tenant that defined an approval policy for audit adjustments — which is the entire point of
- * having them reviewed — got `WORKFLOWS.SIN_MANEJADOR_PARA_TIPO_DOCUMENTO` when somebody tried to
+ * having them reviewed — got `workflows.no_handler_registered_documents_type_document` when somebody tried to
  * approve. The only path that worked was the one where nobody approves anything.
  *
  * It posts INSIDE the approving transaction, like `JournalEntryApprovalHandler`: if the fiscal

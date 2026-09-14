@@ -11,8 +11,8 @@ export class ListPeriodsQueryDto {
   @ApiPropertyOptional({ minimum: 1900, maximum: 2999 })
   @IsOptional()
   @Type(() => Number)
-  @IsInt({ message: 'VALIDATION.YEAR_MUST_BE_INTEGER' })
-  @Min(1900, { message: 'VALIDATION.YEAR_OUT_OF_RANGE' })
-  @Max(2999, { message: 'VALIDATION.YEAR_OUT_OF_RANGE' })
+  @IsInt({ message: 'validation.year_must_whole_number' })
+  @Min(1900, { message: 'validation.year_out_of_range' })
+  @Max(2999, { message: 'validation.year_out_of_range' })
   year?: number;
 }

@@ -49,7 +49,7 @@ export class AccountJobsProcessor extends WorkerHost {
 
     if (job.name !== 'merge-accounts') {
         this.logger.warn(`Job con nombre desconocido recibido: ${job.name}`);
-        return { messageKey: 'CHART_OF_ACCOUNTS.JOB_DESCONOCIDO_IGNORADO' };
+        return { messageKey: 'chart_of_accounts.unknown_job_ignored' };
     }
 
     const { dto, organizationId, userId } = job.data;
@@ -61,7 +61,7 @@ export class AccountJobsProcessor extends WorkerHost {
         jobId: job.id,
         status: 'ACTIVE',
         progress: 0,
-        messageKey: 'CHART_OF_ACCOUNTS.INICIANDO_FUSION_CUENTAS',
+        messageKey: 'chart_of_accounts.starting_account_merge',
     });
 
     try {
@@ -76,12 +76,12 @@ export class AccountJobsProcessor extends WorkerHost {
         if (!sourceAccount || !destAccount) throw new Error('La cuenta de origen o destino ya no existe.');
 
         await job.updateProgress(10);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 10, messageKey: 'CHART_OF_ACCOUNTS.REASIGNANDO_CUENTAS_HIJAS' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 10, messageKey: 'chart_of_accounts.reassigning_child_accounts' });
         await manager.update(Account, { parentId: sourceAccountId }, { parentId: destinationAccountId });
         this.logger.log(`Job ${job.id}: Cuentas hijas de ${sourceAccountId} reasignadas a ${destinationAccountId}.`);
         
         await job.updateProgress(30);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 30, messageKey: 'CHART_OF_ACCOUNTS.REASIGNANDO_TRANSACCIONES_ESTO_PUEDE_TARDAR' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 30, messageKey: 'chart_of_accounts.reassigning_transactions_may_take_while' });
         
         let updatedLinesCount = 0;
         
@@ -102,7 +102,7 @@ export class AccountJobsProcessor extends WorkerHost {
         this.logger.log(`Job ${job.id}: Total de ${updatedLinesCount} líneas de transacción reasignadas.`);
 
         await job.updateProgress(90);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, messageKey: 'CHART_OF_ACCOUNTS.DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, messageKey: 'chart_of_accounts.deactivating_source_account_recalculating_balances' });
         
 
         // No balances to fix up. Reassigning the lines above IS the balance change: a balance is a
@@ -129,7 +129,7 @@ export class AccountJobsProcessor extends WorkerHost {
       
       await job.updateProgress(100);
       const completed = {
-        messageKey: 'CHART_OF_ACCOUNTS.MERGE_COMPLETED',
+        messageKey: 'chart_of_accounts.merge_completed',
         messageParams: { source: dto.sourceAccountId, destination: dto.destinationAccountId },
       };
 
@@ -147,7 +147,7 @@ export class AccountJobsProcessor extends WorkerHost {
       await this.eventsGateway.sendToUser(userId, 'job-status', {
         // The cause is not translated and not shown as prose: it is whatever threw, and forwarding
         // it verbatim to a browser is how a stack trace or a SQL fragment reaches a customer.
-        jobId: job.id, status: 'FAILED', messageKey: 'CHART_OF_ACCOUNTS.MERGE_FAILED',
+        jobId: job.id, status: 'FAILED', messageKey: 'chart_of_accounts.merge_failed',
       });
       throw error;
     }

@@ -196,7 +196,7 @@ describeWithDb('dashboard charts', () => {
       expect(alert).toMatchObject({
         id: 'receivables-overdue',
         severity: 'critical',
-        messageKey: 'DASHBOARD.ALERTS.RECEIVABLES_OVERDUE',
+        messageKey: 'dashboard.alerts.receivables_overdue',
       });
       expect(alert.params['amount']).toBe(7_500);
     });

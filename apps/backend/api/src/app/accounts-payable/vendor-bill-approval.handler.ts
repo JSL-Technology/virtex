@@ -44,7 +44,7 @@ export class VendorBillApprovalHandler implements ApprovalHandler, OnModuleInit 
       where: { id: documentId, organizationId },
       relations: ['lines', 'vendor'],
     });
-    if (!bill) throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_NO_ENCONTRADA_EN_LOTE', {
+    if (!bill) throw new NotFoundError('accounts_payable.bill_id_does_not_exist_organization', {
       id: documentId,
     });
 

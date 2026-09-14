@@ -60,5 +60,11 @@ export class NotificationService {
   }
 }
 
-/** `SECTION.SUB.KEY` — screaming snake segments, at least two of them. */
-const KEY_SHAPE = /^[A-Z][A-Z0-9_]*(?:\.[A-Za-z0-9_]+)+$/;
+/**
+ * `section.sub.key` — at least two dotted segments and no spaces.
+ *
+ * The test exists to keep a real sentence from being probed as if it were a key. It deliberately
+ * accepts an upper-case segment as well, because a key composed from an API enum arrives as
+ * `invoices.status.PARTIALLY_PAID` and `VirtexTranslateStore` is what reconciles the case.
+ */
+const KEY_SHAPE = /^[A-Za-z0-9][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+$/;

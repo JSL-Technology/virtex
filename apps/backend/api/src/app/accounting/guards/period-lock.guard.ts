@@ -92,7 +92,7 @@ export class PeriodLockGuard implements CanActivate {
       .getOne();
 
     if (lockedAccount) {
-      throw new ForbiddenError('ACCOUNTING.CUENTA_ESTA_BLOQUEADA_TRANSACCIONES_PERIODO', {
+      throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
         code: lockedAccount.account?.code ?? lockedAccount.accountId,
         name: period.name,
       });

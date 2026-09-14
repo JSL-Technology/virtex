@@ -95,12 +95,12 @@ export class EcfLifecycleService {
       request.verdict === CommercialApprovalVerdict.REJECTED &&
       !request.rejectionReason?.trim()
     ) {
-      throw new BadRequestError('EINVOICING.RECHAZO_COMERCIAL_DEBE_INDICAR_MOTIVO_DGII_EXIGE');
+      throw new BadRequestError('einvoicing.do.commercial_rejection_must_state_reason_dgii');
     }
 
     const issuerRnc = digitsOf(request.issuerRnc);
     if (!issuerRnc) {
-      throw new BadRequestError('EINVOICING.RNC_EMISOR_COMPROBANTE_ES_OBLIGATORIO');
+      throw new BadRequestError('einvoicing.do.issuer_rnc_required_document');
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -116,7 +116,7 @@ export class EcfLifecycleService {
       },
     });
     if (existing && isTerminalStatus(existing.status)) {
-      throw new ConflictError('EINVOICING.COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE', { ncf: request.ncf, issuerRnc });
+      throw new ConflictError('einvoicing.do.document_ncf_from_issuer_rnc_has', { ncf: request.ncf, issuerRnc });
     }
 
     const message =
@@ -181,17 +181,17 @@ export class EcfLifecycleService {
     request: SequenceVoidRequest,
   ): Promise<EcfLifecycleMessage> {
     if (!isElectronicNcfType(request.type)) {
-      throw new BadRequestError('EINVOICING.NO_ES_TIPO_ELECTRONICO_ANULACION_RANGOS_APLICA', { type: request.type });
+      throw new BadRequestError('einvoicing.do.type_not_electronic_type_voiding_ranges', { type: request.type });
     }
     if (request.to < request.from) {
-      throw new BadRequestError('EINVOICING.FINAL_RANGO_NO_PUEDE_SER_MENOR_INICIO');
+      throw new BadRequestError('einvoicing.do.end_range_cannot_lower_than_start');
     }
 
     const sequence = await this.sequenceRepo.findOne({
       where: { organizationId, type: request.type, isActive: true },
     });
     if (!sequence) {
-      throw new NotFoundError('EINVOICING.NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION', { type: request.type });
+      throw new NotFoundError('einvoicing.do.no_active_type_sequence_organization', { type: request.type });
     }
 
     const current = Number(sequence.currentSequence);
@@ -209,7 +209,7 @@ export class EcfLifecycleService {
       );
     }
     if (request.to > endsAt) {
-      throw new BadRequestError('EINVOICING.RANGO_AUTORIZADO_TERMINA_NO_PUEDES_ANULAR_MAS', { endsAt });
+      throw new BadRequestError('einvoicing.do.authorized_range_ends_ends_you_cannot', { endsAt });
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -281,9 +281,9 @@ export class EcfLifecycleService {
 
   private async requireIssuer(organizationId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundError('EINVOICING.ORGANIZACION_NO_ENCONTRADA');
+    if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
     if (!org.taxId) {
-      throw new BadRequestError('EINVOICING.ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES');
+      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
     }
     return org;
   }
@@ -294,7 +294,7 @@ export class EcfLifecycleService {
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestError('EINVOICING.NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO');
+      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_with');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
       throw new BadRequestException(

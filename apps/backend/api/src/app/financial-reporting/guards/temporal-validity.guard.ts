@@ -28,10 +28,10 @@ export class TemporalValidityGuard implements CanActivate {
 
     for (const account of accounts) {
       if (account.effectiveFrom && transactionDate < new Date(account.effectiveFrom)) {
-        throw new ForbiddenError('FINANCIAL_REPORTING.CUENTA_NO_ES_VALIDA_HASTA', { code: account.code, effectiveFrom: account.effectiveFrom });
+        throw new ForbiddenError('financial_reporting.account_code_not_valid_until_effective', { code: account.code, effectiveFrom: account.effectiveFrom });
       }
       if (account.effectiveTo && transactionDate > new Date(account.effectiveTo)) {
-        throw new ForbiddenError('FINANCIAL_REPORTING.CUENTA_EXPIRO', { code: account.code, effectiveTo: account.effectiveTo });
+        throw new ForbiddenError('financial_reporting.account_code_expired_effective', { code: account.code, effectiveTo: account.effectiveTo });
       }
     }
 

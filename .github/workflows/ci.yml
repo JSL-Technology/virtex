@@ -133,33 +133,31 @@ jobs:
 
       - run: npx nx run-many -t lint test build typecheck
 
-      # Proves the translation tooling still agrees with the code it is checking.
+      # Everything that has to stay true about the translations.
       #
-      # `no-hardcoded-strings.spec.ts` runs the extractor in report mode, so a literal that
-      # reappears in a template fails the build. This step runs the extractor for real and fails
-      # if it CHANGED anything — which is the other half: a tool that has drifted from the state
-      # of the repository would report zero for the wrong reason.
-      - name: i18n extraction is idempotent
-        run: |
-          node tools/i18n/externalize-template-text.mjs
-          node tools/i18n/externalize-template-text.mjs --hbs
-          node tools/i18n/extract-client-messages.mjs
-          node tools/i18n/extract-backend-messages.mjs
-          node tools/i18n/ensure-translate-imports.mjs
-          node tools/i18n/externalize-validation-messages.mjs
-          node tools/i18n/externalize-response-messages.mjs
-          node tools/i18n/apply-glossary.mjs
-          git diff --exit-code || {
-            echo '::error::The i18n extractors changed files. Run them locally and commit the result.'
-            exit 1
-          }
+      # This replaces eight steps that RAN THE EXTRACTORS and failed if they changed anything. That
+      # arrangement had the tooling generate the keys — each one slugified from the Spanish sentence
+      # it replaced — so the check could only confirm that the generator agreed with its own last
+      # output. It passed while 1.883 keys were in Spanish, while 23 values sat in the wrong
+      # language, and while four composed key families resolved to nothing.
+      #
+      # There is one source now, `libs/shared/locales`, and three checks over it:
+      #
+      #  1. The catalogues each application ships are exactly what the source says they are.
+      #  2. Every invariant: the key convention, all three languages present, matching placeholders,
+      #     no value in the wrong language, no stale regional override, no key referenced and
+      #     undefined, no composed family undeclared, no orphan.
+      #  3. No interface text reaching a reader without passing through the catalogue — across every
+      #     application, including inline templates and the Handlebars e-mail and invoice templates,
+      #     which is the 40 % of the interface the previous scanner never read.
+      - name: generated catalogues match the locale source
+        run: node tools/i18n/build-catalogues.mjs --check
 
-      # A key nothing references costs a line in three catalogues and a translator's time, and
-      # accumulates silently every time a template is rewritten. Reported rather than enforced:
-      # `find-orphan-keys.mjs --prune` is the fix, and it is a judgement call which stragglers are
-      # genuinely dead, so the build surfaces the count instead of failing on it.
-      - name: report orphan translation keys
-        run: node tools/i18n/find-orphan-keys.mjs
+      - name: translation invariants
+        run: node tools/i18n/verify-catalogues.mjs
+
+      - name: no untranslated interface text
+        run: node tools/i18n/scan-hardcoded-strings.mjs --list
 
       # Proves the migrations and the entities describe the same schema. A missing migration is
       # invisible locally (where the schema was created by an earlier `synchronize`) and only

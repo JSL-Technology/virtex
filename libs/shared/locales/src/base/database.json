@@ -1,0 +1,12 @@
+{
+  "database.attempt_made_delete_record_does_not": {
+    "es": "Intento de eliminar una entidad que no pertenece a la organización.",
+    "en": "An attempt was made to delete a record that does not belong to the organization.",
+    "pt": "Tentativa de excluir um registro que não pertence à organização."
+  },
+  "database.organization_operation_could_not_determined_access": {
+    "es": "No se pudo determinar la organización para esta operación. Acceso denegado.",
+    "en": "The organization for this operation could not be determined. Access denied.",
+    "pt": "Não foi possível determinar a organização desta operação. Acesso negado."
+  }
+}

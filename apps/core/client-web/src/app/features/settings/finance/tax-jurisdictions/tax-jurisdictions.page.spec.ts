@@ -128,6 +128,6 @@ describe('TaxJurisdictionsPage', () => {
     const text = fixture.nativeElement.textContent as string;
     // Post-*Wayfair*, economic nexus is what obliges a seller to register at all, and the failure
     // mode of not registering is an invoice with no tax rather than an error.
-    expect(text).toContain('NEXUS');
+    expect(text).toContain('settings.pages.tax_jurisdictions.nexus_note');
   });
 });

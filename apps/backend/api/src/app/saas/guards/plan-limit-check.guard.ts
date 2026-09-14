@@ -49,12 +49,12 @@ export class PlanLimitCheckGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-       throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK');
+       throw new ForbiddenError('saas.organization_context_required_for_limit_check');
     }
 
     const organizationId = user.organization?.id ?? user.organizationId;
     if (!organizationId) {
-      throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK');
+      throw new ForbiddenError('saas.organization_context_required_for_limit_check');
     }
 
     // Use Factory for consistent keys

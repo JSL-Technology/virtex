@@ -10,6 +10,6 @@ export class SsoDiscoverDto {
   @ApiProperty({ example: 'jane@acme.com' })
   @NormalizeEmail()
   @IsEmail()
-  @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
+  @MaxLength(254, { message: 'validation.constraints.max_length|{"max":254}' })
   email: string;
 }

@@ -26,7 +26,7 @@ export class CustomerGroupsService {
   async findOne(id: string, organizationId: string): Promise<CustomerGroup> {
     const group = await this.customerGroupRepository.findOne({ where: { id, organizationId } });
     if (!group) {
-      throw new NotFoundError('CUSTOMERS.GRUPO_CLIENTES_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('customers.customer_group_id_not_found', { id });
     }
     return group;
   }
@@ -40,7 +40,7 @@ export class CustomerGroupsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.customerGroupRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundError('CUSTOMERS.GRUPO_CLIENTES_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('customers.customer_group_id_not_found', { id });
     }
   }
 }

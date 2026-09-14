@@ -31,7 +31,7 @@ export class PayrollConceptService {
 
   async findOne(id: string, organizationId: string): Promise<PayrollConcept> {
     const concept = await this.concepts.findOne({ where: { id, organizationId } });
-    if (!concept) throw new NotFoundError('PAYROLL.CONCEPTO_NO_ENCONTRADO', { id });
+    if (!concept) throw new NotFoundError('payroll.concept_id_not_found', { id });
     return concept;
   }
 
@@ -41,7 +41,7 @@ export class PayrollConceptService {
       return await this.concepts.save(concept);
     } catch (error) {
       if ((error as { code?: string }).code === '23505') {
-        throw new ConflictError('PAYROLL.YA_EXISTE_CONCEPTO_CON_ESE_CODIGO', { p1: dto.code });
+        throw new ConflictError('payroll.concept_with_code_p1_already_exists', { p1: dto.code });
       }
       throw error;
     }
@@ -56,7 +56,7 @@ export class PayrollConceptService {
   async remove(id: string, organizationId: string): Promise<void> {
     const concept = await this.findOne(id, organizationId);
     if (concept.isSystem) {
-      throw new ForbiddenError('PAYROLL.CONCEPTO_SISTEMA_NO_SE_ELIMINA_DESACTIVELO');
+      throw new ForbiddenError('payroll.system_concept_cannot_deleted_deactivate_instead');
     }
     await this.concepts.delete({ id, organizationId });
   }

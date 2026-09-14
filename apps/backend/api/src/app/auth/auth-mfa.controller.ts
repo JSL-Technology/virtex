@@ -141,7 +141,7 @@ export class AuthMfaController {
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendEmailVerification(@CurrentUser() user: AuthenticatedUser) {
     await this.mfaOrchestratorService.sendEmailOtp(user.id, user.email);
-    return { messageKey: 'AUTH.VERIFICATION_CODE_SENT_EMAIL' };
+    return { messageKey: 'auth.verification_code_sent_email' };
   }
 
   @Post('2fa/verify-email-verification')
@@ -163,11 +163,11 @@ export class AuthMfaController {
       // only allow sending OTP to that same number or to a new unverified one.
       // Sending to an arbitrary third-party number is not permitted.
       if (user.isPhoneVerified && user.phone && user.phone !== phoneNumber) {
-          throw new BadRequestError('AUTH.CANNOT_SEND_OTP_PHONE_NUMBER_NOT_ASSOCIATED');
+          throw new BadRequestError('auth.cannot_send_otp_phone_number_not_associated');
       }
 
       await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
-      return { messageKey: 'AUTH.OTP_SENT_SUCCESSFULLY' };
+      return { messageKey: 'auth.otp_sent_successfully' };
   }
 
   @Post('verify-phone')
@@ -191,7 +191,7 @@ export class AuthMfaController {
       language: dto.language,
       country: dto.country,
     });
-    return { messageKey: 'AUTH.SI_DATOS_SON_CORRECTOS_ENVIADO_CODIGO_VERIFICACION' };
+    return { messageKey: 'auth.if_details_correct_verification_code_has' };
   }
 
   @Post('verify-public-code')
@@ -232,7 +232,7 @@ export class AuthMfaController {
       // reading it by literal name here is how the two sides drift apart.
       const pendingId = this.cookieService.read2faPendingId(req.cookies);
       if (!pendingId) {
-          throw new UnauthorizedError('AUTH.NO_ACTIVE_2FA_SESSION_PLEASE_LOG_IN');
+          throw new UnauthorizedError('auth.no_active_2_fa_session_please_log_in');
       }
 
       // Loads the pending session and counts the attempt, but does NOT destroy it — a mistyped

@@ -1,3 +1,4 @@
+import { VirtexTranslateStore, VirtexMissingTranslationHandler } from '@virteex/shared/ui-i18n';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -7,11 +8,12 @@ import {
   MissingTranslationHandler,
   provideTranslateService,
   TranslateLoader,
+  TranslateStore,
 } from '@ngx-translate/core';
 import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
 import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
 import { LazyTranslateLoader } from './core/i18n/translate-loader';
-import { VirtexMissingTranslationHandler } from './core/i18n/missing-translation.handler';
+import { RegionalLocaleEffect } from './core/i18n/regional-locale.effect';
 import { LanguageService } from './core/services/language';
 
 // import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
@@ -37,13 +39,13 @@ const CORE_PROVIDERS = [
   // The active message catalogue is loaded before the first route is evaluated. `instant()` is
   // synchronous and returns the KEY when the table is empty, and both the title strategy and the
   // HTTP error handler call it — so without this the first screen after a cold start can show
-  // `AUTH.TITLES.LOGIN` in the browser tab.
+  // `auth.titles.login` in the browser tab.
   provideAppInitializer(() => inject(LanguageService).preload()),
   provideAppInitializer(() => inject(AuthService).resolveSession()),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),
-  // One title strategy: route titles are translation keys, composed with APP_TITLE.
+  // One title strategy: route titles are translation keys, composed with app_title.
   { provide: TitleStrategy, useClass: TranslatedTitleStrategy },
   provideRouter(
     APP_ROUTES,
@@ -78,6 +80,12 @@ const I18N_PROVIDERS = [
     },
     fallbackLang: DEFAULT_LANGUAGE,
   }),
+  // Overrides the store `provideTranslateService` just registered, so every lookup — pipe,
+  // directive, `instant`, `get`, the fallback-language retry — passes through one key
+  // normalisation. Order matters: a later provider for the same token wins.
+  { provide: TranslateStore, useClass: VirtexTranslateStore },
+  // Rebuilds the table with the tenant's country applied, once the session says what it is.
+  provideAppInitializer(() => { inject(RegionalLocaleEffect); }),
 ];
 
 const RECAPTCHA_PROVIDERS = [

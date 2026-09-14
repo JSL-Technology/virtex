@@ -136,7 +136,7 @@ export class RegisterPage implements OnInit {
 
   currentStep = signal(1);
   registerForm!: FormGroup;
-  /** A translation KEY for an error we raise ourselves (e.g. `REGISTER.ERRORS.REQUIRED_FIELDS`). */
+  /** A translation KEY for an error we raise ourselves (e.g. `register.errors.required_fields`). */
   errorMessage = signal<string | null>(null);
   /**
    * A message the SERVER already localized (it honours Accept-Language). Shown verbatim, never
@@ -163,12 +163,12 @@ export class RegisterPage implements OnInit {
    * Con el rótulo puesto, el riel se convierte además en un índice del alta.
    */
   readonly stepLabelKeys = [
-    'REGISTER.PROGRESS.ACCOUNT',
-    'REGISTER.PROGRESS.EMAIL',
-    'REGISTER.PROGRESS.PHONE',
-    'REGISTER.PROGRESS.FISCAL',
-    'REGISTER.PROGRESS.BUSINESS',
-    'REGISTER.PROGRESS.PLAN',
+    'register.progress.account',
+    'register.progress.email',
+    'register.progress.phone',
+    'register.progress.fiscal',
+    'register.progress.business',
+    'register.progress.plan',
   ];
 
   currentCountryConfig = computed(() => this.countryService.currentCountry());
@@ -470,7 +470,7 @@ export class RegisterPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set('REGISTER.ERRORS.MAGIC_LINK_EXPIRED');
+        this.errorMessage.set('register.errors.confirmation_link_has_expired_isn_valid');
         this.currentStep.set(2);
       },
     });
@@ -515,7 +515,7 @@ export class RegisterPage implements OnInit {
 
     // Verification gate for email step
     if (this.currentStep() === 2 && !this.emailVerified()) {
-      this.errorMessage.set('REGISTER.ERRORS.EMAIL_VERIFY_REQUIRED');
+      this.errorMessage.set('register.errors.email_verify_required');
       return;
     }
 
@@ -529,14 +529,14 @@ export class RegisterPage implements OnInit {
       !this.phoneVerified() &&
       !this.phoneChannelDown()
     ) {
-      this.errorMessage.set('REGISTER.ERRORS.PHONE_VERIFY_REQUIRED');
+      this.errorMessage.set('register.errors.phone_verify_required');
       return;
     }
 
     const currentForm = this.getCurrentStepForm();
     if (currentForm?.invalid) {
       currentForm.markAllAsTouched();
-      this.errorMessage.set('REGISTER.ERRORS.REQUIRED_FIELDS');
+      this.errorMessage.set('register.errors.required_fields');
       return;
     }
 
@@ -552,7 +552,7 @@ export class RegisterPage implements OnInit {
       this.currentStep() === 4 &&
       (!this.registerForm.get('configuration.country')?.value || !this.currentCountryConfig())
     ) {
-      this.errorMessage.set('REGISTER.ERRORS.COUNTRY_CONFIG');
+      this.errorMessage.set('register.errors.we_couldn_load_tax_settings_country');
       return;
     }
 
@@ -676,14 +676,14 @@ export class RegisterPage implements OnInit {
                 Array.isArray(serverMessage) ? serverMessage.join(', ') : serverMessage,
               );
             } else {
-              this.errorMessage.set('REGISTER.ERRORS.UNKNOWN');
+              this.errorMessage.set('register.errors.unknown');
             }
             this.isRegistering.set(false);
           },
         });
       },
       error: () => {
-        this.errorMessage.set('REGISTER.ERRORS.RECAPTCHA');
+        this.errorMessage.set('register.errors.recaptcha');
         this.isRegistering.set(false);
       },
     });

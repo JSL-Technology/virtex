@@ -1,0 +1,212 @@
+{
+  "audit_adjustments.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "audit_adjustments.account_deleted": {
+    "es": "Cuenta eliminada",
+    "en": "Account deleted",
+    "pt": "Conta eliminada"
+  },
+  "audit_adjustments.accrued_expense_not_recorded": {
+    "es": "Ej. Gasto devengado no registrado",
+    "en": "e.g. Accrued expense not recorded",
+    "pt": "Ex.: Despesa incorrida não registada"
+  },
+  "audit_adjustments.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "audit_adjustments.all_years": {
+    "es": "Todos los ejercicios",
+    "en": "All fiscal years",
+    "pt": "Todos os exercícios"
+  },
+  "audit_adjustments.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "audit_adjustments.choose_account": {
+    "es": "Elige una cuenta…",
+    "en": "Choose an account…",
+    "pt": "Escolha uma conta…"
+  },
+  "audit_adjustments.choose_journal": {
+    "es": "Elige un diario…",
+    "en": "Choose a journal…",
+    "pt": "Escolha um diário…"
+  },
+  "audit_adjustments.choose_year": {
+    "es": "Elige un ejercicio cerrado…",
+    "en": "Choose a closed year…",
+    "pt": "Escolha um exercício encerrado…"
+  },
+  "audit_adjustments.closed_years_only": {
+    "es": "Solo se ofrecen ejercicios cerrados: uno abierto admite un asiento ordinario.",
+    "en": "Only closed years are offered: an open year takes an ordinary entry.",
+    "pt": "Só se oferecem exercícios encerrados: um aberto aceita um lançamento comum."
+  },
+  "audit_adjustments.corrections_audit_has_proposed_year_already": {
+    "es": "Correcciones propuestas por una auditoría sobre un ejercicio ya cerrado.",
+    "en": "Corrections an audit has proposed to a year that is already closed.",
+    "pt": "Correções propostas por uma auditoria sobre um exercício já encerrado."
+  },
+  "audit_adjustments.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "audit_adjustments.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "audit_adjustments.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "audit_adjustments.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "audit_adjustments.empty_body": {
+    "es": "Un ajuste de auditoría corrige un ejercicio ya cerrado y queda registrado con su evidencia.",
+    "en": "An audit adjustment corrects a year that is already closed, and is kept on record with its evidence.",
+    "pt": "Um ajuste de auditoria corrige um exercício já encerrado e fica registado com a sua evidência."
+  },
+  "audit_adjustments.empty_title": {
+    "es": "Todavía no hay ajustes propuestos.",
+    "en": "No adjustments have been proposed yet.",
+    "pt": "Ainda não há ajustes propostos."
+  },
+  "audit_adjustments.evidence": {
+    "es": "Evidencia",
+    "en": "Evidence",
+    "pt": "Evidência"
+  },
+  "audit_adjustments.fiscal_year": {
+    "es": "Ejercicio",
+    "en": "Fiscal year",
+    "pt": "Exercício"
+  },
+  "audit_adjustments.journal": {
+    "es": "Diario",
+    "en": "Journal",
+    "pt": "Diário"
+  },
+  "audit_adjustments.line_description": {
+    "es": "Concepto",
+    "en": "Line description",
+    "pt": "Histórico"
+  },
+  "audit_adjustments.problem.adjustment_does_not_balance_debits_credits": {
+    "es": "El ajuste no cuadra: los débitos y los créditos deben sumar lo mismo.",
+    "en": "The adjustment does not balance: debits and credits must add up to the same.",
+    "pt": "O ajuste não fecha: os débitos e os créditos têm de somar o mesmo."
+  },
+  "audit_adjustments.problem.description": {
+    "es": "Describe el ajuste.",
+    "en": "Describe the adjustment.",
+    "pt": "Descreva o ajuste."
+  },
+  "audit_adjustments.problem.journal": {
+    "es": "Elige el diario donde se registrará.",
+    "en": "Choose the journal it will be recorded in.",
+    "pt": "Escolha o diário onde será registado."
+  },
+  "audit_adjustments.problem.line_account": {
+    "es": "Línea {{line}}: falta la cuenta.",
+    "en": "Line {{line}}: the account is missing.",
+    "pt": "Linha {{line}}: falta a conta."
+  },
+  "audit_adjustments.problem.line_description": {
+    "es": "Línea {{line}}: falta el concepto.",
+    "en": "Line {{line}}: the description is missing.",
+    "pt": "Linha {{line}}: falta o histórico."
+  },
+  "audit_adjustments.problem.year": {
+    "es": "Elige el ejercicio que se corrige.",
+    "en": "Choose the year being corrected.",
+    "pt": "Escolha o exercício que está a corrigir."
+  },
+  "audit_adjustments.propose": {
+    "es": "Proponer ajuste",
+    "en": "Propose adjustment",
+    "pt": "Propor ajuste"
+  },
+  "audit_adjustments.propose_failed": {
+    "es": "No se pudo proponer el ajuste.",
+    "en": "The adjustment could not be proposed.",
+    "pt": "Não foi possível propor o ajuste."
+  },
+  "audit_adjustments.propose_title": {
+    "es": "Nuevo ajuste de auditoría",
+    "en": "New audit adjustment",
+    "pt": "Novo ajuste de auditoria"
+  },
+  "audit_adjustments.proposed": {
+    "es": "Propuesto por",
+    "en": "Proposed by",
+    "pt": "Proposto por"
+  },
+  "audit_adjustments.proposed_and_posted": {
+    "es": "Ajuste propuesto y contabilizado.",
+    "en": "Adjustment proposed and posted.",
+    "pt": "Ajuste proposto e lançado."
+  },
+  "audit_adjustments.proposed_pending": {
+    "es": "Ajuste propuesto. Queda pendiente de aprobación.",
+    "en": "Adjustment proposed. It is waiting for approval.",
+    "pt": "Ajuste proposto. Fica pendente de aprovação."
+  },
+  "audit_adjustments.raised_against_closed_year_posted_when": {
+    "es": "Se propone sobre un ejercicio cerrado y se contabiliza cuando se aprueba.",
+    "en": "Raised against a closed year, and posted when it is approved.",
+    "pt": "Proposto sobre um exercício encerrado e lançado quando for aprovado."
+  },
+  "audit_adjustments.remove_line": {
+    "es": "Quitar la línea",
+    "en": "Remove the line",
+    "pt": "Remover a linha"
+  },
+  "audit_adjustments.state": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "audit_adjustments.status.approved": {
+    "es": "Aprobado",
+    "en": "Approved",
+    "pt": "Aprovado"
+  },
+  "audit_adjustments.status.failed": {
+    "es": "Falló",
+    "en": "Failed",
+    "pt": "Falhou"
+  },
+  "audit_adjustments.status.pending_approval": {
+    "es": "Pendiente de aprobación",
+    "en": "Pending approval",
+    "pt": "Aguardando aprovação"
+  },
+  "audit_adjustments.status.posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Contabilizado"
+  },
+  "audit_adjustments.status.rejected": {
+    "es": "Rechazado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "audit_adjustments.title": {
+    "es": "Ajustes de auditoría",
+    "en": "Audit adjustments",
+    "pt": "Ajustes de auditoria"
+  }
+}

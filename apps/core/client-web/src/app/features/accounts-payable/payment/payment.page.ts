@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -204,20 +204,20 @@ export class VendorPaymentPage implements OnInit {
     if (this.form.invalid || this.lines.length === 0) {
       this.form.markAllAsTouched();
       const missing = draftProblems(this.form, {
-        paymentDate: 'ACCOUNTS_PAYABLE.PAYMENT.FECHA',
-        bankAccountId: 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA',
-        reference: 'ACCOUNTING.RECONCILIATION.REFERENCIA',
+        paymentDate: 'accounts_payable.payment.payment_date',
+        bankAccountId: 'customer_receipts.form.bank_account',
+        reference: 'accounting.reconciliation.reference',
       });
       //  Un pago sin ninguna factura elegida no es un campo mal: es que no hay nada que pagar.
       this.problems.set(
         this.lines.length === 0
-          ? [...missing, { message: 'ACCOUNTS_PAYABLE.PAYMENT.SELECCIONE_FACTURAS' }]
+          ? [...missing, { message: 'accounts_payable.payment.choose_least_one_invoice_complete_payment' }]
           : missing,
       );
       return;
     }
     if (this.lines.controls.some((line) => this.exceedsBalance(line.value))) {
-      this.problems.set([{ message: 'ACCOUNTS_PAYABLE.PAYMENT.EXCEDE_SALDO' }]);
+      this.problems.set([{ message: 'accounts_payable.payment.line_settles_more_than_invoice_owes' }]);
       return;
     }
 
@@ -241,14 +241,14 @@ export class VendorPaymentPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.notifications.showSuccess('ACCOUNTS_PAYABLE.PAYMENT.PAGO_REGISTRADO');
+          this.notifications.showSuccess('accounts_payable.payment.payment_recorded');
           this.router.navigate(['/accounts-payable']);
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);
           const message = error?.error?.message;
           this.notifications.showError(
-            typeof message === 'string' ? message : 'ACCOUNTS_PAYABLE.PAYMENT.NO_SE_PUDO_PAGAR',
+            typeof message === 'string' ? message : 'accounts_payable.payment.payment_could_not_recorded',
           );
         },
       });

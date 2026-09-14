@@ -92,9 +92,9 @@ export class PayrollRunService {
     overrides: { monthlySalary?: number; ordinarySalaryEarnedThisYear?: number } = {},
   ): Promise<SeveranceResult> {
     const employee = await this.employees.findOne({ where: { id: employeeId, organizationId } });
-    if (!employee) throw new NotFoundError('HCM.EMPLOYEE_NOT_FOUND', { id: employeeId });
+    if (!employee) throw new NotFoundError('hcm.employee_not_found', { id: employeeId });
     if (!employee.hireDate) {
-      throw new BadRequestError('PAYROLL.EMPLEADO_SIN_FECHA_INGRESO_NO_LIQUIDABLE');
+      throw new BadRequestError('payroll.employee_has_no_hire_date_cannot');
     }
     const end = toIsoDate(endDate);
 
@@ -107,7 +107,7 @@ export class PayrollRunService {
         organizationId,
       );
       if (!compensation) {
-        throw new BadRequestError('PAYROLL.EMPLEADO_SIN_COMPENSACION_NO_LIQUIDABLE');
+        throw new BadRequestError('payroll.employee_has_no_compensation_force_cannot');
       }
       monthlySalary = this.toMonthly(compensation);
     }
@@ -125,10 +125,10 @@ export class PayrollRunService {
   async createDraft(input: CreateRunInput, organizationId: string): Promise<PayrollRun> {
     const country = (input.countryCode ?? 'DO').toUpperCase();
     if (!this.registry.supports(country)) {
-      throw new BadRequestError('PAYROLL.JURISDICCION_NO_SOPORTADA', { p1: country });
+      throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: country });
     }
     if (input.periodMonth < 1 || input.periodMonth > 12) {
-      throw new BadRequestError('PAYROLL.MES_PERIODO_INVALIDO', { p1: input.periodMonth });
+      throw new BadRequestError('payroll.period_month_invalid_p1', { p1: input.periodMonth });
     }
 
     const { from, to } = monthBounds(input.periodYear, input.periodMonth);
@@ -147,7 +147,7 @@ export class PayrollRunService {
         },
       });
       if (existing && existing.status !== PayrollRunStatus.CANCELLED) {
-        throw new ConflictError('PAYROLL.YA_EXISTE_CORRIDA_PERIODO', {
+        throw new ConflictError('payroll.run_already_exists_p1', {
           p1: `${runType} ${input.periodMonth}/${input.periodYear}`,
         });
       }
@@ -177,7 +177,7 @@ export class PayrollRunService {
       return await this.runs.save(run);
     } catch (error) {
       if ((error as { code?: string }).code === '23505') {
-        throw new ConflictError('PAYROLL.YA_EXISTE_CORRIDA_PERIODO', {
+        throw new ConflictError('payroll.run_already_exists_p1', {
           p1: `${runType} ${input.periodMonth}/${input.periodYear}`,
         });
       }
@@ -199,13 +199,13 @@ export class PayrollRunService {
     country: string,
   ): Promise<void> {
     if (!input.correctsRunId) {
-      throw new BadRequestError('PAYROLL.AJUSTE_REQUIERE_CORRIDA_A_CORREGIR');
+      throw new BadRequestError('payroll.adjustment_run_must_reference_run_corrects');
     }
     const corrected = await this.runs.findOne({
       where: { id: input.correctsRunId, organizationId },
     });
     if (!corrected) {
-      throw new NotFoundError('PAYROLL.CORRIDA_A_CORREGIR_NO_ENCONTRADA', { id: input.correctsRunId });
+      throw new NotFoundError('payroll.run_correct_id_not_found', { id: input.correctsRunId });
     }
     const committed =
       corrected.status === PayrollRunStatus.APPROVED || corrected.status === PayrollRunStatus.PAID;
@@ -215,7 +215,7 @@ export class PayrollRunService {
       corrected.periodMonth !== input.periodMonth ||
       corrected.countryCode !== country
     ) {
-      throw new BadRequestError('PAYROLL.AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO');
+      throw new BadRequestError('payroll.adjustment_must_correct_approved_run_same');
     }
   }
 
@@ -330,17 +330,17 @@ export class PayrollRunService {
   async approve(runId: string, organizationId: string, actorUserId: string): Promise<PayrollRun> {
     return this.dataSource.transaction(async (em) => {
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
-      if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
+      if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.CALCULATED) {
-        throw new ConflictError('PAYROLL.SOLO_CORRIDA_CALCULADA_PUEDE_APROBARSE');
+        throw new ConflictError('payroll.only_calculated_run_can_approved');
       }
       if (run.calculatedBy && run.calculatedBy === actorUserId) {
-        throw new ForbiddenError('PAYROLL.APROBADOR_NO_PUEDE_SER_QUIEN_CALCULO');
+        throw new ForbiddenError('payroll.whoever_approves_payroll_cannot_whoever_calculated');
       }
 
       const payslips = await em.find(Payslip, { where: { organizationId, runId } });
       if (payslips.length === 0) {
-        throw new BadRequestError('PAYROLL.CORRIDA_SIN_VOLANTES_NO_PUEDE_APROBARSE');
+        throw new BadRequestError('payroll.run_has_no_payslips_cannot_approved');
       }
 
       const entryId = await this.accounting.postRun(em, run, payslips, {
@@ -369,13 +369,13 @@ export class PayrollRunService {
     bankGlAccountId?: string,
   ): Promise<PayrollRun> {
     if (!bankGlAccountId) {
-      throw new BadRequestError('PAYROLL.PAGO_REQUIERE_CUENTA_BANCARIA');
+      throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
     return this.dataSource.transaction(async (em) => {
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
-      if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
+      if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.APPROVED) {
-        throw new ConflictError('PAYROLL.SOLO_CORRIDA_APROBADA_PUEDE_PAGARSE');
+        throw new ConflictError('payroll.only_approved_run_can_paid');
       }
 
       // The cash actually leaves here: DR net-wages-payable / CR bank, idempotent on the run, so an
@@ -398,7 +398,7 @@ export class PayrollRunService {
   async cancel(runId: string, organizationId: string): Promise<PayrollRun> {
     const run = await this.findRun(runId, organizationId);
     if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
-      throw new ConflictError('PAYROLL.CORRIDA_APROBADA_NO_PUEDE_CANCELARSE_USE_AJUSTE');
+      throw new ConflictError('payroll.approved_run_cannot_cancelled_use_adjustment');
     }
     run.status = PayrollRunStatus.CANCELLED;
     return this.runs.save(run);
@@ -422,7 +422,7 @@ export class PayrollRunService {
 
   async findRun(runId: string, organizationId: string): Promise<PayrollRun> {
     const run = await this.runs.findOne({ where: { id: runId, organizationId } });
-    if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
+    if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
     return run;
   }
 
@@ -455,10 +455,10 @@ export class PayrollRunService {
 
   private assertEditable(run: PayrollRun): void {
     if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
-      throw new ConflictError('PAYROLL.CORRIDA_INMUTABLE_USE_AJUSTE');
+      throw new ConflictError('payroll.run_approved_immutable_use_adjustment_run');
     }
     if (run.status === PayrollRunStatus.CANCELLED) {
-      throw new ConflictError('PAYROLL.CORRIDA_CANCELADA_NO_EDITABLE');
+      throw new ConflictError('payroll.run_cancelled_cannot_edited');
     }
   }
 

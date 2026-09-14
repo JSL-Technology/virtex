@@ -1,0 +1,492 @@
+{
+  "register.acme_corp": {
+    "es": "Ej. Acme Corp",
+    "en": "e.g. Acme Corp",
+    "pt": "Ex.: Acme Ltda."
+  },
+  "register.agree": {
+    "es": "Acepto los",
+    "en": "I agree to the",
+    "pt": "Aceito os"
+  },
+  "register.and": {
+    "es": "y la",
+    "en": "and",
+    "pt": "e a"
+  },
+  "register.company_name": {
+    "es": "Nombre de la Empresa",
+    "en": "Company Name",
+    "pt": "Nome da Empresa"
+  },
+  "register.company_size": {
+    "es": "Tamaño de la empresa",
+    "en": "Company size",
+    "pt": "Porte da empresa"
+  },
+  "register.configuration.einvoicing_preview_detail": {
+    "es": "Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y guardamos estos datos fiscales para poder emitir comprobantes ({{regime}}) en cuanto habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.",
+    "en": "The whole ERP — accounting, inventory, purchasing, payroll and reporting — works normally, and we store these tax details so we can issue documents ({{regime}}) as soon as we enable the country. If you need to stamp documents today, write to us before subscribing.",
+    "pt": "Todo o ERP — contabilidade, estoque, compras, folha e relatórios — funciona normalmente, e guardamos estes dados fiscais para poder emitir documentos ({{regime}}) assim que habilitarmos o país. Se você precisa emitir hoje, fale conosco antes de contratar."
+  },
+  "register.configuration.einvoicing_unavailable": {
+    "es": "La facturación electrónica todavía no está disponible en {{country}}.",
+    "en": "Electronic invoicing is not available in {{country}} yet.",
+    "pt": "A emissão eletrônica ainda não está disponível em {{country}}."
+  },
+  "register.confirm_password": {
+    "es": "Confirmar Contraseña",
+    "en": "Confirm Password",
+    "pt": "Confirmar senha"
+  },
+  "register.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "register.create_secure_password": {
+    "es": "Crea una contraseña segura",
+    "en": "Create a secure password",
+    "pt": "Crie uma senha forte"
+  },
+  "register.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "register.doe": {
+    "es": "Ej. Pérez",
+    "en": "e.g. Doe",
+    "pt": "Ex.: Silva"
+  },
+  "register.email": {
+    "es": "Correo Electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "register.errors.code_invalid": {
+    "es": "Código incorrecto. Inténtalo de nuevo.",
+    "en": "That code isn't right. Please try again.",
+    "pt": "Código incorreto. Tente novamente."
+  },
+  "register.errors.code_send": {
+    "es": "No se pudo enviar el código. Inténtalo de nuevo.",
+    "en": "We couldn't send the code. Please try again.",
+    "pt": "Não foi possível enviar o código. Tente novamente."
+  },
+  "register.errors.confirmation_link_has_expired_isn_valid": {
+    "es": "El enlace de confirmación ha expirado o no es válido. Ingresa el código manualmente.",
+    "en": "That confirmation link has expired or isn't valid. Enter the code by hand instead.",
+    "pt": "O link de confirmação expirou ou é inválido. Digite o código manualmente."
+  },
+  "register.errors.email_invalid": {
+    "es": "Escribe un correo electrónico válido.",
+    "en": "Enter a valid email address.",
+    "pt": "Digite um e-mail válido."
+  },
+  "register.errors.email_verify_required": {
+    "es": "Debes verificar tu correo electrónico antes de continuar.",
+    "en": "Verify your email address before continuing.",
+    "pt": "Você precisa verificar seu e-mail antes de continuar."
+  },
+  "register.errors.invalid_format": {
+    "es": "El formato no es válido.",
+    "en": "That format is not valid.",
+    "pt": "O formato não é válido."
+  },
+  "register.errors.password_length": {
+    "es": "La contraseña debe tener al menos 12 caracteres.",
+    "en": "The password must be at least 12 characters long.",
+    "pt": "A senha deve ter pelo menos 12 caracteres."
+  },
+  "register.errors.password_mismatch": {
+    "es": "Las contraseñas no coinciden.",
+    "en": "Passwords do not match.",
+    "pt": "As senhas não coincidem."
+  },
+  "register.errors.password_weak": {
+    "es": "La contraseña debe incluir una mayúscula, una minúscula y un número o símbolo.",
+    "en": "The password needs an uppercase letter, a lowercase letter and a number or symbol.",
+    "pt": "A senha deve incluir uma letra maiúscula, uma minúscula e um número ou símbolo."
+  },
+  "register.errors.phone_invalid": {
+    "es": "Escribe un número de teléfono válido para el país seleccionado.",
+    "en": "Enter a valid phone number for the selected country.",
+    "pt": "Digite um número de telefone válido para o país selecionado."
+  },
+  "register.errors.phone_verify_required": {
+    "es": "Debes verificar tu número de celular antes de continuar.",
+    "en": "Verify your mobile number before continuing.",
+    "pt": "Você precisa verificar seu celular antes de continuar."
+  },
+  "register.errors.recaptcha": {
+    "es": "No pudimos validar la seguridad del formulario. Inténtalo de nuevo.",
+    "en": "We couldn't verify the form's security check. Please try again.",
+    "pt": "Não conseguimos validar a verificação de segurança do formulário. Tente novamente."
+  },
+  "register.errors.required": {
+    "es": "Este campo es obligatorio.",
+    "en": "This field is required.",
+    "pt": "Este campo é obrigatório."
+  },
+  "register.errors.required_fields": {
+    "es": "Completa los campos requeridos correctamente.",
+    "en": "Please complete the required fields correctly.",
+    "pt": "Preencha corretamente os campos obrigatórios."
+  },
+  "register.errors.terms_required": {
+    "es": "Debes aceptar los términos y condiciones.",
+    "en": "You must accept the terms and conditions.",
+    "pt": "Você precisa aceitar os termos e condições."
+  },
+  "register.errors.unknown": {
+    "es": "No se pudo completar el registro. Inténtalo de nuevo.",
+    "en": "We couldn't complete your registration. Please try again.",
+    "pt": "Não foi possível concluir o cadastro. Tente novamente."
+  },
+  "register.errors.we_couldn_load_tax_settings_country": {
+    "es": "No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.",
+    "en": "We couldn't load the tax settings for that country. Reload the page or pick another country.",
+    "pt": "Não foi possível carregar a configuração fiscal desse país. Recarregue a página ou escolha outro país."
+  },
+  "register.first_name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "register.has_account": {
+    "es": "¿Ya tienes una cuenta?",
+    "en": "Already have an account?",
+    "pt": "Já tem uma conta?"
+  },
+  "register.industries.construction": {
+    "es": "Construcción",
+    "en": "Construction",
+    "pt": "Construção"
+  },
+  "register.industries.healthcare": {
+    "es": "Salud",
+    "en": "Healthcare",
+    "pt": "Saúde"
+  },
+  "register.industries.manufacturing": {
+    "es": "Manufactura",
+    "en": "Manufacturing",
+    "pt": "Manufatura"
+  },
+  "register.industries.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
+  "register.industries.retail": {
+    "es": "Comercio y retail",
+    "en": "Retail and commerce",
+    "pt": "Comércio e varejo"
+  },
+  "register.industries.services": {
+    "es": "Servicios profesionales",
+    "en": "Professional services",
+    "pt": "Serviços profissionais"
+  },
+  "register.industries.technology": {
+    "es": "Tecnología",
+    "en": "Technology",
+    "pt": "Tecnologia"
+  },
+  "register.industry": {
+    "es": "Industria",
+    "en": "Industry",
+    "pt": "Setor"
+  },
+  "register.john": {
+    "es": "Ej. Juan",
+    "en": "e.g. John",
+    "pt": "Ex.: João"
+  },
+  "register.last_name": {
+    "es": "Apellidos",
+    "en": "Last Name",
+    "pt": "Sobrenome"
+  },
+  "register.login_link": {
+    "es": "Inicia sesión",
+    "en": "Sign in",
+    "pt": "Entrar"
+  },
+  "register.name_company_com": {
+    "es": "nombre@empresa.com",
+    "en": "name@company.com",
+    "pt": "nome@empresa.com"
+  },
+  "register.password": {
+    "es": "Contraseña",
+    "en": "Password",
+    "pt": "Senha"
+  },
+  "register.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "register.phone_country": {
+    "es": "País del teléfono",
+    "en": "Phone country",
+    "pt": "País do telefone"
+  },
+  "register.phone_placeholder": {
+    "es": "Ej. 809 555 5555",
+    "en": "e.g. 809 555 5555",
+    "pt": "Ex.: 11 95555-5555"
+  },
+  "register.privacy": {
+    "es": "Política de Privacidad",
+    "en": "Privacy Policy",
+    "pt": "Política de Privacidade"
+  },
+  "register.progress.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "register.progress.business": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "register.progress.email": {
+    "es": "Correo",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "register.progress.fiscal": {
+    "es": "Fiscal",
+    "en": "Tax",
+    "pt": "Fiscal"
+  },
+  "register.progress.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "register.progress.plan": {
+    "es": "Plan",
+    "en": "Plan",
+    "pt": "Plano"
+  },
+  "register.registering": {
+    "es": "Registrando...",
+    "en": "Registering...",
+    "pt": "Cadastrando..."
+  },
+  "register.repeat_your_password": {
+    "es": "Repite tu contraseña",
+    "en": "Repeat your password",
+    "pt": "Repita sua senha"
+  },
+  "register.select": {
+    "es": "Selecciona una opción",
+    "en": "Select an option",
+    "pt": "Selecione uma opção"
+  },
+  "register.select_number_employees": {
+    "es": "Selecciona el número de empleados",
+    "en": "Select the number of employees",
+    "pt": "Selecione o número de funcionários"
+  },
+  "register.select_several_holding_ctrl_cmd_while": {
+    "es": "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic.",
+    "en": "Select several by holding Ctrl (or Cmd) while clicking.",
+    "pt": "Você pode selecionar várias segurando Ctrl (ou Cmd) ao clicar."
+  },
+  "register.select_your_industry": {
+    "es": "Selecciona tu industria",
+    "en": "Select your industry",
+    "pt": "Selecione seu setor"
+  },
+  "register.start_your_30_day_free_trial": {
+    "es": "Comienza tu prueba gratuita de 30 días",
+    "en": "Start your 30-day free trial",
+    "pt": "Comece seu teste gratuito de 30 dias"
+  },
+  "register.step_of": {
+    "es": "Paso {{current}} de {{total}}",
+    "en": "Step {{current}} of {{total}}",
+    "pt": "Etapa {{current}} de {{total}}"
+  },
+  "register.steps.account.details_primary_administrator": {
+    "es": "Estos son los datos del administrador principal.",
+    "en": "These are the details of the primary administrator.",
+    "pt": "Estes são os dados do administrador principal."
+  },
+  "register.steps.account.title_internal": {
+    "es": "¡Hola! Comencemos por ti",
+    "en": "Hi! Let's start with you",
+    "pt": "Olá! Vamos começar por você"
+  },
+  "register.steps.business.tell_us_about_your_company": {
+    "es": "Cuéntanos sobre tu empresa",
+    "en": "Tell us about your company",
+    "pt": "Conte-nos sobre sua empresa"
+  },
+  "register.steps.business.title": {
+    "es": "Perfil de Negocio",
+    "en": "Business Profile",
+    "pt": "Perfil do Negócio"
+  },
+  "register.steps.configuration.country_currency_details": {
+    "es": "Datos de tu país y moneda",
+    "en": "Country and currency details",
+    "pt": "Seu país e sua moeda"
+  },
+  "register.steps.configuration.title": {
+    "es": "Configuración Fiscal",
+    "en": "Fiscal Configuration",
+    "pt": "Configuração Fiscal"
+  },
+  "register.steps.plan.annual": {
+    "es": "Anual",
+    "en": "Yearly",
+    "pt": "Anual"
+  },
+  "register.steps.plan.billing_period": {
+    "es": "Periodo de facturación",
+    "en": "Billing period",
+    "pt": "Período de cobrança"
+  },
+  "register.steps.plan.choose": {
+    "es": "Elegir plan",
+    "en": "Choose plan",
+    "pt": "Escolher plano"
+  },
+  "register.steps.plan.load_failed": {
+    "es": "No se pudieron cargar los planes.",
+    "en": "We couldn't load the plans.",
+    "pt": "Não foi possível carregar os planos."
+  },
+  "register.steps.plan.loading": {
+    "es": "Cargando planes…",
+    "en": "Loading plans…",
+    "pt": "Carregando planos…"
+  },
+  "register.steps.plan.monthly": {
+    "es": "Mensual",
+    "en": "Monthly",
+    "pt": "Mensal"
+  },
+  "register.steps.plan.none": {
+    "es": "Sin {{resource}}",
+    "en": "No {{resource}}",
+    "pt": "Sem {{resource}}"
+  },
+  "register.steps.plan.per_month": {
+    "es": "/mes",
+    "en": "/mo",
+    "pt": "/mês"
+  },
+  "register.steps.plan.per_period_month": {
+    "es": "{{count}} {{resource}} al mes",
+    "en": "{{count}} {{resource}} a month",
+    "pt": "{{count}} {{resource}} por mês"
+  },
+  "register.steps.plan.per_year": {
+    "es": "/año",
+    "en": "/year",
+    "pt": "/ano"
+  },
+  "register.steps.plan.recommended": {
+    "es": "Recomendado",
+    "en": "Recommended",
+    "pt": "Recomendado"
+  },
+  "register.steps.plan.resources.customers": {
+    "es": "clientes",
+    "en": "customers",
+    "pt": "clientes"
+  },
+  "register.steps.plan.resources.invoices": {
+    "es": "facturas",
+    "en": "invoices",
+    "pt": "faturas"
+  },
+  "register.steps.plan.resources.journal_entries": {
+    "es": "asientos contables",
+    "en": "journal entries",
+    "pt": "lançamentos contábeis"
+  },
+  "register.steps.plan.resources.subsidiaries": {
+    "es": "subsidiarias",
+    "en": "subsidiaries",
+    "pt": "subsidiárias"
+  },
+  "register.steps.plan.resources.suppliers": {
+    "es": "proveedores",
+    "en": "suppliers",
+    "pt": "fornecedores"
+  },
+  "register.steps.plan.resources.users": {
+    "es": "usuarios",
+    "en": "users",
+    "pt": "usuários"
+  },
+  "register.steps.plan.save_percent": {
+    "es": "Ahorras {{percent}}% al año",
+    "en": "Save {{percent}}% a year",
+    "pt": "Economize {{percent}}% ao ano"
+  },
+  "register.steps.plan.select_plan_best_fits_you": {
+    "es": "Selecciona el plan que mejor se adapte a ti",
+    "en": "Select the plan that best fits you",
+    "pt": "Escolha o plano que melhor se adapta a você"
+  },
+  "register.steps.plan.selected": {
+    "es": "Plan seleccionado",
+    "en": "Plan selected",
+    "pt": "Plano selecionado"
+  },
+  "register.steps.plan.title": {
+    "es": "Elige tu Plan",
+    "en": "Choose your Plan",
+    "pt": "Escolha seu Plano"
+  },
+  "register.steps.plan.total": {
+    "es": "{{count}} {{resource}} en total",
+    "en": "{{count}} {{resource}} in total",
+    "pt": "{{count}} {{resource}} no total"
+  },
+  "register.steps.plan.unlimited": {
+    "es": "{{resource}} sin límite",
+    "en": "Unlimited {{resource}}",
+    "pt": "{{resource}} sem limite"
+  },
+  "register.submit_button": {
+    "es": "Registrarse",
+    "en": "Sign Up",
+    "pt": "Cadastrar"
+  },
+  "register.taxid_format": {
+    "es": "Formato esperado: {{example}}",
+    "en": "Expected format: {{example}}",
+    "pt": "Formato esperado: {{example}}"
+  },
+  "register.terms": {
+    "es": "Términos de Servicio",
+    "en": "Terms of Service",
+    "pt": "Termos de Serviço"
+  },
+  "register.title": {
+    "es": "Crear Cuenta",
+    "en": "Create Account",
+    "pt": "Criar Conta"
+  },
+  "register.verify.email_ok": {
+    "es": "¡Correo verificado!",
+    "en": "Email verified.",
+    "pt": "E-mail verificado."
+  },
+  "register.verify.phone_ok": {
+    "es": "¡Número verificado!",
+    "en": "Number verified.",
+    "pt": "Número verificado."
+  }
+}

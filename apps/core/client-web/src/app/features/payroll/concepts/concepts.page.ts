@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Pencil, Trash2 } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
@@ -118,10 +118,10 @@ export class PayrollConceptsPage {
 
   async remove(concept: PayrollConcept): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_PAYROLL_CONCEPT.TITLE',
-      message: 'DIALOG.DELETE_PAYROLL_CONCEPT.MESSAGE',
+      title: 'dialog.delete_payroll_concept.title',
+      message: 'dialog.delete_payroll_concept.message',
       messageParams: { name: concept.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -154,7 +154,7 @@ export class PayrollConceptsPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PAYROLL.CONCEPTS.SAVE_FAILED',
+      typeof message === 'string' ? message : 'payroll.concepts.save_failed',
     );
   }
 }

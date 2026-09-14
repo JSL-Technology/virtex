@@ -3,7 +3,7 @@ import { LucideAngularModule, Check, BellOff } from 'lucide-angular';
 import { NotificationCenterService, Notification } from '../../core/services/notification-center.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 interface NotificationGroup {
   /**
@@ -41,10 +41,10 @@ export class NotificationsPage {
 
   private groupNotificationsByDate(notifications: Notification[]): NotificationGroup[] {
     const groups: Record<string, Notification[]> = {
-      'NOTIFICATIONS.TODAY': [],
-      'NOTIFICATIONS.YESTERDAY': [],
-      'NOTIFICATIONS.THIS_WEEK': [],
-      'NOTIFICATIONS.EARLIER': [],
+      'notifications.today': [],
+      'notifications.yesterday': [],
+      'notifications.this_week': [],
+      'notifications.earlier': [],
     };
 
     const today = new Date();
@@ -58,13 +58,13 @@ export class NotificationsPage {
     for (const notification of notifications) {
       const notificationDate = new Date(notification.createdAt);
       if (notificationDate.toDateString() === today.toDateString()) {
-        groups['NOTIFICATIONS.TODAY'].push(notification);
+        groups['notifications.today'].push(notification);
       } else if (notificationDate.toDateString() === yesterday.toDateString()) {
-        groups['NOTIFICATIONS.YESTERDAY'].push(notification);
+        groups['notifications.yesterday'].push(notification);
       } else if (notificationDate > oneWeekAgo) {
-        groups['NOTIFICATIONS.THIS_WEEK'].push(notification);
+        groups['notifications.this_week'].push(notification);
       } else {
-        groups['NOTIFICATIONS.EARLIER'].push(notification);
+        groups['notifications.earlier'].push(notification);
       }
     }
 

@@ -1,0 +1,67 @@
+{
+  "user.help": {
+    "es": "Ayuda",
+    "en": "Help",
+    "pt": "Ajuda"
+  },
+  "user.my_profile": {
+    "es": "Mi Perfil",
+    "en": "My Profile",
+    "pt": "Meu Perfil"
+  },
+  "user.role.accountant": {
+    "es": "Contador",
+    "en": "Accountant",
+    "pt": "Contador"
+  },
+  "user.role.administrator": {
+    "es": "Administrador",
+    "en": "Administrator",
+    "pt": "Administrador"
+  },
+  "user.role.member": {
+    "es": "Miembro",
+    "en": "Member",
+    "pt": "Membro"
+  },
+  "user.role.no_role": {
+    "es": "Sin Rol Asignado",
+    "en": "No Role Assigned",
+    "pt": "Sem Perfil Atribuído"
+  },
+  "user.role.seller": {
+    "es": "Vendedor",
+    "en": "Seller",
+    "pt": "Vendedor"
+  },
+  "user.shortcuts": {
+    "es": "Atajos de teclado",
+    "en": "Keyboard shortcuts",
+    "pt": "Atalhos do teclado"
+  },
+  "user.status.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "user.status.archived": {
+    "es": "Archivado",
+    "en": "Archiving",
+    "pt": "Arquivado"
+  },
+  "user.status.blocked": {
+    "es": "Bloqueado",
+    "en": "Blocked",
+    "pt": "Bloqueado"
+  },
+  "user.status.inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
+  },
+  "user.status.pending": {
+    "es": "Pendiente",
+    "en": "Pending",
+    "pt": "Pendente"
+  }
+}

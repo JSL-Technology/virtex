@@ -8,19 +8,19 @@
       </div>
 
       <div class="security-header__content">
-        <h3>{{ 'SETTINGS.SECURITY.2FA_TITLE' | translate }}</h3>
-        <p>{{ 'SETTINGS.SECURITY.2FA_DESCRIPTION' | translate }}</p>
+        <h3>{{ 'settings.security.2_fa_title' | translate }}</h3>
+        <p>{{ 'settings.security.2_fa_description' | translate }}</p>
 
         <div class="mt-4">
           @if (is2faEnabled()) {
             <span class="security-header__badge security-header__badge--enabled">
               <lucide-icon [img]="CheckCircleIcon" class="w-3 h-3 mr-1"></lucide-icon>
-              {{ 'SETTINGS.SECURITY.ENABLED' | translate }}
+              {{ 'settings.security.enabled' | translate }}
             </span>
           } @else {
             <span class="security-header__badge security-header__badge--disabled">
               <lucide-icon [img]="AlertTriangleIcon" class="w-3 h-3 mr-1"></lucide-icon>
-              {{ 'SETTINGS.SECURITY.DISABLED' | translate }}
+              {{ 'settings.security.disabled' | translate }}
             </span>
           }
         </div>
@@ -31,7 +31,7 @@
         [ngClass]="is2faEnabled() ? 'security-header__action--disable' : 'security-header__action--enable'"
         (click)="is2faEnabled() ? disable2fa() : start2faSetup()"
       >
-        {{ (is2faEnabled() ? 'SETTINGS.SECURITY.DISABLE' : 'SETTINGS.SECURITY.ENABLE') | translate }}
+        {{ (is2faEnabled() ? 'settings.security.turn_off' : 'settings.security.enable') | translate }}
       </button>
     </div>
   </div>
@@ -40,8 +40,8 @@
   <div class="security-card">
     <div class="sessions-list">
       <div class="sessions-list__header">
-        <h3>{{ 'SETTINGS.SECURITY.SESSIONS_TITLE' | translate }}</h3>
-        <p>{{ 'SETTINGS.SECURITY.SESSIONS_DESCRIPTION' | translate }}</p>
+        <h3>{{ 'settings.security.sessions_title' | translate }}</h3>
+        <p>{{ 'settings.security.sessions_description' | translate }}</p>
       </div>
 
       <div class="sessions-list__items">
@@ -61,7 +61,7 @@
                     {{ session.browser }} on {{ session.os }}
                     @if (session.isCurrent) {
                       <span class="sessions-list__current-badge">
-                        {{ 'SETTINGS.SECURITY.CURRENT_SESSION' | translate }}
+                        {{ 'settings.security.current_session' | translate }}
                       </span>
                     }
                   </div>
@@ -77,7 +77,7 @@
               @if (!session.isCurrent) {
                 <button
                   class="sessions-list__revoke-btn"
-                  [title]="'SETTINGS.SECURITY_SETTINGS.REVOKE_SESSION' | translate"
+                  [title]="'settings.security_settings.revoke_session' | translate"
                   (click)="revokeSession(session.id, $event)"
                 >
                   <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
@@ -110,7 +110,7 @@
     <div class="modal-content" role="dialog" aria-modal="true">
 
       <!-- Close Button -->
-      <button (click)="closeSetupModal()" class="modal-close" [attr.aria-label]="'SETTINGS.SECURITY_SETTINGS.CERRAR' | translate">
+      <button (click)="closeSetupModal()" class="modal-close" [attr.aria-label]="'settings.security_settings.close' | translate">
         <lucide-icon [img]="XIcon" size="18"></lucide-icon>
       </button>
 
@@ -129,18 +129,18 @@
       <div class="modal-header">
         <h2>
            @switch (currentStep()) {
-               @case ('INTRO') { {{ 'SETTINGS.SECURITY.TWO_STEP_VERIF' | translate }} }
-               @case ('EMAIL_VERIFY') { {{ 'SETTINGS.SECURITY.SETUP_2FA_TITLE' | translate }} }
-               @case ('QR_SETUP') { {{ 'SETTINGS.SECURITY.SETUP_AUTHENTICATOR' | translate }} }
-               @case ('BACKUP_CODES') { {{ 'SETTINGS.SECURITY.BACKUP_CODES_TITLE' | translate }} }
+               @case ('INTRO') { {{ 'settings.security.two_step_verification' | translate }} }
+               @case ('EMAIL_VERIFY') { {{ 'settings.security.setup_2_fa_title' | translate }} }
+               @case ('QR_SETUP') { {{ 'settings.security.setup_authenticator' | translate }} }
+               @case ('BACKUP_CODES') { {{ 'settings.security.backup_codes_title' | translate }} }
            }
         </h2>
         <p>
            @switch (currentStep()) {
-               @case ('INTRO') { {{ 'SETTINGS.SECURITY.VERIFY_IDENTITY_DESC' | translate }} }
-               @case ('EMAIL_VERIFY') { {{ 'SETTINGS.SECURITY.SETUP_2FA_DESC' | translate }} }
-               @case ('QR_SETUP') { {{ 'SETTINGS.SECURITY.SETUP_AUTHENTICATOR_DESC' | translate }} }
-               @case ('BACKUP_CODES') { {{ 'SETTINGS.SECURITY.BACKUP_CODES_DESC' | translate }} }
+               @case ('INTRO') { {{ 'settings.security.identity_verification' | translate }} }
+               @case ('EMAIL_VERIFY') { {{ 'settings.security.scan_code_with_your_authenticator_app' | translate }} }
+               @case ('QR_SETUP') { {{ 'settings.security.scan_qr_code_enter_secret_key' | translate }} }
+               @case ('BACKUP_CODES') { {{ 'settings.security.use_if_you_lose_access_your' | translate }} }
            }
         </p>
       </div>
@@ -154,14 +154,14 @@
               <lucide-icon [img]="ShieldIcon" size="32"></lucide-icon>
             </div>
             <p class="step-intro__desc">
-              {{ 'SETTINGS.SECURITY.BEFORE_CONFIG_2FA' | translate }}
+              {{ 'settings.security.your_security_we_need_confirm_you' | translate }}
             </p>
             <div class="step-intro__actions">
               <button class="btn-secondary" (click)="closeSetupModal()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'common.cancel' | translate }}
               </button>
               <button class="btn-primary" (click)="proceedToEmailVerification()">
-                {{ 'COMMON.CONTINUE' | translate }}
+                {{ 'common.continue' | translate }}
               </button>
             </div>
           </div>
@@ -170,8 +170,8 @@
         <!-- STEP 1: EMAIL VERIFY -->
         @if (currentStep() === 'EMAIL_VERIFY') {
            <app-otp
-               [title]="'SETTINGS.SECURITY.CHECK_EMAIL' | translate"
-               [description]="('SETTINGS.SECURITY.EMAIL_SENT_TO' | translate: { email: currentUser()?.email })"
+               [title]="'settings.security.check_email' | translate"
+               [description]="('settings.security.email_sent_to' | translate: { email: currentUser()?.email })"
                [mode]="'email'"
                (verify)="verifyEmailCode($event)"
                (resend)="sendEmailVerification()">
@@ -187,14 +187,14 @@
 
                 <div class="step-qr__secret-card">
                     <div class="step-qr__secret-text">
-                        <p class="step-qr__secret-label">{{ 'SETTINGS.SECURITY.CANT_SCAN' | translate }}</p>
-                        <p class="step-qr__secret-hint">{{ 'SETTINGS.SECURITY.ENTER_SECRET' | translate }}</p>
+                        <p class="step-qr__secret-label">{{ 'settings.security.can_scan_qr_code' | translate }}</p>
+                        <p class="step-qr__secret-hint">{{ 'settings.security.enter_secret' | translate }}</p>
                     </div>
                     <div class="step-qr__secret-value">
                         <code class="step-qr__secret-code">{{ twoFactorSecret() }}</code>
                         <button class="step-qr__copy-btn"
                                 (click)="copySecret()"
-                                [title]="'SETTINGS.SECURITY.COPY_CODE' | translate">
+                                [title]="'settings.security.copy_code' | translate">
                             <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
                         </button>
                     </div>
@@ -209,8 +209,8 @@
                       valor ni siquiera se enviaba.
                     -->
                     <app-otp
-                        [title]="'SETTINGS.SECURITY.ENTER_VERIFICATION_CODE' | translate"
-                        [description]="'SETTINGS.SECURITY.ENTER_6_DIGIT' | translate"
+                        [title]="'settings.security.enter_verification_code' | translate"
+                        [description]="'settings.security.enter_6_digit' | translate"
                         [mode]="'app'"
                         (verify)="verifyAndEnable2fa($event)">
                     </app-otp>
@@ -224,8 +224,8 @@
                 <div class="warning-box">
                     <lucide-icon [img]="AlertTriangleIcon" size="18"></lucide-icon>
                     <div class="warning-box__content">
-                        <p class="warning-box__title">{{ 'SETTINGS.SECURITY.SAVE_BACKUP_CODES' | translate }}</p>
-                        <p class="warning-box__body">{{ 'SETTINGS.SECURITY.BACKUP_CODES_WARNING' | translate }}</p>
+                        <p class="warning-box__title">{{ 'settings.security.save_backup_codes' | translate }}</p>
+                        <p class="warning-box__body">{{ 'settings.security.backup_codes_warning' | translate }}</p>
                     </div>
                 </div>
 
@@ -238,18 +238,18 @@
                 <div class="step-backup__actions">
                     <button class="btn-secondary" (click)="copyBackupCodes()">
                         <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
-                        {{ 'COMMON.COPY' | translate }}
+                        {{ 'common.copy' | translate }}
                     </button>
                     <button class="btn-secondary" (click)="downloadBackupCodes()">
                         <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
-                        {{ 'COMMON.DOWNLOAD' | translate }}
+                        {{ 'common.download' | translate }}
                     </button>
                 </div>
 
                 <label class="checkbox-row" for="field-2">
                     <input id="field-2" type="checkbox" [(ngModel)]="hasSavedBackupCodes" class="checkbox-input">
                     <span class="checkbox-mark"></span>
-                    <span class="checkbox-label">{{ 'SETTINGS.SECURITY.I_HAVE_SAVED_CODES' | translate }}</span>
+                    <span class="checkbox-label">{{ 'settings.security.i_have_saved_codes' | translate }}</span>
                 </label>
 
                 <div class="step-backup__footer">
@@ -257,7 +257,7 @@
                         class="btn-primary btn-full"
                         [disabled]="!hasSavedBackupCodes()"
                         (click)="completeSetup()">
-                        {{ 'COMMON.DONE' | translate }}
+                        {{ 'common.done' | translate }}
                     </button>
                 </div>
             </div>
@@ -270,10 +270,10 @@
 
 <app-confirmation-modal
   [isOpen]="showDisableConfirmation()"
-  title="SETTINGS.SECURITY.DISABLE_2FA_TITLE"
-  message="SETTINGS.SECURITY.DISABLE_2FA_MESSAGE"
-  confirmText="SETTINGS.SECURITY.DISABLE"
-  cancelText="COMMON.CANCEL"
+  [title]="'settings.security.turn_off_fa' | translate"
+  message="settings.security.your_account_will_less_secure_you"
+  confirmText="settings.security.turn_off"
+  cancelText="common.cancel"
   variant="danger"
   (confirmed)="onDisableConfirmed()"
   (cancelled)="showDisableConfirmation.set(false)"

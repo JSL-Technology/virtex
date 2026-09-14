@@ -1,0 +1,22 @@
+{
+  "status_bar.offline": {
+    "es": "Sin conexión",
+    "en": "Offline",
+    "pt": "Sem ligação"
+  },
+  "status_bar.online": {
+    "es": "Conectado",
+    "en": "Connected",
+    "pt": "Ligado"
+  },
+  "status_bar.period_closed": {
+    "es": "Periodo {{period}} cerrado",
+    "en": "Period {{period}} closed",
+    "pt": "Período {{period}} fechado"
+  },
+  "status_bar.period_open": {
+    "es": "Periodo {{period}} abierto",
+    "en": "Period {{period}} open",
+    "pt": "Período {{period}} aberto"
+  }
+}

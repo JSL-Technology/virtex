@@ -1,0 +1,282 @@
+{
+  "dialog.approve_payroll_run.message": {
+    "es": "Aprobar contabiliza el asiento y cierra la nómina a cambios. Un error posterior solo se corrige con una nómina de ajuste. ¿Continuar?",
+    "en": "Approving posts the accounting entry and closes the run to edits. A mistake found afterwards can only be fixed by an adjustment run. Continue?",
+    "pt": "Aprovar contabiliza o lançamento e fecha a folha a alterações. Um erro posterior só se corrige com uma folha de ajuste. Continuar?"
+  },
+  "dialog.approve_payroll_run.title": {
+    "es": "Aprobar la nómina",
+    "en": "Approve the payroll run",
+    "pt": "Aprovar a folha"
+  },
+  "dialog.block_user.message": {
+    "es": "Esto bloqueará a {{name}} y cerrará todas sus sesiones. ¿Quieres continuar?",
+    "en": "This will block {{name}} and end all their sessions. Continue?",
+    "pt": "Isto bloqueará {{name}} e encerrará todas as suas sessões. Deseja continuar?"
+  },
+  "dialog.block_user.title": {
+    "es": "Bloquear al usuario",
+    "en": "Block the user",
+    "pt": "Bloquear o usuário"
+  },
+  "dialog.cancel_payroll_run.message": {
+    "es": "¿Anular esta nómina? No podrás reabrirla.",
+    "en": "Cancel this run? It cannot be reopened.",
+    "pt": "Anular esta folha? Não poderá ser reaberta."
+  },
+  "dialog.cancel_payroll_run.title": {
+    "es": "Anular la nómina",
+    "en": "Cancel the payroll run",
+    "pt": "Anular a folha"
+  },
+  "dialog.delete_account.message": {
+    "es": "¿Seguro que quieres eliminar la cuenta «{{name}}»? No se puede deshacer.",
+    "en": "Delete the account \"{{name}}\"? This cannot be undone.",
+    "pt": "Excluir a conta \"{{name}}\"? Não é possível desfazer."
+  },
+  "dialog.delete_account.title": {
+    "es": "Eliminar cuenta",
+    "en": "Delete account",
+    "pt": "Excluir conta"
+  },
+  "dialog.delete_customer.message": {
+    "es": "¿Seguro que quieres eliminar este cliente? No se puede deshacer.",
+    "en": "Delete this customer? This cannot be undone.",
+    "pt": "Excluir este cliente? Não é possível desfazer."
+  },
+  "dialog.delete_customer.title": {
+    "es": "Eliminar cliente",
+    "en": "Delete customer",
+    "pt": "Excluir cliente"
+  },
+  "dialog.delete_department.message": {
+    "es": "¿Eliminar el departamento «{{name}}»?",
+    "en": "Delete the department “{{name}}”?",
+    "pt": "Eliminar o departamento «{{name}}»?"
+  },
+  "dialog.delete_department.title": {
+    "es": "Eliminar departamento",
+    "en": "Delete department",
+    "pt": "Eliminar departamento"
+  },
+  "dialog.delete_document.message": {
+    "es": "¿Borrar «{{name}}»? No se puede deshacer.",
+    "en": "Delete “{{name}}”? This cannot be undone.",
+    "pt": "Eliminar «{{name}}»? Não pode ser desfeito."
+  },
+  "dialog.delete_document.title": {
+    "es": "Eliminar archivo",
+    "en": "Delete file",
+    "pt": "Eliminar ficheiro"
+  },
+  "dialog.delete_folder.message": {
+    "es": "¿Borrar «{{name}}» y todo lo que contiene? No se puede deshacer.",
+    "en": "Delete “{{name}}” and everything in it? This cannot be undone.",
+    "pt": "Eliminar «{{name}}» e tudo o que contém? Não pode ser desfeito."
+  },
+  "dialog.delete_folder.title": {
+    "es": "Eliminar carpeta",
+    "en": "Delete folder",
+    "pt": "Eliminar pasta"
+  },
+  "dialog.delete_invoice_draft.message": {
+    "es": "¿Seguro que quieres eliminar el borrador {{number}}? No se puede deshacer.",
+    "en": "Delete draft {{number}}? This cannot be undone.",
+    "pt": "Excluir o rascunho {{number}}? Não é possível desfazer."
+  },
+  "dialog.delete_invoice_draft.title": {
+    "es": "Eliminar borrador",
+    "en": "Delete draft",
+    "pt": "Excluir rascunho"
+  },
+  "dialog.delete_payroll_concept.message": {
+    "es": "¿Eliminar el concepto «{{name}}»?",
+    "en": "Delete the concept “{{name}}”?",
+    "pt": "Eliminar o conceito «{{name}}»?"
+  },
+  "dialog.delete_payroll_concept.title": {
+    "es": "Eliminar concepto",
+    "en": "Delete concept",
+    "pt": "Eliminar conceito"
+  },
+  "dialog.delete_price_list.message": {
+    "es": "¿Seguro que quieres eliminar esta lista de precios? No se puede deshacer.",
+    "en": "Delete this price list? This cannot be undone.",
+    "pt": "Excluir esta tabela de preços? Não é possível desfazer."
+  },
+  "dialog.delete_price_list.title": {
+    "es": "Eliminar lista de precios",
+    "en": "Delete price list",
+    "pt": "Excluir tabela de preços"
+  },
+  "dialog.delete_product.message": {
+    "es": "¿Seguro que quieres eliminar el producto «{{name}}»? No se puede deshacer.",
+    "en": "Delete the product \"{{name}}\"? This cannot be undone.",
+    "pt": "Excluir o produto \"{{name}}\"? Não é possível desfazer."
+  },
+  "dialog.delete_product.title": {
+    "es": "Eliminar producto",
+    "en": "Delete product",
+    "pt": "Excluir produto"
+  },
+  "dialog.delete_product_category.message": {
+    "es": "¿Eliminar la categoría «{{name}}»? Solo es posible si no tiene subcategorías ni productos.",
+    "en": "Delete the category “{{name}}”? Only possible if it has no subcategories and no products.",
+    "pt": "Eliminar a categoria «{{name}}»? Só é possível se não tiver subcategorias nem produtos."
+  },
+  "dialog.delete_product_category.title": {
+    "es": "Eliminar categoría",
+    "en": "Delete category",
+    "pt": "Eliminar categoria"
+  },
+  "dialog.delete_role.message": {
+    "es": "¿Seguro que quieres eliminar el rol «{{name}}»? No se puede deshacer.",
+    "en": "Delete the role \"{{name}}\"? This cannot be undone.",
+    "pt": "Excluir o perfil \"{{name}}\"? Não é possível desfazer."
+  },
+  "dialog.delete_role.title": {
+    "es": "Eliminar rol",
+    "en": "Delete role",
+    "pt": "Excluir perfil"
+  },
+  "dialog.delete_supplier.message": {
+    "es": "¿Seguro que quieres eliminar este proveedor? No se puede deshacer.",
+    "en": "Delete this supplier? This cannot be undone.",
+    "pt": "Excluir este fornecedor? Não é possível desfazer."
+  },
+  "dialog.delete_supplier.title": {
+    "es": "Eliminar proveedor",
+    "en": "Delete supplier",
+    "pt": "Excluir fornecedor"
+  },
+  "dialog.delete_tax.message": {
+    "es": "¿Seguro que quieres eliminar el impuesto «{{name}}»? No se puede deshacer.",
+    "en": "Delete the tax \"{{name}}\"? This cannot be undone.",
+    "pt": "Excluir o imposto \"{{name}}\"? Não é possível desfazer."
+  },
+  "dialog.delete_tax.title": {
+    "es": "Eliminar impuesto",
+    "en": "Delete tax",
+    "pt": "Excluir imposto"
+  },
+  "dialog.impersonate_user.message": {
+    "es": "Vas a usar el sistema como {{name}}. Todo lo que hagas quedará registrado. ¿Quieres continuar?",
+    "en": "You will use the system as {{name}}. Everything you do is recorded. Continue?",
+    "pt": "Você usará o sistema como {{name}}. Tudo o que fizer será registrado. Deseja continuar?"
+  },
+  "dialog.impersonate_user.title": {
+    "es": "Suplantar al usuario",
+    "en": "Impersonate the user",
+    "pt": "Personificar o usuário"
+  },
+  "dialog.notify.payment_start_failed": {
+    "es": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "en": "The payment could not be started. Please try again.",
+    "pt": "Não foi possível iniciar o pagamento. Tente novamente."
+  },
+  "dialog.notify.plan_price_missing": {
+    "es": "El precio del plan {{plan}} no está configurado en el sistema.",
+    "en": "The price for the {{plan}} plan is not configured.",
+    "pt": "O preço do plano {{plan}} não está configurado no sistema."
+  },
+  "dialog.notify.pricing_not_loaded": {
+    "es": "No se pudo cargar la configuración de precios. Inténtalo de nuevo más tarde.",
+    "en": "The pricing configuration could not be loaded. Please try again later.",
+    "pt": "Não foi possível carregar a configuração de preços. Tente novamente mais tarde."
+  },
+  "dialog.notify.value_comes_from_erp_cannot_edited": {
+    "es": "Este valor viene del ERP y no puede editarse aquí.",
+    "en": "This value comes from the ERP and cannot be edited here.",
+    "pt": "Este valor vem do ERP e não pode ser editado aqui."
+  },
+  "dialog.notify.workbook_saved": {
+    "es": "Libro guardado correctamente.",
+    "en": "Workbook saved.",
+    "pt": "Pasta de trabalho salva."
+  },
+  "dialog.reopen_period.reason_reopening": {
+    "es": "Motivo de la reapertura",
+    "en": "Reason for reopening",
+    "pt": "Motivo da reabertura"
+  },
+  "dialog.reopen_period.title": {
+    "es": "Reabrir el periodo",
+    "en": "Reopen the period",
+    "pt": "Reabrir o período"
+  },
+  "dialog.reset_password.message": {
+    "es": "¿Enviar a {{name}} un correo para restablecer su contraseña?",
+    "en": "Send {{name}} an e-mail to reset their password?",
+    "pt": "Enviar a {{name}} um e-mail para redefinir a senha?"
+  },
+  "dialog.reset_password.title": {
+    "es": "Restablecer la contraseña",
+    "en": "Reset the password",
+    "pt": "Redefinir a senha"
+  },
+  "dialog.reset_segments.message": {
+    "es": "Esto reemplazará la configuración actual que no hayas guardado. ¿Quieres continuar?",
+    "en": "This will replace the current unsaved configuration. Continue?",
+    "pt": "Isto substituirá a configuração atual não salva. Deseja continuar?"
+  },
+  "dialog.reset_segments.title": {
+    "es": "Restablecer la estructura",
+    "en": "Reset the structure",
+    "pt": "Redefinir a estrutura"
+  },
+  "dialog.revoke_session.message": {
+    "es": "¿Seguro que quieres cerrar la sesión de {{name}}?",
+    "en": "Sign {{name}} out of all their sessions?",
+    "pt": "Encerrar todas as sessões de {{name}}?"
+  },
+  "dialog.revoke_session.title": {
+    "es": "Cerrar la sesión",
+    "en": "Sign the user out",
+    "pt": "Encerrar a sessão"
+  },
+  "dialog.submit_bill.message": {
+    "es": "La factura pasará a aprobación y, si no hay política que la retenga, se contabilizará de inmediato.",
+    "en": "The bill goes to approval and, if no policy holds it, is posted immediately.",
+    "pt": "A fatura passa a aprovação e, se nenhuma política a retiver, é lançada de imediato."
+  },
+  "dialog.submit_bill.title": {
+    "es": "Enviar a aprobación",
+    "en": "Submit for approval",
+    "pt": "Enviar para aprovação"
+  },
+  "dialog.unsaved_changes.message": {
+    "es": "Tienes cambios sin guardar. ¿Qué quieres hacer antes de cerrar?",
+    "en": "You have unsaved changes. What would you like to do before closing?",
+    "pt": "Você tem alterações não salvas. O que deseja fazer antes de fechar?"
+  },
+  "dialog.unsaved_changes.message_in_tab": {
+    "es": "Tienes cambios sin guardar en «{{tab}}». ¿Qué quieres hacer?",
+    "en": "You have unsaved changes in \"{{tab}}\". What would you like to do?",
+    "pt": "Você tem alterações não salvas em \"{{tab}}\". O que deseja fazer?"
+  },
+  "dialog.unsaved_changes.title": {
+    "es": "Cambios sin guardar",
+    "en": "Unsaved changes",
+    "pt": "Alterações não salvas"
+  },
+  "dialog.void_bill.message": {
+    "es": "Indica el motivo de la anulación. Queda registrado y es visible en la auditoría.",
+    "en": "Give the reason for voiding it. It is recorded and visible in the audit trail.",
+    "pt": "Informe o motivo do cancelamento. Ele fica registrado e visível na auditoria."
+  },
+  "dialog.void_bill.reason_voiding": {
+    "es": "Motivo de la anulación",
+    "en": "Reason for voiding",
+    "pt": "Motivo do cancelamento"
+  },
+  "dialog.void_bill.title": {
+    "es": "Anular la factura",
+    "en": "Void the bill",
+    "pt": "Cancelar a fatura"
+  },
+  "dialog.void_bill.too_short": {
+    "es": "Explica el motivo con al menos 10 caracteres.",
+    "en": "Give a reason of at least 10 characters.",
+    "pt": "Informe um motivo com pelo menos 10 caracteres."
+  }
+}

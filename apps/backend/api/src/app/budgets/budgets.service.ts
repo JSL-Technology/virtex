@@ -54,7 +54,7 @@ export class BudgetsService {
         relations: ['lines', 'lines.account'],
     });
     if (!budget) {
-      throw new NotFoundError('BUDGETS.PRESUPUESTO_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('budgets.budget_id_not_found', { id });
     }
     return budget;
   }
@@ -82,7 +82,7 @@ export class BudgetsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.budgetRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-        throw new NotFoundError('BUDGETS.PRESUPUESTO_ID_NO_ENCONTRADO', { id });
+        throw new NotFoundError('budgets.budget_id_not_found', { id });
     }
   }
 
@@ -120,7 +120,7 @@ export class BudgetsService {
       : endOfMonthIso(`${budget.period}-01`);
 
     if (startDate > endDate) {
-      throw new BadRequestError('BUDGETS.RANGO_FECHAS_INVALIDO', { startDate, endDate });
+      throw new BadRequestError('budgets.invalid_date_range_start_date_later', { startDate, endDate });
     }
 
     const ledger = range?.ledgerId

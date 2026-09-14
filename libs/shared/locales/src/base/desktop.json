@@ -1,0 +1,15 @@
+{
+  "desktop.menu.go": {
+    "es": "Ir",
+    "en": "Go",
+    "pt": "Ir"
+  },
+  "desktop.menu.point_of_sale": {
+    "es": "Punto de venta",
+    "en": "Point of sale",
+    "pt": "Ponto de venda"
+  },
+  "desktop.menu.portal": {
+    "literal": "Portal"
+  }
+}

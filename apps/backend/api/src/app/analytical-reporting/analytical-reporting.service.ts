@@ -76,11 +76,11 @@ export class AnalyticalReportingService {
 
       await queryRunner.commitTransaction();
       this.logger.log(`Vista materializada "${viewName}" sincronizada exitosamente.`);
-      return { messageKey: 'ANALYTICAL_REPORTING.VISTA_MATERIALIZADA_SINCRONIZADA_RECREADA_CON_DIMENSIONES_ACTUALES' };
+      return { messageKey: 'analytical_reporting.materialized_view_has_synchronized_rebuilt_with' };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error('Fallo la sincronización de la vista materializada.', (error as Error).stack);
-      throw new BadRequestError('ANALYTICAL_REPORTING.NO_PUDO_SINCRONIZAR_VISTA_ANALITICA', { p1: (error as Error).message });
+      throw new BadRequestError('analytical_reporting.analytical_view_could_not_synchronized_p1', { p1: (error as Error).message });
     } finally {
       await queryRunner.release();
     }
@@ -119,11 +119,11 @@ export class AnalyticalReportingService {
           qb.andWhere(`${sanitizedField} != :${paramName}`, { [paramName]: filter.value });
           break;
         case 'in':
-          if (!Array.isArray(filter.value)) throw new BadRequestError('ANALYTICAL_REPORTING.VALOR_OPERADOR_IN_DEBE_SER_ARRAY');
+          if (!Array.isArray(filter.value)) throw new BadRequestError('analytical_reporting.value_operator_must_array');
           qb.andWhere(`${sanitizedField} IN (:...${paramName})`, { [paramName]: filter.value });
           break;
         default:
-          throw new BadRequestError('ANALYTICAL_REPORTING.OPERADOR_FILTRO_NO_SOPORTADO', { operator: filter.operator });
+          throw new BadRequestError('analytical_reporting.unsupported_filter_operator_operator', { operator: filter.operator });
       }
     });
 
@@ -175,7 +175,7 @@ export class AnalyticalReportingService {
 
   private sanitizeColumnName(name: string): string {
     if (!/^[a-zA-Z0-9_ ]+$/.test(name)) {
-      throw new BadRequestError('ANALYTICAL_REPORTING.NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS', { name });
+      throw new BadRequestError('analytical_reporting.dimension_field_name_contains_invalid_characters', { name });
     }
     return name.replace(/ /g, '_').toLowerCase();
   }

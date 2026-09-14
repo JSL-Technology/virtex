@@ -208,10 +208,10 @@ export class SriBuilder {
 
   private assertIssuable(input: SriBuildInput): void {
     if (!(input.organization.taxId ?? '').replace(/\D/g, '')) {
-      throw new BadRequestError('EINVOICING.SRI_EMISOR_SIN_RUC');
+      throw new BadRequestError('einvoicing.ec.organization_has_no_ruc_sri_does');
     }
     if (!input.establishment?.trim() || !input.emissionPoint?.trim()) {
-      throw new BadRequestError('EINVOICING.SRI_SIN_ESTABLECIMIENTO');
+      throw new BadRequestError('einvoicing.ec.sri_establishment_point_issue_missing');
     }
   }
 }

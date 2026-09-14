@@ -53,9 +53,9 @@ describe('NewInvoicePage', () => {
     // the Spanish labels up in a hardcoded record of the twelve Dominican comprobantes — which is
     // why no other market could present a document type even once its adapter existed.
     fiscalDocumentTypes: [
-      { code: 'E31', labelKey: 'FISCAL.DO.E31', requiresBuyerTaxId: true },
-      { code: 'E32', labelKey: 'FISCAL.DO.E32', requiresBuyerTaxId: false },
-      { code: 'E46', labelKey: 'FISCAL.DO.E46', requiresBuyerTaxId: false },
+      { code: 'E31', labelKey: 'fiscal.do.e31', requiresBuyerTaxId: true },
+      { code: 'E32', labelKey: 'fiscal.do.e32', requiresBuyerTaxId: false },
+      { code: 'E46', labelKey: 'fiscal.do.e46', requiresBuyerTaxId: false },
     ],
     serviceChargeRate: 0.1,
     defaultPaymentTermDays: 0,
@@ -176,9 +176,9 @@ describe('NewInvoicePage', () => {
     // The label travels as a translation key, so a Chilean or Brazilian type is presentable
     // without the client carrying any market's vocabulary of its own.
     expect(component.fiscalTypes().map((t) => t.labelKey)).toEqual([
-      'FISCAL.DO.E31',
-      'FISCAL.DO.E32',
-      'FISCAL.DO.E46',
+      'fiscal.do.e31',
+      'fiscal.do.e32',
+      'fiscal.do.e46',
     ]);
   });
 
@@ -188,8 +188,8 @@ describe('NewInvoicePage', () => {
         countryCode: 'CL',
         baseCurrency: 'CLP',
         fiscalDocumentTypes: [
-          { code: '33', labelKey: 'FISCAL.CL.33', requiresBuyerTaxId: true },
-          { code: '34', labelKey: 'FISCAL.CL.34', requiresBuyerTaxId: true },
+          { code: '33', labelKey: 'fiscal.cl.33', requiresBuyerTaxId: true },
+          { code: '34', labelKey: 'fiscal.cl.34', requiresBuyerTaxId: true },
         ],
       }),
     );
@@ -282,7 +282,7 @@ describe('NewInvoicePage', () => {
     // El motivo va al resumen del armazón y no a un aviso que se desvanece: es una precondición
     // que hay que corregir, y un mensaje que desaparece solo obliga a adivinar qué decía.
     expect(invoicesService.createInvoice).not.toHaveBeenCalled();
-    expect(component.problems()).toEqual([{ message: 'INVOICES.NEW.STOCK_INSUFICIENTE' }]);
+    expect(component.problems()).toEqual([{ message: 'invoices.new.insufficient_stock' }]);
   });
 
   it('saves a draft without issuing', () => {

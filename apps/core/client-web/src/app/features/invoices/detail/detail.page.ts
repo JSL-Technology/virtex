@@ -19,7 +19,7 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { QRCodeComponent } from 'angularx-qrcode';
 import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
@@ -100,13 +100,13 @@ export class InvoiceDetailPage implements OnInit {
   documentTitle(invoice: Invoice): string {
     const key =
       invoice.type === 'CREDIT_NOTE'
-        ? 'INVOICES.DETAIL.TITULO_NOTA_CREDITO'
-        : 'INVOICES.DETAIL.TITULO_FACTURA';
+        ? 'invoices.detail.credit_note'
+        : 'invoices.detail.sales_invoice';
     return `${this.translate.instant(key)} #${invoice.invoiceNumber}`;
   }
 
   paymentMethodKey(method: PaymentMethod | null | undefined): string {
-    return method ? `INVOICES.PAYMENT_METHOD.${method}` : 'COMMON.NOT_RECORDED';
+    return method ? `invoices.payment_method.${method}` : 'common.not_recorded';
   }
 
   /**
@@ -180,7 +180,7 @@ export class InvoiceDetailPage implements OnInit {
             }
         },
         error: (err) => {
-            this.notificationService.showError('INVOICES.DETAIL.PUDO_CARGAR_FACTURA');
+            this.notificationService.showError('invoices.detail.invoice_could_not_loaded');
             console.error(err);
         }
     });
@@ -201,11 +201,11 @@ export class InvoiceDetailPage implements OnInit {
         next: (status) => {
             this.ecf.set(status);
             this.ecfBusy.set(false);
-            this.notificationService.showSuccess('INVOICES.DETAIL.CF_REENVIADO_DGII');
+            this.notificationService.showSuccess('invoices.detail.cf_resubmitted_dgii');
         },
         error: (err) => {
             this.ecfBusy.set(false);
-            this.notificationService.showError(err?.error?.message || 'ERRORS.RESEND_ECF');
+            this.notificationService.showError(err?.error?.message || 'errors.resend_ecf');
         }
     });
   }
@@ -220,7 +220,7 @@ export class InvoiceDetailPage implements OnInit {
             a.click();
             URL.revokeObjectURL(url);
         },
-        error: () => this.notificationService.showError('INVOICES.DETAIL.HAY_XML_FIRMADO_DISPONIBLE'),
+        error: () => this.notificationService.showError('invoices.detail.no_signed_xml_available'),
     });
   }
 
@@ -279,7 +279,7 @@ export class InvoiceDetailPage implements OnInit {
     } else if (format === 'word') {
         this.downloadWord();
     } else {
-        this.notificationService.showInfo('INVOICES.DETAIL.EXPORTACION_ESTARA_DISPONIBLE_PROXIMAMENTE', { toUpperCase: format.toUpperCase() });
+        this.notificationService.showInfo('invoices.detail.export_upper_case_will_available_soon', { toUpperCase: format.toUpperCase() });
     }
   }
 
@@ -296,7 +296,7 @@ export class InvoiceDetailPage implements OnInit {
         document.body.removeChild(a);
       },
       error: () => {
-        this.notificationService.showError('INVOICES.DETAIL.PUDO_DESCARGAR_PDF_FACTURA');
+        this.notificationService.showError('invoices.detail.invoice_pdf_could_not_downloaded');
       }
     });
   }
@@ -326,16 +326,16 @@ export class InvoiceDetailPage implements OnInit {
         `;
         const blob = await asBlob(html);
         saveAs(blob as Blob, `factura-${this.invoice()?.invoiceNumber}.docx`);
-        this.notificationService.showSuccess('INVOICES.DETAIL.DOCUMENTO_WORD_GENERADO_EXITO');
+        this.notificationService.showSuccess('invoices.detail.word_document_generated');
     }
   }
 
   handleCopyFrom(): void {
-    this.notificationService.showInfo('INVOICES.DETAIL.FUNCION_COPIAR_ABIERTA_SELECCIONE_DOCUMENTO_BASE');
+    this.notificationService.showInfo('invoices.detail.copy_from_open_choose_source_document');
   }
 
   handleCopyTo(): void {
-    this.notificationService.showInfo('INVOICES.DETAIL.COPIANDO_DOCUMENTO_ACTUAL_NUEVO_BORRADOR');
+    this.notificationService.showInfo('invoices.detail.copying_current_document_into_new_draft');
     // Lógica para navegar a /new con el ID actual como base
     this.router.navigate(['/invoices/new'], { queryParams: { copyFrom: this.id() } });
   }
@@ -367,7 +367,7 @@ export class InvoiceDetailPage implements OnInit {
       },
       error: (err) => {
         this.previewBusy.set(false);
-        this.notificationService.showError(err?.error?.message || 'ERRORS.ISSUE_DOCUMENT');
+        this.notificationService.showError(err?.error?.message || 'errors.issue_document');
       },
     });
   }
@@ -404,7 +404,7 @@ export class InvoiceDetailPage implements OnInit {
       },
       error: (err) => {
         this.ecfBusy.set(false);
-        this.notificationService.showError(err?.error?.message || 'ERRORS.ISSUE_DOCUMENT');
+        this.notificationService.showError(err?.error?.message || 'errors.issue_document');
       },
     });
   }
@@ -414,21 +414,21 @@ export class InvoiceDetailPage implements OnInit {
     const invoice = this.invoice();
     if (!invoice) return;
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_INVOICE_DRAFT.TITLE',
-      message: 'DIALOG.DELETE_INVOICE_DRAFT.MESSAGE',
+      title: 'dialog.delete_invoice_draft.title',
+      message: 'dialog.delete_invoice_draft.message',
       messageParams: { number: invoice.invoiceNumber },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
 
     this.invoicesService.discardDraft(invoice.id).subscribe({
       next: () => {
-        this.notificationService.showSuccess('INVOICES.DETAIL.BORRADOR_ELIMINADO');
+        this.notificationService.showSuccess('invoices.detail.draft_deleted');
         this.router.navigate(['/invoices']);
       },
       error: (err) =>
-        this.notificationService.showError(err?.error?.message || 'ERRORS.DELETE_DRAFT'),
+        this.notificationService.showError(err?.error?.message || 'errors.delete_draft'),
     });
   }
 
@@ -447,7 +447,7 @@ export class InvoiceDetailPage implements OnInit {
         },
         error: (err) =>
           this.notificationService.showError(
-            err?.error?.message || this.translate.instant('ERRORS.ISSUE_CREDIT_NOTE'),
+            err?.error?.message || this.translate.instant('errors.issue_credit_note'),
           ),
       });
   }

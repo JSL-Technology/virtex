@@ -1,19 +1,19 @@
 <vx-list-shell
-  titleKey="DOCUMENTS.TEMPLATES.TITLE"
+  titleKey="documents.templates.title"
   [count]="templates().length"
   [empty]="isEmpty()"
 >
   <label listActions class="primary-button upload-label">
     <lucide-icon [img]="UploadIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'DOCUMENTS.TEMPLATES.UPLOAD' | translate }}</span>
+    <span>{{ 'documents.templates.upload' | translate }}</span>
     <input type="file" class="sr-only" [disabled]="busy()" (change)="onFileChosen($event)" />
   </label>
 
   <label listFilters class="inline-field">
-    <span>{{ 'DOCUMENTS.TEMPLATES.UPLOAD_AS' | translate }}</span>
+    <span>{{ 'documents.templates.upload_as' | translate }}</span>
     <select [value]="uploadType()" (change)="uploadType.set($any($event.target).value)">
       @for (type of types; track type) {
-        <option [value]="type">{{ 'DOCUMENTS.TEMPLATES.TYPE.' + type | translate }}</option>
+        <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
       }
     </select>
   </label>
@@ -22,19 +22,19 @@
     Said plainly rather than implied. The product has no template *engine*, and the screen this
     replaced implied one by listing three templates nobody could open.
   -->
-  <p class="section-note">{{ 'DOCUMENTS.TEMPLATES.EXPLANATION' | translate }}</p>
+  <p class="section-note">{{ 'documents.templates.template_model_file_you_keep_here' | translate }}</p>
 
   @if (failed()) {
-    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+    <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'DOCUMENTS.TEMPLATES.NAME' | translate }}</th>
-          <th>{{ 'DOCUMENTS.TEMPLATES.TYPE_COLUMN' | translate }}</th>
-          <th>{{ 'DOCUMENTS.TEMPLATES.LAST_MODIFIED' | translate }}</th>
-          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th>{{ 'documents.templates.name' | translate }}</th>
+          <th>{{ 'documents.templates.type_column' | translate }}</th>
+          <th>{{ 'documents.templates.last_modified' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -50,18 +50,18 @@
               <select [value]="template.templateType" [disabled]="busy()"
                 (change)="retag(template, $any($event.target).value)">
                 @for (type of types; track type) {
-                  <option [value]="type">{{ 'DOCUMENTS.TEMPLATES.TYPE.' + type | translate }}</option>
+                  <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
                 }
               </select>
             </td>
             <td>{{ template.updatedAt | vxDate: 'dateTime' }}</td>
             <td class="text-right row-actions">
               <button type="button" class="icon-button" (click)="download(template)"
-                [attr.aria-label]="'DOCUMENTS.REPOSITORY.DOWNLOAD' | translate">
+                [attr.aria-label]="'documents.repository.download' | translate">
                 <lucide-icon [img]="DownloadIcon" size="15"></lucide-icon>
               </button>
               <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(template)"
-                [attr.aria-label]="'COMMON.DELETE' | translate">
+                [attr.aria-label]="'common.delete' | translate">
                 <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
               </button>
             </td>

@@ -81,19 +81,19 @@ export class ReportsService {
     if (ledgerId) {
       targetLedger = await ledgerRepo.findOneBy({ id: ledgerId, organizationId });
       if (!targetLedger) {
-        throw new NotFoundError('REPORTS.LIBRO_CONTABLE_ID_NO_ENCONTRADO', { ledgerId });
+        throw new NotFoundError('reports.ledger_ledger_id_not_found', { ledgerId });
       }
     } else {
       targetLedger = await ledgerRepo.findOneBy({ organizationId, isDefault: true });
     }
 
     if (!targetLedger) {
-        throw new BadRequestError('REPORTS.NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO');
+        throw new BadRequestError('reports.ledger_report_could_not_determined_none');
     }
 
     const settings = await this.dataSource.getRepository(OrganizationSettings).findOneBy({ organizationId });
     if (!settings || !settings.defaultAccountsReceivableId) {
-        throw new BadRequestError('REPORTS.CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA');
+        throw new BadRequestError('reports.default_accounts_receivable_account_not_configured');
     }
     const arAccountId = settings.defaultAccountsReceivableId;
 
@@ -106,7 +106,7 @@ export class ReportsService {
     });
 
     if (openInvoices.length === 0) {
-        return { messageKey: 'REPORTS.NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE' };
+        return { messageKey: 'reports.no_outstanding_invoices_build_report_from' };
     }
 
     const paymentLines = await this.dataSource.getRepository(CustomerPaymentLine)
@@ -184,10 +184,10 @@ export class ReportsService {
   ): Promise<unknown> {
     const accountIds = options.accountIds ?? [];
     if (accountIds.length === 0) {
-      throw new BadRequestError('REPORTS.LIBRO_MAYOR_REQUIERE_AL_MENOS_UNA_CUENTA');
+      throw new BadRequestError('reports.general_ledger_needs_least_one_account');
     }
     if (accountIds.length > MAX_LEDGER_REPORT_ACCOUNTS) {
-      throw new BadRequestError('REPORTS.DEMASIADAS_CUENTAS', {
+      throw new BadRequestError('reports.count_accounts_requested_maximum_per_report', {
         count: accountIds.length,
         max: MAX_LEDGER_REPORT_ACCOUNTS,
       });
@@ -198,9 +198,9 @@ export class ReportsService {
     // with a token could perform by accident.
     const from = toIsoDate(options.startDate);
     const to = toIsoDate(options.endDate);
-    if (from > to) throw new BadRequestError('REPORTS.RANGO_FECHAS_INVALIDO');
+    if (from > to) throw new BadRequestError('reports.start_date_cannot_later_than_end');
     if (daysBetween(from, to) > MAX_LEDGER_REPORT_DAYS) {
-      throw new BadRequestError('REPORTS.RANGO_FECHAS_EXCEDE_LIMITE', {
+      throw new BadRequestError('reports.requested_range_spans_days_days_maximum', {
         days: daysBetween(from, to),
         max: MAX_LEDGER_REPORT_DAYS,
       });
@@ -246,7 +246,7 @@ export class ReportsService {
   ): Promise<JournalReport> {
     const from = toIsoDate(options.startDate);
     const to = toIsoDate(options.endDate);
-    if (from > to) throw new BadRequestError('REPORTS.RANGO_FECHAS_INVALIDO');
+    if (from > to) throw new BadRequestError('reports.start_date_cannot_later_than_end');
 
     const page = Math.max(1, Math.floor(options.page ?? 1));
     const pageSize = Math.min(500, Math.max(1, Math.floor(options.pageSize ?? 100)));
@@ -257,7 +257,7 @@ export class ReportsService {
         })
       : await this.ledgerRepository.findOne({ where: { organizationId, isDefault: true } });
     if (!ledger) {
-      throw new BadRequestError('REPORTS.NO_HAY_LIBRO_CONTABLE_POR_DEFECTO');
+      throw new BadRequestError('reports.no_default_ledger_configured_set_one');
     }
 
     const entryQuery = this.journalEntryRepository

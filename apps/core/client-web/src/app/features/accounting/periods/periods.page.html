@@ -1,25 +1,25 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.PERIODS.ACCOUNTING_PERIODS"
+  titleKey="accounting.periods.accounting_periods"
   [count]="periods().length"
   [loading]="loading()"
-  [error]="failed() ? 'ACCOUNTING.PERIODS.LOAD_FAILED' : null"
+  [error]="failed() ? 'accounting.periods.load_failed' : null"
   [empty]="isEmpty()"
   (reload)="load()"
 >
   <button listActions class="secondary-button" type="button" (click)="load()" [disabled]="loading()">
     <lucide-icon [img]="RefreshIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'COMMON.REFRESH' | translate }}</span>
+    <span>{{ 'common.refresh' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.PERIODS.PERIOD' | translate }}</th>
-          <th>{{ 'ACCOUNTING.PERIODS.START_DATE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.PERIODS.END_DATE' | translate }}</th>
-          <th class="text-center">{{ 'ACCOUNTING.PERIODS.STATUS' | translate }}</th>
-          <th class="actions-column">{{ 'ACCOUNTING.PERIODS.ACTION' | translate }}</th>
+          <th>{{ 'accounting.periods.period' | translate }}</th>
+          <th>{{ 'accounting.periods.start_date' | translate }}</th>
+          <th>{{ 'accounting.periods.end_date' | translate }}</th>
+          <th class="text-center">{{ 'accounting.periods.status' | translate }}</th>
+          <th class="actions-column">{{ 'accounting.periods.action' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -47,7 +47,7 @@
                   (click)="close(period)"
                 >
                   <lucide-icon [img]="LockIcon" size="16" aria-hidden="true"></lucide-icon>
-                  <span>{{ 'ACCOUNTING.PERIODS.CLOSE_PERIOD' | translate }}</span>
+                  <span>{{ 'accounting.periods.close_period' | translate }}</span>
                 </button>
               } @else {
                 <button
@@ -57,7 +57,7 @@
                   (click)="reopen(period)"
                 >
                   <lucide-icon [img]="UnlockIcon" size="16" aria-hidden="true"></lucide-icon>
-                  <span>{{ 'ACCOUNTING.PERIODS.RE_OPEN' | translate }}</span>
+                  <span>{{ 'accounting.periods.re_open' | translate }}</span>
                 </button>
               }
             </td>

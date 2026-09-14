@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   CustomerReceipt,
   CustomerReceiptsService,
@@ -57,7 +57,7 @@ export class CustomerReceiptsListPage implements OnInit {
       },
       error: () => {
         this.notifications.showError(
-          'CUSTOMER_RECEIPTS.LIST.COULD_NOT_LOAD_CUSTOMER_RECEIPTS',
+          'customer_receipts.list.could_not_load_customer_receipts',
         );
         this.isLoading.set(false);
       },

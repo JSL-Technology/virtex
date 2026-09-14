@@ -1,0 +1,457 @@
+{
+  "mail.billing_notice.go_billing": {
+    "es": "Ir a Facturación",
+    "en": "Go to Billing",
+    "pt": "Ir para Faturamento"
+  },
+  "mail.common.current_year_app_name_all_rights": {
+    "es": "© {{currentYear}} {{appName}}. Todos los derechos reservados.",
+    "en": "© {{currentYear}} {{appName}}. All rights reserved.",
+    "pt": "© {{currentYear}} {{appName}}. Todos os direitos reservados."
+  },
+  "mail.common.hello_name": {
+    "es": "¡Hola, {{name}}!",
+    "en": "Hello, {{name}}.",
+    "pt": "Olá, {{name}}."
+  },
+  "mail.common.if_button_does_not_work_copy": {
+    "es": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
+    "en": "If the button does not work, copy and paste this URL into your browser:",
+    "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
+  },
+  "mail.common.transactional_notice": {
+    "es": "Este es un correo transaccional automático; no respondas a este mensaje.",
+    "en": "This is an automatic transactional email; please do not reply to it.",
+    "pt": "Este é um e-mail transacional automático; não responda a esta mensagem."
+  },
+  "mail.duplicate_registration.however_account_already_exists_address": {
+    "es": "Sin embargo, ya existe una cuenta asociada a este correo.",
+    "en": "However, an account already exists for this address.",
+    "pt": "No entanto, já existe uma conta associada a este e-mail."
+  },
+  "mail.duplicate_registration.if_not_you_you_can_safely": {
+    "es": "Si no fuiste tú, puedes ignorar este correo de forma segura.",
+    "en": "If it was not you, you can safely ignore this email.",
+    "pt": "Se não foi você, pode ignorar este e-mail com segurança."
+  },
+  "mail.duplicate_registration.if_you_have_forgotten_your_password": {
+    "es": "Si olvidaste tu contraseña, puedes restablecerla aquí:",
+    "en": "If you have forgotten your password, you can reset it here:",
+    "pt": "Se você esqueceu sua senha, pode redefini-la aqui:"
+  },
+  "mail.duplicate_registration.if_you_who_tried_sign_up": {
+    "es": "Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:",
+    "en": "If it was you who tried to sign up, you can sign in directly here:",
+    "pt": "Se foi você quem tentou se cadastrar, pode entrar diretamente aqui:"
+  },
+  "mail.duplicate_registration.registration_attempt": {
+    "es": "Intento de Registro",
+    "en": "Registration Attempt",
+    "pt": "Tentativa de Cadastro"
+  },
+  "mail.duplicate_registration.reset_password": {
+    "es": "Restablecer Contraseña",
+    "en": "Reset Password",
+    "pt": "Redefinir Senha"
+  },
+  "mail.duplicate_registration.sign": {
+    "es": "Iniciar Sesión",
+    "en": "Sign In",
+    "pt": "Entrar"
+  },
+  "mail.duplicate_registration.subject": {
+    "es": "Intento de registro con tu correo",
+    "en": "Someone tried to sign up with your email",
+    "pt": "Alguém tentou se cadastrar com seu e-mail"
+  },
+  "mail.duplicate_registration.we_received_request_register_new_account": {
+    "es": "Recibimos una solicitud para registrar una nueva cuenta en {{appName}} utilizando esta dirección de correo electrónico.",
+    "en": "We received a request to register a new account on {{appName}} using this email address.",
+    "pt": "Recebemos uma solicitação para cadastrar uma nova conta em {{appName}} usando este endereço de e-mail."
+  },
+  "mail.email_change.subject": {
+    "es": "Confirma tu nuevo correo electrónico",
+    "en": "Confirm your new email address",
+    "pt": "Confirme seu novo e-mail"
+  },
+  "mail.email_change_confirm.confirm_change_your_email_address_app": {
+    "es": "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.",
+    "en": "Confirm the change of your email address on {{appName}}. The link expires in {{expiresMinutes}} minutes.",
+    "pt": "Confirme a alteração do seu e-mail no {{appName}}. O link expira em {{expiresMinutes}} minutos."
+  },
+  "mail.email_change_confirm.confirm_email_address": {
+    "es": "Confirmar correo electrónico",
+    "en": "Confirm email address",
+    "pt": "Confirmar e-mail"
+  },
+  "mail.email_change_confirm.confirm_your_new_email_address": {
+    "es": "Confirma tu nuevo correo electrónico",
+    "en": "Confirm your new email address",
+    "pt": "Confirme seu novo e-mail"
+  },
+  "mail.email_change_confirm.confirm_your_new_email_app_name": {
+    "es": "Confirma tu nuevo correo | {{appName}}",
+    "en": "Confirm your new email | {{appName}}",
+    "pt": "Confirme seu novo e-mail | {{appName}}"
+  },
+  "mail.email_change_confirm.did_you_not_request_change_you": {
+    "es": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.",
+    "en": "Did you not request this change? You can safely ignore this email. Your current address will stay as it is.",
+    "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Seu endereço atual permanecerá o mesmo."
+  },
+  "mail.email_change_confirm.link_valid": {
+    "es": "Este enlace es válido por",
+    "en": "This link is valid for",
+    "pt": "Este link é válido por"
+  },
+  "mail.email_change_confirm.we_received_request_change_email_address": {
+    "es": "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en {{appName}}. Para confirmar el cambio, haz clic en el botón a continuación.",
+    "en": "We received a request to change the email address on your account at {{appName}}. To confirm the change, click the button below.",
+    "pt": "Recebemos uma solicitação para alterar o e-mail da sua conta em {{appName}}. Para confirmar a alteração, clique no botão abaixo."
+  },
+  "mail.email_changed_notice.address_changed": {
+    "es": "El correo electrónico de tu cuenta en {{appName}} se cambió a {{newEmail}}.",
+    "en": "The email address on your account at {{appName}} was changed to {{newEmail}}.",
+    "pt": "O e-mail da sua conta em {{appName}} foi alterado para {{newEmail}}."
+  },
+  "mail.email_changed_notice.contact_support_immediately_from_same_address": {
+    "es": "Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.",
+    "en": "Contact support immediately from this same address. This message goes to your previous address precisely so you can react if the change was not yours.",
+    "pt": "Fale com o suporte imediatamente a partir deste mesmo endereço. Esta mensagem vai para seu endereço anterior justamente para que você possa reagir caso a alteração não tenha sido feita por você."
+  },
+  "mail.email_changed_notice.every_open_session_closed_security_measure": {
+    "es": "Todas las sesiones abiertas se cerraron como medida de seguridad.",
+    "en": "Every open session was closed as a security measure.",
+    "pt": "Todas as sessões abertas foram encerradas como medida de segurança."
+  },
+  "mail.email_changed_notice.from_now_notices_password_recovery_will": {
+    "es": ". A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.",
+    "en": ". From now on, notices and password recovery will go to that address.",
+    "pt": ". A partir de agora, os avisos e a recuperação de senha irão para esse endereço."
+  },
+  "mail.email_changed_notice.not_you": {
+    "es": "¿No fuiste tú?",
+    "en": "Was this not you?",
+    "pt": "Não foi você?"
+  },
+  "mail.email_changed_notice.subject": {
+    "es": "El correo de tu cuenta ha cambiado",
+    "en": "Your account's email has changed",
+    "pt": "O e-mail da sua conta mudou"
+  },
+  "mail.email_changed_notice.your_account_email_has_changed": {
+    "es": "El correo de tu cuenta ha cambiado",
+    "en": "Your account's email has changed",
+    "pt": "O e-mail da sua conta mudou"
+  },
+  "mail.email_changed_notice.your_account_email_has_changed_app": {
+    "es": "El correo de tu cuenta ha cambiado | {{appName}}",
+    "en": "Your account's email has changed | {{appName}}",
+    "pt": "O e-mail da sua conta mudou | {{appName}}"
+  },
+  "mail.email_changed_notice.your_app_name_account_email_changed": {
+    "es": "El correo de tu cuenta en {{appName}} se cambió a {{newEmail}}. Si no fuiste tú, contacta a soporte.",
+    "en": "Your {{appName}} account email was changed to {{newEmail}}. If this was not you, contact support.",
+    "pt": "O e-mail da sua conta no {{appName}} foi alterado para {{newEmail}}. Se não foi você, fale com o suporte."
+  },
+  "mail.invitation.subject": {
+    "es": "Te invitaron a unirte a {{appName}}",
+    "en": "You have been invited to join {{appName}}",
+    "pt": "Você foi convidado a entrar no {{appName}}"
+  },
+  "mail.organization_added.access_new_organization": {
+    "es": "Acceso a una nueva organización",
+    "en": "Access to a new organization",
+    "pt": "Acesso a uma nova organização"
+  },
+  "mail.organization_added.has_given_you_access_their_app": {
+    "es": "te ha dado acceso a su cuenta en {{appName}}.",
+    "en": "has given you access to their {{appName}} account.",
+    "pt": "concedeu a você acesso à conta dela no {{appName}}."
+  },
+  "mail.organization_added.if_you_not_expecting_access_contact": {
+    "es": "Si no esperabas este acceso, contacta a tu administrador o a soporte.",
+    "en": "If you were not expecting this access, contact your administrator or support.",
+    "pt": "Se você não esperava este acesso, fale com seu administrador ou com o suporte."
+  },
+  "mail.organization_added.sign": {
+    "es": "Iniciar sesión",
+    "en": "Sign in",
+    "pt": "Entrar"
+  },
+  "mail.organization_added.subject": {
+    "es": "Ahora tienes acceso a {{organization}}",
+    "en": "You now have access to {{organization}}",
+    "pt": "Agora você tem acesso a {{organization}}"
+  },
+  "mail.organization_added.use_your_usual_password_same_account": {
+    "es": "Usa tu contraseña de siempre: es la misma cuenta que ya tienes. Al iniciar sesión podrás\n        cambiar entre las organizaciones a las que perteneces desde el selector de organización.",
+    "en": "Use your usual password: it is the same account you already have. Once signed in you can\n        switch between the organizations you belong to from the organization selector.",
+    "pt": "Use sua senha de sempre: é a mesma conta que você já tem. Ao entrar, você poderá\n        alternar entre as organizações às quais pertence pelo seletor de organização."
+  },
+  "mail.password_reset.did_you_not_request_change_you": {
+    "es": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
+    "en": "Did you not request this change? You can safely ignore this email. Your password will not change.",
+    "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Sua senha não será alterada."
+  },
+  "mail.password_reset.link_valid_for": {
+    "es": "Este enlace es válido durante {{expiration}}.",
+    "en": "This link is valid for {{expiration}}.",
+    "pt": "Este link é válido por {{expiration}}."
+  },
+  "mail.password_reset.password_reset": {
+    "es": "Restablecimiento de contraseña",
+    "en": "Password reset",
+    "pt": "Redefinição de senha"
+  },
+  "mail.password_reset.password_reset_app_name": {
+    "es": "Restablecimiento de contraseña | {{appName}}",
+    "en": "Password reset | {{appName}}",
+    "pt": "Redefinição de senha | {{appName}}"
+  },
+  "mail.password_reset.reset_password": {
+    "es": "Restablecer contraseña",
+    "en": "Reset password",
+    "pt": "Redefinir senha"
+  },
+  "mail.password_reset.subject": {
+    "es": "Restablece tu contraseña",
+    "en": "Reset your password",
+    "pt": "Redefina sua senha"
+  },
+  "mail.password_reset.use_link_below_reset_your_app": {
+    "es": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}.",
+    "en": "Use the link below to reset your {{appName}} password. It expires in {{expiration}}.",
+    "pt": "Use o link abaixo para redefinir sua senha do {{appName}}. Ele expira em {{expiration}}."
+  },
+  "mail.password_reset.we_received_request_reset_password_your": {
+    "es": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en {{appName}}. Para continuar, utiliza el botón seguro a continuación.",
+    "en": "We received a request to reset the password on your account at {{appName}}. To continue, use the secure button below.",
+    "pt": "Recebemos uma solicitação para redefinir a senha da sua conta em {{appName}}. Para continuar, use o botão seguro abaixo."
+  },
+  "mail.registration_email_verify.click_button_below_confirm_your_address": {
+    "es": "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.",
+    "en": "Click the button below to confirm your address and pick up the sign-up where you left off.",
+    "pt": "Clique no botão abaixo para confirmar seu e-mail e retomar o cadastro de onde parou."
+  },
+  "mail.registration_email_verify.code_link_expire": {
+    "es": "⏱ Este código y el enlace expiran en",
+    "en": "⏱ This code and the link expire in",
+    "pt": "⏱ Este código e o link expiram em"
+  },
+  "mail.registration_email_verify.confirm_email_address": {
+    "es": "Confirmar correo electrónico",
+    "en": "Confirm email address",
+    "pt": "Confirmar e-mail"
+  },
+  "mail.registration_email_verify.confirm_your_email_address": {
+    "es": "Confirma tu correo electrónico",
+    "en": "Confirm your email address",
+    "pt": "Confirme seu e-mail"
+  },
+  "mail.registration_email_verify.do_not_share_code_with_anyone": {
+    "es": "No compartas este código con nadie. Nuestro equipo nunca te lo pedirá.",
+    "en": "Do not share this code with anyone. Our team will never ask you for it.",
+    "pt": "Não compartilhe este código com ninguém. Nossa equipe nunca o pedirá."
+  },
+  "mail.registration_email_verify.enter_code_sign_up_form": {
+    "es": "Ingresa este código en el formulario de registro:",
+    "en": "Enter this code on the sign-up form:",
+    "pt": "Digite este código no formulário de cadastro:"
+  },
+  "mail.registration_email_verify.finish_signing_up_you_need_confirm": {
+    "es": "Para completar tu registro, debes confirmar tu correo electrónico. Puedes hacerlo de dos maneras:",
+    "en": "To finish signing up you need to confirm your email address. There are two ways to do it:",
+    "pt": "Para concluir seu cadastro, confirme seu e-mail. Há duas formas de fazer isso:"
+  },
+  "mail.registration_email_verify.greeting_without_name": {
+    "es": "Hola:",
+    "en": "Hello,",
+    "pt": "Olá:"
+  },
+  "mail.registration_email_verify.hello": {
+    "es": "Hola,",
+    "en": "Hello,",
+    "pt": "Olá,"
+  },
+  "mail.registration_email_verify.if_you_did_not_request_you": {
+    "es": "Si no solicitaste esto, puedes ignorar este correo de forma segura.",
+    "en": "If you did not request this, you can safely ignore this email.",
+    "pt": "Se você não solicitou isso, pode ignorar este e-mail com segurança."
+  },
+  "mail.registration_email_verify.option_one_click": {
+    "es": "Opción 1 — Un clic",
+    "en": "Option 1 — One click",
+    "pt": "Opção 1 — Um clique"
+  },
+  "mail.registration_email_verify.option_verification_code": {
+    "es": "Opción 2 — Código de verificación",
+    "en": "Option 2 — Verification code",
+    "pt": "Opção 2 — Código de verificação"
+  },
+  "mail.registration_failed.create_my_account": {
+    "es": "Crear mi cuenta",
+    "en": "Create my account",
+    "pt": "Criar minha conta"
+  },
+  "mail.registration_failed.depending_your_bank_refund_can_take": {
+    "es": "Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.",
+    "en": "Depending on your bank, the refund can take 5 to 10 business days to appear on your statement.",
+    "pt": "Dependendo do seu banco, o estorno pode levar de 5 a 10 dias úteis para aparecer no seu extrato."
+  },
+  "mail.registration_failed.if_you_have_any_question_about": {
+    "es": "Si tienes cualquier duda sobre el cargo, escríbenos citando esta referencia y lo resolvemos:",
+    "en": "If you have any question about the charge, write to us quoting this reference and we will sort it out:",
+    "pt": "Se tiver qualquer dúvida sobre a cobrança, escreva-nos citando esta referência e resolveremos:"
+  },
+  "mail.registration_failed.nothing_you_need_do_if_you": {
+    "es": "No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:",
+    "en": "There is nothing you need to do. If you would rather try again, you can sign up whenever you like:",
+    "pt": "Você não precisa fazer nada. Se preferir tentar de novo, pode se cadastrar quando quiser:"
+  },
+  "mail.registration_failed.payment_ok_account_not_created": {
+    "es": "Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en {{appName}}. Lamentamos el inconveniente.",
+    "en": "Your payment went through, but we could not create your account at {{appName}}. We are sorry for the inconvenience.",
+    "pt": "Seu pagamento foi processado, mas não conseguimos criar sua conta em {{appName}}. Lamentamos o transtorno."
+  },
+  "mail.registration_failed.subject": {
+    "es": "No pudimos crear tu cuenta — tu pago fue reembolsado",
+    "en": "We could not create your account — your payment was refunded",
+    "pt": "Não conseguimos criar sua conta — seu pagamento foi estornado"
+  },
+  "mail.registration_failed.we_could_not_create_your_account": {
+    "es": "No pudimos crear tu cuenta",
+    "en": "We could not create your account",
+    "pt": "Não conseguimos criar sua conta"
+  },
+  "mail.registration_failed.we_have_already_cancelled_subscription_requested": {
+    "es": "Ya cancelamos la suscripción y solicitamos la devolución del cargo.",
+    "en": "We have already cancelled the subscription and requested a refund of the charge.",
+    "pt": "Já cancelamos a assinatura e solicitamos o estorno da cobrança."
+  },
+  "mail.registration_verify.subject": {
+    "es": "Confirma tu correo electrónico",
+    "en": "Confirm your email address",
+    "pt": "Confirme seu e-mail"
+  },
+  "mail.user_invitation.if_you_did_not_request_invitation": {
+    "es": "Si no has solicitado esta invitación, por favor ignora este correo.",
+    "en": "If you did not request this invitation, please ignore this email.",
+    "pt": "Se você não solicitou este convite, ignore este e-mail."
+  },
+  "mail.user_invitation.invitation_platform": {
+    "es": "Invitación a la Plataforma",
+    "en": "Invitation to the Platform",
+    "pt": "Convite para a Plataforma"
+  },
+  "mail.user_invitation.link_expires_days": {
+    "es": "Este enlace expirará en 7 días.",
+    "en": "This link expires in 7 days.",
+    "pt": "Este link expira em 7 dias."
+  },
+  "mail.user_invitation.set_up_my_account": {
+    "es": "Configurar mi cuenta",
+    "en": "Set up my account",
+    "pt": "Configurar minha conta"
+  },
+  "mail.user_invitation.you_have_invited_join_our_platform": {
+    "es": "Has sido invitado a unirte a nuestra plataforma. Por favor, haz clic en el siguiente enlace para configurar tu cuenta y establecer tu contraseña.",
+    "en": "You have been invited to join our platform. Click the link below to set up your account and choose a password.",
+    "pt": "Você foi convidado a entrar na nossa plataforma. Clique no link abaixo para configurar sua conta e definir sua senha."
+  },
+  "mail.verification_code.code_expires_10_minutes": {
+    "es": "Este código expirará en 10 minutos.",
+    "en": "This code expires in 10 minutes.",
+    "pt": "Este código expira em 10 minutos."
+  },
+  "mail.verification_code.continue_enter_verification_code_below": {
+    "es": "Para continuar, por favor ingresa el siguiente código de verificación:",
+    "en": "To continue, enter the verification code below:",
+    "pt": "Para continuar, digite o código de verificação abaixo:"
+  },
+  "mail.verification_code.if_you_did_not_request_change": {
+    "es": "Si no solicitaste este cambio, por favor ignora este correo o contacta a soporte.",
+    "en": "If you did not request this change, ignore this email or contact support.",
+    "pt": "Se você não solicitou esta alteração, ignore este e-mail ou fale com o suporte."
+  },
+  "mail.verification_code.subject": {
+    "es": "Tu código de verificación",
+    "en": "Your verification code",
+    "pt": "Seu código de verificação"
+  },
+  "mail.verification_code.verification_code": {
+    "es": "Código de Verificación",
+    "en": "Verification Code",
+    "pt": "Código de Verificação"
+  },
+  "mail.verification_code.you_asked_turn_two_step_verification": {
+    "es": "Has solicitado habilitar la autenticación de dos pasos (2FA) en tu cuenta.",
+    "en": "You asked to turn on two-step verification on your account.",
+    "pt": "Você solicitou ativar a verificação em duas etapas na sua conta."
+  },
+  "mail.welcome.closing": {
+    "es": "No hace falta hacerlo todo hoy: lo que dejes a medias se guarda y puedes retomarlo cuando quieras.",
+    "en": "None of it has to happen today: anything you leave half-done is saved, and you can pick it up whenever you like.",
+    "pt": "Não precisa fazer tudo hoje: o que ficar pela metade é salvo e você retoma quando quiser."
+  },
+  "mail.welcome.cta": {
+    "es": "Entrar a {{appName}}",
+    "en": "Open {{appName}}",
+    "pt": "Entrar no {{appName}}"
+  },
+  "mail.welcome.organization_name_now_set_up_app": {
+    "es": "{{organizationName}} ya está creada en {{appName}}. Puedes entrar cuando quieras; abajo te dejamos las tres cosas que conviene resolver el primer día.",
+    "en": "{{organizationName}} is now set up on {{appName}}. Sign in whenever you like; below are the three things worth settling on day one.",
+    "pt": "{{organizationName}} já está criada no {{appName}}. Entre quando quiser; abaixo estão as três coisas que vale resolver no primeiro dia."
+  },
+  "mail.welcome.preheader": {
+    "es": "Tu cuenta ya está lista. Estas son las tres cosas que conviene dejar resueltas el primer día.",
+    "en": "Your account is ready. Here are the three things worth settling on day one.",
+    "pt": "Sua conta está pronta. Estas são as três coisas que vale resolver no primeiro dia."
+  },
+  "mail.welcome.step_data_body": {
+    "es": "Es lo que alimenta ventas, inventario y contabilidad.",
+    "en": "They are what feed sales, inventory and accounting.",
+    "pt": "É o que alimenta vendas, estoque e contabilidade."
+  },
+  "mail.welcome.step_data_title": {
+    "es": "Carga tu catálogo y tu plan de cuentas",
+    "en": "Load your catalogue and chart of accounts",
+    "pt": "Carregue seu catálogo e seu plano de contas"
+  },
+  "mail.welcome.step_fiscal_body": {
+    "es": "Sin ellos no se pueden emitir comprobantes válidos.",
+    "en": "Without them, valid invoices cannot be issued.",
+    "pt": "Sem eles não é possível emitir documentos válidos."
+  },
+  "mail.welcome.step_fiscal_title": {
+    "es": "Completa los datos fiscales",
+    "en": "Complete your tax details",
+    "pt": "Complete os dados fiscais"
+  },
+  "mail.welcome.step_team_body": {
+    "es": "Cada persona entra con sus propios permisos, por área.",
+    "en": "Everyone signs in with their own permissions, by area.",
+    "pt": "Cada pessoa entra com as próprias permissões, por área."
+  },
+  "mail.welcome.step_team_title": {
+    "es": "Invita a tu equipo",
+    "en": "Invite your team",
+    "pt": "Convide sua equipe"
+  },
+  "mail.welcome.steps_title": {
+    "es": "Para empezar",
+    "en": "Where to start",
+    "pt": "Por onde começar"
+  },
+  "mail.welcome.subject": {
+    "es": "Te damos la bienvenida a {{appName}}",
+    "en": "Welcome to {{appName}}",
+    "pt": "Boas-vindas ao {{appName}}"
+  },
+  "mail.welcome.title": {
+    "es": "Tu cuenta ya está lista",
+    "en": "Your account is ready",
+    "pt": "Sua conta está pronta"
+  }
+}

@@ -63,12 +63,12 @@ export class PayrollAccountingService {
       isDefault: true,
     });
     if (!ledger) {
-      throw new BadRequestError('PAYROLL.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+      throw new BadRequestError('payroll.organization_has_no_default_ledger_configured');
     }
     if (run.currencyCode !== ledger.currency) {
       // Payroll in a currency other than the books' would need conversion at the run date; refused
       // loudly rather than posted at an implicit 1:1 rate.
-      throw new BadRequestError('PAYROLL.MONEDA_NOMINA_DISTINTA_MONEDA_LIBRO', {
+      throw new BadRequestError('payroll.payroll_currency_p1_differs_from_ledger', {
         p1: run.currencyCode,
         p2: ledger.currency,
       });
@@ -79,7 +79,7 @@ export class PayrollAccountingService {
       code: 'NOMINA',
     });
     if (!journal) {
-      throw new BadRequestError('PAYROLL.DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE');
+      throw new BadRequestError('payroll.payroll_journal_nomina_not_found_create');
     }
 
     const accounts = this.resolveAccounts(settings);
@@ -129,16 +129,16 @@ export class PayrollAccountingService {
     //  los fondos —AFP, SFS, SRL/INFOTEP, ISR— son los de la TSS y la DGII y no se traducen: son
     //  nombres propios de instituciones dominicanas.
     const words = await this.narrative.describeAll(manager, run.organizationId, {
-      salary: { key: 'LEDGER.PAYROLL.SALARY_EXPENSE' },
-      employer: { key: 'LEDGER.PAYROLL.EMPLOYER_CONTRIBUTIONS' },
-      net: { key: 'LEDGER.PAYROLL.NET_PAYABLE' },
-      afp: { key: 'LEDGER.PAYROLL.AFP_PAYABLE' },
-      sfs: { key: 'LEDGER.PAYROLL.SFS_PAYABLE' },
-      infotep: { key: 'LEDGER.PAYROLL.INFOTEP_PAYABLE' },
-      isr: { key: 'LEDGER.PAYROLL.ISR_PAYABLE' },
-      otherDeductions: { key: 'LEDGER.PAYROLL.OTHER_DEDUCTIONS' },
-      employerBenefits: { key: 'LEDGER.PAYROLL.EMPLOYER_BENEFITS' },
-      entry: { key: 'LEDGER.PAYROLL.RUN', params: { run: run.name } },
+      salary: { key: 'ledger.payroll.salary_expense' },
+      employer: { key: 'ledger.payroll.employer_contributions' },
+      net: { key: 'ledger.payroll.net_payable' },
+      afp: { key: 'ledger.payroll.afp_payable' },
+      sfs: { key: 'ledger.payroll.sfs_payable' },
+      infotep: { key: 'ledger.payroll.infotep_payable' },
+      isr: { key: 'ledger.payroll.isr_payable' },
+      otherDeductions: { key: 'ledger.payroll.other_deductions' },
+      employerBenefits: { key: 'ledger.payroll.employer_benefits' },
+      entry: { key: 'ledger.payroll.run', params: { run: run.name } },
     });
 
     debit(accounts.salaryExpense, salaryExpense, words.salary);
@@ -150,14 +150,14 @@ export class PayrollAccountingService {
     credit(accounts.isrWithholdingPayable, isrPayable, words.isr);
     if (otherPayable !== 0 || employerBenefitsPayable !== 0) {
       if (!accounts.accountsPayable) {
-        throw new BadRequestError('PAYROLL.SIN_CUENTA_PARA_OTRAS_DEDUCCIONES');
+        throw new BadRequestError('payroll.no_account_configured_other_deductions_benefits');
       }
       credit(accounts.accountsPayable, otherPayable, words.otherDeductions);
       credit(accounts.accountsPayable, employerBenefitsPayable, words.employerBenefits);
     }
 
     if (lines.length < 2) {
-      throw new BadRequestError('PAYROLL.CORRIDA_SIN_MONTOS_QUE_CONTABILIZAR');
+      throw new BadRequestError('payroll.run_has_no_amounts_post');
     }
 
     const entry = await this.journalEntries.createWithManager(
@@ -204,29 +204,29 @@ export class PayrollAccountingService {
       isDefault: true,
     });
     if (!ledger) {
-      throw new BadRequestError('PAYROLL.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+      throw new BadRequestError('payroll.organization_has_no_default_ledger_configured');
     }
     const journal = await manager.findOneBy(Journal, {
       organizationId: run.organizationId,
       code: 'NOMINA',
     });
     if (!journal) {
-      throw new BadRequestError('PAYROLL.DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE');
+      throw new BadRequestError('payroll.payroll_journal_nomina_not_found_create');
     }
     const netPayableAccount = settings?.defaultPayrollNetPayableAccountId;
     if (!netPayableAccount) {
-      throw new BadRequestError('PAYROLL.CUENTAS_NOMINA_NO_CONFIGURADAS', { p1: 'Sueldos por pagar' });
+      throw new BadRequestError('payroll.payroll_ledger_accounts_not_configured_p1', { p1: 'Sueldos por pagar' });
     }
 
     const ledgerId = ledger.id;
     const value = Math.abs(netAmount);
     const payableOnDebit = netAmount > 0; // paying the liability down is a debit to it
     const paid = await this.narrative.describeAll(manager, run.organizationId, {
-      settled: { key: 'LEDGER.PAYROLL.NET_PAID' },
-      reversed: { key: 'LEDGER.PAYROLL.NET_ADJUSTED' },
-      bankOut: { key: 'LEDGER.PAYROLL.BANK_OUT' },
-      bankBack: { key: 'LEDGER.PAYROLL.BANK_BACK' },
-      entry: { key: 'LEDGER.PAYROLL.PAYMENT', params: { run: run.name } },
+      settled: { key: 'ledger.payroll.net_paid' },
+      reversed: { key: 'ledger.payroll.net_adjusted' },
+      bankOut: { key: 'ledger.payroll.bank_out' },
+      bankBack: { key: 'ledger.payroll.bank_back' },
+      entry: { key: 'ledger.payroll.payment', params: { run: run.name } },
     });
     const lines: CreateJournalEntryLineDto[] = [
       payableOnDebit
@@ -282,7 +282,7 @@ export class PayrollAccountingService {
     };
 
     if (missing.length > 0) {
-      throw new BadRequestError('PAYROLL.CUENTAS_NOMINA_NO_CONFIGURADAS', {
+      throw new BadRequestError('payroll.payroll_ledger_accounts_not_configured_p1', {
         p1: missing.join('; '),
       });
     }

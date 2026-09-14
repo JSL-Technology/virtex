@@ -52,7 +52,7 @@ export class TenantJurisdictionProvider implements TaxDeterminationProvider {
   async determine(request: TaxDeterminationRequest): Promise<TaxDetermination> {
     const country = request.destination.countryCode?.toUpperCase();
     if (!country) {
-      return this.undeterminable('LOCALIZATION.DETERMINACION_SIN_PAIS_DESTINO');
+      return this.undeterminable('localization.tax_cannot_determined_destination_country_missing');
     }
 
     const rows = await this.dataSource.getRepository(TaxJurisdiction).find({
@@ -73,7 +73,7 @@ export class TenantJurisdictionProvider implements TaxDeterminationProvider {
         rate: 0,
         components: [],
         outcome: 'NO_NEXUS',
-        reasonKey: 'LOCALIZATION.SIN_JURISDICCIONES_REGISTRADAS_PAIS',
+        reasonKey: 'localization.no_jurisdictions_registered_country_code_so',
         reasonParams: { countryCode: country },
         source: this.source,
       };
@@ -83,7 +83,7 @@ export class TenantJurisdictionProvider implements TaxDeterminationProvider {
     if (!destination.stateCode) {
       // The state is the minimum: no rate in these markets is nationwide, so an address without
       // one cannot be priced. Guessing is what this replaces.
-      return this.undeterminable('LOCALIZATION.DETERMINACION_REQUIERE_DIVISION', {
+      return this.undeterminable('localization.determining_tax_country_code_needs_destination', {
         countryCode: country,
       });
     }
@@ -98,7 +98,7 @@ export class TenantJurisdictionProvider implements TaxDeterminationProvider {
         rate: 0,
         components: [],
         outcome: 'NO_NEXUS',
-        reasonKey: 'LOCALIZATION.SIN_REGISTRO_EN_JURISDICCION',
+        reasonKey: 'localization.you_not_registered_collect_state_code',
         reasonParams: { stateCode: destination.stateCode, countryCode: country },
         source: this.source,
       };

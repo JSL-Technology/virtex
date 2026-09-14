@@ -1,0 +1,260 @@
+{
+  "sidebar.finance.ap_sub.aging": {
+    "es": "Antigüedad de saldos",
+    "en": "Ageing",
+    "pt": "Idade dos saldos"
+  },
+  "sidebar.finance.ap_sub.invoices": {
+    "es": "Facturas",
+    "en": "Supplier Invoices",
+    "pt": "Faturas de Fornecedor"
+  },
+  "sidebar.finance.ar_sub.aging": {
+    "es": "Antigüedad de saldos",
+    "en": "Ageing",
+    "pt": "Idade dos saldos"
+  },
+  "sidebar.finance.ar_sub.invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "sidebar.finance.ar_sub.receipts": {
+    "es": "Recibos",
+    "en": "Receipts & Collections",
+    "pt": "Recibos"
+  },
+  "sidebar.finance.gl_sub.book_gl": {
+    "es": "Libro: Mayor",
+    "en": "Book: General ledger",
+    "pt": "Livro: Razão"
+  },
+  "sidebar.finance.gl_sub.book_journal": {
+    "es": "Libro: Diario",
+    "en": "Book: Journal",
+    "pt": "Livro: Diário"
+  },
+  "sidebar.finance.gl_sub.book_subledgers": {
+    "es": "Libro: Auxiliares",
+    "en": "Book: Subledgers",
+    "pt": "Livro: Auxiliares"
+  },
+  "sidebar.finance.gl_sub.closing_annual": {
+    "es": "Cierre — Anual",
+    "en": "Closing — Annual",
+    "pt": "Fechamento — Anual"
+  },
+  "sidebar.finance.gl_sub.closing_checklist": {
+    "es": "Cierre — Checklist",
+    "en": "Closing — Checklist",
+    "pt": "Fechamento — Checklist"
+  },
+  "sidebar.finance.gl_sub.closing_monthly": {
+    "es": "Cierre — Mensual",
+    "en": "Closing — Monthly",
+    "pt": "Fechamento — Mensal"
+  },
+  "sidebar.finance.gl_sub.coa": {
+    "es": "Plan de cuentas",
+    "en": "Chart of Accounts",
+    "pt": "Plano de contas"
+  },
+  "sidebar.finance.gl_sub.journal": {
+    "es": "Asientos",
+    "en": "Journal Entries",
+    "pt": "Lançamentos"
+  },
+  "sidebar.finance.gl_sub.journals": {
+    "es": "Diarios",
+    "en": "Journals",
+    "pt": "Diários"
+  },
+  "sidebar.finance.gl_sub.multi_ledger": {
+    "es": "Multilibros",
+    "en": "Multi-ledger",
+    "pt": "Multilivros"
+  },
+  "sidebar.finance.gl_sub.periods": {
+    "es": "Periodos contables",
+    "en": "Period Management",
+    "pt": "Períodos contábeis"
+  },
+  "sidebar.finance.gl_sub.variance_analysis": {
+    "es": "Análisis de variaciones",
+    "en": "Variance analysis",
+    "pt": "Análise de variações"
+  },
+  "sidebar.finance.statements_sub.balance_sheet": {
+    "es": "Balance General",
+    "en": "Balance Sheet",
+    "pt": "Balanço Patrimonial"
+  },
+  "sidebar.finance.statements_sub.cash_flow": {
+    "es": "Flujo de Efectivo",
+    "en": "Cash Flow",
+    "pt": "Fluxo de Caixa"
+  },
+  "sidebar.finance.statements_sub.income_statement": {
+    "es": "Estado de Resultados",
+    "en": "Income Statement",
+    "pt": "Demonstração do Resultado"
+  },
+  "sidebar.finance.statements_sub.trial_balance": {
+    "es": "Balanza de Comprobación",
+    "en": "Trial Balance",
+    "pt": "Balancete de Verificação"
+  },
+  "sidebar.finance.treasury_sub.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.finance.treasury_sub.reconciliation_manual": {
+    "es": "Conciliación — Manual",
+    "en": "Reconciliation — Manual",
+    "pt": "Conciliação — Manual"
+  },
+  "sidebar.general.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "sidebar.general.dashboard": {
+    "es": "Tablero",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "sidebar.general.documents_sub.all": {
+    "es": "Todos los documentos",
+    "en": "All documents",
+    "pt": "Todos os documentos"
+  },
+  "sidebar.general.documents_sub.templates": {
+    "es": "Plantillas",
+    "en": "Templates",
+    "pt": "Modelos"
+  },
+  "sidebar.general.home": {
+    "es": "Inicio",
+    "en": "Home",
+    "pt": "Início"
+  },
+  "sidebar.general.my_work": {
+    "es": "Mi trabajo",
+    "en": "My Work",
+    "pt": "Meu trabalho"
+  },
+  "sidebar.general.notifications": {
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "pt": "Notificações"
+  },
+  "sidebar.hr.departments": {
+    "es": "Departamentos",
+    "en": "Departments",
+    "pt": "Departamentos"
+  },
+  "sidebar.hr.employees": {
+    "es": "Empleados",
+    "en": "Employees",
+    "pt": "Funcionários"
+  },
+  "sidebar.hr.my_payslips": {
+    "es": "Mis volantes",
+    "en": "My payslips",
+    "pt": "Os meus recibos"
+  },
+  "sidebar.hr.payroll_concepts": {
+    "es": "Conceptos",
+    "en": "Concepts",
+    "pt": "Conceitos"
+  },
+  "sidebar.hr.payroll_parameters": {
+    "es": "Parámetros de ley",
+    "en": "Statutory parameters",
+    "pt": "Parâmetros legais"
+  },
+  "sidebar.hr.payroll_runs": {
+    "es": "Nóminas",
+    "en": "Payroll runs",
+    "pt": "Folhas"
+  },
+  "sidebar.master_data.banks": {
+    "es": "Bancos",
+    "en": "Banks",
+    "pt": "Bancos"
+  },
+  "sidebar.master_data.branches": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "sidebar.master_data.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "sidebar.master_data.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "sidebar.master_data.extensions": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
+  },
+  "sidebar.master_data.payment_methods": {
+    "es": "Formas de pago",
+    "en": "Payment methods",
+    "pt": "Formas de pagamento"
+  },
+  "sidebar.master_data.payment_terms": {
+    "es": "Condiciones de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "sidebar.master_data.price_lists": {
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
+  },
+  "sidebar.master_data.products": {
+    "es": "Productos",
+    "en": "Products & Services",
+    "pt": "Produtos"
+  },
+  "sidebar.master_data.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "sidebar.master_data.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "sidebar.master_data.uom": {
+    "es": "Unidades de medida",
+    "en": "Units of measure",
+    "pt": "Unidades de medida"
+  },
+  "sidebar.master_data.warehouses": {
+    "es": "Almacenes",
+    "en": "Warehouses",
+    "pt": "Depósitos"
+  },
+  "sidebar.operations.purchasing_sub.orders": {
+    "es": "Órdenes de compra",
+    "en": "Purchase Orders",
+    "pt": "Pedidos de compra"
+  },
+  "sidebar.operations.purchasing_sub.requisitions": {
+    "es": "Requisiciones",
+    "en": "Requisitions",
+    "pt": "Requisições"
+  },
+  "sidebar.reports.reporting_sub.datasheets": {
+    "literal": "DataSheets"
+  }
+}

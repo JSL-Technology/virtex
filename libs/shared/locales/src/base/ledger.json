@@ -1,0 +1,532 @@
+{
+  "ledger.adjustment.audit": {
+    "es": "Ajuste de auditoría: {{description}}",
+    "en": "Audit adjustment: {{description}}",
+    "pt": "Ajuste de auditoria: {{description}}"
+  },
+  "ledger.adjustment.audit_close_entry": {
+    "es": "Cierre del ajuste de auditoría {{entry}}",
+    "en": "Closing of audit adjustment {{entry}}",
+    "pt": "Encerramento do ajuste de auditoria {{entry}}"
+  },
+  "ledger.adjustment.audit_close_line": {
+    "es": "Cierre del ajuste de auditoría",
+    "en": "Closing of the audit adjustment",
+    "pt": "Encerramento do ajuste de auditoria"
+  },
+  "ledger.adjustment.audit_result_transfer": {
+    "es": "Traspaso del ajuste de auditoría {{entry}}",
+    "en": "Result transfer for audit adjustment {{entry}}",
+    "pt": "Transferência do resultado do ajuste de auditoria {{entry}}"
+  },
+  "ledger.adjustment.period_end": {
+    "es": "Ajuste de fin de período ({{type}}): {{description}}",
+    "en": "Period-end adjustment ({{type}}): {{description}}",
+    "pt": "Ajuste de fim de período ({{type}}): {{description}}"
+  },
+  "ledger.adjustment.reclassification": {
+    "es": "Reclasificación: {{description}}",
+    "en": "Reclassification: {{description}}",
+    "pt": "Reclassificação: {{description}}"
+  },
+  "ledger.adjustment.transfer_in": {
+    "es": "Transferencia desde la cuenta relacionada {{account}}",
+    "en": "Transfer from related account {{account}}",
+    "pt": "Transferência da conta relacionada {{account}}"
+  },
+  "ledger.adjustment.transfer_out": {
+    "es": "Transferencia a la cuenta relacionada {{account}}",
+    "en": "Transfer to related account {{account}}",
+    "pt": "Transferência para a conta relacionada {{account}}"
+  },
+  "ledger.collection.advance_applied": {
+    "es": "Aplicación de anticipo de cliente",
+    "en": "Customer advance applied",
+    "pt": "Aplicação de adiantamento de cliente"
+  },
+  "ledger.collection.advance_held": {
+    "es": "Anticipo de cliente",
+    "en": "Customer advance received",
+    "pt": "Adiantamento de cliente"
+  },
+  "ledger.collection.bank_in": {
+    "es": "Ingreso a banco por cobro a cliente",
+    "en": "Bank receipt from customer collection",
+    "pt": "Entrada em banco por cobrança a cliente"
+  },
+  "ledger.collection.early_payment_discount": {
+    "es": "Descuento por pronto pago concedido",
+    "en": "Early-payment discount granted",
+    "pt": "Desconto de pronto pagamento concedido"
+  },
+  "ledger.collection.exchange_difference": {
+    "es": "Diferencia cambiaria realizada en el cobro",
+    "en": "Realised exchange difference on collection",
+    "pt": "Diferença cambial realizada na cobrança"
+  },
+  "ledger.collection.receipt": {
+    "es": "Recibo de cobro {{number}}",
+    "en": "Customer receipt {{number}}",
+    "pt": "Recibo de cobrança {{number}}"
+  },
+  "ledger.collection.receivable_settled": {
+    "es": "Cancelación de cuentas por cobrar — {{customer}}",
+    "en": "Receivable settled — {{customer}}",
+    "pt": "Liquidação de contas a receber — {{customer}}"
+  },
+  "ledger.collection.withheld_by_customer": {
+    "es": "Retenciones practicadas por el cliente",
+    "en": "Tax withheld by the customer",
+    "pt": "Retenções efetuadas pelo cliente"
+  },
+  "ledger.debit_note.vendor_counterpart": {
+    "es": "Contrapartida de nota de débito. Razón: {{reason}}",
+    "en": "Debit note counterpart. Reason: {{reason}}",
+    "pt": "Contrapartida da nota de débito. Motivo: {{reason}}"
+  },
+  "ledger.debit_note.vendor_entry": {
+    "es": "Nota de débito sobre factura de proveedor. Razón: {{reason}}",
+    "en": "Debit note on a vendor bill. Reason: {{reason}}",
+    "pt": "Nota de débito sobre fatura de fornecedor. Motivo: {{reason}}"
+  },
+  "ledger.debit_note.vendor_payable": {
+    "es": "Nota de débito sobre la factura de proveedor {{bill}}",
+    "en": "Debit note on vendor bill {{bill}}",
+    "pt": "Nota de débito sobre a fatura de fornecedor {{bill}}"
+  },
+  "ledger.depreciation.accumulated": {
+    "es": "Depreciación acumulada {{month}} — {{asset}}",
+    "en": "Accumulated depreciation {{month}} — {{asset}}",
+    "pt": "Depreciação acumulada {{month}} — {{asset}}"
+  },
+  "ledger.depreciation.entry": {
+    "es": "Depreciación mensual {{month}}",
+    "en": "Monthly depreciation {{month}}",
+    "pt": "Depreciação mensal {{month}}"
+  },
+  "ledger.depreciation.expense": {
+    "es": "Depreciación {{month}} — {{asset}}",
+    "en": "Depreciation {{month}} — {{asset}}",
+    "pt": "Depreciação {{month}} — {{asset}}"
+  },
+  "ledger.fixed_asset.accumulated_reversal": {
+    "es": "Baja de depreciación acumulada — {{asset}}",
+    "en": "Accumulated depreciation written back — {{asset}}",
+    "pt": "Baixa da depreciação acumulada — {{asset}}"
+  },
+  "ledger.fixed_asset.cost_reversal": {
+    "es": "Baja de activo fijo: {{asset}}",
+    "en": "Fixed asset written off: {{asset}}",
+    "pt": "Baixa de ativo imobilizado: {{asset}}"
+  },
+  "ledger.fixed_asset.disposal_entry": {
+    "es": "Baja de activo: {{asset}}. Motivo: {{reason}}",
+    "en": "Asset disposal: {{asset}}. Reason: {{reason}}",
+    "pt": "Baixa de ativo: {{asset}}. Motivo: {{reason}}"
+  },
+  "ledger.fixed_asset.gain": {
+    "es": "Ganancia en venta de activo: {{asset}}",
+    "en": "Gain on asset disposal: {{asset}}",
+    "pt": "Ganho na venda de ativo: {{asset}}"
+  },
+  "ledger.fixed_asset.loss": {
+    "es": "Pérdida en venta de activo: {{asset}}",
+    "en": "Loss on asset disposal: {{asset}}",
+    "pt": "Perda na venda de ativo: {{asset}}"
+  },
+  "ledger.fixed_asset.sale_proceeds": {
+    "es": "Venta de activo: {{asset}}",
+    "en": "Proceeds from asset sale: {{asset}}",
+    "pt": "Venda de ativo: {{asset}}"
+  },
+  "ledger.inflation.counterpart": {
+    "es": "Contrapartida ajuste por inflación {{period}}",
+    "en": "Inflation adjustment counterpart {{period}}",
+    "pt": "Contrapartida do ajuste pela inflação {{period}}"
+  },
+  "ledger.inflation.entry": {
+    "es": "Asiento de ajuste por inflación {{period}}",
+    "en": "Inflation adjustment entry {{period}}",
+    "pt": "Lançamento de ajuste pela inflação {{period}}"
+  },
+  "ledger.inflation.line": {
+    "es": "Ajuste por inflación {{period}}",
+    "en": "Inflation adjustment {{period}}",
+    "pt": "Ajuste pela inflação {{period}}"
+  },
+  "ledger.intercompany.destination_entry": {
+    "es": "Intercompañía (← {{organization}}): {{description}}",
+    "en": "Intercompany (← {{organization}}): {{description}}",
+    "pt": "Intercompanhia (← {{organization}}): {{description}}"
+  },
+  "ledger.intercompany.funds_in": {
+    "es": "Recepción de fondos intercompañía",
+    "en": "Intercompany funds received",
+    "pt": "Recebimento de fundos intercompanhia"
+  },
+  "ledger.intercompany.funds_out": {
+    "es": "Salida de fondos intercompañía",
+    "en": "Intercompany funds paid out",
+    "pt": "Saída de fundos intercompanhia"
+  },
+  "ledger.intercompany.payable": {
+    "es": "Cuenta por pagar a {{organization}}",
+    "en": "Payable to {{organization}}",
+    "pt": "Conta a pagar a {{organization}}"
+  },
+  "ledger.intercompany.receivable": {
+    "es": "Cuenta por cobrar a {{organization}}",
+    "en": "Receivable from {{organization}}",
+    "pt": "Conta a receber de {{organization}}"
+  },
+  "ledger.intercompany.source_entry": {
+    "es": "Intercompañía (→ {{organization}}): {{description}}",
+    "en": "Intercompany (→ {{organization}}): {{description}}",
+    "pt": "Intercompanhia (→ {{organization}}): {{description}}"
+  },
+  "ledger.inventory.adjustment_entry": {
+    "es": "Ajuste de inventario: {{product}}",
+    "en": "Stock adjustment: {{product}}",
+    "pt": "Ajuste de inventário: {{product}}"
+  },
+  "ledger.inventory.adjustment_in": {
+    "es": "Entrada por ajuste — {{product}}",
+    "en": "Increase on adjustment — {{product}}",
+    "pt": "Entrada por ajuste — {{product}}"
+  },
+  "ledger.inventory.adjustment_out": {
+    "es": "Salida por ajuste — {{product}}",
+    "en": "Decrease on adjustment — {{product}}",
+    "pt": "Saída por ajuste — {{product}}"
+  },
+  "ledger.inventory.adjustment_shortfall": {
+    "es": "Faltante en ajuste de inventario",
+    "en": "Shortfall found on stock adjustment",
+    "pt": "Falta em ajuste de inventário"
+  },
+  "ledger.inventory.adjustment_surplus": {
+    "es": "Sobrante en ajuste de inventario",
+    "en": "Surplus found on stock adjustment",
+    "pt": "Sobra em ajuste de inventário"
+  },
+  "ledger.inventory.opening_counterpart": {
+    "es": "Contrapartida de saldos iniciales",
+    "en": "Opening balance counterpart",
+    "pt": "Contrapartida de saldos iniciais"
+  },
+  "ledger.inventory.opening_entry": {
+    "es": "Inventario inicial: {{product}}",
+    "en": "Opening stock: {{product}}",
+    "pt": "Inventário inicial: {{product}}"
+  },
+  "ledger.inventory.opening_stock": {
+    "es": "Existencia inicial de {{product}}",
+    "en": "Opening quantity of {{product}}",
+    "pt": "Existência inicial de {{product}}"
+  },
+  "ledger.payroll.afp_payable": {
+    "es": "AFP por pagar (TSS)",
+    "en": "AFP payable (TSS)",
+    "pt": "AFP a pagar (TSS)"
+  },
+  "ledger.payroll.bank_back": {
+    "es": "Reingreso a banco por ajuste",
+    "en": "Bank credit on payroll adjustment",
+    "pt": "Reentrada em banco por ajuste"
+  },
+  "ledger.payroll.bank_out": {
+    "es": "Salida de banco por nómina",
+    "en": "Bank payment for payroll",
+    "pt": "Saída de banco pela folha"
+  },
+  "ledger.payroll.employer_benefits": {
+    "es": "Beneficios patronales por pagar",
+    "en": "Employer benefits payable",
+    "pt": "Benefícios patronais a pagar"
+  },
+  "ledger.payroll.employer_contributions": {
+    "es": "Aportes patronales y beneficios",
+    "en": "Employer's contributions and benefits",
+    "pt": "Contribuições patronais e benefícios"
+  },
+  "ledger.payroll.infotep_payable": {
+    "es": "SRL/INFOTEP por pagar",
+    "en": "SRL/INFOTEP payable",
+    "pt": "SRL/INFOTEP a pagar"
+  },
+  "ledger.payroll.isr_payable": {
+    "es": "ISR retenido por pagar (DGII)",
+    "en": "ISR withheld, payable (DGII)",
+    "pt": "ISR retido a pagar (DGII)"
+  },
+  "ledger.payroll.net_adjusted": {
+    "es": "Ajuste de pago de nómina",
+    "en": "Payroll payment adjustment",
+    "pt": "Ajuste do pagamento da folha"
+  },
+  "ledger.payroll.net_paid": {
+    "es": "Pago de nómina (neto)",
+    "en": "Net payroll paid",
+    "pt": "Pagamento da folha (líquido)"
+  },
+  "ledger.payroll.net_payable": {
+    "es": "Sueldos por pagar (neto)",
+    "en": "Net wages payable",
+    "pt": "Vencimentos a pagar (líquido)"
+  },
+  "ledger.payroll.other_deductions": {
+    "es": "Otras deducciones por pagar",
+    "en": "Other deductions payable",
+    "pt": "Outras deduções a pagar"
+  },
+  "ledger.payroll.payment": {
+    "es": "Pago de nómina {{run}}",
+    "en": "Payroll payment {{run}}",
+    "pt": "Pagamento da folha {{run}}"
+  },
+  "ledger.payroll.run": {
+    "es": "Nómina {{run}}",
+    "en": "Payroll {{run}}",
+    "pt": "Folha {{run}}"
+  },
+  "ledger.payroll.salary_expense": {
+    "es": "Gasto de sueldos y salarios",
+    "en": "Wages and salaries expense",
+    "pt": "Gasto com vencimentos e salários"
+  },
+  "ledger.payroll.sfs_payable": {
+    "es": "SFS por pagar (TSS)",
+    "en": "SFS payable (TSS)",
+    "pt": "SFS a pagar (TSS)"
+  },
+  "ledger.provisioning.default_ledger_description": {
+    "es": "Libro contable principal, en la moneda funcional de la organización.",
+    "en": "Primary accounting ledger, in the organization's functional currency.",
+    "pt": "Livro contábil principal, na moeda funcional da organização."
+  },
+  "ledger.provisioning.default_ledger_name": {
+    "es": "Libro Principal",
+    "en": "Main Ledger",
+    "pt": "Livro Principal"
+  },
+  "ledger.provisioning.journals.banks": {
+    "es": "Diario de Bancos",
+    "en": "Banks Journal",
+    "pt": "Diário de Bancos"
+  },
+  "ledger.provisioning.journals.cash": {
+    "es": "Diario de Caja",
+    "en": "Cash Journal",
+    "pt": "Diário de Caixa"
+  },
+  "ledger.provisioning.journals.collections": {
+    "es": "Diario de Cobros",
+    "en": "Collections Journal",
+    "pt": "Diário de Cobranças"
+  },
+  "ledger.provisioning.journals.general": {
+    "es": "Diario General",
+    "en": "General Journal",
+    "pt": "Diário Geral"
+  },
+  "ledger.provisioning.journals.payments": {
+    "es": "Diario de Pagos",
+    "en": "Payments Journal",
+    "pt": "Diário de Pagamentos"
+  },
+  "ledger.provisioning.journals.payroll": {
+    "es": "Diario de Nómina",
+    "en": "Payroll Journal",
+    "pt": "Diário da Folha"
+  },
+  "ledger.provisioning.journals.purchases": {
+    "es": "Diario de Compras",
+    "en": "Purchases Journal",
+    "pt": "Diário de Compras"
+  },
+  "ledger.provisioning.journals.sales": {
+    "es": "Diario de Ventas",
+    "en": "Sales Journal",
+    "pt": "Diário de Vendas"
+  },
+  "ledger.purchase.bill": {
+    "es": "Factura de proveedor {{number}}",
+    "en": "Vendor bill {{number}}",
+    "pt": "Fatura de fornecedor {{number}}"
+  },
+  "ledger.purchase.deductible_tax": {
+    "es": "Impuesto sobre compras deducible",
+    "en": "Deductible tax on purchases",
+    "pt": "Imposto sobre compras dedutível"
+  },
+  "ledger.purchase.excise_and_other": {
+    "es": "Impuesto selectivo y otros gravámenes",
+    "en": "Excise duty and other levies",
+    "pt": "Imposto especial e outros tributos"
+  },
+  "ledger.purchase.goods_line": {
+    "es": "Compra: {{product}}",
+    "en": "Purchase: {{product}}",
+    "pt": "Compra: {{product}}"
+  },
+  "ledger.purchase.non_deductible_tax": {
+    "es": "Impuesto no deducible llevado al costo",
+    "en": "Non-deductible tax carried to cost",
+    "pt": "Imposto não dedutível levado ao custo"
+  },
+  "ledger.purchase.payable": {
+    "es": "Factura de proveedor: {{supplier}}",
+    "en": "Vendor bill: {{supplier}}",
+    "pt": "Fatura de fornecedor: {{supplier}}"
+  },
+  "ledger.purchase.service_charge_payable": {
+    "es": "Propina legal por pagar",
+    "en": "Statutory service charge payable",
+    "pt": "Taxa de serviço legal a pagar"
+  },
+  "ledger.purchase.withheld_for_authority": {
+    "es": "Retenciones por pagar al fisco",
+    "en": "Tax withheld, payable to the authority",
+    "pt": "Retenções a pagar ao fisco"
+  },
+  "ledger.reconciliation.entry": {
+    "es": "Conciliación bancaria — {{description}}",
+    "en": "Bank reconciliation — {{description}}",
+    "pt": "Conciliação bancária — {{description}}"
+  },
+  "ledger.reconciliation.rule_line": {
+    "es": "Regla: {{rule}}",
+    "en": "Rule: {{rule}}",
+    "pt": "Regra: {{rule}}"
+  },
+  "ledger.recurring.entry": {
+    "es": "(Recurrente) {{description}}",
+    "en": "(Recurring) {{description}}",
+    "pt": "(Recorrente) {{description}}"
+  },
+  "ledger.result_transfer.closing_line": {
+    "es": "Cierre de {{period}}",
+    "en": "Closing of {{period}}",
+    "pt": "Encerramento de {{period}}"
+  },
+  "ledger.result_transfer.entry": {
+    "es": "Asiento de cierre — {{period}}",
+    "en": "Closing entry — {{period}}",
+    "pt": "Lançamento de encerramento — {{period}}"
+  },
+  "ledger.result_transfer.fiscal_year": {
+    "es": "año fiscal {{from}} – {{to}}",
+    "en": "fiscal year {{from}} – {{to}}",
+    "pt": "exercício fiscal {{from}} – {{to}}"
+  },
+  "ledger.result_transfer.retained": {
+    "es": "Traspaso de resultado — {{period}}",
+    "en": "Result transferred — {{period}}",
+    "pt": "Transferência do resultado — {{period}}"
+  },
+  "ledger.revaluation.entry": {
+    "es": "Revaluación de moneda extranjera — libro {{ledger}}",
+    "en": "Foreign currency revaluation — ledger {{ledger}}",
+    "pt": "Reavaliação de moeda estrangeira — livro {{ledger}}"
+  },
+  "ledger.revaluation.line": {
+    "es": "Revaluación {{currency}} al cierre — {{account}}",
+    "en": "{{currency}} revaluation at close — {{account}}",
+    "pt": "Reavaliação {{currency}} no fecho — {{account}}"
+  },
+  "ledger.revaluation.unrealised_gain": {
+    "es": "Ganancia cambiaria no realizada",
+    "en": "Unrealised exchange gain",
+    "pt": "Ganho cambial não realizado"
+  },
+  "ledger.revaluation.unrealised_loss": {
+    "es": "Pérdida cambiaria no realizada",
+    "en": "Unrealised exchange loss",
+    "pt": "Perda cambial não realizada"
+  },
+  "ledger.reversal.entry": {
+    "es": "Reversión de {{number}}. Razón: {{reason}}",
+    "en": "Reversal of {{number}}. Reason: {{reason}}",
+    "pt": "Estorno de {{number}}. Motivo: {{reason}}"
+  },
+  "ledger.reversal.line_prefix": {
+    "es": "Reversión: ",
+    "en": "Reversal: ",
+    "pt": "Estorno: "
+  },
+  "ledger.rounding_difference": {
+    "es": "Diferencia de redondeo por conversión de moneda",
+    "en": "Rounding difference on currency conversion",
+    "pt": "Diferença de arredondamento na conversão de moeda"
+  },
+  "ledger.sales.cost_of": {
+    "es": "Costo de {{document}}",
+    "en": "Cost of {{document}}",
+    "pt": "Custo de {{document}}"
+  },
+  "ledger.sales.cost_of_sales": {
+    "es": "Costo de ventas",
+    "en": "Cost of sales",
+    "pt": "Custo das vendas"
+  },
+  "ledger.sales.credit_note": {
+    "es": "Nota de crédito {{number}}{{fiscal}} — {{customer}}",
+    "en": "Credit note {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Nota de crédito {{number}}{{fiscal}} — {{customer}}"
+  },
+  "ledger.sales.debit_note": {
+    "es": "Nota de débito {{number}}{{fiscal}} — {{customer}}",
+    "en": "Debit note {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Nota de débito {{number}}{{fiscal}} — {{customer}}"
+  },
+  "ledger.sales.invoice": {
+    "es": "Factura {{number}}{{fiscal}} — {{customer}}",
+    "en": "Invoice {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Fatura {{number}}{{fiscal}} — {{customer}}"
+  },
+  "ledger.sales.stock_released": {
+    "es": "Salida de inventario",
+    "en": "Stock released",
+    "pt": "Saída de inventário"
+  },
+  "ledger.treasury.opening_balance": {
+    "es": "Saldo de apertura — {{account}}",
+    "en": "Opening balance — {{account}}",
+    "pt": "Saldo de abertura — {{account}}"
+  },
+  "ledger.treasury.opening_counterpart": {
+    "es": "Contrapartida del saldo de apertura — {{account}}",
+    "en": "Opening balance counterpart — {{account}}",
+    "pt": "Contrapartida do saldo de abertura — {{account}}"
+  },
+  "ledger.vendor_payment.bank_out": {
+    "es": "Salida de banco por pago a proveedores",
+    "en": "Bank payment to suppliers",
+    "pt": "Saída de banco por pagamento a fornecedores"
+  },
+  "ledger.vendor_payment.batch": {
+    "es": "Pago a proveedores — lote {{batch}}",
+    "en": "Supplier payment — batch {{batch}}",
+    "pt": "Pagamento a fornecedores — lote {{batch}}"
+  },
+  "ledger.vendor_payment.early_payment_discount": {
+    "es": "Descuento por pronto pago obtenido",
+    "en": "Early-payment discount obtained",
+    "pt": "Desconto de pronto pagamento obtido"
+  },
+  "ledger.vendor_payment.exchange_difference": {
+    "es": "Diferencia cambiaria realizada en el pago",
+    "en": "Realised exchange difference on payment",
+    "pt": "Diferença cambial realizada no pagamento"
+  },
+  "ledger.vendor_payment.payable_settled": {
+    "es": "Cancelación de deuda con proveedores",
+    "en": "Supplier debt settled",
+    "pt": "Liquidação de dívida a fornecedores"
+  },
+  "ledger.vendor_payment.withheld_from_supplier": {
+    "es": "Retenciones practicadas al proveedor",
+    "en": "Tax withheld from the supplier",
+    "pt": "Retenções efetuadas ao fornecedor"
+  }
+}

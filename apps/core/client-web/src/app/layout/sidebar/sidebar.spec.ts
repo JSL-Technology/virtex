@@ -19,7 +19,7 @@ import { ModuleManifest } from '../../core/modules/module-manifest';
 describe('Sidebar (panel de módulo)', () => {
   let fixture: ComponentFixture<Sidebar>;
 
-  const ventas = { id: 'ventas', titleKey: 'MODULES.SALES' } as ModuleManifest;
+  const ventas = { id: 'ventas', titleKey: 'modules.sales' } as ModuleManifest;
   const entry = (path: string) => ({ path, labelKey: `X.${path}`, icon: moduleIcon('FileText') });
 
   async function render(panel: PanelSection[], activeEntry: string | null = null) {
@@ -58,14 +58,14 @@ describe('Sidebar (panel de módulo)', () => {
   it('nombra el módulo en el que estás', async () => {
     const el = await render(panelCompleto);
 
-    expect(el.querySelector('.module-title')?.textContent?.trim()).toBe('MODULES.SALES');
+    expect(el.querySelector('.module-title')?.textContent?.trim()).toBe('modules.sales');
   });
 
   it('respeta el orden de los grupos que recibe', async () => {
     const el = await render(panelCompleto);
 
     const titles = [...el.querySelectorAll('.group-title')].map((h) => h.textContent?.trim());
-    expect(titles).toEqual(['SHELL.GROUP_INBOX', 'SHELL.GROUP_DOCUMENTS', 'SHELL.GROUP_MASTERS']);
+    expect(titles).toEqual(['shell.group_inbox', 'shell.group_documents', 'shell.group_masters']);
   });
 
   it('marca una sola entrada activa', async () => {
@@ -84,7 +84,7 @@ describe('Sidebar (panel de módulo)', () => {
     // and "esto está roto".
     const el = await render([]);
 
-    expect(el.querySelector('.menu-empty')?.textContent?.trim()).toBe('SHELL.NO_ENTRIES');
+    expect(el.querySelector('.menu-empty')?.textContent?.trim()).toBe('shell.no_entries');
     expect(el.querySelectorAll('a.menu-item').length).toBe(0);
   });
 });

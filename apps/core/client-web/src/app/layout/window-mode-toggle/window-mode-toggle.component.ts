@@ -30,7 +30,7 @@ import { WindowModeService } from '../../core/windows/window-mode.service';
       [disabled]="mode() === 'compact'"
       [attr.aria-pressed]="mode() === 'workshop'"
       [title]="label() | translate"
-      [attr.aria-label]="'TABS.MODE' | translate"
+      [attr.aria-label]="'tabs.window_layout' | translate"
       (click)="modes.toggle()"
     >
       <lucide-icon [img]="icon()" size="18" aria-hidden="true"></lucide-icon>
@@ -70,11 +70,11 @@ export class WindowModeToggleComponent {
   protected readonly label = computed(() => {
     switch (this.mode()) {
       case 'workshop':
-        return 'TABS.MODE_WORKSHOP_HINT';
+        return 'tabs.several_windows_once_split_tile_float';
       case 'compact':
-        return 'TABS.MODE_COMPACT_HINT';
+        return 'tabs.narrow_screen_one_window_no_splitting';
       default:
-        return 'TABS.MODE_FOCUSED_HINT';
+        return 'tabs.one_window_view_rest_tabs';
     }
   });
 }

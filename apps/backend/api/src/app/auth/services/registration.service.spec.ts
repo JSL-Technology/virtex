@@ -299,7 +299,7 @@ describe('RegistrationService', () => {
         // failure, not report a success for an account that does not exist.
         await expectLocalizedError(
           service.completePendingRegistration('pending-1', subscription),
-          'AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO',
+          'auth.your_plan_could_not_activated_your',
           { pendingId: 'pending-1' },
         );
       });

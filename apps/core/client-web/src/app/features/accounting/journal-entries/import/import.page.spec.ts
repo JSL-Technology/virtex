@@ -48,7 +48,7 @@ describe('JournalEntryImportPage', () => {
         totalCredit: 99,
         errors: [
           {
-            messageKey: 'JOURNAL_ENTRIES.IMPORT.ASIENTO_NO_CUADRA',
+            messageKey: 'journal_entries.import.entry_does_not_balance_debits_debit',
             params: { debit: 100, credit: 99 },
           },
         ],
@@ -57,7 +57,7 @@ describe('JournalEntryImportPage', () => {
           {
             lineNumber: 2,
             isValid: false,
-            error: { messageKey: 'JOURNAL_ENTRIES.IMPORT.CUENTA_NO_EXISTE', params: { code: '9999' } },
+            error: { messageKey: 'journal_entries.import.no_account_with_code_code_exists', params: { code: '9999' } },
             data: {},
           },
         ],
@@ -172,8 +172,8 @@ describe('JournalEntryImportPage', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('JOURNAL_ENTRIES.IMPORT.ASIENTO_NO_CUADRA');
-    expect(text).toContain('JOURNAL_ENTRIES.IMPORT.CUENTA_NO_EXISTE');
+    expect(text).toContain('journal_entries.import.entry_does_not_balance_debits_debit');
+    expect(text).toContain('journal_entries.import.no_account_with_code_code_exists');
     expect(text).not.toContain('batchId');
   });
 
@@ -187,7 +187,7 @@ describe('JournalEntryImportPage', () => {
     const request = httpMock.expectOne((c) => c.url === `${API}/import/confirm`);
     expect(request.request.body).toEqual({ batchId: 'b-1' });
     request.flush({
-      messageKey: 'JOURNAL_ENTRIES.IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE',
+      messageKey: 'journal_entries.import_confirmed_processed',
       createdEntriesCount: 1,
     });
   });

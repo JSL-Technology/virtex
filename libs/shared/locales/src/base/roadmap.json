@@ -1,0 +1,87 @@
+{
+  "roadmap.coming_soon": {
+    "es": "Próximamente",
+    "en": "Coming soon",
+    "pt": "Em breve"
+  },
+  "roadmap.manufacturing.bill_of_materials.description": {
+    "es": "Configura estructuras de producto y listas de componentes.",
+    "en": "Configure product structures and component lists.",
+    "pt": "Configura estruturas de produto e listas de componentes."
+  },
+  "roadmap.manufacturing.bill_of_materials.title": {
+    "es": "Lista de materiales",
+    "en": "Bill of materials",
+    "pt": "Lista de materiais"
+  },
+  "roadmap.manufacturing.production_orders.description": {
+    "es": "Administra órdenes de trabajo activas y programas de producción.",
+    "en": "Manage active work orders and production schedules.",
+    "pt": "Gere ordens de trabalho ativas e programas de produção."
+  },
+  "roadmap.manufacturing.production_orders.title": {
+    "es": "Órdenes de producción",
+    "en": "Production orders",
+    "pt": "Ordens de produção"
+  },
+  "roadmap.manufacturing.title": {
+    "es": "Manufactura y producción (MRP)",
+    "en": "Manufacturing & production (MRP)",
+    "pt": "Fabrico e produção (MRP)"
+  },
+  "roadmap.manufacturing.work_centers.description": {
+    "es": "Supervisa la capacidad y la eficiencia de cada estación.",
+    "en": "Monitor station capacity and efficiency.",
+    "pt": "Monitoriza a capacidade e a eficiência de cada estação."
+  },
+  "roadmap.manufacturing.work_centers.title": {
+    "es": "Centros de trabajo",
+    "en": "Work centers",
+    "pt": "Centros de trabalho"
+  },
+  "roadmap.procurement.description": {
+    "es": "Administra solicitudes de cotización, requisiciones de compra y la relación con proveedores.",
+    "en": "Manage requests for quotation, purchase requisitions and supplier interactions.",
+    "pt": "Gere pedidos de cotação, requisições de compra e a relação com fornecedores."
+  },
+  "roadmap.procurement.title": {
+    "es": "Compras avanzadas y portal de proveedores",
+    "en": "Advanced procurement & supplier portal",
+    "pt": "Compras avançadas e portal de fornecedores"
+  },
+  "roadmap.projects.description": {
+    "es": "Administra proyectos, recursos y su facturación.",
+    "en": "Manage projects, resources and their billing.",
+    "pt": "Gere projetos, recursos e a respetiva faturação."
+  },
+  "roadmap.projects.title": {
+    "es": "Automatización de servicios y proyectos (PSA)",
+    "en": "Project service automation (PSA)",
+    "pt": "Automação de serviços e projetos (PSA)"
+  },
+  "roadmap.wms.landed_costs.description": {
+    "es": "Calcula el costo real del producto incluyendo flete y aranceles.",
+    "en": "Calculate accurate product costs including freight and duties.",
+    "pt": "Calcula o custo real do produto incluindo frete e direitos."
+  },
+  "roadmap.wms.landed_costs.title": {
+    "es": "Costos de importación",
+    "en": "Landed costs",
+    "pt": "Custos de importação"
+  },
+  "roadmap.wms.realtime_inventory.description": {
+    "es": "Sigue las existencias en varios almacenes.",
+    "en": "Track stock levels across multiple warehouses.",
+    "pt": "Acompanha as existências em vários armazéns."
+  },
+  "roadmap.wms.realtime_inventory.title": {
+    "es": "Inventario en tiempo real",
+    "en": "Real-time inventory",
+    "pt": "Inventário em tempo real"
+  },
+  "roadmap.wms.title": {
+    "es": "Gestión de almacenes (WMS)",
+    "en": "Warehouse management (WMS)",
+    "pt": "Gestão de armazéns (WMS)"
+  }
+}

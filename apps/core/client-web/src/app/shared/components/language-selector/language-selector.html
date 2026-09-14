@@ -1,7 +1,7 @@
 @if (variant() === 'settings') {
   <div class="language-selector language-selector--settings">
     <span id="language-selector-label" class="selector-label">
-      {{ 'SETTINGS.LANGUAGE.LABEL' | translate }}
+      {{ 'settings.language.label' | translate }}
     </span>
 
     <div class="button-group" role="radiogroup" aria-labelledby="language-selector-label">
@@ -18,7 +18,7 @@
       }
     </div>
 
-    <p class="description">{{ 'SETTINGS.LANGUAGE.DESCRIPTION' | translate }}</p>
+    <p class="description">{{ 'settings.language.description' | translate }}</p>
   </div>
 } @else {
   <div class="language-selector language-selector--compact">
@@ -28,7 +28,7 @@
       [class.active]="isOpen"
       [attr.aria-expanded]="isOpen"
       aria-haspopup="listbox"
-      [attr.aria-label]="'SETTINGS.LANGUAGE.CHOOSE' | translate"
+      [attr.aria-label]="'settings.language.choose' | translate"
       (click)="toggle($event)">
       <lucide-icon [img]="icons.Globe" size="15" class="icon-left" aria-hidden="true"></lucide-icon>
       <span [lang]="languageService.currentLanguage()">{{ currentLabel }}</span>
@@ -36,7 +36,7 @@
     </button>
 
     @if (isOpen) {
-      <div class="dropdown-menu" role="listbox" [attr.aria-label]="'SETTINGS.LANGUAGE.LABEL' | translate">
+      <div class="dropdown-menu" role="listbox" [attr.aria-label]="'settings.language.label' | translate">
         @for (language of languages; track language.code) {
           <button
             type="button"

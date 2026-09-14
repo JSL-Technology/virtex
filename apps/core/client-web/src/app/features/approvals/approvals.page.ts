@@ -5,7 +5,7 @@ import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/compo
 import { PendingApproval, WorkflowsService } from '../../core/api/workflows.service';
 import { NotificationService } from '../../core/services/notification';
 import { DialogService } from '../../core/services/dialog.service';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * El centro de aprobaciones.
@@ -62,9 +62,9 @@ export class ApprovalsPage implements OnInit {
       items.push(this.toItem(request));
       byType.set(request.documentType, items);
     }
-    if (byType.size === 0) return [{ labelKey: 'APPROVALS.PENDIENTES', items: [] }];
+    if (byType.size === 0) return [{ labelKey: 'approvals.waiting_your_decision', items: [] }];
     return [...byType.entries()].map(([documentType, items]) => ({
-      labelKey: `APPROVALS.DOCUMENT_TYPE.${documentType}`,
+      labelKey: `approvals.document_type.${documentType}`,
       items,
     }));
   });
@@ -82,27 +82,27 @@ export class ApprovalsPage implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('APPROVALS.LOAD_FAILED');
+        this.error.set('approvals.load_failed');
         this.loading.set(false);
       },
     });
   }
 
   approve(requestId: string): void {
-    this.decide(this.workflows.approve(requestId), requestId, 'APPROVALS.APROBADA');
+    this.decide(this.workflows.approve(requestId), requestId, 'approvals.request_approved');
   }
 
   async reject(requestId: string): Promise<void> {
     const reason = await this.dialog.prompt({
-      title: 'APPROVALS.MOTIVO_RECHAZO_TITULO',
-      message: 'APPROVALS.MOTIVO_RECHAZO_MENSAJE',
-      confirmText: 'APPROVALS.RECHAZAR',
+      title: 'approvals.reason_rejection',
+      message: 'approvals.rejection_with_no_reason_not_decision',
+      confirmText: 'approvals.reject',
       variant: 'danger',
       minLength: 1,
     });
     if (reason === null) return;
 
-    this.decide(this.workflows.reject(requestId, reason), requestId, 'APPROVALS.RECHAZADA');
+    this.decide(this.workflows.reject(requestId, reason), requestId, 'approvals.request_rejected');
   }
 
   private decide(
@@ -121,7 +121,7 @@ export class ApprovalsPage implements OnInit {
       },
       error: (err: { error?: { message?: string } }) => {
         this.notifications.showError(
-          err?.error?.message || this.translate.instant('APPROVALS.ERROR_DECIDIR'),
+          err?.error?.message || this.translate.instant('approvals.decision_could_not_recorded'),
         );
         this.deciding.set(null);
       },
@@ -131,8 +131,8 @@ export class ApprovalsPage implements OnInit {
   private toItem(request: PendingApproval): InboxItem {
     return {
       id: request.id,
-      title: this.translate.instant(`APPROVALS.DOCUMENT_TYPE.${request.documentType}`),
-      detail: this.translate.instant('APPROVALS.PASO', { step: request.currentStep }),
+      title: this.translate.instant(`approvals.document_type.${request.documentType}`),
+      detail: this.translate.instant('approvals.step_step', { step: request.currentStep }),
       amount: String(request.amount),
       when: request.createdAt ?? undefined,
       //  Sin enlace: el documento vive en el módulo que lo emitió y esta solicitud no conoce su

@@ -60,7 +60,7 @@ export class InventoryService {
       relations: ['category'],
     });
     if (!product) {
-      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
+      throw new NotFoundError('inventory.product_id_not_found', { id });
     }
     return product;
   }
@@ -82,7 +82,7 @@ export class InventoryService {
     return this.dataSource.transaction(async (manager) => {
       const product = await manager.findOne(Product, { where: { id, organizationId } });
       if (!product) {
-        throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
+        throw new NotFoundError('inventory.product_id_not_found', { id });
       }
       const before = { quantity: product.stock, unitCost: product.cost };
       const updated = await manager.save(manager.merge(Product, product, updateProductDto));
@@ -105,7 +105,7 @@ export class InventoryService {
     await this.dataSource.transaction(async (manager) => {
       const product = await manager.findOne(Product, { where: { id, organizationId } });
       if (!product) {
-        throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
+        throw new NotFoundError('inventory.product_id_not_found', { id });
       }
       const before = { quantity: product.stock, unitCost: product.cost };
       product.stock = 0;
@@ -135,7 +135,7 @@ export class InventoryService {
 
     const available = Number(product.stock);
     if (available < quantity) {
-      throw new BadRequestError('INVENTORY.STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS', { name: product.name, available, quantity });
+      throw new BadRequestError('inventory.not_enough_stock_name_available_available', { name: product.name, available, quantity });
     }
 
     product.stock = available - quantity;
@@ -167,7 +167,7 @@ export class InventoryService {
       .getOne();
 
     if (!product) {
-      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION', { productId });
+      throw new NotFoundError('inventory.product_product_id_not_found_organization', { productId });
     }
     return product;
   }

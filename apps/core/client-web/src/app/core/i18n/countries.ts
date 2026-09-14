@@ -1,5 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { LocaleStore } from './locale.store';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 
 /**
  * Every ISO 3166-1 alpha-2 country code.

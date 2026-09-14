@@ -2,13 +2,13 @@
   class="impersonation-banner banner"
   *ngIf="authService.currentUser()?.isImpersonating"
 >
-  {{ 'MAIN.ESTAS_VIENDO_SISTEMA_COMO' | translate }}
+  {{ 'main.you_viewing_system' | translate }}
   <strong>
     {{ authService.currentUser()?.firstName }} {{
     authService.currentUser()?.lastName }}
   </strong>
   <button (click)="stopImpersonation()">
-    {{ 'MAIN.VOLVER_MI_CUENTA' | translate }}
+    {{ 'main.back_my_account' | translate }}
   </button>
 </div>
 
@@ -17,13 +17,13 @@
   *ngIf="authService.currentUser()?.organization?.subscriptionStatus === 'past_due' && isGracePeriodActive()"
 >
   <div class="banner-content">
-    <strong>{{ 'MAIN.ATENCION' | translate }}</strong>
-    {{ 'MAIN.GRACE_PERIOD_BANNER' | translate: { date:
+    <strong>{{ 'main.attention' | translate }}</strong>
+    {{ 'main.your_payment_pending_you_have_temporary' | translate: { date:
     (authService.currentUser()?.organization?.gracePeriodEnd | vxDate:
     'dateLong') } }}
   </div>
   <button type="button" (click)="openSettings('billing')" class="btn-resolve">
-    {{ 'MAIN.RESOLVER_AHORA' | translate }}
+    {{ 'main.resolve_now' | translate }}
   </button>
 </div>
 
@@ -58,7 +58,7 @@
   <button
     class="icon-button sidebar-toggle"
     type="button"
-    [attr.aria-label]="'NAV.MENU' | translate"
+    [attr.aria-label]="'nav.menu' | translate"
     [attr.aria-expanded]="isSidebarOpen()"
     (click)="toggleSidebar()"
   >
@@ -68,25 +68,25 @@
   <a
     class="topbar-brand"
     routerLink="/overview"
-    [attr.aria-label]="'APP_TITLE' | translate"
+    [attr.aria-label]="'app_title' | translate"
   >
     <app-brand-logo
       [size]="28"
       tone="negative"
-      [label]="'APP_TITLE' | translate"
+      [label]="'app_title' | translate"
     ></app-brand-logo>
   </a>
 
   <div
     class="history-actions"
     role="group"
-    [attr.aria-label]="'NAV.HISTORY.GROUP' | translate"
+    [attr.aria-label]="'nav.history.group' | translate"
   >
     <button
       class="icon-button"
       type="button"
-      [attr.aria-label]="'NAV.HISTORY.BACK' | translate"
-      [title]="'NAV.HISTORY.BACK' | translate"
+      [attr.aria-label]="'nav.history.back' | translate"
+      [title]="'nav.history.back' | translate"
       (click)="goBack()"
     >
       <lucide-icon [img]="ArrowLeftIcon" size="18"></lucide-icon>
@@ -94,8 +94,8 @@
     <button
       class="icon-button"
       type="button"
-      [attr.aria-label]="'NAV.HISTORY.FORWARD' | translate"
-      [title]="'NAV.HISTORY.FORWARD' | translate"
+      [attr.aria-label]="'nav.history.next' | translate"
+      [title]="'nav.history.next' | translate"
       (click)="goForward()"
     >
       <lucide-icon [img]="ArrowRightIcon" size="18"></lucide-icon>
@@ -109,12 +109,12 @@
           <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
           <input
             type="text"
-            [placeholder]="'SEARCH.MAIN_PLACEHOLDER' | translate"
+            [placeholder]="'search.search_invoices_customers_products' | translate"
             #searchInput
             (input)="onSearchInput(searchInput.value)"
             (keyup.enter)="navigateToSearch(searchInput.value)"
             (focus)="onSearchFocus()"
-            [attr.aria-label]="'SEARCH.ARIA_GLOBAL' | translate"
+            [attr.aria-label]="'search.aria_global' | translate"
           />
         </div>
         @if (isSearchOpen()) {
@@ -122,7 +122,7 @@
           <div class="results-header">
             <div class="results-title-container">
               <span class="results-title"
-                >{{ 'MAIN.RESULTADOS_BUSQUEDA' | translate }}</span
+                >{{ 'main.search_results' | translate }}</span
               >
               @if (isSearchLoading()) {
               <div class="loading-spinner">
@@ -137,10 +137,10 @@
             <div class="no-results-container">
               <lucide-icon [img]="FileSearchIcon" size="48"></lucide-icon>
               <span class="no-results-title"
-                >{{ 'MAIN.NO_ENCONTRARON_RESULTADOS' | translate }}</span
+                >{{ 'main.no_results_found' | translate }}</span
               >
               <span class="no-results-description"
-                >{{ 'MAIN.INTENTA_OTRA_PALABRA_CLAVE_REVISA_ORTOGRAFIA' |
+                >{{ 'main.try_another_keyword_check_spelling' |
                 translate }}</span
               >
             </div>
@@ -189,7 +189,7 @@
               (click)="navigateToSearch(searchInput.value); closeSearch()"
               class="view-all-link"
             >
-              <span>{{ 'MAIN.VER_TODOS_RESULTADOS' | translate }}</span>
+              <span>{{ 'main.see_all_results' | translate }}</span>
               <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
             </button>
           </div>
@@ -209,8 +209,8 @@
           <button
             class="icon-button"
             type="button"
-            [title]="'ACTIONS.CREATE_NEW' | translate"
-            [attr.aria-label]="'ACTIONS.CREATE_NEW' | translate"
+            [title]="'actions.create_new' | translate"
+            [attr.aria-label]="'actions.create_new' | translate"
             aria-haspopup="menu"
             [attr.aria-expanded]="isQuickCreateModalOpen()"
             (click)="toggleQuickCreateModal()"
@@ -221,7 +221,7 @@
           @if (isQuickCreateModalOpen()) {
           <div class="quick-create-dropdown">
             <div class="dropdown-header">
-              <h3>{{ 'ACTIONS.CREATE_NEW' | translate }}</h3>
+              <h3>{{ 'actions.create_new' | translate }}</h3>
             </div>
             <div class="dropdown-body">
               <a
@@ -231,10 +231,10 @@
               >
                 <lucide-icon [img]="FileTextIcon" size="20"></lucide-icon>
                 <span class="quick-action-label"
-                  >{{ 'ACTIONS.NEW_INVOICE' | translate }}</span
+                  >{{ 'actions.new_invoice' | translate }}</span
                 >
                 <span class="quick-action-shortcut"
-                  >{{ 'MAIN.ALT_SHIFT' | translate }}</span
+                  >{{ 'main.shortcut_open_invoices' | translate }}</span
                 >
               </a>
               <a
@@ -244,10 +244,10 @@
               >
                 <lucide-icon [img]="ReceiptIcon" size="20"></lucide-icon>
                 <span class="quick-action-label"
-                  >{{ 'ACTIONS.NEW_QUOTE' | translate }}</span
+                  >{{ 'actions.new_quote' | translate }}</span
                 >
                 <span class="quick-action-shortcut"
-                  >{{ 'MAIN.ALT_SHIFT_2' | translate }}</span
+                  >{{ 'main.shortcut_open_quotes' | translate }}</span
                 >
               </a>
               <a
@@ -257,10 +257,10 @@
               >
                 <lucide-icon [img]="UserPlusIcon" size="20"></lucide-icon>
                 <span class="quick-action-label"
-                  >{{ 'ACTIONS.NEW_CUSTOMER' | translate }}</span
+                  >{{ 'actions.new_customer' | translate }}</span
                 >
                 <span class="quick-action-shortcut"
-                  >{{ 'MAIN.ALT_SHIFT_3' | translate }}</span
+                  >{{ 'main.shortcut_open_customers' | translate }}</span
                 >
               </a>
               <a
@@ -270,10 +270,10 @@
               >
                 <lucide-icon [img]="PackageIcon" size="20"></lucide-icon>
                 <span class="quick-action-label"
-                  >{{ 'ACTIONS.NEW_PRODUCT' | translate }}</span
+                  >{{ 'actions.new_product' | translate }}</span
                 >
                 <span class="quick-action-shortcut"
-                  >{{ 'MAIN.ALT_SHIFT_4' | translate }}</span
+                  >{{ 'main.shortcut_open_products' | translate }}</span
                 >
               </a>
             </div>
@@ -289,8 +289,8 @@
           <button
             class="icon-button"
             type="button"
-            [title]="'NAV.NOTIFICATIONS' | translate"
-            [attr.aria-label]="'NAV.NOTIFICATIONS' | translate"
+            [title]="'nav.notifications' | translate"
+            [attr.aria-label]="'nav.notifications' | translate"
             aria-haspopup="menu"
             [attr.aria-expanded]="isNotificationMenuOpen()"
             (click)="toggleNotificationMenu()"
@@ -305,12 +305,12 @@
           @if (isNotificationMenuOpen()) {
           <div class="notification-dropdown">
             <div class="dropdown-header">
-              <h3>{{ 'NAV.NOTIFICATIONS' | translate }}</h3>
+              <h3>{{ 'nav.notifications' | translate }}</h3>
               <button
                 (click)="notificationCenter.markAllAsRead()"
                 class="mark-all-read"
               >
-                {{ 'NOTIFICATIONS.MARK_ALL_AS_READ' | translate }}
+                {{ 'notifications.mark_all_as_read' | translate }}
               </button>
             </div>
             <div class="dropdown-body">
@@ -333,14 +333,14 @@
               } @empty {
               <div class="no-notifications">
                 <lucide-icon [img]="BellIcon" size="32"></lucide-icon>
-                <p>{{ 'NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}</p>
+                <p>{{ 'notifications.no_notifications' | translate }}</p>
               </div>
               }
             </div>
             @if(notificationCenter.notifications().length > 0) {
             <div class="dropdown-footer">
               <a routerLink="/notifications" (click)="closeNotificationMenu()"
-                >{{ 'NOTIFICATIONS.VIEW_ALL' | translate }}</a
+                >{{ 'notifications.view_all' | translate }}</a
               >
             </div>
             }
@@ -370,10 +370,10 @@
 
             <span class="user-role">
               {{(authService.currentUser()?.roles?.[0]?.isSystemRole ?
-              ('USER.ROLE.' +
+              ('user.role.' +
               authService.currentUser()!.roles[0].name.toUpperCase() |
               translate) : (authService.currentUser()?.roles?.[0]?.name ||
-              ('USER.ROLE.NO_ROLE' | translate)))}}
+              ('user.role.no_role' | translate)))}}
             </span>
           </div>
           <lucide-icon
@@ -402,7 +402,7 @@
               (click)="openSettings('my-profile'); closeUserMenu()"
             >
               <lucide-icon [img]="UserIcon" size="16"></lucide-icon>
-              <span>{{ "USER.MY_PROFILE" | translate }}</span>
+              <span>{{ "user.my_profile" | translate }}</span>
             </button>
 
             <button
@@ -410,19 +410,19 @@
               (click)="openSettings(); closeUserMenu()"
             >
               <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
-              <span>{{ "NAV.SETTINGS" | translate }}</span>
+              <span>{{ "nav.settings" | translate }}</span>
             </button>
 
             <div class="dropdown-divider" role="separator"></div>
 
             <button class="dropdown-item" type="button" (click)="comingSoon()">
               <lucide-icon [img]="HelpCircleIcon" size="16"></lucide-icon>
-              <span>{{ "USER.HELP" | translate }}</span>
+              <span>{{ "user.help" | translate }}</span>
             </button>
 
             <button class="dropdown-item" type="button" (click)="comingSoon()">
               <lucide-icon [img]="KeyboardIcon" size="16"></lucide-icon>
-              <span>{{ "USER.SHORTCUTS" | translate }}</span>
+              <span>{{ "user.shortcuts" | translate }}</span>
             </button>
 
             <!--
@@ -441,7 +441,7 @@
                 [attr.aria-expanded]="isFeedbackOpen()"
               >
                 <lucide-icon [img]="MessageSquareIcon" size="16"></lucide-icon>
-                <span>{{ "FEEDBACK.TITLE" | translate }}</span>
+                <span>{{ "feedback.title" | translate }}</span>
                 <lucide-icon
                   [img]="ChevronLeftIcon"
                   size="16"
@@ -457,7 +457,7 @@
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="BugIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.REPORT_BUG" | translate }}</span>
+                  <span>{{ "feedback.report_problem" | translate }}</span>
                 </button>
                 <button
                   class="dropdown-item dropdown-subitem"
@@ -466,7 +466,7 @@
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.SUGGEST" | translate }}</span>
+                  <span>{{ "feedback.suggest" | translate }}</span>
                 </button>
                 <button
                   class="dropdown-item dropdown-subitem"
@@ -475,7 +475,7 @@
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="StarIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.PRAISE" | translate }}</span>
+                  <span>{{ "feedback.leave_review" | translate }}</span>
                 </button>
               </div>
             </div>
@@ -487,7 +487,7 @@
               (click)="authService.logout()"
             >
               <lucide-icon [img]="LogOutIcon" size="16"></lucide-icon>
-              <span>{{ "AUTH.SIGN_OUT" | translate }}</span>
+              <span>{{ "auth.sign_out" | translate }}</span>
             </button>
           </div>
         </div>

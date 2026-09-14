@@ -9,7 +9,7 @@ import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-pe
 export class Verify2faDto {
   @ApiProperty({ description: '6-digit MFA code' })
   @IsString()
-  @Length(6, 12, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":6,"max":12}' })
+  @Length(6, 12, { message: 'validation.constraints.length|{"min":6,"max":12}' })
   code!: string;
 }
 
@@ -19,7 +19,7 @@ export class Verify2faDto {
 export class InvitationDetailsDto {
   @ApiProperty({ description: 'SHA-256 invitation token' })
   @IsString()
-  @Length(64, 64, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":64,"max":64}' })
+  @Length(64, 64, { message: 'validation.constraints.length|{"min":64,"max":64}' })
   token!: string;
 }
 
@@ -27,7 +27,7 @@ export class SendPublicVerificationDto {
   /**
    * Where the code goes: an email address for EMAIL_VERIFY, an E.164 number for PHONE_VERIFY.
    *
-   * This was `@IsString() @Length(3, 320, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":320}' })` and nothing else, on an UNAUTHENTICATED endpoint that
+   * This was `@IsString() @Length(3, 320, { message: 'validation.constraints.length|{"min":3,"max":320}' })` and nothing else, on an UNAUTHENTICATED endpoint that
    * hands the value straight to Twilio. Any string reached the SMS provider, which is the exact
    * shape of SMS pumping — an operator drives traffic to premium-rate ranges they are paid for and
    * the bill lands on this account. `SmsAbuseGuardService` contains the damage, but the first line
@@ -39,7 +39,7 @@ export class SendPublicVerificationDto {
   // Lower-casing an E.164 number is a no-op, so a phone target is unaffected.
   @NormalizeContactTarget()
   @IsString()
-  @Length(3, 320, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":320}' })
+  @Length(3, 320, { message: 'validation.constraints.length|{"min":3,"max":320}' })
   @IsVerificationTarget()
   target!: string;
 
@@ -55,7 +55,7 @@ export class SendPublicVerificationDto {
   @ApiProperty({ description: 'First name, for the greeting', required: false })
   @IsString()
   @IsOptional()
-  @Length(1, 100, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":100}' })
+  @Length(1, 100, { message: 'validation.constraints.length|{"min":1,"max":100}' })
   firstName?: string;
 
   /**
@@ -69,7 +69,7 @@ export class SendPublicVerificationDto {
   @ApiProperty({ description: 'Preferred language (ISO 639-1)', required: false })
   @IsString()
   @IsOptional()
-  @Length(2, 5, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":5}' })
+  @Length(2, 5, { message: 'validation.constraints.length|{"min":2,"max":5}' })
   language?: string;
 
   /**
@@ -80,7 +80,7 @@ export class SendPublicVerificationDto {
   @ApiProperty({ description: 'Country (ISO 3166-1 alpha-2)', required: false })
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.COUNTRY_CODE' })
+  @Length(2, 2, { message: 'validation.constraints.country_code' })
   country?: string;
 
   @ApiProperty({ enum: VerificationType })
@@ -96,7 +96,7 @@ export class SendPublicVerificationDto {
 export class VerifyPublicCodeDto extends SendPublicVerificationDto {
   @ApiProperty({ description: 'Verification code' })
   @IsString()
-  @Length(4, 12, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":4,"max":12}' })
+  @Length(4, 12, { message: 'validation.constraints.length|{"min":4,"max":12}' })
   code!: string;
 }
 
@@ -107,13 +107,13 @@ export class VerifyPublicCodeDto extends SendPublicVerificationDto {
 export class AuthCreateCheckoutSessionDto {
   @ApiProperty()
   @IsString()
-  @Length(1, 80, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":80}' })
+  @Length(1, 80, { message: 'validation.constraints.length|{"min":1,"max":80}' })
   planId!: string;
 
   /** Monthly or annual. Defaults to monthly. */
   @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
   @IsOptional()
-  @IsIn(BILLING_PERIODS, { message: 'VALIDATION.SECURITY_AUDIT.PERIODO_FACTURACION_NO_VALIDO' })
+  @IsIn(BILLING_PERIODS, { message: 'validation.security_audit.billing_period_not_valid' })
   billingPeriod?: BillingPeriod;
 }
 

@@ -1,0 +1,292 @@
+{
+  "journal_entries.account_code_p2_does_not_accept": {
+    "es": "La cuenta '{{code}} - {{p2}}' no permite contabilización.",
+    "en": "Account '{{code}} - {{p2}}' does not accept postings.",
+    "pt": "A conta '{{code}} - {{p2}}' não aceita lançamentos."
+  },
+  "journal_entries.account_code_p2_locked_new_transactions": {
+    "es": "La cuenta '{{code}} - {{p2}}' está bloqueada para nuevas transacciones.",
+    "en": "Account '{{code}} - {{p2}}' is locked for new transactions.",
+    "pt": "A conta '{{code}} - {{p2}}' está bloqueada para novos lançamentos."
+  },
+  "journal_entries.account_code_p2_requires_mandatory_dimension": {
+    "es": "La cuenta contable '{{code}} - {{p2}}' requiere la dimensión obligatoria '{{dimensionKey}}'.",
+    "en": "Account '{{code}} - {{p2}}' requires the mandatory dimension '{{dimensionKey}}'.",
+    "pt": "A conta '{{code}} - {{p2}}' exige a dimensão obrigatória '{{dimensionKey}}'."
+  },
+  "journal_entries.amount_field_not_valid_number": {
+    "es": "El importe de {{field}} no es un número válido.",
+    "en": "The amount in {{field}} is not a valid number.",
+    "pt": "O valor de {{field}} não é um número válido."
+  },
+  "journal_entries.amount_must_positive_number": {
+    "es": "El monto debe ser un número positivo.",
+    "en": "The amount must be a positive number.",
+    "pt": "O valor deve ser um número positivo."
+  },
+  "journal_entries.attachment_deleted": {
+    "es": "Adjunto eliminado exitosamente.",
+    "en": "Attachment deleted.",
+    "pt": "Anexo excluído."
+  },
+  "journal_entries.attachment_not_found": {
+    "es": "Adjunto no encontrado.",
+    "en": "Attachment not found.",
+    "pt": "Anexo não encontrado."
+  },
+  "journal_entries.audit_adjustments_can_only_applied_closed": {
+    "es": "Los ajustes de auditoría solo pueden aplicarse a años fiscales cerrados.",
+    "en": "Audit adjustments can only be applied to closed fiscal years.",
+    "pt": "Ajustes de auditoria só podem ser aplicados a exercícios encerrados."
+  },
+  "journal_entries.csv_file_cannot_read_detail": {
+    "es": "El archivo CSV no se puede leer: {{detail}}",
+    "en": "The CSV file cannot be read: {{detail}}",
+    "pt": "O arquivo CSV não pode ser lido: {{detail}}"
+  },
+  "journal_entries.currency_conversion_left_rounding_difference_no": {
+    "es": "La conversión de moneda dejó una diferencia de redondeo y no hay cuenta de diferencia cambiaria configurada.",
+    "en": "The currency conversion left a rounding difference and no exchange difference account is configured.",
+    "pt": "A conversão de moeda deixou uma diferença de arredondamento e não há conta de variação cambial configurada."
+  },
+  "journal_entries.entry_containing_reconciled_lines_cannot_modified": {
+    "es": "No se puede modificar un asiento que contiene líneas conciliadas.",
+    "en": "An entry containing reconciled lines cannot be modified.",
+    "pt": "Um lançamento com linhas conciliadas não pode ser modificado."
+  },
+  "journal_entries.entry_containing_reconciled_lines_cannot_reversed": {
+    "es": "No se puede reversar un asiento que contiene líneas conciliadas.",
+    "en": "An entry containing reconciled lines cannot be reversed.",
+    "pt": "Um lançamento com linhas conciliadas não pode ser estornado."
+  },
+  "journal_entries.entry_does_not_balance_ledger_ledger": {
+    "es": "El asiento no balancea en el libro {ledgerId}: diferencia de {difference}. Revisa las reglas de mapeo entre libros.",
+    "en": "The entry does not balance in ledger {ledgerId}: difference of {difference}. Review the ledger mapping rules.",
+    "pt": "O lançamento não fecha no livro {ledgerId}: diferença de {difference}. Revise as regras de mapeamento entre livros."
+  },
+  "journal_entries.entry_exceeds_budget_detail": {
+    "es": "El asiento excede el presupuesto: {{detail}}",
+    "en": "The entry exceeds the budget: {{detail}}",
+    "pt": "O lançamento excede o orçamento: {{detail}}"
+  },
+  "journal_entries.entry_has_already_reversed": {
+    "es": "Este asiento ya ha sido reversado.",
+    "en": "This entry has already been reversed.",
+    "pt": "Este lançamento já foi estornado."
+  },
+  "journal_entries.entry_not_found": {
+    "es": "Asiento no encontrado.",
+    "en": "Entry not found.",
+    "pt": "Lançamento não encontrado."
+  },
+  "journal_entries.entry_not_marked_automatic_reversal": {
+    "es": "Este asiento no está marcado para reversión automática.",
+    "en": "This entry is not marked for automatic reversal.",
+    "pt": "Este lançamento não está marcado para estorno automático."
+  },
+  "journal_entries.entry_reverse_not_found": {
+    "es": "Asiento a reversar no encontrado.",
+    "en": "The entry to reverse was not found.",
+    "pt": "O lançamento a estornar não foi encontrado."
+  },
+  "journal_entries.excel_file_cannot_read_detail": {
+    "es": "El archivo de Excel no se puede leer: {{detail}}",
+    "en": "The Excel file cannot be read: {{detail}}",
+    "pt": "O arquivo do Excel não pode ser lido: {{detail}}"
+  },
+  "journal_entries.file_contains_no_data": {
+    "es": "El archivo no contiene datos.",
+    "en": "The file contains no data.",
+    "pt": "O arquivo não contém dados."
+  },
+  "journal_entries.fiscal_year_archived_cannot_changed": {
+    "es": "El año fiscal está archivado y no se puede modificar.",
+    "en": "The fiscal year is archived and cannot be changed.",
+    "pt": "O exercício está arquivado e não pode ser alterado."
+  },
+  "journal_entries.fiscal_year_not_found": {
+    "es": "Año fiscal no encontrado.",
+    "en": "Fiscal year not found.",
+    "pt": "Exercício fiscal não encontrado."
+  },
+  "journal_entries.general_journal_general_not_found_import": {
+    "es": "Diario General (GENERAL) no encontrado, necesario para la importación.",
+    "en": "The General journal (GENERAL) was not found, and the import needs it.",
+    "pt": "O diário Geral (GENERAL) não foi encontrado, e a importação precisa dele."
+  },
+  "journal_entries.import.account_code_grouping_account_cannot_take": {
+    "es": "La cuenta «{{code}}» es de agrupación y no admite movimientos.",
+    "en": "Account “{{code}}” is a grouping account and cannot take movements.",
+    "pt": "A conta «{{code}}» é de agrupamento e não admite lançamentos."
+  },
+  "journal_entries.import.account_code_inactive": {
+    "es": "La cuenta «{{code}}» está inactiva.",
+    "en": "Account “{{code}}” is inactive.",
+    "pt": "A conta «{{code}}» está inativa."
+  },
+  "journal_entries.import.amount_value_cannot_read_with_decimal": {
+    "es": "El importe «{{value}}» no se puede leer con el separador decimal «{{separator}}» que indicó.",
+    "en": "The amount “{{value}}” cannot be read with the decimal separator “{{separator}}” you declared.",
+    "pt": "O valor «{{value}}» não pode ser lido com o separador decimal «{{separator}}» que indicou."
+  },
+  "journal_entries.import.date_value_does_not_match_format": {
+    "es": "La fecha «{{value}}» no corresponde al formato «{{format}}» que indicó.",
+    "en": "The date “{{value}}” does not match the “{{format}}” format you declared.",
+    "pt": "A data «{{value}}» não corresponde ao formato «{{format}}» que indicou."
+  },
+  "journal_entries.import.debit_credit_cannot_negative_use_opposite": {
+    "es": "Un débito o un crédito no puede ser negativo; usa el lado contrario.",
+    "en": "A debit or a credit cannot be negative; use the opposite side instead.",
+    "pt": "Um débito ou crédito não pode ser negativo; use o lado oposto."
+  },
+  "journal_entries.import.entry_does_not_balance_debits_debit": {
+    "es": "El asiento no cuadra: débitos {{debit}} frente a créditos {{credit}}.",
+    "en": "The entry does not balance: debits {{debit}} against credits {{credit}}.",
+    "pt": "O lançamento não fecha: débitos {{debit}} contra créditos {{credit}}."
+  },
+  "journal_entries.import.entry_has_no_description": {
+    "es": "El asiento no tiene descripción.",
+    "en": "The entry has no description.",
+    "pt": "O lançamento não tem descrição."
+  },
+  "journal_entries.import.file_has_rows_rows_maximum_per": {
+    "es": "El archivo tiene {{rows}} filas y el máximo por importación es {{max}}. Divídalo en varios archivos.",
+    "en": "The file has {{rows}} rows and the maximum per import is {{max}}. Split it into several files.",
+    "pt": "O arquivo tem {{rows}} linhas e o máximo por importação é {{max}}. Divida-o em vários arquivos."
+  },
+  "journal_entries.import.import_batch_prepared_another_user": {
+    "es": "Ese lote de importación lo preparó otro usuario.",
+    "en": "That import batch was prepared by another user.",
+    "pt": "Esse lote de importação foi preparado por outro usuário."
+  },
+  "journal_entries.import.line_cannot_carry_both_debit_credit": {
+    "es": "Una línea no puede llevar débito y crédito a la vez.",
+    "en": "A line cannot carry both a debit and a credit.",
+    "pt": "Uma linha não pode ter débito e crédito ao mesmo tempo."
+  },
+  "journal_entries.import.line_has_neither_debit_nor_credit": {
+    "es": "La línea no tiene ni débito ni crédito.",
+    "en": "The line has neither a debit nor a credit.",
+    "pt": "A linha não tem débito nem crédito."
+  },
+  "journal_entries.import.no_account_with_code_code_exists": {
+    "es": "La cuenta con código «{{code}}» no existe en el catálogo de esta organización.",
+    "en": "No account with code “{{code}}” exists in this organisation's chart of accounts.",
+    "pt": "A conta com código «{{code}}» não existe no plano de contas desta organização."
+  },
+  "journal_entries.import_batch_not_found_has_expired": {
+    "es": "Lote de importación no encontrado, expirado o ya procesado.",
+    "en": "The import batch was not found, has expired, or has already been processed.",
+    "pt": "O lote de importação não foi encontrado, expirou ou já foi processado."
+  },
+  "journal_entries.import_confirmed_processed": {
+    "es": "Importación confirmada y procesada exitosamente.",
+    "en": "The import was confirmed and processed.",
+    "pt": "A importação foi confirmada e processada."
+  },
+  "journal_entries.journal_entry_does_not_balance": {
+    "es": "El asiento contable no está balanceado.",
+    "en": "The journal entry does not balance.",
+    "pt": "O lançamento contábil não está balanceado."
+  },
+  "journal_entries.journal_entry_id_not_found": {
+    "es": "Asiento contable con ID \"{{id}}\" no encontrado.",
+    "en": "Journal entry \"{{id}}\" was not found.",
+    "pt": "Lançamento contábil \"{{id}}\" não encontrado."
+  },
+  "journal_entries.journal_entry_must_have_least_two": {
+    "es": "Un asiento contable debe tener al menos dos líneas.",
+    "en": "A journal entry must have at least two lines.",
+    "pt": "Um lançamento contábil deve ter ao menos duas linhas."
+  },
+  "journal_entries.journal_entry_template_id_not_found": {
+    "es": "Plantilla de asiento con ID \"{{id}}\" no encontrada.",
+    "en": "Journal entry template \"{{id}}\" was not found.",
+    "pt": "Modelo de lançamento \"{{id}}\" não encontrado."
+  },
+  "journal_entries.line_line_carries_both_debit_credit": {
+    "es": "La línea {{line}} tiene débito y crédito a la vez. Una línea afecta un solo lado.",
+    "en": "Line {{line}} carries both a debit and a credit. A line affects one side only.",
+    "pt": "A linha {{line}} tem débito e crédito ao mesmo tempo. Uma linha afeta apenas um lado."
+  },
+  "journal_entries.line_line_has_no_amount": {
+    "es": "La línea {{line}} no tiene importe.",
+    "en": "Line {{line}} has no amount.",
+    "pt": "A linha {{line}} não tem valor."
+  },
+  "journal_entries.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "journal_entries.no_ledger_found_organization_organization_id": {
+    "es": "No se encontró libro contable para la Org {{organizationId}}",
+    "en": "No ledger was found for organization {{organizationId}}",
+    "pt": "Nenhum livro contábil encontrado para a organização {{organizationId}}"
+  },
+  "journal_entries.one_more_accounts_not_found_inactive": {
+    "es": "Una o más cuentas contables no fueron encontradas, están inactivas o no pertenecen a la organización.",
+    "en": "One or more accounts were not found, are inactive, or do not belong to the organization.",
+    "pt": "Uma ou mais contas não foram encontradas, estão inativas ou não pertencem à organização."
+  },
+  "journal_entries.only_draft_entries_can_submitted_approval": {
+    "es": "Solo los asientos en borrador pueden ser enviados a aprobación.",
+    "en": "Only draft entries can be submitted for approval.",
+    "pt": "Somente lançamentos em rascunho podem ser enviados para aprovação."
+  },
+  "journal_entries.only_posted_entries_can_modified": {
+    "es": "Solo se pueden modificar asientos contabilizados.",
+    "en": "Only posted entries can be modified.",
+    "pt": "Somente lançamentos contabilizados podem ser modificados."
+  },
+  "journal_entries.only_posted_entries_can_reversed": {
+    "es": "Solo se pueden reversar asientos contabilizados.",
+    "en": "Only posted entries can be reversed.",
+    "pt": "Somente lançamentos contabilizados podem ser estornados."
+  },
+  "journal_entries.original_entry_not_found": {
+    "es": "Asiento original no encontrado.",
+    "en": "The original entry was not found.",
+    "pt": "O lançamento original não foi encontrado."
+  },
+  "journal_entries.positive_exchange_rate_required_foreign_currency": {
+    "es": "Se requiere una tasa de cambio (exchangeRate) positiva para transacciones en moneda extranjera.",
+    "en": "A positive exchange rate is required for foreign-currency transactions.",
+    "pt": "É necessária uma taxa de câmbio positiva para transações em moeda estrangeira."
+  },
+  "journal_entries.recurring_journal_entry_template_id_not": {
+    "es": "Plantilla de asiento recurrente con ID \"{{id}}\" no encontrada.",
+    "en": "Recurring journal entry template \"{{id}}\" was not found.",
+    "pt": "Modelo de lançamento recorrente \"{{id}}\" não encontrado."
+  },
+  "journal_entries.recurring_template_recurring_entry_id_not": {
+    "es": "Plantilla recurrente {{recurringEntryId}} no encontrada.",
+    "en": "Recurring template {{recurringEntryId}} was not found.",
+    "pt": "Modelo recorrente {{recurringEntryId}} não encontrado."
+  },
+  "journal_entries.source_destination_accounts_cannot_same": {
+    "es": "La cuenta de origen y destino no pueden ser la misma.",
+    "en": "The source and destination accounts cannot be the same.",
+    "pt": "As contas de origem e destino não podem ser a mesma."
+  },
+  "journal_entries.specified_journal_does_not_exist_organization": {
+    "es": "El diario indicado no existe en esta organización.",
+    "en": "The specified journal does not exist in this organization.",
+    "pt": "O diário indicado não existe nesta organização."
+  },
+  "journal_entries.transaction_query_runner_could_not_obtained": {
+    "es": "No se pudo obtener el Query Runner de la transacción.",
+    "en": "The transaction's query runner could not be obtained.",
+    "pt": "Não foi possível obter o query runner da transação."
+  },
+  "journal_entries.unsupported_file_type_mimetype": {
+    "es": "Tipo de archivo no soportado: {{mimetype}}",
+    "en": "Unsupported file type: {{mimetype}}",
+    "pt": "Tipo de arquivo não suportado: {{mimetype}}"
+  },
+  "journal_entries.uploaded_file_empty_could_not_read": {
+    "es": "El archivo subido está vacío o no se pudo leer.",
+    "en": "The uploaded file is empty, or could not be read.",
+    "pt": "O arquivo enviado está vazio ou não pôde ser lido."
+  }
+}

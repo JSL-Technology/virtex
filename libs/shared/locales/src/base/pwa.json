@@ -1,0 +1,12 @@
+{
+  "pwa.offline_message": {
+    "es": "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea.",
+    "en": "Check your network connection and come back here. Virtex will load as soon as you're back online.",
+    "pt": "Verifique sua conexão de rede e volte aqui. O Virtex carregará assim que você estiver on-line novamente."
+  },
+  "pwa.offline_title": {
+    "es": "No tienes conexión",
+    "en": "You are offline",
+    "pt": "Você está sem conexão"
+  }
+}

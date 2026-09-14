@@ -97,7 +97,7 @@ export class ExchangeRatesService {
         'No se almacenará ninguna tasa. Contrate un plan con datos reales, o registre las tasas ' +
         'oficiales con POST /exchange-rates.',
     );
-    throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_SIMULADAS', {
+    throw new BadRequestError('currencies.provider_account_plan_plan_which_returns', {
       provider: PROVIDER,
       plan: account.package,
     });
@@ -130,10 +130,10 @@ export class ExchangeRatesService {
   async updateRates(): Promise<LocalizedResult<{ rates_updated: number }>> {
     const stored = await this.fetchAndStore(todayIso());
     if (stored === 0) {
-      return { messageKey: 'CURRENCIES.NO_HAY_DIVISAS_PARA_ACTUALIZAR', rates_updated: 0 };
+      return { messageKey: 'currencies.no_currencies_update', rates_updated: 0 };
     }
     return {
-      messageKey: 'CURRENCIES.TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE',
+      messageKey: 'currencies.exchange_rates_updated',
       rates_updated: stored,
     };
   }
@@ -152,7 +152,7 @@ export class ExchangeRatesService {
     const endDate = toIsoDate(dto.endDate);
 
     if (endDate < startDate) {
-      throw new BadRequestError('CURRENCIES.RANGO_FECHAS_INVALIDO', {
+      throw new BadRequestError('currencies.invalid_date_range_start_date_later', {
         startDate,
         endDate,
       });
@@ -160,13 +160,13 @@ export class ExchangeRatesService {
 
     const today = todayIso();
     if (endDate > today) {
-      throw new BadRequestError('CURRENCIES.RANGO_FECHAS_FUTURO', { endDate, today });
+      throw new BadRequestError('currencies.future_rates_cannot_requested_end_date', { endDate, today });
     }
 
     const limit = Math.min(dto.maxDays ?? MAX_BACKFILL_DAYS, MAX_BACKFILL_DAYS);
     const days = daysBetween(startDate, endDate) + 1;
     if (days > limit) {
-      throw new BadRequestError('CURRENCIES.RANGO_FECHAS_EXCEDE_LIMITE', { days, limit });
+      throw new BadRequestError('currencies.requested_range_spans_days_days_maximum', { days, limit });
     }
 
     let updated = 0;
@@ -182,7 +182,7 @@ export class ExchangeRatesService {
     }
 
     return {
-      messageKey: 'CURRENCIES.RELLENO_HISTORICO_COMPLETADO',
+      messageKey: 'currencies.historical_backfill_complete_days_days_processed',
       messageParams: { days, updated, failed: failedDays.length },
       days,
       rates_updated: updated,
@@ -205,7 +205,7 @@ export class ExchangeRatesService {
     const toCurrency = dto.toCurrency.toUpperCase();
 
     if (fromCurrency === toCurrency) {
-      throw new BadRequestError('CURRENCIES.PAR_IDENTICO', { currency: fromCurrency });
+      throw new BadRequestError('currencies.currency_pair_cannot_have_same_currency', { currency: fromCurrency });
     }
 
     await this.requireKnownCurrencies([fromCurrency, toCurrency]);
@@ -215,7 +215,7 @@ export class ExchangeRatesService {
     const rate = roundAmount(dto.rate, 6);
 
     if (!(rate > 0)) {
-      throw new BadRequestError('CURRENCIES.TASA_DEBE_SER_POSITIVA', { rate: dto.rate });
+      throw new BadRequestError('currencies.exchange_rate_must_greater_than_zero', { rate: dto.rate });
     }
 
     await this.exchangeRateRepository.upsert(
@@ -240,7 +240,7 @@ export class ExchangeRatesService {
       rateType,
     });
 
-    return { messageKey: 'CURRENCIES.TASA_REGISTRADA', rate: stored };
+    return { messageKey: 'currencies.exchange_rate_recorded_successfully', rate: stored };
   }
 
   /**
@@ -265,7 +265,7 @@ export class ExchangeRatesService {
    */
   private async fetchAndStore(day: string): Promise<number> {
     if (!this.xe.isConfigured()) {
-      throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_NO_CONFIGURADO');
+      throw new BadRequestError('currencies.no_exchange_rate_provider_configured_record');
     }
 
     await this.assertProviderServesRealRates();
@@ -281,7 +281,7 @@ export class ExchangeRatesService {
 
     const quotes = await this.xe.fetchMidRates(PIVOT, targets, day);
     if (quotes.length === 0) {
-      throw new BadRequestError('CURRENCIES.RESPUESTA_PROVEEDOR_SIN_TASAS', { date: day });
+      throw new BadRequestError('currencies.provider_response_contains_no_rates_date', { date: day });
     }
 
     const rows = quotes.map((quote) => ({
@@ -329,7 +329,7 @@ export class ExchangeRatesService {
 
     const unknown = codes.filter((code) => !catalogue.has(code));
     if (unknown.length > 0) {
-      throw new BadRequestError('CURRENCIES.DIVISA_DESCONOCIDA', { codes: unknown.join(', ') });
+      throw new BadRequestError('currencies.currency_not_configured_codes', { codes: unknown.join(', ') });
     }
   }
 }

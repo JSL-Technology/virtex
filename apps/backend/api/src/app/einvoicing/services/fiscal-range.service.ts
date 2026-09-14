@@ -89,7 +89,7 @@ export class FiscalRangeService {
       .getOne();
 
     if (!range) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_NO_CONFIGURADO', {
+      throw new BadRequestError('einvoicing.no_active_authorized_range_document_type', {
         country: countryCode.toUpperCase(),
         type: documentType,
       });
@@ -98,13 +98,13 @@ export class FiscalRangeService {
     const current = Number(range.currentSequence);
     const end = Number(range.endsAt);
     if (!Number.isFinite(current) || !Number.isFinite(end)) {
-      throw new InternalServerError('EINVOICING.RANGO_FISCAL_LIMITES_NO_NUMERICOS', {
+      throw new InternalServerError('einvoicing.authorized_range_type_type_has_non', {
         type: documentType,
       });
     }
 
     if (current >= end) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_AGOTADO', {
+      throw new BadRequestError('einvoicing.authorized_range_type_type_exhausted_range', {
         type: documentType,
         from: String(range.startsAt),
         to: String(range.endsAt),
@@ -112,7 +112,7 @@ export class FiscalRangeService {
     }
 
     if (range.validUntil && range.validUntil < today) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_VENCIDO', {
+      throw new BadRequestError('einvoicing.authorization_type_type_range_expired_date', {
         type: documentType,
         date: range.validUntil,
       });
@@ -186,7 +186,7 @@ export class FiscalRangeService {
     // authorisation is the one a document issued today was drawn from.
     const range = await query.orderBy('range.startsAt', 'DESC').getOne();
     if (!range) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_NO_CONTIENE_NUMERO', {
+      throw new BadRequestError('einvoicing.no_authorized_range_type_type_contains', {
         type: criteria.documentType,
         number: String(criteria.number),
       });
@@ -229,7 +229,7 @@ export class FiscalRangeService {
 
     const allowed = expected[documentType];
     if (allowed && !allowed.includes(letter)) {
-      throw new BadRequestError('EINVOICING.SUNAT_SERIE_NO_CORRESPONDE_AL_TIPO', {
+      throw new BadRequestError('einvoicing.series_series_does_not_match_document', {
         series,
         type: documentType,
       });
@@ -244,7 +244,7 @@ export class FiscalRangeService {
    */
   private secretOf(range: FiscalDocumentRange): string {
     if (!range.encryptedSecret) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_SIN_SECRETO', {
+      throw new BadRequestError('einvoicing.range_type_type_has_no_record', {
         type: range.documentType,
       });
     }
@@ -273,7 +273,7 @@ export class FiscalRangeService {
     },
   ): Promise<FiscalDocumentRange> {
     if (input.endsAt < input.startsAt) {
-      throw new BadRequestError('EINVOICING.RANGO_FISCAL_LIMITES_INVALIDOS', {
+      throw new BadRequestError('einvoicing.range_from_not_valid_final_number', {
         from: String(input.startsAt),
         to: String(input.endsAt),
       });

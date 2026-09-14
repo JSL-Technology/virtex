@@ -128,29 +128,29 @@ export type UpdateVendorBillDto = Partial<Omit<CreateVendorBillDto, 'lines'>>;
 
 /** DGII 606 "Tipo de Bienes y Servicios Comprados". */
 export const PURCHASE_CATEGORIES = [
-  { code: '01', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.PERSONNEL_EXPENSES' },
-  { code: '02', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.WORK_GOODS_SERVICES' },
-  { code: '03', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.LEASING' },
-  { code: '04', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.FIXED_ASSET_LEASING' },
-  { code: '05', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.IMPROVEMENT_EXPENSES' },
-  { code: '06', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.MERCHANDISE_PURCHASES' },
-  { code: '07', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.RELATED_SERVICES' },
-  { code: '08', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.FINANCIAL_EXPENSES' },
-  { code: '09', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.EXTRAORDINARY_EXPENSES' },
-  { code: '10', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.COST_OF_SALES' },
-  { code: '11', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.ASSET_ACQUISITIONS' },
-  { code: '12', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.INSURANCE_EXPENSES' },
+  { code: '01', labelKey: 'accounts_payable.purchase_category.personnel_expenses' },
+  { code: '02', labelKey: 'accounts_payable.purchase_category.work_goods_services' },
+  { code: '03', labelKey: 'accounts_payable.purchase_category.leasing' },
+  { code: '04', labelKey: 'accounts_payable.purchase_category.fixed_asset_leasing' },
+  { code: '05', labelKey: 'accounts_payable.purchase_category.improvement_expenses' },
+  { code: '06', labelKey: 'accounts_payable.purchase_category.merchandise_purchases' },
+  { code: '07', labelKey: 'accounts_payable.purchase_category.related_services' },
+  { code: '08', labelKey: 'accounts_payable.purchase_category.financial_expenses' },
+  { code: '09', labelKey: 'accounts_payable.purchase_category.extraordinary_expenses' },
+  { code: '10', labelKey: 'accounts_payable.purchase_category.cost_of_sales' },
+  { code: '11', labelKey: 'accounts_payable.purchase_category.asset_acquisitions' },
+  { code: '12', labelKey: 'accounts_payable.purchase_category.insurance_expenses' },
 ] as const;
 
 /** DGII "Forma de Pago". */
 export const PAYMENT_FORMS = [
-  { code: '01', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CASH' },
-  { code: '02', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CHECK_TRANSFER' },
-  { code: '03', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CARD' },
-  { code: '04', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CREDIT' },
-  { code: '05', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.SWAP' },
-  { code: '06', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CREDIT_NOTE' },
-  { code: '07', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.MIXED' },
+  { code: '01', labelKey: 'accounts_payable.payment_form.cash' },
+  { code: '02', labelKey: 'accounts_payable.payment_form.check_transfer' },
+  { code: '03', labelKey: 'accounts_payable.payment_form.card' },
+  { code: '04', labelKey: 'accounts_payable.payment_form.credit' },
+  { code: '05', labelKey: 'accounts_payable.payment_form.barter' },
+  { code: '06', labelKey: 'accounts_payable.payment_form.credit_note' },
+  { code: '07', labelKey: 'accounts_payable.payment_form.mixed' },
 ] as const;
 
 export interface VendorBillPaymentLine {

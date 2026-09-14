@@ -66,14 +66,14 @@ export class CreateCustomerDto {
   country: string;
 
   @IsNumber()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   totalBilled?: number;
 
   /** The terms as they are printed on the document: "Neto 30", "Contado". */
   @IsString()
   @IsOptional()
-  @MaxLength(60, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":60}' })
+  @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
   paymentTerms?: string;
 
   /**
@@ -83,8 +83,8 @@ export class CreateCustomerDto {
    * real answer and not the same as "not set".
    */
   @IsInt()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
-  @Max(365, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":365}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(365, { message: 'validation.constraints.max|{"max":365}' })
   @IsOptional()
   paymentTermDays?: number | null;
 }

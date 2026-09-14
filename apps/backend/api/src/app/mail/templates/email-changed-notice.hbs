@@ -1,9 +1,9 @@
-{{#> shell title=(t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME' appName=appName) preheader=(t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL' appName=appName newEmail=newEmail)}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_HA_CAMBIADO'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.EMAIL_CHANGED_NOTICE.ADDRESS_CHANGED' appName=appName newEmail=newEmail}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.EMAIL_CHANGED_NOTICE.PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN'}}</p>
-<p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.EMAIL_CHANGED_NOTICE.TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA'}}</p>
+{{#> shell title=(t 'mail.email_changed_notice.your_account_email_has_changed_app' appName=appName) preheader=(t 'mail.email_changed_notice.your_app_name_account_email_changed' appName=appName newEmail=newEmail)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.email_changed_notice.your_account_email_has_changed'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.email_changed_notice.address_changed' appName=appName newEmail=newEmail}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.email_changed_notice.from_now_notices_password_recovery_will'}}</p>
+<p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.email_changed_notice.every_open_session_closed_security_measure'}}</p>
 
-{{#> note}}<strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'MAIL.EMAIL_CHANGED_NOTICE.NO_FUISTE_TU'}}</strong> {{t 'MAIL.EMAIL_CHANGED_NOTICE.CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA'}}{{/note}}
+{{#> note}}<strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'mail.email_changed_notice.not_you'}}</strong> {{t 'mail.email_changed_notice.contact_support_immediately_from_same_address'}}{{/note}}
 {{/shell}}

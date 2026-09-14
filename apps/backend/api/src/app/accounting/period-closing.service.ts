@@ -176,10 +176,10 @@ export class PeriodClosingService {
         organizationId,
       });
       if (!period) {
-        throw new NotFoundError('ACCOUNTING.PERIODO_CONTABLE_ESPECIFICADO_NO_FUE_ENCONTRADO');
+        throw new NotFoundError('accounting.specified_accounting_period_not_found');
       }
       if (period.status === PeriodStatus.CLOSED) {
-        throw new BadRequestError('ACCOUNTING.PERIODO_YA_ENCUENTRA_CERRADO');
+        throw new BadRequestError('accounting.period_already_closed');
       }
 
       // Periods close in order. Closing March while January is still open would compute March's
@@ -197,7 +197,7 @@ export class PeriodClosingService {
         order: { startDate: 'ASC' },
       });
       if (earlierOpen) {
-        throw new BadRequestError('ACCOUNTING.PERIODO_ANTERIOR_SIGUE_ABIERTO', {
+        throw new BadRequestError('accounting.period_cannot_closed_while_name_still', {
           name: earlierOpen.name,
         });
       }
@@ -214,7 +214,7 @@ export class PeriodClosingService {
       });
       if (unpostedCount > 0) {
         throw new BadRequestError(
-          'ACCOUNTING.NO_PUEDE_CERRAR_PERIODO_EXISTEN_ASIENTOS_CONTABLES',
+          'accounting.period_cannot_closed_draft_entries_count',
           { draftEntriesCount: unpostedCount },
         );
       }
@@ -281,7 +281,7 @@ export class PeriodClosingService {
     // No fiscal year on record is not an error: a tenant may run periods without declaring years,
     // and the annual close is what creates the requirement, not the other way round.
     if (year && year.status !== FiscalYearStatus.OPEN) {
-      throw new ForbiddenError('ACCOUNTING.ANO_FISCAL_CERRADO_NO_ADMITE_CAMBIOS', {
+      throw new ForbiddenError('accounting.fiscal_year_from_closed_reopen_before', {
         from: toIsoDate(year.startDate),
         to: toIsoDate(year.endDate),
       });
@@ -322,9 +322,9 @@ export class PeriodClosingService {
         id: periodId,
         organizationId,
       });
-      if (!period) throw new NotFoundError('ACCOUNTING.PERIODO_REABRIR_NO_ENCONTRADO');
+      if (!period) throw new NotFoundError('accounting.period_reopen_not_found');
       if (period.status !== PeriodStatus.CLOSED) {
-        throw new BadRequestError('ACCOUNTING.PERIODO_NO_ESTA_CERRADO');
+        throw new BadRequestError('accounting.period_not_closed');
       }
 
       // A period inside a settled year is not reopenable on its own: the year's result transfer
@@ -341,7 +341,7 @@ export class PeriodClosingService {
         order: { startDate: 'ASC' },
       });
       if (laterClosed) {
-        throw new ForbiddenError('ACCOUNTING.NO_PUEDE_REABRIR_ESTE_PERIODO_PORQUE_PERIODO');
+        throw new ForbiddenError('accounting.period_cannot_reopened_because_following_period');
       }
 
       // Open it first. The reversal below is a posting, and a posting into a closed period is
@@ -433,9 +433,9 @@ export class PeriodClosingService {
       id: periodId,
       organizationId,
     });
-    if (!period) throw new NotFoundError('ACCOUNTING.PERIODO_NO_ENCONTRADO');
+    if (!period) throw new NotFoundError('accounting.period_not_found');
     if (period.status === PeriodStatus.CLOSED) {
-      throw new BadRequestError('ACCOUNTING.NO_PUEDE_REABRIR_MODULO_SI_PERIODO_CONTABLE');
+      throw new BadRequestError('accounting.module_cannot_reopened_while_general_accounting');
     }
     return this.setModuleStatus(
       periodId,
@@ -458,7 +458,7 @@ export class PeriodClosingService {
         id: periodId,
         organizationId,
       });
-      if (!period) throw new NotFoundError('ACCOUNTING.PERIODO_NO_ENCONTRADO');
+      if (!period) throw new NotFoundError('accounting.period_not_found');
 
       const column = moduleStatusColumn(module);
       const previous = period[column];
@@ -515,8 +515,8 @@ export class PeriodClosingService {
       organizationId,
     });
     if (result.affected === 0) {
-      throw new NotFoundError('ACCOUNTING.NO_ENCONTRO_BLOQUEO_CUENTA_PERIODO_ESPECIFICADOS');
+      throw new NotFoundError('accounting.no_lock_found_given_account_period');
     }
-    return { messageKey: 'ACCOUNTING.ACCOUNT_PERIOD_LOCK_REMOVED' };
+    return { messageKey: 'accounting.account_period_lock_removed' };
   }
 }

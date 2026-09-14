@@ -87,7 +87,7 @@ import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
-import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 
@@ -326,7 +326,7 @@ export class MainLayout implements OnInit {
    * este método desaparecerá.
    */
   comingSoon(): void {
-    this.notifications.showInfo('FEEDBACK.COMING_SOON');
+    this.notifications.showInfo('feedback.coming_soon');
     this.closeUserMenu();
   }
 

@@ -66,7 +66,7 @@ export class PayrollParametersService {
     }));
 
     if (contributions.length === 0) {
-      throw new BadRequestError('PAYROLL.SIN_PARAMETROS_CONTRIBUCION_PAIS_FECHA', {
+      throw new BadRequestError('payroll.no_contribution_parameters_p1_p2', {
         p1: country,
         p2: date,
       });
@@ -96,7 +96,7 @@ export class PayrollParametersService {
     );
 
     if (!minWageRef) {
-      throw new BadRequestError('PAYROLL.SIN_SALARIO_MINIMO_COTIZABLE_PAIS_FECHA', {
+      throw new BadRequestError('payroll.no_minimum_contributory_wage_p1_p2', {
         p1: country,
         p2: date,
       });

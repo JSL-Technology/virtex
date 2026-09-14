@@ -5,7 +5,7 @@
   [class.loading]="loading"
   [disabled]="loading"
   [attr.aria-busy]="loading || null"
-  [attr.aria-label]="iconOnly ? ('LOGIN.PASSKEY_BUTTON_SHORT' | translate) : null"
+  [attr.aria-label]="iconOnly ? ('login.passkey_button_short' | translate) : null"
   (click)="clicked.emit()">
 
   @if (iconOnly) {
@@ -23,8 +23,8 @@
     </span>
 
     <span class="text-wrapper">
-      <span class="passkey-title">{{ 'LOGIN.PASSKEY_BUTTON_SHORT' | translate }}</span>
-      <span class="passkey-subtitle">{{ 'LOGIN.PASSKEY_SUBTITLE' | translate }}</span>
+      <span class="passkey-title">{{ 'login.passkey_button_short' | translate }}</span>
+      <span class="passkey-subtitle">{{ 'login.passwordless_just_one_step' | translate }}</span>
     </span>
 
     @if (loading) {

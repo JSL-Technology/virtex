@@ -1,0 +1,132 @@
+{
+  "charts.cashflow.amount_currency": {
+    "es": "Monto ({{currency}})",
+    "en": "Amount ({{currency}})",
+    "pt": "Valor ({{currency}})"
+  },
+  "charts.cashflow.consolidated_title": {
+    "es": "Flujo de Efectivo Consolidado",
+    "en": "Consolidated Cash Flow",
+    "pt": "Fluxo de Caixa Consolidado"
+  },
+  "charts.cashflow.series_name": {
+    "es": "Flujo de Efectivo",
+    "en": "Cash Flow",
+    "pt": "Fluxo de Caixa"
+  },
+  "charts.cashflow.title": {
+    "es": "Flujo de Efectivo del Período",
+    "en": "Period Cash Flow",
+    "pt": "Fluxo de Caixa do Período"
+  },
+  "charts.cashflow.x.cost_of_goods_sold": {
+    "es": "Costo de Ventas",
+    "en": "Cost of Goods Sold",
+    "pt": "Custo das Vendas"
+  },
+  "charts.cashflow.x.ending_balance": {
+    "es": "Saldo Final",
+    "en": "Ending Balance",
+    "pt": "Saldo Final"
+  },
+  "charts.cashflow.x.financing": {
+    "es": "Financiación",
+    "en": "Financing",
+    "pt": "Financiamento"
+  },
+  "charts.cashflow.x.investments": {
+    "es": "Inversiones",
+    "en": "Investments",
+    "pt": "Investimentos"
+  },
+  "charts.cashflow.x.opening_balance": {
+    "es": "Saldo Inicial",
+    "en": "Opening Balance",
+    "pt": "Saldo Inicial"
+  },
+  "charts.cashflow.x.operating_expenses": {
+    "es": "Gastos Operativos",
+    "en": "Operating Expenses",
+    "pt": "Despesas Operacionais"
+  },
+  "charts.cashflow.x.operating_income": {
+    "es": "Ingresos Operativos",
+    "en": "Operating Income",
+    "pt": "Receita Operacional"
+  },
+  "charts.common.chart_type": {
+    "es": "Tipo de Gráfico",
+    "en": "Chart Type",
+    "pt": "Tipo de Gráfico"
+  },
+  "charts.menu.csv": {
+    "es": "Descargar CSV",
+    "en": "Download CSV",
+    "pt": "Baixar CSV"
+  },
+  "charts.menu.download": {
+    "es": "Descargar",
+    "en": "Download",
+    "pt": "Baixar"
+  },
+  "charts.menu.full_screen": {
+    "es": "Ver en Pantalla Completa",
+    "en": "View Fullscreen",
+    "pt": "Ver em Tela Cheia"
+  },
+  "charts.menu.jpeg": {
+    "es": "Descargar JPEG",
+    "en": "Download JPEG",
+    "pt": "Baixar JPEG"
+  },
+  "charts.menu.pdf": {
+    "es": "Descargar PDF",
+    "en": "Download PDF",
+    "pt": "Baixar PDF"
+  },
+  "charts.menu.png": {
+    "es": "Descargar PNG",
+    "en": "Download PNG",
+    "pt": "Baixar PNG"
+  },
+  "charts.menu.print": {
+    "es": "Imprimir",
+    "en": "Print",
+    "pt": "Imprimir"
+  },
+  "charts.menu.svg": {
+    "es": "Descargar SVG",
+    "en": "Download SVG",
+    "pt": "Baixar SVG"
+  },
+  "charts.menu.title": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "charts.menu.xls": {
+    "es": "Descargar Excel",
+    "en": "Download Excel",
+    "pt": "Baixar Excel"
+  },
+  "charts.top_products.series_name": {
+    "es": "Unidades",
+    "en": "Units",
+    "pt": "Unidades"
+  },
+  "charts.top_products.units_sold": {
+    "es": "Unidades Vendidas",
+    "en": "Units Sold",
+    "pt": "Unidades Vendidas"
+  },
+  "charts.type.bar": {
+    "es": "Barras",
+    "en": "Bar",
+    "pt": "Barras"
+  },
+  "charts.type.line": {
+    "es": "Línea",
+    "en": "Line",
+    "pt": "Linha"
+  }
+}

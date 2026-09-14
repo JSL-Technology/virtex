@@ -193,7 +193,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
     try {
       source = fs.readFileSync(resolved, 'utf8');
     } catch (error) {
-      throw new InternalServerError('INVOICES.NO_ENCONTRO_PLANTILLA_IMPRESION_FACTURAS', { resolved, p2: (error as Error).message });
+      throw new InternalServerError('invoices.invoice_print_template_not_found_resolved', { resolved, p2: (error as Error).message });
     }
 
     /*
@@ -239,11 +239,11 @@ export class InvoiceRendererService implements OnModuleDestroy {
   private documentTitleKey(invoice: Invoice): string {
     switch (invoice.type) {
       case InvoiceType.CREDIT_NOTE:
-        return 'INVOICE.PDF.TYPE.CREDIT_NOTE';
+        return 'invoice.pdf.type.credit_note';
       case InvoiceType.DEBIT_NOTE:
-        return 'INVOICE.PDF.TYPE.DEBIT_NOTE';
+        return 'invoice.pdf.type.debit_note';
       default:
-        return 'INVOICE.PDF.TYPE.INVOICE';
+        return 'invoice.pdf.type.invoice';
     }
   }
 

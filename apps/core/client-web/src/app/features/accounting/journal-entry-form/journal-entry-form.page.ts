@@ -14,7 +14,7 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {
@@ -152,11 +152,11 @@ export class JournalEntryFormPage implements OnInit {
         this.isLoading.set(false);
         this.tab?.setTitle(
           loaded.entryNumber ??
-            this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE'),
+            this.translate.instant('accounting.journal_entry_form.edit_title'),
         );
 
         if (loaded.status !== 'Posted') {
-          this.editBlockedKey.set('ACCOUNTING.JOURNAL_ENTRY_FORM.ONLY_POSTED_CAN_BE_MODIFIED');
+          this.editBlockedKey.set('accounting.journal_entry_form.only_posted_can_be_modified');
         }
 
         this.entryForm.patchValue({
@@ -185,7 +185,7 @@ export class JournalEntryFormPage implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.editBlockedKey.set('ACCOUNTING.JOURNAL_ENTRY_FORM.ENTRY_NOT_FOUND');
+        this.editBlockedKey.set('accounting.journal_entry_form.entry_not_found');
       },
     });
   }
@@ -193,15 +193,15 @@ export class JournalEntryFormPage implements OnInit {
   loadInitialData(): void {
     this.accountingService.getAccounts().subscribe({
         next: data => this.accounts.set(data),
-        error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_CUENTAS_CONTABLES')
+        error: () => this.notificationService.showError('accounting.journal_entry_form.accounts_load_failed')
     });
     this.ledgersService.getLedgers().subscribe({
       next: data => this.ledgers.set(data),
-      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_LIBROS_MAYORES')
+      error: () => this.notificationService.showError('accounting.journal_entry_form.ledgers_load_failed')
     });
     this.journalsService.getJournals().subscribe({
       next: data => this.journals.set(data),
-      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_DIARIOS')
+      error: () => this.notificationService.showError('accounting.journal_entry_form.journals_load_failed')
     });
   }
 
@@ -247,14 +247,14 @@ export class JournalEntryFormPage implements OnInit {
       //  que corregir; aquí quedan los campos, incluidos los de cada línea.
       this.problems.set(
         draftProblems(this.entryForm, {
-          date: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DATE_LABEL',
-          ledgerId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL',
-          journalId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL',
-          description: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL',
-          modificationReason: 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_LABEL',
-          accountId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN',
-          debit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DEBIT_COLUMN',
-          credit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.CREDIT_COLUMN',
+          date: 'accounting.journal_entry_form.date_label',
+          ledgerId: 'accounting.journal_entry_form.ledger_label',
+          journalId: 'accounting.journal_entry_form.journal_label',
+          description: 'accounting.journal_entry_form.description_label',
+          modificationReason: 'accounting.journal_entry_form.modification_reason_label',
+          accountId: 'accounting.journal_entry_form.account_column',
+          debit: 'accounting.journal_entry_form.debit_column',
+          credit: 'accounting.journal_entry_form.credit_column',
         }).filter((problem) => problem.fieldId !== 'lines'),
       );
       return;
@@ -278,15 +278,15 @@ export class JournalEntryFormPage implements OnInit {
         this.tab?.markClean();
         this.notificationService.showSuccess(
           editing
-            ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_MODIFICADO_EXITO'
-            : 'ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_CREADO_EXITO',
+            ? 'accounting.journal_entry_form.entry_modified_original_reversed_new_one'
+            : 'accounting.journal_entry_form.entry_created',
         );
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {
         this.notificationService.showError(
           err.error?.message ||
-            (editing ? 'ERRORS.UPDATE_JOURNAL_ENTRY' : 'ERRORS.CREATE_JOURNAL_ENTRY'),
+            (editing ? 'errors.update_journal_entry' : 'errors.create_journal_entry'),
         );
         this.isSaving.set(false);
       },

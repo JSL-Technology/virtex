@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Check, X, AlertTriangle } from 'lucide-angular';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './transition-preview.model';
 
 /**
@@ -32,7 +32,7 @@ import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './
 export class TransitionPreviewComponent {
   readonly preview = input.required<TransitionPreview>();
   readonly busy = input(false);
-  readonly confirmLabelKey = input('COMMON.CONFIRM');
+  readonly confirmLabelKey = input('common.confirm');
 
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();

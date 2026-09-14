@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Calendar, FileDown, RefreshCw } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   FinancialReportingService,

@@ -8,7 +8,7 @@ import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, File
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
@@ -91,10 +91,10 @@ export class ChartOfAccountsPage implements OnInit {
   
   async deleteAccount(account: FlattenedAccount): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_ACCOUNT.TITLE',
-      message: 'DIALOG.DELETE_ACCOUNT.MESSAGE',
+      title: 'dialog.delete_account.title',
+      message: 'dialog.delete_account.message',
       messageParams: { name: account.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) this.state.deleteAccount(account.id);

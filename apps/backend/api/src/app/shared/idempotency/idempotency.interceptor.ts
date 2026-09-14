@@ -60,13 +60,13 @@ export class IdempotencyInterceptor implements NestInterceptor {
     if (!organizationId) {
       // Nothing to scope the key to. The permission layer has already refused anonymous callers on
       // these routes; this only guards against a future route that forgets to.
-      throw new BadRequestError('COMMON.IDEMPOTENCY_REQUIRES_SESSION');
+      throw new BadRequestError('common.idempotency_requires_session');
     }
 
     if (!key || key.trim().length === 0) {
       // Refusing is the safe answer. Executing a transition that the client cannot retry means the
       // retry it will eventually make becomes a second posting.
-      throw new BadRequestError('COMMON.IDEMPOTENCY_KEY_REQUIRED');
+      throw new BadRequestError('common.idempotency_key_required');
     }
 
     const endpoint = `${request.method} ${request.route?.path ?? request.url.split('?')[0]}`;
@@ -137,16 +137,16 @@ export class IdempotencyInterceptor implements NestInterceptor {
     if (!existing) {
       // The holder failed and released the key between our insert and this read. Refusing is the
       // conservative answer: the caller retries and wins the next race cleanly.
-      throw new ConflictError('COMMON.IDEMPOTENCY_KEY_IN_PROGRESS');
+      throw new ConflictError('common.idempotency_key_in_progress');
     }
 
     if (existing.requestHash !== requestHash || existing.endpoint !== endpoint) {
       // Same name, different request. Neither executing nor replaying is right, so neither happens.
-      throw new ConflictError('COMMON.IDEMPOTENCY_KEY_REUSED');
+      throw new ConflictError('common.idempotency_key_reused');
     }
 
     if (existing.status === 'in_progress') {
-      throw new ConflictError('COMMON.IDEMPOTENCY_KEY_IN_PROGRESS');
+      throw new ConflictError('common.idempotency_key_in_progress');
     }
 
     return { replay: true, record: existing };

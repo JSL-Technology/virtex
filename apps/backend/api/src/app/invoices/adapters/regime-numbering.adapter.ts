@@ -108,7 +108,7 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
   protected assertKnownType(requested: string | null | undefined): void {
     if (!requested) return;
     if (!this.availableSalesTypes().some((option) => option.code === requested)) {
-      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_PERTENECE_AL_MERCADO', {
+      throw new BadRequestError('invoices.document_type_type_does_not_exist', {
         type: requested,
         country: this.countryCode,
       });
@@ -128,7 +128,7 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
    */
   protected assertTypeMatchesDocument(requested: string | null | undefined, resolved: string): void {
     if (requested && requested !== resolved) {
-      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_AL_DOCUMENTO', {
+      throw new BadRequestError('invoices.you_asked_type_requested_document_type', {
         requested,
         resolved,
       });
@@ -176,8 +176,8 @@ export class ColombiaNumberingAdapter extends RegimeNumberingAdapter {
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
-      { code: '01', labelKey: 'FISCAL.CO.01', requiresBuyerTaxId: true },
-      { code: '91', labelKey: 'FISCAL.CO.91', requiresBuyerTaxId: true },
+      { code: '01', labelKey: 'fiscal.co.01', requiresBuyerTaxId: true },
+      { code: '91', labelKey: 'fiscal.co.91', requiresBuyerTaxId: true },
     ];
   }
 
@@ -212,9 +212,9 @@ export class PeruNumberingAdapter extends RegimeNumberingAdapter {
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
       // A factura is issued to a taxpayer with a RUC and grants the IGV credit; a boleta is not.
-      { code: '01', labelKey: 'FISCAL.PE.01', requiresBuyerTaxId: true },
-      { code: '03', labelKey: 'FISCAL.PE.03', requiresBuyerTaxId: false },
-      { code: '07', labelKey: 'FISCAL.PE.07', requiresBuyerTaxId: true },
+      { code: '01', labelKey: 'fiscal.pe.01', requiresBuyerTaxId: true },
+      { code: '03', labelKey: 'fiscal.pe.03', requiresBuyerTaxId: false },
+      { code: '07', labelKey: 'fiscal.pe.07', requiresBuyerTaxId: true },
     ];
   }
 
@@ -265,8 +265,8 @@ export class EcuadorNumberingAdapter extends RegimeNumberingAdapter {
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
-      { code: '01', labelKey: 'FISCAL.EC.01', requiresBuyerTaxId: false },
-      { code: '04', labelKey: 'FISCAL.EC.04', requiresBuyerTaxId: false },
+      { code: '01', labelKey: 'fiscal.ec.01', requiresBuyerTaxId: false },
+      { code: '04', labelKey: 'fiscal.ec.04', requiresBuyerTaxId: false },
     ];
   }
 
@@ -280,7 +280,7 @@ export class EcuadorNumberingAdapter extends RegimeNumberingAdapter {
     const establishment = (settings?.establishment ?? '').padStart(3, '0').slice(0, 3);
     const emissionPoint = (settings?.emissionPoint ?? '').padStart(3, '0').slice(0, 3);
     if (!settings?.establishment || !settings?.emissionPoint) {
-      throw new BadRequestError('EINVOICING.SRI_FALTA_ESTABLECIMIENTO_PUNTO_EMISION');
+      throw new BadRequestError('einvoicing.sri_establishment_emission_point_missing_set');
     }
     return `${establishment}-${emissionPoint}-${String(number).padStart(9, '0')}`;
   }
@@ -303,9 +303,9 @@ export class ChileNumberingAdapter extends RegimeNumberingAdapter {
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
-      { code: '33', labelKey: 'FISCAL.CL.33', requiresBuyerTaxId: true },
-      { code: '34', labelKey: 'FISCAL.CL.34', requiresBuyerTaxId: true },
-      { code: '61', labelKey: 'FISCAL.CL.61', requiresBuyerTaxId: true },
+      { code: '33', labelKey: 'fiscal.cl.33', requiresBuyerTaxId: true },
+      { code: '34', labelKey: 'fiscal.cl.34', requiresBuyerTaxId: true },
+      { code: '61', labelKey: 'fiscal.cl.61', requiresBuyerTaxId: true },
     ];
   }
 
@@ -337,7 +337,7 @@ export class BrazilNumberingAdapter extends RegimeNumberingAdapter {
   }
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
-    return [{ code: '55', labelKey: 'FISCAL.BR.55', requiresBuyerTaxId: true }];
+    return [{ code: '55', labelKey: 'fiscal.br.55', requiresBuyerTaxId: true }];
   }
 
   protected typeOf(): string {
@@ -365,8 +365,8 @@ export class MexicoNumberingAdapter implements FiscalAdapter {
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
-      { code: 'I', labelKey: 'FISCAL.MX.I', requiresBuyerTaxId: true },
-      { code: 'E', labelKey: 'FISCAL.MX.E', requiresBuyerTaxId: true },
+      { code: 'I', labelKey: 'fiscal.mx.i', requiresBuyerTaxId: true },
+      { code: 'E', labelKey: 'fiscal.mx.e', requiresBuyerTaxId: true },
     ];
   }
 
@@ -407,9 +407,9 @@ export class ArgentinaNumberingAdapter implements FiscalAdapter {
 
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [
-      { code: '01', labelKey: 'FISCAL.AR.01', requiresBuyerTaxId: true },
-      { code: '06', labelKey: 'FISCAL.AR.06', requiresBuyerTaxId: false },
-      { code: '11', labelKey: 'FISCAL.AR.11', requiresBuyerTaxId: false },
+      { code: '01', labelKey: 'fiscal.ar.01', requiresBuyerTaxId: true },
+      { code: '06', labelKey: 'fiscal.ar.06', requiresBuyerTaxId: false },
+      { code: '11', labelKey: 'fiscal.ar.11', requiresBuyerTaxId: false },
     ];
   }
 

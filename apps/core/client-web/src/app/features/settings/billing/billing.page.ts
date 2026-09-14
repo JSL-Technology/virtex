@@ -1,3 +1,4 @@
+import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
@@ -7,8 +8,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { translateOrLiteral } from '../../../core/i18n/translate-or-literal';
-import { FormatService } from '../../../core/i18n/format.service';
+import { composeKey } from '@virteex/shared/types';
 
 @Component({
   selector: 'app-billing-page',
@@ -112,7 +112,7 @@ export class BillingPage implements OnInit {
         // On success the browser is redirected away — no need to reset state.
       },
       error: (err) => {
-        this.checkoutError.set(err?.message || this.translate.instant('ERRORS.UNEXPECTED'));
+        this.checkoutError.set(err?.message || this.translate.instant('errors.unexpected'));
         this.isRedirecting.set(false);
       }
     });
@@ -127,12 +127,12 @@ export class BillingPage implements OnInit {
     }).subscribe({
       next: (ok) => {
         if (!ok) {
-          this.checkoutError.set(this.translate.instant('ERRORS.OPEN_BILLING_PORTAL'));
+          this.checkoutError.set(this.translate.instant('errors.open_billing_portal'));
           this.isOpeningPortal.set(false);
         }
       },
       error: (err) => {
-        this.checkoutError.set(err?.message || this.translate.instant('ERRORS.UNEXPECTED'));
+        this.checkoutError.set(err?.message || this.translate.instant('errors.unexpected'));
         this.isOpeningPortal.set(false);
       }
     });
@@ -190,7 +190,7 @@ export class BillingPage implements OnInit {
     if (!status) return '—';
     return translateOrLiteral(
       this.translate,
-      `BILLING.SUBSCRIPTION_STATUS.${status.toUpperCase()}`,
+      composeKey('billing.subscription_status', status),
       undefined,
       status,
     );
@@ -199,7 +199,7 @@ export class BillingPage implements OnInit {
   /**
    * A plan's pitch, in the reader's language.
    *
-   * The catalogue endpoint sends a translation key (`BILLING.PLANS.PRO.DESCRIPTION`); a row seeded
+   * The catalogue endpoint sends a translation key (`billing.plans.pro.description`); a row seeded
    * before that change still carries the old Spanish sentence, and that is printed as it stands
    * rather than as a key nobody can read.
    */

@@ -1,15 +1,15 @@
-{{#> shell title=(t 'MAIL.WELCOME.SUBJECT' appName=appName) preheader=(t 'MAIL.WELCOME.PREHEADER')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.WELCOME.TITLE'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.WELCOME.INTRO' appName=appName organizationName=organizationName}}</p>
+{{#> shell title=(t 'mail.welcome.subject' appName=appName) preheader=(t 'mail.welcome.preheader')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.welcome.title'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.welcome.organization_name_now_set_up_app' appName=appName organizationName=organizationName}}</p>
 
-{{> button href=dashboardUrl label=(t 'MAIL.WELCOME.CTA' appName=appName)}}
+{{> button href=dashboardUrl label=(t 'mail.welcome.cta' appName=appName)}}
 
-<p class="ink3" style="margin:30px 0 16px; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'MAIL.WELCOME.STEPS_TITLE'}}</p>
+<p class="ink3" style="margin:30px 0 16px; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'mail.welcome.steps_title'}}</p>
 
-{{> step number='1' title=(t 'MAIL.WELCOME.STEP_FISCAL_TITLE') body=(t 'MAIL.WELCOME.STEP_FISCAL_BODY')}}
-{{> step number='2' title=(t 'MAIL.WELCOME.STEP_TEAM_TITLE') body=(t 'MAIL.WELCOME.STEP_TEAM_BODY')}}
-{{> step number='3' title=(t 'MAIL.WELCOME.STEP_DATA_TITLE') body=(t 'MAIL.WELCOME.STEP_DATA_BODY')}}
+{{> step number='1' title=(t 'mail.welcome.step_fiscal_title') body=(t 'mail.welcome.step_fiscal_body')}}
+{{> step number='2' title=(t 'mail.welcome.step_team_title') body=(t 'mail.welcome.step_team_body')}}
+{{> step number='3' title=(t 'mail.welcome.step_data_title') body=(t 'mail.welcome.step_data_body')}}
 
-{{#> note}}{{t 'MAIL.WELCOME.CLOSING'}}{{/note}}
+{{#> note}}{{t 'mail.welcome.closing'}}{{/note}}
 {{/shell}}

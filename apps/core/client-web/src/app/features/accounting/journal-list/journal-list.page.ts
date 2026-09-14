@@ -49,7 +49,7 @@ export class JournalListPage implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('ACCOUNTING.JOURNAL_LIST.LOAD_FAILED');
+        this.error.set('accounting.journal_list.load_failed');
         this.loading.set(false);
       },
     });

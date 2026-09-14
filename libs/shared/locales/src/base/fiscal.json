@@ -1,0 +1,256 @@
+{
+  "fiscal.ar.01": {
+    "literal": "01 · Factura A"
+  },
+  "fiscal.ar.06": {
+    "literal": "06 · Factura B"
+  },
+  "fiscal.ar.11": {
+    "literal": "11 · Factura C"
+  },
+  "fiscal.br.55": {
+    "literal": "55 · Nota Fiscal Eletrônica (NF-e)"
+  },
+  "fiscal.cl.33": {
+    "literal": "33 · Factura Electrónica (afecta)"
+  },
+  "fiscal.cl.34": {
+    "literal": "34 · Factura No Afecta o Exenta Electrónica"
+  },
+  "fiscal.cl.61": {
+    "literal": "61 · Nota de Crédito Electrónica"
+  },
+  "fiscal.co.01": {
+    "literal": "01 · Factura de Venta Nacional"
+  },
+  "fiscal.co.91": {
+    "literal": "91 · Nota Crédito"
+  },
+  "fiscal.do.b01": {
+    "literal": "B01 · Crédito Fiscal (preimpreso)"
+  },
+  "fiscal.do.b02": {
+    "literal": "B02 · Consumo (preimpreso)"
+  },
+  "fiscal.do.b03": {
+    "es": "B03 · Nota de Débito",
+    "en": "B03 · Nota de Débito (debit note)",
+    "pt": "B03 · Nota de Débito (nota de débito)"
+  },
+  "fiscal.do.b04": {
+    "literal": "B04 · Nota de Crédito (preimpreso)"
+  },
+  "fiscal.do.b11": {
+    "literal": "B11 · Proveedor Informal"
+  },
+  "fiscal.do.b15": {
+    "literal": "B15 · Gubernamental (preimpreso)"
+  },
+  "fiscal.do.e31": {
+    "literal": "E31 · Factura de Crédito Fiscal Electrónica"
+  },
+  "fiscal.do.e32": {
+    "literal": "E32 · Factura de Consumo Electrónica"
+  },
+  "fiscal.do.e33": {
+    "literal": "E33 · Nota de Débito Electrónica"
+  },
+  "fiscal.do.e34": {
+    "literal": "E34 · Nota de Crédito Electrónica"
+  },
+  "fiscal.do.e41": {
+    "es": "E41 · Compras Electrónico",
+    "en": "E41 · Compras Electrónico (self-issued purchase)",
+    "pt": "E41 · Compras Electrónico (compra autoemitida)"
+  },
+  "fiscal.do.e43": {
+    "es": "E43 · Gastos Menores Electrónico",
+    "en": "E43 · Gastos Menores Electrónico (minor expenses)",
+    "pt": "E43 · Gastos Menores Electrónico (despesas menores)"
+  },
+  "fiscal.do.e44": {
+    "literal": "E44 · Régimen Especial Electrónico"
+  },
+  "fiscal.do.e45": {
+    "literal": "E45 · Gubernamental Electrónico"
+  },
+  "fiscal.do.e46": {
+    "literal": "E46 · Exportaciones Electrónico"
+  },
+  "fiscal.do.e47": {
+    "es": "E47 · Pagos al Exterior Electrónico",
+    "en": "E47 · Pagos al Exterior Electrónico (payments abroad)",
+    "pt": "E47 · Pagos al Exterior Electrónico (pagamentos ao exterior)"
+  },
+  "fiscal.do.income_type.depreciable_asset_sale": {
+    "es": "Ingresos por venta de activo depreciable",
+    "en": "Income from the sale of depreciable assets",
+    "pt": "Receitas da venda de ativo depreciável"
+  },
+  "fiscal.do.income_type.extraordinary": {
+    "es": "Ingresos extraordinarios",
+    "en": "Extraordinary income",
+    "pt": "Receitas extraordinárias"
+  },
+  "fiscal.do.income_type.financial": {
+    "es": "Ingresos financieros",
+    "en": "Financial income",
+    "pt": "Receitas financeiras"
+  },
+  "fiscal.do.income_type.leasing": {
+    "es": "Ingresos por arrendamientos",
+    "en": "Leasing income",
+    "pt": "Receitas de aluguel"
+  },
+  "fiscal.do.income_type.operations": {
+    "es": "Ingresos por operaciones (no financieros)",
+    "en": "Operating income (non-financial)",
+    "pt": "Receitas operacionais (não financeiras)"
+  },
+  "fiscal.do.income_type.other": {
+    "es": "Otros ingresos",
+    "en": "Other income",
+    "pt": "Outras receitas"
+  },
+  "fiscal.ec.01": {
+    "literal": "01 · Factura"
+  },
+  "fiscal.ec.04": {
+    "literal": "04 · Nota de Crédito"
+  },
+  "fiscal.help.ar_point_of_sale": {
+    "es": "El punto de venta habilitado en AFIP para facturación electrónica.",
+    "en": "The point of sale enabled with AFIP for electronic invoicing.",
+    "pt": "O ponto de venda habilitado na AFIP para emissão eletrônica."
+  },
+  "fiscal.help.ar_vat_condition": {
+    "es": "Determina qué clase de comprobante (A, B, C) podés emitir.",
+    "en": "It determines which class of document (A, B, C) you may issue.",
+    "pt": "Determina qual classe de documento (A, B, C) você pode emitir."
+  },
+  "fiscal.help.br_state_registration": {
+    "es": "Indica ISENTO si no eres contribuyente de ICMS.",
+    "en": "Enter ISENTO if you are not an ICMS taxpayer.",
+    "pt": "Informe ISENTO se não for contribuinte de ICMS."
+  },
+  "fiscal.help.br_tax_regime": {
+    "es": "Obligatorio en toda NF-e.",
+    "en": "Required on every NF-e.",
+    "pt": "Obrigatório em toda NF-e."
+  },
+  "fiscal.help.cl_line_of_business": {
+    "es": "El SII lo imprime en cada documento tributario electrónico.",
+    "en": "The SII prints it on every electronic tax document.",
+    "pt": "O SII o imprime em cada documento tributário eletrônico."
+  },
+  "fiscal.help.co_responsibilities": {
+    "es": "Selecciona todas las que figuren en tu RUT. Viajan como lista en el XML de la factura electrónica.",
+    "en": "Select every one listed on your RUT. They travel as a list in the electronic invoice's XML.",
+    "pt": "Selecione todas as que constam no seu RUT. Elas seguem como lista no XML da nota eletrônica."
+  },
+  "fiscal.help.do_income_type": {
+    "es": "La DGII lo requiere en el e-CF y en el reporte 607.",
+    "en": "The DGII requires it on the e-CF and in the 607 report.",
+    "pt": "A DGII o exige no e-CF e no relatório 607."
+  },
+  "fiscal.help.ec_accounting": {
+    "es": "El SRI lo exige como campo del comprobante electrónico.",
+    "en": "The SRI requires it as a field on the electronic document.",
+    "pt": "O SRI o exige como campo do comprovante eletrônico."
+  },
+  "fiscal.help.mx_tax_regime": {
+    "es": "El SAT lo exige en cada CFDI 4.0. Aparece en tu Constancia de Situación Fiscal.",
+    "en": "The SAT requires it on every CFDI 4.0. It appears on your Constancia de Situación Fiscal.",
+    "pt": "O SAT o exige em cada CFDI 4.0. Ele aparece na sua Constancia de Situación Fiscal."
+  },
+  "fiscal.help.pe_ubigeo": {
+    "es": "Código de distrito del INEI. SUNAT lo exige en el comprobante electrónico.",
+    "en": "INEI district code. SUNAT requires it on the electronic document.",
+    "pt": "Código de distrito do INEI. A SUNAT o exige no comprovante eletrônico."
+  },
+  "fiscal.labels.department": {
+    "es": "Departamento",
+    "en": "Department",
+    "pt": "Departamento"
+  },
+  "fiscal.labels.economic_activity_code": {
+    "es": "Código de actividad económica",
+    "en": "Economic activity code",
+    "pt": "Código de atividade econômica"
+  },
+  "fiscal.labels.income_type": {
+    "es": "Tipo de ingreso",
+    "en": "Income type",
+    "pt": "Tipo de receita"
+  },
+  "fiscal.labels.line_of_business": {
+    "es": "Giro comercial",
+    "en": "Line of business",
+    "pt": "Ramo de atividade"
+  },
+  "fiscal.labels.point_of_sale": {
+    "es": "Punto de venta",
+    "en": "Point of sale",
+    "pt": "Ponto de venda"
+  },
+  "fiscal.labels.postal_code": {
+    "es": "Código postal",
+    "en": "Postal code",
+    "pt": "CEP"
+  },
+  "fiscal.labels.province": {
+    "es": "Provincia",
+    "en": "Province",
+    "pt": "Província"
+  },
+  "fiscal.labels.region": {
+    "es": "Región",
+    "en": "Region",
+    "pt": "Região"
+  },
+  "fiscal.labels.required_to_keep_books": {
+    "es": "Obligado a llevar contabilidad",
+    "en": "Required to keep books",
+    "pt": "Obrigado a manter escrituração"
+  },
+  "fiscal.labels.special_taxpayer_resolution": {
+    "es": "N.º de resolución de contribuyente especial",
+    "en": "Special taxpayer resolution no.",
+    "pt": "N.º da resolução de contribuinte especial"
+  },
+  "fiscal.labels.state": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "fiscal.labels.tax_regime": {
+    "es": "Régimen fiscal",
+    "en": "Tax regime",
+    "pt": "Regime tributário"
+  },
+  "fiscal.labels.tax_responsibilities": {
+    "es": "Responsabilidades fiscales",
+    "en": "Tax responsibilities",
+    "pt": "Responsabilidades fiscais"
+  },
+  "fiscal.labels.vat_condition": {
+    "es": "Condición frente al IVA",
+    "en": "VAT condition",
+    "pt": "Condição perante o IVA"
+  },
+  "fiscal.mx.e": {
+    "literal": "E · Egreso — nota de crédito (CFDI 4.0)"
+  },
+  "fiscal.mx.i": {
+    "literal": "I · Ingreso (CFDI 4.0)"
+  },
+  "fiscal.pe.01": {
+    "literal": "01 · Factura"
+  },
+  "fiscal.pe.03": {
+    "literal": "03 · Boleta de Venta"
+  },
+  "fiscal.pe.07": {
+    "literal": "07 · Nota de Crédito"
+  }
+}

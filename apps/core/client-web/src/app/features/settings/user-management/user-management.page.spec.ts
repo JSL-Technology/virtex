@@ -161,7 +161,7 @@ describe('UserManagementPage', () => {
         roleId: '1',
     };
     expect(mockUsersService.inviteUser).toHaveBeenCalledWith(payload);
-    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('SETTINGS.USER_MANAGEMENT.USUARIO_INVITADO_EXITO');
+    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('settings.user_management.user_invited_successfully');
     // Once when the page loaded, once after saving so the list reflects the change.
     expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
@@ -185,7 +185,7 @@ describe('UserManagementPage', () => {
         roleId: '2',
     };
     expect(mockUsersService.updateUser).toHaveBeenCalledWith(userToEdit.id, payload);
-    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('SETTINGS.USER_MANAGEMENT.USUARIO_ACTUALIZADO_EXITO');
+    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('settings.user_management.user_updated_successfully');
     expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
 
@@ -199,7 +199,7 @@ describe('UserManagementPage', () => {
     tick();
 
     expect(mockUsersService.deleteUser).toHaveBeenCalledWith(userToDelete.id);
-    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('SETTINGS.USER_MANAGEMENT.USUARIO_ELIMINADO_EXITO');
+    expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('settings.user_management.user_deleted_successfully');
     expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
 

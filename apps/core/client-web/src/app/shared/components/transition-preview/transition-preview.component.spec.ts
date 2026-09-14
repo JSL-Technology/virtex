@@ -17,12 +17,12 @@ describe('TransitionPreviewComponent', () => {
   const blocked: TransitionPreview = {
     canExecute: false,
     preconditions: [
-      { code: 'INVOICES.PRECONDITION.DRAFT', status: 'passed', message: 'Está en borrador' },
+      { code: 'invoices.precondition.draft', status: 'passed', message: 'Está en borrador' },
       {
-        code: 'ACCOUNTING.PERIOD_CLOSED',
+        code: 'accounting.period_closed',
         status: 'failed',
         message: 'El periodo 2026-08 está cerrado',
-        remedy: { labelKey: 'REMEDY.OPEN_PERIOD', route: '/accounting/periods' },
+        remedy: { labelKey: 'remedy.open_period', route: '/accounting/periods' },
       },
     ],
     effects: [],
@@ -31,17 +31,17 @@ describe('TransitionPreviewComponent', () => {
   const executable: TransitionPreview = {
     canExecute: true,
     preconditions: [
-      { code: 'INVOICES.PRECONDITION.DRAFT', status: 'passed', message: 'Está en borrador' },
+      { code: 'invoices.precondition.draft', status: 'passed', message: 'Está en borrador' },
     ],
     effects: [
       {
         kind: 'sequence',
-        titleKey: 'INVOICES.EFFECT.FISCAL_NUMBER',
+        titleKey: 'invoices.effect.fiscal_number',
         value: 'E310000000247',
       },
       {
         kind: 'ledger',
-        titleKey: 'INVOICES.EFFECT.REVENUE_ENTRY',
+        titleKey: 'invoices.effect.revenue_entry',
         currencyCode: 'DOP',
         lines: [
           { accountCode: '1101', accountName: 'Cuentas por cobrar', debit: 45800, credit: 0 },
@@ -119,7 +119,7 @@ describe('TransitionPreviewComponent', () => {
       effects: [
         {
           kind: 'ledger',
-          titleKey: 'INVOICES.EFFECT.REVENUE_ENTRY',
+          titleKey: 'invoices.effect.revenue_entry',
           currencyCode: 'DOP',
           lines: [{ accountCode: '1101', accountName: 'CxC', debit: 100, credit: 0 }],
           totalDebit: 100,

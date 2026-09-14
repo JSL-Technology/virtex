@@ -67,7 +67,7 @@ export class CurrencyRevaluationService {
 
       if (ledgersToProcess.length === 0) {
         throw new BadRequestError(
-          'BATCH_PROCESSES.NO_ENCONTRARON_LIBROS_CONTABLES_PROCESAR_ORGANIZACION',
+          'batch_processes.no_ledgers_found_process_organization_organization',
           { organizationId },
         );
       }
@@ -115,7 +115,7 @@ export class CurrencyRevaluationService {
     });
     if (!generalJournal) {
       throw new BadRequestError(
-        'BATCH_PROCESSES.DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_ORGANIZACION',
+        'batch_processes.general_journal_general_not_found_organization',
         { organizationId },
       );
     }
@@ -185,7 +185,7 @@ export class CurrencyRevaluationService {
         description: await this.narrative.describe(
           manager,
           organizationId,
-          'LEDGER.REVALUATION.LINE',
+          'ledger.revaluation.line',
           { currency: account.currency, account: account.code },
         ),
         valuations: [{ ledgerId: ledger.id, debit, credit }],
@@ -210,8 +210,8 @@ export class CurrencyRevaluationService {
         manager,
         organizationId,
         netAdjustmentCents > 0
-          ? 'LEDGER.REVALUATION.UNREALISED_GAIN'
-          : 'LEDGER.REVALUATION.UNREALISED_LOSS',
+          ? 'ledger.revaluation.unrealised_gain'
+          : 'ledger.revaluation.unrealised_loss',
       ),
       valuations: [
         {
@@ -227,7 +227,7 @@ export class CurrencyRevaluationService {
       description: await this.narrative.describe(
         manager,
         organizationId,
-        'LEDGER.REVALUATION.ENTRY',
+        'ledger.revaluation.entry',
         { ledger: ledger.name },
       ),
       journalId: generalJournal.id,

@@ -166,7 +166,7 @@ export const SAAS_PLANS: PlanConfig[] = [
     // and it was answering in Spanish to a visitor reading the product in English. The key is
     // resolved by whoever renders it, so the pitch follows the reader — unlike a ledger narrative,
     // which belongs to the tenant's books. See `BILLING.PLANS.*` in the client catalogues.
-    description: 'BILLING.PLANS.STARTER.DESCRIPTION',
+    description: 'billing.plans.starter.description',
     monthlyPriceIdVar: 'STRIPE_PRICE_STARTER',
     annualPriceIdVar: 'STRIPE_PRICE_STARTER_ANNUAL',
     // USD is the only amount declared in code. Local amounts are added through the environment
@@ -193,7 +193,7 @@ export const SAAS_PLANS: PlanConfig[] = [
   {
     slug: 'pro',
     name: 'Professional',
-    description: 'BILLING.PLANS.PRO.DESCRIPTION',
+    description: 'billing.plans.pro.description',
     monthlyPriceIdVar: 'STRIPE_PRICE_PRO',
     annualPriceIdVar: 'STRIPE_PRICE_PRO_ANNUAL',
     monthlyPrices: resolvePrices('pro', { USD: 4900 }, 'PRICE'),
@@ -215,7 +215,7 @@ export const SAAS_PLANS: PlanConfig[] = [
   {
     slug: 'enterprise',
     name: 'Enterprise',
-    description: 'BILLING.PLANS.ENTERPRISE.DESCRIPTION',
+    description: 'billing.plans.enterprise.description',
     monthlyPriceIdVar: 'STRIPE_PRICE_ENTERPRISE',
     annualPriceIdVar: 'STRIPE_PRICE_ENTERPRISE_ANNUAL',
     monthlyPrices: resolvePrices('enterprise', { USD: 19900 }, 'PRICE'),

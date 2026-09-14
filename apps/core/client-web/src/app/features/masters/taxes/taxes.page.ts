@@ -7,7 +7,7 @@ import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
@@ -41,7 +41,7 @@ export class TaxesPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.TAXES.PUDIERON_CARGAR_IMPUESTOS');
+        this.notificationService.showError('masters.taxes.taxes_could_not_loaded');
         this.isLoading.set(false);
       },
     });
@@ -49,19 +49,19 @@ export class TaxesPage implements OnInit {
 
   async deleteTax(tax: Tax): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_TAX.TITLE',
-      message: 'DIALOG.DELETE_TAX.MESSAGE',
+      title: 'dialog.delete_tax.title',
+      message: 'dialog.delete_tax.message',
       messageParams: { name: tax.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) {
       this.taxesService.deleteTax(tax.id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('MASTERS.TAXES.IMPUESTO_ELIMINADO_EXITOSAMENTE');
+          this.notificationService.showSuccess('masters.taxes.tax_deleted');
           this.loadTaxes();
         },
-        error: () => this.notificationService.showError('MASTERS.TAXES.ERROR_ELIMINAR_IMPUESTO'),
+        error: () => this.notificationService.showError('masters.taxes.error_deleting_tax'),
       });
     }
   }

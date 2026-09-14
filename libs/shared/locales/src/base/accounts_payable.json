@@ -1,0 +1,839 @@
+{
+  "accounts_payable.accounts_payable_account_not_configured": {
+    "es": "La cuenta de Cuentas por Pagar no está configurada.",
+    "en": "The Accounts Payable account is not configured.",
+    "pt": "A conta de Contas a Pagar não está configurada."
+  },
+  "accounts_payable.bank_account_name_inactive_cannot_take": {
+    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{name}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+  },
+  "accounts_payable.bill_bill_cannot_paid_from_account": {
+    "es": "No se puede pagar una factura en {bill} desde una cuenta en {account}; usa una cuenta en {bill} o en la moneda funcional.",
+    "en": "A bill in {bill} cannot be paid from an account in {account}; use an account in {bill} or in the books’ currency.",
+    "pt": "Não é possível pagar uma fatura em {bill} a partir de uma conta em {account}; use uma conta em {bill} ou na moeda dos livros."
+  },
+  "accounts_payable.bill_id_does_not_exist_organization": {
+    "es": "La factura {{id}} no existe en esta organización.",
+    "en": "Bill {{id}} does not exist in this organization.",
+    "pt": "A fatura {{id}} não existe nesta organização."
+  },
+  "accounts_payable.bill_id_status_cannot_take_payment": {
+    "es": "La factura {{id}} está en estado {{status}} y no admite pagos.",
+    "en": "Bill {{id}} is {{status}} and cannot take a payment.",
+    "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
+  },
+  "accounts_payable.bill_with_payments_applied_cannot_voided": {
+    "es": "No puede anular una factura con pagos aplicados. Anule primero los pagos.",
+    "en": "A bill with payments applied cannot be voided. Void the payments first.",
+    "pt": "Não é possível anular uma fatura com pagamentos aplicados. Anule primeiro os pagamentos."
+  },
+  "accounts_payable.budget_control_failed_message": {
+    "es": "Control presupuestario fallido: {{message}}",
+    "en": "Budget control failed: {{message}}",
+    "pt": "Controle orçamentário falhou: {{message}}"
+  },
+  "accounts_payable.debit_note_cannot_larger_than_invoice": {
+    "es": "El monto de la nota de débito no puede ser mayor al saldo de la factura.",
+    "en": "The debit note cannot be larger than the invoice balance.",
+    "pt": "O valor da nota de débito não pode ser maior que o saldo da fatura."
+  },
+  "accounts_payable.debit_note_id_not_found": {
+    "es": "Nota de débito con ID \"{{id}}\" no encontrada.",
+    "en": "Debit note \"{{id}}\" was not found.",
+    "pt": "Nota de débito \"{{id}}\" não encontrada."
+  },
+  "accounts_payable.debit_notes_can_only_applied_open": {
+    "es": "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.",
+    "en": "Debit notes can only be applied to open or partially paid invoices.",
+    "pt": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas."
+  },
+  "accounts_payable.default_inventory_account_not_configured": {
+    "es": "La cuenta de inventario por defecto no está configurada.",
+    "en": "The default inventory account is not configured.",
+    "pt": "A conta de estoque padrão não está configurada."
+  },
+  "accounts_payable.default_payable_account_not_configured": {
+    "es": "La cuenta por pagar por defecto no está configurada.",
+    "en": "The default payable account is not configured.",
+    "pt": "A conta a pagar padrão não está configurada."
+  },
+  "accounts_payable.deleting_invoices_not_allowed_use_void": {
+    "es": "No se pueden eliminar facturas. Usa la función de anular.",
+    "en": "Deleting invoices is not allowed. Use \"Void\" instead.",
+    "pt": "Excluir faturas não é permitido. Use \"Cancelar\"."
+  },
+  "accounts_payable.detail.applied": {
+    "es": "Aplicado",
+    "en": "Applied",
+    "pt": "Aplicado"
+  },
+  "accounts_payable.detail.back_list": {
+    "es": "Volver al Listado",
+    "en": "Back to the list",
+    "pt": "Voltar à listagem"
+  },
+  "accounts_payable.detail.bill_annulled": {
+    "es": "Factura anulada",
+    "en": "Bill annulled",
+    "pt": "Fatura anulada"
+  },
+  "accounts_payable.detail.bill_could_not_annulled": {
+    "es": "No se pudo anular la factura.",
+    "en": "The bill could not be annulled.",
+    "pt": "Não foi possível anular a fatura."
+  },
+  "accounts_payable.detail.bill_could_not_submitted_approval": {
+    "es": "No se pudo enviar la factura a aprobación.",
+    "en": "The bill could not be submitted for approval.",
+    "pt": "Não foi possível enviar a fatura para aprovação."
+  },
+  "accounts_payable.detail.bill_has_no_lines": {
+    "es": "Esta factura no tiene líneas registradas.",
+    "en": "This bill has no lines.",
+    "pt": "Esta fatura não tem linhas."
+  },
+  "accounts_payable.detail.bill_not_found": {
+    "es": "No se encontró la factura.",
+    "en": "The bill was not found.",
+    "pt": "A fatura não foi encontrada."
+  },
+  "accounts_payable.detail.bill_submitted_approval": {
+    "es": "La factura se envió a aprobación.",
+    "en": "The bill was submitted for approval.",
+    "pt": "A fatura foi enviada para aprovação."
+  },
+  "accounts_payable.detail.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Numerário"
+  },
+  "accounts_payable.detail.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "accounts_payable.detail.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounts_payable.detail.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "accounts_payable.detail.due_date": {
+    "es": "Fecha de Vencimiento",
+    "en": "Due Date",
+    "pt": "Data de Vencimento"
+  },
+  "accounts_payable.detail.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "accounts_payable.detail.general_information": {
+    "es": "Información General",
+    "en": "General Information",
+    "pt": "Informações Gerais"
+  },
+  "accounts_payable.detail.invoice_lines": {
+    "es": "Líneas de la Factura",
+    "en": "Invoice Lines",
+    "pt": "Linhas da Fatura"
+  },
+  "accounts_payable.detail.invoice_voided": {
+    "es": "Factura anulada con éxito.",
+    "en": "Invoice voided.",
+    "pt": "Fatura cancelada."
+  },
+  "accounts_payable.detail.issue_date": {
+    "es": "Fecha de Emisión",
+    "en": "Issue Date",
+    "pt": "Data de Emissão"
+  },
+  "accounts_payable.detail.item": {
+    "es": "Concepto",
+    "en": "Item",
+    "pt": "Descrição"
+  },
+  "accounts_payable.detail.nothing_has_paid_against_bill_yet": {
+    "es": "Todavía no se ha pagado nada contra esta factura.",
+    "en": "Nothing has been paid against this bill yet.",
+    "pt": "Ainda não foi pago nada contra esta fatura."
+  },
+  "accounts_payable.detail.outstanding_balance": {
+    "es": "Saldo pendiente",
+    "en": "Outstanding balance",
+    "pt": "Saldo em aberto"
+  },
+  "accounts_payable.detail.payments_applied": {
+    "es": "Pagos aplicados",
+    "en": "Payments applied",
+    "pt": "Pagamentos aplicados"
+  },
+  "accounts_payable.detail.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "accounts_payable.detail.reversing_entry_posted_general_ledger": {
+    "es": "Se registró el asiento de reversión en el libro mayor.",
+    "en": "The reversing entry was posted to the general ledger.",
+    "pt": "O lançamento de reversão foi registado no razão."
+  },
+  "accounts_payable.detail.submit_approval": {
+    "es": "Enviar a aprobación",
+    "en": "Submit for approval",
+    "pt": "Enviar para aprovação"
+  },
+  "accounts_payable.detail.supplier_bill": {
+    "es": "Factura de proveedor",
+    "en": "Supplier bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "accounts_payable.detail.supplier_bill_could_not_loaded": {
+    "es": "No se pudo cargar la factura del proveedor.",
+    "en": "The supplier bill could not be loaded.",
+    "pt": "Não foi possível carregar a fatura do fornecedor."
+  },
+  "accounts_payable.detail.tax_breakdown": {
+    "es": "Desglose fiscal",
+    "en": "Tax breakdown",
+    "pt": "Desagregação fiscal"
+  },
+  "accounts_payable.detail.total": {
+    "literal": "Total"
+  },
+  "accounts_payable.detail.unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "accounts_payable.detail.void": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Cancelar"
+  },
+  "accounts_payable.form.add_line": {
+    "es": "Añadir Línea",
+    "en": "Add Line",
+    "pt": "Adicionar Linha"
+  },
+  "accounts_payable.form.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "accounts_payable.form.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "accounts_payable.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "accounts_payable.form.document_total": {
+    "es": "Total del documento",
+    "en": "Document total",
+    "pt": "Total do documento"
+  },
+  "accounts_payable.form.due_date": {
+    "es": "Fecha de Vencimiento",
+    "en": "Due Date",
+    "pt": "Data de Vencimento"
+  },
+  "accounts_payable.form.error_saving_invoice": {
+    "es": "Error al guardar la factura.",
+    "en": "Error saving the invoice.",
+    "pt": "Erro ao salvar a fatura."
+  },
+  "accounts_payable.form.excise_tax": {
+    "es": "Impuesto selectivo",
+    "en": "Excise tax",
+    "pt": "Imposto seletivo"
+  },
+  "accounts_payable.form.expense_account": {
+    "es": "Cuenta de Gasto",
+    "en": "Expense Account",
+    "pt": "Conta de Despesa"
+  },
+  "accounts_payable.form.general_information": {
+    "es": "Información General",
+    "en": "General Information",
+    "pt": "Informações Gerais"
+  },
+  "accounts_payable.form.hide": {
+    "es": "Ocultar",
+    "en": "Hide",
+    "pt": "Ocultar"
+  },
+  "accounts_payable.form.income_tax_withheld": {
+    "es": "Retención de renta",
+    "en": "Income tax withheld",
+    "pt": "Retenção de rendimento"
+  },
+  "accounts_payable.form.invoice_could_not_loaded": {
+    "es": "No se pudo cargar la factura.",
+    "en": "The invoice could not be loaded.",
+    "pt": "Não foi possível carregar a fatura."
+  },
+  "accounts_payable.form.invoice_created": {
+    "es": "Factura creada con éxito.",
+    "en": "Invoice created.",
+    "pt": "Fatura criada."
+  },
+  "accounts_payable.form.invoice_details": {
+    "es": "Detalles de la Factura",
+    "en": "Invoice Details",
+    "pt": "Detalhes da Fatura"
+  },
+  "accounts_payable.form.invoice_updated": {
+    "es": "Factura actualizada con éxito.",
+    "en": "Invoice updated.",
+    "pt": "Fatura atualizada."
+  },
+  "accounts_payable.form.issue_date": {
+    "es": "Fecha de Emisión",
+    "en": "Issue Date",
+    "pt": "Data de Emissão"
+  },
+  "accounts_payable.form.legal_service_charge": {
+    "es": "Propina legal",
+    "en": "Legal service charge",
+    "pt": "Gorjeta legal"
+  },
+  "accounts_payable.form.lines_recorded_bill_cannot_changed_raise": {
+    "es": "Las líneas de una factura registrada no se modifican. Emita una nota de débito o de crédito.",
+    "en": "The lines of a recorded bill cannot be changed. Raise a debit or credit note instead.",
+    "pt": "As linhas de uma fatura registada não se alteram. Emita uma nota de débito ou de crédito."
+  },
+  "accounts_payable.form.ncf": {
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
+  },
+  "accounts_payable.form.net_payable": {
+    "es": "Neto a pagar",
+    "en": "Net payable",
+    "pt": "Líquido a pagar"
+  },
+  "accounts_payable.form.organization_currency": {
+    "es": "Moneda de la organización",
+    "en": "Organization currency",
+    "pt": "Moeda da organização"
+  },
+  "accounts_payable.form.other_taxes": {
+    "es": "Otros impuestos",
+    "en": "Other taxes",
+    "pt": "Outros impostos"
+  },
+  "accounts_payable.form.payment_form": {
+    "es": "Forma de pago",
+    "en": "Payment form",
+    "pt": "Forma de pagamento"
+  },
+  "accounts_payable.form.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "accounts_payable.form.proportional_tax": {
+    "es": "Impuesto proporcional",
+    "en": "Proportional tax",
+    "pt": "Imposto proporcional"
+  },
+  "accounts_payable.form.qty": {
+    "es": "Cant.",
+    "en": "Qty",
+    "pt": "Qtd."
+  },
+  "accounts_payable.form.remove_line": {
+    "es": "Eliminar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "accounts_payable.form.save_bill": {
+    "es": "Guardar factura",
+    "en": "Save bill",
+    "pt": "Guardar fatura"
+  },
+  "accounts_payable.form.select_account": {
+    "es": "Seleccionar cuenta",
+    "en": "Select an account",
+    "pt": "Selecionar conta"
+  },
+  "accounts_payable.form.select_supplier": {
+    "es": "Selecciona un proveedor.",
+    "en": "Select a supplier.",
+    "pt": "Selecione um fornecedor."
+  },
+  "accounts_payable.form.show": {
+    "es": "Mostrar",
+    "en": "Show",
+    "pt": "Mostrar"
+  },
+  "accounts_payable.form.subtotal": {
+    "literal": "Subtotal"
+  },
+  "accounts_payable.form.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "accounts_payable.form.supplier_placeholder": {
+    "es": "Seleccionar proveedor",
+    "en": "Select a supplier",
+    "pt": "Selecionar fornecedor"
+  },
+  "accounts_payable.form.tax_breakdown": {
+    "es": "Desglose fiscal",
+    "en": "Tax breakdown",
+    "pt": "Desagregação fiscal"
+  },
+  "accounts_payable.form.tax_carried_cost": {
+    "es": "Impuesto llevado al costo",
+    "en": "Tax carried to cost",
+    "pt": "Imposto levado ao custo"
+  },
+  "accounts_payable.form.tax_charged": {
+    "es": "Impuesto facturado",
+    "en": "Tax charged",
+    "pt": "Imposto faturado"
+  },
+  "accounts_payable.form.tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
+  },
+  "accounts_payable.form.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "accounts_payable.form.title_create": {
+    "es": "Nueva factura de proveedor",
+    "en": "New vendor bill",
+    "pt": "Nova fatura de fornecedor"
+  },
+  "accounts_payable.form.title_edit": {
+    "es": "Editar factura de proveedor",
+    "en": "Edit vendor bill",
+    "pt": "Editar fatura de fornecedor"
+  },
+  "accounts_payable.form.total": {
+    "literal": "Total"
+  },
+  "accounts_payable.form.type_goods_services": {
+    "es": "Tipo de bienes y servicios",
+    "en": "Type of goods and services",
+    "pt": "Tipo de bens e serviços"
+  },
+  "accounts_payable.form.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "accounts_payable.invoice_has_already_voided": {
+    "es": "La factura ya ha sido anulada.",
+    "en": "The invoice has already been voided.",
+    "pt": "A fatura já foi cancelada."
+  },
+  "accounts_payable.invoice_void_id_not_found": {
+    "es": "Factura a anular con ID \"{{id}}\" no encontrada.",
+    "en": "The invoice to void, \"{{id}}\", was not found.",
+    "pt": "A fatura a cancelar, \"{{id}}\", não foi encontrada."
+  },
+  "accounts_payable.line_product_not_inventory_item_requires": {
+    "es": "La línea \"{{product}}\" no es de inventario y requiere una cuenta de gasto.",
+    "en": "Line \"{{product}}\" is not an inventory item and requires an expense account.",
+    "pt": "A linha \"{{product}}\" não é de estoque e exige uma conta de despesa."
+  },
+  "accounts_payable.lines_existing_invoice_must_changed_through": {
+    "es": "La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.",
+    "en": "The lines of an existing invoice must be changed through credit or debit notes.",
+    "pt": "As linhas de uma fatura existente devem ser alteradas por notas de crédito ou débito."
+  },
+  "accounts_payable.list.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "accounts_payable.list.create_invoice": {
+    "es": "Crear Factura",
+    "en": "Create Invoice",
+    "pt": "Criar Fatura"
+  },
+  "accounts_payable.list.create_your_first_vendor_bill_get": {
+    "es": "Crea tu primera factura de proveedor para empezar.",
+    "en": "Create your first vendor bill to get started.",
+    "pt": "Crie sua primeira fatura de fornecedor para começar."
+  },
+  "accounts_payable.list.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounts_payable.list.due": {
+    "es": "Vencimiento",
+    "en": "Due",
+    "pt": "Vencimento"
+  },
+  "accounts_payable.list.load_failed": {
+    "es": "No se pudieron cargar las facturas de proveedor. Inténtalo de nuevo.",
+    "en": "The vendor bills could not be loaded. Try again.",
+    "pt": "Não foi possível carregar as faturas de fornecedor. Tente novamente."
+  },
+  "accounts_payable.list.new_invoice": {
+    "es": "Nueva Factura",
+    "en": "New Invoice",
+    "pt": "Nova Fatura"
+  },
+  "accounts_payable.list.no_fiscal_number": {
+    "en": "No fiscal document",
+    "es": "Sin comprobante fiscal",
+    "pt": "Sem documento fiscal"
+  },
+  "accounts_payable.list.no_vendor_bills": {
+    "es": "No hay facturas de proveedor",
+    "en": "There are no vendor bills",
+    "pt": "Não há faturas de fornecedor"
+  },
+  "accounts_payable.list.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "accounts_payable.list.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "accounts_payable.list.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "accounts_payable.list.total": {
+    "literal": "Total"
+  },
+  "accounts_payable.list.vendor_bills": {
+    "es": "Facturas de Proveedor",
+    "en": "Vendor Bills",
+    "pt": "Faturas de Fornecedor"
+  },
+  "accounts_payable.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "accounts_payable.no_discount_account_configured_so_early": {
+    "es": "No hay cuenta de descuentos configurada; no se puede registrar el descuento por pronto pago.",
+    "en": "No discount account is configured, so the early-payment discount cannot be recorded.",
+    "pt": "Não há conta de descontos configurada; o desconto por pagamento antecipado não pode ser registado."
+  },
+  "accounts_payable.no_exchange_difference_account_configured_payment": {
+    "es": "No hay cuenta de diferencia cambiaria configurada y este pago genera una.",
+    "en": "No exchange difference account is configured and this payment produces one.",
+    "pt": "Não há conta de variação cambial configurada e este pagamento gera uma."
+  },
+  "accounts_payable.no_purchase_tax_account_configured_bill": {
+    "es": "No hay cuenta de impuesto sobre compras configurada y la factura tiene impuesto deducible.",
+    "en": "No purchase tax account is configured and the bill carries deductible tax.",
+    "pt": "Não há conta de imposto sobre compras configurada e a fatura tem imposto dedutível."
+  },
+  "accounts_payable.no_withholding_payable_account_configured_document": {
+    "es": "No hay cuenta de retenciones por pagar configurada y el documento tiene retenciones.",
+    "en": "No withholding payable account is configured and the document carries withholdings.",
+    "pt": "Não há conta de retenções a pagar configurada e o documento tem retenções."
+  },
+  "accounts_payable.only_draft_invoices_can_submitted_approval": {
+    "es": "Solo las facturas en estado borrador pueden ser enviadas para aprobación.",
+    "en": "Only draft invoices can be submitted for approval.",
+    "pt": "Somente faturas em rascunho podem ser enviadas para aprovação."
+  },
+  "accounts_payable.only_invoices_draft_can_edited": {
+    "es": "Solo se pueden editar facturas en estado 'Borrador'.",
+    "en": "Only invoices in draft can be edited.",
+    "pt": "Somente faturas em rascunho podem ser editadas."
+  },
+  "accounts_payable.payment.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "accounts_payable.payment.bank_account": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "accounts_payable.payment.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "accounts_payable.payment.choose_least_one_invoice_complete_payment": {
+    "es": "Selecciona al menos una factura y completa los datos del pago.",
+    "en": "Choose at least one invoice and complete the payment details.",
+    "pt": "Escolha ao menos uma fatura e preencha os dados do pagamento."
+  },
+  "accounts_payable.payment.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "accounts_payable.payment.income_tax_withheld": {
+    "es": "ISR retenido",
+    "en": "Income tax withheld",
+    "pt": "Imposto de renda retido"
+  },
+  "accounts_payable.payment.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "accounts_payable.payment.invoices_pay": {
+    "es": "Facturas a pagar",
+    "en": "Invoices to pay",
+    "pt": "Faturas a pagar"
+  },
+  "accounts_payable.payment.itbis_withheld": {
+    "es": "ITBIS retenido",
+    "en": "ITBIS withheld",
+    "pt": "ITBIS retido"
+  },
+  "accounts_payable.payment.line_settles_more_than_invoice_owes": {
+    "es": "Alguna línea salda más de lo que la factura debe.",
+    "en": "A line settles more than the invoice owes.",
+    "pt": "Alguma linha liquida mais do que a fatura deve."
+  },
+  "accounts_payable.payment.no_invoices_account_can_pay": {
+    "es": "No hay facturas que esta cuenta pueda pagar.",
+    "en": "There are no invoices this account can pay.",
+    "pt": "Não há faturas que esta conta possa pagar."
+  },
+  "accounts_payable.payment.pay_supplier_invoices": {
+    "es": "Pagar facturas de proveedor",
+    "en": "Pay supplier invoices",
+    "pt": "Pagar faturas de fornecedor"
+  },
+  "accounts_payable.payment.payment_could_not_recorded": {
+    "es": "No se pudo registrar el pago.",
+    "en": "The payment could not be recorded.",
+    "pt": "Não foi possível registrar o pagamento."
+  },
+  "accounts_payable.payment.payment_date": {
+    "es": "Fecha de pago",
+    "en": "Payment date",
+    "pt": "Data do pagamento"
+  },
+  "accounts_payable.payment.payment_recorded": {
+    "es": "Pago registrado.",
+    "en": "Payment recorded.",
+    "pt": "Pagamento registrado."
+  },
+  "accounts_payable.payment.record_payment": {
+    "es": "Registrar pago",
+    "en": "Record payment",
+    "pt": "Registrar pagamento"
+  },
+  "accounts_payable.payment.settles": {
+    "es": "Salda",
+    "en": "Settles",
+    "pt": "Liquida"
+  },
+  "accounts_payable.payment.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "accounts_payable.payment_form.barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "accounts_payable.payment_form.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "accounts_payable.payment_form.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Numerário"
+  },
+  "accounts_payable.payment_form.check_transfer": {
+    "es": "Cheque o transferencia",
+    "en": "Cheque or transfer",
+    "pt": "Cheque ou transferência"
+  },
+  "accounts_payable.payment_form.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "accounts_payable.payment_form.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "accounts_payable.payment_form.mixed": {
+    "es": "Mixto",
+    "en": "Mixed",
+    "pt": "Misto"
+  },
+  "accounts_payable.payments_journal_pagos_not_found": {
+    "es": "Diario de Pagos (PAGOS) no encontrado.",
+    "en": "The Payments journal (PAGOS) was not found.",
+    "pt": "O diário de Pagamentos (PAGOS) não foi encontrado."
+  },
+  "accounts_payable.purchase_category.asset_acquisitions": {
+    "es": "Adquisiciones de activos",
+    "en": "Asset acquisitions",
+    "pt": "Aquisições de ativos"
+  },
+  "accounts_payable.purchase_category.cost_of_sales": {
+    "es": "Costo de ventas",
+    "en": "Cost of sales",
+    "pt": "Custo das vendas"
+  },
+  "accounts_payable.purchase_category.extraordinary_expenses": {
+    "es": "Gastos extraordinarios",
+    "en": "Extraordinary expenses",
+    "pt": "Despesas extraordinárias"
+  },
+  "accounts_payable.purchase_category.financial_expenses": {
+    "es": "Gastos financieros",
+    "en": "Financial expenses",
+    "pt": "Despesas financeiras"
+  },
+  "accounts_payable.purchase_category.fixed_asset_leasing": {
+    "es": "Arrendamiento de activos fijos",
+    "en": "Fixed asset leasing",
+    "pt": "Locação de ativos fixos"
+  },
+  "accounts_payable.purchase_category.improvement_expenses": {
+    "es": "Gastos de mejoras",
+    "en": "Improvement expenses",
+    "pt": "Despesas de melhorias"
+  },
+  "accounts_payable.purchase_category.insurance_expenses": {
+    "es": "Gastos de seguros",
+    "en": "Insurance expenses",
+    "pt": "Despesas de seguros"
+  },
+  "accounts_payable.purchase_category.leasing": {
+    "es": "Arrendamientos",
+    "en": "Leases",
+    "pt": "Arrendamentos"
+  },
+  "accounts_payable.purchase_category.merchandise_purchases": {
+    "es": "Compras de mercancías",
+    "en": "Merchandise purchases",
+    "pt": "Compras de mercadorias"
+  },
+  "accounts_payable.purchase_category.personnel_expenses": {
+    "es": "Gastos de personal",
+    "en": "Personnel expenses",
+    "pt": "Despesas com pessoal"
+  },
+  "accounts_payable.purchase_category.related_services": {
+    "es": "Servicios relacionados",
+    "en": "Related services",
+    "pt": "Serviços relacionados"
+  },
+  "accounts_payable.purchase_category.work_goods_services": {
+    "es": "Bienes y servicios para el trabajo",
+    "en": "Goods and services for the work",
+    "pt": "Bens e serviços para o trabalho"
+  },
+  "accounts_payable.purchases_journal_compras_not_found": {
+    "es": "Diario de Compras (COMPRAS) no encontrado.",
+    "en": "The Purchases journal (COMPRAS) was not found.",
+    "pt": "O diário de Compras (COMPRAS) não foi encontrado."
+  },
+  "accounts_payable.purchases_journal_compras_not_found_record": {
+    "es": "Diario de Compras (COMPRAS) no encontrado para registrar la nota de débito.",
+    "en": "The Purchases journal (COMPRAS) was not found to record the debit note.",
+    "pt": "O diário de Compras (COMPRAS) não foi encontrado para registrar a nota de débito."
+  },
+  "accounts_payable.settlement_settled_exceeds_balance_balance_bill": {
+    "es": "El pago de {{settled}} excede el saldo de {{balance}} de la factura {{id}}.",
+    "en": "A settlement of {{settled}} exceeds the {{balance}} balance of bill {{id}}.",
+    "pt": "A liquidação de {{settled}} excede o saldo de {{balance}} da fatura {{id}}."
+  },
+  "accounts_payable.specified_bank_account_does_not_exist": {
+    "es": "La cuenta bancaria indicada no existe en esta organización.",
+    "en": "The specified bank account does not exist in this organization.",
+    "pt": "A conta bancária indicada não existe nesta organização."
+  },
+  "accounts_payable.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "accounts_payable.status.open": {
+    "es": "Abierta",
+    "en": "Open",
+    "pt": "Aberta"
+  },
+  "accounts_payable.status.paid": {
+    "es": "Pagada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "accounts_payable.status.partially_paid": {
+    "es": "Pagada parcialmente",
+    "en": "Partially paid",
+    "pt": "Parcialmente paga"
+  },
+  "accounts_payable.status.pending_approval": {
+    "es": "Pendiente de aprobación",
+    "en": "Pending approval",
+    "pt": "Aguardando aprovação"
+  },
+  "accounts_payable.status.rejected": {
+    "es": "Rechazada",
+    "en": "Rejected",
+    "pt": "Rejeitada"
+  },
+  "accounts_payable.status.void": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Cancelada"
+  },
+  "accounts_payable.submitted_total_received_does_not_match": {
+    "es": "El total enviado ({{received}}) no coincide con el calculado a partir de las líneas y los impuestos ({{expected}}).",
+    "en": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
+    "pt": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
+  },
+  "accounts_payable.supplier_id_not_found": {
+    "es": "Proveedor con ID \"{{id}}\" no encontrado.",
+    "en": "Supplier \"{{id}}\" was not found.",
+    "pt": "Fornecedor \"{{id}}\" não encontrado."
+  },
+  "accounts_payable.transaction_query_runner_could_not_obtained": {
+    "es": "No se pudo obtener el Query Runner de la transacción.",
+    "en": "The transaction's query runner could not be obtained.",
+    "pt": "Não foi possível obter o query runner da transação."
+  },
+  "accounts_payable.vendor_bill_id_not_found": {
+    "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",
+    "en": "Vendor bill \"{{id}}\" was not found.",
+    "pt": "A fatura de fornecedor \"{{id}}\" não foi encontrada."
+  },
+  "accounts_payable.vendor_bill_not_found": {
+    "es": "La factura del proveedor no fue encontrada.",
+    "en": "The vendor bill was not found.",
+    "pt": "A fatura do fornecedor não foi encontrada."
+  },
+  "accounts_payable.voiding_debit_notes_not_implemented_yet": {
+    "es": "La funcionalidad de anulación de notas de débito aún no está implementada.",
+    "en": "Voiding debit notes is not implemented yet.",
+    "pt": "O cancelamento de notas de débito ainda não está implementado."
+  }
+}

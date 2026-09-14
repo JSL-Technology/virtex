@@ -33,9 +33,9 @@ describe('permission catalogue', () => {
   it('never exposes a slug as a label', () => {
     for (const group of buildPermissionCatalogue()) {
       // The slug is the stored value and must stay stable; the labels are keys, never text.
-      expect(group.labelKey).toMatch(/^PERMISSIONS\.GROUPS\./);
+      expect(group.labelKey).toMatch(/^permissions\.groups\.[a-z0-9_]+$/);
       for (const permission of group.permissions) {
-        expect(permission.actionKey).toMatch(/^PERMISSIONS\.ACTIONS\./);
+        expect(permission.actionKey).toMatch(/^permissions\.actions\.[a-z0-9_]+$/);
         expect(permission.value).toMatch(/^[a-z_]+:[a-z_*]+$/);
       }
     }

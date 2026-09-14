@@ -1,28 +1,33 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { resolveErrorKey } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'pos-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="wrap">
       <form class="card" [formGroup]="form" (ngSubmit)="submit()">
-        <h1>Virtex POS</h1>
-        <p class="sub">Sign in to open the till</p>
-        @if (error()) {
-          <div class="error">{{ error() }}</div>
+        <h1>{{ 'apps.pos' | translate }}</h1>
+        <p class="sub">{{ 'pos.sign_in_title' | translate }}</p>
+        @if (errorKey()) {
+          <div class="error">{{ errorKey()! | translate }}</div>
         }
-        <label>Email<input type="email" formControlName="email" autocomplete="username" /></label>
         <label>
-          Password
+          {{ 'pos.email' | translate }}
+          <input type="email" formControlName="email" autocomplete="username" />
+        </label>
+        <label>
+          {{ 'pos.password' | translate }}
           <input type="password" formControlName="password" autocomplete="current-password" />
         </label>
         <button type="submit" [disabled]="form.invalid || loading()">
-          {{ loading() ? 'Signing in…' : 'Sign in' }}
+          {{ (loading() ? 'pos.signing_in' : 'pos.sign_in') | translate }}
         </button>
       </form>
     </div>
@@ -99,7 +104,10 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  /** A catalogue key rather than a sentence, so the message follows a language switch. */
+  readonly errorKey = signal<string | null>(null);
+
+  private readonly translate = inject(TranslateService);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -110,19 +118,25 @@ export class LoginComponent {
     if (this.form.invalid || this.loading()) return;
     const { email, password } = this.form.getRawValue();
     this.loading.set(true);
-    this.error.set(null);
+    this.errorKey.set(null);
     this.auth.login(email!, password!).subscribe({
       next: () => {
         // Confirm the session actually resolved (covers 2FA-gated accounts, which do not).
         this.auth.resolveSession().subscribe((ok) => {
           this.loading.set(false);
           if (ok) this.router.navigateByUrl('/');
-          else this.error.set('Additional verification required. Finish signing in on the main app.');
+          else this.errorKey.set('pos.step_up_required');
         });
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message ?? 'Invalid credentials');
+        // Never the server's own sentence: it is written for whoever is reading the logs, and
+        // forwarding it is how an English string reached a Spanish till.
+        this.errorKey.set(
+          resolveErrorKey(err as { status?: number; error?: unknown }, (key) =>
+            this.translate.instant(key) !== key,
+          ),
+        );
       },
     });
   }

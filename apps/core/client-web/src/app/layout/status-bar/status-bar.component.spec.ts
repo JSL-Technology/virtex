@@ -50,7 +50,7 @@ describe('StatusBarComponent', () => {
     const el = await render(open);
     expect(fixture.componentInstance['periodLabel']()).toBe('2026-09');
     expect(el.querySelector('.sb__item--ok')).toBeTruthy();
-    expect(el.textContent).toContain('STATUS_BAR.PERIOD_OPEN');
+    expect(el.textContent).toContain('status_bar.period_open');
   });
 
   it('distingue un periodo cerrado, que es el que impide trabajar', async () => {
@@ -68,8 +68,8 @@ describe('StatusBarComponent', () => {
     // Onboarding is a normal state; showing a made-up period would be worse than showing none.
     const el = await render(null);
     expect(fixture.componentInstance['periodLabel']()).toBeNull();
-    expect(el.textContent).not.toContain('STATUS_BAR.PERIOD_OPEN');
-    expect(el.textContent).not.toContain('STATUS_BAR.PERIOD_CLOSED');
+    expect(el.textContent).not.toContain('status_bar.period_open');
+    expect(el.textContent).not.toContain('status_bar.period_closed');
     expect(el.querySelector('.sb__item--ok')).toBeNull();
   });
 

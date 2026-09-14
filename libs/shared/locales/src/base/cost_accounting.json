@@ -1,0 +1,7 @@
+{
+  "cost_accounting.cost_centre_id_not_found": {
+    "es": "No se encontró el centro de costo \"{{id}}\".",
+    "en": "Cost centre \"{{id}}\" was not found.",
+    "pt": "O centro de custo \"{{id}}\" não foi encontrado."
+  }
+}

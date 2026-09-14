@@ -1,7 +1,7 @@
 <div class="step-container" [formGroup]="group">
   <div class="step-header">
-    <h3 class="step-title">{{ 'REGISTER.STEPS.PLAN.TITLE' | translate }}</h3>
-    <p class="step-subtitle">{{ 'REGISTER.STEPS.PLAN.SUBTITLE' | translate }}</p>
+    <h3 class="step-title">{{ 'register.steps.plan.title' | translate }}</h3>
+    <p class="step-subtitle">{{ 'register.steps.plan.select_plan_best_fits_you' | translate }}</p>
   </div>
 
   <!--
@@ -10,30 +10,30 @@
     so a toggle that appeared without it would fail at checkout.
   -->
   @if (annualAvailable()) {
-    <div class="billing-toggle" role="group" [attr.aria-label]="'REGISTER.STEPS.PLAN.BILLING_PERIOD' | translate">
+    <div class="billing-toggle" role="group" [attr.aria-label]="'register.steps.plan.billing_period' | translate">
       <button type="button"
               class="billing-toggle__option"
               [class.is-active]="billingPeriod() === 'monthly'"
               [attr.aria-pressed]="billingPeriod() === 'monthly'"
               (click)="setBillingPeriod('monthly')">
-        {{ 'REGISTER.STEPS.PLAN.MONTHLY' | translate }}
+        {{ 'register.steps.plan.monthly' | translate }}
       </button>
       <button type="button"
               class="billing-toggle__option"
               [class.is-active]="billingPeriod() === 'annual'"
               [attr.aria-pressed]="billingPeriod() === 'annual'"
               (click)="setBillingPeriod('annual')">
-        {{ 'REGISTER.STEPS.PLAN.ANNUAL' | translate }}
+        {{ 'register.steps.plan.annual' | translate }}
       </button>
     </div>
   }
 
   @if (plansState() === 'loading') {
-    <div class="plans-loading">{{ 'REGISTER.STEPS.PLAN.LOADING' | translate }}</div>
+    <div class="plans-loading">{{ 'register.steps.plan.loading' | translate }}</div>
   } @else if (plansState() === 'error' || plans().length === 0) {
     <div class="plans-loading">
-      <span>{{ 'REGISTER.STEPS.PLAN.LOAD_FAILED' | translate }}</span>
-      <button type="button" class="legal-link" (click)="retry()">{{ 'COMMON.RETRY' | translate }}</button>
+      <span>{{ 'register.steps.plan.load_failed' | translate }}</span>
+      <button type="button" class="legal-link" (click)="retry()">{{ 'common.retry' | translate }}</button>
     </div>
   } @else {
   <div class="plans-grid">
@@ -42,7 +42,7 @@
          [ngClass]="{'recommended': plan.recommended, 'selected': isSelected(plan.id)}"
          (click)="selectPlan(plan.id)" tabindex="0" role="button" (keydown.enter)="selectPlan(plan.id)" (keydown.space)="$event.preventDefault(); selectPlan(plan.id)">
 
-      <div *ngIf="plan.recommended" class="recommended-badge">{{ 'REGISTER.STEPS.PLAN.RECOMMENDED' | translate }}</div>
+      <div *ngIf="plan.recommended" class="recommended-badge">{{ 'register.steps.plan.recommended' | translate }}</div>
 
       <h4 class="plan-name">{{ plan.name }}</h4>
       <div class="plan-price">
@@ -51,7 +51,7 @@
       </div>
       @if (billingPeriod() === 'annual' && plan.annualSaving) {
         <div class="plan-saving">
-          {{ 'REGISTER.STEPS.PLAN.SAVE_PERCENT' | translate: { percent: plan.annualSaving } }}
+          {{ 'register.steps.plan.save_percent' | translate: { percent: plan.annualSaving } }}
         </div>
       }
 
@@ -64,7 +64,7 @@
 
       <div class="selection-indicator">
         <div class="radio-circle"></div>
-        <span>{{ (isSelected(plan.id) ? 'REGISTER.STEPS.PLAN.SELECTED' : 'REGISTER.STEPS.PLAN.CHOOSE') | translate }}</span>
+        <span>{{ (isSelected(plan.id) ? 'register.steps.plan.selected' : 'register.steps.plan.choose') | translate }}</span>
       </div>
     </div>
   </div>
@@ -88,16 +88,16 @@
         <span class="checkbox-custom" aria-hidden="true"></span>
       </span>
       <span class="checkbox-label">
-          {{ 'REGISTER.TERMS_AGREEMENT_1' | translate }}
-          <a routerLink="/terms" target="_blank" class="legal-link">{{ 'REGISTER.TERMS' | translate }}</a>
-          {{ 'REGISTER.AND' | translate }}
-          <a routerLink="/privacy" target="_blank" class="legal-link">{{ 'REGISTER.PRIVACY' | translate }}</a>.
+          {{ 'register.agree' | translate }}
+          <a routerLink="/terms" target="_blank" class="legal-link">{{ 'register.terms' | translate }}</a>
+          {{ 'register.and' | translate }}
+          <a routerLink="/privacy" target="_blank" class="legal-link">{{ 'register.privacy' | translate }}</a>.
       </span>
     </label>
 
     <div *ngIf="group.get('agreeToTerms')?.touched && group.get('agreeToTerms')?.invalid" class="error-text">
         <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
-        <span>{{ 'REGISTER.ERRORS.TERMS_REQUIRED' | translate }}</span>
+        <span>{{ 'register.errors.terms_required' | translate }}</span>
     </div>
   </div>
 </div>

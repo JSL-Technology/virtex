@@ -6,7 +6,7 @@ import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
@@ -40,7 +40,7 @@ export class PriceListsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('MASTERS.PRICE_LISTS.PUDIERON_CARGAR_LISTAS_PRECIOS');
+        this.notificationService.showError('masters.price_lists.price_lists_could_not_loaded');
         this.isLoading.set(false);
       },
     });
@@ -48,19 +48,19 @@ export class PriceListsPage implements OnInit {
 
   async deletePriceList(id: string): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_PRICE_LIST.TITLE',
-      message: 'DIALOG.DELETE_PRICE_LIST.MESSAGE',
-      confirmText: 'COMMON.DELETE',
+      title: 'dialog.delete_price_list.title',
+      message: 'dialog.delete_price_list.message',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (confirmed) {
       this.priceListsService.deletePriceList(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('MASTERS.PRICE_LISTS.LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE');
+          this.notificationService.showSuccess('masters.price_lists.price_list_deleted');
           this.loadPriceLists();
         },
         error: () => {
-          this.notificationService.showError('MASTERS.PRICE_LISTS.PUDO_ELIMINAR_LISTA_PRECIOS');
+          this.notificationService.showError('masters.price_lists.price_list_could_not_deleted');
         }
       });
     }

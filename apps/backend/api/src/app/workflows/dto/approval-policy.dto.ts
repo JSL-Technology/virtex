@@ -18,11 +18,11 @@ import { DocumentTypeForApproval } from '../entities/approval-policy.entity';
 class ApprovalPolicyStepDto {
   /** Integer, because the chain is traversed in this order and a fraction has no successor. */
   @IsInt()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   order: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   minAmount: number;
 
   @IsUUID()
@@ -62,7 +62,7 @@ export class UpdateApprovalPolicyDto {
 export class DecideApprovalDto {
   @IsString()
   @IsOptional()
-  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
+  @MaxLength(2000, { message: 'validation.constraints.max_length|{"max":2000}' })
   comment?: string;
 }
 
@@ -75,6 +75,6 @@ export class DecideApprovalDto {
 export class RejectApprovalDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
+  @MaxLength(2000, { message: 'validation.constraints.max_length|{"max":2000}' })
   reason: string;
 }

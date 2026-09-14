@@ -1,0 +1,62 @@
+{
+  "billing.plans.enterprise.description": {
+    "es": "Solución completa sin límites para grandes organizaciones",
+    "en": "The complete product, without limits, for large organizations",
+    "pt": "Solução completa sem limites para grandes organizações"
+  },
+  "billing.plans.pro.description": {
+    "es": "Para empresas en crecimiento con necesidades avanzadas",
+    "en": "For growing companies with more demanding needs",
+    "pt": "Para empresas em crescimento com necessidades avançadas"
+  },
+  "billing.plans.starter.description": {
+    "es": "Ideal para equipos pequeños que empiezan",
+    "en": "Built for small teams getting started",
+    "pt": "Ideal para equipas pequenas a começar"
+  },
+  "billing.subscription_status.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "billing.subscription_status.canceled": {
+    "es": "Cancelada",
+    "en": "Canceled",
+    "pt": "Cancelada"
+  },
+  "billing.subscription_status.incomplete": {
+    "es": "Incompleta",
+    "en": "Incomplete",
+    "pt": "Incompleta"
+  },
+  "billing.subscription_status.incomplete_expired": {
+    "es": "Incompleta y expirada",
+    "en": "Incomplete and expired",
+    "pt": "Incompleta e expirada"
+  },
+  "billing.subscription_status.past_due": {
+    "es": "Pago vencido",
+    "en": "Past due",
+    "pt": "Pagamento em atraso"
+  },
+  "billing.subscription_status.paused": {
+    "es": "En pausa",
+    "en": "Paused",
+    "pt": "Em pausa"
+  },
+  "billing.subscription_status.trialing": {
+    "es": "En periodo de prueba",
+    "en": "Trialing",
+    "pt": "Em período de teste"
+  },
+  "billing.subscription_status.unpaid": {
+    "es": "Sin pagar",
+    "en": "Unpaid",
+    "pt": "Não paga"
+  },
+  "billing.unlimited_resource": {
+    "es": "{{resource}}: sin límite",
+    "en": "{{resource}}: unlimited",
+    "pt": "{{resource}}: sem limite"
+  }
+}

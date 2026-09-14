@@ -87,7 +87,7 @@ export class XmlSignatureService {
         location: { reference: `//*[local-name(.)='${options.appendTo}']`, action: 'append' },
       });
     } catch (error) {
-      throw new InternalServerError('EINVOICING.NO_SE_PUDO_FIRMAR_DOCUMENTO', {
+      throw new InternalServerError('einvoicing.electronic_document_could_not_signed_detail', {
         detail: (error as Error).message,
       });
     }

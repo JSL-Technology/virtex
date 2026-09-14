@@ -10,15 +10,15 @@ export class ProvisionNcfSequenceDto {
   type: NcfType;
 
   @IsString()
-  @Matches(/^[BE]\d{2}$/, { message: 'VALIDATION.PROVISION_NCF_SEQUENCE.PREFIJO_DEBE_TENER_FORMATO_SERIE_DGII_P_EJ' })
+  @Matches(/^[BE]\d{2}$/, { message: 'validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format' })
   prefix: string;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   startsAt: number;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   endsAt: number;
 
   /**
@@ -35,6 +35,6 @@ export class ProvisionNcfSequenceDto {
   /** Authorization reference the DGII issued for the range, kept for audit and support. */
   @IsString()
   @IsOptional()
-  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
   authorizationCode?: string;
 }

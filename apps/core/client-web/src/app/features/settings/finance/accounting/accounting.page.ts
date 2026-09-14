@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.ACCOUNTING.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.ACCOUNTING.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.accounting.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.accounting.set_default_accounts_posting_rules_your' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.ACCOUNTING.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.ACCOUNTING.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.ACCOUNTING.FEATURES.F1','SETTINGS.PAGES.ACCOUNTING.FEATURES.F2','SETTINGS.PAGES.ACCOUNTING.FEATURES.F3','SETTINGS.PAGES.ACCOUNTING.FEATURES.F4','SETTINGS.PAGES.ACCOUNTING.FEATURES.F5','SETTINGS.PAGES.ACCOUNTING.FEATURES.F6']">
+      <app-settings-empty-state [title]="'settings.pages.accounting.empty_title'"
+        [description]="'settings.pages.accounting.empty_description'"
+        [features]="['settings.pages.accounting.features.f1','settings.pages.accounting.features.f2','settings.pages.accounting.features.f3','settings.pages.accounting.features.f4','settings.pages.accounting.features.f5','settings.pages.accounting.features.f6']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

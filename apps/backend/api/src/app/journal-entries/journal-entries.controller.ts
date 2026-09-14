@@ -224,6 +224,6 @@ export class JournalEntriesController {
       attachmentId,
       user.organizationId,
     );
-    return { messageKey: 'JOURNAL_ENTRIES.ADJUNTO_ELIMINADO_EXITOSAMENTE' };
+    return { messageKey: 'journal_entries.attachment_deleted' };
   }
 }

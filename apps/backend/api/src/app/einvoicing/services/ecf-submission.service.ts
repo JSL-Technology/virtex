@@ -87,9 +87,9 @@ export class EcfSubmissionService {
       where: { id: invoiceId, organizationId },
       relations: ['lineItems', 'customer'],
     });
-    if (!invoice) throw new NotFoundError('EINVOICING.FACTURA_NO_ENCONTRADA', { invoiceId });
+    if (!invoice) throw new NotFoundError('einvoicing.do.invoice_invoice_id_not_found', { invoiceId });
     if (!invoice.isElectronicFiscalDocument) {
-      throw new BadRequestError('EINVOICING.FACTURA_NO_TIENE_NCF_ELECTRONICO_ASIGNADO');
+      throw new BadRequestError('einvoicing.do.invoice_has_no_electronic_ncf_assigned');
     }
 
     // Scoped by tenant, and read only after the invoice has been resolved within the tenant.
@@ -123,9 +123,9 @@ export class EcfSubmissionService {
     organizationId: string,
   ): Promise<EcfSubmission> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundError('EINVOICING.ORGANIZACION_NO_ENCONTRADA');
+    if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
     if (!org.taxId) {
-      throw new BadRequestError('EINVOICING.ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES');
+      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
     }
 
     const cert = await this.certRepo.findOne({
@@ -133,7 +133,7 @@ export class EcfSubmissionService {
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestError('EINVOICING.NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF');
+      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
       throw new BadRequestException(

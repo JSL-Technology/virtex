@@ -94,12 +94,12 @@ describe('ListShellComponent', () => {
     host.empty.set(true);
     host.searchable.set(true);
     fixture.detectChanges();
-    expect(el.textContent).toContain('SHELL.EMPTY');
+    expect(el.textContent).toContain('shell.empty');
 
     host.search.set('tornillo');
     fixture.detectChanges();
-    expect(el.textContent).toContain('SHELL.NO_MATCHES');
-    expect(el.textContent).not.toContain('SHELL.EMPTY');
+    expect(el.textContent).toContain('shell.no_matches');
+    expect(el.textContent).not.toContain('shell.empty');
   });
 
   it('quitar el filtro desde el estado vacío devuelve el término a la página', () => {

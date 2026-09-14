@@ -1,16 +1,16 @@
 <vx-draft-shell
   [title]="
-    (isEditMode() ? 'CONTACTS.CUSTOMER_FORM.TITLE_EDIT' : 'CONTACTS.CUSTOMER_FORM.TITLE_NEW')
+    (isEditMode() ? 'contacts.customer_form.title_edit' : 'contacts.customer_form.title_new')
       | translate
   "
-  [subtitle]="'CONTACTS.CUSTOMER_FORM.COMPLETA_INFORMACION_DETALLADA_TU_CLIENTE' | translate"
+  [subtitle]="'contacts.customer_form.fill_your_customer_details' | translate"
   [dirty]="customerForm.dirty"
   [saving]="isLoading()"
   [invalid]="customerForm.invalid"
   [problems]="problems()"
   [form]="customerForm"
-  saveLabelKey="CONTACTS.CUSTOMER_FORM.GUARDAR_CLIENTE"
-  cancelLabelKey="CONTACTS.CUSTOMER_FORM.CANCELAR"
+  saveLabelKey="contacts.customer_form.save_customer"
+  cancelLabelKey="contacts.customer_form.cancel"
   (save)="saveCustomer()"
   (cancelled)="cancel()"
 >
@@ -19,19 +19,19 @@
       <div class="form-column">
         <section class="form-section">
           <h2 class="form-section-title">
-            {{ 'CONTACTS.CUSTOMER_FORM.INFORMACION_PRINCIPAL' | translate }}
+            {{ 'contacts.customer_form.main_information' | translate }}
           </h2>
 
           <div class="form-field">
-            <label for="companyName">{{ 'CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA' | translate }}</label>
+            <label for="companyName">{{ 'contacts.customer_form.company_name' | translate }}</label>
             <input id="companyName" formControlName="companyName" />
           </div>
           <div class="form-field">
-            <label for="contactPerson">{{ 'CONTACTS.CUSTOMER_FORM.PERSONA_CONTACTO' | translate }}</label>
+            <label for="contactPerson">{{ 'contacts.customer_form.contact_person' | translate }}</label>
             <input id="contactPerson" formControlName="contactPerson" />
           </div>
           <div class="form-field">
-            <label for="taxId">{{ 'CONTACTS.CUSTOMER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label>
+            <label for="taxId">{{ 'contacts.customer_form.tax_id' | translate }}</label>
             <input id="taxId" formControlName="taxId" />
           </div>
 
@@ -42,30 +42,30 @@
             left blank nothing is withheld.
           -->
           <div class="form-field">
-            <label for="taxpayerType">{{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE' | translate }}</label>
+            <label for="taxpayerType">{{ 'contacts.customer_form.taxpayer_type' | translate }}</label>
             <select id="taxpayerType" formControlName="taxpayerType">
               <option value="">
-                {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_SIN_CLASIFICAR' | translate }}
+                {{ 'contacts.customer_form.unclassified' | translate }}
               </option>
               @for (type of taxpayerTypes; track type.value) {
                 <option [value]="type.value">{{ type.labelKey | translate }}</option>
               }
             </select>
             <small class="field-hint">
-              {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_AYUDA' | translate }}
+              {{ 'contacts.customer_form.decides_what_customer_withholds_when_paying' | translate }}
             </small>
           </div>
         </section>
 
         <section class="form-section">
-          <h2 class="form-section-title">{{ 'CONTACTS.CUSTOMER_FORM.DATOS_CONTACTO' | translate }}</h2>
+          <h2 class="form-section-title">{{ 'contacts.customer_form.contact_details' | translate }}</h2>
 
           <div class="form-field">
-            <label for="email">{{ 'CONTACTS.CUSTOMER_FORM.CORREO_ELECTRONICO' | translate }}</label>
+            <label for="email">{{ 'contacts.customer_form.email' | translate }}</label>
             <input type="email" id="email" formControlName="email" />
           </div>
           <div class="form-field">
-            <label for="phone">{{ 'CONTACTS.CUSTOMER_FORM.TELEFONO' | translate }}</label>
+            <label for="phone">{{ 'contacts.customer_form.phone' | translate }}</label>
             <input type="tel" id="phone" formControlName="phone" />
           </div>
         </section>
@@ -73,30 +73,30 @@
 
       <div class="form-column">
         <section class="form-section">
-          <h2 class="form-section-title">{{ 'CONTACTS.CUSTOMER_FORM.DIRECCION' | translate }}</h2>
+          <h2 class="form-section-title">{{ 'contacts.customer_form.address' | translate }}</h2>
 
           <div class="form-field">
-            <label for="address">{{ 'CONTACTS.CUSTOMER_FORM.LINEA_DIRECCION' | translate }}</label>
+            <label for="address">{{ 'contacts.customer_form.address_line' | translate }}</label>
             <input id="address" formControlName="address" />
           </div>
 
           <div class="form-row three-cols">
             <div class="form-field">
-              <label for="city">{{ 'CONTACTS.CUSTOMER_FORM.CIUDAD' | translate }}</label>
+              <label for="city">{{ 'contacts.customer_form.city' | translate }}</label>
               <input id="city" formControlName="city" />
             </div>
             <div class="form-field">
-              <label for="stateOrProvince">{{ 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA' | translate }}</label>
+              <label for="stateOrProvince">{{ 'contacts.customer_form.state_province' | translate }}</label>
               <input id="stateOrProvince" formControlName="stateOrProvince" />
             </div>
             <div class="form-field">
-              <label for="postalCode">{{ 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL' | translate }}</label>
+              <label for="postalCode">{{ 'contacts.customer_form.postal_code' | translate }}</label>
               <input id="postalCode" formControlName="postalCode" />
             </div>
           </div>
 
           <div class="form-field">
-            <label for="country">{{ 'CONTACTS.CUSTOMER_FORM.PAIS' | translate }}</label>
+            <label for="country">{{ 'contacts.customer_form.country' | translate }}</label>
             <!--
               Todos los países, nombrados en el idioma del lector por `Intl.DisplayNames`. Eran dos
               opciones escritas aquí —República Dominicana y Estados Unidos— mientras el producto
@@ -119,29 +119,29 @@
         -->
         <section class="form-section">
           <h2 class="form-section-title">
-            {{ 'CONTACTS.CUSTOMER_FORM.CONDICIONES_COMERCIALES' | translate }}
+            {{ 'contacts.customer_form.commercial_terms' | translate }}
           </h2>
 
           <div class="form-field">
             <label for="paymentTerms">
-              {{ 'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO' | translate }}
+              {{ 'contacts.customer_form.payment_terms' | translate }}
             </label>
             <input
               type="text"
               id="paymentTerms"
               maxlength="60"
               formControlName="paymentTerms"
-              [placeholder]="'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO_PLACEHOLDER' | translate"
+              [placeholder]="'contacts.customer_form.payment_terms_placeholder' | translate"
             />
           </div>
 
           <div class="form-field">
             <label for="paymentTermDays">
-              {{ 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO' | translate }}
+              {{ 'contacts.customer_form.credit_days' | translate }}
             </label>
             <input type="number" id="paymentTermDays" min="0" max="365" formControlName="paymentTermDays" />
             <small class="field-hint">
-              {{ 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO_AYUDA' | translate }}
+              {{ 'contacts.customer_form.days_added_issue_date_work_out' | translate }}
             </small>
           </div>
         </section>

@@ -159,7 +159,7 @@ export class AuthService {
          return {
             require2fa: true,
             pendingId,
-            messageKey: 'AUTH.2FA_VERIFICATION_REQUIRED'
+            messageKey: 'auth.2_fa_verification_required'
          };
       }
 
@@ -297,12 +297,12 @@ export class AuthService {
     }>(key);
 
     if (!session || Date.now() > session.expiresAt) {
-      throw new UnauthorizedError('AUTH.INVALID_OR_EXPIRED_2FA_SESSION');
+      throw new UnauthorizedError('auth.invalid_or_expired_2_fa_session');
     }
 
     if (session.attempts >= AuthService.PENDING_MAX_ATTEMPTS) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedError('AUTH.TOO_MANY_2FA_ATTEMPTS_PLEASE_LOG_IN');
+      throw new UnauthorizedError('auth.too_many_2_fa_attempts_please_log_in');
     }
 
     const currentIpHash = ipAddress
@@ -327,18 +327,18 @@ export class AuthService {
         '[SECURITY] 2FA pending session context changed. Invalidating session.',
       );
       await this.cacheManager.del(key);
-      throw new UnauthorizedError('AUTH.SESSION_CONTEXT_CHANGED_PLEASE_LOG_IN_AGAIN');
+      throw new UnauthorizedError('auth.session_context_changed_please_log_in_again');
     }
 
     const user = await this.usersService.findUserByIdForAuth(session.userId);
     if (!user || !user.security) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedError('AUTH.USER_NOT_FOUND');
+      throw new UnauthorizedError('auth.user_not_found');
     }
 
     if ((user.security.tokenVersion ?? 0) !== session.tokenVersion) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedError('AUTH.SESSION_INVALIDATED_PLEASE_LOG_IN_AGAIN');
+      throw new UnauthorizedError('auth.session_invalidated_please_log_in_again');
     }
 
     // Count this attempt. The session is NOT deleted here.
@@ -436,7 +436,7 @@ export class AuthService {
 
       const userWithSec = await this.usersService.findUserByIdForAuth(userId);
       if (!userWithSec) {
-          throw new UnauthorizedError('AUTH.INVALID_CREDENTIALS');
+          throw new UnauthorizedError('auth.invalid_credentials');
       }
 
       const twoFactorEnabled = Boolean(userWithSec.security?.isTwoFactorEnabled);
@@ -444,12 +444,12 @@ export class AuthService {
 
       if (twoFactorEnabled) {
           if (!credentials.otpCode) {
-              throw new BadRequestError('AUTH.REQUIERE_CODIGO_VERIFICACION_CONFIRMAR_ESTA_ACCION');
+              throw new BadRequestError('auth.verification_code_required_confirm_action');
           }
           isValid = await this.twoFactorAuthService.verifyCode(userWithSec, credentials.otpCode);
       } else if (userWithSec.security?.passwordHash) {
           if (!credentials.password) {
-              throw new BadRequestError('AUTH.REQUIERE_TU_CONTRASENA_CONFIRMAR_ESTA_ACCION');
+              throw new BadRequestError('auth.your_password_required_confirm_action');
           }
           isValid = await this.passwordService.verify(
               userWithSec.security.passwordHash,
@@ -468,7 +468,7 @@ export class AuthService {
           // billing portal, change its own email, or enrol any second factor at all. For a product
           // sold to enterprises, that is the whole enterprise segment with no administration.
           await this.passwordService.verifyDummy(credentials.password ?? '');
-          throw new ForbiddenError('AUTH.ESTA_CUENTA_AUTENTICA_TU_PROVEEDOR_IDENTIDAD_CONFIRMA');
+          throw new ForbiddenError('auth.account_authenticates_with_your_identity_provider');
       }
 
       if (!isValid) {
@@ -637,7 +637,7 @@ export class AuthService {
               { event: 'step_up_rate_limited', userId },
               '[SECURITY] Step-up re-authentication rate limit reached',
           );
-          throw new ForbiddenError('AUTH.DEMASIADOS_INTENTOS_VERIFICACION_ESPERA_MINUTOS_INTENTALO_NUEVO');
+          throw new ForbiddenError('auth.too_many_verification_attempts_wait_minutes');
       }
   }
 

@@ -97,7 +97,7 @@ describe('EinvoicingRegimePage', () => {
 
     expect(component.hasRegime()).toBe(false);
     // An empty form would invite the tenant to fill it in and wait for something to happen.
-    expect(fixture.nativeElement.textContent).toContain('NO_REGIME');
+    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.no_regime');
   });
 
   it('sends only the fields the market uses', () => {
@@ -157,15 +157,15 @@ describe('EinvoicingRegimePage', () => {
 
     const text = fixture.nativeElement.textContent as string;
     // A CAF read back through an API lets whoever reads it stamp documents in the taxpayer's name.
-    expect(text).toContain('HAS_SECRET');
-    expect(text).not.toContain('AUTORIZACION');
+    expect(text).toContain('settings.pages.einvoicing.has_secret');
+    expect(text).not.toContain('AUT-0001');
     expect(component.ranges()[0].hasSecret).toBe(true);
   });
 
   it('warns before a range runs out, because a new one takes days to obtain', () => {
     flush('CL', null, [range({ remaining: 12 })]);
     expect(component.runningOut(component.ranges()[0])).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('RUNNING_OUT');
+    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.running_out');
   });
 
   it('flags an expired authorisation however many numbers remain', () => {
@@ -179,7 +179,7 @@ describe('EinvoicingRegimePage', () => {
   it('keeps a retired range in the list, because past documents were issued under it', () => {
     flush('CL', null, [range({ isActive: false })]);
     expect(component.ranges()).toHaveLength(1);
-    expect(fixture.nativeElement.textContent).toContain('RETIRED');
+    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.retired');
   });
 
   it('renders stored nulls as empty fields rather than the string "null"', () => {

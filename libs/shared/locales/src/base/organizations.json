@@ -1,0 +1,37 @@
+{
+  "organizations.country_country_not_available_yet": {
+    "es": "El país \"{{country}}\" todavía no está disponible.",
+    "en": "The country \"{{country}}\" is not available yet.",
+    "pt": "O país \"{{country}}\" ainda não está disponível."
+  },
+  "organizations.label_not_valid_name": {
+    "es": "El {{label}} no es válido para {{name}}.",
+    "en": "The {{label}} is not valid for {{name}}.",
+    "pt": "O {{label}} não é válido para {{name}}."
+  },
+  "organizations.organization_already_registered_with_label": {
+    "es": "Ya existe una organización registrada con ese {{label}}.",
+    "en": "An organization is already registered with that {{label}}.",
+    "pt": "Já existe uma organização cadastrada com esse {{label}}."
+  },
+  "organizations.organization_with_id_not_found": {
+    "es": "No se encontró la organización {{id}}.",
+    "en": "Organization {{id}} was not found.",
+    "pt": "A organização {{id}} não foi encontrada."
+  },
+  "organizations.parent_organization_not_found": {
+    "es": "Organización matriz no encontrada.",
+    "en": "The parent organization was not found.",
+    "pt": "Organização controladora não encontrada."
+  },
+  "organizations.tax_configuration_country_not_available_right": {
+    "es": "La configuración fiscal de ese país no está disponible en este momento.",
+    "en": "The tax configuration for that country is not available right now.",
+    "pt": "A configuração fiscal desse país não está disponível no momento."
+  },
+  "organizations.you_do_not_have_access_organization": {
+    "es": "No tienes acceso a esa organización.",
+    "en": "You do not have access to that organization.",
+    "pt": "Você não tem acesso a essa organização."
+  }
+}

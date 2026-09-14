@@ -1,6 +1,6 @@
 <vx-list-shell
-  titleKey="CONTACTS.CUSTOMERS.CLIENTES"
-  subtitleKey="CONTACTS.CUSTOMERS.ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL"
+  titleKey="contacts.customers.customers"
+  subtitleKey="contacts.customers.manage_your_customer_database_history"
   [count]="customers().length"
   [loading]="isLoading()"
   [empty]="customers().length === 0"
@@ -8,18 +8,18 @@
 >
   <a listActions routerLink="/contacts/customers/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'CONTACTS.CUSTOMERS.ANADIR_CLIENTE' | translate }}</span>
+    <span>{{ 'contacts.customers.add_customer' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'CONTACTS.CUSTOMERS.NOMBRE_EMPRESA' | translate }}</th>
-          <th>{{ 'CONTACTS.CUSTOMERS.PERSONA_CONTACTO' | translate }}</th>
-          <th>{{ 'CONTACTS.CUSTOMERS.EMAIL' | translate }}</th>
-          <th>{{ 'CONTACTS.CUSTOMERS.TELEFONO' | translate }}</th>
-          <th class="actions-column">{{ 'CONTACTS.CUSTOMERS.ACCIONES' | translate }}</th>
+          <th>{{ 'contacts.customers.company_name' | translate }}</th>
+          <th>{{ 'contacts.customers.contact_person' | translate }}</th>
+          <th>{{ 'contacts.customers.email' | translate }}</th>
+          <th>{{ 'contacts.customers.phone' | translate }}</th>
+          <th class="actions-column">{{ 'contacts.customers.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -38,14 +38,14 @@
                 <a
                   [routerLink]="['/contacts/customers', customer.id, 'edit']"
                   class="icon-button"
-                  [attr.aria-label]="'CONTACTS.CUSTOMERS.EDITAR' | translate"
+                  [attr.aria-label]="'contacts.customers.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
                 </a>
                 <button
                   type="button"
                   class="icon-button delete"
-                  [attr.aria-label]="'CONTACTS.CUSTOMERS.ELIMINAR' | translate"
+                  [attr.aria-label]="'contacts.customers.delete' | translate"
                   (click)="deleteCustomer(customer.id)"
                 >
                   <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>

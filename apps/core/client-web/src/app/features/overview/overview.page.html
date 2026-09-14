@@ -10,25 +10,25 @@
       <p class="ov-hero__subtitle">
         <span class="ov-hero__date">{{ today | vxDate: 'weekday' }}</span>
         <span class="ov-hero__sep" aria-hidden="true">·</span>
-        <span>{{ 'OVERVIEW.HERO.SUBTITLE' | translate }}</span>
+        <span>{{ 'overview.hero.here_snapshot_your_day' | translate }}</span>
       </p>
     </div>
 
     <div class="ov-hero__actions">
       <button type="button" class="ov-btn ov-btn--primary" (click)="openNewInvoice()">
         <lucide-icon [img]="NewInvoiceIcon" size="16"></lucide-icon>
-        <span>{{ 'OVERVIEW.HERO.NEW_INVOICE' | translate }}</span>
+        <span>{{ 'overview.hero.new_invoice' | translate }}</span>
       </button>
       <button type="button" class="ov-btn ov-btn--ghost" (click)="openDashboard()">
         <lucide-icon [img]="DashboardIcon" size="16"></lucide-icon>
-        <span>{{ 'OVERVIEW.HERO.OPEN_DASHBOARD' | translate }}</span>
+        <span>{{ 'overview.hero.open_dashboard' | translate }}</span>
       </button>
     </div>
   </header>
 
   <!-- ── Accesos rápidos ────────────────────────────────────────────── -->
   <section class="ov-section" aria-labelledby="ov-quick-title">
-    <h2 id="ov-quick-title" class="ov-section__title">{{ 'OVERVIEW.QUICK.TITLE' | translate }}</h2>
+    <h2 id="ov-quick-title" class="ov-section__title">{{ 'overview.quick.title' | translate }}</h2>
     <div class="ov-quick-grid">
       @for (action of quickActions(); track action.id) {
         <button
@@ -54,9 +54,9 @@
       <header class="ov-card__head">
         <div class="ov-card__head-left">
           <lucide-icon class="ov-card__head-icon" [img]="ActivityIcon" size="18"></lucide-icon>
-          <h2 id="ov-activity-title" class="ov-card__title">{{ 'OVERVIEW.ACTIVITY.TITLE' | translate }}</h2>
+          <h2 id="ov-activity-title" class="ov-card__title">{{ 'overview.activity.title' | translate }}</h2>
         </div>
-        <button type="button" class="ov-icon-btn" [title]="'OVERVIEW.REFRESH' | translate" (click)="refresh()">
+        <button type="button" class="ov-icon-btn" [title]="'overview.refresh' | translate" (click)="refresh()">
           <lucide-icon [img]="RefreshIcon" size="15"></lucide-icon>
         </button>
       </header>
@@ -75,15 +75,15 @@
           }
           @case ('error') {
             <div class="ov-state">
-              <p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p>
+              <p>{{ 'overview.state.error' | translate }}</p>
               <button type="button" class="ov-btn ov-btn--ghost ov-btn--sm" (click)="refresh()">
-                {{ 'OVERVIEW.STATE.RETRY' | translate }}
+                {{ 'overview.state.retry' | translate }}
               </button>
             </div>
           }
           @default {
             @if (activity().length === 0) {
-              <div class="ov-state ov-state--empty">{{ 'OVERVIEW.ACTIVITY.EMPTY' | translate }}</div>
+              <div class="ov-state ov-state--empty">{{ 'overview.activity.empty' | translate }}</div>
             } @else {
               <ul class="ov-activity-list">
                 @for (item of activity(); track item.id) {
@@ -121,7 +121,7 @@
         <header class="ov-card__head">
           <div class="ov-card__head-left">
             <lucide-icon class="ov-card__head-icon" [img]="NewsIcon" size="18"></lucide-icon>
-            <h2 id="ov-news-title" class="ov-card__title">{{ 'OVERVIEW.NEWS.TITLE' | translate }}</h2>
+            <h2 id="ov-news-title" class="ov-card__title">{{ 'overview.news.title' | translate }}</h2>
           </div>
         </header>
 
@@ -136,11 +136,11 @@
               }
             }
             @case ('error') {
-              <div class="ov-state"><p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p></div>
+              <div class="ov-state"><p>{{ 'overview.state.error' | translate }}</p></div>
             }
             @default {
               @if (news().length === 0) {
-                <div class="ov-state ov-state--empty">{{ 'OVERVIEW.NEWS.EMPTY' | translate }}</div>
+                <div class="ov-state ov-state--empty">{{ 'overview.news.empty' | translate }}</div>
               } @else {
                 <ul class="ov-news-list">
                   @for (item of news(); track item.id) {
@@ -176,7 +176,7 @@
         <header class="ov-card__head">
           <div class="ov-card__head-left">
             <lucide-icon class="ov-card__head-icon" [img]="EventsIcon" size="18"></lucide-icon>
-            <h2 id="ov-events-title" class="ov-card__title">{{ 'OVERVIEW.EVENTS.TITLE' | translate }}</h2>
+            <h2 id="ov-events-title" class="ov-card__title">{{ 'overview.events.title' | translate }}</h2>
           </div>
         </header>
 
@@ -191,11 +191,11 @@
               }
             }
             @case ('error') {
-              <div class="ov-state"><p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p></div>
+              <div class="ov-state"><p>{{ 'overview.state.error' | translate }}</p></div>
             }
             @default {
               @if (events().length === 0) {
-                <div class="ov-state ov-state--empty">{{ 'OVERVIEW.EVENTS.EMPTY' | translate }}</div>
+                <div class="ov-state ov-state--empty">{{ 'overview.events.empty' | translate }}</div>
               } @else {
                 <ul class="ov-events-list">
                   @for (item of events(); track item.id) {

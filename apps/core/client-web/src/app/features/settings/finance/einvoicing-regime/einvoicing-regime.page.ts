@@ -18,7 +18,7 @@ import {
   MarketCoverage,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * Which configuration fields a market's regime actually needs.
@@ -85,8 +85,8 @@ export class EinvoicingRegimePage implements OnInit {
   readonly showRangeForm = signal(false);
 
   protected readonly environments = [
-    { value: 'CERTIFICATION', labelKey: 'SETTINGS.PAGES.EINVOICING.ENV_CERTIFICATION' },
-    { value: 'PRODUCTION', labelKey: 'SETTINGS.PAGES.EINVOICING.ENV_PRODUCTION' },
+    { value: 'CERTIFICATION', labelKey: 'settings.pages.einvoicing.env_certification' },
+    { value: 'PRODUCTION', labelKey: 'settings.pages.einvoicing.env_production' },
   ] as const;
 
   /** The tenant's market, from the coverage statement the server sends. */
@@ -149,7 +149,7 @@ export class EinvoicingRegimePage implements OnInit {
         next: (settings) => {
           if (settings) this.settingsForm.patchValue(this.formValueOf(settings));
         },
-        error: () => this.notifications.showError('SETTINGS.PAGES.EINVOICING.LOAD_FAILED'),
+        error: () => this.notifications.showError('settings.pages.einvoicing.load_failed'),
       });
   }
 
@@ -181,7 +181,7 @@ export class EinvoicingRegimePage implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.notifications.showError('SETTINGS.PAGES.EINVOICING.LOAD_FAILED');
+          this.notifications.showError('settings.pages.einvoicing.load_failed');
         },
       });
   }
@@ -207,12 +207,12 @@ export class EinvoicingRegimePage implements OnInit {
       .subscribe({
         next: () => {
           this.savingSettings.set(false);
-          this.notifications.showSuccess('SETTINGS.PAGES.EINVOICING.SAVED');
+          this.notifications.showSuccess('settings.pages.einvoicing.saved');
         },
         error: (error) => {
           this.savingSettings.set(false);
           this.notifications.showError(
-            error?.error?.message ?? 'SETTINGS.PAGES.EINVOICING.SAVE_FAILED',
+            error?.error?.message ?? 'settings.pages.einvoicing.save_failed',
           );
         },
       });
@@ -230,7 +230,7 @@ export class EinvoicingRegimePage implements OnInit {
 
     const value = this.rangeForm.getRawValue();
     if (Number(value.endsAt) < Number(value.startsAt)) {
-      this.notifications.showError('SETTINGS.PAGES.EINVOICING.RANGE_BOUNDS');
+      this.notifications.showError('settings.pages.einvoicing.range_bounds');
       return;
     }
 
@@ -261,7 +261,7 @@ export class EinvoicingRegimePage implements OnInit {
         error: (error) => {
           this.savingRange.set(false);
           this.notifications.showError(
-            error?.error?.message ?? 'SETTINGS.PAGES.EINVOICING.SAVE_FAILED',
+            error?.error?.message ?? 'settings.pages.einvoicing.save_failed',
           );
         },
       });
@@ -273,7 +273,7 @@ export class EinvoicingRegimePage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadRanges(),
-        error: () => this.notifications.showError('SETTINGS.PAGES.EINVOICING.DELETE_FAILED'),
+        error: () => this.notifications.showError('settings.pages.einvoicing.delete_failed'),
       });
   }
 

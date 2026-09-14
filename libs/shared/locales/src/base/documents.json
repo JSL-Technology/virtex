@@ -1,0 +1,225 @@
+{
+  "documents.cannot_move_into_itself": {
+    "es": "Una carpeta no se puede mover dentro de sí misma.",
+    "en": "A folder cannot be moved into itself.",
+    "pt": "Uma pasta não pode ser movida para dentro de si mesma."
+  },
+  "documents.documents": {
+    "es": "Documentos",
+    "en": "Documents",
+    "pt": "Documentos"
+  },
+  "documents.file_required": {
+    "es": "No se recibió ningún archivo.",
+    "en": "No file was received.",
+    "pt": "Nenhum ficheiro foi recebido."
+  },
+  "documents.file_size": {
+    "es": "Tamaño",
+    "en": "Size",
+    "pt": "Tamanho"
+  },
+  "documents.folder_cannot_moved_into_one_own": {
+    "es": "Una carpeta no se puede mover dentro de una de sus subcarpetas: quedaría inalcanzable.",
+    "en": "A folder cannot be moved into one of its own subfolders: it would become unreachable.",
+    "pt": "Uma pasta não pode ser movida para uma das suas subpastas: ficaria inalcançável."
+  },
+  "documents.folder_has_no_content": {
+    "es": "Una carpeta no se puede descargar.",
+    "en": "A folder cannot be downloaded.",
+    "pt": "Uma pasta não pode ser descarregada."
+  },
+  "documents.folder_is_not_a_template": {
+    "es": "Una carpeta no puede marcarse como plantilla.",
+    "en": "A folder cannot be marked as a template.",
+    "pt": "Uma pasta não pode ser marcada como modelo."
+  },
+  "documents.folder_not_found": {
+    "es": "No se encontró la carpeta {{id}}.",
+    "en": "Folder {{id}} was not found.",
+    "pt": "A pasta {{id}} não foi encontrada."
+  },
+  "documents.last_modified": {
+    "es": "Última modificación",
+    "en": "Last modified",
+    "pt": "Última modificação"
+  },
+  "documents.manage_and_organize_all_your_business": {
+    "es": "Administra y organiza los archivos y adjuntos de tu empresa.",
+    "en": "Manage and organize your company's files and attachments.",
+    "pt": "Gerencie e organize os arquivos e anexos da sua empresa."
+  },
+  "documents.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "documents.name_already_exists_folder": {
+    "es": "Ya existe «{{name}}» en esta carpeta.",
+    "en": "“{{name}}” already exists in this folder.",
+    "pt": "«{{name}}» já existe nesta pasta."
+  },
+  "documents.name_not_allowed": {
+    "es": "El nombre no puede contener / \\ : * ? \" < > |",
+    "en": "A name cannot contain / \\ : * ? \" < > |",
+    "pt": "O nome não pode conter / \\ : * ? \" < > |"
+  },
+  "documents.name_required": {
+    "es": "El archivo necesita un nombre.",
+    "en": "The file needs a name.",
+    "pt": "O ficheiro precisa de um nome."
+  },
+  "documents.new_folder": {
+    "es": "Nueva carpeta",
+    "en": "New folder",
+    "pt": "Nova pasta"
+  },
+  "documents.not_found": {
+    "es": "No se encontró el documento {{id}}.",
+    "en": "Document {{id}} was not found.",
+    "pt": "O documento {{id}} não foi encontrado."
+  },
+  "documents.parent_is_not_a_folder": {
+    "es": "Solo se puede guardar dentro de una carpeta.",
+    "en": "Things can only be filed inside a folder.",
+    "pt": "Só é possível guardar dentro de uma pasta."
+  },
+  "documents.repository.action_failed": {
+    "es": "No se pudo completar la operación.",
+    "en": "The operation could not be completed.",
+    "pt": "Não foi possível concluir a operação."
+  },
+  "documents.repository.download": {
+    "es": "Descargar",
+    "en": "Download",
+    "pt": "Baixar"
+  },
+  "documents.repository.file_repository": {
+    "es": "Repositorio de archivos",
+    "en": "File repository",
+    "pt": "Repositório de arquivos"
+  },
+  "documents.repository.file_size": {
+    "es": "Tamaño",
+    "en": "Size",
+    "pt": "Tamanho"
+  },
+  "documents.repository.folder_name": {
+    "es": "Nombre de la carpeta",
+    "en": "Folder name",
+    "pt": "Nome da pasta"
+  },
+  "documents.repository.home": {
+    "es": "Inicio",
+    "en": "Home",
+    "pt": "Início"
+  },
+  "documents.repository.last_modified": {
+    "es": "Última modificación",
+    "en": "Last modified",
+    "pt": "Última modificação"
+  },
+  "documents.repository.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "documents.repository.new_folder": {
+    "es": "Nueva carpeta",
+    "en": "New folder",
+    "pt": "Nova pasta"
+  },
+  "documents.repository.rename": {
+    "es": "Renombrar",
+    "en": "Rename",
+    "pt": "Mudar o nome"
+  },
+  "documents.repository.search_all": {
+    "es": "Buscar en todos los documentos…",
+    "en": "Search all documents…",
+    "pt": "Procurar em todos os documentos…"
+  },
+  "documents.repository.upload_file": {
+    "es": "Upload File",
+    "en": "Upload a file",
+    "pt": "Enviar arquivo"
+  },
+  "documents.search_in_this_folder": {
+    "es": "Buscar en esta carpeta...",
+    "en": "Search in this folder...",
+    "pt": "Buscar nesta pasta..."
+  },
+  "documents.templates.last_modified": {
+    "es": "Última modificación",
+    "en": "Last modified",
+    "pt": "Última modificação"
+  },
+  "documents.templates.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "documents.templates.template_model_file_you_keep_here": {
+    "es": "Una plantilla es un archivo modelo que guardas aquí para reutilizarlo: el membrete de tus facturas, el contrato que adaptas por cliente, el texto que pegas en un recordatorio. Virtex todavía no las rellena por ti.",
+    "en": "A template is a model file you keep here to reuse: the letterhead your invoices are printed on, the contract you adapt per client, the wording you paste into a reminder. Virtex does not fill them in for you yet.",
+    "pt": "Um modelo é um ficheiro que guarda aqui para reutilizar: o timbre das suas faturas, o contrato que adapta por cliente, o texto que cola num lembrete. O Virtex ainda não os preenche por si."
+  },
+  "documents.templates.title": {
+    "es": "Plantillas",
+    "en": "Templates",
+    "pt": "Modelos"
+  },
+  "documents.templates.type.contract": {
+    "es": "Contrato",
+    "en": "Contract",
+    "pt": "Contrato"
+  },
+  "documents.templates.type.email": {
+    "es": "Correo",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "documents.templates.type.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "documents.templates.type.none": {
+    "literal": "—"
+  },
+  "documents.templates.type.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
+  "documents.templates.type.quote": {
+    "es": "Cotización",
+    "en": "Quote",
+    "pt": "Orçamento"
+  },
+  "documents.templates.type_column": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "documents.templates.upload": {
+    "es": "Subir plantilla",
+    "en": "Upload a template",
+    "pt": "Carregar modelo"
+  },
+  "documents.templates.upload_as": {
+    "es": "Subir como",
+    "en": "Upload as",
+    "pt": "Carregar como"
+  },
+  "documents.this_folder_empty": {
+    "es": "Esta carpeta está vacía.",
+    "en": "This folder is empty.",
+    "pt": "Esta pasta está vazia."
+  },
+  "documents.upload_file": {
+    "es": "Subir archivo",
+    "en": "Upload a file",
+    "pt": "Enviar arquivo"
+  }
+}

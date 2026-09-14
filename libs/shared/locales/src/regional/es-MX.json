@@ -1,0 +1,19 @@
+{
+  "$locale": "es-MX",
+  "$note": "Mexico. The year-end bonus is 'aguinaldo' (Ley Federal del Trabajo art. 87) and the tax identifier is the RFC; the identity document is the CURP or the INE credential.",
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+  "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+  "hcm.employees.form.document_type.cedula": "CURP / INE",
+  "hcm.employees.form.document_type.rnc": "RFC",
+  "hcm.employees.form.tss_nss": "NSS (IMSS)",
+  "validation.create_employee.tss_nss_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos.",
+  "permissions.groups.tss": "IMSS (Seguridad Social)",
+  "contacts.customer_form.tax_id": "RFC",
+  "masters.supplier_form.tax_id": "RFC",
+  "settings.company_profile.id_fiscal_rnc_tax_id": "RFC",
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RFC",
+  "invoices.detail.ncf": "Folio fiscal (UUID):",
+  "accounts_payable.form.ncf": "Folio fiscal",
+  "invoices.new.tax_column_header": "IVA",
+  "invoice.pdf.tax_column_header": "IVA"
+}

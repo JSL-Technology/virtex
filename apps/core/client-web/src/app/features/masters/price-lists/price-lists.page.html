@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="MASTERS.PRICE_LISTS.LISTAS_PRECIOS"
+  titleKey="masters.price_lists.price_lists"
   [count]="priceLists().length"
   [loading]="isLoading()"
   [empty]="priceLists().length === 0"
@@ -7,20 +7,20 @@
 >
   <a listActions routerLink="/masters/price-lists/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.PRICE_LISTS.NUEVA_LISTA' | translate }}</span>
+    <span>{{ 'masters.price_lists.new_list' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.PRICE_LISTS.NOMBRE' | translate }}</th>
-          <th>{{ 'MASTERS.PRICE_LISTS.MONEDA' | translate }}</th>
-          <th>{{ 'MASTERS.PRICE_LISTS.VALIDO_DESDE' | translate }}</th>
-          <th>{{ 'MASTERS.PRICE_LISTS.VALIDO_HASTA' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.PRICE_LISTS.ITEMS' | translate }}</th>
-          <th>{{ 'MASTERS.PRICE_LISTS.ESTADO' | translate }}</th>
-          <th class="actions-column">{{ 'MASTERS.PRICE_LISTS.ACCIONES' | translate }}</th>
+          <th>{{ 'masters.price_lists.name' | translate }}</th>
+          <th>{{ 'masters.price_lists.currency' | translate }}</th>
+          <th>{{ 'masters.price_lists.valid_from' | translate }}</th>
+          <th>{{ 'masters.price_lists.valid_until' | translate }}</th>
+          <th class="text-center">{{ 'masters.price_lists.items' | translate }}</th>
+          <th>{{ 'masters.price_lists.status' | translate }}</th>
+          <th class="actions-column">{{ 'masters.price_lists.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -43,14 +43,14 @@
                 <a
                   [routerLink]="['/masters/price-lists', list.id, 'edit']"
                   class="icon-button"
-                  [attr.aria-label]="'MASTERS.PRICE_LISTS.EDITAR' | translate"
+                  [attr.aria-label]="'masters.price_lists.edit' | translate"
                 >
                   <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
                 </a>
                 <button
                   type="button"
                   class="icon-button delete"
-                  [attr.aria-label]="'MASTERS.PRICE_LISTS.ELIMINAR' | translate"
+                  [attr.aria-label]="'masters.price_lists.delete' | translate"
                   (click)="deletePriceList(list.id)"
                 >
                   <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>

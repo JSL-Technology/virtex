@@ -1,16 +1,16 @@
 <vx-draft-shell
   [title]="
-    (isEditMode() ? 'INVENTORY.PRODUCT_FORM.TITLE_EDIT' : 'INVENTORY.PRODUCT_FORM.TITLE_NEW')
+    (isEditMode() ? 'inventory.product_form.title_edit' : 'inventory.product_form.title_new')
       | translate
   "
-  [subtitle]="'INVENTORY.PRODUCT_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO' | translate"
+  [subtitle]="'inventory.product_form.fill_details_your_product_service' | translate"
   [dirty]="productForm.dirty"
   [saving]="isLoading()"
   [invalid]="productForm.invalid"
   [problems]="problems()"
   [form]="productForm"
-  saveLabelKey="INVENTORY.PRODUCT_FORM.GUARDAR_PRODUCTO"
-  cancelLabelKey="INVENTORY.PRODUCT_FORM.CANCELAR"
+  saveLabelKey="inventory.product_form.save_product"
+  cancelLabelKey="inventory.product_form.cancel"
   (save)="saveProduct()"
   (cancelled)="cancel()"
 >
@@ -19,25 +19,25 @@
       <div class="form-column">
         <section class="form-section">
           <h2 class="form-section-title">
-            {{ 'INVENTORY.PRODUCT_FORM.INFORMACION_BASICA' | translate }}
+            {{ 'inventory.product_form.basic_information' | translate }}
           </h2>
 
           <div class="form-field">
-            <label for="name">{{ 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO' | translate }}</label>
+            <label for="name">{{ 'inventory.product_form.product_name' | translate }}</label>
             <input id="name" formControlName="name" />
           </div>
           <div class="form-field">
-            <label for="sku">{{ 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO' | translate }}</label>
+            <label for="sku">{{ 'inventory.product_form.sku_product_code' | translate }}</label>
             <input id="sku" formControlName="sku" />
           </div>
           <div class="form-field">
-            <label for="description">{{ 'INVENTORY.PRODUCT_FORM.DESCRIPCION' | translate }}</label>
+            <label for="description">{{ 'inventory.product_form.description' | translate }}</label>
             <textarea id="description" formControlName="description" rows="5"></textarea>
           </div>
         </section>
 
         <section class="form-section">
-          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.IMAGEN_PRODUCTO' | translate }}</h2>
+          <h2 class="form-section-title">{{ 'inventory.product_form.product_image' | translate }}</h2>
 
           <div class="form-field file-upload-field">
             <input
@@ -49,10 +49,10 @@
             />
             <label for="imageFile" class="file-input-label">
               @if (imagePreview()) {
-                <img [src]="imagePreview()" [alt]="'INVENTORY.PRODUCT_FORM.VISTA_PREVIA' | translate" />
+                <img [src]="imagePreview()" [alt]="'inventory.product_form.preview' | translate" />
               } @else {
                 <lucide-icon [img]="ImageIcon" size="32" aria-hidden="true"></lucide-icon>
-                <span>{{ 'INVENTORY.PRODUCT_FORM.SUBIR_IMAGEN' | translate }}</span>
+                <span>{{ 'inventory.product_form.upload_image' | translate }}</span>
               }
             </label>
           </div>
@@ -61,15 +61,15 @@
 
       <div class="form-column">
         <section class="form-section">
-          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.PRECIOS_STOCK' | translate }}</h2>
+          <h2 class="form-section-title">{{ 'inventory.product_form.pricing_stock' | translate }}</h2>
 
           <div class="form-row">
             <div class="form-field">
-              <label for="price">{{ 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA' | translate }}</label>
+              <label for="price">{{ 'inventory.product_form.sale_price' | translate }}</label>
               <input type="number" id="price" formControlName="price" />
             </div>
             <div class="form-field">
-              <label for="stock">{{ 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK' | translate }}</label>
+              <label for="stock">{{ 'inventory.product_form.quantity_stock' | translate }}</label>
               <input type="number" id="stock" formControlName="stock" />
             </div>
           </div>
@@ -82,42 +82,42 @@
               ya existía y la API ya aceptaba `cost`; lo único que faltaba era este input.
             -->
             <div class="form-field">
-              <label for="cost">{{ 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO' | translate }}</label>
+              <label for="cost">{{ 'inventory.product_form.unit_cost' | translate }}</label>
               <input type="number" id="cost" formControlName="cost" min="0" step="0.01" />
-              <small class="field-hint">{{ 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO_AYUDA' | translate }}</small>
+              <small class="field-hint">{{ 'inventory.product_form.what_item_cost_you_drives_cost' | translate }}</small>
             </div>
             <div class="form-field">
-              <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
+              <label for="reorderLevel">{{ 'inventory.product_form.reorder_level' | translate }}</label>
               <input type="number" id="reorderLevel" formControlName="reorderLevel" />
             </div>
           </div>
         </section>
 
         <section class="form-section">
-          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.ORGANIZACION' | translate }}</h2>
+          <h2 class="form-section-title">{{ 'inventory.product_form.organization' | translate }}</h2>
 
           <div class="form-field">
-            <label for="categoryId">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
+            <label for="categoryId">{{ 'inventory.product_form.category' | translate }}</label>
             <!--
               The tenant's own categories. This was three options written into this template —
               Electrónica, Accesorios, Monitores — offered to every tenant in every market.
             -->
             <select id="categoryId" formControlName="categoryId">
-              <option [ngValue]="null">{{ 'INVENTORY.PRODUCT_FORM.SIN_CATEGORIA' | translate }}</option>
+              <option [ngValue]="null">{{ 'inventory.product_form.no_category' | translate }}</option>
               @for (category of categories(); track category.id) {
                 <option [ngValue]="category.id">{{ category.name }}</option>
               }
             </select>
             @if (categories().length === 0) {
-              <p class="field-hint">{{ 'INVENTORY.PRODUCT_FORM.SIN_CATEGORIAS_AUN' | translate }}</p>
+              <p class="field-hint">{{ 'inventory.product_form.no_categories_yet_create_them_under' | translate }}</p>
             }
           </div>
 
           <div class="form-field">
-            <label for="status">{{ 'INVENTORY.PRODUCT_FORM.ESTADO' | translate }}</label>
+            <label for="status">{{ 'inventory.product_form.status' | translate }}</label>
             <select id="status" formControlName="status">
-              <option value="Active">{{ 'INVENTORY.PRODUCT_FORM.ACTIVO' | translate }}</option>
-              <option value="Inactive">{{ 'INVENTORY.PRODUCT_FORM.INACTIVO' | translate }}</option>
+              <option value="Active">{{ 'inventory.product_form.active' | translate }}</option>
+              <option value="Inactive">{{ 'inventory.product_form.inactive' | translate }}</option>
             </select>
           </div>
         </section>

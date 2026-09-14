@@ -23,19 +23,19 @@ export class ConfirmMatchDto {
   statementId: string;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
-  @ArrayMaxSize(50, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MAX_SIZE|{"max":50}' })
+  @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
+  @ArrayMaxSize(50, { message: 'validation.constraints.array_max_size|{"max":50}' })
   @IsUUID('4', { each: true })
   bankTransactionIds: string[];
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
-  @ArrayMaxSize(50, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MAX_SIZE|{"max":50}' })
+  @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
+  @ArrayMaxSize(50, { message: 'validation.constraints.array_max_size|{"max":50}' })
   @IsUUID('4', { each: true })
   journalEntryLineIds: string[];
 
   @IsString()
   @IsOptional()
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   notes?: string;
 }

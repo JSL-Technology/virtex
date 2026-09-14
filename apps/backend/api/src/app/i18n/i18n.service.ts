@@ -6,6 +6,7 @@ import {
   NEUTRAL_LOCALE,
   SUPPORTED_LANGUAGES,
   isLanguageCode,
+  normalizeKey,
 } from '@virteex/shared/types';
 
 import { currentLanguage, currentLocaleContext } from './request-locale';
@@ -13,6 +14,7 @@ import { currentLanguage, currentLocaleContext } from './request-locale';
 import es from './messages/es.json';
 import en from './messages/en.json';
 import pt from './messages/pt.json';
+import regional from './messages/regional.json';
 
 /**
  * The server's message catalogue.
@@ -38,7 +40,7 @@ import pt from './messages/pt.json';
  * ternary written into TypeScript, where it was both Spanish-only and wrong for `1.5`.
  */
 
-type Catalogue = Record<string, unknown>;
+type Catalogue = Record<string, string>;
 
 const CATALOGUES: Readonly<Record<LanguageCode, Catalogue>> = {
   es: es as Catalogue,
@@ -46,20 +48,40 @@ const CATALOGUES: Readonly<Record<LanguageCode, Catalogue>> = {
   pt: pt as Catalogue,
 };
 
+/**
+ * Per-country wording, keyed by locale tag.
+ *
+ * Only the entries that actually differ from the neutral catalogue, which for the server is a
+ * handful: the tax identifier a filing calls for, and the name the payroll run has in each market.
+ * A message rendered for a tenant reads that tenant's words — an invoice PDF for a Dominican
+ * company says RNC, the same PDF for a Mexican one says RFC, from one template and one key.
+ */
+const REGIONAL: Readonly<Record<string, Catalogue>> = regional as Record<string, Catalogue>;
+
 @Injectable()
 export class I18nService {
   private readonly logger = new Logger(I18nService.name);
 
-  /** Flattened lookup per language, built once at construction. */
+  /** Lookup per language, built once at construction. */
   private readonly tables: Record<LanguageCode, Map<string, string>>;
+
+  /** Per-locale overrides, built once at construction. */
+  private readonly regionalTables: Record<string, Map<string, string>>;
+
+  /** Normalised spellings, memoised: the same composed key arrives on every row of a report. */
+  private readonly normalizedKeys = new Map<string, string>();
 
   /** Keys already reported missing, so a hot path logs once rather than per request. */
   private readonly reportedMissing = new Set<string>();
 
   constructor() {
     this.tables = Object.fromEntries(
-      SUPPORTED_LANGUAGES.map((language) => [language, flatten(CATALOGUES[language])]),
+      SUPPORTED_LANGUAGES.map((language) => [language, new Map(Object.entries(CATALOGUES[language]))]),
     ) as Record<LanguageCode, Map<string, string>>;
+
+    this.regionalTables = Object.fromEntries(
+      Object.entries(REGIONAL).map(([locale, patch]) => [locale, new Map(Object.entries(patch))]),
+    );
   }
 
   /**
@@ -75,17 +97,22 @@ export class I18nService {
     params: Record<string, unknown> = {},
     options: { locale?: LocaleTag } = {},
   ): string {
-    const resolvedKey = this.applyPlural(key, language, params);
+    const canonical = this.canonical(key);
+    const resolvedKey = this.applyPlural(canonical, language, params);
+    const locale = options.locale;
+
     const template =
+      this.regional(locale, resolvedKey) ??
+      this.regional(locale, canonical) ??
       this.tables[language]?.get(resolvedKey) ??
       this.tables[DEFAULT_LANGUAGE].get(resolvedKey) ??
-      this.tables[language]?.get(key) ??
-      this.tables[DEFAULT_LANGUAGE].get(key);
+      this.tables[language]?.get(canonical) ??
+      this.tables[DEFAULT_LANGUAGE].get(canonical);
 
     if (template === undefined) {
-      if (!this.reportedMissing.has(key)) {
-        this.reportedMissing.add(key);
-        this.logger.warn(`Missing server translation: "${key}"`);
+      if (!this.reportedMissing.has(canonical)) {
+        this.reportedMissing.add(canonical);
+        this.logger.warn(`Missing server translation: "${canonical}"`);
       }
       return key;
     }
@@ -99,7 +126,7 @@ export class I18nService {
    * Three conventions, each of which exists because the alternative is worse:
    *
    * 1. **A value that is itself a catalogue key is translated.** `{{resource}}` receiving
-   *    `'SAAS.RESOURCES.INVOICES'` renders "facturas"/"invoices"/"faturas". Without this, a
+   *    `'saas.resources.invoices'` renders "facturas"/"invoices"/"faturas". Without this, a
    *    notification about a quota would have to build its noun in the emitter — where the
    *    reader's language is not known — which is how the listener ended up with a table of
    *    Spanish literals in it.
@@ -166,7 +193,32 @@ export class I18nService {
 
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */
   has(key: string): boolean {
-    return this.tables[DEFAULT_LANGUAGE].has(key) || this.hasPluralForms(key);
+    const canonical = this.canonical(key);
+    return this.tables[DEFAULT_LANGUAGE].has(canonical) || this.hasPluralForms(canonical);
+  }
+
+  /**
+   * The catalogue's spelling of a key a caller composed from data.
+   *
+   * A key built as `composeKey('permissions.groups', group)` already arrives normalised, but a key
+   * assembled by string concatenation from a TypeORM enum arrives as
+   * `accounts_payable.status.PARTIALLY_PAID`. Normalising here means a call site can spell a key
+   * the way its data spells it, and the same reconciliation happens on the client in
+   * `VirtexTranslateStore` — one rule, both runtimes.
+   */
+  private canonical(key: string): string {
+    let normal = this.normalizedKeys.get(key);
+    if (normal === undefined) {
+      normal = normalizeKey(key);
+      this.normalizedKeys.set(key, normal);
+    }
+    return normal;
+  }
+
+  /** The country's own wording for a key, when the caller said which country. */
+  private regional(locale: LocaleTag | undefined, key: string): string | undefined {
+    if (!locale) return undefined;
+    return this.regionalTables[locale]?.get(key);
   }
 
   /** Every key in the default catalogue. The parity spec walks this. */
@@ -208,8 +260,14 @@ export class I18nService {
   }
 }
 
-/** A value shaped like a catalogue key, so it can be resolved rather than printed. */
-const KEY_SHAPE = /^[A-Z][A-Z0-9_]*(?:\.[A-Z0-9_]+)+$/;
+/**
+ * A value shaped like a catalogue key, so it can be resolved rather than printed.
+ *
+ * Two segments at least: a bare word is a word. `this.has()` decides in the end, so the shape test
+ * only has to be cheap enough to skip the lookup for the parameters that are plainly prose — which
+ * is almost all of them.
+ */
+const KEY_SHAPE = /^[a-z0-9][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
 
 /** An ISO-8601 instant, which is never something to show a reader as-is. */
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -233,19 +291,6 @@ function formatDate(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(parsed);
 }
 
-/** `{ A: { B: 'x' } }` becomes `'A.B' -> 'x'`. */
-function flatten(tree: Catalogue, prefix = '', out = new Map<string, string>()): Map<string, string> {
-  for (const [key, value] of Object.entries(tree)) {
-    const path = prefix ? `${prefix}.${key}` : key;
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      flatten(value as Catalogue, path, out);
-    } else {
-      out.set(path, String(value));
-    }
-  }
-  return out;
-}
-
 /**
  * `{{name}}` substitution.
  *
@@ -261,4 +306,4 @@ function interpolate(template: string, params: Record<string, unknown>): string 
   });
 }
 
-export { flatten as flattenCatalogue, interpolate as interpolateMessage, isLanguageCode };
+export { interpolate as interpolateMessage, isLanguageCode };

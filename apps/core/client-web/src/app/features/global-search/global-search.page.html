@@ -1,11 +1,11 @@
 <vx-list-shell
-  titleKey="PAGE_TITLES.SEARCH"
+  titleKey="page_titles.search"
   [count]="totalResults()"
   [loading]="isLoading()"
   [empty]="totalResults() === 0"
   [searchable]="true"
   [(search)]="searchQuery"
-  searchPlaceholderKey="GLOBAL_SEARCH.BUSCAR_TODO_SISTEMA"
+  searchPlaceholderKey="global_search.search_everywhere"
 >
   <!--
     El estado vacío de esta pantalla es el del gesto —«nada coincide con …»— más lo único que aquí
@@ -13,13 +13,13 @@
     su propio hueco, diciendo lo mismo que las demás listas dicen de otra manera.
   -->
   <div listEmpty class="empty-invite">
-    <h2>{{ 'GLOBAL_SEARCH.PRUEBA_OTROS_TERMINOS_BUSQUEDA' | translate }}</h2>
-    <p>{{ 'GLOBAL_SEARCH.INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE' | translate }}</p>
+    <h2>{{ 'global_search.try_different_search_terms' | translate }}</h2>
+    <p>{{ 'global_search.try_searching_invoice_number_customer_name' | translate }}</p>
   </div>
 
   <p class="results-summary">
     {{
-      'GLOBAL_SEARCH.RESULTS_FOUND' | translate: { count: totalResults(), query: searchQuery() }
+      'global_search.results_found' | translate: { count: totalResults(), query: searchQuery() }
     }}
   </p>
 

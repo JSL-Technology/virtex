@@ -36,7 +36,7 @@
           class="ds__aside-toggle"
           [class.is-on]="asideOpen()"
           [attr.aria-expanded]="asideOpen()"
-          [attr.aria-label]="'SHELL.TOGGLE_ASIDE' | translate"
+          [attr.aria-label]="'shell.show_hide_side_panel' | translate"
           (click)="toggleAside.emit()"
         >
           <lucide-icon [img]="AsideIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -50,7 +50,7 @@
       @switch (state()) {
         @case ('loading') {
           <div class="ds__skeleton" role="status" [attr.aria-busy]="true">
-            <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+            <span class="sr-only">{{ 'common.loading' | translate }}</span>
             @for (block of SKELETON; track block) {
               <div class="ds__skeleton-block" aria-hidden="true"></div>
             }
@@ -62,7 +62,7 @@
             <p class="ds__state-title">{{ error() | translate }}</p>
             <button type="button" class="ds__retry" (click)="reload.emit()">
               <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
-              <span>{{ 'COMMON.RETRY' | translate }}</span>
+              <span>{{ 'common.retry' | translate }}</span>
             </button>
           </div>
         }
@@ -73,7 +73,7 @@
     </div>
 
     @if (hasAside() && asideOpen() && state() === 'content') {
-      <aside class="ds__aside" [attr.aria-label]="'SHELL.ASIDE' | translate">
+      <aside class="ds__aside" [attr.aria-label]="'shell.aside' | translate">
         <ng-content select="[documentAside]"></ng-content>
       </aside>
     }

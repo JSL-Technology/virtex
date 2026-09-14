@@ -44,7 +44,9 @@ describe('InvoicesListPage', () => {
     // cadena en español incrustada en el componente, que era justamente el defecto.
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('es', {
-      INVOICES: { LIST: { RANGE: '{{from}}–{{to}} de {{total}}', RANGE_EMPTY: 'Sin facturas' } },
+      // Flat, like the real catalogues: the key IS the property name, dots and all.
+      'invoices.list.range': '{{from}}–{{to}} de {{total}}',
+      'invoices.list.range_empty': 'Sin facturas',
     });
     translate.use('es');
 
@@ -113,15 +115,15 @@ describe('InvoicesListPage', () => {
 
   it('traduce el estado de la fila', () => {
     // The badge printed 'Cobrada' / 'Por cobrar' as literals in the template, and then, once it
-    // used keys, kept its OWN five-case map whose default was `INVOICES.LIST.ESTADO_2` — the
+    // used keys, kept its OWN five-case map whose default was `invoices.list.status_filter` — the
     // column heading "Estado". Every draft invoice in the register therefore wore a badge reading
     // "Status". One shared table now answers for every screen that shows an invoice status.
-    expect(component.statusKey('Paid')).toBe('INVOICES.STATUS.PAID');
-    expect(component.statusKey('Pending')).toBe('INVOICES.STATUS.PENDING');
-    expect(component.statusKey('Void')).toBe('INVOICES.STATUS.VOID');
-    expect(component.statusKey('Draft')).toBe('INVOICES.STATUS.DRAFT');
-    expect(component.statusKey('Partially Paid')).toBe('INVOICES.STATUS.PARTIALLY_PAID');
-    expect(component.statusKey('Credit Note')).toBe('INVOICES.STATUS.CREDIT_NOTE');
+    expect(component.statusKey('Paid')).toBe('invoices.status.paid');
+    expect(component.statusKey('Pending')).toBe('invoices.status.pending');
+    expect(component.statusKey('Void')).toBe('invoices.status.void');
+    expect(component.statusKey('Draft')).toBe('invoices.status.draft');
+    expect(component.statusKey('Partially Paid')).toBe('invoices.status.partially_paid');
+    expect(component.statusKey('Credit Note')).toBe('invoices.status.credit_note');
   });
 
   it('surfaces a load failure instead of showing an empty list', () => {

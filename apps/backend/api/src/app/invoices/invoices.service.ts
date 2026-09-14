@@ -179,9 +179,9 @@ export class InvoicesService {
         where: { id: invoiceId, organizationId },
         relations: ['lineItems', 'customer'],
       });
-      if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
+      if (!invoice) throw new NotFoundError('invoices.invoice_invoice_id_not_found', { invoiceId });
       if (invoice.status !== InvoiceStatus.DRAFT) {
-        throw new ConflictError('INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE', { invoiceNumber: invoice.invoiceNumber });
+        throw new ConflictError('invoices.document_invoice_number_has_already_issued', { invoiceNumber: invoice.invoiceNumber });
       }
       return this.issueWithin(invoice, type ?? null, organizationId, manager);
     });
@@ -221,25 +221,23 @@ export class InvoicesService {
         relations: ['lineItems', 'customer'],
       });
 
-      if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
+      if (!invoice) throw new NotFoundError('invoices.invoice_invoice_id_not_found', { invoiceId });
 
       if (invoice.status !== InvoiceStatus.DRAFT) {
         preconditions.push({
-          code: 'INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE',
+          code: 'invoices.document_invoice_number_has_already_issued',
           status: 'failed',
-          message: this.i18n.translate(
-            'INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE',
-            currentLanguage(),
-            { invoiceNumber: invoice.invoiceNumber },
-          ),
+          messageKey: 'invoices.document_invoice_number_has_already_issued',
+          params: { invoiceNumber: invoice.invoiceNumber },
         });
         return { canExecute: false, preconditions, effects };
       }
 
       preconditions.push({
-        code: 'INVOICES.PRECONDITION.DRAFT',
+        code: 'invoices.precondition.draft',
         status: 'passed',
-        message: this.i18n.translate('INVOICES.PRECONDITION.DRAFT', currentLanguage(), {}),
+        messageKey: 'invoices.precondition.draft',
+        params: {},
       });
 
       const issued = await this.issueWithin(invoice, type ?? null, organizationId, manager);
@@ -248,24 +246,21 @@ export class InvoicesService {
       if (issued.ncfNumber) {
         effects.push({
           kind: 'sequence',
-          titleKey: 'INVOICES.EFFECT.FISCAL_NUMBER',
+          titleKey: 'invoices.effect.fiscal_number',
           value: issued.ncfNumber,
           documentType: issued.fiscalDocumentType ?? undefined,
         });
         preconditions.push({
-          code: 'INVOICES.PRECONDITION.SEQUENCE_AVAILABLE',
+          code: 'invoices.precondition.sequence_available',
           status: 'passed',
-          message: this.i18n.translate(
-            'INVOICES.PRECONDITION.SEQUENCE_AVAILABLE',
-            currentLanguage(),
-            { number: issued.ncfNumber },
-          ),
+          messageKey: 'invoices.precondition.sequence_available',
+          params: { number: issued.ncfNumber },
         });
       }
 
       for (const [entryId, titleKey] of [
-        [issued.journalEntryId, 'INVOICES.EFFECT.REVENUE_ENTRY'],
-        [issued.costJournalEntryId, 'INVOICES.EFFECT.COST_ENTRY'],
+        [issued.journalEntryId, 'invoices.effect.revenue_entry'],
+        [issued.costJournalEntryId, 'invoices.effect.cost_entry'],
       ] as const) {
         if (!entryId) continue;
         const effect = await this.describeLedgerEffect(entryId, titleKey, manager);
@@ -276,7 +271,7 @@ export class InvoicesService {
       if (movements.length) {
         effects.push({
           kind: 'stock',
-          titleKey: 'INVOICES.EFFECT.STOCK',
+          titleKey: 'invoices.effect.stock',
           movements: movements.map((l) => ({
             productName: l.description ?? l.productId ?? '',
             quantity: Number(l.quantity),
@@ -291,7 +286,8 @@ export class InvoicesService {
         preconditions.push({
           code: error.code,
           status: 'failed',
-          message: this.i18n.translate(error.messageKey, currentLanguage(), error.params),
+          messageKey: error.messageKey,
+          params: error.params,
           remedy: REMEDIES[error.code],
         });
         return { canExecute: false, preconditions, effects };
@@ -428,7 +424,7 @@ export class InvoicesService {
       // Issuing here would be guessing the rate, which is what this replaces. The message names
       // what is missing — usually the buyer's state — so it can be fixed in one edit.
       throw new BadRequestError(
-        determination.reasonKey ?? 'LOCALIZATION.NO_SE_PUDO_DETERMINAR_IMPUESTO',
+        determination.reasonKey ?? 'localization.tax_sale_could_not_determined',
         determination.reasonParams ?? {},
       );
     }
@@ -564,7 +560,7 @@ export class InvoicesService {
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
 
     if (new Date(dto.dueDate) < new Date(dto.issueDate)) {
-      throw new BadRequestError('INVOICES.FECHA_VENCIMIENTO_NO_PUEDE_SER_ANTERIOR_FECHA');
+      throw new BadRequestError('invoices.due_date_cannot_earlier_than_issue');
     }
 
     const { currencyCode, exchangeRate, baseCurrency } = await this.resolveCurrency(
@@ -748,7 +744,7 @@ export class InvoicesService {
     const map = new Map(products.map((p) => [p.id, p]));
     const missing = ids.filter((id) => !map.has(id));
     if (missing.length > 0) {
-      throw new BadRequestError('INVOICES.PRODUCTO_NO_ENCONTRADO_CATALOGO', { p1: missing.length > 1 ? 's' : '', p2: missing.length > 1 ? 's' : '', p3: missing.join(', ') });
+      throw new BadRequestError('invoices.product_p1_not_found_p2_catalogue', { p1: missing.length > 1 ? 's' : '', p2: missing.length > 1 ? 's' : '', p3: missing.join(', ') });
     }
     return map;
   }
@@ -777,12 +773,12 @@ export class InvoicesService {
 
     const description = (dto.description ?? product?.name ?? '').trim();
     if (!description) {
-      throw new BadRequestError('INVOICES.LINEA_NECESITA_DESCRIPCION_PRODUCTO_CATALOGO', { p1: index + 1 });
+      throw new BadRequestError('invoices.line_p1_needs_description_product_from', { p1: index + 1 });
     }
 
     const unitPrice = dto.unitPrice ?? Number(product?.price ?? NaN);
     if (!Number.isFinite(unitPrice)) {
-      throw new BadRequestError('INVOICES.LINEA_NO_TIENE_PRECIO_INDICALO_SELECCIONA_PRODUCTO', { p1: index + 1 });
+      throw new BadRequestError('invoices.line_p1_has_no_price_enter', { p1: index + 1 });
     }
 
     const isService = dto.isService ?? product?.kind === ProductKind.SERVICE;
@@ -885,7 +881,7 @@ export class InvoicesService {
     );
 
     if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-      throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
+      throw new BadRequestError('invoices.exchange_rate_configured_currency_code_not', { currencyCode });
     }
     return { currencyCode, exchangeRate, baseCurrency };
   }
@@ -918,9 +914,9 @@ export class InvoicesService {
         where: { id: invoiceId, organizationId },
         relations: ['lineItems'],
       });
-      if (!existing) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
+      if (!existing) throw new NotFoundError('invoices.invoice_invoice_id_not_found', { invoiceId });
       if (existing.status !== InvoiceStatus.DRAFT) {
-        throw new ConflictError('INVOICES.SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE');
+        throw new ConflictError('invoices.only_draft_can_edited_issued_document');
       }
 
       const rebuilt = await this.buildDocument(dto, organizationId, manager);
@@ -966,9 +962,9 @@ export class InvoicesService {
     const invoice = await this.invoicesRepository.findOne({
       where: { id: invoiceId, organizationId },
     });
-    if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
+    if (!invoice) throw new NotFoundError('invoices.invoice_invoice_id_not_found', { invoiceId });
     if (invoice.status !== InvoiceStatus.DRAFT) {
-      throw new ConflictError('INVOICES.COMPROBANTE_EMITIDO_NO_ELIMINA_ANULALO_NOTA_CREDITO');
+      throw new ConflictError('invoices.issued_document_not_deleted_void_with');
     }
     await this.invoicesRepository.delete({ id: invoiceId, organizationId });
   }
@@ -1009,16 +1005,16 @@ export class InvoicesService {
       });
 
       if (!original) {
-        throw new NotFoundError('INVOICES.FACTURA_ORIGINAL_ID_NO_ENCONTRADA', { invoiceId: dto.invoiceId });
+        throw new NotFoundError('invoices.original_invoice_invoice_id_not_found', { invoiceId: dto.invoiceId });
       }
       if (original.status === InvoiceStatus.DRAFT) {
-        throw new BadRequestError('INVOICES.BORRADOR_NO_ACREDITA_ELIMINALO_MODIFICALO_DIRECTAMENTE');
+        throw new BadRequestError('invoices.draft_not_credited_delete_edit_directly');
       }
       if (original.status === InvoiceStatus.VOID) {
-        throw new ConflictError('INVOICES.FACTURA_YA_FUE_ANULADA_TOTALIDAD');
+        throw new ConflictError('invoices.invoice_has_already_voided_full');
       }
       if (original.type !== InvoiceType.INVOICE) {
-        throw new BadRequestError('INVOICES.SOLO_FACTURA_PUEDE_SER_ACREDITADA');
+        throw new BadRequestError('invoices.only_invoice_can_credited');
       }
 
       const selections = this.resolveCreditSelections(original, dto);
@@ -1067,7 +1063,7 @@ export class InvoicesService {
         toMinorUnits(computed.total, original.currencyCode) >
         toMinorUnits(original.creditableRemaining, original.currencyCode)
       ) {
-        throw new BadRequestError('INVOICES.MONTO_ACREDITAR_EXCEDE_SALDO', {
+        throw new BadRequestError('invoices.amount_credit_amount_exceeds_creditable_balance', {
           amount: computed.total,
           invoiceNumber: original.invoiceNumber,
           remaining: original.creditableRemaining,
@@ -1223,7 +1219,7 @@ export class InvoicesService {
   ): CreditSelection[] {
     const lines = original.lineItems ?? [];
     if (lines.length === 0) {
-      throw new BadRequestError('INVOICES.FACTURA_ORIGINAL_NO_TIENE_LINEAS_ACREDITAR');
+      throw new BadRequestError('invoices.original_invoice_has_no_lines_credit');
     }
 
     if (!dto.items || dto.items.length === 0) {
@@ -1231,7 +1227,7 @@ export class InvoicesService {
         .map((line) => ({ line, quantity: round6(line.quantity - line.creditedQuantity) }))
         .filter((s) => s.quantity > 0);
       if (selections.length === 0) {
-        throw new ConflictError('INVOICES.FACTURA_YA_FUE_ACREDITADA_TOTALIDAD');
+        throw new ConflictError('invoices.invoice_has_already_credited_full');
       }
       return selections;
     }
@@ -1242,13 +1238,13 @@ export class InvoicesService {
 
     for (const item of dto.items) {
       if (seen.has(item.lineId)) {
-        throw new BadRequestError('INVOICES.LINEA_APARECE_DOS_VECES_SOLICITUD', { lineId: item.lineId });
+        throw new BadRequestError('invoices.line_line_id_appears_twice_request', { lineId: item.lineId });
       }
       seen.add(item.lineId);
 
       const line = byId.get(item.lineId);
       if (!line) {
-        throw new BadRequestError('INVOICES.LINEA_NO_PERTENECE_FACTURA', { lineId: item.lineId, invoiceNumber: original.invoiceNumber });
+        throw new BadRequestError('invoices.line_line_id_does_not_belong', { lineId: item.lineId, invoiceNumber: original.invoiceNumber });
       }
       const available = round6(line.quantity - line.creditedQuantity);
       if (item.quantity > available + 1e-6) {
@@ -1277,13 +1273,13 @@ export class InvoicesService {
     manager: EntityManager,
   ): Promise<Invoice> {
     if (!invoice.originalInvoiceId) {
-      throw new BadRequestError('INVOICES.NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA');
+      throw new BadRequestError('invoices.credit_note_must_reference_invoice_modifies');
     }
     const original = await manager
       .getRepository(Invoice)
       .findOne({ where: { id: invoice.originalInvoiceId, organizationId } });
     if (!original) {
-      throw new NotFoundError('INVOICES.FACTURA_REFERENCIADA_NOTA_CREDITO_NO_EXISTE');
+      throw new NotFoundError('invoices.invoice_referenced_credit_note_does_not');
     }
     return original;
   }
@@ -1334,7 +1330,7 @@ export class InvoicesService {
       relations: ['lineItems', 'lineItems.product', 'customer'],
     });
     if (!invoice) {
-      throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA_2', { id });
+      throw new NotFoundError('invoices.invoice_id_not_found', { id });
     }
     invoice.lineItems?.sort((a, b) => a.sortOrder - b.sortOrder);
     return invoice;
@@ -1352,7 +1348,7 @@ export class InvoicesService {
     const organization = await this.organizationRepository.findOne({
       where: { id: organizationId },
     });
-    if (!organization) throw new NotFoundError('INVOICES.ORGANIZACION_NO_ENCONTRADA');
+    if (!organization) throw new NotFoundError('invoices.organization_not_found');
 
     const submission = await this.dataSource.getRepository(EcfSubmission).findOne({
       where: { invoiceId: invoice.id, organizationId },

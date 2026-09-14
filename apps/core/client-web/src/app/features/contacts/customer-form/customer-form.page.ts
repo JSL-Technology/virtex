@@ -25,14 +25,14 @@ export class CustomerFormPage implements OnInit {
    * would silently withhold nothing.
    */
   protected readonly taxpayerTypes = [
-    { value: 'INDIVIDUAL', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_INDIVIDUAL' },
-    { value: 'COMPANY', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_COMPANY' },
+    { value: 'INDIVIDUAL', labelKey: 'contacts.customer_form.individual' },
+    { value: 'COMPANY', labelKey: 'contacts.customer_form.company' },
     {
       value: 'WITHHOLDING_AGENT',
-      labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT',
+      labelKey: 'contacts.customer_form.designated_withholding_agent',
     },
-    { value: 'GOVERNMENT', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_GOVERNMENT' },
-    { value: 'FOREIGN', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_FOREIGN' },
+    { value: 'GOVERNMENT', labelKey: 'contacts.customer_form.government_body' },
+    { value: 'FOREIGN', labelKey: 'contacts.customer_form.customer_abroad' },
   ] as const;
 
   private fb = inject(FormBuilder);
@@ -97,7 +97,7 @@ export class CustomerFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('CONTACTS.CUSTOMER_FORM.PUDO_CARGAR_CLIENTE');
+        this.notificationService.showError('contacts.customer_form.customer_could_not_loaded');
         this.router.navigate(['/contacts/customers']);
       },
     });
@@ -112,19 +112,19 @@ export class CustomerFormPage implements OnInit {
       this.customerForm.markAllAsTouched();
       this.problems.set(
         draftProblems(this.customerForm, {
-          companyName: 'CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA',
-          contactPerson: 'CONTACTS.CUSTOMER_FORM.PERSONA_CONTACTO',
-          taxId: 'CONTACTS.CUSTOMER_FORM.ID_FISCAL_RNC_ETC',
-          taxpayerType: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE',
-          email: 'CONTACTS.CUSTOMER_FORM.CORREO_ELECTRONICO',
-          phone: 'CONTACTS.CUSTOMER_FORM.TELEFONO',
-          address: 'CONTACTS.CUSTOMER_FORM.LINEA_DIRECCION',
-          city: 'CONTACTS.CUSTOMER_FORM.CIUDAD',
-          stateOrProvince: 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA',
-          postalCode: 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL',
-          country: 'CONTACTS.CUSTOMER_FORM.PAIS',
-          paymentTerms: 'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO',
-          paymentTermDays: 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO',
+          companyName: 'contacts.customer_form.company_name',
+          contactPerson: 'contacts.customer_form.contact_person',
+          taxId: 'contacts.customer_form.tax_id',
+          taxpayerType: 'contacts.customer_form.taxpayer_type',
+          email: 'contacts.customer_form.email',
+          phone: 'contacts.customer_form.phone',
+          address: 'contacts.customer_form.address_line',
+          city: 'contacts.customer_form.city',
+          stateOrProvince: 'contacts.customer_form.state_province',
+          postalCode: 'contacts.customer_form.postal_code',
+          country: 'contacts.customer_form.country',
+          paymentTerms: 'contacts.customer_form.payment_terms',
+          paymentTermDays: 'contacts.customer_form.credit_days',
         }),
       );
       return;
@@ -159,7 +159,7 @@ export class CustomerFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.CLIENTE_ACTUALIZADO_EXITOSAMENTE' : 'CONTACTS.CUSTOMER_FORM.CLIENTE_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(this.isEditMode() ? 'contacts.customer_form.customer_updated' : 'contacts.customer_form.customer_created');
         this.router.navigate(['/contacts/customers']);
       },
       error: (err) => {
@@ -170,8 +170,8 @@ export class CustomerFormPage implements OnInit {
         this.notificationService.showError(
           serverMessage ??
             (this.isEditMode()
-              ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE'
-              : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE'),
+              ? 'contacts.customer_form.error_updating_customer'
+              : 'contacts.customer_form.error_creating_customer'),
         );
         this.isLoading.set(false);
       },

@@ -4,7 +4,7 @@
       <h1 class="ls__title">
         {{ titleKey() | translate }}
         @if (count() !== null && state() === 'content') {
-          <span class="ls__count" [attr.aria-label]="'SHELL.COUNT' | translate: { count: count() }">
+          <span class="ls__count" [attr.aria-label]="'shell.count' | translate: { count: count() }">
             {{ count() }}
           </span>
         }
@@ -35,7 +35,7 @@
           <button
             type="button"
             class="ls__search-clear"
-            [attr.aria-label]="'SHELL.CLEAR_SEARCH' | translate"
+            [attr.aria-label]="'shell.clear_search' | translate"
             (click)="clearSearch()"
           >
             <lucide-icon [img]="ClearIcon" size="14" aria-hidden="true"></lucide-icon>
@@ -57,7 +57,7 @@
         <!-- Esqueleto y no un texto: ocupa el sitio que ocuparán las filas, así que la lista no
              salta cuando llegan. Marcado como `busy` para que el lector de pantalla lo anuncie. -->
         <div class="ls__skeleton" role="status" [attr.aria-busy]="true">
-          <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+          <span class="sr-only">{{ 'common.loading' | translate }}</span>
           @for (row of SKELETON; track row) {
             <div class="ls__skeleton-row" aria-hidden="true"></div>
           }
@@ -69,16 +69,16 @@
           <p class="ls__state-title">{{ error() | translate }}</p>
           <button type="button" class="ls__retry" (click)="reload.emit()">
             <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
-            <span>{{ 'COMMON.RETRY' | translate }}</span>
+            <span>{{ 'common.retry' | translate }}</span>
           </button>
         </div>
       }
       @case ('filtered') {
         <div class="ls__state">
           <lucide-icon [img]="SearchIcon" size="28" aria-hidden="true"></lucide-icon>
-          <p class="ls__state-title">{{ 'SHELL.NO_MATCHES' | translate: { term: search() } }}</p>
+          <p class="ls__state-title">{{ 'shell.no_matches' | translate: { term: search() } }}</p>
           <button type="button" class="ls__retry" (click)="clearSearch()">
-            {{ 'SHELL.CLEAR_SEARCH' | translate }}
+            {{ 'shell.clear_search' | translate }}
           </button>
         </div>
       }
@@ -88,7 +88,7 @@
                primero—. Si no dice nada, el contenido por defecto cubre el caso. -->
           <ng-content select="[listEmpty]">
             <lucide-icon [img]="InboxIcon" size="28" aria-hidden="true"></lucide-icon>
-            <p class="ls__state-title">{{ 'SHELL.EMPTY' | translate }}</p>
+            <p class="ls__state-title">{{ 'shell.empty' | translate }}</p>
           </ng-content>
         </div>
       }

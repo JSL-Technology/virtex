@@ -80,7 +80,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
                 lock: { mode: 'pessimistic_write' },
             });
             if (!entry) {
-                throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_RECURRENTE_NO_ENCONTRADA', { recurringEntryId });
+                throw new NotFoundError('journal_entries.recurring_template_recurring_entry_id_not', { recurringEntryId });
             }
 
             // Already posted for this date. A redelivered job is not a second occurrence of the
@@ -95,7 +95,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
 
             const defaultLedger = await manager.findOneBy(Ledger, { organizationId: entry.organizationId, isDefault: true });
             if (!defaultLedger) {
-                throw new BadRequestError('JOURNAL_ENTRIES.NO_ENCONTRO_LIBRO_CONTABLE_ORG', { organizationId: entry.organizationId });
+                throw new BadRequestError('journal_entries.no_ledger_found_organization_organization_id', { organizationId: entry.organizationId });
             }
             
             const dto: CreateJournalEntryDto = {
@@ -103,7 +103,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
                 description: await this.narrative.describe(
                     manager,
                     entry.organizationId,
-                    'LEDGER.RECURRING.ENTRY',
+                    'ledger.recurring.entry',
                     { description: entry.description },
                 ),
                 journalId: entry.journalId,
@@ -119,7 +119,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
 
 
             if (!manager.queryRunner) {
-              throw new InternalServerError('JOURNAL_ENTRIES.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
+              throw new InternalServerError('journal_entries.transaction_query_runner_could_not_obtained');
             }
 
 

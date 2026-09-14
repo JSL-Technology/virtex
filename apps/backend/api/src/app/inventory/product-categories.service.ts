@@ -45,7 +45,7 @@ export class ProductCategoriesService {
 
   async findOne(id: string, organizationId: string): Promise<ProductCategory> {
     const category = await this.categories.findOne({ where: { id, organizationId } });
-    if (!category) throw new NotFoundError('INVENTORY.CATEGORY_NOT_FOUND', { id });
+    if (!category) throw new NotFoundError('inventory.category_not_found', { id });
     return category;
   }
 
@@ -104,12 +104,12 @@ export class ProductCategoriesService {
 
     const children = await this.categories.count({ where: { organizationId, parentId: id } });
     if (children > 0) {
-      throw new BadRequestError('INVENTORY.CATEGORY_HAS_CHILDREN', { count: children });
+      throw new BadRequestError('inventory.cannot_delete_category_has_count_subcategory', { count: children });
     }
 
     const used = await this.products.count({ where: { organizationId, categoryId: id } });
     if (used > 0) {
-      throw new BadRequestError('INVENTORY.CATEGORY_IN_USE', { count: used });
+      throw new BadRequestError('inventory.category_in_use', { count: used });
     }
 
     await this.categories.delete({ id, organizationId });
@@ -122,7 +122,7 @@ export class ProductCategoriesService {
     organizationId: string,
     exceptId: string | null,
   ): Promise<void> {
-    if (!name) throw new BadRequestError('INVENTORY.CATEGORY_NAME_REQUIRED');
+    if (!name) throw new BadRequestError('inventory.category_name_required');
     const clash = await this.categories.findOne({
       where: {
         organizationId,
@@ -130,7 +130,7 @@ export class ProductCategoriesService {
         ...(exceptId ? { id: Not(exceptId) } : {}),
       },
     });
-    if (clash) throw new BadRequestError('INVENTORY.CATEGORY_NAME_TAKEN', { name });
+    if (clash) throw new BadRequestError('inventory.category_called_name_already_exists', { name });
   }
 
   /**
@@ -144,7 +144,7 @@ export class ProductCategoriesService {
   ): Promise<string | null> {
     if (!parentId) return null;
     if (selfId && parentId === selfId) {
-      throw new BadRequestError('INVENTORY.CATEGORY_PARENT_IS_SELF');
+      throw new BadRequestError('inventory.category_parent_is_self');
     }
 
     const parent = await this.findOne(parentId, organizationId);
@@ -154,14 +154,14 @@ export class ProductCategoriesService {
     const seen = new Set<string>([parent.id]);
     while (cursor?.parentId) {
       if (selfId && cursor.parentId === selfId) {
-        throw new BadRequestError('INVENTORY.CATEGORY_PARENT_IS_DESCENDANT');
+        throw new BadRequestError('inventory.category_cannot_moved_inside_one_own');
       }
       // Defensive: a cycle already in the data must not hang the request while we detect one.
       if (seen.has(cursor.parentId)) break;
       seen.add(cursor.parentId);
       depth += 1;
       if (depth > MAX_DEPTH) {
-        throw new BadRequestError('INVENTORY.CATEGORY_TOO_DEEP', { max: MAX_DEPTH });
+        throw new BadRequestError('inventory.category_too_deep', { max: MAX_DEPTH });
       }
       cursor = await this.categories.findOne({
         where: { id: cursor.parentId, organizationId },
@@ -176,7 +176,7 @@ export class ProductCategoriesService {
     if (!categoryId) return;
     const category = await this.findOne(categoryId, organizationId);
     if (!category.isActive) {
-      throw new BadRequestError('INVENTORY.CATEGORY_INACTIVE', { name: category.name });
+      throw new BadRequestError('inventory.category_inactive', { name: category.name });
     }
   }
 

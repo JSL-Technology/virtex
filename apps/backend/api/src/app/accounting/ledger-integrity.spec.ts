@@ -682,7 +682,7 @@ describeWithDb('the accounting core', () => {
       ['cash flow statement', (from: string, to: string) => reporting.getCashFlowStatement(organizationId, from, to)],
     ])('refuses an inverted period on the %s', async (_name, run) => {
       await expect(run('2026-01-31', '2026-01-01')).rejects.toMatchObject({
-        messageKey: 'VALIDATION.CONSTRAINTS.PERIOD_START_AFTER_END',
+        messageKey: 'validation.constraints.period_start_after_end',
       });
       // A single day is a period, not an inversion.
       await expect(run('2026-01-31', '2026-01-31')).resolves.toBeDefined();

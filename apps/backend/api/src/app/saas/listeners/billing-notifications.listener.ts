@@ -41,12 +41,12 @@ interface LimitEvent {
  * Spanish literals here produced.
  */
 const RESOURCE_LABEL_KEYS: Readonly<Record<string, string>> = {
-  [SaasResource.INVOICES]: 'SAAS.RESOURCES.INVOICES',
-  [SaasResource.USERS]: 'SAAS.RESOURCES.USERS',
-  [SaasResource.CUSTOMERS]: 'SAAS.RESOURCES.CUSTOMERS',
-  [SaasResource.SUPPLIERS]: 'SAAS.RESOURCES.SUPPLIERS',
-  [SaasResource.JOURNAL_ENTRIES]: 'SAAS.RESOURCES.JOURNAL_ENTRIES',
-  [SaasResource.SUBSIDIARIES]: 'SAAS.RESOURCES.SUBSIDIARIES',
+  [SaasResource.INVOICES]: 'saas.resources.invoices',
+  [SaasResource.USERS]: 'saas.resources.users',
+  [SaasResource.CUSTOMERS]: 'saas.resources.customers',
+  [SaasResource.SUPPLIERS]: 'saas.resources.suppliers',
+  [SaasResource.JOURNAL_ENTRIES]: 'saas.resources.journal_entries',
+  [SaasResource.SUBSIDIARIES]: 'saas.resources.subsidiaries',
 };
 
 /**
@@ -158,14 +158,14 @@ export class BillingNotificationsListener {
     // now a whole sentence in the catalogue, chosen here.
     const bodyKey = event.nextAttempt
       ? event.gracePeriodEnd
-        ? 'SAAS.PAYMENT_FAILED.BODY_RETRY_AND_GRACE'
-        : 'SAAS.PAYMENT_FAILED.BODY_RETRY'
+        ? 'saas.payment_failed.amount_charge_could_not_completed_we'
+        : 'saas.payment_failed.body_retry'
       : event.gracePeriodEnd
-        ? 'SAAS.PAYMENT_FAILED.BODY_GRACE'
-        : 'SAAS.PAYMENT_FAILED.BODY';
+        ? 'saas.payment_failed.amount_charge_could_not_completed_your'
+        : 'saas.payment_failed.body';
 
     await this.notifyEveryone(event.organizationId, 'payment_failed', {
-      titleKey: 'SAAS.PAYMENT_FAILED.TITLE',
+      titleKey: 'saas.payment_failed.title',
       bodyKey,
       params: {
         amount,
@@ -190,8 +190,8 @@ export class BillingNotificationsListener {
       event.organizationId,
       'payment_succeeded',
       {
-        titleKey: 'SAAS.PAYMENT_SUCCEEDED.TITLE',
-        bodyKey: 'SAAS.PAYMENT_SUCCEEDED.BODY',
+        titleKey: 'saas.payment_succeeded.title',
+        bodyKey: 'saas.payment_succeeded.body',
         params: { amount, currency },
       },
       { emailToo: false },
@@ -204,8 +204,8 @@ export class BillingNotificationsListener {
       event.organizationId,
       'limit_warning',
       {
-        titleKey: 'SAAS.LIMIT_WARNING.TITLE',
-        bodyKey: 'SAAS.LIMIT_WARNING.BODY',
+        titleKey: 'saas.limit_warning.title',
+        bodyKey: 'saas.limit_warning.body',
         params: {
           resource: this.i18nResource(event.resource),
           used: event.currentUsage,
@@ -230,8 +230,8 @@ export class BillingNotificationsListener {
   @OnEvent('saas.limit_reached')
   async onLimitReached(event: LimitEvent): Promise<void> {
     await this.notifyEveryone(event.organizationId, 'limit_reached', {
-      titleKey: 'SAAS.LIMIT_REACHED.TITLE',
-      bodyKey: 'SAAS.LIMIT_REACHED.BODY',
+      titleKey: 'saas.limit_reached.title',
+      bodyKey: 'saas.limit_reached.body',
       params: { resource: this.i18nResource(event.resource), limit: event.limit },
     });
   }

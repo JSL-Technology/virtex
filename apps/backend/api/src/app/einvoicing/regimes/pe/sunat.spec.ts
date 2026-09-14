@@ -142,8 +142,8 @@ describe('SUNAT — comprobante de pago electrónico', () => {
   });
 
   it.each([
-    ['el emisor sin RUC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'EINVOICING.SUNAT_EMISOR_SIN_RUC'],
-    ['sin serie', { series: '' }, 'EINVOICING.SUNAT_SIN_SERIE'],
+    ['el emisor sin RUC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'einvoicing.pe.organization_has_no_ruc_sunat_does'],
+    ['sin serie', { series: '' }, 'einvoicing.pe.document_series_missing_f001_example'],
   ])('refuses to build with %s', (_name, overrides, messageKey) => {
     expect(() => builder.build(input(overrides as Partial<SunatBuildInput>))).toThrow(
       expect.objectContaining({ messageKey }),

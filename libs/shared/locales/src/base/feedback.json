@@ -1,0 +1,27 @@
+{
+  "feedback.coming_soon": {
+    "es": "Esta función estará disponible próximamente",
+    "en": "This feature is coming soon",
+    "pt": "Este recurso estará disponível em breve"
+  },
+  "feedback.leave_review": {
+    "es": "Dejar una valoración",
+    "en": "Leave a review",
+    "pt": "Deixar uma avaliação"
+  },
+  "feedback.report_problem": {
+    "es": "Reportar un problema",
+    "en": "Report a problem",
+    "pt": "Relatar um problema"
+  },
+  "feedback.suggest": {
+    "es": "Sugerir una mejora",
+    "en": "Suggest an improvement",
+    "pt": "Sugerir uma melhoria"
+  },
+  "feedback.title": {
+    "en": "Feedback",
+    "es": "Comentarios",
+    "pt": "Comentários"
+  }
+}

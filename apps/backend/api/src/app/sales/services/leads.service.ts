@@ -28,7 +28,7 @@ export class LeadsService {
   async convertLeadToOpportunity(leadId: string, organizationId: string): Promise<Opportunity> {
     const lead = await this.leadRepository.findOneBy({ id: leadId, organizationId });
     if (!lead) {
-      throw new NotFoundError('SALES.LEAD_NO_ENCONTRADO');
+      throw new NotFoundError('sales.lead_not_found');
     }
 
 

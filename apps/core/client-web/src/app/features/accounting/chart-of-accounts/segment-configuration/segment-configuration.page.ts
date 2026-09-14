@@ -63,7 +63,7 @@ export class SegmentConfigurationPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.ERROR_CARGAR_CONFIGURACION_SEGMENTOS');
+        this.notificationService.showError('accounting.segment_configuration.error_loading_segment_configuration');
         this.isLoading.set(false);
       }
     });
@@ -98,7 +98,7 @@ export class SegmentConfigurationPage implements OnInit {
 
     if (this.segments.length === 0) {
       //  Una estructura sin ningún nivel no es un campo mal escrito: es que no hay estructura.
-      this.problems.set([{ message: 'ACCOUNTING.SEGMENT_CONFIGURATION.DEBE_DEFINIR_MENOS_SEGMENTO' }]);
+      this.problems.set([{ message: 'accounting.segment_configuration.you_must_define_least_one_segment' }]);
       return;
     }
 
@@ -111,12 +111,12 @@ export class SegmentConfigurationPage implements OnInit {
 
     this.apiService.configureSegmentDefinitions(dto).pipe(take(1)).subscribe({
       next: () => {
-        this.notificationService.showSuccess('ACCOUNTING.SEGMENT_CONFIGURATION.ESTRUCTURA_SEGMENTOS_GUARDADA_CORRECTAMENTE');
+        this.notificationService.showSuccess('accounting.segment_configuration.segment_structure_saved_successfully');
         this.isSaving.set(false);
         this.router.navigate(['/accounting/chart-of-accounts']);
       },
       error: (err) => {
-        const message = err?.error?.message || this.translate.instant('ERRORS.SAVE_CONFIGURATION');
+        const message = err?.error?.message || this.translate.instant('errors.save_configuration');
         this.notificationService.showError(message);
         this.isSaving.set(false);
       }
@@ -125,8 +125,8 @@ export class SegmentConfigurationPage implements OnInit {
 
   public async onInitializeDefaults(): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.RESET_SEGMENTS.TITLE',
-      message: 'DIALOG.RESET_SEGMENTS.MESSAGE',
+      title: 'dialog.reset_segments.title',
+      message: 'dialog.reset_segments.message',
       variant: 'warning',
     });
     if (confirmed) {
@@ -137,11 +137,11 @@ export class SegmentConfigurationPage implements OnInit {
                 defs.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).forEach(def => {
                     this.addSegmentToForm(def);
                 });
-                this.notificationService.showSuccess('ACCOUNTING.SEGMENT_CONFIGURATION.ESTRUCTURA_DEFECTO_INICIALIZADA');
+                this.notificationService.showSuccess('accounting.segment_configuration.default_structure_initialized');
                 this.isSaving.set(false);
             },
             error: (err) => {
-                const message = err?.error?.message || this.translate.instant('ERRORS.INITIALIZE_DEFAULTS');
+                const message = err?.error?.message || this.translate.instant('errors.default_values_could_not_initialised');
                 this.notificationService.showError(message);
                 this.isSaving.set(false);
             }

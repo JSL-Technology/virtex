@@ -182,7 +182,7 @@ export class SmsAbuseGuardService {
       '[SECURITY] Outbound verification SMS refused',
     );
     // Deliberately uniform: a caller probing the controls learns only that it did not go through.
-    throw new ForbiddenError('AUTH.NO_PUDO_ENVIAR_CODIGO_VERIFICACION_ESE_NUMERO');
+    throw new ForbiddenError('auth.verification_code_could_not_sent_number');
   }
 
   /** Destination numbers are personal data; count them without storing them. */

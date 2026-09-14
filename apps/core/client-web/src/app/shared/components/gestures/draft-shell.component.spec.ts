@@ -67,15 +67,15 @@ describe('DraftShellComponent', () => {
     // fact that must not live only in a coloured dot.
     const status = el.querySelector('.dr__status') as HTMLElement;
     expect(status.getAttribute('aria-live')).toBe('polite');
-    expect(status.textContent).toContain('SHELL.NO_CHANGES');
+    expect(status.textContent).toContain('shell.no_changes');
 
     host.dirty.set(true);
     fixture.detectChanges();
-    expect(el.querySelector('.dr__status')?.textContent).toContain('SHELL.UNSAVED');
+    expect(el.querySelector('.dr__status')?.textContent).toContain('shell.unsaved');
 
     host.saving.set(true);
     fixture.detectChanges();
-    expect(el.querySelector('.dr__status')?.textContent).toContain('SHELL.SAVING');
+    expect(el.querySelector('.dr__status')?.textContent).toContain('shell.saving');
   });
 
   it('guardar sigue habilitado con el formulario inválido', () => {
@@ -182,8 +182,8 @@ describe('DraftShellComponent', () => {
         }),
       );
       host.problems.set([
-        { message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'customerId', params: { field: 'Cliente' } },
-        { message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'ncf', params: { field: 'NCF' } },
+        { message: 'shell.problem_required', fieldId: 'customerId', params: { field: 'Cliente' } },
+        { message: 'shell.problem_required', fieldId: 'ncf', params: { field: 'NCF' } },
       ]);
       fixture.detectChanges();
       expect(el.querySelectorAll('.dr__problems li').length).toBe(2);
@@ -214,7 +214,7 @@ describe('DraftShellComponent', () => {
     it('no poda nada cuando la página no conecta el formulario', () => {
       // El `input` es opcional a propósito: sin él el resumen se comporta como antes.
       host.form.set(null);
-      host.problems.set([{ message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'customerId' }]);
+      host.problems.set([{ message: 'shell.problem_required', fieldId: 'customerId' }]);
       fixture.detectChanges();
 
       expect(el.querySelectorAll('.dr__problems li').length).toBe(1);

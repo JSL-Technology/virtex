@@ -66,7 +66,7 @@ export class WebAuthnService {
   async verifyRegistration(user: UserIdentity, body: any) {
     const challenge = await this.cacheManager.get<string>(`webauthn_challenge_${user.id}`);
     if (!challenge) {
-      throw new BadRequestError('AUTH.CHALLENGE_EXPIRED_OR_NOT_FOUND');
+      throw new BadRequestError('auth.challenge_expired_or_not_found');
     }
 
     let verification;
@@ -79,7 +79,7 @@ export class WebAuthnService {
       });
     } catch (error) {
       this.logger.warn({ event: 'webauthn_registration_failed', reason: (error as Error).message }, 'WebAuthn registration error');
-      throw new BadRequestError('AUTH.WEBAUTHN_REGISTRATION_FAILED');
+      throw new BadRequestError('auth.webauthn_registration_failed');
     }
 
     if (verification.verified && verification.registrationInfo) {
@@ -104,7 +104,7 @@ export class WebAuthnService {
       return { verified: true };
     }
 
-    throw new BadRequestError('AUTH.VERIFICATION_FAILED');
+    throw new BadRequestError('auth.verification_failed');
   }
 
   async generateAuthenticationOptions(_email?: string) {
@@ -125,7 +125,7 @@ export class WebAuthnService {
     const storedData = await this.cacheManager.get<{ challenge: string, userId?: string }>(challengeId);
 
     if (!storedData) {
-      throw new BadRequestError('AUTH.CHALLENGE_EXPIRED_OR_INVALID');
+      throw new BadRequestError('auth.challenge_expired_or_invalid');
     }
 
     const passkey = await this.passkeyRepository.findOne({
@@ -134,11 +134,11 @@ export class WebAuthnService {
     });
 
     if (!passkey) {
-      throw new UnauthorizedError('AUTH.PASSKEY_NOT_FOUND');
+      throw new UnauthorizedError('auth.passkey_not_found');
     }
 
     if (storedData.userId && storedData.userId !== passkey.userId) {
-        throw new UnauthorizedError('AUTH.INVALID_USER_FOR_THIS_PASSKEY');
+        throw new UnauthorizedError('auth.invalid_user_for_this_passkey');
     }
 
     let verification;
@@ -161,7 +161,7 @@ export class WebAuthnService {
       });
     } catch (error) {
       this.logger.warn({ event: 'webauthn_verification_failed', reason: (error as Error).message }, 'WebAuthn authentication error');
-      throw new BadRequestError('AUTH.WEBAUTHN_VERIFICATION_FAILED');
+      throw new BadRequestError('auth.webauthn_verification_failed');
     }
 
     if (verification.verified) {
@@ -174,7 +174,7 @@ export class WebAuthnService {
       });
 
       if (!freshUser || freshUser.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedError('AUTH.USUARIO_INACTIVO_BLOQUEADO');
+        throw new UnauthorizedError('auth.user_inactive_blocked');
       }
 
       passkey.counter = newCounter;
@@ -184,6 +184,6 @@ export class WebAuthnService {
       return { verified: true, user: freshUser };
     }
 
-    throw new UnauthorizedError('AUTH.VERIFICATION_FAILED');
+    throw new UnauthorizedError('auth.verification_failed');
   }
 }

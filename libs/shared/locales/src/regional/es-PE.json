@@ -1,0 +1,14 @@
+{
+  "$locale": "es-PE",
+  "$note": "Peru. The year-end payment is a 'gratificación' (July and December); the tax identifier is the RUC and the identity document the DNI.",
+  "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
+  "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
+  "hcm.employees.form.document_type.cedula": "DNI",
+  "hcm.employees.form.document_type.rnc": "RUC",
+  "contacts.customer_form.tax_id": "RUC",
+  "masters.supplier_form.tax_id": "RUC",
+  "settings.company_profile.id_fiscal_rnc_tax_id": "RUC",
+  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUC",
+  "invoices.new.tax_column_header": "IGV",
+  "invoice.pdf.tax_column_header": "IGV"
+}

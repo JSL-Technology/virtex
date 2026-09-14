@@ -70,7 +70,7 @@ describe('ChartOfAccountsService - Segment Mismatch', () => {
     // proves the message would say "3" and "2".
     await expectLocalizedError(
       service.createInTransaction(createDto, orgId, manager),
-      'CHART_OF_ACCOUNTS.NUMERO_SEGMENTOS_PROPORCIONADOS_NO_COINCIDE_DEFINICION_ORGANIZACION',
+      'chart_of_accounts.number_segments_supplied_length_does_not',
       { length: 3, length2: 2 },
     );
   });

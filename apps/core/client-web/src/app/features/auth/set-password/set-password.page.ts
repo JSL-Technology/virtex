@@ -85,15 +85,15 @@ export class SetPasswordPage implements OnInit {
     } else {
       //  Clave del catálogo, no una frase suelta en inglés dentro de una pantalla que el resto
               //  del producto traduce.
-              this.errorMessage = this.translate.instant('ERRORS.INVALID_INVITATION_TOKEN');
+              this.errorMessage = this.translate.instant('errors.invalid_invitation_token');
     }
   }
 
   getErrorMessage(controlName: string): string {
      const control = this.setPasswordForm.get(controlName);
      if (control?.touched && control.errors) {
-         if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
-         if (control.errors['minlength']) return 'REGISTER.ERRORS.PASSWORD_LENGTH';
+         if (control.errors['required']) return 'register.errors.required';
+         if (control.errors['minlength']) return 'register.errors.password_length';
      }
      return '';
   }
@@ -120,13 +120,13 @@ export class SetPasswordPage implements OnInit {
                 },
                 error: (err: any) => {
                     this.isLoading = false;
-                    this.errorMessage = err.message || this.translate.instant('ERRORS.SET_PASSWORD');
+                    this.errorMessage = err.message || this.translate.instant('errors.set_password');
                 }
             });
         },
         error: () => {
             this.isLoading = false;
-            this.errorMessage = this.translate.instant('ERRORS.RECAPTCHA');
+            this.errorMessage = this.translate.instant('errors.recaptcha');
         }
     });
   }

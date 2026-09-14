@@ -6,7 +6,7 @@ import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseOrder,
@@ -115,7 +115,7 @@ export class PurchaseOrderFormPage implements OnInit {
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
         next: (order) => this.load(order),
-        error: () => this.notifications.showError('PROCUREMENT.ORDER_NOT_FOUND'),
+        error: () => this.notifications.showError('procurement.order_not_found'),
       });
     } else {
       this.addLine();
@@ -186,11 +186,11 @@ export class PurchaseOrderFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          supplierId: 'PURCHASING.ORDERS.SUPPLIER',
-          orderDate: 'PURCHASING.ORDERS.ORDER_DATE',
-          description: 'PURCHASING.ORDERS.FORM.DESCRIPTION',
-          quantity: 'PURCHASING.ORDERS.FORM.QUANTITY',
-          unitPrice: 'PURCHASING.ORDERS.FORM.UNIT_PRICE',
+          supplierId: 'purchasing.orders.supplier',
+          orderDate: 'purchasing.orders.order_date',
+          description: 'purchasing.orders.form.description',
+          quantity: 'purchasing.orders.form.quantity',
+          unitPrice: 'purchasing.orders.form.unit_price',
         }),
       );
       return;
@@ -222,7 +222,7 @@ export class PurchaseOrderFormPage implements OnInit {
       next: (order) => {
         this.saving.set(false);
         this.load(order);
-        this.notifications.showSuccess('PURCHASING.ORDERS.FORM.SAVED');
+        this.notifications.showSuccess('purchasing.orders.form.saved');
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
     });
@@ -290,7 +290,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.saving.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PURCHASING.ORDERS.FORM.SAVE_FAILED',
+      typeof message === 'string' ? message : 'purchasing.orders.form.save_failed',
     );
   }
 

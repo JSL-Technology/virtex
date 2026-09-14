@@ -23,7 +23,7 @@ export class CustomerPaymentLineDto {
 
   /** Cash applied to this invoice, in the receipt's currency. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   amount: number;
 
   /**
@@ -34,19 +34,19 @@ export class CustomerPaymentLineDto {
    * the balance permanently short by the withheld amount.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxWithheld?: number;
 
   /** Income tax the customer withheld on this collection. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   incomeTaxWithheld?: number;
 
   /** Settlement discount granted on this invoice. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   discount?: number;
 }
@@ -73,7 +73,7 @@ export class CreateCustomerPaymentDto {
    * exactly, so a customer paying ahead had nowhere to be recorded.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   amountReceived: number;
 
   /**
@@ -84,13 +84,13 @@ export class CreateCustomerPaymentDto {
    * `amountReceived` no longer has to be positive — but the two together still must be.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   advanceApplied?: number;
 
   @IsString()
   @IsOptional()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 
   @IsEnum(PaymentMethod)
@@ -99,7 +99,7 @@ export class CreateCustomerPaymentDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   reference?: string;
 
   /** Which invoices this settles. May be empty for a pure advance. */
@@ -114,8 +114,8 @@ export class VoidCustomerPaymentDto {
   /** Why: a bounced cheque, a returned transfer, a receipt raised in error. */
   @IsString()
   @IsNotEmpty()
-  @MinLength(3, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":3}' })
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MinLength(3, { message: 'validation.constraints.min_length|{"min":3}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   reason: string;
 
   /** When the reversal is booked. Defaults to today. */

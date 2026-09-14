@@ -109,13 +109,13 @@ export class ExpensesChart {
 
     const baseOptions: Highcharts.Options = {
       chart: { type: chartType as any },
-      title: { text: this.i18n.instant('DASHBOARD.EXPENSES_CHART.TITLE') },
+      title: { text: this.i18n.instant('dashboard.expenses_chart.title') },
       legend: {
         enabled: true,
         itemStyle: { color: 'var(--text-secondary)', fontWeight: '500' }
       },
 
-      subtitle: { text: this.i18n.instant('DASHBOARD.EXPENSES_CHART.SUBTITLE') },
+      subtitle: { text: this.i18n.instant('dashboard.expenses_chart.ledger_account_last_12_months') },
       plotOptions: {
         pie: { innerSize: '60%', dataLabels: { enabled: false }, showInLegend: true, borderWidth: 3, borderColor: 'var(--bg-layer-1)', allowPointSelect: true },
         column: { borderWidth: 0, borderRadius: 4, pointWidth: 25, allowPointSelect: true },
@@ -123,7 +123,7 @@ export class ExpensesChart {
       },
       xAxis: { categories: data.map(d => d.name), crosshair: true },
       series: [{
-        name: this.i18n.instant('DASHBOARD.EXPENSES_CHART.SERIES'), type: chartType as any, data,
+        name: this.i18n.instant('dashboard.expenses_chart.series'), type: chartType as any, data,
         states: { hover: { halo: { size: 8 } } }
       }],
       credits: { enabled: false },

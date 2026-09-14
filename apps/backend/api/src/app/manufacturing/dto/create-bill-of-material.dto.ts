@@ -17,7 +17,7 @@ export class BillOfMaterialItemDto {
   componentProductId: string;
 
   @IsNumber({ maxDecimalPlaces: 4 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   quantity: number;
 
   @IsUUID()

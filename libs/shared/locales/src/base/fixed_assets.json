@@ -1,0 +1,37 @@
+{
+  "fixed_assets.asset_has_disposed": {
+    "es": "El activo ha sido dado de baja exitosamente.",
+    "en": "The asset has been disposed of.",
+    "pt": "O ativo foi baixado."
+  },
+  "fixed_assets.asset_not_found_has_already_disposed": {
+    "es": "Activo no encontrado o ya ha sido dado de baja.",
+    "en": "The asset was not found, or has already been disposed of.",
+    "pt": "O ativo não foi encontrado ou já foi baixado."
+  },
+  "fixed_assets.depreciation_journal_deprec_not_found_create": {
+    "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
+    "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
+    "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
+  },
+  "fixed_assets.fixed_asset_id_not_found": {
+    "es": "Activo fijo con ID \"{{id}}\" no encontrado.",
+    "en": "Fixed asset \"{{id}}\" was not found.",
+    "pt": "Ativo imobilizado \"{{id}}\" não encontrado."
+  },
+  "fixed_assets.fixed_assets_journal_act_fijos_not": {
+    "es": "Diario de Activos Fijos (ACT-FIJOS) no encontrado.",
+    "en": "The Fixed Assets journal (ACT-FIJOS) was not found.",
+    "pt": "O diário de Ativo Imobilizado (ACT-FIJOS) não foi encontrado."
+  },
+  "fixed_assets.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "fixed_assets.transaction_query_runner_could_not_obtained": {
+    "es": "No se pudo obtener el QueryRunner de la transacción.",
+    "en": "The transaction's query runner could not be obtained.",
+    "pt": "Não foi possível obter o query runner da transação."
+  }
+}

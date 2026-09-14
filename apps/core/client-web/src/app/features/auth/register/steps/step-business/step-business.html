@@ -1,7 +1,7 @@
 <div class="step-container" [formGroup]="group">
   <div class="step-header">
-    <h3 class="step-title">{{ 'REGISTER.STEPS.BUSINESS.TITLE' | translate }}</h3>
-    <p class="step-subtitle">{{ 'REGISTER.STEPS.BUSINESS.SUBTITLE' | translate }}</p>
+    <h3 class="step-title">{{ 'register.steps.business.title' | translate }}</h3>
+    <p class="step-subtitle">{{ 'register.steps.business.tell_us_about_your_company' | translate }}</p>
   </div>
 
 
@@ -9,8 +9,8 @@
     <div class="full-width">
       <app-auth-input
         formControlName="companyName"
-        [label]="'REGISTER.COMPANY_NAME' | translate"
-        [placeholder]="'REGISTER.COMPANY_NAME_PLACEHOLDER' | translate"
+        [label]="'register.company_name' | translate"
+        [placeholder]="'register.acme_corp' | translate"
         [required]="true"
         [hasIcon]="true"
         [errorMessage]="getErrorMessage('companyName')">
@@ -19,13 +19,13 @@
     </div>
 
     <div class="form-field">
-      <label class="input-label" for="industry">{{ 'REGISTER.INDUSTRY' | translate }}</label>
+      <label class="input-label" for="industry">{{ 'register.industry' | translate }}</label>
       <div class="custom-select-wrapper">
         <div class="select-icon">
           <lucide-icon [img]="BriefcaseIcon" size="18"></lucide-icon>
         </div>
         <select id="industry" formControlName="industry" class="custom-select">
-          <option value="" disabled selected>{{ 'REGISTER.INDUSTRY_PLACEHOLDER' | translate }}</option>
+          <option value="" disabled selected>{{ 'register.select_your_industry' | translate }}</option>
           <option *ngFor="let ind of industries" [value]="ind.id">{{ ind.label | translate }}</option>
         </select>
         <div class="select-chevron">
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div *ngIf="group.get('industry')?.touched && group.get('industry')?.invalid" class="error-text">
-        {{ 'REGISTER.ERRORS.REQUIRED' | translate }}
+        {{ 'register.errors.required' | translate }}
       </div>
     </div>
 
@@ -43,13 +43,13 @@
       tenant — while the plan step is meant to use it to recommend a tier.
     -->
     <div class="form-field">
-      <label class="input-label" for="companySize">{{ 'REGISTER.COMPANY_SIZE' | translate }}</label>
+      <label class="input-label" for="companySize">{{ 'register.company_size' | translate }}</label>
       <div class="custom-select-wrapper">
         <div class="select-icon">
           <lucide-icon [img]="UsersIcon" size="18"></lucide-icon>
         </div>
         <select id="companySize" formControlName="companySize" class="custom-select">
-          <option value="" disabled selected>{{ 'REGISTER.COMPANY_SIZE_PLACEHOLDER' | translate }}</option>
+          <option value="" disabled selected>{{ 'register.select_number_employees' | translate }}</option>
           <option *ngFor="let size of companySizes" [value]="size.id">{{ size.label }}</option>
         </select>
         <div class="select-chevron">
@@ -68,7 +68,7 @@
       which is what separates a honeypot from an accessibility defect.
     -->
     <div class="hp-field" aria-hidden="true">
-      <label for="fax">{{ 'AUTH.STEP_BUSINESS.FAX' | translate }}</label>
+      <label for="fax">{{ 'auth.step_business.fax' | translate }}</label>
       <input id="fax" type="text" formControlName="fax" tabindex="-1" autocomplete="off">
     </div>
 

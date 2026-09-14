@@ -1,0 +1,614 @@
+{
+  "$note": "Keys the code already asked for and no catalogue ever defined. Every one of them is a composed-key family or a call site that reached the missing-translation handler in production: the handler humanised the last segment, so a Spanish screen printed 'Started', 'Load roles' or 'Past due' and nothing failed. They are added here as part of the migration and, from now on, verify-catalogues.mjs fails the build on a referenced key with no entry.",
+  "accounting.journal_entry_form.accounts_load_failed": {
+    "en": "We could not load the chart of accounts.",
+    "es": "No pudimos cargar el catálogo de cuentas.",
+    "pt": "Não foi possível carregar o plano de contas."
+  },
+  "accounting.journal_entry_form.entry_created": {
+    "en": "Journal entry created.",
+    "es": "Asiento contable creado.",
+    "pt": "Lançamento contabilístico criado."
+  },
+  "accounting.journal_entry_form.journals_load_failed": {
+    "en": "We could not load the journals.",
+    "es": "No pudimos cargar los diarios.",
+    "pt": "Não foi possível carregar os diários."
+  },
+  "accounting.journal_entry_form.ledgers_load_failed": {
+    "en": "We could not load the ledgers.",
+    "es": "No pudimos cargar los libros contables.",
+    "pt": "Não foi possível carregar os livros contabilísticos."
+  },
+  "auth.impersonation.started": {
+    "en": "You are now viewing the application as {{name}}.",
+    "es": "Estás viendo la aplicación como {{name}}.",
+    "pt": "Estás a ver a aplicação como {{name}}."
+  },
+  "auth.impersonation.stopped": {
+    "en": "You are back in your own session.",
+    "es": "Volviste a tu propia sesión.",
+    "pt": "Voltaste à tua própria sessão."
+  },
+  "billing.subscription_status.active": {
+    "en": "Active",
+    "es": "Activa",
+    "pt": "Ativa"
+  },
+  "billing.subscription_status.canceled": {
+    "en": "Canceled",
+    "es": "Cancelada",
+    "pt": "Cancelada"
+  },
+  "billing.subscription_status.incomplete": {
+    "en": "Incomplete",
+    "es": "Incompleta",
+    "pt": "Incompleta"
+  },
+  "billing.subscription_status.incomplete_expired": {
+    "en": "Incomplete and expired",
+    "es": "Incompleta y expirada",
+    "pt": "Incompleta e expirada"
+  },
+  "billing.subscription_status.past_due": {
+    "en": "Past due",
+    "es": "Pago vencido",
+    "pt": "Pagamento em atraso"
+  },
+  "billing.subscription_status.paused": {
+    "en": "Paused",
+    "es": "En pausa",
+    "pt": "Em pausa"
+  },
+  "billing.subscription_status.trialing": {
+    "en": "Trialing",
+    "es": "En periodo de prueba",
+    "pt": "Em período de teste"
+  },
+  "billing.subscription_status.unpaid": {
+    "en": "Unpaid",
+    "es": "Sin pagar",
+    "pt": "Não paga"
+  },
+  "desktop.menu.go": {
+    "en": "Go",
+    "es": "Ir",
+    "pt": "Ir"
+  },
+  "desktop.menu.point_of_sale": {
+    "en": "Point of sale",
+    "es": "Punto de venta",
+    "pt": "Ponto de venda"
+  },
+  "desktop.menu.portal": {
+    "en": "Portal",
+    "es": "Portal",
+    "pt": "Portal"
+  },
+  "errors.not_found": {
+    "en": "We could not find what you were looking for.",
+    "es": "No encontramos lo que buscabas.",
+    "pt": "Não encontrámos o que procuravas."
+  },
+  "errors.validation_failed": {
+    "en": "Check the form's data.",
+    "es": "Revisa los datos del formulario.",
+    "pt": "Verifica os dados do formulário."
+  },
+  "payment.cancel.back_to_plans": {
+    "en": "Back to the plans",
+    "es": "Volver a los planes",
+    "pt": "Voltar aos planos"
+  },
+  "payment.cancel.body": {
+    "en": "You were not charged. You can choose a plan whenever you like.",
+    "es": "No se realizó ningún cargo. Puedes elegir un plan cuando quieras.",
+    "pt": "Não foste cobrado. Podes escolher um plano quando quiseres."
+  },
+  "payment.cancel.title": {
+    "en": "Payment canceled",
+    "es": "Pago cancelado",
+    "pt": "Pagamento cancelado"
+  },
+  "payment.plans.checkout_error": {
+    "en": "We could not start the checkout.",
+    "es": "No pudimos iniciar el pago.",
+    "pt": "Não foi possível iniciar o pagamento."
+  },
+  "payment.plans.choose": {
+    "en": "Choose {{plan}}",
+    "es": "Elegir {{plan}}",
+    "pt": "Escolher {{plan}}"
+  },
+  "payment.plans.enterprise.description": {
+    "en": "For large organizations.",
+    "es": "Para organizaciones grandes.",
+    "pt": "Para organizações grandes."
+  },
+  "payment.plans.enterprise.name": {
+    "literal": "Enterprise"
+  },
+  "payment.plans.feature.basic_invoicing": {
+    "en": "Basic invoicing",
+    "es": "Facturación básica",
+    "pt": "Faturação básica"
+  },
+  "payment.plans.feature.dedicated_support": {
+    "en": "Dedicated support",
+    "es": "Soporte dedicado",
+    "pt": "Suporte dedicado"
+  },
+  "payment.plans.feature.email_support": {
+    "en": "Email support",
+    "es": "Soporte por correo",
+    "pt": "Suporte por e-mail"
+  },
+  "payment.plans.feature.full_invoicing": {
+    "en": "Full invoicing",
+    "es": "Facturación completa",
+    "pt": "Faturação completa"
+  },
+  "payment.plans.feature.priority_support": {
+    "en": "Priority support",
+    "es": "Soporte prioritario",
+    "pt": "Suporte prioritário"
+  },
+  "payment.plans.feature.unlimited_users": {
+    "en": "Unlimited users",
+    "es": "Usuarios ilimitados",
+    "pt": "Utilizadores ilimitados"
+  },
+  "payment.plans.feature.users": {
+    "en": "{{count}} users",
+    "es": "{{count}} usuarios",
+    "pt": "{{count}} utilizadores"
+  },
+  "payment.plans.feature.users_one": {
+    "en": "{{count}} user",
+    "es": "{{count}} usuario",
+    "pt": "{{count}} utilizador"
+  },
+  "payment.plans.feature.users_other": {
+    "en": "{{count}} users",
+    "es": "{{count}} usuarios",
+    "pt": "{{count}} utilizadores"
+  },
+  "payment.plans.load_error": {
+    "en": "We could not load the plans.",
+    "es": "No pudimos cargar los planes.",
+    "pt": "Não foi possível carregar os planos."
+  },
+  "payment.plans.per_month": {
+    "en": "/month",
+    "es": "/mes",
+    "pt": "/mês"
+  },
+  "payment.plans.popular": {
+    "en": "Popular",
+    "es": "Popular",
+    "pt": "Popular"
+  },
+  "payment.plans.pro.description": {
+    "en": "For growing companies.",
+    "es": "Para empresas en crecimiento.",
+    "pt": "Para empresas em crescimento."
+  },
+  "payment.plans.pro.name": {
+    "literal": "Pro"
+  },
+  "payment.plans.processing": {
+    "en": "Processing…",
+    "es": "Procesando…",
+    "pt": "A processar…"
+  },
+  "payment.plans.starter.description": {
+    "en": "For startups and small businesses.",
+    "es": "Para startups y negocios pequeños.",
+    "pt": "Para startups e pequenos negócios."
+  },
+  "payment.plans.starter.name": {
+    "literal": "Starter"
+  },
+  "payment.plans.title": {
+    "en": "Choose your plan",
+    "es": "Elige tu plan",
+    "pt": "Escolhe o teu plano"
+  },
+  "payment.success.body": {
+    "en": "Your subscription is now active.",
+    "es": "Tu suscripción quedó activada.",
+    "pt": "A tua subscrição está agora ativa."
+  },
+  "payment.success.go_to_dashboard": {
+    "en": "Go to the dashboard",
+    "es": "Ir al panel",
+    "pt": "Ir para o painel"
+  },
+  "payment.success.title": {
+    "en": "Payment successful",
+    "es": "¡Pago exitoso!",
+    "pt": "Pagamento bem-sucedido"
+  },
+  "pos.charge": {
+    "en": "Charge {{amount}}",
+    "es": "Cobrar {{amount}}",
+    "pt": "Cobrar {{amount}}"
+  },
+  "pos.charging": {
+    "en": "Processing…",
+    "es": "Procesando…",
+    "pt": "A processar…"
+  },
+  "pos.close_shift": {
+    "en": "Close shift",
+    "es": "Cerrar turno",
+    "pt": "Fechar turno"
+  },
+  "pos.close_shift_error": {
+    "en": "We could not close the shift.",
+    "es": "No pudimos cerrar el turno.",
+    "pt": "Não foi possível fechar o turno."
+  },
+  "pos.current_order": {
+    "en": "Current order",
+    "es": "Pedido actual",
+    "pt": "Pedido atual"
+  },
+  "pos.email": {
+    "en": "Email",
+    "es": "Correo",
+    "pt": "E-mail"
+  },
+  "pos.empty_order": {
+    "en": "Add products to begin.",
+    "es": "Agrega productos para empezar.",
+    "pt": "Adiciona produtos para começar."
+  },
+  "pos.load_products_error": {
+    "en": "We could not load the product catalogue.",
+    "es": "No pudimos cargar el catálogo de productos.",
+    "pt": "Não foi possível carregar o catálogo de produtos."
+  },
+  "pos.open_shift": {
+    "en": "Open shift",
+    "es": "Abrir turno",
+    "pt": "Abrir turno"
+  },
+  "pos.open_shift_error": {
+    "en": "We could not open the shift.",
+    "es": "No pudimos abrir el turno.",
+    "pt": "Não foi possível abrir o turno."
+  },
+  "pos.out_of_stock": {
+    "en": "Out of stock",
+    "es": "Sin existencias",
+    "pt": "Sem stock"
+  },
+  "pos.password": {
+    "en": "Password",
+    "es": "Contraseña",
+    "pt": "Senha"
+  },
+  "pos.remove_line": {
+    "en": "Remove line",
+    "es": "Quitar línea",
+    "pt": "Remover linha"
+  },
+  "pos.sale_completed": {
+    "en": "Sale recorded.",
+    "es": "Venta registrada.",
+    "pt": "Venda registada."
+  },
+  "pos.sale_error": {
+    "en": "We could not complete the sale.",
+    "es": "No pudimos completar la venta.",
+    "pt": "Não foi possível concluir a venda."
+  },
+  "pos.search_products": {
+    "en": "Search products by name or SKU…",
+    "es": "Busca productos por nombre o SKU…",
+    "pt": "Procura produtos por nome ou SKU…"
+  },
+  "pos.shift_closed": {
+    "en": "Shift closed.",
+    "es": "Turno cerrado.",
+    "pt": "Turno fechado."
+  },
+  "pos.shift_total": {
+    "en": "Shift: {{amount}}",
+    "es": "Turno: {{amount}}",
+    "pt": "Turno: {{amount}}"
+  },
+  "pos.sign_in": {
+    "en": "Sign in",
+    "es": "Iniciar sesión",
+    "pt": "Iniciar sessão"
+  },
+  "pos.sign_in_title": {
+    "en": "Sign in to open the till",
+    "es": "Inicia sesión para abrir la caja",
+    "pt": "Inicia sessão para abrir a caixa"
+  },
+  "pos.sign_out": {
+    "en": "Sign out",
+    "es": "Cerrar sesión",
+    "pt": "Terminar sessão"
+  },
+  "pos.signing_in": {
+    "en": "Signing in…",
+    "es": "Iniciando sesión…",
+    "pt": "A iniciar sessão…"
+  },
+  "pos.step_up_required": {
+    "en": "Additional verification is required. Finish signing in on the main application.",
+    "es": "Se requiere verificación adicional. Termina de iniciar sesión en la aplicación principal.",
+    "pt": "É necessária verificação adicional. Termina de iniciar sessão na aplicação principal."
+  },
+  "pos.subtotal": {
+    "literal": "Subtotal"
+  },
+  "pos.tax_with_rate": {
+    "en": "Tax ({{rate}}%)",
+    "es": "Impuesto ({{rate}} %)",
+    "pt": "Imposto ({{rate}} %)"
+  },
+  "pos.total": {
+    "literal": "Total"
+  },
+  "roadmap.coming_soon": {
+    "en": "Coming soon",
+    "es": "Próximamente",
+    "pt": "Em breve"
+  },
+  "roadmap.manufacturing.bill_of_materials.description": {
+    "en": "Configure product structures and component lists.",
+    "es": "Configura estructuras de producto y listas de componentes.",
+    "pt": "Configura estruturas de produto e listas de componentes."
+  },
+  "roadmap.manufacturing.bill_of_materials.title": {
+    "en": "Bill of materials",
+    "es": "Lista de materiales",
+    "pt": "Lista de materiais"
+  },
+  "roadmap.manufacturing.production_orders.description": {
+    "en": "Manage active work orders and production schedules.",
+    "es": "Administra órdenes de trabajo activas y programas de producción.",
+    "pt": "Gere ordens de trabalho ativas e programas de produção."
+  },
+  "roadmap.manufacturing.production_orders.title": {
+    "en": "Production orders",
+    "es": "Órdenes de producción",
+    "pt": "Ordens de produção"
+  },
+  "roadmap.manufacturing.title": {
+    "en": "Manufacturing & production (MRP)",
+    "es": "Manufactura y producción (MRP)",
+    "pt": "Fabrico e produção (MRP)"
+  },
+  "roadmap.manufacturing.work_centers.description": {
+    "en": "Monitor station capacity and efficiency.",
+    "es": "Supervisa la capacidad y la eficiencia de cada estación.",
+    "pt": "Monitoriza a capacidade e a eficiência de cada estação."
+  },
+  "roadmap.manufacturing.work_centers.title": {
+    "en": "Work centers",
+    "es": "Centros de trabajo",
+    "pt": "Centros de trabalho"
+  },
+  "roadmap.procurement.description": {
+    "en": "Manage requests for quotation, purchase requisitions and supplier interactions.",
+    "es": "Administra solicitudes de cotización, requisiciones de compra y la relación con proveedores.",
+    "pt": "Gere pedidos de cotação, requisições de compra e a relação com fornecedores."
+  },
+  "roadmap.procurement.title": {
+    "en": "Advanced procurement & supplier portal",
+    "es": "Compras avanzadas y portal de proveedores",
+    "pt": "Compras avançadas e portal de fornecedores"
+  },
+  "roadmap.projects.description": {
+    "en": "Manage projects, resources and their billing.",
+    "es": "Administra proyectos, recursos y su facturación.",
+    "pt": "Gere projetos, recursos e a respetiva faturação."
+  },
+  "roadmap.projects.title": {
+    "en": "Project service automation (PSA)",
+    "es": "Automatización de servicios y proyectos (PSA)",
+    "pt": "Automação de serviços e projetos (PSA)"
+  },
+  "roadmap.wms.landed_costs.description": {
+    "en": "Calculate accurate product costs including freight and duties.",
+    "es": "Calcula el costo real del producto incluyendo flete y aranceles.",
+    "pt": "Calcula o custo real do produto incluindo frete e direitos."
+  },
+  "roadmap.wms.landed_costs.title": {
+    "en": "Landed costs",
+    "es": "Costos de importación",
+    "pt": "Custos de importação"
+  },
+  "roadmap.wms.realtime_inventory.description": {
+    "en": "Track stock levels across multiple warehouses.",
+    "es": "Sigue las existencias en varios almacenes.",
+    "pt": "Acompanha as existências em vários armazéns."
+  },
+  "roadmap.wms.realtime_inventory.title": {
+    "en": "Real-time inventory",
+    "es": "Inventario en tiempo real",
+    "pt": "Inventário em tempo real"
+  },
+  "roadmap.wms.title": {
+    "en": "Warehouse management (WMS)",
+    "es": "Gestión de almacenes (WMS)",
+    "pt": "Gestão de armazéns (WMS)"
+  },
+  "settings.fiscal.capability.accounting": {
+    "en": "Bookkeeping",
+    "es": "Contabilidad",
+    "pt": "Contabilidade"
+  },
+  "settings.fiscal.capability.electronic_accounting": {
+    "en": "Electronic accounting",
+    "es": "Contabilidad electrónica",
+    "pt": "Contabilidade eletrónica"
+  },
+  "settings.fiscal.capability.electronic_invoicing": {
+    "en": "Electronic invoicing",
+    "es": "Facturación electrónica",
+    "pt": "Faturação eletrónica"
+  },
+  "settings.fiscal.capability.periodic_returns": {
+    "en": "Periodic returns",
+    "es": "Declaraciones periódicas",
+    "pt": "Declarações periódicas"
+  },
+  "settings.fiscal.capability.tax_determination": {
+    "en": "Tax determination",
+    "es": "Determinación de impuestos",
+    "pt": "Determinação de impostos"
+  },
+  "settings.fiscal.capability.withholding": {
+    "en": "Withholding",
+    "es": "Retenciones",
+    "pt": "Retenções"
+  },
+  "settings.pages.withholding.capability.accounting": {
+    "en": "Bookkeeping",
+    "es": "Contabilidad",
+    "pt": "Contabilidade"
+  },
+  "settings.pages.withholding.capability.electronic_accounting": {
+    "en": "Electronic accounting",
+    "es": "Contabilidad electrónica",
+    "pt": "Contabilidade eletrónica"
+  },
+  "settings.pages.withholding.capability.electronic_invoicing": {
+    "en": "Electronic invoicing",
+    "es": "Facturación electrónica",
+    "pt": "Faturação eletrónica"
+  },
+  "settings.pages.withholding.capability.periodic_returns": {
+    "en": "Periodic returns",
+    "es": "Declaraciones periódicas",
+    "pt": "Declarações periódicas"
+  },
+  "settings.pages.withholding.capability.tax_determination": {
+    "en": "Tax determination",
+    "es": "Determinación de impuestos",
+    "pt": "Determinação de impostos"
+  },
+  "settings.pages.withholding.capability.withholding": {
+    "en": "Withholding",
+    "es": "Retenciones",
+    "pt": "Retenções"
+  },
+  "settings.pages.withholding.coverage.implemented": {
+    "en": "Implemented",
+    "es": "Implementado",
+    "pt": "Implementado"
+  },
+  "settings.pages.withholding.coverage.needs_credentials": {
+    "en": "Needs credentials",
+    "es": "Requiere credenciales",
+    "pt": "Requer credenciais"
+  },
+  "settings.pages.withholding.coverage.not_implemented": {
+    "en": "Not implemented",
+    "es": "No implementado",
+    "pt": "Não implementado"
+  },
+  "settings.roles.errors.load_permissions": {
+    "en": "We could not load the permissions.",
+    "es": "No pudimos cargar los permisos.",
+    "pt": "Não foi possível carregar as permissões."
+  },
+  "settings.roles.errors.load_roles": {
+    "en": "We could not load the roles.",
+    "es": "No pudimos cargar los roles.",
+    "pt": "Não foi possível carregar os perfis."
+  },
+  "validation.constraints.fallback": {
+    "en": "{{message}}",
+    "es": "{{message}}",
+    "note": "Passes class-validator's own sentence through when no catalogue key covers the rule. Visible on purpose: a rule with no wording of ours is a gap to close, and a blank field error hides it.",
+    "pt": "{{message}}"
+  },
+  "validation.fields.account_id": {
+    "en": "account",
+    "es": "cuenta",
+    "pt": "conta"
+  },
+  "validation.fields.amount": {
+    "en": "amount",
+    "es": "importe",
+    "pt": "valor"
+  },
+  "validation.fields.country": {
+    "en": "country",
+    "es": "país",
+    "pt": "país"
+  },
+  "validation.fields.currency": {
+    "en": "currency",
+    "es": "moneda",
+    "pt": "moeda"
+  },
+  "validation.fields.customer_id": {
+    "en": "customer",
+    "es": "cliente",
+    "pt": "cliente"
+  },
+  "validation.fields.date": {
+    "en": "date",
+    "es": "fecha",
+    "pt": "data"
+  },
+  "validation.fields.description": {
+    "en": "description",
+    "es": "descripción",
+    "pt": "descrição"
+  },
+  "validation.fields.email": {
+    "en": "email address",
+    "es": "correo electrónico",
+    "pt": "endereço de e-mail"
+  },
+  "validation.fields.first_name": {
+    "en": "first name",
+    "es": "nombre",
+    "pt": "nome"
+  },
+  "validation.fields.last_name": {
+    "en": "last name",
+    "es": "apellido",
+    "pt": "sobrenome"
+  },
+  "validation.fields.password": {
+    "en": "password",
+    "es": "contraseña",
+    "pt": "senha"
+  },
+  "validation.fields.phone": {
+    "en": "phone number",
+    "es": "teléfono",
+    "pt": "telefone"
+  },
+  "validation.fields.product_id": {
+    "en": "product",
+    "es": "producto",
+    "pt": "produto"
+  },
+  "validation.fields.quantity": {
+    "en": "quantity",
+    "es": "cantidad",
+    "pt": "quantidade"
+  },
+  "validation.fields.supplier_id": {
+    "en": "supplier",
+    "es": "proveedor",
+    "pt": "fornecedor"
+  },
+  "validation.fields.tax_id": {
+    "en": "tax ID",
+    "es": "identificación fiscal",
+    "pt": "identificação fiscal"
+  }
+}

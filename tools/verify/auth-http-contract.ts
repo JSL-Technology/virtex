@@ -288,7 +288,7 @@ async function main() {
     // depend on the reader's language — it went red on the refactor while the gate itself was
     // never touched. `messageKey` is the stable identifier and is what the gate is.
     const messageKey = (e as { messageKey?: string }).messageKey ?? (e as Error).message;
-    emailGateEnforced = messageKey === 'AUTH.CODIGO_VERIFICACION_CORREO_ES_OBLIGATORIO';
+    emailGateEnforced = messageKey === 'auth.email_verification_code_required';
     if (!emailGateEnforced) emailGateDetail = messageKey;
   }
   check('signup demands a verified email before anything else', emailGateEnforced, emailGateDetail);

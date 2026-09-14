@@ -62,7 +62,7 @@ export class ClosingChecklistService {
       .getRepository(AccountingPeriod)
       .findOneBy({ id: periodId, organizationId });
     if (!period) {
-      throw new NotFoundError('ACCOUNTING.PERIODO_CONTABLE_ID_NO_ENCONTRADO', { periodId });
+      throw new NotFoundError('accounting.accounting_period_period_id_not_found', { periodId });
     }
 
     const checklist: ChecklistItem[] = [];
@@ -81,7 +81,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unposted-journal-entries',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNPOSTED_JOURNAL_ENTRIES',
+      descriptionKey: 'accounting.checklist.items.unposted_journal_entries',
       params: { count: unpostedEntriesCount },
       isCompleted: unpostedEntriesCount === 0,
       details: { pendingCount: unpostedEntriesCount },
@@ -102,7 +102,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unapproved-vendor-bills',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNAPPROVED_VENDOR_BILLS',
+      descriptionKey: 'accounting.checklist.items.unapproved_vendor_bills',
       params: { count: unapprovedBillsCount },
       isCompleted: unapprovedBillsCount === 0,
       details: { pendingCount: unapprovedBillsCount },
@@ -120,7 +120,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unreconciled-bank-transactions',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNRECONCILED_BANK_TRANSACTIONS',
+      descriptionKey: 'accounting.checklist.items.unreconciled_bank_transactions',
       params: { count: unreconciledTxCount },
       isCompleted: unreconciledTxCount === 0,
       details: { unreconciledCount: unreconciledTxCount },
@@ -145,7 +145,7 @@ export class ClosingChecklistService {
     });
     checklist.push({
       id: 'pending-accrual-reversals',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.PENDING_ACCRUAL_REVERSALS',
+      descriptionKey: 'accounting.checklist.items.pending_accrual_reversals',
       params: { count: pendingReversals },
       isCompleted: pendingReversals === 0,
       details: { pendingCount: pendingReversals },
@@ -154,17 +154,17 @@ export class ClosingChecklistService {
 
     checklist.push({
       id: 'currency-revaluation',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.CURRENCY_REVALUATION',
+      descriptionKey: 'accounting.checklist.items.currency_revaluation',
       isCompleted: false,
-      noteKey: 'ACCOUNTING.CHECKLIST.MANUAL_STEP',
+      noteKey: 'accounting.checklist.manual_step',
       resolutionLink: `/accounting/currency-revaluation`,
     });
 
     checklist.push({
       id: 'fixed-assets-depreciation',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.FIXED_ASSETS_DEPRECIATION',
+      descriptionKey: 'accounting.checklist.items.fixed_assets_depreciation',
       isCompleted: false,
-      noteKey: 'ACCOUNTING.CHECKLIST.MANUAL_STEP',
+      noteKey: 'accounting.checklist.manual_step',
       resolutionLink: `/fixed-assets/depreciation`,
     });
 
@@ -178,7 +178,7 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'pending-general-approvals',
-      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.PENDING_APPROVALS',
+      descriptionKey: 'accounting.checklist.items.pending_approvals',
       params: { count: pendingApprovalsCount },
       isCompleted: pendingApprovalsCount === 0,
       details: { pendingCount: pendingApprovalsCount },

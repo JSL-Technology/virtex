@@ -174,8 +174,8 @@ describe('SRI — comprobante electrónico', () => {
     });
 
     it.each([
-      ['el emisor sin RUC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'EINVOICING.SRI_EMISOR_SIN_RUC'],
-      ['sin establecimiento', { establishment: '' }, 'EINVOICING.SRI_SIN_ESTABLECIMIENTO'],
+      ['el emisor sin RUC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'einvoicing.ec.organization_has_no_ruc_sri_does'],
+      ['sin establecimiento', { establishment: '' }, 'einvoicing.ec.sri_establishment_point_issue_missing'],
     ])('refuses to build with %s', (_name, overrides, messageKey) => {
       expect(() => builder.build(input(overrides as Partial<SriBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),

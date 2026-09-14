@@ -113,12 +113,12 @@ export class AuthSocialController {
 
       const tx = this.oauthStateService.readTransaction(req);
       if (tx.flow !== provider) {
-        throw new BadRequestError('AUTH.OAUTH_FLOW_MISMATCH');
+        throw new BadRequestError('auth.oauth_flow_mismatch');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
 
       if (!query.code) {
-        throw new BadRequestError('AUTH.MISSING_AUTHORIZATION_CODE');
+        throw new BadRequestError('auth.missing_authorization_code');
       }
 
       const config = this.oidcProviderService.getProviderConfig(provider);
@@ -174,7 +174,7 @@ export class AuthSocialController {
       // Accept both the dev (social_register_token) and prod-prefixed (__Host-) cookie names.
       const token = req.cookies['social_register_token'] || req.cookies['__Host-social_register_token'];
       if (!token) {
-          throw new BadRequestError('AUTH.TOKEN_REGISTRO_NO_ENCONTRADO_COOKIE_REQUERIDA');
+          throw new BadRequestError('auth.registration_token_not_found_cookie_required');
       }
       return this.authFacade.getSocialRegisterInfo(token);
   }
@@ -243,11 +243,11 @@ export class AuthSocialController {
       }
       const tx = this.oauthStateService.readTransaction(req);
       if (tx.flow !== `sso:${idpId}`) {
-        throw new BadRequestError('AUTH.SSO_FLOW_MISMATCH');
+        throw new BadRequestError('auth.sso_flow_mismatch');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
       if (!query.code) {
-        throw new BadRequestError('AUTH.MISSING_AUTHORIZATION_CODE');
+        throw new BadRequestError('auth.missing_authorization_code');
       }
 
       const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);

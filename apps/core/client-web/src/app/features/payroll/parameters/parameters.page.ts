@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   IncomeTaxBracket,
@@ -148,7 +148,7 @@ export class PayrollParametersPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'PAYROLL.PARAMETERS.SAVE_FAILED',
+      typeof message === 'string' ? message : 'payroll.parameters.save_failed',
     );
   }
 }

@@ -37,8 +37,15 @@ export interface Precondition {
   /** Stable machine code, so a screen can phrase it in its own words. */
   code: string;
   status: PreconditionStatus;
-  /** Already translated for the request's language. */
-  message: string;
+  /**
+   * Catalogue key for the wording, with its parameters.
+   *
+   * It used to be `message`, already translated. That made one response carry two contracts at
+   * once — `preconditions[].message` was prose while `effects[].titleKey` beside it was a key — and
+   * the client had to know which was which by convention. Both are names now.
+   */
+  messageKey: string;
+  params: Record<string, unknown>;
   /**
    * Where the user goes to fix it. A failed precondition that does not say what to do about it is
    * only a more detailed way of saying no.

@@ -1,0 +1,17 @@
+{
+  "wms.bin_location_not_found": {
+    "es": "No se encontró la ubicación \"{{id}}\".",
+    "en": "Bin location \"{{id}}\" was not found.",
+    "pt": "A localização \"{{id}}\" não foi encontrada."
+  },
+  "wms.landed_cost_not_found": {
+    "es": "No se encontró el esquema de costos de importación \"{{id}}\".",
+    "en": "Landed-cost scheme \"{{id}}\" was not found.",
+    "pt": "O esquema de custos de importação \"{{id}}\" não foi encontrado."
+  },
+  "wms.warehouse_not_found": {
+    "es": "No se encontró el almacén \"{{id}}\".",
+    "en": "Warehouse \"{{id}}\" was not found.",
+    "pt": "O armazém \"{{id}}\" não foi encontrado."
+  }
+}

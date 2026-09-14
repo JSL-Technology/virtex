@@ -1,6 +1,6 @@
 <vx-list-shell
-  titleKey="DATA_EXPORTS.DATA_EXPORTS"
-  subtitleKey="DATA_EXPORTS.GENERATE_AND_DOWNLOAD_YOUR_MASTER_OR"
+  titleKey="data_exports.data_exports"
+  subtitleKey="data_exports.generate_and_download_your_master_or"
   [count]="exportHistory().length"
   [empty]="exportHistory().length === 0"
 >
@@ -10,9 +10,9 @@
   -->
   <form listToolbar class="export-form" [formGroup]="exportForm" (ngSubmit)="startExport()">
     <div class="form-field">
-      <label for="dataType">{{ 'DATA_EXPORTS.DATA_EXPORT' | translate }}</label>
+      <label for="dataType">{{ 'data_exports.data_export' | translate }}</label>
       <select id="dataType" formControlName="dataType">
-        <option [value]="null" disabled>{{ 'DATA_EXPORTS.SELECT_DATA_TYPE' | translate }}</option>
+        <option [value]="null" disabled>{{ 'data_exports.select_data_type' | translate }}</option>
         @for (type of dataTypes; track type.id) {
           <option [value]="type.id">{{ type.name }}</option>
         }
@@ -20,7 +20,7 @@
     </div>
 
     <div class="form-field">
-      <span class="input-label" id="export-group-1">{{ 'DATA_EXPORTS.FORMAT' | translate }}</span>
+      <span class="input-label" id="export-group-1">{{ 'data_exports.format_required_label' | translate }}</span>
       <div class="button-group" role="group" aria-labelledby="export-group-1">
         <button
           type="button"
@@ -34,7 +34,7 @@
           [class.active]="exportForm.get('format')?.value === 'xlsx'"
           (click)="exportForm.get('format')?.setValue('xlsx')"
         >
-          {{ 'DATA_EXPORTS.EXCEL_XLSX' | translate }}
+          {{ 'data_exports.excel_xlsx' | translate }}
         </button>
       </div>
     </div>
@@ -42,26 +42,26 @@
     <button class="primary-button" type="submit" [disabled]="exportForm.invalid || isGenerating()">
       @if (isGenerating()) {
         <lucide-icon [img]="ProcessingIcon" size="18" class="spinner" aria-hidden="true"></lucide-icon>
-        <span>{{ 'DATA_EXPORTS.GENERATING' | translate }}</span>
+        <span>{{ 'data_exports.generating' | translate }}</span>
       } @else {
         <lucide-icon [img]="DownloadIcon" size="18" aria-hidden="true"></lucide-icon>
-        <span>{{ 'DATA_EXPORTS.GENERATE_FILE' | translate }}</span>
+        <span>{{ 'data_exports.generate_file' | translate }}</span>
       }
     </button>
   </form>
 
-  <h2 class="section-title">{{ 'DATA_EXPORTS.RECENT_EXPORTS' | translate }}</h2>
+  <h2 class="section-title">{{ 'data_exports.recent_exports' | translate }}</h2>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'DATA_EXPORTS.DATA_TYPE' | translate }}</th>
-          <th>{{ 'DATA_EXPORTS.FORMAT_2' | translate }}</th>
-          <th>{{ 'DATA_EXPORTS.DATE' | translate }}</th>
-          <th>{{ 'DATA_EXPORTS.USER' | translate }}</th>
-          <th class="text-center">{{ 'DATA_EXPORTS.STATUS' | translate }}</th>
-          <th class="actions-column">{{ 'DATA_EXPORTS.ACTION' | translate }}</th>
+          <th>{{ 'data_exports.data_type' | translate }}</th>
+          <th>{{ 'data_exports.format_label' | translate }}</th>
+          <th>{{ 'data_exports.date' | translate }}</th>
+          <th>{{ 'data_exports.user' | translate }}</th>
+          <th class="text-center">{{ 'data_exports.status' | translate }}</th>
+          <th class="actions-column">{{ 'data_exports.action' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -87,7 +87,7 @@
               @if (item.status === 'Completed' && item.downloadUrl) {
                 <a [href]="item.downloadUrl" download class="secondary-button download-btn">
                   <lucide-icon [img]="DownloadIcon" size="14" aria-hidden="true"></lucide-icon>
-                  <span>{{ 'DATA_EXPORTS.DOWNLOAD' | translate }}</span>
+                  <span>{{ 'data_exports.download' | translate }}</span>
                 </a>
               }
             </td>

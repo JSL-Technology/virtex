@@ -1,13 +1,13 @@
 <section class="tp">
   <!-- Preconditions ------------------------------------------------------- -->
-  <h3 class="tp__heading">{{ 'TRANSITION.PRECONDITIONS' | translate }}</h3>
+  <h3 class="tp__heading">{{ 'transition.preconditions' | translate }}</h3>
 
   <ul class="tp__checks">
     @for (check of failed(); track check.code) {
       <li class="tp__check tp__check--failed">
         <lucide-icon [img]="FailIcon" size="15" class="tp__icon"></lucide-icon>
         <div class="tp__check-body">
-          <span>{{ check.message }}</span>
+          <span>{{ check.messageKey | translate: (check.params ?? {}) }}</span>
           @if (check.remedy) {
             <a class="tp__remedy" [routerLink]="check.remedy.route" (click)="cancelled.emit()">
               {{ check.remedy.labelKey | translate }}
@@ -19,14 +19,14 @@
     @for (check of passed(); track check.code) {
       <li class="tp__check tp__check--passed">
         <lucide-icon [img]="PassIcon" size="15" class="tp__icon"></lucide-icon>
-        <span>{{ check.message }}</span>
+        <span>{{ check.messageKey | translate: (check.params ?? {}) }}</span>
       </li>
     }
   </ul>
 
   <!-- Effects -------------------------------------------------------------- -->
   @if (preview().canExecute) {
-    <h3 class="tp__heading">{{ 'TRANSITION.EFFECTS' | translate }}</h3>
+    <h3 class="tp__heading">{{ 'transition.effects' | translate }}</h3>
 
     @for (ledger of ledgers(); track ledger.titleKey) {
       <div class="tp__block">
@@ -35,9 +35,9 @@
           <table class="tp__table">
             <thead>
               <tr>
-                <th>{{ 'TRANSITION.ACCOUNT' | translate }}</th>
-                <th class="tp__num">{{ 'TRANSITION.DEBIT' | translate }}</th>
-                <th class="tp__num">{{ 'TRANSITION.CREDIT' | translate }}</th>
+                <th>{{ 'transition.account' | translate }}</th>
+                <th class="tp__num">{{ 'transition.debit' | translate }}</th>
+                <th class="tp__num">{{ 'transition.credit' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td>{{ 'TRANSITION.TOTALS' | translate }}</td>
+                <td>{{ 'transition.totals' | translate }}</td>
                 <td class="tp__num">{{ ledger.totalDebit | vxMoney: ledger.currencyCode }}</td>
                 <td class="tp__num">{{ ledger.totalCredit | vxMoney: ledger.currencyCode }}</td>
               </tr>
@@ -67,7 +67,7 @@
     @if (unbalanced().length) {
       <p class="tp__warning">
         <lucide-icon [img]="WarnIcon" size="15"></lucide-icon>
-        {{ 'TRANSITION.UNBALANCED' | translate }}
+        {{ 'transition.entry_does_not_balance_review_before' | translate }}
       </p>
     }
 
@@ -82,7 +82,7 @@
       <div class="tp__row">
         <span class="tp__row-label">{{ movement.titleKey | translate }}</span>
         <span class="tp__row-value">
-          {{ 'TRANSITION.LINES' | translate: { count: movement.movements.length } }}
+          {{ 'transition.lines' | translate: { count: movement.movements.length } }}
         </span>
       </div>
     }
@@ -91,7 +91,7 @@
   <!-- Actions -------------------------------------------------------------- -->
   <footer class="tp__actions">
     <button type="button" class="btn btn--secondary" (click)="cancelled.emit()">
-      {{ 'COMMON.CANCEL' | translate }}
+      {{ 'common.cancel' | translate }}
     </button>
     <button
       type="button"

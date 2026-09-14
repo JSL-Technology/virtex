@@ -74,7 +74,7 @@ export class AuthSessionController {
       user.id, 'Session', user.id, ActionType.DELETE,
       { action: 'revoke-other-sessions' }, undefined, ip, user.organizationId,
     );
-    return { messageKey: 'AUTH.HAN_CERRADO_DEMAS_SESIONES' };
+    return { messageKey: 'auth.other_sessions_have_closed' };
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal

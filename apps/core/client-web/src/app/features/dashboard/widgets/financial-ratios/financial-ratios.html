@@ -1,14 +1,14 @@
 <div class="widget-header">
-    <h3>{{ 'DASHBOARD.FINANCIAL_RATIOS.INDICADORES_FINANCIEROS_CLAVE' | translate }}</h3>
+    <h3>{{ 'dashboard.financial_ratios.key_financial_indicators' | translate }}</h3>
 </div>
 <div class="widget-content">
     <div class="ratios-grid">
         @for(ratio of ratios(); track ratio.key) {
         <div class="ratio-card">
             <div class="ratio-header">
-                <span class="ratio-name">{{ 'DASHBOARD.FINANCIAL_RATIOS.' + ratio.key + '.NAME' | translate }}</span>
+                <span class="ratio-name">{{ 'dashboard.financial_ratios.' + ratio.key + '.NAME' | translate }}</span>
                 <lucide-icon [img]="InfoIcon" size="14" class="info-icon"
-                    [title]="'DASHBOARD.FINANCIAL_RATIOS.' + ratio.key + '.TOOLTIP' | translate"></lucide-icon>
+                    [title]="'dashboard.financial_ratios.' + ratio.key + '.TOOLTIP' | translate"></lucide-icon>
             </div>
             <div class="ratio-value" [ngClass]="ratio.status">{{ ratio.value }}</div>
         </div>

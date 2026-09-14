@@ -81,7 +81,7 @@ export class BudgetControlService {
     if (!budget) {
       return {
         isExceeded: false,
-        messageKey: 'BUDGETS.NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL',
+        messageKey: 'budgets.no_active_budget_found_current_period',
       };
     }
 
@@ -95,7 +95,7 @@ export class BudgetControlService {
     if (!budgetLine) {
       return {
         isExceeded: false,
-        messageKey: 'BUDGETS.CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS',
+        messageKey: 'budgets.account_dimensions_not_budgeted',
       };
     }
 
@@ -153,7 +153,7 @@ export class BudgetControlService {
     if (projected > budgetedAmount) {
       return {
         isExceeded: true,
-        messageKey: 'BUDGETS.AMOUNT_EXCEEDS_BUDGET',
+        messageKey: 'budgets.amount_exceeds_budget',
         // The amounts stay numbers: the catalogue formats them in the reader's locale and in the
         // books' currency. `toFixed(2)` produced "1234.50" for a reader whose decimal separator
         // is a comma and whose thousands separator is a dot.
@@ -172,7 +172,7 @@ export class BudgetControlService {
 
     return {
       isExceeded: false,
-      messageKey: 'BUDGETS.DENTRO_PRESUPUESTO',
+      messageKey: 'budgets.within_budget',
       budgetName: budget.name,
       budgetedAmount,
       actualAmount: currentActual,

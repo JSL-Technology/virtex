@@ -109,29 +109,29 @@ export class CashflowChart {
             // como NaN a la posición del punto; el módulo de accesibilidad intenta dibujar un
             // <rect> proxy en esa `y` y falla con «Expected length, "NaN"».
             data = [
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPENING_BALANCE'), y: dto.openingBalance ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_INCOME'), y: dto.operatingIncome ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.COST_OF_GOODS_SOLD'), y: dto.costOfGoodsSold ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_EXPENSES'), y: dto.operatingExpenses ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.INVESTMENTS'), y: dto.investments ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.FINANCING'), y: dto.financing ?? 0 },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.ENDING_BALANCE'), isSum: true, color: 'var(--accent-primary)' }
+                { name: this.i18n.instant('charts.cashflow.x.opening_balance'), y: dto.openingBalance ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.operating_income'), y: dto.operatingIncome ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.cost_of_goods_sold'), y: dto.costOfGoodsSold ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.operating_expenses'), y: dto.operatingExpenses ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.investments'), y: dto.investments ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.financing'), y: dto.financing ?? 0 },
+                { name: this.i18n.instant('charts.cashflow.x.ending_balance'), isSum: true, color: 'var(--accent-primary)' }
             ];
         }
 
         const baseOptions: Highcharts.Options = {
             chart: { type: 'waterfall' },
             title: {
-                text: this.i18n.instant('CHARTS.CASHFLOW.TITLE'),
+                text: this.i18n.instant('charts.cashflow.title'),
                 style: { color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' }
             },
             xAxis: { type: 'category' },
             yAxis: {
-                title: { text: this.i18n.instant('CHARTS.CASHFLOW.Y_AXIS_TITLE', { currency: '$' }) }
+                title: { text: this.i18n.instant('charts.cashflow.amount_currency', { currency: '$' }) }
             },
             legend: { enabled: false },
             series: [{
-                name: this.i18n.instant('CHARTS.CASHFLOW.SERIES_NAME'),
+                name: this.i18n.instant('charts.cashflow.series_name'),
                 type: 'waterfall',
                 //  Entrada y salida de caja usan los mismos verde/rojo
                 //  semánticos que el resto de la aplicación, no un par

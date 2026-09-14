@@ -67,6 +67,7 @@ import { WebSocketService } from '../../../core/services/websocket.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
+import { composeKey } from '@virteex/shared/types';
 
 @Component({
   selector: 'app-user-management-page',
@@ -232,7 +233,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: () => {
-        this.notificationService.showError('SETTINGS.USER_MANAGEMENT.PUDIERON_CARGAR_USUARIOS');
+        this.notificationService.showError('settings.user_management.users_could_not_loaded');
         this.loading.set(false);
       },
     });
@@ -300,13 +301,13 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_ACTUALIZADO_EXITO');
+            this.notificationService.showSuccess('settings.user_management.user_updated_successfully');
             this.closeUserModal();
             this.loadUsers();
           },
           error: (err) => {
             this.notificationService.showError(
-              err?.error?.message || this.translate.instant('ERRORS.UPDATE_USER'),
+              err?.error?.message || this.translate.instant('errors.update_user'),
             );
             this.loading.set(false);
           },
@@ -325,13 +326,13 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_INVITADO_EXITO');
+            this.notificationService.showSuccess('settings.user_management.user_invited_successfully');
             this.closeUserModal();
             this.loadUsers();
           },
           error: (err) => {
             this.notificationService.showError(
-              err?.error?.message || this.translate.instant('ERRORS.INVITE_USER'),
+              err?.error?.message || this.translate.instant('errors.invite_user'),
             );
             this.loading.set(false);
           },
@@ -350,12 +351,12 @@ export class UserManagementPage implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_ELIMINADO_EXITO');
+          this.notificationService.showSuccess('settings.user_management.user_deleted_successfully');
           this.closeDeleteModal();
           this.loadUsers();
         },
         error: (err) => {
-          this.notificationService.showError(err.error?.message || 'ERRORS.DELETE_USER');
+          this.notificationService.showError(err.error?.message || 'errors.delete_user');
           this.loading.set(false);
           this.closeDeleteModal();
         },
@@ -397,8 +398,8 @@ export class UserManagementPage implements OnInit, OnDestroy {
    */
   private ask(section: string, user: ApiUser, variant: 'primary' | 'warning' | 'danger'): Promise<boolean> {
     return this.dialog.confirm({
-      title: `DIALOG.${section}.TITLE`,
-      message: `DIALOG.${section}.MESSAGE`,
+      title: composeKey('dialog', section, 'title'),
+      message: composeKey('dialog', section, 'message'),
       messageParams: { name: `${user.firstName} ${user.lastName ?? ''}`.trim() },
       variant,
     });
@@ -413,7 +414,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           next: (res) => this.notificationService.showSuccess(res.message),
           error: (err) =>
-            this.notificationService.showError(err.error?.message || 'ERRORS.SEND_MAIL'),
+            this.notificationService.showError(err.error?.message || 'errors.send_mail'),
         });
     }
   }
@@ -425,10 +426,10 @@ export class UserManagementPage implements OnInit, OnDestroy {
           this.usersService.forceLogout(user.id),
         )
         .subscribe({
-          next: () => this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.SESION_USUARIO_HA_SIDO_CERRADA'),
+          next: () => this.notificationService.showSuccess('settings.user_management.user_session_has_closed'),
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || this.translate.instant('ERRORS.REVOKE_SESSION'),
+              err?.error?.message || this.translate.instant('errors.revoke_session'),
             ),
         });
     }
@@ -442,12 +443,12 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA');
+            this.notificationService.showSuccess('settings.user_management.user_has_blocked_their_session_closed');
             this.loadUsers();
           },
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || this.translate.instant('ERRORS.BLOCK_USER'),
+              err?.error?.message || this.translate.instant('errors.block_user'),
             ),
         });
     }
@@ -462,7 +463,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || this.translate.instant('ERRORS.IMPERSONATE'),
+              err?.error?.message || this.translate.instant('errors.impersonate'),
             ),
         });
     }

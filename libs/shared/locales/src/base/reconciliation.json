@@ -1,0 +1,157 @@
+{
+  "reconciliation.bank_movement_appears_twice_same_match": {
+    "es": "Un movimiento del banco aparece dos veces en la misma conciliación.",
+    "en": "A bank movement appears twice in the same match.",
+    "pt": "Um movimento do banco aparece duas vezes na mesma conciliação."
+  },
+  "reconciliation.bank_movement_does_not_exist_does": {
+    "es": "El movimiento bancario no existe o no pertenece a este estado de cuenta.",
+    "en": "The bank movement does not exist or does not belong to this statement.",
+    "pt": "O movimento bancário não existe ou não pertence a este extrato."
+  },
+  "reconciliation.bank_movement_id_already_matched_set": {
+    "es": "El movimiento bancario {id} ya está conciliado o apartado.",
+    "en": "Bank movement {id} is already matched or set aside.",
+    "pt": "O movimento bancário {id} já está conciliado ou apartado."
+  },
+  "reconciliation.bank_movements_total_bank_ledger_lines": {
+    "es": "Los movimientos del banco suman {bank} y las líneas contables {ledger}; una conciliación sólo es válida si ambos lados coinciden.",
+    "en": "The bank movements total {bank} and the ledger lines {ledger}; a match is only valid when both sides agree.",
+    "pt": "Os movimentos do banco somam {bank} e as linhas contábeis {ledger}; uma conciliação só é válida se ambos os lados coincidirem."
+  },
+  "reconciliation.count_bank_movements_still_neither_matched": {
+    "es": "Quedan {count} movimientos del banco sin conciliar ni apartar.",
+    "en": "{count} bank movements are still neither matched nor set aside.",
+    "pt": "Restam {count} movimentos do banco sem conciliar nem apartar."
+  },
+  "reconciliation.csv_file_malformed_corrupt_column_mapping": {
+    "es": "El formato del archivo CSV no es válido, está corrupto, o el mapeo de columnas es incorrecto.",
+    "en": "The CSV file is malformed or corrupt, or the column mapping is wrong.",
+    "pt": "O arquivo CSV está malformado ou corrompido, ou o mapeamento de colunas está incorreto."
+  },
+  "reconciliation.entry_rule_generated_does_not_contain": {
+    "es": "El asiento generado por la regla no contiene la línea de la cuenta bancaria.",
+    "en": "The entry the rule generated does not contain the bank account line.",
+    "pt": "O lançamento gerado pela regra não contém a linha da conta bancária."
+  },
+  "reconciliation.file_has_already_imported_account_file": {
+    "es": "Este archivo ya se importó para esta cuenta ({fileName}).",
+    "en": "This file has already been imported for this account ({fileName}).",
+    "pt": "Este arquivo já foi importado para esta conta ({fileName})."
+  },
+  "reconciliation.ledger_line_appears_twice_same_match": {
+    "es": "Una línea contable aparece dos veces en la misma conciliación.",
+    "en": "A ledger line appears twice in the same match.",
+    "pt": "Uma linha contábil aparece duas vezes na mesma conciliação."
+  },
+  "reconciliation.ledger_line_does_not_exist_not": {
+    "es": "Alguna línea contable no existe, no está contabilizada o no pertenece a la cuenta de este estado de cuenta.",
+    "en": "A ledger line does not exist, is not posted, or does not belong to this statement’s account.",
+    "pt": "Alguma linha contábil não existe, não está lançada ou não pertence à conta deste extrato."
+  },
+  "reconciliation.ledger_line_id_already_reconciled": {
+    "es": "La línea contable {id} ya está conciliada.",
+    "en": "Ledger line {id} is already reconciled.",
+    "pt": "A linha contábil {id} já está conciliada."
+  },
+  "reconciliation.line_has_no_amount_account_currency": {
+    "es": "La línea no tiene importe en la moneda de la cuenta, y sin él no se puede conciliar contra el extracto.",
+    "en": "The line has no amount in the account currency, and without one it cannot be reconciled against the statement.",
+    "pt": "A linha não tem valor na moeda da conta e, sem ele, não é possível conciliar contra o extrato."
+  },
+  "reconciliation.match_does_not_exist_does_not": {
+    "es": "La conciliación no existe o no pertenece a esta organización.",
+    "en": "The match does not exist or does not belong to this organization.",
+    "pt": "A conciliação não existe ou não pertence a esta organização."
+  },
+  "reconciliation.match_needs_least_one_bank_movement": {
+    "es": "Una conciliación necesita al menos un movimiento del banco y una línea contable.",
+    "en": "A match needs at least one bank movement and one ledger line.",
+    "pt": "Uma conciliação precisa de pelo menos um movimento do banco e uma linha contábil."
+  },
+  "reconciliation.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "reconciliation.reconciliation_does_not_balance_difference_remains": {
+    "es": "La conciliación no cuadra: quedan {difference} de diferencia entre el saldo contable ajustado y el del banco.",
+    "en": "The reconciliation does not balance: {difference} remains between the adjusted book and bank balances.",
+    "pt": "A conciliação não fecha: restam {difference} de diferença entre o saldo contábil ajustado e o do banco."
+  },
+  "reconciliation.reconciliation_journal_concil_not_found": {
+    "es": "Diario de Conciliación (CONCIL) no encontrado.",
+    "en": "The Reconciliation journal (CONCIL) was not found.",
+    "pt": "O diário de Conciliação (CONCIL) não foi encontrado."
+  },
+  "reconciliation.reconciliation_rule_does_not_exist_does": {
+    "es": "La regla de conciliación no existe o no pertenece a esta organización.",
+    "en": "The reconciliation rule does not exist or does not belong to this organization.",
+    "pt": "A regra de conciliação não existe ou não pertence a esta organização."
+  },
+  "reconciliation.reopening_closed_reconciliation_requires_stated_reason": {
+    "es": "Para reabrir una conciliación cerrada hay que indicar el motivo.",
+    "en": "Reopening a closed reconciliation requires a stated reason.",
+    "pt": "Para reabrir uma conciliação fechada é preciso informar o motivo."
+  },
+  "reconciliation.rule_creates_entries_must_name_target": {
+    "es": "Una regla que genera asientos debe indicar la cuenta contable de destino.",
+    "en": "A rule that creates entries must name the target ledger account.",
+    "pt": "Uma regra que gera lançamentos deve indicar a conta contábil de destino."
+  },
+  "reconciliation.rule_minimum_amount_greater_than_maximum": {
+    "es": "El monto mínimo de la regla es mayor que el máximo.",
+    "en": "The rule’s minimum amount is greater than its maximum.",
+    "pt": "O valor mínimo da regra é maior que o máximo."
+  },
+  "reconciliation.rule_target_account_does_not_exist": {
+    "es": "La cuenta destino de la regla no existe en esta organización.",
+    "en": "The rule’s target account does not exist in this organization.",
+    "pt": "A conta de destino da regra não existe nesta organização."
+  },
+  "reconciliation.rule_target_account_summary_account_cannot": {
+    "es": "La cuenta destino de la regla es de agrupación y no admite movimientos.",
+    "en": "The rule’s target account is a summary account and cannot take movements.",
+    "pt": "A conta de destino da regra é de agrupamento e não admite movimentos."
+  },
+  "reconciliation.specified_bank_account_not_valid": {
+    "es": "La cuenta bancaria especificada no es válida.",
+    "en": "The specified bank account is not valid.",
+    "pt": "A conta bancária informada não é válida."
+  },
+  "reconciliation.statement_already_reconciled_reopen_before_changing": {
+    "es": "El estado de cuenta ya está conciliado; reábralo antes de modificarlo.",
+    "en": "The statement is already reconciled; reopen it before changing anything.",
+    "pt": "O extrato já está conciliado; reabra-o antes de alterá-lo."
+  },
+  "reconciliation.statement_did_not_import_successfully_cannot": {
+    "es": "El estado de cuenta no se importó correctamente y no puede conciliarse.",
+    "en": "The statement did not import successfully and cannot be reconciled.",
+    "pt": "O extrato não foi importado corretamente e não pode ser conciliado."
+  },
+  "reconciliation.statement_does_not_add_up_opening": {
+    "es": "El estado de cuenta no cuadra consigo mismo: saldo inicial más movimientos difiere del saldo final en {difference}.",
+    "en": "The statement does not add up: opening balance plus movements differs from the closing balance by {difference}.",
+    "pt": "O extrato não fecha consigo mesmo: saldo inicial mais movimentos difere do saldo final em {difference}."
+  },
+  "reconciliation.statement_not_found": {
+    "es": "Estado de cuenta no encontrado.",
+    "en": "The statement was not found.",
+    "pt": "O extrato não foi encontrado."
+  },
+  "reconciliation.statement_not_reconciled": {
+    "es": "El estado de cuenta no está conciliado.",
+    "en": "The statement is not reconciled.",
+    "pt": "O extrato não está conciliado."
+  },
+  "reconciliation.statement_start_date_after_end_date": {
+    "es": "La fecha de inicio del estado de cuenta es posterior a la de fin.",
+    "en": "The statement’s start date is after its end date.",
+    "pt": "A data inicial do extrato é posterior à final."
+  },
+  "reconciliation.uploaded_file_empty_could_not_read": {
+    "es": "El archivo subido está vacío o no se pudo leer.",
+    "en": "The uploaded file is empty, or could not be read.",
+    "pt": "O arquivo enviado está vazio ou não pôde ser lido."
+  }
+}

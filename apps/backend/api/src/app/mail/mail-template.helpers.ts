@@ -28,7 +28,7 @@ import { MAIL_BRAND, MailBrandKey } from './mail-brand';
  *
  * ## The helpers
  *
- *     {{t 'MAIL.PASSWORD_RESET.GREETING' name=name}}    translate, with parameters
+ *     {{t 'mail.password_reset.greeting' name=name}}    translate, with parameters
  *     {{money amount currency}}                          format in the recipient's locale
  *     {{date value}}                                     format in the recipient's locale
  *
@@ -52,7 +52,7 @@ export function mailTemplateHelpers(i18n: I18nService): HelperDeclareSpec {
     /**
      * Translate a key, passing every named argument through as an interpolation parameter.
      *
-     *     {{t 'MAIL.INVITATION.BODY' organization=organizationName}}
+     *     {{t 'mail.invitation.body' organization=organizationName}}
      *
      * A `params=` argument is spread in as well, for a message whose parameters are decided by
      * the sender rather than by the template — a billing notice renders whichever of four bodies

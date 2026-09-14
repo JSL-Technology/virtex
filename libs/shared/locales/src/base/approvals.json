@@ -1,0 +1,87 @@
+{
+  "approvals.approvals_centre": {
+    "es": "Centro de Aprobaciones",
+    "en": "Approvals Centre",
+    "pt": "Central de Aprovações"
+  },
+  "approvals.approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "approvals.decision_could_not_recorded": {
+    "es": "No se pudo registrar la decisión.",
+    "en": "The decision could not be recorded.",
+    "pt": "Não foi possível registrar a decisão."
+  },
+  "approvals.document_type.audit_adjustment": {
+    "es": "Ajustes de auditoría",
+    "en": "Audit adjustments",
+    "pt": "Ajustes de auditoria"
+  },
+  "approvals.document_type.journal_entry": {
+    "es": "Asientos contables",
+    "en": "Journal entries",
+    "pt": "Lançamentos contábeis"
+  },
+  "approvals.document_type.payment_batch": {
+    "es": "Lotes de pago",
+    "en": "Payment batches",
+    "pt": "Lotes de pagamento"
+  },
+  "approvals.document_type.period_reopening": {
+    "es": "Reapertura de periodo",
+    "en": "Period reopening",
+    "pt": "Reabertura de período"
+  },
+  "approvals.document_type.vendor_bill": {
+    "es": "Facturas de proveedor",
+    "en": "Vendor bills",
+    "pt": "Faturas de fornecedor"
+  },
+  "approvals.load_failed": {
+    "es": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
+    "en": "The approvals could not be loaded. Try again.",
+    "pt": "Não foi possível carregar as aprovações. Tente novamente."
+  },
+  "approvals.reason_rejection": {
+    "es": "Motivo del rechazo",
+    "en": "Reason for rejection",
+    "pt": "Motivo da rejeição"
+  },
+  "approvals.reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
+  "approvals.rejection_with_no_reason_not_decision": {
+    "es": "Un rechazo sin motivo no es una decisión: quien lo reciba no sabrá qué corregir.",
+    "en": "A rejection with no reason is not a decision: whoever receives it will not know what to fix.",
+    "pt": "Uma rejeição sem motivo não é uma decisão: quem a receber não saberá o que corrigir."
+  },
+  "approvals.request_approved": {
+    "es": "Solicitud aprobada.",
+    "en": "Request approved.",
+    "pt": "Solicitação aprovada."
+  },
+  "approvals.request_rejected": {
+    "es": "Solicitud rechazada.",
+    "en": "Request rejected.",
+    "pt": "Solicitação rejeitada."
+  },
+  "approvals.review_approve_reject_every_pending_request": {
+    "es": "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.",
+    "en": "Review, approve or reject every pending request in the company.",
+    "pt": "Revise, aprove ou rejeite todas as solicitações pendentes da empresa."
+  },
+  "approvals.step_step": {
+    "es": "Paso {{step}}",
+    "en": "Step {{step}}",
+    "pt": "Etapa {{step}}"
+  },
+  "approvals.waiting_your_decision": {
+    "es": "Pendientes de tu decisión",
+    "en": "Waiting for your decision",
+    "pt": "Aguardando sua decisão"
+  }
+}

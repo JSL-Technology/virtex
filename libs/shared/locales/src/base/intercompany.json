@@ -1,0 +1,67 @@
+{
+  "intercompany.account_account_id_does_not_accept": {
+    "es": "La cuenta {{accountId}} no admite movimientos.",
+    "en": "Account {{accountId}} does not accept postings.",
+    "pt": "A conta {{accountId}} não aceita lançamentos."
+  },
+  "intercompany.account_account_id_does_not_belong": {
+    "es": "La cuenta {{accountId}} no pertenece a la organización indicada.",
+    "en": "Account {{accountId}} does not belong to the organization given.",
+    "pt": "A conta {{accountId}} não pertence à organização indicada."
+  },
+  "intercompany.default_intercompany_accounts_not_configured_one": {
+    "es": "Las cuentas intercompañía por defecto no están configuradas en una o ambas organizaciones.",
+    "en": "The default intercompany accounts are not configured in one or both organizations.",
+    "pt": "As contas intercompany padrão não estão configuradas em uma ou ambas as organizações."
+  },
+  "intercompany.default_intercompany_payable_account_not_configured": {
+    "es": "La cuenta por pagar intercompañía por defecto no está configurada en la organización de destino {{toOrganizationId}}.",
+    "en": "The default intercompany payable account is not configured in the destination organization {{toOrganizationId}}.",
+    "pt": "A conta a pagar intercompany padrão não está configurada na organização de destino {{toOrganizationId}}."
+  },
+  "intercompany.intercompany_transaction_id_not_found": {
+    "es": "No se encontró la transacción intercompañía {{id}}.",
+    "en": "Intercompany transaction {{id}} was not found.",
+    "pt": "A transação intercompanhias {{id}} não foi encontrada."
+  },
+  "intercompany.intercompany_transactions_must_between_different_organizations": {
+    "es": "Las transacciones intercompañía deben ser entre organizaciones diferentes.",
+    "en": "Intercompany transactions must be between different organizations.",
+    "pt": "Transações intercompany devem ser entre organizações diferentes."
+  },
+  "intercompany.one_organizations_not_found": {
+    "es": "Una de las organizaciones no fue encontrada.",
+    "en": "One of the organizations was not found.",
+    "pt": "Uma das organizações não foi encontrada."
+  },
+  "intercompany.organization_organization_id_has_no_general": {
+    "es": "La organización {{organizationId}} no tiene un diario de tipo general.",
+    "en": "Organization {{organizationId}} has no general journal.",
+    "pt": "A organização {{organizationId}} não tem um diário geral."
+  },
+  "intercompany.organizations_not_same_group_record_relationship": {
+    "es": "Las organizaciones no pertenecen al mismo grupo. Registra la relación antes de operar entre ellas.",
+    "en": "The organizations are not in the same group. Record the relationship before transacting between them.",
+    "pt": "As organizações não pertencem ao mesmo grupo. Registe a relação antes de transacionar entre elas."
+  },
+  "intercompany.receiving_organization_has_no_default_ledger": {
+    "es": "La organización de destino no tiene libro contable por defecto.",
+    "en": "The receiving organization has no default ledger.",
+    "pt": "A organização de destino não tem livro contabilístico predefinido."
+  },
+  "intercompany.sending_organization_has_no_default_ledger": {
+    "es": "La organización de origen no tiene libro contable por defecto.",
+    "en": "The sending organization has no default ledger.",
+    "pt": "A organização de origem não tem livro contabilístico predefinido."
+  },
+  "intercompany.transaction_already_has_destination_entry": {
+    "es": "La transacción ya tiene su asiento de destino.",
+    "en": "The transaction already has its destination entry.",
+    "pt": "A transação já tem o seu lançamento de destino."
+  },
+  "intercompany.transaction_has_no_destination_account_amount": {
+    "es": "La transacción no tiene cuenta ni importe de destino; no se puede contabilizar el otro lado.",
+    "en": "The transaction has no destination account or amount; the other side cannot be posted.",
+    "pt": "A transação não tem conta nem montante de destino; o outro lado não pode ser lançado."
+  }
+}

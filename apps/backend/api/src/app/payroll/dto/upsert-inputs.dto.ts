@@ -42,7 +42,7 @@ export class PayrollInputItemDto {
 /** A bulk replace of a run's inputs — the whole set is submitted before calculating. */
 export class UpsertInputsDto {
   @IsArray()
-  @ArrayMaxSize(50000, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MAX_SIZE|{"max":50000}' })
+  @ArrayMaxSize(50000, { message: 'validation.constraints.array_max_size|{"max":50000}' })
   @ValidateNested({ each: true })
   @Type(() => PayrollInputItemDto)
   items: PayrollInputItemDto[];

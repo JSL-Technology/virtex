@@ -8,11 +8,22 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
+
+/**
+ * A role as the API reports it.
+ *
+ * Exactly one of `description` and `descriptionKey` is set: the first when a customer typed the
+ * text, the second when the value is a catalogue key this product wrote at provisioning time. The
+ * client cannot guess which, so the response says.
+ */
+export type RoleView = Omit<Role, 'description'> & {
+    description: string | null;
+    descriptionKey: string | null;
+};
 import { UserSecurity } from '../users/entities/user-security.entity';
 import type { Permission } from '../shared/permissions';
 import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { I18nService } from '../i18n/i18n.service';
-import { currentLanguage } from '../i18n/request-locale';
 
 @Injectable()
 export class RolesService {
@@ -24,28 +35,33 @@ export class RolesService {
     ) { }
 
     /**
-     * The tenant's roles, with the four system ones described in the reader's language.
+     * The tenant's roles, saying which descriptions are keys and which are text somebody typed.
      *
      * A system role's `description` column holds a catalogue key, written there when the
-     * organisation was provisioned. The roles screen rendered it raw, so customers read
-     * `USER.ROLE.ADMINISTRATOR_DESC` in a table. Resolving it here keeps the client from having
-     * to know which descriptions are keys and which are text a user typed.
+     * organisation was provisioned; a role the customer created holds whatever they wrote. The
+     * screen rendered the column raw, so customers read `USER.ROLE.ADMINISTRATOR_DESC` in a table.
+     *
+     * The first fix was to translate it here and overwrite the column on the way out. That put UI
+     * prose in an API response and still left the client unable to tell the two cases apart — it
+     * got a string and hoped. The response now carries `descriptionKey` when the description IS a
+     * key, and the client translates it, which is also what lets the roles screen follow a language
+     * switch without refetching.
      */
-    async findAllByOrg(organizationId: string): Promise<Role[]> {
+    async findAllByOrg(organizationId: string): Promise<RoleView[]> {
         const roles = await this.roleRepository.find({ where: { organizationId } });
-        const language = currentLanguage();
 
         return roles.map((role) => {
-            if (!role.description || !this.i18n.has(role.description)) return role;
-            role.description = this.i18n.translate(role.description, language);
-            return role;
+            if (!role.description || !this.i18n.has(role.description)) {
+                return { ...role, descriptionKey: null } as RoleView;
+            }
+            return { ...role, description: null, descriptionKey: role.description } as RoleView;
         });
     }
 
     async findOne(id: string, organizationId: string): Promise<Role> {
         const role = await this.roleRepository.findOne({ where: { id, organizationId } });
         if (!role) {
-            throw new NotFoundError('ROLES.ROL_ID_NO_ENCONTRADO', { id });
+            throw new NotFoundError('roles.role_id_not_found', { id });
         }
         return role;
     }
@@ -65,14 +81,14 @@ export class RolesService {
         // The global wildcard is never delegated into a role: a role carrying '*' would be a
         // second, unaudited super-admin grant.
         if (permissions.includes('*')) {
-            throw new ForbiddenError('ROLES.PERMISO_TOTAL_NO_PUEDE_DELEGARSE_ROL');
+            throw new ForbiddenError('roles.full_permission_cannot_delegated_role');
         }
 
         if (actorPermissions.includes('*')) return;
 
         for (const permission of permissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO', { permission });
+                throw new ForbiddenError('roles.you_cannot_assign_permission_permission_because', { permission });
             }
         }
     }
@@ -92,7 +108,7 @@ export class RolesService {
             select: ['id'],
         });
         if (existing && existing.id !== ignoreId) {
-            throw new ConflictError('ROLES.YA_EXISTE_ROL_LLAMADO_TU_ORGANIZACION', { name });
+            throw new ConflictError('roles.role_named_name_already_exists_your', { name });
         }
     }
 
@@ -109,7 +125,7 @@ export class RolesService {
         // Assigning a role that grants the full wildcard requires the actor to be a super-admin.
         if (rolePermissions.includes('*')) {
             if (!actorIsWildcard) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_PRIVILEGIOS_TOTALES');
+                throw new ForbiddenError('roles.you_cannot_assign_role_with_full');
             }
             return;
         }
@@ -124,7 +140,7 @@ export class RolesService {
         // with PermissionsGuard and the shared frontend util.
         for (const permission of rolePermissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_INCLUYE_PERMISO_TU', { permission });
+                throw new ForbiddenError('roles.you_cannot_assign_role_includes_permission', { permission });
             }
         }
     }
@@ -155,7 +171,7 @@ export class RolesService {
         const roleToClone = await this.findOne(id, organizationId);
 
         if (roleToClone.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_CLONAR');
+            throw new ForbiddenError('roles.system_roles_cannot_cloned');
         }
 
         const newRoleDto: CreateRoleDto = {
@@ -171,7 +187,7 @@ export class RolesService {
     async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor: AuthenticatedUser): Promise<Role> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_MODIFICADOS');
+            throw new ForbiddenError('roles.system_roles_cannot_modified');
         }
 
         // Privilege-escalation guard. `actor` is mandatory for the same fail-closed reason as in
@@ -225,7 +241,7 @@ export class RolesService {
     async remove(id: string, organizationId: string): Promise<void> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_ELIMINADOS');
+            throw new ForbiddenError('roles.system_roles_cannot_deleted');
         }
 
         // H2 FIX: Deleting a role is an authorization-graph mutation. Previously `remove` only
@@ -242,7 +258,7 @@ export class RolesService {
                 .getCount();
 
             if (assignedCount > 0) {
-                throw new ForbiddenError('ROLES.NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA', { assignedCount });
+                throw new ForbiddenError('roles.role_assigned_assigned_count_user_cannot', { assignedCount });
             }
 
             await manager.getRepository(Role).remove(role);

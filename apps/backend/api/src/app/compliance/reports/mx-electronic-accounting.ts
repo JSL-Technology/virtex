@@ -83,7 +83,7 @@ export class MexicanElectronicAccounting {
 
     const missing = accounts.filter((account) => !account.fiscalGroupingCode?.trim());
     if (missing.length > 0) {
-      throw new BadRequestError('COMPLIANCE.CUENTAS_SIN_CODIGO_AGRUPADOR_SAT', {
+      throw new BadRequestError('compliance.count_account_have_no_sat_grouping', {
         count: missing.length,
         example: missing[0].code,
       });
@@ -293,7 +293,7 @@ export class MexicanElectronicAccounting {
     });
     const rfc = organization?.taxId?.trim().toUpperCase();
     if (!rfc) {
-      throw new BadRequestError('COMPLIANCE.ORGANIZACION_SIN_RFC');
+      throw new BadRequestError('compliance.organization_has_no_rfc_file_sat');
     }
     return { rfc };
   }
@@ -304,7 +304,7 @@ export class MexicanElectronicAccounting {
       organizationId: period.organizationId,
       isDefault: true,
     });
-    if (!ledger) throw new BadRequestError('COMPLIANCE.SIN_LIBRO_CONTABLE_POR_DEFECTO');
+    if (!ledger) throw new BadRequestError('compliance.organization_has_no_default_ledger');
     return ledger.id;
   }
 }

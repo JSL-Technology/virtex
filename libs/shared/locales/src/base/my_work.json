@@ -1,0 +1,37 @@
+{
+  "my_work.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "my_work.load_failed": {
+    "es": "No se pudo cargar tu bandeja. Inténtalo de nuevo.",
+    "en": "Your inbox could not be loaded. Try again.",
+    "pt": "Não foi possível carregar sua caixa de entrada. Tente novamente."
+  },
+  "my_work.my_work": {
+    "es": "Mi trabajo",
+    "en": "My Work",
+    "pt": "Meu trabalho"
+  },
+  "my_work.notifications": {
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "pt": "Notificações"
+  },
+  "my_work.security": {
+    "es": "Seguridad",
+    "en": "Security",
+    "pt": "Segurança"
+  },
+  "my_work.tasks": {
+    "es": "Tareas",
+    "en": "Tasks",
+    "pt": "Tarefas"
+  },
+  "my_work.your_central_inbox_tasks_approvals_notifications": {
+    "es": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones.",
+    "en": "Your central inbox for tasks, approvals and notifications.",
+    "pt": "Sua caixa de entrada central de tarefas, aprovações e notificações."
+  }
+}

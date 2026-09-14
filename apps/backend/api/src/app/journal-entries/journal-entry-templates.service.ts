@@ -31,7 +31,7 @@ export class JournalEntryTemplatesService {
   async findOne(id: string, organizationId: string): Promise<JournalEntryTemplate> {
     const template = await this.templateRepository.findOne({ where: { id, organizationId } });
     if (!template) {
-      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('journal_entries.journal_entry_template_id_not_found', { id });
     }
     return template;
   }
@@ -45,7 +45,7 @@ export class JournalEntryTemplatesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.templateRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('journal_entries.journal_entry_template_id_not_found', { id });
     }
   }
 
@@ -58,12 +58,12 @@ export class JournalEntryTemplatesService {
     const template = await this.findOne(templateId, organizationId);
     
     if (createEntryDto.amount <= 0) {
-      throw new BadRequestError('JOURNAL_ENTRIES.MONTO_DEBE_SER_NUMERO_POSITIVO');
+      throw new BadRequestError('journal_entries.amount_must_positive_number');
     }
     
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestError('JOURNAL_ENTRIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+        throw new BadRequestError('journal_entries.no_default_ledger_has_configured_organization');
     }
 
     const lines = template.lines.map(line => {

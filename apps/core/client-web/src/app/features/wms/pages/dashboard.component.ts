@@ -1,25 +1,38 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
+/**
+ * What this module will do, said in the reader's language.
+ *
+ * A roadmap panel rather than a working screen — it is reachable from the sidebar because customers
+ * ask what is coming, and saying "coming soon" is more honest than hiding the entry. Every string
+ * used to be an English literal in this template, which is how an otherwise Spanish product showed
+ * "Manufacturing & Production (MRP)" to a reader in Santo Domingo. The scanner never caught it,
+ * because it only read `.html` files and this is an inline template.
+ */
 @Component({
   selector: 'app-wms-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6">
-      <h1 class="text-2xl font-bold mb-4">Warehouse Management System (WMS)</h1>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-          <h2 class="text-xl font-semibold mb-2">Inventory Real-time</h2>
-          <p class="text-gray-500 dark:text-gray-400">Track stock levels across multiple warehouses.</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-          <h2 class="text-xl font-semibold mb-2">Landed Costs</h2>
-          <p class="text-gray-500 dark:text-gray-400">Calculate accurate product costs including freight and duties.</p>
-        </div>
+    <section class="roadmap">
+      <header class="roadmap__head">
+        <h1>{{ 'roadmap.wms.title' | translate }}</h1>
+        <span class="roadmap__badge">{{ 'roadmap.coming_soon' | translate }}</span>
+      </header>
+      <div class="roadmap__grid roadmap__grid--2">
+        <article class="roadmap__card">
+          <h2>{{ 'roadmap.wms.realtime_inventory.title' | translate }}</h2>
+          <p>{{ 'roadmap.wms.realtime_inventory.description' | translate }}</p>
+        </article>
+        <article class="roadmap__card">
+          <h2>{{ 'roadmap.wms.landed_costs.title' | translate }}</h2>
+          <p>{{ 'roadmap.wms.landed_costs.description' | translate }}</p>
+        </article>
       </div>
-    </div>
-  `
+    </section>
+  `,
+  styleUrl: './roadmap.component.scss',
 })
 export class WmsDashboardComponent {}

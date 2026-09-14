@@ -1,27 +1,27 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.SUBSIDIARY_LEDGERS.SUBSIDIARY_LEDGERS"
+  titleKey="accounting.subsidiary_ledgers.subsidiary_ledgers"
   [count]="ledgerLines().length"
   [empty]="isEmpty()"
 >
   <button listActions class="primary-button" type="button" [disabled]="isEmpty()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.EXPORT' | translate }}</span>
+    <span>{{ 'accounting.subsidiary_ledgers.export' | translate }}</span>
   </button>
 
   <div listFilters class="ledger-filters">
     <div class="filter-group">
-      <label for="controlAccount">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.CONTROL_ACCOUNT' | translate }}</label>
+      <label for="controlAccount">{{ 'accounting.subsidiary_ledgers.control_account' | translate }}</label>
       <select id="controlAccount" [disabled]="controlAccounts().length === 0">
-        <option value="">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.SELECT_ACCOUNT' | translate }}</option>
+        <option value="">{{ 'accounting.subsidiary_ledgers.select_account' | translate }}</option>
         @for (account of controlAccounts(); track account.id) {
           <option [value]="account.id">{{ account.code }} - {{ account.name }}</option>
         }
       </select>
     </div>
     <div class="filter-group">
-      <label for="auxiliary">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.AUXILIARY_THIRD_PARTY' | translate }}</label>
+      <label for="auxiliary">{{ 'accounting.subsidiary_ledgers.auxiliary_third_party' | translate }}</label>
       <select id="auxiliary" [disabled]="auxiliaries().length === 0">
-        <option value="">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.SELECT_AUXILIARY' | translate }}</option>
+        <option value="">{{ 'accounting.subsidiary_ledgers.select_auxiliary' | translate }}</option>
         @for (auxiliary of auxiliaries(); track auxiliary.id) {
           <option [value]="auxiliary.id">{{ auxiliary.name }}</option>
         }
@@ -30,22 +30,22 @@
   </div>
 
   <div listEmpty class="empty-invite">
-    <p>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY' | translate }}</p>
+    <p>{{ 'accounting.subsidiary_ledgers.no_movements_found_for_this_auxiliary' | translate }}</p>
   </div>
 
   @if (selectedAuxiliary(); as auxiliary) {
     <div class="ledger-header card">
       <h2>
-        {{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.AUXILIARY' | translate }}
+        {{ 'accounting.subsidiary_ledgers.auxiliary' | translate }}
         <span class="account-name">{{ auxiliary.name }}</span>
       </h2>
       <div class="balance-summary">
         <div class="balance-item">
-          <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.INITIAL_BALANCE' | translate }}</span>
+          <span>{{ 'accounting.subsidiary_ledgers.opening_balance' | translate }}</span>
           <strong>{{ initialBalance() | vxMoney: currencyCode() }}</strong>
         </div>
         <div class="balance-item">
-          <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.FINAL_BALANCE' | translate }}</span>
+          <span>{{ 'accounting.subsidiary_ledgers.final_balance' | translate }}</span>
           <strong>{{ finalBalance() | vxMoney: currencyCode() }}</strong>
         </div>
       </div>
@@ -56,12 +56,12 @@
     <table class="data-table ledger-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.DATE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.REFERENCE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.DESCRIPTION' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.DEBIT' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.CREDIT' | translate }}</th>
-          <th class="text-right">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.BALANCE' | translate }}</th>
+          <th>{{ 'accounting.subsidiary_ledgers.date' | translate }}</th>
+          <th>{{ 'accounting.subsidiary_ledgers.reference' | translate }}</th>
+          <th>{{ 'accounting.subsidiary_ledgers.description' | translate }}</th>
+          <th class="text-right">{{ 'accounting.subsidiary_ledgers.debit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.subsidiary_ledgers.credit' | translate }}</th>
+          <th class="text-right">{{ 'accounting.subsidiary_ledgers.balance' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -70,7 +70,7 @@
             <td>{{ line.date | vxDate: 'date' : true }}</td>
             <td>
               @if (line.reference === null) {
-                <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.OPENING_BALANCE' | translate }}</span>
+                <span>{{ 'accounting.subsidiary_ledgers.opening_balance_opening_balance' | translate }}</span>
               } @else if (line.entryId) {
                 <a [routerLink]="['/accounting/journal-entries', line.entryId, 'edit']" class="table-link">
                   {{ line.reference }}

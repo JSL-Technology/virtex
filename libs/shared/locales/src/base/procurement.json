@@ -1,0 +1,67 @@
+{
+  "procurement.only_draft_order_can_deleted_one": {
+    "es": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
+    "en": "Only a draft order can be deleted; this one is {{status}}.",
+    "pt": "Só uma ordem em rascunho pode ser eliminada; esta está em {{status}}."
+  },
+  "procurement.order_cannot_move_from_from": {
+    "es": "Una orden no puede pasar de {{from}} a {{to}}.",
+    "en": "An order cannot move from {{from}} to {{to}}.",
+    "pt": "Uma ordem não pode passar de {{from}} para {{to}}."
+  },
+  "procurement.order_line_not_found": {
+    "es": "La línea {{id}} no pertenece a esta orden.",
+    "en": "Line {{id}} does not belong to this order.",
+    "pt": "A linha {{id}} não pertence a esta ordem."
+  },
+  "procurement.order_not_editable": {
+    "es": "Una orden en estado {{status}} no se puede editar: sus términos ya no dependen solo de nosotros.",
+    "en": "An order in {{status}} cannot be edited: its terms are no longer ours alone to change.",
+    "pt": "Uma ordem em {{status}} não pode ser editada: os seus termos já não dependem só de nós."
+  },
+  "procurement.order_not_found": {
+    "es": "No se encontró la orden de compra {{id}}.",
+    "en": "Purchase order {{id}} was not found.",
+    "pt": "A ordem de compra {{id}} não foi encontrada."
+  },
+  "procurement.order_not_receivable": {
+    "es": "No se puede recibir contra una orden en estado {{status}}; envíela al proveedor primero.",
+    "en": "Nothing can be received against an order in {{status}}; send it to the supplier first.",
+    "pt": "Não é possível receber contra uma ordem em {{status}}; envie-a ao fornecedor primeiro."
+  },
+  "procurement.receipt_exceeds_ordered": {
+    "es": "Se recibieron {{received}} de «{{description}}» y solo se ordenaron {{ordered}}.",
+    "en": "{{received}} of “{{description}}” were received but only {{ordered}} were ordered.",
+    "pt": "Foram recebidos {{received}} de «{{description}}» e apenas {{ordered}} foram encomendados."
+  },
+  "procurement.requisition_cannot_move_from_from": {
+    "es": "Una requisición no puede pasar de {{from}} a {{to}}.",
+    "en": "A requisition cannot move from {{from}} to {{to}}.",
+    "pt": "Uma requisição não pode passar de {{from}} para {{to}}."
+  },
+  "procurement.requisition_has_no_lines": {
+    "es": "La requisición no tiene líneas: no hay nada que ordenar.",
+    "en": "The requisition has no lines, so there is nothing to order.",
+    "pt": "A requisição não tem linhas: não há nada para encomendar."
+  },
+  "procurement.requisition_not_editable": {
+    "es": "Una requisición en estado {{status}} no se puede editar. Devuélvala a borrador primero.",
+    "en": "A requisition in {{status}} cannot be edited. Send it back to draft first.",
+    "pt": "Uma requisição em {{status}} não pode ser editada. Devolva-a a rascunho primeiro."
+  },
+  "procurement.requisition_not_found": {
+    "es": "No se encontró la requisición {{id}}.",
+    "en": "Requisition {{id}} was not found.",
+    "pt": "A requisição {{id}} não foi encontrada."
+  },
+  "procurement.requisition_status_cannot_deleted_part_record": {
+    "es": "Una requisición en estado {{status}} no se puede eliminar: ya forma parte del registro de lo que se decidió.",
+    "en": "A requisition in {{status}} cannot be deleted: it is part of the record of what was decided.",
+    "pt": "Uma requisição em {{status}} não pode ser eliminada: já faz parte do registo do que foi decidido."
+  },
+  "procurement.supplier_not_found": {
+    "es": "El proveedor indicado no existe en esta organización.",
+    "en": "That supplier does not exist in this organization.",
+    "pt": "Esse fornecedor não existe nesta organização."
+  }
+}

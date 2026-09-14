@@ -6,7 +6,7 @@ import * as Highcharts from 'highcharts';
 import { catchError, of } from 'rxjs';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { DashboardApiService, TrendPoint } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Settings, AreaChart, LineChart } from 'lucide-angular';
 import Exporting from 'highcharts/modules/exporting';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -61,11 +61,11 @@ export class SalesChart {
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       yAxis: {
-        title: { text: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES') },
+        title: { text: this.i18n.instant('dashboard.sales_chart.monthly_revenue') },
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       series: [{
-        name: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES'),
+        name: this.i18n.instant('dashboard.sales_chart.monthly_revenue'),
         type: chartType as any,
         data: points.map((point) => point.amount),
         color: 'var(--accent-primary)',

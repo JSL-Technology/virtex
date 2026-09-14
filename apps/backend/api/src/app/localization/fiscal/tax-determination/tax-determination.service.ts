@@ -57,7 +57,7 @@ export class TaxDeterminationService {
         rate: 0,
         components: [],
         outcome: 'NOT_DETERMINABLE',
-        reasonKey: 'LOCALIZATION.SIN_PROVEEDOR_DETERMINACION',
+        reasonKey: 'localization.no_tax_determination_provider_available_country',
         reasonParams: { countryCode: country },
         source: 'none',
       };

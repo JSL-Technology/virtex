@@ -155,7 +155,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Checkout failed', err);
-        const message = err?.error?.message || this.translate.instant('ERRORS.START_PAYMENT');
+        const message = err?.error?.message || this.translate.instant('errors.start_payment');
         return throwError(() => new Error(message));
       })
     );
@@ -177,7 +177,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Portal session failed', err);
-        const message = err?.error?.message || this.translate.instant('ERRORS.OPEN_BILLING_PORTAL');
+        const message = err?.error?.message || this.translate.instant('errors.open_billing_portal');
         return throwError(() => new Error(message));
       })
     );

@@ -8,7 +8,8 @@ import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
-import { translateOrLiteral } from '../../../../../core/i18n/translate-or-literal';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * One bullet on a plan card.
@@ -81,8 +82,8 @@ export class StepPlan {
       price: formatPlanPrice(p, this.localeFor(p.currency), this.billingPeriod()),
       period:
         this.billingPeriod() === 'annual'
-          ? 'REGISTER.STEPS.PLAN.PER_YEAR'
-          : 'REGISTER.STEPS.PLAN.PER_MONTH',
+          ? 'register.steps.plan.per_year'
+          : 'register.steps.plan.per_month',
       annualPrice: p.annualBillingAvailable
         ? formatPlanPrice(p, this.localeFor(p.currency), 'annual')
         : null,
@@ -119,19 +120,19 @@ export class StepPlan {
     if (p.description) lines.push({ key: p.description, text: p.description });
 
     for (const limit of p.limits ?? []) {
-      const resource = `REGISTER.STEPS.PLAN.RESOURCES.${limit.resource.toUpperCase()}`;
+      const resource = composeKey('register.steps.plan.resources', limit.resource);
       lines.push({
         key:
           limit.limit === -1
-            ? 'REGISTER.STEPS.PLAN.UNLIMITED'
+            ? 'register.steps.plan.unlimited'
             //  Cero no es una cantidad, es una ausencia. «0 sucursales en total» se lee como un
             //  error de plantilla en la pantalla donde el cliente decide qué pagar; «sin
             //  sucursales» dice lo mismo y se entiende.
             : limit.limit === 0
-              ? 'REGISTER.STEPS.PLAN.NONE'
+              ? 'register.steps.plan.none'
               : limit.period === 'monthly'
-                ? 'REGISTER.STEPS.PLAN.PER_PERIOD_MONTH'
-                : 'REGISTER.STEPS.PLAN.TOTAL',
+                ? 'register.steps.plan.per_period_month'
+                : 'register.steps.plan.total',
         text: '',
         params: { count: limit.limit, resource },
       });
@@ -158,7 +159,7 @@ export class StepPlan {
     }
     // `translateOrLiteral` and not `instant`: the plan description is a key the catalogue may not
     // carry (a row seeded before descriptions became keys), and a bullet reading
-    // `[[BILLING.PLANS.PRO.DESCRIPTION]]` on the screen where the customer chooses what to pay
+    // `[[billing.plans.pro.description]]` on the screen where the customer chooses what to pay
     // for is worse than the untranslated sentence it replaces.
     return translateOrLiteral(this.translate, feature.key, params, feature.text);
   }

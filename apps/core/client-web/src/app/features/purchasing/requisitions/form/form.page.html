@@ -1,6 +1,6 @@
 <vx-draft-shell
-  [title]="(current() ? current()!.number : ('PURCHASING.REQUISITIONS.NEW_REQUISITION' | translate))"
-  [subtitle]="'PURCHASING.REQUISITIONS.TITLE' | translate"
+  [title]="(current() ? current()!.number : ('purchasing.requisitions.new_requisition' | translate))"
+  [subtitle]="'purchasing.requisitions.title' | translate"
   [dirty]="form.dirty"
   [saving]="saving()"
   [invalid]="form.invalid"
@@ -14,7 +14,7 @@
     @if (current()) {
       <div class="doc-status">
         <span class="status-badge">
-          {{ 'PURCHASING.REQUISITIONS.STATUS_LABEL.' + status() | translate }}
+          {{ 'purchasing.requisitions.status_label.' + status() | translate }}
         </span>
         @if (current()!.rejectionReason) {
           <span class="doc-status__reason">{{ current()!.rejectionReason }}</span>
@@ -25,30 +25,30 @@
     <section class="form-section">
       <div class="form-grid">
         <label class="field">
-          <span>{{ 'PURCHASING.REQUISITIONS.REQUIRED_DATE' | translate }}</span>
+          <span>{{ 'purchasing.requisitions.required_date' | translate }}</span>
           <input type="date" formControlName="requiredDate" />
         </label>
 
         <label class="field field--wide">
-          <span>{{ 'PURCHASING.REQUISITIONS.FORM.NOTES' | translate }}</span>
+          <span>{{ 'purchasing.requisitions.form.notes' | translate }}</span>
           <textarea formControlName="notes" rows="2" maxlength="2000"></textarea>
-          <small class="field__note">{{ 'PURCHASING.REQUISITIONS.FORM.NOTES_HELP' | translate }}</small>
+          <small class="field__note">{{ 'purchasing.requisitions.form.notes_help' | translate }}</small>
         </label>
       </div>
     </section>
 
     <section class="form-section">
-      <h2 class="form-section-title">{{ 'PURCHASING.REQUISITIONS.FORM.ITEMS' | translate }}</h2>
+      <h2 class="form-section-title">{{ 'purchasing.requisitions.form.items' | translate }}</h2>
 
       <div class="table-wrapper">
         <table class="lines-table" formArrayName="lines">
           <thead>
             <tr>
-              <th>{{ 'PURCHASING.REQUISITIONS.FORM.PRODUCT' | translate }}</th>
-              <th>{{ 'PURCHASING.REQUISITIONS.FORM.DESCRIPTION' | translate }}</th>
-              <th class="numeric">{{ 'PURCHASING.REQUISITIONS.FORM.QUANTITY' | translate }}</th>
-              <th class="numeric">{{ 'PURCHASING.REQUISITIONS.FORM.ESTIMATED_PRICE' | translate }}</th>
-              <th class="numeric">{{ 'PURCHASING.REQUISITIONS.TOTAL' | translate }}</th>
+              <th>{{ 'purchasing.requisitions.form.product' | translate }}</th>
+              <th>{{ 'purchasing.requisitions.form.description' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.requisitions.form.quantity' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.requisitions.form.estimated_price' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.requisitions.total' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -57,7 +57,7 @@
               <tr [formGroupName]="i">
                 <td>
                   <select formControlName="productId" (change)="onProductChange(i, $any($event.target).value)">
-                    <option value="">{{ 'PURCHASING.REQUISITIONS.FORM.NOT_IN_CATALOGUE' | translate }}</option>
+                    <option value="">{{ 'purchasing.requisitions.form.not_in_catalogue' | translate }}</option>
                     @for (product of products(); track product.id) {
                       <option [value]="product.id">{{ product.name }}</option>
                     }
@@ -70,7 +70,7 @@
                 <td>
                   @if (editable()) {
                     <button class="icon-button" type="button" (click)="removeLine(i)"
-                      [attr.aria-label]="'COMMON.DELETE' | translate">
+                      [attr.aria-label]="'common.delete' | translate">
                       <lucide-icon [img]="RemoveIcon" size="14"></lucide-icon>
                     </button>
                   }
@@ -84,17 +84,17 @@
       @if (editable()) {
         <button class="secondary-button" type="button" (click)="addLine()">
           <lucide-icon [img]="AddIcon" size="14"></lucide-icon>
-          <span>{{ 'PURCHASING.REQUISITIONS.FORM.ADD_LINE' | translate }}</span>
+          <span>{{ 'purchasing.requisitions.form.add_line' | translate }}</span>
         </button>
       }
 
       <div class="totals">
         <div class="totals__line">
-          <span>{{ 'PURCHASING.REQUISITIONS.TOTAL' | translate }}</span>
+          <span>{{ 'purchasing.requisitions.total' | translate }}</span>
           <span class="amount">{{ total() | vxMoney }}</span>
         </div>
         <!-- An estimate, and said so: nobody has quoted yet. -->
-        <small class="field__note">{{ 'PURCHASING.REQUISITIONS.FORM.ESTIMATE_NOTE' | translate }}</small>
+        <small class="field__note">{{ 'purchasing.requisitions.form.estimate_note' | translate }}</small>
       </div>
     </section>
 
@@ -102,27 +102,27 @@
       <section class="form-section doc-actions">
         @if (canSubmit()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="submit()">
-            {{ 'PURCHASING.REQUISITIONS.FORM.SUBMIT' | translate }}
+            {{ 'purchasing.requisitions.form.submit' | translate }}
           </button>
         }
         @if (canDecide()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="approve()">
-            {{ 'PURCHASING.REQUISITIONS.FORM.APPROVE' | translate }}
+            {{ 'purchasing.requisitions.form.approve' | translate }}
           </button>
           <button class="danger-button" type="button" [disabled]="saving()" (click)="startReject()">
-            {{ 'PURCHASING.REQUISITIONS.FORM.REJECT' | translate }}
+            {{ 'purchasing.requisitions.form.reject' | translate }}
           </button>
         }
         @if (canReopen()) {
           <button class="secondary-button" type="button" [disabled]="saving()" (click)="reopen()">
-            {{ 'PURCHASING.REQUISITIONS.FORM.REOPEN' | translate }}
+            {{ 'purchasing.requisitions.form.reopen' | translate }}
           </button>
         }
 
         @if (rejecting()) {
           <div class="reject-box">
             <label class="field">
-              <span>{{ 'PURCHASING.REQUISITIONS.FORM.REJECT_REASON' | translate }}</span>
+              <span>{{ 'purchasing.requisitions.form.reject_reason' | translate }}</span>
               <textarea rows="2" maxlength="500"
                 [value]="rejectionReason()"
                 (input)="rejectionReason.set($any($event.target).value)"></textarea>
@@ -131,10 +131,10 @@
               <button class="danger-button" type="button"
                 [disabled]="rejectionReason().trim().length < 3"
                 (click)="confirmReject()">
-                {{ 'PURCHASING.REQUISITIONS.FORM.CONFIRM_REJECT' | translate }}
+                {{ 'purchasing.requisitions.form.confirm_reject' | translate }}
               </button>
               <button class="secondary-button" type="button" (click)="cancelReject()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'common.cancel' | translate }}
               </button>
             </div>
           </div>

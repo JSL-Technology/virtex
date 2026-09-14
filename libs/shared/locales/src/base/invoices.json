@@ -1,0 +1,1282 @@
+{
+  "invoices.account_description_not_configured": {
+    "es": "Falta la cuenta contable para «{description}».",
+    "en": "The account for “{description}” is not configured.",
+    "pt": "Falta a conta contábil para “{description}”."
+  },
+  "invoices.amount_credit_amount_exceeds_creditable_balance": {
+    "es": "El importe a acreditar ({amount}) excede el saldo acreditable de la factura {invoiceNumber} ({remaining}).",
+    "en": "The amount to credit ({amount}) exceeds the creditable balance of invoice {invoiceNumber} ({remaining}).",
+    "pt": "O valor a creditar ({amount}) excede o saldo creditável da fatura {invoiceNumber} ({remaining})."
+  },
+  "invoices.credit_note_must_reference_invoice_modifies": {
+    "es": "Una nota de crédito debe referenciar la factura que modifica.",
+    "en": "A credit note must reference the invoice it modifies.",
+    "pt": "Uma nota de crédito deve referenciar a fatura que modifica."
+  },
+  "invoices.detail.bill": {
+    "es": "FACTURADO A:",
+    "en": "BILL TO:",
+    "pt": "FATURADO PARA:"
+  },
+  "invoices.detail.cf_resubmitted_dgii": {
+    "es": "e-CF reenviado a la DGII.",
+    "en": "e-CF resubmitted to the DGII.",
+    "pt": "e-CF reenviado à DGII."
+  },
+  "invoices.detail.contact_person": {
+    "es": "Persona de Contacto:",
+    "en": "Contact person:",
+    "pt": "Pessoa de contato:"
+  },
+  "invoices.detail.content": {
+    "es": "Contenido",
+    "en": "Content",
+    "pt": "Conteúdo"
+  },
+  "invoices.detail.copy_from_open_choose_source_document": {
+    "es": "Función «Copiar de» abierta. Selecciona un documento base.",
+    "en": "\"Copy from\" is open. Choose a source document.",
+    "pt": "\"Copiar de\" aberto. Escolha um documento de origem."
+  },
+  "invoices.detail.copying_current_document_into_new_draft": {
+    "es": "Copiando documento actual a nuevo borrador...",
+    "en": "Copying the current document into a new draft...",
+    "pt": "Copiando o documento atual para um novo rascunho..."
+  },
+  "invoices.detail.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "invoices.detail.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "invoices.detail.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "invoices.detail.delete_draft": {
+    "es": "Eliminar borrador",
+    "en": "Delete draft",
+    "pt": "Excluir rascunho"
+  },
+  "invoices.detail.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "invoices.detail.dgii_status": {
+    "es": "Estado DGII:",
+    "en": "DGII status:",
+    "pt": "Status na DGII:"
+  },
+  "invoices.detail.dgii_verification": {
+    "es": "Verificación DGII",
+    "en": "DGII verification",
+    "pt": "Verificação DGII"
+  },
+  "invoices.detail.document_draft": {
+    "es": "Este documento es un borrador.",
+    "en": "This document is a draft.",
+    "pt": "Este documento é um rascunho."
+  },
+  "invoices.detail.download_signed_xml": {
+    "es": "Descargar XML firmado",
+    "en": "Download the signed XML",
+    "pt": "Baixar o XML assinado"
+  },
+  "invoices.detail.draft_deleted": {
+    "es": "Borrador eliminado.",
+    "en": "Draft deleted.",
+    "pt": "Rascunho excluído."
+  },
+  "invoices.detail.due": {
+    "es": "Vencimiento",
+    "en": "Due",
+    "pt": "Vencimento"
+  },
+  "invoices.detail.electronic_fiscal_document_cf": {
+    "es": "Comprobante Fiscal Electrónico (e-CF)",
+    "en": "Electronic Fiscal Document (e-CF)",
+    "pt": "Comprovante Fiscal Eletrônico (e-CF)"
+  },
+  "invoices.detail.export_upper_case_will_available_soon": {
+    "es": "Exportación a {{toUpperCase}} estará disponible próximamente.",
+    "en": "Export to {{toUpperCase}} will be available soon.",
+    "pt": "A exportação para {{toUpperCase}} estará disponível em breve."
+  },
+  "invoices.detail.finance": {
+    "es": "Finanzas",
+    "en": "Finance",
+    "pt": "Finanças"
+  },
+  "invoices.detail.financial_information": {
+    "es": "Información Financiera",
+    "en": "Financial Information",
+    "pt": "Informações Financeiras"
+  },
+  "invoices.detail.grand_total_label": {
+    "literal": "TOTAL:"
+  },
+  "invoices.detail.has_no_fiscal_document_number_carries": {
+    "es": "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.",
+    "en": "It has no fiscal document number and carries no weight with the tax authority.",
+    "pt": "Não tem comprovante fiscal atribuído e não tem valor perante a autoridade tributária."
+  },
+  "invoices.detail.invoice_could_not_loaded": {
+    "es": "No se pudo cargar la factura.",
+    "en": "The invoice could not be loaded.",
+    "pt": "Não foi possível carregar a fatura."
+  },
+  "invoices.detail.invoice_pdf_could_not_downloaded": {
+    "es": "No se pudo descargar el PDF de la factura.",
+    "en": "The invoice PDF could not be downloaded.",
+    "pt": "Não foi possível baixar o PDF da fatura."
+  },
+  "invoices.detail.issue_document": {
+    "es": "Emitir comprobante",
+    "en": "Issue document",
+    "pt": "Emitir documento"
+  },
+  "invoices.detail.issuer_tax_id": {
+    "es": "Identificación fiscal: {{taxId}}",
+    "en": "Tax ID: {{taxId}}",
+    "pt": "Identificação fiscal: {{taxId}}"
+  },
+  "invoices.detail.issuing": {
+    "es": "Emitiendo…",
+    "en": "Issuing…",
+    "pt": "Emitindo…"
+  },
+  "invoices.detail.logistics": {
+    "es": "Logística",
+    "en": "Logistics",
+    "pt": "Logística"
+  },
+  "invoices.detail.logistics_delivery": {
+    "es": "Logística y Entrega",
+    "en": "Logistics and Delivery",
+    "pt": "Logística e Entrega"
+  },
+  "invoices.detail.messages_from_dgii": {
+    "es": "Mensajes de la DGII:",
+    "en": "Messages from the DGII:",
+    "pt": "Mensagens da DGII:"
+  },
+  "invoices.detail.ncf": {
+    "en": "Fiscal document no.:",
+    "es": "N.º de comprobante fiscal:",
+    "pt": "N.º do documento fiscal:"
+  },
+  "invoices.detail.no_signed_xml_available": {
+    "es": "No hay XML firmado disponible.",
+    "en": "There is no signed XML available.",
+    "pt": "Não há XML assinado disponível."
+  },
+  "invoices.detail.not_assigned": {
+    "es": "Sin asignar",
+    "en": "Not assigned",
+    "pt": "Não atribuído"
+  },
+  "invoices.detail.notes": {
+    "es": "Notas:",
+    "en": "Notes:",
+    "pt": "Observações:"
+  },
+  "invoices.detail.open_stamp_lookup": {
+    "es": "Abrir la consulta del timbre",
+    "en": "Open the stamp lookup",
+    "pt": "Abrir a consulta do selo"
+  },
+  "invoices.detail.outstanding_balance": {
+    "es": "Saldo pendiente:",
+    "en": "Outstanding balance:",
+    "pt": "Saldo em aberto:"
+  },
+  "invoices.detail.payment_terms": {
+    "es": "Condición de Pago:",
+    "en": "Payment terms:",
+    "pt": "Condição de pagamento:"
+  },
+  "invoices.detail.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "invoices.detail.qty": {
+    "es": "Cant.",
+    "en": "Qty",
+    "pt": "Qtd."
+  },
+  "invoices.detail.resend_dgii": {
+    "es": "Reenviar a la DGII",
+    "en": "Resend to the DGII",
+    "pt": "Reenviar à DGII"
+  },
+  "invoices.detail.resending": {
+    "es": "Reenviando…",
+    "en": "Resending…",
+    "pt": "Reenviando…"
+  },
+  "invoices.detail.sales_invoice": {
+    "es": "Factura de venta",
+    "en": "Sales invoice",
+    "pt": "Fatura de venda"
+  },
+  "invoices.detail.search_within_lines": {
+    "es": "Buscar en líneas...",
+    "en": "Search within the lines...",
+    "pt": "Buscar nas linhas..."
+  },
+  "invoices.detail.security_code": {
+    "es": "Código de seguridad:",
+    "en": "Security code:",
+    "pt": "Código de segurança:"
+  },
+  "invoices.detail.sending_email": {
+    "es": "Enviando el correo…",
+    "en": "Sending the email…",
+    "pt": "Enviando o e-mail…"
+  },
+  "invoices.detail.shipping_address": {
+    "es": "Dirección de Envío:",
+    "en": "Shipping address:",
+    "pt": "Endereço de entrega:"
+  },
+  "invoices.detail.shipping_method": {
+    "es": "Método de Envío:",
+    "en": "Shipping method:",
+    "pt": "Método de envio:"
+  },
+  "invoices.detail.subtotal": {
+    "literal": "Subtotal:"
+  },
+  "invoices.detail.tax": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "invoices.detail.tax_indicator": {
+    "es": "Indicador de Impuestos:",
+    "en": "Tax indicator:",
+    "pt": "Indicador de impostos:"
+  },
+  "invoices.detail.tax_rate_applied": {
+    "es": "{{rate}} sobre el monto gravado",
+    "en": "{{rate}} on the taxed amount",
+    "pt": "{{rate}} sobre o valor tributado"
+  },
+  "invoices.detail.taxes": {
+    "es": "Impuestos:",
+    "en": "Taxes:",
+    "pt": "Impostos:"
+  },
+  "invoices.detail.total_label": {
+    "literal": "Total"
+  },
+  "invoices.detail.trackid": {
+    "en": "Tracking ID:",
+    "es": "Id. de seguimiento:",
+    "pt": "ID de rastreio:"
+  },
+  "invoices.detail.word_document_generated": {
+    "es": "Documento Word generado con éxito.",
+    "en": "Word document generated.",
+    "pt": "Documento Word gerado."
+  },
+  "invoices.document_discount_must_between_100_exclusive": {
+    "es": "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).",
+    "en": "The document discount must be between 0 % and 100 % (exclusive).",
+    "pt": "O desconto do documento deve estar entre 0 % e 100 % (exclusivo)."
+  },
+  "invoices.document_invoice_number_has_already_issued": {
+    "es": "El documento {{invoiceNumber}} ya fue emitido; no puede emitirse de nuevo.",
+    "en": "Document {{invoiceNumber}} has already been issued; it cannot be issued again.",
+    "pt": "O documento {{invoiceNumber}} já foi emitido; não pode ser emitido novamente."
+  },
+  "invoices.document_type_may_contain_only_letters": {
+    "es": "El tipo de comprobante sólo puede contener letras y números.",
+    "en": "The document type may contain only letters and digits.",
+    "pt": "O tipo de comprovante só pode conter letras e números."
+  },
+  "invoices.document_type_type_does_not_exist": {
+    "es": "El tipo de comprobante {type} no existe en el régimen de {country}.",
+    "en": "Document type {type} does not exist in the {country} regime.",
+    "pt": "O tipo de comprovante {type} não existe no regime de {country}."
+  },
+  "invoices.document_type_type_not_sales_document": {
+    "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
+    "en": "Document type {{type}} is not a sales document.",
+    "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+  },
+  "invoices.draft_not_credited_delete_edit_directly": {
+    "es": "Un borrador no se acredita: elimínalo o modifícalo directamente.",
+    "en": "A draft is not credited: delete it or edit it directly.",
+    "pt": "Um rascunho não recebe nota de crédito: exclua-o ou edite-o diretamente."
+  },
+  "invoices.due_date_cannot_earlier_than_issue": {
+    "es": "La fecha de vencimiento no puede ser anterior a la fecha de emisión.",
+    "en": "The due date cannot be earlier than the issue date.",
+    "pt": "A data de vencimento não pode ser anterior à data de emissão."
+  },
+  "invoices.effect.cost_entry": {
+    "es": "Asiento de costo de venta",
+    "en": "Cost of sale entry",
+    "pt": "Lançamento de custo de venda"
+  },
+  "invoices.effect.fiscal_number": {
+    "es": "Número fiscal que se consume",
+    "en": "Fiscal number to be consumed",
+    "pt": "Número fiscal a consumir"
+  },
+  "invoices.effect.revenue_entry": {
+    "es": "Asiento de ingreso",
+    "en": "Revenue entry",
+    "pt": "Lançamento de receita"
+  },
+  "invoices.effect.stock": {
+    "es": "Movimientos de existencias",
+    "en": "Stock movements",
+    "pt": "Movimentos de existências"
+  },
+  "invoices.entry_document_invoice_number_does_not": {
+    "es": "El asiento del documento {invoiceNumber} no cuadra: débitos {debit} frente a créditos {credit}.",
+    "en": "The entry for document {invoiceNumber} does not balance: debits {debit} against credits {credit}.",
+    "pt": "O lançamento do documento {invoiceNumber} não fecha: débitos {debit} contra créditos {credit}."
+  },
+  "invoices.exchange_rate_configured_currency_code_not": {
+    "es": "La tasa de cambio configurada para {{currencyCode}} no es válida.",
+    "en": "The exchange rate configured for {{currencyCode}} is not valid.",
+    "pt": "A taxa de câmbio configurada para {{currencyCode}} não é válida."
+  },
+  "invoices.export.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "invoices.export.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "invoices.export.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "invoices.export.document": {
+    "es": "Documento",
+    "en": "Document",
+    "pt": "Documento"
+  },
+  "invoices.export.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "invoices.export.due_date": {
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
+  },
+  "invoices.export.exempt": {
+    "es": "Exento",
+    "en": "Exempt",
+    "pt": "Isento"
+  },
+  "invoices.export.export_complete": {
+    "es": "Exportación completada.",
+    "en": "Export complete.",
+    "pt": "Exportação concluída."
+  },
+  "invoices.export.exported_exported_total_invoices_narrow_filter": {
+    "es": "Exportadas {{exported}} de {{total}} facturas. Afine el filtro para incluir el resto.",
+    "en": "Exported {{exported}} of {{total}} invoices. Narrow the filter to include the rest.",
+    "pt": "Exportadas {{exported}} de {{total}} faturas. Refine o filtro para incluir o restante."
+  },
+  "invoices.export.fiscal_document_number": {
+    "es": "Comprobante fiscal",
+    "en": "Fiscal document number",
+    "pt": "Documento fiscal"
+  },
+  "invoices.export.invoices": {
+    "es": "facturas",
+    "en": "invoices",
+    "pt": "faturas"
+  },
+  "invoices.export.issue_date": {
+    "es": "Fecha de emisión",
+    "en": "Issue date",
+    "pt": "Data de emissão"
+  },
+  "invoices.export.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "invoices.export.tax": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "invoices.export.tax_id": {
+    "es": "Identificación fiscal",
+    "en": "Tax ID",
+    "pt": "Identificação fiscal"
+  },
+  "invoices.export.taxed": {
+    "es": "Gravado",
+    "en": "Taxed",
+    "pt": "Tributado"
+  },
+  "invoices.export.total": {
+    "literal": "Total"
+  },
+  "invoices.invoice_has_already_credited_full": {
+    "es": "La factura ya fue acreditada en su totalidad.",
+    "en": "The invoice has already been credited in full.",
+    "pt": "A fatura já foi creditada integralmente."
+  },
+  "invoices.invoice_has_already_voided_full": {
+    "es": "La factura ya fue anulada en su totalidad.",
+    "en": "The invoice has already been voided in full.",
+    "pt": "A fatura já foi cancelada integralmente."
+  },
+  "invoices.invoice_id_not_found": {
+    "es": "Factura con ID \"{{id}}\" no encontrada.",
+    "en": "Invoice \"{{id}}\" was not found.",
+    "pt": "Fatura \"{{id}}\" não encontrada."
+  },
+  "invoices.invoice_invoice_id_not_found": {
+    "es": "Factura con ID \"{{invoiceId}}\" no encontrada.",
+    "en": "Invoice \"{{invoiceId}}\" was not found.",
+    "pt": "Fatura \"{{invoiceId}}\" não encontrada."
+  },
+  "invoices.invoice_print_template_not_found_resolved": {
+    "es": "No se encontró la plantilla de impresión de facturas ({{resolved}}): {{p2}}",
+    "en": "The invoice print template was not found ({{resolved}}): {{p2}}",
+    "pt": "O modelo de impressão da fatura não foi encontrado ({{resolved}}): {{p2}}"
+  },
+  "invoices.invoice_referenced_credit_note_does_not": {
+    "es": "La factura referenciada por la nota de crédito no existe.",
+    "en": "The invoice referenced by the credit note does not exist.",
+    "pt": "A fatura referenciada pela nota de crédito não existe."
+  },
+  "invoices.invoice_selection_dialog.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "invoices.invoice_selection_dialog.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "invoices.invoice_selection_dialog.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "invoices.invoice_selection_dialog.invoice_number": {
+    "es": "Factura #",
+    "en": "Invoice #",
+    "pt": "Fatura n.º"
+  },
+  "invoices.invoice_selection_dialog.loading_documents": {
+    "es": "Cargando documentos...",
+    "en": "Loading documents...",
+    "pt": "Carregando documentos..."
+  },
+  "invoices.invoice_selection_dialog.no_invoices_found": {
+    "es": "No se encontraron facturas.",
+    "en": "No invoices were found.",
+    "pt": "Nenhuma fatura encontrada."
+  },
+  "invoices.invoice_selection_dialog.search_number_customer": {
+    "es": "Buscar por número o cliente...",
+    "en": "Search by number or customer...",
+    "pt": "Buscar por número ou cliente..."
+  },
+  "invoices.invoice_selection_dialog.select_source_document_copy_from": {
+    "es": "Seleccionar Documento Base (Copiar de...)",
+    "en": "Select a Source Document (Copy from...)",
+    "pt": "Selecionar Documento de Origem (Copiar de...)"
+  },
+  "invoices.invoice_selection_dialog.total": {
+    "literal": "Total"
+  },
+  "invoices.invoice_toolbar.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "invoices.invoice_toolbar.copy": {
+    "es": "Copiar a",
+    "en": "Copy to",
+    "pt": "Copiar para"
+  },
+  "invoices.invoice_toolbar.copy_document": {
+    "es": "Copiar a...",
+    "en": "Copy to...",
+    "pt": "Copiar para..."
+  },
+  "invoices.invoice_toolbar.copy_from": {
+    "es": "Copiar de",
+    "en": "Copy from",
+    "pt": "Copiar de"
+  },
+  "invoices.invoice_toolbar.copy_from_document": {
+    "es": "Copiar de...",
+    "en": "Copy from...",
+    "pt": "Copiar de..."
+  },
+  "invoices.invoice_toolbar.export_excel": {
+    "es": "Exportar a Excel",
+    "en": "Export to Excel",
+    "pt": "Exportar para Excel"
+  },
+  "invoices.invoice_toolbar.export_pdf": {
+    "es": "Exportar a PDF",
+    "en": "Export to PDF",
+    "pt": "Exportar para PDF"
+  },
+  "invoices.invoice_toolbar.export_word": {
+    "es": "Exportar a Word",
+    "en": "Export to Word",
+    "pt": "Exportar para Word"
+  },
+  "invoices.invoice_toolbar.first": {
+    "es": "Primero",
+    "en": "First",
+    "pt": "Primeiro"
+  },
+  "invoices.invoice_toolbar.form_settings": {
+    "es": "Parametrizaciones de formulario",
+    "en": "Form settings",
+    "pt": "Parametrizações do formulário"
+  },
+  "invoices.invoice_toolbar.go_next": {
+    "es": "Siguiente",
+    "en": "Next",
+    "pt": "Avançar"
+  },
+  "invoices.invoice_toolbar.help": {
+    "es": "Ayuda",
+    "en": "Help",
+    "pt": "Ajuda"
+  },
+  "invoices.invoice_toolbar.last": {
+    "es": "Último",
+    "en": "Last",
+    "pt": "Último"
+  },
+  "invoices.invoice_toolbar.next": {
+    "es": "Avanzar",
+    "en": "Next",
+    "pt": "Avançar"
+  },
+  "invoices.invoice_toolbar.previous": {
+    "es": "Anterior",
+    "en": "Previous",
+    "pt": "Anterior"
+  },
+  "invoices.invoice_toolbar.print": {
+    "es": "Imprimir",
+    "en": "Print",
+    "pt": "Imprimir"
+  },
+  "invoices.invoice_toolbar.search_within_document": {
+    "es": "Búsqueda sobre documento",
+    "en": "Search within the document",
+    "pt": "Buscar no documento"
+  },
+  "invoices.invoice_toolbar.send_email": {
+    "es": "Enviar por correo",
+    "en": "Send by email",
+    "pt": "Enviar por e-mail"
+  },
+  "invoices.issue": {
+    "es": "Emitir",
+    "en": "Issue",
+    "pt": "Emitir"
+  },
+  "invoices.issue_preview_title": {
+    "es": "Qué ocurrirá al emitir",
+    "en": "What issuing will do",
+    "pt": "O que acontecerá ao emitir"
+  },
+  "invoices.issued_document_not_deleted_void_with": {
+    "es": "Un comprobante emitido no se elimina: anúlalo con una nota de crédito.",
+    "en": "An issued document is not deleted: void it with a credit note.",
+    "pt": "Um documento emitido não é excluído: cancele-o com uma nota de crédito."
+  },
+  "invoices.label_must_expressed_fraction_between": {
+    "es": "{{label}} debe expresarse como fracción entre 0 y 1.",
+    "en": "{{label}} must be expressed as a fraction between 0 and 1.",
+    "pt": "{{label}} deve ser expresso como uma fração entre 0 e 1."
+  },
+  "invoices.label_must_number_greater_than_equal": {
+    "es": "{{label}} debe ser un número mayor o igual que cero.",
+    "en": "{{label}} must be a number greater than or equal to zero.",
+    "pt": "{{label}} deve ser um número maior ou igual a zero."
+  },
+  "invoices.label_must_number_greater_than_zero": {
+    "es": "{{label}} debe ser un número mayor que cero.",
+    "en": "{{label}} must be a number greater than zero.",
+    "pt": "{{label}} deve ser um número maior que zero."
+  },
+  "invoices.line_discount_must_between_100_exclusive": {
+    "es": "El descuento de línea debe estar entre 0 % y 100 % (exclusivo).",
+    "en": "The line discount must be between 0 % and 100 % (exclusive).",
+    "pt": "O desconto da linha deve estar entre 0 % e 100 % (exclusivo)."
+  },
+  "invoices.line_line_id_appears_twice_request": {
+    "es": "La línea {{lineId}} aparece dos veces en la solicitud.",
+    "en": "Line {{lineId}} appears twice in the request.",
+    "pt": "A linha {{lineId}} aparece duas vezes na solicitação."
+  },
+  "invoices.line_line_id_does_not_belong": {
+    "es": "La línea {{lineId}} no pertenece a la factura {{invoiceNumber}}.",
+    "en": "Line {{lineId}} does not belong to invoice {{invoiceNumber}}.",
+    "pt": "A linha {{lineId}} não pertence à fatura {{invoiceNumber}}."
+  },
+  "invoices.line_p1_has_no_price_enter": {
+    "es": "La línea {{p1}} no tiene precio: indícalo o selecciona un producto del catálogo.",
+    "en": "Line {{p1}} has no price: enter one, or select a product from the catalogue.",
+    "pt": "A linha {{p1}} não tem preço: informe um ou selecione um produto do catálogo."
+  },
+  "invoices.line_p1_needs_description_product_from": {
+    "es": "La línea {{p1}} necesita una descripción o un producto del catálogo.",
+    "en": "Line {{p1}} needs a description or a product from the catalogue.",
+    "pt": "A linha {{p1}} precisa de uma descrição ou de um produto do catálogo."
+  },
+  "invoices.list.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "invoices.list.created": {
+    "es": "Creación",
+    "en": "Created",
+    "pt": "Criação"
+  },
+  "invoices.list.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "invoices.list.due": {
+    "es": "Vencimiento",
+    "en": "Due",
+    "pt": "Vencimento"
+  },
+  "invoices.list.full_invoicing_management_document_tracking": {
+    "es": "Gestión completa de facturación y seguimiento de documentos.",
+    "en": "Full invoicing management and document tracking.",
+    "pt": "Gestão completa de faturamento e acompanhamento de documentos."
+  },
+  "invoices.list.invoice_number": {
+    "es": "Factura #",
+    "en": "Invoice #",
+    "pt": "Fatura n.º"
+  },
+  "invoices.list.invoice_pagination": {
+    "es": "Paginación de facturas",
+    "en": "Invoice pagination",
+    "pt": "Paginação de faturas"
+  },
+  "invoices.list.invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "invoices.list.list_could_not_exported": {
+    "es": "No se pudo exportar el listado.",
+    "en": "The list could not be exported.",
+    "pt": "Não foi possível exportar a listagem."
+  },
+  "invoices.list.load_failed": {
+    "es": "No se pudieron cargar las facturas. Inténtalo de nuevo.",
+    "en": "The invoices could not be loaded. Try again.",
+    "pt": "Não foi possível carregar as faturas. Tente novamente."
+  },
+  "invoices.list.new_sales_invoice": {
+    "es": "Nueva factura de venta",
+    "en": "New sales invoice",
+    "pt": "Nova fatura de venda"
+  },
+  "invoices.list.next": {
+    "es": "Siguiente",
+    "en": "Next",
+    "pt": "Avançar"
+  },
+  "invoices.list.page_page_pages": {
+    "es": "Página {{page}} de {{pages}}",
+    "en": "Page {{page}} of {{pages}}",
+    "pt": "Página {{page}} de {{pages}}"
+  },
+  "invoices.list.paid": {
+    "es": "Cobrada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "invoices.list.partial": {
+    "es": "Parcial",
+    "en": "Partial",
+    "pt": "Parcial"
+  },
+  "invoices.list.pending": {
+    "es": "Pendiente",
+    "en": "Pending",
+    "pt": "Pendente"
+  },
+  "invoices.list.previous": {
+    "es": "Anterior",
+    "en": "Previous",
+    "pt": "Anterior"
+  },
+  "invoices.list.range": {
+    "es": "{{from}}–{{to}} de {{total}}",
+    "en": "{{from}}–{{to}} of {{total}}",
+    "pt": "{{from}}–{{to}} de {{total}}"
+  },
+  "invoices.list.range_empty": {
+    "es": "Sin facturas",
+    "en": "No invoices",
+    "pt": "Sem faturas"
+  },
+  "invoices.list.search_customer_invoice_number": {
+    "es": "Buscar por cliente o número de factura...",
+    "en": "Search by customer or invoice number...",
+    "pt": "Buscar por cliente ou número da fatura..."
+  },
+  "invoices.list.status": {
+    "es": "Estado:",
+    "en": "Status:",
+    "pt": "Situação:"
+  },
+  "invoices.list.status_filter": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "invoices.list.total": {
+    "literal": "Total"
+  },
+  "invoices.list.voided": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Cancelada"
+  },
+  "invoices.new.add_line_button": {
+    "es": "+ Añadir línea",
+    "en": "+ Add line",
+    "pt": "+ Adicionar linha"
+  },
+  "invoices.new.automatic_according_buyer": {
+    "es": "Automático según el comprador",
+    "en": "Automatic, according to the buyer",
+    "pt": "Automático conforme o comprador"
+  },
+  "invoices.new.bank_transfer": {
+    "es": "Transferencia",
+    "en": "Bank transfer",
+    "pt": "Transferência"
+  },
+  "invoices.new.barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "invoices.new.calculating_amounts": {
+    "es": "Calculando importes…",
+    "en": "Calculating amounts…",
+    "pt": "Calculando valores…"
+  },
+  "invoices.new.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "invoices.new.cheque": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "invoices.new.content": {
+    "es": "Contenido",
+    "en": "Content",
+    "pt": "Conteúdo"
+  },
+  "invoices.new.create_sales_invoice": {
+    "es": "Crear factura de venta",
+    "en": "Create the sales invoice",
+    "pt": "Criar a fatura de venda"
+  },
+  "invoices.new.credit_card": {
+    "es": "Tarjeta de crédito",
+    "en": "Credit card",
+    "pt": "Cartão de crédito"
+  },
+  "invoices.new.credit_sale": {
+    "es": "Venta a crédito",
+    "en": "Credit sale",
+    "pt": "Venda a prazo"
+  },
+  "invoices.new.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "invoices.new.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "invoices.new.data_loaded_from_invoice_number": {
+    "es": "Datos cargados desde {{invoiceNumber}}.",
+    "en": "Data loaded from {{invoiceNumber}}.",
+    "pt": "Dados carregados de {{invoiceNumber}}."
+  },
+  "invoices.new.debit_card": {
+    "es": "Tarjeta de débito",
+    "en": "Debit card",
+    "pt": "Cartão de débito"
+  },
+  "invoices.new.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "invoices.new.disc": {
+    "es": "Desc. %",
+    "en": "Disc. %",
+    "pt": "Desc. %"
+  },
+  "invoices.new.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "invoices.new.discounts_charges": {
+    "es": "Descuentos y cargos",
+    "en": "Discounts and charges",
+    "pt": "Descontos e encargos"
+  },
+  "invoices.new.document_discount_fraction": {
+    "es": "Descuento del documento (fracción)",
+    "en": "Document discount (fraction)",
+    "pt": "Desconto do documento (fração)"
+  },
+  "invoices.new.document_type": {
+    "es": "Tipo de comprobante",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "invoices.new.draft_number_saved": {
+    "es": "Borrador {{number}} guardado.",
+    "en": "Draft {{number}} saved.",
+    "pt": "Rascunho {{number}} salvo."
+  },
+  "invoices.new.due_date": {
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
+  },
+  "invoices.new.excise_duty": {
+    "es": "Impuesto selectivo",
+    "en": "Excise duty",
+    "pt": "Imposto seletivo"
+  },
+  "invoices.new.exempt": {
+    "es": "Exento",
+    "en": "Exempt",
+    "pt": "Isento"
+  },
+  "invoices.new.fiscal_document": {
+    "es": "Comprobante fiscal",
+    "en": "Fiscal document",
+    "pt": "Documento fiscal"
+  },
+  "invoices.new.free_text_line": {
+    "es": "— Concepto libre —",
+    "en": "— Free-text line —",
+    "pt": "— Item livre —"
+  },
+  "invoices.new.go_tax_settings": {
+    "es": "Ir a la configuración fiscal",
+    "en": "Go to the tax settings",
+    "pt": "Ir para as configurações fiscais"
+  },
+  "invoices.new.income_tax_withheld_fraction_base": {
+    "es": "ISR retenido (fracción de la base)",
+    "en": "Income tax withheld (fraction of the base)",
+    "pt": "IR retido (fração da base)"
+  },
+  "invoices.new.insufficient_stock": {
+    "es": "Una o más líneas superan las existencias disponibles.",
+    "en": "One or more lines exceed the stock on hand.",
+    "pt": "Uma ou mais linhas excedem o estoque disponível."
+  },
+  "invoices.new.invoice_number_issued": {
+    "es": "Factura {{number}} emitida.",
+    "en": "Invoice {{number}} issued.",
+    "pt": "Fatura {{number}} emitida."
+  },
+  "invoices.new.invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "invoices.new.invoicing_configuration_could_not_loaded": {
+    "es": "No se pudo cargar la configuración de facturación.",
+    "en": "The invoicing configuration could not be loaded.",
+    "pt": "Não foi possível carregar a configuração de faturamento."
+  },
+  "invoices.new.issue_date": {
+    "es": "Fecha de emisión",
+    "en": "Issue date",
+    "pt": "Data de emissão"
+  },
+  "invoices.new.issue_invoice": {
+    "es": "Emitir factura",
+    "en": "Issue invoice",
+    "pt": "Emitir fatura"
+  },
+  "invoices.new.item": {
+    "es": "Artículo",
+    "en": "Item",
+    "pt": "Item"
+  },
+  "invoices.new.market_has_no_electronic_invoicing_regime": {
+    "es": "Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El\n                documento se numera internamente y se contabiliza, pero no se sella ante ninguna\n                autoridad.",
+    "en": "This market has no electronic invoicing regime implemented yet. The document is numbered internally and posted, but it is not stamped by any authority.",
+    "pt": "Este mercado ainda não tem regime de documentos fiscais eletrônicos implementado. O documento é numerado internamente e contabilizado, mas não é autorizado por nenhuma autoridade."
+  },
+  "invoices.new.net_receivable": {
+    "es": "Neto a cobrar",
+    "en": "Net receivable",
+    "pt": "Líquido a receber"
+  },
+  "invoices.new.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
+  },
+  "invoices.new.other": {
+    "es": "Otra",
+    "en": "Other",
+    "pt": "Outra"
+  },
+  "invoices.new.payment_method": {
+    "es": "Forma de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
+  },
+  "invoices.new.payment_method_cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "invoices.new.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "invoices.new.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "invoices.new.remove_line": {
+    "es": "Eliminar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "invoices.new.save_draft": {
+    "es": "Guardar borrador",
+    "en": "Save as draft",
+    "pt": "Salvar rascunho"
+  },
+  "invoices.new.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "invoices.new.select_customer": {
+    "es": "Seleccionar cliente",
+    "en": "Select a customer",
+    "pt": "Selecionar cliente"
+  },
+  "invoices.new.service_charge": {
+    "es": "Propina legal",
+    "en": "Service charge",
+    "pt": "Taxa de serviço"
+  },
+  "invoices.new.service_charge_fraction_market_rate": {
+    "es": "Propina legal (fracción; en este mercado es {{rate}} %)",
+    "en": "Service charge (fraction; in this market it is {{rate}} %)",
+    "pt": "Taxa de serviço (fração; neste mercado é {{rate}} %)"
+  },
+  "invoices.new.stock_shortfall": {
+    "es": "Faltan {{units}} unidades en existencia",
+    "en": "{{units}} units short of the stock on hand",
+    "pt": "Faltam {{units}} unidades em estoque"
+  },
+  "invoices.new.subtotal": {
+    "literal": "Subtotal"
+  },
+  "invoices.new.summary": {
+    "es": "Resumen",
+    "en": "Summary",
+    "pt": "Resumo"
+  },
+  "invoices.new.tax_collection": {
+    "es": "Fiscal y cobro",
+    "en": "Tax and collection",
+    "pt": "Fiscal e cobrança"
+  },
+  "invoices.new.tax_column": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "invoices.new.tax_column_header": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto",
+    "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
+  },
+  "invoices.new.tax_withheld_fraction_tax": {
+    "es": "ITBIS retenido (fracción del impuesto)",
+    "en": "Tax withheld (fraction of the tax)",
+    "pt": "Imposto retido (fração do imposto)"
+  },
+  "invoices.new.taxed": {
+    "es": "Gravado",
+    "en": "Taxed",
+    "pt": "Tributado"
+  },
+  "invoices.new.total": {
+    "literal": "Total"
+  },
+  "invoices.new.treatment": {
+    "es": "Tratamiento",
+    "en": "Treatment",
+    "pt": "Tratamento"
+  },
+  "invoices.new.voucher_gift_certificate": {
+    "es": "Bono o certificado de regalo",
+    "en": "Voucher or gift certificate",
+    "pt": "Vale ou cartão-presente"
+  },
+  "invoices.new.what_buyer_withholds_remits_seller_behalf": {
+    "es": "Lo que el comprador retiene y remite por cuenta del vendedor. Reduce el importe a\n              cobrar, no el valor del comprobante.",
+    "en": "What the buyer withholds and remits on the seller's behalf. It reduces the amount to collect, not the value of the document.",
+    "pt": "O que o comprador retém e recolhe por conta do vendedor. Reduz o valor a receber, não o valor do documento."
+  },
+  "invoices.new.withholding_source": {
+    "es": "Retenciones en la fuente",
+    "en": "Withholding at source",
+    "pt": "Retenções na fonte"
+  },
+  "invoices.new.withholdings": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "invoices.new.you_cannot_issue_fiscal_documents_yet": {
+    "es": "Todavía no puedes emitir comprobantes.",
+    "en": "You cannot issue fiscal documents yet.",
+    "pt": "Você ainda não pode emitir documentos fiscais."
+  },
+  "invoices.new.zero_rated": {
+    "es": "Tasa cero",
+    "en": "Zero-rated",
+    "pt": "Alíquota zero"
+  },
+  "invoices.no_account_configured_excise_tax_payable": {
+    "es": "No hay cuenta de impuesto selectivo al consumo configurada.",
+    "en": "No account is configured for excise tax payable.",
+    "pt": "Não há conta de imposto seletivo configurada."
+  },
+  "invoices.no_account_configured_legal_service_charge": {
+    "es": "No hay cuenta de propina legal por pagar configurada.",
+    "en": "No account is configured for the legal service charge payable.",
+    "pt": "Não há conta de gorjeta legal a pagar configurada."
+  },
+  "invoices.no_account_configured_withholding_suffered_document": {
+    "es": "No hay cuenta de retenciones recibidas configurada y el documento aplica retención.",
+    "en": "No account is configured for withholding suffered, and the document applies withholding.",
+    "pt": "Não há conta de retenções recebidas configurada e o documento aplica retenção."
+  },
+  "invoices.no_journal_code_organization_create_under": {
+    "es": "No existe el diario \"{{code}}\" para esta organización. Créalo en Ajustes → Contabilidad.",
+    "en": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
+    "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade."
+  },
+  "invoices.only_draft_can_edited_issued_document": {
+    "es": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
+    "en": "Only a draft can be edited. An issued document is corrected with a credit note.",
+    "pt": "Somente um rascunho pode ser editado. Um documento emitido é corrigido com uma nota de crédito."
+  },
+  "invoices.only_invoice_can_credited": {
+    "es": "Solo una factura puede ser acreditada.",
+    "en": "Only an invoice can be credited.",
+    "pt": "Somente uma fatura pode receber nota de crédito."
+  },
+  "invoices.organization_accounting_setup_incomplete_accounts_receivable": {
+    "es": "La configuración contable de la organización está incompleta: se requieren las cuentas de Cuentas por Cobrar, Ingresos por Ventas e Impuesto sobre Ventas por Pagar. Revísalas en Ajustes → Contabilidad.",
+    "en": "The organization's accounting setup is incomplete: the Accounts Receivable, Sales Revenue and Sales Tax Payable accounts are required. Review them in Settings → Accounting.",
+    "pt": "A configuração contábil da organização está incompleta: são necessárias as contas de Contas a Receber, Receita de Vendas e Imposto sobre Vendas a Pagar. Revise em Configurações → Contabilidade."
+  },
+  "invoices.organization_has_no_default_ledger_create": {
+    "es": "La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.",
+    "en": "The organization has no default ledger. Create one under Settings → Accounting.",
+    "pt": "A organização não tem um livro contábil padrão. Crie um em Configurações → Contabilidade."
+  },
+  "invoices.organization_not_found": {
+    "es": "Organización no encontrada.",
+    "en": "Organization not found.",
+    "pt": "Organização não encontrada."
+  },
+  "invoices.original_invoice_has_no_lines_credit": {
+    "es": "La factura original no tiene líneas que acreditar.",
+    "en": "The original invoice has no lines to credit.",
+    "pt": "A fatura original não tem linhas a creditar."
+  },
+  "invoices.original_invoice_invoice_id_not_found": {
+    "es": "Factura original con ID \"{{invoiceId}}\" no encontrada.",
+    "en": "The original invoice \"{{invoiceId}}\" was not found.",
+    "pt": "A fatura original \"{{invoiceId}}\" não foi encontrada."
+  },
+  "invoices.payment_method.bank_transfer": {
+    "es": "Transferencia bancaria",
+    "en": "Bank transfer",
+    "pt": "Transferência bancária"
+  },
+  "invoices.payment_method.barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "invoices.payment_method.cash": {
+    "es": "Contado",
+    "en": "Cash",
+    "pt": "À vista"
+  },
+  "invoices.payment_method.check": {
+    "en": "Check",
+    "es": "Cheque",
+    "pt": "Cheque"
+  },
+  "invoices.payment_method.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "invoices.payment_method.credit_card": {
+    "es": "Tarjeta de crédito",
+    "en": "Credit card",
+    "pt": "Cartão de crédito"
+  },
+  "invoices.payment_method.debit_card": {
+    "es": "Tarjeta de débito",
+    "en": "Debit card",
+    "pt": "Cartão de débito"
+  },
+  "invoices.payment_method.gift_card": {
+    "es": "Tarjeta de regalo",
+    "en": "Gift card",
+    "pt": "Vale-presente"
+  },
+  "invoices.payment_method.other": {
+    "es": "Otro medio",
+    "en": "Other method",
+    "pt": "Outro meio"
+  },
+  "invoices.payment_method.swap": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "invoices.precondition.draft": {
+    "es": "El documento está en borrador y puede emitirse.",
+    "en": "The document is a draft and can be issued.",
+    "pt": "O documento está em rascunho e pode ser emitido."
+  },
+  "invoices.precondition.sequence_available": {
+    "es": "Secuencia fiscal disponible — siguiente: {{number}}",
+    "en": "Fiscal sequence available — next: {{number}}",
+    "pt": "Sequência fiscal disponível — seguinte: {{number}}"
+  },
+  "invoices.product_p1_not_found_p2_catalogue": {
+    "es": "Producto{{p1}} no encontrado{{p2}} en el catálogo: {{p3}}.",
+    "en": "Product{{p1}} not found{{p2}} in the catalogue: {{p3}}.",
+    "pt": "Produto{{p1}} não encontrado{{p2}} no catálogo: {{p3}}."
+  },
+  "invoices.status.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "invoices.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "invoices.status.paid": {
+    "es": "Cobrada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "invoices.status.partially_paid": {
+    "es": "Cobrada parcialmente",
+    "en": "Partially paid",
+    "pt": "Paga parcialmente"
+  },
+  "invoices.status.pending": {
+    "es": "Pendiente",
+    "en": "Pending",
+    "pt": "Pendente"
+  },
+  "invoices.status.void": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Cancelada"
+  },
+  "invoices.statutory_service_charge_must_between_50": {
+    "es": "La propina legal debe estar entre 0 % y 50 %.",
+    "en": "The statutory service charge must be between 0 % and 50 %.",
+    "pt": "A taxa de serviço legal deve estar entre 0 % e 50 %."
+  },
+  "invoices.tax_rate_must_expressed_fraction_between": {
+    "es": "La tasa de impuesto debe expresarse como fracción entre 0 y 1.",
+    "en": "The tax rate must be expressed as a fraction between 0 and 1.",
+    "pt": "A alíquota deve ser expressa como uma fração entre 0 e 1."
+  },
+  "invoices.tax_rate_rate_not_valid_country": {
+    "es": "La tasa de impuesto {{rate}} no es válida para {{countryCode}}. Tasas permitidas: {{allowed}}.",
+    "en": "The tax rate {{rate}} is not valid for {{countryCode}}. Permitted rates: {{allowed}}.",
+    "pt": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}."
+  },
+  "invoices.type_type_not_valid_credit_note": {
+    "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",
+    "en": "Type {{type}} is not a valid credit-note document.",
+    "pt": "O tipo {{type}} não é um documento de nota de crédito válido."
+  },
+  "invoices.withholding_stated_stated_not_what_applicable": {
+    "es": "La retención indicada ({{stated}}) no corresponde al régimen aplicable ({{resolved}}, regímenes: {{regimes}}). Si la excepción es correcta, indica el motivo en «withholdingOverrideReason».",
+    "en": "The withholding stated ({{stated}}) is not what the applicable regime produces ({{resolved}}, regimes: {{regimes}}). If the exception is correct, state why in `withholdingOverrideReason`.",
+    "pt": "A retenção informada ({{stated}}) não corresponde ao regime aplicável ({{resolved}}, regimes: {{regimes}}). Se a exceção estiver correta, informe o motivo em «withholdingOverrideReason»."
+  },
+  "invoices.you_asked_type_requested_document_type": {
+    "es": "Pediste el tipo {requested} y este documento corresponde al tipo {resolved}. El tipo lo determina el documento, no la solicitud.",
+    "en": "You asked for type {requested} and this document is type {resolved}. The document determines the type, not the request.",
+    "pt": "Você pediu o tipo {requested} e este documento corresponde ao tipo {resolved}. O tipo é determinado pelo documento, não pela solicitação."
+  }
+}

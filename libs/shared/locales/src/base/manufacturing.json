@@ -1,0 +1,17 @@
+{
+  "manufacturing.bill_of_material_not_found": {
+    "es": "No se encontró la lista de materiales \"{{id}}\".",
+    "en": "Bill of materials \"{{id}}\" was not found.",
+    "pt": "A lista de materiais \"{{id}}\" não foi encontrada."
+  },
+  "manufacturing.production_order_not_found": {
+    "es": "No se encontró la orden de producción \"{{id}}\".",
+    "en": "Production order \"{{id}}\" was not found.",
+    "pt": "A ordem de produção \"{{id}}\" não foi encontrada."
+  },
+  "manufacturing.work_centre_id_not_found": {
+    "es": "No se encontró el centro de trabajo \"{{id}}\".",
+    "en": "Work centre \"{{id}}\" was not found.",
+    "pt": "O centro de trabalho \"{{id}}\" não foi encontrado."
+  }
+}

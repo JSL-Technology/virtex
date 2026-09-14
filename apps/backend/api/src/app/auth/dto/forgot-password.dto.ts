@@ -5,8 +5,8 @@ import { NormalizeEmail } from '../../common/transformers/normalize-email.transf
 export class ForgotPasswordDto {
   // Canonicalised so recovery finds the account regardless of the case the user types.
   @NormalizeEmail()
-  @IsEmail({}, { message: 'VALIDATION.FORGOT_PASSWORD.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
-  @IsNotEmpty({ message: 'VALIDATION.FORGOT_PASSWORD.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
+  @IsEmail({}, { message: 'validation.forgot_password.email_address_not_valid' })
+  @IsNotEmpty({ message: 'validation.forgot_password.email_address_cannot_empty' })
   email: string;
 
   @IsRecaptchaToken()

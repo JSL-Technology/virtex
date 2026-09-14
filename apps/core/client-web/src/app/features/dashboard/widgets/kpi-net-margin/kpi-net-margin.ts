@@ -27,10 +27,10 @@ export class KpiNetMarginComponent implements OnInit {
   ngOnInit(): void {
     this.kpi$ = this.dashboardApiService.getNetMargin().pipe(
       map(data => ({
-        title: 'DASH.WIDGET.KPI_NET_MARGIN.TITLE',
+        title: 'dash.widget.kpi_net_margin.title',
         value: data.netMargin.toFixed(2) + '%',
         comparisonValue: '', // El backend no provee comparación aún
-        comparisonPeriod: 'DASH.WIDGET.KPI_NET_MARGIN.COMP_PERIOD',
+        comparisonPeriod: 'dash.widget.kpi_net_margin.vs_prior_year',
         isPositive: data.netMargin > 0,
         iconName: 'Percent',
         color: 'green'

@@ -17,17 +17,17 @@ export class CreateRunDto {
   name?: string;
 
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode?: string;
 
   @IsInt()
-  @Min(2000, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":2000}' })
-  @Max(2100, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":2100}' })
+  @Min(2000, { message: 'validation.constraints.min|{"min":2000}' })
+  @Max(2100, { message: 'validation.constraints.max|{"max":2100}' })
   periodYear: number;
 
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(12, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":12}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(12, { message: 'validation.constraints.max|{"max":12}' })
   periodMonth: number;
 
   @IsDateString()

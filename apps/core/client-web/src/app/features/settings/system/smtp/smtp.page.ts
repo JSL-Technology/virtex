@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.SMTP.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.SMTP.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.smtp.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.smtp.configure_outgoing_mail_server_used_system' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.SMTP.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.SMTP.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.SMTP.FEATURES.F1','SETTINGS.PAGES.SMTP.FEATURES.F2','SETTINGS.PAGES.SMTP.FEATURES.F3','SETTINGS.PAGES.SMTP.FEATURES.F4','SETTINGS.PAGES.SMTP.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.smtp.empty_title'"
+        [description]="'settings.pages.smtp.empty_description'"
+        [features]="['settings.pages.smtp.features.f1','settings.pages.smtp.features.f2','settings.pages.smtp.features.f3','settings.pages.smtp.features.f4','settings.pages.smtp.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

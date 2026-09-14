@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Calendar, RefreshCw } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 
@@ -51,10 +51,10 @@ export class AgingPage {
   readonly failed = signal(false);
 
   readonly titleKey =
-    this.side === 'payables' ? 'REPORTS.AGING.TITULO_CXP' : 'REPORTS.AGING.TITULO_CXC';
+    this.side === 'payables' ? 'reports.aging.accounts_payable_ageing' : 'reports.aging.accounts_receivable_ageing';
 
   readonly partyKey =
-    this.side === 'payables' ? 'REPORTS.AGING.PROVEEDOR' : 'REPORTS.AGING.CLIENTE';
+    this.side === 'payables' ? 'reports.aging.supplier' : 'reports.aging.customer';
 
   /**
    * The bucket labels the server sent, as catalogue keys.
@@ -119,8 +119,8 @@ export class AgingPage {
 }
 
 const BUCKET_KEYS: Record<string, string> = {
-  '1-30': 'REPORTS.AGING.DIAS_1_30',
-  '31-60': 'REPORTS.AGING.DIAS_31_60',
-  '61-90': 'REPORTS.AGING.DIAS_61_90',
-  '90+': 'REPORTS.AGING.MAS_90',
+  '1-30': 'reports.aging.30_days',
+  '31-60': 'reports.aging.31_60_days',
+  '61-90': 'reports.aging.61_90_days',
+  '90+': 'reports.aging.over_90_days',
 };

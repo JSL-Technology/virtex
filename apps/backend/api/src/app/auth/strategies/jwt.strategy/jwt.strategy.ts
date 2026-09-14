@@ -51,7 +51,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         try {
           const parts = rawJwt.split('.');
           if (parts.length !== 3) {
-            return done(new UnauthorizedError('AUTH.MALFORMED_JWT'), undefined);
+            return done(new UnauthorizedError('auth.malformed_jwt'), undefined);
           }
           const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
           // `alg` is additionally pinned by the `algorithms` option below, so a token claiming
@@ -60,11 +60,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             typeof header?.kid === 'string' ? header.kid : undefined,
           );
           if (!publicKey) {
-            return done(new UnauthorizedError('AUTH.UNKNOWN_KEY_ID'), undefined);
+            return done(new UnauthorizedError('auth.unknown_key_id'), undefined);
           }
           done(null, publicKey);
         } catch {
-          done(new UnauthorizedError('AUTH.JWT_KEY_RESOLUTION_FAILED'), undefined);
+          done(new UnauthorizedError('auth.jwt_key_resolution_failed'), undefined);
         }
       },
       algorithms: ['RS256'],

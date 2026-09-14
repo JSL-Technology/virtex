@@ -37,24 +37,24 @@
  */
 export const FISCAL_LABEL_KEYS: Readonly<Record<string, string>> = {
   // ---- Address ----
-  Provincia: 'FISCAL.LABELS.PROVINCE',
-  Estado: 'FISCAL.LABELS.STATE',
-  Departamento: 'FISCAL.LABELS.DEPARTMENT',
-  Región: 'FISCAL.LABELS.REGION',
-  State: 'FISCAL.LABELS.STATE',
-  'Código postal': 'FISCAL.LABELS.POSTAL_CODE',
+  Provincia: 'fiscal.labels.province',
+  Estado: 'fiscal.labels.state',
+  Departamento: 'fiscal.labels.department',
+  Región: 'fiscal.labels.region',
+  State: 'fiscal.labels.state',
+  'Código postal': 'fiscal.labels.postal_code',
   // `CEP` and `ZIP code` are the local names for the same thing and stay as they are.
 
   // ---- Field labels that describe a kind of value ----
-  'Tipo de ingreso': 'FISCAL.LABELS.INCOME_TYPE',
-  'Régimen fiscal': 'FISCAL.LABELS.TAX_REGIME',
-  'Responsabilidades fiscales': 'FISCAL.LABELS.TAX_RESPONSIBILITIES',
-  'Giro comercial': 'FISCAL.LABELS.LINE_OF_BUSINESS',
-  'Código de actividad económica': 'FISCAL.LABELS.ECONOMIC_ACTIVITY_CODE',
-  'Condición frente al IVA': 'FISCAL.LABELS.VAT_CONDITION',
-  'Punto de venta': 'FISCAL.LABELS.POINT_OF_SALE',
-  'Obligado a llevar contabilidad': 'FISCAL.LABELS.REQUIRED_TO_KEEP_BOOKS',
-  'N.º de resolución de contribuyente especial': 'FISCAL.LABELS.SPECIAL_TAXPAYER_RESOLUTION',
+  'Tipo de ingreso': 'fiscal.labels.income_type',
+  'Régimen fiscal': 'fiscal.labels.tax_regime',
+  'Responsabilidades fiscales': 'fiscal.labels.tax_responsibilities',
+  'Giro comercial': 'fiscal.labels.line_of_business',
+  'Código de actividad económica': 'fiscal.labels.economic_activity_code',
+  'Condición frente al IVA': 'fiscal.labels.vat_condition',
+  'Punto de venta': 'fiscal.labels.point_of_sale',
+  'Obligado a llevar contabilidad': 'fiscal.labels.required_to_keep_books',
+  'N.º de resolución de contribuyente especial': 'fiscal.labels.special_taxpayer_resolution',
 
   // ---- The DGII income types ----
   //
@@ -62,30 +62,30 @@ export const FISCAL_LABEL_KEYS: Readonly<Record<string, string>> = {
   // ordinary accounting categories rather than coded catalogue entries, the code (`01`…`06`) is
   // what actually travels in the e-CF, and it is rendered beside the label — so a reader
   // choosing by the translated description still submits the same code.
-  'Ingresos por operaciones (no financieros)': 'FISCAL.DO.INCOME_TYPE.OPERATIONS',
-  'Ingresos financieros': 'FISCAL.DO.INCOME_TYPE.FINANCIAL',
-  'Ingresos extraordinarios': 'FISCAL.DO.INCOME_TYPE.EXTRAORDINARY',
-  'Ingresos por arrendamientos': 'FISCAL.DO.INCOME_TYPE.LEASING',
-  'Ingresos por venta de activo depreciable': 'FISCAL.DO.INCOME_TYPE.DEPRECIABLE_ASSET_SALE',
-  'Otros ingresos': 'FISCAL.DO.INCOME_TYPE.OTHER',
+  'Ingresos por operaciones (no financieros)': 'fiscal.do.income_type.operations',
+  'Ingresos financieros': 'fiscal.do.income_type.financial',
+  'Ingresos extraordinarios': 'fiscal.do.income_type.extraordinary',
+  'Ingresos por arrendamientos': 'fiscal.do.income_type.leasing',
+  'Ingresos por venta de activo depreciable': 'fiscal.do.income_type.depreciable_asset_sale',
+  'Otros ingresos': 'fiscal.do.income_type.other',
 
   // ---- Help text ----
   //
   // Always translated: it exists to explain, and an explanation nobody can read explains nothing.
-  'La DGII lo requiere en el e-CF y en el reporte 607.': 'FISCAL.HELP.DO_INCOME_TYPE',
+  'La DGII lo requiere en el e-CF y en el reporte 607.': 'fiscal.help.do_income_type',
   'El SAT lo exige en cada CFDI 4.0. Aparece en tu Constancia de Situación Fiscal.':
-    'FISCAL.HELP.MX_TAX_REGIME',
+    'fiscal.help.mx_tax_regime',
   'Selecciona todas las que figuren en tu RUT. Viajan como lista en el XML de la factura electrónica.':
-    'FISCAL.HELP.CO_RESPONSIBILITIES',
-  'El SII lo imprime en cada documento tributario electrónico.': 'FISCAL.HELP.CL_LINE_OF_BUSINESS',
+    'fiscal.help.co_responsibilities',
+  'El SII lo imprime en cada documento tributario electrónico.': 'fiscal.help.cl_line_of_business',
   'Código de distrito del INEI. SUNAT lo exige en el comprobante electrónico.':
-    'FISCAL.HELP.PE_UBIGEO',
-  'Determina qué clase de comprobante (A, B, C) podés emitir.': 'FISCAL.HELP.AR_VAT_CONDITION',
+    'fiscal.help.pe_ubigeo',
+  'Determina qué clase de comprobante (A, B, C) podés emitir.': 'fiscal.help.ar_vat_condition',
   'El punto de venta habilitado en AFIP para facturación electrónica.':
-    'FISCAL.HELP.AR_POINT_OF_SALE',
-  'El SRI lo exige como campo del comprobante electrónico.': 'FISCAL.HELP.EC_ACCOUNTING',
-  'Obrigatório em toda NF-e.': 'FISCAL.HELP.BR_TAX_REGIME',
-  'Informe ISENTO se não for contribuinte de ICMS.': 'FISCAL.HELP.BR_STATE_REGISTRATION',
+    'fiscal.help.ar_point_of_sale',
+  'El SRI lo exige como campo del comprobante electrónico.': 'fiscal.help.ec_accounting',
+  'Obrigatório em toda NF-e.': 'fiscal.help.br_tax_regime',
+  'Informe ISENTO se não for contribuinte de ICMS.': 'fiscal.help.br_state_registration',
 };
 
 /**

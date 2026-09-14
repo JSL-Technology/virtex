@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="ACCOUNTING.JOURNAL_LIST.JOURNALS"
+  titleKey="accounting.journal_list.journals"
   [count]="journals().length"
   [loading]="loading()"
   [error]="error()"
@@ -8,17 +8,17 @@
 >
   <a listActions [routerLink]="['/accounting/journals/new']" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'ACCOUNTING.JOURNAL_LIST.CREATE_JOURNAL' | translate }}</span>
+    <span>{{ 'accounting.journal_list.create_journal' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'ACCOUNTING.JOURNAL_LIST.NAME' | translate }}</th>
-          <th>{{ 'ACCOUNTING.JOURNAL_LIST.CODE' | translate }}</th>
-          <th>{{ 'ACCOUNTING.JOURNAL_LIST.TYPE' | translate }}</th>
-          <th class="actions-column">{{ 'ACCOUNTING.JOURNAL_LIST.ACTIONS' | translate }}</th>
+          <th>{{ 'accounting.journal_list.name' | translate }}</th>
+          <th>{{ 'accounting.journal_list.code' | translate }}</th>
+          <th>{{ 'accounting.journal_list.type' | translate }}</th>
+          <th class="actions-column">{{ 'accounting.journal_list.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -32,7 +32,7 @@
                 [routerLink]="['/accounting/journals', journal.id, 'edit']"
                 class="secondary-button"
               >
-                {{ 'ACCOUNTING.JOURNAL_LIST.EDIT' | translate }}
+                {{ 'accounting.journal_list.edit' | translate }}
               </a>
             </td>
           </tr>

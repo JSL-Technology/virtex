@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsUUID, MaxLength, MinLength } from 'class-valida
 
 export class YearEndCloseDto {
   @IsUUID()
-  @IsNotEmpty({ message: 'VALIDATION.YEAR_END_CLOSE.ID_ANO_FISCAL_OBLIGATORIO' })
+  @IsNotEmpty({ message: 'validation.year_end_close.fiscal_year_id_required' })
   fiscalYearId: string;
 
   /**
@@ -29,7 +29,7 @@ export class ReopenFiscalYearDto {
    */
   @IsString()
   @IsNotEmpty()
-  @MinLength(10, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":10}' })
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MinLength(10, { message: 'validation.constraints.min_length|{"min":10}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   reason: string;
 }

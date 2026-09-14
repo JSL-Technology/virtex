@@ -46,7 +46,7 @@ export class CompanyProfilePage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading company profile', error);
-        this.notificationService.showError('SETTINGS.COMPANY_PROFILE.ERROR_CARGANDO_PERFIL_EMPRESA');
+        this.notificationService.showError('settings.company_profile.error_loading_company_profile');
         this.isLoading = false;
       }
     });
@@ -57,12 +57,12 @@ export class CompanyProfilePage implements OnInit {
       this.isLoading = true;
       this.organizationService.updateProfile(this.profileForm.value).subscribe({
         next: (data) => {
-          this.notificationService.showSuccess('SETTINGS.COMPANY_PROFILE.PERFIL_ACTUALIZADO_CORRECTAMENTE');
+          this.notificationService.showSuccess('settings.company_profile.profile_updated_successfully');
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error updating profile', error);
-          this.notificationService.showError('SETTINGS.COMPANY_PROFILE.ERROR_ACTUALIZANDO_PERFIL');
+          this.notificationService.showError('settings.company_profile.error_updating_profile');
           this.isLoading = false;
         }
       });

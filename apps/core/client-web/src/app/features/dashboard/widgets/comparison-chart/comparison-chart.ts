@@ -10,7 +10,7 @@ import {
   BudgetVsActualPoint,
   DashboardApiService,
 } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lucide-angular';
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)
@@ -63,8 +63,8 @@ export class ComparisonChart {
     const chartType = this.widget.chartType || 'column';
 
     const points = this.points();
-    const budgetLabel = this.i18n.instant('DASHBOARD.COMPARISON_CHART.PRESUPUESTO');
-    const actualLabel = this.i18n.instant('DASHBOARD.COMPARISON_CHART.REAL');
+    const budgetLabel = this.i18n.instant('dashboard.comparison_chart.budgeting');
+    const actualLabel = this.i18n.instant('dashboard.comparison_chart.real');
 
     const seriesData: Highcharts.SeriesOptionsType[] = [
       { name: budgetLabel, type: 'column', data: points.map((p) => p.budgeted), color: 'var(--gray-300)' },
@@ -88,7 +88,7 @@ export class ComparisonChart {
         },
         legend: { itemStyle: { color: 'var(--text-secondary)' } },
         series: [{
-          name: this.i18n.instant('DASHBOARD.COMPARISON_CHART.TOTAL'), type: 'pie',
+          name: this.i18n.instant('dashboard.comparison_chart.total'), type: 'pie',
           data: [
             {
               name: budgetLabel,
@@ -116,7 +116,7 @@ export class ComparisonChart {
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       yAxis: {
-        title: { text: this.i18n.instant('DASHBOARD.COMPARISON_CHART.MONTO') },
+        title: { text: this.i18n.instant('dashboard.comparison_chart.amount') },
         labels: { style: { color: 'var(--text-secondary)' } },
       },
       plotOptions: { column: { grouping: false, borderWidth: 0, shadow: false } },

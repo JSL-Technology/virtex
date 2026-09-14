@@ -5,7 +5,7 @@ import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-fcf',
@@ -28,10 +28,10 @@ export class KpiFcfComponent implements OnInit {
   ngOnInit(): void {
     this.kpi$ = this.dashboardApiService.getFreeCashFlow().pipe(
       map(data => ({
-        title: 'DASH.WIDGET.KPI_FCF.TITLE',
+        title: 'dash.widget.kpi_fcf.title',
         value: data.freeCashFlow.toFixed(2),
         comparisonValue: '', // El backend no provee comparación aún
-        comparisonPeriod: 'DASH.WIDGET.KPI_FCF.COMP_PERIOD',
+        comparisonPeriod: 'dash.widget.kpi_fcf.vs_budget',
         isPositive: data.freeCashFlow > 0,
         iconName: 'Wallet',
         color: 'teal'

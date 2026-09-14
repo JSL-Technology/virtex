@@ -1,0 +1,37 @@
+{
+  "nav.dashboard": {
+    "es": "Dashboard",
+    "en": "Dashboard",
+    "pt": "Painel"
+  },
+  "nav.history.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "nav.history.group": {
+    "es": "Historial de navegación",
+    "en": "Navigation history",
+    "pt": "Histórico de navegação"
+  },
+  "nav.history.next": {
+    "es": "Avanzar",
+    "en": "Next",
+    "pt": "Avançar"
+  },
+  "nav.menu": {
+    "es": "Menú",
+    "en": "Menu",
+    "pt": "Menu"
+  },
+  "nav.notifications": {
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "pt": "Notificações"
+  },
+  "nav.settings": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  }
+}

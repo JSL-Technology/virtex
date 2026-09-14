@@ -1,21 +1,21 @@
 <vx-list-shell
-  titleKey="MASTERS.CURRENCIES.CURRENCIES"
+  titleKey="masters.currencies.currencies"
   [count]="currencies().length"
   [empty]="currencies().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.CURRENCIES.NEW_CURRENCY' | translate }}</span>
+    <span>{{ 'masters.currencies.new_currency' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.CURRENCIES.CURRENCY_NAME' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.CURRENCIES.CODE' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.CURRENCIES.SYMBOL' | translate }}</th>
-          <th class="text-center">{{ 'MASTERS.CURRENCIES.BASE_CURRENCY' | translate }}</th>
+          <th>{{ 'masters.currencies.currency_name' | translate }}</th>
+          <th class="text-center">{{ 'masters.currencies.code' | translate }}</th>
+          <th class="text-center">{{ 'masters.currencies.symbol' | translate }}</th>
+          <th class="text-center">{{ 'masters.currencies.base_currency' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +26,7 @@
             <td class="text-center">{{ currency.symbol }}</td>
             <td class="text-center">
               @if (currency.isBase) {
-                <span class="status-badge active">{{ 'MASTERS.CURRENCIES.YES' | translate }}</span>
+                <span class="status-badge active">{{ 'masters.currencies.yes' | translate }}</span>
               }
             </td>
           </tr>

@@ -1,0 +1,47 @@
+{
+  "core.services.passkey_could_not_registered": {
+    "es": "Error al registrar la llave de acceso",
+    "en": "The passkey could not be registered",
+    "pt": "Não foi possível registrar a chave de acesso"
+  },
+  "core.services.passkey_registered": {
+    "es": "Llave de acceso registrada correctamente",
+    "en": "Passkey registered",
+    "pt": "Chave de acesso registrada"
+  },
+  "core.services.session_could_not_closed_server_close": {
+    "es": "No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.",
+    "en": "The session could not be closed on the server. Close your browser or try again.",
+    "pt": "Não foi possível encerrar a sessão no servidor. Feche o navegador ou tente novamente."
+  },
+  "core.services.signing_with_passkey_failed": {
+    "es": "Error al iniciar sesión con llave de acceso",
+    "en": "Signing in with the passkey failed",
+    "pt": "Falha ao entrar com a chave de acesso"
+  },
+  "core.state.account_deleted_successfully": {
+    "es": "Cuenta eliminada correctamente.",
+    "en": "Account deleted.",
+    "pt": "Conta excluída."
+  },
+  "core.state.failed_delete_account": {
+    "es": "No se pudo eliminar la cuenta.",
+    "en": "The account could not be deleted.",
+    "pt": "Não foi possível excluir a conta."
+  },
+  "core.tabs.save_your_changes_from_view_itself": {
+    "es": "Guarda los cambios desde la propia vista antes de cerrar.",
+    "en": "Save your changes from the view itself before closing it.",
+    "pt": "Salve as alterações na própria tela antes de fechar."
+  },
+  "core.tabs.you_do_not_have_permission_open": {
+    "es": "No tienes permiso para abrir este módulo.",
+    "en": "You do not have permission to open this module.",
+    "pt": "Você não tem permissão para abrir este módulo."
+  },
+  "core.tabs.you_have_reached_maximum_max_tabs": {
+    "es": "Has alcanzado el máximo de {{maxTabs}} pestañas. Cierra alguna para continuar.",
+    "en": "You have reached the maximum of {{maxTabs}} tabs. Close one to continue.",
+    "pt": "Você atingiu o máximo de {{maxTabs}} abas. Feche alguma para continuar."
+  }
+}

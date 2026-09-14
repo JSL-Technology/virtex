@@ -1,3 +1,4 @@
+import { VxDatePipe, VxMoneyPipe, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -5,14 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FilePlus, Paperclip } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { VxDatePipe, VxMoneyPipe } from '../../../core/i18n/pipes/format.pipes';
 import {
   AdjustmentStatus,
   AuditAdjustmentsService,
   ProposedAdjustment,
 } from '../../../core/api/audit-adjustments.service';
 import { FiscalYear, FiscalYearsService } from '../../../core/api/fiscal-years.service';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 /**
  * How each state reads and what colour it wears. One table, so the label and the badge cannot
@@ -22,11 +21,11 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
  * invented here.
  */
 const STATUS: Record<AdjustmentStatus, { key: string; badge: string }> = {
-  PENDING_APPROVAL: { key: 'AUDIT_ADJUSTMENTS.STATUS.PENDING_APPROVAL', badge: 'badge-warning' },
-  APPROVED: { key: 'AUDIT_ADJUSTMENTS.STATUS.APPROVED', badge: 'badge-info' },
-  REJECTED: { key: 'AUDIT_ADJUSTMENTS.STATUS.REJECTED', badge: 'badge' },
-  POSTED: { key: 'AUDIT_ADJUSTMENTS.STATUS.POSTED', badge: 'badge-success' },
-  FAILED: { key: 'AUDIT_ADJUSTMENTS.STATUS.FAILED', badge: 'badge-error' },
+  PENDING_APPROVAL: { key: 'audit_adjustments.status.pending_approval', badge: 'badge-warning' },
+  APPROVED: { key: 'audit_adjustments.status.approved', badge: 'badge-info' },
+  REJECTED: { key: 'audit_adjustments.status.rejected', badge: 'badge' },
+  POSTED: { key: 'audit_adjustments.status.posted', badge: 'badge-success' },
+  FAILED: { key: 'audit_adjustments.status.failed', badge: 'badge-error' },
 };
 
 /**

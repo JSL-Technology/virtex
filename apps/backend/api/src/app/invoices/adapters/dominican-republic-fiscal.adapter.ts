@@ -45,7 +45,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return SALES_NCF_TYPES.map((code) => ({
       code,
-      labelKey: `FISCAL.DO.${code}`,
+      labelKey: `fiscal.do.${code}`,
       // Only the Factura de Crédito Fiscal entitles the buyer to the ITBIS credit, and it is the
       // one type the DGII refuses without a valid RNC or cédula.
       requiresBuyerTaxId: code === NcfType.E31,
@@ -58,7 +58,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     const requestedType = this.asNcfType(context.requestedType);
     const type = requestedType ?? this.inferSalesType(invoice);
     if (!SALES_NCF_TYPES.includes(type)) {
-      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA', { type });
+      throw new BadRequestError('invoices.document_type_type_not_sales_document', { type });
     }
     if (type === NcfType.E31 && !this.hasValidDominicanTaxId(invoice)) {
       throw new BadRequestException(
@@ -84,7 +84,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     const type = this.asNcfType(context.requestedType) ?? inferred;
 
     if (!CREDIT_NOTE_NCF_TYPES.includes(type)) {
-      throw new BadRequestError('INVOICES.TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO', { type });
+      throw new BadRequestError('invoices.type_type_not_valid_credit_note', { type });
     }
 
     const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);
@@ -104,7 +104,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     const code = requested.toUpperCase();
     const known = (Object.values(NcfType) as string[]).includes(code);
     if (!known) {
-      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA', {
+      throw new BadRequestError('invoices.document_type_type_not_sales_document', {
         type: requested,
       });
     }

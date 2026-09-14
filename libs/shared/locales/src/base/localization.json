@@ -1,0 +1,77 @@
+{
+  "localization.country_country_code_not_available_registration": {
+    "es": "El país \"{{countryCode}}\" no está disponible para registro todavía.",
+    "en": "The country \"{{countryCode}}\" is not available for registration yet.",
+    "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
+  },
+  "localization.determining_tax_country_code_needs_destination": {
+    "es": "Para determinar el impuesto en {{countryCode}} hace falta el estado o provincia de destino: en este mercado no existe una tasa nacional.",
+    "en": "Determining tax in {{countryCode}} needs the destination state or province: this market has no national rate.",
+    "pt": "Para determinar o imposto em {{countryCode}} é preciso o estado de destino: este mercado não tem alíquota nacional."
+  },
+  "localization.jurisdiction_does_not_exist": {
+    "es": "La jurisdicción indicada no existe.",
+    "en": "That jurisdiction does not exist.",
+    "pt": "Essa jurisdição não existe."
+  },
+  "localization.no_jurisdictions_registered_country_code_so": {
+    "es": "No hay jurisdicciones registradas para {{countryCode}}, así que no se cobra impuesto. Regístralas en Ajustes → Impuestos si tienes obligación de recaudar.",
+    "en": "No jurisdictions are registered for {{countryCode}}, so no tax is charged. Register them under Settings → Taxes if you are required to collect.",
+    "pt": "Não há jurisdições registradas para {{countryCode}}, então nenhum imposto é cobrado. Cadastre-as em Configurações → Impostos se você tiver obrigação de recolher."
+  },
+  "localization.no_tax_determination_provider_available_country": {
+    "es": "No hay proveedor de determinación de impuestos para {{countryCode}}.",
+    "en": "No tax determination provider is available for {{countryCode}}.",
+    "pt": "Não há provedor de determinação de imposto para {{countryCode}}."
+  },
+  "localization.no_tax_scheme_defined_country_code": {
+    "es": "No hay esquema de impuestos definido para {{countryCode}}.",
+    "en": "No tax scheme is defined for {{countryCode}}.",
+    "pt": "Nenhum esquema tributário definido para {{countryCode}}."
+  },
+  "localization.organization_id_has_no_tax_region": {
+    "es": "La organización {{id}} no tiene región fiscal; no se puede aplicar el paquete fiscal.",
+    "en": "Organization {{id}} has no tax region; the tax package cannot be applied.",
+    "pt": "A organização {{id}} não tem região fiscal; o pacote fiscal não pode ser aplicado."
+  },
+  "localization.period_ends_before_begins_from": {
+    "es": "La vigencia termina ({{to}}) antes de empezar ({{from}}).",
+    "en": "The period ends ({{to}}) before it begins ({{from}}).",
+    "pt": "A vigência termina ({{to}}) antes de começar ({{from}})."
+  },
+  "localization.regime_with_no_payers_applies_nobody": {
+    "es": "Un régimen sin pagadores no aplica a nadie: indica al menos un tipo de contribuyente.",
+    "en": "A regime with no payers applies to nobody: name at least one taxpayer type.",
+    "pt": "Um regime sem pagadores não se aplica a ninguém: indique ao menos um tipo de contribuinte."
+  },
+  "localization.tax_cannot_determined_destination_country_missing": {
+    "es": "No se puede determinar el impuesto: falta el país de destino.",
+    "en": "The tax cannot be determined: the destination country is missing.",
+    "pt": "Não é possível determinar o imposto: falta o país de destino."
+  },
+  "localization.tax_configuration_country_code_not_available": {
+    "es": "La configuración fiscal de \"{{countryCode}}\" no está disponible.",
+    "en": "The tax configuration for \"{{countryCode}}\" is not available.",
+    "pt": "A configuração fiscal de \"{{countryCode}}\" não está disponível."
+  },
+  "localization.tax_region_fiscal_region_id_not": {
+    "es": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
+    "en": "Tax region \"{{fiscalRegionId}}\" was not found.",
+    "pt": "Região fiscal \"{{fiscalRegionId}}\" não encontrada."
+  },
+  "localization.tax_sale_could_not_determined": {
+    "es": "No se pudo determinar el impuesto de esta venta.",
+    "en": "The tax on this sale could not be determined.",
+    "pt": "Não foi possível determinar o imposto desta venda."
+  },
+  "localization.withholding_regime_does_not_exist": {
+    "es": "El régimen de retención indicado no existe.",
+    "en": "That withholding regime does not exist.",
+    "pt": "O regime de retenção indicado não existe."
+  },
+  "localization.you_not_registered_collect_state_code": {
+    "es": "No estás registrado para recaudar en {{stateCode}} ({{countryCode}}), así que no se cobra impuesto en esta venta.",
+    "en": "You are not registered to collect in {{stateCode}} ({{countryCode}}), so no tax is charged on this sale.",
+    "pt": "Você não está registrado para recolher em {{stateCode}} ({{countryCode}}), então nenhum imposto é cobrado nesta venda."
+  }
+}

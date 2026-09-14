@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
@@ -119,7 +119,7 @@ export class BankAccountFormPage implements OnInit {
           this.form.get('currencyCode')?.disable();
           this.form.get('glAccountId')?.disable();
         },
-        error: () => this.notifications.showError('TREASURY.FORM.NO_SE_PUDO_CARGAR'),
+        error: () => this.notifications.showError('treasury.form.bank_account_could_not_loaded'),
       });
     }
   }
@@ -136,19 +136,19 @@ export class BankAccountFormPage implements OnInit {
       this.form.markAllAsTouched();
       this.problems.set(
         draftProblems(this.form, {
-          name: 'TREASURY.FORM.NOMBRE',
-          bankName: 'TREASURY.BANCO',
-          accountNumber: 'TREASURY.NUMERO',
-          accountType: 'TREASURY.FORM.TIPO',
-          currencyCode: 'TREASURY.MONEDA',
-          glAccountId: 'TREASURY.FORM.CUENTA_CONTABLE',
-          openingBalance: 'TREASURY.FORM.SALDO_INICIAL',
-          openingDate: 'TREASURY.FORM.FECHA_APERTURA',
-          openingBalanceAccountId: 'TREASURY.FORM.CUENTA_CONTRAPARTIDA',
-          iban: 'TREASURY.FORM.IBAN',
-          swiftBic: 'TREASURY.FORM.SWIFT_BIC',
-          notes: 'TREASURY.FORM.NOTAS',
-          isActive: 'TREASURY.FORM.ACTIVA',
+          name: 'treasury.form.name',
+          bankName: 'treasury.bank',
+          accountNumber: 'treasury.number',
+          accountType: 'treasury.form.account_type',
+          currencyCode: 'treasury.currency',
+          glAccountId: 'treasury.form.ledger_account',
+          openingBalance: 'treasury.form.opening_balance',
+          openingDate: 'treasury.form.opening_date',
+          openingBalanceAccountId: 'treasury.form.counterpart_account',
+          iban: 'treasury.form.iban',
+          swiftBic: 'treasury.form.swift_bic',
+          notes: 'treasury.form.notes',
+          isActive: 'treasury.form.active_account',
         }),
       );
       return;
@@ -163,7 +163,7 @@ export class BankAccountFormPage implements OnInit {
     const done = {
       next: () => {
         this.notifications.showSuccess(
-          id ? 'TREASURY.FORM.CUENTA_ACTUALIZADA' : 'TREASURY.FORM.CUENTA_CREADA',
+          id ? 'treasury.form.bank_account_updated' : 'treasury.form.bank_account_created',
         );
         this.router.navigate(['/accounting/treasury']);
       },
@@ -171,7 +171,7 @@ export class BankAccountFormPage implements OnInit {
         this.saving.set(false);
         const message = error?.error?.message;
         this.notifications.showError(
-          typeof message === 'string' ? message : 'TREASURY.FORM.NO_SE_PUDO_GUARDAR',
+          typeof message === 'string' ? message : 'treasury.form.bank_account_could_not_saved',
         );
       },
     };

@@ -1,5 +1,5 @@
 <vx-list-shell
-  titleKey="MASTERS.SUPPLIER_LIST.SUPPLIERS"
+  titleKey="masters.supplier_list.suppliers"
   [count]="suppliers().length"
   [loading]="isLoading()"
   [empty]="suppliers().length === 0"
@@ -7,17 +7,17 @@
 >
   <a listActions routerLink="/masters/suppliers/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.SUPPLIER_LIST.NEW_SUPPLIER' | translate }}</span>
+    <span>{{ 'masters.supplier_list.new_supplier' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.SUPPLIER_LIST.COMPANY_NAME' | translate }}</th>
-          <th>{{ 'MASTERS.SUPPLIER_LIST.TAX_ID' | translate }}</th>
-          <th>{{ 'MASTERS.SUPPLIER_LIST.EMAIL' | translate }}</th>
-          <th>{{ 'MASTERS.SUPPLIER_LIST.PHONE' | translate }}</th>
+          <th>{{ 'masters.supplier_list.company_name' | translate }}</th>
+          <th>{{ 'masters.supplier_list.tax_id' | translate }}</th>
+          <th>{{ 'masters.supplier_list.email' | translate }}</th>
+          <th>{{ 'masters.supplier_list.phone' | translate }}</th>
         </tr>
       </thead>
       <tbody>

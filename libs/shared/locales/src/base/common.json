@@ -1,0 +1,212 @@
+{
+  "common.accept": {
+    "es": "Aceptar",
+    "en": "OK",
+    "pt": "OK"
+  },
+  "common.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "common.are_you_sure": {
+    "es": "¿Seguro que quieres continuar?",
+    "en": "Are you sure you want to continue?",
+    "pt": "Tem certeza de que deseja continuar?"
+  },
+  "common.back": {
+    "es": "Atrás",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "common.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "common.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "common.confirm": {
+    "es": "Confirmar",
+    "en": "Confirm",
+    "pt": "Confirmar"
+  },
+  "common.confirmation": {
+    "es": "Confirmación",
+    "en": "Confirmation",
+    "pt": "Confirmação"
+  },
+  "common.continue": {
+    "es": "Continuar",
+    "en": "Continue",
+    "pt": "Continuar"
+  },
+  "common.copy": {
+    "es": "Copiar",
+    "en": "Copy",
+    "pt": "Copiar"
+  },
+  "common.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "common.discard": {
+    "es": "Descartar",
+    "en": "Discard",
+    "pt": "Descartar"
+  },
+  "common.done": {
+    "es": "Listo",
+    "en": "Done",
+    "pt": "Pronto"
+  },
+  "common.download": {
+    "es": "Descargar",
+    "en": "Download",
+    "pt": "Baixar"
+  },
+  "common.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "common.file_too_large": {
+    "en": "That file is too large.",
+    "es": "El archivo es demasiado grande.",
+    "pt": "Esse ficheiro é demasiado grande."
+  },
+  "common.file_type_not_allowed": {
+    "es": "Ese tipo de archivo no está permitido.",
+    "en": "That file type is not allowed.",
+    "pt": "Esse tipo de arquivo não é permitido."
+  },
+  "common.file_type_not_allowed_mimetype": {
+    "es": "Tipo de archivo no permitido ({{mimetype}}).",
+    "en": "File type not allowed ({{mimetype}}).",
+    "pt": "Tipo de arquivo não permitido ({{mimetype}})."
+  },
+  "common.idempotency_key_in_progress": {
+    "es": "Ya hay una petición en curso con esa clave. Espera su respuesta antes de reintentar.",
+    "en": "A request with that key is already in progress. Wait for its response before retrying.",
+    "pt": "Já existe um pedido em curso com essa chave. Aguarde a resposta antes de repetir."
+  },
+  "common.idempotency_key_required": {
+    "es": "Esta operación exige una cabecera Idempotency-Key para que reintentarla no la repita.",
+    "en": "This operation requires an Idempotency-Key header so that retrying it does not repeat it.",
+    "pt": "Esta operação exige um cabeçalho Idempotency-Key para que repeti-la não a duplique."
+  },
+  "common.idempotency_key_reused": {
+    "es": "Esa clave de idempotencia ya se usó para una petición distinta. Usa una clave nueva.",
+    "en": "That idempotency key was already used for a different request. Use a new key.",
+    "pt": "Essa chave de idempotência já foi usada para outro pedido. Use uma chave nova."
+  },
+  "common.idempotency_requires_session": {
+    "es": "Esta operación necesita una sesión iniciada.",
+    "en": "This operation needs a signed-in session.",
+    "pt": "Esta operação precisa de uma sessão iniciada."
+  },
+  "common.load_failed": {
+    "es": "No se pudieron cargar los datos. Inténtalo de nuevo.",
+    "en": "The data could not be loaded. Try again.",
+    "pt": "Não foi possível carregar os dados. Tente novamente."
+  },
+  "common.loading": {
+    "es": "Cargando",
+    "en": "Loading",
+    "pt": "Carregando"
+  },
+  "common.named_file_too_large": {
+    "en": "The file “{{filename}}” is too large.",
+    "es": "El archivo «{{filename}}» es demasiado grande.",
+    "pt": "O ficheiro «{{filename}}» é demasiado grande."
+  },
+  "common.next": {
+    "es": "Siguiente",
+    "en": "Next",
+    "pt": "Avançar"
+  },
+  "common.not_recorded": {
+    "es": "Sin registrar",
+    "en": "Not recorded",
+    "pt": "Sem registro"
+  },
+  "common.page_of_total": {
+    "es": "Página {{page}} · {{total}} registros",
+    "en": "Page {{page}} · {{total}} records",
+    "pt": "Página {{page}} · {{total}} registos"
+  },
+  "common.pagination": {
+    "es": "Paginación",
+    "en": "Pagination",
+    "pt": "Paginação"
+  },
+  "common.previous": {
+    "es": "Anterior",
+    "en": "Previous",
+    "pt": "Anterior"
+  },
+  "common.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "common.retry": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar novamente"
+  },
+  "common.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "common.single_file_expected": {
+    "es": "Single file expected",
+    "en": "A single file is expected.",
+    "pt": "É esperado um único arquivo."
+  },
+  "common.skip_to_content": {
+    "es": "Saltar al contenido principal",
+    "en": "Skip to main content",
+    "pt": "Ir para o conteúdo principal"
+  },
+  "common.success": {
+    "es": "Listo",
+    "en": "Done",
+    "pt": "Pronto"
+  },
+  "common.toast.error": {
+    "es": "Error",
+    "en": "Error",
+    "pt": "Erro"
+  },
+  "common.toast.info": {
+    "es": "Información",
+    "en": "Information",
+    "pt": "Informação"
+  },
+  "common.toast.information": {
+    "es": "Información",
+    "en": "Information",
+    "pt": "Informação"
+  },
+  "common.toast.success": {
+    "es": "Éxito",
+    "en": "Success",
+    "pt": "Sucesso"
+  },
+  "common.toast.warning": {
+    "es": "Advertencia",
+    "en": "Warning",
+    "pt": "Aviso"
+  },
+  "common.too_many_files": {
+    "en": "You selected too many files.",
+    "es": "Seleccionaste demasiados archivos.",
+    "pt": "Selecionaste demasiados ficheiros."
+  }
+}

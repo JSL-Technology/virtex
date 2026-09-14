@@ -1,0 +1,288 @@
+{
+  "treasury.account_postings_carry_no_amount_own": {
+    "es": "Los movimientos de esta cuenta no registran el importe en su propia moneda, así que no puede indicarse.",
+    "en": "This account's postings carry no amount in its own currency, so it cannot be stated.",
+    "pt": "Os lançamentos desta conta não registram o valor na sua própria moeda, portanto não pode ser indicado."
+  },
+  "treasury.as_of": {
+    "es": "Al",
+    "en": "As of",
+    "pt": "Em"
+  },
+  "treasury.balance_books_currency": {
+    "es": "Saldo en moneda de los libros",
+    "en": "Balance in the books' currency",
+    "pt": "Saldo na moeda dos livros"
+  },
+  "treasury.balance_currency": {
+    "es": "Saldo en su moneda",
+    "en": "Balance in its currency",
+    "pt": "Saldo na sua moeda"
+  },
+  "treasury.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "treasury.bank_account_does_not_exist_does": {
+    "es": "La cuenta bancaria no existe o no pertenece a esta organización.",
+    "en": "The bank account does not exist or does not belong to this organization.",
+    "pt": "A conta bancária não existe ou não pertence a esta organização."
+  },
+  "treasury.bank_account_name_inactive_cannot_take": {
+    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{name}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+  },
+  "treasury.bank_accounts": {
+    "es": "Cuentas bancarias",
+    "en": "Bank Accounts",
+    "pt": "Contas bancárias"
+  },
+  "treasury.banks_journal_bancos_not_found": {
+    "es": "Diario de Bancos (BANCOS) no encontrado.",
+    "en": "The Banks journal (BANCOS) was not found.",
+    "pt": "O diário de Bancos (BANCOS) não foi encontrado."
+  },
+  "treasury.cash_position": {
+    "es": "Posición de efectivo",
+    "en": "Cash position",
+    "pt": "Posição de caixa"
+  },
+  "treasury.counterpart_account_does_not_exist_organisation": {
+    "es": "La cuenta de contrapartida no existe en el catálogo de esta organización.",
+    "en": "The counterpart account does not exist in this organisation's chart of accounts.",
+    "pt": "A conta de contrapartida não existe no plano de contas desta organização."
+  },
+  "treasury.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "treasury.fee": {
+    "es": "Comisión",
+    "en": "Fee",
+    "pt": "Tarifa"
+  },
+  "treasury.form.account_type": {
+    "es": "Tipo de cuenta",
+    "en": "Account type",
+    "pt": "Tipo de conta"
+  },
+  "treasury.form.account_type.cash": {
+    "es": "Caja / efectivo",
+    "en": "Cash / petty cash",
+    "pt": "Caixa"
+  },
+  "treasury.form.account_type.checking": {
+    "es": "Corriente",
+    "en": "Checking",
+    "pt": "Corrente"
+  },
+  "treasury.form.account_type.credit_card": {
+    "es": "Tarjeta de crédito",
+    "en": "Credit card",
+    "pt": "Cartão de crédito"
+  },
+  "treasury.form.account_type.savings": {
+    "es": "Ahorros",
+    "en": "Savings",
+    "pt": "Poupança"
+  },
+  "treasury.form.active_account": {
+    "es": "Cuenta activa",
+    "en": "Active account",
+    "pt": "Conta ativa"
+  },
+  "treasury.form.bank_account_could_not_loaded": {
+    "es": "No se pudo cargar la cuenta bancaria.",
+    "en": "The bank account could not be loaded.",
+    "pt": "Não foi possível carregar a conta bancária."
+  },
+  "treasury.form.bank_account_could_not_saved": {
+    "es": "No se pudo guardar la cuenta bancaria.",
+    "en": "The bank account could not be saved.",
+    "pt": "Não foi possível salvar a conta bancária."
+  },
+  "treasury.form.bank_account_created": {
+    "es": "Cuenta bancaria creada.",
+    "en": "Bank account created.",
+    "pt": "Conta bancária criada."
+  },
+  "treasury.form.bank_account_updated": {
+    "es": "Cuenta bancaria actualizada.",
+    "en": "Bank account updated.",
+    "pt": "Conta bancária atualizada."
+  },
+  "treasury.form.cannot_changed_movements_already_posted_measured": {
+    "es": "No se puede cambiar: los movimientos ya contabilizados se midieron con este valor.",
+    "en": "Cannot be changed: movements already posted were measured against this value.",
+    "pt": "Não pode ser alterado: os movimentos já lançados foram medidos com este valor."
+  },
+  "treasury.form.counterpart_account": {
+    "es": "Cuenta de contrapartida",
+    "en": "Counterpart account",
+    "pt": "Conta de contrapartida"
+  },
+  "treasury.form.edit_bank_account": {
+    "es": "Editar cuenta bancaria",
+    "en": "Edit bank account",
+    "pt": "Editar conta bancária"
+  },
+  "treasury.form.iban": {
+    "literal": "IBAN"
+  },
+  "treasury.form.ledger_account": {
+    "es": "Cuenta contable",
+    "en": "Ledger account",
+    "pt": "Conta contábil"
+  },
+  "treasury.form.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "treasury.form.new_bank_account": {
+    "es": "Nueva cuenta bancaria",
+    "en": "New bank account",
+    "pt": "Nova conta bancária"
+  },
+  "treasury.form.normally_opening_balance_equity_not_chosen": {
+    "es": "Normalmente patrimonio de apertura. No se elige por usted: hacerlo distorsionaría los resultados acumulados.",
+    "en": "Normally opening balance equity. Not chosen for you: doing so would misstate retained earnings.",
+    "pt": "Normalmente patrimônio de abertura. Não é escolhida por você: fazê-lo distorceria os lucros acumulados."
+  },
+  "treasury.form.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
+  },
+  "treasury.form.opening_balance": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
+  "treasury.form.opening_date": {
+    "es": "Fecha de apertura",
+    "en": "Opening date",
+    "pt": "Data de abertura"
+  },
+  "treasury.form.posted_opening_journal_entry_against_account": {
+    "es": "Se contabiliza como un asiento de apertura contra la cuenta que indique.",
+    "en": "Posted as an opening journal entry against the account you name.",
+    "pt": "Lançado como um lançamento de abertura contra a conta que indicar."
+  },
+  "treasury.form.select": {
+    "es": "Selecciona…",
+    "en": "Select…",
+    "pt": "Selecione…"
+  },
+  "treasury.form.swift_bic": {
+    "literal": "SWIFT / BIC"
+  },
+  "treasury.from": {
+    "es": "Origen",
+    "en": "From",
+    "pt": "Origem"
+  },
+  "treasury.ledger_account_given_does_not_exist": {
+    "es": "La cuenta contable indicada no existe en esta organización.",
+    "en": "The ledger account given does not exist in this organization.",
+    "pt": "A conta contábil indicada não existe nesta organização."
+  },
+  "treasury.ledger_account_given_summary_account_cannot": {
+    "es": "La cuenta contable indicada es de agrupación y no admite movimientos.",
+    "en": "The ledger account given is a summary account and cannot take movements.",
+    "pt": "A conta contábil indicada é de agrupamento e não admite movimentos."
+  },
+  "treasury.no_bank_accounts_have_registered": {
+    "es": "No hay cuentas bancarias registradas.",
+    "en": "No bank accounts have been registered.",
+    "pt": "Não há contas bancárias cadastradas."
+  },
+  "treasury.no_bank_fees_account_has_configured": {
+    "es": "No se ha configurado la cuenta de comisiones bancarias de la organización.",
+    "en": "No bank fees account has been configured for this organization.",
+    "pt": "Não foi configurada a conta de tarifas bancárias da organização."
+  },
+  "treasury.no_default_ledger_has_configured_organization": {
+    "es": "No se ha configurado un libro contable por defecto para la organización.",
+    "en": "No default ledger has been configured for the organization.",
+    "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "treasury.no_exchange_difference_account_has_configured": {
+    "es": "No se ha configurado la cuenta de diferencia cambiaria de la organización.",
+    "en": "No exchange difference account has been configured for this organization.",
+    "pt": "Não foi configurada a conta de diferença cambial da organização."
+  },
+  "treasury.no_transfers_have_recorded": {
+    "es": "No hay transferencias registradas.",
+    "en": "No transfers have been recorded.",
+    "pt": "Não há transferências registradas."
+  },
+  "treasury.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "treasury.opening_balance_counterpart_cannot_bank_own": {
+    "es": "La contrapartida del saldo de apertura no puede ser la misma cuenta de control del banco.",
+    "en": "The opening balance's counterpart cannot be the bank's own control account.",
+    "pt": "A contrapartida do saldo de abertura não pode ser a própria conta de controle do banco."
+  },
+  "treasury.opening_balance_must_name_counterpart_account": {
+    "es": "Un saldo de apertura debe indicar la cuenta de contrapartida (normalmente patrimonio de apertura). Se contabiliza como un asiento, no se guarda aparte.",
+    "en": "An opening balance must name its counterpart account — normally opening balance equity. It is posted as a journal entry, not stored on the side.",
+    "pt": "Um saldo de abertura deve indicar a conta de contrapartida (normalmente patrimônio de abertura). É lançado como um lançamento contábil, não guardado à parte."
+  },
+  "treasury.opening_balance_must_state_date_which": {
+    "es": "Un saldo de apertura debe indicar la fecha en que la cuenta lo tenía.",
+    "en": "An opening balance must state the date on which the account held it.",
+    "pt": "Um saldo de abertura deve indicar a data em que a conta o possuía."
+  },
+  "treasury.received": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "treasury.sent": {
+    "es": "Enviado",
+    "en": "Sent",
+    "pt": "Enviado"
+  },
+  "treasury.several_bank_accounts_share_ledger_account": {
+    "es": "Varias cuentas bancarias comparten esta cuenta contable; el total la considera una sola vez.",
+    "en": "Several bank accounts share this ledger account; the total counts it once.",
+    "pt": "Várias contas bancárias compartilham esta conta contábil; o total a considera uma só vez."
+  },
+  "treasury.showing_most_recent_count_more_transfers": {
+    "es": "Se muestran las más recientes; quedan {{count}} transferencias más.",
+    "en": "Showing the most recent; {{count}} more transfers exist.",
+    "pt": "Mostrando as mais recentes; restam mais {{count}} transferências."
+  },
+  "treasury.source_destination_accounts_cannot_same": {
+    "es": "Las cuentas de origen y destino no pueden ser la misma.",
+    "en": "The source and destination accounts cannot be the same.",
+    "pt": "As contas de origem e destino não podem ser a mesma."
+  },
+  "treasury.to": {
+    "es": "Destino",
+    "en": "To",
+    "pt": "Destino"
+  },
+  "treasury.total_available": {
+    "es": "Total disponible",
+    "en": "Total available",
+    "pt": "Total disponível"
+  },
+  "treasury.transfer_between_accounts_different_currencies_must": {
+    "es": "Una transferencia entre cuentas de distinta moneda requiere indicar el monto recibido.",
+    "en": "A transfer between accounts in different currencies must state the amount received.",
+    "pt": "Uma transferência entre contas de moedas diferentes exige informar o valor recebido."
+  },
+  "treasury.transfers_between_accounts": {
+    "es": "Transferencias entre cuentas",
+    "en": "Transfers between accounts",
+    "pt": "Transferências entre contas"
+  }
+}

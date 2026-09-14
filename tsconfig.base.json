@@ -24,7 +24,8 @@
     // through package export conditions; the libraries are referenced by path.
     "paths": {
       "@virteex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
-      "@virteex/shared/types": ["libs/shared/types/src/index.ts"]
+      "@virteex/shared/types": ["libs/shared/types/src/index.ts"],
+      "@virteex/shared/ui-i18n": ["libs/shared/ui-i18n/src/index.ts"]
     }
   }
 }

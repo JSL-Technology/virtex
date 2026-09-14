@@ -1,36 +1,36 @@
 <vx-list-shell
-  titleKey="INVOICES.LIST.FACTURAS"
-  subtitleKey="INVOICES.LIST.GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS"
+  titleKey="invoices.list.invoices"
+  subtitleKey="invoices.list.full_invoicing_management_document_tracking"
   [count]="total()"
   [loading]="isLoading()"
   [error]="error()"
   [empty]="!isLoading() && invoices().length === 0"
   [searchable]="true"
   [(search)]="searchTerm"
-  searchPlaceholderKey="INVOICES.LIST.BUSCAR_CLIENTE_NUMERO_FACTURA"
+  searchPlaceholderKey="invoices.list.search_customer_invoice_number"
   (reload)="loadInvoices()"
 >
   <button listActions class="secondary-button" type="button" (click)="exportToCsv()">
     <lucide-icon [img]="SpreadsheetIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+    <span>{{ 'reports.common.export' | translate }}</span>
   </button>
   <a listActions routerLink="/invoices/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'INVOICES.LIST.NUEVA_FACTURA_VENTA' | translate }}</span>
+    <span>{{ 'invoices.list.new_sales_invoice' | translate }}</span>
   </a>
 
   <div listFilters class="filter-group">
-    <label for="estado">{{ 'INVOICES.LIST.ESTADO' | translate }}</label>
+    <label for="estado">{{ 'invoices.list.status' | translate }}</label>
     <select
       id="estado"
       [ngModel]="statusFilter()"
       (ngModelChange)="statusFilter.set($event); applyFilters()"
     >
-      <option value="All">{{ 'INVOICES.LIST.TODOS' | translate }}</option>
-      <option value="Paid">{{ 'INVOICES.LIST.COBRADA' | translate }}</option>
-      <option value="Pending">{{ 'INVOICES.LIST.PENDIENTE' | translate }}</option>
-      <option value="Partially Paid">{{ 'INVOICES.LIST.PARCIAL' | translate }}</option>
-      <option value="Void">{{ 'INVOICES.LIST.ANULADA' | translate }}</option>
+      <option value="All">{{ 'invoices.list.all' | translate }}</option>
+      <option value="Paid">{{ 'invoices.list.paid' | translate }}</option>
+      <option value="Pending">{{ 'invoices.list.pending' | translate }}</option>
+      <option value="Partially Paid">{{ 'invoices.list.partial' | translate }}</option>
+      <option value="Void">{{ 'invoices.list.voided' | translate }}</option>
     </select>
   </div>
 
@@ -38,12 +38,12 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'INVOICES.LIST.FACTURA' | translate }}</th>
-          <th>{{ 'INVOICES.LIST.CLIENTE' | translate }}</th>
-          <th>{{ 'INVOICES.LIST.CREACION' | translate }}</th>
-          <th>{{ 'INVOICES.LIST.VENCIMIENTO' | translate }}</th>
-          <th class="text-right">{{ 'INVOICES.LIST.TOTAL' | translate }}</th>
-          <th>{{ 'INVOICES.LIST.ESTADO_2' | translate }}</th>
+          <th>{{ 'invoices.list.invoice_number' | translate }}</th>
+          <th>{{ 'invoices.list.customer' | translate }}</th>
+          <th>{{ 'invoices.list.created' | translate }}</th>
+          <th>{{ 'invoices.list.due' | translate }}</th>
+          <th class="text-right">{{ 'invoices.list.total' | translate }}</th>
+          <th>{{ 'invoices.list.status_filter' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -91,7 +91,7 @@
   <nav
     listFooter
     class="pager"
-    [attr.aria-label]="'INVOICES.LIST.PAGINACION_FACTURAS' | translate"
+    [attr.aria-label]="'invoices.list.invoice_pagination' | translate"
   >
     <span class="pager-range">{{ rangeLabel() }}</span>
     <button
@@ -100,10 +100,10 @@
       [disabled]="!hasPrevious() || isLoading()"
       (click)="goToPage(-1)"
     >
-      {{ 'INVOICES.LIST.ANTERIOR' | translate }}
+      {{ 'invoices.list.previous' | translate }}
     </button>
     <span class="pager-status">
-      {{ 'INVOICES.LIST.PAGINA_PAGE_PAGES' | translate: { page: page(), pages: pages() } }}
+      {{ 'invoices.list.page_page_pages' | translate: { page: page(), pages: pages() } }}
     </span>
     <button
       type="button"
@@ -111,7 +111,7 @@
       [disabled]="!hasNext() || isLoading()"
       (click)="goToPage(1)"
     >
-      {{ 'INVOICES.LIST.SIGUIENTE' | translate }}
+      {{ 'invoices.list.next' | translate }}
     </button>
   </nav>
 </vx-list-shell>

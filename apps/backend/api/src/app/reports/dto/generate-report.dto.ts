@@ -32,7 +32,7 @@ export type OutputFormat = (typeof OUTPUT_FORMATS)[number];
  * names a real DTO whose rules actually run.
  */
 export class GenerateReportDto {
-  @IsIn(REPORT_TYPES, { message: 'VALIDATION.GENERATE_REPORT.TIPO_REPORTE_NO_SOPORTADO' })
+  @IsIn(REPORT_TYPES, { message: 'validation.generate_report.report_type_not_supported' })
   @IsNotEmpty()
   reportType: ReportType;
 
@@ -57,7 +57,7 @@ export class GenerateReportDto {
   })
   options: GeneralLedgerReportDto | JournalReportDto | AgingReportDto;
 
-  @IsIn(OUTPUT_FORMATS, { message: 'VALIDATION.GENERATE_REPORT.FORMATO_NO_SOPORTADO' })
+  @IsIn(OUTPUT_FORMATS, { message: 'validation.generate_report.output_format_not_supported' })
   @IsOptional()
   outputFormat?: OutputFormat = 'json';
 }

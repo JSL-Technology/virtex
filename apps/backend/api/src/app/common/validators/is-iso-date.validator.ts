@@ -60,7 +60,7 @@ export class IsIsoDateConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(_args: ValidationArguments): string {
-    return 'VALIDATION.CONSTRAINTS.IS_ISO_DATE';
+    return 'validation.constraints.is_iso_date';
   }
 }
 

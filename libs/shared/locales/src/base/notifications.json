@@ -1,0 +1,67 @@
+{
+  "notifications.earlier": {
+    "es": "Anteriores",
+    "en": "Earlier",
+    "pt": "Anteriores"
+  },
+  "notifications.keep_up_with_latest_updates_alerts": {
+    "es": "Mantente al día con las últimas actualizaciones y alertas de tu cuenta.",
+    "en": "Keep up with the latest updates and alerts on your account.",
+    "pt": "Acompanhe as últimas atualizações e alertas da sua conta."
+  },
+  "notifications.mark_all_as_read": {
+    "es": "Marcar todo como leído",
+    "en": "Mark all as read",
+    "pt": "Marcar tudo como lido"
+  },
+  "notifications.mark_all_read": {
+    "es": "Marcar todas como leídas",
+    "en": "Mark all as read",
+    "pt": "Marcar todas como lidas"
+  },
+  "notifications.no_notifications": {
+    "es": "No hay notificaciones",
+    "en": "No notifications",
+    "pt": "Sem notificações"
+  },
+  "notifications.notifications": {
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "pt": "Notificações"
+  },
+  "notifications.this_week": {
+    "es": "Esta semana",
+    "en": "This week",
+    "pt": "Esta semana"
+  },
+  "notifications.today": {
+    "es": "Hoy",
+    "en": "Today",
+    "pt": "Hoje"
+  },
+  "notifications.unread": {
+    "es": "No leído",
+    "en": "Unread",
+    "pt": "Não lido"
+  },
+  "notifications.view_all": {
+    "es": "Ver todas",
+    "en": "View all",
+    "pt": "Ver todas"
+  },
+  "notifications.yesterday": {
+    "es": "Ayer",
+    "en": "Yesterday",
+    "pt": "Ontem"
+  },
+  "notifications.you_all_caught_up": {
+    "es": "Todo está al día",
+    "en": "You are all caught up",
+    "pt": "Está tudo em dia"
+  },
+  "notifications.you_have_no_new_notifications_right": {
+    "es": "No tienes notificaciones nuevas en este momento.",
+    "en": "You have no new notifications right now.",
+    "pt": "Você não tem notificações novas no momento."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "workflows.approval_policy_not_found": {
+    "es": "Política de aprobación no encontrada.",
+    "en": "The approval policy was not found.",
+    "pt": "A política de aprovação não foi encontrada."
+  },
+  "workflows.approval_policy_policy_id_linked_request": {
+    "es": "No se encontró la política de aprobación con ID \"{{policyId}}\" asociada a esta solicitud.",
+    "en": "The approval policy \"{{policyId}}\" linked to this request was not found.",
+    "pt": "A política de aprovação \"{{policyId}}\" vinculada a esta solicitação não foi encontrada."
+  },
+  "workflows.approval_request_not_found": {
+    "es": "Solicitud de aprobación no encontrada.",
+    "en": "The approval request was not found.",
+    "pt": "A solicitação de aprovação não foi encontrada."
+  },
+  "workflows.no_handler_registered_documents_type_document": {
+    "es": "No hay un manejador registrado para documentos de tipo {documentType}; la aprobación no tendría efecto.",
+    "en": "No handler is registered for documents of type {documentType}; the approval would have no effect.",
+    "pt": "Não há manipulador registrado para documentos do tipo {documentType}; a aprovação não teria efeito."
+  },
+  "workflows.policy_cannot_deleted_has_pending_pending": {
+    "es": "No puedes eliminar la política: tiene {pending} solicitudes pendientes que quedarían sin poder aprobarse.",
+    "en": "The policy cannot be deleted: it has {pending} pending requests that would become undecidable.",
+    "pt": "A política não pode ser excluída: há {pending} solicitações pendentes que ficariam sem decisão possível."
+  },
+  "workflows.reason_rejection_required": {
+    "es": "Debes indicar el motivo del rechazo.",
+    "en": "A reason for the rejection is required.",
+    "pt": "É obrigatório informar o motivo da recusa."
+  },
+  "workflows.request_has_already_processed": {
+    "es": "La solicitud ya ha sido procesada.",
+    "en": "The request has already been processed.",
+    "pt": "A solicitação já foi processada."
+  },
+  "workflows.step_step_no_longer_exists_approval": {
+    "es": "El paso {step} ya no existe en la política de aprobación.",
+    "en": "Step {step} no longer exists in the approval policy.",
+    "pt": "O passo {step} não existe mais na política de aprovação."
+  },
+  "workflows.two_steps_policy_share_same_order": {
+    "es": "Dos pasos de la política tienen el mismo orden; cada paso debe tener un orden distinto.",
+    "en": "Two steps of the policy share the same order; each step needs a distinct order.",
+    "pt": "Dois passos da política têm a mesma ordem; cada passo precisa de uma ordem distinta."
+  },
+  "workflows.you_cannot_approve_request_you_raised": {
+    "es": "No puedes aprobar una solicitud que tú mismo generaste.",
+    "en": "You cannot approve a request you raised yourself.",
+    "pt": "Você não pode aprovar uma solicitação que você mesmo gerou."
+  },
+  "workflows.you_do_not_have_permission_approve": {
+    "es": "No tienes permisos para aprobar este paso.",
+    "en": "You do not have permission to approve this step.",
+    "pt": "Você não tem permissão para aprovar esta etapa."
+  }
+}

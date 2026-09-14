@@ -1,0 +1,22 @@
+{
+  "remedy.configure_sequences": {
+    "es": "Configurar secuencias",
+    "en": "Configure sequences",
+    "pt": "Configurar sequências"
+  },
+  "remedy.open_period": {
+    "es": "Abrir el periodo",
+    "en": "Open the period",
+    "pt": "Abrir o período"
+  },
+  "remedy.review_plan": {
+    "es": "Revisar el plan",
+    "en": "Review the plan",
+    "pt": "Rever o plano"
+  },
+  "remedy.view_stock": {
+    "es": "Ver existencias",
+    "en": "View stock",
+    "pt": "Ver estoque"
+  }
+}

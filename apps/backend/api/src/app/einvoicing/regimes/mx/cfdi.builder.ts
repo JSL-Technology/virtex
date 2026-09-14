@@ -195,21 +195,21 @@ export class CfdiBuilder {
 
   private assertIssuable(input: CfdiBuildInput): void {
     if (!input.organization.taxId?.trim()) {
-      throw new BadRequestError('EINVOICING.CFDI_EMISOR_SIN_RFC');
+      throw new BadRequestError('einvoicing.mx.organization_has_no_rfc_cfdi_cannot');
     }
     if (!input.customer.taxId?.trim()) {
-      throw new BadRequestError('EINVOICING.CFDI_RECEPTOR_SIN_RFC', {
+      throw new BadRequestError('einvoicing.mx.customer_customer_has_no_rfc_which', {
         customer: input.customer.companyName,
       });
     }
     if (!input.issuerRegime) {
-      throw new BadRequestError('EINVOICING.CFDI_SIN_REGIMEN_FISCAL');
+      throw new BadRequestError('einvoicing.mx.issuer_tax_regime_missing_set_under');
     }
     if (!input.issuingPostalCode) {
-      throw new BadRequestError('EINVOICING.CFDI_SIN_LUGAR_EXPEDICION');
+      throw new BadRequestError('einvoicing.mx.postal_code_place_issue_missing');
     }
     if (!input.customer.postalCode?.trim()) {
-      throw new BadRequestError('EINVOICING.CFDI_RECEPTOR_SIN_CODIGO_POSTAL', {
+      throw new BadRequestError('einvoicing.mx.customer_customer_has_no_postal_code', {
         customer: input.customer.companyName,
       });
     }
@@ -271,7 +271,7 @@ export class CfdiBuilder {
   ): string {
     const value = line.fiscalCodes?.[key];
     if (typeof value === 'string' && value.trim()) return value.trim();
-    throw new BadRequestError('EINVOICING.CFDI_LINEA_SIN_CLAVE_SAT', {
+    throw new BadRequestError('einvoicing.mx.line_line_has_no_key_from', {
       key,
       line: line.description ?? '',
     });

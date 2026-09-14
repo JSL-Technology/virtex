@@ -14,6 +14,6 @@ export class CreateCompensationDto {
   payFrequency?: PayFrequency;
 
   @IsOptional()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 }

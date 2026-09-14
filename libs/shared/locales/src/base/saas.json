@@ -1,0 +1,112 @@
+{
+  "saas.feature_disabled": {
+    "es": "La función {featureKey} no está incluida en tu plan.",
+    "en": "Feature {featureKey} is not included in your plan.",
+    "pt": "A função {featureKey} não está incluída no seu plano."
+  },
+  "saas.limit_reached.body": {
+    "es": "Tu plan permite {{limit}} {{resource}}. Amplía el plan en Configuración → Facturación para seguir trabajando.",
+    "en": "Your plan allows {{limit}} {{resource}}. Upgrade under Settings → Billing to carry on.",
+    "pt": "Seu plano permite {{limit}} {{resource}}. Amplie o plano em Configurações → Faturamento para continuar."
+  },
+  "saas.limit_reached.title": {
+    "es": "Alcanzaste el límite de {{resource}}",
+    "en": "You have reached your {{resource}} limit",
+    "pt": "Você atingiu o limite de {{resource}}"
+  },
+  "saas.limit_warning.body": {
+    "es": "Has usado {{used}} de {{limit}} {{resource}} de tu plan. Puedes ampliarlo en Configuración → Facturación antes de alcanzarlo.",
+    "en": "You have used {{used}} of your plan's {{limit}} {{resource}}. You can upgrade under Settings → Billing before you reach it.",
+    "pt": "Você usou {{used}} de {{limit}} {{resource}} do seu plano. Você pode ampliá-lo em Configurações → Faturamento antes de atingi-lo."
+  },
+  "saas.limit_warning.title": {
+    "es": "Te acercas al límite de {{resource}}",
+    "en": "You are approaching your {{resource}} limit",
+    "pt": "Você está chegando ao limite de {{resource}}"
+  },
+  "saas.organization_context_required_for_feature_check": {
+    "es": "No se pudo determinar la organización para verificar el acceso a esta función.",
+    "en": "The organization could not be determined to check access to this feature.",
+    "pt": "Não foi possível determinar a organização para verificar o acesso a esta função."
+  },
+  "saas.organization_context_required_for_limit_check": {
+    "es": "No se pudo determinar la organización para verificar los límites del plan.",
+    "en": "The organization could not be determined to check plan limits.",
+    "pt": "Não foi possível determinar a organização para verificar os limites do plano."
+  },
+  "saas.payment_failed.amount_charge_could_not_completed_we": {
+    "es": "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}} y tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación.",
+    "en": "The {{amount}} charge could not be completed. We will retry on {{nextAttempt}}, and your access continues until {{gracePeriodEnd}}. Update your payment method under Settings → Billing.",
+    "pt": "A cobrança de {{amount}} não pôde ser concluída. Tentaremos novamente em {{nextAttempt}} e seu acesso continua até {{gracePeriodEnd}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+  },
+  "saas.payment_failed.amount_charge_could_not_completed_your": {
+    "es": "El cobro de {{amount}} no se pudo completar. Tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación.",
+    "en": "The {{amount}} charge could not be completed. Your access continues until {{gracePeriodEnd}}. Update your payment method under Settings → Billing.",
+    "pt": "A cobrança de {{amount}} não pôde ser concluída. Seu acesso continua até {{gracePeriodEnd}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+  },
+  "saas.payment_failed.body": {
+    "es": "El cobro de {{amount}} no se pudo completar. Actualiza tu método de pago en Configuración → Facturación.",
+    "en": "The {{amount}} charge could not be completed. Update your payment method under Settings → Billing.",
+    "pt": "A cobrança de {{amount}} não pôde ser concluída. Atualize sua forma de pagamento em Configurações → Faturamento."
+  },
+  "saas.payment_failed.body_retry": {
+    "es": "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}}. Actualiza tu método de pago en Configuración → Facturación.",
+    "en": "The {{amount}} charge could not be completed. We will retry on {{nextAttempt}}. Update your payment method under Settings → Billing.",
+    "pt": "A cobrança de {{amount}} não pôde ser concluída. Tentaremos novamente em {{nextAttempt}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+  },
+  "saas.payment_failed.title": {
+    "es": "No pudimos cobrar tu suscripción",
+    "en": "We could not charge your subscription",
+    "pt": "Não conseguimos cobrar sua assinatura"
+  },
+  "saas.payment_succeeded.body": {
+    "es": "Recibimos el pago de {{amount}}. Gracias.",
+    "en": "We received your {{amount}} payment. Thank you.",
+    "pt": "Recebemos seu pagamento de {{amount}}. Obrigado."
+  },
+  "saas.payment_succeeded.title": {
+    "es": "Tu suscripción está al día",
+    "en": "Your subscription is up to date",
+    "pt": "Sua assinatura está em dia"
+  },
+  "saas.resources.customers": {
+    "es": "clientes",
+    "en": "customers",
+    "pt": "clientes"
+  },
+  "saas.resources.invoices": {
+    "es": "facturas",
+    "en": "invoices",
+    "pt": "faturas"
+  },
+  "saas.resources.journal_entries": {
+    "es": "asientos contables",
+    "en": "journal entries",
+    "pt": "lançamentos contábeis"
+  },
+  "saas.resources.subsidiaries": {
+    "es": "subsidiarias",
+    "en": "subsidiaries",
+    "pt": "subsidiárias"
+  },
+  "saas.resources.suppliers": {
+    "es": "proveedores",
+    "en": "suppliers",
+    "pt": "fornecedores"
+  },
+  "saas.resources.users": {
+    "es": "usuarios",
+    "en": "users",
+    "pt": "usuários"
+  },
+  "saas.subscription_required": {
+    "es": "Esta acción requiere una suscripción activa.",
+    "en": "This action requires an active subscription.",
+    "pt": "Esta ação requer uma assinatura ativa."
+  },
+  "saas.subscription_suspended": {
+    "es": "La suscripción está en estado {status} y no permite esta acción. Regulariza el pago para continuar.",
+    "en": "The subscription is {status} and does not allow this action. Settle the payment to continue.",
+    "pt": "A assinatura está em estado {status} e não permite esta ação. Regularize o pagamento para continuar."
+  }
+}

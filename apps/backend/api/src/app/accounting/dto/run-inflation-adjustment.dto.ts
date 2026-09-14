@@ -8,7 +8,7 @@ export class RunInflationAdjustmentDto {
 
   @IsInt()
   @IsNotEmpty()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(12, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":12}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(12, { message: 'validation.constraints.max|{"max":12}' })
   month: number;
 }

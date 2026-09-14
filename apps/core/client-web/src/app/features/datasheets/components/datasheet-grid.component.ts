@@ -69,7 +69,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
        if (typeof value === 'string' && value.startsWith('=')) {
           // Check if it's an ERP variable
           if (this.isERPVariableFormula(value)) {
-             this.notificationService.showWarning('DIALOG.NOTIFY.ERP_VALUE_READONLY');
+             this.notificationService.showWarning('dialog.notify.value_comes_from_erp_cannot_edited');
              return false;
           }
        }

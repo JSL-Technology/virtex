@@ -102,10 +102,10 @@ export class ProfitabilityService {
     const startDate = toIsoDate(range.startDate);
     const endDate = toIsoDate(range.endDate);
     if (startDate > endDate) {
-      throw new BadRequestError('REPORTS.RANGO_FECHAS_INVALIDO');
+      throw new BadRequestError('reports.start_date_cannot_later_than_end');
     }
     if (daysBetween(startDate, endDate) > MAX_PROFITABILITY_DAYS) {
-      throw new BadRequestError('REPORTS.RANGO_FECHAS_EXCEDE_LIMITE', {
+      throw new BadRequestError('reports.requested_range_spans_days_days_maximum', {
         days: daysBetween(startDate, endDate),
         max: MAX_PROFITABILITY_DAYS,
       });

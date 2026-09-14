@@ -46,7 +46,7 @@ export class FileParserService {
         // less clearly than saying so here.
         const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
         if (!bytes) {
-            throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER');
+            throw new BadRequestError('journal_entries.uploaded_file_empty_could_not_read');
         }
 
         if (file.mimetype === FileType.CSV) {
@@ -54,7 +54,7 @@ export class FileParserService {
         } else if (file.mimetype.includes('spreadsheet') || file.mimetype.includes('excel')) {
             return this.parseExcel(bytes);
         } else {
-            throw new BadRequestError('JOURNAL_ENTRIES.TIPO_ARCHIVO_NO_SOPORTADO', { mimetype: file.mimetype });
+            throw new BadRequestError('journal_entries.unsupported_file_type_mimetype', { mimetype: file.mimetype });
         }
     }
 
@@ -81,7 +81,7 @@ export class FileParserService {
           (error) => error.type !== 'FieldMismatch' || error.code === 'TooManyFields',
         );
         if (fatal.length > 0) {
-            throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_CSV_MAL_FORMADO', {
+            throw new BadRequestError('journal_entries.csv_file_cannot_read_detail', {
                 detail: fatal.slice(0, 3).map((error) => error.message).join('; '),
             });
         }
@@ -94,13 +94,13 @@ export class FileParserService {
         try {
             await workbook.xlsx.load(buffer as unknown as ExcelJS.Buffer);
         } catch (error) {
-            throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_EXCEL_MAL_FORMADO', {
+            throw new BadRequestError('journal_entries.excel_file_cannot_read_detail', {
                 detail: (error as Error).message,
             });
         }
 
         const worksheet = workbook.worksheets[0];
-        if (!worksheet) throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_NO_CONTIENE_DATOS');
+        if (!worksheet) throw new BadRequestError('journal_entries.file_contains_no_data');
 
         const headerRow = worksheet.getRow(1);
         const headers: string[] = [];

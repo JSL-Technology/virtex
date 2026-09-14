@@ -56,7 +56,7 @@ describe('OidcProviderService', () => {
       try {
         service.getProviderConfig('google');
       } catch (error) {
-        expect(isLocalizedError(error) && error.messageKey).toBe('AUTH.PROVIDER_NOT_CONFIGURED_MISSING');
+        expect(isLocalizedError(error) && error.messageKey).toBe('auth.provider_not_configured_missing');
         expect(isLocalizedError(error) && error.params).toMatchObject({ key: 'GOOGLE_CLIENT_ID' });
       }
     });

@@ -83,7 +83,7 @@ export class StepEmailVerify implements OnInit {
         this.isSending.set(false);
       },
       error: () => {
-        this.sendError.set('REGISTER.ERRORS.CODE_SEND');
+        this.sendError.set('register.errors.code_send');
         this.isSending.set(false);
       },
     });
@@ -102,12 +102,12 @@ export class StepEmailVerify implements OnInit {
     ).subscribe({
       next: (response) => {
         this.isVerifying.set(false);
-        this.otpComponent?.handleSuccess('REGISTER.VERIFY.EMAIL_OK');
+        this.otpComponent?.handleSuccess('register.verify.email_ok');
         setTimeout(() => this.verified.emit(response.preVerifiedToken), 600);
       },
       error: (err) => {
         this.isVerifying.set(false);
-        const msg = err?.error?.message || 'REGISTER.ERRORS.CODE_INVALID';
+        const msg = err?.error?.message || 'register.errors.code_invalid';
         this.otpComponent?.handleError(msg);
       },
     });

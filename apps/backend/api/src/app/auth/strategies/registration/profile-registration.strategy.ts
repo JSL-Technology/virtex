@@ -29,11 +29,11 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
   async validate(dto: RegisterUserDto): Promise<void> {
     const profile = findCountryProfile(dto.countryCode);
     if (!profile) {
-      throw new BadRequestError('AUTH.PAIS_TODAVIA_NO_ESTA_DISPONIBLE_REGISTRO', { countryCode: dto.countryCode });
+      throw new BadRequestError('auth.country_country_code_not_available_registration', { countryCode: dto.countryCode });
     }
 
     if (!dto.taxId?.trim()) {
-      throw new BadRequestError('AUTH.ES_OBLIGATORIO', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('auth.label_required_name', { label: profile.taxId.label, name: profile.name });
     }
 
     // Re-checked here even though the DTO already validated it. The DTO constraint protects the
@@ -45,11 +45,11 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
     // United States nine-digit value passes as an EIN under one prefix rule and as an SSN under
     // another, and only the kind decides which applies.
     if (!validateTaxId(profile.countryCode, dto.taxId, dto.taxpayerKind)) {
-      throw new BadRequestError('AUTH.NO_ES_VALIDO', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('auth.label_not_valid_name', { label: profile.taxId.label, name: profile.name });
     }
 
     if (profile.address.postalCodeRequired && !dto.postalCode?.trim()) {
-      throw new BadRequestError('AUTH.ES_OBLIGATORIO_2', { postalCodeLabel: profile.address.postalCodeLabel, name: profile.name });
+      throw new BadRequestError('auth.postal_code_label_required_name', { postalCodeLabel: profile.address.postalCodeLabel, name: profile.name });
     }
   }
 

@@ -130,7 +130,7 @@ export class PasswordService {
       if (hashSuffix !== suffix) continue;
       // Padded responses include synthetic entries with a count of 0; those are not real hits.
       if (Number(countRaw) > 0) {
-        throw new BadRequestError('AUTH.ESTA_CONTRASENA_APARECE_FILTRACIONES_DATOS_CONOCIDAS_ELIGE');
+        throw new BadRequestError('auth.password_appears_known_data_breaches_choose');
       }
       return;
     }

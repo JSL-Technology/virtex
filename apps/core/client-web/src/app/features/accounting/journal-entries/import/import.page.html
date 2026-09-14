@@ -3,14 +3,14 @@
     <a routerLink="/accounting/journal-entries" class="btn-icon">
       <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
     </a>
-    <h1>{{ 'ACCOUNTING.IMPORT.IMPORTAR_ASIENTOS_CONTABLES' | translate }}</h1>
+    <h1>{{ 'accounting.import.import_journal_entries' | translate }}</h1>
   </div>
 
   <div class="view-content">
     <!-- Step 1: the file -->
     <div class="card">
       <div class="card-header">
-        <h2>{{ 'ACCOUNTING.IMPORT.PASO_SELECCIONAR_FICHERO' | translate }}</h2>
+        <h2>{{ 'accounting.import.step_select_file' | translate }}</h2>
       </div>
       <div class="card-body">
         <div
@@ -30,9 +30,9 @@
           />
           <lucide-icon [name]="UploadIcon" [size]="48"></lucide-icon>
           @if (selectedFile(); as file) {
-            <p>{{ 'ACCOUNTING.IMPORT.FICHERO_SELECCIONADO' | translate }} <strong>{{ file.name }}</strong></p>
+            <p>{{ 'accounting.import.selected_file' | translate }} <strong>{{ file.name }}</strong></p>
           } @else {
-            <p>{{ 'ACCOUNTING.IMPORT.HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV' | translate }}</p>
+            <p>{{ 'accounting.import.click_here_choose_file_csv_excel' | translate }}</p>
           }
         </div>
       </div>
@@ -48,7 +48,7 @@
     @if (headers().length > 0) {
       <div class="card">
         <div class="card-header">
-          <h2>{{ 'ACCOUNTING.IMPORT.PASO_MAPEAR_COLUMNAS' | translate }}</h2>
+          <h2>{{ 'accounting.import.step_say_which_column_which' | translate }}</h2>
         </div>
         <div class="card-body">
           <div class="mapping-grid">
@@ -57,14 +57,14 @@
                 <span>
                   {{ field.label | translate }}
                   @if (field.required) {
-                    <abbr class="required" title="{{ 'ACCOUNTING.IMPORT.OBLIGATORIO' | translate }}">*</abbr>
+                    <abbr class="required" title="{{ 'accounting.import.required' | translate }}">*</abbr>
                   }
                 </span>
                 <select
                   [value]="mapping()[field.key] ?? ''"
                   (change)="setMapping(field.key, $any($event.target).value)"
                 >
-                  <option value="">{{ 'ACCOUNTING.IMPORT.SIN_ASIGNAR' | translate }}</option>
+                  <option value="">{{ 'accounting.import.not_mapped' | translate }}</option>
                   @for (header of headers(); track header) {
                     <option [value]="header">{{ header }}</option>
                   }
@@ -78,7 +78,7 @@
               the string to `new Date()` and take whatever it got.
             -->
             <label class="field">
-              <span>{{ 'ACCOUNTING.IMPORT.FORMATO_FECHA' | translate }}</span>
+              <span>{{ 'accounting.import.file_date_format' | translate }}</span>
               <select [value]="dateFormat()" (change)="dateFormat.set($any($event.target).value)">
                 @for (format of dateFormats; track format) {
                   <option [value]="format">{{ format }}</option>
@@ -87,13 +87,13 @@
             </label>
 
             <label class="field">
-              <span>{{ 'ACCOUNTING.IMPORT.SEPARADOR_DECIMAL' | translate }}</span>
+              <span>{{ 'accounting.import.file_decimal_separator' | translate }}</span>
               <select
                 [value]="decimalSeparator()"
                 (change)="decimalSeparator.set($any($event.target).value)"
               >
-                <option value=",">{{ 'ACCOUNTING.IMPORT.SEPARADOR_COMA' | translate }}</option>
-                <option value=".">{{ 'ACCOUNTING.IMPORT.SEPARADOR_PUNTO' | translate }}</option>
+                <option value=",">{{ 'accounting.import.decimal_separator_comma' | translate }}</option>
+                <option value=".">{{ 'accounting.import.decimal_separator_period' | translate }}</option>
               </select>
             </label>
           </div>
@@ -105,7 +105,7 @@
               [disabled]="!isMappingComplete() || isLoading()"
               (click)="previewImport()"
             >
-              {{ 'ACCOUNTING.IMPORT.PREVISUALIZAR' | translate }}
+              {{ 'accounting.import.preview_import' | translate }}
             </button>
           </div>
         </div>
@@ -113,12 +113,12 @@
     }
 
     @if (isLoading()) {
-      <p class="report-state">{{ 'ACCOUNTING.IMPORT.ANALIZANDO_FICHERO' | translate }}</p>
+      <p class="report-state">{{ 'accounting.import.analysing_file' | translate }}</p>
     }
 
     @if (failed()) {
       <p class="report-state report-state--error">
-        {{ 'ACCOUNTING.IMPORT.NO_SE_PUDO_PROCESAR' | translate }}
+        {{ 'accounting.import.file_could_not_processed_check_format' | translate }}
       </p>
     }
 
@@ -126,12 +126,12 @@
     @if (preview(); as data) {
       <div class="card">
         <div class="card-header">
-          <h2>{{ 'ACCOUNTING.IMPORT.PASO_PREVISUALIZACION_CONFIRMACION' | translate }}</h2>
+          <h2>{{ 'accounting.import.step_preview_confirm' | translate }}</h2>
         </div>
         <div class="card-body">
           <p class="import-summary">
             {{
-              'ACCOUNTING.IMPORT.RESUMEN'
+              'accounting.import.total_entries_read_valid_will_imported'
                 | translate
                   : {
                       total: data.totalEntries,
@@ -145,10 +145,10 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>{{ 'ACCOUNTING.IMPORT.ASIENTO' | translate }}</th>
-                  <th class="text-right">{{ 'ACCOUNTING.IMPORT.DEBE' | translate }}</th>
-                  <th class="text-right">{{ 'ACCOUNTING.IMPORT.HABER' | translate }}</th>
-                  <th>{{ 'ACCOUNTING.IMPORT.ESTADO' | translate }}</th>
+                  <th>{{ 'accounting.import.entry' | translate }}</th>
+                  <th class="text-right">{{ 'accounting.import.debit' | translate }}</th>
+                  <th class="text-right">{{ 'accounting.import.credit' | translate }}</th>
+                  <th>{{ 'accounting.import.status' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,12 +161,12 @@
                       @if (entry.errors.length === 0 && entry.isBalanced) {
                         <span class="status status--ok">
                           <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
-                          {{ 'ACCOUNTING.IMPORT.SE_IMPORTARA' | translate }}
+                          {{ 'accounting.import.will_import' | translate }}
                         </span>
                       } @else {
                         <span class="status status--error">
                           <lucide-icon [img]="WarningIcon" size="14"></lucide-icon>
-                          {{ 'ACCOUNTING.IMPORT.NO_SE_IMPORTARA' | translate }}
+                          {{ 'accounting.import.will_not_import' | translate }}
                         </span>
                       }
                     </td>
@@ -185,7 +185,7 @@
                     @if (row.error; as rowError) {
                       <tr class="row--detail">
                         <td colspan="4">
-                          {{ 'ACCOUNTING.IMPORT.LINEA' | translate: { line: row.lineNumber } }}
+                          {{ 'accounting.import.line_line' | translate: { line: row.lineNumber } }}
                           — {{ rowError.messageKey | translate: rowError.params ?? {} }}
                         </td>
                       </tr>
@@ -203,7 +203,7 @@
               [disabled]="!hasPostableEntries() || isLoading()"
               (click)="confirmImport()"
             >
-              {{ 'ACCOUNTING.IMPORT.CONFIRMAR_IMPORTAR' | translate }}
+              {{ 'accounting.import.confirm_import' | translate }}
             </button>
           </div>
         </div>

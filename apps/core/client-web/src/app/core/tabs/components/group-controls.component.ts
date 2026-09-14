@@ -39,8 +39,8 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
           <button
             type="button"
             class="gc-btn"
-            [title]="'TABS.SPLIT_RIGHT' | translate"
-            [attr.aria-label]="'TABS.SPLIT_RIGHT' | translate"
+            [title]="'tabs.split_right' | translate"
+            [attr.aria-label]="'tabs.split_right' | translate"
             (click)="splitRight()"
           >
             <lucide-icon [img]="SplitIcon" size="15" aria-hidden="true"></lucide-icon>
@@ -48,8 +48,8 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
           <button
             type="button"
             class="gc-btn"
-            [title]="'TABS.FLOAT' | translate"
-            [attr.aria-label]="'TABS.FLOAT' | translate"
+            [title]="'tabs.float' | translate"
+            [attr.aria-label]="'tabs.float' | translate"
             (click)="float()"
           >
             <lucide-icon [img]="FloatIcon" size="15" aria-hidden="true"></lucide-icon>
@@ -58,8 +58,8 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
         <button
           type="button"
           class="gc-btn"
-          [title]="'TABS.POPOUT' | translate"
-          [attr.aria-label]="'TABS.POPOUT' | translate"
+          [title]="'tabs.pop_out_window' | translate"
+          [attr.aria-label]="'tabs.pop_out_window' | translate"
           (click)="popout()"
         >
           <lucide-icon [img]="PopoutIcon" size="15" aria-hidden="true"></lucide-icon>
@@ -68,8 +68,8 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
           <button
             type="button"
             class="gc-btn"
-            [title]="(maximized() ? 'TABS.RESTORE' : 'TABS.MAXIMIZE') | translate"
-            [attr.aria-label]="(maximized() ? 'TABS.RESTORE' : 'TABS.MAXIMIZE') | translate"
+            [title]="(maximized() ? 'tabs.restore' : 'tabs.maximise') | translate"
+            [attr.aria-label]="(maximized() ? 'tabs.restore' : 'tabs.maximise') | translate"
             (click)="toggleMaximize()"
           >
             <lucide-icon [img]="maximized() ? RestoreIcon : MaximizeIcon" size="15" aria-hidden="true"></lucide-icon>

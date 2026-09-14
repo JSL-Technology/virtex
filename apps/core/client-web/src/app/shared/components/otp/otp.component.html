@@ -15,10 +15,10 @@
             [attr.aria-pressed]="length() === opt"
             tabindex="0"
             (keyup.enter)="changeLength(opt)"
-            (click)="changeLength(opt)">{{ 'SHARED.OTP.OPT_DIGITOS' | translate: { opt: opt } }}</span>
+            (click)="changeLength(opt)">{{ 'shared.otp.opt_digits' | translate: { opt: opt } }}</span>
     </div>
 
-    <div class="otp-inputs-container" role="group" [attr.aria-label]="'SHARED.OTP.CODIGO_OTP' | translate">
+    <div class="otp-inputs-container" role="group" [attr.aria-label]="'shared.otp.otp_code' | translate">
         <input *ngFor="let val of otpValues(); let i = index; trackBy: trackByIndex"
                type="text"
                inputmode="numeric"
@@ -55,22 +55,22 @@
                 (click)="onResend()"
                 *ngIf="mode === 'email'">
             <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-            <span *ngIf="cooldown() > 0">{{ 'SHARED.OTP.REENVIAR_COOLDOWN' | translate: { cooldown: cooldown() } }}</span>
-            <span *ngIf="cooldown() <= 0">{{ 'SHARED.OTP.REENVIAR_CODIGO' | translate }}</span>
+            <span *ngIf="cooldown() > 0">{{ 'shared.otp.resend_cooldown' | translate: { cooldown: cooldown() } }}</span>
+            <span *ngIf="cooldown() <= 0">{{ 'shared.otp.resend_code' | translate }}</span>
         </button>
     </div>
 
     <div class="otp-buttons">
         <button class="btn btn-secondary" type="button" (click)="clear()">
             <lucide-icon [img]="EraserIcon" size="18"></lucide-icon>
-            {{ 'SHARED.OTP.LIMPIAR' | translate }}
+            {{ 'shared.otp.clear' | translate }}
         </button>
         <button class="btn btn-primary"
                 type="button"
                 [disabled]="!canVerify()"
                 (click)="onVerify()">
             <lucide-icon [img]="CheckCircleIcon" size="18"></lucide-icon>
-            {{ 'SHARED.OTP.VERIFICAR' | translate }}
+            {{ 'shared.otp.verify' | translate }}
         </button>
     </div>
 
@@ -89,6 +89,6 @@
 
     <p class="otp-security-note">
         <lucide-icon [img]="ShieldIcon" size="13"></lucide-icon>
-        {{ 'SHARED.OTP.NUNCA_COMPARTA_ESTE_CODIGO_NUESTRO_EQUIPO' | translate }}
+        {{ 'shared.otp.never_share_code_our_team_will' | translate }}
     </p>
 </div>

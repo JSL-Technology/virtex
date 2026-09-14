@@ -1,4 +1,5 @@
 import { ALL_PERMISSIONS } from '../shared/permissions';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * The permission list, as something a person can read.
@@ -38,14 +39,14 @@ export interface PermissionCatalogueGroup {
   permissions: PermissionCatalogueEntry[];
 }
 
-/** `journal_entries` → `PERMISSIONS.GROUPS.JOURNAL_ENTRIES`. */
+/** `journal_entries` → `permissions.groups.journal_entries`. */
 export function groupLabelKey(group: string): string {
-  return `PERMISSIONS.GROUPS.${group.toUpperCase()}`;
+  return composeKey('permissions.groups', group);
 }
 
-/** `manage_status` → `PERMISSIONS.ACTIONS.MANAGE_STATUS`. */
+/** `manage_status` → `permissions.actions.manage_status`. */
 export function actionLabelKey(action: string): string {
-  return `PERMISSIONS.ACTIONS.${action.toUpperCase()}`;
+  return composeKey('permissions.actions', action);
 }
 
 /**

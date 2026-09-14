@@ -73,10 +73,10 @@ export class DepartmentsPage {
 
   async remove(department: Department): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_DEPARTMENT.TITLE',
-      message: 'DIALOG.DELETE_DEPARTMENT.MESSAGE',
+      title: 'dialog.delete_department.title',
+      message: 'dialog.delete_department.message',
       messageParams: { name: department.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
@@ -101,7 +101,7 @@ export class DepartmentsPage {
     this.busy.set(false);
     const message = error?.error?.message;
     this.notifications.showError(
-      typeof message === 'string' ? message : 'HCM.DEPARTMENTS.SAVE_FAILED',
+      typeof message === 'string' ? message : 'hcm.departments.save_failed',
     );
   }
 }

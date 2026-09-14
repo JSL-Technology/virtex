@@ -1,12 +1,12 @@
-{{#> shell title=(t 'MAIL.VERIFICATION_CODE.CODIGO_VERIFICACION') preheader=(t 'MAIL.VERIFICATION_CODE.CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION')}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.VERIFICATION_CODE.CODIGO_VERIFICACION'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.HAS_SOLICITADO_HABILITAR_AUTENTICACION_DOS_PASOS'}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION'}}</p>
+{{#> shell title=(t 'mail.verification_code.verification_code') preheader=(t 'mail.verification_code.continue_enter_verification_code_below')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.verification_code.verification_code'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.verification_code.you_asked_turn_two_step_verification'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.verification_code.continue_enter_verification_code_below'}}</p>
 
 {{> code value=code}}
 
-<p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.ESTE_CODIGO_EXPIRARA_10_MINUTOS'}}</p>
+<p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.verification_code.code_expires_10_minutes'}}</p>
 
-{{#> note}}{{t 'MAIL.VERIFICATION_CODE.SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR'}}{{/note}}
+{{#> note}}{{t 'mail.verification_code.if_you_did_not_request_change'}}{{/note}}
 {{/shell}}

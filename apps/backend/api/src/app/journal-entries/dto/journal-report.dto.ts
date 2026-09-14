@@ -14,15 +14,15 @@ import {
 
 export class JournalReportDto {
   @IsDateString()
-  @IsNotEmpty({ message: 'VALIDATION.JOURNAL_REPORT.FECHA_INICIO_OBLIGATORIA' })
+  @IsNotEmpty({ message: 'validation.journal_report.start_date_required' })
   startDate: string;
 
   @IsDateString()
-  @IsNotEmpty({ message: 'VALIDATION.JOURNAL_REPORT.FECHA_FIN_OBLIGATORIA' })
+  @IsNotEmpty({ message: 'validation.journal_report.end_date_required' })
   endDate: string;
 
   @IsArray()
-  @IsUUID('4', { each: true, message: 'VALIDATION.JOURNAL_REPORT.CADA_ID_DIARIO_DEBE_UUID_VALIDO' })
+  @IsUUID('4', { each: true, message: 'validation.journal_report.each_journal_id_must_valid_uuid' })
   @IsOptional()
   journalIds?: string[];
 
@@ -50,14 +50,14 @@ export class JournalReportDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
-  @Max(500, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":500}' })
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(500, { message: 'validation.constraints.max|{"max":500}' })
   @IsOptional()
   pageSize?: number;
 }

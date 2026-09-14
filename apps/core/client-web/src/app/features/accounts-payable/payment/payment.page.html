@@ -1,12 +1,12 @@
 <vx-draft-shell
-  [title]="'ACCOUNTS_PAYABLE.PAYMENT.TITULO' | translate"
-  [subtitle]="'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate"
+  [title]="'accounts_payable.payment.pay_supplier_invoices' | translate"
+  [subtitle]="'accounts_payable.list.vendor_bills' | translate"
   [dirty]="form.dirty"
   [saving]="saving()"
   [invalid]="form.invalid || lines.length === 0"
   [problems]="problems()"
   [form]="form"
-  saveLabelKey="ACCOUNTS_PAYABLE.PAYMENT.PAGAR"
+  saveLabelKey="accounts_payable.payment.record_payment"
   (save)="save()"
   (cancelled)="cancel()"
 >
@@ -16,17 +16,17 @@
         Sin cuenta bancaria activa no se puede pagar. Se dice aquí y no como un error al enviar:
         es una precondición del documento, no un campo mal escrito.
       -->
-      <p class="section-note">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+      <p class="section-note">{{ 'treasury.no_bank_accounts_have_registered' | translate }}</p>
     } @else {
       <section class="form-section">
         <div class="form-grid">
         <label class="field">
-          <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.FECHA' | translate }} *</span>
+          <span>{{ 'accounts_payable.payment.payment_date' | translate }} *</span>
           <input type="date" formControlName="paymentDate" />
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.CUENTA_BANCARIA' | translate }} *</span>
+          <span>{{ 'accounts_payable.payment.bank_account' | translate }} *</span>
           <select
             formControlName="bankAccountId"
             (change)="onBankAccountChange($any($event.target).value)"
@@ -38,19 +38,19 @@
         </label>
 
         <label class="field">
-          <span>{{ 'ACCOUNTING.RECONCILIATION.REFERENCIA' | translate }}</span>
+          <span>{{ 'accounting.reconciliation.reference' | translate }}</span>
           <input type="text" formControlName="reference" maxlength="80" />
         </label>
       </div>
 
-      <h4 class="section-heading">{{ 'ACCOUNTS_PAYABLE.PAYMENT.FACTURAS_A_PAGAR' | translate }}</h4>
+      <h4 class="section-heading">{{ 'accounts_payable.payment.invoices_pay' | translate }}</h4>
 
       @if (payableBills().length === 0) {
         <!--
           Either nothing is owed, or nothing this account can settle: the server accepts a bill in
           the account's own currency, or any bill from an account in the books' currency.
         -->
-        <p class="section-note">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SIN_FACTURAS' | translate }}</p>
+        <p class="section-note">{{ 'accounts_payable.payment.no_invoices_account_can_pay' | translate }}</p>
       } @else {
         <div class="invoice-picker">
           @for (bill of payableBills(); track bill.id) {
@@ -67,13 +67,13 @@
           <table class="lines-table" formArrayName="lines">
             <thead>
               <tr>
-                <th>{{ 'ACCOUNTS_PAYABLE.PAYMENT.FACTURA' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDO' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.EFECTIVO' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.ITBIS_RETENIDO' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.ISR_RETENIDO' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.DESCUENTO' | translate }}</th>
-                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDA' | translate }}</th>
+                <th>{{ 'accounts_payable.payment.invoice' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.balance' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.cash' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.itbis_withheld' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.income_tax_withheld' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.discount' | translate }}</th>
+                <th class="numeric">{{ 'accounts_payable.payment.settles' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -105,19 +105,19 @@
 
         <div class="totals">
           <div class="totals__line">
-            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.EFECTIVO' | translate }}</span>
+            <span>{{ 'accounts_payable.payment.cash' | translate }}</span>
             <span class="amount">{{ totals().cash | vxNumber: '1.2-2' }}</span>
           </div>
           <div class="totals__line">
-            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.RETENCIONES' | translate }}</span>
+            <span>{{ 'accounts_payable.payment.withholdings' | translate }}</span>
             <span class="amount">{{ totals().withheld | vxNumber: '1.2-2' }}</span>
           </div>
           <div class="totals__line">
-            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.DESCUENTO' | translate }}</span>
+            <span>{{ 'accounts_payable.payment.discount' | translate }}</span>
             <span class="amount">{{ totals().discount | vxNumber: '1.2-2' }}</span>
           </div>
           <div class="totals__line totals__line--total">
-            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDA' | translate }}</span>
+            <span>{{ 'accounts_payable.payment.settles' | translate }}</span>
             <span class="amount">{{ totals().settled | vxNumber: '1.2-2' }}</span>
           </div>
         </div>

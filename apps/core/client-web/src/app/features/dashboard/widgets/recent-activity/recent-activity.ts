@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { ActivityItem, OverviewService } from '../../../overview/overview.service';
-import { FormatService } from '../../../../core/i18n/format.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 
 /**
  * What has happened in this tenant lately.
@@ -40,7 +40,7 @@ export class RecentActivity {
   /** The sentence, in the reader's language. */
   text(item: ActivityItem): string {
     return this.translate.instant(item.titleKey, {
-      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+      reference: item.reference ?? this.translate.instant('overview.activity.no_reference'),
     });
   }
 

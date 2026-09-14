@@ -1,0 +1,136 @@
+{
+  "payment.cancel.back_to_plans": {
+    "es": "Volver a los planes",
+    "en": "Back to the plans",
+    "pt": "Voltar aos planos"
+  },
+  "payment.cancel.body": {
+    "es": "No se realizó ningún cargo. Puedes elegir un plan cuando quieras.",
+    "en": "You were not charged. You can choose a plan whenever you like.",
+    "pt": "Não foste cobrado. Podes escolher um plano quando quiseres."
+  },
+  "payment.cancel.title": {
+    "es": "Pago cancelado",
+    "en": "Payment canceled",
+    "pt": "Pagamento cancelado"
+  },
+  "payment.failed_create_stripe_session_url": {
+    "es": "No se pudo crear la sesión de pago.",
+    "en": "The payment session could not be created.",
+    "pt": "Não foi possível criar a sessão de pagamento."
+  },
+  "payment.missing_stripe_signature_header": {
+    "es": "Missing stripe-signature header.",
+    "en": "The stripe-signature header is missing.",
+    "pt": "Falta o cabeçalho stripe-signature."
+  },
+  "payment.no_active_subscription_manage": {
+    "es": "No existe una suscripción activa para gestionar.",
+    "en": "There is no active subscription to manage.",
+    "pt": "Não há assinatura ativa para gerenciar."
+  },
+  "payment.no_valid_plan_specified_price_id": {
+    "es": "No se especificó un plan válido (priceId faltante).",
+    "en": "No valid plan was specified (priceId is missing).",
+    "pt": "Nenhum plano válido foi informado (priceId ausente)."
+  },
+  "payment.organization_not_found": {
+    "es": "No se encontró la organización.",
+    "en": "The organization was not found.",
+    "pt": "A organização não foi encontrada."
+  },
+  "payment.payment_session_does_not_belong_organization": {
+    "es": "La sesión de pago no corresponde a esta organización.",
+    "en": "The payment session does not belong to this organization.",
+    "pt": "A sessão de pagamento não pertence a esta organização."
+  },
+  "payment.plan_not_found": {
+    "es": "Plan no encontrado.",
+    "en": "Plan not found.",
+    "pt": "Plano não encontrado."
+  },
+  "payment.plans.checkout_error": {
+    "es": "No pudimos iniciar el pago.",
+    "en": "We could not start the checkout.",
+    "pt": "Não foi possível iniciar o pagamento."
+  },
+  "payment.plans.choose": {
+    "es": "Elegir {{plan}}",
+    "en": "Choose {{plan}}",
+    "pt": "Escolher {{plan}}"
+  },
+  "payment.plans.load_error": {
+    "es": "No pudimos cargar los planes.",
+    "en": "We could not load the plans.",
+    "pt": "Não foi possível carregar os planos."
+  },
+  "payment.plans.loading": {
+    "es": "Cargando los planes…",
+    "en": "Loading the plans…",
+    "pt": "A carregar os planos…"
+  },
+  "payment.plans.none_available": {
+    "es": "No hay planes disponibles para tu país todavía.",
+    "en": "There are no plans available for your country yet.",
+    "pt": "Ainda não há planos disponíveis para o teu país."
+  },
+  "payment.plans.per_month": {
+    "es": "/mes",
+    "en": "/month",
+    "pt": "/mês"
+  },
+  "payment.plans.popular": {
+    "literal": "Popular"
+  },
+  "payment.plans.processing": {
+    "es": "Procesando…",
+    "en": "Processing…",
+    "pt": "A processar…"
+  },
+  "payment.plans.subtitle": {
+    "es": "Empieza tu prueba o suscríbete ahora.",
+    "en": "Start your trial or subscribe now.",
+    "pt": "Começa o teu período de teste ou subscreve agora."
+  },
+  "payment.plans.tax_note": {
+    "es": "Los precios están en {{currency}}. Pueden aplicarse impuestos según tu país.",
+    "en": "Prices are in {{currency}}. Taxes may apply depending on your country.",
+    "pt": "Os preços estão em {{currency}}. Podem aplicar-se impostos conforme o teu país.",
+    "note": "The currency is named from the catalogue rather than assumed: the previous copy said 'USD' while the amounts were whatever the market's plan was quoted in."
+  },
+  "payment.plans.title": {
+    "es": "Elige tu plan",
+    "en": "Choose your plan",
+    "pt": "Escolhe o teu plano"
+  },
+  "payment.raw_request_body_unavailable_webhook_signature_cannot": {
+    "es": "No se pudo verificar la firma del webhook porque el cuerpo original de la solicitud no está disponible.",
+    "en": "The webhook signature could not be verified because the raw request body is unavailable.",
+    "pt": "Não foi possível verificar a assinatura do webhook porque o corpo original da requisição não está disponível."
+  },
+  "payment.success.body": {
+    "es": "Tu suscripción quedó activada.",
+    "en": "Your subscription is now active.",
+    "pt": "A tua subscrição está agora ativa."
+  },
+  "payment.success.go_to_dashboard": {
+    "es": "Ir al panel",
+    "en": "Go to the dashboard",
+    "pt": "Ir para o painel"
+  },
+  "payment.success.title": {
+    "es": "¡Pago exitoso!",
+    "en": "Payment successful",
+    "pt": "Pagamento bem-sucedido"
+  },
+  "payment.user_does_not_belong_organization": {
+    "es": "El usuario no pertenece a ninguna organización.",
+    "en": "The user does not belong to any organization.",
+    "pt": "O usuário não pertence a nenhuma organização."
+  },
+  "payment.webhook_signature_verification_failed": {
+    "es": "Webhook signature verification failed",
+    "en": "The webhook signature could not be verified.",
+    "pt": "Não foi possível verificar a assinatura do webhook."
+  }
+}

@@ -3,27 +3,27 @@
     <div class="verify-icon">
       <lucide-icon [img]="MailIcon" size="28"></lucide-icon>
     </div>
-    <h3 class="verify-title">{{ 'AUTH.STEP_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO' | translate }}</h3>
+    <h3 class="verify-title">{{ 'auth.step_email_verify.confirm_your_email_address' | translate }}</h3>
     <p class="verify-subtitle" *ngIf="!isSending()">
-      {{ 'AUTH.STEP_EMAIL_VERIFY.ENVIAMOS_CODIGO_ENLACE_CONFIRMACION' | translate }}
+      {{ 'auth.step_email_verify.we_sent_code_confirmation_link' | translate }}
       <strong>{{ email }}</strong>
     </p>
     <p class="verify-subtitle" *ngIf="isSending()">
       <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
-      {{ 'AUTH.STEP_EMAIL_VERIFY.ENVIANDO_CODIGO_EMAIL' | translate: { email: email } }}
+      {{ 'auth.step_email_verify.sending_code_email' | translate: { email: email } }}
     </p>
   </div>
 
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
     {{ sendError() }}
-    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'AUTH.STEP_EMAIL_VERIFY.REINTENTAR' | translate }}</button>
+    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_email_verify.try_again' | translate }}</button>
   </div>
 
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
-      [title]="'AUTH.STEP_EMAIL_VERIFY.CODIGO_VERIFICACION' | translate"
-      [description]="'AUTH.STEP_EMAIL_VERIFY.DESCRIPCION_CODIGO_EMAIL' | translate"
+      [title]="'auth.step_email_verify.verification_code' | translate"
+      [description]="'auth.step_email_verify.enter_digit_code_we_sent_your' | translate"
       [timerDuration]="300"
       [resendCooldown]="60"
       mode="email"
@@ -33,7 +33,7 @@
 
     <div class="magic-link-hint">
       <lucide-icon [img]="MailIcon" size="14"></lucide-icon>
-      <span>{{ 'AUTH.STEP_EMAIL_VERIFY.PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON' | translate }} <strong>{{ 'AUTH.STEP_EMAIL_VERIFY.CONFIRMAR_CORREO_ELECTRONICO' | translate }}</strong> {{ 'AUTH.STEP_EMAIL_VERIFY.CORREO_ENVIAMOS' | translate }}</span>
+      <span>{{ 'auth.step_email_verify.would_you_rather_not_type_code' | translate }} <strong>{{ 'auth.step_email_verify.confirm_email_address' | translate }}</strong> {{ 'auth.step_email_verify.email_we_sent' | translate }}</span>
     </div>
   </div>
 </div>

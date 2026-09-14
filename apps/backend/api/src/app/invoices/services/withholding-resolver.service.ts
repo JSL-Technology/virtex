@@ -213,7 +213,7 @@ export class WithholdingResolverService {
     if (agrees) return fromRegimes;
 
     if (!request.withholdingOverrideReason?.trim()) {
-      throw new BadRequestError('INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN', {
+      throw new BadRequestError('invoices.withholding_stated_stated_not_what_applicable', {
         stated: `${effective.taxWithholdingRate} / ${effective.incomeTaxWithholdingRate}`,
         resolved: `${fromRegimes.taxWithholdingRate} / ${fromRegimes.incomeTaxWithholdingRate}`,
         regimes: fromRegimes.regimeCodes.join(', ') || '—',

@@ -46,7 +46,7 @@ export class TwoFactorRequiredResponseDto {
      * interface is Spanish, on the one screen a reader reaches before they have signed in and
      * therefore before the server knows anything about them except what they asked for.
      */
-    @ApiProperty({ example: 'AUTH.TWO_FACTOR_REQUIRED' })
+    @ApiProperty({ example: 'auth.two_factor_required' })
     messageKey: string;
 
     /** Internal only. Set as an httpOnly cookie by the controller; never sent in the body. */

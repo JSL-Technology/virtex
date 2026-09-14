@@ -15,11 +15,11 @@ describe('draftProblems', () => {
       email: new FormControl('ok@example.com', Validators.email),
     });
 
-    expect(draftProblems(form, { name: 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR' })).toEqual([
+    expect(draftProblems(form, { name: 'masters.supplier_form.supplier_name' })).toEqual([
       {
-        message: 'SHELL.PROBLEM_REQUIRED',
+        message: 'shell.problem_required',
         fieldId: 'name',
-        params: { field: 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR', min: undefined, max: undefined },
+        params: { field: 'masters.supplier_form.supplier_name', min: undefined, max: undefined },
       },
     ]);
   });
@@ -33,7 +33,7 @@ describe('draftProblems', () => {
     const form = new FormGroup({ qty: new FormControl(2, Validators.min(5)) });
     const [problem] = draftProblems(form, { qty: 'QTY' });
 
-    expect(problem.message).toBe('SHELL.PROBLEM_MIN');
+    expect(problem.message).toBe('shell.problem_min');
     expect(problem.params?.['min']).toBe(5);
   });
 
@@ -71,6 +71,6 @@ describe('draftProblems', () => {
       ncf: new FormControl('X', () => ({ ncfSequenceExhausted: true })),
     });
 
-    expect(draftProblems(form, { ncf: 'NCF' })[0].message).toBe('SHELL.PROBLEM_INVALID');
+    expect(draftProblems(form, { ncf: 'NCF' })[0].message).toBe('shell.problem_invalid');
   });
 });

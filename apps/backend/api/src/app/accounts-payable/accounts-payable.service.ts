@@ -225,7 +225,7 @@ export class AccountsPayableService {
         select: ['id', 'taxpayerType', 'country'],
       });
       if (!supplier) {
-        throw new NotFoundError('ACCOUNTS_PAYABLE.PROVEEDOR_NO_ENCONTRADO', { id: dto.vendorId });
+        throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
       }
 
       const servicesAmount = dto.servicesAmount ?? subtotal;
@@ -270,7 +270,7 @@ export class AccountsPayableService {
       );
 
       if (dto.total !== undefined && toCents(dto.total) !== toCents(expectedTotal)) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.TOTAL_NO_COINCIDE_CON_LINEAS', {
+        throw new BadRequestError('accounts_payable.submitted_total_received_does_not_match', {
           expected: expectedTotal,
           received: dto.total,
         });
@@ -323,11 +323,11 @@ export class AccountsPayableService {
   ): Promise<VendorBill> {
     const bill = await this.findOne(id, organizationId);
     if (bill.status !== VendorBillStatus.DRAFT) {
-      throw new ForbiddenError('ACCOUNTS_PAYABLE.SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR');
+      throw new ForbiddenError('accounts_payable.only_invoices_draft_can_edited');
     }
     if (dto.lines) {
       throw new BadRequestError(
-        'ACCOUNTS_PAYABLE.MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES',
+        'accounts_payable.lines_existing_invoice_must_changed_through',
       );
     }
     return this.vendorBillRepository.save(this.vendorBillRepository.merge(bill, dto));
@@ -348,13 +348,13 @@ export class AccountsPayableService {
         relations: ['lines', 'vendor'],
       });
       if (!bill) {
-        throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_PROVEEDOR_ID_NO_FUE_ENCONTRADA', {
+        throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', {
           id: billId,
         });
       }
       if (bill.status !== VendorBillStatus.DRAFT) {
         throw new BadRequestError(
-          'ACCOUNTS_PAYABLE.SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS',
+          'accounts_payable.only_draft_invoices_can_submitted_approval',
         );
       }
 
@@ -367,7 +367,7 @@ export class AccountsPayableService {
           new Date(`${toIsoDate(bill.date)}T00:00:00.000Z`),
         );
         if (budgetCheck.isExceeded) {
-          throw new ForbiddenError('ACCOUNTS_PAYABLE.CONTROL_PRESUPUESTARIO_FALLIDO', {
+          throw new ForbiddenError('accounts_payable.budget_control_failed_message', {
             detail: budgetCheck.messageKey,
             ...(budgetCheck.messageParams ?? {}),
           });
@@ -419,13 +419,13 @@ export class AccountsPayableService {
   ): Promise<VendorBill> {
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings?.defaultAccountsPayableId) {
-      throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_PAGAR_DEFECTO_NO_ESTA_CONFIGURADA');
+      throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
     }
 
     const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!ledger) {
       throw new BadRequestError(
-        'ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+        'accounts_payable.no_default_ledger_has_configured_organization',
       );
     }
 
@@ -434,7 +434,7 @@ export class AccountsPayableService {
       code: 'COMPRAS',
     });
     if (!purchaseJournal) {
-      throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO');
+      throw new BadRequestError('accounts_payable.purchases_journal_compras_not_found');
     }
 
     const lines: CreateJournalEntryLineDto[] = [];
@@ -462,17 +462,17 @@ export class AccountsPayableService {
     //  El relato del asiento en el idioma de los libros del inquilino. Eran literales castellanos,
     //  de modo que un inquilino que compra y factura en inglés leía su propio mayor en castellano.
     const words = await this.narrative.describeAll(manager, organizationId, {
-      deductibleTax: { key: 'LEDGER.PURCHASE.DEDUCTIBLE_TAX' },
-      taxToCost: { key: 'LEDGER.PURCHASE.NON_DEDUCTIBLE_TAX' },
-      exciseTax: { key: 'LEDGER.PURCHASE.EXCISE_AND_OTHER' },
-      withheld: { key: 'LEDGER.PURCHASE.WITHHELD_FOR_AUTHORITY' },
-      serviceCharge: { key: 'LEDGER.PURCHASE.SERVICE_CHARGE_PAYABLE' },
+      deductibleTax: { key: 'ledger.purchase.deductible_tax' },
+      taxToCost: { key: 'ledger.purchase.non_deductible_tax' },
+      exciseTax: { key: 'ledger.purchase.excise_and_other' },
+      withheld: { key: 'ledger.purchase.withheld_for_authority' },
+      serviceCharge: { key: 'ledger.purchase.service_charge_payable' },
       payable: {
-        key: 'LEDGER.PURCHASE.PAYABLE',
+        key: 'ledger.purchase.payable',
         params: { supplier: bill.vendor?.name ?? bill.vendorId },
       },
       entry: {
-        key: 'LEDGER.PURCHASE.BILL',
+        key: 'ledger.purchase.bill',
         params: { number: bill.ncf ?? bill.id.slice(0, 8) },
       },
     });
@@ -481,20 +481,20 @@ export class AccountsPayableService {
       if (line.productId) {
         if (!settings.defaultInventoryId) {
           throw new BadRequestError(
-            'ACCOUNTS_PAYABLE.CUENTA_INVENTARIO_DEFECTO_NO_ESTA_CONFIGURADA',
+            'accounts_payable.default_inventory_account_not_configured',
           );
         }
         debit(
           settings.defaultInventoryId,
           line.total,
-          await this.narrative.describe(manager, organizationId, 'LEDGER.PURCHASE.GOODS_LINE', {
+          await this.narrative.describe(manager, organizationId, 'ledger.purchase.goods_line', {
             product: line.product,
           }),
         );
       } else {
         if (!line.expenseAccountId) {
           throw new BadRequestError(
-            'ACCOUNTS_PAYABLE.LINEA_NO_ES_INVENTARIO_REQUIERE_CUENTA_GASTO',
+            'accounts_payable.line_product_not_inventory_item_requires',
             { product: line.product },
           );
         }
@@ -520,7 +520,7 @@ export class AccountsPayableService {
         settings.defaultPurchaseTaxId,
       );
       if (!taxReceivableId) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_IMPUESTO_COMPRAS_NO_CONFIGURADA');
+        throw new BadRequestError('accounts_payable.no_purchase_tax_account_configured_bill');
       }
       debit(taxReceivableId, deductibleTax, words.deductibleTax);
     }
@@ -547,7 +547,7 @@ export class AccountsPayableService {
         settings.defaultTaxWithheldPayableId,
       );
       if (!withholdingPayableId) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_RETENCIONES_NO_CONFIGURADA');
+        throw new BadRequestError('accounts_payable.no_withholding_payable_account_configured_document');
       }
       credit(withholdingPayableId, totalWithheld, words.withheld);
     }
@@ -645,14 +645,14 @@ export class AccountsPayableService {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       if (!settings?.defaultAccountsPayableId) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA');
+        throw new BadRequestError('accounts_payable.accounts_payable_account_not_configured');
       }
       const baseCurrency = settings.baseCurrency ?? 'USD';
 
       const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!ledger) {
         throw new BadRequestError(
-          'ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
+          'accounts_payable.no_default_ledger_has_configured_organization',
         );
       }
 
@@ -661,7 +661,7 @@ export class AccountsPayableService {
         code: 'PAGOS',
       });
       if (!paymentJournal) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_PAGOS_PAGOS_NO_ENCONTRADO');
+        throw new BadRequestError('accounts_payable.payments_journal_pagos_not_found');
       }
 
       // A real bank account, not a chart-of-accounts row: a payment that cannot say which account
@@ -670,10 +670,10 @@ export class AccountsPayableService {
         where: { id: dto.bankAccountId, organizationId },
       });
       if (!bankAccount) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_BANCARIA_NO_VALIDA');
+        throw new BadRequestError('accounts_payable.specified_bank_account_does_not_exist');
       }
       if (!bankAccount.isActive) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_BANCARIA_INACTIVA', {
+        throw new BadRequestError('accounts_payable.bank_account_name_inactive_cannot_take', {
           name: bankAccount.name,
         });
       }
@@ -705,7 +705,7 @@ export class AccountsPayableService {
       for (const line of dto.lines) {
         const bill = billsById.get(line.vendorBillId);
         if (!bill) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.FACTURA_NO_ENCONTRADA_EN_LOTE', {
+          throw new BadRequestError('accounts_payable.bill_id_does_not_exist_organization', {
             id: line.vendorBillId,
           });
         }
@@ -713,7 +713,7 @@ export class AccountsPayableService {
           bill.status !== VendorBillStatus.OPEN &&
           bill.status !== VendorBillStatus.PARTIALLY_PAID
         ) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.FACTURA_NO_ESTA_ABIERTA', {
+          throw new BadRequestError('accounts_payable.bill_id_status_cannot_take_payment', {
             id: bill.id,
             status: bill.status,
           });
@@ -726,7 +726,7 @@ export class AccountsPayableService {
         const settled = roundAmount(line.amount + withheld + discount);
 
         if (toCents(settled) > toCents(bill.balance)) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.PAGO_EXCEDE_SALDO', {
+          throw new BadRequestError('accounts_payable.settlement_settled_exceeds_balance_balance_bill', {
             id: bill.id,
             balance: bill.balance,
             settled,
@@ -752,7 +752,7 @@ export class AccountsPayableService {
           bankAccount.currencyCode !== bill.currencyCode &&
           bankAccount.currencyCode !== baseCurrency
         ) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.MONEDA_PAGO_NO_COINCIDE_CUENTA_BANCARIA', {
+          throw new BadRequestError('accounts_payable.bill_bill_cannot_paid_from_account', {
             bill: bill.currencyCode,
             account: bankAccount.currencyCode,
           });
@@ -813,13 +813,13 @@ export class AccountsPayableService {
       };
 
       const paid = await this.narrative.describeAll(manager, organizationId, {
-        payable: { key: 'LEDGER.VENDOR_PAYMENT.PAYABLE_SETTLED' },
-        bankOut: { key: 'LEDGER.VENDOR_PAYMENT.BANK_OUT' },
-        withheld: { key: 'LEDGER.VENDOR_PAYMENT.WITHHELD_FROM_SUPPLIER' },
-        discount: { key: 'LEDGER.VENDOR_PAYMENT.EARLY_PAYMENT_DISCOUNT' },
-        forex: { key: 'LEDGER.VENDOR_PAYMENT.EXCHANGE_DIFFERENCE' },
+        payable: { key: 'ledger.vendor_payment.payable_settled' },
+        bankOut: { key: 'ledger.vendor_payment.bank_out' },
+        withheld: { key: 'ledger.vendor_payment.withheld_from_supplier' },
+        discount: { key: 'ledger.vendor_payment.early_payment_discount' },
+        forex: { key: 'ledger.vendor_payment.exchange_difference' },
         entry: {
-          key: 'LEDGER.VENDOR_PAYMENT.BATCH',
+          key: 'ledger.vendor_payment.batch',
           params: { batch: batch.id.slice(0, 8) },
         },
       });
@@ -835,7 +835,7 @@ export class AccountsPayableService {
           settings.defaultTaxWithheldPayableId,
         );
         if (!withholdingPayableId) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_RETENCIONES_NO_CONFIGURADA');
+          throw new BadRequestError('accounts_payable.no_withholding_payable_account_configured_document');
         }
         push(withholdingPayableId, 0, withheldBase, paid.withheld);
       }
@@ -848,7 +848,7 @@ export class AccountsPayableService {
           settings.defaultSalesDiscountsId,
         );
         if (!discountAccountId) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_DESCUENTOS_NO_CONFIGURADA');
+          throw new BadRequestError('accounts_payable.no_discount_account_configured_so_early');
         }
         push(discountAccountId, 0, discountBase, paid.discount);
       }
@@ -861,7 +861,7 @@ export class AccountsPayableService {
           settings.defaultForexGainLossAccountId,
         );
         if (!forexAccountId) {
-          throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA');
+          throw new BadRequestError('accounts_payable.no_exchange_difference_account_configured_payment');
         }
         push(
           forexAccountId,
@@ -912,7 +912,7 @@ export class AccountsPayableService {
       relations: ['lines', 'vendor'],
     });
     if (!bill) {
-      throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_PROVEEDOR_ID_NO_FUE_ENCONTRADA', { id });
+      throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id });
     }
     return bill;
   }
@@ -1081,10 +1081,10 @@ export class AccountsPayableService {
         relations: ['lines', 'vendor'],
       });
       if (!bill) {
-        throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_ANULAR_ID_NO_ENCONTRADA', { id });
+        throw new NotFoundError('accounts_payable.invoice_void_id_not_found', { id });
       }
       if (bill.status === VendorBillStatus.VOID) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.FACTURA_YA_HA_SIDO_ANULADA');
+        throw new BadRequestError('accounts_payable.invoice_has_already_voided');
       }
 
       // A bill with payments against it cannot be annulled: the payments would be left pointing at
@@ -1092,7 +1092,7 @@ export class AccountsPayableService {
       // bill and leave the payments orphaned.
       const payments = await manager.count(VendorPayment, { where: { vendorBillId: id } });
       if (payments > 0) {
-        throw new BadRequestError('ACCOUNTS_PAYABLE.NO_PUEDE_ANULAR_FACTURA_CON_PAGOS');
+        throw new BadRequestError('accounts_payable.bill_with_payments_applied_cannot_voided');
       }
 
       // Only a bill that reached the ledger has anything to reverse or to return. A draft or a
@@ -1149,6 +1149,6 @@ export class AccountsPayableService {
   }
 
   async remove(): Promise<void> {
-    throw new ForbiddenError('ACCOUNTS_PAYABLE.ELIMINACION_FACTURAS_NO_ESTA_PERMITIDA_USE_FUNCION');
+    throw new ForbiddenError('accounts_payable.deleting_invoices_not_allowed_use_void');
   }
 }

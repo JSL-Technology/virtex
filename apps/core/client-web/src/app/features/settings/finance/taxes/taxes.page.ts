@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.TAXES.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.TAXES.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.taxes.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.taxes.configure_rates_apply_sales_purchases_withholding' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.TAXES.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.TAXES.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.TAXES.FEATURES.F1','SETTINGS.PAGES.TAXES.FEATURES.F2','SETTINGS.PAGES.TAXES.FEATURES.F3','SETTINGS.PAGES.TAXES.FEATURES.F4','SETTINGS.PAGES.TAXES.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.taxes.empty_title'"
+        [description]="'settings.pages.taxes.empty_description'"
+        [features]="['settings.pages.taxes.features.f1','settings.pages.taxes.features.f2','settings.pages.taxes.features.f3','settings.pages.taxes.features.f4','settings.pages.taxes.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -29,7 +29,7 @@ export class TenantedRepository<
     const organizationId = request?.user?.organizationId;
 
     if (!organizationId) {
-      throw new ForbiddenError('DATABASE.NO_PUDO_DETERMINAR_ORGANIZACION_ESTA_OPERACION_ACCESO');
+      throw new ForbiddenError('database.organization_operation_could_not_determined_access');
     }
     return organizationId;
   }
@@ -97,7 +97,7 @@ export class TenantedRepository<
     
     const ensureOwnership = (entity: T) => {
       if (entity.organizationId !== organizationId) {
-        throw new ForbiddenError('DATABASE.INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION');
+        throw new ForbiddenError('database.attempt_made_delete_record_does_not');
       }
     };
 

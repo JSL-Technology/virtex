@@ -54,7 +54,7 @@ export class RecurringJournalEntriesService {
   async findOne(id: string, organizationId: string): Promise<RecurringJournalEntry> {
     const entry = await this.recurringRepository.findOneBy({ id, organizationId });
     if (!entry) {
-      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('journal_entries.recurring_journal_entry_template_id_not', { id });
     }
     return entry;
   }
@@ -68,7 +68,7 @@ export class RecurringJournalEntriesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.recurringRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA', { id });
+      throw new NotFoundError('journal_entries.recurring_journal_entry_template_id_not', { id });
     }
   }
 

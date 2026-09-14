@@ -82,8 +82,8 @@ export class ResetPasswordPage implements OnInit {
      // Implement simple error mapping if needed, handled mostly in template
      const control = this.resetPasswordForm.get(controlName);
      if (control?.touched && control.errors) {
-         if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
-         if (control.errors['minlength']) return 'REGISTER.ERRORS.PASSWORD_LENGTH';
+         if (control.errors['required']) return 'register.errors.required';
+         if (control.errors['minlength']) return 'register.errors.password_length';
      }
      return '';
   }
@@ -103,12 +103,12 @@ export class ResetPasswordPage implements OnInit {
     this.authService.resetPassword(this.token, newPassword).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'RESET_PASSWORD.SUCCESS';
+        this.successMessage = 'reset_password.success';
         setTimeout(() => this.router.navigate(['/', this.languageService.currentLang(), 'auth', 'login']), 3000);
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.customMessage || 'RESET_PASSWORD.ERRORS.INVALID_TOKEN';
+        this.errorMessage = err.customMessage || 'reset_password.errors.invalid_token';
       }
     });
   }

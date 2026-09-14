@@ -41,7 +41,7 @@ export class AccountSegmentsService {
       });
 
       if (accountCount > 0) {
-        throw new BadRequestError('CHART_OF_ACCOUNTS.NO_PUEDE_MODIFICAR_ESTRUCTURA_SEGMENTOS_PORQUE_YA');
+        throw new BadRequestError('chart_of_accounts.segment_structure_cannot_changed_because_accounts');
       }
 
       // 2. Limpiar definiciones anteriores

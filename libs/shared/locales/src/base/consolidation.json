@@ -1,0 +1,82 @@
+{
+  "consolidation.elimination.investment_in_subsidiary": {
+    "es": "Inversión en {{member}} contra su patrimonio a la fecha de adquisición ({{date}}).",
+    "en": "Investment in {{member}} against its equity at the acquisition date ({{date}}).",
+    "pt": "Investimento em {{member}} contra o seu património à data de aquisição ({{date}})."
+  },
+  "consolidation.organization_has_no_subsidiaries_configured_consolidate": {
+    "es": "La organización no tiene subsidiarias configuradas para consolidar.",
+    "en": "The organization has no subsidiaries configured to consolidate.",
+    "pt": "A organização não tem subsidiárias configuradas para consolidar."
+  },
+  "consolidation.organization_not_found": {
+    "es": "Organización no encontrada.",
+    "en": "Organization not found.",
+    "pt": "Organização não encontrada."
+  },
+  "consolidation.parent_organization_not_found": {
+    "es": "Organización matriz no encontrada.",
+    "en": "The parent organization was not found.",
+    "pt": "Organização controladora não encontrada."
+  },
+  "consolidation.period_start_start_date_later_than": {
+    "es": "El inicio del período ({{startDate}}) es posterior a la fecha de corte ({{asOfDate}}).",
+    "en": "The period start ({{startDate}}) is later than the reporting date ({{asOfDate}}).",
+    "pt": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}})."
+  },
+  "consolidation.settings_parent_organization_parent_organization_id": {
+    "es": "Configuraciones para la organización matriz {{parentOrganizationId}} no encontradas.",
+    "en": "Settings for the parent organization {{parentOrganizationId}} were not found.",
+    "pt": "Configurações da organização controladora {{parentOrganizationId}} não encontradas."
+  },
+  "consolidation.warning.account_not_mapped": {
+    "es": "La cuenta {{code}} de {{member}} no está mapeada; se presenta con su propia codificación.",
+    "en": "Account {{code}} of {{member}} is not mapped; it is presented under its own coding.",
+    "pt": "A conta {{code}} de {{member}} não está mapeada; é apresentada com a codificação própria."
+  },
+  "consolidation.warning.bargain_purchase": {
+    "es": "Compra en condiciones ventajosas: el costo de adquisición ({{cost}} {{currency}}) es inferior a la participación adquirida ({{share}} {{currency}}).",
+    "en": "Bargain purchase: the acquisition cost ({{cost}} {{currency}}) is below the share acquired ({{share}} {{currency}}).",
+    "pt": "Compra vantajosa: o custo de aquisição ({{cost}} {{currency}}) é inferior à participação adquirida ({{share}} {{currency}})."
+  },
+  "consolidation.warning.intercompany_accounts_missing": {
+    "es": "La operación intercompañía {{transaction}} no encontró ambas cuentas en los estados consolidados; la eliminación puede estar incompleta.",
+    "en": "Intercompany transaction {{transaction}} did not find both accounts in the consolidated statements; the elimination may be incomplete.",
+    "pt": "A operação intercompanhia {{transaction}} não encontrou ambas as contas nas demonstrações consolidadas; a eliminação pode estar incompleta."
+  },
+  "consolidation.warning.intercompany_no_rate": {
+    "es": "Sin tasa de {{from}} a {{to}} al {{date}}; la operación intercompañía {{transaction}} no se eliminó.",
+    "en": "No {{from}} to {{to}} rate on {{date}}; intercompany transaction {{transaction}} was not eliminated.",
+    "pt": "Sem taxa de {{from}} para {{to}} em {{date}}; a operação intercompanhia {{transaction}} não foi eliminada."
+  },
+  "consolidation.warning.intercompany_transaction_transaction_status_only_one": {
+    "es": "La operación intercompañía {{transaction}} está en estado {{status}}: solo una de sus dos mitades está registrada, por lo que no se elimina.",
+    "en": "Intercompany transaction {{transaction}} is {{status}}: only one of its two halves is recorded, so it is not eliminated.",
+    "pt": "A operação intercompanhia {{transaction}} está em estado {{status}}: apenas uma das duas metades está registada, pelo que não é eliminada."
+  },
+  "consolidation.warning.member_out_of_balance": {
+    "es": "El balance individual de {{member}} está descuadrado por {{amount}}.",
+    "en": "{{member}}'s own balance sheet is out of balance by {{amount}}.",
+    "pt": "O balanço individual de {{member}} está desequilibrado em {{amount}}."
+  },
+  "consolidation.warning.no_acquisition_date": {
+    "es": "Sin fecha de adquisición registrada: el patrimonio se convirtió a la tasa de cierre en lugar de la histórica (NIC 21.39(b)).",
+    "en": "No acquisition date on record: equity was translated at the closing rate rather than the historical one (IAS 21.39(b)).",
+    "pt": "Sem data de aquisição registada: o património foi convertido à taxa de fecho em vez da histórica (IAS 21.39(b))."
+  },
+  "consolidation.warning.no_acquisition_rate": {
+    "es": "Sin tasa de {{from}} a {{to}} en la fecha de adquisición {{date}}; se usó la tasa de cierre.",
+    "en": "No {{from}} to {{to}} rate on the acquisition date {{date}}; the closing rate was used.",
+    "pt": "Sem taxa de {{from}} para {{to}} na data de aquisição {{date}}; usou-se a taxa de fecho."
+  },
+  "consolidation.warning.no_average_rate": {
+    "es": "Sin cotizaciones de {{from}} a {{to}} dentro del período; se usó la tasa de cierre como promedio.",
+    "en": "No {{from}} to {{to}} quotations within the period; the closing rate was used as the average.",
+    "pt": "Sem cotações de {{from}} para {{to}} dentro do período; usou-se a taxa de fecho como média."
+  },
+  "consolidation.warning.no_consolidation_map": {
+    "es": "Sin mapa de consolidación para {{member}}: sus cuentas se presentan con su propia codificación.",
+    "en": "No consolidation map for {{member}}: its accounts are presented under its own coding.",
+    "pt": "Sem mapa de consolidação para {{member}}: as suas contas são apresentadas com a codificação própria."
+  }
+}

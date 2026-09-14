@@ -2,7 +2,7 @@ import { ValidationError } from 'class-validator';
 import { BadRequestException } from '@nestjs/common';
 import { LanguageCode } from '@virteex/shared/types';
 import { I18nService } from './i18n.service';
-import { currentLanguage } from './request-locale';
+import { composeKey } from '@virteex/shared/types';
 
 /**
  * Validation errors, in the reader's language.
@@ -22,7 +22,7 @@ import { currentLanguage } from './request-locale';
  *  1. The decorator's `message` names a catalogue key — the bespoke wording somebody wrote for
  *     this specific field, kept because "La dirección fiscal es obligatoria" says more than "this
  *     field is required".
- *  2. No key: the CONSTRAINT's own key, `VALIDATION.CONSTRAINTS.IS_EMAIL`, with the field's
+ *  2. No key: the CONSTRAINT's own key, `validation.constraints.is_email`, with the field's
  *     translated name interpolated. One string per rule covers every field that uses it.
  *  3. Neither exists: `class-validator`'s English. Visible, and therefore fixable — a silent
  *     fallback is a defect that survives.
@@ -39,7 +39,7 @@ import { currentLanguage } from './request-locale';
  *
  * "must be shorter than 254 characters" loses its point without the 254, and a `ValidationError`
  * does not carry the constraint's arguments. So a bounded decorator writes them into the message
- * itself: `'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}'`. The separator is a pipe because a
+ * itself: `'validation.constraints.max_length|{"max":254}'`. The separator is a pipe because a
  * catalogue key never contains one, and the suffix is JSON because the alternative is inventing
  * a second escaping convention.
  */
@@ -76,20 +76,14 @@ export function parseValidationMessage(raw: string): ParsedValidationMessage {
   return { key, params: {} };
 }
 
-/** `maxLength` → `VALIDATION.CONSTRAINTS.MAX_LENGTH`. */
+/** `maxLength` → `validation.constraints.max_length`. */
 export function constraintKey(constraint: string): string {
-  return `VALIDATION.CONSTRAINTS.${constraint
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    .toUpperCase()}`;
+  return composeKey('validation.constraints', constraint);
 }
 
-/** `taxId` → `VALIDATION.FIELDS.TAX_ID`, falling back to the property name itself. */
+/** `taxId` → `validation.fields.tax_id`, falling back to the property name itself. */
 export function fieldLabel(i18n: I18nService, property: string, language: LanguageCode): string {
-  const key = `VALIDATION.FIELDS.${property
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    .toUpperCase()}`;
+  const key = composeKey('validation.fields', property);
   return i18n.has(key) ? i18n.translate(key, language) : property;
 }
 
@@ -160,23 +154,70 @@ export function translateValidationError(
   });
 }
 
+/** One field's failure, named rather than worded. */
+export interface FieldError {
+  /** Dotted path to the field, `address.city` for a nested DTO. */
+  property: string;
+  /** Catalogue key for the message. */
+  key: string;
+  /** Interpolation parameters, including `property` — the field's own translated label's key. */
+  params: Record<string, unknown>;
+}
+
+/**
+ * Every failure for one field, as keys.
+ *
+ * The resolution order is the same one `translateValidationError` uses; only the last step differs,
+ * because a key that resolves nowhere has to travel as something. `class-validator`'s own English
+ * sentence is passed through under `validation.constraints.fallback`, which renders it verbatim —
+ * visible, and therefore fixable, which a silent blank is not.
+ */
+export function describeValidationError(i18n: I18nService, error: ValidationError): FieldError[] {
+  const propertyKey = composeKey('validation.fields', error.property);
+  const property = i18n.has(propertyKey) ? propertyKey : error.property;
+
+  return Object.entries(error.constraints ?? {}).map(([constraint, fallback]) => {
+    const parsed = parseValidationMessage(fallback);
+    const params = { property, ...parsed.params };
+
+    if (i18n.has(parsed.key)) return { property: error.property, key: parsed.key, params };
+
+    const generic = constraintKey(constraint);
+    if (i18n.has(generic)) return { property: error.property, key: generic, params };
+
+    return {
+      property: error.property,
+      key: 'validation.constraints.fallback',
+      params: { ...params, message: fallback },
+    };
+  });
+}
+
 /**
  * The `exceptionFactory` for the global `ValidationPipe`.
  *
- * Keeps Nest's own response shape — `{ statusCode, message: string[], error }` — because the
- * client already renders it and changing it here would be an unrelated breaking change.
+ * ## Why this sends keys and not sentences
+ *
+ * It used to translate every message here and answer with `message: string[]`. That put prose for
+ * the UI in an API response, which is the thing this codebase has decided the server does not do:
+ * the reader's screen knows the context a sentence needs and the server does not. A form that
+ * failed three rules also wants them per field, and a flat array of sentences cannot say which
+ * field each belongs to — the client was matching them up by guessing.
+ *
+ * So the failure travels as `fieldErrors`, each entry naming its field, its key and its parameters,
+ * and `ErrorHandlerService` renders them. The server keeps `translateValidationError` for the one
+ * place that still needs a sentence with no browser in it: the e-CF submission log.
  */
 export function localizedValidationExceptionFactory(i18n: I18nService) {
   return (errors: ValidationError[]): BadRequestException => {
-    const language = currentLanguage();
-    const messages = flatten(errors).flatMap((error) =>
-      translateValidationError(i18n, error, language),
-    );
+    const fieldErrors = flatten(errors).flatMap((error) => describeValidationError(i18n, error));
 
     return new BadRequestException({
       statusCode: 400,
-      message: messages.length > 0 ? messages : [i18n.translate('ERRORS.HTTP_400', language)],
-      error: 'Bad Request',
+      code: 'VALIDATION_FAILED',
+      messageKey: 'errors.validation_failed',
+      params: {},
+      fieldErrors,
     });
   };
 }

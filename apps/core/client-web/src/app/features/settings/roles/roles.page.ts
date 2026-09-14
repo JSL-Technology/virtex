@@ -69,7 +69,7 @@ export class RolesManagementPage implements OnInit {
     this.rolesService.getRoles().subscribe({
       next: (roles: Role[]) => this.roles.set(roles),
       error: () =>
-        this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_ROLES'),
+        this.notificationService.showError('settings.roles.errors.load_roles'),
     });
   }
 
@@ -84,7 +84,7 @@ export class RolesManagementPage implements OnInit {
   private loadPermissions(): void {
     this.rolesService.getAvailablePermissions().subscribe({
       next: (groups) => this.permissionGroups.set(groups),
-      error: () => this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_PERMISSIONS'),
+      error: () => this.notificationService.showError('settings.roles.errors.load_permissions'),
     });
   }
 
@@ -111,12 +111,12 @@ export class RolesManagementPage implements OnInit {
   cloneRole(role: Role): void {
     this.rolesService.cloneRole(role.id).subscribe({
       next: () => {
-        this.notificationService.showSuccess('SETTINGS.ROLES.ROL_CLONADO_EXITOSAMENTE', { name: role.name });
+        this.notificationService.showSuccess('settings.roles.role_name_cloned_successfully', { name: role.name });
         this.loadRoles();
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('ERRORS.CLONE_ROLE'),
+          (err as any)?.error?.message || this.translate.instant('errors.clone_role'),
         ),
     });
   }
@@ -161,13 +161,13 @@ export class RolesManagementPage implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.notificationService.showSuccess(editing ? 'SETTINGS.ROLES.ROL_ACTUALIZADO_EXITOSAMENTE' : 'SETTINGS.ROLES.ROL_CREADO_EXITOSAMENTE');
+        this.notificationService.showSuccess(editing ? 'settings.roles.role_updated_successfully' : 'settings.roles.role_created_successfully');
         this.loadRoles();
         this.closeModal();
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('ERRORS.SAVE_ROLE'),
+          (err as any)?.error?.message || this.translate.instant('errors.save_role'),
         ),
     });
   }
@@ -175,22 +175,22 @@ export class RolesManagementPage implements OnInit {
   /** Eliminar un rol */
   async deleteRole(role: Role): Promise<void> {
     const confirmed = await this.dialog.confirm({
-      title: 'DIALOG.DELETE_ROLE.TITLE',
-      message: 'DIALOG.DELETE_ROLE.MESSAGE',
+      title: 'dialog.delete_role.title',
+      message: 'dialog.delete_role.message',
       messageParams: { name: role.name },
-      confirmText: 'COMMON.DELETE',
+      confirmText: 'common.delete',
       variant: 'danger',
     });
     if (!confirmed) return;
 
     this.rolesService.deleteRole(role.id).subscribe({
       next: () => {
-        this.notificationService.showSuccess('SETTINGS.ROLES.ROL_ELIMINADO_EXITOSAMENTE');
+        this.notificationService.showSuccess('settings.roles.role_deleted_successfully');
         this.loadRoles();
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('ERRORS.DELETE_ROLE'),
+          (err as any)?.error?.message || this.translate.instant('errors.delete_role'),
         ),
     });
   }

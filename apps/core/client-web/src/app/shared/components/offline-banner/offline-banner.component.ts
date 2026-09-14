@@ -16,8 +16,8 @@ import { PwaService } from '../../../core/services/pwa.service';
             <lucide-icon [img]="WifiOffIcon" size="24"></lucide-icon>
           </div>
           <div class="text-container">
-            <h4 class="title">{{ 'PWA.OFFLINE_TITLE' | translate }}</h4>
-            <p class="message">{{ 'PWA.OFFLINE_MESSAGE' | translate }}</p>
+            <h4 class="title">{{ 'pwa.offline_title' | translate }}</h4>
+            <p class="message">{{ 'pwa.offline_message' | translate }}</p>
           </div>
         </div>
       </div>

@@ -57,9 +57,9 @@ export class JournalFormPage implements OnInit {
       this.journalForm.markAllAsTouched();
       this.problems.set(
         draftProblems(this.journalForm, {
-          name: 'ACCOUNTING.JOURNAL_FORM.NAME',
-          code: 'ACCOUNTING.JOURNAL_FORM.CODE',
-          type: 'ACCOUNTING.JOURNAL_FORM.TYPE',
+          name: 'accounting.journal_form.name',
+          code: 'accounting.journal_form.code',
+          type: 'accounting.journal_form.type',
         }),
       );
       return;
@@ -81,8 +81,8 @@ export class JournalFormPage implements OnInit {
       next: () => {
         this.notification.showSuccess(
           this.isEditMode
-            ? 'ACCOUNTING.JOURNAL_FORM.DIARIO_ACTUALIZADO'
-            : 'ACCOUNTING.JOURNAL_FORM.DIARIO_CREADO',
+            ? 'accounting.journal_form.journal_updated'
+            : 'accounting.journal_form.journal_created',
         );
         this.router.navigate(['/accounting/journals']);
       },
@@ -91,7 +91,7 @@ export class JournalFormPage implements OnInit {
         this.notification.showError(
           typeof message === 'string'
             ? message
-            : 'ACCOUNTING.JOURNAL_FORM.NO_SE_PUDO_GUARDAR',
+            : 'accounting.journal_form.journal_could_not_saved',
         );
       },
     });

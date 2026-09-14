@@ -21,23 +21,23 @@ describe('validation messages', () => {
 
   describe('parsing', () => {
     it('reads a bare key', () => {
-      expect(parseValidationMessage('VALIDATION.CONSTRAINTS.IS_EMAIL')).toEqual({
-        key: 'VALIDATION.CONSTRAINTS.IS_EMAIL',
+      expect(parseValidationMessage('validation.constraints.is_email')).toEqual({
+        key: 'validation.constraints.is_email',
         params: {},
       });
     });
 
     it('reads the bound a length constraint carries', () => {
-      expect(parseValidationMessage('VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}')).toEqual({
-        key: 'VALIDATION.CONSTRAINTS.MAX_LENGTH',
+      expect(parseValidationMessage('validation.constraints.max_length|{"max":254}')).toEqual({
+        key: 'validation.constraints.max_length',
         params: { max: 254 },
       });
     });
 
     it('still resolves the key when the parameters are malformed', () => {
       // A typo in a decorator must not change how the request fails.
-      expect(parseValidationMessage('VALIDATION.CONSTRAINTS.MIN|{max:}')).toEqual({
-        key: 'VALIDATION.CONSTRAINTS.MIN',
+      expect(parseValidationMessage('validation.constraints.min|{max:}')).toEqual({
+        key: 'validation.constraints.min',
         params: {},
       });
     });
@@ -45,10 +45,10 @@ describe('validation messages', () => {
 
   describe('constraint keys', () => {
     it.each([
-      ['isEmail', 'VALIDATION.CONSTRAINTS.IS_EMAIL'],
-      ['maxLength', 'VALIDATION.CONSTRAINTS.MAX_LENGTH'],
-      ['arrayMinSize', 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE'],
-      ['isE164PhoneNumber', 'VALIDATION.CONSTRAINTS.IS_E164_PHONE_NUMBER'],
+      ['isEmail', 'validation.constraints.is_email'],
+      ['maxLength', 'validation.constraints.max_length'],
+      ['arrayMinSize', 'validation.constraints.array_min_size'],
+      ['isE164PhoneNumber', 'validation.constraints.is_e164_phone_number'],
     ])('%s → %s', (constraint, expected) => {
       expect(constraintKey(constraint)).toBe(expected);
     });
@@ -68,7 +68,7 @@ describe('validation messages', () => {
     it('names the bound a length constraint was given', () => {
       const [message] = translateValidationError(
         i18n,
-        error('email', { maxLength: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' }),
+        error('email', { maxLength: 'validation.constraints.max_length|{"max":254}' }),
         'es',
       );
       expect(message).toContain('254');
@@ -76,13 +76,13 @@ describe('validation messages', () => {
 
     it('joins a composed message with the reader’s own conjunction', () => {
       const details = [
-        { key: 'VALIDATION.FISCAL.FIELD_REQUIRED', params: { label: 'Régimen fiscal' } },
-        { key: 'VALIDATION.FISCAL.FIELD_BAD_FORMAT', params: { label: 'Inscrição Estadual' } },
+        { key: 'validation.fiscal.field_required', params: { label: 'Régimen fiscal' } },
+        { key: 'validation.fiscal.label_not_expected_format', params: { label: 'Inscrição Estadual' } },
       ];
       const [message] = translateValidationError(
         i18n,
         error('fiscalProfile', {
-          isFiscalProfileValidForCountry: `VALIDATION.FISCAL.PROFILE_INCOMPLETE|${JSON.stringify({ details })}`,
+          isFiscalProfileValidForCountry: `validation.fiscal.profile_incomplete|${JSON.stringify({ details })}`,
         }),
         'es',
       );
@@ -131,7 +131,9 @@ describe('validation messages', () => {
 
       for (const match of source.matchAll(/\bmessage:\s*'([^']+)'/g)) {
         const text = match[1];
-        if (/^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+(\|.*)?$/.test(text)) continue;
+        // A catalogue key, optionally carrying its bounds as `|{"max":254}`. Keys are
+        // `lower_snake` since the naming convention moved there; see `libs/shared/types`.
+        if (/^[a-z0-9][a-z0-9_]*(\.[a-z0-9_]+)+(\|.*)?$/.test(text)) continue;
         // Response payloads are a different field (`messageKey`) and a different mechanism.
         if (!/[a-záéíóúñ]/i.test(text)) continue;
         offenders.push(`${file}: ${text}`);

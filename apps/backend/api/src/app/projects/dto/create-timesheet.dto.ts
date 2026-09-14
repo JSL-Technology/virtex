@@ -22,7 +22,7 @@ export class CreateTimesheetDto {
   date: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   hours: number;
 
   @IsString()

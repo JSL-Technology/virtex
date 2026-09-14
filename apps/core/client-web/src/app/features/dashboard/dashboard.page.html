@@ -4,9 +4,9 @@
   <header class="db-header">
     <div class="db-header__left">
       <div class="db-header__greeting">
-        <h1 class="db-header__title">{{ 'NAV.DASHBOARD' | translate }}</h1>
+        <h1 class="db-header__title">{{ 'nav.dashboard' | translate }}</h1>
         <p class="db-header__subtitle">
-          {{ today | vxDate: 'weekday' }} &nbsp;·&nbsp; {{ 'DASH.HEADER.SUBTITLE' | translate }}
+          {{ today | vxDate: 'weekday' }} &nbsp;·&nbsp; {{ 'dash.header.snapshot_your_business_activity_drag_arrange' | translate }}
         </p>
       </div>
     </div>
@@ -15,16 +15,16 @@
       @if (isEditMode()) {
         <button class="db-btn db-btn--ghost" (click)="isAddPanelOpen.set(true)">
           <lucide-icon [img]="PlusIcon" size="15"></lucide-icon>
-          <span>{{ 'DASH.HEADER.ADD_WIDGET' | translate }}</span>
+          <span>{{ 'dash.header.add_widget' | translate }}</span>
         </button>
         <button class="db-btn db-btn--ghost" (click)="resetDashboardLayout()">
           <lucide-icon [img]="ResetIcon" size="15"></lucide-icon>
-          <span>{{ 'DASH.HEADER.RESTORE' | translate }}</span>
+          <span>{{ 'dash.header.restore' | translate }}</span>
         </button>
       }
       <button class="db-btn" [class.db-btn--editing]="isEditMode()" (click)="toggleEditMode()">
         <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
-        <span>{{ isEditMode() ? ('DASH.HEADER.EDIT_DONE' | translate) : ('DASH.HEADER.EDIT_LAYOUT' | translate) }}</span>
+        <span>{{ isEditMode() ? ('dash.header.edit_done' | translate) : ('dash.header.edit_layout' | translate) }}</span>
       </button>
     </div>
   </header>
@@ -33,7 +33,7 @@
   @if (isEditMode()) {
     <div class="db-edit-banner">
       <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
-      <span>{{ 'DASHBOARD.ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR' | translate }}</span>
+      <span>{{ 'dashboard.drag_widgets_rearrange_them_use_corners' | translate }}</span>
     </div>
   }
 
@@ -46,11 +46,11 @@
 
             <!-- Drag handle (only in edit mode) -->
             @if (isEditMode()) {
-              <div class="widget-drag-handle" [title]="'DASHBOARD.ARRASTRAR' | translate">
+              <div class="widget-drag-handle" [title]="'dashboard.drag' | translate">
                 <lucide-icon [img]="DragIcon" size="14"></lucide-icon>
               </div>
               <button class="widget-remove-btn"
-                      [attr.title]="'DASH.ACTIONS.REMOVE_WIDGET' | translate"
+                      [attr.title]="'dash.actions.remove_widget' | translate"
                       (mousedown)="removeWidget(widget.id!, $event)">
                 <lucide-icon [img]="TrashIcon" size="13"></lucide-icon>
               </button>
@@ -103,8 +103,8 @@
     <aside class="db-drawer">
       <div class="db-drawer__header">
         <div>
-          <h3 class="db-drawer__title">{{ 'DASH.ADD_PANEL.TITLE' | translate }}</h3>
-          <p class="db-drawer__subtitle">{{ 'DASH.ADD_PANEL.DESCRIPTION' | translate }}</p>
+          <h3 class="db-drawer__title">{{ 'dash.add_panel.title' | translate }}</h3>
+          <p class="db-drawer__subtitle">{{ 'dash.add_panel.description' | translate }}</p>
         </div>
         <button class="db-drawer__close" (click)="isAddPanelOpen.set(false)">
           <lucide-icon [img]="CloseIcon" size="18"></lucide-icon>
@@ -128,7 +128,7 @@
           </ul>
         } @else {
           <div class="db-drawer__empty">
-            <p>{{ 'DASH.ADD_PANEL.EMPTY' | translate }}</p>
+            <p>{{ 'dash.add_panel.empty' | translate }}</p>
           </div>
         }
       </div>

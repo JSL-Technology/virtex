@@ -82,7 +82,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set('Dominio agregado. Publica el registro DNS TXT y verifícalo.');
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.ADD_DOMAIN')),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.add_domain')),
     });
   }
 
@@ -93,7 +93,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set(`Dominio ${d.domain} verificado.`);
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.VERIFY_DOMAIN')),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.verify_domain')),
     });
   }
 
@@ -168,7 +168,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor creado. Verifica un dominio y actívalo.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.CREATE_SSO_PROVIDER')),
+        error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.create_sso_provider')),
       });
     } else {
       this.api.updateProvider(editing, base).subscribe({
@@ -177,7 +177,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor actualizado.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.UPDATE_SSO_PROVIDER')),
+        error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.update_sso_provider')),
       });
     }
   }
@@ -186,7 +186,7 @@ export class SsoSettingsPage implements OnInit {
     this.clearMessages();
     this.api.updateProvider(p.id, { enabled: !p.enabled }).subscribe({
       next: () => this.refresh(),
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.CHANGE_STATUS')),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.change_status')),
     });
   }
 

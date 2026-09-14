@@ -1,0 +1,65 @@
+{
+  "unauthorized.403_forbidden": {
+    "literal": "403 Forbidden"
+  },
+  "unauthorized.access_denied": {
+    "es": "Acceso Denegado",
+    "en": "Access Denied",
+    "pt": "Acesso Negado"
+  },
+  "unauthorized.back_dashboard": {
+    "es": "Volver al Dashboard",
+    "en": "Back to the Dashboard",
+    "pt": "Voltar ao Painel"
+  },
+  "unauthorized.error": {
+    "es": "Error:",
+    "en": "Error:",
+    "pt": "Erro:"
+  },
+  "unauthorized.if_you_believe_mistake_contact_your": {
+    "es": "Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.",
+    "en": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
+    "pt": "Se você acha que isso é um erro, fale com o administrador do sistema ou solicite as permissões necessárias."
+  },
+  "unauthorized.not_sure_which_permissions_you_need": {
+    "es": "¿No sabes qué permisos necesitas?",
+    "en": "Not sure which permissions you need?",
+    "pt": "Não sabe de quais permissões precisa?"
+  },
+  "unauthorized.protected_route": {
+    "es": "una ruta protegida",
+    "en": "a protected route",
+    "pt": "uma rota protegida"
+  },
+  "unauthorized.request_body": {
+    "es": "Hola:\n\nSoy {{name}} ({{email}}).\n\nQuisiera solicitar acceso a esta ruta, para la que ahora mismo no tengo permiso:\n{{url}}\n\nGracias.",
+    "en": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
+    "pt": "Olá,\n\nSou {{name}} ({{email}}).\n\nGostaria de solicitar acesso a esta rota, para a qual atualmente não tenho permissão:\n{{url}}\n\nObrigado."
+  },
+  "unauthorized.request_permission": {
+    "es": "Solicitar Permiso",
+    "en": "Request Permission",
+    "pt": "Solicitar Permissão"
+  },
+  "unauthorized.request_subject": {
+    "es": "Solicitud de permiso para: {{route}}",
+    "en": "Permission request for: {{route}}",
+    "pt": "Solicitação de permissão para: {{route}}"
+  },
+  "unauthorized.requested_path": {
+    "es": "Ruta solicitada:",
+    "en": "Requested path:",
+    "pt": "Caminho solicitado:"
+  },
+  "unauthorized.title": {
+    "es": "Acceso denegado",
+    "en": "Access denied",
+    "pt": "Acesso negado"
+  },
+  "unauthorized.you_do_not_have_permissions_needed": {
+    "es": "No tienes los permisos necesarios para acceder a este recurso.",
+    "en": "You do not have the permissions needed to reach this resource.",
+    "pt": "Você não tem as permissões necessárias para acessar este recurso."
+  }
+}

@@ -9,7 +9,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { EMPTY } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
@@ -78,7 +78,7 @@ export class GeneralLedgerPage implements OnInit {
       switchMap(params => {
         const accountId = params.get('accountId');
         if (!accountId) {
-          this.notificationService.showError('ACCOUNTING.GENERAL_LEDGER.HA_ESPECIFICADO_CUENTA');
+          this.notificationService.showError('accounting.general_ledger.no_account_has_specified');
           this.loading.set(false);
           return EMPTY;
         }
@@ -93,7 +93,7 @@ export class GeneralLedgerPage implements OnInit {
           //  «Mayor · 1140 Inventario», no «Mayor · 3f2a19c4-…». El identificador de la cuenta en
           //  la URL es un UUID; el código y el nombre solo se conocen al responder el servidor.
           this.tab?.setTitle(
-            `${this.translate.instant('PAGE_TITLES.GENERAL_LEDGER')} · ` +
+            `${this.translate.instant('page_titles.general_ledger')} · ` +
               `${ledgerData.account.code} ${ledgerData.account.name}`,
           );
           this.initialBalance.set(ledgerData.initialBalance);
@@ -103,7 +103,7 @@ export class GeneralLedgerPage implements OnInit {
       },
       // No había rama de error: un fallo del servidor dejaba la tabla vacía, que se lee como
       // «esta cuenta no tuvo movimientos» — la afirmación contraria a la verdad.
-      error: () => this.error.set('ACCOUNTING.GENERAL_LEDGER.LOAD_FAILED'),
+      error: () => this.error.set('accounting.general_ledger.load_failed'),
     });
   }
   

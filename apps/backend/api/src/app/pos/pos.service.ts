@@ -44,7 +44,7 @@ export class PosService {
   ): Promise<PosShift> {
     const existing = await this.getActiveShift(organizationId, dto.terminalId);
     if (existing) {
-      throw new ConflictError('POS.THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL');
+      throw new ConflictError('pos.there_already_active_shift_for_this_terminal');
     }
     const shift = this.shifts.create({
       organizationId,
@@ -62,9 +62,9 @@ export class PosService {
     dto: CloseShiftDto,
   ): Promise<PosShift> {
     const shift = await this.shifts.findOne({ where: { id: shiftId, organizationId } });
-    if (!shift) throw new NotFoundError('POS.SHIFT_NOT_FOUND');
+    if (!shift) throw new NotFoundError('pos.shift_not_found');
     if (shift.status === PosShiftStatus.CLOSED) {
-      throw new BadRequestError('POS.SHIFT_ALREADY_CLOSED');
+      throw new BadRequestError('pos.shift_already_closed');
     }
     shift.status = PosShiftStatus.CLOSED;
     shift.closingBalance = dto.closingBalance;
@@ -78,7 +78,7 @@ export class PosService {
   ): Promise<PosSale> {
     const shift = await this.getActiveShift(organizationId, dto.terminalId);
     if (!shift) {
-      throw new BadRequestError('POS.NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN');
+      throw new BadRequestError('pos.no_open_shift');
     }
 
     return this.dataSource.transaction(async (manager) => {

@@ -32,7 +32,7 @@ export class SsoAdminController {
 
   private orgId(user: AuthenticatedUser): string {
     if (!user.organizationId) {
-      throw new BadRequestError('AUTH.USER_NOT_ASSOCIATED_WITH_ORGANIZATION');
+      throw new BadRequestError('auth.user_not_associated_with_organization');
     }
     return user.organizationId;
   }

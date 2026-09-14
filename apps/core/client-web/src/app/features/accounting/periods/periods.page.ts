@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, Lock, Unlock, RefreshCw } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   AccountingPeriod,
   AccountingPeriodsService,
@@ -79,7 +79,7 @@ export class PeriodsPage {
   }
 
   statusKey(status: AccountingPeriod['status']): string {
-    return status === 'OPEN' ? 'ACCOUNTING.PERIODS.STATUS_OPEN' : 'ACCOUNTING.PERIODS.STATUS_CLOSED';
+    return status === 'OPEN' ? 'accounting.periods.status_open' : 'accounting.periods.status_closed';
   }
 
   statusClass(status: AccountingPeriod['status']): string {
@@ -104,11 +104,11 @@ export class PeriodsPage {
    */
   async reopen(period: AccountingPeriod): Promise<void> {
     const reason = await this.dialog.prompt({
-      title: 'DIALOG.REOPEN_PERIOD.TITLE',
-      message: 'ACCOUNTING.PERIODS.REOPEN_REASON_PROMPT',
-      placeholder: 'DIALOG.REOPEN_PERIOD.PLACEHOLDER',
+      title: 'dialog.reopen_period.title',
+      message: 'accounting.periods.reopen_reason_prompt',
+      placeholder: 'dialog.reopen_period.reason_reopening',
       minLength: 10,
-      tooShort: 'ACCOUNTING.PERIODS.REASON_TOO_SHORT',
+      tooShort: 'accounting.periods.reason_too_short',
       variant: 'warning',
     });
     if (!reason) return;

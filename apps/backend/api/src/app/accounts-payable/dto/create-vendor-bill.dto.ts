@@ -24,11 +24,11 @@ class CreateVendorBillLineDto {
   quantity: number;
 
   @IsNumber()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   unitPrice: number;
 
   @IsNumber()
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   total: number;
 
   @IsUUID()
@@ -72,13 +72,13 @@ export class CreateVendorBillDto {
    * arithmetic was.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   total?: number;
 
   @IsString()
   @IsOptional()
-  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 
   @IsString()
@@ -97,19 +97,19 @@ export class CreateVendorBillDto {
 
   /** Consumption tax borne on the purchase (ITBIS/IVA facturado). */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxAmount?: number;
 
   /** Consumption tax withheld from the supplier and owed to the authority. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxWithheld?: number;
 
   /** Income tax withheld from the supplier. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   incomeTaxWithheld?: number;
 
@@ -123,62 +123,62 @@ export class CreateVendorBillDto {
    */
   @IsString()
   @IsOptional()
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   withholdingOverrideReason?: string;
 
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxToCost?: number;
 
   /** Consumption tax subject to the proportionality rule. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   taxProportional?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   exciseAmount?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   otherTaxes?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   serviceCharge?: number;
 
   /** Split of the taxable base, which the 606 reports separately. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   goodsAmount?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   servicesAmount?: number;
 
   /** DGII 606 "Tipo de Bienes y Servicios Comprados". */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   purchaseCategory?: string;
 
   /** DGII 606 "Tipo de Retención en ISR". */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   isrRetentionType?: string;
 
   /** DGII "Forma de Pago". */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
+  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   paymentForm?: string;
 }

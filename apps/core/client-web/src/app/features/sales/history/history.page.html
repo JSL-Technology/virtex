@@ -1,28 +1,28 @@
 <vx-list-shell
-  titleKey="SALES.HISTORY.HISTORIAL_VENTAS"
-  subtitleKey="SALES.HISTORY.CONSULTA_FILTRA_GESTIONA_TODAS_TRANSACCIONES_REGISTRADAS"
+  titleKey="sales.history.sales_history"
+  subtitleKey="sales.history.review_filter_manage_every_recorded_transaction"
   [count]="sales().length"
   [empty]="sales().length === 0"
 >
   <button listActions type="button" class="secondary-button">
     <lucide-icon [img]="FileDownIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'SALES.HISTORY.EXPORTAR' | translate }}</span>
+    <span>{{ 'sales.history.export' | translate }}</span>
   </button>
   <a listActions routerLink="/sales/pos" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'SALES.HISTORY.NUEVA_VENTA' | translate }}</span>
+    <span>{{ 'sales.history.new_sale' | translate }}</span>
   </a>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'SALES.HISTORY.ID_VENTA' | translate }}</th>
-          <th>{{ 'SALES.HISTORY.FECHA' | translate }}</th>
-          <th>{{ 'SALES.HISTORY.CLIENTE' | translate }}</th>
-          <th class="text-right">{{ 'SALES.HISTORY.TOTAL' | translate }}</th>
-          <th>{{ 'SALES.HISTORY.METODO_PAGO' | translate }}</th>
-          <th>{{ 'SALES.HISTORY.ESTADO' | translate }}</th>
+          <th>{{ 'sales.history.id_venta' | translate }}</th>
+          <th>{{ 'sales.history.date' | translate }}</th>
+          <th>{{ 'sales.history.customer' | translate }}</th>
+          <th class="text-right">{{ 'sales.history.total' | translate }}</th>
+          <th>{{ 'sales.history.payment_method' | translate }}</th>
+          <th>{{ 'sales.history.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>

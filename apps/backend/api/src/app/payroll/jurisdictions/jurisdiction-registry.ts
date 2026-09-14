@@ -27,7 +27,7 @@ export class JurisdictionRegistry {
   forCountry(countryCode: string): PayrollJurisdictionStrategy {
     const strategy = this.strategies.get((countryCode ?? '').toUpperCase());
     if (!strategy) {
-      throw new BadRequestError('PAYROLL.JURISDICCION_NO_SOPORTADA', { p1: countryCode });
+      throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: countryCode });
     }
     return strategy;
   }

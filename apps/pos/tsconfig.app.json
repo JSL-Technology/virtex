@@ -2,7 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "rootDir": ".",
+    // The workspace root, not this application: the till imports @virteex/shared/ui-i18n and
+    // @virteex/shared/types, whose sources live under libs/. With rootDir at the app, TypeScript
+    // refuses those files rather than compiling them, which is the same reason client-web sets it
+    // this way.
+    "rootDir": "../..",
     "types": []
   },
   "include": ["src/**/*.ts", "src/**/*.json"],

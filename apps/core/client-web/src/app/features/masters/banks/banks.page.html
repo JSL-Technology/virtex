@@ -1,20 +1,20 @@
 <vx-list-shell
-  titleKey="MASTERS.BANKS.BANKS"
+  titleKey="masters.banks.banks"
   [count]="banks().length"
   [empty]="banks().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.BANKS.NEW_BANK' | translate }}</span>
+    <span>{{ 'masters.banks.new_bank' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.BANKS.BANK_NAME' | translate }}</th>
-          <th>{{ 'MASTERS.BANKS.SWIFT_CODE' | translate }}</th>
-          <th>{{ 'MASTERS.BANKS.COUNTRY' | translate }}</th>
+          <th>{{ 'masters.banks.bank_name' | translate }}</th>
+          <th>{{ 'masters.banks.swift_code' | translate }}</th>
+          <th>{{ 'masters.banks.country' | translate }}</th>
         </tr>
       </thead>
       <tbody>

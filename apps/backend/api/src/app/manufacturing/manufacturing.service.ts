@@ -63,7 +63,7 @@ export class ManufacturingService {
       where: { id, organizationId },
     });
     if (!order) {
-      throw new NotFoundError('MANUFACTURING.PRODUCTION_ORDER_NOT_FOUND', { id });
+      throw new NotFoundError('manufacturing.production_order_not_found', { id });
     }
     return order;
   }
@@ -114,7 +114,7 @@ export class ManufacturingService {
       relations: ['items'],
     });
     if (!bom) {
-      throw new NotFoundError('MANUFACTURING.BILL_OF_MATERIAL_NOT_FOUND', { id });
+      throw new NotFoundError('manufacturing.bill_of_material_not_found', { id });
     }
     return bom;
   }
@@ -176,7 +176,7 @@ export class ManufacturingService {
       where: { id, organizationId },
     });
     if (!workCenter) {
-      throw new NotFoundError('MANUFACTURING.WORK_CENTER_NOT_FOUND', { id });
+      throw new NotFoundError('manufacturing.work_centre_id_not_found', { id });
     }
     return workCenter;
   }

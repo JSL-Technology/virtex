@@ -18,6 +18,8 @@ import { SocialAuthButtonsComponent } from '../components/social-auth-buttons/so
 import { PasskeyButtonComponent } from '../components/passkey-button/passkey-button.component';
 import { OtpComponent } from '../../../shared/components/otp/otp.component';
 import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -48,6 +50,7 @@ export class LoginPage implements OnInit {
   private route = inject(ActivatedRoute);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
   private translate = inject(TranslateService);
+  private errors = inject(ErrorHandlerService);
 
   public languageService = inject(LanguageService);
   public countryService = inject(CountryService);
@@ -111,9 +114,9 @@ export class LoginPage implements OnInit {
     if (control?.touched && control?.errors) {
       let key = '';
       if (control.errors['required']) {
-        key = controlName === 'email' ? 'LOGIN.ERRORS.EMAIL_REQUIRED' : 'LOGIN.ERRORS.PASSWORD_REQUIRED';
+        key = controlName === 'email' ? 'login.errors.email_required' : 'login.errors.password_required';
       } else if (control.errors['email']) {
-        key = 'LOGIN.ERRORS.EMAIL_INVALID';
+        key = 'login.errors.email_invalid';
       }
 
       if (key) {
@@ -155,12 +158,12 @@ export class LoginPage implements OnInit {
             ? res.startUrl
             : `${window.location.origin}${res.startUrl}`;
         } else {
-          this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+          this.ssoMessage.set('login.sso.not_found');
         }
       },
       error: () => {
         this.ssoChecking.set(false);
-        this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+        this.ssoMessage.set('login.sso.not_found');
       },
     });
   }
@@ -174,16 +177,16 @@ export class LoginPage implements OnInit {
   private mapSocialErrorCode(code: string): string {
     switch (code) {
       case 'account_exists':
-        return 'LOGIN.ERRORS.SOCIAL_ACCOUNT_EXISTS';
+        return 'login.errors.social_account_exists';
       case 'email_not_verified':
-        return 'LOGIN.ERRORS.SOCIAL_EMAIL_NOT_VERIFIED';
+        return 'login.errors.social_email_not_verified';
       case 'account_inactive':
-        return 'LOGIN.ERRORS.ACCOUNT_LOCKED';
+        return 'errors.auth_account_locked';
       case 'provider_unavailable':
       case 'sso_unavailable':
-        return 'LOGIN.ERRORS.SOCIAL_UNAVAILABLE';
+        return 'login.errors.social_unavailable';
       default:
-        return 'LOGIN.ERRORS.SOCIAL_FAILED';
+        return 'login.errors.social_failed';
     }
   }
 
@@ -206,7 +209,7 @@ export class LoginPage implements OnInit {
         if (!environment.production) {
           console.warn('Passkey login failed', { status: (err as any)?.status });
         }
-        this.errorMessage.set('LOGIN.ERRORS.PASSKEY_ERROR');
+        this.errorMessage.set('login.errors.passkey_error');
         this.isLoggingIn.set(false);
       });
   }
@@ -239,7 +242,7 @@ export class LoginPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
+        this.errorMessage.set('errors.internal');
         this.isLoggingIn.set(false);
       }
     });
@@ -272,12 +275,12 @@ export class LoginPage implements OnInit {
         this.handleSuccess(user);
       },
       error: (err) => {
-        this.errorMessage.set('LOGIN.ERRORS.INVALID_CODE');
+        this.errorMessage.set('errors.auth_two_factor_invalid');
         this.isLoggingIn.set(false);
         if (this.otpComponent) {
              // We can use the translation service here if needed, or pass the key.
              // But handleError expects string.
-             this.translate.get('LOGIN.ERRORS.INVALID_CODE').subscribe(res => {
+             this.translate.get('errors.auth_two_factor_invalid').subscribe(res => {
                   this.otpComponent.handleError(res);
              });
         }
@@ -300,19 +303,24 @@ export class LoginPage implements OnInit {
     this.isLoggingIn.set(false);
   }
 
-  private handleError(err: any): void {
+  /**
+   * Show what actually went wrong.
+   *
+   * This used to map the HTTP STATUS to a key of its own — 401 to "incorrect credentials", 403 to
+   * "account locked", everything else to a server error — and in doing so threw away the `code` the
+   * API sends. The server distinguishes an inactive account, a blocked account, a device change and
+   * a two-factor challenge; all of them arrive as 401 or 403, and all of them were reported as
+   * "Las credenciales no son correctas". A reader whose account was deactivated was told their
+   * password was wrong.
+   *
+   * `ErrorHandlerService` resolves the code the server actually sent, using the same order as every
+   * other screen. A key is stored rather than a sentence so the message follows a language switch.
+   */
+  private handleError(err: unknown): void {
+    const response = err as HttpErrorResponse;
     if (!environment.production) {
-      console.warn('Login failed', { status: err?.status });
+      console.warn('Login failed', { status: response?.status });
     }
-    if (err && err.status) {
-      switch (err.status) {
-        case 401: this.errorMessage.set('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS'); break;
-        case 429: this.errorMessage.set('LOGIN.ERRORS.TOO_MANY_ATTEMPTS'); break;
-        case 403: this.errorMessage.set('LOGIN.ERRORS.ACCOUNT_LOCKED'); break;
-        default: this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
-      }
-    } else {
-      this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
-    }
+    this.errorMessage.set(this.errors.keyFor(response));
   }
 }

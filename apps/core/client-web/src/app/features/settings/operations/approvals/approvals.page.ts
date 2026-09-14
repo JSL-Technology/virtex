@@ -10,12 +10,12 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.APPROVALS.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.APPROVALS.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.approvals.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.approvals.define_who_approves_what_what_order' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.APPROVALS.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.APPROVALS.EMPTY_DESCRIPTION'"
-        [features]="['SETTINGS.PAGES.APPROVALS.FEATURES.F1','SETTINGS.PAGES.APPROVALS.FEATURES.F2','SETTINGS.PAGES.APPROVALS.FEATURES.F3','SETTINGS.PAGES.APPROVALS.FEATURES.F4','SETTINGS.PAGES.APPROVALS.FEATURES.F5']">
+      <app-settings-empty-state [title]="'settings.pages.approvals.empty_title'"
+        [description]="'settings.pages.approvals.empty_description'"
+        [features]="['settings.pages.approvals.features.f1','settings.pages.approvals.features.f2','settings.pages.approvals.features.f3','settings.pages.approvals.features.f4','settings.pages.approvals.features.f5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

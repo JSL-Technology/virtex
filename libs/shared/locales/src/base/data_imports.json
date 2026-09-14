@@ -1,0 +1,107 @@
+{
+  "data_imports.choose_type_data_you_want_import": {
+    "es": "Elige el tipo de dato que quieres importar para que el mapeo sea el correcto.",
+    "en": "Choose the type of data you want to import so the mapping is correct.",
+    "pt": "Escolha o tipo de dado que deseja importar para que o mapeamento fique correto."
+  },
+  "data_imports.click_browse_drag_file_here": {
+    "es": "Haz clic para buscar o arrastra el archivo aquí",
+    "en": "Click to browse, or drag the file here",
+    "pt": "Clique para procurar ou arraste o arquivo aqui"
+  },
+  "data_imports.data_imports_etl": {
+    "es": "Importaciones de datos (ETL)",
+    "en": "Data imports (ETL)",
+    "pt": "Importações de dados (ETL)"
+  },
+  "data_imports.data_type": {
+    "es": "Tipo de dato",
+    "en": "Data type",
+    "pt": "Tipo de dado"
+  },
+  "data_imports.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "data_imports.download_name_template": {
+    "es": "Descargar la plantilla de {{name}}",
+    "en": "Download the {{name}} template",
+    "pt": "Baixar o modelo de {{name}}"
+  },
+  "data_imports.failed": {
+    "es": "Fallidos",
+    "en": "Failed",
+    "pt": "Com falha"
+  },
+  "data_imports.file_name": {
+    "es": "Nombre del archivo",
+    "en": "File name",
+    "pt": "Nome do arquivo"
+  },
+  "data_imports.import_data": {
+    "es": "Importar datos",
+    "en": "Import data",
+    "pt": "Importar dados"
+  },
+  "data_imports.once_file_selected_start_import": {
+    "es": "Cuando el archivo esté seleccionado, comienza la importación.",
+    "en": "Once the file is selected, start the import.",
+    "pt": "Com o arquivo selecionado, inicie a importação."
+  },
+  "data_imports.processed": {
+    "es": "Procesados",
+    "en": "Processed",
+    "pt": "Processados"
+  },
+  "data_imports.processing": {
+    "es": "Procesando...",
+    "en": "Processing...",
+    "pt": "Processando..."
+  },
+  "data_imports.recent_imports": {
+    "es": "Importaciones recientes",
+    "en": "Recent imports",
+    "pt": "Importações recentes"
+  },
+  "data_imports.select_csv_or_excel_file_from": {
+    "es": "Selecciona el archivo CSV o Excel desde tu computadora.",
+    "en": "Select the CSV or Excel file from your computer.",
+    "pt": "Selecione o arquivo CSV ou Excel no seu computador."
+  },
+  "data_imports.select_data_type_label": {
+    "es": "Selecciona el tipo de dato",
+    "en": "Select the data type",
+    "pt": "Selecione o tipo de dado"
+  },
+  "data_imports.select_data_type_placeholder": {
+    "es": "Selecciona un tipo de dato...",
+    "en": "Select a data type...",
+    "pt": "Selecione um tipo de dado..."
+  },
+  "data_imports.start_import": {
+    "es": "Comenzar la importación",
+    "en": "Start the import",
+    "pt": "Iniciar a importação"
+  },
+  "data_imports.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
+  },
+  "data_imports.upload_file": {
+    "es": "Subir archivo",
+    "en": "Upload a file",
+    "pt": "Enviar arquivo"
+  },
+  "data_imports.upload_master_or_transactional_data_in": {
+    "es": "Carga datos maestros o transaccionales de forma masiva con archivos CSV o Excel.",
+    "en": "Upload master or transactional data in bulk using CSV or Excel files.",
+    "pt": "Carregue dados mestres ou transacionais em massa com arquivos CSV ou Excel."
+  },
+  "data_imports.user": {
+    "es": "Usuario",
+    "en": "User",
+    "pt": "Usuário"
+  }
+}

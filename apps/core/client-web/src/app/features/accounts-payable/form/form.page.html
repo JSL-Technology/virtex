@@ -1,6 +1,6 @@
 <vx-draft-shell
   [title]="
-    (isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.TITLE_EDIT' : 'ACCOUNTS_PAYABLE.FORM.TITLE_CREATE')
+    (isEditMode() ? 'accounts_payable.form.title_edit' : 'accounts_payable.form.title_create')
       | translate
   "
   [dirty]="form.dirty"
@@ -8,57 +8,57 @@
   [invalid]="form.invalid"
   [problems]="problems()"
   [form]="form"
-  saveLabelKey="ACCOUNTS_PAYABLE.FORM.GUARDAR_FACTURA"
-  cancelLabelKey="ACCOUNTS_PAYABLE.FORM.CANCELAR"
+  saveLabelKey="accounts_payable.form.save_bill"
+  cancelLabelKey="accounts_payable.form.cancel"
   (save)="save()"
   (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
     <div class="card">
       <div class="form-section-head">
-        <h2>{{ 'ACCOUNTS_PAYABLE.FORM.INFORMACION_GENERAL' | translate }}</h2>
+        <h2>{{ 'accounts_payable.form.general_information' | translate }}</h2>
       </div>
       <div class="card-body grid-form">
         <div class="form-field">
-          <label for="vendorId">{{ 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR' | translate }}</label>
+          <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }}</label>
           <select id="vendorId" formControlName="vendorId">
-            <option value="">{{ 'ACCOUNTS_PAYABLE.FORM.SELECCIONAR_PROVEEDOR' | translate }}</option>
+            <option value="">{{ 'accounts_payable.form.supplier_placeholder' | translate }}</option>
             @for (supplier of supplierOptions(); track supplier.id) {
               <option [value]="supplier.id">{{ supplier.name }}</option>
             }
           </select>
           @if (form.controls['vendorId'].touched && form.controls['vendorId'].invalid) {
-            <p class="field-error">{{ 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR_REQUERIDO' | translate }}</p>
+            <p class="field-error">{{ 'accounts_payable.form.select_supplier' | translate }}</p>
           }
         </div>
 
         <div class="form-field">
-          <label for="ncf">{{ 'ACCOUNTS_PAYABLE.FORM.NCF' | translate }}</label>
+          <label for="ncf">{{ 'accounts_payable.form.ncf' | translate }}</label>
           <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
 
         <div class="form-field">
-          <label for="date">{{ 'ACCOUNTS_PAYABLE.FORM.FECHA_EMISION' | translate }}</label>
+          <label for="date">{{ 'accounts_payable.form.issue_date' | translate }}</label>
           <input type="date" id="date" formControlName="date">
         </div>
 
         <div class="form-field">
-          <label for="dueDate">{{ 'ACCOUNTS_PAYABLE.FORM.FECHA_VENCIMIENTO' | translate }}</label>
+          <label for="dueDate">{{ 'accounts_payable.form.due_date' | translate }}</label>
           <input type="date" id="dueDate" formControlName="dueDate">
         </div>
 
         <div class="form-field">
-          <label for="currencyCode">{{ 'ACCOUNTS_PAYABLE.FORM.MONEDA' | translate }}</label>
+          <label for="currencyCode">{{ 'accounts_payable.form.currency' | translate }}</label>
           <input
             type="text"
             id="currencyCode"
             formControlName="currencyCode"
             maxlength="3"
-            [placeholder]="'ACCOUNTS_PAYABLE.FORM.MONEDA_POR_DEFECTO' | translate">
+            [placeholder]="'accounts_payable.form.organization_currency' | translate">
         </div>
 
         <div class="form-field">
-          <label for="paymentForm">{{ 'ACCOUNTS_PAYABLE.FORM.FORMA_PAGO' | translate }}</label>
+          <label for="paymentForm">{{ 'accounts_payable.form.payment_form' | translate }}</label>
           <select id="paymentForm" formControlName="paymentForm">
             @for (form of paymentForms; track form.code) {
               <option [value]="form.code">{{ form.code }} — {{ form.labelKey | translate }}</option>
@@ -70,15 +70,15 @@
 
     <div class="card" formArrayName="lines">
       <div class="form-section-head">
-        <h2>{{ 'ACCOUNTS_PAYABLE.FORM.DETALLES_FACTURA' | translate }}</h2>
+        <h2>{{ 'accounts_payable.form.invoice_details' | translate }}</h2>
       </div>
       <div class="card-body">
         <div class="line-grid line-grid--head" aria-hidden="true">
-          <span>{{ 'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate }}</span>
-          <span>{{ 'ACCOUNTS_PAYABLE.FORM.CANT' | translate }}</span>
-          <span>{{ 'ACCOUNTS_PAYABLE.FORM.PRECIO' | translate }}</span>
-          <span>{{ 'ACCOUNTS_PAYABLE.FORM.CUENTA_GASTO' | translate }}</span>
-          <span class="text-right">{{ 'ACCOUNTS_PAYABLE.FORM.TOTAL_LINEA' | translate }}</span>
+          <span>{{ 'accounts_payable.form.description' | translate }}</span>
+          <span>{{ 'accounts_payable.form.qty' | translate }}</span>
+          <span>{{ 'accounts_payable.form.price' | translate }}</span>
+          <span>{{ 'accounts_payable.form.expense_account' | translate }}</span>
+          <span class="text-right">{{ 'accounts_payable.form.total' | translate }}</span>
           <span></span>
         </div>
 
@@ -87,24 +87,24 @@
             <input
               type="text"
               formControlName="product"
-              [placeholder]="'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate"
-              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate">
+              [placeholder]="'accounts_payable.form.description' | translate"
+              [attr.aria-label]="'accounts_payable.form.description' | translate">
             <input
               type="number"
               formControlName="quantity"
               step="0.0001"
               min="0.0001"
-              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CANT' | translate">
+              [attr.aria-label]="'accounts_payable.form.qty' | translate">
             <input
               type="number"
               formControlName="unitPrice"
               step="0.01"
               min="0"
-              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.PRECIO' | translate">
+              [attr.aria-label]="'accounts_payable.form.price' | translate">
             <select
               formControlName="expenseAccountId"
-              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CUENTA_GASTO' | translate">
-              <option value="">{{ 'ACCOUNTS_PAYABLE.FORM.SELECCIONAR_CUENTA' | translate }}</option>
+              [attr.aria-label]="'accounts_payable.form.expense_account' | translate">
+              <option value="">{{ 'accounts_payable.form.select_account' | translate }}</option>
               @for (account of expenseAccounts(); track account.id) {
                 <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
               }
@@ -115,18 +115,18 @@
               (click)="removeLine(i)"
               class="btn-danger-outline btn-icon"
               [disabled]="lines.length === 1 || lines.disabled"
-              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.ELIMINAR_LINEA' | translate">
+              [attr.aria-label]="'accounts_payable.form.remove_line' | translate">
               <lucide-icon [name]="RemoveIcon" [size]="16"></lucide-icon>
             </button>
           </div>
         }
 
         @if (lines.disabled) {
-          <p class="hint">{{ 'ACCOUNTS_PAYABLE.FORM.LINEAS_NO_EDITABLES' | translate }}</p>
+          <p class="hint">{{ 'accounts_payable.form.lines_recorded_bill_cannot_changed_raise' | translate }}</p>
         } @else {
           <button type="button" (click)="addLine()" class="btn-secondary mt-2">
             <lucide-icon [name]="AddIcon" [size]="16"></lucide-icon>
-            <span>{{ 'ACCOUNTS_PAYABLE.FORM.ANADIR_LINEA' | translate }}</span>
+            <span>{{ 'accounts_payable.form.add_line' | translate }}</span>
           </button>
         }
       </div>
@@ -134,15 +134,15 @@
 
     <div class="card">
       <div class="card-header card-header--toggle">
-        <h2>{{ 'ACCOUNTS_PAYABLE.FORM.DESGLOSE_FISCAL' | translate }}</h2>
+        <h2>{{ 'accounts_payable.form.tax_breakdown' | translate }}</h2>
         <button type="button" class="btn-secondary" (click)="toggleFiscalDetail()">
-          {{ (showFiscalDetail() ? 'ACCOUNTS_PAYABLE.FORM.OCULTAR' : 'ACCOUNTS_PAYABLE.FORM.MOSTRAR') | translate }}
+          {{ (showFiscalDetail() ? 'accounts_payable.form.hide' : 'accounts_payable.form.show') | translate }}
         </button>
       </div>
       @if (showFiscalDetail()) {
         <div class="card-body grid-form">
           <div class="form-field">
-            <label for="purchaseCategory">{{ 'ACCOUNTS_PAYABLE.FORM.TIPO_BIENES_SERVICIOS' | translate }}</label>
+            <label for="purchaseCategory">{{ 'accounts_payable.form.type_goods_services' | translate }}</label>
             <select id="purchaseCategory" formControlName="purchaseCategory">
               @for (category of purchaseCategories; track category.code) {
                 <option [value]="category.code">{{ category.code }} — {{ category.labelKey | translate }}</option>
@@ -150,35 +150,35 @@
             </select>
           </div>
           <div class="form-field">
-            <label for="taxAmount">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_FACTURADO' | translate }}</label>
+            <label for="taxAmount">{{ 'accounts_payable.form.tax_charged' | translate }}</label>
             <input type="number" id="taxAmount" formControlName="taxAmount" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="taxWithheld">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_RETENIDO' | translate }}</label>
+            <label for="taxWithheld">{{ 'accounts_payable.form.tax_withheld' | translate }}</label>
             <input type="number" id="taxWithheld" formControlName="taxWithheld" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="incomeTaxWithheld">{{ 'ACCOUNTS_PAYABLE.FORM.ISR_RETENIDO' | translate }}</label>
+            <label for="incomeTaxWithheld">{{ 'accounts_payable.form.income_tax_withheld' | translate }}</label>
             <input type="number" id="incomeTaxWithheld" formControlName="incomeTaxWithheld" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="taxToCost">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_AL_COSTO' | translate }}</label>
+            <label for="taxToCost">{{ 'accounts_payable.form.tax_carried_cost' | translate }}</label>
             <input type="number" id="taxToCost" formControlName="taxToCost" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="taxProportional">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_PROPORCIONAL' | translate }}</label>
+            <label for="taxProportional">{{ 'accounts_payable.form.proportional_tax' | translate }}</label>
             <input type="number" id="taxProportional" formControlName="taxProportional" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="exciseAmount">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_SELECTIVO' | translate }}</label>
+            <label for="exciseAmount">{{ 'accounts_payable.form.excise_tax' | translate }}</label>
             <input type="number" id="exciseAmount" formControlName="exciseAmount" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="otherTaxes">{{ 'ACCOUNTS_PAYABLE.FORM.OTROS_IMPUESTOS' | translate }}</label>
+            <label for="otherTaxes">{{ 'accounts_payable.form.other_taxes' | translate }}</label>
             <input type="number" id="otherTaxes" formControlName="otherTaxes" step="0.01" min="0">
           </div>
           <div class="form-field">
-            <label for="serviceCharge">{{ 'ACCOUNTS_PAYABLE.FORM.PROPINA_LEGAL' | translate }}</label>
+            <label for="serviceCharge">{{ 'accounts_payable.form.legal_service_charge' | translate }}</label>
             <input type="number" id="serviceCharge" formControlName="serviceCharge" step="0.01" min="0">
           </div>
         </div>
@@ -188,15 +188,15 @@
     <div class="card totals-card">
       <div class="card-body">
         <dl class="totals">
-          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.SUBTOTAL' | translate }}</dt>
+          <dt>{{ 'accounts_payable.form.subtotal' | translate }}</dt>
           <dd>{{ totals().subtotal | vxNumber:'1.2-2' }}</dd>
-          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTOS' | translate }}</dt>
+          <dt>{{ 'accounts_payable.form.taxes' | translate }}</dt>
           <dd>{{ totals().taxAmount | vxNumber:'1.2-2' }}</dd>
-          <dt class="strong">{{ 'ACCOUNTS_PAYABLE.FORM.TOTAL_DOCUMENTO' | translate }}</dt>
+          <dt class="strong">{{ 'accounts_payable.form.document_total' | translate }}</dt>
           <dd class="strong">{{ totals().total | vxNumber:'1.2-2' }}</dd>
-          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</dt>
+          <dt>{{ 'accounts_payable.form.withholdings' | translate }}</dt>
           <dd>−{{ totals().withheld | vxNumber:'1.2-2' }}</dd>
-          <dt class="strong">{{ 'ACCOUNTS_PAYABLE.FORM.NETO_A_PAGAR' | translate }}</dt>
+          <dt class="strong">{{ 'accounts_payable.form.net_payable' | translate }}</dt>
           <dd class="strong">{{ totals().payable | vxNumber:'1.2-2' }}</dd>
         </dl>
       </div>

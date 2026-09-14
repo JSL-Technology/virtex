@@ -1,21 +1,21 @@
 <vx-list-shell
-  titleKey="MASTERS.BRANCHES.BRANCHES_LOCATIONS"
+  titleKey="masters.branches.branches_locations"
   [count]="branches().length"
   [empty]="branches().length === 0"
 >
   <button listActions type="button" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'MASTERS.BRANCHES.NEW_BRANCH' | translate }}</span>
+    <span>{{ 'masters.branches.new_branch' | translate }}</span>
   </button>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
-          <th>{{ 'MASTERS.BRANCHES.NAME' | translate }}</th>
-          <th>{{ 'MASTERS.BRANCHES.ADDRESS' | translate }}</th>
-          <th>{{ 'MASTERS.BRANCHES.CITY' | translate }}</th>
-          <th>{{ 'MASTERS.BRANCHES.PHONE' | translate }}</th>
+          <th>{{ 'masters.branches.name' | translate }}</th>
+          <th>{{ 'masters.branches.address' | translate }}</th>
+          <th>{{ 'masters.branches.city' | translate }}</th>
+          <th>{{ 'masters.branches.phone' | translate }}</th>
         </tr>
       </thead>
       <tbody>

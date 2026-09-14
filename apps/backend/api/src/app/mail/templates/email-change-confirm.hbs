@@ -1,13 +1,13 @@
-{{#> shell title=(t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_TU_NUEVO_CORREO_APPNAME' appName=appName) preheader=(t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME' appName=appName expiresMinutes=expiresMinutes)}}
-<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.EMAIL_CHANGE_CONFIRM.REQUEST_INTRO' appName=appName}}</p>
+{{#> shell title=(t 'mail.email_change_confirm.confirm_your_new_email_app_name' appName=appName) preheader=(t 'mail.email_change_confirm.confirm_change_your_email_address_app' appName=appName expiresMinutes=expiresMinutes)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.email_change_confirm.confirm_your_new_email_address'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.email_change_confirm.we_received_request_change_email_address' appName=appName}}</p>
 
-{{> button href=confirmUrl label=(t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMAR_CORREO_ELECTRONICO')}}
+{{> button href=confirmUrl label=(t 'mail.email_change_confirm.confirm_email_address')}}
 
-<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'MAIL.EMAIL_CHANGE_CONFIRM.ESTE_ENLACE_ES_VALIDO'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'TIME.MINUTES' count=expiresMinutes}}</strong>.</p>
+<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'mail.email_change_confirm.link_valid'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{t 'time.minutes' count=expiresMinutes}}</strong>.</p>
 
-{{> link-fallback href=confirmUrl label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+{{> link-fallback href=confirmUrl label=(t 'mail.common.if_button_does_not_work_copy')}}
 
-{{#> note}}{{t 'MAIL.EMAIL_CHANGE_CONFIRM.NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR'}}{{/note}}
+{{#> note}}{{t 'mail.email_change_confirm.did_you_not_request_change_you'}}{{/note}}
 {{/shell}}

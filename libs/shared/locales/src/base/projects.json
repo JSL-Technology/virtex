@@ -1,0 +1,17 @@
+{
+  "projects.project_not_found": {
+    "es": "No se encontró el proyecto \"{{id}}\".",
+    "en": "Project \"{{id}}\" was not found.",
+    "pt": "O projeto \"{{id}}\" não foi encontrado."
+  },
+  "projects.task_not_found": {
+    "es": "No se encontró la tarea \"{{id}}\".",
+    "en": "Task \"{{id}}\" was not found.",
+    "pt": "A tarefa \"{{id}}\" não foi encontrada."
+  },
+  "projects.timesheet_not_found": {
+    "es": "No se encontró el parte de horas \"{{id}}\".",
+    "en": "Timesheet \"{{id}}\" was not found.",
+    "pt": "O apontamento de horas \"{{id}}\" não foi encontrado."
+  }
+}

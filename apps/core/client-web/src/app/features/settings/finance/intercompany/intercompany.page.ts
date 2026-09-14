@@ -10,11 +10,11 @@ import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.c
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.INTERCOMPANY.TITLE' | translate }}</h1>
-        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.INTERCOMPANY.SUBTITLE' | translate }}</p>
+        <h1 class="s-header__title">{{ 'settings.pages.intercompany.title' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'settings.pages.intercompany.automate_control_transactions_between_companies_your' | translate }}</p>
       </div>
-      <app-settings-empty-state [title]="'SETTINGS.PAGES.INTERCOMPANY.EMPTY_TITLE'"
-        [description]="'SETTINGS.PAGES.INTERCOMPANY.EMPTY_DESCRIPTION'"
+      <app-settings-empty-state [title]="'settings.pages.intercompany.empty_title'"
+        [description]="'settings.pages.intercompany.empty_description'"
         [features]="features">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>

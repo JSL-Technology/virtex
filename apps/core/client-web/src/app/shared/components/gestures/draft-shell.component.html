@@ -33,15 +33,15 @@
         @switch (status()) {
           @case ('saving') {
             <lucide-icon [img]="SavingIcon" size="14" class="dr__spin" aria-hidden="true"></lucide-icon>
-            <span>{{ 'SHELL.SAVING' | translate }}</span>
+            <span>{{ 'shell.saving' | translate }}</span>
           }
           @case ('dirty') {
             <span class="dr__dot" aria-hidden="true"></span>
-            <span>{{ 'SHELL.UNSAVED' | translate }}</span>
+            <span>{{ 'shell.unsaved' | translate }}</span>
           }
           @default {
             <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
-            <span>{{ 'SHELL.NO_CHANGES' | translate }}</span>
+            <span>{{ 'shell.no_changes' | translate }}</span>
           }
         }
       </span>
@@ -68,7 +68,7 @@
     @if (problems().length) {
       <div class="dr__banner dr__banner--problems" role="alert">
         <h2 class="dr__banner-title">
-          {{ 'SHELL.PROBLEMS' | translate: { count: problems().length } }}
+          {{ 'shell.problems' | translate: { count: problems().length } }}
         </h2>
         <ul class="dr__problems">
           @for (problem of resolvedProblems(); track problem.message) {

@@ -4,6 +4,7 @@ import { Toast } from '../../../interfaces/toast.interface';
 import { LucideAngularModule, CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { composeKey } from '@virteex/shared/types';
 
 @Component({
   selector: 'app-toast',
@@ -63,7 +64,7 @@ export class ToastComponent {
   public typeClass = computed(() => `toast-${this.toast().type}`);
 
   public titleKey = computed(() => {
-    return `COMMON.TOAST.${this.toast().type.toUpperCase()}`;
+    return composeKey('common.toast', this.toast().type);
   });
 
   close() {

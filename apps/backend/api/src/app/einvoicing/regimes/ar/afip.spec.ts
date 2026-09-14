@@ -175,9 +175,9 @@ describe('AFIP — WSFEv1', () => {
     });
 
     it.each([
-      ['el emisor sin CUIT', { organization: { ...organization, taxId: '123' } as unknown as Organization }, 'EINVOICING.AFIP_EMISOR_SIN_CUIT'],
-      ['sin punto de venta', { salesPoint: 0 }, 'EINVOICING.AFIP_SIN_PUNTO_VENTA'],
-      ['sin número de comprobante', { nextNumber: 0 }, 'EINVOICING.AFIP_SIN_NUMERO_COMPROBANTE'],
+      ['el emisor sin CUIT', { organization: { ...organization, taxId: '123' } as unknown as Organization }, 'einvoicing.ar.organization_has_no_valid_cuit_afip'],
+      ['sin punto de venta', { salesPoint: 0 }, 'einvoicing.ar.point_sale_afip_assigned_establishment_missing'],
+      ['sin número de comprobante', { nextNumber: 0 }, 'einvoicing.ar.document_number_afip_expects_next_missing'],
     ])('refuses to build %s', (_name, overrides, messageKey) => {
       expect(() => builder.build(input(overrides as Partial<AfipBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),

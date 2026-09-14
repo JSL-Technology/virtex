@@ -21,20 +21,20 @@ import { ExtensionHostComponent } from './extension-host.component';
       <header class="run__header">
         <div class="run__title">
           <lucide-icon [img]="PuzzleIcon" [size]="22"></lucide-icon>
-          <h1>{{ 'PAGE_TITLES.EXTENSIONS_RUNTIME' | translate }}</h1>
+          <h1>{{ 'page_titles.extensions_runtime' | translate }}</h1>
         </div>
         <button type="button" class="run__btn" (click)="refresh()" [disabled]="loading()">
           <lucide-icon [img]="RefreshIcon" [size]="16"></lucide-icon>
-          <span>{{ 'COMMON.REFRESH' | translate }}</span>
+          <span>{{ 'common.refresh' | translate }}</span>
         </button>
       </header>
 
       @if (loading()) {
-        <p class="run__muted">{{ 'EXTENSIONS.LOADING_RUNTIME' | translate }}</p>
+        <p class="run__muted">{{ 'extensions.loading_runtime' | translate }}</p>
       } @else if (extensions().length === 0) {
         <div class="run__empty">
-          <p>{{ 'EXTENSIONS.NONE_ENABLED' | translate }}</p>
-          <a routerLink="/masters/extensions">{{ 'EXTENSIONS.GO_TO_MANAGER' | translate }}</a>
+          <p>{{ 'extensions.none_enabled' | translate }}</p>
+          <a routerLink="/masters/extensions">{{ 'extensions.go_to_manager' | translate }}</a>
         </div>
       } @else {
         <div class="run__grid">
@@ -42,7 +42,7 @@ import { ExtensionHostComponent } from './extension-host.component';
             <section class="run__card">
               <div class="run__card-head">
                 <span class="run__name">{{ ext.name }}</span>
-                <span class="run__ver">{{ 'EXTENSIONS.VERSION_TAG' | translate: { version: ext.version } }}</span>
+                <span class="run__ver">{{ 'extensions.version' | translate: { version: ext.version } }}</span>
               </div>
               <app-extension-host [extension]="ext" [context]="baseContext" />
             </section>

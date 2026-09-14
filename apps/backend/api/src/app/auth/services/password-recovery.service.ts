@@ -65,16 +65,16 @@ export class PasswordRecoveryService {
       .getOne();
 
     if (!user || !user.security) {
-      throw new UnauthorizedError('AUTH.TOKEN_INVALIDO_EXPIRADO_2');
+      throw new UnauthorizedError('auth.verification_token_invalid_or_expired');
     }
 
     if (!user.security.passwordHash) {
-      throw new BadRequestError('AUTH.NO_ENCONTRO_CONTRASENA_PREVIA_ESTE_USUARIO');
+      throw new BadRequestError('auth.no_previous_password_found_user');
     }
 
     const isSamePassword = await argon2.verify(user.security.passwordHash, password);
     if (isSamePassword) {
-      throw new BadRequestError('AUTH.NUEVA_CONTRASENA_NO_PUEDE_SER_IGUAL_ANTERIOR');
+      throw new BadRequestError('auth.new_password_cannot_same_previous_one');
     }
 
     // Routed through PasswordService so the configured Argon2id parameters actually apply.
@@ -102,7 +102,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-        throw new NotFoundError('AUTH.TOKEN_INVALIDO_EXPIRADO');
+        throw new NotFoundError('auth.token_invalid_has_expired');
     }
 
     return { firstName: user.firstName };
@@ -123,7 +123,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-      throw new UnauthorizedError('AUTH.TOKEN_INVITACION_ES_INVALIDO_HA_EXPIRADO');
+      throw new UnauthorizedError('auth.invitation_token_invalid_has_expired');
     }
 
     if (!user.security) user.security = new UserSecurity();

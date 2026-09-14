@@ -1,7 +1,7 @@
 <div class="s-page">
   <div class="s-header">
-    <h1 class="s-header__title">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.TITLE' | translate }}</h1>
-    <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.SUBTITLE' | translate }}</p>
+    <h1 class="s-header__title">{{ 'settings.pages.tax_jurisdictions.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.pages.tax_jurisdictions.where_you_registered_collect_sales_tax' | translate }}</p>
   </div>
 
   <!--
@@ -9,26 +9,26 @@
     tax and the invoice records that the sale was untaxed for want of nexus. That is the correct
     outcome for a seller with no obligation, and the wrong one for a seller who has one.
   -->
-  <p class="s-note">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.NEXUS_NOTE' | translate }}</p>
+  <p class="s-note">{{ 'settings.pages.tax_jurisdictions.nexus_note' | translate }}</p>
 
   <button class="primary-button" type="button" (click)="toggleForm()">
-    {{ (showForm() ? 'SETTINGS.PAGES.TAX_JURISDICTIONS.CANCEL'
-                   : 'SETTINGS.PAGES.TAX_JURISDICTIONS.ADD') | translate }}
+    {{ (showForm() ? 'settings.pages.tax_jurisdictions.cancel'
+                   : 'settings.pages.tax_jurisdictions.add') | translate }}
   </button>
 
   @if (showForm()) {
     <form class="card j-form" [formGroup]="form" (ngSubmit)="save()">
       <div class="j-grid">
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.COUNTRY' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.country' | translate }}</span>
           <input formControlName="countryCode" maxlength="2" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.STATE' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.state' | translate }}</span>
           <input formControlName="stateCode" maxlength="8" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.level' | translate }}</span>
           <select formControlName="level">
             @for (level of levels; track level.value) {
               <option [value]="level.value">{{ level.labelKey | translate }}</option>
@@ -36,62 +36,62 @@
           </select>
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.NAME' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.name' | translate }}</span>
           <input formControlName="name" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.COUNTY' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.county' | translate }}</span>
           <input formControlName="county" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.CITY' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.city' | translate }}</span>
           <input formControlName="city" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.POSTAL_CODE' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.postal_code' | translate }}</span>
           <input formControlName="postalCode" />
-          <small class="field-hint">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.POSTAL_CODE_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.tax_jurisdictions.optional_narrows_row_does_not_define' | translate }}</small>
         </label>
         <label class="form-field">
           <!-- Entered as a percentage: a tenant reads their state's rate as 6.25, and asking for
                0.0625 is how a rate ends up a hundred times too small in a filing. -->
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.RATE' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.rate' | translate }}</span>
           <input type="number" step="0.001" min="0" max="100" formControlName="ratePercent" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.SOURCING' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.sourcing' | translate }}</span>
           <select formControlName="sourcing">
             @for (rule of sourcings; track rule.value) {
               <option [value]="rule.value">{{ rule.labelKey | translate }}</option>
             }
           </select>
-          <small class="field-hint">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.SOURCING_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.tax_jurisdictions.most_states_charge_destination_address_minority' | translate }}</small>
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.EFFECTIVE_FROM' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.effective_from' | translate }}</span>
           <input type="date" formControlName="effectiveFrom" />
         </label>
         <label class="form-field">
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.EFFECTIVE_TO' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.effective_to' | translate }}</span>
           <input type="date" formControlName="effectiveTo" />
-          <small class="field-hint">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.EFFECTIVE_TO_HINT' | translate }}</small>
+          <small class="field-hint">{{ 'settings.pages.tax_jurisdictions.empty_while_current_superseded_rate_keeps' | translate }}</small>
         </label>
         <label class="form-field form-field--check">
           <input type="checkbox" formControlName="isRegistered" />
-          <span>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.REGISTERED' | translate }}</span>
+          <span>{{ 'settings.pages.tax_jurisdictions.registered' | translate }}</span>
         </label>
       </div>
 
       <button class="primary-button" type="submit" [disabled]="saving()">
-        {{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.SAVE' | translate }}
+        {{ 'settings.pages.tax_jurisdictions.save' | translate }}
       </button>
     </form>
   }
 
   @if (loading()) {
-    <p class="s-state">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.LOADING' | translate }}</p>
+    <p class="s-state">{{ 'settings.pages.tax_jurisdictions.loading' | translate }}</p>
   } @else if (jurisdictions().length === 0) {
-    <p class="s-state">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.EMPTY' | translate }}</p>
+    <p class="s-state">{{ 'settings.pages.tax_jurisdictions.empty' | translate }}</p>
   } @else {
     @for (group of byState(); track group.state) {
       <section class="card j-group">
@@ -99,11 +99,11 @@
         <table class="j-table">
           <thead>
             <tr>
-              <th>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL' | translate }}</th>
-              <th>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.NAME' | translate }}</th>
-              <th class="numeric">{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.RATE' | translate }}</th>
-              <th>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.EFFECTIVE_FROM' | translate }}</th>
-              <th>{{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.REGISTERED' | translate }}</th>
+              <th>{{ 'settings.pages.tax_jurisdictions.level' | translate }}</th>
+              <th>{{ 'settings.pages.tax_jurisdictions.name' | translate }}</th>
+              <th class="numeric">{{ 'settings.pages.tax_jurisdictions.rate' | translate }}</th>
+              <th>{{ 'settings.pages.tax_jurisdictions.effective_from' | translate }}</th>
+              <th>{{ 'settings.pages.tax_jurisdictions.registered' | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -115,12 +115,12 @@
                 <td class="numeric">{{ percent(row.rate) | vxNumber: '1.2-4' }}%</td>
                 <td>{{ row.effectiveFrom }}</td>
                 <td>
-                  {{ (row.isRegistered ? 'SETTINGS.PAGES.TAX_JURISDICTIONS.YES'
-                                       : 'SETTINGS.PAGES.TAX_JURISDICTIONS.NO') | translate }}
+                  {{ (row.isRegistered ? 'settings.pages.tax_jurisdictions.yes'
+                                       : 'settings.pages.tax_jurisdictions.no') | translate }}
                 </td>
                 <td>
                   <button class="secondary-button" type="button" (click)="remove(row)">
-                    {{ 'SETTINGS.PAGES.TAX_JURISDICTIONS.DELETE' | translate }}
+                    {{ 'settings.pages.tax_jurisdictions.delete' | translate }}
                   </button>
                 </td>
               </tr>

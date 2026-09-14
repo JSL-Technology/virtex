@@ -1,8 +1,8 @@
 <vx-draft-shell
   [title]="
     (isEditMode()
-      ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE'
-      : 'ACCOUNTING.JOURNAL_ENTRY_FORM.TITLE'
+      ? 'accounting.journal_entry_form.edit_title'
+      : 'accounting.journal_entry_form.title'
     ) | translate
   "
   [dirty]="entryForm.dirty"
@@ -10,8 +10,8 @@
   [invalid]="entryForm.invalid"
   [problems]="problems()"
   [form]="entryForm"
-  saveLabelKey="ACCOUNTING.JOURNAL_ENTRY_FORM.SAVE"
-  cancelLabelKey="ACCOUNTING.JOURNAL_ENTRY_FORM.CANCEL"
+  saveLabelKey="accounting.journal_entry_form.save"
+  cancelLabelKey="accounting.journal_entry_form.cancel"
   (save)="saveEntry()"
   (cancelled)="cancel()"
 >
@@ -19,30 +19,30 @@
     <section class="form-section">
       <div class="form-grid">
       <div class="form-field">
-        <label for="date">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DATE_LABEL' | translate }}</label>
+        <label for="date">{{ 'accounting.journal_entry_form.date_label' | translate }}</label>
         <input type="date" id="date" formControlName="date">
       </div>
       <div class="form-field">
-        <label for="ledgerId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL' | translate }}</label>
+        <label for="ledgerId">{{ 'accounting.journal_entry_form.ledger_label' | translate }}</label>
         <select id="ledgerId" formControlName="ledgerId">
-          <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_PLACEHOLDER' | translate }}</option>
+          <option value="" disabled>{{ 'accounting.journal_entry_form.select_ledger' | translate }}</option>
           @for (ledger of ledgers(); track ledger.id) {
             <option [value]="ledger.id">{{ ledger.name }}</option>
           }
         </select>
       </div>
       <div class="form-field">
-        <label for="journalId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL' | translate }}</label>
+        <label for="journalId">{{ 'accounting.journal_entry_form.journal_label' | translate }}</label>
         <select id="journalId" formControlName="journalId">
-          <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_PLACEHOLDER' | translate }}</option>
+          <option value="" disabled>{{ 'accounting.journal_entry_form.select_journal' | translate }}</option>
           @for (journal of journals(); track journal.id) {
             <option [value]="journal.id">{{ journal.name }}</option>
           }
         </select>
       </div>
       <div class="form-field description-field">
-        <label for="description">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL' | translate }}</label>
-        <input type="text" id="description" formControlName="description" [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_PLACEHOLDER' | translate">
+        <label for="description">{{ 'accounting.journal_entry_form.description_label' | translate }}</label>
+        <input type="text" id="description" formControlName="description" [placeholder]="'accounting.journal_entry_form.enter_description_entry' | translate">
       </div>
     </div>
 
@@ -53,7 +53,7 @@
           reversado, y el nuevo lo cita.
         -->
         <p class="entry-note">
-          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_EXPLAINER' | translate }}
+          {{ 'accounting.journal_entry_form.modifying_posted_entry_does_not_rewrite' | translate }}
         </p>
 
         @if (editBlockedKey(); as blocked) {
@@ -62,14 +62,14 @@
 
         <div class="form-field description-field">
           <label for="modificationReason">
-            {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_LABEL' | translate }}
+            {{ 'accounting.journal_entry_form.modification_reason_label' | translate }}
           </label>
           <input
             type="text"
             id="modificationReason"
             maxlength="500"
             formControlName="modificationReason"
-            [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_PLACEHOLDER' | translate"
+            [placeholder]="'accounting.journal_entry_form.why_original_entry_stopped_being_correct' | translate"
           />
         </div>
       }
@@ -80,10 +80,10 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN' | translate }}</th>
-            <th>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_COLUMN' | translate }}</th>
-            <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DEBIT_COLUMN' | translate }}</th>
-            <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.CREDIT_COLUMN' | translate }}</th>
+            <th>{{ 'accounting.journal_entry_form.account_column' | translate }}</th>
+            <th>{{ 'accounting.journal_entry_form.description_column' | translate }}</th>
+            <th class="text-right">{{ 'accounting.journal_entry_form.debit_column' | translate }}</th>
+            <th class="text-right">{{ 'accounting.journal_entry_form.credit_column' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -92,7 +92,7 @@
             <tr [formGroupName]="$index">
               <td>
                 <select formControlName="accountId">
-                  <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_PLACEHOLDER' | translate }}</option>
+                  <option value="" disabled>{{ 'accounting.journal_entry_form.select_account' | translate }}</option>
                   @for (account of accounts(); track account.id) {
                     <option [value]="account.id">{{ account.name }}</option>
                   }
@@ -112,7 +112,7 @@
                   type="button"
                   class="icon-button"
                   [disabled]="lines.length <= 2"
-                  [attr.aria-label]="'COMMON.DELETE' | translate"
+                  [attr.aria-label]="'common.delete' | translate"
                   (click)="removeLine($index)"
                 >
                   <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -126,10 +126,10 @@
             <td colspan="2">
               <button type="button" (click)="addLine()" class="secondary-button">
                 <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
-                {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ADD_LINE' | translate }}
+                {{ 'accounting.journal_entry_form.add_line' | translate }}
               </button>
             </td>
-            <td class="text-right"><strong>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.TOTALS' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
+            <td class="text-right"><strong>{{ 'accounting.journal_entry_form.totals' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
             <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
             <td></td>
           </tr>
@@ -143,12 +143,12 @@
       -->
       @if (entryForm.hasError('unbalanced') && entryForm.touched) {
         <p class="entry-alert" role="alert">
-          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.UNBALANCED_ERROR' | translate }}
+          {{ 'accounting.journal_entry_form.debits_credits_must_balanced' | translate }}
         </p>
       }
       @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
         <p class="entry-alert" role="alert">
-          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ZERO_AMOUNT_ERROR' | translate }}
+          {{ 'accounting.journal_entry_form.zero_amount_error' | translate }}
         </p>
       }
     </section>

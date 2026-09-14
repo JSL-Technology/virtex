@@ -1,0 +1,311 @@
+{
+  "$note": "Key families whose LEAF is composed at runtime from a value the API returned, so no scan for string literals can find them. Two tools need the same list and must not keep separate copies: verify-catalogues.mjs treats them as USED (without this it reports them dead, and pruning would delete exactly the keys whose absence is hardest to see -- the badge that renders a stored English word because its translation is gone), and translation-coverage.spec asserts every value exists in every language.\n\nValues are written as the SOURCE spells them -- SCREAMING_SNAKE for a TypeORM enum, camelCase for a DTO field, kebab for a coverage level -- and normalised to the catalogue's spelling by normalizeKey, exactly as the runtime does. An empty array means the domain is open (any permission name, any DTO property), so the family is only registered as used and its completeness cannot be checked.",
+  "families": {
+    "accounting.account_type": [
+      "ASSET",
+      "LIABILITY",
+      "EQUITY",
+      "REVENUE",
+      "EXPENSE"
+    ],
+    "accounting.categories": [
+      "CURRENT_ASSET",
+      "NON_CURRENT_ASSET",
+      "CURRENT_LIABILITY",
+      "NON_CURRENT_LIABILITY",
+      "OWNERS_EQUITY",
+      "RETAINED_EARNINGS",
+      "OPERATING_REVENUE",
+      "NON_OPERATING_REVENUE",
+      "OPERATING_EXPENSE",
+      "NON_OPERATING_EXPENSE",
+      "COST_OF_GOODS_SOLD",
+      "CASH"
+    ],
+    "accounting.checklist.items": [
+      "UNPOSTED_JOURNAL_ENTRIES",
+      "UNAPPROVED_VENDOR_BILLS",
+      "UNRECONCILED_BANK_TRANSACTIONS",
+      "CURRENCY_REVALUATION",
+      "FIXED_ASSETS_DEPRECIATION",
+      "PENDING_APPROVALS"
+    ],
+    "accounting.journal_entries": [
+      "STATUS_DRAFT",
+      "STATUS_PENDING_APPROVAL",
+      "STATUS_POSTED",
+      "STATUS_MODIFIED",
+      "STATUS_VOID",
+      "STATUS_REJECTED"
+    ],
+    "accounting.periods": [
+      "STATUS_OPEN",
+      "STATUS_CLOSED"
+    ],
+    "accounting.reconciliation.status": [
+      "IMPORTING",
+      "IMPORTED",
+      "FAILED",
+      "RECONCILED"
+    ],
+    "accounts_payable.status": [
+      "DRAFT",
+      "PENDING_APPROVAL",
+      "OPEN",
+      "PARTIALLY_PAID",
+      "PAID",
+      "VOID",
+      "REJECTED"
+    ],
+    "approvals.document_type": [
+      "VENDOR_BILL",
+      "PAYMENT_BATCH",
+      "JOURNAL_ENTRY",
+      "PERIOD_REOPENING",
+      "AUDIT_ADJUSTMENT"
+    ],
+    "billing.subscription_status": [
+      "active",
+      "trialing",
+      "past_due",
+      "unpaid",
+      "canceled",
+      "incomplete",
+      "incomplete_expired",
+      "paused"
+    ],
+    "common.toast": [
+      "SUCCESS",
+      "ERROR",
+      "WARNING",
+      "INFO"
+    ],
+    "customer_receipts.method": [
+      "CASH",
+      "BANK_TRANSFER",
+      "CHEQUE",
+      "CARD",
+      "OTHER"
+    ],
+    "customer_receipts.status": [
+      "POSTED",
+      "VOID"
+    ],
+    "dashboard.financial_ratios": [],
+    "dashboard.summary": [],
+    "dialog": [],
+    "dialog.block_user": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "dialog.delete_document": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "dialog.delete_folder": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "dialog.impersonate_user": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "dialog.reset_password": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "dialog.revoke_session": [
+      "TITLE",
+      "MESSAGE"
+    ],
+    "documents.templates.type": [
+      "NONE",
+      "INVOICE",
+      "QUOTE",
+      "EMAIL",
+      "CONTRACT",
+      "OTHER"
+    ],
+    "errors": [],
+    "extensions.run_status": [
+      "success",
+      "execution_failed"
+    ],
+    "extensions.status": [
+      "ACTIVE",
+      "DISABLED",
+      "REVOKED"
+    ],
+    "fiscal.ar": [],
+    "fiscal.br": [],
+    "fiscal.cl": [],
+    "fiscal.co": [],
+    "fiscal.do": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B11",
+      "B15",
+      "E31",
+      "E32",
+      "E33",
+      "E34",
+      "E41",
+      "E43",
+      "E44",
+      "E45",
+      "E46",
+      "E47"
+    ],
+    "fiscal.ec": [],
+    "fiscal.mx": [],
+    "fiscal.pe": [],
+    "hcm.employees.form.document_type": [
+      "CEDULA",
+      "RNC",
+      "PASSPORT"
+    ],
+    "hcm.employees.form.frequency_label": [
+      "WEEKLY",
+      "BIWEEKLY",
+      "MONTHLY"
+    ],
+    "hcm.employees.status_label": [
+      "ACTIVE",
+      "SUSPENDED",
+      "TERMINATED"
+    ],
+    "invoices.payment_method": [
+      "CASH",
+      "CHECK",
+      "CREDIT_CARD",
+      "DEBIT_CARD",
+      "CREDIT",
+      "BANK_TRANSFER",
+      "GIFT_CARD",
+      "SWAP",
+      "OTHER"
+    ],
+    "invoices.status": [
+      "DRAFT",
+      "PENDING",
+      "PAID",
+      "PARTIALLY_PAID",
+      "VOID",
+      "CREDIT_NOTE"
+    ],
+    "ledger.sales": [],
+    "overview.activity.item": [],
+    "overview.events.item": [],
+    "overview.events.kind": [],
+    "payroll.concepts.calc_label": [
+      "FIXED",
+      "PERCENTAGE",
+      "HOURLY",
+      "STATUTORY"
+    ],
+    "payroll.concepts.type_label": [
+      "EARNING",
+      "DEDUCTION",
+      "EMPLOYER_CONTRIBUTION"
+    ],
+    "payroll.parameters.base_label": [
+      "SALARY_CAPPED",
+      "PAYROLL_UNCAPPED"
+    ],
+    "payroll.parameters.key_label": [],
+    "payroll.parameters.regime_label": [
+      "AFP",
+      "SFS",
+      "SRL",
+      "INFOTEP"
+    ],
+    "payroll.runs.status_label": [
+      "DRAFT",
+      "CALCULATED",
+      "APPROVED",
+      "PAID",
+      "CANCELLED"
+    ],
+    "payroll.runs.type_label": [
+      "REGULAR",
+      "CHRISTMAS_BONUS",
+      "ADJUSTMENT"
+    ],
+    "permissions.actions": [],
+    "permissions.groups": [],
+    "purchasing.orders.status_label": [
+      "DRAFT",
+      "PENDING_APPROVAL",
+      "APPROVED",
+      "RECEIVED",
+      "CANCELLED"
+    ],
+    "purchasing.requisitions.status_label": [
+      "DRAFT",
+      "PENDING_APPROVAL",
+      "APPROVED",
+      "REJECTED",
+      "CONVERTED_TO_PO"
+    ],
+    "register.steps.plan.resources": [
+      "INVOICES",
+      "USERS",
+      "CUSTOMERS",
+      "SUPPLIERS",
+      "JOURNAL_ENTRIES",
+      "SUBSIDIARIES"
+    ],
+    "settings.fiscal.capability": [
+      "accounting",
+      "taxDetermination",
+      "electronicInvoicing",
+      "periodicReturns",
+      "electronicAccounting",
+      "withholding"
+    ],
+    "settings.fiscal.level": [
+      "implemented",
+      "needs-credentials",
+      "not-implemented"
+    ],
+    "settings.pages.withholding.capability": [
+      "accounting",
+      "taxDetermination",
+      "electronicInvoicing",
+      "periodicReturns",
+      "electronicAccounting",
+      "withholding"
+    ],
+    "settings.pages.withholding.coverage": [
+      "implemented",
+      "needs-credentials",
+      "not-implemented"
+    ],
+    "user.role": [
+      "ADMINISTRATOR",
+      "MEMBER",
+      "SELLER",
+      "ACCOUNTANT",
+      "NO_ROLE"
+    ],
+    "user.status": [
+      "PENDING",
+      "ACTIVE",
+      "INACTIVE",
+      "ARCHIVED",
+      "BLOCKED"
+    ],
+    "validation.constraints": [],
+    "validation.fields": []
+  },
+  "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
+  "not_keys": [
+    "ard",
+    "cube",
+    "invoice",
+    "sales",
+    "user"
+  ]
+}

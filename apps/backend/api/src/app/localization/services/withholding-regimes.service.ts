@@ -47,14 +47,14 @@ export class WithholdingRegimesService {
     organizationId: string,
   ): Promise<TenantWithholdingRegime> {
     const row = await this.regimes.findOne({ where: { id, organizationId } });
-    if (!row) throw new NotFoundError('LOCALIZATION.REGIMEN_RETENCION_NO_ENCONTRADO');
+    if (!row) throw new NotFoundError('localization.withholding_regime_does_not_exist');
     if (dto.payers) this.assertPayers(dto.payers);
     return this.regimes.save(this.regimes.merge(row, dto));
   }
 
   async remove(id: string, organizationId: string): Promise<void> {
     const row = await this.regimes.findOne({ where: { id, organizationId } });
-    if (!row) throw new NotFoundError('LOCALIZATION.REGIMEN_RETENCION_NO_ENCONTRADO');
+    if (!row) throw new NotFoundError('localization.withholding_regime_does_not_exist');
     // Deactivating keeps a regime out of new documents while leaving the ones it priced explicable.
     // Deleting is for a row created by mistake, which never applied to anything.
     await this.regimes.delete({ id, organizationId });
@@ -63,7 +63,7 @@ export class WithholdingRegimesService {
   /** A regime with no payer applies to nobody, which is a configuration mistake, not a rule. */
   private assertPayers(payers: string[] | undefined): void {
     if (!payers || payers.length === 0) {
-      throw new BadRequestError('LOCALIZATION.REGIMEN_RETENCION_SIN_PAGADOR');
+      throw new BadRequestError('localization.regime_with_no_payers_applies_nobody');
     }
   }
 }

@@ -562,7 +562,7 @@ describeWithDb('treasury', () => {
           ACTOR,
         ),
       ).rejects.toMatchObject({
-        messageKey: 'TREASURY.SALDO_APERTURA_REQUIERE_CONTRAPARTIDA',
+        messageKey: 'treasury.opening_balance_must_name_counterpart_account',
       });
 
       // And nothing was created: the whole thing is one transaction.
@@ -587,7 +587,7 @@ describeWithDb('treasury', () => {
           organizationId,
           ACTOR,
         ),
-      ).rejects.toMatchObject({ messageKey: 'TREASURY.SALDO_APERTURA_REQUIERE_FECHA' });
+      ).rejects.toMatchObject({ messageKey: 'treasury.opening_balance_must_state_date_which' });
     });
 
     it('refuses a counterpart that is the bank’s own control account', async () => {
@@ -606,7 +606,7 @@ describeWithDb('treasury', () => {
           ACTOR,
         ),
       ).rejects.toMatchObject({
-        messageKey: 'TREASURY.CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA',
+        messageKey: 'treasury.opening_balance_counterpart_cannot_bank_own',
       });
     });
 

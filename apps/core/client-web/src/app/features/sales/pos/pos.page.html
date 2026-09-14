@@ -3,7 +3,7 @@
         <div class="catalog-header">
             <div class="search-bar">
                 <lucide-icon [img]="SearchIcon" size="20"></lucide-icon>
-                <input type="text" [placeholder]="'SALES.POS.BUSCAR_PRODUCTOS_NOMBRE_SKU' | translate">
+                <input type="text" [placeholder]="'sales.pos.search_products_name_sku' | translate">
             </div>
         </div>
         <div class="product-grid">
@@ -15,7 +15,7 @@
                     <span class="product-price">{{ product.price | vxNumber:'1.2-2' }}</span>
                 </div>
                 @if(product.stock === 0) {
-                <div class="stock-overlay">{{ 'SALES.POS.AGOTADO' | translate }}</div>
+                <div class="stock-overlay">{{ 'sales.pos.out_stock' | translate }}</div>
                 }
             </div>
             }
@@ -28,8 +28,8 @@
     -->
     <div class="sale-ticket card" [formGroup]="saleForm">
         <div class="ticket-header">
-            <h3>{{ 'SALES.POS.ORDEN_ACTUAL' | translate }}</h3>
-            <div class="customer-info">{{ 'SALES.POS.CLIENTE' | translate }} <strong>{{ saleForm.get('customer')?.value }}</strong></div>
+            <h3>{{ 'sales.pos.current_order' | translate }}</h3>
+            <div class="customer-info">{{ 'sales.pos.customer' | translate }} <strong>{{ saleForm.get('customer')?.value }}</strong></div>
         </div>
         <div class="ticket-body" formArrayName="cartItems">
             @if(cartItems.controls.length > 0) {
@@ -56,29 +56,29 @@
             } @else {
             <div class="empty-cart">
                 <lucide-icon [img]="ShoppingCartIcon" size="48"></lucide-icon>
-                <span>{{ 'SALES.POS.ANADE_PRODUCTOS_COMENZAR_VENTA' | translate }}</span>
+                <span>{{ 'sales.pos.add_products_start_sale' | translate }}</span>
             </div>
             }
         </div>
         <div class="ticket-footer">
             <div class="summary-row">
-              <span>{{ 'SALES.POS.SUBTOTAL' | translate }}</span>
+              <span>{{ 'sales.pos.subtotal' | translate }}</span>
               <span>{{ subtotal() | vxMoney: currencyCode() }}</span>
             </div>
             <div class="summary-row">
-              <span>{{ 'SALES.POS.TAX_AT_RATE' | translate: { rate: taxRate() | vxPercent } }}</span>
+              <span>{{ 'sales.pos.tax_at_rate' | translate: { rate: taxRate() | vxPercent } }}</span>
               <span>{{ taxAmount() | vxMoney: currencyCode() }}</span>
             </div>
             <div class="summary-total">
-              <span>{{ 'SALES.POS.TOTAL_PAGAR' | translate }}</span>
+              <span>{{ 'sales.pos.amount_due' | translate }}</span>
               <span>{{ total() | vxMoney: currencyCode() }}</span>
             </div>
             @if (taxNeedsConfiguration()) {
-              <p class="tax-warning">{{ 'SALES.POS.TAX_NEEDS_CONFIGURATION' | translate }}</p>
+              <p class="tax-warning">{{ 'sales.pos.tax_needs_configuration' | translate }}</p>
             }
             <button class="primary-button charge-btn" (click)="completeSale()" [disabled]="cartItems.length === 0">
                 <lucide-icon [img]="CreditCardIcon" size="18"></lucide-icon>
-                <span>{{ 'SALES.POS.COBRAR' | translate }}</span>
+                <span>{{ 'sales.pos.charge' | translate }}</span>
             </button>
         </div>
     </div>

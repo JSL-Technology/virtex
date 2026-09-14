@@ -6,27 +6,27 @@
         <div class="checkout-complete__icon checkout-complete__icon--spin">
           <lucide-icon [img]="LoaderIcon" size="40"></lucide-icon>
         </div>
-        <h1 class="checkout-complete__title">{{ 'AUTH.CHECKOUT_COMPLETE.CONFIRMANDO_TU_PAGO' | translate }}</h1>
-        <p class="checkout-complete__text">{{ 'AUTH.CHECKOUT_COMPLETE.ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO' | translate }}</p>
+        <h1 class="checkout-complete__title">{{ 'auth.checkout_complete.confirming_your_payment' | translate }}</h1>
+        <p class="checkout-complete__text">{{ 'auth.checkout_complete.we_re_activating_your_account_will' | translate }}</p>
       }
 
       @case ('success') {
         <div class="checkout-complete__icon checkout-complete__icon--success">
           <lucide-icon [img]="CheckCircleIcon" size="40"></lucide-icon>
         </div>
-        <h1 class="checkout-complete__title">{{ 'AUTH.CHECKOUT_COMPLETE.PAGO_CONFIRMADO' | translate }}</h1>
-        <p class="checkout-complete__text">{{ 'AUTH.CHECKOUT_COMPLETE.TU_CUENTA_HA_SIDO_CREADA_TE' | translate }}</p>
+        <h1 class="checkout-complete__title">{{ 'auth.checkout_complete.payment_confirmed' | translate }}</h1>
+        <p class="checkout-complete__text">{{ 'auth.checkout_complete.your_account_has_created_taking_you' | translate }}</p>
       }
 
       @case ('error') {
         <div class="checkout-complete__icon checkout-complete__icon--error">
           <lucide-icon [img]="AlertTriangleIcon" size="40"></lucide-icon>
         </div>
-        <h1 class="checkout-complete__title">{{ 'AUTH.CHECKOUT_COMPLETE.NO_PUDIMOS_CONFIRMAR_PAGO' | translate }}</h1>
+        <h1 class="checkout-complete__title">{{ 'auth.checkout_complete.we_could_not_confirm_payment' | translate }}</h1>
         <p class="checkout-complete__text">{{ errorMessage() }}</p>
         <div class="checkout-complete__actions">
-          <app-auth-button type="button" (clicked)="confirm()">{{ 'AUTH.CHECKOUT_COMPLETE.REINTENTAR' | translate }}</app-auth-button>
-          <app-auth-button type="button" variant="outline" (clicked)="goToLogin()">{{ 'AUTH.CHECKOUT_COMPLETE.IR_INICIAR_SESION' | translate }}</app-auth-button>
+          <app-auth-button type="button" (clicked)="confirm()">{{ 'auth.checkout_complete.try_again' | translate }}</app-auth-button>
+          <app-auth-button type="button" variant="outline" (clicked)="goToLogin()">{{ 'auth.checkout_complete.go_sign' | translate }}</app-auth-button>
         </div>
       }
     }

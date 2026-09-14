@@ -131,7 +131,7 @@ export class AuthController {
       // behind it, and would otherwise be told "refreshable" on every bootstrap for the rest of
       // that marker's life.
       this.cookieService.clearAuthCookies(res);
-      throw new UnauthorizedError('AUTH.NO_HAY_SESION_RENOVAR');
+      throw new UnauthorizedError('auth.no_session_refresh');
     }
 
     let result: Awaited<ReturnType<AuthService['refreshAccessToken']>>;
@@ -174,7 +174,7 @@ export class AuthController {
     const sessionId = (user as unknown as AuthenticatedUser).sessionId;
     await this.authService.logoutCurrentSession(user.id, sessionId);
     this.cookieService.clearAuthCookies(res);
-    return { messageKey: 'AUTH.LOGOUT_EXITOSO' };
+    return { messageKey: 'auth.signed_out' };
   }
 
   @Post('logout-all')
@@ -190,7 +190,7 @@ export class AuthController {
   ) {
     await this.authService.logoutAll(user.id);
     this.cookieService.clearAuthCookies(res);
-    return { messageKey: 'AUTH.TODAS_SESIONES_HAN_CERRADAS' };
+    return { messageKey: 'auth.every_session_has_closed' };
   }
 
   @Post('change-password')
@@ -211,7 +211,7 @@ export class AuthController {
       try {
           await this.authService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
           await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password' }, undefined, ip, user.organizationId);
-          return { messageKey: 'AUTH.PASSWORD_UPDATED_SUCCESSFULLY' };
+          return { messageKey: 'auth.password_updated_successfully' };
       } catch (e) {
           await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password', error: (e as Error).message }, undefined, ip, user.organizationId);
           throw e;
@@ -323,7 +323,7 @@ export class AuthController {
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await this.passwordRecoveryService.sendPasswordResetLink(forgotPasswordDto);
     return {
-      messageKey: 'AUTH.SI_EXISTE_CUENTA_CON_ESE_CORREO_ENVIADO_ENLACE',
+      messageKey: 'auth.if_account_exists_email_password_reset',
     };
   }
 

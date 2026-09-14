@@ -158,13 +158,13 @@ export class StepUpService {
                 instance.error =
                   err.status === 401
                     ? challenge.factor === 'otp'
-                      ? 'AUTH.STEP_UP.ERRORS.INVALID_CODE'
-                      : 'AUTH.STEP_UP.ERRORS.INVALID_PASSWORD'
+                      ? 'auth.step_up.errors.invalid_code'
+                      : 'auth.step_up.errors.invalid_password'
                     : err.status === 429
-                      ? 'AUTH.STEP_UP.ERRORS.TOO_MANY_ATTEMPTS'
+                      ? 'auth.step_up.errors.too_many_attempts'
                       : err.status === 403
-                        ? 'AUTH.STEP_UP.ERRORS.TOO_MANY_ATTEMPTS'
-                        : 'AUTH.STEP_UP.ERRORS.VERIFICATION_FAILED';
+                        ? 'auth.step_up.errors.too_many_attempts'
+                        : 'auth.step_up.errors.verification_failed';
 
                 if (err.error?.remainingAttempts !== undefined) {
                   instance.remainingAttempts = err.error.remainingAttempts;

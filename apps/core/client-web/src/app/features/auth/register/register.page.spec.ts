@@ -242,7 +242,7 @@ describe('RegisterPage', () => {
       expect(component.currentStep()).toBe(4);
       // The message is a translation key now: the wizard used to carry Spanish literals, which
       // a US customer would have read in Spanish regardless of the language they chose.
-      expect(component.errorMessage()).toBe('REGISTER.ERRORS.COUNTRY_CONFIG');
+      expect(component.errorMessage()).toBe('register.errors.we_couldn_load_tax_settings_country');
     });
   });
 
@@ -279,7 +279,7 @@ describe('RegisterPage', () => {
 
       component.onSubmit();
 
-      expect(component.errorMessage()).toBe('REGISTER.ERRORS.UNKNOWN');
+      expect(component.errorMessage()).toBe('register.errors.unknown');
       expect(component.serverErrorMessage()).toBeNull();
     });
   });

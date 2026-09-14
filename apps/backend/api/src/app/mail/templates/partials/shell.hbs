@@ -2,7 +2,7 @@
   El envoltorio de TODOS los correos: documento, estilos, modo oscuro, cabecera
   con el logotipo y pie. Un mensaje se limita a su contenido:
 
-      {{#> shell title=(t 'MAIL.X.SUBJECT') preheader=(t 'MAIL.X.PREHEADER')}}
+      {{#> shell title=(t 'mail.x.subject') preheader=(t 'mail.x.preheader')}}
         ...
       {{/shell}}
 
@@ -107,10 +107,10 @@
           <tr>
             <td class="footer bg-body" align="center" style="background:{{brand 'ground'}}; padding:22px 24px 0;">
               <p class="ink3" style="margin:0; font:400 12px/1.7 {{brand 'font'}}; color:{{brand 'ink3'}};">
-                {{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}
+                {{t 'mail.common.current_year_app_name_all_rights' currentYear=currentYear appName=appName}}
               </p>
               <p class="ink3" style="margin:4px 0 0; font:400 12px/1.7 {{brand 'font'}}; color:{{brand 'ink3'}};">
-                {{t 'MAIL.COMMON.TRANSACTIONAL_NOTICE'}}
+                {{t 'mail.common.transactional_notice'}}
               </p>
             </td>
           </tr>

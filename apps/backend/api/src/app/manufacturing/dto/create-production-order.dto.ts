@@ -36,7 +36,7 @@ export class CreateProductionOrderDto {
   quantityPlanned: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   quantityProduced?: number;
 

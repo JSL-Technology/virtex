@@ -9,8 +9,8 @@ import { MenuGroup } from './module-manifest';
  * different vocabularies depending on which shell the tenant chose.
  */
 export const GROUP_LABEL: Record<MenuGroup, string> = {
-  inbox: 'SHELL.GROUP_INBOX',
-  documents: 'SHELL.GROUP_DOCUMENTS',
-  masters: 'SHELL.GROUP_MASTERS',
-  analysis: 'SHELL.GROUP_ANALYSIS',
+  inbox: 'shell.group_inbox',
+  documents: 'shell.group_documents',
+  masters: 'shell.group_masters',
+  analysis: 'shell.group_analysis',
 };

@@ -41,7 +41,7 @@ export function FastifyFilesInterceptor(fieldName: string, maxCount = 10, option
       }
 
       if (filesPart.length > maxCount) {
-         throw new BadRequestError('COMMON.TOO_MANY_FILES');
+         throw new BadRequestError('common.too_many_files');
       }
 
       const files: FastifyFile[] = [];
@@ -58,14 +58,14 @@ export function FastifyFilesInterceptor(fieldName: string, maxCount = 10, option
                });
 
                if (error || !accepted) {
-                  throw error || new BadRequestError('COMMON.FILE_TYPE_NOT_ALLOWED');
+                  throw error || new BadRequestError('common.file_type_not_allowed');
                }
             }
 
             const buffer = await filePart.toBuffer();
 
             if (options.limits?.fileSize && buffer.length > options.limits.fileSize) {
-               throw new BadRequestError('COMMON.FILE_TOO_LARGE_2', { filename: filePart.filename });
+               throw new BadRequestError('common.named_file_too_large', { filename: filePart.filename });
             }
 
             const filename = `${randomBytes(16).toString('hex')}${extname(filePart.filename)}`;

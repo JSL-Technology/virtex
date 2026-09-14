@@ -35,14 +35,14 @@ export class KnowledgeBaseService {
 
   async findOnePublished(id: string, organizationId: string): Promise<KnowledgeBaseArticle> {
       const article = await this.articleRepository.findOneBy({ id, organizationId, status: ArticleStatus.PUBLISHED });
-      if (!article) throw new NotFoundError('CUSTOMER_SERVICE.ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO');
+      if (!article) throw new NotFoundError('customer_service.article_not_found_not_published');
       return article;
   }
 
 
   async update(id: string, updateDto: UpdateKnowledgeBaseArticleDto, organizationId: string): Promise<KnowledgeBaseArticle> {
     const article = await this.articleRepository.findOneBy({ id, organizationId });
-    if (!article) throw new NotFoundError('CUSTOMER_SERVICE.ARTICULO_NO_ENCONTRADO');
+    if (!article) throw new NotFoundError('customer_service.article_not_found');
     
     Object.assign(article, updateDto);
     return this.articleRepository.save(article);

@@ -3,8 +3,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-header__text">
-            <h1 class="page-header__title">{{ 'SETTINGS.COMPANY_PROFILE.PERFIL_EMPRESA' | translate }}</h1>
-            <p class="page-header__subtitle">{{ 'SETTINGS.COMPANY_PROFILE.GESTIONA_INFORMACION_LEGAL_CONTACTO_TU_ORGANIZACION' | translate }}</p>
+            <h1 class="page-header__title">{{ 'settings.company_profile.company_profile' | translate }}</h1>
+            <p class="page-header__subtitle">{{ 'settings.company_profile.manage_your_organization_legal_contact_information' | translate }}</p>
         </div>
         <button type="button"
                 class="btn-primary"
@@ -20,37 +20,37 @@
         <!-- Section: Información General -->
         <div class="form-card">
             <div class="form-card__header">
-                <h2 class="form-card__title">{{ 'SETTINGS.COMPANY_PROFILE.INFORMACION_GENERAL' | translate }}</h2>
-                <p class="form-card__subtitle">{{ 'SETTINGS.COMPANY_PROFILE.DATOS_LEGALES_IDENTIFICACION_EMPRESA' | translate }}</p>
+                <h2 class="form-card__title">{{ 'settings.company_profile.general_information' | translate }}</h2>
+                <p class="form-card__subtitle">{{ 'settings.company_profile.company_legal_identification_details' | translate }}</p>
             </div>
             <div class="form-card__body">
                 <div class="form-grid">
 
                     <div class="form-field">
                         <label for="legalName" class="form-label">
-                            {{ 'SETTINGS.COMPANY_PROFILE.NOMBRE_LEGAL' | translate }} <span class="required">*</span>
+                            {{ 'settings.company_profile.legal_name' | translate }} <span class="required">*</span>
                         </label>
                         <input id="legalName"
                                type="text"
                                formControlName="legalName"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.EJ_VIRTEEX_CORP' | translate">
+                               [placeholder]="'settings.company_profile.ej_virteex_corp' | translate">
                         <p class="field-error"
                            *ngIf="profileForm.get('legalName')?.touched && profileForm.get('legalName')?.invalid">
-                            {{ 'SETTINGS.COMPANY_PROFILE.NOMBRE_LEGAL_ES_REQUERIDO' | translate }}
+                            {{ 'settings.company_profile.legal_name_required' | translate }}
                         </p>
                     </div>
 
                     <div class="form-field">
-                        <label for="industry" class="form-label">{{ 'SETTINGS.COMPANY_PROFILE.INDUSTRIA' | translate }}</label>
+                        <label for="industry" class="form-label">{{ 'settings.company_profile.industry' | translate }}</label>
                         <input id="industry"
                                type="text"
                                formControlName="industry"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.EJ_TECNOLOGIA_RETAIL_MANUFACTURA' | translate">
+                               [placeholder]="'settings.company_profile.technology_retail_manufacturing' | translate">
                     </div>
 
                     <div class="form-field">
                         <label for="taxId" class="form-label">
-                            {{ 'SETTINGS.COMPANY_PROFILE.ID_FISCAL_RNC_TAX_ID' | translate }} <span class="required">*</span>
+                            {{ 'settings.company_profile.id_fiscal_rnc_tax_id' | translate }} <span class="required">*</span>
                         </label>
                         <input id="taxId"
                                type="text"
@@ -58,16 +58,16 @@
                                placeholder="Ej. 132-45678-9">
                         <p class="field-error"
                            *ngIf="profileForm.get('taxId')?.touched && profileForm.get('taxId')?.invalid">
-                            {{ 'SETTINGS.COMPANY_PROFILE.ID_FISCAL_ES_REQUERIDO' | translate }}
+                            {{ 'settings.company_profile.tax_id_required' | translate }}
                         </p>
                     </div>
 
                     <div class="form-field">
-                        <label for="website" class="form-label">{{ 'SETTINGS.COMPANY_PROFILE.SITIO_WEB' | translate }}</label>
+                        <label for="website" class="form-label">{{ 'settings.company_profile.website' | translate }}</label>
                         <input id="website"
                                type="url"
                                formControlName="website"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.HTTPS_EJEMPLO_COM' | translate">
+                               [placeholder]="'settings.company_profile.https_example_com' | translate">
                     </div>
 
                 </div>
@@ -77,45 +77,45 @@
         <!-- Section: Dirección y Contacto -->
         <div class="form-card">
             <div class="form-card__header">
-                <h2 class="form-card__title">{{ 'SETTINGS.COMPANY_PROFILE.DIRECCION_CONTACTO' | translate }}</h2>
-                <p class="form-card__subtitle">{{ 'SETTINGS.COMPANY_PROFILE.INFORMACION_UBICACION_COMUNICACION_PRINCIPAL' | translate }}</p>
+                <h2 class="form-card__title">{{ 'settings.company_profile.address_contact' | translate }}</h2>
+                <p class="form-card__subtitle">{{ 'settings.company_profile.primary_location_contact_details' | translate }}</p>
             </div>
             <div class="form-card__body">
                 <div class="form-grid">
 
                     <div class="form-field form-field--full">
-                        <label for="address" class="form-label">{{ 'SETTINGS.COMPANY_PROFILE.DIRECCION' | translate }}</label>
+                        <label for="address" class="form-label">{{ 'settings.company_profile.address' | translate }}</label>
                         <input id="address"
                                type="text"
                                formControlName="address"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.CALLE_PRINCIPAL_123_SECTOR' | translate">
+                               [placeholder]="'settings.company_profile.123_main_street_district' | translate">
                     </div>
 
                     <div class="form-field">
-                        <label for="city" class="form-label">{{ 'SETTINGS.COMPANY_PROFILE.CIUDAD' | translate }}</label>
+                        <label for="city" class="form-label">{{ 'settings.company_profile.city' | translate }}</label>
                         <input id="city"
                                type="text"
                                formControlName="city"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.EJ_SANTO_DOMINGO' | translate">
+                               [placeholder]="'settings.company_profile.ej_santo_domingo' | translate">
                     </div>
 
                     <div class="form-field">
                         <label for="country" class="form-label">
-                            {{ 'SETTINGS.COMPANY_PROFILE.PAIS' | translate }} <span class="required">*</span>
+                            {{ 'settings.company_profile.country' | translate }} <span class="required">*</span>
                         </label>
                         <input id="country"
                                type="text"
                                formControlName="country"
-                               [placeholder]="'SETTINGS.COMPANY_PROFILE.EJ_REPUBLICA_DOMINICANA' | translate">
+                               [placeholder]="'settings.company_profile.dominican_republic' | translate">
                         <p class="field-error"
                            *ngIf="profileForm.get('country')?.touched && profileForm.get('country')?.invalid">
-                            {{ 'SETTINGS.COMPANY_PROFILE.PAIS_ES_REQUERIDO' | translate }}
+                            {{ 'settings.company_profile.country_required' | translate }}
                         </p>
                     </div>
 
                     <div class="form-field">
                         <label for="phone" class="form-label">
-                            {{ 'SETTINGS.COMPANY_PROFILE.TELEFONO' | translate }} <span class="required">*</span>
+                            {{ 'settings.company_profile.phone' | translate }} <span class="required">*</span>
                         </label>
                         <input id="phone"
                                type="tel"
@@ -123,7 +123,7 @@
                                placeholder="+1 (809) 555-0123">
                         <p class="field-error"
                            *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid">
-                            {{ 'SETTINGS.COMPANY_PROFILE.TELEFONO_ES_REQUERIDO' | translate }}
+                            {{ 'settings.company_profile.phone_number_required' | translate }}
                         </p>
                     </div>
 

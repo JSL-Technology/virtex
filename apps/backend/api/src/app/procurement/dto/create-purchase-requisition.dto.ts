@@ -20,22 +20,22 @@ export class PurchaseRequisitionLineDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   description: string;
 
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0.000001, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0.000001, { message: 'validation.constraints.min|{"min":0}' })
   quantity: number;
 
   /** What the requester expects it to cost. An estimate: nobody has quoted yet. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()
   estimatedUnitPrice?: number;
 
   @IsString()
   @IsOptional()
-  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
+  @MaxLength(16, { message: 'validation.constraints.max_length|{"max":16}' })
   unitOfMeasure?: string;
 }
 
@@ -55,11 +55,11 @@ export class CreatePurchaseRequisitionDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
+  @MaxLength(2000, { message: 'validation.constraints.max_length|{"max":2000}' })
   notes?: string;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
+  @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => PurchaseRequisitionLineDto)
   lines: PurchaseRequisitionLineDto[];
