@@ -86,6 +86,24 @@ export function loadTargets() {
   );
 }
 
+/**
+ * The subset an application bundles rather than fetches, per target.
+ *
+ * Only the web client declares one. Its catalogue is 4.700 keys — it holds the wording of every
+ * domain error, because the API names failures and does not word them — and putting that in the
+ * initial bundle cost 367 kB of JavaScript to parse before first paint. The full catalogue is a
+ * chunk now; `core` is what remains bundled, so a reader whose chunk never arrives still gets a
+ * readable sign-in page instead of a screen of dotted identifiers.
+ */
+export function loadCoreNamespaces() {
+  const raw = read(`${SOURCE}/targets.json`);
+  return Object.fromEntries(
+    Object.entries(raw)
+      .filter(([k]) => !k.startsWith('$') && Array.isArray(raw[k].core))
+      .map(([target, config]) => [target, config.core]),
+  );
+}
+
 /** The value of a key in one language: `literal` wins, because it means "the same in all three". */
 export function valueFor(entry, language) {
   if (entry.literal !== undefined) return entry.literal;
@@ -107,6 +125,7 @@ function main() {
   const source = loadSource();
   const regional = loadRegional();
   const targets = loadTargets();
+  const cores = loadCoreNamespaces();
   const changed = [];
 
   // Keys are written in sorted order so a diff shows a changed translation and never a reshuffle.
@@ -128,6 +147,15 @@ function main() {
         catalogue[key] = value;
       }
       writeIfChanged(`${dir}/${language}.json`, `${JSON.stringify(catalogue, null, 2)}\n`, check, changed);
+
+      const core = cores[target];
+      if (core) {
+        const owned = new Set(core);
+        const subset = Object.fromEntries(
+          Object.entries(catalogue).filter(([key]) => owned.has(key.split('.')[0])),
+        );
+        writeIfChanged(`${dir}/${language}.core.json`, `${JSON.stringify(subset, null, 2)}\n`, check, changed);
+      }
     }
 
     // One patch per locale, containing only the keys this target actually ships.

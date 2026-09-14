@@ -3,7 +3,7 @@ import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { DEFAULT_LANGUAGE, LanguageCode, isLanguageCode } from '@virteex/shared/types';
-import spanish from '../../../assets/i18n/es.json';
+import spanishCore from '../../../assets/i18n/es.core.json';
 import regionalOverrides from '../../../assets/i18n/regional.json';
 import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virteex/shared/ui-i18n';
 
@@ -19,10 +19,18 @@ import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virteex
  * selected and cached by the service worker after that. Adding a fourth language costs nothing to
  * the three-quarters of readers who do not read it.
  *
- * Spanish stays bundled: it is the default and the majority language, so the common path must not
- * pay a round trip before first paint, and it doubles as the last-resort catalogue when a chunk
- * cannot be fetched at all. A reader on a bad connection gets Spanish, which is worse than their
- * own language and very much better than a screen of `settings.security.two_factor_title`.
+ * Spanish used to stay bundled as well, to save the common path a round trip before first paint.
+ * That stopped being affordable when the API stopped wording its own errors: the client took on the
+ * wording of every domain failure and the catalogue went from 4.059 keys to 4.696 — 367 kB of
+ * JavaScript in the initial bundle, which pushed the build past its size budget. All three languages
+ * are chunks now, and since `LanguageService.preload()` runs as an app initializer, nothing paints
+ * before the catalogue resolves either way: the difference is 367 kB of bundle against one
+ * same-origin request the service worker then caches.
+ *
+ * `es.core.json` is what remains bundled — the shell, sign-in, navigation and error namespaces,
+ * 50 kB — and it exists for one case: the chunk that never arrives. A reader on a failing connection
+ * gets a readable sign-in page in Spanish rather than a screen of
+ * `settings.security.two_factor_title`.
  *
  * ## The regional patch
  *
@@ -57,7 +65,7 @@ function unwrap(module: unknown): Catalogue {
  * fallback nobody notices.
  */
 const CATALOGUES: Readonly<Record<LanguageCode, () => Promise<unknown>>> = {
-  es: () => Promise.resolve({ default: spanish }),
+  es: () => import('../../../assets/i18n/es.json'),
   en: () => import('../../../assets/i18n/en.json'),
   pt: () => import('../../../assets/i18n/pt.json'),
 };
@@ -74,8 +82,10 @@ export class LazyTranslateLoader implements TranslateLoader {
         // A chunk that will not load is a network problem, not a translation problem. Falling back
         // to the bundled catalogue keeps the application readable; failing here would render every
         // key on the screen instead.
-        console.error(`[i18n] Could not load the "${language}" catalogue; falling back to Spanish.`);
-        return of(unwrap({ default: spanish }));
+        console.error(
+          `[i18n] Could not load the "${language}" catalogue; falling back to the bundled core.`,
+        );
+        return of(unwrap({ default: spanishCore }));
       }),
       map((base) => this.withRegionalOverrides(base) as unknown as TranslationObject),
     );

@@ -103,6 +103,32 @@
       "widgets",
       "wms",
       "workflows"
+    ],
+    "$core_why": "The namespaces the application shell needs when a language chunk cannot be fetched at all. Emitted as <lang>.core.json and bundled, so a reader on a failing connection sees the sign-in page and the error wording rather than a screen of dotted identifiers. Everything else arrives with the language chunk.",
+    "core": [
+      "actions",
+      "app_title",
+      "apps",
+      "common",
+      "core",
+      "errors",
+      "forgot_password",
+      "geo_mismatch",
+      "login",
+      "main",
+      "modules",
+      "nav",
+      "page_titles",
+      "password_strength",
+      "pwa",
+      "reset_password",
+      "set_password",
+      "shell",
+      "sidebar",
+      "tabs",
+      "transition",
+      "unauthorized",
+      "validation"
     ]
   },
   "api": {
