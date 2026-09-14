@@ -436,6 +436,11 @@
   "invoices.export.total": {
     "literal": "Total"
   },
+  "invoices.gaps.fiscal_sequence": {
+    "es": "un rango de comprobantes fiscales activo (Ajustes › Facturación electrónica)",
+    "en": "an active fiscal document range (Settings › Electronic invoicing)",
+    "pt": "um intervalo de comprovativos fiscais ativo (Definições › Faturação eletrónica)"
+  },
   "invoices.invoice_has_already_credited_full": {
     "es": "La factura ya fue acreditada en su totalidad.",
     "en": "The invoice has already been credited in full.",
@@ -961,6 +966,11 @@
     "es": "Neto a cobrar",
     "en": "Net receivable",
     "pt": "Líquido a receber"
+  },
+  "invoices.new.not_ready_missing": {
+    "es": "Todavía no puedes facturar. Falta: {{missing}}.",
+    "en": "You cannot invoice yet. Missing: {{missing}}.",
+    "pt": "Ainda não podes faturar. Falta: {{missing}}."
   },
   "invoices.new.notes": {
     "es": "Notas",

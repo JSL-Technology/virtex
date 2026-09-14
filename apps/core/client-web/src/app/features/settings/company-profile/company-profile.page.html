@@ -11,7 +11,7 @@
                 [disabled]="profileForm.pristine || profileForm.invalid || isLoading"
                 (click)="saveProfile()">
             <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-            <span>{{ isLoading ? 'Guardando…' : 'Guardar Cambios' }}</span>
+            <span>{{ (isLoading ? 'common.saving' : 'common.save_changes') | translate }}</span>
         </button>
     </div>
 

@@ -14,6 +14,16 @@
     "en": "Billing and Plan",
     "pt": "Faturamento e Plano"
   },
+  "settings.billing.change_plan": {
+    "es": "Cambiar de plan",
+    "en": "Change plan",
+    "pt": "Mudar de plano"
+  },
+  "settings.billing.choose_plan": {
+    "es": "Elige tu plan",
+    "en": "Choose your plan",
+    "pt": "Escolhe o teu plano"
+  },
   "settings.billing.choose_plan_best_fits_your_organization": {
     "es": "Selecciona el plan que mejor se adapte a tu organización y gestiona tu suscripción.",
     "en": "Choose the plan that best fits your organization and manage your subscription.",
@@ -23,6 +33,16 @@
     "es": "Selecciona el plan que mejor se adapte a tu organización.",
     "en": "Choose the plan that best fits your organization.",
     "pt": "Escolha o plano que melhor se adapta à sua organização."
+  },
+  "settings.billing.continue_to_payment": {
+    "es": "Continuar con el pago",
+    "en": "Continue to payment",
+    "pt": "Continuar para o pagamento"
+  },
+  "settings.billing.continue_to_portal": {
+    "es": "Continuar al portal",
+    "en": "Continue to the portal",
+    "pt": "Continuar para o portal"
   },
   "settings.billing.current_plan_heading": {
     "es": "Plan Actual",
@@ -48,6 +68,11 @@
     "es": "Descargar factura",
     "en": "Download invoice",
     "pt": "Baixar fatura"
+  },
+  "settings.billing.ends_on": {
+    "es": "Finaliza el",
+    "en": "Ends on",
+    "pt": "Termina a"
   },
   "settings.billing.expires_exp_month_exp_year": {
     "es": "Expira {{expMonth}}/{{expYear}}",
@@ -103,6 +128,11 @@
     "es": "Redirigiendo...",
     "en": "Redirecting...",
     "pt": "Redirecionando..."
+  },
+  "settings.billing.renews_on": {
+    "es": "Se renueva el",
+    "en": "Renews on",
+    "pt": "Renova a"
   },
   "settings.billing.resource_usage": {
     "es": "Uso de Recursos",
@@ -552,6 +582,11 @@
     "en": "From",
     "pt": "De"
   },
+  "settings.fiscal.generating": {
+    "es": "Generando…",
+    "en": "Generating…",
+    "pt": "A gerar…"
+  },
   "settings.fiscal.holder": {
     "es": "Titular",
     "en": "Holder",
@@ -581,6 +616,16 @@
     "es": "Prefijo",
     "en": "Prefix",
     "pt": "Prefixo"
+  },
+  "settings.fiscal.register_range": {
+    "es": "Registrar rango",
+    "en": "Register range",
+    "pt": "Registar intervalo"
+  },
+  "settings.fiscal.registering": {
+    "es": "Registrando…",
+    "en": "Registering…",
+    "pt": "A registar…"
   },
   "settings.fiscal.report": {
     "es": "Reporte",
@@ -626,6 +671,16 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "settings.fiscal.upload_certificate": {
+    "es": "Subir certificado",
+    "en": "Upload certificate",
+    "pt": "Carregar certificado"
+  },
+  "settings.fiscal.uploading": {
+    "es": "Subiendo…",
+    "en": "Uploading…",
+    "pt": "A carregar…"
   },
   "settings.fiscal.what_product_covers_country": {
     "es": "Qué cubre este producto en {{country}}",
@@ -2147,9 +2202,9 @@
     "pt": "Clonar Perfil"
   },
   "settings.roles.create_role": {
-    "es": "Crear Rol",
-    "en": "Create Role",
-    "pt": "Criar Perfil"
+    "es": "Crear nuevo rol",
+    "en": "Create new role",
+    "pt": "Criar novo papel"
   },
   "settings.roles.delete_role": {
     "es": "Eliminar Rol",
@@ -2162,9 +2217,9 @@
     "pt": "Descrição"
   },
   "settings.roles.edit_role": {
-    "es": "Editar Rol",
-    "en": "Edit Role",
-    "pt": "Editar Perfil"
+    "es": "Editar rol",
+    "en": "Edit role",
+    "pt": "Editar papel"
   },
   "settings.roles.errors.load_permissions": {
     "es": "No pudimos cargar los permisos.",
@@ -2491,6 +2546,16 @@
     "en": "The sessions could not be loaded.",
     "pt": "Não foi possível carregar as sessões."
   },
+  "settings.sessions.unknown_browser": {
+    "es": "Navegador desconocido",
+    "en": "Unknown browser",
+    "pt": "Navegador desconhecido"
+  },
+  "settings.sessions.unknown_os": {
+    "es": "SO desconocido",
+    "en": "Unknown OS",
+    "pt": "SO desconhecido"
+  },
   "settings.sso.acme_com": {
     "literal": "acme.com"
   },
@@ -2681,6 +2746,11 @@
     "en": "Create the first subsidiary",
     "pt": "Criar a primeira subsidiária"
   },
+  "settings.subsidiaries.create_subsidiary": {
+    "es": "Crear subsidiaria",
+    "en": "Create subsidiary",
+    "pt": "Criar subsidiária"
+  },
   "settings.subsidiaries.dominican_republic": {
     "es": "Ej. República Dominicana",
     "en": "e.g. Dominican Republic",
@@ -2782,9 +2852,9 @@
     "pt": "Excluir Usuário"
   },
   "settings.user_management.edit_user": {
-    "es": "Editar Usuario",
-    "en": "Edit User",
-    "pt": "Editar Usuário"
+    "es": "Editar usuario",
+    "en": "Edit user",
+    "pt": "Editar utilizador"
   },
   "settings.user_management.email": {
     "es": "Correo Electrónico",
@@ -2805,6 +2875,11 @@
     "es": "Mensaje de invitación (opcional)",
     "en": "Invitation message (optional)",
     "pt": "Mensagem do convite (opcional)"
+  },
+  "settings.user_management.invite_new_user": {
+    "es": "Invitar nuevo usuario",
+    "en": "Invite new user",
+    "pt": "Convidar novo utilizador"
   },
   "settings.user_management.invite_user": {
     "es": "Invitar Usuario",
@@ -2840,6 +2915,11 @@
     "es": "Seleccionar rol",
     "en": "Select a role",
     "pt": "Selecionar perfil"
+  },
+  "settings.user_management.send_invitation": {
+    "es": "Enviar invitación",
+    "en": "Send invitation",
+    "pt": "Enviar convite"
   },
   "settings.user_management.showing_shown_total_users": {
     "es": "Mostrando {{shown}} de {{total}} usuarios",

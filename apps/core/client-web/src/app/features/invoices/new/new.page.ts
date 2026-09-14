@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, merge, switchMap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -92,6 +93,17 @@ export class NewInvoicePage implements OnInit {
 
   /** Whether the tenant can issue at all, and what is missing when it cannot. */
   blockers = computed(() => this.context()?.missing ?? []);
+
+  /**
+   * One gap, worded for the reader.
+   *
+   * The banner printed these raw, so the gap this screen exists to explain appeared as
+   * `invoices.gaps.fiscal_sequence`. `translateOrLiteral` because the list mixes catalogue keys
+   * with prose the provisioner still writes out; prose is printed, keys are looked up.
+   */
+  blockerText(gap: string): string {
+    return translateOrLiteral(this.translate, gap);
+  }
 
   constructor() {
     this.invoiceForm = this.fb.group({
@@ -188,9 +200,15 @@ export class NewInvoicePage implements OnInit {
           control.patchValue({ taxRate: context.taxRates[0] ?? 0 }, { emitEvent: false }),
         );
         if (!context.ready) {
-          this.notificationService.showError(
-            `Todavía no puedes facturar. Falta: ${context.missing.join('; ')}.`,
-          );
+          // The catalogue words this, not a template literal in Spanish: the sentence a tenant
+          // reads when the product tells them what to go and fix is the last place to hard-code
+          // one language. Each gap is translated where it is a key and printed where the server
+          // sent prose.
+          this.notificationService.showError('invoices.new.not_ready_missing', {
+            missing: context.missing
+              .map((gap) => translateOrLiteral(this.translate, gap))
+              .join('; '),
+          });
         }
       },
       error: () =>

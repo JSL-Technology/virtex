@@ -30,8 +30,14 @@
               @if (isFirst) {
                 <td [attr.rowspan]="entry.lines.length">{{ entry.date | vxDate: 'date' : true }}</td>
                 <td [attr.rowspan]="entry.lines.length">
+                  <!--
+                    The entry's NUMBER, not its uuid. The daily journal is printed and handed to an
+                    auditor, and the number is what identifies an entry in the books — this column
+                    read `c560af1d-36b7-41b6-974e-6ecf8a2bf484` while the entries list, from the
+                    same records, showed `VENTAS-2026-000001`.
+                  -->
                   <a [routerLink]="['/accounting/journal-entries', entry.id, 'edit']" class="table-link">
-                    {{ entry.id }}
+                    {{ entry.entryNumber || ('accounting.journal_entries.unnumbered' | translate) }}
                   </a>
                 </td>
               }

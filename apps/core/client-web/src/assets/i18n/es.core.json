@@ -46,6 +46,8 @@
   "common.refresh": "Actualizar",
   "common.retry": "Reintentar",
   "common.save": "Guardar",
+  "common.save_changes": "Guardar cambios",
+  "common.saving": "Guardando…",
   "common.single_file_expected": "Single file expected",
   "common.skip_to_content": "Saltar al contenido principal",
   "common.success": "Listo",

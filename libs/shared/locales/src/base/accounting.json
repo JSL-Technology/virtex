@@ -389,6 +389,11 @@
     "en": "Row",
     "pt": "Linha"
   },
+  "accounting.bulk_operations.select_a_file": {
+    "es": "Seleccionar un archivo…",
+    "en": "Select a file…",
+    "pt": "Selecionar um ficheiro…"
+  },
   "accounting.bulk_operations.upload_csv_xlsx_file_create_update": {
     "es": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
     "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
@@ -1639,6 +1644,11 @@
     "es": "Tipo: {{type}}",
     "en": "Type: {{type}}",
     "pt": "Tipo: {{type}}"
+  },
+  "accounting.merge_tool.unexpected_error": {
+    "es": "Ocurrió un error inesperado.",
+    "en": "An unexpected error occurred.",
+    "pt": "Ocorreu um erro inesperado."
   },
   "accounting.merge_tool.warnings": {
     "es": "Advertencias:",

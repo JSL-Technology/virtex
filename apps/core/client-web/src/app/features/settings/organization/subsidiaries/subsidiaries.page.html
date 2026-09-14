@@ -92,7 +92,7 @@
       <div class="modal-footer">
         <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'settings.subsidiaries.cancel' | translate }}</button>
         <button type="submit" class="btn-primary" [disabled]="createForm.invalid || submitting">
-          {{ submitting ? 'Guardando...' : 'Crear Subsidiaria' }}
+          {{ submitting ? 'Guardando...' : ('settings.subsidiaries.create_subsidiary' | translate) }}
         </button>
       </div>
     </form>

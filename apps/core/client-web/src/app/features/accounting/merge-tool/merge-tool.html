@@ -148,7 +148,7 @@
       <ng-template #errorTpl>
         <div class="alert alert-danger">
           <strong>{{ 'accounting.merge_tool.merge_did_not_complete' | translate }}</strong>
-          <p>{{ errorMessage() || 'Ocurrió un error inesperado.' }}</p>
+          <p>{{ errorMessage() || ('accounting.merge_tool.unexpected_error' | translate) }}</p>
         </div>
       </ng-template>
 

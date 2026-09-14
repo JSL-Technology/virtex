@@ -26,7 +26,7 @@
                 <div class="upload-area">
                     <label for="file-upload" class="file-upload-label" [class.with-file]="selectedFile()">
                         <i class="fas fa-file-import"></i>
-                        <span>{{ selectedFile()?.name || 'Seleccionar un archivo...' }}</span>
+                        <span>{{ selectedFile()?.name || ('accounting.bulk_operations.select_a_file' | translate) }}</span>
                     </label>
                     <input id="file-upload" type="file" (change)="onFileSelected($event)"
                         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">

@@ -36,7 +36,7 @@
       <strong>{{ 'invoices.new.you_cannot_issue_fiscal_documents_yet' | translate }}</strong>
       <ul>
         @for (item of blockers(); track item) {
-          <li>{{ item }}</li>
+          <li>{{ blockerText(item) }}</li>
         }
       </ul>
       <a routerLink="/settings/fiscal">{{ 'invoices.new.go_tax_settings' | translate }}</a>

@@ -31,6 +31,7 @@ import { WithholdingResolverService } from './services/withholding-resolver.serv
 import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
+import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
@@ -1379,9 +1380,34 @@ export class InvoicesService {
     const adapter = this.fiscalAdapterFactory.forCountry(countryCode);
     const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
 
+    /**
+     * A market that numbers its documents needs a live range before one can be issued.
+     *
+     * This was not asked, so the contract said `ready: true, missing: []` for a tenant that could
+     * not issue anything: the POST then failed with `compliance.no_active_ncf_sequence_type_type`
+     * and the screen, having been told it was ready, had nothing better to show than "The document
+     * could not be saved." A readiness answer that omits the one thing actually missing is worse
+     * than no readiness answer, because the screen trusts it.
+     *
+     * Only for markets whose adapter numbers sales documents — the generic adapter offers no sales
+     * types, and a tenant there is not waiting on a range that does not exist.
+     */
+    const salesTypes = adapter.availableSalesTypes().map((option) => option.code);
+    const gaps = [...missing];
+    if (salesTypes.length > 0) {
+      const activeSequence = await this.dataSource
+        .getRepository(NcfSequence)
+        .createQueryBuilder('seq')
+        .where('seq.organizationId = :organizationId', { organizationId })
+        .andWhere('seq.isActive = true')
+        .andWhere('seq.type IN (:...salesTypes)', { salesTypes })
+        .getCount();
+      if (activeSequence === 0) gaps.push('invoices.gaps.fiscal_sequence');
+    }
+
     return {
-      ready: missing.length === 0,
-      missing,
+      ready: gaps.length === 0,
+      missing: gaps,
       countryCode,
       baseCurrency: settings?.baseCurrency ?? 'USD',
       /** Rates the market levies, as fractions, highest first: the standard rate leads. */
