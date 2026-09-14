@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-password-validator',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     <div class="password-validator">
       <div class="strength-bars">
@@ -15,7 +16,7 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <p class="strength-label" *ngIf="password">
-        {{ getStrengthLabel() }}
+        {{ getStrengthLabel() | translate }}
       </p>
     </div>
   `,
@@ -84,13 +85,20 @@ export class PasswordValidatorComponent {
     return 'var(--bg-tertiary)';
   }
 
+  /**
+   * The catalogue key for the current level.
+   *
+   * It was half migrated: level 1 returned a key and the other three returned Spanish sentences,
+   * so the meter showed "Weak" and then "Regular" to the same English reader as the password
+   * improved. The template translates whatever comes back, and an empty string translates to
+   * itself.
+   */
   getStrengthLabel(): string {
       switch(this.strength) {
-          case 0: return '';
           case 1: return 'password_strength.weak';
-          case 2: return 'Regular';
-          case 3: return 'Buena';
-          case 4: return 'Fuerte';
+          case 2: return 'password_strength.fair';
+          case 3: return 'password_strength.good';
+          case 4: return 'password_strength.strong';
           default: return '';
       }
   }

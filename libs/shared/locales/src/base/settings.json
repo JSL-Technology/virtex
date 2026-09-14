@@ -219,6 +219,56 @@
     "en": "Density",
     "pt": "Densidade"
   },
+  "settings.branding.font_style.classic_serif": {
+    "es": "Serif clásica",
+    "en": "Classic serif",
+    "pt": "Com serifa clássica"
+  },
+  "settings.branding.font_style.elegant_serif": {
+    "es": "Serif elegante",
+    "en": "Elegant serif",
+    "pt": "Com serifa elegante"
+  },
+  "settings.branding.font_style.friendly_sans": {
+    "es": "Sans-serif amigable",
+    "en": "Friendly sans-serif",
+    "pt": "Sem serifa amigável"
+  },
+  "settings.branding.font_style.geometric_sans": {
+    "es": "Sans-serif geométrica",
+    "en": "Geometric sans-serif",
+    "pt": "Sem serifa geométrica"
+  },
+  "settings.branding.font_style.humanist_sans": {
+    "es": "Sans-serif humanista",
+    "en": "Humanist sans-serif",
+    "pt": "Sem serifa humanista"
+  },
+  "settings.branding.font_style.modern_sans": {
+    "es": "Sans-serif moderna",
+    "en": "Modern sans-serif",
+    "pt": "Sem serifa moderna"
+  },
+  "settings.branding.font_style.monospace": {
+    "es": "Monoespaciada",
+    "en": "Monospace",
+    "pt": "Monoespaçada"
+  },
+  "settings.branding.font_style.rounded_sans": {
+    "es": "Sans-serif redondeada",
+    "en": "Rounded sans-serif",
+    "pt": "Sem serifa arredondada"
+  },
+  "settings.branding.font_style.serif": {
+    "es": "Serif",
+    "en": "Serif",
+    "pt": "Com serifa"
+  },
+  "settings.branding.font_style.standard_sans": {
+    "es": "Sans-serif estándar",
+    "en": "Standard sans-serif",
+    "pt": "Sem serifa padrão"
+  },
   "settings.branding.high_contrast": {
     "es": "Alto contraste",
     "en": "High contrast",

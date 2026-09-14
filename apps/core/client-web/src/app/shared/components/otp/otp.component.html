@@ -2,9 +2,9 @@
     <div class="otp-header">
         <h1>
             <lucide-icon [img]="ShieldIcon" class="w-6 h-6"></lucide-icon>
-            {{ title }}
+            {{ title || ('shared.otp.title' | translate) }}
         </h1>
-        <p>{{ description }}</p>
+        <p>{{ description || ('shared.otp.description' | translate) }}</p>
     </div>
 
     <div class="otp-length-selector" *ngIf="showLengthSelector">

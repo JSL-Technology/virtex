@@ -6,15 +6,23 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from '../../validators/password.validator';
 
-/** A single password rule, evaluated live as the user types. */
+/**
+ * A single password rule, evaluated live as the user types.
+ *
+ * `labelKey` and not `label`: the checklist read "Al menos 12 caracteres" to every reader, in an
+ * English interface as readily as a Spanish one. The bound travels as an interpolation parameter
+ * rather than being baked into the sentence, so raising the minimum changes one constant.
+ */
 interface PasswordRequirement {
-  readonly label: string;
+  readonly labelKey: string;
+  readonly labelParams?: Record<string, unknown>;
   readonly test: (value: string) => boolean;
 }
 
@@ -33,7 +41,7 @@ type StrengthLevel = 0 | 1 | 2 | 3 | 4;
 @Component({
   selector: 'app-password-strength',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-strength.component.html',
   styleUrls: ['./password-strength.component.scss'],
@@ -55,13 +63,14 @@ export class PasswordStrengthComponent {
   /** The rules a password must satisfy. Order is the order shown to the user. */
   protected readonly requirements: PasswordRequirement[] = [
     {
-      label: `Al menos ${PASSWORD_MIN_LENGTH} caracteres`,
+      labelKey: 'password_strength.requirement.min_length',
+      labelParams: { min: PASSWORD_MIN_LENGTH },
       test: (v) => v.length >= PASSWORD_MIN_LENGTH && v.length <= PASSWORD_MAX_LENGTH,
     },
-    { label: 'Una letra mayúscula (A-Z)', test: (v) => /[A-Z]/.test(v) },
-    { label: 'Una letra minúscula (a-z)', test: (v) => /[a-z]/.test(v) },
+    { labelKey: 'password_strength.requirement.uppercase', test: (v) => /[A-Z]/.test(v) },
+    { labelKey: 'password_strength.requirement.lowercase', test: (v) => /[a-z]/.test(v) },
     {
-      label: 'Un número o símbolo (0-9 !@#…)',
+      labelKey: 'password_strength.requirement.number_or_symbol',
       test: (v) => /[0-9]/.test(v) || /[^A-Za-z0-9]/.test(v),
     },
   ];
@@ -70,7 +79,8 @@ export class PasswordStrengthComponent {
   protected readonly checks = computed(() => {
     const value = this._password();
     return this.requirements.map((r) => ({
-      label: r.label,
+      labelKey: r.labelKey,
+      labelParams: r.labelParams ?? {},
       met: r.test(value),
     }));
   });
@@ -98,18 +108,19 @@ export class PasswordStrengthComponent {
     return Math.min(4, score) as StrengthLevel;
   });
 
-  protected readonly label = computed(() => {
+  /** The catalogue key for the current level; the template renders it. */
+  protected readonly labelKey = computed(() => {
     switch (this.strength()) {
       case 1:
-        return 'Débil';
+        return 'password_strength.weak';
       case 2:
-        return 'Aceptable';
+        return 'password_strength.fair';
       case 3:
-        return 'Buena';
+        return 'password_strength.good';
       case 4:
-        return 'Fuerte';
+        return 'password_strength.strong';
       default:
-        return '';
+        return 'password_strength.very_weak';
     }
   });
 

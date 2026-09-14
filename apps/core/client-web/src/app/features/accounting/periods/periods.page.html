@@ -26,10 +26,15 @@
         @for (period of periods(); track period.id) {
           <tr>
             <td>
+              <!--
+                The month, once. The row printed the localized month-year AND the stored `name`
+                beside it, and the stored name is the string the tenant provisioner composed from a
+                Spanish month list — so every row read "January 2026 Enero 2026" in English, and
+                "Janeiro de 2026 Enero 2026" in Portuguese. Nothing creates a period outside that
+                provisioner and nothing can rename one, so the stored name never carries anything
+                the dates do not already say, in the reader's own language.
+              -->
               <strong>{{ period.startDate | vxDate: 'monthYear' : true }}</strong>
-              @if (period.name) {
-                <span class="period-name">{{ period.name }}</span>
-              }
             </td>
             <td>{{ period.startDate | vxDate: 'date' : true }}</td>
             <td>{{ period.endDate | vxDate: 'date' : true }}</td>

@@ -79,6 +79,11 @@
     "en": "Clear",
     "pt": "Limpar"
   },
+  "shared.otp.description": {
+    "es": "Para proteger tu cuenta, hemos enviado un código de verificación a tu correo registrado.",
+    "en": "To protect your account, we have sent a verification code to your registered email address.",
+    "pt": "Para proteger a sua conta, enviámos um código de verificação para o seu e-mail registado."
+  },
   "shared.otp.never_share_code_our_team_will": {
     "es": "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.",
     "en": "Never share this code. Our team will never ask you for it.",
@@ -103,6 +108,46 @@
     "es": "Reenviar ({{cooldown}}s)",
     "en": "Resend ({{cooldown}}s)",
     "pt": "Reenviar ({{cooldown}}s)"
+  },
+  "shared.otp.status.cleared": {
+    "es": "Código borrado.",
+    "en": "Code cleared.",
+    "pt": "Código apagado."
+  },
+  "shared.otp.status.digits_only": {
+    "es": "Introduce solo números.",
+    "en": "Enter digits only.",
+    "pt": "Introduza apenas números."
+  },
+  "shared.otp.status.expired": {
+    "es": "El código ha caducado. Solicita uno nuevo.",
+    "en": "The code has expired. Request a new one.",
+    "pt": "O código expirou. Solicite um novo."
+  },
+  "shared.otp.status.length_changed": {
+    "es": "Longitud cambiada a {{length}} dígitos.",
+    "en": "Length changed to {{length}} digits.",
+    "pt": "Comprimento alterado para {{length}} dígitos."
+  },
+  "shared.otp.status.paste_invalid": {
+    "es": "Lo pegado contiene caracteres que no son números.",
+    "en": "What you pasted contains characters that are not digits.",
+    "pt": "O que colou contém caracteres que não são números."
+  },
+  "shared.otp.status.pasted": {
+    "es": "Código pegado.",
+    "en": "Code pasted.",
+    "pt": "Código colado."
+  },
+  "shared.otp.status.resent": {
+    "es": "Te hemos enviado un código nuevo.",
+    "en": "We have sent you a new code.",
+    "pt": "Enviámos-lhe um novo código."
+  },
+  "shared.otp.title": {
+    "es": "Verificación de seguridad",
+    "en": "Security verification",
+    "pt": "Verificação de segurança"
   },
   "shared.otp.verify": {
     "es": "Verificar",
