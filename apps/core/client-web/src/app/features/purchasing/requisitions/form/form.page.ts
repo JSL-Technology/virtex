@@ -14,6 +14,7 @@ import {
 } from '../../../../core/api/purchasing.service';
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -48,6 +49,8 @@ export class RequisitionFormPage implements OnInit {
   private readonly purchasing = inject(PurchasingService);
   private readonly inventory = inject(InventoryService);
   private readonly notifications = inject(NotificationService);
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   /** Delivered as a component input by the tab shell, which mounts pages outside the outlet. */
   @Input() id?: string;
@@ -172,11 +175,23 @@ export class RequisitionFormPage implements OnInit {
       ? this.purchasing.updateRequisition(this.current()!.id, body)
       : this.purchasing.createRequisition(body);
 
+    const creating = !this.current();
+
     request.subscribe({
       next: (requisition) => {
         this.saving.set(false);
-        this.load(requisition);
         this.notifications.showSuccess('purchasing.requisitions.form.saved');
+
+        //  Ya no es «Nueva requisición»: la ventana y la URL pasan a la requisición, que se vuelve
+        //  a montar sobre su propia ruta. Ver `TabContext.replaceRoute`.
+        if (creating && this.tab) {
+          this.tab.replaceRoute(`/purchasing/requisitions/${requisition.id}/edit`, {
+            title: requisition.number,
+          });
+          return;
+        }
+
+        this.load(requisition);
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
     });
@@ -264,6 +279,12 @@ export class RequisitionFormPage implements OnInit {
     );
     if (!this.editable()) this.form.disable({ emitEvent: false });
     else this.form.enable({ emitEvent: false });
+
+    //  Lo que hay en pantalla es lo que hay en el servidor. Ver la nota en el formulario de
+    //  empleado sobre por qué el indicador de «Sin guardar» tiene que dejar de mentir.
+    this.form.markAsPristine();
+    this.tab?.markClean();
+
     this.recomputeTotal();
   }
 

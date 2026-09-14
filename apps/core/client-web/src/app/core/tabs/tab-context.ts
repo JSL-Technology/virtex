@@ -49,6 +49,20 @@ export interface TabContext {
    */
   setTitle(title: string): void;
 
+  /**
+   * Esta ventana pasa a mostrar OTRA ruta, sin abrir una segunda.
+   *
+   * Existe para un momento concreto: el borrador que acaba de guardarse y ya no es un borrador.
+   * `/hcm/employees/new` se convierte en `/hcm/employees/<id>/edit` —con su título, su icono y su
+   * clave de entidad— en el mismo sitio, y la barra de direcciones sigue a la ventana. Sin esto la
+   * URL se quedaba en `new` después de guardar, y recargarla devolvía un formulario vacío que
+   * invitaba a guardar el mismo registro por segunda vez.
+   *
+   * No es `router.navigate`: navegar dejaría el borrador abierto y pondría el registro en una
+   * ventana nueva al lado.
+   */
+  replaceRoute(route: string, options?: { title?: string }): void;
+
   /** Marca (o limpia) la pestaña como «con cambios sin guardar». */
   markDirty(isDirty?: boolean): void;
   /** Equivale a `markDirty(false)`: los cambios se guardaron o se descartaron. */

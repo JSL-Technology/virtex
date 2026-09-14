@@ -354,6 +354,68 @@ export class TabStateService {
     this.patch(tabId, { title });
   }
 
+  /**
+   * El borrador pasa a ser el registro que acaba de crear, en la MISMA ventana.
+   *
+   * Guardar un borrador nuevo no cambiaba nada del espacio de trabajo: la ventana seguía llamándose
+   * «Nuevo empleado», su clave de entidad seguía siendo `rrhh:employee:new` y la barra de
+   * direcciones seguía diciendo `/hcm/employees/new`. Tres consecuencias, todas reales:
+   *
+   *  - Recargar la página —o compartir el enlace— reabría un formulario VACÍO. Quien lo hiciera
+   *    después de guardar tenía delante lo que parecía su registro sin guardar, y volvía a
+   *    guardarlo. El duplicado no era un accidente del usuario: era lo que la pantalla pedía.
+   *  - Crear un segundo empleado reutilizaba la misma clave de entidad, así que la ventana del
+   *    primero se convertía en la del segundo sin avisar.
+   *  - Y abrir el registro recién creado desde la lista abría una SEGUNDA ventana del mismo
+   *    registro, porque la primera nunca dejó de anunciarse como «el formulario nuevo».
+   *
+   * Navegar a la ruta del registro no valía: eso deja la ventana del borrador abierta y añade otra
+   * al lado. Lo que hace falta es que la ventana cambie de identidad —ruta, título, clave— sin
+   * cambiar de sitio, que es exactamente lo que ya ocurre al reutilizar una vista previa.
+   */
+  replaceRoute(tabId: string, route: string, options: { title?: string } = {}): void {
+    const tab = this.tabsSignal().find((t) => t.id === tabId);
+    if (!tab) return;
+
+    const { definition, params } = this.registry.resolve(route);
+    const entityKey = definition.entityKeyFn
+      ? definition.entityKeyFn(params, tab.queryParams)
+      : undefined;
+
+    //  Ese registro ya tiene ventana: quedarían dos del mismo, que es el estado que la
+    //  deduplicación de `openTab` existe para impedir. Gana la que ya estaba.
+    const existing = entityKey
+      ? this.tabsSignal().find((t) => t.entityKey === entityKey && t.id !== tabId)
+      : undefined;
+    if (existing) {
+      this.removeTabSilently(tabId, false);
+      this.activateTab(existing.id);
+      return;
+    }
+
+    const title =
+      options.title
+      ?? (definition.titleFn ? definition.titleFn(params) : undefined)
+      ?? (definition.title ? this.translate.instant(definition.title) : tab.title);
+
+    this.patch(tabId, {
+      route: this.canonicalRoute(route),
+      routeParams: params,
+      queryParams: tab.queryParams,
+      entityKey,
+      title,
+      type: definition.tabType,
+      icon: definition.icon ?? tab.icon,
+      //  Se acaba de guardar: no hay nada pendiente.
+      isDirty: false,
+      //  Y deja de ser efímera. Un registro que el usuario acaba de crear no es algo que esté
+      //  hojeando: el siguiente clic en la lista no puede llevárselo por delante.
+      isPreview: false,
+      viewState: undefined,
+      scrollPosition: 0,
+    });
+  }
+
   setBadge(tabId: string, badge: number | undefined): void {
     this.patch(tabId, { badge });
   }

@@ -17,6 +17,7 @@ import { SuppliersService } from '../../../../core/api/suppliers.service';
 import { Supplier } from '../../../../core/models/supplier.model';
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -53,6 +54,8 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly suppliersApi = inject(SuppliersService);
   private readonly inventory = inject(InventoryService);
   private readonly notifications = inject(NotificationService);
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
 
@@ -218,11 +221,21 @@ export class PurchaseOrderFormPage implements OnInit {
       ? this.purchasing.updateOrder(this.current()!.id, body)
       : this.purchasing.createOrder(body);
 
+    const creating = !this.current();
+
     request.subscribe({
       next: (order) => {
         this.saving.set(false);
-        this.load(order);
         this.notifications.showSuccess('purchasing.orders.form.saved');
+
+        //  Ya no es «Nueva orden de compra»: la ventana y la URL pasan a la orden, que se vuelve a
+        //  montar sobre su propia ruta. Ver `TabContext.replaceRoute`.
+        if (creating && this.tab) {
+          this.tab.replaceRoute(`/purchasing/orders/${order.id}/edit`, { title: order.number });
+          return;
+        }
+
+        this.load(order);
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
     });
@@ -322,6 +335,13 @@ export class PurchaseOrderFormPage implements OnInit {
     );
     if (this.editable()) this.form.enable({ emitEvent: false });
     else this.form.disable({ emitEvent: false });
+
+    //  Lo que hay en pantalla es lo que hay en el servidor. Sin esto el encabezado seguía
+    //  anunciando «Sin guardar» encima del aviso de «Guardado». Ver la nota en el formulario de
+    //  empleado, donde se documenta por qué un indicador que miente es peor que ninguno.
+    this.form.markAsPristine();
+    this.tab?.markClean();
+
     this.recomputeTotals();
   }
 
