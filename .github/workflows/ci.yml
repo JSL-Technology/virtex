@@ -171,6 +171,11 @@ jobs:
       # failed with a not-null violation on every attempt.
       - run: npm run verify:numeric-transformers
 
+      # Proves a calendar date is never declared as an instant. A `date` column has no time to
+      # convert, and typing one `Date` builds it as `timestamp` — which is why every supplier bill
+      # displayed the day before its own date for a tenant in UTC-4.
+      - run: npm run verify:date-columns
+
       # Proves the migrations and the entities describe the same schema. A missing migration is
       # invisible locally (where the schema was created by an earlier `synchronize`) and only
       # surfaces as a broken deploy; this turns it into a failing build.

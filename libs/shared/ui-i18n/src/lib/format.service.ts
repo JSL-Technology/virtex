@@ -130,9 +130,17 @@ export class FormatService {
     preset: DatePreset = 'date',
     options: { dateOnly?: boolean } = {},
   ): string {
-    const parsed = this.toDate(value, options.dateOnly === true);
+    // A bare `YYYY-MM-DD` IS a calendar date — it carries no time and no zone, so there is nothing
+    // to convert and converting it is the defect. Inferring that from the value rather than
+    // requiring every call site to remember a flag is what makes this reliable: thirty-six call
+    // sites rendered an accounting date without it, and each one showed the day before. An invoice
+    // dated 2026-09-14 read 09/13/2026 in its list, on the document, and in the "what falls due"
+    // panel; a balance sheet asked for `asOfDate=2026-09-14` and titled itself "As of 9/13/2026";
+    // an income statement for the year titled itself "From 12/31/2025".
+    const dateOnly = options.dateOnly === true || isCalendarDate(value);
+    const parsed = this.toDate(value, dateOnly);
     if (!parsed) return '';
-    const timeZone = options.dateOnly ? 'UTC' : this.store.timezone();
+    const timeZone = dateOnly ? 'UTC' : this.store.timezone();
     return this.dateFormatter(preset, timeZone).format(parsed);
   }
 
@@ -306,6 +314,18 @@ export class FormatService {
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
+}
+
+/**
+ * Whether a value is a calendar date rather than an instant.
+ *
+ * Exactly `YYYY-MM-DD` and nothing after it. A full timestamp — `2026-09-14T00:00:00.000Z` — is
+ * deliberately NOT treated as one even though it sits at midnight: it may be a genuine instant,
+ * and guessing would move a real time by the offset. Columns that are calendar dates are serialised
+ * as `YYYY-MM-DD`, which is what makes this unambiguous rather than a heuristic.
+ */
+export function isCalendarDate(value: unknown): boolean {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim());
 }
 
 /**

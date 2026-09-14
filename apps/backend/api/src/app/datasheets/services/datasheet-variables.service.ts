@@ -317,10 +317,7 @@ export class DatasheetVariablesService {
           where: {
             organizationId: org,
             status: Not(In([VendorBillStatus.VOID, VendorBillStatus.REJECTED])),
-            date: Between(
-              monthStart(today) as unknown as Date,
-              monthEnd(today) as unknown as Date,
-            ),
+            date: Between(monthStart(today), monthEnd(today)),
           },
           select: ['totalInBaseCurrency'],
         });
@@ -515,7 +512,7 @@ export class DatasheetVariablesService {
       where: {
         organizationId,
         status: In([VendorBillStatus.OPEN, VendorBillStatus.PARTIALLY_PAID]),
-        dueDate: LessThanOrEqual(horizon as unknown as Date),
+        dueDate: LessThanOrEqual(horizon),
       },
       select: ['balance', 'exchangeRate'],
     });
