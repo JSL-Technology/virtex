@@ -26,6 +26,15 @@ export interface TabContext {
   icon: string;
   params: Record<string, string>;
   query: Record<string, string>;
+  /**
+   * Los datos estáticos que el manifiesto entrega a la ventana, p. ej. `{ side: 'payables' }`.
+   *
+   * El manifiesto los declaraba y nada los leía. La página de antigüedad de saldos pregunta
+   * `ActivatedRoute.snapshot.data['side']` y, a falta de valor, asume `'receivables'`: la ventana
+   * de cuentas por PAGAR mostraba lo que deben los CLIENTES bajo una cabecera «Proveedor», y el
+   * saldo con proveedores no era alcanzable desde ningún sitio del producto.
+   */
+  data: Record<string, unknown>;
 
   /**
    * Renombra ESTA pestaña con el nombre real del documento.

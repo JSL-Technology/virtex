@@ -104,6 +104,7 @@ export class TabRegistryService {
       permissions: requiredPermissionsFor(route.permission),
       entityKeyFn: route.entityKeyFn ?? (() => `module:${path}`),
       titleFn: route.titleFn,
+      data: route.data,
       load: route.load as () => Promise<Type<unknown>>,
     };
   }

@@ -54,7 +54,10 @@ export class LedgerFormPage implements OnInit {
       },
       error: () => {
         this.notificationService.showError('accounting.ledger_form.ledger_could_not_loaded');
-        this.router.navigate(['/accounting']);
+        // Back to the list this form belongs to. `/accounting` is a module prefix, not a route:
+        // no manifest declares it, so sending the user there replaced the error with the generic
+        // "under construction" window and lost the message they were meant to read.
+        this.router.navigate(['/accounting/general-ledger']);
       }
     });
   }

@@ -83,6 +83,16 @@ export interface TabDefinition {
   permissions?: string[];                            // espejo del permissionsGuard
   entityKeyFn?: (params: Record<string, string>, q?: Record<string, string>) => string;
   titleFn?: (params: Record<string, string>, data?: unknown) => string;
+  /**
+   * Static data the manifest hands the component, e.g. `{ side: 'payables' }`.
+   *
+   * Carried so the `ActivatedRoute` a tab provides answers `data` the way the router would. The
+   * manifests declared it and nothing read it: the ageing report asks
+   * `ActivatedRoute.snapshot.data['side']` and defaults to `'receivables'`, so the payables window
+   * — declared `{ side: 'payables' }` — silently rendered what customers owe us under a "Supplier"
+   * heading, and no supplier balance was reachable from the product at all.
+   */
+  data?: Record<string, unknown>;
 }
 
 /**

@@ -10,7 +10,7 @@
   </button>
 
   @if (creating()) {
-    <div class="inline-row card">
+    <div listCreate class="inline-row card">
       <label class="field">
         <span>{{ 'payroll.runs.year' | translate }}</span>
         <input type="number" min="2000" max="2100" [value]="newYear()"

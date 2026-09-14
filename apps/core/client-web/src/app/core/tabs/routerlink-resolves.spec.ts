@@ -17,6 +17,14 @@ import { resolveRoute } from '../modules/module-registry';
 const CLIENT_SOURCE = join(__dirname, '..', '..', '..');
 const FEATURES = join(CLIENT_SOURCE, 'app', 'features');
 
+function sourceFiles(dir: string, extension: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) return sourceFiles(p, extension);
+    return e.name.endsWith(extension) && !e.name.endsWith('.spec.ts') ? [p] : [];
+  });
+}
+
 function htmlFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name);
@@ -91,6 +99,37 @@ function collectLinks(): { file: string; url: string }[] {
   return found;
 }
 
+/**
+ * Lo mismo, para la navegación escrita en TypeScript.
+ *
+ * `routerLink` no es el único camino a una ventana: la mitad de las altas y ediciones del producto
+ * salen de un `this.router.navigate([...])` en el componente, y ahí no había nada mirando. El
+ * catálogo de cuentas navegaba a `/accounting/account-form` —una URL que ningún manifest declara—
+ * así que el único botón «Nueva cuenta» del producto abría la ventana genérica «en construcción»
+ * mientras el formulario real, con sus pestañas de mapeos y reglas, esperaba en
+ * `chart-of-accounts/new`. Crear una cuenta desde la interfaz era imposible, y ninguna prueba lo
+ * veía porque la navegación ocurría y el componente no fallaba.
+ */
+function collectNavigations(): { file: string; url: string }[] {
+  const found: { file: string; url: string }[] = [];
+  // `router.navigate([...])` y `navigateByUrl('/...')`, incluido cuando el array va en una variable
+  // que se pasa después: se captura el literal allí donde se escribe.
+  const re = /(?:navigate\(\s*(\[[^\]]*\])|navigateByUrl\(\s*(['"][^'"]*['"])|(?:const|let)\s+\w+\s*=\s*(\[\s*['"]\/[^\]]*\]))/g;
+  for (const file of sourceFiles(FEATURES, '.ts')) {
+    const rel = relative(CLIENT_SOURCE, file);
+    if (rel.includes('features/auth/')) continue;
+    const src = readFileSync(file, 'utf8');
+    for (const match of src.matchAll(re)) {
+      const raw = match[1] ?? match[2] ?? match[3];
+      if (!raw) continue;
+      const url = toConcrete(raw);
+      if (!url || isNonWorkspace(url) || KNOWN_INCOMPLETE.has(url)) continue;
+      found.push({ file: rel, url });
+    }
+  }
+  return found;
+}
+
 describe('routerLinks resuelven a una ruta real (si no, no hay preview y sale «en construcción»)', () => {
   it('todos los enlaces de las plantillas casan con un manifest', () => {
     const links = collectLinks();
@@ -99,6 +138,16 @@ describe('routerLinks resuelven a una ruta real (si no, no hay preview y sale «
       .map(({ file, url }) => `${url}   ←   ${file}`);
     const unique = [...new Set(broken)].sort();
     if (unique.length) console.log('\nENLACES ROTOS (' + unique.length + '):\n' + unique.join('\n'));
+    expect(unique).toEqual([]);
+  });
+
+  it('toda navegación programática casa con un manifest', () => {
+    const navigations = collectNavigations();
+    const broken = navigations
+      .filter(({ url }) => resolveRoute(url) === null)
+      .map(({ file, url }) => `${url}   ←   ${file}`);
+    const unique = [...new Set(broken)].sort();
+    if (unique.length) console.log('\nNAVEGACIONES ROTAS (' + unique.length + '):\n' + unique.join('\n'));
     expect(unique).toEqual([]);
   });
 });
