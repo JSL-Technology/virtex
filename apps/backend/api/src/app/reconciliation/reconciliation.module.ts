@@ -14,6 +14,7 @@ import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { AuthModule } from '../auth/auth.module';
+import { ReconciliationClosingBlockersProvider } from './reconciliation-closing-blockers.provider';
 
 @Module({
   imports: [
@@ -32,7 +33,12 @@ import { AuthModule } from '../auth/auth.module';
     ChartOfAccountsModule,
   ],
   controllers: [ReconciliationController],
-  providers: [ReconciliationService, CsvParserService],
+  providers: [
+    ReconciliationService,
+    CsvParserService,
+    // Responde al checklist de cierre de Contabilidad sin que Contabilidad conozca esta tabla.
+    ReconciliationClosingBlockersProvider,
+  ],
   exports: [ReconciliationService],
 })
 export class ReconciliationModule {}

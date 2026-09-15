@@ -31,6 +31,20 @@
  *
  * `--report` imprime el detalle completo con archivo y línea, sin fallar. Es el modo para trabajar
  * sobre una fase concreta.
+ *
+ * ## Por qué los `.spec.ts` se cuentan aparte
+ *
+ * El DAG existe para responder una pregunta: ¿se puede extraer este módulo? Un archivo de prueba no
+ * se despliega, así que no cambia la respuesta — contarlo junto al código de producción no es más
+ * estricto, es medir otra cosa, y además hace imposible llevar la cifra de producción a cero.
+ *
+ * Una prueba de integración cruza módulos **por definición**: eso es lo que integra. Las 32 suites
+ * con `describeWithDb` de este repositorio ejercitan el ciclo completo de una factura o un cierre, y
+ * prohibirles ver dos módulos sería prohibir la prueba de integración.
+ *
+ * Así que van a sus propias claves, con sufijo `:spec`, y tienen su propio trinquete. Cuando los
+ * módulos sean proyectos Nx, estas pruebas serán un proyecto aparte con su propio tag —que es la
+ * forma canónica de decir lo mismo— y este sufijo desaparece.
  */
 import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve, dirname } from 'node:path';
@@ -107,19 +121,25 @@ for (const file of files) {
 
     const where = { file: rel, line: i + 1, spec: m[1], from: fromModule, to: toModule, isSpec };
 
+    const scoped = (rule) => (isSpec ? `${rule}:spec` : rule);
+
     if (!(ALLOWED_DEPENDENCIES[fromModule] ?? []).includes(toModule)) {
-      violations.push({ rule: RULES.FORBIDDEN_DEPENDENCY, ...where });
+      violations.push({ rule: scoped(RULES.FORBIDDEN_DEPENDENCY), ...where });
     }
     if (!PUBLIC_SURFACE_EXEMPT_TARGETS.includes(toModule) && !isPublic(targetRel)) {
-      violations.push({ rule: RULES.PRIVATE_IMPORT, ...where });
+      violations.push({ rule: scoped(RULES.PRIVATE_IMPORT), ...where });
     }
   });
 }
 
-/** Ciclos de dos nodos sobre el grafo agregado por módulo. */
-const edge = new Set(violations.concat().map((v) => `${v.from}>${v.to}`));
+/**
+ * Ciclos de dos nodos sobre el grafo agregado por módulo, **solo con aristas de producción**: una
+ * prueba no se despliega, así que no puede impedir que un módulo se extraiga.
+ */
+const edge = new Set();
 for (const f of files) {
   const rel = relative(APP, f).split('\\').join('/');
+  if (rel.endsWith('.spec.ts')) continue;
   const fromModule = MODULE_OF_FOLDER[rel.split('/')[0]];
   if (!fromModule) continue;
   const source = stripComments(readFileSync(f, 'utf8'));

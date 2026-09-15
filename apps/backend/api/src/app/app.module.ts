@@ -37,6 +37,7 @@ import { TreasuryModule } from './treasury/treasury.module';
 import { IntercompanyModule } from './intercompany/intercompany.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { SharedModule } from './shared/shared.module';
+import { ContractsModule } from './contracts/contracts.module';
 import { I18nModule } from './i18n/i18n.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
 import { RolesModule } from './roles/roles.module';
@@ -251,6 +252,9 @@ import { PosModule } from './pos/pos.module';
     UsersModule,
     OrganizationsModule,
     SharedModule,
+    // Los contratos por los que dos módulos se hablan sin conocerse. Solo interfaces y registros
+    // sin estado: ninguna entidad, ningún repositorio, ninguna escritura.
+    ContractsModule,
     ChartOfAccountsModule,
     RolesModule,
     InvoicesModule,

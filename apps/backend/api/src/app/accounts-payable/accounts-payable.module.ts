@@ -22,6 +22,7 @@ import { AccountingPeriod } from '../accounting/entities/accounting-period.entit
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { VendorBillApprovalHandler } from './vendor-bill-approval.handler';
+import { VendorBillClosingBlockersProvider } from './vendor-bill-closing-blockers.provider';
 // The ageing report ties itself to the payables control account in the general ledger.
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 // What is withheld from a supplier follows from who they are, resolved by the same service the
@@ -57,6 +58,8 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
     PeriodLockGuard,
     // Posts the bill when its approval is granted, inside the approving transaction.
     VendorBillApprovalHandler,
+    // Responde al checklist de cierre de Contabilidad sin que Contabilidad conozca esta tabla.
+    VendorBillClosingBlockersProvider,
   ],
 })
 export class AccountsPayableModule {}
