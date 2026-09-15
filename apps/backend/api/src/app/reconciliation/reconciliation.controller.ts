@@ -29,7 +29,6 @@ import {
   CreateReconciliationRuleDto,
   UpdateReconciliationRuleDto,
 } from './dto/reconciliation-rule.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -46,7 +45,6 @@ import { PERMISSIONS } from '../shared/permissions';
 @ApiTags('Bank Reconciliation')
 @ApiBearerAuth()
 @Controller('reconciliation')
-@UseGuards(JwtAuthGuard)
 export class ReconciliationController {
   constructor(private readonly reconciliation: ReconciliationService) {}
 

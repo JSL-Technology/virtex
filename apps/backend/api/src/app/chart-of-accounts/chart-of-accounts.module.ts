@@ -15,7 +15,6 @@ import { AccountSegmentsService } from './account-segments.service';
 import { AccountSegmentsController } from './account-segments.controller';
 import { AccountJobsProcessor } from './account-jobs.processor';
 import { WebsocketsModule } from '../websockets/websockets.module';
-
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { AccountBalancesService } from './account-balances.service';
 

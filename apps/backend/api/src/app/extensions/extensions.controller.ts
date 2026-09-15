@@ -7,7 +7,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -26,7 +25,6 @@ import { GrantConsentDto } from './dto/grant-consent.dto';
  * principal (`organizationId`) rather than a header, so a client cannot assert another tenant.
  */
 @Controller('extensions')
-@UseGuards(JwtAuthGuard)
 export class ExtensionsController {
   constructor(private readonly extensions: ExtensionsService) {}
 

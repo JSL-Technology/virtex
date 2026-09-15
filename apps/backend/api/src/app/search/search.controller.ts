@@ -1,12 +1,10 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
 
-@UseGuards(JwtAuthGuard)
 @Controller('search')
 @AuthenticatedOnly(
   'Global search over records the caller can already reach. Results are produced by the same\n' +

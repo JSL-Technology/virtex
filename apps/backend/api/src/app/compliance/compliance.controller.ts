@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, UseInterceptors, ParseIntPipe, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseInterceptors, ParseIntPipe, Res } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -20,7 +19,6 @@ type ReportKind = '606' | '607' | '608' | '609';
  * Dominican Republic fiscal compliance: NCF/e-NCF range provisioning and the DGII periodic returns.
  */
 @Controller('compliance')
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(AuditAccessInterceptor)
 export class ComplianceController {
   constructor(private readonly complianceService: ComplianceService) {}

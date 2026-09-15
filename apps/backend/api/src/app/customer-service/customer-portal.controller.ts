@@ -1,6 +1,5 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { CasesService } from './cases.service';
@@ -11,7 +10,6 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('customer-portal')
-@UseGuards(JwtAuthGuard)
 export class CustomerPortalController {
   constructor(
     private readonly casesService: CasesService,
@@ -22,7 +20,6 @@ export class CustomerPortalController {
   @Get('my-cases')
   @HasPermission(PERMISSIONS.CUSTOMER_PORTAL_ACCESS)
   getMyCases(@CurrentUser() user: AuthenticatedUser) {
-
 
     return this.casesService.findAll(user.organizationId);
   }

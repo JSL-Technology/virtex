@@ -1,7 +1,6 @@
 
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ConsolidationMappingService } from './consolidation-mapping.service';
 import { CreateConsolidationMapDto } from './dto/create-consolidation-map.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -11,7 +10,6 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('consolidation/mapping')
-@UseGuards(JwtAuthGuard)
 export class ConsolidationMappingController {
   constructor(private readonly mappingService: ConsolidationMappingService) {}
 

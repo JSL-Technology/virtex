@@ -20,7 +20,6 @@ import { plainToInstance } from 'class-transformer';
 import { AuthFacade } from './auth.facade';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { CookieService } from './services/cookie.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
 import { CsrfGuard } from './guards/csrf.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -243,7 +242,6 @@ export class AuthRegistrationController {
   @Post('create-checkout-session')
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: AuthCreateCheckoutSessionDto

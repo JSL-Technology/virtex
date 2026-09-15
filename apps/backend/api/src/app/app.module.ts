@@ -26,7 +26,6 @@ import { CacheModule } from './cache/cache.module';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-
 import { JournalEntriesModule } from './journal-entries/journal-entries.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { ConsolidationModule } from './consolidation/consolidation.module';

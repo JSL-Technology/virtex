@@ -1,8 +1,7 @@
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { QuotesService } from '../services/quotes.service';
@@ -11,7 +10,6 @@ import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.inte
 import { Idempotent } from '../../shared/idempotency/idempotent.decorator';
 
 @Controller('sales/quotes')
-@UseGuards(JwtAuthGuard)
 export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 

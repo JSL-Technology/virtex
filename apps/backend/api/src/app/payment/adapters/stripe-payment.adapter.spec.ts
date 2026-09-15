@@ -5,7 +5,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
 import type Stripe from 'stripe';
-
 import { StripePaymentAdapter } from './stripe-payment.adapter';
 import { STRIPE_CLIENT } from '../stripe/stripe.provider';
 import { Organization } from '../../organizations/entities/organization.entity';

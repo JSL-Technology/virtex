@@ -19,7 +19,6 @@ import { Invoice } from '../invoices/entities/invoice.entity';
 import { CustomerContact } from './entities/customer-contact.entity';
 import { CustomerAddress } from './entities/customer-address.entity';
 import { CustomerGroup } from './entities/customer-group.entity';
-
 import { CustomerGroupsController } from './customer-groups.controller';
 import { CustomerGroupsService } from './customer-groups.service';
 // The ageing report ties itself to the receivables control account in the general ledger.

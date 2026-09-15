@@ -19,8 +19,6 @@ import { AuthService } from './auth.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { CookieService } from './services/cookie.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
-import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
@@ -78,14 +76,13 @@ export class AuthMfaController {
   // ------------------------------------------------------------------
 
   @Post('2fa/generate')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Generate 2FA secret and QR code URL' })
   async generateTwoFactorSecret(@CurrentUser() user: AuthenticatedUser) {
     return this.twoFactorAuthService.generateTwoFactorSecret(user);
   }
 
   @Post('2fa/enable')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.ENABLE_2FA)
   @ApiOperation({ summary: 'Verify the code and enable 2FA — re-authentication is handled by StepUpGuard' })
   async enableTwoFactor(
@@ -106,7 +103,7 @@ export class AuthMfaController {
   }
 
   @Post('2fa/disable')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.DISABLE_2FA)
   @ApiOperation({ summary: 'Disable 2FA' })
   async disableTwoFactor(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
@@ -121,7 +118,7 @@ export class AuthMfaController {
   }
 
   @Post('2fa/backup-codes/generate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.REGENERATE_BACKUP_CODES)
   @ApiOperation({ summary: 'Generate new backup codes' })
   async generateBackupCodes(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
@@ -136,7 +133,6 @@ export class AuthMfaController {
   }
 
   @Post('2fa/send-email-verification')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Send email verification code for 2FA setup' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendEmailVerification(@CurrentUser() user: AuthenticatedUser) {
@@ -145,7 +141,6 @@ export class AuthMfaController {
   }
 
   @Post('2fa/verify-email-verification')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Verify email code for 2FA setup' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verifyEmailVerification(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyEmailCodeDto) {
@@ -153,7 +148,6 @@ export class AuthMfaController {
   }
 
   @Post('send-phone-otp')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendPhoneOtp(@CurrentUser() user: AuthenticatedUser, @Body() dto: SendPhoneOtpDto) {
       // Presence + E.164 format are now enforced by SendPhoneOtpDto via the global ValidationPipe.
@@ -171,7 +165,6 @@ export class AuthMfaController {
   }
 
   @Post('verify-phone')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verifyPhoneOtp(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyPhoneOtpDto) {
       // Use MfaOrchestratorService directly instead of AuthService pass-through
@@ -217,7 +210,6 @@ export class AuthMfaController {
   @Post('verify-2fa')
   @Public()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verify2fa(
       @Body() dto: Verify2faDto,

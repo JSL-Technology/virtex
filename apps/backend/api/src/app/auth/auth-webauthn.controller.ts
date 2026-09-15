@@ -7,8 +7,6 @@ import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { WebAuthnService } from './services/webauthn.service';
 import { CookieService } from './services/cookie.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
-import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
@@ -46,7 +44,6 @@ export class AuthWebAuthnController {
   ) {}
 
   @Get('webauthn/register/options')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Generate WebAuthn registration options' })
   async generateWebAuthnRegistrationOptions(@CurrentUser() user: AuthenticatedUser) {
     return this.webAuthnService.generateRegistrationOptions(user);
@@ -54,7 +51,7 @@ export class AuthWebAuthnController {
 
   // H3 FIX: WebAuthn credential binding is a critical MFA mutation; requires CSRF + step-up 2FA.
   @Post('webauthn/register/verify')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.REGISTER_PASSKEY)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
@@ -75,7 +72,6 @@ export class AuthWebAuthnController {
   @Post('webauthn/login/verify')
   @ApiOperation({ summary: 'Verify WebAuthn authentication' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  @UseGuards(CsrfGuard)
   async verifyWebAuthnAuthentication(
     @Body() body: VerifyWebAuthnAuthDto,
     @Res({ passthrough: true }) res: Response

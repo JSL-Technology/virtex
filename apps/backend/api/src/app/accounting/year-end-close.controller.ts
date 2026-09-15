@@ -1,6 +1,5 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { YearEndCloseService } from './year-end-close.service';
 import { ReopenFiscalYearDto, YearEndCloseDto } from './dto/year-end-close.dto';
@@ -13,7 +12,6 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounting — Year end')
 @ApiBearerAuth()
 @Controller('accounting/year-end-close')
-@UseGuards(JwtAuthGuard)
 export class YearEndCloseController {
   constructor(private readonly yearEndCloseService: YearEndCloseService) {}
 

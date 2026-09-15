@@ -1,6 +1,5 @@
 
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
+import { Controller, Get } from '@nestjs/common';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { OpportunitiesService } from '../services/opportunities.service';
@@ -9,7 +8,6 @@ import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 
 @Controller('sales/opportunities')
-@UseGuards(JwtAuthGuard)
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}
 

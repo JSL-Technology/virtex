@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { RecurringJournalEntriesService } from './recurring-journal-entries.service';
@@ -23,7 +22,6 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('recurring-journal-entries')
-@UseGuards(JwtAuthGuard)
 export class RecurringJournalEntriesController {
   constructor(
     private readonly recurringService: RecurringJournalEntriesService,

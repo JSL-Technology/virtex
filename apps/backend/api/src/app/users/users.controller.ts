@@ -14,8 +14,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { RequestEmailChangeDto, ConfirmEmailChangeDto, AdminChangeEmailDto } from './dto/email-change.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
@@ -37,7 +35,6 @@ import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorat
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -58,7 +55,7 @@ export class UsersController {
   }
 
   @Post('invite')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USERS)
   @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
@@ -120,7 +117,6 @@ export class UsersController {
     'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
     'which declares USERS_EDIT.',
   )
-  @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Update current user profile' })
   async updateProfile(
     @CurrentUser() user: AuthenticatedUser,
@@ -143,7 +139,7 @@ export class UsersController {
     'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
     'which declares USERS_EDIT.',
   )
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.CHANGE_EMAIL)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
@@ -171,7 +167,6 @@ export class UsersController {
     'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
     'which declares USERS_EDIT.',
   )
-  @UseGuards(CsrfGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm email change via token' })
   async confirmEmailChange(
@@ -187,7 +182,7 @@ export class UsersController {
     'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
     'which declares USERS_EDIT.',
   )
-  @UseGuards(ThrottlerGuard, CsrfGuard)
+  @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {
@@ -237,7 +232,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USERS)
   @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
@@ -256,7 +251,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.DELETE_ACCOUNT)
   // M-05 FIX: Permission + ABAC policy combined in a SINGLE metadata declaration so the
   // ownership policy is actually evaluated (previously @CheckPermissions was silently
@@ -275,7 +270,7 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
@@ -292,7 +287,7 @@ export class UsersController {
   }
 
   @Post(':id/reset-password')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
@@ -319,7 +314,7 @@ export class UsersController {
   }
 
   @Post(':id/force-logout')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
   async forceLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -328,7 +323,7 @@ export class UsersController {
 
   @Post(':id/email-change')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   // L-08 FIX: use the catalog constant ('users:edit') — the previous 'users.edit' string
   // did not exist in PERMISSIONS and only ever passed for wildcard admins.
@@ -349,7 +344,7 @@ export class UsersController {
   }
 
   @Post(':id/block-and-logout')
-  @UseGuards(CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async blockAndLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

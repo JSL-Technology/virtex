@@ -23,8 +23,6 @@ import { CookieService, STEP_UP_COOKIE_NAMES } from './services/cookie.service';
 import { OauthStateService } from './services/oauth-state.service';
 import { OidcProviderService, type OidcClientConfig } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
-import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
@@ -79,7 +77,6 @@ export class AuthStepUpController {
    */
   @Post('step-up')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: 5, ttl: 900000 } })
   @ApiOperation({ summary: 'Re-authenticate to authorise a sensitive action' })
   async stepUp(
@@ -111,7 +108,6 @@ export class AuthStepUpController {
    * callback.
    */
   @Get('step-up/sso')
-  @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Re-authenticate with the identity provider to authorise a sensitive action' })
   async stepUpSsoStart(
@@ -164,7 +160,6 @@ export class AuthStepUpController {
    * their own session.
    */
   @Get('step-up/sso/callback')
-  @UseGuards(JwtAuthGuard)
   async stepUpSsoCallback(
     @CurrentUser() user: AuthenticatedUser,
     @Req() req: Request,
@@ -275,7 +270,6 @@ export class AuthStepUpController {
    * Which factor the client must collect before calling `POST /auth/step-up`.
    */
   @Get('step-up/challenge')
-  @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Ask which factor step-up will require for this account' })
   async stepUpChallenge(@CurrentUser() user: AuthenticatedUser) {
@@ -289,7 +283,6 @@ export class AuthStepUpController {
    * guarded route, never here.
    */
   @Get('step-up/status')
-  @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Is a step-up proof for this scope already held?' })
   stepUpStatus(
@@ -312,7 +305,7 @@ export class AuthStepUpController {
   // ImpersonationService additionally refuses any target whose permissions the operator does
   // not already hold, so the feature cannot be used to gain privileges.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.IMPERSONATE)
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
@@ -331,7 +324,6 @@ export class AuthStepUpController {
   }
 
   @Post('stop-impersonation')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   async stopImpersonation(
     @CurrentUser() impersonatingUser: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response

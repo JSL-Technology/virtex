@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-
 import { MAIL_BRAND } from './mail-brand';
 
 /**

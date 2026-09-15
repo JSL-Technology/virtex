@@ -1,8 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
-import { CsrfGuard } from './guards/csrf.guard';
 import { HasPermission } from './decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -23,7 +20,6 @@ import { BadRequestError } from '../i18n/localized.exception';
  */
 @ApiTags('Auth/SSO Admin')
 @Controller('auth/sso/admin')
-@UseGuards(JwtAuthGuard, CsrfGuard)
 @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
 // Configuring a per-tenant identity provider is the capability the Enterprise tier is named for.
 @CheckFeature('enterprise_sso')

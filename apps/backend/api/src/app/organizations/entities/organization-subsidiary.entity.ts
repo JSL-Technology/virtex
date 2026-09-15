@@ -1,7 +1,6 @@
 
 
 import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Column, Check } from 'typeorm';
-
 import type { Organization } from './organization.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';

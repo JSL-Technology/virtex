@@ -16,7 +16,6 @@ import {
   CreateCustomerPaymentDto,
   VoidCustomerPaymentDto,
 } from './dto/create-customer-payment.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -34,7 +33,6 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounts Receivable')
 @ApiBearerAuth()
 @Controller('customer-payments')
-@UseGuards(JwtAuthGuard)
 export class CustomerPaymentsController {
   constructor(private readonly customerPaymentsService: CustomerPaymentsService) {}
 

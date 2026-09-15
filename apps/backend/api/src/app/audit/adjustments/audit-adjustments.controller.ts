@@ -11,8 +11,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
-import { CsrfGuard } from '../../auth/guards/csrf.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
@@ -55,7 +53,6 @@ const MAX_EVIDENCE_BYTES = 20 * 1024 * 1024;
 @ApiTags('Audit adjustments')
 @ApiBearerAuth()
 @Controller('audit/adjustments')
-@UseGuards(JwtAuthGuard)
 export class AuditAdjustmentsController {
   constructor(private readonly adjustments: AuditAdjustmentsService) {}
 
@@ -78,7 +75,6 @@ export class AuditAdjustmentsController {
 
   @Post()
   @HasPermission(PERMISSIONS.AUDIT_PROPOSE_ADJUSTMENT)
-  @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Propone un ajuste de auditoría sobre un año fiscal cerrado.' })
   propose(
     @Body() dto: CreateProposedAdjustmentDto,
@@ -93,7 +89,6 @@ export class AuditAdjustmentsController {
 
   @Post(':id/evidence')
   @HasPermission(PERMISSIONS.AUDIT_PROPOSE_ADJUSTMENT)
-  @UseGuards(CsrfGuard)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Adjunta un papel de trabajo a una propuesta pendiente.' })
   @UseInterceptors(FastifyFileInterceptor('file', { limits: { fileSize: MAX_EVIDENCE_BYTES } }))

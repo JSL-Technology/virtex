@@ -8,7 +8,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -23,7 +22,6 @@ import { ProcessSaleDto } from './dto/process-sale.dto';
  * terminal cannot open a shift or ring a sale for another organization.
  */
 @Controller('pos')
-@UseGuards(JwtAuthGuard)
 export class PosController {
   constructor(private readonly pos: PosService) {}
 

@@ -1,7 +1,6 @@
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-
 import { PERMISSIONS_KEY } from '../../decorators/permissions.constants';
 import { PermissionsGuard } from './permissions.guard';
 import { HasPermission } from '../../decorators/permissions.decorator';

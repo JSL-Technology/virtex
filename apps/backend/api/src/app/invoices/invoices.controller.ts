@@ -18,7 +18,6 @@ import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
 import { IssueInvoiceDto } from './dto/issue-invoice.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
@@ -42,7 +41,6 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
  * period be modified.
  */
 @Controller('invoices')
-@UseGuards(JwtAuthGuard)
 export class InvoicesController {
   constructor(
     private readonly invoicesService: InvoicesService,

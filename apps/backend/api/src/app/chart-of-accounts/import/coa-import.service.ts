@@ -16,7 +16,6 @@ import { AccountCategory, AccountNature, AccountType } from '../enums/account-en
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { CreateAccountDto } from '../dto/create-account.dto';
-
 /** The values a file may name, listed once so an error can say what the valid ones are. */
 const ACCOUNT_TYPES = Object.values(AccountType);
 const ACCOUNT_CATEGORIES = Object.values(AccountCategory);

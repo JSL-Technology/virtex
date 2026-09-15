@@ -17,8 +17,6 @@ import {
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import type { FastifyReply } from 'fastify';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -48,7 +46,6 @@ const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 @ApiTags('Documents')
 @ApiBearerAuth()
 @Controller('documents')
-@UseGuards(JwtAuthGuard)
 export class DocumentsController {
   constructor(private readonly documents: DocumentsService) {}
 
@@ -102,7 +99,6 @@ export class DocumentsController {
 
   @Post('upload')
   @HasPermission(PERMISSIONS.DOCUMENTS_MANAGE)
-  @UseGuards(CsrfGuard)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Sube un archivo a una carpeta.' })
   @UseInterceptors(FastifyFileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }))

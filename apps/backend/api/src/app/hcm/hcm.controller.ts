@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { HcmService } from './hcm.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -31,7 +30,6 @@ import { Employee } from './entities/employee.entity';
 import { Page } from '../common/pagination';
 
 @Controller('hcm')
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(AuditAccessInterceptor)
 export class HcmController {
   constructor(private readonly hcmService: HcmService) {}

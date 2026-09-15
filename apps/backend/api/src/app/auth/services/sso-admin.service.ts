@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { promises as dns } from 'dns';
 import * as crypto from 'crypto';
-
 import { IdentityProvider } from '../entities/identity-provider.entity';
 import { OrganizationDomain } from '../../organizations/entities/organization-domain.entity';
 import { SecretEncryptionService } from './secret-encryption.service';

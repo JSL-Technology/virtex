@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ProcurementService } from './procurement.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -23,7 +22,6 @@ import { UpdatePurchaseRequisitionDto } from './dto/update-purchase-requisition.
 import { RejectDto } from './dto/purchase-order.dto';
 
 @Controller('procurement/requisitions')
-@UseGuards(JwtAuthGuard)
 export class ProcurementController {
   constructor(private readonly procurementService: ProcurementService) {}
 

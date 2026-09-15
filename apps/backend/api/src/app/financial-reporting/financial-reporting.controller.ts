@@ -1,7 +1,6 @@
 
-import { Controller, Get, UseGuards, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, Query } from '@nestjs/common';
 import { FinancialReportingService, DimensionFilters } from './financial-reporting.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PERMISSIONS } from '../shared/permissions';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -27,7 +26,6 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 @ApiTags('Financial Reporting')
 @ApiBearerAuth()
 @Controller('financial-reporting')
-@UseGuards(JwtAuthGuard)
 // Reading a financial statement is an auditable event. There was no audit of access to financial
 // data at all — only of changes to it — which in a product sold to tenants under external audit
 // leaves half the control missing.

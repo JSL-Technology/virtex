@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -20,7 +20,6 @@ import { AuditQueryDto } from './dto/audit-query.dto';
 @ApiTags('Audit')
 @ApiBearerAuth()
 @Controller('audit')
-@UseGuards(JwtAuthGuard)
 export class AuditController {
   constructor(private readonly auditTrailService: AuditTrailService) {}
 

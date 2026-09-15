@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -42,7 +41,6 @@ import {
 @ApiTags('Facturación electrónica — Configuración')
 @ApiBearerAuth()
 @Controller('einvoicing/regime')
-@UseGuards(JwtAuthGuard)
 export class FiscalRegimeSettingsController {
   constructor(private readonly settings: FiscalRegimeSettingsService) {}
 

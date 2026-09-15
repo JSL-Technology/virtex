@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
@@ -36,7 +35,6 @@ import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.deco
 @ApiTags('Localization — Withholding')
 @ApiBearerAuth()
 @Controller('localization')
-@UseGuards(JwtAuthGuard)
 export class WithholdingRegimesController {
   constructor(
     private readonly regimes: WithholdingRegimesService,

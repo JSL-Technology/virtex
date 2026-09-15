@@ -12,7 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -31,7 +30,6 @@ import {
  * forget to grant. Writing needs `products:edit`, the same right that changes what a product is.
  */
 @Controller('inventory/categories')
-@UseGuards(JwtAuthGuard)
 export class ProductCategoriesController {
   constructor(private readonly categories: ProductCategoriesService) {}
 

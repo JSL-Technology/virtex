@@ -115,7 +115,6 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard)
   @ApiResponse({ type: AuthResponseDto })
   async refresh(
     @Req() req: Request,
@@ -166,7 +165,6 @@ export class AuthController {
     'password with the old one in hand, cannot depend on a permission a role might not carry.',
   )
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   async logout(
     @CurrentUser() user: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response,
@@ -183,7 +181,6 @@ export class AuthController {
     'password with the old one in hand, cannot depend on a permission a role might not carry.',
   )
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   async logoutAll(
     @CurrentUser() user: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response,
@@ -198,7 +195,7 @@ export class AuthController {
     'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
     'password with the old one in hand, cannot depend on a permission a role might not carry.',
   )
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.CHANGE_PASSWORD)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())

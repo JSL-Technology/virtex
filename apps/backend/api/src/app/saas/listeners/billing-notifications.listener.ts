@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { Organization } from '../../organizations/entities/organization.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { hasPermission } from '@virteex/shared/util-auth';

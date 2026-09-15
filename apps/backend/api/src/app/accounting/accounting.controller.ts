@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PeriodClosingService } from './period-closing.service';
 import { ClosePeriodDto } from './dto/close-period.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -30,7 +29,6 @@ import { ListFiscalYearsQueryDto } from './dto/list-fiscal-years-query.dto';
 @ApiTags('Accounting')
 @ApiBearerAuth()
 @Controller('accounting')
-@UseGuards(JwtAuthGuard)
 export class AccountingController {
   constructor(
     private readonly periodClosingService: PeriodClosingService,

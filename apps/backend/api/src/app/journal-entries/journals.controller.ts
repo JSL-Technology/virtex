@@ -1,6 +1,5 @@
 
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { JournalsService } from './journals.service';
@@ -10,7 +9,6 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('journals')
-@UseGuards(JwtAuthGuard)
 export class JournalsController {
   constructor(private readonly journalsService: JournalsService) {}
 

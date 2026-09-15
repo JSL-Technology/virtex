@@ -29,7 +29,6 @@ import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 @ApiTags('Intercompany')
 @ApiBearerAuth()
 @Controller('intercompany')
-@UseGuards(JwtAuthGuard)
 export class IntercompanyController {
   constructor(private readonly intercompanyService: IntercompanyService) {}
 

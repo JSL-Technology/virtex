@@ -1,6 +1,5 @@
 
 import { Module, forwardRef } from '@nestjs/common';
-
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
@@ -8,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
-
 import { AuthController } from './auth.controller';
 import { AuthRegistrationController } from './auth-registration.controller';
 import { AuthSocialController } from './auth-social.controller';
@@ -42,7 +40,6 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SecretEncryptionService } from './services/secret-encryption.service';
 import { SsoAdminService } from './services/sso-admin.service';
 import { SsoAdminController } from './sso-admin.controller';
-
 import { RefreshToken } from './entities/refresh-token.entity';
 import { VerificationCode } from './entities/verification-code.entity';
 import { IdentityProvider } from './entities/identity-provider.entity';

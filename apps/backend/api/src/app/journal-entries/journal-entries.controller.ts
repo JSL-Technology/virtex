@@ -25,7 +25,6 @@ import { FastifyFilesInterceptor } from '../common/interceptors/fastify-files.in
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { JournalEntriesService } from './journal-entries.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -43,7 +42,6 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @Controller('journal-entries')
-@UseGuards(JwtAuthGuard)
 export class JournalEntriesController {
   constructor(
     private readonly journalEntriesService: JournalEntriesService,
@@ -112,7 +110,6 @@ export class JournalEntriesController {
         actorUserId: user.id,
       });
   }
-
 
   /**
    * The column names of an uploaded file, so the caller can map them.

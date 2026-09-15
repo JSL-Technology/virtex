@@ -1,7 +1,6 @@
 
-import { Controller, Get, UseGuards, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { GenerateReportDto } from './dto/generate-report.dto';
@@ -25,7 +24,6 @@ import { PERMISSIONS } from '../shared/permissions';
 @ApiTags('Reports')
 @ApiBearerAuth()
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,

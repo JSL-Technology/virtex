@@ -6,7 +6,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
-
 import { LoginUserDto } from './dto/login-user.dto';
 import { User, UserStatus } from '../users/entities/user.entity/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';

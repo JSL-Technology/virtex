@@ -1,6 +1,5 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -20,7 +19,6 @@ import { ActivityQueryDto, EventsQueryDto } from './dto/overview.dto';
 @ApiTags('Overview')
 @ApiBearerAuth()
 @Controller('overview')
-@UseGuards(JwtAuthGuard)
 export class OverviewController {
   constructor(private readonly overview: OverviewService) {}
 

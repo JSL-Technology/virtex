@@ -1,6 +1,5 @@
 
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { RunInflationAdjustmentDto } from './dto/run-inflation-adjustment.dto';
@@ -10,7 +9,6 @@ import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounting/inflation-adjustment')
-@UseGuards(JwtAuthGuard)
 export class InflationAdjustmentController {
   constructor(private readonly adjustmentService: InflationAdjustmentService) {}
 

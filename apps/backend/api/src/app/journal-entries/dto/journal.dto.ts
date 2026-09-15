@@ -1,6 +1,5 @@
 
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
-
 import type { JournalType } from '../entities/journal.entity';
 
 export class CreateJournalDto {

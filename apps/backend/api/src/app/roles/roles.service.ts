@@ -8,7 +8,6 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
-
 /**
  * A role as the API reports it.
  *

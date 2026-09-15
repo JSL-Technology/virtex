@@ -50,7 +50,7 @@ export class PaymentController {
    * The auth controller already resolved this the right way for signup; this is the same fix.
    */
   @Post('checkout-session')
-  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createCheckoutSession(
@@ -114,7 +114,6 @@ export class PaymentController {
    * anyone. `PermissionsGuard` only applies where `@HasPermission` puts it.
    */
   @Get('overview')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getOverview(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
@@ -124,7 +123,6 @@ export class PaymentController {
   }
 
   @Post('checkout/confirm')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async confirmCheckout(
     @CurrentUser() user: AuthenticatedUser,
@@ -137,7 +135,6 @@ export class PaymentController {
   }
 
   @Get('invoices')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getInvoices(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
@@ -147,7 +144,7 @@ export class PaymentController {
   }
 
   @Post('portal-session')
-  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createPortalSession(

@@ -11,7 +11,6 @@ import * as jwt from 'jsonwebtoken';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { KeyManagementService } from './key-management.service';
-
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';

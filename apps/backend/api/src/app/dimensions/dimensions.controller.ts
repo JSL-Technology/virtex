@@ -1,8 +1,7 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { DimensionsService } from './dimensions.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { CreateDimensionDto, UpdateDimensionDto } from './dto/dimension.dto';
@@ -12,7 +11,6 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('dimensions')
-@UseGuards(JwtAuthGuard)
 export class DimensionsController {
   constructor(private readonly dimensionsService: DimensionsService) {}
 
@@ -50,9 +48,6 @@ export class DimensionsController {
     return this.dimensionsService.remove(id, user.organizationId);
   }
 
-
-
-
   @Get('rules/:accountId')
   @HasPermission(PERMISSIONS.DIMENSIONS_VIEW)
   getRulesForAccount(@Param('accountId', UuidParamPipe) accountId: string, @CurrentUser() user: AuthenticatedUser) {
@@ -76,7 +71,5 @@ export class DimensionsController {
   ) {
     return this.dimensionsService.deleteRule(accountId, dimensionId, user.organizationId);
   }
-
-
 
 }

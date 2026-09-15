@@ -37,7 +37,6 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
  * separation the policy exists to create.
  */
 @Controller('workflows')
-@UseGuards(JwtAuthGuard)
 export class WorkflowsController {
   constructor(private readonly workflowsService: WorkflowsService) {}
 

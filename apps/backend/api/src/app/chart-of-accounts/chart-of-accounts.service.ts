@@ -15,7 +15,6 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-
 import { Account } from './entities/account.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -29,7 +28,6 @@ import { AccountSegmentDefinition } from './entities/account-segment-definition.
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { JournalEntryLineValuation } from '../journal-entries/entities/journal-entry-line-valuation.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
-
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 

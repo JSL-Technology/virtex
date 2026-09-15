@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { SupplyChainService } from './supply-chain.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -26,7 +25,6 @@ import { CreateLandedCostDto } from './dto/create-landed-cost.dto';
 import { UpdateLandedCostDto } from './dto/update-landed-cost.dto';
 
 @Controller('wms')
-@UseGuards(JwtAuthGuard)
 export class SupplyChainController {
   constructor(private readonly supplyChainService: SupplyChainService) {}
 
