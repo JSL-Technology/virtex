@@ -15,6 +15,8 @@
 > ([2026-09-QA-EXPLORATORIA-END-TO-END.md](2026-09-QA-EXPLORATORIA-END-TO-END.md)) y sus 22
 > hallazgos, todos declarados corregidos en el PR #76. Esta ronda los reverifica y explora lo que
 > aquella no pudo ejecutar: nómina completa, POS, tesorería, cobros y aprobaciones.
+>
+> **Informe navegable:** https://claude.ai/artifact/NTGAPLzGEfLsxW7MTTBres
 
 ---
 
