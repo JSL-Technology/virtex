@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { MyWorkDto } from './dto/my-work.dto';
 import { MyWorkService } from './my-work.service';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 @ApiTags('My Work')
 @Controller('my-work')

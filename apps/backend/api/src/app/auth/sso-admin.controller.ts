@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { HasPermission } from './decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SsoAdminService } from './services/sso-admin.service';
 import {
@@ -10,7 +10,7 @@ import {
   UpdateIdentityProviderDto,
   AddDomainDto,
 } from './dto/sso-admin.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { CheckFeature } from '../saas/guards/feature-flag.guard';
 import { BadRequestError } from '../i18n/localized.exception';
 

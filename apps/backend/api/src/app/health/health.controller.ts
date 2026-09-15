@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 /**
  * Queue depth, for the queues that still exist.

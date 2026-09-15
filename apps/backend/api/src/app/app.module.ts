@@ -8,7 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionsGuard } from './auth/guards/permissions/permissions.guard';
+import { PermissionsGuard } from './security/guards/permissions.guard';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from './auth/guards/csrf.guard';

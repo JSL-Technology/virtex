@@ -26,9 +26,9 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { HasPermission } from './decorators/permissions.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { HasPermission } from '../security/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { StepUpDto } from './dto/step-up.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { ImpersonateDto } from './dto/auth-payloads.dto';
@@ -36,7 +36,7 @@ import { FrontendUrlService } from '../mail/frontend-url.service';
 import { PERMISSIONS } from '../shared/permissions';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
-import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 /**
  * Step-up re-authentication and impersonation.

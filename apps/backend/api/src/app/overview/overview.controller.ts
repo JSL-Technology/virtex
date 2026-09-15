@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { OverviewService } from './overview.service';
 import { ActivityQueryDto, EventsQueryDto } from './dto/overview.dto';
 

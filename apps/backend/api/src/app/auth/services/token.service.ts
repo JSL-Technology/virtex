@@ -17,7 +17,7 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { AuthConfig } from '../auth.config';
 import { UserCacheService } from '../modules/user-cache.service';
 import { UsersService } from '../../users/users.service';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { GeoService } from '../../geo/geo.service';
 import { UserIdentityService } from './user-identity.service';
 

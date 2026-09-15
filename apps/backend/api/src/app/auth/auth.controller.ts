@@ -14,9 +14,9 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { Public } from './decorators/public.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { Public } from '../security/decorators/public.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { CookieService } from './services/cookie.service';
 import { KeyManagementService } from './services/key-management.service';
@@ -38,7 +38,7 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
 import { UnauthorizedError } from '../i18n/localized.exception';
-import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.

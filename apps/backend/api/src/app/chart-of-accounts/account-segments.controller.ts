@@ -1,11 +1,11 @@
 
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AccountSegmentsService } from './account-segments.service';
 import { ConfigureAccountSegmentsDto } from './dto/account-segment-definition.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('chart-of-accounts/segment-definitions')

@@ -17,9 +17,9 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../security/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { User, UserStatus } from './entities/user.entity/user.entity';
 import { PERMISSIONS } from '../shared/permissions';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
@@ -31,7 +31,7 @@ import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { BadRequestError } from '../i18n/localized.exception';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 @ApiTags('Users')
 @Controller('users')

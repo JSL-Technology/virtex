@@ -3,9 +3,9 @@ import { Controller, Get, UseInterceptors, Query } from '@nestjs/common';
 import { FinancialReportingService, DimensionFilters } from './financial-reporting.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PERMISSIONS } from '../shared/permissions';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../security/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
 import {
   BalanceSheetQueryDto,

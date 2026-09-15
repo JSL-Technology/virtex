@@ -8,9 +8,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
 import { PosService } from './pos.service';
 import { OpenShiftDto } from './dto/open-shift.dto';

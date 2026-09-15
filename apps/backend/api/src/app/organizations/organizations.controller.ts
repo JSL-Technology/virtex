@@ -1,9 +1,9 @@
 
 import { Controller, Get, Body, Patch, UseGuards, Put } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
-import { CheckPermissions } from '../auth/decorators/check-permissions.decorator';
+import { CheckPermissions } from '../security/decorators/check-permissions.decorator';
 import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owner.policy';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
@@ -24,10 +24,10 @@ import { CookieService } from '../auth/services/cookie.service';
 import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { ForbiddenError } from '../i18n/localized.exception';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('organizations')

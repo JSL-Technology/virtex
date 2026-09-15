@@ -1,7 +1,7 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { GeoService } from './geo.service';
 import type { HttpRequest as Request } from '../common/http/http.types';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../security/decorators/public.decorator';
 
 @Controller('geo')
 export class GeoController {

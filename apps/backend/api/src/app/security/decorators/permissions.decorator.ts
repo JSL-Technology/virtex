@@ -1,5 +1,5 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import { PermissionsGuard, type PermissionOrPolicy } from '../guards/permissions/permissions.guard';
+import { PermissionsGuard, type PermissionOrPolicy } from '../guards/permissions.guard';
 import { PERMISSIONS_KEY } from './permissions.constants';
 
 export { PERMISSIONS_KEY };

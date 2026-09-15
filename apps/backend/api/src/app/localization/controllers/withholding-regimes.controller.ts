@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { WithholdingRegimesService } from '../services/withholding-regimes.service';
 import {
   CreateWithholdingRegimeDto,
@@ -23,7 +23,7 @@ import {
 } from '../dto/withholding-regime.dto';
 import { coverageFor } from '../fiscal/fiscal-coverage';
 import { OrganizationsService } from '../../organizations/organizations.service';
-import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 
 /**
  * The withholding regimes a tenant maintains, and what this product covers in their market.

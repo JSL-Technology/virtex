@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IPolicy } from '../guards/permissions/permissions.guard';
+import { IPolicy } from '../../security/guards/permissions.guard';
 import { AuthenticatedRequest } from '@virteex/shared/util-auth';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { UserOrganization } from '../../organizations/entities/user-organization.entity';

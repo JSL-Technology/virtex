@@ -2,10 +2,10 @@ import { Controller, Get, Post, Delete, Query, Param, Body, UseInterceptors, Upl
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { EcfCertificateService } from './services/ecf-certificate.service';
 import { EcfSubmissionService } from './services/ecf-submission.service';

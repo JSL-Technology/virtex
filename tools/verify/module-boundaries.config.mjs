@@ -115,6 +115,7 @@ export const MODULE_OF_FOLDER = {
   common: 'plataforma',
   shared: 'plataforma',
   contracts: 'plataforma',
+  security: 'plataforma',
   i18n: 'plataforma',
   core: 'plataforma',
   cache: 'plataforma',

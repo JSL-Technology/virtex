@@ -11,8 +11,8 @@ import {
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { WorkflowsService, ApprovalActor } from './workflows.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import {
   CreateApprovalPolicyDto,
@@ -20,7 +20,7 @@ import {
   RejectApprovalDto,
   UpdateApprovalPolicyDto,
 } from './dto/approval-policy.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 
 /**
  * ## Why every route here carries a permission now

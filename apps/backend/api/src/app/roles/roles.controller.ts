@@ -7,9 +7,9 @@ import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import type { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../security/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
 import { buildPermissionCatalogue } from './permission-catalogue';
 

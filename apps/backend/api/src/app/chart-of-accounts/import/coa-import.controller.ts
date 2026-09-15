@@ -4,10 +4,10 @@ import { FastifyFileInterceptor } from '../../common/interceptors/fastify-file.i
 import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
 import { CoaImportService } from './coa-import.service';
 import { ConfirmCoaImportDto, PreviewCoaImportDto } from './dto/coa-import.dto';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../../security/principal';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 
 @Controller('chart-of-accounts/import')

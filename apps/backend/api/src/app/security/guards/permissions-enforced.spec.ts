@@ -1,10 +1,10 @@
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { PERMISSIONS_KEY } from '../../decorators/permissions.constants';
+import { PERMISSIONS_KEY } from '../decorators/permissions.constants';
 import { PermissionsGuard } from './permissions.guard';
-import { HasPermission } from '../../decorators/permissions.decorator';
-import { CheckPermissions } from '../../decorators/check-permissions.decorator';
+import { HasPermission } from '../decorators/permissions.decorator';
+import { CheckPermissions } from '../decorators/check-permissions.decorator';
 
 /**
  * A declared permission must be an ENFORCED permission.
@@ -56,7 +56,7 @@ describe('permission declarations are enforced', () => {
   });
 
   describe('no controller declares a permission the guard cannot see', () => {
-    const APP_ROOT = join(__dirname, '..', '..', '..');
+    const APP_ROOT = join(__dirname, '..', '..');
 
     const controllerFiles = (dir: string): string[] =>
       readdirSync(dir).flatMap((entry) => {

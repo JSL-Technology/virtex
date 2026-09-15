@@ -22,9 +22,9 @@ import { CookieService } from './services/cookie.service';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { Public } from '../security/decorators/public.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { AuthConfig } from './auth.config';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -43,7 +43,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
-import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 /**
  * Multi-factor authentication: TOTP/2FA lifecycle, backup codes, phone and email OTP, the public

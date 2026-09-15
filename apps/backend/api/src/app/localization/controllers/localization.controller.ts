@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { LocalizationService } from '../services/localization.service';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
-import { Public } from '../../auth/decorators/public.decorator';
+import { Public } from '../../security/decorators/public.decorator';
 
 /**
  * Fiscal configuration the signup form needs before anyone has an account.

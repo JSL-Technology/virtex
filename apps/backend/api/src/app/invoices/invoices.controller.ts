@@ -18,15 +18,15 @@ import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
 import { IssueInvoiceDto } from './dto/issue-invoice.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CheckPlanLimit } from '../saas/decorators/plan-limit.decorator';
 import { PlanLimitCheckGuard } from '../saas/guards/plan-limit-check.guard';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { InvoiceStatus } from './entities/invoice.entity';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 

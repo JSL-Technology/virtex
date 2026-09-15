@@ -25,9 +25,9 @@ import { FastifyFilesInterceptor } from '../common/interceptors/fastify-files.in
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { JournalEntriesService } from './journal-entries.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
@@ -38,7 +38,7 @@ import {
 import { JournalEntryImportService } from './journal-entry-import.service';
 import { ConfirmImportDto, PreviewImportRequestDto } from './dto/journal-entry-import.dto';
 import { TemporalValidityGuard } from '../financial-reporting/guards/temporal-validity.guard';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @Controller('journal-entries')

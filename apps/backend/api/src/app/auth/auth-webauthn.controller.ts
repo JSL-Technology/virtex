@@ -10,16 +10,16 @@ import { CookieService } from './services/cookie.service';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { Public } from '../security/decorators/public.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { AuthConfig } from './auth.config';
 import { UserResponseDto } from './dto/user-response.dto';
 import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
 import { VerifyWebAuthnRegistrationDto } from './dto/security-audit.dto';
 import { WebAuthnLoginOptionsDto } from './dto/auth-payloads.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 /**
  * WebAuthn / passkeys (FIDO2). Split out of `AuthController`; every route keeps its exact guards.

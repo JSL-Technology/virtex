@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { TaxJurisdictionsService } from '../services/tax-jurisdictions.service';
 import {
   CreateTaxJurisdictionDto,

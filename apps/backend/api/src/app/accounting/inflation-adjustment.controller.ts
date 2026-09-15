@@ -1,12 +1,12 @@
 
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { RunInflationAdjustmentDto } from './dto/run-inflation-adjustment.dto';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 
 @Controller('accounting/inflation-adjustment')
 export class InflationAdjustmentController {

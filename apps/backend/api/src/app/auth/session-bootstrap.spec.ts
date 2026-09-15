@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CookieService } from './services/cookie.service';
 import { OptionalJwtAuthGuard } from './guards/jwt/optional-jwt.guard';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 
 /**
  * The session bootstrap contract.

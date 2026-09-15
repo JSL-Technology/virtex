@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UnitsOfMeasureService } from './units-of-measure.service';
 import { CreateUnitOfMeasureDto } from './dto/create-unit-of-measure.dto';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('units-of-measure')
