@@ -23,7 +23,6 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { LedgersService } from './ledgers.service';
-import { ReportsService } from '../reports/reports.service';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 
 /**
@@ -43,7 +42,6 @@ describeWithDb('general ledger and daybook', () => {
   let dataSource: DataSource;
   let entries: JournalEntriesService;
   let ledgers: LedgersService;
-  let reports: ReportsService;
 
   let organizationId: string;
   let ledgerId: string;
@@ -96,18 +94,7 @@ describeWithDb('general ledger and daybook', () => {
 
     ledgers = new LedgersService(
       dataSource.getRepository(Ledger),
-      dataSource.getRepository(Account),
-      dataSource.getRepository(JournalEntryLine),
       balances,
-    );
-
-    reports = new ReportsService(
-      {} as never,
-      dataSource.getRepository(JournalEntryLine),
-      dataSource.getRepository(JournalEntry),
-      dataSource.getRepository(Account),
-      dataSource.getRepository(Ledger),
-      ledgers,
       dataSource,
     );
   });
@@ -410,7 +397,7 @@ describeWithDb('general ledger and daybook', () => {
   // ── The daybook ────────────────────────────────────────────────────────────
 
   const daybook = (options: Partial<JournalReportDto> = {}) =>
-    reports.generateJournalReport(organizationId, {
+    ledgers.generateJournalReport(organizationId, {
       startDate: '2026-01-01',
       endDate: '2026-12-31',
       ...options,

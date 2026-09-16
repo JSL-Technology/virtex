@@ -22,16 +22,14 @@ import {
 } from './adapters/regime-numbering.adapter';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLineItem } from './entities/invoice-line-item.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 import { AuthModule } from '../auth/auth.module';
 import { CustomersModule } from '../customers/customers.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { TaxesModule } from '../taxes/taxes.module';
 import { ComplianceModule } from '../compliance/compliance.module';
 import { AccountingModule } from '../accounting/accounting.module';
-import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
-import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
-import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { PeriodLockModule } from '../accounting/period-lock.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { SharedModule } from '../shared/shared.module';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
@@ -44,10 +42,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
     TypeOrmModule.forFeature([
       Invoice,
       InvoiceLineItem,
-      AccountingPeriod,
-      AccountPeriodLock,
       Organization,
-      OrganizationSettings,
       TenantWithholdingRegime,
     ]),
     AuthModule,
@@ -57,6 +52,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
     TaxesModule,
     ComplianceModule,
     AccountingModule,
+    PeriodLockModule,
     CurrenciesModule,
     // A sale posts to the ledger in the same transaction that creates it. Without this import the
     // invoice module could not reach the posting service at all, which is how issuing an invoice

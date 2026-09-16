@@ -23,6 +23,7 @@ import { FinancialReportingModule } from '../financial-reporting/financial-repor
 import { TreasuryModule } from '../treasury/treasury.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { SharedModule } from '../shared/shared.module';
+import { AccountingModule } from '../accounting/accounting.module';
 
 /**
  * The variables and datasets a spreadsheet may read.
@@ -54,6 +55,7 @@ import { SharedModule } from '../shared/shared.module';
     forwardRef(() => TreasuryModule),
     forwardRef(() => CurrenciesModule),
     SharedModule,
+    forwardRef(() => AccountingModule),
     CacheModule.register(),
   ],
   controllers: [DatasheetsController],

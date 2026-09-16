@@ -6,7 +6,7 @@ import {
   ApprovalOutcomeContext,
 } from '../../workflows/approval-handler.registry';
 import { AuditAdjustmentsService } from './audit-adjustments.service';
-import { ModuleSlug } from '../../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from '../../journal-entries/accounting-posting.port';
 
 /**
  * Posting an audit adjustment once its approval is granted.

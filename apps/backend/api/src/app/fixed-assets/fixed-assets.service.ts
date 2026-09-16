@@ -1,14 +1,14 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, EntityManager } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
 import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
 import { DisposeAssetDto } from './dto/dispose-asset.dto';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
-import { Journal } from '../journal-entries/entities/journal.entity';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
@@ -23,6 +23,7 @@ export class FixedAssetsService {
     private fixedAssetRepository: Repository<FixedAsset>,
     private readonly dataSource: DataSource,
     private readonly journalEntriesService: JournalEntriesService,
+    private readonly journalLookup: JournalLookupService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -93,7 +94,7 @@ export class FixedAssetsService {
           throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
       }
 
-      const fixedAssetJournal = await manager.findOneBy(Journal, { organizationId, code: 'ACT-FIJOS' });
+      const fixedAssetJournal = await this.journalLookup.findByCode(organizationId, 'ACT-FIJOS', manager);
       if (!fixedAssetJournal) {
           throw new BadRequestError('fixed_assets.fixed_assets_journal_act_fijos_not');
       }

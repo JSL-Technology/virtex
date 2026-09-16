@@ -3,17 +3,15 @@ import { Product } from './product.entity';
 import { Warehouse } from '../../supply-chain/entities/warehouse.entity';
 
 /**
- * `Warehouse` is defined once, in supply-chain, and re-exported here for the inventory entities
- * that reference it.
+ * This file used to declare a SECOND `@Entity({ name: 'warehouses' })` class alongside the one
+ * in supply-chain, then re-export it. Two entities mapped to the same table is a silent collision:
+ * whichever loaded last defined the schema, so a migration wanted to drop columns from the other
+ * definition. The duplicate also had no `organization_id`, so warehouses reached through inventory
+ * were outside tenant scoping entirely.
  *
- * This file used to declare a SECOND `@Entity({ name: 'warehouses' })` class. Two entities
- * mapped to the same table is a silent collision: whichever loaded last defined the table, so
- * the schema TypeORM generated depended on module load order, and a generated migration wanted
- * to drop every column the other definition contributed. The duplicate also had no
- * `organization_id`, so warehouses reached through inventory were outside tenant scoping
- * entirely.
+ * `Warehouse` is now defined once, in supply-chain. Import it directly from there:
+ *   `import { Warehouse } from '../supply-chain/entities/warehouse.entity'`
  */
-export { Warehouse };
 
 
 @Entity({ name: 'locations' })

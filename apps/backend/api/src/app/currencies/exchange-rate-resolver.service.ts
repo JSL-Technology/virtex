@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager, LessThanOrEqual } from 'typeorm';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { BadRequestError } from '../i18n/localized.exception';
 import { convert, roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
@@ -73,7 +73,10 @@ const DEFAULT_MAX_QUOTE_AGE_DAYS = 10;
 export class ExchangeRateResolver {
   private readonly logger = new Logger(ExchangeRateResolver.name);
 
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly orgSettings: OrgSettingsService,
+  ) {}
 
   /**
    * Units of `toCurrency` for one unit of `fromCurrency`, on the latest date at or before `asOf`.
@@ -229,9 +232,7 @@ export class ExchangeRateResolver {
     date: string,
     requestedRate: number | null,
   ): Promise<ResolvedRate> {
-    const settings = await manager.findOne(OrganizationSettings, {
-      where: { organizationId },
-    });
+    const settings = await this.orgSettings.getForOrg(organizationId, manager);
     const resolved = await this.resolve(
       fromCurrency,
       toCurrency,
@@ -306,9 +307,7 @@ export class ExchangeRateResolver {
     organizationId: string,
     manager?: EntityManager,
   ): Promise<ExchangeRateType> {
-    const settings = await (manager ?? this.dataSource.manager).findOneBy(OrganizationSettings, {
-      organizationId,
-    });
+    const settings = await this.orgSettings.getForOrg(organizationId, manager);
     return (settings?.exchangeRateType as ExchangeRateType) ?? ExchangeRateType.OFFICIAL;
   }
 

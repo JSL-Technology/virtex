@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
+import { AccountingModule } from '../accounting/accounting.module';
 import { Employee } from '../hcm/entities/employee.entity';
 import { EmployeeCompensation } from '../hcm/entities/employee-compensation.entity';
 import { PayrollRun } from './entities/payroll-run.entity';
@@ -49,6 +50,7 @@ import { PayrollController } from './payroll.controller';
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => JournalEntriesModule),
+    forwardRef(() => AccountingModule),
     AuditModule,
   ],
   controllers: [PayrollController],

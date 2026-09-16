@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { JournalEntriesService } from '../../journal-entries/journal-entries.service';
-import { PostingContext } from '../../journal-entries/journal-entries.service';
+import { AccountingPostingPort, PostingContext } from '../../journal-entries/accounting-posting.port';
 import { CreateJournalEntryLineDto } from '../../journal-entries/dto/create-journal-entry.dto';
 import { JournalEntryType } from '../../journal-entries/entities/journal-entry.entity';
-import { Journal } from '../../journal-entries/entities/journal.entity';
-import { Ledger } from '../../accounting/entities/ledger.entity';
-import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { sumAmounts } from '../../common/money';
 import { PayrollRun } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
 import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
+import { LedgerLookupService } from '../../accounting/services/ledger-lookup.service';
+import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
+import { OrgSettingsService } from '../../organizations/services/org-settings.service';
+import type { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 
 /**
  * Posts a payroll run to the general ledger — one balanced, idempotent entry.
@@ -44,9 +44,12 @@ export class PayrollAccountingService {
   private readonly logger = new Logger(PayrollAccountingService.name);
 
   constructor(
-    private readonly journalEntries: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    private readonly ledgerLookup: LedgerLookupService,
+    private readonly journalLookup: JournalLookupService,
+    private readonly orgSettings: OrgSettingsService,
   ) {}
 
   async postRun(
@@ -55,16 +58,8 @@ export class PayrollAccountingService {
     payslips: Payslip[],
     context: PostingContext,
   ): Promise<string> {
-    const settings = await manager.findOneBy(OrganizationSettings, {
-      organizationId: run.organizationId,
-    });
-    const ledger = await manager.findOneBy(Ledger, {
-      organizationId: run.organizationId,
-      isDefault: true,
-    });
-    if (!ledger) {
-      throw new BadRequestError('payroll.organization_has_no_default_ledger_configured');
-    }
+    const settings = await this.orgSettings.getForOrg(run.organizationId, manager);
+    const ledger = await this.ledgerLookup.requireDefault(run.organizationId, manager);
     if (run.currencyCode !== ledger.currency) {
       // Payroll in a currency other than the books' would need conversion at the run date; refused
       // loudly rather than posted at an implicit 1:1 rate.
@@ -74,13 +69,7 @@ export class PayrollAccountingService {
       });
     }
 
-    const journal = await manager.findOneBy(Journal, {
-      organizationId: run.organizationId,
-      code: 'NOMINA',
-    });
-    if (!journal) {
-      throw new BadRequestError('payroll.payroll_journal_nomina_not_found_create');
-    }
+    const journal = await this.journalLookup.requireByCode(run.organizationId, 'NOMINA', manager);
 
     const accounts = this.resolveAccounts(settings);
 
@@ -160,7 +149,7 @@ export class PayrollAccountingService {
       throw new BadRequestError('payroll.run_has_no_amounts_post');
     }
 
-    const entry = await this.journalEntries.createWithManager(
+    const entry = await this.posting.createWithManager(
       manager,
       {
         date: run.periodEnd,
@@ -196,23 +185,9 @@ export class PayrollAccountingService {
   ): Promise<string | null> {
     if (netAmount === 0) return null;
 
-    const settings = await manager.findOneBy(OrganizationSettings, {
-      organizationId: run.organizationId,
-    });
-    const ledger = await manager.findOneBy(Ledger, {
-      organizationId: run.organizationId,
-      isDefault: true,
-    });
-    if (!ledger) {
-      throw new BadRequestError('payroll.organization_has_no_default_ledger_configured');
-    }
-    const journal = await manager.findOneBy(Journal, {
-      organizationId: run.organizationId,
-      code: 'NOMINA',
-    });
-    if (!journal) {
-      throw new BadRequestError('payroll.payroll_journal_nomina_not_found_create');
-    }
+    const settings = await this.orgSettings.getForOrg(run.organizationId, manager);
+    const ledger = await this.ledgerLookup.requireDefault(run.organizationId, manager);
+    const journal = await this.journalLookup.requireByCode(run.organizationId, 'NOMINA', manager);
     const netPayableAccount = settings?.defaultPayrollNetPayableAccountId;
     if (!netPayableAccount) {
       throw new BadRequestError('payroll.payroll_ledger_accounts_not_configured_p1', { p1: 'Sueldos por pagar' });
@@ -237,7 +212,7 @@ export class PayrollAccountingService {
         : { accountId: bankGlAccountId, debit: value, credit: 0, description: paid.bankBack, valuations: [{ ledgerId, debit: value, credit: 0 }] },
     ];
 
-    const entry = await this.journalEntries.createWithManager(
+    const entry = await this.posting.createWithManager(
       manager,
       {
         date: run.payDate,

@@ -23,7 +23,7 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
-import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,

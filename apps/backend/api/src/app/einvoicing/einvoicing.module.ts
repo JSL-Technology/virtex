@@ -9,7 +9,6 @@ import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
-import { AuthModule } from '../auth/auth.module';
 import { CertificateVaultService } from './services/certificate-vault.service';
 import { EcfSignerService } from './services/ecf-signer.service';
 import { EcfXmlBuilderService } from './services/ecf-xml-builder.service';
@@ -59,7 +58,6 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
       FiscalDocumentRange,
       FiscalRegimeSettings,
     ]),
-    AuthModule,
   ],
   controllers: [EinvoicingController, FiscalRegimeSettingsController],
   providers: [

@@ -7,9 +7,9 @@ import { RecurringJournalEntry } from './entities/recurring-journal-entry.entity
 import { JournalEntryTemplate } from './entities/journal-entry-template.entity';
 import { JournalEntryAttachment } from './entities/journal-entry-attachment.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
 import { Journal } from './entities/journal.entity';
 import { JournalEntriesService } from './journal-entries.service';
+import { AccountingPostingPort } from './accounting-posting.port';
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { RecurringJournalEntriesService } from './recurring-journal-entries.service';
 import { JournalEntryTemplatesService } from './journal-entry-templates.service';
@@ -27,8 +27,7 @@ import { WebsocketsModule } from '../websockets/websockets.module';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { AdjustmentsService } from './adjustments.service';
 import { AdjustmentsController } from './adjustments.controller';
-import { AccountingModule } from '../accounting/accounting.module';
-import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
+import { PeriodLockModule } from '../accounting/period-lock.module';
 import { BudgetsModule } from '../budgets/budgets.module';
 import { WorkflowsModule } from '../workflows/workflows.module';
 import { JournalEntryLineValuation } from './entities/journal-entry-line-valuation.entity';
@@ -40,6 +39,7 @@ import { JournalEntryNumberingService } from './journal-entry-numbering.service'
 import { AuditModule } from '../audit/audit.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
+import { JournalLookupService } from './services/journal-lookup.service';
 
 @Module({
   imports: [
@@ -54,10 +54,8 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
       JournalEntryTemplate,
       Account,
       JournalEntryAttachment,
-      AccountingPeriod,
       Journal,
       Ledger,
-      AccountPeriodLock,
       DimensionRule,
       JournalEntrySequence,
       JournalEntryImportBatch,
@@ -69,7 +67,8 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
     forwardRef(() => ChartOfAccountsModule),
     StorageModule,
     WebsocketsModule,
-    forwardRef(() => AccountingModule),
+    // Import only the guard, not the full AccountingModule — breaking the forwardRef cycle.
+    PeriodLockModule,
     forwardRef(() => WorkflowsModule),
     forwardRef(() => AuditModule),
     // The posting path resolves its own exchange rate now instead of taking one from the
@@ -79,6 +78,10 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
   ],
   providers: [
     JournalEntriesService,
+    // The narrow posting contract that subledgers (inventory, payroll, AP) inject. Binding it
+    // here — in the module that controls the implementation — means subledgers never depend on the
+    // full service, only on the port.
+    { provide: AccountingPostingPort, useExisting: JournalEntriesService },
     // The narrative on a system-generated entry, in the tenant's books language.
     LedgerNarrativeService,
     JournalEntryNumberingService,
@@ -91,6 +94,7 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
     RecurringEntriesProcessor,
     // Posts an entry when its approval is granted, inside the approving transaction.
     JournalEntryApprovalHandler,
+    JournalLookupService,
   ],
   controllers: [
     JournalEntriesController,
@@ -105,6 +109,8 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
   // CoaImportService (…, ?, …)`.
   exports: [
     JournalEntriesService,
+    // Also export the port so subledgers can inject it by the abstract-class token.
+    AccountingPostingPort,
     JournalEntryNumberingService,
     FileParserService,
     LedgerNarrativeService,
@@ -112,6 +118,7 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
     // not reach it while the service was provided here and not exported — one of the reasons the
     // audit-adjustment feature was never wired into a module at all.
     AdjustmentsService,
+    JournalLookupService,
   ],
 })
 export class JournalEntriesModule {}

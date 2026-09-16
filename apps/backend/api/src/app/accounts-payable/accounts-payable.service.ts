@@ -6,11 +6,13 @@ import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InventoryService } from '../inventory/inventory.service';
@@ -26,7 +28,7 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
-import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import {
   BadRequestError,
   ForbiddenError,
@@ -125,9 +127,8 @@ export class AccountsPayableService {
   constructor(
     @InjectRepository(VendorBill)
     private readonly vendorBillRepository: Repository<VendorBill>,
-    @InjectRepository(OrganizationSettings)
-    private readonly orgSettingsRepository: Repository<OrganizationSettings>,
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly orgSettings: OrgSettingsService,
+    private readonly journalEntriesService: AccountingPostingPort,
     private readonly inventoryService: InventoryService,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
@@ -936,7 +937,7 @@ export class AccountsPayableService {
     asOf: Date | string = new Date(),
   ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
-    const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
+    const settings = await this.orgSettings.getForOrg(organizationId);
     const baseCurrency = settings?.baseCurrency ?? 'USD';
 
     const bills = await this.vendorBillRepository.find({

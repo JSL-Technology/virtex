@@ -1,103 +1,63 @@
 
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, Between, DataSource } from 'typeorm';
+import { In, DataSource } from 'typeorm';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
 import {
   GeneralLedgerReportDto,
   MAX_LEDGER_REPORT_ACCOUNTS,
   MAX_LEDGER_REPORT_DAYS,
 } from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
-import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CustomerPaymentLine } from '../customers/entities/customer-payment-line.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
-import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
-import { LedgersService } from '../accounting/ledgers.service';
-import { daysBetween, toIsoDate, type IsoDate } from '../common/dates';
-import { roundAmount } from '../common/money';
+import {
+  LedgersService,
+  JournalReport,
+  JournalReportLine,
+  JournalReportEntry,
+} from '../accounting/ledgers.service';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { daysBetween, toIsoDate } from '../common/dates';
 
-export interface JournalReportLine {
-  id: string;
-  accountId: string;
-  accountCode: string;
-  accountName: Record<string, string> | string;
-  description: string | null;
-  debit: number;
-  credit: number;
-  dimensions: Record<string, string> | null;
-}
-
-export interface JournalReportEntry {
-  id: string;
-  entryNumber: string | null;
-  date: IsoDate;
-  description: string;
-  journalCode: string | null;
-  journalName: string | null;
-  status: string;
-  entryType: string;
-  lines: JournalReportLine[];
-}
-
-export interface JournalReport {
-  ledger: { id: string; name: string; currency: string };
-  period: { startDate: IsoDate; endDate: IsoDate };
-  entries: JournalReportEntry[];
-  page: number;
-  pageSize: number;
-  totalEntries: number;
-  hasMore: boolean;
-  totalDebit: number;
-  totalCredit: number;
-}
+// Re-export the canonical types so consumers that already import from here keep compiling.
+export type { JournalReport, JournalReportLine, JournalReportEntry };
 
 @Injectable()
 export class ReportsService {
   constructor(
-    @InjectRepository(Invoice)
-    private readonly invoiceRepository: Repository<Invoice>,
-    @InjectRepository(JournalEntryLine)
-    private readonly journalEntryLineRepository: Repository<JournalEntryLine>,
-    @InjectRepository(JournalEntry)
-    private readonly journalEntryRepository: Repository<JournalEntry>,
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
-    @InjectRepository(Ledger)
-    private readonly ledgerRepository: Repository<Ledger>,
     private readonly ledgersService: LedgersService,
+    private readonly orgSettingsService: OrgSettingsService,
     private readonly dataSource: DataSource,
   ) {}
 
   async getAgingReport(organizationId: string, ledgerId?: string): Promise<any> {
     const today = new Date();
-    const ledgerRepo = this.dataSource.getRepository(Ledger);
     let targetLedger: Ledger | null;
 
     if (ledgerId) {
-      targetLedger = await ledgerRepo.findOneBy({ id: ledgerId, organizationId });
-      if (!targetLedger) {
+      // LedgersService.findOne already throws NotFoundError when the ledger is missing.
+      // We rethrow under the reports-specific key so the API response stays backward-compatible.
+      try {
+        targetLedger = await this.ledgersService.findOne(ledgerId, organizationId);
+      } catch {
         throw new NotFoundError('reports.ledger_ledger_id_not_found', { ledgerId });
       }
     } else {
-      targetLedger = await ledgerRepo.findOneBy({ organizationId, isDefault: true });
+      targetLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     }
 
     if (!targetLedger) {
         throw new BadRequestError('reports.ledger_report_could_not_determined_none');
     }
 
-    const settings = await this.dataSource.getRepository(OrganizationSettings).findOneBy({ organizationId });
+    const settings = await this.orgSettingsService.getForOrg(organizationId);
     if (!settings || !settings.defaultAccountsReceivableId) {
         throw new BadRequestError('reports.default_accounts_receivable_account_not_configured');
     }
     const arAccountId = settings.defaultAccountsReceivableId;
 
-    const openInvoices = await this.invoiceRepository.find({
+    const openInvoices = await this.dataSource.getRepository(Invoice).find({
       where: {
         organizationId,
         status: In([InvoiceStatus.PENDING, InvoiceStatus.PARTIALLY_PAID]),
@@ -223,167 +183,11 @@ export class ReportsService {
     );
   }
 
-  /**
-   * The libro diario: entries in date order, each with its lines.
-   *
-   * ## The filter that was missing
-   *
-   * There was no `status` predicate at all. Drafts, entries awaiting approval, annulled entries and
-   * entries superseded by a modification were all in the daybook — a book that in the Dominican
-   * Republic, Mexico, Colombia and Peru is legally required to contain postings and only postings.
-   * It also read `ledgerId` as `(options as any).ledgerId`, off the DTO, so the global
-   * `ValidationPipe` had already stripped it and the parameter did nothing.
-   *
-   * ## And the paging
-   *
-   * It loaded every line in the range, with five `leftJoinAndSelect` relations, and grouped them in
-   * memory. A year of a working ledger is millions of rows. Entries are paged now, and the lines of
-   * the entries on the page are fetched for those entries only.
-   */
-  async generateJournalReport(
+  /** The libro diario — delegates to LedgersService, which owns this legal book. */
+  generateJournalReport(
     organizationId: string,
     options: JournalReportDto,
   ): Promise<JournalReport> {
-    const from = toIsoDate(options.startDate);
-    const to = toIsoDate(options.endDate);
-    if (from > to) throw new BadRequestError('reports.start_date_cannot_later_than_end');
-
-    const page = Math.max(1, Math.floor(options.page ?? 1));
-    const pageSize = Math.min(500, Math.max(1, Math.floor(options.pageSize ?? 100)));
-
-    const ledger = options.ledgerId
-      ? await this.ledgerRepository.findOne({
-          where: { id: options.ledgerId, organizationId },
-        })
-      : await this.ledgerRepository.findOne({ where: { organizationId, isDefault: true } });
-    if (!ledger) {
-      throw new BadRequestError('reports.no_default_ledger_configured_set_one');
-    }
-
-    const entryQuery = this.journalEntryRepository
-      .createQueryBuilder('entry')
-      .innerJoinAndSelect('entry.journal', 'journal')
-      .where('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('entry.date BETWEEN :from AND :to', { from, to });
-
-    if (!options.includeUnposted) {
-      entryQuery.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
-    }
-    if (options.journalIds && options.journalIds.length > 0) {
-      entryQuery.andWhere('entry.journalId IN (:...journalIds)', {
-        journalIds: options.journalIds,
-      });
-    }
-
-    const totalEntries = await entryQuery.clone().getCount();
-
-    const entries = await entryQuery
-      .orderBy('entry.date', 'ASC')
-      // The property path, not the column name. With `skip`/`take` TypeORM builds a distinct-id
-      // subquery and resolves each ordering term against the entity metadata; `entry.entry_number`
-      // is not a property, so it resolved to `undefined` and every paged daybook request threw
-      // `Cannot read properties of undefined (reading 'databaseName')` before returning a row.
-      .addOrderBy('entry.entryNumber', 'ASC')
-      .skip((page - 1) * pageSize)
-      .take(pageSize)
-      .getMany();
-
-    if (entries.length === 0) {
-      return {
-        ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
-        period: { startDate: from, endDate: to },
-        entries: [],
-        page,
-        pageSize,
-        totalEntries,
-        hasMore: false,
-        totalDebit: 0,
-        totalCredit: 0,
-      };
-    }
-
-    const rows = await this.journalEntryLineRepository
-      .createQueryBuilder('line')
-      .innerJoin('line.journalEntry', 'entry')
-      .innerJoin('line.account', 'account')
-      .innerJoin('line.valuations', 'valuation')
-      .where('entry.id IN (:...entryIds)', { entryIds: entries.map((entry) => entry.id) })
-      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
-      .select([
-        'entry.id AS "entryId"',
-        'line.id AS id',
-        'account.id AS "accountId"',
-        'account.name AS "accountName"',
-        'line.description AS description',
-        'line.dimensions AS dimensions',
-        'valuation.debit AS debit',
-        'valuation.credit AS credit',
-      ])
-      .orderBy('line.id', 'ASC')
-      .getRawMany<{
-        entryId: string;
-        id: string;
-        accountId: string;
-        accountName: Record<string, string>;
-        description: string | null;
-        dimensions: Record<string, string> | null;
-        debit: string;
-        credit: string;
-      }>();
-
-    // The account code is a `SUM` of segments rather than a column, so it cannot be selected above;
-    // one lookup for the accounts on this page rather than a join per line.
-    const accountIds = [...new Set(rows.map((row) => row.accountId))];
-    const accounts = accountIds.length
-      ? await this.accountRepository.find({ where: { id: In(accountIds) } })
-      : [];
-    const codeById = new Map(accounts.map((account) => [account.id, account.code]));
-
-    const linesByEntry = new Map<string, JournalReportLine[]>();
-    let totalDebit = 0;
-    let totalCredit = 0;
-
-    for (const row of rows) {
-      const debit = Number(row.debit);
-      const credit = Number(row.credit);
-      totalDebit = roundAmount(totalDebit + debit);
-      totalCredit = roundAmount(totalCredit + credit);
-
-      const bucket = linesByEntry.get(row.entryId) ?? [];
-      bucket.push({
-        id: row.id,
-        accountId: row.accountId,
-        accountCode: codeById.get(row.accountId) ?? '',
-        accountName: row.accountName,
-        description: row.description,
-        debit,
-        credit,
-        dimensions: row.dimensions,
-      });
-      linesByEntry.set(row.entryId, bucket);
-    }
-
-    return {
-      ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
-      period: { startDate: from, endDate: to },
-      entries: entries.map((entry) => ({
-        id: entry.id,
-        // The consecutive number, which is what a daybook is indexed by.
-        entryNumber: entry.entryNumber,
-        date: toIsoDate(entry.date),
-        description: entry.description,
-        journalCode: entry.journal?.code ?? null,
-        journalName: entry.journal?.name ?? null,
-        status: entry.status,
-        entryType: entry.entryType,
-        lines: linesByEntry.get(entry.id) ?? [],
-      })),
-      page,
-      pageSize,
-      totalEntries,
-      hasMore: page * pageSize < totalEntries,
-      totalDebit,
-      totalCredit,
-    };
+    return this.ledgersService.generateJournalReport(organizationId, options);
   }
 }

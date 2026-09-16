@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { Journal } from '../journal-entries/entities/journal.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Cron } from '@nestjs/schedule';
 import { Organization } from '../organizations/entities/organization.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -66,6 +66,8 @@ export class DepreciationService {
     private readonly journalEntriesService: JournalEntriesService,
     private readonly schedulerLock: SchedulerLockService,
     private readonly dataSource: DataSource,
+    private readonly orgSettings: OrgSettingsService,
+    private readonly journalLookup: JournalLookupService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -117,7 +119,7 @@ export class DepreciationService {
   ): Promise<void> {
     const depreciationDate: IsoDate = toIsoDate(depreciationDateInput);
     const execute = async (em: EntityManager) => {
-      const settings = await em.findOneBy(OrganizationSettings, { organizationId });
+      const settings = await this.orgSettings.getForOrg(organizationId, em);
       if (
         !settings?.defaultDepreciationExpenseAccountId ||
         !settings?.defaultAccumulatedDepreciationAccountId
@@ -136,10 +138,11 @@ export class DepreciationService {
         return;
       }
 
-      const depreciationJournal = await em.findOneBy(Journal, {
+      const depreciationJournal = await this.journalLookup.findByCode(
         organizationId,
-        code: 'DEPREC',
-      });
+        'DEPREC',
+        em,
+      );
       if (!depreciationJournal) {
         throw new BadRequestError(
           'fixed_assets.depreciation_journal_deprec_not_found_create',

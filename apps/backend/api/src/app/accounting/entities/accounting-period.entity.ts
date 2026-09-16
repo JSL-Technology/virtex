@@ -7,12 +7,9 @@ export enum PeriodStatus {
   CLOSED = 'CLOSED',
 }
 
-export enum ModuleSlug {
-    GL = 'general-ledger',
-    AP = 'accounts-payable',
-    AR = 'accounts-receivable',
-    INVENTORY = 'inventory',
-}
+// ModuleSlug now lives in the posting port so subledgers don't depend on an
+// accounting entity to import the posting context they produce.
+export { ModuleSlug } from '../../journal-entries/accounting-posting.port';
 
 @Entity({ name: 'accounting_periods' })
 export class AccountingPeriod {

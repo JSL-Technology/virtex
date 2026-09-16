@@ -1,29 +1,67 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { Ledger } from './entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
+import {
+  JournalEntry,
+  JournalEntryStatus,
+} from '../journal-entries/entities/journal-entry.entity';
 import { GeneralLedger, GeneralLedgerLine } from '../core/models/general-ledger.model';
 import { AccountNature } from '../chart-of-accounts/enums/account-enums';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { CreateLedgerDto, UpdateLedgerDto } from './dto/ledger.dto';
-import { previousDay, toIsoDate } from '../common/dates';
+import { previousDay, toIsoDate, type IsoDate } from '../common/dates';
 import { roundAmount } from '../common/money';
+import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
+
+// ── Libro diario types (owned here — they describe legal books, not custom reports) ────────────
+
+export interface JournalReportLine {
+  id: string;
+  accountId: string;
+  accountCode: string;
+  accountName: Record<string, string> | string;
+  description: string | null;
+  debit: number;
+  credit: number;
+  dimensions: Record<string, string> | null;
+}
+
+export interface JournalReportEntry {
+  id: string;
+  entryNumber: string | null;
+  date: IsoDate;
+  description: string;
+  journalCode: string | null;
+  journalName: string | null;
+  status: string;
+  entryType: string;
+  lines: JournalReportLine[];
+}
+
+export interface JournalReport {
+  ledger: { id: string; name: string; currency: string };
+  period: { startDate: IsoDate; endDate: IsoDate };
+  entries: JournalReportEntry[];
+  page: number;
+  pageSize: number;
+  totalEntries: number;
+  hasMore: boolean;
+  totalDebit: number;
+  totalCredit: number;
+}
 
 @Injectable()
 export class LedgersService {
   constructor(
     @InjectRepository(Ledger)
     private readonly ledgerRepository: Repository<Ledger>,
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
-    @InjectRepository(JournalEntryLine)
-    private readonly journalEntryLineRepository: Repository<JournalEntryLine>,
     private readonly balances: AccountBalancesService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -83,7 +121,7 @@ export class LedgersService {
       throw new BadRequestError('accounting.start_date_cannot_later_than_end');
     }
 
-    const account = await this.accountRepository.findOne({
+    const account = await this.dataSource.manager.getRepository(Account).findOne({
       where: { id: query.accountId, organizationId },
     });
     if (!account) {
@@ -110,7 +148,7 @@ export class LedgersService {
       asOf: previousDay(from),
     });
 
-    const base = this.journalEntryLineRepository
+    const base = this.dataSource.manager.getRepository(JournalEntryLine)
       .createQueryBuilder('line')
       .innerJoin('line.journalEntry', 'entry')
       .innerJoin('entry.journal', 'journal')
@@ -251,10 +289,157 @@ export class LedgersService {
       .limit((page - 1) * pageSize);
 
     const [sql, parameters] = inner.getQueryAndParameters();
-    const rows = await this.journalEntryLineRepository.manager.query<
+    const rows = await this.dataSource.manager.query<
       { movement: string }[]
     >(`SELECT COALESCE(SUM(m.debit - m.credit), 0) AS movement FROM (${sql}) m`, parameters);
     return Number(rows[0]?.movement ?? 0);
+  }
+
+  /**
+   * The libro diario: entries in date order, each with its lines.
+   *
+   * Entries are paged; the lines of the entries on each page are fetched in a single second query
+   * keyed to those entry ids only. A year of a working ledger is millions of rows, and loading
+   * every line in the range is not the same as paging entries.
+   */
+  async generateJournalReport(
+    organizationId: string,
+    options: JournalReportDto,
+  ): Promise<JournalReport> {
+    const from = toIsoDate(options.startDate);
+    const to = toIsoDate(options.endDate);
+    if (from > to) throw new BadRequestError('reports.start_date_cannot_later_than_end');
+
+    const page = Math.max(1, Math.floor(options.page ?? 1));
+    const pageSize = Math.min(500, Math.max(1, Math.floor(options.pageSize ?? 100)));
+
+    const ledger = options.ledgerId
+      ? await this.ledgerRepository.findOne({
+          where: { id: options.ledgerId, organizationId },
+        })
+      : await this.ledgerRepository.findOne({ where: { organizationId, isDefault: true } });
+    if (!ledger) {
+      throw new BadRequestError('reports.no_default_ledger_configured_set_one');
+    }
+
+    const entryQuery = this.dataSource.manager.getRepository(JournalEntry)
+      .createQueryBuilder('entry')
+      .innerJoinAndSelect('entry.journal', 'journal')
+      .where('entry.organizationId = :organizationId', { organizationId })
+      .andWhere('entry.date BETWEEN :from AND :to', { from, to });
+
+    if (!options.includeUnposted) {
+      entryQuery.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
+    }
+    if (options.journalIds && options.journalIds.length > 0) {
+      entryQuery.andWhere('entry.journalId IN (:...journalIds)', {
+        journalIds: options.journalIds,
+      });
+    }
+
+    const totalEntries = await entryQuery.clone().getCount();
+
+    const entries = await entryQuery
+      .orderBy('entry.date', 'ASC')
+      .addOrderBy('entry.entryNumber', 'ASC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
+
+    if (entries.length === 0) {
+      return {
+        ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
+        period: { startDate: from, endDate: to },
+        entries: [],
+        page,
+        pageSize,
+        totalEntries,
+        hasMore: false,
+        totalDebit: 0,
+        totalCredit: 0,
+      };
+    }
+
+    const rows = await this.dataSource.manager.getRepository(JournalEntryLine)
+      .createQueryBuilder('line')
+      .innerJoin('line.journalEntry', 'entry')
+      .innerJoin('line.account', 'account')
+      .innerJoin('line.valuations', 'valuation')
+      .where('entry.id IN (:...entryIds)', { entryIds: entries.map((e) => e.id) })
+      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
+      .select([
+        'entry.id AS "entryId"',
+        'line.id AS id',
+        'account.id AS "accountId"',
+        'account.name AS "accountName"',
+        'line.description AS description',
+        'line.dimensions AS dimensions',
+        'valuation.debit AS debit',
+        'valuation.credit AS credit',
+      ])
+      .orderBy('line.id', 'ASC')
+      .getRawMany<{
+        entryId: string;
+        id: string;
+        accountId: string;
+        accountName: Record<string, string>;
+        description: string | null;
+        dimensions: Record<string, string> | null;
+        debit: string;
+        credit: string;
+      }>();
+
+    const accountIds = [...new Set(rows.map((row) => row.accountId))];
+    const accounts = accountIds.length
+      ? await this.dataSource.manager.getRepository(Account).find({ where: { id: In(accountIds) } })
+      : [];
+    const codeById = new Map(accounts.map((a) => [a.id, a.code]));
+
+    const linesByEntry = new Map<string, JournalReportLine[]>();
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    for (const row of rows) {
+      const debit = Number(row.debit);
+      const credit = Number(row.credit);
+      totalDebit = roundAmount(totalDebit + debit);
+      totalCredit = roundAmount(totalCredit + credit);
+
+      const bucket = linesByEntry.get(row.entryId) ?? [];
+      bucket.push({
+        id: row.id,
+        accountId: row.accountId,
+        accountCode: codeById.get(row.accountId) ?? '',
+        accountName: row.accountName,
+        description: row.description,
+        debit,
+        credit,
+        dimensions: row.dimensions,
+      });
+      linesByEntry.set(row.entryId, bucket);
+    }
+
+    return {
+      ledger: { id: ledger.id, name: ledger.name, currency: ledger.currency },
+      period: { startDate: from, endDate: to },
+      entries: entries.map((entry) => ({
+        id: entry.id,
+        entryNumber: entry.entryNumber,
+        date: toIsoDate(entry.date),
+        description: entry.description,
+        journalCode: entry.journal?.code ?? null,
+        journalName: entry.journal?.name ?? null,
+        status: entry.status,
+        entryType: entry.entryType,
+        lines: linesByEntry.get(entry.id) ?? [],
+      })),
+      page,
+      pageSize,
+      totalEntries,
+      hasMore: page * pageSize < totalEntries,
+      totalDebit,
+      totalCredit,
+    };
   }
 
   findAll(organizationId: string): Promise<Ledger[]> {

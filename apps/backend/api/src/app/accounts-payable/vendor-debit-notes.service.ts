@@ -5,15 +5,14 @@ import { Repository, DataSource } from 'typeorm';
 import { VendorDebitNote } from './entities/vendor-debit-note.entity';
 import { CreateVendorDebitNoteDto } from './dto/create-vendor-debit-note.dto';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
-import { Journal } from '../journal-entries/entities/journal.entity';
-import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
-import { I18nService } from '../i18n/i18n.service';
+import { LedgerLookupService } from '../accounting/services/ledger-lookup.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 
 @Injectable()
 export class VendorDebitNotesService {
@@ -23,11 +22,12 @@ export class VendorDebitNotesService {
     @InjectRepository(VendorDebitNote)
     private vendorDebitNoteRepository: Repository<VendorDebitNote>,
     private dataSource: DataSource,
-    private journalEntriesService: JournalEntriesService,
+    private journalEntriesService: AccountingPostingPort,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
-    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
-      new I18nService(),
-    ),
+    private readonly narrative: LedgerNarrativeService,
+    private readonly ledgerLookup: LedgerLookupService,
+    private readonly journalLookup: JournalLookupService,
+    private readonly orgSettings: OrgSettingsService,
   ) {}
 
   async create(
@@ -51,22 +51,14 @@ export class VendorDebitNotesService {
         throw new BadRequestError('accounts_payable.debit_note_cannot_larger_than_invoice');
       }
 
-      const settings = await manager.findOneBy(OrganizationSettings, {
-        organizationId,
-      });
+      const settings = await this.orgSettings.getForOrg(organizationId, manager);
       if (!settings || !settings.defaultAccountsPayableId) {
         throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
       }
 
-      const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
-      if (!defaultLedger) {
-        throw new BadRequestError('accounts_payable.no_default_ledger_has_configured_organization');
-      }
+      const defaultLedger = await this.ledgerLookup.requireDefault(organizationId, manager);
 
-      const journal = await manager.findOneBy(Journal, { organizationId, code: 'COMPRAS' });
-      if (!journal) {
-          throw new BadRequestError('accounts_payable.purchases_journal_compras_not_found_record');
-      }
+      const journal = await this.journalLookup.requireByCode(organizationId, 'COMPRAS', manager);
 
       const debitNote = manager.create(VendorDebitNote, {
         ...dto,

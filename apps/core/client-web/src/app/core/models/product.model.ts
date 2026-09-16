@@ -1,42 +1,7 @@
-export interface Product {
-  id: string;
-  name: string;
-  sku?: string;
-  description?: string;
-  /**
-   * The tenant's own category.
-   *
-   * Was a free-text string chosen from three options written into the product form's template.
-   * `categoryId` is what is sent; `category` is the row the server joins back, so a register can
-   * print the name without a second request.
-   */
-  categoryId?: string | null;
-  category?: { id: string; name: string } | null;
-  price: number;
-  cost: number;
-  stock: number;
-  reorderLevel?: number;
-  imageUrl?: string;
-  status: 'Active' | 'Inactive';
-
-  /**
-   * The rest of what the catalogue has carried server-side for some time.
-   *
-   * The model stopped at `status` while the entity had grown a further eight columns, so every
-   * screen that needed a unit, a tax treatment or the goods/services split either cast its way
-   * around the type or invented a default. Declaring them here is what lets a purchase order carry
-   * the unit the product is actually bought in.
-   */
-  kind?: 'GOOD' | 'SERVICE';
-  unitOfMeasure?: string;
-  /** `TAXED`, `EXEMPT`, `ZERO_RATED`… as the fiscal regime names it. */
-  taxTreatment?: string;
-  /** A fraction, not a percentage: 0.18, never 18. */
-  taxRate?: number;
-  exciseRate?: number;
-  fiscalItemCode?: string | null;
-
-  organizationId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+/**
+ * Backward-compatibility barrel.
+ *
+ * The canonical source is `features/inventory/data/product.model.ts`.
+ * Update existing imports to that path when touching a file.
+ */
+export type { Product } from '../../features/inventory/data/product.model';

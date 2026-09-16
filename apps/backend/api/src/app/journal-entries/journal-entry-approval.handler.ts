@@ -8,7 +8,7 @@ import {
   ApprovalOutcomeContext,
 } from '../workflows/approval-handler.registry';
 import { NotFoundError } from '../i18n/localized.exception';
-import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from './accounting-posting.port';
 
 /**
  * Posting a journal entry once its approval is granted.

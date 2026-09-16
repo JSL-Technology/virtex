@@ -8,7 +8,6 @@ import { VendorBillLine } from './entities/vendor-bill-line.entity';
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { VendorDebitNote } from './entities/vendor-debit-note.entity';
 import { PaymentBatch } from './entities/payment-batch.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { InventoryModule } from '../inventory/inventory.module';
@@ -18,9 +17,8 @@ import { CurrenciesModule } from '../currencies/currencies.module';
 import { BudgetsModule } from '../budgets/budgets.module';
 import { VendorDebitNotesController } from './vendor-debit-notes.controller';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
-import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
-import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
-import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { PeriodLockModule } from '../accounting/period-lock.module';
+import { AccountingModule } from '../accounting/accounting.module';
 import { VendorBillApprovalHandler } from './vendor-bill-approval.handler';
 // The ageing report ties itself to the payables control account in the general ledger.
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -36,10 +34,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
       VendorPayment,
       VendorDebitNote,
       PaymentBatch,
-      OrganizationSettings,
       ExchangeRate,
-      AccountingPeriod,
-      AccountPeriodLock,
       Supplier,
     ]),
     JournalEntriesModule,
@@ -49,12 +44,13 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
     BudgetsModule,
     ChartOfAccountsModule,
     WithholdingModule,
+    PeriodLockModule,
+    AccountingModule,
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
   providers: [
     AccountsPayableService,
     VendorDebitNotesService,
-    PeriodLockGuard,
     // Posts the bill when its approval is granted, inside the approving transaction.
     VendorBillApprovalHandler,
   ],

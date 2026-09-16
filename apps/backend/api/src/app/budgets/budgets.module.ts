@@ -8,7 +8,6 @@ import { BudgetLine } from './entities/budget-line.entity';
 import { BudgetControlService } from './budget-control.service';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { AuthModule } from '../auth/auth.module';
       // The budget is compared against one book's valuations, not against `line.debit`.
       Ledger,
     ]),
-    AuthModule,
   ],
   controllers: [BudgetsController],
   providers: [BudgetsService, BudgetControlService],

@@ -3,12 +3,12 @@ import { DataSource, EntityManager } from 'typeorm';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
 } from '../journal-entries/dto/create-journal-entry.dto';
-import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { BadRequestError } from '../i18n/localized.exception';
 import {
@@ -44,6 +44,8 @@ export class CurrencyRevaluationService {
     private readonly balances: AccountBalancesService,
     private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly dataSource: DataSource,
+    private readonly orgSettings: OrgSettingsService,
+    private readonly journalLookup: JournalLookupService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -100,7 +102,7 @@ export class CurrencyRevaluationService {
     const periodEndIso = toIsoDate(periodEndDate);
     const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, manager);
 
-    const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
+    const settings = await this.orgSettings.getForOrg(organizationId, manager);
     if (!settings?.defaultForexGainLossAccountId) {
       this.logger.error(
         `Cuenta de ganancia/pérdida cambiaria no configurada en la organización ${organizationId}. Se omite el libro ${ledger.name}.`,
@@ -109,16 +111,7 @@ export class CurrencyRevaluationService {
     }
     const forexAccountId = settings.defaultForexGainLossAccountId;
 
-    const generalJournal = await manager.findOneBy(Journal, {
-      organizationId,
-      code: 'GENERAL',
-    });
-    if (!generalJournal) {
-      throw new BadRequestError(
-        'batch_processes.general_journal_general_not_found_organization',
-        { organizationId },
-      );
-    }
+    const generalJournal = await this.journalLookup.requireByCode(organizationId, 'GENERAL', manager);
 
     const revaluableAccounts = await manager.find(Account, {
       where: { organizationId, isMultiCurrency: true },

@@ -8,6 +8,7 @@ import {
 } from '../chart-of-accounts/enums/account-enums';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import {
   AccountBalancesService,
@@ -255,6 +256,7 @@ export class FinancialReportingService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly balances: AccountBalancesService,
+    private readonly orgSettings: OrgSettingsService,
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -986,9 +988,7 @@ export class FinancialReportingService {
     });
     if (account) return account.id;
     if (!settingsKey) return null;
-    const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, {
-      organizationId,
-    });
+    const settings = await this.orgSettings.getForOrg(organizationId);
     const value = settings?.[settingsKey];
     return typeof value === 'string' ? value : null;
   }

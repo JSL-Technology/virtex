@@ -6,6 +6,7 @@ import { LocalizationService } from './services/localization.service';
 import { FiscalRegion } from './entities/fiscal-region.entity';
 import { TaxScheme } from './entities/tax-scheme.entity';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { AccountingModule } from '../accounting/accounting.module';
 import { TaxesModule } from '../taxes/taxes.module';
 import { LocalizationTemplate } from './entities/localization-template.entity';
 import { CoaTemplate } from './entities/coa-template.entity';
@@ -27,9 +28,8 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
 import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
 import { WithholdingRegimesService } from './services/withholding-regimes.service';
 import { WithholdingRegimesController } from './controllers/withholding-regimes.controller';
-import { RegimeTransportService } from '../einvoicing/regimes/regime-transport.service';
-import { XmlSignatureService } from '../einvoicing/regimes/xml-signature.service';
 import { OrganizationsModule } from '../organizations/organizations.module';
+import { EinvoicingModule } from '../einvoicing/einvoicing.module';
 
 @Module({
   imports: [
@@ -56,6 +56,11 @@ import { OrganizationsModule } from '../organizations/organizations.module';
     HttpModule,
     // The coverage endpoint reads the tenant's country.
     forwardRef(() => OrganizationsModule),
+    // TenantBookkeepingProvisioner is provided and exported by AccountingModule.
+    AccountingModule,
+    // XmlSignatureService and RegimeTransportService live in EinvoicingModule; importing it here
+    // makes them available to every fiscal strategy without duplicating their registration.
+    EinvoicingModule,
   ],
   providers: [
     LocalizationService,
@@ -67,16 +72,12 @@ import { OrganizationsModule } from '../organizations/organizations.module';
     TaxDeterminationService,
     TaxJurisdictionsService,
     WithholdingRegimesService,
-    // Shared by every e-invoicing regime: one signature suite and one transport, configured per
-    // market rather than reimplemented per market.
-    XmlSignatureService,
-    RegimeTransportService,
   ],
   controllers: [
     LocalizationController,
     TaxJurisdictionsController,
     WithholdingRegimesController,
   ],
-  exports: [LocalizationService, TaxDeterminationService, XmlSignatureService, RegimeTransportService],
+  exports: [LocalizationService, TaxDeterminationService],
 })
 export class LocalizationModule {}

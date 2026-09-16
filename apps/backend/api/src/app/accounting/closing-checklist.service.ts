@@ -6,19 +6,15 @@ import {
   JournalEntryStatus,
 } from '../journal-entries/entities/journal-entry.entity';
 import {
-  BankTransaction,
-  TransactionStatus,
-} from '../reconciliation/entities/bank-transaction.entity';
-import {
-  VendorBill,
-  VendorBillStatus,
-} from '../accounts-payable/entities/vendor-bill.entity';
-import {
   ApprovalRequest,
   ApprovalStatus,
 } from '../workflows/entities/approval-request.entity';
 import { NotFoundError } from '../i18n/localized.exception';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
+
+// VendorBill and BankTransaction are queried via raw SQL to avoid cross-module entity imports
+// that would create cycles: accounting → accounts-payable and accounting → reconciliation.
+// The enum values are stable string constants that will not be renamed without a migration.
 
 export interface ChecklistItem {
   /** Stable identifier for the check. Never rendered. */
@@ -88,21 +84,16 @@ export class ClosingChecklistService {
       resolutionLink: `/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
     });
 
-    const unapprovedBillsCount = await this.dataSource
-      .getRepository(VendorBill)
-      .count({
-        where: {
-          organizationId,
-          status: In([
-            VendorBillStatus.DRAFT,
-            VendorBillStatus.PENDING_APPROVAL,
-          ]),
-          // A bill's document date is a calendar date, so the bounds are too — same as the bank
-          // transaction count below, and unlike the journal entry count above, whose column is a
-          // timestamp.
-          date: Between(toIsoDate(period.startDate), toIsoDate(period.endDate)),
-        },
-      });
+    const [{ count: billCount }] = await this.dataSource.query<[{ count: string }]>(
+      // A bill's document date is a calendar date, unlike the journal-entry date above (timestamp).
+      `SELECT COUNT(*)::int AS count
+         FROM vendor_bills
+        WHERE organization_id = $1
+          AND status IN ('DRAFT', 'PENDING_APPROVAL')
+          AND date BETWEEN $2::date AND $3::date`,
+      [organizationId, toIsoDate(period.startDate), toIsoDate(period.endDate)],
+    );
+    const unapprovedBillsCount = Number(billCount ?? 0);
     checklist.push({
       id: 'unapproved-vendor-bills',
       descriptionKey: 'accounting.checklist.items.unapproved_vendor_bills',
@@ -112,15 +103,16 @@ export class ClosingChecklistService {
       resolutionLink: `/accounts-payable/bills?periodId=${periodId}&status=draft,pending_approval`,
     });
 
-    const unreconciledTxCount = await this.dataSource
-      .getRepository(BankTransaction)
-      .count({
-        where: {
-          statement: { organizationId },
-          status: TransactionStatus.UNMATCHED,
-          date: Between(toIsoDate(period.startDate), toIsoDate(period.endDate)),
-        },
-      });
+    const [{ count: txCount }] = await this.dataSource.query<[{ count: string }]>(
+      `SELECT COUNT(*)::int AS count
+         FROM bank_transactions bt
+         JOIN bank_statements bs ON bs.id = bt.statement_id
+        WHERE bs.organization_id = $1
+          AND bt.status = 'UNMATCHED'
+          AND bt.date BETWEEN $2::date AND $3::date`,
+      [organizationId, toIsoDate(period.startDate), toIsoDate(period.endDate)],
+    );
+    const unreconciledTxCount = Number(txCount ?? 0);
     checklist.push({
       id: 'unreconciled-bank-transactions',
       descriptionKey: 'accounting.checklist.items.unreconciled_bank_transactions',

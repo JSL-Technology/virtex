@@ -16,7 +16,7 @@ import { CustomersService } from '../customers/customers.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { Product, ProductKind } from '../inventory/entities/product.entity';
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { FiscalAdapterFactory } from './adapters/fiscal-adapter.factory';
 import { DocumentSequencesService } from '../shared/document-sequences/document-sequences.service';
@@ -28,7 +28,7 @@ import { InvoicePostingService } from './services/invoice-posting.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
-import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
+import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
@@ -123,10 +123,7 @@ export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
     private readonly invoicesRepository: Repository<Invoice>,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(OrganizationSettings)
-    private readonly orgSettingsRepository: Repository<OrganizationSettings>,
+    private readonly orgSettings: OrgSettingsService,
     private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly customersService: CustomersService,
     private readonly inventoryService: InventoryService,
@@ -858,7 +855,7 @@ export class InvoicesService {
     requested: string | undefined,
     issueDate: string,
   ): Promise<{ currencyCode: string; exchangeRate: number; baseCurrency: string }> {
-    const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
+    const settings = await this.orgSettings.getForOrg(organizationId);
     const baseCurrency = settings?.baseCurrency || 'USD';
     const currencyCode = (requested || baseCurrency).toUpperCase();
 
@@ -1021,8 +1018,7 @@ export class InvoicesService {
       const selections = this.resolveCreditSelections(original, dto);
       const isFullCredit = this.isFullCredit(original, selections);
       const baseCurrency =
-        (await manager.getRepository(OrganizationSettings).findOne({ where: { organizationId } }))
-          ?.baseCurrency ?? 'USD';
+        (await this.orgSettings.getForOrg(organizationId, manager))?.baseCurrency ?? 'USD';
 
       const computed = computeDocument({
         countryCode: (
@@ -1346,7 +1342,7 @@ export class InvoicesService {
     organizationId: string,
   ): Promise<{ invoice: Invoice; context: InvoiceRenderContext }> {
     const invoice = await this.findOne(invoiceId, organizationId);
-    const organization = await this.organizationRepository.findOne({
+    const organization = await this.dataSource.getRepository(Organization).findOne({
       where: { id: organizationId },
     });
     if (!organization) throw new NotFoundError('invoices.organization_not_found');
@@ -1369,11 +1365,11 @@ export class InvoicesService {
   async invoicingContext(organizationId: string): Promise<InvoicingContext> {
     const [missing, organization, settings] = await Promise.all([
       this.bookkeeping.invoicingGaps(organizationId, this.dataSource.manager),
-      this.organizationRepository.findOne({
+      this.dataSource.getRepository(Organization).findOne({
         where: { id: organizationId },
         select: ['id', 'country'],
       }),
-      this.orgSettingsRepository.findOne({ where: { organizationId } }),
+      this.orgSettings.getForOrg(organizationId),
     ]);
 
     const countryCode = organization?.country ?? null;
@@ -1433,7 +1429,9 @@ export class InvoicesService {
    * wrong period.
    */
   private async fiscalToday(organizationId: string, manager?: EntityManager): Promise<string> {
-    const repo = manager ? manager.getRepository(Organization) : this.organizationRepository;
+    const repo = manager
+      ? manager.getRepository(Organization)
+      : this.dataSource.getRepository(Organization);
     const org = await repo.findOne({
       where: { id: organizationId },
       select: ['id', 'country', 'timezone'],

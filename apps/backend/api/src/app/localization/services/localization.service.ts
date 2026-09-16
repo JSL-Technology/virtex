@@ -20,7 +20,7 @@ import {
 import { taxpayerKindAffectsValidation, validateTaxId } from '../fiscal/tax-id-validators';
 import { PublicCountryConfig, TaxIdLookupResult } from '../fiscal/public-country-config';
 import { findTaxScheme } from '../fiscal/country-tax-schemes';
-import { TenantBookkeepingProvisioner } from '../../shared/provisioning/tenant-bookkeeping.provisioner';
+import { TenantBookkeepingProvisioner } from '../../accounting/provisioning/tenant-bookkeeping.provisioner';
 import {
   STATUTORY_PLAN_REQUIRED,
   buildCountryCoaTemplate,

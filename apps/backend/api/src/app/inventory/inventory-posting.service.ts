@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Product, ProductKind } from './entities/product.entity';
-import { Journal } from '../journal-entries/entities/journal.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { Journal } from '../journal-entries/entities/journal.entity';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { JournalEntryType } from '../journal-entries/entities/journal-entry.entity';
-import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
@@ -50,9 +52,11 @@ export class InventoryPostingService {
   private readonly logger = new Logger(InventoryPostingService.name);
 
   constructor(
-    private readonly journalEntries: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    private readonly orgSettings: OrgSettingsService,
+    private readonly journalLookup: JournalLookupService,
   ) {}
 
   /**
@@ -195,7 +199,7 @@ export class InventoryPostingService {
     dto: CreateJournalEntryDto,
     context: { actorUserId: string | null; systemReason: string; idempotencyKey?: string },
   ): Promise<string> {
-    const entry = await this.journalEntries.createWithManager(manager, dto, organizationId, {
+    const entry = await this.posting.createWithManager(manager, dto, organizationId, {
       ...context,
       module: ModuleSlug.INVENTORY,
     });
@@ -207,14 +211,8 @@ export class InventoryPostingService {
     manager: EntityManager,
     organizationId: string,
   ): Promise<{ settings: OrganizationSettings; journal: Journal }> {
-    const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
-    if (!settings) {
-      throw new BadRequestError('inventory.organization_has_no_inventory_opening_balance');
-    }
-    const journal = await manager.findOneBy(Journal, { organizationId, code: 'GENERAL' });
-    if (!journal) {
-      throw new BadRequestError('inventory.no_general_general_journal_organization_create');
-    }
+    const settings = await this.orgSettings.requireForOrg(organizationId, manager);
+    const journal = await this.journalLookup.requireByCode(organizationId, 'GENERAL', manager);
     return { settings, journal };
   }
 }

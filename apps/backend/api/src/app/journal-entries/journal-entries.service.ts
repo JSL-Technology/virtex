@@ -18,7 +18,7 @@ import {
 } from './dto/journal-entry-actions.dto';
 import { StorageService } from '../storage/storage.service';
 import { JournalEntryAttachment } from './entities/journal-entry-attachment.entity';
-import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
+import { ModuleSlug } from './accounting-posting.port';
 import { resolvePostingPeriod } from '../accounting/period-status';
 import { BudgetControlService } from '../budgets/budget-control.service';
 import { toIsoDate } from '../common/dates';
@@ -62,48 +62,7 @@ import {
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 
-/**
- * Context every posting carries.
- *
- * `actorUserId` is null only for entries the system generates on a schedule — depreciation,
- * recurring entries, automatic reversals — and those record the reason instead. It is not optional
- * for anything a person initiates: an entry with no author is not an auditable record.
- */
-export interface PostingContext {
-  actorUserId: string | null;
-  /** Which subledger's period lock applies. The general ledger unless a subledger says otherwise. */
-  module?: ModuleSlug;
-  /** Short machine reason, recorded on the audit row for system-generated entries. */
-  systemReason?: string;
-  /**
-   * What business fact this entry records, as a stable string — `invoice:{id}:revenue`,
-   * `recurring:{templateId}:{date}`, `vendor-payment:{batchId}`.
-   *
-   * Supplying it makes the posting idempotent: a second attempt with the same key returns the entry
-   * the first one wrote instead of writing a second. A unique index enforces the same thing under
-   * concurrency, so two workers racing on a redelivered job cannot both win.
-   *
-   * Every automatic posting should carry one. A retried webhook, a BullMQ job redelivered after its
-   * worker died between the commit and the acknowledgement, a double-clicked button: all of them
-   * replay a business fact that has already been booked, and without a key the ledger books it
-   * twice and nothing ever notices.
-   */
-  idempotencyKey?: string;
-  /**
-   * Let this posting into a period that has been closed.
-   *
-   * Never set from a request. It exists for the entries that complete an audit adjustment: the
-   * adjustment itself is admitted by its own `AUDIT_ADJUSTMENT` type, and the transfer of its
-   * effect to retained earnings has to reach the same closed period — it is typed
-   * `CLOSING_ENTRY`, because every report that excludes closing entries must exclude it too, and
-   * that type earns no exemption of its own.
-   *
-   * The caller granting it is `AdjustmentsService.createAuditAdjustment`, which has already
-   * established the right: an approved proposal against a fiscal year that is closed and not
-   * archived.
-   */
-  allowClosedPeriod?: boolean;
-}
+export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
 

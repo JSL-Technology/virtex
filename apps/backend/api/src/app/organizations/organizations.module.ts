@@ -13,6 +13,8 @@ import { SaasModule } from '../saas/saas.module';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
+import { OrgSettingsModule } from './org-settings.module';
+import { OrgSettingsService } from './services/org-settings.service';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { UserCacheModule } from '../auth/modules/user-cache.module';
       OrganizationSubsidiary,
       UserOrganization,
     ]),
+    OrgSettingsModule,
     ChartOfAccountsModule,
     // A subsidiary is provisioned with its country's chart of accounts and taxes in the same
     // transaction that creates it, exactly like a signup.
@@ -35,6 +38,6 @@ import { UserCacheModule } from '../auth/modules/user-cache.module';
   ],
   controllers: [OrganizationsController],
   providers: [OrganizationsService, MembershipService],
-  exports: [OrganizationsService, MembershipService]
+  exports: [OrganizationsService, MembershipService, OrgSettingsModule]
 })
 export class OrganizationsModule {}

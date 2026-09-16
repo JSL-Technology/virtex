@@ -6,14 +6,9 @@ import { PeriodClosingService } from './period-closing.service';
 import { AccountingController } from './accounting.controller';
 import { AuthModule } from '../auth/auth.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { InflationIndex } from './entities/inflation-index.entity';
 import { InflationAdjustmentController } from './inflation-adjustment.controller';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
-import { Organization } from '../organizations/entities/organization.entity';
 import { FiscalYearArchivingService } from './fiscal-year-archiving.service';
 import { FiscalYear } from './entities/fiscal-year.entity';
 import { Ledger } from './entities/ledger.entity';
@@ -34,25 +29,31 @@ import { LedgerMappingController } from './ledger-mapping.controller';
 
 import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condition.entity';
 import { ClosingChecklistService } from './closing-checklist.service';
+import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
+import { PeriodLockModule } from './period-lock.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { FiscalCalendarService } from './fiscal-calendar.service';
+import { LedgerLookupService } from './services/ledger-lookup.service';
+import { Account } from '../chart-of-accounts/entities/account.entity';
+import { Organization } from '../organizations/entities/organization.entity';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 
 
 @Module({
   imports: [
+    PeriodLockModule,
     forwardRef(() => ChartOfAccountsModule),
     TypeOrmModule.forFeature([
       AccountingPeriod,
-      Account,
-      JournalEntry,
-      JournalEntryLine,
-      OrganizationSettings,
       InflationIndex,
-      Organization,
       FiscalYear,
       Ledger,
       AccountPeriodLock,
       LedgerMappingRule,
       LedgerMappingRuleCondition,
+      Account,
+      Organization,
+      OrganizationSettings,
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => JournalEntriesModule),
@@ -66,11 +67,13 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
     FiscalYearArchivingService,
     LedgersService,
     YearEndCloseService,
-    PeriodLockGuard,
     ClosingAutomationService,
     ResultTransferService,
     ClosingChecklistService,
     LedgerMappingService,
+    TenantBookkeepingProvisioner,
+    FiscalCalendarService,
+    LedgerLookupService,
   ],
   controllers: [
     AccountingController,
@@ -80,11 +83,16 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
     LedgerMappingController,
   ],
   exports: [
-    PeriodLockGuard,
+    // Re-export so callers that import AccountingModule get PeriodLockGuard without changes.
+    PeriodLockModule,
     LedgerMappingService,
     // The one implementation of the general ledger. `ReportsService` delegates to it rather than
     // keeping a second one with different semantics.
     LedgersService,
+    // Provisioning belongs to accounting. SharedModule used to own it; it now delegates here.
+    TenantBookkeepingProvisioner,
+    FiscalCalendarService,
+    LedgerLookupService,
   ],
 })
 export class AccountingModule {}

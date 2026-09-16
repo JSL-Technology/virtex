@@ -36,6 +36,7 @@ import { CustomerServiceModule } from './customer-service/customer-service.modul
 import { TreasuryModule } from './treasury/treasury.module';
 import { IntercompanyModule } from './intercompany/intercompany.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { OrgSettingsModule } from './organizations/org-settings.module';
 import { SharedModule } from './shared/shared.module';
 import { I18nModule } from './i18n/i18n.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
@@ -247,6 +248,7 @@ import { PosModule } from './pos/pos.module';
     }),
 
 
+    OrgSettingsModule,
     AuthModule,
     UsersModule,
     OrganizationsModule,

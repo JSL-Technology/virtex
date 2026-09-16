@@ -7,16 +7,10 @@ import { FixedAsset } from './entities/fixed-asset.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { AuthModule } from '../auth/auth.module';
 import { DepreciationService } from './depreciation.service';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { Journal } from '../journal-entries/entities/journal.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      FixedAsset,
-      OrganizationSettings,
-      Journal,
-    ]),
+    TypeOrmModule.forFeature([FixedAsset]),
     forwardRef(() => JournalEntriesModule),
     forwardRef(() => AuthModule),
   ],
