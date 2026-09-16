@@ -24,7 +24,7 @@ export class PaymentService extends RegistrationPaymentPort {
     
     private dataSource: DataSource,
     @Inject('PAYMENT_GATEWAY') private paymentGateway: PaymentGateway
-  ) {}
+  ) { super(); }
 
   async createCheckoutSession(organizationId: string, userEmail: string, priceId: string, successUrl: string, cancelUrl: string) {
     return this.paymentGateway.createCheckoutSession({

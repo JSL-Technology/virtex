@@ -73,7 +73,7 @@ export class DepreciationService extends DepreciationPort {
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
     ),
-  ) {}
+  ) { super(); }
 
   /**
    * Fires on the first of the month. The claim below is what actually makes it monthly — a cron

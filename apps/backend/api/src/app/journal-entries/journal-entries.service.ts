@@ -62,6 +62,7 @@ import {
 import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 
+import { PostingContext } from './accounting-posting.port';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -630,7 +631,7 @@ export class JournalEntriesService {
       entry.date instanceof Date ? entry.date : new Date(`${entry.date}T00:00:00Z`),
     );
     entry.status = JournalEntryStatus.POSTED;
-    entry.postedByUserId = context.actorUserId;
+    entry.postedByUserId = context.actorUserId ?? null;
     entry.postedAt = new Date();
     const posted = await manager.save(entry);
 
@@ -666,7 +667,7 @@ export class JournalEntriesService {
     event: string,
   ): Promise<void> {
     await this.auditTrail.recordWithManager(manager, {
-      userId: context.actorUserId,
+      userId: context.actorUserId ?? null,
       organizationId,
       entity: 'journal_entries',
       entityId: entry.id,

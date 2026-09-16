@@ -20,6 +20,7 @@ import { OrgSettingsService } from '../../organizations/services/org-settings.se
 import { LedgerLookupService } from '../../accounting/services/ledger-lookup.service';
 import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
+import type { Ledger } from '../../accounting/entities/ledger.entity';
 
 /**
  * Turns a sales document into a balanced ledger entry.

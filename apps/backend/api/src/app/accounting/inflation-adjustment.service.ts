@@ -1,7 +1,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { InflationIndex } from './entities/inflation-index.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';

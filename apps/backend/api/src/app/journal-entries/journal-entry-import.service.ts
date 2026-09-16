@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, LessThan } from 'typeorm';
+import { DataSource, LessThan, Repository } from 'typeorm';
 import { parse as parseDate, isValid } from 'date-fns';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntriesService } from './journal-entries.service';

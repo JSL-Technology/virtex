@@ -418,10 +418,8 @@ export class ChartOfAccountsService {
     if (account.children && account.children.length > 0) {
       throw new BadRequestError('chart_of_accounts.account_cannot_deactivated_because_has_child');
     }
-    const firstTransaction = await this.journalEntryLineRepository.findOne({
-      where: { accountId: id },
-    });
-    if (firstTransaction) {
+    const hasTransactions = await this.journalQuery.hasMovementsForAccount(id);
+    if (hasTransactions) {
       throw new BadRequestError('chart_of_accounts.account_cannot_deactivated_because_has_transactions');
     }
     account.isActive = false;
