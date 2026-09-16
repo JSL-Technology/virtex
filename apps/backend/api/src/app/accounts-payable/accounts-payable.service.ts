@@ -15,7 +15,8 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InventoryService } from '../inventory/inventory.service';
+import { AfterCommitService } from '../shared/after-commit/after-commit.service';
+import type { VendorBillPostedEvent, VendorBillVoidedEvent } from '../inventory/handlers/vendor-bill-inventory.handler';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -129,9 +130,9 @@ export class AccountsPayableService {
     private readonly vendorBillRepository: Repository<VendorBill>,
     private readonly orgSettings: OrgSettingsService,
     private readonly journalEntriesService: AccountingPostingPort,
-    private readonly inventoryService: InventoryService,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
+    private readonly afterCommit: AfterCommitService,
     private readonly workflowsService: WorkflowsService,
     private readonly budgetControlService: BudgetControlService,
     private readonly exchangeRates: ExchangeRateResolver,
@@ -585,17 +586,14 @@ export class AccountsPayableService {
     // created inventory that had never arrived and the two sides drifted in opposite directions.
     //
     // The right long-term home for this is a goods receipt in Procurement, matched three ways
-    // against the purchase order and the invoice. Until that exists, the movement belongs to the
-    // document that recognises the purchase, and it is symmetric with the void below.
-    for (const line of bill.lines) {
-      if (!line.productId) continue;
-      await this.inventoryService.increaseStock(
-        line.productId,
-        line.quantity,
-        manager,
-        organizationId,
-      );
-    }
+    // against the purchase order and the invoice. Until that exists, the `vendor.bill.posted` event
+    // (emitted after commit via AfterCommitService) carries the lines and `VendorBillInventoryHandler`
+    // in InventoryModule applies the stock movement. The movement is no longer atomic with the
+    // accounting entry — an accepted trade-off while the modules remain decoupled.
+    const billLinesForInventory = bill.lines.map((line) => ({
+      productId: line.productId,
+      quantity: line.quantity,
+    }));
 
     bill.status = VendorBillStatus.OPEN;
     bill.balance = payable;
@@ -605,11 +603,17 @@ export class AccountsPayableService {
     this.logger.log(
       `Factura ${bill.id} aprobada y contabilizada en el asiento ${entry.entryNumber}.`,
     );
-    this.eventEmitter.emit('vendor.bill.posted', {
+    const postedPayload: VendorBillPostedEvent = {
       billId: bill.id,
       organizationId,
       journalEntryId: entry.id,
-    });
+      lines: billLinesForInventory,
+    };
+    await this.afterCommit.runAfterCommit(
+      manager,
+      `inventory-stock-receipt:${bill.id}`,
+      () => Promise.resolve(this.eventEmitter.emit('vendor.bill.posted', postedPayload)),
+    );
     return saved;
   }
 
@@ -1102,17 +1106,10 @@ export class AccountsPayableService {
         bill.status === VendorBillStatus.OPEN ||
         bill.status === VendorBillStatus.PARTIALLY_PAID;
 
-      if (wasPosted) {
-        for (const line of bill.lines) {
-          if (!line.productId) continue;
-          await this.inventoryService.decreaseStock(
-            line.productId,
-            line.quantity,
-            manager,
-            organizationId,
-          );
-        }
-      }
+      // Stock to be returned is collected here; the actual decrease fires post-commit via event.
+      const voidLines = wasPosted
+        ? bill.lines.map((line) => ({ productId: line.productId, quantity: line.quantity }))
+        : [];
 
       if (bill.journalEntryId) {
         const reversal = await this.journalEntriesService.createSystemReversal(
@@ -1135,13 +1132,20 @@ export class AccountsPayableService {
       bill.voidedByUserId = actorUserId;
       const voided = await manager.save(bill);
 
-      this.eventEmitter.emit('vendor.bill.voided', {
+      const voidedPayload: VendorBillVoidedEvent = {
         billId: bill.id,
         organizationId,
         reason,
         actorUserId,
         reversalJournalEntryId: bill.reversalJournalEntryId,
-      });
+        lines: voidLines,
+        wasPosted,
+      };
+      await this.afterCommit.runAfterCommit(
+        manager,
+        `inventory-stock-return:${bill.id}`,
+        () => Promise.resolve(this.eventEmitter.emit('vendor.bill.voided', voidedPayload)),
+      );
       this.logger.log(
         `Factura ${id} anulada por ${actorUserId}. Razón: ${reason}. Reversión: ${bill.reversalJournalEntryId ?? 'sin asiento previo'}.`,
       );

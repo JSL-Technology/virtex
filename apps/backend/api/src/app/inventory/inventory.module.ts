@@ -11,6 +11,7 @@ import { ProductCategoriesService } from './product-categories.service';
 import { AuthModule } from '../auth/auth.module';
 import { InventoryPostingService } from './inventory-posting.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
+import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
     JournalEntriesModule,
   ],
   controllers: [InventoryController, ProductCategoriesController],
-  providers: [InventoryService, InventoryPostingService, ProductCategoriesService],
+  providers: [InventoryService, InventoryPostingService, ProductCategoriesService, VendorBillInventoryHandler],
   exports: [InventoryService, ProductCategoriesService],
 })
 export class InventoryModule {}

@@ -10,7 +10,6 @@ import { VendorDebitNote } from './entities/vendor-debit-note.entity';
 import { PaymentBatch } from './entities/payment-batch.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { InventoryModule } from '../inventory/inventory.module';
 import { WorkflowsModule } from '../workflows/workflows.module';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { CurrenciesModule } from '../currencies/currencies.module';
@@ -38,7 +37,8 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
       Supplier,
     ]),
     JournalEntriesModule,
-    InventoryModule,
+    // InventoryModule removed — stock adjustments are now driven by 'vendor.bill.posted' and
+    // 'vendor.bill.voided' events. VendorBillInventoryHandler in InventoryModule listens.
     WorkflowsModule,
     CurrenciesModule,
     BudgetsModule,
