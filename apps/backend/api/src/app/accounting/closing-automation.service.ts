@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { DepreciationService } from '../fixed-assets/depreciation.service';
+import { DepreciationPort } from '../fixed-assets/depreciation.port';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import { toIsoDate, type IsoDate } from '../common/dates';
@@ -43,7 +43,7 @@ export class ClosingAutomationService {
   private readonly logger = new Logger(ClosingAutomationService.name);
 
   constructor(
-    private readonly depreciationService: DepreciationService,
+    private readonly depreciationService: DepreciationPort,
     private readonly currencyRevaluationService: CurrencyRevaluationService,
   ) {}
 
@@ -63,7 +63,11 @@ export class ClosingAutomationService {
     const outcomes: PreClosingOutcome[] = [];
 
     try {
-      await this.depreciationService.runMonthlyDepreciation(organizationId, periodEnd, manager);
+      await this.depreciationService.runForPeriod(
+        organizationId,
+        { startDate: toIsoDate(period.startDate), endDate: periodEnd },
+        manager,
+      );
       outcomes.push({ task: 'depreciation', ranAt: periodEnd, performed: true });
     } catch (error) {
       this.logger.error(

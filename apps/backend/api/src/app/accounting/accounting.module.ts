@@ -20,7 +20,7 @@ import { AccountPeriodLock } from './entities/account-period-lock.entity';
 import { AuditModule } from '../audit/audit.module';
 import { ClosingAutomationService } from './closing-automation.service';
 import { ResultTransferService } from './result-transfer.service';
-import { FixedAssetsModule } from '../fixed-assets/fixed-assets.module';
+import { DepreciationModule } from '../fixed-assets/depreciation.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { LedgerMappingRule } from './entities/ledger-mapping-rule.entity';
 import { LedgerMappingService } from './ledger-mapping.service';
@@ -56,7 +56,9 @@ import { CurrencyRevaluationService } from './services/currency-revaluation.serv
     forwardRef(() => AuthModule),
     forwardRef(() => JournalEntriesModule),
     forwardRef(() => AuditModule),
-    forwardRef(() => FixedAssetsModule),
+    // DepreciationModule is a leaf — no upstream dependency on AccountingModule.
+    // The cycle Accounting ↔ FixedAssets is broken by this import.
+    DepreciationModule,
     forwardRef(() => CurrenciesModule),
   ],
   providers: [

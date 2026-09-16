@@ -1,22 +1,14 @@
-
-import { Module, forwardRef } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
 import { FixedAssetsService } from './fixed-assets.service';
 import { FixedAssetsController } from './fixed-assets.controller';
-import { FixedAsset } from './entities/fixed-asset.entity';
-import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { AuthModule } from '../auth/auth.module';
-import { DepreciationService } from './depreciation.service';
-import { AssetPostingService } from './asset-posting.service';
+// DepreciationModule provides AssetPostingService, DepreciationService, and DepreciationPort.
+// Importing it here lets FixedAssetsModule reuse those providers without re-declaring them.
+import { DepreciationModule } from './depreciation.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([FixedAsset]),
-    forwardRef(() => JournalEntriesModule),
-    forwardRef(() => AuthModule),
-  ],
+  imports: [DepreciationModule],
   controllers: [FixedAssetsController],
-  providers: [FixedAssetsService, DepreciationService, AssetPostingService],
-  exports: [DepreciationService, AssetPostingService],
+  providers: [FixedAssetsService],
+  exports: [DepreciationModule, FixedAssetsService],
 })
 export class FixedAssetsModule {}

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
+import { DepreciationPort } from './depreciation.port';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
 import { AssetPostingService } from './asset-posting.service';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
@@ -59,7 +60,7 @@ import { I18nService } from '../i18n/i18n.service';
  * `toIsoDate`, which accepts both forms and rejects anything else loudly. See `common/dates`.
  */
 @Injectable()
-export class DepreciationService {
+export class DepreciationService extends DepreciationPort {
   private readonly logger = new Logger(DepreciationService.name);
 
   constructor(
@@ -97,6 +98,21 @@ export class DepreciationService {
         );
       });
     }
+  }
+
+  /**
+   * Implementation of `DepreciationPort.runForPeriod`.
+   *
+   * Called by `ClosingAutomationService` at the end of each period. Delegates to
+   * `runMonthlyDepreciation`, which is idempotent via `SchedulerLockService`.
+   */
+  override runForPeriod(
+    organizationId: string,
+    period: { startDate: IsoDate; endDate: IsoDate },
+    manager?: EntityManager,
+  ): Promise<void> {
+    // Use the period's end date as the depreciation date — the month is charged on its last day.
+    return this.runMonthlyDepreciation(organizationId, period.endDate, manager);
   }
 
   /**
