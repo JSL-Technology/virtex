@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import type { OrganizationCreatedEvent } from '../accounting/handlers/organization-provisioning.handler';
 import { Organization } from './entities/organization.entity';
 import { OrganizationSubsidiary } from './entities/organization-subsidiary.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -27,6 +29,7 @@ export class OrganizationsService {
     private readonly saasService: SaasService,
     private readonly localizationService: LocalizationService,
     private readonly membershipService: MembershipService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findOne(id: string): Promise<Organization> {
@@ -173,19 +176,28 @@ export class OrganizationsService {
           : organizationTimeZone({ country: createOrganizationDto.country ?? null }),
     };
 
-    if (manager) {
-      const org = manager.create(Organization, attributes);
-      const savedOrg = await manager.save(org);
-      await this.accountSegmentsService.initializeDefault(savedOrg.id, manager, segments);
-      return savedOrg;
-    }
-
-    return this.organizationRepository.manager.transaction(async (m) => {
+    const save = async (m: EntityManager): Promise<Organization> => {
       const org = m.create(Organization, attributes);
       const savedOrg = await m.save(org);
       await this.accountSegmentsService.initializeDefault(savedOrg.id, m, segments);
       return savedOrg;
-    });
+    };
+
+    const savedOrg = manager
+      ? await save(manager)
+      : await this.organizationRepository.manager.transaction(save);
+
+    // Post-commit: modules that need to set up per-org state (bookkeeping, locale defaults)
+    // listen to this event instead of being called directly from here. The provisioning is
+    // non-transactional by design — if it fails the org still exists and can be re-provisioned
+    // from the settings screen.
+    const event: OrganizationCreatedEvent = {
+      organizationId: savedOrg.id,
+      country: savedOrg.country ?? '',
+    };
+    this.eventEmitter.emit('organization.created', event);
+
+    return savedOrg;
   }
 
   async findByTaxId(taxId: string): Promise<Organization | null> {

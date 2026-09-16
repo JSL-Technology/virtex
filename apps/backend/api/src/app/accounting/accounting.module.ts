@@ -34,6 +34,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 import { FiscalCalendarService } from './fiscal-calendar.service';
 import { LedgerLookupService } from './services/ledger-lookup.service';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
+import { OrganizationProvisioningHandler } from './handlers/organization-provisioning.handler';
 
 
 @Module({
@@ -75,6 +76,7 @@ import { CurrencyRevaluationService } from './services/currency-revaluation.serv
     FiscalCalendarService,
     LedgerLookupService,
     CurrencyRevaluationService,
+    OrganizationProvisioningHandler,
   ],
   controllers: [
     AccountingController,
