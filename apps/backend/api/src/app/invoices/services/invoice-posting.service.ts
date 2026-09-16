@@ -1,13 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { Invoice, InvoiceType } from '../entities/invoice.entity';
-import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
-import { Journal } from '../../journal-entries/entities/journal.entity';
-import { Ledger } from '../../accounting/entities/ledger.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
-import { ModuleSlug } from '../../journal-entries/accounting-posting.port';
-import { AccountingPostingPort } from '../../journal-entries/accounting-posting.port';
+import { ModuleSlug, AccountingPostingPort } from '../../journal-entries/accounting-posting.port';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -20,6 +16,10 @@ import {
 } from '../../common/money';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
+import { OrgSettingsService } from '../../organizations/services/org-settings.service';
+import { LedgerLookupService } from '../../accounting/services/ledger-lookup.service';
+import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
+import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -67,8 +67,11 @@ export class InvoicePostingService {
 
   constructor(
     private readonly posting: AccountingPostingPort,
-    /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    private readonly orgSettings: OrgSettingsService,
+    private readonly ledgerLookup: LedgerLookupService,
+    private readonly journalLookup: JournalLookupService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -345,7 +348,7 @@ export class InvoicePostingService {
     role: AccountRole,
     fallbackId: string | null | undefined,
   ): Promise<string | null> {
-    const account = await manager.getRepository(Account).findOne({
+    const account = await (manager ?? this.dataSource.manager).findOne(Account, {
       where: { organizationId, systemRole: role },
     });
     return account?.id ?? fallbackId ?? null;
@@ -379,9 +382,7 @@ export class InvoicePostingService {
     organizationId: string,
     manager: EntityManager,
   ): Promise<OrganizationSettings> {
-    const settings = await manager
-      .getRepository(OrganizationSettings)
-      .findOne({ where: { organizationId } });
+    const settings = await this.orgSettings.getForOrg(organizationId, manager);
 
     if (
       !settings ||
@@ -389,32 +390,21 @@ export class InvoicePostingService {
       !settings.defaultSalesRevenueId ||
       !settings.defaultSalesTaxId
     ) {
-      // A catalogue key, not a Spanish sentence: this reaches an accountant who may be reading the
-      // product in English or Portuguese, and every other error in this module is already localized.
       throw new BadRequestError('invoices.organization_accounting_setup_incomplete_accounts_receivable');
     }
     return settings;
   }
 
-  private async requireDefaultLedger(
-    organizationId: string,
-    manager: EntityManager,
-  ): Promise<Ledger> {
-    const ledger = await manager
-      .getRepository(Ledger)
-      .findOne({ where: { organizationId, isDefault: true } });
+  private async requireDefaultLedger(organizationId: string, manager: EntityManager) {
+    const ledger = await this.ledgerLookup.findDefault(organizationId, manager);
     if (!ledger) {
       throw new BadRequestError('invoices.organization_has_no_default_ledger_create');
     }
     return ledger;
   }
 
-  private async requireJournal(
-    organizationId: string,
-    code: string,
-    manager: EntityManager,
-  ): Promise<Journal> {
-    const journal = await manager.getRepository(Journal).findOne({ where: { organizationId, code } });
+  private async requireJournal(organizationId: string, code: string, manager: EntityManager) {
+    const journal = await this.journalLookup.findByCode(organizationId, code, manager);
     if (!journal) {
       throw new BadRequestError('invoices.no_journal_code_organization_create_under', { code });
     }
