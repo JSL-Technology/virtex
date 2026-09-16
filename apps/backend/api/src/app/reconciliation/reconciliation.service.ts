@@ -31,11 +31,9 @@ import {
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { JournalEntryLineValuation } from '../journal-entries/entities/journal-entry-line-valuation.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
-import { JournalEntry, JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
@@ -202,6 +200,7 @@ export class ReconciliationService {
     private readonly csvParser: CsvParserService,
     private readonly posting: AccountingPostingPort,
     private readonly balances: AccountBalancesService,
+    private readonly journalQuery: JournalQueryService,
     private readonly dataSource: DataSource,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
@@ -591,13 +590,7 @@ export class ReconciliationService {
       }
 
       const lineIds = match.lines.map((line) => line.journalEntryLineId);
-      if (lineIds.length > 0) {
-        await manager.update(
-          JournalEntryLine,
-          { id: In(lineIds) },
-          { isReconciled: false, reconciledAt: null },
-        );
-      }
+      await this.journalQuery.unmarkLinesReconciled(lineIds, manager);
       await manager.update(
         BankTransaction,
         { matchId: match.id },
@@ -960,19 +953,17 @@ export class ReconciliationService {
 
     // Ledger lines: scoped by tenant through the entry, restricted to the account this statement
     // belongs to, and to entries that are actually in the ledger.
-    const lines = await manager
-      .createQueryBuilder(JournalEntryLine, 'line')
-      .innerJoin(JournalEntry, 'entry', 'entry.id = line.journal_entry_id')
-      .where('line.id IN (:...ids)', { ids: journalEntryLineIds })
-      .andWhere('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
-      .andWhere('line.accountId = :accountId', { accountId: bankAccount.glAccountId })
-      .getMany();
+    const lineRows = await this.journalQuery.getEntryLinesForMatching({
+      lineIds: journalEntryLineIds,
+      organizationId,
+      glAccountId: bankAccount.glAccountId,
+      manager,
+    });
 
-    if (lines.length !== journalEntryLineIds.length) {
+    if (lineRows.length !== journalEntryLineIds.length) {
       throw new BadRequestError('reconciliation.ledger_line_does_not_exist_not');
     }
-    const alreadyReconciled = lines.find((line) => line.isReconciled);
+    const alreadyReconciled = lineRows.find((line) => line.isReconciled);
     if (alreadyReconciled) {
       throw new BadRequestError('reconciliation.ledger_line_id_already_reconciled', {
         id: alreadyReconciled.id,
@@ -990,19 +981,16 @@ export class ReconciliationService {
     const accountCurrency = statement.currencyCode || bankAccount.currencyCode;
     const isForeign = accountCurrency !== ledger.currency;
 
-    const valuations = await manager
-      .createQueryBuilder(JournalEntryLineValuation, 'valuation')
-      .where('valuation.journalEntryLineId IN (:...ids)', { ids: journalEntryLineIds })
-      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
-      .getMany();
+    const valuationRows = await this.journalQuery.getValuationsForLines(
+      journalEntryLineIds,
+      ledger.id,
+      manager,
+    );
     const baseByLine = new Map(
-      valuations.map((valuation) => [
-        valuation.journalEntryLineId,
-        roundAmount(valuation.debit - valuation.credit),
-      ]),
+      valuationRows.map((v) => [v.journalEntryLineId, roundAmount(v.debit - v.credit)]),
     );
 
-    const ledgerAmounts = lines.map((line) => {
+    const ledgerAmounts = lineRows.map((line) => {
       const base = baseByLine.get(line.id) ?? 0;
       if (!isForeign) return { line, inAccountCurrency: base, inBaseCurrency: base };
 
@@ -1053,7 +1041,7 @@ export class ReconciliationService {
     );
 
     await manager.save(
-      lines.map((line) =>
+      lineRows.map((line) =>
         manager.create(ReconciliationMatchLine, {
           matchId: match.id,
           journalEntryLineId: line.id,
@@ -1061,12 +1049,7 @@ export class ReconciliationService {
       ),
     );
 
-    const reconciledAt = new Date();
-    await manager.update(
-      JournalEntryLine,
-      { id: In(lines.map((line) => line.id)) },
-      { isReconciled: true, reconciledAt },
-    );
+    await this.journalQuery.markLinesReconciled(lineRows.map((line) => line.id), manager);
     await manager.update(
       BankTransaction,
       { id: In(transactions.map((transaction) => transaction.id)) },
@@ -1119,58 +1102,24 @@ export class ReconciliationService {
     const accountCurrency = options.accountCurrency ?? baseCurrency;
     const isForeign = accountCurrency !== baseCurrency;
 
-    const query = manager
-      .createQueryBuilder(JournalEntryLine, 'line')
-      .innerJoin(JournalEntry, 'entry', 'entry.id = line.journal_entry_id')
-      .innerJoin(
-        'journal_entry_line_valuations',
-        'valuation',
-        'valuation.journal_entry_line_id = line.id AND valuation.ledger_id = :ledgerId',
-        { ledgerId: ledger.id },
-      )
-      .select([
-        'line.id AS id',
-        'entry.id AS "journalEntryId"',
-        'entry.entry_number AS "entryNumber"',
-        'entry.date AS date',
-        'line.description AS description',
-        'valuation.debit AS "baseDebit"',
-        'valuation.credit AS "baseCredit"',
-        'line.currency_code AS "lineCurrency"',
-        'line.foreign_currency_debit AS "foreignDebit"',
-        'line.foreign_currency_credit AS "foreignCredit"',
-      ])
-      .where('entry.organization_id = :organizationId', { organizationId })
-      .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
-      .andWhere('line.account_id = :glAccountId', { glAccountId })
-      .andWhere('line.is_reconciled = false')
-      .andWhere('entry.date <= :to', { to })
-      .orderBy('entry.date', 'ASC');
-
-    if (from) query.andWhere('entry.date >= :from', { from });
-
-    const rows = await query.getRawMany<{
-      id: string;
-      journalEntryId: string;
-      entryNumber: string | null;
-      date: Date | string;
-      description: string | null;
-      baseDebit: string;
-      baseCredit: string;
-      lineCurrency: string | null;
-      foreignDebit: string | null;
-      foreignCredit: string | null;
-    }>();
+    const rows = await this.journalQuery.getOutstandingLedgerLines({
+      organizationId,
+      glAccountId,
+      ledgerId: ledger.id,
+      from,
+      to,
+      manager,
+    });
 
     return rows.map((row) => {
-      const amountInBaseCurrency = roundAmount(Number(row.baseDebit) - Number(row.baseCredit));
+      const amountInBaseCurrency = roundAmount(row.baseDebit - row.baseCredit);
 
       if (!isForeign) {
         return {
           id: row.id,
           journalEntryId: row.journalEntryId,
           entryNumber: row.entryNumber,
-          date: toIsoDate(row.date),
+          date: row.date,
           description: row.description,
           amount: amountInBaseCurrency,
           amountInBaseCurrency,
@@ -1191,10 +1140,10 @@ export class ReconciliationService {
         id: row.id,
         journalEntryId: row.journalEntryId,
         entryNumber: row.entryNumber,
-        date: toIsoDate(row.date),
+        date: row.date,
         description: row.description,
         amount: hasDocumentAmount
-          ? roundAmount(Number(row.foreignDebit ?? 0) - Number(row.foreignCredit ?? 0))
+          ? roundAmount((row.foreignDebit ?? 0) - (row.foreignCredit ?? 0))
           : 0,
         amountInBaseCurrency,
         amountUnavailable: !hasDocumentAmount,
@@ -1288,7 +1237,7 @@ export class ReconciliationService {
     rule: ReconciliationRule,
     organizationId: string,
     actorUserId: string,
-  ): Promise<JournalEntryLine> {
+  ): Promise<{ id: string }> {
     const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
     if (!ledger) {
       throw new BadRequestError('reconciliation.no_default_ledger_has_configured_organization');
@@ -1341,11 +1290,11 @@ export class ReconciliationService {
       },
     );
 
-    const line = entry.lines.find((candidate) => candidate.accountId === bankAccount.glAccountId);
+    const line = entry.lines?.find((candidate) => candidate.accountId === bankAccount.glAccountId);
     if (!line) {
       throw new BadRequestError('reconciliation.entry_rule_generated_does_not_contain');
     }
-    return line;
+    return { id: line.id };
   }
 }
 

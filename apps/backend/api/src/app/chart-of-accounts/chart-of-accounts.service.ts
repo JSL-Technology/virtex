@@ -20,7 +20,7 @@ import { Account } from './entities/account.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { AccountNature, AccountType } from './enums/account-enums';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { AccountSegment } from './entities/account-segment.entity';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
@@ -40,12 +40,11 @@ export class ChartOfAccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepository: TreeRepository<Account>,
-    @InjectRepository(JournalEntryLine)
-    private readonly journalEntryLineRepository: Repository<JournalEntryLine>,
     @InjectRepository(AccountHistory)
     private readonly accountHistoryRepository: Repository<AccountHistory>,
     private readonly dataSource: DataSource,
     private readonly auditTrailService: AuditTrailService,
+    private readonly journalQuery: JournalQueryService,
 
     @InjectQueue('account-jobs') private readonly accountJobsQueue: Queue,
   ) {}
@@ -243,10 +242,8 @@ export class ChartOfAccountsService {
 
 
       if (parentId !== undefined && parentId !== account.parentId) {
-        const transactionCount = await manager.count(JournalEntryLine, {
-          where: { accountId: id },
-        });
-        if (transactionCount > 0) {
+        const hasMovements = await this.journalQuery.hasMovementsForAccount(id, manager);
+        if (hasMovements) {
           throw new BadRequestError('chart_of_accounts.hierarchy_account_p1_cannot_changed_because', { p1: account.name['es'] });
         }
 
@@ -471,16 +468,9 @@ export class ChartOfAccountsService {
       }
       const errors: string[] = [];
       const accountsToDeactivate: Account[] = [];
-      const transactionCounts = await manager
-        .getRepository(JournalEntryLine)
-        .createQueryBuilder('line')
-        .select('line.accountId', 'accountId')
-        .addSelect('COUNT(line.id)', 'count')
-        .where('line.accountId IN (:...accountIds)', { accountIds })
-        .groupBy('line.accountId')
-        .getRawMany();
+      const movementCounts = await this.journalQuery.countMovementsByAccountIds(accountIds);
       const transactionMap = new Map(
-        transactionCounts.map((tc) => [tc.accountId, parseInt(tc.count, 10)]),
+        movementCounts.map((mc) => [mc.accountId, mc.count]),
       );
       for (const account of accounts) {
         if (account.isSystemAccount) {

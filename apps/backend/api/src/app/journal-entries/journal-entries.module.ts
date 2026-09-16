@@ -40,6 +40,7 @@ import { AuditModule } from '../audit/audit.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
 import { JournalLookupService } from './services/journal-lookup.service';
+import { JournalQueryService } from './services/journal-query.service';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { JournalLookupService } from './services/journal-lookup.service';
     // Posts an entry when its approval is granted, inside the approving transaction.
     JournalEntryApprovalHandler,
     JournalLookupService,
+    JournalQueryService,
   ],
   controllers: [
     JournalEntriesController,
@@ -119,6 +121,7 @@ import { JournalLookupService } from './services/journal-lookup.service';
     // audit-adjustment feature was never wired into a module at all.
     AdjustmentsService,
     JournalLookupService,
+    JournalQueryService,
   ],
 })
 export class JournalEntriesModule {}

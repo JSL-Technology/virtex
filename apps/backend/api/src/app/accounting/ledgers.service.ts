@@ -1,14 +1,9 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Ledger } from './entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import {
-  JournalEntry,
-  JournalEntryStatus,
-} from '../journal-entries/entities/journal-entry.entity';
 import { GeneralLedger, GeneralLedgerLine } from '../core/models/general-ledger.model';
 import { AccountNature } from '../chart-of-accounts/enums/account-enums';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
@@ -17,6 +12,7 @@ import { CreateLedgerDto, UpdateLedgerDto } from './dto/ledger.dto';
 import { previousDay, toIsoDate, type IsoDate } from '../common/dates';
 import { roundAmount } from '../common/money';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 
 // ── Libro diario types (owned here — they describe legal books, not custom reports) ────────────
 
@@ -61,6 +57,7 @@ export class LedgersService {
     @InjectRepository(Ledger)
     private readonly ledgerRepository: Repository<Ledger>,
     private readonly balances: AccountBalancesService,
+    private readonly journalQuery: JournalQueryService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -148,64 +145,32 @@ export class LedgersService {
       asOf: previousDay(from),
     });
 
-    const base = this.dataSource.manager.getRepository(JournalEntryLine)
-      .createQueryBuilder('line')
-      .innerJoin('line.journalEntry', 'entry')
-      .innerJoin('entry.journal', 'journal')
-      .innerJoin('line.valuations', 'valuation')
-      .where('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('line.accountId = :accountId', { accountId: account.id })
-      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
-      .andWhere('entry.date BETWEEN :from AND :to', { from, to });
-
-    if (!query.includeUnposted) {
-      base.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
-    }
-
-    const totalLines = await base.clone().getCount();
-
-    // `.clone()`, because the chain below sets `offset` and `limit` on whatever it is called on.
-    // Without it those survive on `base`, and `movementBefore` — which clones `base` to sum the
-    // earlier pages — inherits the current page's window and sums the wrong rows. Page 3 of a
-    // five-line account opened at 200 instead of 500.
-    const rows = await base
-      .clone()
-      .select([
-        'line.id AS id',
-        'entry.id AS "journalEntryId"',
-        'entry.entry_number AS reference',
-        'entry.date AS date',
-        'entry.description AS "entryDescription"',
-        'journal.code AS "journalCode"',
-        'line.description AS "lineDescription"',
-        'valuation.debit AS debit',
-        'valuation.credit AS credit',
-      ])
-      // `entry_number` after date, so two entries on the same day read in the order the book
-      // assigned them rather than in whatever order the planner returns.
-      .orderBy('entry.date', 'ASC')
-      .addOrderBy('entry.entry_number', 'ASC')
-      .addOrderBy('line.id', 'ASC')
-      .offset((page - 1) * pageSize)
-      .limit(pageSize)
-      .getRawMany<{
-        id: string;
-        journalEntryId: string;
-        reference: string | null;
-        date: Date | string;
-        entryDescription: string;
-        journalCode: string | null;
-        lineDescription: string | null;
-        debit: string;
-        credit: string;
-      }>();
+    const { rows, totalLines } = await this.journalQuery.getGeneralLedgerLines({
+      organizationId,
+      accountId: account.id,
+      ledgerId: ledger.id,
+      from,
+      to,
+      includeUnposted: query.includeUnposted,
+      page,
+      pageSize,
+    });
 
     // Paging and a running balance have to agree: page 2 opens where page 1 ended, so the balance
     // brought forward is the opening balance plus everything on the pages before this one.
     const carried =
       page === 1
         ? 0
-        : await this.movementBefore(base, page, pageSize);
+        : await this.journalQuery.getMovementBeforeCurrentPage({
+            organizationId,
+            accountId: account.id,
+            ledgerId: ledger.id,
+            from,
+            to,
+            includeUnposted: query.includeUnposted,
+            page,
+            pageSize,
+          });
 
     const naturalSign = account.nature === AccountNature.DEBIT ? 1 : -1;
     let running = roundAmount(naturalSign * (signedOpening + carried));
@@ -266,36 +231,6 @@ export class LedgersService {
   }
 
   /**
-   * Signed movement on the pages before this one, so a paged running balance stays continuous.
-   *
-   * The sum has to be taken over the rows the earlier pages actually contain, which means ordering
-   * and limiting first and aggregating second. Putting `SUM(...)` and `ORDER BY entry.date` in one
-   * statement is not a smaller version of that — PostgreSQL rejects it outright ("column
-   * entry.date must appear in the GROUP BY clause"), and even where a database accepts it, `LIMIT`
-   * applies to the aggregated result rather than to the rows being aggregated, so it would sum the
-   * whole account.
-   */
-  private async movementBefore(
-    base: SelectQueryBuilder<JournalEntryLine>,
-    page: number,
-    pageSize: number,
-  ): Promise<number> {
-    const inner = base
-      .clone()
-      .select(['valuation.debit AS debit', 'valuation.credit AS credit'])
-      .orderBy('entry.date', 'ASC')
-      .addOrderBy('entry.entry_number', 'ASC')
-      .addOrderBy('line.id', 'ASC')
-      .limit((page - 1) * pageSize);
-
-    const [sql, parameters] = inner.getQueryAndParameters();
-    const rows = await this.dataSource.manager.query<
-      { movement: string }[]
-    >(`SELECT COALESCE(SUM(m.debit - m.credit), 0) AS movement FROM (${sql}) m`, parameters);
-    return Number(rows[0]?.movement ?? 0);
-  }
-
-  /**
    * The libro diario: entries in date order, each with its lines.
    *
    * Entries are paged; the lines of the entries on each page are fetched in a single second query
@@ -322,29 +257,16 @@ export class LedgersService {
       throw new BadRequestError('reports.no_default_ledger_configured_set_one');
     }
 
-    const entryQuery = this.dataSource.manager.getRepository(JournalEntry)
-      .createQueryBuilder('entry')
-      .innerJoinAndSelect('entry.journal', 'journal')
-      .where('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('entry.date BETWEEN :from AND :to', { from, to });
-
-    if (!options.includeUnposted) {
-      entryQuery.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
-    }
-    if (options.journalIds && options.journalIds.length > 0) {
-      entryQuery.andWhere('entry.journalId IN (:...journalIds)', {
-        journalIds: options.journalIds,
-      });
-    }
-
-    const totalEntries = await entryQuery.clone().getCount();
-
-    const entries = await entryQuery
-      .orderBy('entry.date', 'ASC')
-      .addOrderBy('entry.entryNumber', 'ASC')
-      .skip((page - 1) * pageSize)
-      .take(pageSize)
-      .getMany();
+    const { entries, lines: rawLines, totalEntries } = await this.journalQuery.getJournalReportEntries({
+      organizationId,
+      ledgerId: ledger.id,
+      from,
+      to,
+      includeUnposted: options.includeUnposted,
+      journalIds: options.journalIds,
+      page,
+      pageSize,
+    });
 
     if (entries.length === 0) {
       return {
@@ -360,36 +282,7 @@ export class LedgersService {
       };
     }
 
-    const rows = await this.dataSource.manager.getRepository(JournalEntryLine)
-      .createQueryBuilder('line')
-      .innerJoin('line.journalEntry', 'entry')
-      .innerJoin('line.account', 'account')
-      .innerJoin('line.valuations', 'valuation')
-      .where('entry.id IN (:...entryIds)', { entryIds: entries.map((e) => e.id) })
-      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
-      .select([
-        'entry.id AS "entryId"',
-        'line.id AS id',
-        'account.id AS "accountId"',
-        'account.name AS "accountName"',
-        'line.description AS description',
-        'line.dimensions AS dimensions',
-        'valuation.debit AS debit',
-        'valuation.credit AS credit',
-      ])
-      .orderBy('line.id', 'ASC')
-      .getRawMany<{
-        entryId: string;
-        id: string;
-        accountId: string;
-        accountName: Record<string, string>;
-        description: string | null;
-        dimensions: Record<string, string> | null;
-        debit: string;
-        credit: string;
-      }>();
-
-    const accountIds = [...new Set(rows.map((row) => row.accountId))];
+    const accountIds = [...new Set(rawLines.map((row) => row.accountId))];
     const accounts = accountIds.length
       ? await this.dataSource.manager.getRepository(Account).find({ where: { id: In(accountIds) } })
       : [];
@@ -399,21 +292,19 @@ export class LedgersService {
     let totalDebit = 0;
     let totalCredit = 0;
 
-    for (const row of rows) {
-      const debit = Number(row.debit);
-      const credit = Number(row.credit);
-      totalDebit = roundAmount(totalDebit + debit);
-      totalCredit = roundAmount(totalCredit + credit);
+    for (const row of rawLines) {
+      totalDebit = roundAmount(totalDebit + row.debit);
+      totalCredit = roundAmount(totalCredit + row.credit);
 
       const bucket = linesByEntry.get(row.entryId) ?? [];
       bucket.push({
-        id: row.id,
+        id: row.lineId,
         accountId: row.accountId,
         accountCode: codeById.get(row.accountId) ?? '',
         accountName: row.accountName,
         description: row.description,
-        debit,
-        credit,
+        debit: row.debit,
+        credit: row.credit,
         dimensions: row.dimensions,
       });
       linesByEntry.set(row.entryId, bucket);

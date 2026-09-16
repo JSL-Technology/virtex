@@ -1,16 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource, In, Between, LessThan } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
-import {
-  JournalEntry,
-  JournalEntryStatus,
-} from '../journal-entries/entities/journal-entry.entity';
 import {
   ApprovalRequest,
   ApprovalStatus,
 } from '../workflows/entities/approval-request.entity';
 import { NotFoundError } from '../i18n/localized.exception';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 
 // VendorBill and BankTransaction are queried via raw SQL to avoid cross-module entity imports
 // that would create cycles: accounting → accounts-payable and accounting → reconciliation.
@@ -44,7 +41,10 @@ export interface ChecklistItem {
 export class ClosingChecklistService {
   private readonly logger = new Logger(ClosingChecklistService.name);
 
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly journalQuery: JournalQueryService,
+  ) {}
 
   async getChecklist(
     periodId: string,
@@ -63,18 +63,11 @@ export class ClosingChecklistService {
 
     const checklist: ChecklistItem[] = [];
 
-    const unpostedEntriesCount = await this.dataSource
-      .getRepository(JournalEntry)
-      .count({
-        where: {
-          organizationId,
-          status: In([
-            JournalEntryStatus.DRAFT,
-            JournalEntryStatus.PENDING_APPROVAL,
-          ]),
-          date: Between(period.startDate, period.endDate),
-        },
-      });
+    const unpostedEntriesCount = await this.journalQuery.countUnpostedEntriesInPeriod(
+      organizationId,
+      toIsoDate(period.startDate),
+      toIsoDate(period.endDate),
+    );
     checklist.push({
       id: 'unposted-journal-entries',
       descriptionKey: 'accounting.checklist.items.unposted_journal_entries',
@@ -129,15 +122,10 @@ export class ClosingChecklistService {
     // accrual left standing overstates the next period's result by its own amount, and the person
     // closing that period is exactly who needs to know. Here it is a line of the checklist, with
     // the entries named.
-    const pendingReversals = await this.dataSource.getRepository(JournalEntry).count({
-      where: {
-        organizationId,
-        reversesNextPeriod: true,
-        isReversed: false,
-        status: JournalEntryStatus.POSTED,
-        date: LessThan(toIsoDate(period.startDate) as unknown as Date),
-      },
-    });
+    const pendingReversals = await this.journalQuery.countPendingAccrualReversals(
+      organizationId,
+      toIsoDate(period.startDate),
+    );
     checklist.push({
       id: 'pending-accrual-reversals',
       descriptionKey: 'accounting.checklist.items.pending_accrual_reversals',
