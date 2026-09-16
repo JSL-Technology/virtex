@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -7,9 +7,10 @@ import { SaasService } from '../saas/saas.service';
 import { SAAS_CONFIG } from '../saas/saas.config';
 import { WebhookEvent } from './entities/webhook-event.entity';
 import { PaymentGateway } from './interfaces/payment-gateway.interface';
+import { RegistrationPaymentPort } from '../auth/ports/registration-payment.port';
 
 @Injectable()
-export class PaymentService {
+export class PaymentService extends RegistrationPaymentPort {
   private readonly logger = new Logger(PaymentService.name);
 
   constructor(

@@ -31,7 +31,7 @@ import { MembershipService } from '../../organizations/services/membership.servi
 import { UserCacheService } from '../modules/user-cache.service';
 import { canonicalizeTaxId } from '../../localization/fiscal/tax-id-validators';
 import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
-import { PaymentService } from '../../payment/payment.service';
+import { RegistrationPaymentPort } from '../ports/registration-payment.port';
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError } from '../../i18n/localized.exception';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
@@ -93,10 +93,10 @@ export class RegistrationService {
     private readonly passwordService: PasswordService,
     private readonly membershipService: MembershipService,
     private readonly configService: ConfigService,
-    // forwardRef: PaymentModule already depends on AuthModule for its guards, so the two modules
-    // reference each other. Needed here to undo a charge whose account could not be created.
-    @Inject(forwardRef(() => PaymentService))
-    private readonly paymentService: PaymentService,
+    // RegistrationPaymentPort is provided by PaymentModule and bound to PaymentService there.
+    // The port breaks the Auth ↔ Payment cycle: Auth defines the contract it needs, Payment
+    // fulfills it. No forwardRef needed because PaymentModule is not imported by AuthModule anymore.
+    private readonly paymentService: RegistrationPaymentPort,
     private readonly userCacheService: UserCacheService,
   ) {}
 

@@ -32,7 +32,7 @@ import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation
 import { AuthCreateCheckoutSessionDto, InvitationDetailsDto } from './dto/security-audit.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { PaymentService } from '../payment/payment.service';
+import { RegistrationPaymentPort } from './ports/registration-payment.port';
 import { SaasService } from '../saas/saas.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
@@ -62,7 +62,7 @@ export class AuthRegistrationController {
     private readonly authFacade: AuthFacade,
     private readonly passwordRecoveryService: PasswordRecoveryService,
     private readonly cookieService: CookieService,
-    private readonly paymentService: PaymentService,
+    private readonly paymentService: RegistrationPaymentPort,
     private readonly saasService: SaasService,
     // Client routes are declared once, in FrontendUrlService, so redirects cannot point at a path
     // the router does not have.
