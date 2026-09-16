@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AssetPostingService } from './asset-posting.service';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Cron } from '@nestjs/schedule';
@@ -63,7 +63,7 @@ export class DepreciationService {
   private readonly logger = new Logger(DepreciationService.name);
 
   constructor(
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly assetPosting: AssetPostingService,
     private readonly schedulerLock: SchedulerLockService,
     private readonly dataSource: DataSource,
     private readonly orgSettings: OrgSettingsService,
@@ -202,7 +202,7 @@ export class DepreciationService {
         return;
       }
 
-      await this.journalEntriesService.createWithManager(
+      await this.assetPosting.createWithManager(
         em,
         {
           date: depreciationDate,

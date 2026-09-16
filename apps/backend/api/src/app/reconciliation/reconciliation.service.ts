@@ -35,7 +35,7 @@ import { JournalEntryLineValuation } from '../journal-entries/entities/journal-e
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { JournalEntry, JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
@@ -200,7 +200,7 @@ export class ReconciliationService {
     @InjectRepository(ReconciliationRule)
     private readonly rules: Repository<ReconciliationRule>,
     private readonly csvParser: CsvParserService,
-    private readonly journalEntries: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     private readonly balances: AccountBalancesService,
     private readonly dataSource: DataSource,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
@@ -1306,7 +1306,7 @@ export class ReconciliationService {
       rule: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
     });
 
-    const entry = await this.journalEntries.createWithManager(
+    const entry = await this.posting.createWithManager(
       manager,
       {
         date: transaction.date,

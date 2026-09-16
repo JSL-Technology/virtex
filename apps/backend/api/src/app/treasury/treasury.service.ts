@@ -13,7 +13,7 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -104,7 +104,7 @@ export class TreasuryService {
   constructor(
     @InjectRepository(BankAccount)
     private readonly bankAccountRepository: Repository<BankAccount>,
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     private readonly balances: AccountBalancesService,
     private readonly exchangeRates: ExchangeRateResolver,
     private readonly calendar: FiscalCalendarService,
@@ -270,7 +270,7 @@ export class TreasuryService {
       },
     });
 
-    return this.journalEntriesService.createWithManager(
+    return this.posting.createWithManager(
       manager,
       {
         date: opening.date,
@@ -609,7 +609,7 @@ export class TreasuryService {
         );
       }
 
-      const entry = await this.journalEntriesService.createWithManager(
+      const entry = await this.posting.createWithManager(
         manager,
         {
           date: toIsoDate(dto.date),

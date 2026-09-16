@@ -12,7 +12,7 @@ import {
 } from './dto/create-customer-payment.dto';
 import { Customer } from './entities/customer.entity';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import {
   JournalEntryNumberingService,
   SEQUENCE_SCOPE,
@@ -79,7 +79,7 @@ export class CustomerPaymentsService {
   constructor(
     @InjectRepository(CustomerPayment)
     private readonly paymentRepository: Repository<CustomerPayment>,
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     private readonly numbering: JournalEntryNumberingService,
     private readonly exchangeRates: ExchangeRateResolver,
     private readonly dataSource: DataSource,
@@ -475,7 +475,7 @@ export class CustomerPaymentsService {
         );
       }
 
-      const entry = await this.journalEntriesService.createWithManager(
+      const entry = await this.posting.createWithManager(
         manager,
         {
           date: toIsoDate(dto.paymentDate),
@@ -561,7 +561,7 @@ export class CustomerPaymentsService {
       }
 
       if (payment.journalEntryId) {
-        const reversal = await this.journalEntriesService.createSystemReversal(
+        const reversal = await this.posting.createSystemReversal(
           payment.journalEntryId,
           organizationId,
           {

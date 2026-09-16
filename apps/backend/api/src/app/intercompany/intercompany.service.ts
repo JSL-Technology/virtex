@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager, In } from 'typeorm';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import { CreateIntercompanyTransactionDto } from './dto/create-intercompany-transaction.dto';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -76,7 +76,7 @@ export class IntercompanyService {
 
   constructor(
     private readonly dataSource: DataSource,
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     private readonly exchangeRates: ExchangeRateResolver,
     @InjectQueue(INTERCOMPANY_QUEUE)
     private readonly intercompanyQueue: Queue<DestinationEntryJobData>,
@@ -170,7 +170,7 @@ export class IntercompanyService {
         fundsOut: { key: 'ledger.intercompany.funds_out' },
       });
 
-      const sourceEntry = await this.journalEntriesService.createWithManager(
+      const sourceEntry = await this.posting.createWithManager(
         manager,
         {
           date: toIsoDate(date),
@@ -304,7 +304,7 @@ export class IntercompanyService {
         },
       });
 
-      const entry = await this.journalEntriesService.createWithManager(
+      const entry = await this.posting.createWithManager(
         manager,
         {
           date: toIsoDate(transaction.transactionDate),

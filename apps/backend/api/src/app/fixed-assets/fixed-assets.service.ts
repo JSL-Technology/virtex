@@ -7,7 +7,7 @@ import { Page, resolvePaging, toPage } from '../common/pagination';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
 import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
 import { DisposeAssetDto } from './dto/dispose-asset.dto';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AssetPostingService } from './asset-posting.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
@@ -22,7 +22,7 @@ export class FixedAssetsService {
     @InjectRepository(FixedAsset)
     private fixedAssetRepository: Repository<FixedAsset>,
     private readonly dataSource: DataSource,
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly assetPosting: AssetPostingService,
     private readonly journalLookup: JournalLookupService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
@@ -172,7 +172,7 @@ export class FixedAssetsService {
       if (!manager.queryRunner) {
         throw new InternalServerError('fixed_assets.transaction_query_runner_could_not_obtained');
       }
-      await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, entryDto, organizationId);
+      await this.assetPosting.createWithQueryRunner(manager.queryRunner, entryDto, organizationId);
 
 
       asset.status = FixedAssetStatus.DISPOSED;

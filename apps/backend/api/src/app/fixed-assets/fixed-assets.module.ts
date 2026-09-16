@@ -7,6 +7,7 @@ import { FixedAsset } from './entities/fixed-asset.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { AuthModule } from '../auth/auth.module';
 import { DepreciationService } from './depreciation.service';
+import { AssetPostingService } from './asset-posting.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { DepreciationService } from './depreciation.service';
     forwardRef(() => AuthModule),
   ],
   controllers: [FixedAssetsController],
-  providers: [FixedAssetsService, DepreciationService],
-  exports: [DepreciationService],
+  providers: [FixedAssetsService, DepreciationService, AssetPostingService],
+  exports: [DepreciationService, AssetPostingService],
 })
 export class FixedAssetsModule {}

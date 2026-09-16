@@ -7,7 +7,7 @@ import { Ledger } from '../../accounting/entities/ledger.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
 import { ModuleSlug } from '../../journal-entries/accounting-posting.port';
-import { JournalEntriesService } from '../../journal-entries/journal-entries.service';
+import { AccountingPostingPort } from '../../journal-entries/accounting-posting.port';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -66,7 +66,7 @@ export class InvoicePostingService {
   private readonly logger = new Logger(InvoicePostingService.name);
 
   constructor(
-    private readonly journalEntries: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
   ) {}
@@ -224,7 +224,7 @@ export class InvoicePostingService {
       lines: this.toLines(debits, credits, isCredit),
     };
 
-    const entry = await this.journalEntries.createWithManager(
+    const entry = await this.posting.createWithManager(
       manager,
       dto,
       invoice.organizationId,
@@ -288,7 +288,7 @@ export class InvoicePostingService {
       lines: this.toLines(debits, credits, isCredit),
     };
 
-    const entry = await this.journalEntries.createWithManager(
+    const entry = await this.posting.createWithManager(
       manager,
       dto,
       invoice.organizationId,
