@@ -7,7 +7,7 @@ import { PERMISSIONS } from '../shared/permissions';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import {
   BalanceSheetQueryDto,
   DimensionalPeriodQueryDto,

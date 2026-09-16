@@ -20,7 +20,7 @@ import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.inte
 import { FinancialReportingService } from '../../financial-reporting/financial-reporting.service';
 import { TreasuryService } from '../../treasury/treasury.service';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
-import { FiscalCalendarService } from '../../shared/fiscal-calendar.service';
+import { FiscalCalendarService } from '../../accounting/fiscal-calendar.service';
 import { findTaxScheme } from '../../localization/fiscal/country-tax-schemes';
 import { roundAmount, sumAmounts } from '../../common/money';
 import { addDaysIso, toIsoDate } from '../../common/dates';

@@ -29,7 +29,7 @@ import {
 } from '../chart-of-accounts/account-balances.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
-import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
