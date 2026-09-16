@@ -8,28 +8,24 @@ import { BankTransaction } from './entities/bank-transaction.entity';
 import { ReconciliationMatch } from './entities/reconciliation-match.entity';
 import { ReconciliationMatchLine } from './entities/reconciliation-match-line.entity';
 import { ReconciliationRule } from './entities/reconciliation-rule.entity';
-import { BankAccount } from '../treasury/entities/bank-account.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { AuthModule } from '../auth/auth.module';
-
 @Module({
   imports: [
+    // Only the entities this module owns.
     TypeOrmModule.forFeature([
       BankStatement,
       BankTransaction,
       ReconciliationMatch,
       ReconciliationMatchLine,
       ReconciliationRule,
-      BankAccount,
-      Account,
-      JournalEntryLine,
     ]),
     AuthModule,
-    JournalEntriesModule,
+    // Account (chart-of-accounts) and BankAccount (treasury) are accessed via DataSource.
     ChartOfAccountsModule,
+    // JournalEntryLine/JournalEntryLineValuation reads go through JournalQueryService.
+    JournalEntriesModule,
   ],
   controllers: [ReconciliationController],
   providers: [ReconciliationService, CsvParserService],

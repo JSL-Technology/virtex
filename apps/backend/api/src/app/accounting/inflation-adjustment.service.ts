@@ -1,11 +1,11 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { InflationIndex } from './entities/inflation-index.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { CreateJournalEntryLineDto, CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Ledger } from './entities/ledger.entity';
@@ -22,12 +22,9 @@ export class InflationAdjustmentService {
   constructor(
     @InjectRepository(InflationIndex)
     private readonly inflationIndexRepository: Repository<InflationIndex>,
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
-    @InjectRepository(OrganizationSettings)
-    private readonly orgSettingsRepository: Repository<OrganizationSettings>,
     private readonly journalEntriesService: JournalEntriesService,
     private readonly accountBalances: AccountBalancesService,
+    private readonly orgSettings: OrgSettingsService,
     private readonly dataSource: DataSource,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
@@ -48,7 +45,7 @@ export class InflationAdjustmentService {
       throw new NotFoundError('accounting.no_inflation_index_found_year_month', { year, month });
     }
 
-    const settings = await this.orgSettingsRepository.findOneBy({ organizationId });
+    const settings = await this.orgSettings.getForOrg(organizationId);
     if (!settings?.defaultInflationAdjustmentAccountId) {
         throw new BadRequestError('accounting.inflation_adjustment_account_not_configured');
     }
@@ -58,7 +55,7 @@ export class InflationAdjustmentService {
         throw new BadRequestError('accounting.no_default_ledger_has_configured_organization');
     }
     
-    const accountsToAdjust = await this.accountRepository.find({
+    const accountsToAdjust = await this.dataSource.manager.find(Account, {
         where: { organizationId, isInflationAdjustable: true },
     });
 

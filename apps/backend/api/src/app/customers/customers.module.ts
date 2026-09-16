@@ -9,34 +9,27 @@ import { CustomerPayment } from './entities/customer-payment.entity';
 import { CustomerPaymentLine } from './entities/customer-payment-line.entity';
 import { CustomerPaymentsController } from './customer-payments.controller';
 import { CustomerPaymentsService } from './customer-payments.service';
-import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
-import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
-import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { Invoice } from '../invoices/entities/invoice.entity';
 import { CustomerContact } from './entities/customer-contact.entity';
 import { CustomerAddress } from './entities/customer-address.entity';
 import { CustomerGroup } from './entities/customer-group.entity';
-
 import { CustomerGroupsController } from './customer-groups.controller';
 import { CustomerGroupsService } from './customer-groups.service';
 // The ageing report ties itself to the receivables control account in the general ledger.
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
-
+// PeriodLockModule provides PeriodLockGuard and the AccountingPeriod/AccountPeriodLock
+// repositories it needs — no need to register them here and claim ownership.
+import { PeriodLockModule } from '../accounting/period-lock.module';
 
 @Module({
   imports: [
     CurrenciesModule,
+    // Only entities this module owns.
     TypeOrmModule.forFeature([
       Customer,
       CustomerPayment,
       CustomerPaymentLine,
-      AccountingPeriod,
-      AccountPeriodLock,
-      Invoice,
-      OrganizationSettings,
       CustomerContact,
       CustomerAddress,
       CustomerGroup,
@@ -44,6 +37,9 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
     AuthModule,
     JournalEntriesModule,
     ChartOfAccountsModule,
+    // AccountingPeriod/AccountPeriodLock owned by accounting; get the guard from its leaf module.
+    PeriodLockModule,
+    // Invoice and OrganizationSettings are read via DataSource.manager in CustomerPaymentsService.
   ],
   controllers: [
     CustomersController,
@@ -53,8 +49,8 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   providers: [
     CustomersService,
     CustomerPaymentsService,
-    PeriodLockGuard,
     CustomerGroupsService,
+    // PeriodLockGuard is provided by PeriodLockModule (imported above).
   ],
   exports: [CustomersService],
 })

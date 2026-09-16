@@ -53,13 +53,13 @@ import { JournalQueryService } from './services/journal-query.service';
       JournalEntryLineValuation,
       RecurringJournalEntry,
       JournalEntryTemplate,
-      Account,
       JournalEntryAttachment,
       Journal,
-      Ledger,
       DimensionRule,
       JournalEntrySequence,
       JournalEntryImportBatch,
+      // Account is owned by ChartOfAccountsModule (imported via forwardRef below).
+      // Ledger is owned by AccountingModule (resolved via LedgerLookupService).
     ]),
 
     BullModule.registerQueue({

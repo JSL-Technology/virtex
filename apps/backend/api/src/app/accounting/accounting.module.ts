@@ -34,15 +34,13 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 import { FiscalCalendarService } from './fiscal-calendar.service';
 import { LedgerLookupService } from './services/ledger-lookup.service';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 
 
 @Module({
   imports: [
     PeriodLockModule,
     forwardRef(() => ChartOfAccountsModule),
+    // Only entities this module owns.
     TypeOrmModule.forFeature([
       AccountingPeriod,
       InflationIndex,
@@ -51,9 +49,9 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
       AccountPeriodLock,
       LedgerMappingRule,
       LedgerMappingRuleCondition,
-      Account,
-      Organization,
-      OrganizationSettings,
+      // Account belongs to chart-of-accounts — accessed via DataSource in services that need it.
+      // Organization/OrganizationSettings belong to organizations — accessed via OrgSettingsService
+      // (globally available) or DataSource.manager for bulk queries.
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => JournalEntriesModule),

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, LessThan } from 'typeorm';
+import { DataSource, LessThan } from 'typeorm';
 import { parse as parseDate, isValid } from 'date-fns';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntriesService } from './journal-entries.service';
@@ -71,8 +71,6 @@ export class JournalEntryImportService {
   private readonly logger = new Logger(JournalEntryImportService.name);
 
   constructor(
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
     @InjectRepository(JournalEntryImportBatch)
     private readonly batchRepository: Repository<JournalEntryImportBatch>,
     private readonly journalEntriesService: JournalEntriesService,
@@ -101,7 +99,7 @@ export class JournalEntryImportService {
       });
     }
 
-    const accounts = await this.accountRepository.find({
+    const accounts = await this.dataSource.manager.find(Account, {
       where: { organizationId },
       select: ['id', 'code', 'isPostable', 'isActive'],
     });

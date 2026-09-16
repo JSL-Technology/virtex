@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { DataSource, EntityManager, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
 import { FiscalYear } from './entities/fiscal-year.entity';
 import { IsoDate, toIsoDate } from '../common/dates';
@@ -41,10 +41,9 @@ export interface CalendarOptions {
 @Injectable()
 export class FiscalCalendarService {
   constructor(
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(FiscalYear)
     private readonly fiscalYearRepository: Repository<FiscalYear>,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -55,9 +54,7 @@ export class FiscalCalendarService {
    * pool along with them.
    */
   async today(organizationId: string, options: CalendarOptions = {}): Promise<IsoDate> {
-    const repository = options.manager
-      ? options.manager.getRepository(Organization)
-      : this.organizationRepository;
+    const repository = (options.manager ?? this.dataSource.manager).getRepository(Organization);
     const organization = await repository.findOne({
       where: { id: organizationId },
       select: ['id', 'country', 'timezone'],

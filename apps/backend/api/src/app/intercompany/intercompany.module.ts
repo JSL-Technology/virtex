@@ -9,14 +9,12 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
 import { AuthModule } from '../auth/auth.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
-import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { OrganizationGroupMember } from '../organizations/entities/organization-group-member.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { Journal } from '../journal-entries/entities/journal.entity';
-import { Ledger } from '../accounting/entities/ledger.entity';
-import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
-import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+
+// Organization, OrganizationSettings, OrganizationGroupMember, Account, Journal, Ledger,
+// AccountingPeriod, AccountPeriodLock are all read via DataSource.manager within the service.
+// They are owned by their respective modules; declaring them in forFeature here would make
+// IntercompanyModule look like their owner, which it is not.
 
 /**
  * `intercompany-jobs` is registered here.
@@ -26,21 +24,15 @@ import { AccountPeriodLock } from '../accounting/entities/account-period-lock.en
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      IntercompanyTransaction,
-      Organization,
-      OrganizationSettings,
-      OrganizationGroupMember,
-      Account,
-      Journal,
-      Ledger,
-      AccountingPeriod,
-      AccountPeriodLock,
-    ]),
+    // Only the entity this module owns.
+    TypeOrmModule.forFeature([IntercompanyTransaction]),
     BullModule.registerQueue({ name: INTERCOMPANY_QUEUE }),
     JournalEntriesModule,
+    // PeriodLockModule (via AccountingModule re-export) provides the period-lock guard and
+    // LedgerLookupService for resolving the source ledger.
     AccountingModule,
     CurrenciesModule,
+    ChartOfAccountsModule,
     AuthModule,
   ],
   providers: [IntercompanyService, IntercompanyProcessor],

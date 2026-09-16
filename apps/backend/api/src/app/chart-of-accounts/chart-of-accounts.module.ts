@@ -1,5 +1,6 @@
 
 import { Module, forwardRef } from '@nestjs/common';
+import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { Account } from './entities/account.entity';
@@ -14,17 +15,14 @@ import { AccountSegmentsService } from './account-segments.service';
 import { AccountSegmentsController } from './account-segments.controller';
 import { AccountJobsProcessor } from './account-jobs.processor';
 import { WebsocketsModule } from '../websockets/websockets.module';
-import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { AccountBalancesService } from './account-balances.service';
 
-
 @Module({
   imports: [
+    // Only entities this module owns.
     TypeOrmModule.forFeature([
       Account,
-      JournalEntryLine,
       AccountSegment,
       AccountHistory,
       AccountSegmentDefinition,
@@ -32,6 +30,10 @@ import { AccountBalancesService } from './account-balances.service';
     ]),
     BullModule.registerQueue({ name: 'account-jobs' }),
     forwardRef(() => AuditModule),
+    // JournalQueryService (from JournalEntriesModule) replaces the direct JournalEntryLine
+    // repository that used to live here. The forwardRef is symmetric: JournalEntries already
+    // imports ChartOfAccounts via forwardRef for account-id resolution during posting.
+    forwardRef(() => JournalEntriesModule),
     WebsocketsModule,
   ],
   controllers: [

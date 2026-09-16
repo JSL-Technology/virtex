@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { DataSource, LessThan, Repository } from 'typeorm';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -17,10 +17,7 @@ export class FiscalYearArchivingService {
     private readonly schedulerLock: SchedulerLockService,
     @InjectRepository(FiscalYear)
     private readonly fiscalYearRepository: Repository<FiscalYear>,
-    @InjectRepository(Organization)
-    private readonly orgRepository: Repository<Organization>,
-    @InjectRepository(OrganizationSettings)
-    private readonly orgSettingsRepository: Repository<OrganizationSettings>,
+    private readonly dataSource: DataSource,
   ) {}
 
 
@@ -31,7 +28,7 @@ export class FiscalYearArchivingService {
     this.logger.log('Iniciando job de archivado de años fiscales...');
     // tenant-scope-guard-allow: a cross-tenant maintenance cron that iterates every organization;
     // `organizations` is the tenant table itself, not tenant-scoped data.
-    const organizations = await this.orgRepository.find();
+    const organizations = await this.dataSource.manager.find(Organization);
     
     const month = toIsoMonth(new Date());
     for (const org of organizations) {
@@ -50,7 +47,7 @@ export class FiscalYearArchivingService {
   }
 
   private async archiveForOrganization(organizationId: string): Promise<void> {
-    const settings = await this.orgSettingsRepository.findOneBy({ organizationId });
+    const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings) return;
 
     const archiveYears = settings.fiscalArchiveAfterYears;
