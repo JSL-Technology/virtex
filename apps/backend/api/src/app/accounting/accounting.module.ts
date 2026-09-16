@@ -17,7 +17,6 @@ import { LedgersController } from './ledgers.controller';
 import { YearEndCloseController } from './year-end-close.controller';
 import { YearEndCloseService } from './year-end-close.service';
 import { AccountPeriodLock } from './entities/account-period-lock.entity';
-import { PeriodLockGuard } from './guards/period-lock.guard';
 import { AuditModule } from '../audit/audit.module';
 import { ClosingAutomationService } from './closing-automation.service';
 import { ResultTransferService } from './result-transfer.service';
@@ -34,6 +33,7 @@ import { PeriodLockModule } from './period-lock.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { FiscalCalendarService } from './fiscal-calendar.service';
 import { LedgerLookupService } from './services/ledger-lookup.service';
+import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -74,6 +74,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
     TenantBookkeepingProvisioner,
     FiscalCalendarService,
     LedgerLookupService,
+    CurrencyRevaluationService,
   ],
   controllers: [
     AccountingController,
@@ -93,6 +94,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
     TenantBookkeepingProvisioner,
     FiscalCalendarService,
     LedgerLookupService,
+    CurrencyRevaluationService,
   ],
 })
 export class AccountingModule {}

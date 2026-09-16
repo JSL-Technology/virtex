@@ -1,5 +1,4 @@
-
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { CurrenciesService } from './currencies.service';
@@ -9,23 +8,19 @@ import { Currency } from './entities/currency.entity';
 import { ExchangeRate } from './entities/exchange-rate.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { ExchangeRatesController } from './exchange-rates.controller';
-import { CurrencyRevaluationService } from '../batch-processes/currency-revaluation.service';
-import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { ExchangeRateResolver } from './exchange-rate-resolver.service';
 import { XeRatesProvider } from './xe-rates.provider';
 
-
+// CurrencyRevaluationService moved to accounting/services/ — it belongs to the accounting
+// domain and now injects AccountingPostingPort instead of JournalEntriesService.
+// AccountingModule provides and exports it from there.
 
 @Module({
   imports: [
     ChartOfAccountsModule,
-    TypeOrmModule.forFeature([
-      Currency,
-      ExchangeRate,
-    ]),
+    TypeOrmModule.forFeature([Currency, ExchangeRate]),
     HttpModule,
-    forwardRef(() => JournalEntriesModule),
   ],
   controllers: [CurrenciesController, ExchangeRatesController],
   providers: [
@@ -34,8 +29,7 @@ import { XeRatesProvider } from './xe-rates.provider';
     CurrenciesService,
     CurrencySeederService,
     ExchangeRatesService,
-    CurrencyRevaluationService,
   ],
-  exports: [ExchangeRateResolver, XeRatesProvider, CurrencyRevaluationService, CurrencySeederService],
+  exports: [ExchangeRateResolver, XeRatesProvider, CurrencySeederService],
 })
 export class CurrenciesModule {}

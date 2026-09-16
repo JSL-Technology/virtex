@@ -1,46 +1,50 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
-import { OrgSettingsService } from '../organizations/services/org-settings.service';
-import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
+import { Account } from '../../chart-of-accounts/entities/account.entity';
+import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
+import { AccountingPostingPort } from '../../journal-entries/accounting-posting.port';
+import { OrgSettingsService } from '../../organizations/services/org-settings.service';
+import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
-} from '../journal-entries/dto/create-journal-entry.dto';
-import { Ledger } from '../accounting/entities/ledger.entity';
-import { BadRequestError } from '../i18n/localized.exception';
+} from '../../journal-entries/dto/create-journal-entry.dto';
+import { Ledger } from '../entities/ledger.entity';
+import { BadRequestError } from '../../i18n/localized.exception';
 import {
   AccountBalancesService,
   toIsoDate,
-} from '../chart-of-accounts/account-balances.service';
-import { convert, roundAmount, toCents } from '../common/money';
-import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
-import { I18nService } from '../i18n/i18n.service';
+} from '../../chart-of-accounts/account-balances.service';
+import { convert, roundAmount, toCents } from '../../common/money';
+import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
+import { I18nService } from '../../i18n/i18n.service';
 
 /**
  * Restates foreign-currency account balances at the closing rate — the unrealised FX adjustment.
+ *
+ * Belongs to the accounting domain: it reads the ledger's current balances and posts an
+ * adjusting entry to it. Moved here from `batch-processes/` which was a technical folder with
+ * no domain boundary. The service now injects `AccountingPostingPort` instead of the full
+ * `JournalEntriesService`.
  *
  * ## What was wrong
  *
  * The revaluation read the document-currency balance from
  * `account_balances.balance_in_foreign_currency`. Nothing ever wrote that column: the balance
- * worker's upsert listed `account_id`, `ledger_id`, `balance`, `version` and `last_updated_at`, and
- * nothing else. So the restated balance was always `0 × rate = 0`, the difference was always
- * `0 − carrying amount`, and every period close booked the **entire balance** of every
- * multicurrency account to exchange gain or loss. Since the close ran this before computing the
- * closing entry, the damage compounded.
+ * worker's upsert listed `account_id`, `ledger_id`, `balance`, `version` and `last_updated_at`,
+ * and nothing else. So the restated balance was always `0 × rate = 0`, the difference was
+ * always `0 − carrying amount`, and every period close booked the **entire balance** of every
+ * multicurrency account to exchange gain or loss.
  *
- * The document-currency balance now comes from the lines that carry it, and the two figures being
- * compared are finally the same account measured two ways.
+ * The document-currency balance now comes from the lines that carry it, and the two figures
+ * being compared are finally the same account measured two ways.
  */
 @Injectable()
 export class CurrencyRevaluationService {
   private readonly logger = new Logger(CurrencyRevaluationService.name);
 
   constructor(
-    private readonly journalEntriesService: JournalEntriesService,
+    private readonly posting: AccountingPostingPort,
     private readonly balances: AccountBalancesService,
     private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly dataSource: DataSource,
@@ -69,18 +73,13 @@ export class CurrencyRevaluationService {
 
       if (ledgersToProcess.length === 0) {
         throw new BadRequestError(
-          'batch_processes.no_ledgers_found_process_organization_organization',
+          'accounting.revaluation.no_ledgers_found',
           { organizationId },
         );
       }
 
       for (const ledger of ledgersToProcess) {
-        await this.runForLedger(
-          periodEndDate,
-          organizationId,
-          ledger,
-          transactionManager,
-        );
+        await this.runForLedger(periodEndDate, organizationId, ledger, transactionManager);
       }
     };
 
@@ -96,9 +95,6 @@ export class CurrencyRevaluationService {
   ): Promise<void> {
     this.logger.log(`Procesando revaluación para el libro: ${ledger.name}.`);
 
-    // Resolved once for the whole ledger. A closing rate is a fact about the day, and looking it
-    // up per account would let two accounts in the same currency be restated at different rates
-    // if a row landed mid-run.
     const periodEndIso = toIsoDate(periodEndDate);
     const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, manager);
 
@@ -123,10 +119,7 @@ export class CurrencyRevaluationService {
 
     const [carrying, documentCurrency] = await Promise.all([
       this.balances.balancesAsOf({ ...scope, asOf: periodEndDate }, manager),
-      this.balances.foreignCurrencyBalancesAsOf(
-        { ...scope, asOf: periodEndDate },
-        manager,
-      ),
+      this.balances.foreignCurrencyBalancesAsOf({ ...scope, asOf: periodEndDate }, manager),
     ]);
 
     const revaluationLines: CreateJournalEntryLineDto[] = [];
@@ -137,16 +130,8 @@ export class CurrencyRevaluationService {
       const carryingAmount = carrying.get(account.id) ?? 0;
       if (documentBalance === 0 && carryingAmount === 0) continue;
 
-      if (!account.currency || account.currency === ledger.currency) {
-        // Flagged multicurrency but held in the ledger's own currency: nothing to restate.
-        continue;
-      }
+      if (!account.currency || account.currency === ledger.currency) continue;
 
-      // Through the resolver rather than a direct row lookup: it tries the pair direct, inverted,
-      // and as a cross through the dollar. The lookup this replaces required a row stored in
-      // exactly this direction, so an account held in EUR on COP books — neither leg quoted
-      // directly — was skipped every close, and the warning below was the only trace. An account
-      // silently excluded from revaluation carries a stale historical rate forever.
       let closingRate: number;
       try {
         closingRate = await this.exchangeRateResolver.rateFor(
@@ -191,9 +176,6 @@ export class CurrencyRevaluationService {
       return;
     }
 
-    // One entry per ledger with a single balancing line, rather than one entry per account. The
-    // gain and loss on different currencies offset into a single net position, which is what an
-    // unrealised FX adjustment is, and it leaves one reversible document instead of dozens.
     const netAmount = roundAmount(Math.abs(netAdjustmentCents) / 100);
     revaluationLines.push({
       accountId: forexAccountId,
@@ -225,16 +207,12 @@ export class CurrencyRevaluationService {
       ),
       journalId: generalJournal.id,
       lines: revaluationLines,
-      // The adjustment is expressed in ledger currency; it is the restatement itself, so it
-      // carries no rate of its own.
     };
 
-    await this.journalEntriesService.createWithManager(
-      manager,
-      entryDto,
-      organizationId,
-      { actorUserId: null, systemReason: 'fx-revaluation' },
-    );
+    await this.posting.createWithManager(manager, entryDto, organizationId, {
+      actorUserId: null,
+      systemReason: 'fx-revaluation',
+    });
 
     this.logger.log(
       `Revaluación registrada en ${ledger.name}: ${revaluationLines.length - 1} cuentas, neto ${roundAmount(netAdjustmentCents / 100)} ${ledger.currency}.`,
