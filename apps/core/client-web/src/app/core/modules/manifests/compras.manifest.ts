@@ -72,7 +72,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       icon: 'Truck',
       entityKeyFn: () => 'compras:suppliers',
       menu: { group: 'masters', labelKey: 'sidebar.master_data.suppliers' },
-      load: () => import('../../../features/masters/suppliers/supplier-list/supplier-list.page').then((m) => m.SupplierListPage),
+      load: () => import('../../../features/contacts/suppliers/suppliers.page').then((m) => m.SuppliersPage),
     },
     {
       path: 'masters/suppliers/new',
@@ -81,7 +81,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.suppliers',
       icon: 'Truck',
       entityKeyFn: () => 'compras:supplier:new',
-      load: () => import('../../../features/masters/suppliers/supplier-form/supplier-form').then((m) => m.SupplierForm),
+      load: () => import('../../../features/contacts/supplier-form/supplier-form').then((m) => m.SupplierForm),
     },
     {
       path: 'masters/suppliers/:id/edit',
@@ -90,7 +90,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.supplier_edit',
       icon: 'Truck',
       entityKeyFn: (p) => `compras:supplier:${p['id']}`,
-      load: () => import('../../../features/masters/suppliers/supplier-form/supplier-form').then((m) => m.SupplierForm),
+      load: () => import('../../../features/contacts/supplier-form/supplier-form').then((m) => m.SupplierForm),
     },
     {
       path: 'purchasing/orders',
