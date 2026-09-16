@@ -18,6 +18,18 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
 
+/**
+ * Web-based POS terminal embedded in the management console.
+ *
+ * This is the in-browser selling interface for staff who process sales from the main web app
+ * (desktop or tablet in a browser). It is NOT the dedicated POS hardware app. The standalone
+ * terminal app for dedicated kiosks/iPads lives in `apps/pos/` — a separate Angular application
+ * compiled and deployed independently.
+ *
+ * Placement under `features/sales/` is correct: this is a sales workflow, not a settings screen
+ * or an administrative view. The folder name `pos/` refers to the kind of selling interface, not
+ * to the dedicated `apps/pos/` app.
+ */
 @Component({
   selector: 'app-pos-page',
   standalone: true,
