@@ -72,10 +72,9 @@ import { JournalQueryService } from './services/journal-query.service';
     PeriodLockModule,
     forwardRef(() => WorkflowsModule),
     forwardRef(() => AuditModule),
-    // The posting path resolves its own exchange rate now instead of taking one from the
-    // request. `CurrenciesModule` already forward-references this one, so the cycle is declared
-    // on both sides.
-    forwardRef(() => CurrenciesModule),
+    // CurrenciesModule no longer imports JournalEntriesModule (CurrencyRevaluationService moved
+    // to AccountingModule in Group C). This is now a one-directional dependency.
+    CurrenciesModule,
   ],
   providers: [
     JournalEntriesService,
