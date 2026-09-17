@@ -17,6 +17,7 @@ import { AuthMfaController } from './auth-mfa.controller';
 import { AuthWebAuthnController } from './auth-webauthn.controller';
 import { AuthSessionController } from './auth-session.controller';
 import { AuthService } from './auth.service';
+import { SessionSwitchPort } from './ports/session-switch.port';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
 import { DevSeederService } from './services/dev-seeder.service';
@@ -171,6 +172,7 @@ import { KeyManagementModule } from './services/key-management.module';
   ],
   providers: [
     AuthService,
+    { provide: SessionSwitchPort, useExisting: AuthService },
     AuthFacade,
     RegistrationService,
     DevSeederService,
@@ -220,6 +222,7 @@ import { KeyManagementModule } from './services/key-management.module';
   ],
   exports: [
     AuthService,
+    SessionSwitchPort,
     AuthFacade,
     TwoFactorAuthService,
     PasswordRecoveryService,

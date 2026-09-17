@@ -1,5 +1,6 @@
 
 import { Injectable, Inject, forwardRef, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { UserProfilePort } from './ports/user-profile.port';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -40,7 +41,7 @@ export interface UserActivityEntry {
 }
 
 @Injectable()
-export class UsersService {
+export class UsersService extends UserProfilePort {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
@@ -59,7 +60,7 @@ export class UsersService {
     private readonly sessionService: SessionService,
     private readonly membershipService: MembershipService,
     private readonly auditTrailService: AuditTrailService,
-  ) {}
+  ) { super(); }
 
   /**
    * Fields a user may change about themselves through the profile screen.

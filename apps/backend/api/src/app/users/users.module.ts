@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { UsersService } from './users.service';
-
+import { UserProfilePort } from './ports/user-profile.port';
 import { UsersController } from './users.controller';
 import { MailModule } from '../mail/mail.module';
 import { RolesModule } from '../roles/roles.module';
@@ -29,7 +29,12 @@ import { OrganizationsModule } from '../organizations/organizations.module';
   ],
 
   controllers: [UsersController],
-  providers: [UsersService, UserSubscriber, PasswordService],
-  exports: [UsersService, TypeOrmModule],
+  providers: [
+    UsersService,
+    { provide: UserProfilePort, useExisting: UsersService },
+    UserSubscriber,
+    PasswordService,
+  ],
+  exports: [UsersService, UserProfilePort, TypeOrmModule],
 })
 export class UsersModule {}

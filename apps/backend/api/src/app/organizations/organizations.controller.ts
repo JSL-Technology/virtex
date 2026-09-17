@@ -20,9 +20,9 @@ import type { HttpResponse as Response } from '../common/http/http.types';
 import { MembershipService } from './services/membership.service';
 import { SwitchOrganizationDto } from './dto/switch-organization.dto';
 import { TokenService } from '../auth/services/token.service';
-import { AuthService } from '../auth/auth.service';
+import { SessionSwitchPort } from '../auth/ports/session-switch.port';
 import { CookieService } from '../auth/services/cookie.service';
-import { UsersService } from '../users/users.service';
+import { UserProfilePort } from '../users/ports/user-profile.port';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -37,9 +37,9 @@ export class OrganizationsController {
   constructor(
     private readonly organizationsService: OrganizationsService,
     private readonly membershipService: MembershipService,
-    private readonly usersService: UsersService,
+    private readonly usersService: UserProfilePort,
     private readonly tokenService: TokenService,
-    private readonly authService: AuthService,
+    private readonly authService: SessionSwitchPort,
     private readonly cookieService: CookieService,
   ) {}
 

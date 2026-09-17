@@ -1,5 +1,6 @@
 
 import { Injectable, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { SessionSwitchPort } from './ports/session-switch.port';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -40,7 +41,7 @@ export type LoginResult = LoginResultDto;
 export type StepUpFactor = 'otp' | 'password' | 'sso' | 'none';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends SessionSwitchPort {
   private readonly logger = new Logger(AuthService.name);
 
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -69,7 +70,7 @@ export class AuthService {
     private readonly oidcProviderService: OidcProviderService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly atomicCache: AtomicCacheService,
-  ) {}
+  ) { super(); }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
     const { email, password, twoFactorCode, rememberMe } = loginUserDto;
