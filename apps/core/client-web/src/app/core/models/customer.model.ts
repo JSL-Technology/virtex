@@ -6,6 +6,16 @@ export interface Customer {
   email: string;
   phone: string;
   taxId?: string;
+  /**
+   * Which identifier `taxId` holds — `RNC`, `CEDULA`, `NIT`, `CNPJ`… from the catalogue.
+   *
+   * The field used to be untyped, so a Dominican company's RNC and a Dominican person's cédula
+   * were the same column with nothing to tell them apart — while the e-CF built from the record
+   * has to state which it is.
+   */
+  identityDocumentTypeCode?: string | null;
+  /** The issuing country of that document: the CUSTOMER's, which for an exporter is not ours. */
+  identityDocumentCountry?: string | null;
   address?: string;
   city?: string;
   stateOrProvince?: string;

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 export type StatementStatus = 'IMPORTING' | 'IMPORTED' | 'FAILED' | 'RECONCILED';
 export type TransactionStatus = 'UNMATCHED' | 'MATCHED' | 'EXCLUDED';

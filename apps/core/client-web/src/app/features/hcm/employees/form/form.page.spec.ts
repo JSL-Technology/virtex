@@ -25,12 +25,37 @@ describe('Employee form', () => {
 
   const API = `${environment.apiUrl}/hcm`;
 
+  /** What the catalogue answers for a Dominican tenant. Two documents and the passport. */
+  const documentTypes = [
+    {
+      code: 'CEDULA',
+      countryCode: 'DO',
+      labelKey: 'identity_document.do.cedula',
+      labelVerbatim: 'Cédula',
+      example: '001-1234567-8',
+      pattern: '^\\d{11}$',
+      requirement: 'required',
+      isDefault: true,
+    },
+    {
+      code: 'PASSPORT',
+      countryCode: 'XX',
+      labelKey: 'identity_document.passport',
+      labelVerbatim: null,
+      example: null,
+      pattern: '^[A-Za-z0-9]{5,20}$',
+      requirement: 'optional',
+      isDefault: false,
+    },
+  ];
+
   const saved = {
     id: 'emp-1',
     firstName: 'Ana',
     lastName: 'Reyes',
     email: 'qa.ana@test.local',
-    identityDocumentType: 'CEDULA',
+    identityDocumentTypeCode: 'CEDULA',
+    identityDocumentCountry: 'DO',
     employmentStatus: 'ACTIVE',
     contractType: 'INDEFINITE',
   };
@@ -59,6 +84,9 @@ describe('Employee form', () => {
     fixture.detectChanges();
     // Departments load on init in every case; it is not what these tests are about.
     http.expectOne(`${API}/departments`).flush([]);
+    // So does the identity-document catalogue: the document `<select>` is filled from the server
+    // for the tenant's country rather than from three options written into the template.
+    http.expectOne(`${API}/identity-document-types`).flush(documentTypes);
   };
 
   /** Answers the record read and its compensation history, as opening an employee does. */
@@ -145,6 +173,30 @@ describe('Employee form — outside the workspace', () => {
 
   const API = `${environment.apiUrl}/hcm`;
 
+  /** What the catalogue answers for a Dominican tenant. Two documents and the passport. */
+  const documentTypes = [
+    {
+      code: 'CEDULA',
+      countryCode: 'DO',
+      labelKey: 'identity_document.do.cedula',
+      labelVerbatim: 'Cédula',
+      example: '001-1234567-8',
+      pattern: '^\\d{11}$',
+      requirement: 'required',
+      isDefault: true,
+    },
+    {
+      code: 'PASSPORT',
+      countryCode: 'XX',
+      labelKey: 'identity_document.passport',
+      labelVerbatim: null,
+      example: null,
+      pattern: '^[A-Za-z0-9]{5,20}$',
+      requirement: 'optional',
+      isDefault: false,
+    },
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [EmployeeFormPage] }).compileComponents();
     http = TestBed.inject(HttpTestingController);
@@ -152,6 +204,7 @@ describe('Employee form — outside the workspace', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     http.expectOne(`${API}/departments`).flush([]);
+    http.expectOne(`${API}/identity-document-types`).flush(documentTypes);
   });
 
   afterEach(() => http.verify());

@@ -1,0 +1,158 @@
+{
+  "$note": "The names of the identity documents in `identity_document_types`. Composed at runtime from the catalogue's `label_key`, so the family is declared in composed-keys.json.\n\nMost entries also carry a `label_verbatim` — CUIT, CNPJ, RUC — which WINS over the value here: those are the words the authority prints on the paper the user is copying from, and a translated gloss makes them harder to find, not easier. The values below are the fallback, and they are what a reader sees for an entry whose catalogue row leaves `label_verbatim` null.\n\nThese keys replace `hcm.employees.form.document_type.cedula` and `.rnc`, which were not translations at all: the regional patches used them to RENAME the same enum value per locale — 'SSN' in en-US, 'RUN' in es-CL, 'CPF' in pt-BR — while the server validated every one of them with the Dominican algorithms.",
+
+  "identity_document.passport": {
+    "es": "Pasaporte",
+    "en": "Passport",
+    "pt": "Passaporte"
+  },
+
+  "identity_document.do.cedula": {
+    "es": "Cédula de identidad y electoral",
+    "en": "National identity card (cédula)",
+    "pt": "Cartão de identidade (cédula)"
+  },
+  "identity_document.do.rnc": {
+    "es": "Registro Nacional del Contribuyente",
+    "en": "National taxpayer registry number",
+    "pt": "Registo nacional de contribuinte"
+  },
+
+  "identity_document.us.ssn": {
+    "es": "Número de seguridad social o ITIN",
+    "en": "Social Security number or ITIN",
+    "pt": "Número da segurança social ou ITIN"
+  },
+  "identity_document.us.ein": {
+    "es": "Número de identificación patronal",
+    "en": "Employer Identification Number",
+    "pt": "Número de identificação do empregador"
+  },
+
+  "identity_document.mx.curp": {
+    "es": "Clave Única de Registro de Población",
+    "en": "Unique population registry code",
+    "pt": "Código único de registo da população"
+  },
+  "identity_document.mx.rfc": {
+    "es": "Registro Federal de Contribuyentes",
+    "en": "Federal taxpayer registry number",
+    "pt": "Registo federal de contribuintes"
+  },
+
+  "identity_document.co.cc": {
+    "es": "Cédula de ciudadanía",
+    "en": "Citizen identity card",
+    "pt": "Cartão de cidadão"
+  },
+  "identity_document.co.nit": {
+    "es": "Número de Identificación Tributaria",
+    "en": "Tax identification number",
+    "pt": "Número de identificação fiscal"
+  },
+
+  "identity_document.cl.run": {
+    "es": "Rol Único Nacional",
+    "en": "National identity number",
+    "pt": "Número nacional de identificação"
+  },
+  "identity_document.cl.rut": {
+    "es": "Rol Único Tributario",
+    "en": "Tax identification number",
+    "pt": "Número de identificação fiscal"
+  },
+
+  "identity_document.pe.dni": {
+    "es": "Documento Nacional de Identidad",
+    "en": "National identity document",
+    "pt": "Documento nacional de identidade"
+  },
+  "identity_document.pe.ruc": {
+    "es": "Registro Único de Contribuyentes",
+    "en": "Taxpayer registry number",
+    "pt": "Registo único de contribuintes"
+  },
+
+  "identity_document.ar.dni": {
+    "es": "Documento Nacional de Identidad",
+    "en": "National identity document",
+    "pt": "Documento nacional de identidade"
+  },
+  "identity_document.ar.cuit": {
+    "es": "Clave Única de Identificación Tributaria o Laboral",
+    "en": "Tax or employment identification code",
+    "pt": "Código de identificação fiscal ou laboral"
+  },
+
+  "identity_document.br.cpf": {
+    "es": "Registro de persona física",
+    "en": "Individual taxpayer registry number",
+    "pt": "Cadastro de Pessoas Físicas"
+  },
+  "identity_document.br.cnpj": {
+    "es": "Registro de persona jurídica",
+    "en": "Company taxpayer registry number",
+    "pt": "Cadastro Nacional da Pessoa Jurídica"
+  },
+
+  "identity_document.ec.ruc": {
+    "es": "Registro Único de Contribuyentes",
+    "en": "Taxpayer registry number",
+    "pt": "Registo único de contribuintes"
+  },
+  "identity_document.uy.rut": {
+    "es": "Registro Único Tributario",
+    "en": "Tax registry number",
+    "pt": "Registo único tributário"
+  },
+  "identity_document.py.ruc": {
+    "es": "Registro Único de Contribuyentes",
+    "en": "Taxpayer registry number",
+    "pt": "Registo único de contribuintes"
+  },
+  "identity_document.bo.nit": {
+    "es": "Número de Identificación Tributaria",
+    "en": "Tax identification number",
+    "pt": "Número de identificação fiscal"
+  },
+  "identity_document.ve.rif": {
+    "es": "Registro de Información Fiscal",
+    "en": "Fiscal information registry number",
+    "pt": "Registo de informação fiscal"
+  },
+  "identity_document.pa.ruc": {
+    "es": "Registro Único de Contribuyentes",
+    "en": "Taxpayer registry number",
+    "pt": "Registo único de contribuintes"
+  },
+  "identity_document.cr.cedula_fisica": {
+    "es": "Cédula de persona física",
+    "en": "Individual identity card",
+    "pt": "Cartão de identidade de pessoa singular"
+  },
+  "identity_document.cr.cedula_juridica": {
+    "es": "Cédula de persona jurídica",
+    "en": "Company identity number",
+    "pt": "Cartão de identidade de pessoa coletiva"
+  },
+  "identity_document.gt.nit": {
+    "es": "Número de Identificación Tributaria",
+    "en": "Tax identification number",
+    "pt": "Número de identificação fiscal"
+  },
+  "identity_document.sv.nit": {
+    "es": "Número de Identificación Tributaria",
+    "en": "Tax identification number",
+    "pt": "Número de identificação fiscal"
+  },
+  "identity_document.hn.rtn": {
+    "es": "Registro Tributario Nacional",
+    "en": "National tax registry number",
+    "pt": "Registo tributário nacional"
+  },
+  "identity_document.ni.ruc": {
+    "es": "Registro Único de Contribuyentes",
+    "en": "Taxpayer registry number",
+    "pt": "Registo único de contribuintes"
+  }
+}

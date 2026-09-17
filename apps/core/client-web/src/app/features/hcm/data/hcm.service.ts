@@ -5,8 +5,35 @@ import { environment } from '../../../../environments/environment';
 
 export type EmploymentStatus = 'ACTIVE' | 'SUSPENDED' | 'TERMINATED';
 export type ContractType = 'INDEFINITE' | 'FIXED_TERM' | 'OCCASIONAL';
-export type IdentityDocumentType = 'CEDULA' | 'PASSPORT' | 'RNC';
 export type PayFrequency = 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY';
+
+/**
+ * One identity document the tenant's country issues, as the catalogue endpoint returns it.
+ *
+ * `IdentityDocumentType` used to be declared here as `'CEDULA' | 'PASSPORT' | 'RNC'` — a copy of
+ * the server's enum, which had to be kept in step by hand, and which said that three Dominican-
+ * shaped options were all nineteen markets would ever need. The list is data now, and the client
+ * holds no opinion about what is in it.
+ */
+export interface IdentityDocumentTypeOption {
+  code: string;
+  /** The issuing jurisdiction, or `XX` for a supranational document such as a passport. */
+  countryCode: string;
+  /** Catalogue key. Used when `labelVerbatim` is null. */
+  labelKey: string;
+  /**
+   * The authority's own term, which must render untranslated.
+   *
+   * "Ubigeo" glossed as "district code" is harder to find on the paper the user is copying from,
+   * not easier. When present it wins over `labelKey`.
+   */
+  labelVerbatim: string | null;
+  example: string | null;
+  /** Shape check for immediate feedback. The server re-checks, including any check digit. */
+  pattern: string;
+  requirement: 'required' | 'optional';
+  isDefault: boolean;
+}
 
 export interface Employee {
   id: string;
@@ -24,13 +51,21 @@ export interface Employee {
    * them in the clear; `GET /hcm/employees/:id/sensitive` does, and is audited.
    */
   identityDocument?: string | null;
-  identityDocumentType: IdentityDocumentType;
+  /** Catalogue code — `CEDULA`, `CC`, `CURP`, `CPF`, `PASSPORT`… Null until one is captured. */
+  identityDocumentTypeCode: string | null;
+  /** The issuing jurisdiction of that code. `XX` for a passport. */
+  identityDocumentCountry: string | null;
   bankName: string | null;
   bankAccountNumber?: string | null;
   bankAccountType: string | null;
-  tssNss: string | null;
-  afpCode: string | null;
-  sfsCode: string | null;
+  /** The worker's number in the national social security system. NSS, IMSS, NIT, PIS… */
+  socialSecurityNumber: string | null;
+  /** The pension carrier (AFP, AFORE, fondo de pensiones…). */
+  pensionFundCode: string | null;
+  /** The health carrier (ARS/SFS, EPS, ISAPRE, obra social…). */
+  healthFundCode: string | null;
+  /** Any further statutory identifier the country's filings need. */
+  statutoryEnrolment: Record<string, string> | null;
   employmentStatus: EmploymentStatus;
   terminationDate: string | null;
   contractType: ContractType;
@@ -75,6 +110,17 @@ export type SaveEmployee = Partial<
 export class HcmService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/hcm`;
+
+  /**
+   * The document types this tenant may offer on the employee form.
+   *
+   * Replaces three `<option>` elements hardcoded in the template. Server-resolved from the
+   * tenant's country, and the same rows the server validates against — which is what keeps the
+   * options offered and the values accepted from drifting apart, as they did for seven markets.
+   */
+  listIdentityDocumentTypes(): Observable<IdentityDocumentTypeOption[]> {
+    return this.http.get<IdentityDocumentTypeOption[]>(`${this.apiUrl}/identity-document-types`);
+  }
 
   // ── Employees ──────────────────────────────────────────────────────────────
 

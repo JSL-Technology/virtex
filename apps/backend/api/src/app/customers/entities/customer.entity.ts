@@ -1,6 +1,6 @@
-
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -17,7 +17,10 @@ import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import type { LanguageCode } from '@virteex/shared/types';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
-import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import {
+  numericTransformer,
+  numericTransformerNotNull,
+} from '../../common/database/numeric.transformer';
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 
 export enum CustomerStatus {
@@ -49,11 +52,18 @@ export enum CustomerStatus {
   unique: true,
   where: '"taxId" IS NOT NULL',
 })
+// Both halves of the document reference travel together: a code with no country cannot be
+// resolved — a "cédula" is eleven Luhn-checked digits in Santo Domingo and six to ten
+// unchecked ones in Bogotá — and a country with no code records a document whose kind is
+// unknown.
+@Check(
+  'CK_customers_identity_document_pair',
+  `("identity_document_type_code" IS NULL AND "identity_document_country" IS NULL)
+    OR ("identity_document_type_code" IS NOT NULL AND "identity_document_country" IS NOT NULL)`,
+)
 export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-
 
   @Column({ nullable: true })
   companyName: string;
@@ -84,6 +94,45 @@ export class Customer {
   taxId?: string;
 
   /**
+   * The kind of identifier `taxId` holds, from the identity-document catalogue.
+   *
+   * Sales carried a bare `taxId` varchar with `@IsString()` and nothing else — no type, no
+   * validation, no country. Three things followed from that, all of which a reader of the row can
+   * now tell apart:
+   *
+   *   - a Dominican customer can identify with an RNC (a company) or a cédula (a person), and the
+   *     e-CF carries which one it is. Stored untyped, the only way to tell was the length — the
+   *     same heuristic `create-invoice.dto.ts` records having removed from the document type for
+   *     being wrong;
+   *   - a mistyped NIT was accepted, stored, and surfaced months later when the DIAN rejected the
+   *     invoice built from it;
+   *   - the field had to be labelled "RNC / Cédula" in Spanish and "CNPJ / CPF" in Portuguese,
+   *     because one input was doing the work of two.
+   */
+  @Column({
+    name: 'identity_document_type_code',
+    type: 'varchar',
+    length: 32,
+    nullable: true,
+  })
+  identityDocumentTypeCode?: string | null;
+
+  /**
+   * The document's issuing country, which is the CUSTOMER's, not the tenant's.
+   *
+   * An exporter's customers are abroad by definition, and validating a Panamanian buyer's RUC
+   * against Dominican rules would reject every one of them. Null falls back to the tenant's
+   * country, which is the ordinary domestic case.
+   */
+  @Column({
+    name: 'identity_document_country',
+    type: 'char',
+    length: 2,
+    nullable: true,
+  })
+  identityDocumentCountry?: string | null;
+
+  /**
    * The buyer's fiscal classification, which decides what they withhold.
    *
    * Withholding is not a commercial term: the rate follows from who the payer is, who the payee is
@@ -104,7 +153,6 @@ export class Customer {
     nullable: true,
   })
   taxpayerType?: TaxpayerType | null;
-  
 
   @Column({ nullable: true, type: 'text' })
   address?: string;
@@ -129,12 +177,21 @@ export class Customer {
    * button and from the statutory language of the ledger. Null means "not stated", and the
    * country is then the better guess.
    */
-  @Column({ name: 'preferred_language', type: 'varchar', length: 5, nullable: true })
+  @Column({
+    name: 'preferred_language',
+    type: 'varchar',
+    length: 5,
+    nullable: true,
+  })
   preferredLanguage?: LanguageCode | null;
 
-
-
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0.0, transformer: numericTransformerNotNull })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0.0,
+    transformer: numericTransformerNotNull,
+  })
   totalBilled: number;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -149,8 +206,6 @@ export class Customer {
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
-
-
 
   @Column({
     type: 'enum',
@@ -169,16 +224,22 @@ export class Customer {
   @Column({ name: 'account_owner_id', type: 'uuid', nullable: true })
   accountOwnerId?: string;
 
-  @OneToMany(() => CustomerContact, (contact) => contact.customer, { cascade: true, eager: true })
+  @OneToMany(() => CustomerContact, (contact) => contact.customer, {
+    cascade: true,
+    eager: true,
+  })
   contacts: CustomerContact[];
 
-  @OneToMany(() => CustomerAddress, (address) => address.customer, { cascade: true, eager: true })
+  @OneToMany(() => CustomerAddress, (address) => address.customer, {
+    cascade: true,
+    eager: true,
+  })
   addresses: CustomerAddress[];
-  
+
   @ManyToOne('CustomerGroup', 'customers', { nullable: true })
   @JoinColumn({ name: 'customer_group_id' })
   group?: CustomerGroup;
-  
+
   @Column({ name: 'customer_group_id', type: 'uuid', nullable: true })
   groupId?: string;
 
@@ -207,7 +268,13 @@ export class Customer {
   @Column({ name: 'payment_term_days', type: 'int', nullable: true })
   paymentTermDays?: number | null;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true, transformer: numericTransformer })
+  @Column({
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+    transformer: numericTransformer,
+  })
   creditLimit?: number;
 
   @Column({ name: 'default_sales_account_id', type: 'uuid', nullable: true })

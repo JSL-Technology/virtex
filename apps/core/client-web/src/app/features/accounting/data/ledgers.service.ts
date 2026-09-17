@@ -2,9 +2,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { GeneralLedger } from '../models/general-ledger.model';
-import { Ledger } from '../models/ledger.model';
+import { environment } from '../../../../environments/environment';
+import { GeneralLedger } from '../../../core/models/general-ledger.model';
+import { Ledger } from '../../../core/models/ledger.model';
 
 // FIX: Definir y exportar los DTOs para la creación y actualización.
 // Se basan en la entidad Ledger, pero como Partial para permitir campos opcionales.

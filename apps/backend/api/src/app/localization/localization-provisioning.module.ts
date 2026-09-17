@@ -6,9 +6,11 @@ import { TaxTemplate } from './entities/tax-template.entity';
 import { LocalizationTemplate } from './entities/localization-template.entity';
 import { TaxGroup } from './entities/tax-group.entity';
 import { LocalizationService } from './services/localization.service';
+import { IdentityDocumentService } from './services/identity-document.service';
 import { LocalizationProvisioningPort } from './localization-provisioning.port';
 import { TaxScheme } from './entities/tax-scheme.entity';
 import { FiscalDocumentTypeDefinition } from './entities/fiscal-document-type-definition.entity';
+import { IdentityDocumentType } from './entities/identity-document-type.entity';
 import { EInvoiceProviderConfig } from './entities/einvoice-provider-config.entity';
 import { TaxJurisdiction } from './fiscal/entities/tax-jurisdiction.entity';
 import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
@@ -48,6 +50,7 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
       TaxTemplate,
       TaxGroup,
       FiscalDocumentTypeDefinition,
+      IdentityDocumentType,
       EInvoiceProviderConfig,
       TaxJurisdiction,
       TenantWithholdingRegime,
@@ -61,6 +64,7 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
   ],
   providers: [
     LocalizationService,
+    IdentityDocumentService,
     DominicanRepublicStrategy,
     GenericFiscalStrategy,
     USStrategy,
@@ -68,6 +72,11 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
     TaxDeterminationService,
     { provide: LocalizationProvisioningPort, useExisting: LocalizationService },
   ],
-  exports: [LocalizationProvisioningPort, LocalizationService, TaxDeterminationService],
+  exports: [
+    LocalizationProvisioningPort,
+    LocalizationService,
+    TaxDeterminationService,
+    IdentityDocumentService,
+  ],
 })
 export class LocalizationProvisioningModule {}

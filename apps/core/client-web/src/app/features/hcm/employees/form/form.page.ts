@@ -13,7 +13,9 @@ import {
   Employee,
   EmployeeCompensation,
   HcmService,
+  IdentityDocumentTypeOption,
 } from '../../../../core/api/hcm.service';
+import { TranslateService } from '@ngx-translate/core';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -58,6 +60,7 @@ export class EmployeeFormPage implements OnInit {
   private readonly hcm = inject(HcmService);
   private readonly payroll = inject(PayrollService);
   private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -71,6 +74,15 @@ export class EmployeeFormPage implements OnInit {
   readonly departments = signal<Department[]>([]);
   readonly compensation = signal<EmployeeCompensation[]>([]);
   readonly problems = signal<DraftProblem[]>([]);
+
+  /**
+   * The identity documents this tenant's country issues, from the server.
+   *
+   * The template used to name three of them itself. Empty until the request lands, which renders
+   * an empty `<select>` for a moment — correct, and preferable to showing an option the tenant's
+   * country does not issue and the server will refuse.
+   */
+  readonly documentTypes = signal<IdentityDocumentTypeOption[]>([]);
 
   /** The unmasked cédula and bank account, once somebody asks for them. */
   readonly revealed = signal<Employee | null>(null);
@@ -97,13 +109,16 @@ export class EmployeeFormPage implements OnInit {
       departmentId: [''],
       hireDate: [''],
       identityDocument: [''],
-      identityDocumentType: ['CEDULA'],
+      // No default. `'CEDULA'` used to stand here, so a Chilean employee form opened preselecting
+      // a Dominican document. The catalogue names its own default per country and `applyDocumentTypes`
+      // applies it once the list arrives.
+      identityDocumentType: [''],
       bankName: [''],
       bankAccountNumber: [''],
       bankAccountType: [''],
-      tssNss: [''],
-      afpCode: [''],
-      sfsCode: [''],
+      socialSecurityNumber: [''],
+      pensionFundCode: [''],
+      healthFundCode: [''],
       employmentStatus: ['ACTIVE'],
       contractType: ['INDEFINITE'],
       terminationDate: [''],
@@ -113,7 +128,55 @@ export class EmployeeFormPage implements OnInit {
       (departments) => this.departments.set(departments),
     );
 
+    this.hcm
+      .listIdentityDocumentTypes()
+      .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
+      .subscribe((types) => this.applyDocumentTypes(types));
+
     if (this.id) this.load(this.id);
+  }
+
+  // ── Identity document ──────────────────────────────────────────────────────
+
+  /**
+   * Adopt the catalogue and preselect the country's own default.
+   *
+   * Only when nothing is selected yet, so loading an existing employee never silently rewrites the
+   * document type they were recorded with — which would be a data change disguised as a render.
+   */
+  private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
+    this.documentTypes.set(types);
+    const control = this.form.get('identityDocumentType');
+    if (!control || control.value) return;
+    const preset = types.find((type) => type.isDefault) ?? types[0];
+    if (preset) control.setValue(preset.code, { emitEvent: false });
+  }
+
+  /**
+   * What to call a document on screen.
+   *
+   * `labelVerbatim` wins where the catalogue sets it: "CUIT", "CURP" and "Ubigeo" are the words
+   * printed on the paper the user is copying from, and a translated gloss makes them harder to
+   * find, not easier. Everything else goes through the catalogue key.
+   */
+  documentLabel(type: IdentityDocumentTypeOption): string {
+    return type.labelVerbatim ?? this.translate.instant(type.labelKey);
+  }
+
+  /**
+   * The document input's placeholder.
+   *
+   * For an existing employee it is the masked (or revealed) stored value, because typing over it is
+   * how the value is replaced. For a new one it is the selected type's example — the shape a
+   * Colombian cédula takes, rather than the shape a Dominican one does.
+   */
+  documentPlaceholder(): string {
+    const employee = this.current();
+    if (employee) {
+      return this.revealed()?.identityDocument ?? employee.identityDocument ?? '\u2022\u2022\u2022';
+    }
+    const selected = this.form?.get('identityDocumentType')?.value as string | undefined;
+    return this.documentTypes().find((type) => type.code === selected)?.example ?? '';
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -236,13 +299,13 @@ export class EmployeeFormPage implements OnInit {
             hireDate: employee.hireDate ?? '',
             // Masked: typing over it is how a user replaces it, and leaving it alone leaves it alone.
             identityDocument: '',
-            identityDocumentType: employee.identityDocumentType,
+            identityDocumentType: employee.identityDocumentTypeCode ?? '',
             bankName: employee.bankName ?? '',
             bankAccountNumber: '',
             bankAccountType: employee.bankAccountType ?? '',
-            tssNss: employee.tssNss ?? '',
-            afpCode: employee.afpCode ?? '',
-            sfsCode: employee.sfsCode ?? '',
+            socialSecurityNumber: employee.socialSecurityNumber ?? '',
+            pensionFundCode: employee.pensionFundCode ?? '',
+            healthFundCode: employee.healthFundCode ?? '',
             employmentStatus: employee.employmentStatus,
             contractType: employee.contractType,
             terminationDate: employee.terminationDate ?? '',

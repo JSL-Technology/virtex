@@ -54,11 +54,6 @@
     "en": "Record a pay change",
     "pt": "Registar uma alteração salarial"
   },
-  "hcm.employees.form.afp": {
-    "es": "AFP",
-    "en": "Pension fund (AFP)",
-    "pt": "Fundo de pensões (AFP)"
-  },
   "hcm.employees.form.bank": {
     "es": "Cuenta para el pago",
     "en": "Account wages are paid into",
@@ -119,21 +114,6 @@
     "en": "Document type",
     "pt": "Tipo de documento"
   },
-  "hcm.employees.form.document_type.cedula": {
-    "es": "Documento de identidad",
-    "en": "National ID",
-    "pt": "Documento de identidade"
-  },
-  "hcm.employees.form.document_type.passport": {
-    "es": "Pasaporte",
-    "en": "Passport",
-    "pt": "Passaporte"
-  },
-  "hcm.employees.form.document_type.rnc": {
-    "es": "Identificación fiscal",
-    "en": "Tax ID",
-    "pt": "Identificação fiscal"
-  },
   "hcm.employees.form.effective_from": {
     "es": "Vigente desde",
     "en": "Effective from",
@@ -178,6 +158,11 @@
     "es": "Semanal",
     "en": "Weekly",
     "pt": "Semanal"
+  },
+  "hcm.employees.form.health_fund_code": {
+    "es": "Seguro de salud",
+    "en": "Health insurer",
+    "pt": "Seguro de saúde"
   },
   "hcm.employees.form.holiday": {
     "es": "Vacaciones",
@@ -229,6 +214,11 @@
     "en": "A raise adds a line with the date it takes effect; it never rewrites what a past payroll was computed on.",
     "pt": "Um aumento acrescenta uma linha com a data em que passa a vigorar; nunca reescreve o que uma folha passada calculou."
   },
+  "hcm.employees.form.pension_fund_code": {
+    "es": "Fondo de pensiones",
+    "en": "Pension fund",
+    "pt": "Fundo de pensões"
+  },
   "hcm.employees.form.person": {
     "es": "Datos personales",
     "en": "Personal details",
@@ -278,20 +268,15 @@
   "hcm.employees.form.severance_total": {
     "literal": "Total"
   },
-  "hcm.employees.form.sfs": {
-    "es": "ARS / SFS",
-    "en": "Health fund (ARS/SFS)",
-    "pt": "Fundo de saúde (ARS/SFS)"
-  },
   "hcm.employees.form.show_sensitive_fields": {
     "es": "Ver los datos sensibles",
     "en": "Show the sensitive fields",
     "pt": "Ver os dados sensíveis"
   },
-  "hcm.employees.form.tss_nss": {
-    "en": "Social security number",
+  "hcm.employees.form.social_security_number": {
     "es": "Número de seguridad social",
-    "pt": "Número de segurança social"
+    "en": "Social security number",
+    "pt": "Número da segurança social"
   },
   "hcm.employees.hire_date": {
     "es": "Fecha de ingreso",
@@ -352,5 +337,20 @@
     "es": "Empleados",
     "en": "Employees",
     "pt": "Funcionários"
+  },
+  "hcm.identity_document_invalid": {
+    "es": "El {{document}} no es válido. Revisa que esté completo y bien tecleado.",
+    "en": "That {{document}} is not valid. Check that it is complete and correctly typed.",
+    "pt": "O {{document}} não é válido. Verifica se está completo e bem digitado."
+  },
+  "hcm.identity_document_type_not_issued": {
+    "es": "{{country}} no emite un documento de tipo «{{code}}».",
+    "en": "{{country}} does not issue a document of type “{{code}}”.",
+    "pt": "{{country}} não emite um documento do tipo «{{code}}»."
+  },
+  "hcm.identity_document_type_required": {
+    "es": "Indica qué tipo de documento estás registrando para {{country}}.",
+    "en": "State which kind of document you are recording for {{country}}.",
+    "pt": "Indica que tipo de documento estás a registar para {{country}}."
   }
 }

@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import type { Page } from './page';
+import { environment } from '../../../../environments/environment';
+import type { Page } from '../../../core/api/page';
 
 /**
  * Mirrors `JournalEntryStatus` on the server.
@@ -50,7 +50,7 @@ export interface JournalEntry {
 }
 
 /** Re-exported so existing callers keep their import; the shape lives in `./page`. */
-export type { Page } from './page';
+export type { Page } from '../../../core/api/page';
 
 @Injectable({ providedIn: 'root' })
 export class JournalEntriesApiService {

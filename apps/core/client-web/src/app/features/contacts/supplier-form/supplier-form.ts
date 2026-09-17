@@ -1,13 +1,20 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../../core/api/suppliers.service';
-import { NotificationService } from '../../../../core/services/notification';
+import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../core/api/suppliers.service';
+import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
-import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { CountryNamesService } from '../../../../core/i18n/countries';
-import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { CountryNamesService } from '../../../core/i18n/countries';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { catchError, of } from 'rxjs';
+import {
+  IdentityDocumentsService,
+  IdentityDocumentTypeOption,
+} from '../../../core/api/identity-documents.service';
 
 @Component({
   selector: 'app-supplier-form-page',
@@ -26,6 +33,18 @@ export class SupplierForm implements OnInit {
   private suppliersService = inject(SuppliersService);
   private notificationService = inject(NotificationService);
   private readonly countryNames = inject(CountryNamesService);
+  private readonly identityDocuments = inject(IdentityDocumentsService);
+  private readonly locale = inject(LocaleStore);
+  private readonly translate = inject(TranslateService);
+
+  /**
+   * The identifiers this tenant's country issues, from the catalogue.
+   *
+   * Purchasing had the same gap sales did: one free-text field labelled after two documents at
+   * once, with nothing recording which had been entered — while the 606 filing that reports
+   * purchases has to state it.
+   */
+  protected readonly documentTypes = signal<IdentityDocumentTypeOption[]>([]);
 
   /** Every country, in the reader's language. See `CountryNamesService`. */
   protected readonly countries = this.countryNames.options;
@@ -58,6 +77,29 @@ export class SupplierForm implements OnInit {
   isLoading = signal(true);
   private supplierId: string | null = null;
 
+  /**
+   * Adopt the catalogue, preselecting the default only when nothing is chosen yet — never over an
+   * existing supplier's recorded type, which would be a data change disguised as a render.
+   */
+  private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
+    this.documentTypes.set(types);
+    const control = this.supplierForm?.get('identityDocumentTypeCode');
+    if (!control || control.value) return;
+    const preset = types.find((type) => type.isDefault) ?? types[0];
+    if (preset) control.setValue(preset.code, { emitEvent: false });
+  }
+
+  /** `labelVerbatim` wins: "CNPJ" and "CUIT" are what the supplier's paperwork says. */
+  protected documentLabel(type: IdentityDocumentTypeOption): string {
+    return this.identityDocuments.label(type, (key) => this.translate.instant(key));
+  }
+
+  /** The example for the selected document, so the placeholder shows that country's shape. */
+  protected documentExample(): string {
+    const selected = this.supplierForm?.get('identityDocumentTypeCode')?.value as string | undefined;
+    return this.documentTypes().find((type) => type.code === selected)?.example ?? '';
+  }
+
   ngOnInit(): void {
     this.supplierForm = this.fb.group({
       name: ['', Validators.required],
@@ -65,13 +107,24 @@ export class SupplierForm implements OnInit {
       email: ['', [Validators.email]],
       phone: [''],
       taxId: [''],
+      // Which identifier `taxId` holds. Filled from the catalogue's default for this tenant's
+      // country once the list arrives.
+      identityDocumentTypeCode: [''],
       address: [''],
       //  Ambos existían como columna y ningún DTO los llevaba, así que el formulario no podía
       //  fijarlos. El país separa una compra local de un pago al exterior (609); el tipo de
       //  contribuyente decide qué se le retiene al proveedor.
-      country: ['DO'],
+      // The TENANT's country, not `'DO'`. This column is what separates a domestic purchase from
+      // a payment abroad on the 609, so defaulting every tenant's suppliers to Dominican is a
+      // wrong filing rather than a cosmetic default.
+      country: [this.locale.tenantContext()?.countryCode ?? ''],
       taxpayerType: [''],
     });
+
+    this.identityDocuments
+      .list({ appliesTo: 'both', usedFor: 'invoicing' })
+      .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
+      .subscribe((types) => this.applyDocumentTypes(types));
 
     this.supplierId = this.route.snapshot.paramMap.get('id');
     if (this.supplierId) {

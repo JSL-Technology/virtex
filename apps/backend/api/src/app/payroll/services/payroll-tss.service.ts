@@ -89,7 +89,7 @@ export class PayrollTssService {
         type: 'ALTA',
         employeeId: e.id,
         employeeName: `${e.firstName} ${e.lastName}`.trim(),
-        tssNss: e.tssNss ?? null,
+        tssNss: e.socialSecurityNumber ?? null,
         effectiveDate: e.hireDate,
         detail: 'Ingreso',
       });
@@ -103,7 +103,7 @@ export class PayrollTssService {
         type: 'BAJA',
         employeeId: e.id,
         employeeName: `${e.firstName} ${e.lastName}`.trim(),
-        tssNss: e.tssNss ?? null,
+        tssNss: e.socialSecurityNumber ?? null,
         effectiveDate: e.terminationDate as string,
         detail: 'Salida',
       });
@@ -122,7 +122,7 @@ export class PayrollTssService {
         employeeName: c.employee
           ? `${c.employee.firstName} ${c.employee.lastName}`.trim()
           : c.employeeId,
-        tssNss: c.employee?.tssNss ?? null,
+        tssNss: c.employee?.socialSecurityNumber ?? null,
         effectiveDate: c.effectiveFrom,
         detail: `Nuevo salario ${c.baseSalary} ${c.currencyCode}`,
       });

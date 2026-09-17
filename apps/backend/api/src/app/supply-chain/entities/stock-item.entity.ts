@@ -39,6 +39,14 @@ export class StockItem {
   @Column({ nullable: true })
   serialNumber?: string;
 
+  /**
+   * The lot's expiry, as a calendar date.
+   *
+   * `string`, not `Date`. A `date` column carries no time, and typing one `Date` makes TypeORM
+   * build it as a `timestamp` and convert through the server's zone — which is how supplier bills
+   * came to display the day before their own date for a tenant in UTC-4. `verify:date-columns`
+   * is the check that catches it.
+   */
   @Column({ type: 'date', nullable: true })
-  expiryDate?: Date;
+  expiryDate?: string;
 }

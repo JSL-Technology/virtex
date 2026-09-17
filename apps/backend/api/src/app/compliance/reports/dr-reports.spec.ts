@@ -30,7 +30,7 @@ describe('DGII periodic reports', () => {
       id: 'inv-1',
       organizationId: 'org-1',
       invoiceNumber: 'FAC-00000001',
-      ncfNumber: 'E310000000001',
+      fiscalNumber: 'E310000000001',
       customerTaxId: '101234563',
       issueDate: '2026-08-15',
       status: InvoiceStatus.PENDING,

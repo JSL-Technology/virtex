@@ -10,6 +10,28 @@ import { AdministrativeDivision, CountryFiscalProfile, FiscalFieldSpec } from '.
  *
  * Nothing here is secret: it is the same information printed on the country's own tax forms.
  */
+
+/**
+ * One catalogue entry, as the client sees it.
+ *
+ * `pattern` travels for immediate feedback; the checksum algorithm's name deliberately does not.
+ * The arithmetic verdict is the server's, and publishing the algorithm's name invites a client to
+ * reimplement it and then disagree with the server about whether a document is valid.
+ */
+export interface PublicIdentityDocumentType {
+  code: string;
+  /** The issuing jurisdiction, or `XX` for a supranational document such as a passport. */
+  countryCode: string;
+  labelKey: string;
+  /** Authority terminology that must render untranslated. Wins over `labelKey` when present. */
+  labelVerbatim: string | null;
+  example: string | null;
+  pattern: string;
+  requirement: 'required' | 'optional';
+  appliesTo: 'individual' | 'company' | 'both';
+  isDefault: boolean;
+}
+
 export interface PublicCountryConfig {
   countryCode: string;
   name: string;
@@ -25,8 +47,26 @@ export interface PublicCountryConfig {
   taxIdPattern: string;
   taxIdHasCheckDigit: boolean;
 
-  /** The identifier a natural person files under, where it differs from the company one. */
+  /**
+   * The identifier a natural person files under, where it differs from the company one.
+   *
+   * @deprecated Superseded by `identityDocumentTypes`, which is a LIST and therefore able to say
+   * that Mexico issues a CURP for payroll and an RFC for invoicing, or that Colombia issues both a
+   * cédula de ciudadanía and a NIT. A single optional field could say neither, which is why it was
+   * populated in only two of the nineteen markets. Kept while the signup form migrates; the
+   * catalogue is the source of truth and this is derived from it.
+   */
   individualDocument: { code: string; label: string; pattern: string } | null;
+
+  /**
+   * Every identity document the country issues, from the catalogue.
+   *
+   * The signup form, the employee form, the customer form and the supplier form all read this one
+   * list. Before it existed they read, respectively: a single `individualDocument`, a hardcoded
+   * three-option `<select>`, nothing, and nothing — four answers to one question, of which two
+   * were wrong and one did not exist.
+   */
+  identityDocumentTypes: readonly PublicIdentityDocumentType[];
 
   address: {
     divisionLabel: string;

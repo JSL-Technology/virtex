@@ -2,8 +2,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { PriceList } from '../models/price-list.model';
+import { environment } from '../../../../environments/environment';
+import { PriceList } from '../../../core/models/price-list.model';
 
 export type CreatePriceListDto = Omit<PriceList, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'items'> & {
   items: { productId: string; price: number }[];

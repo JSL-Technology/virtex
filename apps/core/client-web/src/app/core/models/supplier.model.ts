@@ -18,6 +18,10 @@ export interface Supplier {
   email?: string;
   phone?: string;
   taxId?: string;
+  /** Which identifier `taxId` holds — `RNC`, `CEDULA`, `NIT`, `CNPJ`… from the catalogue. */
+  identityDocumentTypeCode?: string | null;
+  /** The issuing country of that document: the SUPPLIER's, which for a payment abroad is not ours. */
+  identityDocumentCountry?: string | null;
   address?: string;
   /**
    * ISO 3166-1 alpha-2.

@@ -34,8 +34,8 @@
           @for (item of group.results; track item.id) {
             <li class="result-item">
               <a [routerLink]="item.link">
-                <span class="item-title">{{ item.title }}</span>
-                <span class="item-description">{{ item.description }}</span>
+                <span class="item-title">{{ titleOf(item) }}</span>
+                <span class="item-description">{{ describe(item) }}</span>
               </a>
             </li>
           }

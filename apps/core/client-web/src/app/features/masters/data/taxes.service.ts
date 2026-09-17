@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { Tax } from '../models/tax.model';
+import { environment } from '../../../../environments/environment';
+import { Tax } from '../../../core/models/tax.model';
 
 export type CreateTaxDto = Omit<Tax, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
 export type UpdateTaxDto = Partial<CreateTaxDto>;

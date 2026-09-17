@@ -65,7 +65,7 @@ describe('NewInvoicePage', () => {
   async function build(ctx: InvoicingContext = context()): Promise<void> {
     invoicesService = {
       context: jest.fn().mockReturnValue(of(ctx)),
-      createInvoice: jest.fn().mockReturnValue(of({ id: 'inv-1', invoiceNumber: 'FAC-1', ncfNumber: 'E310000000001' })),
+      createInvoice: jest.fn().mockReturnValue(of({ id: 'inv-1', invoiceNumber: 'FAC-1', fiscalNumber: 'E310000000001' })),
       getInvoiceById: jest.fn(),
       // The totals are the server's now. The page used to derive them and had already diverged
       // from the server on the document discount, so the operator watched one figure and was

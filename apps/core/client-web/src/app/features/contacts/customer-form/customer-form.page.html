@@ -30,9 +30,25 @@
             <label for="contactPerson">{{ 'contacts.customer_form.contact_person' | translate }}</label>
             <input id="contactPerson" formControlName="contactPerson" />
           </div>
+          <!--
+            Two fields where there used to be one. A single free-text input had to be labelled
+            "RNC / Cédula" in Spanish and "CNPJ / CPF" in Portuguese, because it was doing the work
+            of two documents at once — and nothing recorded which of the two had been entered, so
+            the e-CF that has to state it could only guess from the length.
+          -->
+          <div class="form-field">
+            <label for="identityDocumentTypeCode">
+              {{ 'contacts.customer_form.document_type' | translate }}
+            </label>
+            <select id="identityDocumentTypeCode" formControlName="identityDocumentTypeCode">
+              @for (type of documentTypes(); track type.code) {
+                <option [value]="type.code">{{ documentLabel(type) }}</option>
+              }
+            </select>
+          </div>
           <div class="form-field">
             <label for="taxId">{{ 'contacts.customer_form.tax_id' | translate }}</label>
-            <input id="taxId" formControlName="taxId" />
+            <input id="taxId" formControlName="taxId" [placeholder]="documentExample()" />
           </div>
 
           <!--

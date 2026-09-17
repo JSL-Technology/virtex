@@ -91,7 +91,13 @@ export class EcfLifecycleMessage {
 
   // ── Sequence void ──────────────────────────────────────────────────────────
 
-  @Column({ name: 'ecf_type', type: 'enum', enum: NcfType, nullable: true })
+  /**
+   * The comprobante code whose range is being voided.
+   *
+   * A `varchar` rather than a PostgreSQL enum, for the same reason as `ncf_sequences.type`: the
+   * schema should not have to change for a market to exist. See that column for the full account.
+   */
+  @Column({ name: 'ecf_type', type: 'varchar', length: 8, nullable: true })
   ecfType?: NcfType | null;
 
   @Column({ name: 'sequence_from', type: 'bigint', nullable: true })

@@ -8,6 +8,13 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { catchError, of } from 'rxjs';
+import {
+  IdentityDocumentsService,
+  IdentityDocumentTypeOption,
+} from '../../../core/api/identity-documents.service';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -28,6 +35,15 @@ export class CustomerFormPage implements OnInit {
    * withholding regime in the product is written against, so a value the server does not know
    * would silently withhold nothing.
    */
+  /**
+   * The identifiers this tenant's country issues, from the catalogue.
+   *
+   * The form used to have a single free-text `taxId` with no type beside it, so a Dominican RNC
+   * and a Dominican cédula were indistinguishable in the same column and the label had to read
+   * "RNC / Cédula" — one input named after the two things it was doing.
+   */
+  protected readonly documentTypes = signal<IdentityDocumentTypeOption[]>([]);
+
   protected readonly taxpayerTypes = [
     { value: 'INDIVIDUAL', labelKey: 'contacts.customer_form.individual' },
     { value: 'COMPANY', labelKey: 'contacts.customer_form.company' },
@@ -44,6 +60,9 @@ export class CustomerFormPage implements OnInit {
   private customersService = inject(CustomersService);
   private notificationService = inject(NotificationService);
   private readonly countryNames = inject(CountryNamesService);
+  private readonly identityDocuments = inject(IdentityDocumentsService);
+  private readonly locale = inject(LocaleStore);
+  private readonly translate = inject(TranslateService);
 
   /** Every country, in the reader's language. See `CountryNamesService`. */
   protected readonly countries = this.countryNames.options;
@@ -78,6 +97,10 @@ export class CustomerFormPage implements OnInit {
       email: ['', [Validators.email]],
       phone: [''],
       taxId: [''],
+      // Which identifier `taxId` holds. Filled from the catalogue's default for this tenant's
+      // country once the list arrives; there is no literal default, because the only literal that
+      // would fit every market is the wrong one.
+      identityDocumentTypeCode: [''],
       // The buyer's fiscal classification, which decides what they withhold at source. Left blank
       // the server withholds nothing automatically, which is the safe default: the classification
       // is assigned by the tax authority and is not derivable from anything else on this form.
@@ -86,13 +109,51 @@ export class CustomerFormPage implements OnInit {
       city: [''],
       stateOrProvince: [''],
       postalCode: [''],
-      country: ['DO', Validators.required],
+      // The TENANT's country, not `'DO'`. A Chilean tenant's customers are Chilean by default, and
+      // this field decides which registry a tax id is checked against — so a hardcoded default here
+      // is a wrong validation, not a cosmetic one.
+      country: [this.locale.tenantContext()?.countryCode ?? '', Validators.required],
       //  Los términos de pago: uno para imprimir, otro para calcular. El campo de texto existía en
       //  la base de datos desde el principio y nadie lo leía —una cadena no se le suma a una
       //  fecha—, así que toda factura nacía venciendo el mismo día en que se emitía.
       paymentTerms: [''],
       paymentTermDays: [null as number | null],
     });
+
+    this.identityDocuments
+      .list({ appliesTo: 'both', usedFor: 'invoicing' })
+      .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
+      .subscribe((types) => this.applyDocumentTypes(types));
+  }
+
+  /**
+   * Adopt the catalogue, preselecting the country's default only when nothing is chosen yet.
+   *
+   * Never on an existing customer that already has a type: silently rewriting it on render is a
+   * data change disguised as a display.
+   */
+  private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
+    this.documentTypes.set(types);
+    const control = this.customerForm?.get('identityDocumentTypeCode');
+    if (!control || control.value) return;
+    const preset = types.find((type) => type.isDefault) ?? types[0];
+    if (preset) control.setValue(preset.code, { emitEvent: false });
+  }
+
+  /**
+   * What to call a document on screen.
+   *
+   * `labelVerbatim` wins where the catalogue sets it: "CUIT" and "CNPJ" are the words printed on
+   * the paper the user is copying from, and translating them makes them harder to find.
+   */
+  protected documentLabel(type: IdentityDocumentTypeOption): string {
+    return this.identityDocuments.label(type, (key) => this.translate.instant(key));
+  }
+
+  /** The example for the selected document, so the placeholder shows that country's shape. */
+  protected documentExample(): string {
+    const selected = this.customerForm?.get('identityDocumentTypeCode')?.value as string | undefined;
+    return this.documentTypes().find((type) => type.code === selected)?.example ?? '';
   }
 
   loadCustomerData(id: string): void {

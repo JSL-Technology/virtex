@@ -38,6 +38,31 @@ export class HcmController {
 
   // ── Employees ────────────────────────────────────────────────────────────────
 
+  /**
+   * The identity documents this tenant's country issues to a natural person, for the employee form.
+   *
+   * The form used to carry three `<option>` elements — `CEDULA`, `PASSPORT`, `RNC` — written into
+   * the template, relabelled per locale by the translation catalogue, and validated on the server
+   * with the Dominican algorithms whatever the label said. This endpoint and
+   * `HcmService.resolveIdentityDocument` read the same catalogue rows, which is what makes the
+   * options offered and the values accepted the same set by construction.
+   */
+  @Get('identity-document-types')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  async getIdentityDocumentTypes(@CurrentUser() user: AuthenticatedUser) {
+    const rows = await this.hcmService.identityDocumentTypesFor(user.organizationId);
+    return rows.map((row) => ({
+      code: row.code,
+      countryCode: row.countryCode,
+      labelKey: row.labelKey,
+      labelVerbatim: row.labelVerbatim,
+      example: row.example,
+      pattern: row.pattern,
+      requirement: row.requirement,
+      isDefault: row.isDefault,
+    }));
+  }
+
   @Get('employees')
   @HasPermission(PERMISSIONS.HCM_VIEW)
   async findAllEmployees(
@@ -73,7 +98,8 @@ export class HcmController {
     return {
       id: e.id,
       identityDocument: e.identityDocument,
-      identityDocumentType: e.identityDocumentType,
+      identityDocumentTypeCode: e.identityDocumentTypeCode,
+      identityDocumentCountry: e.identityDocumentCountry,
       bankName: e.bankName,
       bankAccountNumber: e.bankAccountNumber,
       bankAccountType: e.bankAccountType,

@@ -9,6 +9,11 @@
     "en": "The amount to credit ({amount}) exceeds the creditable balance of invoice {invoiceNumber} ({remaining}).",
     "pt": "O valor a creditar ({amount}) excede o saldo creditável da fatura {invoiceNumber} ({remaining})."
   },
+  "invoices.credit_invoice_requires_buyer_tax_id": {
+    "es": "Una factura con crédito fiscal necesita la identificación fiscal válida del comprador. Revísala, o emite una factura de consumo.",
+    "en": "A tax-credit invoice needs the buyer's valid tax identifier. Check it, or issue a consumer invoice instead.",
+    "pt": "Uma fatura com crédito fiscal precisa da identificação fiscal válida do comprador. Verifica-a, ou emite uma fatura de consumo."
+  },
   "invoices.credit_note_must_reference_invoice_modifies": {
     "es": "Una nota de crédito debe referenciar la factura que modifica.",
     "en": "A credit note must reference the invoice it modifies.",

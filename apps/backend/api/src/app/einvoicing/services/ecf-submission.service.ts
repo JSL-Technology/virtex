@@ -103,8 +103,8 @@ export class EcfSubmissionService {
         this.submissionRepo.create({
           organizationId,
           invoiceId,
-          ncf: invoice.ncfNumber as string,
-          ecfType: (invoice.ncfNumber as string).substring(1, 3),
+          ncf: invoice.fiscalNumber as string,
+          ecfType: (invoice.fiscalNumber as string).substring(1, 3),
           status: EcfStatus.PENDING,
           attempts: 0,
         }),
@@ -172,7 +172,7 @@ export class EcfSubmissionService {
     const adopted = await this.adoptExistingTrackId(token, org.taxId, ctx.eNCF, submission);
     if (adopted) return adopted;
 
-    const result = await this.transport.sendEcf(token, signedXml, invoice.ncfNumber!, ctx.tipoECF);
+    const result = await this.transport.sendEcf(token, signedXml, invoice.fiscalNumber!, ctx.tipoECF);
     submission.trackId = result.trackId;
     submission.dgiiResponse = result.raw;
     submission.messages = result.mensajes;
@@ -346,7 +346,7 @@ export class EcfSubmissionService {
         montoImpuestoSelectivo: Number(line.exciseAmount) || 0,
       }));
 
-    const tipoECF = invoice.ncfNumber!.substring(1, 3);
+    const tipoECF = invoice.fiscalNumber!.substring(1, 3);
     const isCredit = invoice.paymentMethod === PaymentMethod.CREDIT;
     const tipoPago = isCredit ? '2' : '1';
 
@@ -357,9 +357,9 @@ export class EcfSubmissionService {
 
     const ctx: EcfBuildContext = {
       tipoECF,
-      eNCF: invoice.ncfNumber!,
-      fechaVencimientoSecuencia: invoice.ncfExpiresAt
-        ? this.toDgiiDate(invoice.ncfExpiresAt)
+      eNCF: invoice.fiscalNumber!,
+      fechaVencimientoSecuencia: invoice.fiscalNumberExpiresAt
+        ? this.toDgiiDate(invoice.fiscalNumberExpiresAt)
         : undefined,
       tipoIngresos: incomeTypeCode(org.fiscalProfile?.['tipoIngreso']),
       tipoPago,
@@ -412,11 +412,11 @@ export class EcfSubmissionService {
     if (invoice.type !== InvoiceType.INVOICE && invoice.originalInvoiceId) {
       const original = await this.invoiceRepo.findOne({
         where: { id: invoice.originalInvoiceId, organizationId: invoice.organizationId },
-        select: ['id', 'ncfNumber', 'issueDate'],
+        select: ['id', 'fiscalNumber', 'issueDate'],
       });
-      if (original?.ncfNumber) {
+      if (original?.fiscalNumber) {
         ctx.modifica = {
-          eNCFModificado: original.ncfNumber,
+          eNCFModificado: original.fiscalNumber,
           fechaEmisionModificado: this.toDgiiDate(original.issueDate),
           // The reason the note was issued, recorded on the document — not a fixed '3'.
           codigoModificacion: invoice.modificationCode ?? '3',

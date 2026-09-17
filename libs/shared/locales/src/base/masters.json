@@ -407,6 +407,26 @@
     "en": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically.",
     "pt": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
   },
+  "masters.supplier_form.document_invalid": {
+    "es": "El {{document}} no es válido. Revisa que esté completo y bien tecleado.",
+    "en": "That {{document}} is not valid. Check that it is complete and correctly typed.",
+    "pt": "O {{document}} não é válido. Verifica se está completo e bem digitado."
+  },
+  "masters.supplier_form.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "masters.supplier_form.document_type_not_issued": {
+    "es": "{{country}} no emite un documento de tipo «{{code}}».",
+    "en": "{{country}} does not issue a document of type “{{code}}”.",
+    "pt": "{{country}} não emite um documento do tipo «{{code}}»."
+  },
+  "masters.supplier_form.document_type_required": {
+    "es": "Indica qué tipo de documento estás registrando para {{country}}.",
+    "en": "State which kind of document you are recording for {{country}}.",
+    "pt": "Indica que tipo de documento estás a registar para {{country}}."
+  },
   "masters.supplier_form.email": {
     "es": "Correo Electrónico",
     "en": "Email",
@@ -463,9 +483,9 @@
     "pt": "Fornecedor atualizado."
   },
   "masters.supplier_form.tax_id": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
+    "es": "Número de documento",
+    "en": "Document number",
+    "pt": "Número do documento"
   },
   "masters.supplier_form.title_edit": {
     "es": "Editar proveedor",
@@ -481,41 +501,6 @@
     "es": "Código ISO de dos letras. Separa una compra local de un pago al exterior, que el 609 reporta aparte.",
     "en": "Two-letter ISO code. Tells a domestic purchase from a payment abroad, which the 609 reports separately.",
     "pt": "Código ISO de duas letras. Separa uma compra local de um pagamento ao exterior, que o 609 reporta à parte."
-  },
-  "masters.supplier_list.company_name": {
-    "es": "Razón social",
-    "en": "Legal name",
-    "pt": "Razão social"
-  },
-  "masters.supplier_list.email": {
-    "es": "Email",
-    "en": "Email",
-    "pt": "E-mail"
-  },
-  "masters.supplier_list.new_supplier": {
-    "es": "Nuevo proveedor",
-    "en": "New supplier",
-    "pt": "Novo fornecedor"
-  },
-  "masters.supplier_list.phone": {
-    "es": "Teléfono",
-    "en": "Phone",
-    "pt": "Telefone"
-  },
-  "masters.supplier_list.suppliers": {
-    "es": "Proveedores",
-    "en": "Suppliers",
-    "pt": "Fornecedores"
-  },
-  "masters.supplier_list.suppliers_could_not_loaded": {
-    "es": "No se pudieron cargar los proveedores.",
-    "en": "The suppliers could not be loaded.",
-    "pt": "Não foi possível carregar os fornecedores."
-  },
-  "masters.supplier_list.tax_id": {
-    "es": "Identificación fiscal",
-    "en": "Tax ID",
-    "pt": "Identificação fiscal"
   },
   "masters.tax_form.cancel": {
     "es": "Cancelar",

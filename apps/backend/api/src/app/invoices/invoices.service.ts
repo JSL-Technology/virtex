@@ -241,18 +241,18 @@ export class InvoicesService {
       const issued = await this.issueWithin(invoice, type ?? null, organizationId, manager);
 
       // Everything below reads back what the real code just wrote, inside the doomed transaction.
-      if (issued.ncfNumber) {
+      if (issued.fiscalNumber) {
         effects.push({
           kind: 'sequence',
           titleKey: 'invoices.effect.fiscal_number',
-          value: issued.ncfNumber,
+          value: issued.fiscalNumber,
           documentType: issued.fiscalDocumentType ?? undefined,
         });
         preconditions.push({
           code: 'invoices.precondition.sequence_available',
           status: 'passed',
           messageKey: 'invoices.precondition.sequence_available',
-          params: { number: issued.ncfNumber },
+          params: { number: issued.fiscalNumber },
         });
       }
 
@@ -365,9 +365,9 @@ export class InvoicesService {
           })
         : await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType });
 
-    invoice.ncfNumber = assignment.ncf;
+    invoice.fiscalNumber = assignment.ncf;
     invoice.fiscalDocumentType = assignment.documentType;
-    invoice.ncfExpiresAt = assignment.expiresAt;
+    invoice.fiscalNumberExpiresAt = assignment.expiresAt;
     invoice.issuedAt = new Date();
     invoice.status =
       invoice.type === InvoiceType.CREDIT_NOTE ? InvoiceStatus.CREDIT_NOTE : InvoiceStatus.PENDING;
@@ -380,7 +380,7 @@ export class InvoicesService {
     const saved = await manager.save(invoice);
 
     this.logger.log(
-      `Documento ${saved.invoiceNumber}${saved.ncfNumber ? ` / ${saved.ncfNumber}` : ''} emitido ` +
+      `Documento ${saved.invoiceNumber}${saved.fiscalNumber ? ` / ${saved.fiscalNumber}` : ''} emitido ` +
         `por ${saved.total.toFixed(2)} ${saved.currencyCode}.`,
     );
     return saved;
@@ -1306,7 +1306,7 @@ export class InvoicesService {
     if (query.to) qb.andWhere('invoice.issueDate <= :to', { to: query.to });
     if (query.search) {
       qb.andWhere(
-        '(invoice.invoiceNumber ILIKE :search OR invoice.ncfNumber ILIKE :search OR invoice.customerName ILIKE :search)',
+        '(invoice.invoiceNumber ILIKE :search OR invoice.fiscalNumber ILIKE :search OR invoice.customerName ILIKE :search)',
         { search: `%${query.search}%` },
       );
     }

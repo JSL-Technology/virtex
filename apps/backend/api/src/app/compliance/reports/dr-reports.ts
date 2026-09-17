@@ -52,7 +52,7 @@ export class DominicanRepublicReports {
       where: {
         organizationId,
         issueDate: Between(from, to),
-        ncfNumber: Not(IsNull()),
+        fiscalNumber: Not(IsNull()),
         status: Not(In([InvoiceStatus.DRAFT, InvoiceStatus.VOID])),
       },
       order: { issueDate: 'ASC', invoiceNumber: 'ASC' },
@@ -68,7 +68,7 @@ export class DominicanRepublicReports {
       return [
         taxId,
         identificationType(taxId),
-        sale.ncfNumber ?? '',
+        sale.fiscalNumber ?? '',
         sale.originalInvoiceId ? modifiedNcfById.get(sale.originalInvoiceId) ?? '' : '',
         incomeType,
         compactDate(sale.issueDate),
@@ -188,7 +188,7 @@ export class DominicanRepublicReports {
       where: {
         organizationId,
         issueDate: Between(from, to),
-        ncfNumber: Not(IsNull()),
+        fiscalNumber: Not(IsNull()),
         status: InvoiceStatus.VOID,
       },
       order: { issueDate: 'ASC' },
@@ -196,7 +196,7 @@ export class DominicanRepublicReports {
 
     const rows = voided.map((invoice) =>
       [
-        invoice.ncfNumber ?? '',
+        invoice.fiscalNumber ?? '',
         compactDate(invoice.issueDate),
         annulmentCode(invoice.voidReason),
       ].join('|'),
@@ -287,10 +287,10 @@ async function resolveModifiedNcfs(
 
   const originals = await invoiceRepository.find({
     where: { organizationId, id: In(ids) },
-    select: ['id', 'ncfNumber'],
+    select: ['id', 'fiscalNumber'],
   });
   for (const original of originals) {
-    if (original.ncfNumber) map.set(original.id, original.ncfNumber);
+    if (original.fiscalNumber) map.set(original.id, original.fiscalNumber);
   }
   return map;
 }

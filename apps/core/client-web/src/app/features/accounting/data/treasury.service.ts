@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import type { Page } from './page';
+import { environment } from '../../../../environments/environment';
+import type { Page } from '../../../core/api/page';
 
 /** Mirrors `BankAccountType` on the server. */
 export type BankAccountType = 'CHECKING' | 'SAVINGS' | 'CASH' | 'CREDIT_CARD';

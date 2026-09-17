@@ -111,8 +111,49 @@ export interface StatutoryResult {
  * registered by country code; the calculation service selects one and never contains a country's
  * arithmetic itself. Adding Colombia or the US is adding a class here.
  */
+/**
+ * A statutory identifier a country's social security system assigns to a worker.
+ *
+ * ## Why this is on the jurisdiction strategy
+ *
+ * `employees` carried three columns named after Dominican institutions — `tss_nss` (Tesorería de
+ * la Seguridad Social), `afp_code`, `sfs_code` — and the DTO asserted `@Matches(/^\d{7,11}$/)`,
+ * the shape of a Dominican NSS, on every country's employees. A Mexican worker has an IMSS number,
+ * a Brazilian a PIS/PASEP, a Colombian an EPS and an AFP affiliation with different structures
+ * again. The columns are now neutrally named and the RULE lives here, with the strategy that
+ * already knows the country's payroll law, rather than as a regex on a shared DTO.
+ *
+ * A country whose strategy declares no identifiers imposes no format, which is the correct
+ * behaviour for a market whose rules this product has not modelled yet — it is weaker than a
+ * verified rule and infinitely stronger than another country's rule.
+ */
+export interface StatutoryIdentifierSpec {
+  /**
+   * Which field it constrains.
+   *
+   * `socialSecurityNumber`, `pensionFundCode` and `healthFundCode` are the three neutral columns
+   * on `employees`; anything else is a key inside `statutory_enrolment`, so a country needing a
+   * fourth identifier adds it without a migration.
+   */
+  field: 'socialSecurityNumber' | 'pensionFundCode' | 'healthFundCode' | string;
+  /** Catalogue key for the field's label, so the form can name it in the country's terms. */
+  labelKey: string;
+  /** Anchored on both ends. Null means the country imposes no shape this product can assert. */
+  pattern: string | null;
+  /** Catalogue key for the rejection message, phrased in that country's vocabulary. */
+  messageKey: string;
+  required: boolean;
+}
+
 export interface PayrollJurisdictionStrategy {
   readonly countryCode: string;
+  /**
+   * The statutory identifiers this country's filings need from an employee record.
+   *
+   * Empty by default: a strategy that has not modelled them asserts nothing rather than borrowing
+   * another country's rule.
+   */
+  readonly statutoryIdentifiers?: readonly StatutoryIdentifierSpec[];
   /** Compute all statutory contributions and income tax from the prorated bases. Pure. */
   computeStatutory(input: StatutoryInput, params: ResolvedParameters): StatutoryResult;
   /**

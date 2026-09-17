@@ -1,5 +1,11 @@
 # Auditoría — Tipos de documento e identificadores hardcodeados por país
 
+> **ESTADO: CORREGIDO.** Los 19 hallazgos de este informe están resueltos en la misma rama
+> (`claude/audit-hardcoded-document-types-dacm0z`). El informe se conserva como el razonamiento
+> que justifica el cambio, en presente: describe el código **tal y como estaba**. El apartado §9,
+> al final, dice qué se hizo para cada hallazgo y qué quedó fuera.
+>
+
 > **Método.** Lectura estática de todo el monorepo (`apps/backend`, `apps/core/client-web`,
 > `apps/pos`, `libs/shared`, migraciones y catálogos i18n). Cada hallazgo cita archivo, línea y el
 > literal exacto encontrado. No se ejecutó la aplicación: las afirmaciones sobre comportamiento se
@@ -1116,3 +1122,124 @@ Los pasos 1-6 son lo que hace falta para que **un cliente de cualquiera de los 1
 pueda dar de alta a un empleado el día 0**, que es el requisito que esta auditoría tenía que medir.
 Hoy no puede: en once mercados ve dos etiquetas genéricas, y en los siete que sí tienen traducción
 regional, la interfaz le pide un documento que el servidor rechaza.
+
+---
+
+## 9. Qué se corrigió
+
+Todo lo anterior está resuelto en esta rama. Lo que sigue es el mapa de hallazgo → corrección, y
+al final lo que **no** se tocó y por qué.
+
+### El catálogo, que es la pieza de la que cuelga todo
+
+| Pieza | Archivo |
+|---|---|
+| Declaración del catálogo (29 entradas, 19 mercados + `XX` supranacional) | `localization/fiscal/identity-document-catalogue.ts` |
+| Registro de algoritmos de dígito verificador, direccionables por nombre | `localization/fiscal/document-checksums.ts` |
+| Tabla y entidad | `localization/entities/identity-document-type.entity.ts` + migración `1789005000000` |
+| Servicio: siembra, caché con TTL, `listForCountry`, `find`, `defaultFor`, `validate`, `resolveParty` | `localization/services/identity-document.service.ts` |
+| Endpoints (`:countryCode` público para el alta; sin país para el tenant autenticado) | `localization/controllers/localization.controller.ts` |
+| Resolución del país del tenant, global, sin valor por defecto | `shared/tenancy/tenant-country.resolver.ts` |
+| Catálogo de tipos de comprobante fiscal | `localization/fiscal/fiscal-document-type-catalogue.ts` |
+| 27 invariantes en verde | `localization/fiscal/identity-document-catalogue.spec.ts` |
+
+`resolveParty()` es deliberadamente **una sola función**: RR.HH., Ventas y Compras la llaman, y solo
+se diferencian en con qué clave i18n redactan el rechazo. Arreglar RR.HH. por su cuenta habría
+producido cinco respuestas a la misma pregunta en vez de cuatro.
+
+### Hallazgo por hallazgo
+
+| # | Corrección |
+|---|---|
+| **C-01** | `employees.identity_document_type` (ENUM `CEDULA/PASSPORT/RNC`, `NOT NULL DEFAULT 'CEDULA'`) → `identity_document_type_code` + `identity_document_country`, nullable, con CHECK de coherencia del par. El tipo de PostgreSQL se elimina. Migración `1789005200000`, con retrollenado de las filas existentes (dominicanas por construcción; el pasaporte a `XX`) y **sin** heredar el `DEFAULT`, que hacía indistinguible «no consta» de «es una cédula dominicana». |
+| **C-02** | `identity-document.validator.ts` **borrado**. La validación vive en `HcmService`, que resuelve el país desde la organización y la regla desde el catálogo. Los seis mercados que no podían guardar un documento tienen ahora un test que lo demuestra. |
+| **C-03** | `ncf_sequences.type` y `ecf_lifecycle_messages.ecf_type` pasan de ENUM a `varchar(8)`; los dos tipos de PostgreSQL se eliminan. Migración `1789005400000`. |
+| **A-01** | `document_type.cedula` / `.rnc` / `.passport` retiradas de `base/hcm.json` y de los ocho parches regionales. En su lugar, el namespace `identity_document`, cuya hoja **se compone desde el dato** del catálogo: añadir un país ya no toca el catálogo de traducciones. |
+| **A-02** | Los tres `<option>` fijos → `@for` sobre `documentTypes()`, alimentado por `GET /hcm/identity-document-types`. El *union type* del cliente desaparece. El `identityDocumentType: ['CEDULA']` por defecto desaparece: lo fija el catálogo por país. |
+| **A-03** | Las cuatro implementaciones se reducen a una: `IdentityDocumentService.resolveParty()`. `TAX_ID_RULES` no se tira — es ahora el registro de algoritmos que el catálogo referencia por nombre, que es lo que ya era de hecho. |
+| **A-04** | `customers` y `suppliers` ganan tipo de documento y país, y su `taxId` se valida contra el catálogo y se guarda canonicalizado. Los formularios ganan el selector. |
+| **A-05** | `fiscal_regions.identity_document_config` **eliminada**, junto con `DbDrivenFiscalStrategy`, su único lector, cuyo `validateTaxId` terminaba en `return true`. Con ella se va el código derivado de la etiqueta que producía `RNCCDULA` y `CDULAJURDICA`. |
+| **A-06** | `fiscal_document_type_definitions` se puebla al arranque desde el catálogo, y gana las columnas que la hacían inservible (`label_key`, `is_electronic`, `side`, `is_credit_note`, `requires_buyer_tax_id`, `sort_order`) más su clave natural. |
+| **M-01** | `tss_nss` / `afp_code` / `sfs_code` → `social_security_number` / `pension_fund_code` / `health_fund_code`, más `statutory_enrolment` JSONB para lo que cada país añada sin migración. El `@Matches(/^\d{7,11}$/)` sale del DTO compartido y pasa a `statutoryIdentifiers` de la estrategia de nómina del país. |
+| **M-02** | `search.service.ts` ya no compone `RNC: ${taxId}`: devuelve clave, parámetros y el código de documento, y el cliente redacta. De paso caen `Factura #…`, `Cliente: …` y `SKU: …`, que eran español para todo lector. |
+| **M-03** | La columna del importador `rnc` → `tax_id`. |
+| **M-04** | `settings.*.id_fiscal_rnc_tax_id` → `settings.*.tax_id`, con los ocho parches regionales arrastrados. |
+| **M-05** | La familia `hcm.employees.form.document_type` sale de `composed-keys.json`; entra `identity_document` como **dominio abierto**, que es lo que corresponde a un catálogo extensible por datos. |
+| **M-06** | Las etiquetas del catálogo son `labelKey` (traducible) o `labelVerbatim` (terminología de la autoridad, que **no** debe traducirse). La decisión se declara en la fila en vez de inferirse del literal español. |
+| **M-07** | `invoices.ncf_number` / `ncf_expires_at` → `fiscal_number` / `fiscal_number_expires_at`, índice incluido. Migración `1789005500000`. |
+| **B-01** | `IsRNC` **borrado** de `libs/shared/util-auth`, con su mensaje en español. |
+| **B-02** | Los `placeholder="Ej. 132-45678-9"` se enlazan al `taxIdExample` del país; en Sucursales sigue al selector de país de cada sucursal. |
+| **B-03** | `fiscal_regions.tax_id_name` **eliminada**. Lo que un país llama a su identificador es un atributo de la entrada del catálogo. |
+
+### Corregido además, por estar en el camino
+
+- **`payroll-run.service.ts`**: `(input.countryCode ?? 'DO')` — una nómina sin país explícito se
+  calculaba con las tasas y la escala dominicanas fuera quien fuera el tenant. Ahora resuelve el
+  país del tenant, y un tenant sin país se rechaza en vez de asignarle uno.
+- **`suppliers.country`**: tenía `DEFAULT 'DO'`, y esa columna es justo la que separa una compra
+  local de un pago al exterior en el 609. Sin default; lo fija el servicio desde el tenant.
+- **Formulario de cliente**: `country: ['DO']` → el país del tenant.
+- **Adaptador dominicano**: la única excepción con una frase en español codificada a mano pasa a
+  ser una clave de catálogo.
+- **`stock_items.expiry_date`** tipado como `Date` en una columna `date`: `verify:date-columns`
+  lo señalaba y bloqueaba la comprobación.
+- **13 claves i18n huérfanas** que dejaban `verify-catalogues.mjs` en rojo **antes** de este cambio.
+- **34 imports de `environments/environment` con la profundidad equivocada**, más 16 más de otros
+  módulos, heredados de refactores que movieron carpetas sin ajustar las rutas. Dejaban **91 de
+  137 suites del cliente web sin ejecutarse**: de 46 suites y 223 tests a **137 suites y 537 tests**,
+  todos en verde.
+
+### Verificación
+
+| Comprobación | Resultado |
+|---|---|
+| Las 6 migraciones desde base vacía | aplican limpias |
+| `check:schema-drift` | sin deriva |
+| `i18n:verify` (build, invariantes, texto sin traducir, prosa, nombres localizados) | verde |
+| `verify:tenant-scope`, `numeric-transformers`, `date-columns`, `form-a11y`, `required-markers` | verde |
+| `nx run-many -t lint` | 0 errores |
+| Tests del cliente web | **137/137 suites, 537/537 tests** |
+| Tests del backend (con Postgres real, en serie) | 85 suites y 1.788 tests en verde; **0 fallos nuevos** frente a la línea base |
+| Nuevos invariantes del catálogo | 27/27 |
+
+### Lo que queda fuera, y por qué
+
+**1. 23 suites del backend y 32 errores de `typecheck` preexistentes.** Están idénticos antes y
+después de este cambio (verificado con `git stash` en ambos sentidos). Son specs de integración
+cuyas llamadas a constructores quedaron desfasadas — `Expected 2 arguments, but got 1` — más tres
+que importan servicios que ya no existen. Son mecánicos pero numerosos, y arreglarlos a ciegas
+produciría specs que *parecen* correctos sin estarlo. Son un trabajo aparte.
+
+**2. La aplicación no arranca, y no por este cambio.** `verify:boot` falla igual en la línea base.
+Corregí tres eslabones reales de la cadena —un ciclo `CurrenciesModule → ChartOfAccountsModule`,
+otro `AccountingModule → AuthModule`, y `FixedAssetsModule`, que inyectaba un repositorio que nunca
+registró— y cada uno hizo avanzar el arranque hasta el siguiente. El siguiente error, con el que
+paré, es:
+
+```
+Nest can't resolve dependencies of the FixedAssetsService
+  (FixedAssetRepository, DataSource, AssetPostingService, ?, LedgerNarrativeService).
+  JournalLookupService at index [3] is not available in the FixedAssetsModule context.
+```
+
+Es una cadena de cableado de módulos de profundidad desconocida, ajena a los tipos de documento.
+Seis verificadores dependen de que arranque (`verify:markets`, `verify:provisioning`,
+`verify:fiscal-identity`, `verify:invoicing`, `verify:ecf`, `verify:tenancy`), así que merece su
+propia tarea.
+
+**3. Los documentos que el catálogo todavía no declara.** Se sembró lo que este repositorio ya
+afirmaba: los identificadores fiscales de los 19 mercados (de `TAX_ID_RULES`, con tests), los
+documentos personales que los parches regionales ya nombraban (CC colombiana, CURP mexicana, DNI
+peruano y argentino, RUN chileno) y el pasaporte. **No se inventó ninguno.** Una cédula de
+extranjería colombiana, un INE mexicano distinto del CURP o una cédula ecuatoriana separada del RUC
+existen y este archivo no fabrica sus formatos.
+
+Lo que cambió es el coste de añadirlos: **son un INSERT.** Ocho mercados llevan hoy solo su
+identificador fiscal y el pasaporte, y eso es estar **poco poblado como dato**, no bloqueado por el
+esquema — que era exactamente el hallazgo.
+
+Cuatro entradas (`CO.CC`, `PE.DNI`, `AR.DNI`, `MX.CURP`) se validan solo por patrón, con
+`checksum: null`. Cada una lleva anotado qué habría que confirmar con la autoridad para endurecerla;
+el CURP, en particular, tiene un dígito verificador publicado y añadirlo es nombrar un algoritmo en
+`document-checksums.ts`. Una entrada solo-patrón es más débil que una algorítmica e infinitamente
+más fuerte que el comportamiento anterior, que era aplicarle el algoritmo de otro país.

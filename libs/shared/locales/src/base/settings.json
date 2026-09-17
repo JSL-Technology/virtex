@@ -417,11 +417,6 @@
     "en": "https://example.com",
     "pt": "https://exemplo.com"
   },
-  "settings.company_profile.id_fiscal_rnc_tax_id": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
-  },
   "settings.company_profile.industry": {
     "es": "Industria",
     "en": "Industry",
@@ -461,6 +456,11 @@
     "es": "Perfil actualizado correctamente",
     "en": "Profile updated successfully",
     "pt": "Perfil atualizado com sucesso"
+  },
+  "settings.company_profile.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
   },
   "settings.company_profile.tax_id_required": {
     "es": "El ID Fiscal es requerido.",
@@ -2816,11 +2816,6 @@
     "en": "Tax ID:",
     "pt": "Identificação fiscal:"
   },
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
-  },
   "settings.subsidiaries.legal_name": {
     "es": "Nombre Legal",
     "en": "Legal Name",
@@ -2860,6 +2855,11 @@
     "es": "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.",
     "en": "Start by adding a subsidiary or branch to expand your structure.",
     "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
+  },
+  "settings.subsidiaries.tax_id": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
   },
   "settings.user_management.action_cannot_undone": {
     "es": "Esta acción no se puede deshacer.",

@@ -374,7 +374,7 @@ export class InvoicePostingService {
       number: invoice.invoiceNumber,
       // The fiscal number in parentheses when there is one, and nothing at all when there is not —
       // an empty pair of brackets reads as a field that failed to fill.
-      fiscal: invoice.ncfNumber ? ` (${invoice.ncfNumber})` : '',
+      fiscal: invoice.fiscalNumber ? ` (${invoice.fiscalNumber})` : '',
       customer: invoice.customerName,
     });
   }

@@ -21,6 +21,7 @@ import { PayslipLine } from '../entities/payslip-line.entity';
 import { PayrollConcept } from '../entities/payroll-concept.entity';
 import { PayrollInput } from '../entities/payroll-input.entity';
 import { JurisdictionRegistry } from '../jurisdictions/jurisdiction-registry';
+import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 import { PayrollParametersService } from './payroll-parameters.service';
 import {
   ComputedPayslip,
@@ -77,6 +78,7 @@ export class PayrollRunService {
     private readonly parameters: PayrollParametersService,
     private readonly calculation: PayrollCalculationService,
     private readonly registry: JurisdictionRegistry,
+    private readonly tenantCountry: TenantCountryResolver,
     private readonly accounting: PayrollAccountingService,
     private readonly severance: SeveranceService,
   ) {}
@@ -123,7 +125,14 @@ export class PayrollRunService {
   // ── Lifecycle ────────────────────────────────────────────────────────────────
 
   async createDraft(input: CreateRunInput, organizationId: string): Promise<PayrollRun> {
-    const country = (input.countryCode ?? 'DO').toUpperCase();
+    // `(input.countryCode ?? 'DO')` used to stand here. A run started without an explicit country
+    // was therefore computed under Dominican contribution rates and the DGII income-tax scale
+    // whoever the tenant was — not a fallback, a wrong answer that looks like a right one, and one
+    // that only surfaces when somebody reconciles a Chilean payslip against Chilean law. The
+    // tenant's own country is the only defensible default, and a tenant that has none is refused
+    // rather than assigned one.
+    const country = (input.countryCode ?? (await this.tenantCountry.resolve(organizationId)))
+      .toUpperCase();
     if (!this.registry.supports(country)) {
       throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: country });
     }
@@ -485,7 +494,9 @@ export class PayrollRunService {
       employeeId: employee.id,
       employeeName: `${employee.firstName} ${employee.lastName}`.trim(),
       employeeIdentityMasked: this.maskIdentity(employee.identityDocument),
-      employeeTssNss: employee.tssNss ?? null,
+      // The TSS filing calls it the NSS; the employee record now calls it what every system calls
+      // it. The Dominican name belongs to the Dominican report, which is this one.
+      employeeTssNss: employee.socialSecurityNumber ?? null,
       hireDate: employee.hireDate ?? null,
       terminationDate: employee.terminationDate ?? null,
       monthlyBaseSalary: this.toMonthly(compensation),

@@ -82,9 +82,9 @@ export enum PaymentMethod {
 // e-NCF range used to reset the counter and silently reissue numbers already on customers'
 // invoices; the range-overlap check in ComplianceService now prevents it, and this index is what
 // makes the guarantee hold even if a future path forgets to ask.
-@Index('UQ_invoices_org_ncf', ['organizationId', 'ncfNumber'], {
+@Index('UQ_invoices_org_fiscal_number', ['organizationId', 'fiscalNumber'], {
   unique: true,
-  where: '"ncf_number" IS NOT NULL',
+  where: '"fiscal_number" IS NOT NULL',
 })
 @Index('UQ_invoices_org_number', ['organizationId', 'invoiceNumber'], { unique: true })
 export class Invoice {
@@ -103,19 +103,25 @@ export class Invoice {
   invoiceNumber: string;
 
   /**
-   * Fiscal number (NCF / e-NCF in the Dominican Republic). Null while the document is a draft and
-   * in regimes that issue no fiscal number.
+   * The number the tax authority's series assigned to this document.
+   *
+   * Called `ncf_number` until now — "Número de Comprobante Fiscal", a DGII term — on a column that
+   * holds the folio of a Mexican CFDI, the número of a Chilean DTE and the chave de acesso of a
+   * Brazilian NF-e just as readily. The comment already conceded the point ("NCF / e-NCF **in the
+   * Dominican Republic**"): the semantics had generalised and the name had not.
+   *
+   * Null while the document is a draft, and in regimes that issue no fiscal number at all.
    */
-  @Column({ name: 'ncf_number', type: 'varchar', nullable: true })
-  ncfNumber?: string | null;
+  @Column({ name: 'fiscal_number', type: 'varchar', nullable: true })
+  fiscalNumber?: string | null;
 
   /** The fiscal document type the number was drawn from (`E31`, `E32`, `B01`…). */
   @Column({ name: 'fiscal_document_type', type: 'varchar', length: 8, nullable: true })
   fiscalDocumentType?: string | null;
 
-  /** Expiry of the DGII authorization that covers `ncfNumber`, stamped at issuance. */
-  @Column({ name: 'ncf_expires_at', type: 'date', nullable: true })
-  ncfExpiresAt?: string | null;
+  /** Expiry of the authorization that covers `fiscalNumber`, stamped at issuance. */
+  @Column({ name: 'fiscal_number_expires_at', type: 'date', nullable: true })
+  fiscalNumberExpiresAt?: string | null;
 
   /**
    * One customer column, with a foreign key.
@@ -475,7 +481,7 @@ export class Invoice {
 
   /** True once the document carries an electronic fiscal number that must reach the DGII. */
   get isElectronicFiscalDocument(): boolean {
-    return Boolean(this.ncfNumber && this.ncfNumber.toUpperCase().startsWith('E'));
+    return Boolean(this.fiscalNumber && this.fiscalNumber.toUpperCase().startsWith('E'));
   }
 
   /** Amount still creditable by a credit note, in transaction currency. */

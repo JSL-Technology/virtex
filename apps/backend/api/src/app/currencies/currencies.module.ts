@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { CurrenciesService } from './currencies.service';
@@ -18,7 +18,11 @@ import { XeRatesProvider } from './xe-rates.provider';
 
 @Module({
   imports: [
-    ChartOfAccountsModule,
+    // `forwardRef` because the graph really is circular: ChartOfAccountsModule reaches
+    // JournalEntriesModule, which reaches back here. Without it the class expression is still
+    // being evaluated when this module is defined, so `imports[0]` is literally `undefined` and
+    // Nest fails to build the container — which is what stopped the application booting at all.
+    forwardRef(() => ChartOfAccountsModule),
     TypeOrmModule.forFeature([Currency, ExchangeRate]),
     HttpModule,
   ],

@@ -751,11 +751,6 @@
     "en": "The Purchases journal (COMPRAS) was not found.",
     "pt": "O diário de Compras (COMPRAS) não foi encontrado."
   },
-  "accounts_payable.purchases_journal_compras_not_found_record": {
-    "es": "Diario de Compras (COMPRAS) no encontrado para registrar la nota de débito.",
-    "en": "The Purchases journal (COMPRAS) was not found to record the debit note.",
-    "pt": "O diário de Compras (COMPRAS) não foi encontrado para registrar a nota de débito."
-  },
   "accounts_payable.settlement_settled_exceeds_balance_balance_bill": {
     "es": "El pago de {{settled}} excede el saldo de {{balance}} de la factura {{id}}.",
     "en": "A settlement of {{settled}} exceeds the {{balance}} balance of bill {{id}}.",

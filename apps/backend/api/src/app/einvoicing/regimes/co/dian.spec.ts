@@ -34,7 +34,7 @@ describe('DIAN — factura electrónica', () => {
     // own document sequence and carries no fiscal force: the builders used to read it, so a
     // document would have gone out numbered from the internal counter rather than from the range
     // the authority granted.
-    ncfNumber: 'SETP990000001',
+    fiscalNumber: 'SETP990000001',
     customerId: 'cus-1',
     issueDate: '2026-06-10T09:30:00',
     currencyCode: 'COP',

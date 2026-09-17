@@ -119,11 +119,6 @@
     "en": "The category tree cannot be more than {{max}} levels deep.",
     "pt": "A árvore de categorias não pode ter mais de {{max}} níveis."
   },
-  "inventory.no_general_general_journal_organization_create": {
-    "es": "No existe el diario General (GENERAL) en esta organización; créelo en Ajustes de contabilidad.",
-    "en": "There is no General (GENERAL) journal in this organization; create it in accounting settings.",
-    "pt": "Não existe o diário Geral (GENERAL) nesta organização; crie-o nas definições de contabilidade."
-  },
   "inventory.not_enough_stock_name_available_available": {
     "es": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
     "en": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",

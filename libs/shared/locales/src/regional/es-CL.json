@@ -1,14 +1,10 @@
 {
   "$locale": "es-CL",
   "$note": "Chile. The identifier is the RUT, used both as the tax identifier and the identity document.",
-  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
-  "hcm.employees.form.document_type.cedula": "RUN",
-  "hcm.employees.form.document_type.rnc": "RUT",
-  "contacts.customer_form.tax_id": "RUT",
-  "masters.supplier_form.tax_id": "RUT",
-  "settings.company_profile.id_fiscal_rnc_tax_id": "RUT",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "RUT",
+  "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
-  "invoice.pdf.tax_column_header": "IVA"
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+  "settings.company_profile.tax_id": "RUT",
+  "settings.subsidiaries.tax_id": "RUT"
 }

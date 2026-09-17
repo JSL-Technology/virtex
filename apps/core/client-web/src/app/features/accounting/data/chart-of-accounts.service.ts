@@ -2,7 +2,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import {
   Account,
   AccountCategory,
@@ -10,7 +10,7 @@ import {
   AccountType,
   CashFlowCategory,
   RequiredDimension,
-} from '../models/account.model';
+} from '../../../core/models/account.model';
 
 export interface CreateAccountDto {
   segments: string[];

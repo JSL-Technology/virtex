@@ -39,7 +39,7 @@ const ACTIVITY_SOURCES: Record<
 > = {
   invoices: {
     permission: PERMISSIONS.INVOICES_VIEW,
-    reference: ['invoiceNumber', 'ncfNumber'],
+    reference: ['invoiceNumber', 'fiscalNumber'],
     counterparty: ['customerName'],
     amount: ['total'],
     currency: ['currencyCode'],

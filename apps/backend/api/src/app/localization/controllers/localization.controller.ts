@@ -1,8 +1,16 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { LocalizationService } from '../services/localization.service';
+import { IdentityDocumentService } from '../services/identity-document.service';
+import {
+  DocumentAppliesTo,
+  DocumentContext,
+} from '../fiscal/identity-document-catalogue';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
 import { Public } from '../../auth/decorators/public.decorator';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 
 /**
  * Fiscal configuration the signup form needs before anyone has an account.
@@ -14,7 +22,78 @@ import { Public } from '../../auth/decorators/public.decorator';
  */
 @Controller('localization')
 export class LocalizationController {
-  constructor(private readonly localizationService: LocalizationService) {}
+  constructor(
+    private readonly localizationService: LocalizationService,
+    private readonly identityDocuments: IdentityDocumentService,
+    private readonly tenantCountry: TenantCountryResolver,
+  ) {}
+
+  /**
+   * The identity documents a country issues, which every form that captures an identity reads.
+   *
+   * `@Public()` because the signup form needs it before an account exists, and because nothing
+   * here is secret: it is the list of documents printed on the country's own tax forms. It is the
+   * same endpoint the employee form, the customer form and the supplier form call, which is what
+   * stops them drifting apart again — they previously had a hardcoded `<option>` list, no list at
+   * all, and no list at all respectively.
+   *
+   * `appliesTo` and `usedFor` narrow it: an employee form asks for `individual` documents used in
+   * `payroll`, which is how a Mexican tenant is offered the CURP and not the RFC.
+   */
+  @Get('countries/:countryCode/identity-document-types')
+  @Public()
+  @SkipThrottle()
+  async getIdentityDocumentTypes(
+    @Param('countryCode') countryCode: string,
+    @Query('appliesTo') appliesTo?: DocumentAppliesTo,
+    @Query('usedFor') usedFor?: DocumentContext,
+  ) {
+    const rows = await this.identityDocuments.listForCountry(countryCode, { appliesTo, usedFor });
+    return rows.map((row) => ({
+      code: row.code,
+      countryCode: row.countryCode,
+      labelKey: row.labelKey,
+      labelVerbatim: row.labelVerbatim,
+      example: row.example,
+      // The pattern travels for immediate client-side feedback. The checksum deliberately does
+      // NOT: the algorithm runs on the server, which is where the verdict is decided, and
+      // shipping its name would invite a client to reimplement it and disagree.
+      pattern: row.pattern,
+      requirement: row.requirement,
+      appliesTo: row.appliesTo,
+      isDefault: row.isDefault,
+    }));
+  }
+
+  /**
+   * The identity documents the CALLER'S OWN tenant may use, without naming a country.
+   *
+   * Authenticated — no `@Public()` — so the country comes from the session rather than the URL.
+   * The customer and supplier forms use this one; the signup form uses the `:countryCode` route
+   * above, because at signup there is no tenant yet. Both read the same catalogue, which is the
+   * point: sales, purchasing, payroll and registration disagreed about what a valid identifier was
+   * precisely because each had its own source.
+   */
+  @Get('identity-document-types')
+  async getTenantIdentityDocumentTypes(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('appliesTo') appliesTo?: DocumentAppliesTo,
+    @Query('usedFor') usedFor?: DocumentContext,
+  ) {
+    const country = await this.tenantCountry.resolve(user.organizationId);
+    const rows = await this.identityDocuments.listForCountry(country, { appliesTo, usedFor });
+    return rows.map((row) => ({
+      code: row.code,
+      countryCode: row.countryCode,
+      labelKey: row.labelKey,
+      labelVerbatim: row.labelVerbatim,
+      example: row.example,
+      pattern: row.pattern,
+      requirement: row.requirement,
+      appliesTo: row.appliesTo,
+      isDefault: row.isDefault,
+    }));
+  }
 
   /** The list of supported countries. Static, cheap, and needed to render the signup form. */
   @Get('fiscal-regions')

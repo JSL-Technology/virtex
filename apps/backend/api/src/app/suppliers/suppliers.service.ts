@@ -7,7 +7,9 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { DataSource } from 'typeorm';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { NotFoundError } from '../i18n/localized.exception';
+import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
+import { IdentityDocumentService } from '../localization/services/identity-document.service';
+import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 
 @Injectable()
 export class SuppliersService {
@@ -16,18 +18,85 @@ export class SuppliersService {
     private readonly supplierRepository: Repository<Supplier>,
     private readonly dataSource: DataSource,
     private readonly saasService: SaasService,
+    private readonly identityDocuments: IdentityDocumentService,
+    private readonly tenantCountry: TenantCountryResolver,
   ) {}
+
+  /**
+   * Resolve and validate the supplier's fiscal identifier, and settle its country.
+   *
+   * Purchasing had exactly the gap sales did: a `taxId` varchar with no type beside it and no
+   * validation behind it, so a mistyped RNC was stored and only surfaced when the 606 filing built
+   * from it was rejected. It also carried `country` with `DEFAULT 'DO'`, which made every supplier
+   * a Chilean tenant created Dominican — and "domestic or abroad" is the one question that column
+   * exists to answer, so a wrong default there is a wrong filing.
+   *
+   * Both are settled here, from the tenant's country rather than from a constant.
+   */
+  private async resolveIdentityDocument(
+    dto: Partial<CreateSupplierDto>,
+    organizationId: string,
+    existing?: Supplier,
+  ): Promise<Partial<Supplier>> {
+    const tenantCountry = await this.tenantCountry.resolve(organizationId);
+    const country = dto.country ?? existing?.country ?? tenantCountry;
+
+    if (!dto.taxId?.trim()) {
+      return { country, identityDocumentTypeCode: null, identityDocumentCountry: null };
+    }
+
+    const resolved = await this.identityDocuments.resolveParty({
+      value: dto.taxId,
+      typeCode: dto.identityDocumentTypeCode,
+      // A supplier's document is issued where the supplier is, which for a payment abroad is not
+      // where the tenant is.
+      documentCountry: dto.identityDocumentCountry ?? country,
+      fallbackCountry: tenantCountry,
+      appliesTo: 'both',
+      usedFor: 'invoicing',
+    });
+
+    if (!resolved.ok) {
+      switch (resolved.reason) {
+        case 'type_required':
+          throw new UnprocessableEntityError('masters.supplier_form.document_type_required', {
+            country: resolved.country,
+          });
+        case 'type_not_issued':
+          throw new UnprocessableEntityError('masters.supplier_form.document_type_not_issued', {
+            code: resolved.code,
+            country: resolved.country,
+          });
+        default:
+          throw new UnprocessableEntityError('masters.supplier_form.document_invalid', {
+            document: resolved.documentLabel,
+          });
+      }
+    }
+
+    return {
+      country,
+      taxId: resolved.value ?? undefined,
+      identityDocumentTypeCode: resolved.typeCode,
+      identityDocumentCountry: resolved.countryCode,
+    };
+  }
 
   /** Create a supplier, metered in the same transaction as the insert. */
   async create(
     createSupplierDto: CreateSupplierDto,
     organizationId: string,
   ): Promise<Supplier> {
+    // Before the transaction: a rejected tax id should not have held a lock or consumed the
+    // plan-limit check on its way to failing.
+    const identity = await this.resolveIdentityDocument(createSupplierDto, organizationId);
+
     return this.dataSource.transaction(async (manager) => {
       await this.saasService.enforceLimit(manager, organizationId, SaasResource.SUPPLIERS);
 
       const supplier = manager.create(Supplier, {
         ...createSupplierDto,
+        ...identity,
         organizationId,
       });
       return manager.save(supplier);
@@ -57,10 +126,33 @@ export class SuppliersService {
     organizationId: string,
   ): Promise<Supplier> {
     const supplier = await this.findOne(id, organizationId);
-    const updatedSupplier = this.supplierRepository.merge(
-      supplier,
-      updateSupplierDto,
-    );
+
+    // Re-validate when any of the three moves: correcting the TYPE alone has to re-check the value
+    // against the new rule, and moving the supplier's COUNTRY changes which registry issued it.
+    const identityTouched =
+      updateSupplierDto.taxId !== undefined ||
+      updateSupplierDto.identityDocumentTypeCode !== undefined ||
+      updateSupplierDto.identityDocumentCountry !== undefined ||
+      updateSupplierDto.country !== undefined;
+
+    const updatedSupplier = this.supplierRepository.merge(supplier, updateSupplierDto);
+    if (identityTouched) {
+      Object.assign(
+        updatedSupplier,
+        await this.resolveIdentityDocument(
+          {
+            taxId: updateSupplierDto.taxId ?? supplier.taxId,
+            identityDocumentTypeCode:
+              updateSupplierDto.identityDocumentTypeCode ?? supplier.identityDocumentTypeCode ?? undefined,
+            identityDocumentCountry:
+              updateSupplierDto.identityDocumentCountry ?? supplier.identityDocumentCountry ?? undefined,
+            country: updateSupplierDto.country ?? supplier.country ?? undefined,
+          },
+          organizationId,
+          supplier,
+        ),
+      );
+    }
     return this.supplierRepository.save(updatedSupplier);
   }
 
