@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { PasswordVerifierPort } from '../ports/password-verifier.port';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import { AuthConfig } from '../auth.config';
 import { BadRequestError } from '../../i18n/localized.exception';
 
 @Injectable()
-export class PasswordService {
+export class PasswordService extends PasswordVerifierPort {
   private readonly logger = new Logger(PasswordService.name);
 
   /**

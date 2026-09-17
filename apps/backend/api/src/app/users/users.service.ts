@@ -1,6 +1,8 @@
 
 import { Injectable, Inject, forwardRef, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserProfilePort } from './ports/user-profile.port';
+import { SessionInvalidatorPort } from '../auth/ports/session-invalidator.port';
+import { PasswordVerifierPort } from '../auth/ports/password-verifier.port';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -52,12 +54,11 @@ export class UsersService extends UserProfilePort {
     private readonly rolesService: RolesService,
     private readonly mailService: MailService,
     private readonly userCacheService: UserCacheService,
-    private readonly passwordService: PasswordService,
+    private readonly passwordService: PasswordVerifierPort,
     private readonly eventEmitter: EventEmitter2,
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource,
-    @Inject(forwardRef(() => SessionService))
-    private readonly sessionService: SessionService,
+    private readonly sessionService: SessionInvalidatorPort,
     private readonly membershipService: MembershipService,
     private readonly auditTrailService: AuditTrailService,
   ) { super(); }

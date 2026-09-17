@@ -14,6 +14,8 @@ import { StorageModule } from '../storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { PasswordService } from '../auth/services/password.service';
+import { SessionInvalidatorPort } from '../auth/ports/session-invalidator.port';
+import { PasswordVerifierPort } from '../auth/ports/password-verifier.port';
 import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Module({

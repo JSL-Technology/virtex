@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, Logger, Inject, forwardRef } from '@nestjs/common';
+import { SessionInvalidatorPort } from '../ports/session-invalidator.port';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
@@ -29,7 +30,7 @@ import { KeyManagementService } from './key-management.service';
 import { NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
-export class SessionService {
+export class SessionService extends SessionInvalidatorPort {
   private readonly logger = new Logger(SessionService.name);
 
   constructor(
@@ -49,7 +50,7 @@ export class SessionService {
     private readonly cryptoUtil: CryptoUtil,
     private readonly sessionRegistry: SessionRegistryService,
     private readonly keyManagementService: KeyManagementService
-  ) {}
+  ) { super(); }
 
   private sanitizeUserAgent(userAgent?: string): string | null {
       if (!userAgent) return null;

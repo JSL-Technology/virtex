@@ -18,6 +18,8 @@ import { AuthWebAuthnController } from './auth-webauthn.controller';
 import { AuthSessionController } from './auth-session.controller';
 import { AuthService } from './auth.service';
 import { SessionSwitchPort } from './ports/session-switch.port';
+import { SessionInvalidatorPort } from './ports/session-invalidator.port';
+import { PasswordVerifierPort } from './ports/password-verifier.port';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
 import { DevSeederService } from './services/dev-seeder.service';
@@ -174,6 +176,8 @@ import { KeyManagementModule } from './services/key-management.module';
     AuthService,
     { provide: SessionSwitchPort, useExisting: AuthService },
     AuthFacade,
+    { provide: SessionInvalidatorPort, useExisting: SessionService },
+    { provide: PasswordVerifierPort, useExisting: PasswordService },
     RegistrationService,
     DevSeederService,
     // Enforces the retention limit on `pending_registrations`, whose `expires_at` was written
@@ -223,6 +227,8 @@ import { KeyManagementModule } from './services/key-management.module';
   exports: [
     AuthService,
     SessionSwitchPort,
+    SessionInvalidatorPort,
+    PasswordVerifierPort,
     AuthFacade,
     TwoFactorAuthService,
     PasswordRecoveryService,
