@@ -1,5 +1,5 @@
 
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import { PeriodClosingService } from './period-closing.service';
@@ -40,7 +40,8 @@ import { OrganizationProvisioningHandler } from './handlers/organization-provisi
 @Module({
   imports: [
     PeriodLockModule,
-    forwardRef(() => ChartOfAccountsModule),
+    // None of the modules below import AccountingModule back — forwardRef was defensive.
+    ChartOfAccountsModule,
     // Only entities this module owns.
     TypeOrmModule.forFeature([
       AccountingPeriod,
@@ -50,17 +51,13 @@ import { OrganizationProvisioningHandler } from './handlers/organization-provisi
       AccountPeriodLock,
       LedgerMappingRule,
       LedgerMappingRuleCondition,
-      // Account belongs to chart-of-accounts — accessed via DataSource in services that need it.
-      // Organization/OrganizationSettings belong to organizations — accessed via OrgSettingsService
-      // (globally available) or DataSource.manager for bulk queries.
     ]),
-    forwardRef(() => AuthModule),
-    forwardRef(() => JournalEntriesModule),
-    forwardRef(() => AuditModule),
+    AuthModule,
+    JournalEntriesModule,
+    AuditModule,
     // DepreciationModule is a leaf — no upstream dependency on AccountingModule.
-    // The cycle Accounting ↔ FixedAssets is broken by this import.
     DepreciationModule,
-    forwardRef(() => CurrenciesModule),
+    CurrenciesModule,
   ],
   providers: [
     PeriodClosingService,

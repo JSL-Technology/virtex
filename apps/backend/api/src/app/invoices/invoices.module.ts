@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
@@ -54,12 +54,10 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
     AccountingModule,
     PeriodLockModule,
     CurrenciesModule,
-    // A sale posts to the ledger in the same transaction that creates it. Without this import the
-    // invoice module could not reach the posting service at all, which is how issuing an invoice
-    // came to record nothing in the books.
-    forwardRef(() => JournalEntriesModule),
+    // Neither JournalEntriesModule nor SharedModule import InvoicesModule — forwardRef was defensive.
+    JournalEntriesModule,
     EinvoicingModule,
-    forwardRef(() => SharedModule),
+    SharedModule,
   ],
   controllers: [InvoicesController],
   providers: [
