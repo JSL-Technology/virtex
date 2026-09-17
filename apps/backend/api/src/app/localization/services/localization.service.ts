@@ -3,6 +3,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
+import { LocalizationProvisioningPort } from '../localization-provisioning.port';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
 import { TaxesService } from '../../taxes/taxes.service';
@@ -35,7 +36,7 @@ import { currentLanguage } from '../../i18n/request-locale';
 const DEFAULT_BASE_CURRENCY = 'USD';
 
 @Injectable()
-export class LocalizationService implements OnModuleInit {
+export class LocalizationService extends LocalizationProvisioningPort implements OnModuleInit {
   private readonly logger = new Logger(LocalizationService.name);
   private strategies: Map<string, FiscalStrategy> = new Map();
 
@@ -50,6 +51,7 @@ export class LocalizationService implements OnModuleInit {
     private readonly bookkeeping: TenantBookkeepingProvisioner,
     private readonly i18n: I18nService,
   ) {
+    super();
     // Inicialmente cargamos las estrategias hardcoded que tienen lógica especial
     this.strategies.set('DO', this.doStrategy);
     this.strategies.set('US', this.usStrategy);

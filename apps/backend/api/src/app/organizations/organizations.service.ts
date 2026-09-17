@@ -10,7 +10,7 @@ import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { AccountSegmentsService } from '../chart-of-accounts/account-segments.service';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { LocalizationService } from '../localization/services/localization.service';
+import { LocalizationProvisioningPort } from '../localization/localization-provisioning.port';
 import { MembershipService } from './services/membership.service';
 import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
@@ -27,7 +27,7 @@ export class OrganizationsService {
     private readonly subsidiaryRepository: Repository<OrganizationSubsidiary>,
     private readonly accountSegmentsService: AccountSegmentsService,
     private readonly saasService: SaasService,
-    private readonly localizationService: LocalizationService,
+    private readonly localizationService: LocalizationProvisioningPort,
     private readonly membershipService: MembershipService,
     private readonly eventEmitter: EventEmitter2,
   ) {}

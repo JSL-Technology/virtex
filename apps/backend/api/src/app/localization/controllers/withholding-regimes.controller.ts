@@ -23,8 +23,9 @@ import {
   UpdateWithholdingRegimeDto,
 } from '../dto/withholding-regime.dto';
 import { coverageFor } from '../fiscal/fiscal-coverage';
-import { OrganizationsService } from '../../organizations/organizations.service';
 import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.decorator';
+import { DataSource } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
  * The withholding regimes a tenant maintains, and what this product covers in their market.
@@ -40,7 +41,7 @@ import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.deco
 export class WithholdingRegimesController {
   constructor(
     private readonly regimes: WithholdingRegimesService,
-    private readonly organizations: OrganizationsService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -58,8 +59,11 @@ export class WithholdingRegimesController {
   )
   @ApiOperation({ summary: 'Qué cubre el producto en el mercado del contribuyente.' })
   async coverage(@CurrentUser() user: AuthenticatedUser) {
-    const organization = await this.organizations.findOne(user.organizationId);
-    return coverageFor(organization?.country ?? null);
+    const org = await this.dataSource.manager.findOne(Organization, {
+      where: { id: user.organizationId },
+      select: ['id', 'country'],
+    });
+    return coverageFor(org?.country ?? null);
   }
 
   @Get('withholding-regimes')

@@ -8,8 +8,8 @@ import { MembershipService } from './services/membership.service';
 import { OrganizationsController } from './organizations.controller';
 import { OrganizationsService } from './organizations.service';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
-import { LocalizationModule } from '../localization/localization.module';
-import { SaasModule } from '../saas/saas.module';
+import { LocalizationProvisioningModule } from '../localization/localization-provisioning.module';
+// SaasModule removed: it is @Global() so SaasService is available everywhere without an explicit import.
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
@@ -26,10 +26,11 @@ import { OrgSettingsService } from './services/org-settings.service';
     ]),
     OrgSettingsModule,
     ChartOfAccountsModule,
-    // A subsidiary is provisioned with its country's chart of accounts and taxes in the same
-    // transaction that creates it, exactly like a signup.
-    forwardRef(() => LocalizationModule),
-    forwardRef(() => SaasModule),
+    // LocalizationProvisioningModule (leaf) provides the two methods needed by
+    // OrganizationsService: findRegionByCountryCode() and applyFiscalPackage().
+    // No forwardRef needed — the leaf has no dependency back on OrganizationsModule.
+    LocalizationProvisioningModule,
+    // SaasModule is @Global(); SaasService resolves without an explicit import.
     // Revoking a membership has to invalidate the cached principal, or the removal only takes
     // effect when the entry expires fifteen minutes later.
     UserCacheModule,
