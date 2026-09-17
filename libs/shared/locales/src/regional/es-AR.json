@@ -1,15 +1,11 @@
 {
   "$locale": "es-AR",
   "$note": "Argentina. The year-end payment is the sueldo anual complementario, universally called 'aguinaldo'; the tax identifier is the CUIT and the identity document the DNI.",
-  "payroll.runs.type_label.christmas_bonus": "Aguinaldo (SAC)",
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
-  "hcm.employees.form.document_type.cedula": "DNI",
-  "hcm.employees.form.document_type.rnc": "CUIT / CUIL",
-  "permissions.groups.tss": "Seguridad social (ANSES)",
-  "contacts.customer_form.tax_id": "CUIT",
-  "masters.supplier_form.tax_id": "CUIT",
-  "settings.company_profile.id_fiscal_rnc_tax_id": "CUIT",
-  "settings.subsidiaries.id_fiscal_rnc_tax_id": "CUIT",
+  "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
-  "invoice.pdf.tax_column_header": "IVA"
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo (SAC)",
+  "permissions.groups.tss": "Seguridad social (ANSES)",
+  "settings.company_profile.tax_id": "CUIT",
+  "settings.subsidiaries.tax_id": "CUIT"
 }

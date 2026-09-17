@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   FiscalAdapter,
   FiscalAssignmentContext,
@@ -61,10 +61,10 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
       throw new BadRequestError('invoices.document_type_type_not_sales_document', { type });
     }
     if (type === NcfType.E31 && !this.hasValidDominicanTaxId(invoice)) {
-      throw new BadRequestException(
-        'Una Factura de Crédito Fiscal (E31) requiere el RNC o cédula válido del comprador. ' +
-          'Verifica el identificador fiscal del cliente o emite una Factura de Consumo (E32).',
-      );
+      // A catalogue key, not a Spanish sentence. This was the one literal left in the adapter, so
+      // an English-speaking controller in a Dominican tenant met a paragraph of Spanish at the
+      // exact moment an invoice would not issue.
+      throw new BadRequestError('invoices.credit_invoice_requires_buyer_tax_id');
     }
 
     const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);
@@ -78,7 +78,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
 
     // A note must be drawn from the series that matches the document it modifies: an electronic
     // invoice is credited electronically (E34), a pre-printed one on paper (B04).
-    const inferred = originalInvoice.ncfNumber?.toUpperCase().startsWith('B')
+    const inferred = originalInvoice.fiscalNumber?.toUpperCase().startsWith('B')
       ? NcfType.B04
       : NcfType.E34;
     const type = this.asNcfType(context.requestedType) ?? inferred;

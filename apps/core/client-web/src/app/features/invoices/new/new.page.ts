@@ -497,7 +497,7 @@ export class NewInvoicePage implements OnInit {
         this.notificationService.showSuccess(
           this.translate.instant(
             issue ? 'invoices.new.invoice_number_issued' : 'invoices.new.draft_number_saved',
-            { number: issue ? (invoice.ncfNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
+            { number: issue ? (invoice.fiscalNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
           ),
         );
         //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara

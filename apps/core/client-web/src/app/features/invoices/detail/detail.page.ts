@@ -195,7 +195,7 @@ export class InvoiceDetailPage implements OnInit {
             this.tab?.setTitle(this.documentTitle(data));
             this.ecf.set(null);
             // Electronic e-NCF (E-series) documents carry a DGII e-CF lifecycle.
-            if (data.ncfNumber?.startsWith('E')) {
+            if (data.fiscalNumber?.startsWith('E')) {
                 this.loadEcfStatus();
             }
         },
@@ -418,7 +418,7 @@ export class InvoiceDetailPage implements OnInit {
       next: (issued) => {
         this.ecfBusy.set(false);
         this.notificationService.showSuccess(
-          `Documento emitido con el comprobante ${issued.ncfNumber ?? issued.invoiceNumber}.`,
+          `Documento emitido con el comprobante ${issued.fiscalNumber ?? issued.invoiceNumber}.`,
         );
         this.loadInvoice();
       },
@@ -461,7 +461,7 @@ export class InvoiceDetailPage implements OnInit {
       this.invoicesService.createCreditNote(invoiceId, { reason: reason || undefined }).subscribe({
         next: (note) => {
           this.notificationService.showSuccess(
-            `Nota de crédito ${note.ncfNumber ?? note.invoiceNumber} emitida.`,
+            `Nota de crédito ${note.fiscalNumber ?? note.invoiceNumber} emitida.`,
           );
           this.loadInvoice();
         },

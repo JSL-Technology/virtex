@@ -1,5 +1,15 @@
-import { Entity, Column, Index, DeleteDateColumn, OneToMany } from 'typeorm';
+import {
+  Check,
+  Column,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { IdentityDocumentType } from '../../localization/entities/identity-document-type.entity';
 import { encryptedColumnTransformer } from '../../common/database/encrypted-column.transformer';
 import { EmployeeCompensation } from './employee-compensation.entity';
 
@@ -19,13 +29,13 @@ export enum ContractType {
   OCCASIONAL = 'OCCASIONAL',
 }
 
-export enum IdentityDocumentType {
-  /** Dominican national id. */
-  CEDULA = 'CEDULA',
-  PASSPORT = 'PASSPORT',
-  /** Tax id for a natural person acting as such. */
-  RNC = 'RNC',
-}
+/**
+ * `IdentityDocumentType` used to be declared here as a PostgreSQL enum of `CEDULA`, `PASSPORT` and
+ * `RNC` — two Dominican documents on a table shared by nineteen markets. Adding a country's
+ * document meant `ALTER TYPE … ADD VALUE`: a schema migration and a deploy, in a type PostgreSQL
+ * never lets you shrink again. The document type is now a reference into
+ * `identity_document_types`, so a new country is rows.
+ */
 
 /**
  * A person on a tenant's payroll.
@@ -62,10 +72,23 @@ export enum IdentityDocumentType {
 @Index('IDX_employees_org_email', ['organizationId', 'email'], { unique: true })
 // One employee per national id per tenant, enforced on the blind index so the database never sees
 // the cédula itself. Partial: only where a hash is present and the row is live.
-@Index('IDX_employees_org_identity_hash', ['organizationId', 'identityDocumentHash'], {
-  unique: true,
-  where: '"identity_document_hash" IS NOT NULL AND "deleted_at" IS NULL',
-})
+@Index(
+  'IDX_employees_org_identity_hash',
+  ['organizationId', 'identityDocumentHash'],
+  {
+    unique: true,
+    where: '"identity_document_hash" IS NOT NULL AND "deleted_at" IS NULL',
+  },
+)
+// Both halves of the document reference travel together: a code with no country cannot be
+// resolved — a "cédula" is eleven Luhn-checked digits in Santo Domingo and six to ten
+// unchecked ones in Bogotá — and a country with no code records a document whose kind is
+// unknown.
+@Check(
+  'CK_employees_identity_document_pair',
+  `("identity_document_type_code" IS NULL AND "identity_document_country" IS NULL)
+    OR ("identity_document_type_code" IS NOT NULL AND "identity_document_country" IS NOT NULL)`,
+)
 export class Employee extends BaseEntity {
   // Redeclared NOT NULL so the tenant is a real column and RLS can protect the table. Every write
   // path (HcmService) already stamps it.
@@ -100,16 +123,44 @@ export class Employee extends BaseEntity {
   })
   identityDocument: string | null;
 
+  /**
+   * The catalogue code of the document: `CEDULA`, `CC`, `CURP`, `CPF`, `PASSPORT`…
+   *
+   * Nullable with no default. The enum it replaces was `NOT NULL DEFAULT 'CEDULA'`, so every
+   * employee of every country was born holding a Dominican document even when no document had been
+   * captured, and "not stated" was indistinguishable from "is a Dominican cédula".
+   */
   @Column({
-    name: 'identity_document_type',
-    type: 'enum',
-    enum: IdentityDocumentType,
-    default: IdentityDocumentType.CEDULA,
+    name: 'identity_document_type_code',
+    type: 'varchar',
+    length: 32,
+    nullable: true,
   })
-  identityDocumentType: IdentityDocumentType;
+  identityDocumentTypeCode: string | null;
 
-  /** HMAC of the cédula, for uniqueness and lookup without decryption. Set by HcmService. */
-  @Column({ name: 'identity_document_hash', type: 'varchar', length: 64, nullable: true })
+  /**
+   * The issuing jurisdiction. The tenant's own country in the ordinary case, `XX` for a passport.
+   *
+   * Stored beside the code because the code alone does not identify a document: a "cédula" is
+   * eleven digits with a Luhn check in Santo Domingo, six to ten digits with none in Bogotá, and a
+   * tax identifier in San José. `(country, code)` is the catalogue's natural key and the pair is
+   * what the foreign key points at.
+   */
+  @Column({
+    name: 'identity_document_country',
+    type: 'char',
+    length: 2,
+    nullable: true,
+  })
+  identityDocumentCountry: string | null;
+
+  /** HMAC of the document, for uniqueness and lookup without decryption. Set by HcmService. */
+  @Column({
+    name: 'identity_document_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   identityDocumentHash: string | null;
 
   // ── Bank account for the wage payment (sensitive) ────────────────────────────
@@ -129,18 +180,37 @@ export class Employee extends BaseEntity {
   bankAccountType: string | null;
 
   // ── Social security enrolment ────────────────────────────────────────────────
+  //
+  // These three columns were `tss_nss`, `afp_code` and `sfs_code` — the Tesorería de la Seguridad
+  // Social, the Administradora de Fondos de Pensiones and the Seguro Familiar de Salud, three
+  // Dominican institutions named in the schema of a table shared by nineteen markets. A Peruvian
+  // tenant stored an ESSALUD code in a column called `sfs_code`. The concepts generalise — every
+  // system has a worker number, a pension carrier and a health carrier — so the columns now carry
+  // the concept and the country's own name for it comes from its payroll strategy's
+  // `statutoryIdentifiers`.
 
-  /** TSS number (NSS). Identifies the person in every TSS filing. */
-  @Column({ name: 'tss_nss', type: 'varchar', nullable: true })
-  tssNss: string | null;
+  /** The worker's number in the national social security system. NSS, IMSS, NIT, PIS… */
+  @Column({ name: 'social_security_number', type: 'varchar', nullable: true })
+  socialSecurityNumber: string | null;
 
-  /** The pension fund (AFP) the person is enrolled in. */
-  @Column({ name: 'afp_code', type: 'varchar', nullable: true })
-  afpCode: string | null;
+  /** The pension carrier the person is enrolled with (AFP, AFORE, fondo de pensiones…). */
+  @Column({ name: 'pension_fund_code', type: 'varchar', nullable: true })
+  pensionFundCode: string | null;
 
-  /** The health fund (ARS/SFS) the person is enrolled in. */
-  @Column({ name: 'sfs_code', type: 'varchar', nullable: true })
-  sfsCode: string | null;
+  /** The health carrier the person is enrolled with (ARS/SFS, EPS, ISAPRE, obra social…). */
+  @Column({ name: 'health_fund_code', type: 'varchar', nullable: true })
+  healthFundCode: string | null;
+
+  /**
+   * Anything else the country's filings need, keyed by the strategy's `StatutoryIdentifierSpec`.
+   *
+   * A fourth identifier — a Brazilian PIS alongside the CTPS, a Colombian ARL alongside the EPS —
+   * is a key here rather than a fourth column and a migration. The three columns above stay
+   * columns because every system has them and they are queried and exported; this is the escape
+   * hatch that keeps the next country from adding schema.
+   */
+  @Column({ name: 'statutory_enrolment', type: 'jsonb', nullable: true })
+  statutoryEnrolment: Record<string, string> | null;
 
   // ── Employment ───────────────────────────────────────────────────────────────
 

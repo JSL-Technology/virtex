@@ -81,7 +81,20 @@ export class NcfSequence {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @Column({ type: 'enum', enum: NcfType })
+  /**
+   * The DGII comprobante code this range issues.
+   *
+   * A `varchar`, not a PostgreSQL enum. It was `@Column({ type: 'enum', enum: NcfType })`, which
+   * put the DGII's sixteen codes into the schema of a table in a module that is not scoped to the
+   * Dominican Republic — so Peru's `01`/`03` and Chile's `33`/`34` required `ALTER TYPE … ADD
+   * VALUE`, a migration and a deploy each. The codes now live in
+   * `fiscal_document_type_definitions`, and `ComplianceService` checks a requested one against
+   * that catalogue for the tenant's region before provisioning a range.
+   *
+   * `NcfType` survives as a TypeScript enum because the Dominican adapter genuinely knows these
+   * codes and reasons about them. What it no longer does is constrain the schema.
+   */
+  @Column({ type: 'varchar', length: 8 })
   type: NcfType;
 
   @Column()

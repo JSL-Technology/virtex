@@ -29,8 +29,18 @@
           <input id="contactPerson" formControlName="contactPerson" />
         </div>
         <div class="form-field">
+          <label for="identityDocumentTypeCode">
+            {{ 'masters.supplier_form.document_type' | translate }}
+          </label>
+          <select id="identityDocumentTypeCode" formControlName="identityDocumentTypeCode">
+            @for (type of documentTypes(); track type.code) {
+              <option [value]="type.code">{{ documentLabel(type) }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-field">
           <label for="taxId">{{ 'masters.supplier_form.tax_id' | translate }}</label>
-          <input id="taxId" formControlName="taxId" />
+          <input id="taxId" formControlName="taxId" [placeholder]="documentExample()" />
         </div>
         <div class="form-field">
           <label for="address">{{ 'masters.supplier_form.address' | translate }}</label>

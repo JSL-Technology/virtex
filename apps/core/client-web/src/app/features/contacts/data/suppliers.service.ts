@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { Supplier } from '../models/supplier.model';
+import { environment } from '../../../../environments/environment';
+import { Supplier } from '../../../core/models/supplier.model';
 
 export type CreateSupplierDto = Omit<Supplier, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
 export type UpdateSupplierDto = Partial<CreateSupplierDto>;

@@ -216,7 +216,7 @@ export class InvoicesListPage implements OnInit {
             header,
             ...result.items.map((invoice) => [
               invoice.invoiceNumber,
-              invoice.ncfNumber ?? '',
+              invoice.fiscalNumber ?? '',
               invoice.fiscalDocumentType ?? '',
               invoice.customerName,
               invoice.customerTaxId ?? '',

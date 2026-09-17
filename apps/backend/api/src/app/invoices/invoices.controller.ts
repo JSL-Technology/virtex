@@ -198,7 +198,7 @@ export class InvoicesController {
       .header('Content-Type', 'application/pdf')
       .header(
         'Content-Disposition',
-        `attachment; filename="${invoice.ncfNumber ?? invoice.invoiceNumber}.pdf"`,
+        `attachment; filename="${invoice.fiscalNumber ?? invoice.invoiceNumber}.pdf"`,
       )
       .header('Content-Length', String(pdf.length))
       .send(pdf);

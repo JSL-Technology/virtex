@@ -1,8 +1,8 @@
 {
   "es-DO": {
-    "validation.create_employee.tss_nss_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
+    "validation.create_employee.social_security_number_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
   },
   "es-MX": {
-    "validation.create_employee.tss_nss_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos."
+    "validation.create_employee.social_security_number_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos."
   }
 }

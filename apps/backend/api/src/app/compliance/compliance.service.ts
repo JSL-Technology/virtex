@@ -247,7 +247,7 @@ export class ComplianceService {
         .getRepository(Invoice)
         .createQueryBuilder('invoice')
         .where('invoice.organizationId = :organizationId', { organizationId })
-        .andWhere('invoice.ncfNumber BETWEEN :first AND :last', { first, last })
+        .andWhere('invoice.fiscalNumber BETWEEN :first AND :last', { first, last })
         .getCount();
       if (alreadyIssued > 0) {
         throw new ConflictError('compliance.already_issued_document_have_already_issued', { alreadyIssued, first, last });

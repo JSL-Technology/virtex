@@ -3,6 +3,8 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
+import { FiscalDocumentTypeDefinition } from '../entities/fiscal-document-type-definition.entity';
+import { FISCAL_DOCUMENT_TYPES } from '../fiscal/fiscal-document-type-catalogue';
 import { LocalizationProvisioningPort } from '../localization-provisioning.port';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
@@ -12,14 +14,18 @@ import { FiscalStrategy } from '../drivers/fiscal-strategy.interface';
 import { DominicanRepublicStrategy } from '../drivers/dominican-republic/dominican-republic.strategy';
 import { GenericFiscalStrategy } from '../drivers/generic-fiscal.strategy';
 import { USStrategy } from '../drivers/usa/usa.strategy';
-import { DbDrivenFiscalStrategy } from '../drivers/db-driven-fiscal.strategy';
 import {
   COUNTRY_FISCAL_PROFILES,
   CountryFiscalProfile,
   findCountryProfile,
 } from '../fiscal/country-profiles';
 import { taxpayerKindAffectsValidation, validateTaxId } from '../fiscal/tax-id-validators';
-import { PublicCountryConfig, TaxIdLookupResult } from '../fiscal/public-country-config';
+import {
+  PublicCountryConfig,
+  PublicIdentityDocumentType,
+  TaxIdLookupResult,
+} from '../fiscal/public-country-config';
+import { IdentityDocumentService } from './identity-document.service';
 import { findTaxScheme } from '../fiscal/country-tax-schemes';
 import { TenantBookkeepingProvisioner } from '../../accounting/provisioning/tenant-bookkeeping.provisioner';
 import {
@@ -43,6 +49,8 @@ export class LocalizationService extends LocalizationProvisioningPort implements
   constructor(
     @InjectRepository(FiscalRegion)
     private readonly fiscalRegionRepository: Repository<FiscalRegion>,
+    @InjectRepository(FiscalDocumentTypeDefinition)
+    private readonly documentTypeRepository: Repository<FiscalDocumentTypeDefinition>,
     private readonly coaService: ChartOfAccountsService,
     private readonly taxesService: TaxesService,
     private readonly doStrategy: DominicanRepublicStrategy,
@@ -50,6 +58,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     private readonly genericStrategy: GenericFiscalStrategy,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
     private readonly i18n: I18nService,
+    private readonly identityDocuments: IdentityDocumentService,
   ) {
     super();
     // Inicialmente cargamos las estrategias hardcoded que tienen lógica especial
@@ -60,28 +69,83 @@ export class LocalizationService extends LocalizationProvisioningPort implements
 
   async onModuleInit() {
     await this.seedFiscalRegions();
-    await this.loadStrategies();
+    await this.seedFiscalDocumentTypes();
   }
 
   /**
-   * Carga dinámicamente estrategias para todos los países que están en la base de datos
-   * pero que no tienen una estrategia hardcoded (clase específica).
+   * Populate `fiscal_document_type_definitions` from the declared catalogue.
+   *
+   * The table has existed since the baseline schema with nothing writing to it, while the same
+   * data lived hardcoded as `enum NcfType` and persisted as a PostgreSQL enum on two tables. Now
+   * the enum is gone from the schema and this is where the codes come from — so Peru's `01`/`03`
+   * or Chile's `33`/`34` are rows, in this seeder or inserted by an operator, never a migration.
+   *
+   * Upsert by `(fiscal_region_id, code)` and never delete, for the same reason the identity
+   * document seeder does not: a row somebody added for a type this file has not declared is the
+   * extension mechanism working, and wiping it on the next boot would make the promise false.
    */
-  private async loadStrategies() {
-    // tenant-scope-guard-allow: fiscal regions are global reference data shared across all tenants.
-    const regions = await this.fiscalRegionRepository.find();
-    for (const region of regions) {
-      if (!this.strategies.has(region.countryCode)) {
-        this.logger.log(
-          `Registrando estrategia fiscal dinámica para: ${region.name} (${region.countryCode})`,
+  private async seedFiscalDocumentTypes(): Promise<void> {
+    for (const spec of FISCAL_DOCUMENT_TYPES) {
+      const region = await this.findRegionByCountryCode(spec.countryCode);
+      if (!region) {
+        // The region seeder runs first and covers every profile, so this means the catalogue names
+        // a country the product does not sell in — worth saying out loud rather than skipping.
+        this.logger.warn(
+          `El tipo de comprobante ${spec.countryCode}.${spec.code} no tiene región fiscal; se omite.`,
         );
-        this.strategies.set(
-          region.countryCode,
-          new DbDrivenFiscalStrategy(region),
-        );
+        continue;
+      }
+
+      // tenant-scope-guard-allow: fiscal document types are global reference data.
+      const existing = await this.documentTypeRepository.findOne({
+        where: { fiscalRegionId: region.id, code: spec.code },
+      });
+      const row = {
+        fiscalRegionId: region.id,
+        code: spec.code,
+        name: spec.name,
+        labelKey: spec.labelKey,
+        sequenceFormat: spec.sequenceFormat ?? undefined,
+        expirationRequired: spec.expirationRequired,
+        isElectronic: spec.isElectronic,
+        side: spec.side,
+        isCreditNote: spec.isCreditNote,
+        requiresBuyerTaxId: spec.requiresBuyerTaxId,
+        sortOrder: spec.sortOrder,
+      };
+      if (existing) {
+        await this.documentTypeRepository.save({ ...existing, ...row });
+      } else {
+        await this.documentTypeRepository.save(this.documentTypeRepository.create(row));
       }
     }
   }
+
+  /** The document types a country's authority publishes, from the table rather than an enum. */
+  async findFiscalDocumentTypes(countryCode: string): Promise<FiscalDocumentTypeDefinition[]> {
+    const region = await this.findRegionByCountryCode(countryCode);
+    if (!region) return [];
+    // tenant-scope-guard-allow: fiscal document types are global reference data.
+    return this.documentTypeRepository.find({
+      where: { fiscalRegionId: region.id },
+      order: { sortOrder: 'ASC', code: 'ASC' },
+    });
+  }
+
+  /**
+   * `loadStrategies()` used to live here, registering a `DbDrivenFiscalStrategy` for every region
+   * without a dedicated class. That strategy read `fiscal_regions.identity_document_config` for a
+   * regex and, finding none, answered `validateTaxId` with `return true` — the same permissive
+   * fallback the `GENERIC` strategy had been removed for. It also owned the only reads of that
+   * column, so deleting it is what made the column removable.
+   *
+   * Nothing is lost. `this.strategies` exists solely to reach a country's REGISTRY in
+   * `lookupTaxId`, and a country with no registry driver already takes the `!strategy` branch
+   * there, which returns exactly what the deleted strategy's `getTaxIdDetails()` — a hardcoded
+   * `null` — produced. Validation was never its job: that is `tax-id-validators.ts` for fiscal
+   * identifiers and `IdentityDocumentService` for identity documents, both of which refuse a
+   * country they have no rule for instead of accepting anything.
+   */
 
   /**
    * `getStrategy(countryCode)` used to live here, returning the 'GENERIC' strategy for any country
@@ -139,38 +203,26 @@ export class LocalizationService extends LocalizationProvisioningPort implements
 
   }
 
-  /** Project a profile onto the columns of `fiscal_regions`. */
+  /**
+   * Project a profile onto the columns of `fiscal_regions`.
+   *
+   * It used to also build an `identity_document_config` here, deriving each entry's code from its
+   * human label with `label.replace(/[^A-Za-z]/g, '').toUpperCase()`. That produced `RNCCDULA` for
+   * the Dominican Republic and `CDULAJURDICA` for Costa Rica — identifiers nobody chose, that no
+   * authority publishes, and that changed whenever somebody edited a label. Document types now
+   * live in `identity_document_types` with codes DECLARED in `IDENTITY_DOCUMENT_TYPES`.
+   */
   private regionRowFor(profile: CountryFiscalProfile): Partial<FiscalRegion> {
-    const documentTypes = [
-      {
-        code: profile.taxId.label.replace(/[^A-Za-z]/g, '').toUpperCase() || 'TAXID',
-        label: profile.taxId.label,
-        regex: profile.taxId.pattern,
-        isCompany: true,
-      },
-    ];
-
-    if (profile.individualDocument) {
-      documentTypes.push({
-        code: profile.individualDocument.code,
-        label: profile.individualDocument.label,
-        regex: profile.individualDocument.pattern,
-        isCompany: false,
-      });
-    }
-
     return {
       countryCode: profile.countryCode,
       name: profile.name,
       baseCurrency: profile.currency,
-      taxIdLabel: profile.taxId.label,
       fiscalAuthorityName: profile.fiscalAuthority,
       provinceLabel: profile.address.divisionLabel,
       postalCodeRegex: profile.address.postalCodePattern ?? null,
       requiresElectronicInvoicing: profile.electronicInvoicing.required,
       electronicInvoicingDriver: profile.electronicInvoicing.regime,
       requiredFiscalReports: profile.requiredFiscalReports ?? [],
-      identityDocumentConfig: { types: documentTypes },
       dateFormat: profile.dateFormat,
       thousandSeparator: profile.thousandSeparator,
       decimalSeparator: profile.decimalSeparator,
@@ -211,6 +263,31 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       return key ? this.i18n.translate(key, currentLanguage()) : label;
     };
 
+    const identityDocumentTypes: PublicIdentityDocumentType[] = (
+      await this.identityDocuments.listForCountry(profile.countryCode)
+    ).map((row) => ({
+      code: row.code,
+      countryCode: row.countryCode,
+      labelKey: row.labelKey,
+      labelVerbatim: row.labelVerbatim,
+      example: row.example,
+      pattern: row.pattern,
+      requirement: row.requirement,
+      appliesTo: row.appliesTo,
+      isDefault: row.isDefault,
+    }));
+
+    // The document a natural person files under, where the country issues one distinct from the
+    // company identifier. `appliesTo: 'both'` entries are excluded on purpose: a Chilean RUT is
+    // not a "second" document, it is the same one, and offering it as such is what made the
+    // signup form ask a Chilean sole trader the same question twice.
+    const individualEntry =
+      identityDocumentTypes.find((entry) => entry.appliesTo === 'individual' && entry.isDefault) ??
+      identityDocumentTypes.find(
+        (entry) => entry.appliesTo === 'individual' && entry.countryCode === profile.countryCode,
+      ) ??
+      null;
+
     return {
       countryCode: profile.countryCode,
       name: profile.name,
@@ -222,7 +299,18 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       taxIdExample: profile.taxId.example,
       taxIdPattern: profile.taxId.pattern,
       taxIdHasCheckDigit: profile.taxId.hasCheckDigit,
-      individualDocument: profile.individualDocument ?? null,
+      identityDocumentTypes,
+      // Derived from the catalogue rather than from the profile's own optional field, which was
+      // populated in two of nineteen markets. A country that issues a distinct document to natural
+      // persons now says so once, in the catalogue, and this stays consistent with it by
+      // construction instead of by somebody remembering to fill in both.
+      individualDocument: individualEntry
+        ? {
+            code: individualEntry.code,
+            label: individualEntry.labelVerbatim ?? this.i18n.translate(individualEntry.labelKey, currentLanguage()),
+            pattern: individualEntry.pattern,
+          }
+        : null,
       address: {
         ...profile.address,
         divisionLabel: t(profile.address.divisionLabel),

@@ -146,7 +146,7 @@ async function main(): Promise<void> {
     } as never,
     orgId,
   );
-  check('un borrador no consume numeración fiscal', draft.status === InvoiceStatus.DRAFT && !draft.ncfNumber);
+  check('un borrador no consume numeración fiscal', draft.status === InvoiceStatus.DRAFT && !draft.fiscalNumber);
   check('un borrador no se contabiliza', !draft.journalEntryId);
 
   // ── Previewing, which must change nothing ───────────────────────────────────
@@ -173,7 +173,7 @@ async function main(): Promise<void> {
   const afterPreview = await invoices.findOne(draft.id, orgId);
   check('previsualizar no emite el documento', afterPreview.status === InvoiceStatus.DRAFT);
   check('previsualizar no contabiliza', !afterPreview.journalEntryId && !afterPreview.costJournalEntryId);
-  check('previsualizar no consume numeración', !afterPreview.ncfNumber);
+  check('previsualizar no consume numeración', !afterPreview.fiscalNumber);
 
   const entriesBefore = await ds.query(
     `SELECT count(*)::int AS n FROM journal_entries WHERE organization_id = $1`, [orgId],
@@ -181,8 +181,8 @@ async function main(): Promise<void> {
 
   // ── Issuing ─────────────────────────────────────────────────────────────────
   const issued = await invoices.issue(draft.id, orgId);
-  check('al emitir se asigna un e-NCF', Boolean(issued.ncfNumber?.startsWith('E31')), issued.ncfNumber ?? 'sin e-NCF');
-  check('el e-NCF lleva su fecha de vencimiento', Boolean(issued.ncfExpiresAt), issued.ncfExpiresAt ?? 'sin vencimiento');
+  check('al emitir se asigna un e-NCF', Boolean(issued.fiscalNumber?.startsWith('E31')), issued.fiscalNumber ?? 'sin e-NCF');
+  check('el e-NCF lleva su fecha de vencimiento', Boolean(issued.fiscalNumberExpiresAt), issued.fiscalNumberExpiresAt ?? 'sin vencimiento');
   check('la emisión genera un asiento contable', Boolean(issued.journalEntryId));
   check('la emisión contabiliza el costo de la venta', Boolean(issued.costJournalEntryId));
 
@@ -190,8 +190,8 @@ async function main(): Promise<void> {
   if (previewSequence && previewSequence.kind === 'sequence') {
     check(
       'el número que previsualizó es el que se emitió',
-      previewSequence.value === issued.ncfNumber,
-      `previsto ${previewSequence.value}, emitido ${issued.ncfNumber}`,
+      previewSequence.value === issued.fiscalNumber,
+      `previsto ${previewSequence.value}, emitido ${issued.fiscalNumber}`,
     );
   }
   if (previewLedger && previewLedger.kind === 'ledger') {
@@ -313,8 +313,8 @@ async function main(): Promise<void> {
     { invoiceId: issued.id, items: [{ lineId: firstLine.id, quantity: 1 }], reason: 'Devolución parcial' } as never,
     orgId,
   );
-  check('la nota de crédito parcial se emite con su propio e-NCF', Boolean(partial.ncfNumber?.startsWith('E34')),
-    partial.ncfNumber ?? 'sin e-NCF');
+  check('la nota de crédito parcial se emite con su propio e-NCF', Boolean(partial.fiscalNumber?.startsWith('E34')),
+    partial.fiscalNumber ?? 'sin e-NCF');
 
   const afterPartial = await invoices.findOne(issued.id, orgId);
   check('la nota parcial reduce el saldo de la factura', afterPartial.balance < issued.netReceivable,
@@ -340,14 +340,14 @@ async function main(): Promise<void> {
     } as never,
     orgId,
   );
-  check('el tipo de comprobante es seleccionable', consumo.ncfNumber?.startsWith('E32') === true,
-    consumo.ncfNumber ?? 'sin e-NCF');
+  check('el tipo de comprobante es seleccionable', consumo.fiscalNumber?.startsWith('E32') === true,
+    consumo.fiscalNumber ?? 'sin e-NCF');
 
   // ── Fiscal numbers are unique ───────────────────────────────────────────────
   const [dupes] = await ds.query(
     `SELECT COUNT(*)::int AS n FROM (
-       SELECT "ncf_number" FROM "invoices"
-       WHERE "organization_id" = $1 AND "ncf_number" IS NOT NULL
+       SELECT "fiscal_number" FROM "invoices"
+       WHERE "organization_id" = $1 AND "fiscal_number" IS NOT NULL
        GROUP BY 1 HAVING COUNT(*) > 1
      ) d`,
     [orgId],

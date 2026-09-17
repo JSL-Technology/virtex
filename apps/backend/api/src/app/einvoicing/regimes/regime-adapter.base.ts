@@ -115,7 +115,7 @@ export abstract class RegimeAdapterBase {
    * the range rather than at the parse.
    */
   protected assignedNumber(context: FiscalRegimeContext, regimeName: string): number {
-    const raw = context.invoice.ncfNumber ?? '';
+    const raw = context.invoice.fiscalNumber ?? '';
     const consecutive = raw.split('-').pop() ?? '';
     const digits = consecutive.replace(/\D/g, '');
     const parsed = Number(digits);

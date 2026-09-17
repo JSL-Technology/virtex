@@ -24,8 +24,27 @@ describe('LocalizationService — public country configuration', () => {
       ...(overrides.fiscalRegionRepository as object),
     };
 
+    // The document-type catalogue table. Empty by default: these tests are about the country
+    // configuration, and an empty catalogue is also the honest answer for a fresh database, so the
+    // config has to be well-formed without it.
+    const documentTypeRepository = {
+      find: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue(null),
+      save: jest.fn(),
+      create: jest.fn((row: unknown) => row),
+      ...(overrides.documentTypeRepository as object),
+    };
+
+    // `IdentityDocumentService` is stubbed rather than constructed: it owns a repository and a
+    // cache of its own, and what these tests need from it is the list it hands the public config.
+    const identityDocuments = {
+      listForCountry: jest.fn().mockResolvedValue([]),
+      ...(overrides.identityDocuments as object),
+    };
+
     return new LocalizationService(
       fiscalRegionRepository as never,
+      documentTypeRepository as never,
       {} as never, // ChartOfAccountsService — not reached by these tests
       {} as never, // TaxesService
       (overrides.doStrategy as never) ?? ({ getTaxIdDetails: jest.fn() } as never),
@@ -35,6 +54,7 @@ describe('LocalizationService — public country configuration', () => {
       // The real catalogue, not a stub: the public country config is asserted on for its
       // TRANSLATED labels, so a stub returning the key would make the test pass on a lie.
       new I18nService(),
+      identityDocuments as never,
     );
   }
 

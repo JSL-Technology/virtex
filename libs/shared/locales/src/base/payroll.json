@@ -189,11 +189,6 @@
     "en": "Only a calculated run can be approved.",
     "pt": "Somente uma folha calculada pode ser aprovada."
   },
-  "payroll.organization_has_no_default_ledger_configured": {
-    "es": "La organización no tiene un libro contable por defecto configurado.",
-    "en": "The organization has no default ledger configured.",
-    "pt": "A organização não tem um livro contábil padrão configurado."
-  },
   "payroll.parameters.accumulated": {
     "es": "Impuesto acumulado",
     "en": "Accumulated tax",
@@ -367,11 +362,6 @@
     "es": "La moneda de la nómina ({{p1}}) difiere de la del libro contable ({{p2}}).",
     "en": "The payroll currency ({{p1}}) differs from the ledger currency ({{p2}}).",
     "pt": "A moeda da folha ({{p1}}) difere da moeda do livro ({{p2}})."
-  },
-  "payroll.payroll_journal_nomina_not_found_create": {
-    "es": "No se encontró el diario de nómina (NOMINA); favor créelo.",
-    "en": "The payroll journal (NOMINA) was not found; please create it.",
-    "pt": "O diário da folha (NOMINA) não foi encontrado; crie-o."
   },
   "payroll.payroll_jurisdiction_p1_not_supported": {
     "es": "La jurisdicción de nómina \"{{p1}}\" no está soportada.",

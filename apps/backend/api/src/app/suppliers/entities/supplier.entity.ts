@@ -1,6 +1,7 @@
 import { Organization } from '../../organizations/entities/organization.entity';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,6 +12,15 @@ import {
 } from 'typeorm';
 
 @Entity({ name: 'suppliers' })
+// Both halves of the document reference travel together: a code with no country cannot be
+// resolved — a "cédula" is eleven Luhn-checked digits in Santo Domingo and six to ten
+// unchecked ones in Bogotá — and a country with no code records a document whose kind is
+// unknown.
+@Check(
+  'CK_suppliers_identity_document_pair',
+  `("identity_document_type_code" IS NULL AND "identity_document_country" IS NULL)
+    OR ("identity_document_type_code" IS NOT NULL AND "identity_document_country" IS NOT NULL)`,
+)
 export class Supplier {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -30,6 +40,37 @@ export class Supplier {
   @Column({ nullable: true })
   taxId?: string;
 
+  /**
+   * The kind of identifier `taxId` holds, from the identity-document catalogue.
+   *
+   * Purchasing had the same gap sales did: a bare varchar with no type and no validation, so a
+   * supplier's RNC and a supplier's cédula were the same column with no way to tell them apart —
+   * and the 606 filing that reports purchases needs to state which. See `Customer` for the full
+   * reasoning; the two are deliberately modelled identically, because they are the same concept.
+   */
+  @Column({
+    name: 'identity_document_type_code',
+    type: 'varchar',
+    length: 32,
+    nullable: true,
+  })
+  identityDocumentTypeCode?: string | null;
+
+  /**
+   * The document's issuing country, which is the SUPPLIER's.
+   *
+   * Distinct from `country` below, which is where the supplier is established: a Dominican company
+   * can hold a document issued elsewhere, and a payment abroad is reported on the 609 by where the
+   * supplier is, not by which registry issued their identifier.
+   */
+  @Column({
+    name: 'identity_document_country',
+    type: 'char',
+    length: 2,
+    nullable: true,
+  })
+  identityDocumentCountry?: string | null;
+
   @Column({ nullable: true })
   address?: string;
 
@@ -38,8 +79,14 @@ export class Supplier {
    *
    * Needed to tell a domestic purchase from a payment abroad: the DGII's 609 reports the latter
    * with the income tax withheld at source, and without a country there is no way to separate them.
+   *
+   * The column carried `DEFAULT 'DO'`, so a supplier created by a Chilean tenant was recorded as
+   * Dominican unless somebody said otherwise — and "domestic or abroad" is precisely the question
+   * this column exists to answer, so a wrong default here is a wrong filing. There is no default
+   * now; `SuppliersService` fills it from the TENANT's country, which is the correct assumption
+   * for a supplier created without one.
    */
-  @Column({ type: 'varchar', length: 2, nullable: true, default: 'DO' })
+  @Column({ type: 'varchar', length: 2, nullable: true })
   country?: string | null;
 
   /**

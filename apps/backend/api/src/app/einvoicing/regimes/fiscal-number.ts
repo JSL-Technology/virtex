@@ -10,7 +10,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
  *
  * - **`invoiceNumber`** — the tenant's own document sequence (`FAC-1`), from `document_sequences`.
  *   It identifies the sale inside this product and has no fiscal force anywhere.
- * - **`ncfNumber`** — the number drawn from the range the authority granted (`F001-00000123`,
+ * - **`fiscalNumber`** — the number drawn from the range the authority granted (`F001-00000123`,
  *   `SETP990000001`, a bare folio). It is the document's fiscal identity.
  *
  * The builders were written before the numbering existed and read `invoiceNumber`, which meant a
@@ -30,7 +30,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
  * cannot disagree about which digits are the number.
  */
 export function fiscalConsecutive(invoice: Invoice): string {
-  const digits = (invoice.ncfNumber ?? '').split('-').pop()?.replace(/\D/g, '') ?? '';
+  const digits = (invoice.fiscalNumber ?? '').split('-').pop()?.replace(/\D/g, '') ?? '';
   if (!digits) {
     throw new BadRequestError('einvoicing.document_document_has_no_fiscal_number', {
       document: invoice.invoiceNumber ?? '',
@@ -41,7 +41,7 @@ export function fiscalConsecutive(invoice: Invoice): string {
 
 /** The fiscal number exactly as the authority granted it, prefix and all. */
 export function fiscalNumber(invoice: Invoice): string {
-  const number = (invoice.ncfNumber ?? '').trim();
+  const number = (invoice.fiscalNumber ?? '').trim();
   if (!number) {
     throw new BadRequestError('einvoicing.document_document_has_no_fiscal_number', {
       document: invoice.invoiceNumber ?? '',

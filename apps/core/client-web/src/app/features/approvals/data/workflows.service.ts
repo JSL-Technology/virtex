@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 /** Una solicitud de aprobación pendiente, tal como la devuelve `GET /workflows/approvals/pending`. */
 export interface PendingApproval {

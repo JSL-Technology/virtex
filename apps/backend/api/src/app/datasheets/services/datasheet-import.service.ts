@@ -83,7 +83,7 @@ export class DatasheetImportService {
         permission: PERMISSIONS.INVOICES_VIEW,
         columns: {
           numero: 'invoiceNumber',
-          ncf: 'ncfNumber',
+          ncf: 'fiscalNumber',
           fecha: 'issueDate',
           vencimiento: 'dueDate',
           cliente: 'customerName',
@@ -106,9 +106,13 @@ export class DatasheetImportService {
         module: 'customers',
         set: 'list',
         permission: PERMISSIONS.CUSTOMERS_VIEW,
+        // The keys are the column headers of the sheet a tenant uploads and downloads, so they
+        // are a PUBLIC CONTRACT. `rnc` named the Dominican identifier on a column that holds a
+        // Chilean RUT and a Brazilian CNPJ just as readily, and the cost of that name grows with
+        // every month of templates saved against it.
         columns: {
           nombre: 'companyName',
-          rnc: 'taxId',
+          tax_id: 'taxId',
           correo: 'email',
           telefono: 'phone',
           direccion: 'address',

@@ -271,10 +271,20 @@
     "en": "{{property}} is not an allowed field.",
     "pt": "{{property}} não é um campo permitido."
   },
-  "validation.create_employee.tss_nss_format": {
-    "en": "The social security number must be between 7 and 11 digits.",
+  "validation.create_employee.health_fund_code_format": {
+    "es": "El código del seguro de salud admite hasta 32 letras, dígitos o guiones.",
+    "en": "The health insurer code accepts up to 32 letters, digits or hyphens.",
+    "pt": "O código do seguro de saúde aceita até 32 letras, dígitos ou hífenes."
+  },
+  "validation.create_employee.pension_fund_code_format": {
+    "es": "El código del fondo de pensiones admite hasta 32 letras, dígitos o guiones.",
+    "en": "The pension fund code accepts up to 32 letters, digits or hyphens.",
+    "pt": "O código do fundo de pensões aceita até 32 letras, dígitos ou hífenes."
+  },
+  "validation.create_employee.social_security_number_format": {
     "es": "El número de seguridad social debe tener entre 7 y 11 dígitos.",
-    "pt": "O número de segurança social deve ter entre 7 e 11 dígitos."
+    "en": "The social security number must be between 7 and 11 digits.",
+    "pt": "O número da segurança social deve ter entre 7 e 11 dígitos."
   },
   "validation.create_journal_entry.account_id_account_id_must_valid": {
     "es": "El ID de la cuenta (accountId) debe ser un UUID válido.",

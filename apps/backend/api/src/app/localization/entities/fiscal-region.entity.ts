@@ -41,8 +41,13 @@ export class FiscalRegion {
   decimalSeparator: string;
 
   // 3. Reglas de Negocio / Compliance
-  @Column({ name: 'tax_id_name', default: 'Tax ID' })
-  taxIdLabel: string; // 'RNC', 'NIT', 'EIN'
+  //
+  // `tax_id_name` used to live here, holding the WORD — 'RNC', 'NIT', 'EIN' — with a DEFAULT of
+  // 'Tax ID' in English, so anything rendering it showed untranslatable text. It is gone rather
+  // than renamed: what a country calls its identifier is now an attribute of the catalogue entry
+  // for that identifier (`identity_document_types.label_key` / `label_verbatim`), where it sits
+  // beside the pattern and the checksum it belongs with, instead of being a loose word on the
+  // region.
 
   @Column({ default: false })
   requiresElectronicInvoicing: boolean;
@@ -60,12 +65,18 @@ export class FiscalRegion {
   @OneToMany(() => FiscalDocumentTypeDefinition, def => def.fiscalRegion)
   documentDefinitions: FiscalDocumentTypeDefinition[];
 
-  // 5. Validación de Terceros (JSONB for flexibility)
-  @Column({ type: 'jsonb', nullable: true })
-  identityDocumentConfig: {
-    types: { code: string; label: string; regex: string; isCompany: boolean }[];
-    validationApiUrl?: string;
-  };
+  // 5. Validación de Terceros
+  //
+  // `identity_document_config` was a JSONB column shaped like the catalogue this product needed —
+  // `{ types: [{ code, label, regex, isCompany }] }` — seeded on every boot and read by nothing
+  // but a fallback strategy whose `validateTaxId` ended in `return true`. It could hold at most
+  // two entries per country (populated for two of nineteen), its `code` was derived from the
+  // label by stripping non-ASCII (`'RNC / Cédula'` became `RNCCDULA`), `isCompany` was a boolean
+  // and so could not express a Chilean RUT that identifies both, and it carried no check digit.
+  //
+  // It is replaced by `identity_document_types`, a real table with a natural key, a named
+  // checksum algorithm, a ternary `applies_to` and a usage context — and, unlike this column,
+  // consumers: HCM, sales, purchasing and registration all read it.
 
   // 6. Formatos de Dirección
   @Column({ default: 'State' })

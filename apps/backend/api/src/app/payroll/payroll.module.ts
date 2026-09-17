@@ -14,7 +14,7 @@ import { PayrollInput } from './entities/payroll-input.entity';
 import { StatutoryContribution } from './entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from './entities/income-tax-bracket.entity';
 import { StatutoryReference } from './entities/statutory-reference.entity';
-import { JurisdictionRegistry } from './jurisdictions/jurisdiction-registry';
+import { JurisdictionsModule } from './jurisdictions/jurisdictions.module';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
 import { PayrollCalculationService } from './services/payroll-calculation.service';
@@ -52,10 +52,12 @@ import { PayrollController } from './payroll.controller';
     forwardRef(() => JournalEntriesModule),
     forwardRef(() => AccountingModule),
     AuditModule,
+    // The registry moved to a leaf so HCM can read a country's statutory identifiers without
+    // importing all of payroll. Re-imported here so payroll's own consumers are unchanged.
+    JurisdictionsModule,
   ],
   controllers: [PayrollController],
   providers: [
-    JurisdictionRegistry,
     PayrollParametersService,
     PayrollParametersAdminService,
     PayrollCalculationService,

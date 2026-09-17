@@ -167,15 +167,15 @@ export class InvoiceRendererService implements OnModuleDestroy {
           invoice.netReceivable !== invoice.total ? format(invoice.netReceivable) : null,
       },
       fiscal: {
-        ncf: invoice.ncfNumber,
+        ncf: invoice.fiscalNumber,
         documentType: invoice.fiscalDocumentType,
-        validUntil: invoice.ncfExpiresAt ? formatDate(invoice.ncfExpiresAt, locale) : null,
+        validUntil: invoice.fiscalNumberExpiresAt ? formatDate(invoice.fiscalNumberExpiresAt, locale) : null,
         securityCode: submission?.securityCode ?? null,
         signedAt: submission?.sentAt ? formatDateTime(submission.sentAt, locale) : null,
         status: submission?.status ?? null,
         qrDataUri,
         qrUrl: submission?.qrUrl ?? null,
-        isDraft: !invoice.ncfNumber,
+        isDraft: !invoice.fiscalNumber,
       },
     });
   }

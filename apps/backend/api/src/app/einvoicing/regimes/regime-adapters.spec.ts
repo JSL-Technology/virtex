@@ -227,7 +227,7 @@ describeWithDb('the six regime adapters', () => {
       await withResolution();
       await settingsFor({ countryCode: 'CO', resolutionNumber: '18760000001' });
 
-      const document = await adapter().build(contextFor({ ncfNumber: 'SETP990000001' }));
+      const document = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }));
 
       expect(document.contentType).toBe('application/xml');
       // SHA-384, 96 hex characters. A CUFE of any other length is not a CUFE.
@@ -239,7 +239,7 @@ describeWithDb('the six regime adapters', () => {
       await withResolution();
       await settingsFor({ countryCode: 'CO' });
 
-      const built = await adapter().build(contextFor({ ncfNumber: 'SETP990000001' }));
+      const built = await adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }));
       const sealed = adapter().seal(built, certificate);
 
       expect(verifies(sealed.payload)).toBe(true);
@@ -257,7 +257,7 @@ describeWithDb('the six regime adapters', () => {
 
       // A CUFE computed with an empty key is a well-formed hash the DIAN rejects, and the message
       // it returns says only that the CUFE is wrong.
-      await expect(adapter().build(contextFor({ ncfNumber: 'SETP990000001' }))).rejects.toThrow(
+      await expect(adapter().build(contextFor({ fiscalNumber: 'SETP990000001' }))).rejects.toThrow(
         RegimeNotConfigured,
       );
     });
@@ -291,7 +291,7 @@ describeWithDb('the six regime adapters', () => {
       await withSeries();
 
       const built = await adapter().build(
-        contextFor({ ncfNumber: 'F001-00000123', fiscalDocumentType: '01', currencyCode: 'PEN' }),
+        contextFor({ fiscalNumber: 'F001-00000123', fiscalDocumentType: '01', currencyCode: 'PEN' }),
       );
 
       // `RUC-Tipo-Serie-Correlativo`. SUNAT rejects a submission on this before reading it.
@@ -305,7 +305,7 @@ describeWithDb('the six regime adapters', () => {
     it('refuses to build a document whose type was never assigned', async () => {
       await withSeries();
       await expect(
-        adapter().build(contextFor({ ncfNumber: 'F001-00000123', fiscalDocumentType: null })),
+        adapter().build(contextFor({ fiscalNumber: 'F001-00000123', fiscalDocumentType: null })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
   });
@@ -322,7 +322,7 @@ describeWithDb('the six regime adapters', () => {
       });
 
       const built = await adapter().build(
-        contextFor({ ncfNumber: '001-002-000000045', currencyCode: 'USD' }),
+        contextFor({ fiscalNumber: '001-002-000000045', currencyCode: 'USD' }),
       );
 
       expect(built.documentKey).toHaveLength(49);
@@ -342,7 +342,7 @@ describeWithDb('the six regime adapters', () => {
       });
 
       const built = await adapter().build(
-        contextFor({ ncfNumber: '001-002-000000045', currencyCode: 'USD' }),
+        contextFor({ fiscalNumber: '001-002-000000045', currencyCode: 'USD' }),
       );
 
       // Position 24 of the key (0-indexed 23) is the environment: `2` is producción in Ecuador
@@ -400,7 +400,7 @@ describeWithDb('the six regime adapters', () => {
       await buyerIs('770123456');
 
       const built = await adapter().build(
-        contextFor({ ncfNumber: '7', currencyCode: 'CLP', tax: 19_000 }),
+        contextFor({ fiscalNumber: '7', currencyCode: 'CLP', tax: 19_000 }),
       );
       const sealed = adapter().seal(built, certificate);
 
@@ -441,7 +441,7 @@ describeWithDb('the six regime adapters', () => {
       });
 
       await expect(
-        adapter().build(contextFor({ ncfNumber: '7', currencyCode: 'CLP' })),
+        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'CLP' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
 
@@ -458,7 +458,7 @@ describeWithDb('the six regime adapters', () => {
       });
 
       await expect(
-        adapter().build(contextFor({ ncfNumber: '7', currencyCode: 'CLP' })),
+        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'CLP' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
   });
@@ -489,7 +489,7 @@ describeWithDb('the six regime adapters', () => {
 
       const built = await adapter().build(
         contextFor({
-          ncfNumber: '7',
+          fiscalNumber: '7',
           currencyCode: 'BRL',
           // NCM classifies the good and CFOP the operation. The builder refuses to guess either,
           // which is right: an NCM decides the tax rate and a wrong one misstates the tax due.
@@ -519,7 +519,7 @@ describeWithDb('the six regime adapters', () => {
     it('refuses without the IBGE codes, which are part of the chave de acesso', async () => {
       await withSeries();
       await expect(
-        adapter().build(contextFor({ ncfNumber: '7', currencyCode: 'BRL' })),
+        adapter().build(contextFor({ fiscalNumber: '7', currencyCode: 'BRL' })),
       ).rejects.toThrow(RegimeNotConfigured);
     });
   });

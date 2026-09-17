@@ -90,6 +90,26 @@
     "en": "Designated withholding agent",
     "pt": "Agente de retenção designado"
   },
+  "contacts.customer_form.document_invalid": {
+    "es": "El {{document}} no es válido. Revisa que esté completo y bien tecleado.",
+    "en": "That {{document}} is not valid. Check that it is complete and correctly typed.",
+    "pt": "O {{document}} não é válido. Verifica se está completo e bem digitado."
+  },
+  "contacts.customer_form.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "contacts.customer_form.document_type_not_issued": {
+    "es": "{{country}} no emite un documento de tipo «{{code}}».",
+    "en": "{{country}} does not issue a document of type “{{code}}”.",
+    "pt": "{{country}} não emite um documento do tipo «{{code}}»."
+  },
+  "contacts.customer_form.document_type_required": {
+    "es": "Indica qué tipo de documento estás registrando para {{country}}.",
+    "en": "State which kind of document you are recording for {{country}}.",
+    "pt": "Indica que tipo de documento estás a registar para {{country}}."
+  },
   "contacts.customer_form.email": {
     "es": "Correo Electrónico",
     "en": "Email",
@@ -156,9 +176,9 @@
     "pt": "Estado/Província"
   },
   "contacts.customer_form.tax_id": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
+    "es": "Número de documento",
+    "en": "Document number",
+    "pt": "Número do documento"
   },
   "contacts.customer_form.taxpayer_type": {
     "es": "Tipo de contribuyente",

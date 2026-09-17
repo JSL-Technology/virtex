@@ -6,6 +6,7 @@ import {
   ContributionResult,
   PayrollJurisdictionStrategy,
   ResolvedParameters,
+  StatutoryIdentifierSpec,
   StatutoryInput,
   StatutoryResult,
 } from './jurisdiction-strategy.interface';
@@ -31,6 +32,42 @@ import {
  */
 export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
   readonly countryCode = 'DO';
+
+  /**
+   * What the TSS needs on an employee record, and the shape it needs it in.
+   *
+   * These three rules used to be a `@Matches(/^\d{7,11}$/)` on `CreateEmployeeDto` and three
+   * columns named `tss_nss`, `afp_code` and `sfs_code` — Dominican institutions in the schema of a
+   * table shared by nineteen markets, with the Dominican NSS format asserted against all of them.
+   * The columns are neutrally named now and the rule sits here, where the country that imposes it
+   * already lives. A market whose strategy declares nothing asserts nothing.
+   */
+  readonly statutoryIdentifiers: readonly StatutoryIdentifierSpec[] = [
+    {
+      field: 'socialSecurityNumber',
+      labelKey: 'hcm.employees.form.social_security_number',
+      pattern: '^\\d{7,11}$',
+      messageKey: 'validation.create_employee.social_security_number_format',
+      required: false,
+    },
+    // The AFP and the ARS/SFS are chosen from the SIPEN and SISALRIL registers of authorised
+    // administrators. Their codes are short alphanumerics; no published check rule applies, so the
+    // constraint is length alone rather than an invented one.
+    {
+      field: 'pensionFundCode',
+      labelKey: 'hcm.employees.form.pension_fund_code',
+      pattern: '^[A-Za-z0-9-]{1,32}$',
+      messageKey: 'validation.create_employee.pension_fund_code_format',
+      required: false,
+    },
+    {
+      field: 'healthFundCode',
+      labelKey: 'hcm.employees.form.health_fund_code',
+      pattern: '^[A-Za-z0-9-]{1,32}$',
+      messageKey: 'validation.create_employee.health_fund_code_format',
+      required: false,
+    },
+  ];
 
   computeStatutory(input: StatutoryInput, params: ResolvedParameters): StatutoryResult {
     const contributions: ContributionResult[] = [];

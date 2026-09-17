@@ -1,4 +1,12 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsISO31661Alpha2,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 
 export class CreateSupplierDto {
@@ -18,9 +26,29 @@ export class CreateSupplierDto {
   @IsOptional()
   phone?: string;
 
+  /**
+   * The supplier's fiscal identifier.
+   *
+   * Shape and check digit are NOT asserted here: which rule applies depends on
+   * `identityDocumentTypeCode` and on a country, neither of which a synchronous decorator can
+   * reach. `SuppliersService` validates it against the catalogue. It previously carried
+   * `@IsString()` and nothing else, so a mistyped RNC was stored and surfaced when the 606 filing
+   * built from it was rejected.
+   */
   @IsString()
   @IsOptional()
   taxId?: string;
+
+  /** Which identifier `taxId` is: `RNC`, `CEDULA`, `NIT`, `CNPJ`… The catalogue's default if omitted. */
+  @IsString()
+  @IsOptional()
+  @Length(1, 32)
+  identityDocumentTypeCode?: string;
+
+  /** The issuing country of that document — the SUPPLIER's. Defaults to the supplier's country. */
+  @IsISO31661Alpha2()
+  @IsOptional()
+  identityDocumentCountry?: string;
 
   @IsString()
   @IsOptional()

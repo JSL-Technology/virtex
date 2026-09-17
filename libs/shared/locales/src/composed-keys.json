@@ -159,13 +159,9 @@
       "E47"
     ],
     "fiscal.ec": [],
+    "identity_document": [],
     "fiscal.mx": [],
     "fiscal.pe": [],
-    "hcm.employees.form.document_type": [
-      "CEDULA",
-      "RNC",
-      "PASSPORT"
-    ],
     "hcm.employees.form.frequency_label": [
       "WEEKLY",
       "BIWEEKLY",

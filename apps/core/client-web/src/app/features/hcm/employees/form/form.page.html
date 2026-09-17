@@ -53,31 +53,43 @@
         the server audits, which is why it is a button and not the page load.
       -->
       <div class="form-grid">
+        <!--
+          The options come from the server's catalogue for this tenant's country. They used to be
+          three literal <option> elements — CEDULA, PASSPORT, RNC — relabelled per locale by the
+          translation files, so `document_type.cedula` read "SSN" in the United States and "RUN" in
+          Chile while the server went on validating it as a Dominican cédula. The list is data now,
+          and it is the same data the server validates against.
+        -->
         <label class="field">
           <span>{{ 'hcm.employees.form.document_type' | translate }}</span>
           <select formControlName="identityDocumentType">
-            <option value="CEDULA">{{ 'hcm.employees.form.document_type.cedula' | translate }}</option>
-            <option value="PASSPORT">{{ 'hcm.employees.form.document_type.passport' | translate }}</option>
-            <option value="RNC">{{ 'hcm.employees.form.document_type.rnc' | translate }}</option>
+            @for (type of documentTypes(); track type.code) {
+              <option [value]="type.code">{{ documentLabel(type) }}</option>
+            }
           </select>
         </label>
         <label class="field">
           <span>{{ 'hcm.employees.form.document' | translate }}</span>
           <input type="text" formControlName="identityDocument" maxlength="32"
-            [placeholder]="current() ? (revealed()?.identityDocument ?? (current()!.identityDocument || '•••')) : ''" />
+            [placeholder]="documentPlaceholder()" />
           <small class="field__note">{{ 'hcm.employees.form.document_help' | translate }}</small>
         </label>
+        <!--
+          The three statutory fields are named for the concept, not for the Dominican institution.
+          Their labels come from the country's payroll strategy where it declares them, so a
+          Mexican tenant reads "NSS (IMSS)" and a Dominican one "NSS (TSS)" off the same field.
+        -->
         <label class="field">
-          <span>{{ 'hcm.employees.form.tss_nss' | translate }}</span>
-          <input type="text" formControlName="tssNss" maxlength="11" />
+          <span>{{ 'hcm.employees.form.social_security_number' | translate }}</span>
+          <input type="text" formControlName="socialSecurityNumber" maxlength="32" />
         </label>
         <label class="field">
-          <span>{{ 'hcm.employees.form.afp' | translate }}</span>
-          <input type="text" formControlName="afpCode" maxlength="32" />
+          <span>{{ 'hcm.employees.form.pension_fund_code' | translate }}</span>
+          <input type="text" formControlName="pensionFundCode" maxlength="32" />
         </label>
         <label class="field">
-          <span>{{ 'hcm.employees.form.sfs' | translate }}</span>
-          <input type="text" formControlName="sfsCode" maxlength="32" />
+          <span>{{ 'hcm.employees.form.health_fund_code' | translate }}</span>
+          <input type="text" formControlName="healthFundCode" maxlength="32" />
         </label>
       </div>
 

@@ -49,11 +49,17 @@
 
                     <div class="form-field">
                         <label for="taxId" class="form-label">
-                            {{ 'settings.company_profile.id_fiscal_rnc_tax_id' | translate }} <span class="required">*</span></label>
+                            {{ 'settings.company_profile.tax_id' | translate }} <span class="required">*</span></label>
+                        <!--
+                          The placeholder was the literal `Ej. 132-45678-9` — the shape of a
+                          Dominican RNC, in Spanish, outside the catalogue — shown to a tenant in
+                          any of the nineteen markets. It is the country's own example now, which
+                          `PublicCountryConfig.taxIdExample` has always carried.
+                        -->
                         <input id="taxId"
                                type="text"
                                formControlName="taxId"
-                               placeholder="Ej. 132-45678-9">
+                               [placeholder]="taxIdExample()">
                         <p class="field-error"
                            *ngIf="profileForm.get('taxId')?.touched && profileForm.get('taxId')?.invalid">
                             {{ 'settings.company_profile.tax_id_required' | translate }}

@@ -73,8 +73,10 @@
 
         <div class="form-row">
           <div class="form-field">
-            <label for="taxid">{{ 'settings.subsidiaries.id_fiscal_rnc_tax_id' | translate }}</label>
-            <input id="taxid" type="text" formControlName="taxId" placeholder="Ej. 132-45678-9">
+            <label for="taxid">{{ 'settings.subsidiaries.tax_id' | translate }}</label>
+            <!-- Each subsidiary has its OWN country, so the example follows the country picked
+                 below rather than being the Dominican one for all of them. -->
+            <input id="taxid" type="text" formControlName="taxId" [placeholder]="taxIdExample()">
           </div>
 
           <div class="form-field">

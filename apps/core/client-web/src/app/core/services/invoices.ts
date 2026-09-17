@@ -66,9 +66,9 @@ export interface InvoiceLineItem {
 export interface Invoice {
   id: string;
   invoiceNumber: string;
-  ncfNumber?: string | null;
+  fiscalNumber?: string | null;
   fiscalDocumentType?: string | null;
-  ncfExpiresAt?: string | null;
+  fiscalNumberExpiresAt?: string | null;
   customerId: string;
   customerName: string;
   customerAddress?: string | null;

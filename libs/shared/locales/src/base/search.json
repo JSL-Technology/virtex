@@ -9,6 +9,31 @@
     "en": "Search organizations",
     "pt": "Buscar organizações"
   },
+  "search.result.customer_description": {
+    "es": "{{documentLabel}}: {{taxId}}",
+    "en": "{{documentLabel}}: {{taxId}}",
+    "pt": "{{documentLabel}}: {{taxId}}"
+  },
+  "search.result.invoice_description": {
+    "es": "Cliente: {{customer}}",
+    "en": "Customer: {{customer}}",
+    "pt": "Cliente: {{customer}}"
+  },
+  "search.result.invoice_title": {
+    "es": "Factura #{{number}}",
+    "en": "Invoice #{{number}}",
+    "pt": "Fatura #{{number}}"
+  },
+  "search.result.product_description": {
+    "es": "SKU: {{sku}}",
+    "en": "SKU: {{sku}}",
+    "pt": "SKU: {{sku}}"
+  },
+  "search.result.tax_id_label": {
+    "es": "Identificación fiscal",
+    "en": "Tax ID",
+    "pt": "Identificação fiscal"
+  },
   "search.search_invoices_customers_products": {
     "es": "Buscar facturas, clientes, productos…",
     "en": "Search invoices, customers, products…",

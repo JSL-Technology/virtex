@@ -3,10 +3,12 @@ import {
   IsEmail,
   IsEnum,
   IsInt,
+  IsISO31661Alpha2,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  Length,
   Max,
   MaxLength,
   Min,
@@ -37,9 +39,37 @@ export class CreateCustomerDto {
   @IsOptional()
   phone?: string;
 
+  /**
+   * The customer's fiscal identifier.
+   *
+   * Shape and check digit are NOT asserted here. Which rule applies depends on
+   * `identityDocumentTypeCode` and on a country, and a synchronous decorator can reach neither.
+   * `CustomersService` validates it against the catalogue, and — unlike before, when this carried
+   * `@IsString()` and nothing else — a wrong one is now refused rather than stored.
+   */
   @IsString()
   @IsOptional()
   taxId?: string;
+
+  /**
+   * Which identifier `taxId` is: `RNC`, `CEDULA`, `NIT`, `CNPJ`, `CPF`…
+   *
+   * Optional. Omitted, the catalogue's default for the resolved country decides, which is what a
+   * domestic customer in a single-identifier market (Colombia, Chile, Peru) will always want.
+   */
+  @IsString()
+  @IsOptional()
+  @Length(1, 32)
+  identityDocumentTypeCode?: string;
+
+  /**
+   * The issuing country of that document — the CUSTOMER's, not the tenant's.
+   *
+   * An exporter's customers are abroad by definition. Defaults to the tenant's country.
+   */
+  @IsISO31661Alpha2()
+  @IsOptional()
+  identityDocumentCountry?: string;
 
   /**
    * The buyer's fiscal classification, which decides what they withhold at source.

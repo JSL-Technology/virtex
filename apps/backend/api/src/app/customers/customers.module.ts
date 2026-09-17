@@ -21,6 +21,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 // PeriodLockModule provides PeriodLockGuard and the AccountingPeriod/AccountPeriodLock
 // repositories it needs — no need to register them here and claim ownership.
 import { PeriodLockModule } from '../accounting/period-lock.module';
+import { LocalizationProvisioningModule } from '../localization/localization-provisioning.module';
 
 @Module({
   imports: [
@@ -39,6 +40,9 @@ import { PeriodLockModule } from '../accounting/period-lock.module';
     ChartOfAccountsModule,
     // AccountingPeriod/AccountPeriodLock owned by accounting; get the guard from its leaf module.
     PeriodLockModule,
+    // The identity-document catalogue: customers' tax ids were stored with no type and no
+    // validation at all, in a product whose purpose is fiscal compliance.
+    LocalizationProvisioningModule,
     // Invoice and OrganizationSettings are read via DataSource.manager in CustomerPaymentsService.
   ],
   controllers: [

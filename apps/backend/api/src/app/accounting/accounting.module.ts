@@ -1,5 +1,5 @@
 
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import { PeriodClosingService } from './period-closing.service';
@@ -52,7 +52,10 @@ import { OrganizationProvisioningHandler } from './handlers/organization-provisi
       LedgerMappingRule,
       LedgerMappingRuleCondition,
     ]),
-    AuthModule,
+    // `forwardRef` because AuthModule reaches OrganizationsModule, which reaches this module
+    // through LocalizationProvisioningModule — so AuthModule's class expression is still being
+    // evaluated when this one is defined, and the import resolves to `undefined`.
+    forwardRef(() => AuthModule),
     JournalEntriesModule,
     AuditModule,
     // DepreciationModule is a leaf — no upstream dependency on AccountingModule.

@@ -36,13 +36,25 @@ export class SearchService {
         c.taxId?.toLowerCase().includes(lowerCaseQuery),
     );
 
+    // Titles and descriptions travel as KEYS and PARAMS, never as assembled sentences.
+    //
+    // They used to be built here with template literals — `Factura #…`, `Cliente: …`, `SKU: …`
+    // and `RNC: ${c.taxId}` — so every result was Spanish for every reader, and the customer's
+    // identifier was labelled with the Dominican term whatever country the tenant was in: a
+    // Brazilian tenant read `RNC: 11.222.333/0001-81` over a CNPJ. Worse, a Dominican customer's
+    // identifier may be an RNC or a cédula and nothing here knew which.
+    //
+    // `documentTypeCode` is the catalogue code the customer record actually carries, so the client
+    // renders the document's own name — or, absent a type, the neutral "tax id" label.
     return [
       {
         type: 'Invoices',
         results: invoices.map((i) => ({
           id: i.id,
-          title: `Factura #${i.invoiceNumber}`,
-          description: `Cliente: ${i.customerName}`,
+          titleKey: 'search.result.invoice_title',
+          titleParams: { number: i.invoiceNumber },
+          descriptionKey: 'search.result.invoice_description',
+          descriptionParams: { customer: i.customerName },
           link: `/invoices/${i.id}`,
         })),
       },
@@ -51,7 +63,8 @@ export class SearchService {
         results: products.map((p) => ({
           id: p.id,
           title: p.name,
-          description: `SKU: ${p.sku}`,
+          descriptionKey: 'search.result.product_description',
+          descriptionParams: { sku: p.sku },
           link: `/inventory/products/${p.id}/edit`,
         })),
       },
@@ -60,7 +73,10 @@ export class SearchService {
         results: customers.map((c) => ({
           id: c.id,
           title: c.companyName,
-          description: `RNC: ${c.taxId}`,
+          descriptionKey: 'search.result.customer_description',
+          descriptionParams: { taxId: c.taxId },
+          documentTypeCode: c.identityDocumentTypeCode ?? null,
+          documentTypeCountry: c.identityDocumentCountry ?? null,
           link: `/masters/customers/${c.id}/edit`,
         })),
       },
