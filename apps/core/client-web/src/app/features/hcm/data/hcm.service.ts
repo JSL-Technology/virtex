@@ -35,6 +35,24 @@ export interface IdentityDocumentTypeOption {
   isDefault: boolean;
 }
 
+/**
+ * One statutory (social-security) identifier the tenant's country asks of an employee, as the
+ * endpoint returns it.
+ *
+ * The form used to render three fixed inputs — a Dominican NSS, AFP and SFS — for every market. The
+ * fields are data now: the country's payroll strategy declares which it needs, what to call each and
+ * what shape it takes, and the server validates against the same specs.
+ */
+export interface StatutoryIdentifierTypeOption {
+  /** The column or `statutoryEnrolment` key this constrains — `socialSecurityNumber`, `pensionFundCode`… */
+  field: string;
+  /** Catalogue key for the field's label, in the country's own terms. */
+  labelKey: string;
+  /** Shape check for immediate feedback; null when the country imposes none. The server re-checks. */
+  pattern: string | null;
+  required: boolean;
+}
+
 export interface Employee {
   id: string;
   firstName: string;
@@ -120,6 +138,19 @@ export class HcmService {
    */
   listIdentityDocumentTypes(): Observable<IdentityDocumentTypeOption[]> {
     return this.http.get<IdentityDocumentTypeOption[]>(`${this.apiUrl}/identity-document-types`);
+  }
+
+  /**
+   * The statutory identifiers this tenant's country asks of an employee.
+   *
+   * Replaces three fixed inputs (NSS, AFP, SFS) hardcoded in the template. Server-resolved from the
+   * tenant's country and the same specs the server validates against, so the fields offered and the
+   * values accepted do not drift. Empty for a market whose payroll rules are not modelled yet.
+   */
+  listStatutoryIdentifierTypes(): Observable<StatutoryIdentifierTypeOption[]> {
+    return this.http.get<StatutoryIdentifierTypeOption[]>(
+      `${this.apiUrl}/statutory-identifier-types`,
+    );
   }
 
   // ── Employees ──────────────────────────────────────────────────────────────

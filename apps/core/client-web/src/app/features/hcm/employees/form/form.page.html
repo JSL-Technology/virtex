@@ -75,22 +75,17 @@
           <small class="field__note">{{ 'hcm.employees.form.document_help' | translate }}</small>
         </label>
         <!--
-          The three statutory fields are named for the concept, not for the Dominican institution.
-          Their labels come from the country's payroll strategy where it declares them, so a
-          Mexican tenant reads "NSS (IMSS)" and a Dominican one "NSS (TSS)" off the same field.
+          The statutory fields are data now: the country's payroll strategy declares which social-
+          security identifiers it needs, what to call each and what shape it takes, and the server
+          validates the same specs. The three that used to be written here — a Dominican NSS, AFP and
+          SFS — are what a market with no modelled payroll rules falls back to, unconstrained.
         -->
-        <label class="field">
-          <span>{{ 'hcm.employees.form.social_security_number' | translate }}</span>
-          <input type="text" formControlName="socialSecurityNumber" maxlength="32" />
-        </label>
-        <label class="field">
-          <span>{{ 'hcm.employees.form.pension_fund_code' | translate }}</span>
-          <input type="text" formControlName="pensionFundCode" maxlength="32" />
-        </label>
-        <label class="field">
-          <span>{{ 'hcm.employees.form.health_fund_code' | translate }}</span>
-          <input type="text" formControlName="healthFundCode" maxlength="32" />
-        </label>
+        @for (spec of statutoryFields(); track spec.field) {
+          <label class="field">
+            <span>{{ spec.labelKey | translate }}</span>
+            <input type="text" [formControlName]="spec.field" maxlength="32" />
+          </label>
+        }
       </div>
 
       @if (current()) {

@@ -264,6 +264,24 @@ export class HcmService {
     });
   }
 
+  /**
+   * The statutory (social-security) identifiers this tenant's country asks of an employee.
+   *
+   * The form used to render one fixed "NSS" input — the Dominican shape — for every market. This is
+   * what it reads instead: the specs the country's payroll jurisdiction declares, the same ones
+   * {@link assertStatutoryIdentifiers} validates against, so the fields offered and the values
+   * accepted are the same set by construction. A country whose jurisdiction is not modelled yet
+   * returns an empty list, and the form falls back to the three neutral fields with no per-country
+   * rule — the same graceful degradation the validator applies.
+   */
+  async statutoryIdentifierTypesFor(
+    organizationId: string,
+  ): Promise<readonly StatutoryIdentifierSpec[]> {
+    const country = await this.tenantCountry.resolveOrNull(organizationId);
+    if (!country || !this.jurisdictions.supports(country)) return [];
+    return this.jurisdictions.forCountry(country).statutoryIdentifiers ?? [];
+  }
+
   /** Soft delete: a person with payroll history is deactivated, never physically removed. */
   async removeEmployee(id: string, organizationId: string): Promise<void> {
     await this.findOneEmployee(id, organizationId);

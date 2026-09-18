@@ -14,6 +14,7 @@ import {
   EmployeeCompensation,
   HcmService,
   IdentityDocumentTypeOption,
+  StatutoryIdentifierTypeOption,
 } from '../../../../core/api/hcm.service';
 import { TranslateService } from '@ngx-translate/core';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
@@ -84,6 +85,36 @@ export class EmployeeFormPage implements OnInit {
    */
   readonly documentTypes = signal<IdentityDocumentTypeOption[]>([]);
 
+  /** The employee columns a statutory identifier can bind to directly; anything else is an enrolment key. */
+  private static readonly STATUTORY_COLUMNS = [
+    'socialSecurityNumber',
+    'pensionFundCode',
+    'healthFundCode',
+  ] as const;
+
+  /**
+   * The statutory (social-security) identifiers this tenant's country asks for, from the server.
+   *
+   * The template used to name three of them itself — a Dominican NSS, AFP and SFS. Empty until the
+   * request lands, or when the market's payroll rules are not modelled, in which case
+   * {@link statutoryFields} falls back to those same three, unconstrained.
+   */
+  readonly statutoryTypes = signal<StatutoryIdentifierTypeOption[]>([]);
+
+  /**
+   * The statutory fields to render: the country's declared specs, or — for a market with no
+   * modelled payroll rules — the three neutral columns with no per-country shape.
+   */
+  readonly statutoryFields = computed<StatutoryIdentifierTypeOption[]>(() => {
+    const declared = this.statutoryTypes();
+    if (declared.length > 0) return declared;
+    return [
+      { field: 'socialSecurityNumber', labelKey: 'hcm.employees.form.social_security_number', pattern: null, required: false },
+      { field: 'pensionFundCode', labelKey: 'hcm.employees.form.pension_fund_code', pattern: null, required: false },
+      { field: 'healthFundCode', labelKey: 'hcm.employees.form.health_fund_code', pattern: null, required: false },
+    ];
+  });
+
   /** The unmasked cédula and bank account, once somebody asks for them. */
   readonly revealed = signal<Employee | null>(null);
 
@@ -133,6 +164,11 @@ export class EmployeeFormPage implements OnInit {
       .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
       .subscribe((types) => this.applyDocumentTypes(types));
 
+    this.hcm
+      .listStatutoryIdentifierTypes()
+      .pipe(catchError(() => of([] as StatutoryIdentifierTypeOption[])))
+      .subscribe((types) => this.applyStatutoryTypes(types));
+
     // The document's shape check — and, on a new employee, whether it is required — follows the
     // selected type, so it is re-applied whenever the type changes.
     this.form
@@ -158,6 +194,32 @@ export class EmployeeFormPage implements OnInit {
       if (preset) control.setValue(preset.code, { emitEvent: false });
     }
     this.syncDocumentValidators();
+  }
+
+  /**
+   * Adopt the country's statutory-identifier specs.
+   *
+   * A spec that is not one of the three base columns gets a control added for it, so a market that
+   * asks for a fourth identifier renders and posts it without this component naming it. Each field's
+   * shape and requiredness mirror the spec the server validates against — these values are returned
+   * in the clear (unlike the cédula), so requiredness applies whether creating or editing.
+   */
+  private applyStatutoryTypes(types: StatutoryIdentifierTypeOption[]): void {
+    const columns = EmployeeFormPage.STATUTORY_COLUMNS as readonly string[];
+    for (const spec of types) {
+      if (!columns.includes(spec.field) && !this.form.get(spec.field)) {
+        this.form.addControl(spec.field, this.fb.control(''));
+      }
+      const control = this.form.get(spec.field);
+      if (!control) continue;
+      const validators = [
+        ...(spec.pattern ? [Validators.pattern(new RegExp(spec.pattern))] : []),
+        ...(spec.required ? [Validators.required] : []),
+      ];
+      control.setValidators(validators);
+      control.updateValueAndValidity({ emitEvent: false });
+    }
+    this.statutoryTypes.set(types);
   }
 
   /**
@@ -230,6 +292,24 @@ export class EmployeeFormPage implements OnInit {
     const body = Object.fromEntries(
       Object.entries(raw).filter(([, value]) => value !== '' && value !== null),
     ) as Parameters<HcmService['createEmployee']>[0];
+
+    // A statutory identifier the country declares beyond the three base columns travels under
+    // `statutoryEnrolment`, keyed by the spec's field — the shape the server reads it in, and the
+    // one place an unknown top-level key would otherwise be rejected.
+    const columns = EmployeeFormPage.STATUTORY_COLUMNS as readonly string[];
+    const extraKeys = this.statutoryTypes()
+      .map((spec) => spec.field)
+      .filter((field) => !columns.includes(field));
+    if (extraKeys.length > 0) {
+      const record = body as Record<string, unknown>;
+      const enrolment: Record<string, string> = {};
+      for (const key of extraKeys) {
+        const value = record[key];
+        if (typeof value === 'string' && value !== '') enrolment[key] = value;
+        delete record[key];
+      }
+      if (Object.keys(enrolment).length > 0) record['statutoryEnrolment'] = enrolment;
+    }
 
     this.saving.set(true);
     const request = this.current()

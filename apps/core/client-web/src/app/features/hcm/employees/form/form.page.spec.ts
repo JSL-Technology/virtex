@@ -49,6 +49,13 @@ describe('Employee form', () => {
     },
   ];
 
+  /** What a Dominican tenant's payroll strategy declares: the worker's NSS, AFP and SFS. */
+  const statutoryTypes = [
+    { field: 'socialSecurityNumber', labelKey: 'hcm.employees.form.social_security_number', pattern: '^\\d{7,11}$', required: false },
+    { field: 'pensionFundCode', labelKey: 'hcm.employees.form.pension_fund_code', pattern: '^[A-Za-z0-9-]{1,32}$', required: false },
+    { field: 'healthFundCode', labelKey: 'hcm.employees.form.health_fund_code', pattern: '^[A-Za-z0-9-]{1,32}$', required: false },
+  ];
+
   const saved = {
     id: 'emp-1',
     firstName: 'Ana',
@@ -87,6 +94,8 @@ describe('Employee form', () => {
     // So does the identity-document catalogue: the document `<select>` is filled from the server
     // for the tenant's country rather than from three options written into the template.
     http.expectOne(`${API}/identity-document-types`).flush(documentTypes);
+    // The statutory identifiers the country asks for, filled from the server just like the documents.
+    http.expectOne(`${API}/statutory-identifier-types`).flush(statutoryTypes);
   };
 
   /** Answers the record read and its compensation history, as opening an employee does. */
@@ -208,6 +217,9 @@ describe('Employee form — outside the workspace', () => {
     fixture.detectChanges();
     http.expectOne(`${API}/departments`).flush([]);
     http.expectOne(`${API}/identity-document-types`).flush(documentTypes);
+    // A market with no modelled payroll rules answers with no specs; the form falls back to the
+    // three neutral fields, and this router-mounted case only needs the request satisfied.
+    http.expectOne(`${API}/statutory-identifier-types`).flush([]);
   });
 
   afterEach(() => http.verify());

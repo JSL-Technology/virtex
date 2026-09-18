@@ -63,6 +63,27 @@ export class HcmController {
     }));
   }
 
+  /**
+   * The statutory identifiers this tenant's country asks of an employee — the worker's social-
+   * security number, pension and health carrier, and any further one the country's filings need.
+   *
+   * Parallel to `identity-document-types`: the form renders the fields the country's payroll
+   * strategy declares (label, shape, whether required) instead of the three fixed inputs it used to
+   * hardcode, and those are the same specs the server validates against. Empty for a market whose
+   * payroll rules are not modelled yet — the form then shows the three neutral fields unconstrained.
+   */
+  @Get('statutory-identifier-types')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  async getStatutoryIdentifierTypes(@CurrentUser() user: AuthenticatedUser) {
+    const specs = await this.hcmService.statutoryIdentifierTypesFor(user.organizationId);
+    return specs.map((spec) => ({
+      field: spec.field,
+      labelKey: spec.labelKey,
+      pattern: spec.pattern,
+      required: spec.required,
+    }));
+  }
+
   @Get('employees')
   @HasPermission(PERMISSIONS.HCM_VIEW)
   async findAllEmployees(
