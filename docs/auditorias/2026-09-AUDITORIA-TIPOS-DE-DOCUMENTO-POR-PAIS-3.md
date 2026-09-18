@@ -4,6 +4,13 @@
 **Alcance:** todo el proyecto (backend, frontend, i18n, esquema de base de datos)
 **Antecedentes:** [primera pasada](./2026-09-AUDITORIA-TIPOS-DE-DOCUMENTO-POR-PAIS.md) y [segunda pasada](./2026-09-AUDITORIA-TIPOS-DE-DOCUMENTO-POR-PAIS-2.md). Esta tercera pasada re-audita contra los mismos invariantes: confirma cuáles ya se cumplen (con evidencia) y reporta lo que sigue hardcodeado como si fuera universal.
 
+> **Estado: RESUELTO.** Los cuatro hallazgos abiertos que reporta este documento se corrigieron. Verificado en verde: `tsc` del backend y del frontend, specs de los builders BR/AR/PE (65), specs fiscales de localización (434), suites de `einvoicing/regimes` + `payroll` (115) y la spec del formulario de empleado del frontend (4).
+>
+> - **H-01** — `regimeCodes` poblado en BR/AR/PE + `regimeDocumentCode()`/`buyerRegimeDocumentCode()`; los tres builders leen el código del catálogo en vez de contar dígitos.
+> - **H-02** — se eliminaron los defaults `'DO'`: los cuatro endpoints de `payroll.controller` resuelven el país del tenant (fallan cerrado); `payroll-run.entity` sin `default` + migración `1789005600000`; `request-locale` sin `|| 'DO'`.
+> - **H-03** — endpoint `GET hcm/statutory-identifier-types` + el formulario renderiza los `StatutoryIdentifierSpec` del país dinámicamente.
+> - **H-04** — `serviceChargeRate` es un dato del perfil de país (`serviceChargeRateFor`), no un `if` por nombre de país.
+
 ---
 
 ## Paso 0 — El estándar (ya implementado)
