@@ -30,6 +30,7 @@ import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
+import { serviceChargeRateFor } from '../localization/fiscal/country-profiles';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
@@ -1411,7 +1412,7 @@ export class InvoicesService {
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       fiscalDocumentTypes: [...adapter.availableSalesTypes()],
       /** The legal service charge the market applies, as a fraction. Zero where none applies. */
-      serviceChargeRate: countryCode === 'DO' || countryCode === 'CR' ? 0.1 : 0,
+      serviceChargeRate: serviceChargeRateFor(countryCode),
       /**
        * The tenant's default credit period, so a new invoice opens with a due date that means
        * something. It used to open due on the day it was issued, whatever the tenant sells on.

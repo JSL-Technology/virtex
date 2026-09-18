@@ -159,6 +159,15 @@ export interface CountryFiscalProfile {
    */
   requiredFiscalReports?: string[];
 
+  /**
+   * The legal service charge (propina/gratuity) the market levies on hospitality sales, as a
+   * fraction. It used to be `countryCode === 'DO' || countryCode === 'CR' ? 0.1 : 0` inline in the
+   * invoicing service — a jurisdiction known by its name in code, which the next market with a
+   * mandatory charge would have had to add by editing that expression rather than this list.
+   * Absent means the market levies none.
+   */
+  serviceChargeRate?: number;
+
   dateFormat: string;
   thousandSeparator: string;
   decimalSeparator: string;
@@ -719,6 +728,8 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
       },
     ],
     requiredFiscalReports: ['606', '607', '608', 'IT-1'],
+    // Ley 16-92: the 10 % legal tip on hospitality services.
+    serviceChargeRate: 0.1,
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
@@ -905,6 +916,8 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     address: { divisionLabel: 'Provincia', divisions: COSTA_RICAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'Hacienda Factura Electrónica' },
     marketStatus: 'preview',
+    // The 10 % legal service charge on restaurant and hotel bills.
+    serviceChargeRate: 0.1,
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
@@ -949,6 +962,11 @@ export function findCountryProfile(countryCode: string): CountryFiscalProfile | 
 
 export function supportedCountryCodes(): string[] {
   return COUNTRY_FISCAL_PROFILES.map((p) => p.countryCode);
+}
+
+/** The market's legal service charge (propina) as a fraction. Zero where none applies or is unknown. */
+export function serviceChargeRateFor(countryCode: string | null | undefined): number {
+  return findCountryProfile(countryCode ?? '')?.serviceChargeRate ?? 0;
 }
 
 /** The extra fiscal fields that apply to one country and one kind of taxpayer. */
