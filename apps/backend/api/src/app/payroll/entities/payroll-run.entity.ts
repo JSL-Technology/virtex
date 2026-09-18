@@ -63,7 +63,11 @@ export class PayrollRun extends BaseEntity {
   @Column({ name: 'name' })
   name: string;
 
-  @Column({ name: 'country_code', length: 2, default: 'DO' })
+  // No `default: 'DO'`. A run's country is set from its input or resolved from the tenant in
+  // `PayrollRunService`, never a constant — a `DEFAULT 'DO'` computed a Costa Rican payroll under
+  // Dominican rules for a run started without an explicit country (A-08). The DB default is dropped
+  // in `1789005600000-DropPayrollRunCountryDefault`.
+  @Column({ name: 'country_code', length: 2 })
   countryCode: string;
 
   @Column({ name: 'period_year', type: 'int' })

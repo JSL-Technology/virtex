@@ -80,7 +80,10 @@ export function buildLocaleContext(
     booksLanguage?: LanguageCode | null;
   } | null,
 ): LocaleContextContract {
-  const countryCode = (tenant?.countryCode ?? '').toUpperCase() || 'DO';
+  // No `|| 'DO'`: a tenant with no country must not be formatted as Dominican (A-08). `resolveLocale`
+  // already degrades an unknown country to the language's neutral locale (es-419, en-US, pt-BR), and
+  // the country is reported as the empty string it actually is rather than a guessed jurisdiction.
+  const countryCode = (tenant?.countryCode ?? '').toUpperCase();
   return {
     language,
     locale: resolveLocale(language, countryCode),

@@ -29,6 +29,7 @@ import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
+import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { CreateRunDto } from './dto/create-run.dto';
 import { CreateConceptDto } from './dto/create-concept.dto';
 import { UpdateConceptDto } from './dto/update-concept.dto';
@@ -60,6 +61,7 @@ export class PayrollController {
     private readonly inputs: PayrollInputService,
     private readonly parameters: PayrollParametersService,
     private readonly parametersAdmin: PayrollParametersAdminService,
+    private readonly tenantCountry: TenantCountryResolver,
   ) {}
 
   // ── Runs ─────────────────────────────────────────────────────────────────────
@@ -203,29 +205,56 @@ export class PayrollController {
   }
 
   // ── Statutory parameters (shared reference data) ──────────────────────────────
+  //
+  // `@Query('country') country = 'DO'` used to stand on these four. A Costa Rican or Mexican tenant
+  // that opened the payroll settings without naming a country was then shown Dominican AFP/SFS/ISR
+  // parameters as if they were its own — a wrong answer that looks like a right one (A-08). The
+  // country now comes from the tenant when it is not stated explicitly, and the resolver throws
+  // rather than defaulting when the tenant has none, so a missing country surfaces instead of
+  // silently becoming Dominican.
 
   @Get('parameters')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
-  resolvedParameters(@Query('country') country = 'DO', @Query('on') on?: string) {
-    return this.parameters.resolve(country, on ?? new Date().toISOString().slice(0, 10));
+  async resolvedParameters(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('country') country?: string,
+    @Query('on') on?: string,
+  ) {
+    const resolved = country ?? (await this.tenantCountry.resolve(user.organizationId));
+    return this.parameters.resolve(resolved, on ?? new Date().toISOString().slice(0, 10));
   }
 
   @Get('parameters/contributions')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
-  listContributions(@Query('country') country = 'DO') {
-    return this.parametersAdmin.listContributions(country);
+  async listContributions(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('country') country?: string,
+  ) {
+    return this.parametersAdmin.listContributions(
+      country ?? (await this.tenantCountry.resolve(user.organizationId)),
+    );
   }
 
   @Get('parameters/references')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
-  listReferences(@Query('country') country = 'DO') {
-    return this.parametersAdmin.listReferences(country);
+  async listReferences(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('country') country?: string,
+  ) {
+    return this.parametersAdmin.listReferences(
+      country ?? (await this.tenantCountry.resolve(user.organizationId)),
+    );
   }
 
   @Get('parameters/tax-brackets')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
-  listBrackets(@Query('country') country = 'DO') {
-    return this.parametersAdmin.listBrackets(country);
+  async listBrackets(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('country') country?: string,
+  ) {
+    return this.parametersAdmin.listBrackets(
+      country ?? (await this.tenantCountry.resolve(user.organizationId)),
+    );
   }
 
   // The parameter writes below are recorded by the FinancialAuditSubscriber (the statutory tables are
