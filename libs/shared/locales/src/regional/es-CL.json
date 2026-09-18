@@ -4,7 +4,5 @@
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
   "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
-  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
-  "settings.company_profile.tax_id": "RUT",
-  "settings.subsidiaries.tax_id": "RUT"
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo"
 }

@@ -18,7 +18,5 @@
   "payroll.parameters.regime_label.srl": "SRL",
   "payroll.runs.type_label.christmas_bonus": "Regalía pascual",
   "permissions.groups.tss": "TSS (Seguridad Social)",
-  "settings.company_profile.tax_id": "RNC",
-  "settings.subsidiaries.tax_id": "RNC",
   "validation.create_employee.social_security_number_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
 }

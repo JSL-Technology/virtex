@@ -49,7 +49,11 @@
 
                     <div class="form-field">
                         <label for="taxId" class="form-label">
-                            {{ 'settings.company_profile.tax_id' | translate }} <span class="required">*</span></label>
+                            <!-- The label is the country's own term for its fiscal identifier (RNC,
+                                 RFC, RUC), following the tenant's jurisdiction — not renamed per
+                                 locale in regional.json, which made it follow the reader (A-01). The
+                                 neutral base key is a fallback for before the country config loads. -->
+                            {{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} <span class="required">*</span></label>
                         <!--
                           The placeholder was the literal `Ej. 132-45678-9` — the shape of a
                           Dominican RNC, in Spanish, outside the catalogue — shown to a tenant in

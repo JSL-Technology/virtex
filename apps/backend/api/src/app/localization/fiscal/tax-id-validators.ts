@@ -560,56 +560,61 @@ export function isValidNicaraguanRuc(value: string): boolean {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Canonical storage form
+// Kind-refined validators
+//
+// Several countries issue ONE identifier whose company-versus-natural-person distinction lives
+// inside the value — an Argentine CUIT's prefix, a Peruvian RUC's prefix, an Ecuadorian RUC's third
+// digit, a Venezuelan RIF's type letter. `TAX_ID_RULES` used to encode that with `byPrefix()` and
+// inline branches, in a `Record<país>` that a new country could only join by a code change. The
+// distinction is now a NAMED algorithm the catalogue row cites through `kindChecksums`, exactly as
+// the base check is named through `checksum` — so it resolves in `CHECKSUM_ALGORITHMS` and adding a
+// country reuses one or writes one, never edits a map. (Mexico's 12-vs-13 length split is already
+// `mx_rfc_company` / `mx_rfc_individual` in `document-checksums.ts`.)
 // ---------------------------------------------------------------------------------------------
 
-/**
- * How a tax id is written to the database, per country.
- *
- * Registration used to store `taxId.replace(/[^\d]/g, '')` — every non-digit deleted, for every
- * country. That is not normalisation, it is destruction, and it broke six markets at once:
- *
- *   - Mexico    `DEM010203AB5` → `0102035`. The RFC's three or four leading letters encode the
- *               company name and the trailing two are its check pair; stripping them leaves the
- *               date of incorporation. Every Mexican company incorporated on the same day
- *               collapsed to the same stored value, and `organizations` carries a unique index on
- *               `(tax_id, fiscal_region_id)` — so the second one to sign up was rejected with a
- *               generic "no se pudo completar el registro", after paying.
- *   - Chile     `76.086.428-K` → `76086428`. The check character is lost, and a RUT ending in K
- *               becomes indistinguishable from a different RUT.
- *   - Venezuela `J-30599168-5` and `V-30599168-5` → the same digits. J is a company and V a
- *               natural person: two different taxpayers, one stored value.
- *   - Guatemala the K check character, as in Chile.
- *   - Nicaragua the leading letter of the RUC.
- *   - Panama    the segment structure of a composite RUC.
- *
- * Canonicalising means removing only what a tax authority prints as decoration — spaces, dots,
- * slashes, parentheses, and hyphens where the hyphen is a separator rather than structure — and
- * upper-casing. Nothing that carries information is removed. The result is what the unique index
- * compares and what an electronic invoice will later have to reproduce.
- */
-type Canonicalizer = (value: string) => string;
+const prefixOf = (value: string): string => (numericOnly(value) ?? '').slice(0, 2);
 
-/** Digits only. For identifiers that are purely numeric once formatting is removed. */
-const canonicalDigits: Canonicalizer = (value) => value.replace(/\D/g, '');
+/** CUIT assigned to a legal entity: prefixes 30/33/34 and the 50/51/55 "other" range. */
+export function isValidArgentineCuitCompany(value: string): boolean {
+  return isValidArgentineCuit(value) && ['30', '33', '34', '50', '51', '55'].includes(prefixOf(value));
+}
+/** CUIT/CUIL assigned to a natural person: prefixes 20/23/24/27. */
+export function isValidArgentineCuitIndividual(value: string): boolean {
+  return isValidArgentineCuit(value) && ['20', '23', '24', '27'].includes(prefixOf(value));
+}
 
-/** Letters and digits, upper-cased. Preserves RFC letters, RUT/NIT `K`, RIF and RUC prefixes. */
-const canonicalAlphanumeric: Canonicalizer = (value) =>
-  value.toUpperCase().replace(/[^0-9A-ZÑ&]/g, '');
+/** RUC assigned to a company: prefix 20. */
+export function isValidPeruvianRucCompany(value: string): boolean {
+  return isValidPeruvianRuc(value) && prefixOf(value) === '20';
+}
+/** RUC assigned to a natural person: prefix 10, plus the 15/17 legacy ranges. */
+export function isValidPeruvianRucIndividual(value: string): boolean {
+  return isValidPeruvianRuc(value) && ['10', '15', '17'].includes(prefixOf(value));
+}
 
-/**
- * Upper-cased alphanumeric segments joined by hyphens.
- *
- * Panama's RUC is genuinely composite (`15512345-2-2018`): the hyphens separate meaningful fields
- * rather than grouping digits, so collapsing them would merge distinct identifiers.
- */
-const canonicalSegmented: Canonicalizer = (value) =>
-  value
-    .toUpperCase()
-    .split('-')
-    .map((segment) => segment.replace(/[^0-9A-Z]/g, ''))
-    .filter(Boolean)
-    .join('-');
+/** RUC of a company (third digit 9) or public entity (6). */
+export function isValidEcuadorianRucCompany(value: string): boolean {
+  if (!isValidEcuadorianRuc(value)) return false;
+  return Number((numericOnly(value) ?? '')[2]) >= 6;
+}
+/** RUC of a natural person (third digit below 6). */
+export function isValidEcuadorianRucIndividual(value: string): boolean {
+  if (!isValidEcuadorianRuc(value)) return false;
+  return Number((numericOnly(value) ?? '')[2]) < 6;
+}
+
+/** RIF of a company: type letter J (company), G (public) or P (partnership). */
+export function isValidVenezuelanRifCompany(value: string): boolean {
+  if (!isValidVenezuelanRif(value)) return false;
+  const type = value.trim().toUpperCase().replace(/[^A-Z]/g, '')[0];
+  return type === 'J' || type === 'G' || type === 'P';
+}
+/** RIF of a natural person: type letter V (Venezuelan) or E (foreign resident). */
+export function isValidVenezuelanRifIndividual(value: string): boolean {
+  if (!isValidVenezuelanRif(value)) return false;
+  const type = value.trim().toUpperCase().replace(/[^A-Z]/g, '')[0];
+  return type === 'V' || type === 'E';
+}
 
 /**
  * Whether the taxpayer is a legal entity or a natural person.
@@ -631,182 +636,15 @@ export enum TaxpayerKind {
   INDIVIDUAL = 'individual',
 }
 
-interface TaxIdRules {
-  /** `kind` is optional so callers that genuinely cannot know accept either scheme. */
-  validate: (value: string, kind?: TaxpayerKind) => boolean;
-  canonicalize: Canonicalizer;
-  /**
-   * True when the country's identifier — or the pair of identifiers — differs by taxpayer kind,
-   * so the signup form knows to ask. Where the same identifier serves both (a Colombian NIT, a
-   * Chilean RUT), asking would be noise.
-   */
-  kindAffectsValidation: boolean;
-}
-
-/** Restrict a shared validator to one shape, then defer to the country's own arithmetic. */
-const byLength = (
-  validate: (value: string) => boolean,
-  normalise: (value: string) => string,
-  companyLength: number,
-  individualLength: number,
-) => (value: string, kind?: TaxpayerKind): boolean => {
-  const length = normalise(value).length;
-  if (kind === TaxpayerKind.COMPANY && length !== companyLength) return false;
-  if (kind === TaxpayerKind.INDIVIDUAL && length !== individualLength) return false;
-  return validate(value);
-};
-
-/** Restrict a shared validator to the prefixes the country assigns to one kind. */
-const byPrefix = (
-  validate: (value: string) => boolean,
-  companyPrefixes: readonly string[],
-  individualPrefixes: readonly string[],
-) => (value: string, kind?: TaxpayerKind): boolean => {
-  if (!validate(value)) return false;
-  const prefix = (numericOnly(value) ?? '').slice(0, 2);
-  if (kind === TaxpayerKind.COMPANY) return companyPrefixes.includes(prefix);
-  if (kind === TaxpayerKind.INDIVIDUAL) return individualPrefixes.includes(prefix);
-  return true;
-};
-
-/**
- * Validation and canonical form, per ISO 3166-1 alpha-2 country code.
- *
- * A country absent from this map has NO validator, and the registration strategy treats that as a
- * reason to refuse the signup rather than to accept anything. Accepting an unvalidated tax id in
- * a fiscal product means the first thing the customer discovers is that their invoices are
- * rejected.
- */
-export const TAX_ID_RULES: Readonly<Record<string, TaxIdRules>> = {
-  // RNC (9 digits) for a company, cédula (11) for a natural person.
-  DO: {
-    validate: byLength(isValidDominicanTaxId, (v) => numericOnly(v) ?? '', 9, 11),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  // EIN for a company, SSN or ITIN for a sole proprietor. Two separate schemes.
-  US: {
-    validate: (value, kind) =>
-      kind === TaxpayerKind.COMPANY
-        ? isValidUsEinStrict(value)
-        : kind === TaxpayerKind.INDIVIDUAL
-          ? isValidUsSsnOrItin(value)
-          : isValidUsTaxId(value),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  // RFC: 12 characters for a persona moral, 13 for a persona física.
-  MX: {
-    validate: byLength(isValidMexicanRfc, alphanumeric, 12, 13),
-    canonicalize: canonicalAlphanumeric,
-    kindAffectsValidation: true,
-  },
-  // One NIT for both.
-  CO: { validate: isValidColombianNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  // One RUT for both; the numeric range is conventional, not normative.
-  CL: { validate: isValidChileanRut, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
-  // CUIT: 30/33/34 legal entity, 20/23/24/27 natural person, 50/51/55 other.
-  AR: {
-    validate: byPrefix(isValidArgentineCuit, ['30', '33', '34', '50', '51', '55'], ['20', '23', '24', '27']),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  // CNPJ for a company, CPF for a natural person. Two separate schemes.
-  BR: {
-    validate: (value, kind) =>
-      kind === TaxpayerKind.COMPANY
-        ? isValidBrazilianCnpj(value)
-        : kind === TaxpayerKind.INDIVIDUAL
-          ? isValidBrazilianCpf(value)
-          : isValidBrazilianCnpj(value) || isValidBrazilianCpf(value),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  // RUC: 20 company, 10 natural person, 15/17 legacy.
-  PE: {
-    validate: byPrefix(isValidPeruvianRuc, ['20'], ['10', '15', '17']),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  // RUC: third digit 9 = company, 6 = public entity, <6 = natural person.
-  EC: {
-    validate: (value, kind) => {
-      if (!isValidEcuadorianRuc(value)) return false;
-      const third = Number((numericOnly(value) ?? '')[2]);
-      if (kind === TaxpayerKind.COMPANY) return third >= 6;
-      if (kind === TaxpayerKind.INDIVIDUAL) return third < 6;
-      return true;
-    },
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  UY: { validate: isValidUruguayanRut, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  PY: { validate: isValidParaguayanRuc, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  // RIF: J (company), G (public), P (partnership) versus V/E (natural person).
-  VE: {
-    validate: (value, kind) => {
-      if (!isValidVenezuelanRif(value)) return false;
-      const type = value.trim().toUpperCase().replace(/[^A-Z]/g, '')[0];
-      if (kind === TaxpayerKind.COMPANY) return type === 'J' || type === 'G' || type === 'P';
-      if (kind === TaxpayerKind.INDIVIDUAL) return type === 'V' || type === 'E';
-      return true;
-    },
-    canonicalize: canonicalAlphanumeric,
-    kindAffectsValidation: true,
-  },
-  GT: { validate: isValidGuatemalanNit, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
-  PA: { validate: isValidPanamanianRuc, canonicalize: canonicalSegmented, kindAffectsValidation: false },
-  // Cédula jurídica (10 digits) for a company, física (9) for a natural person.
-  CR: {
-    validate: byLength(isValidCostaRicanId, (v) => numericOnly(v) ?? '', 10, 9),
-    canonicalize: canonicalDigits,
-    kindAffectsValidation: true,
-  },
-  BO: { validate: isValidBolivianNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  SV: { validate: isValidSalvadoranNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  HN: { validate: isValidHonduranRtn, canonicalize: canonicalDigits, kindAffectsValidation: false },
-  NI: { validate: isValidNicaraguanRuc, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
-};
-
-/** True when the signup form must ask whether the taxpayer is a company or a natural person. */
-export function taxpayerKindAffectsValidation(countryCode: string): boolean {
-  return TAX_ID_RULES[countryCode?.toUpperCase() ?? '']?.kindAffectsValidation ?? false;
-}
-
-/** Validator-only view of {@link TAX_ID_RULES}, kept for callers that only need the predicate. */
-export const TAX_ID_VALIDATORS: Readonly<Record<string, (value: string) => boolean>> =
-  Object.fromEntries(
-    Object.entries(TAX_ID_RULES).map(([code, rules]) => [code, rules.validate]),
-  );
-
-/** True when the country has a validator at all — i.e. the product can be sold there. */
-export function isSupportedFiscalCountry(countryCode: string): boolean {
-  return Object.prototype.hasOwnProperty.call(TAX_ID_RULES, countryCode?.toUpperCase() ?? '');
-}
-
-/**
- * Validate a tax id for a country.
- *
- * Returns false for an unsupported country: there is no safe way to "probably" validate a fiscal
- * identifier, and a permissive default is what let six countries through with no checking at all.
- */
-export function validateTaxId(countryCode: string, taxId: string, kind?: TaxpayerKind): boolean {
-  const rules = TAX_ID_RULES[countryCode?.toUpperCase() ?? ''];
-  if (!rules) return false;
-  return Boolean(taxId?.trim()) && rules.validate(taxId.trim(), kind);
-}
-
-/**
- * The form a validated tax id is stored in.
- *
- * Throws for an unsupported country rather than guessing: a caller that reaches this without
- * having validated first has a bug, and silently inventing a canonical form for an unknown
- * country is how the destructive `replace(/[^\d]/g, '')` survived as long as it did.
- */
-export function canonicalizeTaxId(countryCode: string, taxId: string): string {
-  const rules = TAX_ID_RULES[countryCode?.toUpperCase() ?? ''];
-  if (!rules) {
-    throw new Error(`No canonical tax-id form is defined for country "${countryCode}".`);
-  }
-  return rules.canonicalize(taxId.trim());
-}
+// ---------------------------------------------------------------------------------------------
+// Where the per-country map used to be
+//
+// `TAX_ID_RULES` — a `Record<país, { validate, canonicalize, kindAffectsValidation }>` — lived
+// here, and adding the twentieth market meant editing it and deploying. It is gone. Validation and
+// canonicalisation are now DATA: `validateTaxId`, `canonicalizeTaxId`, `taxpayerKindAffectsValidation`,
+// `isSupportedFiscalCountry` and `TAX_ID_VALIDATORS` are derived from `IDENTITY_DOCUMENT_TYPES` in
+// `identity-document-catalogue.ts`, which is the same catalogue Sales, Purchasing and HR already
+// validate against. This file keeps only what genuinely IS code — the arithmetic check-digit
+// functions above — which the catalogue rows cite by name through `CHECKSUM_ALGORITHMS`. Callers
+// that imported these symbols from here now import them from the catalogue.
+// ---------------------------------------------------------------------------------------------

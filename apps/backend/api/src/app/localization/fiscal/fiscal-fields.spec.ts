@@ -4,7 +4,10 @@ import {
   normalizeFiscalFields,
   validateFiscalFields,
 } from './country-profiles';
-import { TAX_ID_RULES, taxpayerKindAffectsValidation } from './tax-id-validators';
+import {
+  isSupportedFiscalCountry,
+  taxpayerKindAffectsValidation,
+} from './identity-document-catalogue';
 
 /**
  * The fiscal data each country actually needs to issue a document.
@@ -140,7 +143,9 @@ describe('country fiscal fields', () => {
 
     it('every profile has tax-id rules, so no country is registrable without validation', () => {
       for (const profile of COUNTRY_FISCAL_PROFILES) {
-        expect(TAX_ID_RULES[profile.countryCode]).toBeDefined();
+        // The per-country map was retired; a country is validatable when it has a registration
+        // document in the catalogue, which is what `isSupportedFiscalCountry` now reads.
+        expect(isSupportedFiscalCountry(profile.countryCode)).toBe(true);
       }
     });
 

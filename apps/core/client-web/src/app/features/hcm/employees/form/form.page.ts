@@ -133,6 +133,12 @@ export class EmployeeFormPage implements OnInit {
       .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
       .subscribe((types) => this.applyDocumentTypes(types));
 
+    // The document's shape check — and, on a new employee, whether it is required — follows the
+    // selected type, so it is re-applied whenever the type changes.
+    this.form
+      .get('identityDocumentType')
+      ?.valueChanges.subscribe(() => this.syncDocumentValidators());
+
     if (this.id) this.load(this.id);
   }
 
@@ -147,9 +153,32 @@ export class EmployeeFormPage implements OnInit {
   private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
     this.documentTypes.set(types);
     const control = this.form.get('identityDocumentType');
-    if (!control || control.value) return;
-    const preset = types.find((type) => type.isDefault) ?? types[0];
-    if (preset) control.setValue(preset.code, { emitEvent: false });
+    if (control && !control.value) {
+      const preset = types.find((type) => type.isDefault) ?? types[0];
+      if (preset) control.setValue(preset.code, { emitEvent: false });
+    }
+    this.syncDocumentValidators();
+  }
+
+  /**
+   * Apply the selected document's shape to the document field, and require it on a NEW employee
+   * whose country marks the payroll document `required` (A-06 / B-01).
+   *
+   * It is deliberately NOT required when editing: the field loads blank because the stored value is
+   * masked, and typing over it is how it is replaced — a required validator there would block
+   * editing a job title without re-keying the cédula. The server enforces the requirement on create
+   * regardless (`resolveParty({ enforceRequirement: true })`); this only mirrors it in the form so
+   * the feedback is immediate. The check digit stays the server's; the pattern is shape only.
+   */
+  private syncDocumentValidators(): void {
+    const control = this.form?.get('identityDocument');
+    if (!control) return;
+    const selected = this.form?.get('identityDocumentType')?.value as string | undefined;
+    const type = this.documentTypes().find((option) => option.code === selected);
+    const validators = type ? [Validators.pattern(new RegExp(type.pattern))] : [];
+    if (this.isNew() && type?.requirement === 'required') validators.push(Validators.required);
+    control.setValidators(validators);
+    control.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -324,6 +353,10 @@ export class EmployeeFormPage implements OnInit {
          */
         this.form.markAsPristine();
         this.tab?.markClean();
+
+        // Now editing an existing record: the document field is masked-blank and typing over it is
+        // how it is replaced, so it must not be required. Re-sync to drop the create-time required.
+        this.syncDocumentValidators();
 
         this.loadCompensation(id);
       },

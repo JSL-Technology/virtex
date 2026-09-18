@@ -94,8 +94,71 @@ const DOMINICAN_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
   { countryCode: 'DO', code: 'E47', labelKey: 'fiscal.do.E47', name: 'Pagos al Exterior Electrónico', sequenceFormat: 'E47##########', expirationRequired: true, isElectronic: true, side: 'purchase', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 200 },
 ];
 
+/**
+ * The other markets' document types — the codes their regime adapters ALREADY emit.
+ *
+ * These are not invented (C-04). Each is the value a `documentType()` in `einvoicing/regimes/`
+ * writes into the stamped document today, transcribed here so the code lives as data beside the
+ * others instead of only inside a `switch`: Brazil's `55`, Peru's `01`/`03`/`07`, Mexico's `I`/`E`,
+ * Colombia's `01`/`91`, Chile's `33`/`34`/`61`, Ecuador's `01`/`04`, Argentina's `1`…`13`.
+ *
+ * Two columns are deliberately left unconfirmed: `sequenceFormat` (null) and `expirationRequired`
+ * (false). The exact mask a series takes and whether the authorisation is time-boxed are facts to
+ * confirm with each authority, and the report is explicit that inventing them is worse than leaving
+ * them open. `name` carries the authority's own wording as the label fallback until each market's
+ * `fiscal.<cc>.*` keys are translated. `side` is `sales` for all of these: every code above is one
+ * a `documentType()` emits on an invoice; the buyer-document codes (Ecuador's `05`, Argentina's
+ * `80`) are a different axis and are not document types.
+ */
+const BRAZIL_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'BR', code: '55', labelKey: 'fiscal.br.55', name: 'Nota Fiscal Eletrônica (NF-e)', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+];
+
+const PERU_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'PE', code: '01', labelKey: 'fiscal.pe.01', name: 'Factura', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'PE', code: '03', labelKey: 'fiscal.pe.03', name: 'Boleta de Venta', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 20 },
+  { countryCode: 'PE', code: '07', labelKey: 'fiscal.pe.07', name: 'Nota de Crédito', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 30 },
+];
+
+const MEXICO_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'MX', code: 'I', labelKey: 'fiscal.mx.I', name: 'CFDI de Ingreso', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'MX', code: 'E', labelKey: 'fiscal.mx.E', name: 'CFDI de Egreso', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 20 },
+];
+
+const COLOMBIA_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'CO', code: '01', labelKey: 'fiscal.co.01', name: 'Factura de Venta', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'CO', code: '91', labelKey: 'fiscal.co.91', name: 'Nota Crédito', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 20 },
+];
+
+const CHILE_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'CL', code: '33', labelKey: 'fiscal.cl.33', name: 'Factura Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'CL', code: '34', labelKey: 'fiscal.cl.34', name: 'Factura No Afecta o Exenta Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 20 },
+  { countryCode: 'CL', code: '61', labelKey: 'fiscal.cl.61', name: 'Nota de Crédito Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 30 },
+];
+
+const ECUADOR_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'EC', code: '01', labelKey: 'fiscal.ec.01', name: 'Factura', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'EC', code: '04', labelKey: 'fiscal.ec.04', name: 'Nota de Crédito', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 20 },
+];
+
+const ARGENTINA_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
+  { countryCode: 'AR', code: '1', labelKey: 'fiscal.ar.1', name: 'Factura A', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { countryCode: 'AR', code: '3', labelKey: 'fiscal.ar.3', name: 'Nota de Crédito A', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 20 },
+  { countryCode: 'AR', code: '6', labelKey: 'fiscal.ar.6', name: 'Factura B', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 30 },
+  { countryCode: 'AR', code: '8', labelKey: 'fiscal.ar.8', name: 'Nota de Crédito B', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 40 },
+  { countryCode: 'AR', code: '11', labelKey: 'fiscal.ar.11', name: 'Factura C', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 50 },
+  { countryCode: 'AR', code: '13', labelKey: 'fiscal.ar.13', name: 'Nota de Crédito C', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 60 },
+];
+
 export const FISCAL_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = Object.freeze([
   ...DOMINICAN_DOCUMENT_TYPES,
+  ...BRAZIL_DOCUMENT_TYPES,
+  ...PERU_DOCUMENT_TYPES,
+  ...MEXICO_DOCUMENT_TYPES,
+  ...COLOMBIA_DOCUMENT_TYPES,
+  ...CHILE_DOCUMENT_TYPES,
+  ...ECUADOR_DOCUMENT_TYPES,
+  ...ARGENTINA_DOCUMENT_TYPES,
 ]);
 
 /** Every declared type for a country, in the order a form should offer them. */

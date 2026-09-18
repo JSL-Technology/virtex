@@ -1,7 +1,5 @@
 {
   "$locale": "en-US",
   "$note": "United States. Only where the neutral English differs from what a US reader expects: the tax identifier is the EIN for a business and the SSN for an individual.",
-  "hcm.employees.form.social_security_number": "Social Security Number",
-  "settings.company_profile.tax_id": "EIN",
-  "settings.subsidiaries.tax_id": "EIN"
+  "hcm.employees.form.social_security_number": "Social Security Number"
 }

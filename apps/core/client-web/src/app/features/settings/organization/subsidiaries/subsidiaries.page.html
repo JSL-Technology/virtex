@@ -73,9 +73,10 @@
 
         <div class="form-row">
           <div class="form-field">
-            <label for="taxid">{{ 'settings.subsidiaries.tax_id' | translate }}</label>
-            <!-- Each subsidiary has its OWN country, so the example follows the country picked
-                 below rather than being the Dominican one for all of them. -->
+            <!-- Each subsidiary has its OWN country, so both the label and the example follow the
+                 country picked below (A-01): the fiscal identifier is named RNC/RUC/CNPJ by that
+                 jurisdiction, not renamed per the reader's locale. Neutral base key as fallback. -->
+            <label for="taxid">{{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }}</label>
             <input id="taxid" type="text" formControlName="taxId" [placeholder]="taxIdExample()">
           </div>
 

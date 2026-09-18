@@ -101,6 +101,9 @@ describe('Employee form', () => {
       firstName: 'Ana',
       lastName: 'Reyes',
       email: 'qa.ana@test.local',
+      // The type preselects to the country's default (CEDULA); a new employee now requires the
+      // document itself, so the form is only valid once it carries one (A-06).
+      identityDocument: '00113918204',
     });
     // What typing does, and what the header reads to decide whether work is pending.
     component.form.markAsDirty();
@@ -214,6 +217,7 @@ describe('Employee form — outside the workspace', () => {
       firstName: 'Ana',
       lastName: 'Reyes',
       email: 'qa.ana@test.local',
+      identityDocument: '00113918204',
     });
     component.form.markAsDirty();
 

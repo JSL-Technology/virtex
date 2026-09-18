@@ -18,7 +18,10 @@ import {
   resolveLocale,
 } from '@virteex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
-import { findCountryProfile } from '../../localization/fiscal/country-profiles';
+import {
+  fiscalIdentifierLabel,
+  findIdentityDocumentSpec,
+} from '../../localization/fiscal/identity-document-catalogue';
 import { languageOfCountry } from '../../localization/fiscal/country-language';
 
 /** Everything the template needs, resolved before rendering. */
@@ -116,9 +119,21 @@ export class InvoiceRendererService implements OnModuleDestroy {
       matchLanguage(organization.booksLanguage) ??
       DEFAULT_LANGUAGE;
 
-    const issuerCountry = (organization.country ?? 'DO').toUpperCase();
+    // No `?? 'DO'`: a document rotated to Dominican labels for an organization whose country was
+    // never set was a silent wrong answer (A-08). An unset country resolves to neutral labels below.
+    const issuerCountry = (organization.country ?? '').toUpperCase();
     const locale = context.locale ?? resolveLocale(language, issuerCountry);
-    const profile = findCountryProfile(issuerCountry);
+
+    // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
+    // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
+    // "NIT", not "Cédula" (M-07). A customer with no recorded type falls back to a neutral,
+    // translated label rather than the English literal `'ID'` the template used to embed.
+    const customerDoc = invoice.customer?.identityDocumentTypeCode
+      ? findIdentityDocumentSpec(
+          invoice.customer.identityDocumentCountry ?? issuerCountry,
+          invoice.customer.identityDocumentTypeCode,
+        )
+      : null;
 
     const format = (value: number): string =>
       new Intl.NumberFormat(locale, {
@@ -144,10 +159,15 @@ export class InvoiceRendererService implements OnModuleDestroy {
           amount: format(line.lineSubtotal),
         })),
       language,
-      // The country's own name for its tax identifier. The template carried the Dominican "RNC:"
-      // for every market, so a Mexican tenant's document showed its RFC under a Dominican heading.
-      taxIdLabel: profile?.taxId.label ?? 'ID',
-      customerTaxIdLabel: profile?.individualDocument?.label ?? profile?.taxId.label ?? 'ID',
+      // The issuer's own fiscal identifier, from the catalogue: the template carried the Dominican
+      // "RNC:" for every market, so a Mexican tenant's document showed its RFC under a Dominican
+      // heading. `labelVerbatim` keeps RNC/RFC/RUC untranslated (M-08).
+      taxIdLabel: fiscalIdentifierLabel(issuerCountry),
+      customerTaxIdLabel:
+        customerDoc?.labelVerbatim ??
+        (customerDoc
+          ? this.i18n.translate(customerDoc.labelKey, language)
+          : this.i18n.translate('invoices.detail.tax_id_generic', language)),
       title: this.i18n.translate(this.documentTitleKey(invoice), language),
       currencyCode: invoice.currencyCode,
       issueDate: formatDate(invoice.issueDate, locale),

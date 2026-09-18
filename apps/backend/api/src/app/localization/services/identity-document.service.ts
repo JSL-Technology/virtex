@@ -8,6 +8,7 @@ import {
   IDENTITY_DOCUMENT_TYPES,
   IdentityDocumentTypeSpec,
   SUPRANATIONAL_COUNTRY,
+  canonicalize,
 } from '../fiscal/identity-document-catalogue';
 import { resolveChecksum } from '../fiscal/document-checksums';
 
@@ -55,7 +56,7 @@ export interface DocumentValidationResult {
 /** What a party (employee, customer, supplier) ended up with, or why it could not be resolved. */
 export type ResolvedPartyDocument =
   | { ok: true; value: string | null; typeCode: string | null; countryCode: string | null }
-  | { ok: false; reason: 'type_required' | 'type_not_issued' | 'invalid'; code?: string; country: string; documentLabel?: string; detail?: DocumentValidationResult['reason'] };
+  | { ok: false; reason: 'type_required' | 'type_not_issued' | 'invalid' | 'value_required'; code?: string; country: string; documentLabel?: string; detail?: DocumentValidationResult['reason'] };
 
 /** The inputs every party form supplies, whatever the module. */
 export interface PartyDocumentInput {
@@ -69,6 +70,16 @@ export interface PartyDocumentInput {
   fallbackCountry: string;
   appliesTo: DocumentAppliesTo;
   usedFor: DocumentContext;
+  /**
+   * Reject an empty value when the country declares a `required` document for this context.
+   *
+   * Off by default, because `requirement` is not one rule for every caller: an employee must be
+   * identifiable to the social-security authority, so payroll turns this on, while a walk-in
+   * consumer legitimately has no tax id, so the customer form leaves it off and the buyer-tax-id
+   * requirement is enforced per fiscal document type at invoice time instead. This is what makes
+   * the stored `requirement` finally mean something rather than travel to the client unread.
+   */
+  enforceRequirement?: boolean;
 }
 
 @Injectable()
@@ -225,13 +236,28 @@ export class IdentityDocumentService implements OnModuleInit {
    */
   async resolveParty(input: PartyDocumentInput): Promise<ResolvedPartyDocument> {
     const raw = input.value?.trim() ?? '';
+    const country = input.documentCountry?.trim().toUpperCase() || input.fallbackCountry;
+
     if (!raw) {
+      // A caller that enforces the requirement asks the catalogue whether this country mandates a
+      // document here before accepting the blank. `requirement` was stored, published to the client
+      // and never read; this is the read. A country that declares no required document for the
+      // context — or the caller opting out — still clears cleanly.
+      if (input.enforceRequirement) {
+        const required = await this.defaultFor(country, input.appliesTo, input.usedFor);
+        if (required && required.requirement === 'required') {
+          return {
+            ok: false,
+            reason: 'value_required',
+            country,
+            documentLabel: required.labelVerbatim ?? required.code,
+          };
+        }
+      }
       // No document clears the type with it: a type with no value asserts that the party holds a
       // Colombian cédula whose number nobody recorded.
       return { ok: true, value: null, typeCode: null, countryCode: null };
     }
-
-    const country = input.documentCountry?.trim().toUpperCase() || input.fallbackCountry;
 
     // Where the caller named no type, the catalogue's own default for this country decides — the
     // cédula in Santo Domingo, the CURP in Mexico City, the CC in Bogotá. Never a constant.
@@ -316,26 +342,8 @@ export class IdentityDocumentService implements OnModuleInit {
 }
 
 /**
- * The stored form of a document value.
- *
- * Removes only what an authority prints as decoration and upper-cases; nothing that carries
- * information is removed. Registration learned this the hard way: `replace(/[^\d]/g, '')` applied
- * to every country turned a Mexican RFC into its date of incorporation and made two Venezuelan
- * taxpayers — `J-30599168-5` and `V-30599168-5`, a company and a person — the same stored value.
+ * The stored form of a document value now lives in `identity-document-catalogue.ts`, so the
+ * synchronous `canonicalizeTaxId` there can share it without importing this injectable. Re-exported
+ * here because callers and tests have long imported it from the service.
  */
-export function canonicalize(form: string, value: string): string {
-  switch (form) {
-    case 'digits':
-      return value.replace(/\D/g, '');
-    case 'segmented':
-      return value
-        .toUpperCase()
-        .split('-')
-        .map((segment) => segment.replace(/[^0-9A-Z]/g, ''))
-        .filter(Boolean)
-        .join('-');
-    case 'alphanumeric':
-    default:
-      return value.toUpperCase().replace(/[^0-9A-ZÑ&]/g, '');
-  }
-}
+export { canonicalize };

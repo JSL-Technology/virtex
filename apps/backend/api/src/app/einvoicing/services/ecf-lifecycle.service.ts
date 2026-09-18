@@ -11,7 +11,6 @@ import { EcfCertificate } from '../entities/ecf-certificate.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   NcfSequence,
-  NcfType,
   isElectronicNcfType,
   dgiiDocumentCode,
 } from '../../compliance/entities/ncf-sequence.entity';
@@ -42,7 +41,8 @@ export interface CommercialApprovalRequest {
 }
 
 export interface SequenceVoidRequest {
-  type: NcfType;
+  /** A document-type code, not `NcfType`: the boundary carries a plain string now (C-03). */
+  type: string;
   /** First sequence number of the stretch, inclusive. */
   from: number;
   /** Last sequence number of the stretch, inclusive. */
@@ -345,6 +345,6 @@ function digitsOf(value: string): string {
 }
 
 /** `E31` + 10 padded digits — the e-NCF shape the DGII expects in an annulment range. */
-function eNcfOf(type: NcfType, sequence: number): string {
+function eNcfOf(type: string, sequence: number): string {
   return `${type}${String(sequence).padStart(10, '0')}`;
 }

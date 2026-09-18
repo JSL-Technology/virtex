@@ -343,6 +343,11 @@
     "en": "That {{document}} is not valid. Check that it is complete and correctly typed.",
     "pt": "O {{document}} não é válido. Verifica se está completo e bem digitado."
   },
+  "hcm.identity_document_required": {
+    "es": "{{country}} exige un documento de identidad para registrar a la persona.",
+    "en": "{{country}} requires an identity document to register the person.",
+    "pt": "{{country}} exige um documento de identidade para registar a pessoa."
+  },
   "hcm.identity_document_type_not_issued": {
     "es": "{{country}} no emite un documento de tipo «{{code}}».",
     "en": "{{country}} does not issue a document of type “{{code}}”.",

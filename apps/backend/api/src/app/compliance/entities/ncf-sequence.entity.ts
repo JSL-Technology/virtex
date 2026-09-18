@@ -22,13 +22,17 @@ export enum NcfType {
   E47 = 'E47', // Pagos al Exterior Electrónico
 }
 
-/** True for the electronic (e-CF) document types that must be signed and transmitted to the DGII. */
-export function isElectronicNcfType(type: NcfType): boolean {
+/**
+ * True for the electronic (e-CF) document types that must be signed and transmitted to the DGII.
+ * Takes a `string`, not `NcfType`: the column and the void-range boundary carry a plain code now
+ * (C-03), and the Dominican adapter that calls this still passes an `NcfType`, which is one.
+ */
+export function isElectronicNcfType(type: string): boolean {
   return type.startsWith('E');
 }
 
 /** The DGII document-type code carried by a fiscal number (`E31` → `31`). */
-export function dgiiDocumentCode(type: NcfType): string {
+export function dgiiDocumentCode(type: string): string {
   return type.substring(1);
 }
 
@@ -95,7 +99,7 @@ export class NcfSequence {
    * codes and reasons about them. What it no longer does is constrain the schema.
    */
   @Column({ type: 'varchar', length: 8 })
-  type: NcfType;
+  type: string;
 
   @Column()
   prefix: string;

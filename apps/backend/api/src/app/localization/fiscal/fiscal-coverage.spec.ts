@@ -4,7 +4,11 @@ import {
   findCountryProfile,
   supportedCountryCodes,
 } from './country-profiles';
-import { TAX_ID_VALIDATORS, validateTaxId } from './tax-id-validators';
+import {
+  TAX_ID_VALIDATORS,
+  fiscalIdentifierFor,
+  validateTaxId,
+} from './identity-document-catalogue';
 import { COUNTRY_TAX_SCHEMES, findTaxScheme, principalTaxName } from './country-tax-schemes';
 import { STATUTORY_PLAN_REQUIRED, buildCountryCoaTemplate } from './coa-builder';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
@@ -50,7 +54,9 @@ describe('Fiscal coverage', () => {
     });
 
     it('accepts its own documented example', () => {
-      expect(validateTaxId(code, profile.taxId.example)).toBe(true);
+      // The example is the country's fiscal-identifier row now (C-01), not a literal on the profile.
+      const example = fiscalIdentifierFor(code)?.example ?? '';
+      expect(validateTaxId(code, example)).toBe(true);
     });
 
     it('has a tax scheme', () => {
@@ -126,7 +132,11 @@ describe('Fiscal coverage', () => {
     });
 
     it('declares a tax-id pattern that its own example satisfies', () => {
-      expect(new RegExp(profile.taxId.pattern).test(profile.taxId.example.toUpperCase())).toBe(true);
+      // The fiscal identifier's pattern and example are a catalogue row now (C-01), not a literal
+      // on the profile — so the check reads it from there.
+      const fiscalId = fiscalIdentifierFor(code);
+      expect(fiscalId).not.toBeNull();
+      expect(new RegExp(fiscalId!.pattern).test((fiscalId!.example ?? '').toUpperCase())).toBe(true);
     });
 
     it('declares a postal-code pattern its own address rules can satisfy', () => {

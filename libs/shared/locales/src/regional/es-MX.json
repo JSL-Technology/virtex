@@ -9,7 +9,5 @@
   "invoices.new.tax_column_header": "IVA",
   "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
   "permissions.groups.tss": "IMSS (Seguridad Social)",
-  "settings.company_profile.tax_id": "RFC",
-  "settings.subsidiaries.tax_id": "RFC",
   "validation.create_employee.social_security_number_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos."
 }

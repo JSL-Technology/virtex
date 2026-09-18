@@ -177,6 +177,11 @@
     "es": "N.º de comprobante fiscal:",
     "pt": "N.º do documento fiscal:"
   },
+  "invoices.detail.tax_id_generic": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
+  },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
     "en": "There is no signed XML available.",

@@ -139,9 +139,11 @@ export class HcmService {
    * and the value has to be stored canonically (by the catalogue's rule, not by deleting every
    * non-digit).
    *
-   * An absent document stays absent — the field is optional and blanking it is a legitimate edit.
-   * What is refused is a document that is present and wrong, and a document whose TYPE the country
-   * does not issue.
+   * A document that is present and wrong is refused, as is one whose TYPE the country does not
+   * issue. And a country whose catalogue marks the payroll document `required` no longer accepts an
+   * employee with none: payroll cannot file for someone it cannot name to the social-security
+   * authority, so the gap is caught at the register rather than when the TSS or IMSS return is
+   * assembled (A-06). Editing a field other than the document leaves a stored one untouched.
    */
   private async resolveIdentityDocument(
     dto: Pick<
@@ -154,9 +156,16 @@ export class HcmService {
     identityDocumentTypeCode: string | null;
     identityDocumentCountry: string | null;
   }> {
-    // Resolving the tenant's country is skipped entirely when there is nothing to validate, so
-    // clearing an employee's document never fails on a tenant whose country was never set.
-    if (!dto.identityDocument?.trim()) {
+    const raw = dto.identityDocument?.trim() ?? '';
+
+    // The tenant country decides which documents exist and which are required. It is resolved
+    // strictly when there is a value to validate; when there is not, a tenant whose country was
+    // never set is allowed to clear the field rather than fail on an unrelated defect — but a
+    // tenant that DOES have a country still has its `required` payroll document enforced below.
+    const country = raw
+      ? await this.tenantCountry.resolve(organizationId)
+      : await this.tenantCountry.resolveOrNull(organizationId);
+    if (!raw && !country) {
       return { identityDocument: null, identityDocumentTypeCode: null, identityDocumentCountry: null };
     }
 
@@ -164,13 +173,18 @@ export class HcmService {
       value: dto.identityDocument,
       typeCode: dto.identityDocumentType,
       documentCountry: dto.identityDocumentCountry,
-      fallbackCountry: await this.tenantCountry.resolve(organizationId),
+      fallbackCountry: country as string,
       appliesTo: 'individual',
       usedFor: 'payroll',
+      enforceRequirement: true,
     });
 
     if (!resolved.ok) {
       switch (resolved.reason) {
+        case 'value_required':
+          throw new UnprocessableEntityError('hcm.identity_document_required', {
+            country: resolved.country,
+          });
         case 'type_required':
           throw new UnprocessableEntityError('hcm.identity_document_type_required', {
             country: resolved.country,

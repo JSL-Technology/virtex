@@ -84,9 +84,26 @@ export class SupplierForm implements OnInit {
   private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
     this.documentTypes.set(types);
     const control = this.supplierForm?.get('identityDocumentTypeCode');
-    if (!control || control.value) return;
-    const preset = types.find((type) => type.isDefault) ?? types[0];
-    if (preset) control.setValue(preset.code, { emitEvent: false });
+    if (control && !control.value) {
+      const preset = types.find((type) => type.isDefault) ?? types[0];
+      if (preset) control.setValue(preset.code, { emitEvent: false });
+    }
+    this.syncTaxIdValidators();
+  }
+
+  /**
+   * Apply the selected document's shape to the tax-id field for immediate feedback (B-01).
+   *
+   * The catalogue publishes `pattern` so a mistyped NIT or RUT is caught while typing; it was
+   * unused. The check digit remains the server's, and the field stays optional.
+   */
+  private syncTaxIdValidators(): void {
+    const taxId = this.supplierForm?.get('taxId');
+    if (!taxId) return;
+    const selected = this.supplierForm?.get('identityDocumentTypeCode')?.value as string | undefined;
+    const type = this.documentTypes().find((option) => option.code === selected);
+    taxId.setValidators(type ? [Validators.pattern(new RegExp(type.pattern))] : []);
+    taxId.updateValueAndValidity({ emitEvent: false });
   }
 
   /** `labelVerbatim` wins: "CNPJ" and "CUIT" are what the supplier's paperwork says. */
@@ -125,6 +142,10 @@ export class SupplierForm implements OnInit {
       .list({ appliesTo: 'both', usedFor: 'invoicing' })
       .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
       .subscribe((types) => this.applyDocumentTypes(types));
+
+    this.supplierForm
+      .get('identityDocumentTypeCode')
+      ?.valueChanges.subscribe(() => this.syncTaxIdValidators());
 
     this.supplierId = this.route.snapshot.paramMap.get('id');
     if (this.supplierId) {

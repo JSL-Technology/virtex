@@ -12,7 +12,7 @@ import {
   NcfType,
   SALES_NCF_TYPES,
 } from '../../compliance/entities/ncf-sequence.entity';
-import { validateTaxId } from '../../localization/fiscal/tax-id-validators';
+import { validateTaxId } from '../../localization/fiscal/identity-document-catalogue';
 import { BadRequestError } from '../../i18n/localized.exception';
 
 /**

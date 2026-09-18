@@ -124,6 +124,12 @@ export class CustomerFormPage implements OnInit {
       .list({ appliesTo: 'both', usedFor: 'invoicing' })
       .pipe(catchError(() => of([] as IdentityDocumentTypeOption[])))
       .subscribe((types) => this.applyDocumentTypes(types));
+
+    // The tax-id shape check follows the selected document type — an RNC and a cédula are not the
+    // same shape — so it is re-applied whenever the type changes.
+    this.customerForm
+      .get('identityDocumentTypeCode')
+      ?.valueChanges.subscribe(() => this.syncTaxIdValidators());
   }
 
   /**
@@ -135,9 +141,30 @@ export class CustomerFormPage implements OnInit {
   private applyDocumentTypes(types: IdentityDocumentTypeOption[]): void {
     this.documentTypes.set(types);
     const control = this.customerForm?.get('identityDocumentTypeCode');
-    if (!control || control.value) return;
-    const preset = types.find((type) => type.isDefault) ?? types[0];
-    if (preset) control.setValue(preset.code, { emitEvent: false });
+    if (control && !control.value) {
+      const preset = types.find((type) => type.isDefault) ?? types[0];
+      if (preset) control.setValue(preset.code, { emitEvent: false });
+    }
+    // Whether the type was just preset or arrived with an existing customer, the tax-id field's
+    // shape check follows it.
+    this.syncTaxIdValidators();
+  }
+
+  /**
+   * Apply the selected document's shape to the tax-id field for immediate feedback (B-01).
+   *
+   * `pattern` travels from the catalogue precisely so a mistyped RNC or CUIT is caught as the user
+   * types rather than at submit; it was published and never consumed. The check digit stays the
+   * server's. The field itself is NOT made required: a walk-in consumer has no tax id, and the
+   * buyer-tax-id rule is enforced per fiscal document type at invoice time, not here.
+   */
+  private syncTaxIdValidators(): void {
+    const taxId = this.customerForm?.get('taxId');
+    if (!taxId) return;
+    const selected = this.customerForm?.get('identityDocumentTypeCode')?.value as string | undefined;
+    const type = this.documentTypes().find((option) => option.code === selected);
+    taxId.setValidators(type ? [Validators.pattern(new RegExp(type.pattern))] : []);
+    taxId.updateValueAndValidity({ emitEvent: false });
   }
 
   /**

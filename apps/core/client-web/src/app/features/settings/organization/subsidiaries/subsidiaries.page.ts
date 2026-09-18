@@ -48,10 +48,28 @@ export class SubsidiariesPage implements OnInit {
       : (this.taxIdExamples.get(country.toUpperCase()) ?? '');
   }
 
-  /** Examples already fetched, so switching the country picker does not refetch on every render. */
-  private readonly taxIdExamples = new Map<string, string>();
+  /**
+   * The selected country's own name for its fiscal identifier — RNC, RUC, CNPJ (A-01).
+   *
+   * It used to be `settings.subsidiaries.tax_id` renamed per locale in `regional.json`, which made
+   * the label follow the READER's language rather than the subsidiary's jurisdiction: a tenant read
+   * "RNC" in Spanish and "Tax ID" in English for the same Dominican company. The name is a property
+   * of the country now, served as `taxIdLabel` (derived from the catalogue's company row), so it
+   * follows the picker.
+   */
+  protected taxIdLabel(): string {
+    const country = this.createForm?.get('country')?.value as string | undefined;
+    if (!country) return '';
+    return this.countryService.currentCountry()?.countryCode === country.toUpperCase()
+      ? (this.countryService.currentCountry()?.taxIdLabel ?? '')
+      : (this.taxIdLabels.get(country.toUpperCase()) ?? '');
+  }
 
-  /** Fetch and remember the example for a country, when the picker moves. */
+  /** Examples and labels already fetched, so switching the picker does not refetch on every render. */
+  private readonly taxIdExamples = new Map<string, string>();
+  private readonly taxIdLabels = new Map<string, string>();
+
+  /** Fetch and remember the example and label for a country, when the picker moves. */
   protected onCountryChanged(countryCode: string | null | undefined): void {
     const country = countryCode?.trim().toUpperCase();
     if (!country || this.taxIdExamples.has(country)) return;
@@ -59,7 +77,10 @@ export class SubsidiariesPage implements OnInit {
       .getCountryConfig(country)
       .pipe(catchError(() => of(null)))
       .subscribe((config) => {
-        if (config) this.taxIdExamples.set(country, config.taxIdExample);
+        if (config) {
+          this.taxIdExamples.set(country, config.taxIdExample);
+          this.taxIdLabels.set(country, config.taxIdLabel);
+        }
       });
   }
 

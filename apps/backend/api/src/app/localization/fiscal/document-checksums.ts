@@ -1,5 +1,7 @@
 import {
   isValidArgentineCuit,
+  isValidArgentineCuitCompany,
+  isValidArgentineCuitIndividual,
   isValidBolivianNit,
   isValidBrazilianCnpj,
   isValidBrazilianCpf,
@@ -8,6 +10,8 @@ import {
   isValidCostaRicanId,
   isValidDominicanTaxId,
   isValidEcuadorianRuc,
+  isValidEcuadorianRucCompany,
+  isValidEcuadorianRucIndividual,
   isValidGuatemalanNit,
   isValidHonduranRtn,
   isValidMexicanRfc,
@@ -15,11 +19,15 @@ import {
   isValidPanamanianRuc,
   isValidParaguayanRuc,
   isValidPeruvianRuc,
+  isValidPeruvianRucCompany,
+  isValidPeruvianRucIndividual,
   isValidSalvadoranNit,
   isValidUruguayanRut,
   isValidUsEinStrict,
   isValidUsSsnOrItin,
   isValidVenezuelanRif,
+  isValidVenezuelanRifCompany,
+  isValidVenezuelanRifIndividual,
 } from './tax-id-validators';
 
 /**
@@ -99,6 +107,18 @@ export const CHECKSUM_ALGORITHMS: Readonly<Record<string, ChecksumAlgorithm>> = 
   br_cnpj: isValidBrazilianCnpj,
   pe_ruc_mod11: isValidPeruvianRuc,
   ec_ruc: isValidEcuadorianRuc,
+
+  // Kind-refined variants. Where one identifier distinguishes a company from a natural person by
+  // its prefix, third digit or type letter, the catalogue row cites these through `kindChecksums`
+  // so the check narrows to the declared kind — the strength `byPrefix()` used to add, now data.
+  ar_cuit_company: isValidArgentineCuitCompany,
+  ar_cuit_individual: isValidArgentineCuitIndividual,
+  pe_ruc_company: isValidPeruvianRucCompany,
+  pe_ruc_individual: isValidPeruvianRucIndividual,
+  ec_ruc_company: isValidEcuadorianRucCompany,
+  ec_ruc_individual: isValidEcuadorianRucIndividual,
+  ve_rif_company: isValidVenezuelanRifCompany,
+  ve_rif_individual: isValidVenezuelanRifIndividual,
   uy_rut_mod11: isValidUruguayanRut,
   py_ruc_mod11: isValidParaguayanRuc,
   ve_rif_mod11: isValidVenezuelanRif,

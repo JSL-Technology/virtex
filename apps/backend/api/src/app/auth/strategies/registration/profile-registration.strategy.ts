@@ -6,7 +6,10 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { User } from '../../../users/entities/user.entity/user.entity';
 import { LocalizationService } from '../../../localization/services/localization.service';
 import { findCountryProfile } from '../../../localization/fiscal/country-profiles';
-import { validateTaxId } from '../../../localization/fiscal/tax-id-validators';
+import {
+  fiscalIdentifierLabel,
+  validateTaxId,
+} from '../../../localization/fiscal/identity-document-catalogue';
 import { BadRequestError } from '../../../i18n/localized.exception';
 
 /**
@@ -33,7 +36,7 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
     }
 
     if (!dto.taxId?.trim()) {
-      throw new BadRequestError('auth.label_required_name', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('auth.label_required_name', { label: fiscalIdentifierLabel(profile.countryCode), name: profile.name });
     }
 
     // Re-checked here even though the DTO already validated it. The DTO constraint protects the
@@ -45,7 +48,7 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
     // United States nine-digit value passes as an EIN under one prefix rule and as an SSN under
     // another, and only the kind decides which applies.
     if (!validateTaxId(profile.countryCode, dto.taxId, dto.taxpayerKind)) {
-      throw new BadRequestError('auth.label_not_valid_name', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('auth.label_not_valid_name', { label: fiscalIdentifierLabel(profile.countryCode), name: profile.name });
     }
 
     if (profile.address.postalCodeRequired && !dto.postalCode?.trim()) {

@@ -7,7 +7,5 @@
   "invoices.detail.ncf": "Chave de acesso (NF-e):",
   "invoices.new.tax_column_header": "ICMS",
   "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
-  "permissions.groups.tss": "INSS (Previdência)",
-  "settings.company_profile.tax_id": "CNPJ",
-  "settings.subsidiaries.tax_id": "CNPJ"
+  "permissions.groups.tss": "INSS (Previdência)"
 }

@@ -61,6 +61,8 @@
  */
 
 import { COUNTRY_FISCAL_PROFILES } from './country-profiles';
+import { resolveChecksum } from './document-checksums';
+import { TaxpayerKind } from './tax-id-validators';
 
 /** Who a document identifies. Ternary, not boolean: a Chilean RUT identifies both. */
 export type DocumentAppliesTo = 'individual' | 'company' | 'both';
@@ -120,6 +122,21 @@ export interface IdentityDocumentTypeSpec {
   isDefault?: boolean;
   issuingAuthority?: string;
   sortOrder: number;
+  /**
+   * Kind-specific checksum names, for the few countries whose SINGLE identifier refines its check
+   * by taxpayer kind — a Mexican RFC's 12-vs-13 length, an Argentine CUIT's prefix, an Ecuadorian
+   * RUC's third digit, a Venezuelan RIF's type letter. When the caller knows the kind, the tax-id
+   * validator applies the matching one on top of the base `checksum`; this is what replaced the
+   * `byPrefix()` / `byLength()` helpers and the per-country map they lived in. Absent for documents
+   * whose kind is settled by which ROW was chosen (an RNC is a company's, a cédula a person's).
+   */
+  kindChecksums?: Readonly<Partial<Record<TaxpayerKind, string>>>;
+  /**
+   * This document's code in each electronic-invoicing regime, so a builder can state the buyer's
+   * document type without inferring it from the number's length (A-02): a Brazilian CNPJ is `'CNPJ'`
+   * to the NF-e, a natural person `'80'` to AFIP. Keyed by a regime tag the builder owns.
+   */
+  regimeCodes?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -190,6 +207,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   {
     countryCode: 'MX', code: 'RFC', labelKey: 'identity_document.mx.rfc', labelVerbatim: 'RFC',
     example: 'DEM010203AB5', pattern: '^[A-ZÑ&]{3,4}\\d{6}[A-Z\\d]{3}$', checksum: 'mx_rfc',
+    kindChecksums: { company: 'mx_rfc_company', individual: 'mx_rfc_individual' },
     canonicalForm: 'alphanumeric', appliesTo: 'both', requirement: 'required',
     usedFor: ['invoicing', 'registration'], isDefault: true, issuingAuthority: 'SAT', sortOrder: 20,
   },
@@ -241,6 +259,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   {
     countryCode: 'PE', code: 'RUC', labelKey: 'identity_document.pe.ruc', labelVerbatim: 'RUC',
     example: '20123456786', pattern: '^(10|15|17|20)\\d{9}$', checksum: 'pe_ruc_mod11',
+    kindChecksums: { company: 'pe_ruc_company', individual: 'pe_ruc_individual' },
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
     usedFor: ['invoicing', 'registration'], isDefault: true, issuingAuthority: 'SUNAT', sortOrder: 20,
   },
@@ -257,6 +276,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   {
     countryCode: 'AR', code: 'CUIT', labelKey: 'identity_document.ar.cuit', labelVerbatim: 'CUIT / CUIL',
     example: '30-71234567-1', pattern: '^\\d{2}-?\\d{8}-?\\d$', checksum: 'ar_cuit_mod11',
+    kindChecksums: { company: 'ar_cuit_company', individual: 'ar_cuit_individual' },
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
     usedFor: ['payroll', 'invoicing', 'registration'], issuingAuthority: 'AFIP', sortOrder: 20,
   },
@@ -279,58 +299,115 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   },
 
   // ── Ecuador ───────────────────────────────────────────────────────────────
+  // A worker holds a cédula; the RUC identifies whoever carries on economic activity, so the RUC is
+  // no longer offered for payroll (it would ask an employee for a company identifier). The 10-digit
+  // cédula is the first nine digits of a natural person's RUC plus a mod-10 check whose algorithm
+  // this repository has not confirmed, so it validates by pattern alone for now — weaker than the
+  // check digit, far stronger than offering only a passport.
+  {
+    countryCode: 'EC', code: 'CEDULA', labelKey: 'identity_document.ec.cedula', labelVerbatim: 'Cédula de identidad',
+    example: '1710034065', pattern: '^\\d{10}$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'Registro Civil', sortOrder: 10,
+  },
   {
     countryCode: 'EC', code: 'RUC', labelKey: 'identity_document.ec.ruc', labelVerbatim: 'RUC',
     example: '1790123456001', pattern: '^\\d{13}$', checksum: 'ec_ruc',
+    kindChecksums: { company: 'ec_ruc_company', individual: 'ec_ruc_individual' },
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SRI', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SRI', sortOrder: 20,
   },
 
   // ── Uruguay ───────────────────────────────────────────────────────────────
+  // The RUT (12 digits) belongs to a taxpayer; a worker holds a cédula de identidad — seven digits
+  // and a mod-10 check digit written `1.234.567-8`. The check algorithm is published (weights
+  // 2,9,8,7,6,3,4) but is left unimplemented for now, so the row validates by pattern alone and the
+  // separators are canonicalised away.
+  {
+    countryCode: 'UY', code: 'CEDULA', labelKey: 'identity_document.uy.cedula', labelVerbatim: 'Cédula de identidad',
+    example: '12345672', pattern: '^\\d{6,8}$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'DNIC', sortOrder: 10,
+  },
   {
     countryCode: 'UY', code: 'RUT', labelKey: 'identity_document.uy.rut', labelVerbatim: 'RUT',
     example: '211003420017', pattern: '^\\d{12}$', checksum: 'uy_rut_mod11',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'DGI', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'DGI', sortOrder: 20,
   },
 
   // ── Paraguay ──────────────────────────────────────────────────────────────
+  // A worker holds a cédula de identidad civil (a correlative number, no published check digit); the
+  // RUC is that number plus a mod-11 check and identifies a taxpayer. Pattern-only for the cédula.
+  {
+    countryCode: 'PY', code: 'CEDULA', labelKey: 'identity_document.py.cedula', labelVerbatim: 'Cédula de identidad',
+    example: '1234567', pattern: '^\\d{4,8}$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'Departamento de Identificaciones', sortOrder: 10,
+  },
   {
     countryCode: 'PY', code: 'RUC', labelKey: 'identity_document.py.ruc', labelVerbatim: 'RUC',
     example: '80012345-0', pattern: '^\\d{5,8}-?\\d$', checksum: 'py_ruc_mod11',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SET', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SET', sortOrder: 20,
   },
 
   // ── Bolivia ───────────────────────────────────────────────────────────────
+  // The NIT is a taxpayer identifier; a worker holds a cédula de identidad issued by SEGIP — a
+  // numeric base with an optional department/expedition complement (e.g. `-1K`). Kept deliberately
+  // wide and pattern-only: SEGIP publishes no check digit this repository can assert.
+  {
+    countryCode: 'BO', code: 'CI', labelKey: 'identity_document.bo.ci', labelVerbatim: 'Cédula de identidad',
+    example: '1234567', pattern: '^\\d{4,10}(-?[A-Za-z0-9]{1,3})?$', checksum: null,
+    canonicalForm: 'alphanumeric', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'SEGIP', sortOrder: 10,
+  },
   {
     countryCode: 'BO', code: 'NIT', labelKey: 'identity_document.bo.nit', labelVerbatim: 'NIT',
     example: '1234567890', pattern: '^\\d{7,12}$', checksum: 'bo_nit',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SIN', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SIN', sortOrder: 20,
   },
 
   // ── Venezuela ─────────────────────────────────────────────────────────────
-  // One RIF, whose leading letter carries the distinction: V/E a natural person, J/G/P a company.
+  // The RIF is the tax identifier (its leading letter carries the kind: V/E a natural person,
+  // J/G/P a company). The document a worker is enrolled with is the cédula de identidad — the same
+  // number that seeds a V-RIF, written on its own without the type letter. Pattern-only.
+  {
+    countryCode: 'VE', code: 'CI', labelKey: 'identity_document.ve.ci', labelVerbatim: 'Cédula de identidad',
+    example: 'V-12345678', pattern: '^[VEve]?-?\\d{5,9}$', checksum: null,
+    canonicalForm: 'alphanumeric', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'SAIME', sortOrder: 10,
+  },
   {
     countryCode: 'VE', code: 'RIF', labelKey: 'identity_document.ve.rif', labelVerbatim: 'RIF',
     example: 'J-30599168-5', pattern: '^[VEJPGvejpg]-?\\d{8}-?\\d$', checksum: 've_rif_mod11',
+    kindChecksums: { company: 've_rif_company', individual: 've_rif_individual' },
     canonicalForm: 'alphanumeric', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SENIAT', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SENIAT', sortOrder: 20,
   },
 
   // ── Panama ────────────────────────────────────────────────────────────────
+  // A worker holds a cédula: `provincia-tomo-asiento` (`8-430-70`), with letter prefixes for those
+  // born abroad (PE), naturalised (N) or foreign residents (E). Composite like the RUC, so it takes
+  // the same segmented canonical form. No published check digit.
+  {
+    countryCode: 'PA', code: 'CEDULA', labelKey: 'identity_document.pa.cedula', labelVerbatim: 'Cédula de identidad',
+    example: '8-430-70', pattern: '^[A-Za-z0-9]+(-[A-Za-z0-9]+){1,3}$', checksum: null,
+    canonicalForm: 'segmented', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'Tribunal Electoral', sortOrder: 10,
+  },
   {
     countryCode: 'PA', code: 'RUC', labelKey: 'identity_document.pa.ruc', labelVerbatim: 'RUC',
     example: '15512345-2-2018', pattern: '^[\\dA-Za-z]+(-[\\dA-Za-z]+){1,4}$', checksum: 'pa_ruc',
     canonicalForm: 'segmented', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'DGI', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'DGI', sortOrder: 20,
   },
 
   // ── Costa Rica ────────────────────────────────────────────────────────────
@@ -350,39 +427,71 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   },
 
   // ── Guatemala ─────────────────────────────────────────────────────────────
+  // The NIT is the tax number; a worker is identified by the DPI, whose number is the CUI — 13
+  // digits (8 correlative, a verifier, then the 4-digit municipality). Pattern-only for now.
+  {
+    countryCode: 'GT', code: 'CUI', labelKey: 'identity_document.gt.cui', labelVerbatim: 'CUI (DPI)',
+    example: '1234567890101', pattern: '^\\d{13}$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'RENAP', sortOrder: 10,
+  },
   {
     countryCode: 'GT', code: 'NIT', labelKey: 'identity_document.gt.nit', labelVerbatim: 'NIT',
     example: '1234567-9', pattern: '^\\d{2,12}-?[0-9Kk]$', checksum: 'gt_nit_mod11',
     canonicalForm: 'alphanumeric', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SAT', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SAT', sortOrder: 20,
   },
 
   // ── El Salvador ───────────────────────────────────────────────────────────
+  // The NIT is the tax number; a worker holds a DUI — eight digits and a check digit, `########-#`.
+  // The check algorithm is not implemented here yet, so it validates by pattern alone.
+  {
+    countryCode: 'SV', code: 'DUI', labelKey: 'identity_document.sv.dui', labelVerbatim: 'DUI',
+    example: '01234567-8', pattern: '^\\d{8}-?\\d$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'RNPN', sortOrder: 10,
+  },
   {
     countryCode: 'SV', code: 'NIT', labelKey: 'identity_document.sv.nit', labelVerbatim: 'NIT',
     example: '0614-123456-001-2', pattern: '^\\d{4}-?\\d{6}-?\\d{3}-?\\d$', checksum: 'sv_nit',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'Ministerio de Hacienda', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'Ministerio de Hacienda', sortOrder: 20,
   },
 
   // ── Honduras ──────────────────────────────────────────────────────────────
+  // The RTN is the tax number; a worker holds the Documento Nacional de Identificación — 13 digits
+  // (4-digit municipality, 4-digit birth year, 5 correlative). Pattern-only for now.
+  {
+    countryCode: 'HN', code: 'DNI', labelKey: 'identity_document.hn.dni', labelVerbatim: 'Identidad',
+    example: '0801199012345', pattern: '^\\d{13}$', checksum: null,
+    canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'RNP', sortOrder: 10,
+  },
   {
     countryCode: 'HN', code: 'RTN', labelKey: 'identity_document.hn.rtn', labelVerbatim: 'RTN',
     example: '08019012345678', pattern: '^\\d{14}$', checksum: 'hn_rtn',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SAR', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'SAR', sortOrder: 20,
   },
 
   // ── Nicaragua ─────────────────────────────────────────────────────────────
+  // The RUC is the tax number; a worker holds a cédula: `###-######-####A` — municipality, birth
+  // date, correlative and a Module-23 check letter. The letter check is not implemented here yet.
+  {
+    countryCode: 'NI', code: 'CI', labelKey: 'identity_document.ni.ci', labelVerbatim: 'Cédula de identidad',
+    example: '001-230592-1002X', pattern: '^\\d{3}-?\\d{6}-?\\d{4}[A-Za-z]$', checksum: null,
+    canonicalForm: 'alphanumeric', appliesTo: 'individual', requirement: 'required',
+    usedFor: ['payroll'], isDefault: true, issuingAuthority: 'CSE', sortOrder: 10,
+  },
   {
     countryCode: 'NI', code: 'RUC', labelKey: 'identity_document.ni.ruc', labelVerbatim: 'RUC',
     example: 'J0310000012345', pattern: '^[A-Za-z0-9]{14}$', checksum: 'ni_ruc',
     canonicalForm: 'alphanumeric', appliesTo: 'both', requirement: 'required',
-    usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'DGI', sortOrder: 10,
+    usedFor: ['invoicing', 'registration'], isDefault: true,
+    issuingAuthority: 'DGI', sortOrder: 20,
   },
 
   // ── Supranational ─────────────────────────────────────────────────────────
@@ -414,4 +523,178 @@ export function catalogueForCountry(countryCode: string): IdentityDocumentTypeSp
  */
 export const MARKETS_REQUIRING_DOCUMENTS: readonly string[] = Object.freeze(
   COUNTRY_FISCAL_PROFILES.map((profile) => profile.countryCode),
+);
+
+/**
+ * The stored form of a document value.
+ *
+ * Lives here — rather than in `IdentityDocumentService` — so the synchronous `canonicalizeTaxId`
+ * below can share it without importing an injectable. Removes only what an authority prints as
+ * decoration and upper-cases; nothing that carries information is removed. Applying
+ * `replace(/[^\d]/g, '')` to every country once turned a Mexican RFC into its date of incorporation
+ * and made a `J-` company and a `V-` person the same stored Venezuelan value.
+ */
+export function canonicalize(form: string, value: string): string {
+  switch (form) {
+    case 'digits':
+      return value.replace(/\D/g, '');
+    case 'segmented':
+      return value
+        .toUpperCase()
+        .split('-')
+        .map((segment) => segment.replace(/[^0-9A-Z]/g, ''))
+        .filter(Boolean)
+        .join('-');
+    case 'alphanumeric':
+    default:
+      return value.toUpperCase().replace(/[^0-9A-ZÑ&]/g, '');
+  }
+}
+
+// ── The tenant's fiscal identifier and its validation, as data ─────────────────────────────────
+//
+// These replace `TAX_ID_RULES` from `tax-id-validators.ts` — a `Record<país>` a new market could
+// only join by a code change. They read the SAME catalogue Sales, Purchasing and HR validate
+// against, so a country's registration identifier is declared once, as a row, and opening the
+// twentieth market is an INSERT. `IdentityDocumentService.resolveParty` is the async, DB-backed
+// path those modules use; these are the synchronous, in-memory path the registration boundary
+// validator needs — it must fail closed with no query and therefore cannot await the database.
+
+const upperCountry = (countryCode: string): string => (countryCode ?? '').trim().toUpperCase();
+
+/** The documents a country asks for at registration — its fiscal identifiers. */
+function registrationDocsFor(country: string): IdentityDocumentTypeSpec[] {
+  return IDENTITY_DOCUMENT_TYPES.filter(
+    (entry) => entry.countryCode === country && entry.usedFor.includes('registration'),
+  );
+}
+
+/** Whether a document identifies the given taxpayer kind; `both` satisfies either. */
+function documentServesKind(appliesTo: DocumentAppliesTo, kind: TaxpayerKind): boolean {
+  return appliesTo === 'both' || appliesTo === kind;
+}
+
+/** A document's own rule: pattern, then the kind-specific checksum when known, else the base one. */
+function documentAccepts(
+  spec: IdentityDocumentTypeSpec,
+  value: string,
+  kind?: TaxpayerKind,
+): boolean {
+  if (!new RegExp(spec.pattern).test(value)) return false;
+  const checksumName = (kind && spec.kindChecksums?.[kind]) || spec.checksum;
+  if (!checksumName) return true; // the pattern is the whole check — a passport, an unconfirmed rule
+  const algorithm = resolveChecksum(checksumName);
+  // An unresolved name is a seeding bug; fail closed rather than silently drop to pattern-only.
+  return algorithm ? algorithm(value) : false;
+}
+
+/**
+ * Validate a fiscal identifier for a country, optionally narrowed to a taxpayer kind.
+ *
+ * Valid when it passes the rule of ANY registration document the country issues for that kind — an
+ * RNC for a Dominican company, a cédula for a person, either when the kind is unknown. Returns
+ * false for a country with no registration document, exactly as the retired map returned false for
+ * a country it had no entry for.
+ */
+export function validateTaxId(countryCode: string, taxId: string, kind?: TaxpayerKind): boolean {
+  const raw = taxId?.trim();
+  if (!raw) return false;
+  const docs = registrationDocsFor(upperCountry(countryCode));
+  if (docs.length === 0) return false;
+  const forKind = kind ? docs.filter((doc) => documentServesKind(doc.appliesTo, kind)) : docs;
+  const pool = forKind.length > 0 ? forKind : docs;
+  return pool.some((doc) => documentAccepts(doc, raw, kind));
+}
+
+/**
+ * One declared spec by its natural key, considering supranational documents (a passport).
+ *
+ * The in-memory counterpart of `IdentityDocumentService.find` (which reads the database). Used
+ * where a caller already holds `(country, code)` and only needs the declared label — a printed
+ * document naming the buyer's identifier by its own name rather than the issuer's (M-07).
+ */
+export function findIdentityDocumentSpec(
+  countryCode: string,
+  code: string,
+): IdentityDocumentTypeSpec | null {
+  const country = upperCountry(countryCode);
+  const wanted = (code ?? '').trim().toUpperCase();
+  if (!wanted) return null;
+  return (
+    IDENTITY_DOCUMENT_TYPES.find((e) => e.countryCode === country && e.code === wanted) ??
+    IDENTITY_DOCUMENT_TYPES.find(
+      (e) => e.countryCode === SUPRANATIONAL_COUNTRY && e.code === wanted,
+    ) ??
+    null
+  );
+}
+
+/**
+ * The document that IS the tenant's fiscal identifier: the default company/both registration one.
+ */
+export function fiscalIdentifierFor(countryCode: string): IdentityDocumentTypeSpec | null {
+  const docs = registrationDocsFor(upperCountry(countryCode)).filter(
+    (doc) => doc.appliesTo === 'company' || doc.appliesTo === 'both',
+  );
+  return docs.find((doc) => doc.isDefault) ?? docs[0] ?? null;
+}
+
+/**
+ * The canonical stored form of a country's fiscal identifier.
+ *
+ * Throws for a country with no registration document rather than inventing a form — silently
+ * guessing one is how the destructive global digit-strip survived as long as it did.
+ */
+export function canonicalizeTaxId(countryCode: string, taxId: string): string {
+  const spec = fiscalIdentifierFor(countryCode);
+  if (!spec) {
+    throw new Error(`No canonical tax-id form is defined for country "${countryCode}".`);
+  }
+  return canonicalize(spec.canonicalForm, taxId.trim());
+}
+
+/**
+ * The tenant's fiscal-identifier label, for an error message or a form.
+ *
+ * The authority's own term — RNC, RUC, CNPJ — which is `labelVerbatim` and stays untranslated
+ * (M-08). Falls back to the code, then to a neutral `'ID'` for a country with none.
+ */
+export function fiscalIdentifierLabel(countryCode: string): string {
+  const spec = fiscalIdentifierFor(countryCode);
+  return spec?.labelVerbatim ?? spec?.code ?? 'ID';
+}
+
+/**
+ * Whether the signup form must ask company-versus-natural-person for this country.
+ *
+ * True when the country issues DISTINCT registration documents to each kind (a Dominican RNC and
+ * cédula, a US EIN and SSN) or a single one whose check refines by kind (an RFC, a CUIT). Read off
+ * the catalogue, so it stays correct by construction as rows change.
+ */
+export function taxpayerKindAffectsValidation(countryCode: string): boolean {
+  const docs = registrationDocsFor(upperCountry(countryCode));
+  const hasIndividual = docs.some((doc) => doc.appliesTo === 'individual');
+  const hasCompany = docs.some((doc) => doc.appliesTo === 'company');
+  const hasKindChecksum = docs.some((doc) => Boolean(doc.kindChecksums));
+  return (hasIndividual && hasCompany) || hasKindChecksum;
+}
+
+/** True when the country has a registration document at all — i.e. the product can be sold there. */
+export function isSupportedFiscalCountry(countryCode: string): boolean {
+  return registrationDocsFor(upperCountry(countryCode)).length > 0;
+}
+
+/**
+ * Validator-only view keyed by the markets that have a registration document. Derived from the
+ * catalogue, never restated — the coverage test asserts these keys equal the shipped markets.
+ */
+export const TAX_ID_VALIDATORS: Readonly<Record<string, (value: string) => boolean>> = Object.freeze(
+  Object.fromEntries(
+    COUNTRY_FISCAL_PROFILES.filter((profile) => isSupportedFiscalCountry(profile.countryCode)).map(
+      (profile) => [
+        profile.countryCode,
+        (value: string): boolean => validateTaxId(profile.countryCode, value),
+      ],
+    ),
+  ),
 );

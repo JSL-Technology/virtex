@@ -10,11 +10,12 @@ import {
     validateFiscalFields,
     type TaxpayerKindValue,
 } from '../../localization/fiscal/country-profiles';
+import { TaxpayerKind } from '../../localization/fiscal/tax-id-validators';
 import {
-    TaxpayerKind,
+    fiscalIdentifierFor,
     taxpayerKindAffectsValidation,
     validateTaxId,
-} from '../../localization/fiscal/tax-id-validators';
+} from '../../localization/fiscal/identity-document-catalogue';
 
 /**
  * Fiscal validation for the registration payload.
@@ -100,6 +101,12 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
     const profile = findCountryProfile(country);
     if (!profile) return message('validation.fiscal.tax_id_invalid');
 
+    // The identifier's name and example come from the catalogue row — the authority term (RNC, RFC)
+    // stays verbatim, and there is one place that holds it (C-01), not a literal on the profile.
+    const fiscalId = fiscalIdentifierFor(country);
+    const label = fiscalId?.labelVerbatim ?? fiscalId?.code ?? 'ID';
+    const example = fiscalId?.example ?? '';
+
     // The kind note is a separate key rather than a suffix on this one: where the country's
     // algorithm distinguishes a company identifier from an individual's, telling the reader
     // which one was expected is the whole content of the message.
@@ -108,14 +115,11 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
         kindOf(args) === TaxpayerKind.COMPANY
           ? 'validation.fiscal.tax_id_invalid_for_company'
           : 'validation.fiscal.tax_id_invalid_for_individual',
-        { label: profile.taxId.label, example: profile.taxId.example },
+        { label, example },
       );
     }
 
-    return message('validation.fiscal.tax_id_invalid_for_country', {
-      label: profile.taxId.label,
-      example: profile.taxId.example,
-    });
+    return message('validation.fiscal.tax_id_invalid_for_country', { label, example });
   }
 }
 

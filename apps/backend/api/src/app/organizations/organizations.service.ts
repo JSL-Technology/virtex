@@ -14,7 +14,12 @@ import { LocalizationProvisioningPort } from '../localization/localization-provi
 import { MembershipService } from './services/membership.service';
 import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
-import { canonicalizeTaxId, validateTaxId } from '../localization/fiscal/tax-id-validators';
+import { TaxpayerKind } from '../localization/fiscal/tax-id-validators';
+import {
+  canonicalizeTaxId,
+  fiscalIdentifierLabel,
+  validateTaxId,
+} from '../localization/fiscal/identity-document-catalogue';
 import { organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
@@ -40,9 +45,80 @@ export class OrganizationsService {
     return organization;
   }
 
+  /**
+   * Edit the tenant's own profile, re-validating its fiscal identity when it moves.
+   *
+   * The `taxId` on this row is the emisor of every electronic comprobante the product signs, and
+   * `ecf-validator.service.ts` and the six regime builders read it from here. The old
+   * implementation was a bare `Object.assign` with no check, so any string could overwrite it after
+   * registration — the same hole the audit found in customers and suppliers, surviving in the
+   * tenant. Registration (`profile-registration.strategy.ts`) and subsidiary creation
+   * (`createSubsidiary` below) both validate the identifier arithmetically with the taxpayer kind;
+   * this is the third door into the same column and now applies the same rule.
+   */
   async update(id: string, updateOrganizationDto: UpdateOrganizationDto): Promise<Organization> {
     const organization = await this.findOne(id);
+
+    const previousCountry = (organization.country ?? '').trim().toUpperCase();
+    const nextCountry =
+      updateOrganizationDto.country !== undefined
+        ? (updateOrganizationDto.country ?? '').trim().toUpperCase()
+        : previousCountry;
+
+    // A provisioned tenant's country is fixed. Its fiscal region, chart of accounts, taxes and
+    // document sequences were all created for one jurisdiction, and letting a profile edit change
+    // it would leave every one of them pointing at the wrong country while future comprobantes kept
+    // numbering under the old regime. Setting a country that was never recorded — legacy rows
+    // carried null — is a correction and stays allowed.
+    if (previousCountry && nextCountry !== previousCountry && organization.fiscalRegionId) {
+      throw new BadRequestError('organizations.country_cannot_change_after_provisioning', {
+        current: previousCountry,
+      });
+    }
+
+    // The tax id and the country decide validity together — an RNC is not a RUT — so a change to
+    // either re-runs the check. A change to neither leaves a stored identifier untouched, so an
+    // edit to the logo or the phone does not force the tenant to re-confirm it.
+    const identityTouched =
+      updateOrganizationDto.taxId !== undefined || updateOrganizationDto.country !== undefined;
+
     Object.assign(organization, updateOrganizationDto);
+
+    if (identityTouched) {
+      const country = (organization.country ?? '').trim().toUpperCase();
+      const profile = findCountryProfile(country);
+      if (!profile) {
+        throw new BadRequestError('organizations.country_country_not_available_yet', {
+          country: organization.country ?? '',
+        });
+      }
+      if (!organization.taxId?.trim()) {
+        throw new BadRequestError('organizations.label_required_name', {
+          label: fiscalIdentifierLabel(country),
+          name: profile.name,
+        });
+      }
+      // The taxpayer kind selects the scheme, exactly as at registration: a US nine-digit value is
+      // a valid EIN under one prefix rule and an SSN under another, and only the kind decides which.
+      const kind =
+        organization.taxpayerKind === TaxpayerKind.COMPANY
+          ? TaxpayerKind.COMPANY
+          : organization.taxpayerKind === TaxpayerKind.INDIVIDUAL
+            ? TaxpayerKind.INDIVIDUAL
+            : undefined;
+      if (!validateTaxId(country, organization.taxId, kind)) {
+        throw new BadRequestError('organizations.label_not_valid_name', {
+          label: fiscalIdentifierLabel(country),
+          name: profile.name,
+        });
+      }
+      // Store the canonical form and mark it verified, exactly as the other two doors do. The unique
+      // index on (tax_id, fiscal_region_id) compares the canonical value, so `900123456-8` and
+      // `9001234568` are the same tenant rather than two.
+      organization.taxId = canonicalizeTaxId(country, organization.taxId);
+      organization.taxIdVerifiedAt = new Date();
+    }
+
     return this.organizationRepository.save(organization);
   }
 
@@ -80,7 +156,7 @@ export class OrganizationsService {
       throw new BadRequestError('organizations.country_country_not_available_yet', { country: createSubsidiaryDto.country });
     }
     if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
-      throw new BadRequestError('organizations.label_not_valid_name', { label: profile.taxId.label, name: profile.name });
+      throw new BadRequestError('organizations.label_not_valid_name', { label: fiscalIdentifierLabel(country), name: profile.name });
     }
 
     const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);
@@ -110,7 +186,7 @@ export class OrganizationsService {
         where: { taxId, fiscalRegionId: region.id },
       });
       if (duplicate) {
-        throw new ConflictError('organizations.organization_already_registered_with_label', { label: profile.taxId.label });
+        throw new ConflictError('organizations.organization_already_registered_with_label', { label: fiscalIdentifierLabel(country) });
       }
 
       const savedOrg = await this.create(

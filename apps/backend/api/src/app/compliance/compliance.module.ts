@@ -8,6 +8,7 @@ import { NcfSequence } from './entities/ncf-sequence.entity';
 import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
+import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -18,7 +19,9 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   imports: [
     // Reading and exporting financial data is recorded; the interceptor lives in AuditModule.
     AuditModule,
-    TypeOrmModule.forFeature([NcfSequence, VendorBill, Invoice, Organization]),
+    // FiscalDocumentTypeDefinition: ComplianceService validates a requested comprobante code against
+    // the tenant's region's catalogue before provisioning a range, instead of against `NcfType` (C-03).
+    TypeOrmModule.forFeature([NcfSequence, VendorBill, Invoice, Organization, FiscalDocumentTypeDefinition]),
     AuthModule,
     // Mexico's electronic accounting reads the ledger through the same service the balance sheet
     // does, so the filing and the statements cannot disagree.

@@ -84,6 +84,11 @@
     "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
     "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
   },
+  "compliance.document_type_type_not_authorised_region": {
+    "es": "El tipo de comprobante \"{{type}}\" no está definido para el régimen fiscal de tu país.",
+    "en": "The document type \"{{type}}\" is not defined for your country's fiscal regime.",
+    "pt": "O tipo de documento \"{{type}}\" não está definido para o regime fiscal do teu país."
+  },
   "compliance.report_format_dgii_dominican_republic_filing": {
     "es": "El formato {{report}} es un envío de la DGII (República Dominicana) y no aplica a una organización registrada en {{country}}.",
     "en": "The {{report}} format is a DGII (Dominican Republic) filing and does not apply to an organization registered in {{country}}.",

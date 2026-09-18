@@ -1,31 +1,23 @@
 {
   "en-US": {
-    "hcm.employees.form.social_security_number": "Social Security Number",
-    "settings.company_profile.tax_id": "EIN",
-    "settings.subsidiaries.tax_id": "EIN"
+    "hcm.employees.form.social_security_number": "Social Security Number"
   },
   "es-AR": {
     "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
     "invoices.new.tax_column_header": "IVA",
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo (SAC)",
-    "permissions.groups.tss": "Seguridad social (ANSES)",
-    "settings.company_profile.tax_id": "CUIT",
-    "settings.subsidiaries.tax_id": "CUIT"
+    "permissions.groups.tss": "Seguridad social (ANSES)"
   },
   "es-CL": {
     "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
     "invoices.new.tax_column_header": "IVA",
-    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
-    "settings.company_profile.tax_id": "RUT",
-    "settings.subsidiaries.tax_id": "RUT"
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo"
   },
   "es-CO": {
     "hcm.employees.form.proportional_bonus": "Prima proporcional",
     "invoices.new.tax_column_header": "IVA",
     "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
-    "permissions.groups.tss": "Seguridad social (PILA)",
-    "settings.company_profile.tax_id": "NIT",
-    "settings.subsidiaries.tax_id": "NIT"
+    "permissions.groups.tss": "Seguridad social (PILA)"
   },
   "es-DO": {
     "accounts_payable.form.ncf": "NCF",
@@ -44,8 +36,6 @@
     "payroll.parameters.regime_label.srl": "SRL",
     "payroll.runs.type_label.christmas_bonus": "Regalía pascual",
     "permissions.groups.tss": "TSS (Seguridad Social)",
-    "settings.company_profile.tax_id": "RNC",
-    "settings.subsidiaries.tax_id": "RNC",
     "validation.create_employee.social_security_number_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
   },
   "es-MX": {
@@ -56,16 +46,12 @@
     "invoices.new.tax_column_header": "IVA",
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
     "permissions.groups.tss": "IMSS (Seguridad Social)",
-    "settings.company_profile.tax_id": "RFC",
-    "settings.subsidiaries.tax_id": "RFC",
     "validation.create_employee.social_security_number_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos."
   },
   "es-PE": {
     "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
     "invoices.new.tax_column_header": "IGV",
-    "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
-    "settings.company_profile.tax_id": "RUC",
-    "settings.subsidiaries.tax_id": "RUC"
+    "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre"
   },
   "pt-BR": {
     "hcm.employees.form.proportional_bonus": "Décimo terceiro proporcional",
@@ -73,8 +59,6 @@
     "invoices.detail.ncf": "Chave de acesso (NF-e):",
     "invoices.new.tax_column_header": "ICMS",
     "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
-    "permissions.groups.tss": "INSS (Previdência)",
-    "settings.company_profile.tax_id": "CNPJ",
-    "settings.subsidiaries.tax_id": "CNPJ"
+    "permissions.groups.tss": "INSS (Previdência)"
   }
 }

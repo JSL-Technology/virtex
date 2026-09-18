@@ -1,6 +1,4 @@
 import {
-  TAX_ID_VALIDATORS,
-  isSupportedFiscalCountry,
   isValidArgentineCuit,
   isValidBrazilianCnpj,
   isValidChileanRut,
@@ -14,9 +12,17 @@ import {
   isValidUsEin,
   isValidVenezuelanRif,
   TaxpayerKind,
-  canonicalizeTaxId,
-  validateTaxId,
 } from './tax-id-validators';
+// `validateTaxId`, `canonicalizeTaxId`, `isSupportedFiscalCountry` and `TAX_ID_VALIDATORS` moved to
+// the catalogue when `TAX_ID_RULES` was retired: they are derived from `IDENTITY_DOCUMENT_TYPES`
+// now, not a per-country map. The check-digit functions above stay here — they are the code the
+// catalogue rows cite by name.
+import {
+  TAX_ID_VALIDATORS,
+  canonicalizeTaxId,
+  isSupportedFiscalCountry,
+  validateTaxId,
+} from './identity-document-catalogue';
 
 /**
  * These are the checks the product exists to get right.

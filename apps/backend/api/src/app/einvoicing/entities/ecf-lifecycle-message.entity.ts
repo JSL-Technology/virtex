@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { EcfStatus } from './ecf-submission.entity';
-import { NcfType } from '../../compliance/entities/ncf-sequence.entity';
 
 /**
  * The two DGII messages that are part of the e-CF cycle but are not comprobantes themselves.
@@ -98,7 +97,7 @@ export class EcfLifecycleMessage {
    * schema should not have to change for a market to exist. See that column for the full account.
    */
   @Column({ name: 'ecf_type', type: 'varchar', length: 8, nullable: true })
-  ecfType?: NcfType | null;
+  ecfType?: string | null;
 
   @Column({ name: 'sequence_from', type: 'bigint', nullable: true })
   sequenceFrom?: string | null;

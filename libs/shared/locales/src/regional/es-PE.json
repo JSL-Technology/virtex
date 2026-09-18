@@ -4,7 +4,5 @@
   "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
   "invoice.pdf.tax_column_header": "IGV",
   "invoices.new.tax_column_header": "IGV",
-  "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
-  "settings.company_profile.tax_id": "RUC",
-  "settings.subsidiaries.tax_id": "RUC"
+  "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre"
 }

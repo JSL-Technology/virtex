@@ -1,4 +1,9 @@
 {
+  "organizations.country_cannot_change_after_provisioning": {
+    "es": "El país de una empresa ya aprovisionada no se puede cambiar aquí: su región fiscal, su plan de cuentas y sus secuencias de comprobantes se crearon para {{current}}. Contacta a soporte si necesitas migrar la jurisdicción.",
+    "en": "The country of an already-provisioned company cannot be changed here: its fiscal region, chart of accounts and document sequences were created for {{current}}. Contact support to migrate the jurisdiction.",
+    "pt": "O país de uma empresa já provisionada não pode ser alterado aqui: a sua região fiscal, o seu plano de contas e as suas sequências de comprovantes foram criados para {{current}}. Contacta o suporte para migrar a jurisdição."
+  },
   "organizations.country_country_not_available_yet": {
     "es": "El país \"{{country}}\" todavía no está disponible.",
     "en": "The country \"{{country}}\" is not available yet.",
@@ -13,6 +18,11 @@
     "es": "El {{label}} no es válido para {{name}}.",
     "en": "The {{label}} is not valid for {{name}}.",
     "pt": "O {{label}} não é válido para {{name}}."
+  },
+  "organizations.label_required_name": {
+    "es": "El {{label}} es obligatorio para {{name}}.",
+    "en": "The {{label}} is required for {{name}}.",
+    "pt": "O {{label}} é obrigatório para {{name}}."
   },
   "organizations.organization_already_registered_with_label": {
     "es": "Ya existe una organización registrada con ese {{label}}.",

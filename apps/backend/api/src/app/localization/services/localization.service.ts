@@ -19,7 +19,11 @@ import {
   CountryFiscalProfile,
   findCountryProfile,
 } from '../fiscal/country-profiles';
-import { taxpayerKindAffectsValidation, validateTaxId } from '../fiscal/tax-id-validators';
+import {
+  fiscalIdentifierFor,
+  taxpayerKindAffectsValidation,
+  validateTaxId,
+} from '../fiscal/identity-document-catalogue';
 import {
   PublicCountryConfig,
   PublicIdentityDocumentType,
@@ -288,6 +292,12 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       ) ??
       null;
 
+    // The tenant's own fiscal identifier — RNC, RFC, RUC — is a catalogue row now, not a literal on
+    // the profile (C-01). Its label, example, shape and whether it carries a check digit are read
+    // from that row, so there is one place that says a Dominican RNC is nine digits, and the signup
+    // form and the customer form read the same catalogue.
+    const fiscalId = fiscalIdentifierFor(profile.countryCode);
+
     return {
       countryCode: profile.countryCode,
       name: profile.name,
@@ -295,10 +305,12 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       locale: profile.locale,
       phoneCode: `+${profile.callingCode}`,
       fiscalAuthority: profile.fiscalAuthority,
-      taxIdLabel: profile.taxId.label,
-      taxIdExample: profile.taxId.example,
-      taxIdPattern: profile.taxId.pattern,
-      taxIdHasCheckDigit: profile.taxId.hasCheckDigit,
+      taxIdLabel: fiscalId
+        ? (fiscalId.labelVerbatim ?? this.i18n.translate(fiscalId.labelKey, currentLanguage()))
+        : 'ID',
+      taxIdExample: fiscalId?.example ?? '',
+      taxIdPattern: fiscalId?.pattern ?? '',
+      taxIdHasCheckDigit: fiscalId ? fiscalId.checksum !== null : false,
       identityDocumentTypes,
       // Derived from the catalogue rather than from the profile's own optional field, which was
       // populated in two of nineteen markets. A country that issues a distinct document to natural

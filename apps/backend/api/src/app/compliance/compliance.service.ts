@@ -1,7 +1,8 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { NcfSequence, NcfType } from './entities/ncf-sequence.entity';
+import { NcfSequence } from './entities/ncf-sequence.entity';
+import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
 import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -18,7 +19,7 @@ import {
 /** A fiscal number, together with the authorization window it was drawn from. */
 export interface AssignedFiscalNumber {
   ncf: string;
-  type: NcfType;
+  type: string;
   /** `YYYY-MM-DD` expiry of the DGII authorization, or null for a range that carries none. */
   expiresAt: string | null;
 }
@@ -26,7 +27,7 @@ export interface AssignedFiscalNumber {
 /** How close a range is to running out, for the alerting the tenant needs before it does. */
 export interface NcfSequenceStatus {
   id: string;
-  type: NcfType;
+  type: string;
   prefix: string;
   startsAt: number;
   endsAt: number;
@@ -57,6 +58,8 @@ export class ComplianceService {
     private readonly invoiceRepository: Repository<Invoice>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    @InjectRepository(FiscalDocumentTypeDefinition)
+    private readonly fiscalDocumentTypeRepository: Repository<FiscalDocumentTypeDefinition>,
     private readonly dataSource: DataSource,
     /** The ledger's own figures, so the Mexican filings and the statements cannot disagree. */
     private readonly balances: AccountBalancesService,
@@ -109,7 +112,7 @@ export class ComplianceService {
    */
   async getNextNcf(
     organizationId: string,
-    type: NcfType,
+    type: string,
     manager: EntityManager,
   ): Promise<AssignedFiscalNumber> {
     const sequence = await manager
@@ -194,7 +197,7 @@ export class ComplianceService {
   async provisionNcfSequence(
     organizationId: string,
     input: {
-      type: NcfType;
+      type: string;
       prefix: string;
       startsAt: number;
       endsAt: number;
@@ -214,6 +217,21 @@ export class ComplianceService {
       const today = new Date().toISOString().split('T')[0];
       if (input.expiresAt < today) {
         throw new BadRequestError('compliance.authorization_expiry_date_has_passed_range');
+      }
+    }
+
+    // The requested code must be one the tenant's OWN authority publishes. This is the check that
+    // replaced `@IsEnum(NcfType)` at the HTTP boundary (C-03): the border no longer refuses a
+    // Chilean `33` or a Peruvian `01` for not being a Dominican comprobante, and the meaning is
+    // verified here against `fiscal_document_type_definitions` for the tenant's region — where every
+    // market's codes live once seeded, rather than in an enum only the Dominican Republic fits.
+    const organization = await this.requireOrganization(organizationId);
+    if (organization.fiscalRegionId) {
+      const known = await this.fiscalDocumentTypeRepository.findOne({
+        where: { fiscalRegionId: organization.fiscalRegionId, code: type },
+      });
+      if (!known) {
+        throw new BadRequestError('compliance.document_type_type_not_authorised_region', { type });
       }
     }
 
@@ -330,7 +348,7 @@ export class ComplianceService {
   }
 
   /** The active range for a type, or null. Used to pre-flight an issuance without consuming one. */
-  async findActiveSequence(organizationId: string, type: NcfType): Promise<NcfSequence | null> {
+  async findActiveSequence(organizationId: string, type: string): Promise<NcfSequence | null> {
     return this.ncfSequenceRepository.findOne({
       where: { organizationId, type, isActive: true },
     });

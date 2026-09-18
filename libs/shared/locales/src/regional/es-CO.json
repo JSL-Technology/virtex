@@ -5,7 +5,5 @@
   "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
   "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
-  "permissions.groups.tss": "Seguridad social (PILA)",
-  "settings.company_profile.tax_id": "NIT",
-  "settings.subsidiaries.tax_id": "NIT"
+  "permissions.groups.tss": "Seguridad social (PILA)"
 }

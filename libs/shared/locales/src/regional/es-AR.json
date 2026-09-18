@@ -5,7 +5,5 @@
   "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
   "payroll.runs.type_label.christmas_bonus": "Aguinaldo (SAC)",
-  "permissions.groups.tss": "Seguridad social (ANSES)",
-  "settings.company_profile.tax_id": "CUIT",
-  "settings.subsidiaries.tax_id": "CUIT"
+  "permissions.groups.tss": "Seguridad social (ANSES)"
 }
