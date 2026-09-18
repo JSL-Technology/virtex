@@ -252,16 +252,19 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
     example: '12345678',
     // RENIEC prints a verification character beside the eight digits, but it is not part of the
     // number as it is transcribed into a payroll system. Pattern-only until that is confirmed.
+    // `sunat: '1'` is SUNAT's catálogo 06 code for a DNI (tipo de documento del adquirente).
     pattern: '^\\d{8}$', checksum: null, canonicalForm: 'digits',
     appliesTo: 'individual', requirement: 'required', usedFor: ['payroll'], isDefault: true,
-    issuingAuthority: 'RENIEC', sortOrder: 10,
+    issuingAuthority: 'RENIEC', sortOrder: 10, regimeCodes: { sunat: '1' },
   },
   {
     countryCode: 'PE', code: 'RUC', labelKey: 'identity_document.pe.ruc', labelVerbatim: 'RUC',
     example: '20123456786', pattern: '^(10|15|17|20)\\d{9}$', checksum: 'pe_ruc_mod11',
     kindChecksums: { company: 'pe_ruc_company', individual: 'pe_ruc_individual' },
+    // `sunat: '6'` is SUNAT's catálogo 06 code for a RUC.
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
     usedFor: ['invoicing', 'registration'], isDefault: true, issuingAuthority: 'SUNAT', sortOrder: 20,
+    regimeCodes: { sunat: '6' },
   },
 
   // ── Argentina ─────────────────────────────────────────────────────────────
@@ -269,16 +272,19 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
     countryCode: 'AR', code: 'DNI', labelKey: 'identity_document.ar.dni', labelVerbatim: 'DNI',
     example: '12345678',
     // No check digit. The CUIL that wraps it does carry one, and is the separate row below.
+    // `afip: '96'` is AFIP's DocTipo for a DNI (catálogo tipo de documento del comprador).
     pattern: '^\\d{7,8}$', checksum: null, canonicalForm: 'digits',
     appliesTo: 'individual', requirement: 'required', usedFor: ['payroll'], isDefault: true,
-    issuingAuthority: 'RENAPER', sortOrder: 10,
+    issuingAuthority: 'RENAPER', sortOrder: 10, regimeCodes: { afip: '96' },
   },
   {
     countryCode: 'AR', code: 'CUIT', labelKey: 'identity_document.ar.cuit', labelVerbatim: 'CUIT / CUIL',
     example: '30-71234567-1', pattern: '^\\d{2}-?\\d{8}-?\\d$', checksum: 'ar_cuit_mod11',
     kindChecksums: { company: 'ar_cuit_company', individual: 'ar_cuit_individual' },
+    // `afip: '80'` is AFIP's DocTipo for a CUIT.
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
     usedFor: ['payroll', 'invoicing', 'registration'], issuingAuthority: 'AFIP', sortOrder: 20,
+    regimeCodes: { afip: '80' },
   },
 
   // ── Brazil ────────────────────────────────────────────────────────────────
@@ -287,7 +293,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
     example: '123.456.789-09', pattern: '^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$', checksum: 'br_cpf',
     canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
     usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'Receita Federal', sortOrder: 10,
+    issuingAuthority: 'Receita Federal', sortOrder: 10, regimeCodes: { nfe: 'CPF' },
   },
   {
     countryCode: 'BR', code: 'CNPJ', labelKey: 'identity_document.br.cnpj', labelVerbatim: 'CNPJ',
@@ -295,7 +301,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
     pattern: '^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$', checksum: 'br_cnpj',
     canonicalForm: 'digits', appliesTo: 'company', requirement: 'required',
     usedFor: ['invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'Receita Federal', sortOrder: 20,
+    issuingAuthority: 'Receita Federal', sortOrder: 20, regimeCodes: { nfe: 'CNPJ' },
   },
 
   // ── Ecuador ───────────────────────────────────────────────────────────────
@@ -627,6 +633,53 @@ export function findIdentityDocumentSpec(
     ) ??
     null
   );
+}
+
+/** The country's default invoicing document that identifies the given taxpayer kind. */
+function invoicingDocumentForKind(
+  country: string,
+  kind: TaxpayerKind,
+): IdentityDocumentTypeSpec | null {
+  const docs = IDENTITY_DOCUMENT_TYPES.filter(
+    (entry) =>
+      entry.countryCode === country &&
+      entry.usedFor.includes('invoicing') &&
+      documentServesKind(entry.appliesTo, kind),
+  );
+  return docs.find((doc) => doc.isDefault) ?? docs[0] ?? null;
+}
+
+/**
+ * The buyer's document type as an e-invoicing `regime` names it — read from the catalogue, never
+ * inferred from the number's length (A-02).
+ *
+ * A Brazilian CNPJ is `'CNPJ'` to the NF-e and a natural person `'CPF'`; a CUIT is `'80'` to AFIP
+ * and a DNI `'96'`; a RUC is `'6'` to SUNAT and a DNI `'1'`. The builders used to reach these by
+ * counting digits, which collides a mistyped number with a real one of another kind. This resolves
+ * the party's recorded `(country, code)` to its `regimeCodes` entry; when the party carries no
+ * document type but a taxpayer kind, it falls back to that kind's default invoicing document for the
+ * country. Null when neither is known — the caller decides what an unidentified party is in its own
+ * regime (AFIP `99` consumidor final, SUNAT `0`).
+ */
+export function regimeDocumentCode(
+  regime: string,
+  party: {
+    countryCode?: string | null;
+    code?: string | null;
+    kind?: TaxpayerKind | null;
+  },
+): string | null {
+  const country = upperCountry(party.countryCode ?? '');
+  if (!country) return null;
+  if (party.code) {
+    const byCode = findIdentityDocumentSpec(country, party.code)?.regimeCodes?.[regime];
+    if (byCode) return byCode;
+  }
+  if (party.kind) {
+    const byKind = invoicingDocumentForKind(country, party.kind)?.regimeCodes?.[regime];
+    if (byKind) return byKind;
+  }
+  return null;
 }
 
 /**

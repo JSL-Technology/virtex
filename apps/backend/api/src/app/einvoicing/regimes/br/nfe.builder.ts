@@ -5,6 +5,7 @@ import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { fiscalConsecutive } from '../fiscal-number';
+import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
  * Brazil — Nota Fiscal Eletrônica 4.00, SEFAZ.
@@ -161,15 +162,20 @@ export class NfeBuilder {
 
     const dest = inf.ele('dest');
     const buyerDocument = (customer.taxId ?? '').replace(/\D/g, '');
-    dest.ele(buyerDocument.length === 14 ? 'CNPJ' : 'CPF', {}, buyerDocument);
+    // Read from the catalogue row the customer was recorded with, not inferred from the number's
+    // length (A-02): a mistyped CNPJ is not silently re-typed as a CPF. An unidentified consumer's
+    // note carries the CPF slot.
+    const buyerTag =
+      buyerRegimeDocumentCode('nfe', customer, organization.country ?? 'BR') ?? 'CPF';
+    dest.ele(buyerTag, {}, buyerDocument);
     dest.ele('xNome', {}, customer.companyName);
     const destAddress = dest.ele('enderDest');
     destAddress.ele('xLgr', {}, customer.address ?? '');
     destAddress.ele('xMun', {}, customer.city ?? '');
     destAddress.ele('UF', {}, customer.stateOrProvince ?? '');
     destAddress.ele('CEP', {}, (customer.postalCode ?? '').replace(/\D/g, ''));
-    // `1` contribuinte de ICMS, `9` não contribuinte.
-    dest.ele('indIEDest', {}, buyerDocument.length === 14 ? '1' : '9');
+    // `1` contribuinte de ICMS, `9` não contribuinte — a CNPJ buyer is treated as a contributor.
+    dest.ele('indIEDest', {}, buyerTag === 'CNPJ' ? '1' : '9');
 
     for (const [index, line] of (invoice.lineItems ?? []).entries()) {
       const det = inf.ele('det').att('nItem', String(index + 1));

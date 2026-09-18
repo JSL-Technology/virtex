@@ -29,6 +29,10 @@ describe('NFe 4.00', () => {
     id: 'cus-1',
     companyName: 'DISTRIBUIDORA CARIOCA LTDA',
     taxId: '98.765.432/0001-10',
+    // The catalogue code the customer was recorded with — the builder states the buyer's document
+    // type from this, not from the length of the number (A-02).
+    identityDocumentTypeCode: 'CNPJ',
+    identityDocumentCountry: 'BR',
     address: 'Rua da Praia 50',
     city: 'Rio de Janeiro',
     stateOrProvince: 'RJ',
@@ -163,15 +167,36 @@ describe('NFe 4.00', () => {
       );
     });
 
-    it('identifies the buyer as CNPJ or CPF by the length of the document', () => {
+    it('identifies the buyer as CNPJ or CPF by the recorded document type, not the length', () => {
       expect(builder.build(input()).xml).toContain('<CNPJ>98765432000110</CNPJ>');
 
       const individual = builder.build(
-        input({ customer: { ...customer, taxId: '123.456.789-09' } as unknown as Customer }),
+        input({
+          customer: {
+            ...customer,
+            taxId: '123.456.789-09',
+            identityDocumentTypeCode: 'CPF',
+          } as unknown as Customer,
+        }),
       );
       expect(individual.xml).toContain('<CPF>12345678909</CPF>');
       // A natural person is not an ICMS taxpayer.
       expect(individual.xml).toContain('<indIEDest>9</indIEDest>');
+    });
+
+    it('falls back to the taxpayer kind when no document type was recorded', () => {
+      // A legacy customer with a company classification but no catalogue code still gets a CNPJ,
+      // from the country's default company invoicing document — not from counting digits.
+      const legacyCompany = builder.build(
+        input({
+          customer: {
+            ...customer,
+            identityDocumentTypeCode: null,
+            taxpayerType: 'COMPANY',
+          } as unknown as Customer,
+        }),
+      );
+      expect(legacyCompany.xml).toContain('<CNPJ>98765432000110</CNPJ>');
     });
 
     it('states the totals SEFAZ reconciles the lines against', () => {

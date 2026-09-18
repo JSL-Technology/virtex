@@ -5,6 +5,7 @@ import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { fiscalConsecutive } from '../fiscal-number';
+import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
  * Peru — comprobante de pago electrónico, SUNAT, UBL 2.1.
@@ -158,12 +159,14 @@ export class SunatBuilder {
     party.ele('cac:PartyLegalEntity').ele('cbc:RegistrationName', {}, name);
   }
 
-  /** Catálogo 06: `6` RUC, `1` DNI, `0` when the buyer stated none. */
+  /**
+   * Catálogo 06: `6` RUC, `1` DNI, `0` when the buyer stated none.
+   *
+   * Read from the catalogue the customer was recorded with, not inferred from the number's length
+   * (A-02): an 8-digit value is a DNI because the customer holds a DNI, not because it is 8 digits.
+   */
   private customerDocumentType(customer: Customer): string {
-    const digits = (customer.taxId ?? '').replace(/\D/g, '');
-    if (digits.length === 11) return '6';
-    if (digits.length === 8) return '1';
-    return '0';
+    return buyerRegimeDocumentCode('sunat', customer, 'PE') ?? '0';
   }
 
   /**

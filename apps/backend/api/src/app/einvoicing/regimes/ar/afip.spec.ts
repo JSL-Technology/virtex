@@ -30,6 +30,9 @@ describe('AFIP — WSFEv1', () => {
     id: 'cus-1',
     companyName: 'MAYORISTA CORDOBES SA',
     taxId: '30-70987654-3',
+    // The recorded catalogue code — the builder states DocTipo `80` from this, not from the length.
+    identityDocumentTypeCode: 'CUIT',
+    identityDocumentCountry: 'AR',
     fiscalProfile: { condicionIva: 'RESPONSABLE_INSCRIPTO' },
   } as unknown as Customer;
 
@@ -101,17 +104,29 @@ describe('AFIP — WSFEv1', () => {
       expect(creditNote.FeCabReq.CbteTipo).toBe(3);
     });
 
-    it('identifies the buyer by the shape of their document', () => {
-      // `80` CUIT, `96` DNI, `99` consumidor final sin identificar.
+    it('identifies the buyer by their recorded document type, not the shape', () => {
+      // `80` CUIT, `96` DNI, `99` consumidor final sin identificar — read from the catalogue.
       expect(builder.build(input()).FeDetReq[0].DocTipo).toBe(80);
 
       const withDni = builder.build(
-        input({ customer: { ...registeredBuyer, taxId: '25123456' } as unknown as Customer }),
+        input({
+          customer: {
+            ...registeredBuyer,
+            taxId: '25123456',
+            identityDocumentTypeCode: 'DNI',
+          } as unknown as Customer,
+        }),
       );
       expect(withDni.FeDetReq[0].DocTipo).toBe(96);
 
       const anonymous = builder.build(
-        input({ customer: { ...registeredBuyer, taxId: null } as unknown as Customer }),
+        input({
+          customer: {
+            ...registeredBuyer,
+            taxId: null,
+            identityDocumentTypeCode: null,
+          } as unknown as Customer,
+        }),
       );
       expect(anonymous.FeDetReq[0].DocTipo).toBe(99);
       expect(anonymous.FeDetReq[0].DocNro).toBe(0);

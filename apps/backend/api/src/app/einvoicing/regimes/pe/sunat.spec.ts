@@ -24,6 +24,9 @@ describe('SUNAT — comprobante de pago electrónico', () => {
     id: 'cus-1',
     companyName: 'CLIENTE PERUANO SAC',
     taxId: '20987654321',
+    // The recorded catalogue code — the builder states SUNAT's tipo `6` (RUC) from this, not the length.
+    identityDocumentTypeCode: 'RUC',
+    identityDocumentCountry: 'PE',
   } as unknown as Customer;
 
   const invoice = {
@@ -114,12 +117,18 @@ describe('SUNAT — comprobante de pago electrónico', () => {
     expect(xml).toContain('1180.00');
   });
 
-  it('identifies the buyer by the length of their document', () => {
-    // Catálogo 06: `6` RUC (11 digits), `1` DNI (8), `0` when none was stated.
+  it('identifies the buyer by their recorded document type, not the length', () => {
+    // Catálogo 06: `6` RUC, `1` DNI, `0` when none was stated — read from the catalogue.
     expect(builder.build(input()).xml).toContain('schemeID="6"');
 
     const withDni = builder.build(
-      input({ customer: { ...customer, taxId: '45678912' } as unknown as Customer }),
+      input({
+        customer: {
+          ...customer,
+          taxId: '45678912',
+          identityDocumentTypeCode: 'DNI',
+        } as unknown as Customer,
+      }),
     );
     expect(withDni.xml).toContain('schemeID="1"');
   });

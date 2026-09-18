@@ -3,6 +3,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
  * Argentina — AFIP, WSFEv1.
@@ -183,7 +184,7 @@ export class AfipBuilder {
     if (input.issuerVatCondition === 'MONOTRIBUTO') return isCredit ? 13 : 11;
 
     const buyerIsRegistered =
-      (input.customer.taxId ?? '').replace(/\D/g, '').length === 11 &&
+      buyerRegimeDocumentCode('afip', input.customer, 'AR') === '80' &&
       (input.customer as unknown as { fiscalProfile?: Record<string, string> }).fiscalProfile?.[
         'condicionIva'
       ] === 'RESPONSABLE_INSCRIPTO';
@@ -192,12 +193,10 @@ export class AfipBuilder {
     return isCredit ? 8 : 6;
   }
 
-  /** `80` CUIT, `96` DNI, `99` consumidor final sin identificar. */
+  /** `80` CUIT, `96` DNI, `99` consumidor final sin identificar — from the catalogue, not the length (A-02). */
   private buyerDocumentType(customer: Customer): number {
-    const digits = (customer.taxId ?? '').replace(/\D/g, '');
-    if (digits.length === 11) return 80;
-    if (digits.length >= 7 && digits.length <= 8) return 96;
-    return 99;
+    const code = buyerRegimeDocumentCode('afip', customer, 'AR');
+    return code ? Number(code) : 99;
   }
 
   /** `1` productos, `2` servicios, `3` ambos. */
