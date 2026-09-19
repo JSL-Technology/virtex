@@ -10,11 +10,12 @@ import { Product } from '../../../core/models/product.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,11 +72,12 @@ export class ProductsPage implements OnInit {
   }
 
 
-  getStockStatusClass(product: Product): string {
-    if (product.status === 'Inactive') return 'status-inactive';
-    if (product.stock === 0) return 'status-out';
-    if (product.reorderLevel && product.stock <= product.reorderLevel) return 'status-low';
-    return 'status-active';
+  /** Sin existencias es un problema, por debajo del punto de pedido es un aviso. */
+  stockTone(product: Product): VxTone {
+    if (product.status === 'Inactive') return 'neutral';
+    if (product.stock === 0) return 'danger';
+    if (product.reorderLevel && product.stock <= product.reorderLevel) return 'warning';
+    return 'ok';
   }
 
   async deleteProduct(product: Product): Promise<void> {

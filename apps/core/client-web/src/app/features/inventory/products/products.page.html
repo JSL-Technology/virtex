@@ -49,7 +49,7 @@
             <td class="text-right">{{ product.cost | vxNumber: '1.2-2' }}</td>
             <td class="text-right">{{ product.stock }}</td>
             <td>
-              <span class="status-badge" [class]="getStockStatusClass(product)">
+              <vx-badge [tone]="stockTone(product)">
                 {{
                   (product.status === 'Active'
                     ? product.stock > 0
@@ -58,7 +58,7 @@
                     : 'inventory.products.status_inactive'
                   ) | translate
                 }}
-              </span>
+              </vx-badge>
             </td>
             <td class="actions-column">
               <div class="action-buttons">

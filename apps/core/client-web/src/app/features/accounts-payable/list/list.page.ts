@@ -6,11 +6,12 @@ import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,15 +57,33 @@ export class VendorBillsListPage implements OnInit {
     return `accounts_payable.status.${status}`;
   }
 
-  getStatusClass(status: VendorBill['status']): string {
+  /**
+   * What the state of a bill MEANS, which is the only thing a badge needs.
+   *
+   * It used to return a CSS class, and the five classes it returned were not five colours: `PAID`
+   * and `OPEN` both rendered green-ish through `.status-paid` / `.status-approved` defined in
+   * this page's own stylesheet. The tone says the thing directly — settled, in progress, waiting,
+   * rejected — and one stylesheet gives each one its colour for the whole product.
+   */
+  statusTone(status: VendorBill['status']): VxTone {
     switch (status) {
-      case 'PAID': return 'status-paid';
-      case 'PARTIALLY_PAID': return 'status-approved';
-      case 'OPEN': return 'status-approved';
-      case 'PENDING_APPROVAL': return 'status-pending';
+      case 'PAID':
+        return 'ok';
+      case 'PARTIALLY_PAID':
+      case 'OPEN':
+        return 'info';
+      case 'PENDING_APPROVAL':
+        return 'warning';
       case 'VOID':
-      case 'REJECTED': return 'status-overdue';
-      default: return 'status-draft';
+      case 'REJECTED':
+        return 'danger';
+      default:
+        return 'draft';
     }
+  }
+
+  /** Anulada o rechazada: la factura existe y ya no cuenta. */
+  isVoid(status: VendorBill['status']): boolean {
+    return status === 'VOID' || status === 'REJECTED';
   }
 }

@@ -85,10 +85,10 @@
         <div class="proof__header">
           <h4>{{ 'accounting.reconciliation.proof' | translate }}</h4>
           @if (statement(); as current) {
-            <span class="status-badge" [ngClass]="statusClass(current.status)">
+            <vx-badge [tone]="statusTone(current.status)">
               <lucide-icon [img]="statusIcon(current.status)" size="14"></lucide-icon>
               {{ statusKey(current.status) | translate }}
-            </span>
+            </vx-badge>
           }
         </div>
 
@@ -169,9 +169,9 @@
                 <td>{{ movement.reference ?? '—' }}</td>
                 <td class="text-right">{{ signedAmount(movement) | vxNumber: '1.2-2' }}</td>
                 <td class="text-center">
-                  <span class="status-badge" [ngClass]="movement.status === 'MATCHED' ? 'status-reconciled' : movement.status === 'EXCLUDED' ? 'status-differences' : 'status-pending'">
+                  <vx-badge size="sm" [tone]="movementTone(movement.status)">
                     {{ 'accounting.reconciliation.status.' + (movement.status === 'MATCHED' ? 'RECONCILED' : 'IMPORTED') | translate }}
-                  </span>
+                  </vx-badge>
                 </td>
                 <td class="actions-column">
                   @if (movement.status === 'UNMATCHED' && current.status !== 'RECONCILED') {

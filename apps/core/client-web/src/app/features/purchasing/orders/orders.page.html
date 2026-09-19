@@ -35,9 +35,9 @@
             <td>{{ order.orderDate | vxDate }}</td>
             <td class="text-right">{{ order.total | vxMoney: order.currencyCode }}</td>
             <td class="text-center">
-              <span class="status-badge" [class]="getStatusClass(order.status)">
+              <vx-badge [tone]="statusTone(order.status)" [struck]="order.status === 'CANCELLED'">
                 {{ 'purchasing.orders.status_label.' + order.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

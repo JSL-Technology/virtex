@@ -36,7 +36,7 @@
             <td>{{ list.validTo | vxDate: 'dateLong' }}</td>
             <td class="text-center">{{ list.items.length }}</td>
             <td>
-              <span class="status-badge" [class]="getStatusClass(list.status)">{{ list.status }}</span>
+              <vx-badge [tone]="statusTone(list.status)">{{ list.status }}</vx-badge>
             </td>
             <td class="actions-column">
               <div class="action-buttons">

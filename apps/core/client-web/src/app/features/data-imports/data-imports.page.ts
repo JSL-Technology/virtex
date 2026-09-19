@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, UploadCloud, Download, File, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { VxBadgeComponent, VxTone } from '../../shared/components/badge';
 
 // Tipos de datos para la página
 type ImportStatus = 'Completed' | 'Processing' | 'Failed';
@@ -24,7 +25,7 @@ interface DataType {
 @Component({
   selector: 'app-data-imports-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxBadgeComponent],
   templateUrl: './data-imports.page.html',
   styleUrls: ['./data-imports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -91,10 +92,10 @@ export class DataImportsPage {
     }, 2500);
   }
 
-  getStatusClass(status: ImportStatus): string {
-    if (status === 'Completed') return 'status-completed';
-    if (status === 'Processing') return 'status-processing';
-    if (status === 'Failed') return 'status-failed';
-    return '';
+  statusTone(status: ImportStatus): VxTone {
+    if (status === 'Completed') return 'ok';
+    if (status === 'Processing') return 'info';
+    if (status === 'Failed') return 'danger';
+    return 'neutral';
   }
 }

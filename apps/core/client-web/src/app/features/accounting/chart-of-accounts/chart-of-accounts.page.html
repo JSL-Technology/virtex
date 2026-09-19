@@ -124,14 +124,14 @@
               {{ account.balance | vxNumber: '1.2-2' }}
             </td>
             <td class="text-center">
-              <span class="status-badge" [class.active]="account.isActive">
+              <vx-badge [tone]="account.isActive ? 'ok' : 'neutral'">
                 {{
                   (account.isActive
                     ? 'accounting.chart_of_accounts.active'
                     : 'accounting.chart_of_accounts.inactive'
                   ) | translate
                 }}
-              </span>
+              </vx-badge>
             </td>
             <td class="actions-column">
               <div class="action-buttons">

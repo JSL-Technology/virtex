@@ -12,11 +12,13 @@ import {
   EmploymentStatus,
   HcmService,
 } from '../../../core/api/hcm.service';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
-const STATUS_CLASS: Record<EmploymentStatus, string> = {
-  ACTIVE: 'status-approved',
-  SUSPENDED: 'status-pending',
-  TERMINATED: 'status-rejected',
+/** Qué significa la situación de un empleado. El color lo pone `vx-badge`, una vez. */
+const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
+  ACTIVE: 'ok',
+  SUSPENDED: 'warning',
+  TERMINATED: 'danger',
 };
 
 /**
@@ -33,7 +35,7 @@ const STATUS_CLASS: Record<EmploymentStatus, string> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -84,7 +86,7 @@ export class EmployeesPage {
     return employee.departmentId ? this.departmentNames().get(employee.departmentId) ?? '—' : '—';
   }
 
-  statusClass(status: EmploymentStatus): string {
-    return STATUS_CLASS[status] ?? 'status-draft';
+  statusTone(status: EmploymentStatus): VxTone {
+    return STATUS_TONE[status] ?? 'neutral';
   }
 }

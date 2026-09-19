@@ -41,9 +41,9 @@
             <td>{{ req.requiredDate ? (req.requiredDate | vxDate) : '—' }}</td>
             <td class="text-right">{{ req.totalAmount | vxMoney }}</td>
             <td class="text-center">
-              <span class="status-badge" [class]="getStatusClass(req.status)">
+              <vx-badge [tone]="statusTone(req.status)" [struck]="req.status === 'REJECTED'">
                 {{ 'purchasing.requisitions.status_label.' + req.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

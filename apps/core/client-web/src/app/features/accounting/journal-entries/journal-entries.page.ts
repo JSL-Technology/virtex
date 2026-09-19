@@ -10,6 +10,7 @@ import {
   JournalEntryStatus,
 } from '../../../core/api/journal-entries.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 /**
  * The journal.
@@ -32,7 +33,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -114,9 +115,14 @@ export class JournalEntriesPage {
     return keys[status] ?? status;
   }
 
-  statusClass(status: JournalEntryStatus): string {
-    if (status === 'Posted') return 'status-posted';
-    if (status === 'Void' || status === 'Rejected') return 'status-void';
-    return 'status-draft';
+  statusTone(status: JournalEntryStatus): VxTone {
+    if (status === 'Posted') return 'ok';
+    if (status === 'Void' || status === 'Rejected') return 'danger';
+    return 'draft';
+  }
+
+  /** Un asiento anulado o rechazado ya no cuenta en el mayor, y se tacha. */
+  isVoid(status: JournalEntryStatus): boolean {
+    return status === 'Void' || status === 'Rejected';
   }
 }

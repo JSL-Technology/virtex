@@ -4,28 +4,6 @@
 :host {
   @include list.list-page;
 
-  .status-badge {
-    text-transform: capitalize;
-
-    &.status-open {
-      background-color: var(--success-surface);
-      border-color: var(--success-text);
-      color: var(--success-text);
-    }
-
-    &.status-closed {
-      background-color: var(--error-surface);
-      border-color: var(--error-text);
-      color: var(--error-text);
-    }
-
-    &.status-future {
-      background-color: var(--surface-sunken);
-      border-color: var(--border-default);
-      color: var(--content-secondary);
-    }
-  }
-
   .action-button {
     @include ds.button-secondary('sm');
   }

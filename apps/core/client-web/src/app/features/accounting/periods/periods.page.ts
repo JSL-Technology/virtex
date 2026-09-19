@@ -10,6 +10,7 @@ import {
 } from '../../../core/api/accounting-periods.service';
 import { NotificationService } from '../../../core/services/notification';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 /**
  * The tenant's accounting calendar.
@@ -36,7 +37,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 @Component({
   selector: 'app-periods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './periods.page.html',
   styleUrls: ['./periods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,8 +83,14 @@ export class PeriodsPage {
     return status === 'OPEN' ? 'accounting.periods.status_open' : 'accounting.periods.status_closed';
   }
 
-  statusClass(status: AccountingPeriod['status']): string {
-    return status === 'OPEN' ? 'status-open' : 'status-closed';
+  /**
+   * Abierto admite asientos; cerrado no. Esa es la diferencia que el color tiene que comunicar.
+   *
+   * `danger` y no `neutral` para el cerrado a propósito: no es un estado inerte, es el que hace
+   * que registrar algo en ese período sea imposible.
+   */
+  statusTone(status: AccountingPeriod['status']): VxTone {
+    return status === 'OPEN' ? 'ok' : 'danger';
   }
 
   close(period: AccountingPeriod): void {

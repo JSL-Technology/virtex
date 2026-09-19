@@ -13,9 +13,9 @@
 
     @if (current()) {
       <div class="doc-status">
-        <span class="status-badge">
+        <vx-badge [tone]="statusTone()" [struck]="status() === 'REJECTED'">
           {{ 'purchasing.requisitions.status_label.' + status() | translate }}
-        </span>
+        </vx-badge>
         @if (current()!.rejectionReason) {
           <span class="doc-status__reason">{{ current()!.rejectionReason }}</span>
         }

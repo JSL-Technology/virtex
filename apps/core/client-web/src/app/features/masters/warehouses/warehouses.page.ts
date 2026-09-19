@@ -9,6 +9,7 @@ import { Warehouse, WarehousesService } from '../../../core/api/warehouses.servi
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 
 /**
  * Where stock is held.
@@ -26,7 +27,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

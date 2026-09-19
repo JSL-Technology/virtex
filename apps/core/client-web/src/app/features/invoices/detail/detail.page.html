@@ -199,7 +199,7 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">{{ 'invoices.detail.dgii_status' | translate }}</span>
-          <span class="status-badge" [ngClass]="e.status.toLowerCase()">{{ ecfStatusLabel(e.status) }}</span>
+          <vx-badge [tone]="ecfStatusTone(e.status)">{{ ecfStatusLabel(e.status) }}</vx-badge>
         </div>
         <div class="detail-item" *ngIf="e.trackId">
           <span class="detail-label">{{ 'invoices.detail.trackid' | translate }}</span>

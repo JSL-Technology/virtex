@@ -54,9 +54,9 @@
             <td class="text-right">{{ bill.total | vxNumber: '1.2-2' }}</td>
             <td class="text-right">{{ bill.balance | vxNumber: '1.2-2' }}</td>
             <td class="text-center">
-              <span class="status-badge" [class]="getStatusClass(bill.status)">
+              <vx-badge [tone]="statusTone(bill.status)" [struck]="isVoid(bill.status)">
                 {{ statusKey(bill.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

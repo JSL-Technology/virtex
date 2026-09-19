@@ -9,7 +9,7 @@ import {
   InvoiceQuery,
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
-import { invoiceStatusClass, invoiceStatusKey } from '../../../core/services/invoice-status';
+import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,6 +20,7 @@ import {
   toCsv,
 } from '../../../core/export/csv-export';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 /**
  * The invoice list.
@@ -37,7 +38,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y],
+  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -161,8 +162,21 @@ export class InvoicesListPage implements OnInit {
     return invoiceStatusKey(status);
   }
 
-  getStatusClass(status: Invoice['status']): string {
-    return invoiceStatusClass(status);
+  /**
+   * The tone of a stored status.
+   *
+   * `invoice-status.ts` has carried this table since three screens disagreed about what to call a
+   * DRAFT invoice; what it used to hand back was a CSS class name, which meant every list that
+   * showed an invoice also had to ship the stylesheet that gave that class a colour. Now it hands
+   * back a meaning and `vx-badge` decides the colour once.
+   */
+  statusTone(status: Invoice['status']): VxTone {
+    return invoiceStatusTone(status);
+  }
+
+  /** Anulada o sustituida por una nota de crédito: ya no admite trabajo, y se tacha. */
+  isVoid(status: Invoice['status']): boolean {
+    return status === 'Void' || status === 'Credit Note';
   }
 
   /**

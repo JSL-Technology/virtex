@@ -59,9 +59,9 @@
             <td>{{ warehouse.code || '—' }}</td>
             <td>{{ warehouse.city || '—' }}</td>
             <td class="text-center">
-              <span class="status-badge" [class.active]="warehouse.isActive">
+              <vx-badge [tone]="warehouse.isActive ? 'ok' : 'neutral'">
                 {{ (warehouse.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

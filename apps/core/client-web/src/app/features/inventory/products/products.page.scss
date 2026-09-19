@@ -12,35 +12,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  //  Cuatro estados y no dos: «bajo mínimo» es la señal que hace que alguien
-  //  reponga antes de quedarse sin existencias, y sin ella solo se entera
-  //  cuando ya no puede vender.
-  .status-badge {
-    &.status-active {
-      background-color: var(--success-surface);
-      border-color: var(--success-text);
-      color: var(--success-text);
-    }
-
-    &.status-low {
-      background-color: var(--warning-surface);
-      border-color: var(--warning-text);
-      color: var(--warning-text);
-    }
-
-    &.status-out {
-      background-color: var(--error-surface);
-      border-color: var(--error-text);
-      color: var(--error-text);
-    }
-
-    &.status-inactive {
-      background-color: var(--surface-sunken);
-      border-color: var(--border-default);
-      color: var(--content-tertiary);
-    }
-  }
-
   .action-buttons {
     display: inline-flex;
     gap: var(--space-1);

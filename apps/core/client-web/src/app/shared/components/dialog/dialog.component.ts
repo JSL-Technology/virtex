@@ -1,4 +1,4 @@
-import { ConfigurableFocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
+import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
@@ -103,7 +103,7 @@ export class VxDialogComponent implements AfterViewInit, OnDestroy {
 
   private readonly panelTemplate = viewChild.required<TemplateRef<unknown>>('panel');
   private overlayRef: OverlayRef | null = null;
-  private focusTrap: ConfigurableFocusTrap | null = null;
+  private focusTrap: FocusTrap | null = null;
   /** Where focus was when this opened, so it can go back there. */
   private opener: HTMLElement | null = null;
 

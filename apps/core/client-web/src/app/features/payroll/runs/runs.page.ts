@@ -13,13 +13,21 @@ import {
   PayrollRunType,
   PayrollService,
 } from '../../../core/api/payroll.service';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
-const STATUS_CLASS: Record<PayrollRunStatus, string> = {
-  DRAFT: 'status-draft',
-  CALCULATED: 'status-pending',
-  APPROVED: 'status-approved',
-  PAID: 'status-sent',
-  CANCELLED: 'status-rejected',
+/**
+ * Lo que significa cada estado de una nómina, no de qué color se pinta.
+ *
+ * Era una tabla de nombres de clase CSS, y esos nombres —`status-sent`, `status-rejected`— venían
+ * de una hoja de estilos de otra pantalla: una nómina pagada no se «envía» a nadie. El tono dice
+ * la idea y `vx-badge` decide el color una sola vez para todo el producto.
+ */
+const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
+  DRAFT: 'draft',
+  CALCULATED: 'warning',
+  APPROVED: 'info',
+  PAID: 'ok',
+  CANCELLED: 'danger',
 };
 
 /**
@@ -35,7 +43,7 @@ const STATUS_CLASS: Record<PayrollRunStatus, string> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,8 +95,8 @@ export class PayrollRunsPage {
       });
   }
 
-  statusClass(status: PayrollRunStatus): string {
-    return STATUS_CLASS[status] ?? 'status-draft';
+  statusTone(status: PayrollRunStatus): VxTone {
+    return STATUS_TONE[status] ?? 'neutral';
   }
 
   /** `2026-09`. The period, not the pay date: two runs can pay on the same day. */

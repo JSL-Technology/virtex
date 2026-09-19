@@ -41,9 +41,9 @@
             <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-right">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-center">
-              <span class="status-badge" [ngClass]="statusClass(entry.status)">
+              <vx-badge [tone]="statusTone(entry.status)" [struck]="isVoid(entry.status)">
                 {{ statusKey(entry.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
             <td class="actions-column">
               <a

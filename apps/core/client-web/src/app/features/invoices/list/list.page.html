@@ -74,9 +74,9 @@
                 —«Cobrada», «Por cobrar»— tres líneas debajo de las mismas claves usadas en el
                 filtro, así que una pantalla en inglés mostraba media tabla en español.
               -->
-              <span class="status-badge" [class]="getStatusClass(invoice.status)">
+              <vx-badge [tone]="statusTone(invoice.status)" [struck]="isVoid(invoice.status)">
                 {{ statusKey(invoice.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

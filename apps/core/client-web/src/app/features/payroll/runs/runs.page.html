@@ -67,9 +67,9 @@
             <!-- What the payroll actually costs the company: net plus the employer's own share. -->
             <td class="text-right">{{ run.totalEmployerContributions | vxMoney: run.currencyCode }}</td>
             <td class="text-center">
-              <span class="status-badge" [class]="statusClass(run.status)">
+              <vx-badge [tone]="statusTone(run.status)">
                 {{ 'payroll.runs.status_label.' + run.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

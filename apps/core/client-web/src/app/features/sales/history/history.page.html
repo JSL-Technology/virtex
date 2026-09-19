@@ -42,9 +42,9 @@
             <td class="text-right">{{ sale.total | vxNumber: '1.2-2' }}</td>
             <td>{{ sale.paymentMethod || '—' }}</td>
             <td>
-              <span class="status-badge" [class]="statusClass(sale.status)">
+              <vx-badge [tone]="statusTone(sale.status)" [struck]="isCancelled(sale.status)">
                 {{ 'pos.sale_status.' + sale.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

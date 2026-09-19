@@ -7,43 +7,6 @@
     font-weight: var(--font-regular);
 }
 
-.status-badge {
-    margin-left: var(--space-4);
-    vertical-align: middle;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: var(--text-md);
-    font-weight: var(--font-medium);
-    text-transform: capitalize;
-
-    &.paid {
-        background-color: rgba(var(--success-rgb), 0.1);
-        color: var(--success-text);
-    }
-
-    &.pending {
-        background-color: rgba(var(--warning-rgb), 0.1);
-        color: var(--warning-text);
-    }
-
-    &.void, &.credit-note {
-        background-color: rgba(var(--error-rgb), 0.1);
-        color: var(--error-text);
-    }
-
-    &.partially-paid {
-        background-color: rgba(var(--accent-solid-rgb), 0.1);
-        color: var(--accent-text);
-    }
-
-    //  El borrador no tenía regla: su insignia salía sin color, que es exactamente el estado que
-    //  más conviene distinguir de una factura ya emitida.
-    &.draft, &.unknown {
-        background-color: var(--surface-sunken);
-        color: var(--content-tertiary);
-    }
-}
-
 .invoice-document {
     padding: var(--space-12);
     max-width: 800px;

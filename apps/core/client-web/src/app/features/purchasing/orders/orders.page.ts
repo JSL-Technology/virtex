@@ -11,16 +11,18 @@ import {
   PurchaseOrderStatus,
   PurchasingService,
 } from '../../../core/api/purchasing.service';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 /** Which badge colour each status carries. Green means the goods are in. */
-const STATUS_CLASS: Record<PurchaseOrderStatus, string> = {
-  DRAFT: 'status-draft',
-  PENDING_APPROVAL: 'status-pending',
-  APPROVED: 'status-approved',
-  SENT: 'status-sent',
-  PARTIALLY_RECEIVED: 'status-pending',
-  RECEIVED: 'status-approved',
-  CANCELLED: 'status-rejected',
+/** Lo que significa cada estado de un pedido. El color lo pone `vx-badge`, una vez. */
+const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
+  DRAFT: 'draft',
+  PENDING_APPROVAL: 'warning',
+  APPROVED: 'info',
+  SENT: 'info',
+  PARTIALLY_RECEIVED: 'warning',
+  RECEIVED: 'ok',
+  CANCELLED: 'danger',
 };
 
 /**
@@ -36,7 +38,7 @@ const STATUS_CLASS: Record<PurchaseOrderStatus, string> = {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,7 +58,7 @@ export class OrdersPage {
   readonly loading = computed(() => this.page() === undefined);
   readonly failed = computed(() => this.page() === null);
 
-  getStatusClass(status: PurchaseOrderStatus): string {
-    return STATUS_CLASS[status] ?? 'status-draft';
+  statusTone(status: PurchaseOrderStatus): VxTone {
+    return STATUS_TONE[status] ?? 'neutral';
   }
 }

@@ -1,9 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, RotateCw, PanelRight } from 'lucide-angular';
+import { VxBadgeComponent, VxTone } from '../badge';
 
-/** Cómo se pinta el estado de un documento. Semántico, nunca decorativo. */
-export type DocumentTone = 'neutral' | 'draft' | 'ok' | 'warning' | 'danger';
+/**
+ * Cómo se pinta el estado de un documento. Semántico, nunca decorativo.
+ *
+ * Es un ALIAS del vocabulario compartido, no una lista propia. Cuando este armazón dibujaba su
+ * insignia a mano, el mismo estado tenía un color aquí y otro en la lista que llevaba hasta aquí,
+ * porque eran dos hojas de estilos distintas manteniendo la misma idea. El nombre se conserva
+ * porque lee mejor en la firma de un documento —y porque renombrarlo tocaría veinte pantallas
+ * para no cambiar nada.
+ */
+export type DocumentTone = VxTone;
 
 /**
  * El gesto DOCUMENT: leer un registro, con su estado y su historia.
@@ -24,7 +33,7 @@ export type DocumentTone = 'neutral' | 'draft' | 'ok' | 'warning' | 'danger';
 @Component({
   selector: 'vx-document-shell',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule, VxBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './document-shell.component.html',
   styleUrls: ['./document-shell.component.scss'],

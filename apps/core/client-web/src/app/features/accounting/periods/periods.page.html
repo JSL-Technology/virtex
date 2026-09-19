@@ -39,9 +39,9 @@
             <td>{{ period.startDate | vxDate: 'date' : true }}</td>
             <td>{{ period.endDate | vxDate: 'date' : true }}</td>
             <td class="text-center">
-              <span class="status-badge" [ngClass]="statusClass(period.status)">
+              <vx-badge [tone]="statusTone(period.status)">
                 {{ statusKey(period.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
             <td class="actions-column">
               @if (period.status === 'OPEN') {

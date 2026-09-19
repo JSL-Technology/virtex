@@ -13,9 +13,9 @@
 
     @if (current()) {
       <div class="doc-status">
-        <span class="status-badge">
+        <vx-badge [tone]="statusTone()" [struck]="status() === 'CANCELLED'">
           {{ 'purchasing.orders.status_label.' + status() | translate }}
-        </span>
+        </vx-badge>
         @if (current()!.requisitionId) {
           <a class="doc-status__link"
              [routerLink]="['/purchasing/requisitions', current()!.requisitionId, 'edit']">
