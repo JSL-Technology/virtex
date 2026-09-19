@@ -24,3 +24,30 @@
 .cdk-overlay-dark-backdrop {
   background: var(--scrim);
 }
+
+// -----------------------------------------------------------------------------
+//  ANCHOS DEL DIÁLOGO
+// -----------------------------------------------------------------------------
+//  El panel del overlay lo crea el CDK FUERA del árbol de cualquier componente,
+//  así que su anchura no puede vivir en una hoja encapsulada. Aquí, y con
+//  márgenes de pantalla, para que un diálogo grande en un móvil siga siendo un
+//  diálogo y no una página con bordes.
+.cdk-overlay-pane.vx-dialog__pane {
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
+}
+
+.cdk-overlay-pane.vx-dialog__pane--sm { width: 26rem; }
+.cdk-overlay-pane.vx-dialog__pane--md { width: 34rem; }
+.cdk-overlay-pane.vx-dialog__pane--lg { width: 46rem; }
+.cdk-overlay-pane.vx-dialog__pane--xl { width: 60rem; }
+
+//  El velo del diálogo desenfoca lo que hay detrás donde el navegador lo
+//  soporta de verdad. `@supports` porque sin él el desenfoque se ignora y el
+//  velo sigue siendo un velo; con una regla suelta, en los navegadores que lo
+//  anuncian y lo componen mal, degrada el desplazamiento de toda la página.
+.cdk-overlay-backdrop.vx-dialog__scrim {
+  @supports (backdrop-filter: blur(4px)) {
+    backdrop-filter: blur(4px);
+  }
+}

@@ -1,0 +1,32 @@
+// =============================================================================
+//  VX-AMOUNT
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  @include ds.numeric;
+
+  //  Alineado a la derecha SIEMPRE. En una columna de importes, el punto
+  //  decimal tiene que caer en la misma vertical fila tras fila; si no, leer la
+  //  magnitud exige contar dígitos.
+  display: inline-block;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--content-primary);
+}
+
+:host(.vx-amount--negative) {
+  color: var(--error-text);
+}
+
+//  Un cero no es una cifra que haya que leer: es la ausencia de movimiento. Se
+//  atenúa para que las filas con saldo destaquen sobre las que no lo tienen.
+:host(.vx-amount--zero) {
+  color: var(--content-tertiary);
+}
+
+.vx-amount__unit {
+  margin-inline-start: var(--space-1);
+  color: var(--content-tertiary);
+  font-size: 0.9em;
+}

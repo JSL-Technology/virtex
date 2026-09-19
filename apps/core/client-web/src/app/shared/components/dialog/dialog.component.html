@@ -1,0 +1,53 @@
+<ng-template #panel>
+  <!--
+    `tabindex="-1"` para que el panel PUEDA recibir el foco sin ser una parada de tabulación. La
+    trampa y la colocación del foco las monta el componente al adjuntar el overlay; ver
+    `trapFocus`.
+  -->
+  <div
+    class="vx-dialog__panel"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="titleKey() || title() ? titleId : null"
+    tabindex="-1"
+  >
+    @if (titleKey() || title() || !hideCloseButton()) {
+      <header class="vx-dialog__header">
+        <div class="vx-dialog__heading">
+          @if (titleKey() || title(); as _) {
+            <h2 class="vx-dialog__title" [id]="titleId">
+              {{ title() ?? (titleKey() | translate) }}
+            </h2>
+          }
+          @if (subtitleKey(); as subtitle) {
+            <p class="vx-dialog__subtitle">{{ subtitle | translate }}</p>
+          }
+        </div>
+
+        @if (!hideCloseButton()) {
+          <button
+            type="button"
+            class="vx-dialog__close"
+            [disabled]="busy()"
+            [attr.aria-label]="'common.close' | translate"
+            (click)="close()"
+          >
+            <lucide-icon [img]="CloseIcon" aria-hidden="true"></lucide-icon>
+          </button>
+        }
+      </header>
+    }
+
+    <div class="vx-dialog__body">
+      <ng-content />
+    </div>
+
+    <!--
+      El pie solo existe si el llamante proyectó algo. Un `<footer>` vacío con su borde superior es
+      una raya que no separa nada.
+    -->
+    <footer class="vx-dialog__footer" #actions [class.is-empty]="actions.childElementCount === 0">
+      <ng-content select="[dialogActions]" />
+    </footer>
+  </div>
+</ng-template>

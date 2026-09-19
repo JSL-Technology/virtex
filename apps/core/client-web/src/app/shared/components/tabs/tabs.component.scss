@@ -1,0 +1,56 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.vx-tabs__list {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+
+  @include ds.scrollbar;
+}
+
+.vx-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  height: var(--control-height-lg);
+  padding-inline: var(--space-4);
+
+  font-family: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+  white-space: nowrap;
+
+  background: none;
+  border: none;
+  //  El subrayado se reserva desde el principio, transparente, para que activar
+  //  una pestaña no mueva el texto un píxel.
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+
+  @include ds.transition(color, border-color, background-color);
+  @include ds.focus-ring(-2px);
+
+  &:hover:not(.is-disabled):not(.is-active) {
+    color: var(--content-primary);
+    background-color: var(--surface-hover);
+  }
+
+  &.is-active {
+    color: var(--accent-text);
+    border-bottom-color: var(--accent-solid);
+  }
+
+  &.is-disabled {
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+}

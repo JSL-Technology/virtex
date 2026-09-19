@@ -49,6 +49,11 @@
     "en": "Copy",
     "pt": "Copiar"
   },
+  "common.date_range_inverted": {
+    "es": "La fecha inicial es posterior a la final: no hay ningún período entre las dos.",
+    "en": "The start date is after the end date, so there is no period between the two.",
+    "pt": "A data inicial é posterior à final: não há período entre as duas."
+  },
   "common.delete": {
     "es": "Eliminar",
     "en": "Delete",
@@ -74,6 +79,11 @@
     "en": "Edit",
     "pt": "Editar"
   },
+  "common.empty_title": {
+    "es": "Todavía no hay nada aquí.",
+    "en": "There is nothing here yet.",
+    "pt": "Ainda não há nada aqui."
+  },
   "common.file_too_large": {
     "en": "That file is too large.",
     "es": "El archivo es demasiado grande.",
@@ -88,6 +98,16 @@
     "es": "Tipo de archivo no permitido ({{mimetype}}).",
     "en": "File type not allowed ({{mimetype}}).",
     "pt": "Tipo de arquivo não permitido ({{mimetype}})."
+  },
+  "common.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "common.go_to_page": {
+    "es": "Ir a la página {{page}}",
+    "en": "Go to page {{page}}",
+    "pt": "Ir para a página {{page}}"
   },
   "common.idempotency_key_in_progress": {
     "es": "Ya hay una petición en curso con esa clave. Espera su respuesta antes de reintentar.",
@@ -129,6 +149,11 @@
     "en": "Next",
     "pt": "Avançar"
   },
+  "common.next_page": {
+    "es": "Página siguiente",
+    "en": "Next page",
+    "pt": "Próxima página"
+  },
   "common.not_recorded": {
     "es": "Sin registrar",
     "en": "Not recorded",
@@ -138,6 +163,16 @@
     "es": "Página {{page}} · {{total}} registros",
     "en": "Page {{page}} · {{total}} records",
     "pt": "Página {{page}} · {{total}} registos"
+  },
+  "common.pager_page": {
+    "es": "Página {{page}}",
+    "en": "Page {{page}}",
+    "pt": "Página {{page}}"
+  },
+  "common.pager_range": {
+    "es": "{{first}}–{{last}} de {{total}}",
+    "en": "{{first}}–{{last}} of {{total}}",
+    "pt": "{{first}}–{{last}} de {{total}}"
   },
   "common.pagination": {
     "es": "Paginación",
@@ -149,6 +184,11 @@
     "en": "Previous",
     "pt": "Anterior"
   },
+  "common.previous_page": {
+    "es": "Página anterior",
+    "en": "Previous page",
+    "pt": "Página anterior"
+  },
   "common.refresh": {
     "es": "Actualizar",
     "en": "Refresh",
@@ -158,6 +198,11 @@
     "es": "Reintentar",
     "en": "Try again",
     "pt": "Tentar novamente"
+  },
+  "common.rows_per_page": {
+    "es": "Filas por página",
+    "en": "Rows per page",
+    "pt": "Linhas por página"
   },
   "common.save": {
     "es": "Guardar",
@@ -188,6 +233,11 @@
     "es": "Listo",
     "en": "Done",
     "pt": "Pronto"
+  },
+  "common.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
   },
   "common.toast.error": {
     "es": "Error",

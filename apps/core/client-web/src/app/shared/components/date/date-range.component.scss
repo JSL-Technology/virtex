@@ -1,0 +1,32 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.vx-date-range__field {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    @include ds.field-label;
+  }
+}
+
+.vx-date-range__message {
+  @include ds.field-error;
+
+  //  Ocupa las dos columnas: el mensaje habla del par, no de uno de los dos
+  //  extremos, y colgarlo de uno haría creer que el otro está bien.
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+@include ds.bp-down('sm') {
+  :host {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
