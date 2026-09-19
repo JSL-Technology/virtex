@@ -5,6 +5,7 @@ import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { fiscalConsecutive } from '../fiscal-number';
+import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
  * Ecuador — comprobante electrónico, SRI.
@@ -113,9 +114,18 @@ export class SriBuilder {
     const infoFactura = root.ele('infoFactura');
     infoFactura.ele('fechaEmision', {}, this.ddmmyyyySlashed(invoice.issueDate));
     infoFactura.ele('obligadoContabilidad', {}, 'SI');
-    infoFactura.ele('tipoIdentificacionComprador', {}, this.buyerDocumentType(customer));
+    const buyerDocumentType = this.buyerDocumentType(customer);
+    infoFactura.ele('tipoIdentificacionComprador', {}, buyerDocumentType);
     infoFactura.ele('razonSocialComprador', {}, customer.companyName);
-    infoFactura.ele('identificacionComprador', {}, (customer.taxId ?? '').replace(/\D/g, ''));
+    // A passport (`06`) is alphanumeric; only the numeric identifiers (RUC, cédula) are digit-only,
+    // so the strip that canonicalises those must not be applied to a passport number.
+    infoFactura.ele(
+      'identificacionComprador',
+      {},
+      buyerDocumentType === '06'
+        ? (customer.taxId ?? '').trim()
+        : (customer.taxId ?? '').replace(/\D/g, ''),
+    );
     infoFactura.ele('totalSinImpuestos', {}, amount(invoice.subtotal));
     infoFactura.ele('totalDescuento', {}, amount(invoice.discountTotal ?? 0));
 
@@ -164,12 +174,17 @@ export class SriBuilder {
     return invoice.type === InvoiceType.CREDIT_NOTE ? '04' : '01';
   }
 
-  /** `04` RUC (13 digits), `05` cédula (10), `06` pasaporte, `07` consumidor final. */
+  /**
+   * The SRI's tipo de identificación for the buyer: `04` RUC, `05` cédula, `06` pasaporte — read
+   * from the document the customer was recorded with, not inferred from the number's length (A-02).
+   *
+   * `07` consumidor final is reserved for the ABSENCE of a document, not for "the length matched
+   * nothing": counting digits declared a passport holder a consumidor final and collided a mistyped
+   * RUC with a real cédula. When neither a document type nor a taxpayer kind is known, the sale is
+   * an unidentified final consumer, which is what `07` means.
+   */
   private buyerDocumentType(customer: Customer): string {
-    const digits = (customer.taxId ?? '').replace(/\D/g, '');
-    if (digits.length === 13) return '04';
-    if (digits.length === 10) return '05';
-    return '07';
+    return buyerRegimeDocumentCode('sri', customer, 'EC') ?? '07';
   }
 
   /** The SRI's `codigoPorcentaje` for the document's predominant rate. */

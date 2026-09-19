@@ -14,7 +14,7 @@ import { PayrollInput } from './entities/payroll-input.entity';
 import { StatutoryContribution } from './entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from './entities/income-tax-bracket.entity';
 import { StatutoryReference } from './entities/statutory-reference.entity';
-import { JurisdictionsModule } from './jurisdictions/jurisdictions.module';
+import { JurisdictionsModule } from '../jurisdictions/jurisdictions.module';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
 import { PayrollCalculationService } from './services/payroll-calculation.service';

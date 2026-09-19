@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
 import { ExchangeRateResolver } from './exchange-rate-resolver.service';
+import { testExchangeRateResolver } from './exchange-rate-resolver.testing';
 import { XeRatesProvider } from './xe-rates.provider';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
@@ -45,7 +46,7 @@ describeWithDb('exchange rates', () => {
     });
     await dataSource.initialize();
 
-    resolver = new ExchangeRateResolver(dataSource);
+    resolver = testExchangeRateResolver(dataSource);
     service = new ExchangeRatesService(
       dataSource.getRepository(ExchangeRate),
       dataSource.getRepository(Currency),

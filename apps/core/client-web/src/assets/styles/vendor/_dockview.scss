@@ -110,6 +110,7 @@
   //  `flex: 0 1 …` con mínimo y máximo: las pestañas se reparten el ancho pero
   //  nunca se estrechan hasta volver ilegible el título del documento.
   .dv-tabs-container > .dv-tab {
+    position: relative;
     flex: 0 1 200px;
     min-width: 120px;
     max-width: 240px;
@@ -124,6 +125,23 @@
     transition: background-color var(--duration-fast) var(--ease-standard),
                 border-color var(--duration-fast) var(--ease-standard);
 
+    //  Divisor entre pestañas. Sin él, dos pestañas inactivas contiguas se leen
+    //  como una sola franja. Es una línea corta y centrada —no un borde de altura
+    //  completa— para convivir con las esquinas redondeadas y con el borde de la
+    //  pestaña activa. Se dibuja en el borde derecho de cada pestaña salvo la
+    //  última.
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 20px;
+      background-color: var(--border-default);
+      transition: opacity var(--duration-fast) var(--ease-standard);
+    }
+
     &:hover {
       background-color: var(--surface-hover);
     }
@@ -132,6 +150,17 @@
       outline: var(--focus-ring-width) solid var(--focus-ring-color);
       outline-offset: -2px;
     }
+  }
+
+  //  El divisor se retira donde ya hay otra señal de separación: junto a la
+  //  pestaña activa (que lleva borde propio) y al pasar el ratón (que pinta
+  //  fondo). Dos separadores a la vez se ven sucios. `:has()` cubre también la
+  //  pestaña que precede a la activa o a la señalada por el ratón.
+  .dv-tabs-container > .dv-tab:hover::after,
+  .dv-tabs-container > .dv-tab.dv-active-tab::after,
+  .dv-tabs-container > .dv-tab:has(+ .dv-tab:hover)::after,
+  .dv-tabs-container > .dv-tab:has(+ .dv-active-tab)::after {
+    opacity: 0;
   }
 
   //  Pestaña activa: adopta la superficie del contenido y se une visualmente al

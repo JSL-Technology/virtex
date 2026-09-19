@@ -54,7 +54,7 @@
   <app-sidebar />
 </aside>
 
-<header class="main-topbar">
+<header class="main-topbar" (dblclick)="onTitlebarDoubleClick($event)">
   <button
     class="icon-button sidebar-toggle"
     type="button"
@@ -72,7 +72,7 @@
   >
     <app-brand-logo
       [size]="28"
-      tone="negative"
+      tone="brand"
       [label]="'app_title' | translate"
     ></app-brand-logo>
   </a>
@@ -495,6 +495,49 @@
       </div>
     </div>
   </div>
+
+  <!--
+    Controles de ventana. Solo en Windows/Linux, donde la ventana no tiene marco
+    y el topbar HACE de barra de título: se dibujan pegados al borde derecho, con
+    el alto completo de la barra y el mismo lenguaje visual que Windows 11 (el
+    cierre se tiñe de rojo al pasar por encima). En macOS este bloque no aparece
+    —esos controles son los semáforos del sistema, a la izquierda—. El icono de
+    maximizar cambia a «restaurar» cuando la ventana ya está maximizada.
+  -->
+  @if (desktop.showsWindowControls()) {
+  <div class="window-controls" role="group" [attr.aria-label]="'nav.window.controls' | translate">
+    <button
+      type="button"
+      class="window-control"
+      [title]="'nav.window.minimize' | translate"
+      [attr.aria-label]="'nav.window.minimize' | translate"
+      (click)="desktop.minimize()"
+    >
+      <lucide-icon [img]="MinimizeIcon" size="16"></lucide-icon>
+    </button>
+    <button
+      type="button"
+      class="window-control"
+      [title]="(desktop.isMaximized() ? 'nav.window.restore' : 'nav.window.maximize') | translate"
+      [attr.aria-label]="(desktop.isMaximized() ? 'nav.window.restore' : 'nav.window.maximize') | translate"
+      (click)="desktop.toggleMaximize()"
+    >
+      <lucide-icon
+        [img]="desktop.isMaximized() ? RestoreIcon : MaximizeIcon"
+        size="15"
+      ></lucide-icon>
+    </button>
+    <button
+      type="button"
+      class="window-control close"
+      [title]="'nav.window.close' | translate"
+      [attr.aria-label]="'nav.window.close' | translate"
+      (click)="desktop.close()"
+    >
+      <lucide-icon [img]="CloseWindowIcon" size="17"></lucide-icon>
+    </button>
+  </div>
+  }
 </header>
 
 <!--

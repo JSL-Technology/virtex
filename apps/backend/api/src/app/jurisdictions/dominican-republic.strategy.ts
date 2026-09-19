@@ -1,5 +1,5 @@
-import { roundAmount } from '../../common/money';
-import { ContributionBase, ContributionRegime } from '../entities/statutory-contribution.entity';
+import { roundAmount } from '../common/money';
+import { ContributionBase, ContributionRegime } from './contribution-regime';
 import {
   BonusInput,
   BonusResult,

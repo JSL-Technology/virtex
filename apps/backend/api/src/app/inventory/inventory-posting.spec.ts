@@ -23,6 +23,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { Product, ProductKind } from './entities/product.entity';
 import { InventoryService } from './inventory.service';
 import { InventoryPostingService } from './inventory-posting.service';
@@ -82,7 +83,7 @@ describeWithDb('inventory posting', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       new AuditTrailService(dataSource.getRepository(AuditLog)),
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     inventory = new InventoryService(
@@ -323,7 +324,7 @@ describeWithDb('inventory posting', () => {
           { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
           new JournalEntryNumberingService(),
           new AuditTrailService(dataSource.getRepository(AuditLog)),
-          new ExchangeRateResolver(dataSource),
+          testExchangeRateResolver(dataSource),
         ),
         narrative,
       ).postOpeningStock(manager, product, ACTOR),

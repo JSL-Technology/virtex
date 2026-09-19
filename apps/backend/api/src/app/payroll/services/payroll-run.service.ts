@@ -20,7 +20,7 @@ import { Payslip } from '../entities/payslip.entity';
 import { PayslipLine } from '../entities/payslip-line.entity';
 import { PayrollConcept } from '../entities/payroll-concept.entity';
 import { PayrollInput } from '../entities/payroll-input.entity';
-import { JurisdictionRegistry } from '../jurisdictions/jurisdiction-registry';
+import { JurisdictionRegistry } from '../../jurisdictions/jurisdiction-registry';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 import { PayrollParametersService } from './payroll-parameters.service';
 import {

@@ -25,6 +25,9 @@ describe('SRI — comprobante electrónico', () => {
     id: 'cus-1',
     companyName: 'CLIENTE GUAYAQUIL SA',
     taxId: '0992123456001',
+    // The document the customer was recorded with — the builder states the type from this, not from
+    // the number's length.
+    identityDocumentTypeCode: 'RUC',
   } as unknown as Customer;
 
   const invoice = {
@@ -151,17 +154,57 @@ describe('SRI — comprobante electrónico', () => {
       expect(xml).toContain('<valor>150.00</valor>');
     });
 
-    it('identifies the buyer by the length of their identifier', () => {
-      // `04` RUC, `05` cédula, `07` consumidor final.
+    it('states the buyer document type from the catalogue, not the length of the number', () => {
+      // `04` RUC, `05` cédula, `06` pasaporte — the recorded document type, so a mistyped number is
+      // not silently re-typed as another kind (A-02).
       expect(builder.build(input()).xml).toContain(
         '<tipoIdentificacionComprador>04</tipoIdentificacionComprador>',
       );
 
       const withCedula = builder.build(
-        input({ customer: { ...customer, taxId: '0912345678' } as unknown as Customer }),
+        input({
+          customer: {
+            ...customer,
+            identityDocumentTypeCode: 'CEDULA',
+            taxId: '0912345678',
+          } as unknown as Customer,
+        }),
       );
       expect(withCedula.xml).toContain(
         '<tipoIdentificacionComprador>05</tipoIdentificacionComprador>',
+      );
+
+      // A passport is `06`, kept alphanumeric — length inference declared this buyer a consumidor
+      // final because the number is neither ten nor thirteen digits.
+      const withPassport = builder.build(
+        input({
+          customer: {
+            ...customer,
+            identityDocumentTypeCode: 'PASSPORT',
+            identityDocumentCountry: 'XX',
+            taxId: 'A1234567',
+          } as unknown as Customer,
+        }),
+      );
+      expect(withPassport.xml).toContain(
+        '<tipoIdentificacionComprador>06</tipoIdentificacionComprador>',
+      );
+      expect(withPassport.xml).toContain('<identificacionComprador>A1234567</identificacionComprador>');
+    });
+
+    it('falls to consumidor final only when no document is recorded, not by length', () => {
+      // The one case decided by ABSENCE: a walk-in with no document type and no number is `07`.
+      const walkIn = builder.build(
+        input({
+          customer: {
+            ...customer,
+            identityDocumentTypeCode: null,
+            taxId: '',
+          } as unknown as Customer,
+        }),
+      );
+      expect(walkIn.xml).toContain(
+        '<tipoIdentificacionComprador>07</tipoIdentificacionComprador>',
       );
     });
 

@@ -383,6 +383,127 @@
   }
 }
 
+// =============================================================================
+//  EL TOPBAR COMO BARRA DE TÍTULO DE LA VENTANA (SOLO ESCRITORIO)
+// =============================================================================
+//  Dentro de Electron no hay barra de título del sistema: la barra superior de
+//  la aplicación ES la barra de título, al estilo de Microsoft Teams. Todo esto
+//  se activa solo con la clase `.desktop`, que el layout pone cuando corre en el
+//  escritorio; en el navegador el topbar sigue siendo un `<header>` normal.
+:host.desktop {
+  //  La barra de título va en la primera fila: los semáforos de macOS y los
+  //  controles de Windows caen sobre ella, no sobre un banner. Los avisos
+  //  (suplantación, pago pendiente) pasan justo debajo, con la misma anchura y
+  //  sin perder prominencia.
+  grid-template-rows: 64px auto 1fr auto;
+  grid-template-areas:
+    'topbar  topbar  topbar'
+    'banner  banner  banner'
+    'rail    sidebar content'
+    'status  status  status';
+
+  .main-topbar {
+    //  Toda la barra arrastra la ventana…
+    -webkit-app-region: drag;
+
+    //  …salvo lo que tiene acción propia, que debe seguir recibiendo el ratón.
+    //  Se marcan los contenedores de menú además de los botones: así sus
+    //  desplegables (que cuelgan del contenedor) quedan también como zona
+    //  activa, nunca como asa de arrastre.
+    :is(
+        button,
+        a,
+        input,
+        select,
+        textarea,
+        [role='button'],
+        [contenteditable='true'],
+        .global-search,
+        .user-menu,
+        .notification-menu,
+        .quick-create-menu,
+        app-theme-toggle,
+        .window-controls
+      ) {
+      -webkit-app-region: no-drag;
+    }
+  }
+}
+
+//  macOS: los controles de ventana son los semáforos del sistema, arriba a la
+//  izquierda. `main.js` los centra en la barra de 64 px (`trafficLightPosition`)
+//  y aquí se reserva su hueco para que la marca no quede debajo de ellos.
+:host.platform-mac {
+  --titlebar-mac-inset: 80px;
+
+  .main-topbar {
+    padding-left: var(--titlebar-mac-inset);
+  }
+}
+
+//  Windows/Linux: los controles los dibuja el propio topbar, pegados al borde.
+//  Por eso la barra pierde el relleno derecho; el resto del contenido conserva
+//  su margen gracias al espacio de sus propios grupos.
+:host.platform-windows .main-topbar {
+  padding-right: 0;
+}
+
+//  Controles de ventana con el lenguaje visual de Windows 11: alto completo de
+//  la barra, sin radio, hover como velo claro sobre el chrome oscuro, y el rojo
+//  del sistema para el cierre. Viven en el flujo del topbar, a la derecha del
+//  menú de usuario, como una sola pieza.
+.window-controls {
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  flex: 0 0 auto;
+  margin-left: var(--space-2);
+  -webkit-app-region: no-drag;
+
+  .window-control {
+    width: 46px;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    color: rgba(var(--chrome-tint-rgb), 0.82);
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(var(--chrome-tint-rgb), 0.1);
+      color: var(--chrome-content-strong);
+    }
+
+    &:active {
+      background-color: rgba(var(--chrome-tint-rgb), 0.06);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--chrome-content-strong);
+      outline-offset: -3px;
+    }
+
+    //  El cierre sube a rojo al pasar por encima, como en Windows 11.
+    &.close:hover {
+      background-color: var(--window-close-hover);
+      color: var(--chrome-content-strong);
+    }
+
+    &.close:active {
+      background-color: var(--window-close-active);
+      color: var(--chrome-content-strong);
+    }
+  }
+}
+
 .main-content {
   overflow: hidden;
   height: 100%;

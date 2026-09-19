@@ -1,4 +1,4 @@
-import { ContributionBase, ContributionRegime } from '../entities/statutory-contribution.entity';
+import { ContributionBase, ContributionRegime } from './contribution-regime';
 
 /**
  * The statutory parameters in force for a country on a date, resolved once and then frozen.

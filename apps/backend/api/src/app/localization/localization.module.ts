@@ -2,6 +2,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportDefinition } from './entities/report-definition.entity';
+import { TaxJurisdiction } from './fiscal/entities/tax-jurisdiction.entity';
+import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
 import { LocalizationController } from './controllers/localization.controller';
 import { TaxJurisdictionsController } from './controllers/tax-jurisdictions.controller';
 import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
@@ -16,7 +18,16 @@ import { LocalizationProvisioningModule } from './localization-provisioning.modu
 @Module({
   imports: [
     // Report definitions are owned by LocalizationModule, not by the leaf.
-    TypeOrmModule.forFeature([ReportDefinition]),
+    // TaxJurisdictionsService and WithholdingRegimesService are declared here, so their
+    // repositories must live in this module's context. The provisioning leaf registers the same
+    // entities for its own use but does not re-export TypeOrmModule, so those repository providers
+    // were invisible here and Nest could not resolve either service (`can't resolve ...
+    // TaxJurisdictionRepository ... in the LocalizationModule context`).
+    TypeOrmModule.forFeature([
+      ReportDefinition,
+      TaxJurisdiction,
+      TenantWithholdingRegime,
+    ]),
     // The leaf provides all strategies, LocalizationService, TaxDeterminationService.
     LocalizationProvisioningModule,
     EinvoicingModule,

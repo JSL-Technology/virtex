@@ -19,8 +19,8 @@ import { blindIndex } from '../common/database/encrypted-column.transformer';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { IdentityDocumentType } from '../localization/entities/identity-document-type.entity';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
-import { JurisdictionRegistry } from '../payroll/jurisdictions/jurisdiction-registry';
-import { StatutoryIdentifierSpec } from '../payroll/jurisdictions/jurisdiction-strategy.interface';
+import { JurisdictionRegistry } from '../jurisdictions/jurisdiction-registry';
+import { StatutoryIdentifierSpec } from '../jurisdictions/jurisdiction-strategy.interface';
 
 /**
  * The employee and department registers.

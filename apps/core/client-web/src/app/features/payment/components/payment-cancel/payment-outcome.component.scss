@@ -10,7 +10,7 @@
   place-items: center;
   min-height: 70vh;
   padding: var(--space-6, 24px);
-  background: var(--color-background);
+  background: var(--surface-canvas);
 }
 
 .outcome__card {
@@ -22,9 +22,9 @@
   gap: var(--space-4, 16px);
   padding: var(--space-8, 32px);
   text-align: center;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-lg, 10px);
-  background: var(--color-surface);
+  background: var(--surface-raised);
 }
 
 .outcome__mark {
@@ -41,34 +41,34 @@
 }
 
 .outcome__mark--ok {
-  background: var(--color-success-surface, rgba(31, 107, 74, 0.12));
-  color: var(--color-success, #1f6b4a);
+  background: var(--success-surface);
+  color: var(--success-text);
 }
 
 .outcome__mark--warn {
-  background: var(--color-warning-surface, rgba(154, 91, 0, 0.12));
-  color: var(--color-warning, #9a5b00);
+  background: var(--warning-surface);
+  color: var(--warning-text);
 }
 
 .outcome__card h1 {
   margin: 0;
-  font-size: var(--font-size-2xl, 1.5rem);
+  font-size: var(--text-2xl);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--content-primary);
 }
 
 .outcome__card p {
   margin: 0;
-  color: var(--color-text-secondary);
+  color: var(--content-secondary);
 }
 
 .outcome__cta {
   margin-top: var(--space-2, 8px);
   padding: 10px 18px;
   border-radius: var(--radius-md, 8px);
-  background: var(--color-primary);
-  color: var(--color-on-primary, #fff);
-  font-size: var(--font-size-sm, 0.875rem);
+  background: var(--accent-solid);
+  color: var(--accent-on-solid);
+  font-size: var(--text-md);
   font-weight: 600;
   text-decoration: none;
 }

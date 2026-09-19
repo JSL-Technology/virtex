@@ -6,6 +6,10 @@ import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { fiscalNumber } from '../fiscal-number';
+import { buyerRegimeDocumentCode } from '../buyer-document';
+import { regimeDocumentCode } from '../../../localization/fiscal/identity-document-catalogue';
+import { TaxpayerKind } from '../../../localization/fiscal/tax-id-validators';
+import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.
@@ -149,8 +153,26 @@ export class DianBuilder {
     root.ele('cbc:DocumentCurrencyCode', {}, currency);
     root.ele('cbc:LineCountNumeric', {}, String((invoice.lineItems ?? []).length));
 
-    this.party(root.ele('cac:AccountingSupplierParty'), organization.legalName, organization.taxId, '1');
-    this.party(root.ele('cac:AccountingCustomerParty'), customer.companyName, customer.taxId, '2');
+    // Both the document type (`schemeName`) and the persona jurídica/natural axis
+    // (`AdditionalAccountID`) come from the catalogue and the recorded buyer, never a constant.
+    // Hardcoding `'31'` (NIT) and `'2'` (persona natural) declared every buyer a company's
+    // identifier AND a natural person at once, and split a real digit off any number that was not a
+    // NIT (H-06/A-02). The issuer of a Colombian factura electrónica is a NIT-registered obligado,
+    // so the supplier's type is the country's company invoicing document, still read from the
+    // catalogue rather than written as `'31'`.
+    const country = organization.country ?? 'CO';
+    const supplierScheme =
+      regimeDocumentCode('dian', { countryCode: country, kind: TaxpayerKind.COMPANY }) ?? '31';
+    this.party(root.ele('cac:AccountingSupplierParty'), organization.legalName, organization.taxId, '1', supplierScheme);
+
+    const buyerScheme = buyerRegimeDocumentCode('dian', customer, country) ?? '31';
+    this.party(
+      root.ele('cac:AccountingCustomerParty'),
+      customer.companyName,
+      customer.taxId,
+      this.buyerAccountType(customer, buyerScheme),
+      buyerScheme,
+    );
 
     if (roundToCurrency(invoice.tax ?? 0, currency) > 0) {
       const taxTotal = root.ele('cac:TaxTotal');
@@ -191,16 +213,41 @@ export class DianBuilder {
     node: xmlbuilder.XMLElement,
     name: string,
     taxId: string | null | undefined,
-    role: '1' | '2',
+    accountType: '1' | '2',
+    documentType: string,
   ): void {
-    node.ele('cbc:AdditionalAccountID', {}, role);
+    // `1` persona jurídica, `2` persona natural — the party's kind, not a constant.
+    node.ele('cbc:AdditionalAccountID', {}, accountType);
     const party = node.ele('cac:Party');
     party.ele('cac:PartyName').ele('cbc:Name', {}, name);
     const legal = party.ele('cac:PartyTaxScheme');
     legal.ele('cbc:RegistrationName', {}, name);
-    // `31` NIT. The check digit travels separately, which is why the digits are split from it.
-    legal.ele('cbc:CompanyID', { schemeID: this.checkDigit(taxId), schemeName: '31' }, (taxId ?? '').replace(/\D/g, '').slice(0, -1) || (taxId ?? ''));
+    // Only the NIT (`31`) carries a verification digit that Colombia writes as its own attribute;
+    // splitting the last digit off a cédula (`13`) or an alphanumeric passport removes a character
+    // of the number itself. The document type is the one the party was recorded with, never assumed
+    // to be a NIT. *Verificar con contabilidad/legal*: the DIAN's schemeID for a document without a
+    // DV — a cédula, a passport — is sent here as `0` pending confirmation of the annex's value.
+    const raw = (taxId ?? '').trim();
+    const isNit = documentType === '31';
+    legal.ele(
+      'cbc:CompanyID',
+      { schemeID: isNit ? this.checkDigit(taxId) : '0', schemeName: documentType },
+      isNit ? raw.replace(/\D/g, '').slice(0, -1) || raw : raw,
+    );
     legal.ele('cac:TaxScheme').ele('cbc:ID', {}, '01').up().ele('cbc:Name', {}, 'IVA');
+  }
+
+  /**
+   * `1` persona jurídica, `2` persona natural — from the buyer's recorded taxpayer kind.
+   *
+   * When the kind was never recorded (a legacy customer), it is inferred from the resolved document:
+   * a NIT is a company's identifier, a cédula or passport a natural person's. That inference is only
+   * the last resort; the recorded kind wins.
+   */
+  private buyerAccountType(customer: Customer, documentType: string): '1' | '2' {
+    if (customer.taxpayerType === TaxpayerType.INDIVIDUAL) return '2';
+    if (customer.taxpayerType) return '1';
+    return documentType === '31' ? '1' : '2';
   }
 
   /** The NIT's verification digit, which Colombia writes as its own attribute. */

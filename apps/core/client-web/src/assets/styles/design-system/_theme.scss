@@ -224,6 +224,15 @@
   --aurora-veil: #{rgba(p.neutral(0), 0.38)};
   --aurora-grid: #{rgba(p.neutral(700), 0.06)};
   --aurora-silk: #{rgba(p.iris(600), 0.16)};
+
+  // ── Chrome de navegación (marco: barra superior + riel) ────────────────────
+  //  En claro el marco es una lámina blanca que flota sobre el lienzo gris: se
+  //  separa por borde y sombra, no por color, igual que las tarjetas. El tinte
+  //  para bordes y hover es OSCURO, para que se lea sobre esa lámina.
+  --chrome-surface: #{p.neutral(0)};
+  --chrome-content: #{p.neutral(800)};
+  --chrome-content-strong: #11151d;
+  --chrome-tint-rgb: #{p.rgb-triplet(p.neutral(960))};
 }
 
 // -----------------------------------------------------------------------------
@@ -405,6 +414,16 @@
   --aurora-veil: #{rgba(#000000, 0.45)};
   --aurora-grid: #{rgba(p.graphite(0), 0.035)};
   --aurora-silk: #{rgba(p.iris(300), 0.22)};
+
+  // ── Chrome de navegación (marco: barra superior + riel) ────────────────────
+  //  En oscuro el marco es un gris sereno situado ENTRE el lienzo (#141414) y la
+  //  superficie base (#1f1f1f): recede sin llegar al negro. Ese es el arreglo
+  //  del «demasiado contraste» — la losa #111 saltaba de golpe a las superficies
+  //  del contenido; #1a1a1a las acompaña. El tinte de bordes/hover es CLARO.
+  --chrome-surface: #1a1a1a;
+  --chrome-content: #{p.graphite(300)};
+  --chrome-content-strong: #{p.graphite(0)};
+  --chrome-tint-rgb: 255, 255, 255;
 }
 
 // -----------------------------------------------------------------------------
@@ -497,20 +516,25 @@
 // -----------------------------------------------------------------------------
 //  CHROME DE NAVEGACIÓN (barra superior + riel de módulos)
 // -----------------------------------------------------------------------------
-//  El armazón de navegación es SIEMPRE oscuro —como la barra de título de un
-//  IDE— con independencia del tema de la aplicación: es el marco, no el
-//  contenido, y esa quietud es lo que ancla la navegación. Por eso se publica
-//  FUERA de los mixins de tema, igual que la marca.
+//  El armazón —barra superior y riel— es el MARCO de la aplicación. Antes se
+//  publicaba en negro fijo (#111) con independencia del tema: en CLARO quedaba
+//  una losa casi negra flotando sobre una interfaz clara, y en OSCURO contrastaba
+//  en exceso con las superficies del contenido (#1e–#24) — el «demasiado
+//  contraste» que se percibía. Ahora el marco SIGUE al tema, pero como un marco
+//  sereno y recogido: una lámina clara sobre el lienzo claro, un gris tranquilo
+//  situado entre el lienzo y la base sobre el oscuro. Armoniza con el resto en
+//  lugar de competir con él. Los valores por tema viven en los mixins
+//  `light`/`dark`; aquí quedan solo los que NO dependen del tema.
 //
-//  `--chrome-tint-rgb` es blanco fijo pensado para componer bordes y estados
-//  hover con opacidad —`rgba(var(--chrome-tint-rgb), α)`—, la misma técnica que
-//  el resto del sistema usa para no escribir `rgba(255,255,255,…)` a mano.
+//  `--chrome-tint-rgb` es la terna con la que se componen bordes y estados hover
+//  del marco por opacidad —`rgba(var(--chrome-tint-rgb), α)`—: clara sobre el
+//  marco oscuro, oscura sobre el marco claro.
 // -----------------------------------------------------------------------------
 :root {
-  --chrome-surface: #111111;
-  --chrome-content: #f5f5f5;
-  --chrome-content-strong: #ffffff;
-  --chrome-tint-rgb: 255, 255, 255;
+  //  Rojo de cierre de ventana (Windows/Linux), el de Windows 11. No depende del
+  //  tema: el botón de cierre se tiñe igual sobre cualquier marco.
+  --window-close-hover: #c42b1c;
+  --window-close-active: #b0271a;
 }
 
 :root {

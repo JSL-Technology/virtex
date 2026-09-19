@@ -208,11 +208,23 @@ export class NewInvoicePage implements OnInit {
           // reads when the product tells them what to go and fix is the last place to hard-code
           // one language. Each gap is translated where it is a key and printed where the server
           // sent prose.
-          this.notificationService.showError('invoices.new.not_ready_missing', {
-            missing: context.missing
-              .map((gap) => translateOrLiteral(this.translate, gap))
-              .join('; '),
-          });
+          //
+          // The message names the place to fix this ("Settings › Electronic invoicing"); the action
+          // takes the reader straight there rather than leaving them to find it. `fragment` opens
+          // the settings overlay on top of this page, so closing it returns them to the invoice
+          // they were trying to raise.
+          this.notificationService.showError(
+            'invoices.new.not_ready_missing',
+            {
+              missing: context.missing
+                .map((gap) => translateOrLiteral(this.translate, gap))
+                .join('; '),
+            },
+            {
+              labelKey: 'invoices.new.not_ready_action',
+              fragment: 'settings/fiscal',
+            },
+          );
         }
       },
       error: () =>

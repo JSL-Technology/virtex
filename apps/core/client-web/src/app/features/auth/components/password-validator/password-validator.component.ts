@@ -69,10 +69,14 @@ export class PasswordValidatorComponent {
   }
 
   getBarColor(level: number): string {
+    //  Los cuatro tramos leen tokens semánticos, así que el medidor reacciona al
+    //  tema y a la marca igual que el resto de la interfaz. Antes los tramos 2 y 3
+    //  llevaban un ámbar y un esmeralda fijos que no se oscurecían en modo claro
+    //  ni se aclaraban en oscuro.
     const colors = {
       1: 'var(--error)',
-      2: '#f59e0b', // Amber-500 for regular
-      3: '#10b981', // Emerald-500 for good
+      2: 'var(--warning)',
+      3: 'var(--info-text)',
       4: 'var(--success)'
     };
 

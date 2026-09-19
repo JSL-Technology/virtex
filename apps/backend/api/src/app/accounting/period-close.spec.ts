@@ -34,6 +34,7 @@ import { ResultTransferService } from './result-transfer.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
 import { CurrencyRevaluationService } from '../batch-processes/currency-revaluation.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { FixedAsset, FixedAssetStatus } from '../fixed-assets/entities/fixed-asset.entity';
 
@@ -110,14 +111,14 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       saas as never,
       new JournalEntryNumberingService(),
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     const schedulerLock = new SchedulerLockService(dataSource);
     const depreciation = new DepreciationService(entries, schedulerLock, dataSource);
     // The real resolver, on the real data source. Stubbing it would put back exactly the kind of
     // gap that let the close crash in production while this suite's ancestor passed.
-    const rateResolver = new ExchangeRateResolver(dataSource);
+    const rateResolver = testExchangeRateResolver(dataSource);
     const revaluation = new CurrencyRevaluationService(
       entries,
       balances,

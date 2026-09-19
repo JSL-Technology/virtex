@@ -117,7 +117,9 @@
 /* ── Accesos rápidos ───────────────────────────────────────────────── */
 .ov-quick-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  //  Rejilla equilibrada de 3 columnas: los seis accesos caen en un 2×3 limpio,
+  //  sin la fila huérfana que dejaba `auto-fill` (cinco arriba, uno suelto abajo).
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.875rem;
 }
 
@@ -248,14 +250,11 @@
     width: 32px;
     height: 32px;
     border-radius: var(--radius-full);
-    background: var(--bg-tertiary);
+    //  Un solo tratamiento neutro para todo el feed. El TIPO ya lo dicen la forma
+    //  del icono y el texto; cinco chips de colores saturados en una lista corta
+    //  eran ruido, no información. La calma cromática es lo que lo vuelve serio.
+    background: var(--bg-hover);
     color: var(--text-secondary);
-
-    &[data-kind='invoice'] { background: var(--primary-light); color: var(--primary); }
-    &[data-kind='payment'] { background: var(--success-bg); color: var(--success); }
-    &[data-kind='report']  { background: rgba(var(--viz-3-rgb), 0.14); color: var(--viz-3); }
-    &[data-kind='product'] { background: var(--warning-bg); color: var(--warning); }
-    &[data-kind='contact'] { background: rgba(var(--info-rgb), 0.12); color: var(--info-text); }
   }
 
   &__body { display: flex; flex-direction: column; min-width: 0; }
@@ -341,6 +340,11 @@
     color: var(--error-text);
   }
 
+  //  El chip de fecha es el CONTEXTO, no el titular: antes era un bloque macizo
+  //  (`--bg-tertiary`, que en oscuro es casi negro) en negrita que pesaba más que
+  //  el propio evento e invertía la jerarquía. Ahora es un chip gris sereno y en
+  //  semibold; el título del evento vuelve a mandar. El estado «vencido» sigue
+  //  tiñéndose de rojo porque ahí el «cuándo» sí es la noticia.
   &__date {
     flex-shrink: 0;
     display: inline-flex;
@@ -350,10 +354,10 @@
     height: 40px;
     padding: 0 0.4rem;
     border-radius: var(--radius-md);
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    background: var(--bg-hover);
+    color: var(--text-secondary);
     font-size: var(--text-xs);
-    font-weight: var(--font-bold);
+    font-weight: var(--font-semibold);
     text-align: center;
     text-transform: capitalize;
   }
@@ -453,6 +457,7 @@
 /* ── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .ov-grid { grid-template-columns: 1fr; }
+  .ov-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 560px) {

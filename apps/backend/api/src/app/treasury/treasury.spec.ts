@@ -24,6 +24,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
 import { FiscalYear } from '../accounting/entities/fiscal-year.entity';
 import { TreasuryService } from './treasury.service';
@@ -94,14 +95,14 @@ describeWithDb('treasury', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     treasury = new TreasuryService(
       dataSource.getRepository(BankAccount),
       entries,
       balances,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
       new FiscalCalendarService(
         dataSource.getRepository(Organization),
         dataSource.getRepository(FiscalYear),

@@ -23,6 +23,7 @@ import { AccountBalancesService } from '../chart-of-accounts/account-balances.se
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
 import { ExchangeRate, ExchangeRateType } from '../currencies/entities/exchange-rate.entity';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { ConsolidationMap } from './entities/consolidation-map.entity';
 import { IntercompanyTransaction } from '../intercompany/entities/intercompany-transaction.entity';
 import { ConsolidationService } from './consolidation.service';
@@ -75,7 +76,7 @@ describeWithDb('group consolidation', () => {
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
     const balances = new AccountBalancesService(dataSource);
     const reporting = new FinancialReportingService(dataSource, balances);
-    const resolver = new ExchangeRateResolver(dataSource);
+    const resolver = testExchangeRateResolver(dataSource);
 
     entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
@@ -87,7 +88,7 @@ describeWithDb('group consolidation', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     consolidation = new ConsolidationService(

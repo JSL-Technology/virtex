@@ -1,9 +1,10 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, inject, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Toast } from '../../../interfaces/toast.interface';
 import { LucideAngularModule, CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
+import { trigger, style, animate, transition } from '@angular/animations';
 import { composeKey } from '@virteex/shared/types';
 
 @Component({
@@ -33,6 +34,8 @@ import { composeKey } from '@virteex/shared/types';
   }
 })
 export class ToastComponent {
+  private readonly router = inject(Router);
+
   public toast = input.required<Toast>();
   public closed = output<string>();
   /**
@@ -67,8 +70,41 @@ export class ToastComponent {
     return composeKey('common.toast', this.toast().type);
   });
 
+  /**
+   * The progress bar is drawn only while the toast is on a timer. A pinned toast (`duration` of
+   * `0`, or none) has no time to show draining, so it shows no bar.
+   */
+  public showProgress = computed(() => (this.toast().duration ?? 0) > 0);
+
   close() {
     this.closed.emit(this.toast().id);
+  }
+
+  /**
+   * Run the toast's action, then close it.
+   *
+   * The button carries the reader where the message points: a normal navigation via `commands`, or
+   * — for the settings overlay — the URL fragment set on whatever page they are on now, so closing
+   * the overlay returns them here. Closing after acting is deliberate: the message has done its job
+   * the moment the reader takes it up, and a toast left behind the screen it sent them to is litter.
+   */
+  protected runAction(): void {
+    const action = this.toast().action;
+    if (!action) return;
+
+    action.handler?.();
+
+    if (action.fragment !== undefined) {
+      // Preserve the current path and query, changing only the fragment — this is what opens the
+      // settings modal without navigating the reader away from their work.
+      const tree = this.router.parseUrl(this.router.url);
+      tree.fragment = action.fragment;
+      void this.router.navigateByUrl(tree);
+    } else if (action.commands?.length) {
+      void this.router.navigate(action.commands, { queryParams: action.queryParams });
+    }
+
+    this.close();
   }
 
   protected onEnter(): void {

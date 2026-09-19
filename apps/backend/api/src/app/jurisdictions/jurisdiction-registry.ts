@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BadRequestError } from '../../i18n/localized.exception';
+import { BadRequestError } from '../i18n/localized.exception';
 import { PayrollJurisdictionStrategy } from './jurisdiction-strategy.interface';
 import { DominicanRepublicStrategy } from './dominican-republic.strategy';
 

@@ -35,7 +35,7 @@ import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.s
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { toIsoDate } from '../../reports/financial-statements/report-period';
+import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 

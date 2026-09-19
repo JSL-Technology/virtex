@@ -93,7 +93,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
     }
 
     if (String(value).startsWith('#')) {
-      td.style.color = '#dc2626'; // Red-600
+      td.style.color = 'var(--error-text)';
     }
   }
 

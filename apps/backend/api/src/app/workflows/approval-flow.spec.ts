@@ -14,6 +14,7 @@ import { JournalEntryNumberingService } from '../journal-entries/journal-entry-n
 import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 
 /**
@@ -177,7 +178,7 @@ describeWithDb('approval flow', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
     // The real handler, registered exactly as the module does it.
     new JournalEntryApprovalHandler(entries, registry).onModuleInit();

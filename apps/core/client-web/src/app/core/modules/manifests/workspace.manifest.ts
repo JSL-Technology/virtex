@@ -20,7 +20,10 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       permission: 'authenticated',
       titleKey: 'page_titles.home',
       icon: 'Home',
-      isCloseable: false,
+      //  Fija (permanente, primera, sin vista previa; se recrea al arrancar) pero
+      //  AHORA cerrable: el usuario puede descartarla durante la sesión y vuelve
+      //  en el siguiente arranque. `isCloseable` es true por defecto.
+      pinned: true,
       entityKeyFn: () => 'workspace:overview',
       menu: { group: 'inbox', labelKey: 'sidebar.general.home' },
       load: () => import('../../../features/overview/overview.page').then((m) => m.OverviewPage),

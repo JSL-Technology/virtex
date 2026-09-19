@@ -7,26 +7,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
+// The regime/base vocabulary now lives with the jurisdiction strategies that define a country's
+// statutory rules, so the jurisdictions module needs no import of payroll. Re-exported here so the
+// payroll files that read these enums off the versioned rate table keep their existing import path.
+import { ContributionRegime, ContributionBase } from '../../jurisdictions/contribution-regime';
 
-/** The social-security regimes a contribution row can describe. */
-export enum ContributionRegime {
-  /** Pension fund — AFP (Administradora de Fondos de Pensiones). */
-  AFP = 'AFP',
-  /** Health — SFS/SDSS (Seguro Familiar de Salud). */
-  SFS = 'SFS',
-  /** Labour-risk insurance — SRL (Seguro de Riesgos Laborales), employer-borne. */
-  SRL = 'SRL',
-  /** Vocational-training levy — INFOTEP. */
-  INFOTEP = 'INFOTEP',
-}
-
-/** What a rate is applied to. */
-export enum ContributionBase {
-  /** The salary, capped at a multiple of the minimum contributory wage. AFP/SFS/SRL work this way. */
-  SALARY_CAPPED = 'SALARY_CAPPED',
-  /** The whole payroll, uncapped. INFOTEP's employer levy works this way. */
-  PAYROLL_UNCAPPED = 'PAYROLL_UNCAPPED',
-}
+export { ContributionRegime, ContributionBase };
 
 /**
  * One social-security rate, in force for a country over a date range.

@@ -33,5 +33,30 @@
     "es": "Configuración",
     "en": "Settings",
     "pt": "Configurações"
+  },
+  "nav.window.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "nav.window.controls": {
+    "es": "Controles de ventana",
+    "en": "Window controls",
+    "pt": "Controles da janela"
+  },
+  "nav.window.maximize": {
+    "es": "Maximizar",
+    "en": "Maximize",
+    "pt": "Maximizar"
+  },
+  "nav.window.minimize": {
+    "es": "Minimizar",
+    "en": "Minimize",
+    "pt": "Minimizar"
+  },
+  "nav.window.restore": {
+    "es": "Restaurar",
+    "en": "Restore",
+    "pt": "Restaurar"
   }
 }

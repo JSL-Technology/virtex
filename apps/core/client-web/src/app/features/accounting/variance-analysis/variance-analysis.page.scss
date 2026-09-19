@@ -1,7 +1,11 @@
 @use "../../../../assets/styles/view-styles" as views;
+// Las vistas de maestros dejaron de exponer sus estilos por herencia entre hojas; el marco de
+// tabla de lista (`.data-table`, `.table-container`, `.text-right`) vive ahora en este parcial.
+@use "../../../../assets/styles/list-page" as list;
 
-// Reutiliza los estilos de las vistas de maestros
-@use "../../masters/suppliers/supplier-list/supplier-list.page.scss";
+:host {
+  @include list.list-page;
+}
 
 .variance-table {
   td {

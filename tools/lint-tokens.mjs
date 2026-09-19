@@ -56,6 +56,10 @@ const ALLOWED_LITERALS = new Map([
   // resultado correcto y fijarlo es deliberado.
   ['features/invoices/detail/detail.page.scss', 'hoja de impresión de factura'],
   ['features/invoices/detail/detail.page.ts', 'hoja de impresión de factura'],
+  // Documento del arnés cargado en un iframe con `sandbox="allow-scripts"` y
+  // origen opaco: al estar aislado NO hereda los tokens de `:root`, así que sus
+  // colores son necesariamente literales y viven en su propio <style>.
+  ['features/extensions/extension-host.component.ts', 'arnés en iframe aislado'],
 ]);
 
 /*  Un `#` seguido de dígitos aparece también en texto de negocio («Factura

@@ -56,6 +56,8 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
     CustomerGroupsService,
     // PeriodLockGuard is provided by PeriodLockModule (imported above).
   ],
-  exports: [CustomersService],
+  // CustomerPaymentsService is exported so read-only consumers (e.g. the ageing report) can ask for
+  // settlement figures through a contract instead of importing CustomerPaymentLine directly.
+  exports: [CustomersService, CustomerPaymentsService],
 })
 export class CustomersModule {}

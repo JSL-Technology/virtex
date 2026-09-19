@@ -17,6 +17,26 @@ contextBridge.exposeInMainWorld('virtexDesktop', {
    * else, so a compromised renderer gains no capability here.
    */
   setLanguage: (language) => ipcRenderer.send('virtex:language', String(language ?? '')),
+  /**
+   * Los controles de ventana del topbar (minimizar, maximizar/restaurar, cerrar).
+   *
+   * Superficie mínima y de una sola dirección: el renderer pide una acción o el
+   * estado maximizado, y nada más. No hay forma de mover, redimensionar ni
+   * posicionar la ventana desde aquí, así que un renderer comprometido no gana
+   * control sobre ella. `onMaximized` devuelve la función para desuscribirse,
+   * de modo que el componente puede limpiar su escucha al destruirse.
+   */
+  windowControls: {
+    minimize: () => ipcRenderer.send('virtex:window-minimize'),
+    toggleMaximize: () => ipcRenderer.send('virtex:window-maximize-toggle'),
+    close: () => ipcRenderer.send('virtex:window-close'),
+    isMaximized: () => ipcRenderer.invoke('virtex:window-is-maximized'),
+    onMaximized: (callback) => {
+      const listener = (_event, state) => callback(Boolean(state));
+      ipcRenderer.on('virtex:window-maximized', listener);
+      return () => ipcRenderer.removeListener('virtex:window-maximized', listener);
+    },
+  },
   versions: {
     electron: process.versions.electron,
     chrome: process.versions.chrome,

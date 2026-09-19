@@ -9,7 +9,7 @@ import {
 } from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { CustomerPaymentLine } from '../customers/entities/customer-payment-line.entity';
+import { CustomerPaymentsService } from '../customers/customer-payments.service';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import {
   LedgersService,
@@ -28,6 +28,7 @@ export class ReportsService {
   constructor(
     private readonly ledgersService: LedgersService,
     private readonly orgSettingsService: OrgSettingsService,
+    private readonly customerPayments: CustomerPaymentsService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -69,19 +70,15 @@ export class ReportsService {
         return { messageKey: 'reports.no_outstanding_invoices_build_report_from' };
     }
 
-    const paymentLines = await this.dataSource.getRepository(CustomerPaymentLine)
-        .createQueryBuilder('line')
-        .innerJoin('line.payment', 'payment')
-        .innerJoin('payment.journalEntry', 'je')
-        .innerJoin('je.lines', 'je_line', 'je_line.accountId = :arAccountId', { arAccountId })
-        .innerJoin('je_line.valuations', 'valuation')
-        .where('line.invoiceId IN (:...invoiceIds)', { invoiceIds: openInvoices.map(i => i.id) })
-        .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: targetLedger.id })
-        .select(['line.invoiceId as "invoiceId"', 'SUM(valuation.credit) as "paidAmount"'])
-        .groupBy('line.invoiceId')
-        .getRawMany();
-
-    const paymentsByInvoice = new Map<string, number>(paymentLines.map(p => [p.invoiceId, parseFloat(p.paidAmount)]));
+    // How much has been collected against each open invoice, valued in this ledger at the AR control
+    // account. Owned by the customers module (it owns the receipt→invoice link); read here through
+    // its service contract rather than by querying CustomerPaymentLine, which the reports boundary
+    // forbids.
+    const paymentsByInvoice = await this.customerPayments.paidAmountsByInvoice(
+      openInvoices.map((invoice) => invoice.id),
+      arAccountId,
+      targetLedger.id,
+    );
 
     const report = {
       reportDate: today.toISOString(),

@@ -15,8 +15,33 @@
            clave, no existía, y ngx-translate emitía «Missing translation». -->
       <p>{{ toast().message }}</p>
     </div>
+    @if (toast().action; as action) {
+      <!--
+        Un solo botón por aviso: el aviso es un vistazo, no un menú. Lleva al lector adonde
+        apunta el mensaje y cierra el aviso, que ya ha cumplido su función.
+      -->
+      <div class="toast-actions">
+        <button type="button" class="toast-action" (click)="runAction()">
+          {{ action.label }}
+        </button>
+      </div>
+    }
   </div>
   <button type="button" class="toast-close" (click)="close()" [attr.aria-label]="'shared.toast.close' | translate">
     <lucide-angular [img]="XIcon" size="18"></lucide-angular>
   </button>
+
+  @if (showProgress()) {
+    <!--
+      La barra vacía en el tiempo que el aviso vive, de modo que el lector ve cuánto le queda.
+      Se anima por CSS con la misma duración del temporizador y se pausa al pasar el cursor o
+      tabular encima — el mismo gesto con el que el servicio detiene la cuenta atrás, así que
+      lo que se ve y lo que ocurre no se separan. `aria-hidden`: es adorno, no contenido.
+    -->
+    <div
+      class="toast-progress"
+      aria-hidden="true"
+      [style.animation-duration.ms]="toast().duration"
+    ></div>
+  }
 </div>

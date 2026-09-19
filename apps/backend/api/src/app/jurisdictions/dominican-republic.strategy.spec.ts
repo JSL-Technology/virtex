@@ -3,7 +3,7 @@ import { ResolvedParameters } from './jurisdiction-strategy.interface';
 import {
   ContributionBase,
   ContributionRegime,
-} from '../entities/statutory-contribution.entity';
+} from './contribution-regime';
 
 /**
  * The Dominican calculation, proven against hand-worked figures.

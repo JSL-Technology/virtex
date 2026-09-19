@@ -92,10 +92,11 @@ export class TabRegistryService {
 
     return {
       pattern: path,
-      // A window the user cannot close IS the pinned one — the workspace home. Deriving it from
-      // `isCloseable` keeps a single fact in a single place instead of asking a manifest to state
-      // both "cannot be closed" and "is of type PINNED" and stay consistent about it.
-      tabType: isCloseable ? TAB_TYPE_BY_KIND[route.kind] : TabType.PINNED,
+      // Two INDEPENDENT facts. `pinned` marks the permanent workspace home: it stays put, never
+      // opens as an ephemeral preview, and `ensureDefaultTab` re-creates it on the next launch.
+      // `isCloseable` only governs whether the tab shows a close affordance. The home is BOTH —
+      // pinned so it is always there when you start, closeable so you may dismiss it while you work.
+      tabType: route.pinned ? TabType.PINNED : TAB_TYPE_BY_KIND[route.kind],
       title: route.titleKey ?? module.titleKey,
       icon: route.icon ?? module.icon,
       isCloseable,

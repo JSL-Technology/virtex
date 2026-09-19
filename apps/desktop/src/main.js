@@ -75,6 +75,8 @@ function originOf(url) {
 }
 
 function createWindow() {
+  const isMac = process.platform === 'darwin';
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -82,6 +84,19 @@ function createWindow() {
     minHeight: 700,
     backgroundColor: '#141414',
     show: false,
+    //  El armazón de la aplicación (la barra superior del cliente web) HACE de
+    //  barra de título. Por eso se retira la del sistema y se deja que el
+    //  renderer pinte la suya:
+    //
+    //   - macOS: `hidden` conserva los semáforos (cerrar/minimizar/pantalla) en
+    //     su esquina y solo esconde la franja de título. `trafficLightPosition`
+    //     los centra en la barra de 64 px del cliente; el CSS reserva ese hueco.
+    //   - Windows/Linux: `frame: false` retira marco y botones nativos —los
+    //     dibuja y controla el propio topbar—, sin perder el redimensionado ni
+    //     la maximización, que Electron mantiene en ventanas sin marco.
+    ...(isMac
+      ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 16, y: 24 } }
+      : { frame: false }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -92,6 +107,17 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', () => mainWindow && mainWindow.show());
   mainWindow.loadURL(PORTAL_URL);
+
+  //  El botón de maximizar/restaurar del topbar tiene que mostrar el estado
+  //  real de la ventana, y ese estado cambia también por gestos que no pasan
+  //  por él —arrastrar al borde, atajo del sistema, doble clic—. Se le avisa al
+  //  renderer en cada transición para que el icono no mienta.
+  const reportMaximized = () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    mainWindow.webContents.send('virtex:window-maximized', mainWindow.isMaximized());
+  };
+  mainWindow.on('maximize', reportMaximized);
+  mainWindow.on('unmaximize', reportMaximized);
 
   // Keep navigation inside the trusted origins; anything else opens in the system browser.
   const guard = (event, url) => {
@@ -167,6 +193,31 @@ function applyLanguage(language) {
 }
 
 ipcMain.on('virtex:language', (_event, language) => applyLanguage(String(language ?? '')));
+
+//  Controles de ventana del topbar. La acción la ejecuta SIEMPRE el proceso
+//  principal —el renderer no tiene ninguna capacidad sobre la ventana— y se
+//  resuelve sobre la ventana que emite el evento, no sobre una referencia
+//  global, para que siga siendo correcto si algún día hay más de una.
+ipcMain.on('virtex:window-minimize', (event) => {
+  BrowserWindow.fromWebContents(event.sender)?.minimize();
+});
+
+ipcMain.on('virtex:window-maximize-toggle', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return;
+  if (win.isMaximized()) win.unmaximize();
+  else win.maximize();
+});
+
+ipcMain.on('virtex:window-close', (event) => {
+  BrowserWindow.fromWebContents(event.sender)?.close();
+});
+
+//  Estado inicial: el renderer lo pide al montar el topbar para dibujar el
+//  icono correcto antes de la primera transición.
+ipcMain.handle('virtex:window-is-maximized', (event) => {
+  return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false;
+});
 
 app.whenReady().then(() => {
   buildMenu();

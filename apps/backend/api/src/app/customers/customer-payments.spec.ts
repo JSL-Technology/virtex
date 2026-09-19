@@ -26,6 +26,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { CustomerPaymentsService } from './customer-payments.service';
 import {
   CustomerPayment,
@@ -105,14 +106,14 @@ describeWithDb('customer collections', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       numbering,
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     receipts = new CustomerPaymentsService(
       dataSource.getRepository(CustomerPayment),
       entries,
       numbering,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
       dataSource,
       balances,
       // The real narrative service, so the entries carry the sentences the ledger will actually

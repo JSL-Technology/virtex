@@ -3,6 +3,7 @@ import { DianBuilder, DianBuildInput } from './dian.builder';
 import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
+import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.
@@ -168,6 +169,44 @@ describe('DIAN — factura electrónica', () => {
       // The NIT's digits and its check digit travel in separate places.
       expect(xml).toContain('schemeID="7"');
       expect(xml).toContain('>900123456<');
+    });
+
+    it('states a natural-person buyer by their cédula, not as a NIT, keeping every digit', () => {
+      const { xml } = builder.build(
+        input({
+          customer: {
+            ...customer,
+            companyName: 'JUAN PÉREZ GÓMEZ',
+            taxId: '1020304050',
+            identityDocumentTypeCode: 'CC',
+            taxpayerType: TaxpayerType.INDIVIDUAL,
+          } as unknown as Customer,
+        }),
+      );
+
+      // Tipo de documento 13 (cédula de ciudadanía), persona natural (2), and — unlike a NIT — no
+      // verification digit is split off, so all ten digits survive. Hardcoding `31`/`2` declared
+      // this buyer a NIT-holding natural person and stripped the cédula's last digit (H-06).
+      expect(xml).toContain('schemeName="13"');
+      expect(xml).toContain('>1020304050<');
+      expect(xml).toContain('<cbc:AdditionalAccountID>2</cbc:AdditionalAccountID>');
+    });
+
+    it('states a passport buyer as tipo 41, alphanumeric, from the catalogue', () => {
+      const { xml } = builder.build(
+        input({
+          customer: {
+            ...customer,
+            companyName: 'MARY SMITH',
+            taxId: 'X1234567',
+            identityDocumentTypeCode: 'PASSPORT',
+            identityDocumentCountry: 'XX',
+          } as unknown as Customer,
+        }),
+      );
+
+      expect(xml).toContain('schemeName="41"');
+      expect(xml).toContain('>X1234567<');
     });
 
     it('states the IVA with its base, its rate and its amount', () => {

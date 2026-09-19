@@ -7,7 +7,7 @@ import { PayslipLineKind } from '../entities/payslip-line.entity';
 import {
   PayrollJurisdictionStrategy,
   ResolvedParameters,
-} from '../jurisdictions/jurisdiction-strategy.interface';
+} from '../../jurisdictions/jurisdiction-strategy.interface';
 import { ContributionRegime } from '../entities/statutory-contribution.entity';
 
 /**

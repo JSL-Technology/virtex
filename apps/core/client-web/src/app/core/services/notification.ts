@@ -1,6 +1,28 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../shared/services/toast.service';
+import { ToastAction } from '../../shared/interfaces/toast.interface';
+
+/**
+ * A call-to-action a caller attaches to a toast, named the way the rest of this service is: the
+ * button's text is a catalogue key, not a sentence, so a call site never writes prose. The label is
+ * resolved here, in the one place the reader's language is consulted, and handed to the toast as
+ * ready text.
+ */
+export interface NotificationAction {
+  /** Translation key (or literal) for the button's text. */
+  labelKey: string;
+  /** Interpolation params for the label. */
+  labelParams?: Record<string, unknown>;
+  /** Router commands for a normal navigation, e.g. `['/invoices', id]`. */
+  commands?: unknown[];
+  /** Query params to carry on a `commands` navigation. */
+  queryParams?: Record<string, unknown>;
+  /** URL fragment to set on the current page — how the settings overlay is opened. */
+  fragment?: string;
+  /** An arbitrary callback, run before any navigation. */
+  handler?: () => void;
+}
 
 /**
  * Every toast the application raises.
@@ -29,20 +51,32 @@ export class NotificationService {
   private readonly toastService = inject(ToastService);
   private readonly translate = inject(TranslateService);
 
-  showSuccess(messageKey: string, params?: Record<string, unknown>): void {
-    this.toastService.success(this.resolve(messageKey, params));
+  showSuccess(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
+    this.toastService.success(this.resolve(messageKey, params), undefined, this.toAction(action));
   }
 
-  showError(messageKey: string, params?: Record<string, unknown>): void {
-    this.toastService.error(this.resolve(messageKey, params));
+  showError(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
+    this.toastService.error(this.resolve(messageKey, params), undefined, this.toAction(action));
   }
 
-  showInfo(messageKey: string, params?: Record<string, unknown>): void {
-    this.toastService.info(this.resolve(messageKey, params));
+  showInfo(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
+    this.toastService.info(this.resolve(messageKey, params), undefined, this.toAction(action));
   }
 
-  showWarning(messageKey: string, params?: Record<string, unknown>): void {
-    this.toastService.warning(this.resolve(messageKey, params));
+  showWarning(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
+    this.toastService.warning(this.resolve(messageKey, params), undefined, this.toAction(action));
+  }
+
+  /** Turn a caller's action into one the toast can render, resolving the label here as everywhere. */
+  private toAction(action?: NotificationAction): ToastAction | undefined {
+    if (!action) return undefined;
+    return {
+      label: this.resolve(action.labelKey, action.labelParams),
+      commands: action.commands,
+      queryParams: action.queryParams,
+      fragment: action.fragment,
+      handler: action.handler,
+    };
   }
 
   /**

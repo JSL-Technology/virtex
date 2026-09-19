@@ -5,6 +5,7 @@ import { ReportsService } from './reports.service';
 import { ProfitabilityService } from './profitability.service';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { AccountingModule } from '../accounting/accounting.module';
+import { CustomersModule } from '../customers/customers.module';
 import { AuthModule } from '../auth/auth.module';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { InvoiceLineItem } from '../invoices/entities/invoice-line-item.entity';
@@ -22,6 +23,9 @@ import { Report } from './entities/report.entity';
   imports: [
     InvoicesModule,
     AccountingModule,
+    // CustomersModule exposes CustomerPaymentsService, through which the ageing report reads how much
+    // has been collected against each invoice — instead of importing CustomerPaymentLine directly.
+    CustomersModule,
     AuthModule,
     TypeOrmModule.forFeature([Invoice, InvoiceLineItem, Report]),
   ],

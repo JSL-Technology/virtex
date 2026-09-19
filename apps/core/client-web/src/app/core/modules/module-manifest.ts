@@ -124,8 +124,21 @@ export interface ModuleRoute {
   /** Static data handed to the component, e.g. `{ side: 'payables' }`. */
   data?: Record<string, unknown>;
 
-  /** A window the user cannot close, such as the workspace home. */
+  /**
+   * Whether the window offers a close affordance. Defaults to `true`. It is now INDEPENDENT of
+   * `pinned`: a permanent home can still be closeable.
+   */
   isCloseable?: boolean;
+
+  /**
+   * The permanent workspace home.
+   *
+   * A pinned window opens once, sits first, never opens as an ephemeral preview, and
+   * `ensureDefaultTab` re-creates it on the next launch. It is a SEPARATE fact from `isCloseable`:
+   * the home is pinned AND closeable — always there when you start, yet dismissable while you work.
+   * Only the workspace overview sets it.
+   */
+  pinned?: boolean;
 }
 
 export interface ModuleManifest {

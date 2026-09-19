@@ -10,7 +10,7 @@ import {
   CashPosition,
   TreasuryService,
 } from '../../../core/api/treasury.service';
-import { toIsoDate } from '../../reports/financial-statements/report-period';
+import { toIsoDate } from '../../../shared/utils/date.util';
 
 /**
  * How many transfers the panel shows.

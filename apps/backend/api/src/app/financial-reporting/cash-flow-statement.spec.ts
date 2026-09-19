@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -86,7 +87,7 @@ describeWithDb('the statement of cash flows', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       new AuditTrailService(dataSource.getRepository(AuditLog)),
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
   });
 

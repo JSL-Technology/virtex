@@ -159,6 +159,10 @@ const PASSPORT: IdentityDocumentTypeSpec = {
   appliesTo: 'individual',
   requirement: 'optional',
   usedFor: ['payroll', 'invoicing'],
+  // A passport is `06` to Ecuador's SRI and `41` to Colombia's DIAN. The e-invoicing builders read
+  // these instead of counting digits (a passport has no fixed length), so a foreign buyer is
+  // declared as a passport holder, never mislabelled as an unidentified consumer (A-02).
+  regimeCodes: { sri: '06', dian: '41' },
   sortOrder: 900,
 };
 
@@ -219,14 +223,19 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
     // No published check digit: the DIAN's modulus-11 rule applies to the NIT, not to the cédula.
     // Tightening this means confirming with the Registraduría whether one exists, not guessing.
     pattern: '^\\d{6,10}$', checksum: null, canonicalForm: 'digits',
-    appliesTo: 'individual', requirement: 'required', usedFor: ['payroll'], isDefault: true,
-    issuingAuthority: 'Registraduría Nacional', sortOrder: 10,
+    // Also `invoicing`: a Colombian factura electrónica identifies a natural-person buyer by their
+    // cédula (DIAN tipo de documento `13`), so the customer form must offer it — otherwise the only
+    // recordable option is a NIT and every buyer is declared a company, which is the H-06 defect.
+    appliesTo: 'individual', requirement: 'required', usedFor: ['payroll', 'invoicing'], isDefault: true,
+    issuingAuthority: 'Registraduría Nacional', sortOrder: 10, regimeCodes: { dian: '13' },
   },
   {
     countryCode: 'CO', code: 'NIT', labelKey: 'identity_document.co.nit', labelVerbatim: 'NIT',
     example: '900123456-8', pattern: '^\\d{9,10}-?\\d$', checksum: 'co_nit_mod11',
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
+    // `dian: '31'` is the DIAN's tipo de documento for a NIT (persona jurídica y asimiladas).
     usedFor: ['invoicing', 'registration'], isDefault: true, issuingAuthority: 'DIAN', sortOrder: 20,
+    regimeCodes: { dian: '31' },
   },
 
   // ── Chile ─────────────────────────────────────────────────────────────────
@@ -313,16 +322,19 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   {
     countryCode: 'EC', code: 'CEDULA', labelKey: 'identity_document.ec.cedula', labelVerbatim: 'Cédula de identidad',
     example: '1710034065', pattern: '^\\d{10}$', checksum: null,
+    // `sri: '05'` is the SRI's tipo de identificación del comprador for a cédula.
     canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
     usedFor: ['payroll'], isDefault: true, issuingAuthority: 'Registro Civil', sortOrder: 10,
+    regimeCodes: { sri: '05' },
   },
   {
     countryCode: 'EC', code: 'RUC', labelKey: 'identity_document.ec.ruc', labelVerbatim: 'RUC',
     example: '1790123456001', pattern: '^\\d{13}$', checksum: 'ec_ruc',
     kindChecksums: { company: 'ec_ruc_company', individual: 'ec_ruc_individual' },
+    // `sri: '04'` is the SRI's tipo de identificación del comprador for a RUC.
     canonicalForm: 'digits', appliesTo: 'both', requirement: 'required',
     usedFor: ['invoicing', 'registration'], isDefault: true,
-    issuingAuthority: 'SRI', sortOrder: 20,
+    issuingAuthority: 'SRI', sortOrder: 20, regimeCodes: { sri: '04' },
   },
 
   // ── Uruguay ───────────────────────────────────────────────────────────────

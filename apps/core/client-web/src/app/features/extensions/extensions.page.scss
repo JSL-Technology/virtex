@@ -187,7 +187,7 @@
     &--primary {
       background: var(--primary);
       border-color: var(--primary);
-      color: #fff;
+      color: var(--accent-on-solid);
     }
 
     &--danger {
@@ -248,7 +248,7 @@
     &-time,
     &-metered {
       color: var(--text-tertiary);
-      font-weight: var(--font-normal, 400);
+      font-weight: var(--font-regular);
     }
 
     &-error {

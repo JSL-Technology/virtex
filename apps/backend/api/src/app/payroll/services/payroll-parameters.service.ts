@@ -11,7 +11,7 @@ import {
   StatutoryReference,
   StatutoryReferenceKey,
 } from '../entities/statutory-reference.entity';
-import { ResolvedParameters } from '../jurisdictions/jurisdiction-strategy.interface';
+import { ResolvedParameters } from '../../jurisdictions/jurisdiction-strategy.interface';
 
 /**
  * Resolves the statutory parameters in force for a country on a date.

@@ -51,7 +51,7 @@ export interface RuntimeExtension {
         min-height: 320px;
         border: 0;
         border-radius: 8px;
-        background: var(--bg-primary, #fff);
+        background: var(--surface-canvas);
       }
     `,
   ],

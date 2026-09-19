@@ -16,6 +16,11 @@
 @use '../../../../../assets/styles/design-system' as ds;
 
 .toast-item {
+  // `relative` + `overflow: hidden` anchor the progress bar to the card and clip it to the same
+  // rounded corners, so it does not spill past the glass edge.
+  position: relative;
+  overflow: hidden;
+
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
@@ -31,25 +36,31 @@
   pointer-events: auto;
   user-select: none;
 
+  // Drives both the accent edge and the progress bar from one value per type, so the two never
+  // disagree about what colour an error is.
+  --toast-accent: var(--accent-solid);
+
   &.toast-success {
-    border-left: 3px solid var(--success-solid);
+    --toast-accent: var(--success-solid);
     .toast-icon { color: var(--success-text); }
   }
 
   &.toast-error {
-    border-left: 3px solid var(--error-solid);
+    --toast-accent: var(--error-solid);
     .toast-icon { color: var(--error-text); }
   }
 
   &.toast-warning {
-    border-left: 3px solid var(--warning-solid);
+    --toast-accent: var(--warning-solid);
     .toast-icon { color: var(--warning-text); }
   }
 
   &.toast-info {
-    border-left: 3px solid var(--accent-solid);
+    --toast-accent: var(--accent-solid);
     .toast-icon { color: var(--accent-text); }
   }
+
+  border-left: 3px solid var(--toast-accent);
 }
 
 .toast-icon {
@@ -81,11 +92,65 @@
   line-height: var(--leading-snug);
 }
 
+.toast-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.toast-action {
+  @include ds.button-secondary('sm');
+  // The message sits above; the button is the one thing to do about it. Auto width so it hugs its
+  // label rather than stretching across the card.
+  width: auto;
+}
+
 .toast-close {
   @include ds.button-icon('sm');
   flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background-color: var(--glass-bg-hover);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  BARRA DE PROGRESO
+// -----------------------------------------------------------------------------
+//  Vacía de izquierda a derecha durante la vida del aviso. La duración la fija el
+//  componente (`animation-duration` en línea, la misma del temporizador). Se pausa
+//  con el mismo gesto —cursor o foco— con el que el servicio detiene la cuenta
+//  atrás, de modo que lo que se ve coincide con lo que ocurre.
+.toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left center;
+
+  background-color: var(--toast-accent);
+  opacity: 0.5;
+
+  animation-name: toast-progress-drain;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.toast-item:hover .toast-progress,
+.toast-item:focus-within .toast-progress {
+  animation-play-state: paused;
+}
+
+@keyframes toast-progress-drain {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+//  Respeta a quien pide menos movimiento: sin vaciado animado, la barra solo marca
+//  que el aviso es temporal.
+@media (prefers-reduced-motion: reduce) {
+  .toast-progress {
+    animation: none;
   }
 }

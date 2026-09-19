@@ -15,9 +15,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
-// Reutilizamos el modelo de producto
-// import { Product } from '../../inventory/products/products.page';
-
 /**
  * Web-based POS terminal embedded in the management console.
  *

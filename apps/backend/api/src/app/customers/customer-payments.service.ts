@@ -128,6 +128,43 @@ export class CustomerPaymentsService {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Read contracts for other modules
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /**
+   * How much has been collected against each of the given invoices, valued in one ledger and
+   * measured at the receivables control account.
+   *
+   * This lives here — not in the reports module that consumes it — because {@link CustomerPaymentLine},
+   * the row that ties a receipt to the invoice it settles, is this module's table. A report that
+   * needs the figure asks for it through this method; it does not reach into the entity, which is
+   * what the `no-restricted-imports` boundary on `reports/**` forbids. The invoice ids are assumed
+   * to be tenant-scoped by the caller, exactly as the ageing query that used to inline this was.
+   */
+  async paidAmountsByInvoice(
+    invoiceIds: string[],
+    arAccountId: string,
+    ledgerId: string,
+  ): Promise<Map<string, number>> {
+    if (invoiceIds.length === 0) return new Map();
+
+    const rows = await this.dataSource
+      .getRepository(CustomerPaymentLine)
+      .createQueryBuilder('line')
+      .innerJoin('line.payment', 'payment')
+      .innerJoin('payment.journalEntry', 'je')
+      .innerJoin('je.lines', 'je_line', 'je_line.accountId = :arAccountId', { arAccountId })
+      .innerJoin('je_line.valuations', 'valuation')
+      .where('line.invoiceId IN (:...invoiceIds)', { invoiceIds })
+      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId })
+      .select(['line.invoiceId as "invoiceId"', 'SUM(valuation.credit) as "paidAmount"'])
+      .groupBy('line.invoiceId')
+      .getRawMany<{ invoiceId: string; paidAmount: string }>();
+
+    return new Map(rows.map((row) => [row.invoiceId, parseFloat(row.paidAmount)]));
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Recording a collection
   // ───────────────────────────────────────────────────────────────────────────
 

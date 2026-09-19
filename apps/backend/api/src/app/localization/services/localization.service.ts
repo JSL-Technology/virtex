@@ -10,7 +10,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
 import { TaxesService } from '../../taxes/taxes.service';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
-import { FiscalStrategy } from '../drivers/fiscal-strategy.interface';
+import { TaxIdRegistryLookup } from '../drivers/tax-id-registry-lookup';
 import { DominicanRepublicStrategy } from '../drivers/dominican-republic/dominican-republic.strategy';
 import { GenericFiscalStrategy } from '../drivers/generic-fiscal.strategy';
 import { USStrategy } from '../drivers/usa/usa.strategy';
@@ -48,7 +48,7 @@ const DEFAULT_BASE_CURRENCY = 'USD';
 @Injectable()
 export class LocalizationService extends LocalizationProvisioningPort implements OnModuleInit {
   private readonly logger = new Logger(LocalizationService.name);
-  private strategies: Map<string, FiscalStrategy> = new Map();
+  private strategies: Map<string, TaxIdRegistryLookup> = new Map();
 
   constructor(
     @InjectRepository(FiscalRegion)

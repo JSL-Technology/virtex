@@ -982,6 +982,11 @@
     "en": "You cannot invoice yet. Missing: {{missing}}.",
     "pt": "Ainda não podes faturar. Falta: {{missing}}."
   },
+  "invoices.new.not_ready_action": {
+    "es": "Configurar",
+    "en": "Set up",
+    "pt": "Configurar"
+  },
   "invoices.new.notes": {
     "es": "Notas",
     "en": "Notes",

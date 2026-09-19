@@ -1,6 +1,6 @@
 import { PayrollCalculationService, RunPeriod } from './payroll-calculation.service';
-import { DominicanRepublicStrategy } from '../jurisdictions/dominican-republic.strategy';
-import { ResolvedParameters } from '../jurisdictions/jurisdiction-strategy.interface';
+import { DominicanRepublicStrategy } from '../../jurisdictions/dominican-republic.strategy';
+import { ResolvedParameters } from '../../jurisdictions/jurisdiction-strategy.interface';
 import { ConceptCalculation, ConceptType } from '../entities/payroll-concept.entity';
 import { PayslipLineKind } from '../entities/payslip-line.entity';
 import {

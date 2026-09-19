@@ -25,6 +25,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { AccountsPayableService } from './accounts-payable.service';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
@@ -111,7 +112,7 @@ describeWithDb('accounts payable', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
     );
 
     payables = new AccountsPayableService(
@@ -123,7 +124,7 @@ describeWithDb('accounts payable', () => {
       new EventEmitter2(),
       { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
       { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
-      new ExchangeRateResolver(dataSource),
+      testExchangeRateResolver(dataSource),
       balances,
       // The real resolver, not a stub: what is withheld from a supplier follows from the
       // supplier's fiscal classification and the tenant's country, and a stub would let the tests

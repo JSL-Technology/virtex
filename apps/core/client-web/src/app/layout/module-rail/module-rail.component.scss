@@ -89,14 +89,19 @@
 }
 
 .rail__label {
-  font-size: 0.5625rem;
-  line-height: 1.15;
+  //  9px truncado con «…» era doblemente ilegible: ni se leía el tamaño ni el
+  //  nombre completo («Contabili…», «Administr…»). 10px y hasta DOS líneas —una
+  //  etiqueta recortada no cumple su única función, que es nombrar el módulo.
+  font-size: 0.625rem;
+  line-height: 1.1;
   font-weight: var(--font-medium);
   text-align: center;
   max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .rail__lock {

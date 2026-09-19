@@ -76,6 +76,9 @@ import {
   Lightbulb, // ✅ Sugerir una mejora
   Star, // ✅ Dejar una valoración
   ChevronLeft, // ✅ Indicador del submenú de Feedback (se abre a la izquierda)
+  Minus, // ✅ Control de ventana: minimizar (escritorio)
+  Square, // ✅ Control de ventana: maximizar (escritorio)
+  Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -90,6 +93,7 @@ import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
+import { DesktopWindowService } from '../../core/windows/desktop-window.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -187,6 +191,9 @@ export class MainLayout implements OnInit {
   }
   private elementRef = inject(ElementRef);
   authService = inject(AuthService);
+  //  El topbar HACE de barra de título en el escritorio. Este servicio dice si
+  //  estamos ahí, en qué sistema, y ejecuta las acciones de ventana.
+  readonly desktop = inject(DesktopWindowService);
   private searchService = inject(SearchService);
   protected readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -247,9 +254,18 @@ export class MainLayout implements OnInit {
   isSearchLoading = signal(false);
   private searchQuery$ = new Subject<string>();
 
+  //  Las clases del armazón, en un solo binding. Aparte del cajón móvil
+  //  (`sidebar-open`), marcan si el topbar actúa como barra de título del
+  //  escritorio y en qué sistema: el SCSS reordena la rejilla, activa el
+  //  arrastre y reserva el hueco de los semáforos según estas clases.
   @HostBinding('class')
-  get layoutClass() {
-    return this.isSidebarOpen() ? 'sidebar-open' : '';
+  get layoutClass(): string {
+    const classes: string[] = [];
+    if (this.isSidebarOpen()) classes.push('sidebar-open');
+    if (this.desktop.isDesktop()) classes.push('desktop');
+    if (this.desktop.isMac()) classes.push('platform-mac');
+    if (this.desktop.isWindows()) classes.push('platform-windows');
+    return classes.join(' ');
   }
 
   stopImpersonation(): void {
@@ -300,6 +316,10 @@ export class MainLayout implements OnInit {
   protected readonly LightbulbIcon = Lightbulb;
   protected readonly StarIcon = Star;
   protected readonly ChevronLeftIcon = ChevronLeft;
+  protected readonly MinimizeIcon = Minus; // Control de ventana
+  protected readonly MaximizeIcon = Square; // Control de ventana
+  protected readonly RestoreIcon = Copy; // Control de ventana (maximizada)
+  protected readonly CloseWindowIcon = X; // Control de ventana
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update((isOpen) => !isOpen);
@@ -336,6 +356,31 @@ export class MainLayout implements OnInit {
     //  despliegue el menú de usuario.
     this.isFeedbackOpen.set(false);
   }
+
+  /**
+   * Doble clic sobre la zona de arrastre del topbar: maximiza o restaura.
+   *
+   * Solo en Windows/Linux. En macOS lo resuelve el propio sistema sobre la
+   * región `-webkit-app-region: drag` (según la preferencia de «doble clic en la
+   * barra de título»), así que aquí no se toca para no duplicar el gesto. Se
+   * ignora cualquier doble clic que caiga sobre un elemento interactivo —esos
+   * son `no-drag` y tienen su propia acción—, de modo que un doble clic en el
+   * buscador o en un botón nunca redimensiona la ventana.
+   */
+  onTitlebarDoubleClick(event: MouseEvent): void {
+    if (!this.desktop.showsWindowControls()) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest(this.INTERACTIVE_TOPBAR_SELECTOR)) return;
+    this.desktop.toggleMaximize();
+  }
+
+  //  Lo que NO arrastra la ventana ni la maximiza al doble clic: todo lo que ya
+  //  tiene una acción propia. Es el mismo conjunto que el SCSS marca como
+  //  `no-drag`, escrito aquí una vez para el guardado del doble clic.
+  private readonly INTERACTIVE_TOPBAR_SELECTOR =
+    'button, a, input, select, textarea, [role="button"], [contenteditable="true"],' +
+    '.global-search, .user-menu, .notification-menu, .quick-create-menu,' +
+    'app-theme-toggle, .window-controls';
 
   goBack(): void {
     this.location.back();
