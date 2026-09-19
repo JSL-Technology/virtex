@@ -73,12 +73,12 @@
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
                     <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-                    <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+                    <vx-amount class="amount" [value]="line.amount" />
                   </div>
                 }
                 <div class="report-line subtotal-line">
                   <span>{{ 'reports.balance_sheet.total_title' | translate: { title: ('accounting.categories.' + section.category | translate) } }}</span>
-                  <span class="amount">{{ section.subtotal | vxNumber: '1.2-2' }}</span>
+                  <vx-amount class="amount" [value]="section.subtotal" />
                 </div>
               </div>
             }
@@ -100,18 +100,18 @@
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
                     <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-                    <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+                    <vx-amount class="amount" [value]="line.amount" />
                   </div>
                 }
                 <div class="report-line subtotal-line">
                   <span>{{ 'reports.balance_sheet.total_title' | translate: { title: ('accounting.categories.' + section.category | translate) } }}</span>
-                  <span class="amount">{{ section.subtotal | vxNumber: '1.2-2' }}</span>
+                  <vx-amount class="amount" [value]="section.subtotal" />
                 </div>
               </div>
             }
             <div class="report-line subtotal-line">
               <span>{{ 'reports.balance_sheet.total_liabilities' | translate }}</span>
-              <span class="amount">{{ data.liabilities.total | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="data.liabilities.total" />
             </div>
 
             @for (section of data.equity.sections; track section.category) {
@@ -122,7 +122,7 @@
                 @for (line of section.accounts; track line.accountId) {
                   <div class="report-line">
                     <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-                    <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+                    <vx-amount class="amount" [value]="line.amount" />
                   </div>
                 }
               </div>
@@ -135,11 +135,11 @@
             -->
             <div class="report-line">
               <span>{{ 'reports.balance_sheet.result_year' | translate }}</span>
-              <span class="amount">{{ data.equity.unclosedResult | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="data.equity.unclosedResult" />
             </div>
             <div class="report-line subtotal-line">
               <span>{{ 'reports.balance_sheet.total_equity' | translate }}</span>
-              <span class="amount">{{ data.equity.total | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="data.equity.total" />
             </div>
 
             <div class="report-line total-line">

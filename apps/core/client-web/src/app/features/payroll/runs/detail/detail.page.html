@@ -201,11 +201,11 @@
                 @for (payslip of payslips(); track payslip.id) {
                   <tr class="is-clickable" (click)="togglePayslip(payslip.id)">
                     <td>{{ payslip.employeeName }}</td>
-                    <td class="numeric">{{ payslip.grossEarnings | vxNumber: '1.2-2' }}</td>
-                    <td class="numeric">{{ payslip.afpEmployee | vxNumber: '1.2-2' }}</td>
-                    <td class="numeric">{{ payslip.sfsEmployee | vxNumber: '1.2-2' }}</td>
-                    <td class="numeric">{{ payslip.incomeTax | vxNumber: '1.2-2' }}</td>
-                    <td class="numeric strong">{{ payslip.netPay | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric"><vx-amount [value]="payslip.grossEarnings" /></td>
+                    <td class="numeric"><vx-amount [value]="payslip.afpEmployee" /></td>
+                    <td class="numeric"><vx-amount [value]="payslip.sfsEmployee" /></td>
+                    <td class="numeric"><vx-amount [value]="payslip.incomeTax" /></td>
+                    <td class="numeric strong"><vx-amount [value]="payslip.netPay" /></td>
                   </tr>
                   @if (openPayslip() === payslip.id && payslip.lines?.length) {
                     <tr class="detail-row">
@@ -218,7 +218,7 @@
                                 <td class="muted">
                                   {{ 'payroll.concepts.type_label.' + line.kind | translate }}
                                 </td>
-                                <td class="numeric">{{ line.amount | vxNumber: '1.2-2' }}</td>
+                                <td class="numeric"><vx-amount [value]="line.amount" /></td>
                               </tr>
                             }
                           </tbody>

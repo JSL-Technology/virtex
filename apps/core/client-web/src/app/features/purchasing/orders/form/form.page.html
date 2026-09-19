@@ -97,7 +97,7 @@
                 }
                 <td class="numeric"><input type="number" step="0.01" min="0" formControlName="unitPrice" /></td>
                 <td class="numeric"><input type="number" step="0.01" min="0" max="1" formControlName="taxRate" /></td>
-                <td class="numeric">{{ lineTotal(line.value) | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="lineTotal(line.value)" /></td>
                 <td>
                   @if (editable()) {
                     <button class="icon-button" type="button" (click)="removeLine(i)"
@@ -122,11 +122,11 @@
       <div class="totals">
         <div class="totals__line">
           <span>{{ 'purchasing.orders.form.subtotal' | translate }}</span>
-          <span class="amount">{{ subtotal() | vxNumber: '1.2-2' }}</span>
+          <vx-amount class="amount" [value]="subtotal()" />
         </div>
         <div class="totals__line">
           <span>{{ 'purchasing.orders.form.tax' | translate }}</span>
-          <span class="amount">{{ taxTotal() | vxNumber: '1.2-2' }}</span>
+          <vx-amount class="amount" [value]="taxTotal()" />
         </div>
         <div class="totals__line totals__line--grand">
           <span>{{ 'purchasing.orders.total' | translate }}</span>

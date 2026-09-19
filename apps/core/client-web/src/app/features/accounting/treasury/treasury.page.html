@@ -66,21 +66,16 @@
                 -->
                 <td
                   class="numeric"
-                  [class.negative]="(row.balanceInAccountCurrency ?? 0) < 0"
                   [title]="
                     row.currencyBalanceUnavailable
                       ? ('treasury.account_postings_carry_no_amount_own' | translate)
                       : ''
                   "
                 >
-                  @if (row.balanceInAccountCurrency === null) {
-                    —
-                  } @else {
-                    {{ row.balanceInAccountCurrency | vxMoney: row.currencyCode }}
-                  }
+                  <vx-amount [value]="row.balanceInAccountCurrency" [currency]="row.currencyCode" />
                 </td>
-                <td class="numeric" [class.negative]="row.balanceInBaseCurrency < 0">
-                  {{ row.balanceInBaseCurrency | vxNumber: '1.2-2' }}
+                <td class="numeric">
+                  <vx-amount [value]="row.balanceInBaseCurrency" />
                 </td>
               </tr>
             }
@@ -129,7 +124,7 @@
                 <td class="numeric">
                   {{ transfer.amountReceived | vxMoney: accountCurrency(transfer.toBankAccountId) }}
                 </td>
-                <td class="numeric">{{ transfer.fee | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="transfer.fee" /></td>
               </tr>
             }
           </tbody>

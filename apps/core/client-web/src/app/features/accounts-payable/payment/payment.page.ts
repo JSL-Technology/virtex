@@ -10,6 +10,7 @@ import { AccountsPayableService, VendorBill } from '../../../core/services/accou
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * Paying supplier invoices.
@@ -35,8 +36,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxAmountComponent],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

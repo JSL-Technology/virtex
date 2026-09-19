@@ -9,6 +9,7 @@ import {
   TrialBalanceReport,
 } from '../../../../core/api/financial-reporting.service';
 import { defaultPeriod } from '../report-period';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * The balanza de comprobación.
@@ -24,7 +25,7 @@ import { defaultPeriod } from '../report-period';
 @Component({
   selector: 'app-trial-balance-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './trial-balance.page.html',
   styleUrls: ['./trial-balance.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

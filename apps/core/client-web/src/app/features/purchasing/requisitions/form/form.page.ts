@@ -17,6 +17,7 @@ import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -40,7 +41,7 @@ import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxBadgeComponent],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

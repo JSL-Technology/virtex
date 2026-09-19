@@ -51,8 +51,8 @@
             </td>
             <td>{{ bill.date | vxDate: 'date' }}</td>
             <td>{{ bill.dueDate | vxDate: 'date' }}</td>
-            <td class="text-right">{{ bill.total | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">{{ bill.balance | vxNumber: '1.2-2' }}</td>
+            <td class="text-right"><vx-amount [value]="bill.total" /></td>
+            <td class="text-right"><vx-amount [value]="bill.balance" /></td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(bill.status)" [struck]="isVoid(bill.status)">
                 {{ statusKey(bill.status) | translate }}

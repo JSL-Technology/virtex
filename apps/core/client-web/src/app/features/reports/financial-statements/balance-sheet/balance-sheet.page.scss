@@ -64,9 +64,11 @@
   }
 }
 
-.amount {
-  font-family: "Source Code Pro", monospace;
-}
+//  La familia monoespaciada que había aquí —«Source Code Pro», escrita a mano y
+//  fuera de la escala tipográfica— servía para que los dígitos se alinearan.
+//  `vx-amount` lo consigue con `font-variant-numeric: tabular-nums`, que es la
+//  forma correcta: alinea las cifras SIN cambiar de tipo de letra a mitad de
+//  página. La clase se conserva porque las retículas de abajo la posicionan.
 
 /*
  * A line of the cash flow statement's investing or financing section: account, cash in, cash out,

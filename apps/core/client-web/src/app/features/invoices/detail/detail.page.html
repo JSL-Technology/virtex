@@ -90,11 +90,9 @@
           <tr>
             <td class="text-left">{{ item.description }}</td>
             <td class="text-center">{{ item.quantity }}</td>
-            <td class="text-right">{{ item.price | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">{{ item.taxAmount || 0 | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">
-              {{ (item.quantity * item.price) + (item.taxAmount || 0) | vxNumber: '1.2-2' }}
-            </td>
+            <td class="text-right"><vx-amount [value]="item.price" /></td>
+            <td class="text-right"><vx-amount [value]="item.taxAmount || 0" /></td>
+            <td class="text-right"><vx-amount [value]="(item.quantity * item.price) + (item.taxAmount || 0)" /></td>
           </tr>
           }
         </tbody>
@@ -111,20 +109,20 @@
         <div class="summary-totals">
           <div class="summary-row">
             <span>{{ 'invoices.detail.subtotal' | translate }}</span>
-            <span>{{ inv.subtotal | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.subtotal" />
           </div>
           <div class="summary-row">
             <span>{{ 'invoices.detail.taxes' | translate }}</span>
-            <span>{{ inv.tax | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.tax" />
           </div>
           <div class="summary-total">
             <span>{{ 'invoices.detail.grand_total_label' | translate }}</span>
-            <span>{{ inv.currencyCode }} {{ inv.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.total" [currency]="inv.currencyCode" />
           </div>
           @if (inv.balance > 0 && inv.balance < inv.total) {
           <div class="summary-row balance-row">
             <span>{{ 'invoices.detail.outstanding_balance' | translate }}</span>
-            <strong>{{ inv.currencyCode }} {{ inv.balance | vxNumber: '1.2-2' }}</strong>
+            <vx-amount [value]="inv.balance" [currency]="inv.currencyCode" />
           </div>
           }
         </div>

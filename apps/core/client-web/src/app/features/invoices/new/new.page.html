@@ -200,28 +200,33 @@
             }
             <dl class="summary-totals" [class.summary-totals--stale]="totalsPending()">
               <dt>{{ 'invoices.new.subtotal' | translate }}</dt>
-              <dd>{{ totals().subtotal | vxNumber: '1.2-2' }}</dd>
+              <dd><vx-amount [value]="totals().subtotal" /></dd>
               @if (totals().discountTotal > 0) {
                 <dt>{{ 'invoices.new.discount' | translate }}</dt>
-                <dd>−{{ totals().discountTotal | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="-totals().discountTotal" /></dd>
               }
               <dt>{{ 'invoices.new.tax_column' | translate }}</dt>
-              <dd>{{ totals().tax | vxNumber: '1.2-2' }}</dd>
+              <dd><vx-amount [value]="totals().tax" /></dd>
               @if (totals().excise > 0) {
                 <dt>{{ 'invoices.new.excise_duty' | translate }}</dt>
-                <dd>{{ totals().excise | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().excise" /></dd>
               }
               @if (totals().serviceCharge > 0) {
                 <dt>{{ 'invoices.new.service_charge' | translate }}</dt>
-                <dd>{{ totals().serviceCharge | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().serviceCharge" /></dd>
               }
               <dt class="grand">{{ 'invoices.new.total' | translate }}</dt>
-              <dd class="grand">{{ totals().total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
+              <dd class="grand">
+                <vx-amount
+                  [value]="totals().total"
+                  [currency]="invoiceForm.get('currencyCode')?.value"
+                />
+              </dd>
               @if (totals().taxWithheld + totals().incomeTaxWithheld > 0) {
                 <dt>{{ 'invoices.new.withholdings' | translate }}</dt>
-                <dd>−{{ totals().taxWithheld + totals().incomeTaxWithheld | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="-(totals().taxWithheld + totals().incomeTaxWithheld)" /></dd>
                 <dt>{{ 'invoices.new.net_receivable' | translate }}</dt>
-                <dd>{{ totals().netReceivable | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().netReceivable" /></dd>
               }
             </dl>
           </div>

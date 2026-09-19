@@ -25,6 +25,7 @@ import {
 } from '../../../../core/api/reconciliation.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * The bank reconciliation workbench.
@@ -54,7 +55,7 @@ import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
-    ...VX_FORM_A11Y, VxBadgeComponent],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './account-reconciliation.page.html',
   styleUrls: ['./account-reconciliation.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

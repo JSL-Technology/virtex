@@ -120,8 +120,8 @@
             <!-- El tipo es un enum del backend en inglés; `titlecase` solo lo capitalizaba, así
                  que la columna decía Asset / Liability / Equity en una pantalla en español. -->
             <td>{{ 'accounting.account_type.' + account.type | translate }}</td>
-            <td class="text-right balance-cell" [class.negative]="account.balance < 0">
-              {{ account.balance | vxNumber: '1.2-2' }}
+            <td class="text-right balance-cell">
+              <vx-amount [value]="account.balance" />
             </td>
             <td class="text-center">
               <vx-badge [tone]="account.isActive ? 'ok' : 'neutral'">

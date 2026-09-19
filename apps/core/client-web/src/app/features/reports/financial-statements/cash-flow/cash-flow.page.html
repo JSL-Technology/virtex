@@ -57,14 +57,14 @@
       <div class="report-body">
         <div class="report-line subtotal-line">
           <span>{{ 'reports.cash_flow.cash_beginning' | translate }}</span>
-          <span class="amount">{{ data.openingCash | vxNumber: '1.2-2' }}</span>
+          <vx-amount class="amount" [value]="data.openingCash" />
         </div>
 
         <div class="report-section">
           <div class="section-title"><span>{{ 'reports.cash_flow.operating_activities' | translate }}</span></div>
           <div class="report-line">
             <span>{{ 'reports.cash_flow.net_income' | translate }}</span>
-            <span class="amount">{{ data.operating.netIncome | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.operating.netIncome" />
           </div>
 
           @if (data.operating.nonCashAdjustments.length > 0) {
@@ -73,7 +73,7 @@
               @for (movement of data.operating.nonCashAdjustments; track movement.accountId) {
                 <div class="report-line">
                   <span class="account-code">{{ movement.code }}</span>
-                  <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
+                  <vx-amount class="amount" [value]="movement.amount" />
                 </div>
               }
             </div>
@@ -85,7 +85,7 @@
               @for (movement of data.operating.workingCapitalChanges; track movement.accountId) {
                 <div class="report-line">
                   <span class="account-code">{{ movement.code }}</span>
-                  <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
+                  <vx-amount class="amount" [value]="movement.amount" />
                 </div>
               }
             </div>
@@ -93,7 +93,7 @@
 
           <div class="report-line subtotal-line">
             <span>{{ 'reports.cash_flow.cash_from_operations' | translate }}</span>
-            <span class="amount">{{ data.operating.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.operating.total" />
           </div>
         </div>
 
@@ -114,16 +114,16 @@
           @for (movement of data.investing.movements; track movement.accountId) {
             <div class="report-line gross-line">
               <span class="account-code">{{ movement.code }}</span>
-              <span class="amount">{{ movement.inflow | vxNumber: '1.2-2' }}</span>
-              <span class="amount">{{ movement.outflow | vxNumber: '1.2-2' }}</span>
-              <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="movement.inflow" />
+              <vx-amount class="amount" [value]="movement.outflow" />
+              <vx-amount class="amount" [value]="movement.amount" />
             </div>
           }
           <div class="report-line subtotal-line gross-line">
             <span>{{ 'reports.cash_flow.investing_activities' | translate }}</span>
-            <span class="amount">{{ data.investing.inflows | vxNumber: '1.2-2' }}</span>
-            <span class="amount">{{ data.investing.outflows | vxNumber: '1.2-2' }}</span>
-            <span class="amount">{{ data.investing.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.investing.inflows" />
+            <vx-amount class="amount" [value]="data.investing.outflows" />
+            <vx-amount class="amount" [value]="data.investing.total" />
           </div>
         </div>
 
@@ -139,16 +139,16 @@
           @for (movement of data.financing.movements; track movement.accountId) {
             <div class="report-line gross-line">
               <span class="account-code">{{ movement.code }}</span>
-              <span class="amount">{{ movement.inflow | vxNumber: '1.2-2' }}</span>
-              <span class="amount">{{ movement.outflow | vxNumber: '1.2-2' }}</span>
-              <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="movement.inflow" />
+              <vx-amount class="amount" [value]="movement.outflow" />
+              <vx-amount class="amount" [value]="movement.amount" />
             </div>
           }
           <div class="report-line subtotal-line gross-line">
             <span>{{ 'reports.cash_flow.financing_activities' | translate }}</span>
-            <span class="amount">{{ data.financing.inflows | vxNumber: '1.2-2' }}</span>
-            <span class="amount">{{ data.financing.outflows | vxNumber: '1.2-2' }}</span>
-            <span class="amount">{{ data.financing.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.financing.inflows" />
+            <vx-amount class="amount" [value]="data.financing.outflows" />
+            <vx-amount class="amount" [value]="data.financing.total" />
           </div>
         </div>
 
@@ -162,13 +162,13 @@
         @if (data.effectOfExchangeRateOnCash !== 0) {
           <div class="report-line subtotal-line">
             <span>{{ 'reports.cash_flow.effect_exchange_rate_changes_cash' | translate }}</span>
-            <span class="amount">{{ data.effectOfExchangeRateOnCash | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.effectOfExchangeRateOnCash" />
           </div>
         }
 
         <div class="report-line total-line">
           <span>{{ 'reports.cash_flow.net_change_cash' | translate }}</span>
-          <span class="amount">{{ data.netChangeInCash | vxNumber: '1.2-2' }}</span>
+          <vx-amount class="amount" [value]="data.netChangeInCash" />
         </div>
         <div class="report-line total-line grand-total">
           <span>{{ 'reports.cash_flow.cash_end' | translate }}</span>
@@ -191,8 +191,8 @@
           @for (line of data.nonCashTransactions; track line.accountId) {
             <div class="report-line gross-line">
               <span class="account-code">{{ line.code }}</span>
-              <span class="amount">{{ line.debit | vxNumber: '1.2-2' }}</span>
-              <span class="amount">{{ line.credit | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="line.debit" />
+              <vx-amount class="amount" [value]="line.credit" />
               <span class="amount"></span>
             </div>
           }

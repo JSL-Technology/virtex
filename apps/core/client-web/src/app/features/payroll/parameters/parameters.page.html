@@ -166,7 +166,7 @@
           @for (row of references(); track $index) {
             <tr [class.is-historic]="!inForceReferences().includes(row)">
               <td>{{ 'payroll.parameters.key_label.' + row.key | translate }}</td>
-              <td class="numeric">{{ row.value | vxNumber: '1.2-2' }}</td>
+              <td class="numeric"><vx-amount [value]="row.value" /></td>
               <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
               <td class="text-right">
                 <button type="button" class="secondary-button" (click)="startReference(row)">
@@ -202,10 +202,17 @@
         <tbody>
           @for (bracket of brackets(); track $index) {
             <tr>
-              <td class="numeric">{{ bracket.lowerAnnual | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ bracket.upperAnnual !== null ? (bracket.upperAnnual | vxNumber: '1.2-2') : '∞' }}</td>
+              <td class="numeric"><vx-amount [value]="bracket.lowerAnnual" /></td>
+              <td class="numeric">
+                <!-- El último tramo no tiene techo. `∞` no es un importe, así que no pasa por el componente. -->
+                @if (bracket.upperAnnual === null) {
+                  ∞
+                } @else {
+                  <vx-amount [value]="bracket.upperAnnual" />
+                }
+              </td>
               <td class="numeric">{{ bracket.rate | vxPercent: '1.0-2' }}</td>
-              <td class="numeric">{{ bracket.accumulatedTax | vxNumber: '1.2-2' }}</td>
+              <td class="numeric"><vx-amount [value]="bracket.accumulatedTax" /></td>
               <td>{{ bracket.effectiveFrom | vxDate }} — {{ bracket.effectiveTo ? (bracket.effectiveTo | vxDate) : '…' }}</td>
             </tr>
           }

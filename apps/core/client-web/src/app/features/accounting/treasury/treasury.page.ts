@@ -11,6 +11,7 @@ import {
   TreasuryService,
 } from '../../../core/api/treasury.service';
 import { toIsoDate } from '../../../shared/utils/date.util';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * How many transfers the panel shows.
@@ -35,7 +36,7 @@ const TRANSFERS_SHOWN = 25;
 @Component({
   selector: 'app-treasury-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './treasury.page.html',
   styleUrls: ['./treasury.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -143,7 +143,7 @@
             @for (line of lines.controls; track $index; let i = $index) {
               <tr [formGroupName]="i">
                 <td>{{ line.value.invoiceNumber }}</td>
-                <td class="numeric">{{ line.value.balance | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="line.value.balance" /></td>
                 <td class="numeric"><input type="number" step="0.01" formControlName="amount" /></td>
                 <td class="numeric"><input type="number" step="0.01" formControlName="taxWithheld" /></td>
                 <td class="numeric"><input type="number" step="0.01" formControlName="incomeTaxWithheld" /></td>
@@ -154,7 +154,7 @@
                   invoice without cash arriving, which is the case the old model could not express.
                 -->
                 <td class="numeric settled" [class.over]="settledBy(line.value) > line.value.balance">
-                  {{ settledBy(line.value) | vxNumber: '1.2-2' }}
+                  <vx-amount [value]="settledBy(line.value)" />
                 </td>
                 <td>
                   <button class="icon-button" type="button" (click)="removeLine(i)">×</button>
@@ -169,12 +169,12 @@
     <div class="totals">
       <div class="totals__line">
         <span>{{ 'customer_receipts.form.applied_invoices' | translate }}</span>
-        <span class="amount">{{ totals().applied | vxNumber: '1.2-2' }}</span>
+        <vx-amount class="amount" [value]="totals().applied" />
       </div>
       <!-- What the receipt will carry as a customer credit. Worth seeing before it is posted. -->
       <div class="totals__line" [class.totals__line--warn]="totals().unapplied !== 0">
         <span>{{ 'customer_receipts.form.unapplied_advance_overpayment' | translate }}</span>
-        <span class="amount">{{ totals().unapplied | vxNumber: '1.2-2' }}</span>
+        <vx-amount class="amount" [value]="totals().unapplied" />
       </div>
     </div>
     </section>

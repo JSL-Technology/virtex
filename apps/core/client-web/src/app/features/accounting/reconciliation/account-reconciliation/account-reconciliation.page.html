@@ -102,36 +102,36 @@
           <div class="proof__column">
             <div class="proof__line">
               <span>{{ 'accounting.reconciliation.balance_per_books' | translate }}</span>
-              <span class="amount">{{ proof.bookBalance | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.bookBalance" />
             </div>
             <div class="proof__line">
               <span>
                 {{ 'accounting.reconciliation.bank_movements_not_yet_recorded' | translate }}
                 ({{ proof.unrecordedStatementCount }})
               </span>
-              <span class="amount">{{ proof.unrecordedStatementAmount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.unrecordedStatementAmount" />
             </div>
             <div class="proof__line proof__line--total">
               <span>{{ 'accounting.reconciliation.adjusted_balance_per_books' | translate }}</span>
-              <span class="amount">{{ proof.adjustedBookBalance | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.adjustedBookBalance" />
             </div>
           </div>
 
           <div class="proof__column">
             <div class="proof__line">
               <span>{{ 'accounting.reconciliation.balance_per_bank' | translate }}</span>
-              <span class="amount">{{ proof.statementEndingBalance | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.statementEndingBalance" />
             </div>
             <div class="proof__line">
               <span>
                 {{ 'accounting.reconciliation.items_transit_books_not_bank' | translate }}
                 ({{ proof.outstandingLedgerCount }})
               </span>
-              <span class="amount">{{ proof.outstandingLedgerAmount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.outstandingLedgerAmount" />
             </div>
             <div class="proof__line proof__line--total">
               <span>{{ 'accounting.reconciliation.adjusted_balance_per_bank' | translate }}</span>
-              <span class="amount">{{ proof.adjustedBankBalance | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="proof.adjustedBankBalance" />
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@
                 <td>{{ movement.date | vxDate: 'date' : true }}</td>
                 <td>{{ movement.description }}</td>
                 <td>{{ movement.reference ?? '—' }}</td>
-                <td class="text-right">{{ signedAmount(movement) | vxNumber: '1.2-2' }}</td>
+                <td class="text-right"><vx-amount [value]="signedAmount(movement)" /></td>
                 <td class="text-center">
                   <vx-badge size="sm" [tone]="movementTone(movement.status)">
                     {{ 'accounting.reconciliation.status.' + (movement.status === 'MATCHED' ? 'RECONCILED' : 'IMPORTED') | translate }}
@@ -212,7 +212,7 @@
                               <span class="candidate__entry">{{ candidate.entryNumber ?? '—' }}</span>
                               <span class="candidate__date">{{ candidate.date | vxDate: 'date' : true }}</span>
                               <span class="candidate__description">{{ candidate.description ?? '—' }}</span>
-                              <span class="candidate__amount">{{ candidate.amount | vxNumber: '1.2-2' }}</span>
+                              <vx-amount class="candidate__amount" [value]="candidate.amount" />
                             </label>
                           }
 
@@ -223,7 +223,7 @@
                                 <span class="candidate__description">
                                   {{ group.journalEntryLineIds.length }} × {{ 'reports.common.account' | translate }}
                                 </span>
-                                <span class="candidate__amount">{{ group.amount | vxNumber: '1.2-2' }}</span>
+                                <vx-amount class="candidate__amount" [value]="group.amount" />
                               </button>
                             }
                           }

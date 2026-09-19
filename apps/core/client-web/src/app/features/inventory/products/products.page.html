@@ -45,8 +45,8 @@
             <!-- The category's name, joined by the server: it used to be whatever string had been
                  typed into the free-text column, so the same category read two ways. -->
             <td>{{ product.category?.name || '—' }}</td>
-            <td class="text-right">{{ product.price | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">{{ product.cost | vxNumber: '1.2-2' }}</td>
+            <td class="text-right"><vx-amount [value]="product.price" /></td>
+            <td class="text-right"><vx-amount [value]="product.cost" /></td>
             <td class="text-right">{{ product.stock }}</td>
             <td>
               <vx-badge [tone]="stockTone(product)">

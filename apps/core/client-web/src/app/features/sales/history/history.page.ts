@@ -9,6 +9,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { PosSale, PosService } from '../pos/pos.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * Till sales, as they were actually rung up.
@@ -26,7 +27,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent],
+  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

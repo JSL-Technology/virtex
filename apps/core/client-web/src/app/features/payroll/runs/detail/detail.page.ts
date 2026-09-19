@@ -16,6 +16,7 @@ import {
   Payslip,
 } from '../../../../core/api/payroll.service';
 import { Employee, HcmService } from '../../../../core/api/hcm.service';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * One payroll run, from draft to paid.
@@ -39,7 +40,7 @@ import { Employee, HcmService } from '../../../../core/api/hcm.service';
 @Component({
   selector: 'app-payroll-run-detail-page',
   standalone: true,
-  imports: [CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

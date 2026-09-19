@@ -9,6 +9,7 @@ import {
   FinancialReportingService,
 } from '../../../../core/api/financial-reporting.service';
 import { defaultPeriod } from '../report-period';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * The statement of cash flows.
@@ -22,7 +23,7 @@ import { defaultPeriod } from '../report-period';
 @Component({
   selector: 'app-cash-flow-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './cash-flow.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

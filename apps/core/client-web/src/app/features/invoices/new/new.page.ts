@@ -36,6 +36,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * Issuing a sales document.
@@ -65,8 +66,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     DraftShellComponent,
     ...VX_SELECT,
     CustomerQuickCreateComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxAmountComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

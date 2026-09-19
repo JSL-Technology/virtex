@@ -14,6 +14,7 @@ import { BankAccount, TreasuryService } from '../../../core/api/treasury.service
 import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * Recording a collection from a customer.
@@ -46,8 +47,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxAmountComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
