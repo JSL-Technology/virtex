@@ -19,11 +19,13 @@ export default [
       /*
        * Two prefixes, because the product has two kinds of component.
        *
-       * `app-` is a feature component: a page, a widget, a form. `vx-` is a gesture shell — the
-       * four primitives (`vx-list-shell`, `vx-draft-shell`, `vx-document-shell`, `vx-inbox-shell`)
-       * that every screen of a given shape is built out of, and that `gesture-conformance.spec.ts`
-       * enforces the use of. The distinction is deliberate and load-bearing: reading a template,
-       * `vx-` marks the frame and `app-` marks what was put inside it.
+       * `app-` is a feature component: a page, a widget, a form for one particular thing. `vx-` is
+       * a SYSTEM PRIMITIVE — a piece that knows nothing about the domain and that other components
+       * are built out of. Today that is the four gesture shells (`vx-list-shell`, `vx-draft-shell`,
+       * `vx-document-shell`, `vx-inbox-shell`), whose use `gesture-conformance.spec.ts` enforces,
+       * and the shared form controls (`vx-select`). The distinction is deliberate and load-bearing:
+       * reading a template, `vx-` marks what the product is made of and `app-` marks what was made
+       * with it.
        *
        * The rule's actual purpose — no unprefixed selector that could collide with an element name
        * or another library — is served by either.

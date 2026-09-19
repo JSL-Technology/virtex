@@ -33,6 +33,7 @@
         ],
         "styles": [
           "node_modules/dockview-core/dist/styles/dockview.css",
+          "node_modules/@angular/cdk/overlay-prebuilt.css",
           "apps/core/client-web/src/styles.scss"
         ],
         "stylePreprocessorOptions": {

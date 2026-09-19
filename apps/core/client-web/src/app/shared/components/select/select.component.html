@@ -1,0 +1,195 @@
+<!--
+  El disparador ES el buscador: un combobox editable de ARIA 1.2. Esa decisión es la que hace
+  cumplible la promesa del foco — el foco nunca sale de este input, así que no hay nada que
+  restaurar al cerrar el panel ni al volver de crear un registro.
+-->
+<div
+  #field
+  class="vx-select__field"
+  [class.vx-select__field--open]="panelOpen()"
+  [class.vx-select__field--invalid]="controlInvalid()"
+  [class.vx-select__field--disabled]="isDisabled()"
+>
+  <lucide-icon [img]="SearchIcon" class="vx-select__adornment" aria-hidden="true"></lucide-icon>
+
+  <input
+    #searchInput
+    class="vx-select__input"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    autocapitalize="none"
+    spellcheck="false"
+    aria-autocomplete="list"
+    [id]="inputId() || null"
+    [attr.aria-expanded]="panelOpen()"
+    [attr.aria-controls]="panelOpen() ? listboxId : null"
+    [attr.aria-activedescendant]="panelOpen() ? activeOptionId() : null"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-labelledby]="ariaLabelledBy()"
+    [attr.aria-describedby]="ariaDescribedBy()"
+    [attr.aria-required]="required() ? 'true' : null"
+    [attr.aria-invalid]="controlInvalid() ? 'true' : null"
+    [disabled]="isDisabled()"
+    [value]="text()"
+    [attr.placeholder]="placeholderKey() | translate"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (click)="openPanel()"
+  />
+
+  @if (clearable() && hasValue() && !isDisabled()) {
+    <button
+      type="button"
+      class="vx-select__button"
+      [attr.aria-label]="'shared.select.clear' | translate"
+      (click)="clear()"
+    >
+      <lucide-icon [img]="ClearIcon" class="vx-select__icon" aria-hidden="true"></lucide-icon>
+    </button>
+  }
+
+  <!--
+    Comodidad de ratón: su equivalente de teclado es Alt+Flecha abajo sobre el propio input, que ya
+    es un combobox. Fuera del orden de tabulación para no añadir una parada que no aporta nada.
+  -->
+  <button
+    type="button"
+    class="vx-select__button vx-select__toggle"
+    tabindex="-1"
+    aria-hidden="true"
+    [disabled]="isDisabled()"
+    (click)="toggle()"
+  >
+    <lucide-icon [img]="ChevronDownIcon" class="vx-select__icon" aria-hidden="true"></lucide-icon>
+  </button>
+</div>
+
+<!--
+  Lo que un lector de pantalla no puede ver: que la lista encogió, que sigue cargando, que falló.
+  Sin esto el usuario oye el primer resultado y nada más entre pulsación y pulsación.
+-->
+<p class="vx-select__live" [id]="statusId" role="status" aria-live="polite">
+  @if (announcementKey(); as key) {
+    {{ key | translate: { count: visibleOptions().length, query: query() } }}
+  }
+</p>
+
+<ng-template #panel>
+  <div class="vx-select__panel" (mousedown)="$event.preventDefault()">
+    <div
+      class="vx-select__list"
+      role="listbox"
+      [id]="listboxId"
+      [attr.aria-label]="ariaLabel()"
+      [attr.aria-labelledby]="ariaLabel() ? null : ariaLabelledBy()"
+    >
+      @switch (status()) {
+        @case ('loading') {
+          <p class="vx-select__message" role="presentation">
+            <span class="vx-select__spinner" aria-hidden="true"></span>
+            {{ 'shared.select.loading' | translate }}
+          </p>
+        }
+
+        @case ('error') {
+          <div class="vx-select__message vx-select__message--error" role="presentation">
+            <p>{{ 'shared.select.error' | translate }}</p>
+            <button type="button" class="vx-select__retry" (click)="retry()">
+              <lucide-icon [img]="RetryIcon" class="vx-select__icon" aria-hidden="true"></lucide-icon>
+              {{ 'shared.select.retry' | translate }}
+            </button>
+          </div>
+        }
+
+        @default {
+          @if (visibleOptions().length > 0) {
+            <!--
+              Virtualizado: una lista de diez mil filas renderiza las que caben, no diez mil. El
+              `role="presentation"` tapa los contenedores que el CDK inserta, que no son opciones y
+              no deben aparecer como hijos del listbox.
+            -->
+            <cdk-virtual-scroll-viewport
+              class="vx-select__viewport"
+              role="presentation"
+              [itemSize]="rowHeight()"
+              [minBufferPx]="rowHeight() * 4"
+              [maxBufferPx]="rowHeight() * 8"
+              [style.height.px]="viewportHeight()"
+            >
+              <div role="presentation">
+                <!--
+                  Una fila de listbox se maneja con el teclado desde el combobox (flechas, Enter):
+                  no es un tab stop propio y no lleva manejadores de teclado propios. Ese es el
+                  patrón de ARIA 1.2, y darle foco a cada opción lo rompería.
+                -->
+                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+                <div
+                  *cdkVirtualFor="let option of visibleOptions(); let i = index"
+                  class="vx-select__option"
+                  role="option"
+                  [id]="optionId(i)"
+                  [attr.aria-selected]="isSelected(option)"
+                  [attr.aria-disabled]="isOptionDisabled(option) ? 'true' : null"
+                  [class.is-active]="activeIndex() === i"
+                  [class.is-selected]="isSelected(option)"
+                  [class.is-disabled]="isOptionDisabled(option)"
+                  [style.height.px]="rowHeight()"
+                  (click)="selectOption(option)"
+                  (mouseenter)="activeIndex.set(i)"
+                >
+                  @if (optionTemplate(); as custom) {
+                    <ng-container
+                      [ngTemplateOutlet]="custom.template"
+                      [ngTemplateOutletContext]="{
+                        $implicit: option,
+                        query: query(),
+                        active: activeIndex() === i,
+                        selected: isSelected(option),
+                      }"
+                    ></ng-container>
+                  } @else {
+                    <span class="vx-select__label">{{ displayWith()(option) }}</span>
+                    @if (describeWith(); as describe) {
+                      @if (describe(option); as description) {
+                        <span class="vx-select__description">{{ description }}</span>
+                      }
+                    }
+                  }
+                </div>
+              </div>
+            </cdk-virtual-scroll-viewport>
+          } @else {
+            <p class="vx-select__message" role="presentation">
+              {{ emptyLabelKey() | translate: { query: query() } }}
+            </p>
+          }
+        }
+      }
+
+      <!--
+        Crear está aquí abajo siempre que el llamante ofrezca cómo, y se vuelve prominente cuando la
+        búsqueda no encontró nada: ese es justo el momento en que hace falta. Es una fila más del
+        listbox, así que las flechas llegan a ella como a cualquier otra.
+      -->
+      @if (canCreate() && status() !== 'error') {
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+        <div
+          class="vx-select__create"
+          [class.vx-select__create--prominent]="visibleOptions().length === 0"
+          [class.is-active]="activeIndex() === createIndex()"
+          role="option"
+          [id]="createOptionId"
+          [attr.aria-selected]="false"
+          (click)="startCreate()"
+          (mouseenter)="activeIndex.set(createIndex())"
+        >
+          <lucide-icon [img]="PlusIcon" class="vx-select__icon" aria-hidden="true"></lucide-icon>
+          <span>{{ createLabelKey() | translate: { query: query() } }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

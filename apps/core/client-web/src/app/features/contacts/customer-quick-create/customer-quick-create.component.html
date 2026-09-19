@@ -1,0 +1,74 @@
+<app-ui-modal
+  [isOpen]="true"
+  size="sm"
+  [title]="'contacts.quick_create.title' | translate"
+  (closed)="cancel()"
+>
+  <form class="quick-create" [formGroup]="form" (ngSubmit)="save()">
+    <p class="quick-create__hint">
+      {{ 'contacts.quick_create.hint' | translate }}
+    </p>
+
+    <div class="form-field">
+      <label for="companyName">
+        {{ 'contacts.customer_form.company_name' | translate }} *
+      </label>
+      <input id="companyName" #nameInput formControlName="companyName" />
+    </div>
+
+    <!--
+      El mismo campo compartido, en su otro modo: la lista de países es fija y cabe entera en el
+      cliente, así que se filtra aquí y no se pregunta al servidor por cada letra. Que sea el mismo
+      componente que el de cliente es la prueba de que no sabe lo que está seleccionando.
+    -->
+    <div class="form-field">
+      <label for="country">{{ 'contacts.customer_form.country' | translate }}</label>
+      <vx-select
+        inputId="country"
+        formControlName="country"
+        [options]="countries()"
+        [displayWith]="countryName"
+        [valueWith]="countryCode"
+        [required]="true"
+        [clearable]="false"
+      ></vx-select>
+    </div>
+
+    <div class="form-field">
+      <label for="identityDocumentTypeCode">
+        {{ 'contacts.customer_form.document_type' | translate }}
+      </label>
+      <select id="identityDocumentTypeCode" formControlName="identityDocumentTypeCode">
+        @for (type of documentTypes(); track type.code) {
+          <option [value]="type.code">{{ documentLabel(type) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="taxId">{{ 'contacts.customer_form.tax_id' | translate }}</label>
+      <input id="taxId" formControlName="taxId" />
+    </div>
+
+    <div class="form-field">
+      <label for="email">{{ 'contacts.customer_form.email' | translate }}</label>
+      <input id="email" type="email" formControlName="email" />
+    </div>
+
+    @if (failure(); as message) {
+      <p class="quick-create__error" role="alert">{{ message }}</p>
+    }
+  </form>
+
+  <div footer class="quick-create__actions">
+    <button type="button" class="quick-create__cancel" (click)="cancel()">
+      {{ 'contacts.customer_form.cancel' | translate }}
+    </button>
+    <button type="button" class="quick-create__save" [disabled]="saving()" (click)="save()">
+      {{
+        (saving() ? 'contacts.quick_create.saving' : 'contacts.customer_form.save_customer')
+          | translate
+      }}
+    </button>
+  </div>
+</app-ui-modal>

@@ -177,11 +177,6 @@
     "es": "N.º de comprobante fiscal:",
     "pt": "N.º do documento fiscal:"
   },
-  "invoices.detail.tax_id_generic": {
-    "en": "Tax ID",
-    "es": "Identificación fiscal",
-    "pt": "Identificação fiscal"
-  },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
     "en": "There is no signed XML available.",
@@ -269,6 +264,11 @@
     "es": "Impuesto",
     "en": "Tax",
     "pt": "Imposto"
+  },
+  "invoices.detail.tax_id_generic": {
+    "en": "Tax ID",
+    "es": "Identificación fiscal",
+    "pt": "Identificação fiscal"
   },
   "invoices.detail.tax_indicator": {
     "es": "Indicador de Impuestos:",
@@ -852,6 +852,21 @@
     "en": "Customer",
     "pt": "Cliente"
   },
+  "invoices.new.customer_create": {
+    "es": "Crear el cliente «{{query}}»",
+    "en": "Create the customer “{{query}}”",
+    "pt": "Criar o cliente “{{query}}”"
+  },
+  "invoices.new.customer_empty": {
+    "es": "Ningún cliente coincide con «{{query}}».",
+    "en": "No customer matches “{{query}}”.",
+    "pt": "Nenhum cliente corresponde a “{{query}}”."
+  },
+  "invoices.new.customer_placeholder": {
+    "es": "Busca por nombre, documento o correo…",
+    "en": "Search by name, tax id or e-mail…",
+    "pt": "Pesquise por nome, documento ou e-mail…"
+  },
   "invoices.new.data_loaded_from_invoice_number": {
     "es": "Datos cargados desde {{invoiceNumber}}.",
     "en": "Data loaded from {{invoiceNumber}}.",
@@ -977,15 +992,15 @@
     "en": "Net receivable",
     "pt": "Líquido a receber"
   },
-  "invoices.new.not_ready_missing": {
-    "es": "Todavía no puedes facturar. Falta: {{missing}}.",
-    "en": "You cannot invoice yet. Missing: {{missing}}.",
-    "pt": "Ainda não podes faturar. Falta: {{missing}}."
-  },
   "invoices.new.not_ready_action": {
     "es": "Configurar",
     "en": "Set up",
     "pt": "Configurar"
+  },
+  "invoices.new.not_ready_missing": {
+    "es": "Todavía no puedes facturar. Falta: {{missing}}.",
+    "en": "You cannot invoice yet. Missing: {{missing}}.",
+    "pt": "Ainda não podes faturar. Falta: {{missing}}."
   },
   "invoices.new.notes": {
     "es": "Notas",
@@ -1031,11 +1046,6 @@
     "es": "Guardando…",
     "en": "Saving…",
     "pt": "Salvando…"
-  },
-  "invoices.new.select_customer": {
-    "es": "Seleccionar cliente",
-    "en": "Select a customer",
-    "pt": "Selecionar cliente"
   },
   "invoices.new.service_charge": {
     "es": "Propina legal",

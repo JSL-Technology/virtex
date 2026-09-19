@@ -1,0 +1,26 @@
+// =============================================================================
+//  VIRTEX — INTEGRACIÓN DEL OVERLAY DEL CDK
+// =============================================================================
+//  El CSS estructural del overlay viaja tal cual desde el paquete
+//  (`overlay-prebuilt.css`, declarado en `project.json`): es el contrato de la
+//  biblioteca y reescribirlo a mano solo garantiza que se quede atrás. Aquí se
+//  ajusta lo único que no le corresponde decidir a un paquete externo — en qué
+//  capa de ESTA aplicación se apila.
+//
+//  `overlay-prebuilt.css` fija `z-index: 1000` en el contenedor, que en la
+//  escala de `_scales.scss` es `--z-debug`: por encima de los avisos y de las
+//  descripciones emergentes. Un panel de selección no va ahí. Va en
+//  `--z-popover`, que es por encima del modal que puede hospedarlo —un campo
+//  dentro de un diálogo tiene que poder abrir su lista— y por debajo de los
+//  avisos y los tooltips, que interrumpen a cualquiera.
+// =============================================================================
+
+.cdk-overlay-container {
+  z-index: var(--z-popover);
+}
+
+//  El velo del CDK se deja a los tokens del sistema en vez de al gris fijo del
+//  paquete, para que siga al tema como todo lo demás.
+.cdk-overlay-dark-backdrop {
+  background: var(--scrim);
+}

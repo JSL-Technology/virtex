@@ -5,7 +5,7 @@ import {
   fakeAsync,
   tick,
 } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NewInvoicePage } from './new.page';
@@ -40,6 +40,19 @@ describe('NewInvoicePage', () => {
     { id: 'c-0', companyName: 'Colmado La Esquina', paymentTermDays: 0 },
     { id: 'c-none', companyName: 'Sin condiciones', paymentTermDays: null },
   ];
+
+  /**
+   * The customer field no longer downloads the book.
+   *
+   * It searches server-side and names a single id when the form is patched with one — which is
+   * what "copy from invoice" does — so the double is the two calls that replaced `getCustomers()`.
+   * An unknown id answers the way the server does, with a rejection rather than an empty record.
+   */
+  let customersService: {
+    searchCustomers: jest.Mock;
+    getCustomerById: jest.Mock;
+    createCustomer: jest.Mock;
+  };
 
   const context = (overrides: Partial<InvoicingContext> = {}): InvoicingContext => ({
     ready: true,
@@ -90,13 +103,27 @@ describe('NewInvoicePage', () => {
       ),
     };
     notifications = { showError: jest.fn(), showSuccess: jest.fn(), showInfo: jest.fn() };
+    customersService = {
+      searchCustomers: jest.fn((query: string) =>
+        of(
+          customers.filter((customer) =>
+            customer.companyName.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+          ),
+        ),
+      ),
+      getCustomerById: jest.fn((id: string) => {
+        const found = customers.find((customer) => customer.id === id);
+        return found ? of(found) : throwError(() => new Error('404'));
+      }),
+      createCustomer: jest.fn(),
+    };
 
     await TestBed.resetTestingModule()
       .configureTestingModule({
         imports: [NewInvoicePage, NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
           { provide: InvoicesService, useValue: invoicesService },
-          { provide: CustomersService, useValue: { getCustomers: () => of(customers) } },
+          { provide: CustomersService, useValue: customersService },
           {
             provide: InventoryService,
             useValue: {

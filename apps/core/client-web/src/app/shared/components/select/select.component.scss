@@ -1,0 +1,260 @@
+// =============================================================================
+//  VX-SELECT
+// =============================================================================
+//  Nada aquí elige un color, un tamaño de letra ni un radio: todo sale de los
+//  tokens del sistema y de los mixins que ya visten los campos nativos. Ese es
+//  el motivo de que este campo se parezca al `<input>` de al lado sin que nadie
+//  haya tenido que copiar sus valores — y de que siga pareciéndose cuando el
+//  tema, la marca o la densidad cambien.
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+  position: relative;
+
+  //  La altura de fila que mide el componente para virtualizar. Se declara aquí
+  //  —y no como número en TypeScript— para que la densidad compacta la cambie
+  //  igual que cambia todo lo demás, sin tocar el componente.
+  --vx-select-row-height: var(--control-height-md);
+}
+
+:host(.vx-select--disabled) {
+  cursor: not-allowed;
+}
+
+// ── El campo ─────────────────────────────────────────────────────────────────
+.vx-select__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  width: 100%;
+  height: var(--control-height-md);
+  padding-inline: var(--space-2);
+
+  background-color: var(--surface-base);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+
+  @include ds.transition(border-color, box-shadow, background-color);
+
+  &:hover:not(.vx-select__field--disabled) {
+    border-color: var(--content-tertiary);
+  }
+
+  //  El anillo va en el contenedor y no en el input, porque el foco vive en el
+  //  input pero lo que el ojo lee como «el campo» es la caja entera.
+  &:focus-within {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(var(--accent-solid-rgb), 0.22);
+  }
+
+  &--invalid {
+    border-color: var(--error-solid);
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba(var(--error-rgb), 0.22);
+    }
+  }
+
+  &--disabled {
+    background-color: var(--surface-disabled);
+    border-color: var(--border-subtle);
+  }
+}
+
+.vx-select__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: var(--text-md);
+  color: var(--content-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: var(--content-tertiary);
+    opacity: 1;
+  }
+
+  &:disabled {
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.vx-select__adornment {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--content-tertiary);
+}
+
+.vx-select__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.vx-select__button {
+  @include ds.button-icon('sm');
+
+  flex: 0 0 auto;
+  width: var(--control-height-sm);
+  color: var(--content-tertiary);
+
+  &:hover:not(:disabled) {
+    color: var(--content-primary);
+  }
+}
+
+.vx-select__toggle {
+  @include ds.transition(transform);
+}
+
+:host(.vx-select--open) .vx-select__toggle {
+  transform: rotate(180deg);
+}
+
+// ── Región viva ──────────────────────────────────────────────────────────────
+.vx-select__live {
+  @include ds.visually-hidden;
+}
+
+// ── El panel ─────────────────────────────────────────────────────────────────
+.vx-select__panel {
+  @include ds.surface-overlay;
+
+  overflow: hidden;
+}
+
+.vx-select__list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.vx-select__viewport {
+  @include ds.scrollbar;
+
+  width: 100%;
+}
+
+.vx-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding-inline: var(--space-3);
+  box-sizing: border-box;
+
+  font-size: var(--text-md);
+  color: var(--content-primary);
+  cursor: pointer;
+
+  //  Sin transición: la fila activa se mueve con la flecha del teclado, y una
+  //  animación de 140 ms por pulsación convierte bajar diez filas en un borrón.
+  &.is-active {
+    background-color: var(--surface-hover);
+  }
+
+  &.is-selected {
+    background-color: var(--surface-selected);
+    font-weight: var(--font-medium);
+  }
+
+  &.is-disabled {
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.vx-select__label {
+  @include ds.truncate;
+
+  flex: 1 1 auto;
+}
+
+.vx-select__description {
+  @include ds.truncate;
+
+  flex: 0 1 auto;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+// ── Estados ──────────────────────────────────────────────────────────────────
+.vx-select__message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+  text-align: center;
+
+  &--error {
+    flex-direction: column;
+    color: var(--error-text);
+  }
+}
+
+.vx-select__spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--accent-solid);
+  border-radius: var(--radius-full);
+  animation: vx-select-spin var(--duration-deliberate) linear infinite;
+
+  @include ds.bp-reduced-motion {
+    animation: none;
+  }
+}
+
+@keyframes vx-select-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vx-select__retry {
+  @include ds.button-secondary('sm');
+}
+
+// ── Crear ────────────────────────────────────────────────────────────────────
+.vx-select__create {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+  color: var(--accent-text);
+  cursor: pointer;
+
+  &.is-active {
+    background-color: var(--accent-surface-hover);
+  }
+
+  //  Cuando no hay resultados, crear deja de ser el último recurso y pasa a ser
+  //  la respuesta: es el único momento en que este campo no tiene nada que
+  //  ofrecer, y esconder ahí la salida es lo que obliga a abandonar el
+  //  formulario para dar de alta el registro que falta.
+  &--prominent {
+    justify-content: center;
+    padding-block: var(--space-3);
+    background-color: var(--accent-surface);
+  }
+}

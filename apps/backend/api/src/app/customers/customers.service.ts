@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -119,11 +118,49 @@ export class CustomersService {
     });
   }
 
-  findAll(organizationId: string): Promise<Customer[]> {
-    return this.customerRepository.find({
-      where: { organizationId },
-      order: { companyName: 'ASC' },
-    });
+  /**
+   * The tenant's customers, optionally narrowed to what the caller is looking for.
+   *
+   * ## Why the search happens here
+   *
+   * Every picker in the client used to fetch this endpoint whole and filter the array in the
+   * browser. That works for the tenant with forty customers and fails silently for the one with
+   * twenty thousand: the response is megabytes, the operator waits for all of it before the first
+   * keystroke does anything, and the filter then runs over a list the browser is already
+   * struggling to hold. A `WHERE` clause is the part of that job a database does in a millisecond.
+   *
+   * Both halves are optional and BOTH DEFAULTS ARE THE OLD BEHAVIOUR — no `search`, no `limit`,
+   * same full list in the same order — so nothing that calls this today changes.
+   *
+   * Matched against the three things an operator actually knows: the name, the fiscal identifier
+   * and the e-mail address. `ILIKE` rather than `=` because a customer is looked for by fragment;
+   * the wildcards in the term itself are escaped, so a search for `100%` looks for a literal
+   * `100%` instead of matching every row in the table.
+   */
+  findAll(
+    organizationId: string,
+    options: { search?: string; limit?: number } = {},
+  ): Promise<Customer[]> {
+    const query = this.customerRepository
+      .createQueryBuilder('customer')
+      .where('customer.organizationId = :organizationId', { organizationId })
+      .orderBy('customer.companyName', 'ASC');
+
+    const term = options.search?.trim();
+    if (term) {
+      query.andWhere(
+        `(customer.companyName ILIKE :term
+          OR customer.taxId ILIKE :term
+          OR customer.email ILIKE :term)`,
+        { term: `%${term.replace(/[\\%_]/g, '\\$&')}%` },
+      );
+    }
+
+    if (options.limit !== undefined && options.limit > 0) {
+      query.take(options.limit);
+    }
+
+    return query.getMany();
   }
 
   async findOne(id: string, organizationId: string): Promise<Customer> {
