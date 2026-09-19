@@ -90,6 +90,7 @@ export const MODULE_OF_FOLDER = {
   // ── RR.HH. / Nómina ───────────────────────────────────────────────────────────────────────────
   payroll: 'rrhh',
   hcm: 'rrhh',
+  jurisdictions: 'rrhh',
 
   // ── Reportes ──────────────────────────────────────────────────────────────────────────────────
   reports: 'reportes',
