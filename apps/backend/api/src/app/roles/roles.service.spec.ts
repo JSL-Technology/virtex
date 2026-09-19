@@ -5,7 +5,7 @@ import { RolesService } from './roles.service';
 import { Role } from './entities/role.entity';
 import { User } from '../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../auth/modules/user-cache.service';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { I18nService } from '../i18n/i18n.service';
 
 /**

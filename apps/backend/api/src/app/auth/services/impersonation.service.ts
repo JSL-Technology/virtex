@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
 import { hasPermission } from '@virteex/shared/util-auth';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
@@ -21,7 +21,15 @@ export class ImpersonationService {
     return crypto.createHash('sha256').update(value.toLowerCase().trim()).digest('hex').slice(0, 12);
   }
 
-  private permissionsOf(user: Pick<User, 'roles'>): string[] {
+  /**
+   * Los permisos que alguien tiene por sus roles.
+   *
+   * Tipado por lo que realmente lee y no como `Pick<User, 'roles'>`: los dos llamantes le pasan
+   * cosas distintas —la entidad `User` del suplantado y el principal de quien suplanta— y ninguna
+   * de las dos es la otra. Nombrar el requisito real hace que ambas valgan y dice qué se hace con
+   * el argumento.
+   */
+  private permissionsOf(user: { roles?: readonly { permissions?: string[] }[] | null }): string[] {
     return [...new Set((user.roles || []).flatMap((role) => role.permissions || []))];
   }
 

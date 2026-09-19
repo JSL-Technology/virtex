@@ -15,10 +15,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuditAccess } from '../audit/audit-access.decorator';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
@@ -51,7 +50,6 @@ import {
  * December payroll" and "who exported the TSS file" always have an answer.
  */
 @Controller('payroll')
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(AuditAccessInterceptor)
 export class PayrollController {
   constructor(

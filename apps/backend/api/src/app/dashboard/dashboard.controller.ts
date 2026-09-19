@@ -1,7 +1,6 @@
 
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Controller, Get, Query } from '@nestjs/common';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { DashboardService } from './dashboard.service';
 import { DashboardChartsService } from './dashboard-charts.service';
@@ -17,12 +16,11 @@ import { EbitdaDto } from './dto/ebitda.dto';
 import { FcfDto } from './dto/fcf.dto';
 import { CashFlowWaterfallDto } from './dto/cash-flow-waterfall.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('dashboard')
-@UseGuards(JwtAuthGuard)
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,

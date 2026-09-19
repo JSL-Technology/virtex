@@ -18,10 +18,9 @@ import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { VoidVendorBillDto } from './dto/void-vendor-bill.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
@@ -29,7 +28,6 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
 @Controller('accounts-payable')
-@UseGuards(JwtAuthGuard)
 export class AccountsPayableController {
   constructor(private readonly accountsPayableService: AccountsPayableService) {}
 

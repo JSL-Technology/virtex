@@ -13,10 +13,9 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ManufacturingService } from './manufacturing.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CreateProductionOrderDto } from './dto/create-production-order.dto';
 import { UpdateProductionOrderDto } from './dto/update-production-order.dto';
@@ -31,7 +30,6 @@ import { UpdateBillOfMaterialDto } from './dto/update-bill-of-material.dto';
  * previous controller took `@Body() : any` and let the caller decide.
  */
 @Controller('manufacturing')
-@UseGuards(JwtAuthGuard)
 export class ManufacturingController {
   constructor(private readonly manufacturingService: ManufacturingService) {}
 

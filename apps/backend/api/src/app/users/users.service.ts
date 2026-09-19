@@ -24,7 +24,7 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { MembershipService } from '../organizations/services/membership.service';
 import { UserOrganization } from '../organizations/entities/user-organization.entity';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
 import { AuditTrailService } from '../audit/audit.service';

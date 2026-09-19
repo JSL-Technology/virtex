@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { User } from '../../users/entities/user.entity/user.entity';
 
 /**

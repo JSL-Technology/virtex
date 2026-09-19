@@ -4,13 +4,12 @@ import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import CircuitBreaker = require('opossum');
-
 import { Organization } from '../../organizations/entities/organization.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UsersService } from '../../users/users.service';
 import { AuthConfig } from '../auth.config';
 import { AuthError } from '../enums/auth-error.enum';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { CachedUser } from '../interfaces/cached-user.interface';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { SessionRegistryService } from './session-registry.service';

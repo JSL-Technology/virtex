@@ -16,7 +16,7 @@ import { Budget } from '../../budgets/entities/budget.entity';
 import { Account, AccountType } from '../../chart-of-accounts/entities/account.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { FinancialReportingService } from '../../financial-reporting/financial-reporting.service';
 import { TreasuryService } from '../../treasury/treasury.service';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';

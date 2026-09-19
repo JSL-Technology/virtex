@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
-
 import { AuthService } from '../auth.service';
 import { UsersService } from '../../users/users.service';
 import { SessionService } from './session.service';

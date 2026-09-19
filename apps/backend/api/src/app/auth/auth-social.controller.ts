@@ -23,7 +23,7 @@ import { CookieService } from './services/cookie.service';
 import { OauthStateService } from './services/oauth-state.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
-import { Public } from './decorators/public.decorator';
+import { Public } from '../security/decorators/public.decorator';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';

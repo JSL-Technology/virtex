@@ -7,9 +7,9 @@ import {
   DocumentContext,
 } from '../fiscal/identity-document-catalogue';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
-import { Public } from '../../auth/decorators/public.decorator';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { Public } from '../../security/decorators/public.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../../security/principal';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 
 /**

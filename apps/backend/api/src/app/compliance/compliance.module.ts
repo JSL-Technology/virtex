@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ComplianceService } from './compliance.service';
 import { ComplianceController } from './compliance.controller';
 import { NcfSequence } from './entities/ncf-sequence.entity';
-
 import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';

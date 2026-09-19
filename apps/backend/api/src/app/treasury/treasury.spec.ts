@@ -25,7 +25,7 @@ import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
-import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import { FiscalYear } from '../accounting/entities/fiscal-year.entity';
 import { TreasuryService } from './treasury.service';
 import { BankAccount, BankAccountType } from './entities/bank-account.entity';

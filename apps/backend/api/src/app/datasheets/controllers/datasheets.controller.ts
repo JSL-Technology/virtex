@@ -13,16 +13,14 @@ import { DatasheetsService } from '../services/datasheets.service';
 import { DatasheetVariablesService } from '../services/datasheet-variables.service';
 import { DatasheetImportService } from '../services/datasheet-import.service';
 import { DatasheetBook } from '../entities/datasheet-book.entity';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { ImportDatasetDto, ResolveVariablesDto } from '../dto/datasheet-variables.dto';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 
 @Controller('datasheets')
-@UseGuards(JwtAuthGuard)
 export class DatasheetsController {
   constructor(
     private readonly datasheetsService: DatasheetsService,

@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { randomInt, randomUUID } from 'crypto';
-
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
 import { MailService } from '../../mail/mail.service';
@@ -20,7 +19,6 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { FrontendUrlService } from '../../mail/frontend-url.service';
 import { SmsAbuseGuardService } from './sms-abuse.guard.service';
-
 import { AuthConfig } from '../auth.config';
 import { BadRequestError, InternalServerError, UnauthorizedError } from '../../i18n/localized.exception';
 

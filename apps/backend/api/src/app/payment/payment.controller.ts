@@ -6,8 +6,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SaasService } from '../saas/saas.service';
@@ -15,10 +15,10 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ConfigService } from '@nestjs/config';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../security/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CreateCheckoutSessionDto, ConfirmCheckoutDto } from './dto/payment.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { BadRequestError } from '../i18n/localized.exception';
 
 /**
@@ -50,7 +50,7 @@ export class PaymentController {
    * The auth controller already resolved this the right way for signup; this is the same fix.
    */
   @Post('checkout-session')
-  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createCheckoutSession(
@@ -114,7 +114,6 @@ export class PaymentController {
    * anyone. `PermissionsGuard` only applies where `@HasPermission` puts it.
    */
   @Get('overview')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getOverview(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
@@ -124,7 +123,6 @@ export class PaymentController {
   }
 
   @Post('checkout/confirm')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async confirmCheckout(
     @CurrentUser() user: AuthenticatedUser,
@@ -137,7 +135,6 @@ export class PaymentController {
   }
 
   @Get('invoices')
-  @UseGuards(JwtAuthGuard)
   @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getInvoices(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
@@ -147,7 +144,7 @@ export class PaymentController {
   }
 
   @Post('portal-session')
-  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createPortalSession(

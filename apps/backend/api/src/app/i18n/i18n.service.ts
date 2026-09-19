@@ -8,9 +8,7 @@ import {
   isLanguageCode,
   normalizeKey,
 } from '@virteex/shared/types';
-
 import { currentLanguage, currentLocaleContext } from './request-locale';
-
 import es from './messages/es.json';
 import en from './messages/en.json';
 import pt from './messages/pt.json';

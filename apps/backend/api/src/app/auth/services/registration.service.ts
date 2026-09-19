@@ -8,7 +8,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
 import { MfaOrchestratorService } from './mfa-orchestrator.service';

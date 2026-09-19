@@ -1,14 +1,13 @@
 
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseInterceptors, Query } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { LedgersService } from './ledgers.service';
 import { Ledger } from './entities/ledger.entity';
 import { CreateLedgerDto, UpdateLedgerDto } from './dto/ledger.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { GeneralLedgerQueryDto } from './dto/general-ledger-query.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,7 +18,6 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 @ApiTags('Accounting — Ledgers')
 @ApiBearerAuth()
 @Controller('accounting/ledgers')
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(AuditAccessInterceptor)
 export class LedgersController {
   constructor(private readonly ledgersService: LedgersService) {}

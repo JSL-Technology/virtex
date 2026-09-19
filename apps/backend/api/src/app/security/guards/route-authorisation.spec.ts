@@ -27,7 +27,7 @@ import { join } from 'path';
  * A new route that declares none of these fails here, naming itself.
  */
 
-const APP_DIR = join(__dirname, '..', '..', '..');
+const APP_DIR = join(__dirname, '..', '..');
 
 function controllerFiles(dir: string): string[] {
   const out: string[] = [];

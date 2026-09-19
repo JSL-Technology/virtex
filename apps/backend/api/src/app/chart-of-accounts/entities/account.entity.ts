@@ -23,7 +23,6 @@ import {
   AccountRole,
 } from '../enums/account-enums';
 import { AccountSegment } from './account-segment.entity';
-
 import { AccountHierarchyVersion } from './account-hierarchy-version.entity';
 
 

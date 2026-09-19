@@ -11,14 +11,13 @@ import * as jwt from 'jsonwebtoken';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { KeyManagementService } from './key-management.service';
-
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { AuthConfig } from '../auth.config';
 import { UserCacheService } from '../modules/user-cache.service';
 import { UsersService } from '../../users/users.service';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { GeoService } from '../../geo/geo.service';
 import { UserIdentityService } from './user-identity.service';
 

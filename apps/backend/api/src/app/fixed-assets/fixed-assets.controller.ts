@@ -13,18 +13,16 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
 import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { DisposeAssetDto } from './dto/dispose-asset.dto';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @Controller('fixed-assets')
-@UseGuards(JwtAuthGuard)
 /**
  * The fixed-asset register.
  *

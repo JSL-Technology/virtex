@@ -12,18 +12,17 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { WithholdingRegimesService } from '../services/withholding-regimes.service';
 import {
   CreateWithholdingRegimeDto,
   UpdateWithholdingRegimeDto,
 } from '../dto/withholding-regime.dto';
 import { coverageFor } from '../fiscal/fiscal-coverage';
-import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 import { DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 
@@ -37,7 +36,6 @@ import { Organization } from '../../organizations/entities/organization.entity';
 @ApiTags('Localization — Withholding')
 @ApiBearerAuth()
 @Controller('localization')
-@UseGuards(JwtAuthGuard)
 export class WithholdingRegimesController {
   constructor(
     private readonly regimes: WithholdingRegimesService,

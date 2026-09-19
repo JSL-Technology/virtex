@@ -20,11 +20,10 @@ import { plainToInstance } from 'class-transformer';
 import { AuthFacade } from './auth.facade';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { CookieService } from './services/cookie.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
 import { CsrfGuard } from './guards/csrf.guard';
-import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { Public } from '../security/decorators/public.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { AuthConfig } from './auth.config';
 import { RegisterCheckoutDto } from './dto/register-checkout.dto';
 import { RegisterConfirmDto } from './dto/register-confirm.dto';
@@ -37,7 +36,7 @@ import { SaasService } from '../saas/saas.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
-import { HasPermission } from './decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 /**
@@ -243,7 +242,6 @@ export class AuthRegistrationController {
   @Post('create-checkout-session')
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
-  @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: AuthCreateCheckoutSessionDto

@@ -13,7 +13,7 @@ import { AuthConfig } from './auth.config';
 import { ImpersonationService } from './services/impersonation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvents, AuthImpersonateEvent } from './events/auth.events';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 
 @Injectable()
 export class AuthFacade {

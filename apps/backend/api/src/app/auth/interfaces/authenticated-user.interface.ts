@@ -1,6 +1,15 @@
 import { User } from '../../users/entities/user.entity/user.entity';
 import type { Organization } from '../../organizations/entities/organization.entity';
 
+/**
+ * Proyecciones de la entidad `User`, internas del módulo que la posee.
+ *
+ * El principal de la petición —`AuthenticatedUser`— ya no está aquí: vive en
+ * `security/principal.ts`, porque lo leen los nueve módulos y no puede ser la forma de la tabla
+ * `users`. Estos tres tipos, en cambio, solo los usa `auth`, y sí son proyecciones legítimas de la
+ * entidad dentro de su propio módulo.
+ */
+
 export interface SafeUser extends Partial<Omit<User, 'password' | 'twoFactorSecret'>> {
   id: string;
   email: string;
@@ -11,12 +20,6 @@ export interface SafeUser extends Partial<Omit<User, 'password' | 'twoFactorSecr
   permissions: string[];
   organization?: Organization;
   isTwoFactorEnabled?: boolean;
-}
-
-export interface AuthenticatedUser extends SafeUser {
-  isImpersonating?: boolean;
-  originalUserId?: string;
-  sessionId?: string;
 }
 
 /**

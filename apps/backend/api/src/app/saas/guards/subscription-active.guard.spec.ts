@@ -1,7 +1,7 @@
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SubscriptionActiveGuard } from './subscription-active.guard';
-import { IS_PUBLIC_KEY } from '../../auth/decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../../security/decorators/public.decorator';
 import { ALLOW_INACTIVE_SUBSCRIPTION_KEY } from '../decorators/allow-inactive-subscription.decorator';
 
 /**

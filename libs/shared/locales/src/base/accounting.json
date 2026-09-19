@@ -590,6 +590,11 @@
     "en": "{{count}} approval requests are still pending.",
     "pt": "Restam {{count}} solicitações de aprovação pendentes."
   },
+  "accounting.checklist.items.provider_unavailable": {
+    "es": "No se pudo comprobar el módulo «{{provider}}»; revísalo manualmente antes de cerrar.",
+    "en": "Could not check the “{{provider}}” module; review it by hand before closing.",
+    "pt": "Não foi possível verificar o módulo «{{provider}}»; revise-o manualmente antes de fechar."
+  },
   "accounting.checklist.items.unapproved_vendor_bills": {
     "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
     "en": "Review and post every vendor bill that is still a draft or awaiting approval.",
@@ -644,6 +649,11 @@
     "es": "Todavía no se ha creado ninguna lista de verificación.",
     "en": "No checklist has been created yet.",
     "pt": "Nenhuma lista de verificação foi criada ainda."
+  },
+  "accounting.checklist.provider_unavailable": {
+    "es": "El módulo no respondió. La comprobación queda sin resolver, no aprobada.",
+    "en": "The module did not answer. The check is unresolved, not passed.",
+    "pt": "O módulo não respondeu. A verificação fica pendente, não aprovada."
   },
   "accounting.checklist.resolve": {
     "es": "Resolver",

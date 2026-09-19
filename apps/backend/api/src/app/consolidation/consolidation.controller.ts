@@ -1,12 +1,11 @@
 
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { Controller, Post, Body } from '@nestjs/common';
 import { ConsolidationService } from './consolidation.service';
 import { RunConsolidationDto } from './dto/run-consolidation.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { CheckFeature } from '../saas/guards/feature-flag.guard';
 
 /**
@@ -18,7 +17,6 @@ import { CheckFeature } from '../saas/guards/feature-flag.guard';
  * plan does not include it.
  */
 @Controller('consolidation')
-@UseGuards(JwtAuthGuard)
 @CheckFeature('group_consolidation')
 export class ConsolidationController {
   constructor(private readonly consolidationService: ConsolidationService) {}

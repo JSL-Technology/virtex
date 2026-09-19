@@ -1,16 +1,14 @@
 
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('chart-of-accounts/:accountId/history')
-@UseGuards(JwtAuthGuard)
 export class AccountHistoryController {
   constructor(private readonly chartOfAccountsService: ChartOfAccountsService) {}
 

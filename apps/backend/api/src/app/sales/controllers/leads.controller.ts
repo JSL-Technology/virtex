@@ -1,18 +1,16 @@
 
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { LeadsService } from '../services/leads.service';
 import { CreateLeadDto } from '../dto/create-lead.dto';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../../security/principal';
+import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 import { Idempotent } from '../../shared/idempotency/idempotent.decorator';
 
 @Controller('sales/leads')
-@UseGuards(JwtAuthGuard)
 export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 

@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinancialReportingController } from './financial-reporting.controller';
 import { FinancialReportingService } from './financial-reporting.service';
-
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { AuditModule } from '../audit/audit.module';
 import { AccountingModule } from '../accounting/accounting.module';

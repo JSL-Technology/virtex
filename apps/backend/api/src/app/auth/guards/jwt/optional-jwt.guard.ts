@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthenticatedUser } from '../../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../../security/principal';
 
 /**
  * Resolves the access token when one is present, and lets the request through when it is not.

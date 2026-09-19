@@ -12,17 +12,16 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PeriodClosingService } from './period-closing.service';
 import { ClosePeriodDto } from './dto/close-period.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { ModulePeriodDto } from './dto/module-period.dto';
 import { LockAccountInPeriodDto } from './dto/lock-account-period.dto';
 import { ReopenPeriodDto } from './dto/reopen-period.dto';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
 import { ListPeriodsQueryDto } from './dto/list-periods-query.dto';
 import { ClosingChecklistService } from './closing-checklist.service';
 import { ListFiscalYearsQueryDto } from './dto/list-fiscal-years-query.dto';
@@ -30,7 +29,6 @@ import { ListFiscalYearsQueryDto } from './dto/list-fiscal-years-query.dto';
 @ApiTags('Accounting')
 @ApiBearerAuth()
 @Controller('accounting')
-@UseGuards(JwtAuthGuard)
 export class AccountingController {
   constructor(
     private readonly periodClosingService: PeriodClosingService,

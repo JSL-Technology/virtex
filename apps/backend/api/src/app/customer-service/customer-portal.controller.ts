@@ -1,17 +1,15 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { CasesService } from './cases.service';
 import { KnowledgeBaseService } from './knowledge-base.service';
 import { InvoicesService } from '../invoices/invoices.service';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('customer-portal')
-@UseGuards(JwtAuthGuard)
 export class CustomerPortalController {
   constructor(
     private readonly casesService: CasesService,
@@ -22,7 +20,6 @@ export class CustomerPortalController {
   @Get('my-cases')
   @HasPermission(PERMISSIONS.CUSTOMER_PORTAL_ACCESS)
   getMyCases(@CurrentUser() user: AuthenticatedUser) {
-
 
     return this.casesService.findAll(user.organizationId);
   }

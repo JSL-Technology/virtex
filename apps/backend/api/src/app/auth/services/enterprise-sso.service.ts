@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import * as crypto from 'crypto';
-
 import { IdentityProvider } from '../entities/identity-provider.entity';
 import { OrganizationDomain } from '../../organizations/entities/organization-domain.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';

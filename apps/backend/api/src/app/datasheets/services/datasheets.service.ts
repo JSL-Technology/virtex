@@ -7,7 +7,7 @@ import { DatasheetSheet } from '../entities/datasheet-sheet.entity';
 import { DatasheetVersion } from '../entities/datasheet-version.entity';
 import { DatasheetPermission, DatasheetAccessRole } from '../entities/datasheet-permission.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 
 /** What each access role may do. Ordered from most to least. */

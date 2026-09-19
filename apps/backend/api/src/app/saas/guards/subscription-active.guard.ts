@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { HttpRequest as Request } from '../../common/http/http.types';
-import { IS_PUBLIC_KEY } from '../../auth/decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../../security/decorators/public.decorator';
 import { ALLOW_INACTIVE_SUBSCRIPTION_KEY } from '../decorators/allow-inactive-subscription.decorator';
 import { ForbiddenError } from '../../i18n/localized.exception';
 

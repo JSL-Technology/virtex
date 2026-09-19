@@ -5,7 +5,6 @@ import { Inject } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import Keyv from 'keyv';
 import KeyvRedis from '@keyv/redis';
-
 import { redisUrl } from './redis.config';
 import { AtomicCacheService } from './atomic-cache.service';
 

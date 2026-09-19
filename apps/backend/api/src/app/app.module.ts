@@ -8,7 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionsGuard } from './auth/guards/permissions/permissions.guard';
+import { PermissionsGuard } from './security/guards/permissions.guard';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from './auth/guards/csrf.guard';
@@ -26,7 +26,6 @@ import { CacheModule } from './cache/cache.module';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-
 import { JournalEntriesModule } from './journal-entries/journal-entries.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { ConsolidationModule } from './consolidation/consolidation.module';
@@ -38,6 +37,7 @@ import { IntercompanyModule } from './intercompany/intercompany.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { OrgSettingsModule } from './organizations/org-settings.module';
 import { SharedModule } from './shared/shared.module';
+import { ContractsModule } from './contracts/contracts.module';
 import { I18nModule } from './i18n/i18n.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
 import { RolesModule } from './roles/roles.module';
@@ -253,6 +253,9 @@ import { PosModule } from './pos/pos.module';
     UsersModule,
     OrganizationsModule,
     SharedModule,
+    // Los contratos por los que dos módulos se hablan sin conocerse. Solo interfaces y registros
+    // sin estado: ninguna entidad, ningún repositorio, ninguna escritura.
+    ContractsModule,
     ChartOfAccountsModule,
     RolesModule,
     InvoicesModule,

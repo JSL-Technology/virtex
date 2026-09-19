@@ -5,7 +5,7 @@ import { Product } from '../../inventory/entities/product.entity';
 import { Invoice, InvoiceStatus } from '../../invoices/entities/invoice.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 import { VendorBill } from '../../accounts-payable/entities/vendor-bill.entity';
-import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 import { PERMISSIONS } from '../../shared/permissions';
 import { BadRequestError, ForbiddenError } from '../../i18n/localized.exception';
 import { Page, resolvePaging, toPage } from '../../common/pagination';

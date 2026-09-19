@@ -8,34 +8,16 @@ import {
 import { NotFoundError } from '../i18n/localized.exception';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
+import { ClosingBlockerRegistry } from '../contracts/closing-blockers/closing-blocker.registry';
+import { ClosingBlocker } from '../contracts/closing-blockers/closing-blocker.contract';
 
-// VendorBill and BankTransaction are queried via raw SQL to avoid cross-module entity imports
-// that would create cycles: accounting → accounts-payable and accounting → reconciliation.
-// The enum values are stable string constants that will not be renamed without a migration.
-
-export interface ChecklistItem {
-  /** Stable identifier for the check. Never rendered. */
-  id: string;
-  /**
-   * A catalogue key, not a sentence.
-   *
-   * The closing checklist is read by whoever is closing the month, and in a group with
-   * subsidiaries that is rarely the same person twice. The descriptions were Spanish literals
-   * composed in the service.
-   */
-  descriptionKey: string;
-  /** Interpolation values for `descriptionKey` — counts, never prose. */
-  params?: Record<string, unknown>;
-  isCompleted: boolean;
-  /**
-   * Why the item cannot be decided automatically, where that is the case. A key, like everything
-   * else the reader sees.
-   */
-  noteKey?: string;
-  /** Counts backing the check, for the client to render alongside the description. */
-  details?: Record<string, number>;
-  resolutionLink?: string;
-}
+/**
+ * Una línea del checklist, tal como la ve el cliente.
+ *
+ * Es el tipo del contrato, reexportado: la forma que Contabilidad publica por HTTP y la que los
+ * demás módulos rellenan tienen que ser la misma, o el contrato no estaría diciendo nada.
+ */
+export type ChecklistItem = ClosingBlocker;
 
 @Injectable()
 export class ClosingChecklistService {
@@ -44,6 +26,7 @@ export class ClosingChecklistService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly journalQuery: JournalQueryService,
+    private readonly closingBlockers: ClosingBlockerRegistry,
   ) {}
 
   async getChecklist(
@@ -77,43 +60,20 @@ export class ClosingChecklistService {
       resolutionLink: `/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
     });
 
-    const [{ count: billCount }] = await this.dataSource.query<[{ count: string }]>(
-      // A bill's document date is a calendar date, unlike the journal-entry date above (timestamp).
-      `SELECT COUNT(*)::int AS count
-         FROM vendor_bills
-        WHERE organization_id = $1
-          AND status IN ('DRAFT', 'PENDING_APPROVAL')
-          AND date BETWEEN $2::date AND $3::date`,
-      [organizationId, toIsoDate(period.startDate), toIsoDate(period.endDate)],
+    // Lo que aportan los demás módulos, preguntado sin saber quiénes son.
+    //
+    // Aquí se contaban facturas de proveedor sin aprobar y líneas de banco sin conciliar
+    // importando `VendorBill` y `BankTransaction`. Eran dos líneas de import y entre las dos
+    // sostenían los ciclos `compras ↔ contabilidad` y `contabilidad ↔ finanzas`. La posición en la
+    // lista se conserva para que el checklist no cambie de orden entre dos cargas.
+    checklist.push(
+      ...(await this.closingBlockers.collect({
+        organizationId,
+        periodId,
+        startDate: toIsoDate(period.startDate),
+        endDate: toIsoDate(period.endDate),
+      })),
     );
-    const unapprovedBillsCount = Number(billCount ?? 0);
-    checklist.push({
-      id: 'unapproved-vendor-bills',
-      descriptionKey: 'accounting.checklist.items.unapproved_vendor_bills',
-      params: { count: unapprovedBillsCount },
-      isCompleted: unapprovedBillsCount === 0,
-      details: { pendingCount: unapprovedBillsCount },
-      resolutionLink: `/accounts-payable/bills?periodId=${periodId}&status=draft,pending_approval`,
-    });
-
-    const [{ count: txCount }] = await this.dataSource.query<[{ count: string }]>(
-      `SELECT COUNT(*)::int AS count
-         FROM bank_transactions bt
-         JOIN bank_statements bs ON bs.id = bt.statement_id
-        WHERE bs.organization_id = $1
-          AND bt.status = 'UNMATCHED'
-          AND bt.date BETWEEN $2::date AND $3::date`,
-      [organizationId, toIsoDate(period.startDate), toIsoDate(period.endDate)],
-    );
-    const unreconciledTxCount = Number(txCount ?? 0);
-    checklist.push({
-      id: 'unreconciled-bank-transactions',
-      descriptionKey: 'accounting.checklist.items.unreconciled_bank_transactions',
-      params: { count: unreconciledTxCount },
-      isCompleted: unreconciledTxCount === 0,
-      details: { unreconciledCount: unreconciledTxCount },
-      resolutionLink: `/reconciliation?periodId=${periodId}`,
-    });
 
     // Accruals that should have reversed into this period and did not.
     //

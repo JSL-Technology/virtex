@@ -3,11 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import type { HttpRequest as Request } from '../../../common/http/http.types';
-
 import { KeyManagementService } from '../../services/key-management.service';
 import { UserIdentityService } from '../../services/user-identity.service';
 import { JwtPayload } from '../../interfaces/jwt-payload.interface';
-import { AuthenticatedUser } from '../../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../../security/principal';
 import { isDevLikeEnvironment } from '../../auth.config';
 import { UnauthorizedError } from '../../../i18n/localized.exception';
 

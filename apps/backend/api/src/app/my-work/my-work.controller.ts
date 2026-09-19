@@ -1,16 +1,14 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { MyWorkDto } from './dto/my-work.dto';
 import { MyWorkService } from './my-work.service';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 @ApiTags('My Work')
 @Controller('my-work')
-@UseGuards(JwtAuthGuard)
 @AuthenticatedOnly(
   'The caller\'s own work queue. It aggregates documents the user can already see — the underlying\n' +
   'queries carry the same permissions applied everywhere else — so a permission on the aggregate\n' +

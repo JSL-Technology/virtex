@@ -1,9 +1,8 @@
 
-import { Controller, Get, UseGuards, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { GenerateReportDto } from './dto/generate-report.dto';
 import { BadRequestError } from '../i18n/localized.exception';
 import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
@@ -11,8 +10,8 @@ import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { AgingReportDto } from './dto/aging-report.dto';
 import { ProfitabilityQueryDto } from './dto/profitability.dto';
 import { ProfitabilityService } from './profitability.service';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 /**
@@ -25,7 +24,6 @@ import { PERMISSIONS } from '../shared/permissions';
 @ApiTags('Reports')
 @ApiBearerAuth()
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,

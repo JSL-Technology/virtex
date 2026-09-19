@@ -1,7 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import * as Handlebars from 'handlebars';
-
 import { MAIL_BRAND, registerMailPartials } from './mail-brand';
 import { mailTemplateHelpers } from './mail-template.helpers';
 import type { I18nService } from '../i18n/i18n.service';

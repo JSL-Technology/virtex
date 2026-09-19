@@ -12,17 +12,15 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt/jwt.guard';
-import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
 /**
  * Session (device) management: list the active sessions and revoke them.
@@ -49,7 +47,6 @@ export class AuthSessionController {
   ) {}
 
   @Get('sessions')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'List active sessions (devices)' })
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async getUserSessions(@CurrentUser() user: AuthenticatedUser) {
@@ -65,7 +62,7 @@ export class AuthSessionController {
 
   @Post('sessions/revoke-others')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke every session except the current one' })
   async revokeOtherSessions(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
@@ -78,7 +75,7 @@ export class AuthSessionController {
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(StepUpGuard)
   @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(

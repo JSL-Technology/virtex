@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Industry, CompanySize } from '@virteex/shared/types';
-import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.decorator';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 
 @ApiTags('Config')
 @Controller('config')

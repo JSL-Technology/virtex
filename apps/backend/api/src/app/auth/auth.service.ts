@@ -7,7 +7,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
-
 import { LoginUserDto } from './dto/login-user.dto';
 import { User, UserStatus } from '../users/entities/user.entity/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -20,7 +19,8 @@ import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordService } from './services/password.service';
 import { AuthEvents, AuthLoginFailedEvent, AuthLoginSuccessEvent } from './events/auth.events';
-import { SafeUser, AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../security/principal';
+import { SafeUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
 import { AuthException } from './exceptions/auth.exception';
 import { LoginResultDto } from './dto/login-response.dto';

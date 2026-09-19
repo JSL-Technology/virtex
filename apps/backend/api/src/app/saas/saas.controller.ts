@@ -4,11 +4,11 @@ import { plainToInstance } from 'class-transformer';
 import { PlanResponseDto } from './dto/plan-response.dto';
 import { SaasService } from './saas.service';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { Public } from '../auth/decorators/public.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { Public } from '../security/decorators/public.decorator';
 import type { HttpRequest as Request } from '../common/http/http.types';
 import { AllowInactiveSubscription } from './decorators/allow-inactive-subscription.decorator';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 /**

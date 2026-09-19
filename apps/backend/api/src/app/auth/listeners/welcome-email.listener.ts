@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
 import { AfterCommitService } from '../../shared/after-commit/after-commit.service';
 import { MailService } from '../../mail/mail.service';
 import { UserRegisteredEvent } from '../events/user-registered.event';

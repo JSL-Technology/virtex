@@ -13,15 +13,13 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { CreateVendorDebitNoteDto } from './dto/create-vendor-debit-note.dto';
 import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('vendor-debit-notes')
-@UseGuards(JwtAuthGuard)
 export class VendorDebitNotesController {
   constructor(
     private readonly vendorDebitNotesService: VendorDebitNotesService,

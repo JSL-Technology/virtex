@@ -3,7 +3,6 @@ import { Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Job } from 'bullmq';
 import { createHash } from 'crypto';
-
 import { I18nService } from '../i18n/i18n.service';
 import { MAIL_QUEUE, MailJob } from './mail.queue';
 

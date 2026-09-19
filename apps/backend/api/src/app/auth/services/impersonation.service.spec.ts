@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ImpersonationService } from './impersonation.service';
 import { UserCacheService } from '../modules/user-cache.service';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { AuthenticatedUser } from '../../security/principal';
 
 /**
  * C-4 regression suite.

@@ -1,11 +1,10 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type } from '@nestjs/common';
 import { Reflector, ModuleRef } from '@nestjs/core';
-import { PERMISSIONS_KEY } from '../../decorators/permissions.constants';
-import { IS_PUBLIC_KEY } from '../../decorators/public.decorator';
-import { AUTHENTICATED_ONLY_KEY } from '../../decorators/authenticated-only.decorator';
-import { Permission } from '../../../shared/permissions';
+import { PERMISSIONS_KEY } from '../decorators/permissions.constants';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { AUTHENTICATED_ONLY_KEY } from '../decorators/authenticated-only.decorator';
+import { Permission } from '../../shared/permissions';
 import { AuthenticatedRequest, hasPermission } from '@virteex/shared/util-auth';
-
 // Interface for a Policy (Context-Aware Check)
 export interface IPolicy {
   can(user: any, request: any): boolean | Promise<boolean>;
@@ -14,7 +13,7 @@ export interface IPolicy {
 export type PermissionOrPolicy = Permission | Type<IPolicy>;
 
 import { Logger } from '@nestjs/common';
-import { ForbiddenError } from '../../../i18n/localized.exception';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

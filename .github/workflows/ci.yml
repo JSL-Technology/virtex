@@ -187,6 +187,14 @@ jobs:
       # Until the row-level-security cutover makes the database enforce it, this static guard does.
       - run: npm run verify:tenant-scope
 
+      # Proves the frontera entre módulos no retrocede. La auditoría de septiembre de 2026 midió
+      # 1.686 violaciones (imports prohibidos, ciclos, entidades ajenas registradas, transacciones
+      # compartidas); el baseline las congela y este paso falla si alguna cuenta SUBE. Bajar es
+      # gratis y no requiere tocar nada aquí: `npm run verify:boundaries -- --update` fija el avance.
+      # Sin este trinquete, cada corrección de acoplamiento se degrada en semanas — que es
+      # exactamente cómo se llegó a 1.686.
+      - run: npm run verify:boundaries
+
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.
