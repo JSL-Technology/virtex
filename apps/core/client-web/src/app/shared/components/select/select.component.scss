@@ -213,16 +213,12 @@
   border: 2px solid var(--border-default);
   border-top-color: var(--accent-solid);
   border-radius: var(--radius-full);
-  animation: vx-select-spin var(--duration-deliberate) linear infinite;
+  //  `vx-spin` es del sistema (`base/_elements.scss`). Los `@keyframes` no los encapsula Angular,
+  //  así que declarar aquí uno propio sería la decimosexta copia de «gira 360 grados».
+  animation: vx-spin var(--duration-deliberate) linear infinite;
 
   @include ds.bp-reduced-motion {
     animation: none;
-  }
-}
-
-@keyframes vx-select-spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 

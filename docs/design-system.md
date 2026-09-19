@@ -296,6 +296,74 @@ npm run lint:contrast        # WCAG sobre el CSS compilado
 
 ---
 
+## Componentes compartidos
+
+El sistema no es solo CSS: donde un patrón lleva comportamiento —foco, teclado,
+estado, accesibilidad— la forma correcta de compartirlo es un componente, no un
+mixin. Un mixin es una regla que hay que acordarse de invocar; un componente es
+algo que se importa.
+
+### `vx-select` — selección con buscador y alta inline
+
+`apps/core/client-web/src/app/shared/components/select/`
+
+```ts
+import { VX_SELECT } from '../../shared/components/select';
+
+imports: [ReactiveFormsModule, ...VX_SELECT, ...VX_FORM_A11Y]
+```
+
+```html
+<label class="form-label" for="customerId">{{ 'x.customer' | translate }} *</label>
+<vx-select
+  inputId="customerId"
+  formControlName="customerId"
+  [search]="searchCustomers"
+  [resolveWith]="resolveCustomer"
+  [displayWith]="customerName"
+  [valueWith]="customerId"
+  [describeWith]="customerTaxId"
+  [createWith]="createCustomer"
+  [required]="true"
+></vx-select>
+```
+
+**No sabe qué está seleccionando.** Recibe funciones y las llama, así que sirve
+igual para un cliente, un producto o una cuenta contable. Si algún día contiene
+lógica de una entidad concreta, es un defecto.
+
+**Dos modos, y la elección es explícita.**
+
+| | Cuándo | Cómo |
+|---|---|---|
+| Servidor | La lista puede crecer sin cota: clientes, productos, cuentas | `[search]`, con debounce; una respuesta superada se descarta |
+| Cliente | Lista pequeña, fija y conocida: cinco condiciones de pago, tres tratamientos fiscales | `[options]`, filtrado sin acentos ni mayúsculas |
+
+Ante la duda, servidor. Descargar diez mil filas para filtrarlas con
+`Array.prototype.filter` es precisamente lo que este componente existe para
+evitar.
+
+**Alta inline.** `[createWith]` recibe lo tecleado y devuelve un observable; el
+llamante enseña el diálogo que quiera y emite el registro creado (o `null` si se
+canceló). El componente selecciona lo que llegue y **devuelve el foco al campo**,
+de modo que nadie pierde el sitio en el que estaba. Ejemplo real:
+`features/invoices/new/new.page.ts` con
+`features/contacts/customer-quick-create/`.
+
+**Lo que trae de serie:** combobox editable de ARIA 1.2 (el foco nunca sale del
+input), flechas / Enter / Escape / Home / End, `aria-activedescendant` sobre
+filas que existen en el DOM, región viva con el número de resultados,
+`ControlValueAccessor` completo, CDK Overlay para el panel y CDK Virtual Scroll
+para las listas largas, y los cuatro estados dibujados: cargando, vacío —donde
+«crear» se vuelve prominente—, error con reintento, y lista.
+
+**Estilo:** ni un color, tamaño ni radio propio. Todo sale de los tokens y de los
+mismos mixins que visten los `<input>` nativos, y la altura de fila se **mide**
+del token `--vx-select-row-height`, así que la densidad compacta la sigue sin
+tocar el componente.
+
+---
+
 ## Añadir un componente
 
 1. `@use 'assets/styles/design-system' as ds;`
