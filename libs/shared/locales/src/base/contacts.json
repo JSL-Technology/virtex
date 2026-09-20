@@ -265,6 +265,21 @@
     "en": "Phone",
     "pt": "Telefone"
   },
+  "contacts.quick_create.hint": {
+    "es": "Solo lo imprescindible para poder facturarle. El resto de la ficha se completa después desde Clientes.",
+    "en": "Only what is needed to invoice them. The rest of the record is filled in later, from Customers.",
+    "pt": "Apenas o necessário para faturar. O restante do cadastro é preenchido depois, em Clientes."
+  },
+  "contacts.quick_create.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "contacts.quick_create.title": {
+    "es": "Nuevo cliente",
+    "en": "New customer",
+    "pt": "Novo cliente"
+  },
   "contacts.suppliers.actions": {
     "es": "Acciones",
     "en": "Actions",

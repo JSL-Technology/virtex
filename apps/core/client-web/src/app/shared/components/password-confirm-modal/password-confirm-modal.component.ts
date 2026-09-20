@@ -1,9 +1,11 @@
-import { Component, signal, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Shield, X, AlertCircle, Loader2, KeyRound } from 'lucide-angular';
+import { LucideAngularModule, Shield, AlertCircle, KeyRound } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDialogComponent } from '../dialog';
+import { VxSpinnerComponent } from '../feedback';
 
 /**
  * Which credential the server will accept for this step-up. Decided by the server, not here.
@@ -27,7 +29,15 @@ export type StepUpFactor = 'password' | 'otp' | 'sso' | 'none';
 @Component({
   selector: 'app-password-confirm-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...VX_FORM_A11Y],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    TranslateModule,
+    VxDialogComponent,
+    VxSpinnerComponent,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './password-confirm-modal.component.html',
   styleUrls: ['./password-confirm-modal.component.scss'],
 })
@@ -45,9 +55,7 @@ export class PasswordConfirmModalComponent {
   @Output() cancelled = new EventEmitter<void>();
 
   protected readonly ShieldIcon = Shield;
-  protected readonly XIcon = X;
   protected readonly AlertIcon = AlertCircle;
-  protected readonly LoaderIcon = Loader2;
   protected readonly KeyIcon = KeyRound;
 
   /** Holds whichever credential the current factor calls for. */
@@ -104,9 +112,7 @@ export class PasswordConfirmModalComponent {
    * have added a phantom tab stop in front of the dialog — a worse experience for exactly the
    * users the rule exists to protect.
    */
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    this.onCancel();
-  }
-
+  //  El Escape lo entrega `vx-dialog` desde el overlay que está ENCIMA. Con un `@HostListener`
+  //  sobre el documento —que es lo que había— una sola pulsación cerraba también el diálogo desde
+  //  el que se había pedido reautenticar.
 }

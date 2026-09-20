@@ -2536,11 +2536,6 @@
     "en": "For your security, we need to confirm it's you before setting up two-step verification.",
     "pt": "Por motivos de segurança, precisamos confirmar que é você antes de configurar a verificação em duas etapas."
   },
-  "settings.security_settings.close": {
-    "es": "Cerrar",
-    "en": "Close",
-    "pt": "Fechar"
-  },
   "settings.security_settings.revoke_session": {
     "es": "Revoke session",
     "en": "Revoke session",
@@ -2970,11 +2965,6 @@
     "es": "Enviar invitación",
     "en": "Send invitation",
     "pt": "Enviar convite"
-  },
-  "settings.user_management.showing_shown_total_users": {
-    "es": "Mostrando {{shown}} de {{total}} usuarios",
-    "en": "Showing {{shown}} of {{total}} users",
-    "pt": "A mostrar {{shown}} de {{total}} utilizadores"
   },
   "settings.user_management.user_company_com": {
     "es": "usuario@empresa.com",

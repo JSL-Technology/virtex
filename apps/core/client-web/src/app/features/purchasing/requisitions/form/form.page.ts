@@ -16,6 +16,9 @@ import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -39,8 +42,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +70,22 @@ export class RequisitionFormPage implements OnInit {
 
   readonly isNew = computed(() => !this.current());
   readonly status = computed<PurchaseRequisitionStatus | null>(() => this.current()?.status ?? null);
+
+  /** El mismo vocabulario que la lista de solicitudes, y ahora la misma tabla. */
+  readonly statusTone = computed<VxTone>(() => {
+    switch (this.status()) {
+      case 'APPROVED':
+        return 'ok';
+      case 'CONVERTED_TO_PO':
+        return 'info';
+      case 'PENDING_APPROVAL':
+        return 'warning';
+      case 'REJECTED':
+        return 'danger';
+      default:
+        return 'draft';
+    }
+  });
 
   /** Only a draft may be edited: a document under review cannot change under its reviewer. */
   readonly editable = computed(() => this.isNew() || this.status() === 'DRAFT');

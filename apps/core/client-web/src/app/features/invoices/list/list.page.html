@@ -74,9 +74,9 @@
                 —«Cobrada», «Por cobrar»— tres líneas debajo de las mismas claves usadas en el
                 filtro, así que una pantalla en inglés mostraba media tabla en español.
               -->
-              <span class="status-badge" [class]="getStatusClass(invoice.status)">
+              <vx-badge [tone]="statusTone(invoice.status)" [struck]="isVoid(invoice.status)">
                 {{ statusKey(invoice.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }
@@ -88,30 +88,18 @@
     Server-side pagination. The list used to download every invoice of the tenant on each visit;
     on any real dataset that is a sequential scan of the whole table per request.
   -->
-  <nav
+  <!--
+    Era anterior/siguiente con el número de página al lado. El compartido numera las páginas
+    —con elipsis, para que 800 páginas no sean 800 botones— y deja al lector elegir cuántas filas
+    ve, que es lo que ninguna de las cinco versiones de este control permitía.
+  -->
+  <vx-pager
     listFooter
-    class="pager"
-    [attr.aria-label]="'invoices.list.invoice_pagination' | translate"
-  >
-    <span class="pager-range">{{ rangeLabel() }}</span>
-    <button
-      type="button"
-      class="pager-button"
-      [disabled]="!hasPrevious() || isLoading()"
-      (click)="goToPage(-1)"
-    >
-      {{ 'invoices.list.previous' | translate }}
-    </button>
-    <span class="pager-status">
-      {{ 'invoices.list.page_page_pages' | translate: { page: page(), pages: pages() } }}
-    </span>
-    <button
-      type="button"
-      class="pager-button"
-      [disabled]="!hasNext() || isLoading()"
-      (click)="goToPage(1)"
-    >
-      {{ 'invoices.list.next' | translate }}
-    </button>
-  </nav>
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [disabled]="isLoading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
 </vx-list-shell>

@@ -67,10 +67,6 @@
     text-align: right;
   }
 
-  .negative {
-    color: var(--error-text);
-  }
-
   /* Only the last four digits ever reach the browser. */
   .masked {
     letter-spacing: 0.05em;

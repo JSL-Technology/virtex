@@ -1,0 +1,15 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  //  El mixin ya existía y no lo usaba nadie. Aquí tiene su primer y —si esto
+  //  funciona— su único consumidor.
+  @include ds.empty-state;
+}
+
+.empty-title {
+  margin: 0;
+}
+
+.empty-description {
+  margin: 0;
+}

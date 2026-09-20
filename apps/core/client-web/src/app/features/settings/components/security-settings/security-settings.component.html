@@ -60,9 +60,9 @@
                   <div>
                     {{ session.browser }} on {{ session.os }}
                     @if (session.isCurrent) {
-                      <span class="sessions-list__current-badge">
+                      <vx-badge tone="accent" size="sm">
                         {{ 'settings.security.current_session' | translate }}
-                      </span>
+                      </vx-badge>
                     }
                   </div>
                   <div>
@@ -104,15 +104,14 @@
 </div>
 
 <!-- Setup Modal -->
+<!--
+  El velo llevaba a la vez `aria-hidden="true"` y `role="button"` con `tabindex="0"` —oculto para
+  el lector de pantalla y, aun así, una parada de tabulación—, y el diálogo no atrapaba el foco.
+  `vx-dialog` pone la trampa; el velo vuelve a ser un velo.
+-->
 @if (showSetupModal()) {
-  <div class="modal-overlay">
-    <div class="modal-backdrop" (click)="closeSetupModal()" aria-hidden="true" tabindex="0" role="button" (keydown.enter)="closeSetupModal()" (keydown.space)="$event.preventDefault(); closeSetupModal()"></div>
-    <div class="modal-content" role="dialog" aria-modal="true">
-
-      <!-- Close Button -->
-      <button (click)="closeSetupModal()" class="modal-close" [attr.aria-label]="'settings.security_settings.close' | translate">
-        <lucide-icon [img]="XIcon" size="18"></lucide-icon>
-      </button>
+  <vx-dialog size="md" [title]="setupTitle()" (dismissed)="closeSetupModal()">
+    <div class="setup">
 
       <!-- Step indicator -->
       <div class="modal-steps">
@@ -125,16 +124,11 @@
         <span class="modal-step" [class.active]="currentStep() === 'BACKUP_CODES'">4</span>
       </div>
 
-      <!-- Header -->
+      <!--
+        El título vive ahora en la cabecera del diálogo —`setupTitle()`—, que es lo que nombra al
+        diálogo para un lector de pantalla. Aquí queda solo el subtítulo del paso.
+      -->
       <div class="modal-header">
-        <h2>
-           @switch (currentStep()) {
-               @case ('INTRO') { {{ 'settings.security.two_step_verification' | translate }} }
-               @case ('EMAIL_VERIFY') { {{ 'settings.security.setup_2_fa_title' | translate }} }
-               @case ('QR_SETUP') { {{ 'settings.security.setup_authenticator' | translate }} }
-               @case ('BACKUP_CODES') { {{ 'settings.security.backup_codes_title' | translate }} }
-           }
-        </h2>
         <p>
            @switch (currentStep()) {
                @case ('INTRO') { {{ 'settings.security.identity_verification' | translate }} }
@@ -265,7 +259,7 @@
 
       </div>
     </div>
-  </div>
+  </vx-dialog>
 }
 
 <app-confirmation-modal

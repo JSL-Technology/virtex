@@ -1,0 +1,80 @@
+<!--
+  Se construyó sobre `app-ui-modal`, que era el modal compartido del momento y tampoco atrapaba el
+  foco. Ahora sobre `vx-dialog`, que sí — y eso importa aquí en particular: este diálogo se abre
+  DESDE un campo de una factura a medio escribir, y sin trampa el tabulador volvía a esa factura
+  con el diálogo todavía encima.
+-->
+<vx-dialog
+  size="sm"
+  titleKey="contacts.quick_create.title"
+  [busy]="saving()"
+  (dismissed)="cancel()"
+>
+  <form class="quick-create" [formGroup]="form" (ngSubmit)="save()">
+    <p class="quick-create__hint">
+      {{ 'contacts.quick_create.hint' | translate }}
+    </p>
+
+    <div class="form-field">
+      <label for="companyName">
+        {{ 'contacts.customer_form.company_name' | translate }} *
+      </label>
+      <input id="companyName" cdkFocusInitial formControlName="companyName" />
+    </div>
+
+    <!--
+      El mismo campo compartido, en su otro modo: la lista de países es fija y cabe entera en el
+      cliente, así que se filtra aquí y no se pregunta al servidor por cada letra. Que sea el mismo
+      componente que el de cliente es la prueba de que no sabe lo que está seleccionando.
+    -->
+    <div class="form-field">
+      <label for="country">{{ 'contacts.customer_form.country' | translate }}</label>
+      <vx-select
+        inputId="country"
+        formControlName="country"
+        [options]="countries()"
+        [displayWith]="countryName"
+        [valueWith]="countryCode"
+        [required]="true"
+        [clearable]="false"
+      ></vx-select>
+    </div>
+
+    <div class="form-field">
+      <label for="identityDocumentTypeCode">
+        {{ 'contacts.customer_form.document_type' | translate }}
+      </label>
+      <select id="identityDocumentTypeCode" formControlName="identityDocumentTypeCode">
+        @for (type of documentTypes(); track type.code) {
+          <option [value]="type.code">{{ documentLabel(type) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="taxId">{{ 'contacts.customer_form.tax_id' | translate }}</label>
+      <input id="taxId" formControlName="taxId" />
+    </div>
+
+    <div class="form-field">
+      <label for="email">{{ 'contacts.customer_form.email' | translate }}</label>
+      <input id="email" type="email" formControlName="email" />
+    </div>
+
+    @if (failure(); as message) {
+      <p class="quick-create__error" role="alert">{{ message }}</p>
+    }
+  </form>
+
+  <ng-container dialogActions>
+    <button type="button" class="quick-create__cancel" (click)="cancel()">
+      {{ 'contacts.customer_form.cancel' | translate }}
+    </button>
+    <button type="button" class="quick-create__save" [disabled]="saving()" (click)="save()">
+      {{
+        (saving() ? 'contacts.quick_create.saving' : 'contacts.customer_form.save_customer')
+          | translate
+      }}
+    </button>
+  </ng-container>
+</vx-dialog>

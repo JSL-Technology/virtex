@@ -1,0 +1,68 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.vx-pager__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  padding-block: var(--space-2);
+}
+
+.vx-pager__range {
+  @include ds.numeric;
+
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+}
+
+.vx-pager__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.vx-pager__button {
+  @include ds.button-icon('sm');
+}
+
+.vx-pager__page {
+  @include ds.button-ghost('sm');
+  @include ds.numeric;
+
+  min-width: var(--control-height-sm);
+  padding-inline: var(--space-2);
+
+  &.is-current {
+    background-color: var(--accent-surface);
+    color: var(--accent-text);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.vx-pager__gap {
+  padding-inline: var(--space-1);
+  color: var(--content-tertiary);
+}
+
+.vx-pager__size {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+
+  select {
+    @include ds.input-base;
+
+    width: auto;
+    height: var(--control-height-sm);
+  }
+}

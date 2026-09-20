@@ -26,29 +26,6 @@
     }
   }
 
-  .status-badge {
-    &.status-posted,
-    &.status-paid {
-      background-color: var(--success-surface);
-      border-color: var(--success-text);
-      color: var(--success-text);
-    }
-
-    &.status-pending,
-    &.status-partial {
-      background-color: var(--warning-surface);
-      border-color: var(--warning-text);
-      color: var(--warning-text);
-    }
-
-    &.status-void {
-      background-color: var(--surface-sunken);
-      border-color: var(--border-default);
-      color: var(--content-tertiary);
-      text-decoration: line-through;
-    }
-  }
-
   //  Un recibo anulado sigue en la lista —el registro es de solo añadir— y se
   //  lee de un vistazo como «este no cuenta».
   tr.voided td { opacity: 0.6; }

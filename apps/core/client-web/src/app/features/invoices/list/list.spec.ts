@@ -82,7 +82,9 @@ describe('InvoicesListPage', () => {
   it('returns to the first page when a filter changes', () => {
     invoicesService.getInvoices.mockReturnValue(of(page({ total: 200, pages: 4 })));
     component.loadInvoices();
-    component.goToPage(1);
+    //  El paginador compartido pide una página CONCRETA, no un desplazamiento: sabe a cuál quiere
+    //  ir porque puede numerarlas.
+    component.goToPage(2);
     expect(component.page()).toBe(2);
 
     component.searchTerm.set('algo');
@@ -94,9 +96,10 @@ describe('InvoicesListPage', () => {
     invoicesService.getInvoices.mockReturnValue(of(page({ total: 10, pages: 1 })));
     component.loadInvoices();
 
-    component.goToPage(1);
+    //  Una sola página: ni la 2 ni la 0 existen, y pedirlas no mueve nada.
+    component.goToPage(2);
     expect(component.page()).toBe(1);
-    component.goToPage(-1);
+    component.goToPage(0);
     expect(component.page()).toBe(1);
   });
 

@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
  * One person's record: who they are, what they are paid, and what leaving would cost.
@@ -49,8 +50,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

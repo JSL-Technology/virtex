@@ -11,13 +11,15 @@ import {
   PurchaseRequisitionStatus,
   PurchasingService,
 } from '../../../core/api/purchasing.service';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
-const STATUS_CLASS: Record<PurchaseRequisitionStatus, string> = {
-  DRAFT: 'status-draft',
-  PENDING_APPROVAL: 'status-pending',
-  APPROVED: 'status-approved',
-  REJECTED: 'status-rejected',
-  CONVERTED_TO_PO: 'status-sent',
+/** Lo que significa cada estado de una solicitud. El color lo pone `vx-badge`, una vez. */
+const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
+  DRAFT: 'draft',
+  PENDING_APPROVAL: 'warning',
+  APPROVED: 'ok',
+  REJECTED: 'danger',
+  CONVERTED_TO_PO: 'info',
 };
 
 /**
@@ -32,7 +34,7 @@ const STATUS_CLASS: Record<PurchaseRequisitionStatus, string> = {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,8 +53,8 @@ export class RequisitionsPage {
   readonly loading = computed(() => this.page() === undefined);
   readonly failed = computed(() => this.page() === null);
 
-  getStatusClass(status: PurchaseRequisitionStatus): string {
-    return STATUS_CLASS[status] ?? 'status-draft';
+  statusTone(status: PurchaseRequisitionStatus): VxTone {
+    return STATUS_TONE[status] ?? 'neutral';
   }
 
   /** How many things were asked for. The old screen showed a department the model never had. */

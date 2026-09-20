@@ -71,14 +71,6 @@
   td.expired { color: var(--error-text); }
 }
 
-.badge {
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  &.active { background: var(--success-surface); color: var(--success-text); }
-  &.inactive { background: var(--surface-active); color: var(--content-tertiary); }
-}
-
 .link-danger {
   background: none;
   border: none;

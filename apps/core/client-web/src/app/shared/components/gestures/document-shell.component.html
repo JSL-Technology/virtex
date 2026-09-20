@@ -16,9 +16,9 @@
         <h1 class="ds__title">
           <span class="ds__name">{{ title() }}</span>
           @if (statusKey()) {
-            <span class="ds__status" [class]="'ds__status--' + statusTone()">
+            <vx-badge class="ds__status" [tone]="statusTone()">
               {{ statusKey() | translate }}
-            </span>
+            </vx-badge>
           }
         </h1>
         @if (subtitle()) {

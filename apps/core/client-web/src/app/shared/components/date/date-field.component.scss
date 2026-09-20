@@ -1,0 +1,31 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.vx-date-field__input {
+  @include ds.input-base;
+  @include ds.numeric;
+
+  //  El indicador del calendario nativo se tiñe con el color del contenido en
+  //  vez de quedarse en el negro del navegador, que en tema oscuro desaparece
+  //  contra la superficie.
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: var(--vx-date-picker-filter, none);
+    opacity: 0.6;
+
+    &:hover { opacity: 1; }
+  }
+}
+
+:host-context(:root[data-theme='dark']) .vx-date-field__input {
+  --vx-date-picker-filter: invert(1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host-context(:root:not([data-theme='light'])) .vx-date-field__input {
+    --vx-date-picker-filter: invert(1);
+  }
+}

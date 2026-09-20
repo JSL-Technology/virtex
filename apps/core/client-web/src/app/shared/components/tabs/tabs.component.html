@@ -1,0 +1,30 @@
+<div class="vx-tabs__list" role="tablist" [attr.aria-label]="ariaLabel()">
+  @for (tab of tabs(); track tab.id) {
+    <!--
+      `tabindex` rotatorio: la tira entera es UNA parada en el orden de tabulación y las flechas
+      mueven dentro. Sin esto, un formulario de cuatro pestañas cuesta cuatro pulsaciones de Tab
+      antes de llegar al primer campo.
+    -->
+    <button
+      #tab
+      type="button"
+      class="vx-tabs__tab"
+      role="tab"
+      [id]="tabId(tab.id)"
+      [attr.aria-controls]="panelId(tab.id)"
+      [attr.aria-selected]="active() === tab.id"
+      [attr.aria-disabled]="tab.disabled ? 'true' : null"
+      [tabIndex]="active() === tab.id ? 0 : -1"
+      [class.is-active]="active() === tab.id"
+      [class.is-disabled]="tab.disabled"
+      [disabled]="tab.disabled ?? false"
+      (click)="select(tab)"
+      (keydown)="onKeydown($event)"
+    >
+      <span>{{ tab.labelKey | translate }}</span>
+      @if (tab.badge !== null && tab.badge !== undefined) {
+        <vx-badge size="sm" [tone]="tab.badgeTone ?? 'neutral'">{{ tab.badge }}</vx-badge>
+      }
+    </button>
+  }
+</div>

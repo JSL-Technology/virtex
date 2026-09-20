@@ -35,14 +35,14 @@
             <td>{{ receipt.paymentDate | vxDate: 'date' : true }}</td>
             <td class="text-right">{{ receipt.totalAmount | vxMoney: receipt.currencyCode }}</td>
             <!-- An advance or an overpayment. Previously unrecordable, so never shown. -->
-            <td class="text-right">{{ receipt.unappliedAmount | vxNumber: '1.2-2' }}</td>
+            <td class="text-right"><vx-amount [value]="receipt.unappliedAmount" /></td>
             <td class="text-center">
-              <span
-                class="status-badge"
-                [class]="receipt.status === 'VOID' ? 'status-void' : 'status-posted'"
+              <vx-badge
+                [tone]="receipt.status === 'VOID' ? 'danger' : 'ok'"
+                [struck]="receipt.status === 'VOID'"
               >
                 {{ 'customer_receipts.status.' + receipt.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

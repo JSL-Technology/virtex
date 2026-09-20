@@ -64,51 +64,13 @@
 }
 
 // ── Estado ────────────────────────────────────────────────────────
-//  El tono es semántico: dice si el documento admite cambios, no adorna. Cada
-//  variante lleva también su borde, para que se distinga sin depender del color.
+//  Los colores ya NO están aquí: los pone `vx-badge`, que es el único sitio del
+//  producto donde vive el vocabulario de tonos. Esta regla solo ajusta cómo se
+//  sienta la insignia dentro del título del documento.
 .ds__status {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 var(--space-2);
-  height: 1.5rem;
-  border-radius: var(--radius-full);
-  border: 1px solid transparent;
-  font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--tracking-caps);
-  white-space: nowrap;
-}
-
-.ds__status--neutral {
-  background-color: var(--surface-sunken);
-  color: var(--content-secondary);
-  border-color: var(--border-default);
-}
-
-.ds__status--draft {
-  background-color: var(--surface-sunken);
-  color: var(--content-tertiary);
-  border-style: dashed;
-  border-color: var(--border-default);
-}
-
-.ds__status--ok {
-  background-color: var(--success-surface);
-  color: var(--success-text);
-  border-color: var(--success-text);
-}
-
-.ds__status--warning {
-  background-color: var(--warning-surface);
-  color: var(--warning-text);
-  border-color: var(--warning-text);
-}
-
-.ds__status--danger {
-  background-color: var(--error-surface);
-  color: var(--error-text);
-  border-color: var(--error-text);
 }
 
 // ── Acciones ──────────────────────────────────────────────────────

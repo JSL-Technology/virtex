@@ -3,26 +3,4 @@
 :host {
   @include list.list-page;
 
-  //  Los asientos anulados y rechazados se quedan en el diario —el libro es de
-  //  solo añadir—, así que necesitan un distintivo que se lea como «este no
-  //  cuenta» y no como un borrador neutro.
-  .status-badge {
-    &.status-posted {
-      background-color: var(--success-surface);
-      border-color: var(--success-text);
-      color: var(--success-text);
-    }
-
-    &.status-draft {
-      background-color: var(--surface-sunken);
-      border-color: var(--border-default);
-      color: var(--content-secondary);
-    }
-
-    &.status-void {
-      background-color: var(--error-surface);
-      border-color: var(--error-text);
-      color: var(--error-text);
-    }
-  }
 }

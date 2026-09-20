@@ -120,3 +120,18 @@ for (const name of ['ResizeObserver', 'IntersectionObserver'] as const) {
     });
   }
 }
+
+/**
+ * `Element.scrollTo` is not implemented by jsdom, and throws rather than no-op'ing.
+ *
+ * The CDK's virtual scroll viewport calls it to bring a row into view, which is how the shared
+ * select keeps the keyboard's active option rendered — and therefore reachable by
+ * `aria-activedescendant`. Without this, every spec that presses an arrow key fails on the
+ * scrolling rather than on anything the component does.
+ */
+if (!Element.prototype.scrollTo) {
+  Object.defineProperty(Element.prototype, 'scrollTo', {
+    writable: true,
+    value: () => undefined,
+  });
+}

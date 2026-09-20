@@ -56,7 +56,7 @@ export interface ConfirmCloseConfig {
   allowSave?: boolean;
 }
 
-type DialogKind = 'confirm' | 'close' | 'prompt';
+type DialogKind = 'confirm' | 'close' | 'prompt' | 'alert';
 
 /**
  * Exported because `DialogHostComponent.dialog` is a public property of its type, and a
@@ -106,6 +106,43 @@ export class DialogService {
 
   private t(key: string, params?: Record<string, unknown>): string {
     return this.translate.instant(key, params);
+  }
+
+  /**
+   * Tell the reader something that has already happened. One button, nothing to decide.
+   *
+   * ## Why this had to exist
+   *
+   * Because something was already using a dialog to say "your session was ended", and the thing
+   * it was using — `ModalService` — threw `TypeError` on every call: it subscribed to
+   * `onConfirm`/`onCancel`/`onCloseModal` while `ModalComponent` declared
+   * `confirmed`/`cancelled`/`closed`. So the notice a user gets when they are forcibly signed out
+   * was never shown; they were simply thrown to the sign-in page with no reason given.
+   *
+   * `confirm()` would have been the wrong home for it: a message with nothing to decide must not
+   * offer "Cancel", because a cancel button implies there is something to call off.
+   *
+   * The message here is PROSE, not a key. The one real caller relays a reason the server wrote
+   * and already localised; looking that up in the client's catalogue would print the key back.
+   */
+  alert(config: { title: string; message: string; acceptText?: string; variant?: DialogVariant }): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this._active.set({
+        kind: 'alert',
+        title: this.t(config.title),
+        message: config.message,
+        variant: config.variant ?? 'primary',
+        confirmText: this.t(config.acceptText ?? 'common.accept'),
+        cancelText: '',
+        saveText: '',
+        discardText: '',
+        allowSave: false,
+        placeholder: '',
+        minLength: 0,
+        tooShort: '',
+        resolve: () => resolve(),
+      });
+    });
   }
 
   /** Simple yes/no confirmation. Resolves true when confirmed. */

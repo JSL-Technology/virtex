@@ -1,0 +1,49 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+}
+
+.vx-spinner__wheel {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+
+  border: 2px solid var(--border-default);
+  border-top-color: var(--accent-solid);
+  border-radius: var(--radius-full);
+
+  //  `vx-spin` vive en `base/_elements.scss`. Angular no encapsula los
+  //  `@keyframes`, así que declarar aquí uno propio sería la decimoséptima
+  //  copia de «gira 360 grados».
+  animation: vx-spin var(--duration-deliberate) linear infinite;
+
+  @include ds.bp-reduced-motion {
+    //  Sin animación, el aro fijo no dice nada. Se sustituye por un pulso de
+    //  opacidad, que respeta la preferencia y sigue comunicando actividad.
+    animation: vx-spinner-pulse 1.2s ease-in-out infinite;
+    border-top-color: var(--border-default);
+    background-color: var(--accent-surface);
+  }
+}
+
+@keyframes vx-spinner-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+:host(.vx-spinner--sm) .vx-spinner__wheel { width: 0.75rem; height: 0.75rem; border-width: 2px; }
+:host(.vx-spinner--lg) .vx-spinner__wheel { width: 1.75rem; height: 1.75rem; border-width: 3px; }
+
+.vx-spinner__label {
+  @include ds.visually-hidden;
+}
+
+.vx-spinner__caption {
+  color: inherit;
+}

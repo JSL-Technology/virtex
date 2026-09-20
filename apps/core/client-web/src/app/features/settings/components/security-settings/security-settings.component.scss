@@ -238,62 +238,6 @@
 }
 
 // ── Modal Shell ──────────────────────────────────────────────────
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-6);
-}
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(var(--shadow-color-rgb), 0.5);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  animation: modal-fade 0.2s ease;
-}
-
-.modal-content {
-  position: relative;
-  background: var(--bg-card);
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: 16px;
-  box-shadow:
-    0 32px 64px rgba(var(--shadow-color-rgb), 0.24),
-    0 4px 16px rgba(var(--shadow-color-rgb), 0.1),
-    inset 0 1px 0 rgba(var(--elevation-tint-rgb), 0.06);
-  border: 1px solid var(--border-color);
-  animation: modal-in 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
-  z-index: 10;
-
-  &:hover { background: var(--bg-hover); color: var(--text-primary); }
-  &:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
-}
-
 // ── Step Indicator ───────────────────────────────────────────────
 .modal-steps {
   display: flex;

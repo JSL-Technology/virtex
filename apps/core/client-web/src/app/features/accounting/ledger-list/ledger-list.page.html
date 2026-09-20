@@ -28,7 +28,7 @@
             <td>{{ ledger.description }}</td>
             <td class="text-center">
               @if (ledger.isDefault) {
-                <span class="status-badge active">{{ 'common.accept' | translate }}</span>
+                <vx-badge tone="ok">{{ 'common.accept' | translate }}</vx-badge>
               }
             </td>
             <td class="actions-column">

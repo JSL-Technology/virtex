@@ -39,9 +39,9 @@
             }
           </select>
         </label>
-        <label class="field">
+        <label class="field" for="hireDate">
           <span>{{ 'hcm.employees.hire_date' | translate }}</span>
-          <input type="date" formControlName="hireDate" />
+          <vx-date-field inputId="hireDate" formControlName="hireDate" />
         </label>
       </div>
     </section>
@@ -141,9 +141,9 @@
             <option value="OCCASIONAL">{{ 'hcm.employees.form.contract_type.occasional' | translate }}</option>
           </select>
         </label>
-        <label class="field">
+        <label class="field" for="terminationDate">
           <span>{{ 'hcm.employees.form.leaving_date' | translate }}</span>
-          <input type="date" formControlName="terminationDate" />
+          <vx-date-field inputId="terminationDate" formControlName="terminationDate" />
         </label>
       </div>
     </section>
@@ -182,10 +182,9 @@
 
         @if (addingPay()) {
           <div class="action-box">
-            <label class="field">
+            <label class="field" for="agingAsOf">
               <span>{{ 'hcm.employees.form.effective_from' | translate }}</span>
-              <input type="date" [value]="payEffectiveFrom()"
-                (input)="payEffectiveFrom.set($any($event.target).value)" />
+              <vx-date-field inputId="agingAsOf" [value]="payEffectiveFrom()" (valueChange)="payEffectiveFrom.set(($event ?? ''))" />
             </label>
             <label class="field">
               <span>{{ 'hcm.employees.form.base_salary' | translate }}</span>
@@ -214,10 +213,9 @@
         <p class="section-note">{{ 'hcm.employees.form.severance_help' | translate }}</p>
 
         <div class="form-grid">
-          <label class="field">
+          <label class="field" for="balanceSheetAsOf">
             <span>{{ 'hcm.employees.form.last_day' | translate }}</span>
-            <input type="date" [value]="severanceDate()"
-              (input)="severanceDate.set($any($event.target).value)" />
+            <vx-date-field inputId="balanceSheetAsOf" [value]="severanceDate()" (valueChange)="severanceDate.set(($event ?? ''))" />
           </label>
           <div class="field">
             <span>&nbsp;</span>

@@ -226,23 +226,6 @@ export class VendorBillDetailPage implements OnInit {
     void this.router.navigate(['/accounts-payable']);
   }
 
-  statusClass(status: string): string {
-    switch (status) {
-      case 'PAID':
-        return 'status-badge--success';
-      case 'OPEN':
-      case 'PARTIALLY_PAID':
-        return 'status-badge--info';
-      case 'PENDING_APPROVAL':
-        return 'status-badge--warning';
-      case 'VOID':
-      case 'REJECTED':
-        return 'status-badge--danger';
-      default:
-        return 'status-badge--neutral';
-    }
-  }
-
   private handleError(key: string): void {
     this.errorKey.set(key);
     this.isLoading.set(false);

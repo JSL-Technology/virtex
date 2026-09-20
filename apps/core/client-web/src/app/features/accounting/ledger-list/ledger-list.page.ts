@@ -5,6 +5,7 @@ import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 
 /**
  * Los libros contables.
@@ -23,7 +24,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 @Component({
   selector: 'app-ledger-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './ledger-list.page.html',
   styleUrls: ['./ledger-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

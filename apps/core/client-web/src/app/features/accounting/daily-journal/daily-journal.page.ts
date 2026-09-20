@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxPagerComponent } from '../../../shared/components/pager';
 
 /**
  * The journal, entry by entry, with every line shown.
@@ -30,7 +31,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,15 +62,18 @@ export class DailyJournalPage {
     this.load();
   }
 
-  nextPage(): void {
-    if (!this.hasMore()) return;
-    this.page.update((current) => current + 1);
+  /** El tamaño de página, ahora elegible por el lector en vez de fijado por una constante. */
+  pageSize = PAGE_SIZE;
+
+  goToPage(page: number): void {
+    if (page < 1) return;
+    this.page.set(page);
     this.load();
   }
 
-  previousPage(): void {
-    if (this.page() <= 1) return;
-    this.page.update((current) => current - 1);
+  changePageSize(size: number): void {
+    this.pageSize = size;
+    this.page.set(1);
     this.load();
   }
 
@@ -94,7 +98,7 @@ export class DailyJournalPage {
       error: () => this.accountLabels.set(new Map()),
     });
 
-    this.entriesApi.list({ page: this.page(), pageSize: PAGE_SIZE }).subscribe({
+    this.entriesApi.list({ page: this.page(), pageSize: this.pageSize }).subscribe({
       next: (page) => {
         this.journalEntries.set(page.rows);
         this.total.set(page.total);

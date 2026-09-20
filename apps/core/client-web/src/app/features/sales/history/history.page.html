@@ -39,12 +39,12 @@
             <td><code>{{ sale.id.slice(0, 8) }}</code></td>
             <td>{{ sale.createdAt | vxDate: 'dateTime' }}</td>
             <td>{{ sale.customerName || ('sales.history.walk_in' | translate) }}</td>
-            <td class="text-right">{{ sale.total | vxNumber: '1.2-2' }}</td>
+            <td class="text-right"><vx-amount [value]="sale.total" /></td>
             <td>{{ sale.paymentMethod || '—' }}</td>
             <td>
-              <span class="status-badge" [class]="statusClass(sale.status)">
+              <vx-badge [tone]="statusTone(sale.status)" [struck]="isCancelled(sale.status)">
                 {{ 'pos.sale_status.' + sale.status | translate }}
-              </span>
+              </vx-badge>
             </td>
           </tr>
         }

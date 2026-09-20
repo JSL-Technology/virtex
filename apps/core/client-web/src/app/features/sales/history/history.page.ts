@@ -8,6 +8,8 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PosSale, PosService } from '../pos/pos.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VxAmountComponent } from '../../../shared/components/amount';
 
 /**
  * Till sales, as they were actually rung up.
@@ -25,7 +27,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent],
+  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,17 +63,23 @@ export class HistoryPage implements OnInit {
   }
 
   /** The till records a status of its own; unknown values still get a neutral chip. */
-  statusClass(status: string): string {
+  statusTone(status: string): VxTone {
     switch ((status ?? '').toUpperCase()) {
       case 'PAID':
-        return 'status-completed';
+        return 'ok';
       case 'PENDING':
-        return 'status-pending';
+        return 'warning';
       case 'VOID':
       case 'CANCELLED':
-        return 'status-cancelled';
+        return 'danger';
       default:
-        return '';
+        //  Un estado que este cliente no conoce se pinta como lo que es —desconocido— en vez de
+        //  quedarse sin insignia, que es como se veía antes: igual que si no tuviera estado.
+        return 'neutral';
     }
+  }
+
+  isCancelled(status: string): boolean {
+    return ['VOID', 'CANCELLED'].includes((status ?? '').toUpperCase());
   }
 }

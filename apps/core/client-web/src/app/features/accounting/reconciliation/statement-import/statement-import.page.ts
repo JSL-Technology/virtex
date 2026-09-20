@@ -9,6 +9,7 @@ import { BankAccount, TreasuryService } from '../../../../core/api/treasury.serv
 import { ReconciliationApiService } from '../../../../core/api/reconciliation.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
  * Importing a bank statement.
@@ -28,7 +29,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

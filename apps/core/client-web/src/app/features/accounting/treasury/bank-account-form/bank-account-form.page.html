@@ -81,9 +81,9 @@
         </label>
 
         @if (declaresOpeningBalance()) {
-          <label class="field">
+          <label class="field" for="openingDate">
             <span>{{ 'treasury.form.opening_date' | translate }}</span>
-            <input type="date" formControlName="openingDate" required />
+            <vx-date-field inputId="openingDate" formControlName="openingDate" required />
           </label>
 
           <label class="field">

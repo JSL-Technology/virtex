@@ -10,6 +10,8 @@ import {
   FinancialReportingService,
 } from '../../../../core/api/financial-reporting.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
  * The balance sheet.
@@ -31,7 +33,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -14,37 +14,6 @@
   //  Cuatro pestañas y no un formulario de cuarenta campos seguidos: general,
   //  mapeos, reglas y avanzado son cuatro preguntas distintas sobre la cuenta,
   //  y la mayoría de las cuentas solo necesita la primera.
-  .tabs {
-    display: flex;
-    gap: var(--space-1);
-    border-bottom: 1px solid var(--border-default);
-    margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) 0;
-    padding: 0 var(--space-5);
-    overflow-x: auto;
-  }
-
-  .tab-link {
-    padding: var(--space-3) var(--space-4);
-    border: 0;
-    border-bottom: 2px solid transparent;
-    background: none;
-    color: var(--content-secondary);
-    font: inherit;
-    white-space: nowrap;
-    cursor: pointer;
-    @include ds.transition(color, border-color);
-
-    &.active {
-      color: var(--accent-solid);
-      border-bottom-color: var(--accent-solid);
-      font-weight: var(--font-semibold);
-    }
-
-    &:hover:not(.active) { color: var(--content-primary); }
-
-    @include ds.focus-ring(-2px);
-  }
-
   .tab-content {
     padding-top: var(--space-5);
   }

@@ -8,10 +8,11 @@ import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,9 +67,9 @@ export class PriceListsPage implements OnInit {
     }
   }
 
-  getStatusClass(status: PriceList['status']): string {
-    if (status === 'Active') return 'status-active';
-    if (status === 'Inactive') return 'status-inactive';
-    return 'status-draft';
+  statusTone(status: PriceList['status']): VxTone {
+    if (status === 'Active') return 'ok';
+    if (status === 'Inactive') return 'neutral';
+    return 'draft';
   }
 }

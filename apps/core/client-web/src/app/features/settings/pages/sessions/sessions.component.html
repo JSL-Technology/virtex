@@ -14,7 +14,7 @@
   <!-- Loading -->
   @if (loading()) {
     <div class="sess-card sess-loading">
-      <div class="sess-spinner"></div>
+      <vx-spinner size="lg" />
       <span>{{ 'settings.sessions.loading_sessions' | translate }}</span>
     </div>
   }
@@ -46,7 +46,7 @@
               {{ session.browser || ('settings.sessions.unknown_browser' | translate) }}
               <span class="sess-item__os">en {{ session.os || ('settings.sessions.unknown_os' | translate) }}</span>
               @if (session.isCurrent) {
-                <span class="sess-badge-current">{{ 'settings.sessions.current_session' | translate }}</span>
+                <vx-badge tone="accent" size="sm">{{ 'settings.sessions.current_session' | translate }}</vx-badge>
               }
             </div>
             <div class="sess-item__meta">
@@ -70,7 +70,7 @@
                     [disabled]="processingId() === session.id"
                     [title]="'settings.sessions.revoke_session' | translate">
               @if (processingId() === session.id) {
-                <span class="sess-spinner sess-spinner--sm"></span>
+                <vx-spinner size="sm" />
               } @else {
                 <lucide-icon [img]="RevokeIcon" size="16"></lucide-icon>
               }

@@ -24,13 +24,20 @@
   ></app-invoice-toolbar>
 
   <!-- Document Tabs -->
-  <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'invoices.detail.content' | translate }}</button>
-    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">{{ 'invoices.detail.logistics' | translate }}</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'invoices.detail.finance' | translate }}</button>
-  </div>
+  <vx-tabs
+    #tabs
+    [tabs]="TABS"
+    [(active)]="activeTab"
+    [ariaLabel]="'invoices.detail.content' | translate"
+  />
 
-  <div class="invoice-document card" [class.hidden]="activeTab() !== 'content'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('content')"
+    [attr.aria-labelledby]="tabs.tabId('content')"
+    [class.hidden]="activeTab() !== 'content'"
+  >
     <div class="card-body">
       <!-- Invoice Header -->
       <div class="invoice-header">
@@ -90,11 +97,9 @@
           <tr>
             <td class="text-left">{{ item.description }}</td>
             <td class="text-center">{{ item.quantity }}</td>
-            <td class="text-right">{{ item.price | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">{{ item.taxAmount || 0 | vxNumber: '1.2-2' }}</td>
-            <td class="text-right">
-              {{ (item.quantity * item.price) + (item.taxAmount || 0) | vxNumber: '1.2-2' }}
-            </td>
+            <td class="text-right"><vx-amount [value]="item.price" /></td>
+            <td class="text-right"><vx-amount [value]="item.taxAmount || 0" /></td>
+            <td class="text-right"><vx-amount [value]="(item.quantity * item.price) + (item.taxAmount || 0)" /></td>
           </tr>
           }
         </tbody>
@@ -111,20 +116,20 @@
         <div class="summary-totals">
           <div class="summary-row">
             <span>{{ 'invoices.detail.subtotal' | translate }}</span>
-            <span>{{ inv.subtotal | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.subtotal" />
           </div>
           <div class="summary-row">
             <span>{{ 'invoices.detail.taxes' | translate }}</span>
-            <span>{{ inv.tax | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.tax" />
           </div>
           <div class="summary-total">
             <span>{{ 'invoices.detail.grand_total_label' | translate }}</span>
-            <span>{{ inv.currencyCode }} {{ inv.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount [value]="inv.total" [currency]="inv.currencyCode" />
           </div>
           @if (inv.balance > 0 && inv.balance < inv.total) {
           <div class="summary-row balance-row">
             <span>{{ 'invoices.detail.outstanding_balance' | translate }}</span>
-            <strong>{{ inv.currencyCode }} {{ inv.balance | vxNumber: '1.2-2' }}</strong>
+            <vx-amount [value]="inv.balance" [currency]="inv.currencyCode" />
           </div>
           }
         </div>
@@ -132,7 +137,13 @@
     </div>
   </div>
 
-  <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('logistics')"
+    [attr.aria-labelledby]="tabs.tabId('logistics')"
+    *ngIf="activeTab() === 'logistics'"
+  >
     <div class="card-body">
         <h3>{{ 'invoices.detail.logistics_delivery' | translate }}</h3>
         <div class="detail-grid">
@@ -152,7 +163,13 @@
     </div>
   </div>
 
-  <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('finance')"
+    [attr.aria-labelledby]="tabs.tabId('finance')"
+    *ngIf="activeTab() === 'finance'"
+  >
     <div class="card-body">
         <h3>{{ 'invoices.detail.financial_information' | translate }}</h3>
         <div class="detail-grid">
@@ -199,7 +216,7 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">{{ 'invoices.detail.dgii_status' | translate }}</span>
-          <span class="status-badge" [ngClass]="e.status.toLowerCase()">{{ ecfStatusLabel(e.status) }}</span>
+          <vx-badge [tone]="ecfStatusTone(e.status)">{{ ecfStatusLabel(e.status) }}</vx-badge>
         </div>
         <div class="detail-item" *ngIf="e.trackId">
           <span class="detail-label">{{ 'invoices.detail.trackid' | translate }}</span>

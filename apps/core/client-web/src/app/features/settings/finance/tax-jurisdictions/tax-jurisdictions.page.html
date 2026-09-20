@@ -67,13 +67,13 @@
           </select>
           <small class="field-hint">{{ 'settings.pages.tax_jurisdictions.most_states_charge_destination_address_minority' | translate }}</small>
         </label>
-        <label class="form-field">
+        <label class="form-field" for="effectiveFrom">
           <span>{{ 'settings.pages.tax_jurisdictions.effective_from' | translate }}</span>
-          <input type="date" formControlName="effectiveFrom" />
+          <vx-date-field inputId="effectiveFrom" formControlName="effectiveFrom" />
         </label>
-        <label class="form-field">
+        <label class="form-field" for="effectiveTo">
           <span>{{ 'settings.pages.tax_jurisdictions.effective_to' | translate }}</span>
-          <input type="date" formControlName="effectiveTo" />
+          <vx-date-field inputId="effectiveTo" formControlName="effectiveTo" />
           <small class="field-hint">{{ 'settings.pages.tax_jurisdictions.empty_while_current_superseded_rate_keeps' | translate }}</small>
         </label>
         <label class="form-field form-field--check">

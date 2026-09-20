@@ -11,10 +11,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +71,14 @@ export class PriceListFormPage implements OnInit {
       validTo: [today, Validators.required],
       status: [PriceListStatus.DRAFT, Validators.required],
       items: this.fb.array([], [Validators.required, Validators.minLength(1)]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('validFrom', 'validTo'),
+      },
+    );
 
     this.loadProducts();
   }

@@ -2,15 +2,20 @@
   <div class="subview-header">
     <h3>{{ 'reports.income_statement.income_statement' | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
-        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
-        <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
-      </label>
-      <label class="date-picker">
-        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
-        <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
-      </label>
+      <!--
+        Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
+        comprobaba el orden, así que un rango invertido devolvía un informe VACÍO y ningún
+        mensaje — que se lee como «no hay datos en este período».
+      -->
+      <vx-date-range
+        class="report-range"
+        [from]="startDate()"
+        [to]="endDate()"
+        fromLabelKey="reports.common.from"
+        toLabelKey="reports.common.to"
+        (fromChange)="onStartDateChange($event ?? '')"
+        (toChange)="onEndDateChange($event ?? '')"
+      />
       <!--
         A real export.
         The balance sheet carried the download icon on a button whose handler is `load()`, so the
@@ -53,13 +58,13 @@
             @for (line of section.accounts; track line.accountId) {
               <div class="report-line">
                 <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-                <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+                <vx-amount class="amount" [value]="line.amount" />
               </div>
             }
           }
           <div class="report-line subtotal-line">
             <span>{{ 'reports.income_statement.total_revenue' | translate }}</span>
-            <span class="amount">{{ data.revenue.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.revenue.total" />
           </div>
         </div>
 
@@ -68,12 +73,12 @@
           @for (line of data.costOfSales.accounts; track line.accountId) {
             <div class="report-line">
               <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-              <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="line.amount" />
             </div>
           }
           <div class="report-line subtotal-line">
             <span>{{ 'reports.income_statement.cost_sales' | translate }}</span>
-            <span class="amount">{{ data.costOfSales.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.costOfSales.total" />
           </div>
           <div class="report-line total-line">
             <span>
@@ -84,7 +89,7 @@
                 </span>
               }
             </span>
-            <span class="amount">{{ data.grossProfit | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.grossProfit" />
           </div>
         </div>
 
@@ -93,16 +98,16 @@
           @for (line of data.operatingExpenses.accounts; track line.accountId) {
             <div class="report-line">
               <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-              <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="line.amount" />
             </div>
           }
           <div class="report-line subtotal-line">
             <span>{{ 'reports.income_statement.operating_expenses' | translate }}</span>
-            <span class="amount">{{ data.operatingExpenses.total | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.operatingExpenses.total" />
           </div>
           <div class="report-line total-line">
             <span>{{ 'reports.income_statement.operating_income' | translate }}</span>
-            <span class="amount">{{ data.operatingIncome | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="data.operatingIncome" />
           </div>
         </div>
 
@@ -112,12 +117,12 @@
             @for (line of data.nonOperating.accounts; track line.accountId) {
               <div class="report-line">
                 <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
-                <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+                <vx-amount class="amount" [value]="line.amount" />
               </div>
             }
             <div class="report-line subtotal-line">
               <span>{{ 'reports.income_statement.other_income_expenses' | translate }}</span>
-              <span class="amount">{{ data.nonOperating.total | vxNumber: '1.2-2' }}</span>
+              <vx-amount class="amount" [value]="data.nonOperating.total" />
             </div>
           </div>
         }

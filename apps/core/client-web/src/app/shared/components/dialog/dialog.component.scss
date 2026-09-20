@@ -1,0 +1,90 @@
+// =============================================================================
+//  VX-DIALOG
+// =============================================================================
+//  El panel vive en el contenedor del overlay del CDK, fuera del árbol de este
+//  componente, así que sus estilos NO pueden ir encapsulados. Se declaran con
+//  `:host ::ng-deep` acotado a las clases propias, que es la forma soportada de
+//  vestir contenido proyectado a un portal.
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: none;
+}
+
+:host ::ng-deep .vx-dialog__panel {
+  @include ds.surface-overlay;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  width: 100%;
+  max-height: calc(100vh - var(--space-16));
+  box-shadow: var(--shadow-xl);
+
+  animation: vx-dialog-in var(--duration-normal) var(--ease-decelerate);
+
+  @include ds.bp-reduced-motion {
+    animation: none;
+  }
+}
+
+@keyframes vx-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+:host ::ng-deep .vx-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  padding: var(--space-5) var(--space-5) var(--space-3);
+}
+
+:host ::ng-deep .vx-dialog__title {
+  @include ds.heading('lg');
+
+  margin: 0;
+}
+
+:host ::ng-deep .vx-dialog__subtitle {
+  @include ds.field-hint;
+
+  margin: var(--space-1) 0 0;
+}
+
+:host ::ng-deep .vx-dialog__close {
+  @include ds.button-icon('sm');
+
+  flex: 0 0 auto;
+  color: var(--content-tertiary);
+
+  &:hover:not(:disabled) { color: var(--content-primary); }
+}
+
+:host ::ng-deep .vx-dialog__body {
+  @include ds.scrollbar;
+
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+:host ::ng-deep .vx-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--surface-sunken);
+
+  &.is-empty {
+    display: none;
+  }
+}

@@ -27,6 +27,9 @@ import { DocumentShellComponent, DocumentTone } from '../../../shared/components
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 
 @Component({
   selector: 'app-invoice-detail-page',
@@ -34,7 +37,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
-    ...VX_FORM_A11Y,],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -156,6 +159,13 @@ export class InvoiceDetailPage implements OnInit {
   ecfBusy = signal(false);
   navigationIds = signal<{ first: string, prev: string, next: string, last: string } | null>(null);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
+
+  /** Las secciones del documento, como datos: `vx-tabs` las dibuja. */
+  protected readonly TABS: VxTab[] = [
+    { id: 'content', labelKey: 'invoices.detail.content' },
+    { id: 'logistics', labelKey: 'invoices.detail.logistics' },
+    { id: 'finance', labelKey: 'invoices.detail.finance' },
+  ];
   lineItemSearch = signal('');
 
   filteredLineItems = computed(() => {
@@ -242,6 +252,32 @@ export class InvoiceDetailPage implements OnInit {
         },
         error: () => this.notificationService.showError('invoices.detail.no_signed_xml_available'),
     });
+  }
+
+  /**
+   * What the authority's verdict on an e-CF MEANS.
+   *
+   * The badge used to take `e.status.toLowerCase()` as its CSS class — `accepted`, `rejected`,
+   * `contingency` — none of which this page's stylesheet defined. So every e-CF state rendered
+   * in the same default grey, including REJECTED: the one state on this screen that needs
+   * somebody to do something showed the same as the one that needs nobody.
+   */
+  ecfStatusTone(status: string): VxTone {
+    switch (status) {
+      case 'ACCEPTED':
+        return 'ok';
+      case 'ACCEPTED_WITH_OBSERVATIONS':
+      case 'CONTINGENCY':
+        return 'warning';
+      case 'REJECTED':
+      case 'ERROR':
+        return 'danger';
+      case 'SIGNED':
+      case 'SENT':
+        return 'info';
+      default:
+        return 'draft';
+    }
   }
 
   ecfStatusLabel(status: string): string {

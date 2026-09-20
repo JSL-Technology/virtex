@@ -1,0 +1,22 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  @include ds.empty-state;
+
+  .empty-icon {
+    color: var(--error-solid);
+  }
+
+  .empty-title {
+    margin: 0;
+    color: var(--error-text);
+  }
+
+  .empty-description {
+    margin: 0;
+  }
+}
+
+.vx-error-state__retry {
+  @include ds.button-secondary('sm');
+}

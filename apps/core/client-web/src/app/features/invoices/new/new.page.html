@@ -49,36 +49,68 @@
     (back)="router.navigate(['/invoices'])"
   ></app-invoice-toolbar>
 
-  <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'invoices.new.content' | translate }}</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'invoices.new.tax_collection' | translate }}</button>
-  </div>
+  <!--
+    Eran dos `<button>` con una clase `.active`: sin `role="tablist"`, sin `aria-selected` y sin
+    flechas, así que para un lector de pantalla eran dos botones sueltos y para el teclado dos
+    paradas de tabulación antes del primer campo del formulario.
+  -->
+  <vx-tabs
+    #tabs
+    [tabs]="TABS"
+    [(active)]="activeTab"
+    [ariaLabel]="'invoices.new.create_sales_invoice' | translate"
+  />
 
   <div [formGroup]="invoiceForm">
     <!-- ── Contenido ─────────────────────────────────────────────────────── -->
-    <div class="grid-layout" [class.hidden]="activeTab() !== 'content'">
+    <!--
+      Los paneles siguen SIEMPRE montados y solo se ocultan: son secciones de un mismo formulario
+      reactivo, y desmontar una pestaña sacaría sus controles del formulario, descartando en
+      silencio lo que se hubiera escrito en ellos.
+    -->
+    <div
+      class="grid-layout"
+      role="tabpanel"
+      [id]="tabs.panelId('content')"
+      [attr.aria-labelledby]="tabs.tabId('content')"
+      [class.hidden]="activeTab() !== 'content'"
+    >
       <div class="main-content">
         <div class="card invoice-card">
           <div class="card-body">
             <div class="invoice-header-section">
+              <!--
+                Era un `<select>` nativo con la cartera entera del inquilino dentro: cada cliente,
+                un `<option>` en el DOM, sin forma de buscar y sin forma de dar de alta al que
+                falta sin abandonar la factura a medio escribir. Ahora busca en el servidor y crea
+                sin salir de aquí. Ver `shared/components/select`.
+              -->
               <div class="form-group customer-select">
                 <label class="form-label" for="customerId">{{ 'invoices.new.customer' | translate }} *</label>
-                <select id="customerId" formControlName="customerId" class="form-control">
-                  <option value="" disabled>{{ 'invoices.new.select_customer' | translate }}</option>
-                  @for (client of customers(); track client.id) {
-                    <option [value]="client.id">{{ client.companyName }}</option>
-                  }
-                </select>
+                <vx-select
+                  inputId="customerId"
+                  formControlName="customerId"
+                  [search]="searchCustomers"
+                  [resolveWith]="resolveCustomer"
+                  [displayWith]="customerName"
+                  [valueWith]="customerId"
+                  [describeWith]="customerTaxId"
+                  [createWith]="createCustomer"
+                  [required]="true"
+                  placeholderKey="invoices.new.customer_placeholder"
+                  emptyLabelKey="invoices.new.customer_empty"
+                  createLabelKey="invoices.new.customer_create"
+                ></vx-select>
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="issueDate">{{ 'invoices.new.issue_date' | translate }}</label>
-                <input id="issueDate" type="date" formControlName="issueDate" class="form-control" />
+                <vx-date-field inputId="issueDate" formControlName="issueDate" />
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="dueDate">{{ 'invoices.new.due_date' | translate }}</label>
-                <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
+                <vx-date-field inputId="dueDate" formControlName="dueDate" />
               </div>
 
               <div class="form-group">
@@ -186,28 +218,33 @@
             }
             <dl class="summary-totals" [class.summary-totals--stale]="totalsPending()">
               <dt>{{ 'invoices.new.subtotal' | translate }}</dt>
-              <dd>{{ totals().subtotal | vxNumber: '1.2-2' }}</dd>
+              <dd><vx-amount [value]="totals().subtotal" /></dd>
               @if (totals().discountTotal > 0) {
                 <dt>{{ 'invoices.new.discount' | translate }}</dt>
-                <dd>−{{ totals().discountTotal | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="-totals().discountTotal" /></dd>
               }
               <dt>{{ 'invoices.new.tax_column' | translate }}</dt>
-              <dd>{{ totals().tax | vxNumber: '1.2-2' }}</dd>
+              <dd><vx-amount [value]="totals().tax" /></dd>
               @if (totals().excise > 0) {
                 <dt>{{ 'invoices.new.excise_duty' | translate }}</dt>
-                <dd>{{ totals().excise | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().excise" /></dd>
               }
               @if (totals().serviceCharge > 0) {
                 <dt>{{ 'invoices.new.service_charge' | translate }}</dt>
-                <dd>{{ totals().serviceCharge | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().serviceCharge" /></dd>
               }
               <dt class="grand">{{ 'invoices.new.total' | translate }}</dt>
-              <dd class="grand">{{ totals().total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
+              <dd class="grand">
+                <vx-amount
+                  [value]="totals().total"
+                  [currency]="invoiceForm.get('currencyCode')?.value"
+                />
+              </dd>
               @if (totals().taxWithheld + totals().incomeTaxWithheld > 0) {
                 <dt>{{ 'invoices.new.withholdings' | translate }}</dt>
-                <dd>−{{ totals().taxWithheld + totals().incomeTaxWithheld | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="-(totals().taxWithheld + totals().incomeTaxWithheld)" /></dd>
                 <dt>{{ 'invoices.new.net_receivable' | translate }}</dt>
-                <dd>{{ totals().netReceivable | vxNumber: '1.2-2' }}</dd>
+                <dd><vx-amount [value]="totals().netReceivable" /></dd>
               }
             </dl>
           </div>
@@ -216,7 +253,13 @@
     </div>
 
     <!-- ── Fiscal y cobro ────────────────────────────────────────────────── -->
-    <div class="grid-layout" [class.hidden]="activeTab() !== 'finance'">
+    <div
+      class="grid-layout"
+      role="tabpanel"
+      [id]="tabs.panelId('finance')"
+      [attr.aria-labelledby]="tabs.tabId('finance')"
+      [class.hidden]="activeTab() !== 'finance'"
+    >
       <div class="main-content">
         <div class="card">
           <div class="card-body">
@@ -310,3 +353,14 @@
   </div>
   </div>
 </vx-draft-shell>
+
+<!--
+  El alta inline. Se monta fuera del armazón del borrador a propósito: es un diálogo sobre la
+  página, no una sección de ella, y colgarlo del formulario lo metería dentro de su envío.
+-->
+@if (creatingCustomer()) {
+  <app-customer-quick-create
+    [initialName]="newCustomerName()"
+    (resolved)="onCustomerCreationResolved($event)"
+  ></app-customer-quick-create>
+}

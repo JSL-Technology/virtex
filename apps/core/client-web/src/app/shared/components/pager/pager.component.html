@@ -1,0 +1,64 @@
+<nav class="vx-pager__nav" [attr.aria-label]="'common.pagination' | translate">
+  <p class="vx-pager__range">
+    @if (total(); as total) {
+      {{ 'common.pager_range' | translate: { first: range().first, last: range().last, total: total } }}
+    } @else {
+      {{ 'common.pager_page' | translate: { page: page() } }}
+    }
+  </p>
+
+  <div class="vx-pager__controls">
+    <button
+      type="button"
+      class="vx-pager__button"
+      [disabled]="!canGoBack()"
+      [attr.aria-label]="'common.previous_page' | translate"
+      (click)="go(page() - 1)"
+    >
+      <lucide-icon [img]="PreviousIcon" aria-hidden="true"></lucide-icon>
+    </button>
+
+    <!--
+      Los números solo existen cuando el servidor dice cuántas filas hay. Inventar un total a
+      partir de «hay más» produce una barra que miente sobre el tamaño de la lista.
+    -->
+    @for (slot of slots(); track $index) {
+      @if (isGap(slot)) {
+        <span class="vx-pager__gap" aria-hidden="true">{{ gap }}</span>
+      } @else {
+        <button
+          type="button"
+          class="vx-pager__page"
+          [class.is-current]="slot === page()"
+          [attr.aria-current]="slot === page() ? 'page' : null"
+          [attr.aria-label]="'common.go_to_page' | translate: { page: slot }"
+          [disabled]="disabled()"
+          (click)="go(slot)"
+        >
+          {{ slot }}
+        </button>
+      }
+    }
+
+    <button
+      type="button"
+      class="vx-pager__button"
+      [disabled]="!canGoForward()"
+      [attr.aria-label]="'common.next_page' | translate"
+      (click)="go(page() + 1)"
+    >
+      <lucide-icon [img]="NextIcon" aria-hidden="true"></lucide-icon>
+    </button>
+  </div>
+
+  @if (pageSizes().length > 0) {
+    <div class="vx-pager__size">
+      <label for="vx-pager-size">{{ 'common.rows_per_page' | translate }}</label>
+      <select id="vx-pager-size" [value]="pageSize()" [disabled]="disabled()" (change)="changeSize($event)">
+        @for (size of pageSizes(); track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+  }
+</nav>

@@ -19,6 +19,9 @@ import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -43,8 +46,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     ...FORMAT_PIPES,
     DraftShellComponent,
     RouterLink,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,6 +75,31 @@ export class PurchaseOrderFormPage implements OnInit {
 
   readonly isNew = computed(() => !this.current());
   readonly status = computed<PurchaseOrderStatus | null>(() => this.current()?.status ?? null);
+
+  /**
+   * El tono del estado en la cabecera del documento.
+   *
+   * La insignia de esta pantalla no tenía ninguno: era `.status-badge` a secas, gris, con el
+   * mismo aspecto para un pedido recibido que para uno cancelado. En la LISTA sí se distinguían,
+   * porque la lista tenía su propia tabla — el mismo concepto mantenido dos veces y solo una de
+   * ellas terminada.
+   */
+  readonly statusTone = computed<VxTone>(() => {
+    switch (this.status()) {
+      case 'RECEIVED':
+        return 'ok';
+      case 'APPROVED':
+      case 'SENT':
+        return 'info';
+      case 'PENDING_APPROVAL':
+      case 'PARTIALLY_RECEIVED':
+        return 'warning';
+      case 'CANCELLED':
+        return 'danger';
+      default:
+        return 'draft';
+    }
+  });
 
   /** Once the supplier has seen it, the terms are not ours alone to change. */
   readonly editable = computed(
@@ -106,7 +133,14 @@ export class PurchaseOrderFormPage implements OnInit {
       expectedDate: [''],
       notes: [''],
       lines: this.fb.array([]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('orderDate', 'expectedDate'),
+      },
+    );
 
     this.suppliersApi.getSuppliers().subscribe({
       next: (data) => this.suppliers.set(data),

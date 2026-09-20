@@ -13,14 +13,19 @@
   </button>
 
   <div listFilters class="ledger-filters">
-    <div class="filter-group">
-      <label for="startDate">{{ 'accounting.general_ledger.from' | translate }}</label>
-      <input type="date" id="startDate" [(ngModel)]="startDate" [disabled]="loading()" />
-    </div>
-    <div class="filter-group">
-      <label for="endDate">{{ 'accounting.general_ledger.to' | translate }}</label>
-      <input type="date" id="endDate" [(ngModel)]="endDate" [disabled]="loading()" />
-    </div>
+    <!--
+      Los dos extremos, que no se acotaban entre sí ni comprobaban el orden: un mayor pedido del
+      30 de junio al 1 de enero salía vacío y sin decir por qué.
+    -->
+    <vx-date-range
+      class="filter-group filter-group--range"
+      [from]="startDate"
+      [to]="endDate"
+      fromLabelKey="accounting.general_ledger.from"
+      toLabelKey="accounting.general_ledger.to"
+      (fromChange)="startDate = $event ?? ''"
+      (toChange)="endDate = $event ?? ''"
+    />
     <button class="secondary-button" type="button" (click)="loadLedgerData()" [disabled]="loading()">
       {{ 'accounting.general_ledger.run' | translate }}
     </button>
@@ -51,19 +56,19 @@
   <div class="ledger-summary">
     <div class="summary-card">
       <span>{{ 'accounting.general_ledger.opening_balance' | translate }}</span>
-      <strong>{{ initialBalance() | vxNumber: '1.2-2' }}</strong>
+      <vx-amount [value]="initialBalance()" />
     </div>
     <div class="summary-card">
       <span>{{ 'accounting.general_ledger.total_debits' | translate }}</span>
-      <strong class="amount-debit">{{ totalDebits() | vxNumber: '1.2-2' }}</strong>
+      <vx-amount class="amount-debit" [value]="totalDebits()" />
     </div>
     <div class="summary-card">
       <span>{{ 'accounting.general_ledger.total_credits' | translate }}</span>
-      <strong class="amount-credit">{{ totalCredits() | vxNumber: '1.2-2' }}</strong>
+      <vx-amount class="amount-credit" [value]="totalCredits()" />
     </div>
     <div class="summary-card">
       <span>{{ 'accounting.general_ledger.ending_balance' | translate }}</span>
-      <strong>{{ finalBalance() | vxNumber: '1.2-2' }}</strong>
+      <vx-amount [value]="finalBalance()" />
     </div>
   </div>
 
@@ -85,9 +90,9 @@
             <td>{{ line.date | vxDate: 'date' }}</td>
             <td>{{ line.reference }}</td>
             <td>{{ line.description }}</td>
-            <td class="text-right amount-cell">{{ line.debit | vxNumber: '1.2-2' }}</td>
-            <td class="text-right amount-cell">{{ line.credit | vxNumber: '1.2-2' }}</td>
-            <td class="text-right balance-cell">{{ line.balance | vxNumber: '1.2-2' }}</td>
+            <td class="text-right amount-cell"><vx-amount [value]="line.debit" /></td>
+            <td class="text-right amount-cell"><vx-amount [value]="line.credit" /></td>
+            <td class="text-right balance-cell"><vx-amount [value]="line.balance" /></td>
           </tr>
         }
       </tbody>

@@ -2,15 +2,20 @@
   <div class="subview-header">
     <h3>{{ 'reports.trial_balance.trial_balance' | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
-        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
-        <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
-      </label>
-      <label class="date-picker">
-        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
-        <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
-      </label>
+      <!--
+        Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
+        comprobaba el orden, así que un rango invertido devolvía un informe VACÍO y ningún
+        mensaje — que se lee como «no hay datos en este período».
+      -->
+      <vx-date-range
+        class="report-range"
+        [from]="startDate()"
+        [to]="endDate()"
+        fromLabelKey="reports.common.from"
+        toLabelKey="reports.common.to"
+        (fromChange)="onStartDateChange($event ?? '')"
+        (toChange)="onEndDateChange($event ?? '')"
+      />
       <!--
         A real export.
         The balance sheet carried the download icon on a button whose handler is `load()`, so the
@@ -37,6 +42,16 @@
       </button>
     </p>
   } @else if (report(); as data) {
+    <!--
+      En qué libro y en qué moneda están las cifras.
+      Los otros tres estados financieros lo dicen en su encabezado; este no lo decía en ninguna
+      parte, así que sus seis columnas de importes eran números sin unidad. En un informe con
+      cientos de cifras la moneda se declara UNA vez y no en cada celda —repetirla taparía
+      justamente lo que hay que leer—, pero declararla cero veces no es lo mismo que declararla
+      una.
+    -->
+    <p class="report-scope">{{ data.ledger.name }} ({{ data.ledger.currency }})</p>
+
     <!--
       Whether the six columns agree in pairs. It is the entire purpose of the report, so it is
       stated at the top rather than left for the reader to add up.
@@ -80,24 +95,24 @@
                 <td class="account-column">
                   <span class="account-code">{{ row.code }}</span> {{ row.name | vxName }}
                 </td>
-                <td class="numeric">{{ row.openingDebit | vxNumber: '1.2-2' }}</td>
-                <td class="numeric">{{ row.openingCredit | vxNumber: '1.2-2' }}</td>
-                <td class="numeric">{{ row.periodDebit | vxNumber: '1.2-2' }}</td>
-                <td class="numeric">{{ row.periodCredit | vxNumber: '1.2-2' }}</td>
-                <td class="numeric">{{ row.closingDebit | vxNumber: '1.2-2' }}</td>
-                <td class="numeric">{{ row.closingCredit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="row.openingDebit" /></td>
+                <td class="numeric"><vx-amount [value]="row.openingCredit" /></td>
+                <td class="numeric"><vx-amount [value]="row.periodDebit" /></td>
+                <td class="numeric"><vx-amount [value]="row.periodCredit" /></td>
+                <td class="numeric"><vx-amount [value]="row.closingDebit" /></td>
+                <td class="numeric"><vx-amount [value]="row.closingCredit" /></td>
               </tr>
             }
           </tbody>
           <tfoot>
             <tr>
               <td class="account-column">{{ 'reports.common.total' | translate }}</td>
-              <td class="numeric">{{ data.totals.openingDebit | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ data.totals.openingCredit | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ data.totals.periodDebit | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ data.totals.periodCredit | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ data.totals.closingDebit | vxNumber: '1.2-2' }}</td>
-              <td class="numeric">{{ data.totals.closingCredit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric"><vx-amount [value]="data.totals.openingDebit" /></td>
+              <td class="numeric"><vx-amount [value]="data.totals.openingCredit" /></td>
+              <td class="numeric"><vx-amount [value]="data.totals.periodDebit" /></td>
+              <td class="numeric"><vx-amount [value]="data.totals.periodCredit" /></td>
+              <td class="numeric"><vx-amount [value]="data.totals.closingDebit" /></td>
+              <td class="numeric"><vx-amount [value]="data.totals.closingCredit" /></td>
             </tr>
           </tfoot>
         </table>

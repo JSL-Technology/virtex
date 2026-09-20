@@ -2,14 +2,9 @@
   <div class="subview-header">
     <h3>{{ titleKey | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
+      <label class="date-picker" for="agingAsOf">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <input
-          type="date"
-          [value]="asOfDate()"
-          (change)="onDateChange($any($event.target).value)"
-          [attr.aria-label]="'reports.common.to' | translate"
-        />
+        <vx-date-field inputId="agingAsOf" [value]="asOfDate()" (valueChange)="onDateChange(($event ?? ''))" [attr.aria-label]="'reports.common.to' | translate" />
       </label>
       <button class="primary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
@@ -39,16 +34,16 @@
       <dl>
         <div>
           <dt>{{ 'reports.aging.subledger_total' | translate }}</dt>
-          <dd>{{ data.totals.total | vxNumber: '1.2-2' }} {{ data.currencyCode }}</dd>
+          <dd><vx-amount [value]="data.totals.total" [currency]="data.currencyCode" /></dd>
         </div>
         <div>
           <dt>{{ 'reports.aging.general_ledger_balance' | translate }}</dt>
-          <dd>{{ data.controlAccountBalance | vxNumber: '1.2-2' }} {{ data.currencyCode }}</dd>
+          <dd><vx-amount [value]="data.controlAccountBalance" [currency]="data.currencyCode" /></dd>
         </div>
         <div>
           <dt>{{ 'reports.aging.difference' | translate }}</dt>
           <dd class="difference">
-            {{ data.controlAccountDifference | vxNumber: '1.2-2' }} {{ data.currencyCode }}
+            <vx-amount [value]="data.controlAccountDifference" [currency]="data.currencyCode" />
           </dd>
         </div>
       </dl>
@@ -84,26 +79,24 @@
             @for (row of data.rows; track row.partyId) {
               <tr>
                 <td class="party-column">{{ row.partyName }}</td>
-                <td class="numeric">{{ row.current | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="row.current" /></td>
                 @for (bucket of bucketKeys(); track bucket.label) {
                   <td class="numeric" [class.overdue]="bucketAmount(row.buckets, bucket.label) > 0">
-                    {{ bucketAmount(row.buckets, bucket.label) | vxNumber: '1.2-2' }}
+                    <vx-amount [value]="bucketAmount(row.buckets, bucket.label)" />
                   </td>
                 }
-                <td class="numeric total">{{ row.total | vxNumber: '1.2-2' }}</td>
+                <td class="numeric total"><vx-amount [value]="row.total" /></td>
               </tr>
             }
           </tbody>
           <tfoot>
             <tr>
               <td class="party-column">{{ 'reports.aging.total' | translate }}</td>
-              <td class="numeric">{{ data.totals.current | vxNumber: '1.2-2' }}</td>
+              <td class="numeric"><vx-amount [value]="data.totals.current" /></td>
               @for (bucket of bucketKeys(); track bucket.label) {
-                <td class="numeric">
-                  {{ bucketAmount(data.totals.buckets, bucket.label) | vxNumber: '1.2-2' }}
-                </td>
+                <td class="numeric"><vx-amount [value]="bucketAmount(data.totals.buckets, bucket.label)" /></td>
               }
-              <td class="numeric total">{{ data.totals.total | vxNumber: '1.2-2' }}</td>
+              <td class="numeric total"><vx-amount [value]="data.totals.total" /></td>
             </tr>
           </tfoot>
         </table>

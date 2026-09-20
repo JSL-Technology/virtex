@@ -48,7 +48,7 @@
 
       <div class="card-body">
         <div class="loading-overlay" *ngIf="loading()">
-          <div class="spinner"></div>
+          <vx-spinner size="lg" />
         </div>
 
         <div class="table-container">
@@ -93,9 +93,9 @@
                 <td>{{ user.email }}</td>
                 <td>{{ getRoleNames(user) }}</td>
                 <td>
-                  <span class="badge" [ngClass]="getStatusClass(user.status)">
+                  <vx-badge [tone]="statusTone(user.status)">
                     {{ "user.status." + user.status | translate }}
-                  </span>
+                  </vx-badge>
                 </td>
                 <td>
                   <div class="actions-container">
@@ -113,33 +113,19 @@
         </div>
       </div>
 
-      <div class="card-footer">
-        <!--
-          Una frase, una clave. Estaba partida en «Showing» + `de` + «users»: el `de` era un literal
-          castellano entre dos fragmentos traducidos, así que la versión inglesa decía «Showing 1 de
-          1 users». Un fragmento por palabra solo se lee bien en el idioma en que se escribió.
-        -->
-        <div class="pagination-info">
-          {{
-            'settings.user_management.showing_shown_total_users'
-              | translate: { shown: users().length, total: totalUsers() }
-          }}
-        </div>
-        <div class="pagination-controls">
-          <button class="pagination-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
-            <lucide-icon [name]="ChevronLeftIcon" size="18"></lucide-icon>
-          </button>
-          <ng-container *ngFor="let page of getPageNumbers()">
-             <button *ngIf="page !== -1" class="pagination-btn" [class.active]="page === currentPage()" (click)="changePage(page)">
-              {{ page }}
-            </button>
-             <span *ngIf="page === -1" class="pagination-ellipsis">...</span>
-          </ng-container>
-          <button class="pagination-btn" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
-            <lucide-icon [name]="ChevronRightIcon" size="18"></lucide-icon>
-          </button>
-        </div>
-      </div>
+      <!--
+        Era la ÚNICA de las cinco paginaciones del producto con números de página, y tenía su
+        propio `getPageNumbers()` con elipsis a mano. Ahora es la misma que las demás.
+      -->
+      <vx-pager
+        class="card-footer"
+        [page]="currentPage()"
+        [pageSize]="pageSize()"
+        [total]="totalUsers()"
+        [disabled]="loading()"
+        (pageChange)="changePage($event)"
+        (pageSizeChange)="changePageSize($event)"
+      />
     </div>
   </div>
 </div>

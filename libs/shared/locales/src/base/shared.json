@@ -59,11 +59,6 @@
     "en": "Type here...",
     "pt": "Digite aqui..."
   },
-  "shared.modal.close": {
-    "es": "Close",
-    "en": "Close",
-    "pt": "Fechar"
-  },
   "shared.no_active_document_sequence_found_type": {
     "es": "No se encontró una secuencia de documento activa para el tipo {{type}}. Configura las secuencias.",
     "en": "No active document sequence was found for type {{type}}. Configure the sequences.",
@@ -153,6 +148,61 @@
     "es": "Verificar",
     "en": "Verify",
     "pt": "Verificar"
+  },
+  "shared.select.clear": {
+    "es": "Quitar la selección",
+    "en": "Clear the selection",
+    "pt": "Remover a seleção"
+  },
+  "shared.select.create": {
+    "es": "Crear «{{query}}»",
+    "en": "Create “{{query}}”",
+    "pt": "Criar “{{query}}”"
+  },
+  "shared.select.empty": {
+    "es": "No hay resultados para «{{query}}».",
+    "en": "No results for “{{query}}”.",
+    "pt": "Nenhum resultado para “{{query}}”."
+  },
+  "shared.select.error": {
+    "es": "No se pudo completar la búsqueda.",
+    "en": "The search could not be completed.",
+    "pt": "Não foi possível concluir a pesquisa."
+  },
+  "shared.select.loading": {
+    "es": "Buscando…",
+    "en": "Searching…",
+    "pt": "Pesquisando…"
+  },
+  "shared.select.placeholder": {
+    "es": "Buscar o seleccionar…",
+    "en": "Search or select…",
+    "pt": "Pesquisar ou selecionar…"
+  },
+  "shared.select.retry": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar novamente"
+  },
+  "shared.select.status_empty": {
+    "es": "Sin resultados.",
+    "en": "No results.",
+    "pt": "Sem resultados."
+  },
+  "shared.select.status_error": {
+    "es": "La búsqueda falló. Puedes reintentarla.",
+    "en": "The search failed. You can try again.",
+    "pt": "A pesquisa falhou. Você pode tentar novamente."
+  },
+  "shared.select.status_loading": {
+    "es": "Buscando…",
+    "en": "Searching…",
+    "pt": "Pesquisando…"
+  },
+  "shared.select.status_results": {
+    "es": "{{count}} resultados disponibles.",
+    "en": "{{count}} results available.",
+    "pt": "{{count}} resultados disponíveis."
   },
   "shared.toast.close": {
     "es": "Close",

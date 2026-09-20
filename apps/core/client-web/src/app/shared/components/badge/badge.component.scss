@@ -1,0 +1,69 @@
+// =============================================================================
+//  VX-BADGE
+// =============================================================================
+//  Un tono por significado, y ninguno por decoración. Todos salen de los tokens
+//  de estado del tema, así que la misma insignia se lee igual en claro y en
+//  oscuro sin que este archivo sepa de qué color es ninguno de los dos.
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  @include ds.badge('neutral');
+
+  //  La altura la fija el contenido, no una constante: una insignia dentro de
+  //  una celda densa y otra dentro de una cabecera de documento tienen que
+  //  seguir la misma escala que todo lo demás.
+  max-width: 100%;
+}
+
+:host(.vx-badge--sm) {
+  font-size: var(--text-2xs);
+  padding-inline: var(--space-1);
+}
+
+// ── Tonos ────────────────────────────────────────────────────────────────────
+//  `neutral` es el del mixin y no se repite.
+:host(.vx-badge--draft) {
+  //  Discontinuo a propósito: un borrador se distingue de «sin estado» por la
+  //  FORMA del borde, no solo por el color, que es lo único que distinguiría a
+  //  los dos para quien no percibe el matiz.
+  background-color: var(--surface-sunken);
+  border-color: var(--border-default);
+  border-style: dashed;
+  color: var(--content-tertiary);
+}
+
+:host(.vx-badge--ok) {
+  background-color: var(--success-surface);
+  border-color: var(--success-text);
+  color: var(--success-text);
+}
+
+:host(.vx-badge--warning) {
+  background-color: var(--warning-surface);
+  border-color: var(--warning-text);
+  color: var(--warning-text);
+}
+
+:host(.vx-badge--danger) {
+  background-color: var(--error-surface);
+  border-color: var(--error-text);
+  color: var(--error-text);
+}
+
+:host(.vx-badge--info) {
+  background-color: var(--info-surface);
+  border-color: var(--info-text);
+  color: var(--info-text);
+}
+
+:host(.vx-badge--accent) {
+  background-color: var(--accent-surface);
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+
+// ── Anulado ──────────────────────────────────────────────────────────────────
+:host(.vx-badge--struck) {
+  text-decoration: line-through;
+}

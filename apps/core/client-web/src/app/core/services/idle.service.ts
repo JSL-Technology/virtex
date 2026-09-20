@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { fromEvent, merge, Subscription, timer } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { AuthService } from './auth';
-import { ModalService } from '../../shared/service/modal.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +11,6 @@ export class IdleService {
   private readonly IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
   private idleSubscription?: Subscription;
   private authService = inject(AuthService);
-  private modalService = inject(ModalService);
   private ngZone = inject(NgZone);
 
   constructor() {

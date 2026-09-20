@@ -76,7 +76,7 @@
             <td class="text-center">{{ currency.symbol }}</td>
             <td class="text-center">
               @if (currency.code === baseCurrency()) {
-                <span class="status-badge active">{{ 'masters.currencies.yes' | translate }}</span>
+                <vx-badge tone="ok">{{ 'masters.currencies.yes' | translate }}</vx-badge>
               }
             </td>
           </tr>

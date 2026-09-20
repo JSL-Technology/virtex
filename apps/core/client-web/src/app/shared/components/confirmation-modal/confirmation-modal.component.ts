@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { VxDialogComponent } from '../dialog';
 
 /**
  * A confirm/cancel dialog whose every visible string is a translation key.
@@ -22,39 +23,42 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-confirmation-modal',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, VxDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./confirmation-modal.component.scss'],
   template: `
     @if (isOpen) {
-      <!-- Backdrop dismiss is a mouse convenience; the keyboard equivalent is Escape, handled on
-           the document, so a keyboard reader is never left without a way out. See onEscapeKey().
-           Both rules are waived here rather than answered literally: a key handler on this <div>
-           could never fire (it takes no focus), and making it focusable would put a full-screen
-           tab stop in front of the dialog — worse for exactly the users the rules protect. -->
-      <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
-      <div class="cm-overlay" (click)="$event.target === $event.currentTarget && onCancel()">
-        <div class="cm-box" role="alertdialog" aria-modal="true"
-             [attr.aria-label]="title | translate"
-             [attr.aria-describedby]="'confirmation-modal-message'">
-          <div class="cm-body">
-            <h3 class="cm-title">{{ title | translate }}</h3>
-            <p class="cm-message" id="confirmation-modal-message">{{ message | translate }}</p>
+      <!--
+        «vx-dialog» pone el velo, el Escape y la trampa de foco. Lo que había era ese armazón
+        reimplementado, con dos reglas de accesibilidad silenciadas a mano para poder hacerlo —y
+        sin trampa, que es lo que esas reglas intentaban proteger.
 
-            <div class="cm-actions">
-              <button type="button" class="cm-button cm-button--cancel" (click)="onCancel()">
-                {{ cancelText | translate }}
-              </button>
-              <button type="button" class="cm-button"
-                      [class.cm-button--danger]="variant === 'danger'"
-                      [class.cm-button--confirm]="variant !== 'danger'"
-                      (click)="onConfirm()">
-                {{ confirmText | translate }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        Sigue siendo «alertdialog» y no «dialog»: interrumpe para pedir una decisión, y el foco
+        entra en el botón que NO destruye nada.
+      -->
+      <vx-dialog
+        size="sm"
+        [title]="title | translate"
+        [hideCloseButton]="true"
+        (dismissed)="onCancel()"
+      >
+        <p class="cm-message" id="confirmation-modal-message">{{ message | translate }}</p>
+
+        <ng-container dialogActions>
+          <button type="button" cdkFocusInitial class="cm-button cm-button--cancel" (click)="onCancel()">
+            {{ cancelText | translate }}
+          </button>
+          <button
+            type="button"
+            class="cm-button"
+            [class.cm-button--danger]="variant === 'danger'"
+            [class.cm-button--confirm]="variant !== 'danger'"
+            (click)="onConfirm()"
+          >
+            {{ confirmText | translate }}
+          </button>
+        </ng-container>
+      </vx-dialog>
     }
   `,
 })
@@ -89,8 +93,4 @@ export class ConfirmationModalComponent {
    * have added a phantom tab stop in front of the dialog — a worse experience for exactly the
    * users the rule exists to protect.
    */
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    if (this.isOpen) this.onCancel();
-  }
 }

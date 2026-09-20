@@ -7,6 +7,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
@@ -32,10 +33,28 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto, user.organizationId);
   }
 
+  /**
+   * The tenant's customers, narrowed by `search` and capped by `limit`.
+   *
+   * Both parameters are optional and omitting them is the behaviour this route has always had, so
+   * the callers that want the whole list keep it. They exist for the entity pickers, which have no
+   * business downloading twenty thousand rows to show ten of them.
+   *
+   * `limit` is clamped rather than trusted: a client asking for a million rows is asking the
+   * database to do something no screen can use.
+   */
   @Get()
   @HasPermission(PERMISSIONS.CUSTOMERS_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.customersService.findAll(user.organizationId);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('search') search?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const requested = Number.parseInt(limit ?? '', 10);
+    return this.customersService.findAll(user.organizationId, {
+      search,
+      limit: Number.isFinite(requested) ? Math.min(Math.max(requested, 1), 200) : undefined,
+    });
   }
 
   @Get(':id')

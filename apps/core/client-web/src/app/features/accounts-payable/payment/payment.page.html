@@ -20,9 +20,9 @@
     } @else {
       <section class="form-section">
         <div class="form-grid">
-        <label class="field">
-          <span>{{ 'accounts_payable.payment.payment_date' | translate }} *</span>
-          <input type="date" formControlName="paymentDate" />
+        <label class="field" for="paymentDate">
+          <span>{{ 'accounts_payable.payment.payment_date' | translate }}</span>
+          <vx-date-field inputId="paymentDate" formControlName="paymentDate" />
         </label>
 
         <label class="field">
@@ -91,9 +91,7 @@
                   <td class="numeric"><input type="number" step="0.01" formControlName="taxWithheld" /></td>
                   <td class="numeric"><input type="number" step="0.01" formControlName="incomeTaxWithheld" /></td>
                   <td class="numeric"><input type="number" step="0.01" formControlName="discount" /></td>
-                  <td class="numeric settled" [class.over]="exceedsBalance(line.value)">
-                    {{ settledBy(line.value) | vxNumber: '1.2-2' }}
-                  </td>
+                  <td class="numeric settled" [class.over]="exceedsBalance(line.value)"><vx-amount [value]="settledBy(line.value)" /></td>
                   <td>
                     <button class="icon-button" type="button" (click)="removeLine(i)">×</button>
                   </td>
@@ -106,19 +104,19 @@
         <div class="totals">
           <div class="totals__line">
             <span>{{ 'accounts_payable.payment.cash' | translate }}</span>
-            <span class="amount">{{ totals().cash | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="totals().cash" />
           </div>
           <div class="totals__line">
             <span>{{ 'accounts_payable.payment.withholdings' | translate }}</span>
-            <span class="amount">{{ totals().withheld | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="totals().withheld" />
           </div>
           <div class="totals__line">
             <span>{{ 'accounts_payable.payment.discount' | translate }}</span>
-            <span class="amount">{{ totals().discount | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="totals().discount" />
           </div>
           <div class="totals__line totals__line--total">
             <span>{{ 'accounts_payable.payment.settles' | translate }}</span>
-            <span class="amount">{{ totals().settled | vxNumber: '1.2-2' }}</span>
+            <vx-amount class="amount" [value]="totals().settled" />
           </div>
         </div>
       }

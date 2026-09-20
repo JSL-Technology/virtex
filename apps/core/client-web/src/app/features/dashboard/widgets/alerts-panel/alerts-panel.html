@@ -4,10 +4,10 @@
 <div class="widget-content">
     @if (alerts().length === 0) {
     <!-- Nothing wrong is a result, and saying so beats an empty panel that looks broken. -->
-    <div class="empty-state">
-        <lucide-icon [img]="CheckIcon" size="40"></lucide-icon>
-        <p>{{ 'dashboard.alerts_panel.nothing_needs_attention_right_now' | translate }}</p>
-    </div>
+    <vx-empty-state
+        [icon]="CheckIcon"
+        titleKey="dashboard.alerts_panel.nothing_needs_attention_right_now"
+    />
     } @else {
     <ul class="alerts-list">
         @for(alert of alerts(); track alert.id) {

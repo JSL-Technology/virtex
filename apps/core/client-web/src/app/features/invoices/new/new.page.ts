@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, merge, switchMap } from 'rxjs';
+import { Observable, Subject, debounceTime, merge, switchMap, tap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
@@ -30,10 +30,15 @@ import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { VX_SELECT } from '../../../shared/components/select';
+import { CustomerQuickCreateComponent } from '../../contacts/customer-quick-create/customer-quick-create.component';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
+import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
 
 /**
  * Issuing a sales document.
@@ -53,7 +58,17 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    InvoiceToolbarComponent,
+    TranslateModule,
+    ...FORMAT_PIPES,
+    DraftShellComponent,
+    ...VX_SELECT,
+    CustomerQuickCreateComponent,
+    ...VX_FORM_A11Y, VxAmountComponent, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,12 +91,17 @@ export class NewInvoicePage implements OnInit {
 
   /** Debounces the preview requests; see `requestPreview`. */
   private readonly previewRequests = new Subject<CreateInvoiceDto>();
-  customers = signal<Customer[]>([]);
   products = signal<Product[]>([]);
   currencies = signal<Currency[]>([]);
   context = signal<InvoicingContext | null>(null);
   isSaving = signal(false);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
+
+  /** Las secciones del documento. Declaradas como datos porque `vx-tabs` las dibuja. */
+  protected readonly TABS: VxTab[] = [
+    { id: 'content', labelKey: 'invoices.new.content' },
+    { id: 'finance', labelKey: 'invoices.new.tax_collection' },
+  ];
 
   /**
    * Document types the tenant may issue. Empty in a market with no stamping regime.
@@ -124,15 +144,20 @@ export class NewInvoicePage implements OnInit {
       incomeTaxWithholdingRate: [0, [Validators.min(0), Validators.max(1)]],
       notes: [''],
       lineItems: this.fb.array([this.createLineItem()]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('issueDate', 'dueDate'),
+      },
+    );
   }
 
   ngOnInit(): void {
     this.loadContext();
-    this.customersService.getCustomers().subscribe((data) => {
-      this.customers.set(data);
-      this.applyPaymentTerms();
-    });
+    //  Los clientes ya NO se descargan enteros al abrir: el campo los busca en el servidor. Ver
+    //  `searchCustomers` más abajo.
     this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
     this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
     this.checkCopyFrom();
@@ -232,6 +257,89 @@ export class NewInvoicePage implements OnInit {
     });
   }
 
+  // ── El cliente ─────────────────────────────────────────────────────────────
+  /**
+   * The customers this form has seen, by id.
+   *
+   * The page used to hold the tenant's whole customer book in a signal, because a native `<select>`
+   * needs every option in the DOM. It does not any more — the field asks the server — but the form
+   * still needs the RECORD and not just the id: the due date comes from the buyer's credit terms.
+   * So instead of a list of everyone, this remembers the ones that have actually gone past: search
+   * results, the one resolved from a copied invoice, the one just created.
+   */
+  private readonly customersById = new Map<string, Customer>();
+
+  /**
+   * Search the tenant's customers, server-side.
+   *
+   * An arrow-function FIELD and not a method: it is handed to `vx-select` as an input and a method
+   * reference would arrive without `this`. Declaring it this way also keeps the identity stable
+   * across change-detection cycles, so the field does not treat it as a new search on every tick.
+   */
+  protected readonly searchCustomers = (query: string, limit: number): Observable<Customer[]> =>
+    this.customersService
+      .searchCustomers(query, limit)
+      .pipe(tap((customers) => customers.forEach((customer) => this.remember(customer))));
+
+  /**
+   * Name the customer an id refers to.
+   *
+   * Needed because a `customerId` can arrive without anyone having picked it — "copy from invoice"
+   * does exactly that. Without this the field would sit empty over a control that is not empty.
+   */
+  protected readonly resolveCustomer = (id: string): Observable<Customer> =>
+    this.customersService.getCustomerById(id).pipe(tap((customer) => this.remember(customer)));
+
+  protected readonly customerName = (customer: Customer): string => customer.companyName;
+  protected readonly customerId = (customer: Customer): string => customer.id;
+  /** La segunda línea de cada fila: el documento fiscal, que es como se distinguen dos homónimos. */
+  protected readonly customerTaxId = (customer: Customer): string | null =>
+    customer.taxId ?? null;
+
+  /** Lo tecleado cuando se pidió crear, para que el diálogo arranque con ello. */
+  protected readonly newCustomerName = signal('');
+  protected readonly creatingCustomer = signal(false);
+  /** Por dónde le responde el diálogo al campo. Ver `createCustomer`. */
+  private customerCreation: Subject<Customer | null> | null = null;
+
+  /**
+   * Open the inline creation dialog and hand the field back whatever comes of it.
+   *
+   * The subject is the whole mechanism: `vx-select` subscribes, this page shows a dialog, and the
+   * dialog's answer — a customer, or `null` for "never mind" — travels back down it. The field
+   * selects what arrives and returns focus to itself, so the operator resumes the invoice exactly
+   * where they left it.
+   */
+  protected readonly createCustomer = (query: string): Observable<Customer | null> => {
+    this.customerCreation?.complete();
+    const answer = new Subject<Customer | null>();
+    this.customerCreation = answer;
+    this.newCustomerName.set(query);
+    this.creatingCustomer.set(true);
+    return answer.asObservable();
+  };
+
+  /** El diálogo terminó, de una manera o de la otra. */
+  protected onCustomerCreationResolved(customer: Customer | null): void {
+    this.creatingCustomer.set(false);
+    if (customer) this.remember(customer);
+    this.customerCreation?.next(customer);
+    this.customerCreation?.complete();
+    this.customerCreation = null;
+  }
+
+  /**
+   * File a customer away, and re-date the document if it is the one on the form.
+   *
+   * The second half matters for the copied invoice: the id is patched in before the record it
+   * names has arrived, so the terms cannot be applied at that moment. When the record lands, this
+   * is the moment they can be.
+   */
+  private remember(customer: Customer): void {
+    this.customersById.set(customer.id, customer);
+    if (this.invoiceForm.get('customerId')?.value === customer.id) this.applyPaymentTerms();
+  }
+
   /**
    * Set the due date from the chosen customer's credit terms.
    *
@@ -248,7 +356,7 @@ export class NewInvoicePage implements OnInit {
     const issueDate = value.issueDate as string;
     if (!issueDate) return;
 
-    const customer = this.customers().find((candidate) => candidate.id === value.customerId);
+    const customer = this.customersById.get(value.customerId);
     const days = customer?.paymentTermDays ?? this.context()?.defaultPaymentTermDays ?? 0;
 
     this.settingDueDate = true;

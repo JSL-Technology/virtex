@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { ActivityItem, OverviewService } from '../../../overview/overview.service';
 import { FormatService } from '@virteex/shared/ui-i18n';
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 /**
  * What has happened in this tenant lately.
@@ -22,7 +23,7 @@ import { FormatService } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-recent-activity',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxEmptyStateComponent],
   templateUrl: './recent-activity.html',
   styleUrls: ['./recent-activity.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

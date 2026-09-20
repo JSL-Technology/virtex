@@ -9,11 +9,12 @@ import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.m
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
+import { VxSpinnerComponent } from '../../../shared/components/feedback';
 
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

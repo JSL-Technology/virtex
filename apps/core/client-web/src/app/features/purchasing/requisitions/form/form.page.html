@@ -13,9 +13,9 @@
 
     @if (current()) {
       <div class="doc-status">
-        <span class="status-badge">
+        <vx-badge [tone]="statusTone()" [struck]="status() === 'REJECTED'">
           {{ 'purchasing.requisitions.status_label.' + status() | translate }}
-        </span>
+        </vx-badge>
         @if (current()!.rejectionReason) {
           <span class="doc-status__reason">{{ current()!.rejectionReason }}</span>
         }
@@ -24,9 +24,9 @@
 
     <section class="form-section">
       <div class="form-grid">
-        <label class="field">
+        <label class="field" for="requiredDate">
           <span>{{ 'purchasing.requisitions.required_date' | translate }}</span>
-          <input type="date" formControlName="requiredDate" />
+          <vx-date-field inputId="requiredDate" formControlName="requiredDate" />
         </label>
 
         <label class="field field--wide">
@@ -66,7 +66,7 @@
                 <td><input type="text" formControlName="description" maxlength="500" /></td>
                 <td class="numeric"><input type="number" step="0.000001" min="0" formControlName="quantity" /></td>
                 <td class="numeric"><input type="number" step="0.01" min="0" formControlName="estimatedUnitPrice" /></td>
-                <td class="numeric">{{ lineTotal(line.value) | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><vx-amount [value]="lineTotal(line.value)" /></td>
                 <td>
                   @if (editable()) {
                     <button class="icon-button" type="button" (click)="removeLine(i)"

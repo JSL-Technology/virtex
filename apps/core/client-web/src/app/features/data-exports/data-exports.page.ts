@@ -5,6 +5,7 @@ import { inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../shared/components/gestures';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../shared/components/badge';
 
 // Tipos de datos para la página
 type ExportStatus = 'Completed' | 'Generating' | 'Failed';
@@ -25,7 +26,7 @@ interface DataType {
 @Component({
   selector: 'app-data-exports-page',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ListShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './data-exports.page.html',
   styleUrls: ['./data-exports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,10 +79,12 @@ export class DataExportsPage {
     }, 2500);
   }
 
-  getStatusClass(status: ExportStatus): string {
-    if (status === 'Completed') return 'status-completed';
-    if (status === 'Generating') return 'status-processing';
-    if (status === 'Failed') return 'status-failed';
-    return '';
+  statusTone(status: ExportStatus): VxTone {
+    if (status === 'Completed') return 'ok';
+    if (status === 'Generating') return 'info';
+    if (status === 'Failed') return 'danger';
+    //  Antes devolvía '' y la insignia salía sin color: un estado desconocido se veía igual que
+    //  uno neutro deliberado. Ahora se ve como lo que es.
+    return 'neutral';
   }
 }

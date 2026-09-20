@@ -73,15 +73,23 @@
                     </div>
                 </div>
                 <button class="btn-outline btn-sm" (click)="manageBilling()" [disabled]="isOpeningPortal()">
-                    @if (isOpeningPortal()) { <span class="btn-spinner btn-spinner--dark"></span> Abriendo... }
-                    @else { Cambiar método de pago }
+                    @if (isOpeningPortal()) {
+                        <vx-spinner size="sm" />
+                        {{ 'billing.opening_portal' | translate }}
+                    } @else {
+                        {{ 'billing.change_payment_method' | translate }}
+                    }
                 </button>
                 } @else {
                 <p class="info-card__muted">{{ 'settings.billing.no_payment_method_file' | translate }}</p>
                 @if (hasActiveSubscription()) {
                 <button class="btn-outline btn-sm" (click)="manageBilling()" [disabled]="isOpeningPortal()">
-                    @if (isOpeningPortal()) { <span class="btn-spinner btn-spinner--dark"></span> Abriendo... }
-                    @else { Agregar método de pago }
+                    @if (isOpeningPortal()) {
+                        <vx-spinner size="sm" />
+                        {{ 'billing.opening_portal' | translate }}
+                    } @else {
+                        {{ 'billing.add_payment_method' | translate }}
+                    }
                 </button>
                 }
                 }
@@ -136,8 +144,7 @@
         @switch (plansState()) {
             @case ('loading') {
             <div class="plans-loading">
-                <span class="btn-spinner btn-spinner--dark"></span>
-                <span>{{ 'settings.billing.loading_plans' | translate }}</span>
+                <vx-spinner withLabel labelKey="settings.billing.loading_plans" />
             </div>
             }
             @case ('error') {
@@ -215,7 +222,7 @@
                 </div>
                 <button class="btn-primary btn-checkout" (click)="startCheckout()" [disabled]="isRedirecting()">
                     @if (isRedirecting()) {
-                        <span class="btn-spinner"></span>
+                        <vx-spinner size="sm" />
                         <span>{{ 'settings.billing.redirecting' | translate }}</span>
                     } @else {
                         <lucide-icon [img]="ExternalLinkIcon" size="16"></lucide-icon>

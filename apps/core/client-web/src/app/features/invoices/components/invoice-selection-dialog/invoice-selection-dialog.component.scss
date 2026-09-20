@@ -1,150 +1,67 @@
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(var(--shadow-color-rgb), 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(2px);
-}
+// =============================================================================
+//  DIÁLOGO DE SELECCIÓN DE FACTURA
+// =============================================================================
+//  El armazón —velo, panel, cabecera, pie— es de `vx-dialog`. Aquí queda solo
+//  el contenido: el buscador y la tabla.
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
 
-.modal-container {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    width: 90%;
-    max-width: 700px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--shadow-lg);
-}
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 
-.modal-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  margin-bottom: var(--space-3);
+  padding-inline: var(--space-3);
+  height: var(--control-height-md);
 
-    h2 {
-        margin: 0;
-        font-size: var(--text-lg);
-        color: var(--text-primary);
+  background-color: var(--surface-base);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--content-tertiary);
+
+  @include ds.transition(border-color, box-shadow);
+
+  &:focus-within {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(var(--accent-solid-rgb), 0.22);
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    font: inherit;
+    font-size: var(--text-md);
+    color: var(--content-primary);
+    background: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: var(--content-tertiary);
+      opacity: 1;
     }
-
-    .close-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        padding: var(--space-1);
-        border-radius: 4px;
-        transition: var(--transition);
-
-        &:hover {
-            background-color: var(--bg-hover);
-            color: var(--error);
-        }
-    }
-}
-
-.modal-body {
-    padding: var(--space-6);
-    overflow-y: auto;
-    flex: 1;
-
-    .search-bar {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius-md);
-        margin-bottom: var(--space-6);
-
-        lucide-icon {
-            color: var(--text-tertiary);
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            flex: 1;
-            font-size: var(--text-md);
-
-            &:focus {
-                outline: none;
-            }
-        }
-    }
+  }
 }
 
 .invoice-list {
-    table {
-        width: 100%;
-        border-collapse: collapse;
+  min-height: 12rem;
 
-        th {
-            text-align: left;
-            padding: var(--space-3);
-            font-size: var(--text-xs);
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        td {
-            padding: var(--space-3);
-            font-size: var(--text-md);
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .selectable-row {
-            cursor: pointer;
-            transition: var(--transition);
-
-            &:hover {
-                background-color: var(--bg-hover);
-            }
-        }
-
-        .text-right { text-align: right; }
-        .empty-msg { text-align: center; padding: var(--space-8); color: var(--text-tertiary); }
-    }
+  table {
+    @include ds.data-table;
+  }
 }
 
-.modal-footer {
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-}
+//  Toda la fila es el objetivo: elegir una factura es lo único que se hace
+//  aquí, y obligar a apuntar a un enlace dentro de la celda sería más difícil
+//  con el ratón y exactamente igual con el teclado.
+.selectable-row {
+  cursor: pointer;
 
-.secondary-button {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    cursor: pointer;
-    font-weight: var(--font-medium);
-    transition: var(--transition);
+  @include ds.focus-ring(-2px);
 
-    &:hover {
-        background-color: var(--bg-hover);
-    }
-}
-
-.loader {
-    text-align: center;
-    padding: var(--space-12);
-    color: var(--text-secondary);
+  &:hover {
+    background-color: var(--surface-hover);
+  }
 }

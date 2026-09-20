@@ -14,6 +14,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
+import { VxDateFieldComponent } from '../../../shared/components/date';
 
 @Component({
   selector: 'app-account-form-page',
@@ -26,8 +28,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     DraftShellComponent,
     VxLocalizedNamePipe,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,14 @@ export class AccountFormPage implements OnInit {
 
   // --- Propiedades y Métodos Añadidos para Corregir Errores ---
   public activeTab = signal<'general' | 'mappings' | 'rules' | 'advanced'>('general');
+
+  /** Las cuatro secciones del formulario de cuenta, como datos: `vx-tabs` las dibuja. */
+  protected readonly TABS: VxTab[] = [
+    { id: 'general', labelKey: 'accounting.account_form.general' },
+    { id: 'mappings', labelKey: 'accounting.account_form.mappings' },
+    { id: 'rules', labelKey: 'accounting.account_form.rules' },
+    { id: 'advanced', labelKey: 'accounting.account_form.advanced' },
+  ];
   public readonly SaveIcon = Save;
   public readonly AlertIcon = AlertTriangle;
   public readonly SettingsIcon = Settings;

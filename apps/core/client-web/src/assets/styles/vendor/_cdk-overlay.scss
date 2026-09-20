@@ -1,0 +1,53 @@
+// =============================================================================
+//  VIRTEX — INTEGRACIÓN DEL OVERLAY DEL CDK
+// =============================================================================
+//  El CSS estructural del overlay viaja tal cual desde el paquete
+//  (`overlay-prebuilt.css`, declarado en `project.json`): es el contrato de la
+//  biblioteca y reescribirlo a mano solo garantiza que se quede atrás. Aquí se
+//  ajusta lo único que no le corresponde decidir a un paquete externo — en qué
+//  capa de ESTA aplicación se apila.
+//
+//  `overlay-prebuilt.css` fija `z-index: 1000` en el contenedor, que en la
+//  escala de `_scales.scss` es `--z-debug`: por encima de los avisos y de las
+//  descripciones emergentes. Un panel de selección no va ahí. Va en
+//  `--z-popover`, que es por encima del modal que puede hospedarlo —un campo
+//  dentro de un diálogo tiene que poder abrir su lista— y por debajo de los
+//  avisos y los tooltips, que interrumpen a cualquiera.
+// =============================================================================
+
+.cdk-overlay-container {
+  z-index: var(--z-popover);
+}
+
+//  El velo del CDK se deja a los tokens del sistema en vez de al gris fijo del
+//  paquete, para que siga al tema como todo lo demás.
+.cdk-overlay-dark-backdrop {
+  background: var(--scrim);
+}
+
+// -----------------------------------------------------------------------------
+//  ANCHOS DEL DIÁLOGO
+// -----------------------------------------------------------------------------
+//  El panel del overlay lo crea el CDK FUERA del árbol de cualquier componente,
+//  así que su anchura no puede vivir en una hoja encapsulada. Aquí, y con
+//  márgenes de pantalla, para que un diálogo grande en un móvil siga siendo un
+//  diálogo y no una página con bordes.
+.cdk-overlay-pane.vx-dialog__pane {
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
+}
+
+.cdk-overlay-pane.vx-dialog__pane--sm { width: 26rem; }
+.cdk-overlay-pane.vx-dialog__pane--md { width: 34rem; }
+.cdk-overlay-pane.vx-dialog__pane--lg { width: 46rem; }
+.cdk-overlay-pane.vx-dialog__pane--xl { width: 60rem; }
+
+//  El velo del diálogo desenfoca lo que hay detrás donde el navegador lo
+//  soporta de verdad. `@supports` porque sin él el desenfoque se ignora y el
+//  velo sigue siendo un velo; con una regla suelta, en los navegadores que lo
+//  anuncian y lo componen mal, degrada el desplazamiento de toda la página.
+.cdk-overlay-backdrop.vx-dialog__scrim {
+  @supports (backdrop-filter: blur(4px)) {
+    backdrop-filter: blur(4px);
+  }
+}

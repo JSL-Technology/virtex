@@ -41,9 +41,9 @@
             <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-right">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-center">
-              <span class="status-badge" [ngClass]="statusClass(entry.status)">
+              <vx-badge [tone]="statusTone(entry.status)" [struck]="isVoid(entry.status)">
                 {{ statusKey(entry.status) | translate }}
-              </span>
+              </vx-badge>
             </td>
             <td class="actions-column">
               <a
@@ -65,16 +65,15 @@
     and give no sign that the rest exist, which is worse than the unbounded query it replaces.
   -->
   @if (total() > 0) {
-    <nav listFooter class="pager" [attr.aria-label]="'common.pagination' | translate">
-      <button type="button" class="pager-button" [disabled]="page() <= 1" (click)="previousPage()">
-        {{ 'common.previous' | translate }}
-      </button>
-      <span class="pager-status">
-        {{ 'common.page_of_total' | translate: { page: page(), total: total() } }}
-      </span>
-      <button type="button" class="pager-button" [disabled]="!hasMore()" (click)="nextPage()">
-        {{ 'common.next' | translate }}
-      </button>
-    </nav>
+    <vx-pager
+      listFooter
+      [page]="page()"
+      [pageSize]="pageSize"
+      [total]="total()"
+      [hasMore]="hasMore()"
+      [disabled]="loading()"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="changePageSize($event)"
+    />
   }
 </vx-list-shell>

@@ -67,12 +67,16 @@ describe('DocumentShellComponent', () => {
   });
 
   it('el tono del estado es semántico y cambia con él', () => {
-    expect(el.querySelector('.ds__status--ok')).not.toBeNull();
+    //  La insignia es ahora la compartida (`vx-badge`), que es donde vive el vocabulario de tonos
+    //  de todo el producto. Antes este armazón pintaba la suya, y el mismo estado salía de un
+    //  color aquí y de otro en la lista que llevaba hasta aquí.
+    const badge = () => el.querySelector('.ds__status') as HTMLElement;
+    expect(badge().className).toContain('vx-badge--ok');
 
     host.tone.set('danger');
     fixture.detectChanges();
-    expect(el.querySelector('.ds__status--danger')).not.toBeNull();
-    expect(el.querySelector('.ds__status--ok')).toBeNull();
+    expect(badge().className).toContain('vx-badge--danger');
+    expect(badge().className).not.toContain('vx-badge--ok');
   });
 
   it('sin estado declarado no inventa uno', () => {

@@ -1,20 +1,13 @@
-<!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
-<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-<div class="pvm-overlay" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (closed.emit())" (keydown.escape)="closed.emit()">
-  <div class="pvm-box" tabindex="0">
-
-    <!-- Header -->
-    <div class="pvm-header">
-      <div class="pvm-header__title">
-        <lucide-icon [img]="PhoneIcon" size="18"></lucide-icon>
-        {{ 'settings.profile.phone_verification.title' | translate }}
-      </div>
-      <button class="pvm-header__close" (click)="closed.emit()">
-        <lucide-icon [img]="XIcon" size="18"></lucide-icon>
-      </button>
-    </div>
-
-    <!-- Body -->
+<!--
+  El armazón —velo, panel, cabecera, cierre, Escape y trampa de foco— es de `vx-dialog`. Lo que
+  había aquí era todo eso reimplementado, menos la trampa, que no la tenía nadie en el producto.
+-->
+@if (isOpen()) {
+  <vx-dialog
+    size="sm"
+    titleKey="settings.profile.phone_verification.title"
+    (dismissed)="closed.emit()"
+  >
     <div class="pvm-body">
 
       <!-- Step 1: Enter phone number -->
@@ -35,7 +28,7 @@
                   (click)="sendOtp()"
                   [disabled]="phoneControl.invalid || isLoading()">
             @if (isLoading()) {
-              <span class="pvm-spinner"></span>
+              <vx-spinner size="sm" />
             }
             {{ 'settings.profile.phone_verification.send_code' | translate }}
           </button>
@@ -64,7 +57,7 @@
                   (click)="verifyOtp()"
                   [disabled]="otpControl.invalid || isLoading()">
             @if (isLoading()) {
-              <span class="pvm-spinner"></span>
+              <vx-spinner size="sm" />
             }
             {{ 'settings.profile.phone_verification.verify' | translate }}
           </button>
@@ -78,5 +71,5 @@
       }
 
     </div>
-  </div>
-</div>
+  </vx-dialog>
+}

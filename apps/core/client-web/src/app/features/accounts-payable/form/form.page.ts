@@ -38,6 +38,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -88,8 +89,7 @@ interface BillTotals {
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -171,7 +171,14 @@ export class VendorBillFormPage implements OnInit {
       otherTaxes: [0, [Validators.min(0)]],
       serviceCharge: [0, [Validators.min(0)]],
       lines: this.fb.array([this.createLine()]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('date', 'dueDate'),
+      },
+    );
 
     this.form.valueChanges.subscribe(() => this.recomputeTotals());
     this.recomputeTotals();

@@ -1,0 +1,47 @@
+@use 'assets/styles/design-system' as ds;
+
+.quick-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quick-create__hint {
+  @include ds.field-hint;
+
+  margin: 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    @include ds.field-label;
+  }
+
+  input,
+  select {
+    @include ds.input-base;
+  }
+}
+
+.quick-create__error {
+  @include ds.field-error;
+
+  margin: 0;
+}
+
+.quick-create__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.quick-create__cancel {
+  @include ds.button-secondary;
+}
+
+.quick-create__save {
+  @include ds.button-primary;
+}

@@ -91,14 +91,14 @@
               </td>
               <td>{{ row.category.code || '—' }}</td>
               <td>
-                <span class="status-badge" [class.draft]="!row.category.isActive">
+                <vx-badge [tone]="row.category.isActive ? 'ok' : 'draft'">
                   {{
                     (row.category.isActive
                       ? 'inventory.categories.active'
                       : 'inventory.categories.inactive'
                     ) | translate
                   }}
-                </span>
+                </vx-badge>
               </td>
               <td class="text-right row-actions">
                 <button

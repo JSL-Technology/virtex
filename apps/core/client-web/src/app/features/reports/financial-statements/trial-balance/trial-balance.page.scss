@@ -57,3 +57,11 @@
     color: var(--error-text);
   }
 }
+
+//  El libro y la moneda de las cifras. Discreto pero presente: es el dato sin
+//  el cual seis columnas de números no significan nada.
+.report-scope {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+}

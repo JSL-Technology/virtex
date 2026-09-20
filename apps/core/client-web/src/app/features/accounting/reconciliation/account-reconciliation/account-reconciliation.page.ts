@@ -24,6 +24,8 @@ import {
   TransactionSuggestion,
 } from '../../../../core/api/reconciliation.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**
  * The bank reconciliation workbench.
@@ -53,8 +55,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './account-reconciliation.page.html',
   styleUrls: ['./account-reconciliation.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -318,10 +319,23 @@ export class AccountReconciliationPage {
     return `accounting.reconciliation.status.${status}`;
   }
 
-  statusClass(status: BankStatement['status']): string {
-    if (status === 'RECONCILED') return 'status-reconciled';
-    if (status === 'FAILED') return 'status-differences';
-    return 'status-pending';
+  statusTone(status: BankStatement['status']): VxTone {
+    if (status === 'RECONCILED') return 'ok';
+    if (status === 'FAILED') return 'danger';
+    return 'warning';
+  }
+
+  /**
+   * El tono de una línea del extracto.
+   *
+   * Vivía dentro de la plantilla, como un ternario anidado sobre nombres de clase. Un movimiento
+   * excluido no es «con diferencias»: es uno que alguien decidió dejar fuera, y llamarlo por el
+   * nombre de la clase que casualmente lo pintaba igual es cómo se pierde esa distinción.
+   */
+  movementTone(status: string): VxTone {
+    if (status === 'MATCHED') return 'ok';
+    if (status === 'EXCLUDED') return 'neutral';
+    return 'warning';
   }
 
   statusIcon(status: BankStatement['status']) {

@@ -68,36 +68,10 @@
     color: var(--content-secondary);
   }
 
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-
-    &.status-completed {
-      background-color: var(--success-surface);
-      border-color: var(--success-text);
-      color: var(--success-text);
-    }
-
-    &.status-failed {
-      background-color: var(--error-surface);
-      border-color: var(--error-text);
-      color: var(--error-text);
-    }
-
-    &.status-processing {
-      background-color: var(--warning-surface);
-      border-color: var(--warning-text);
-      color: var(--warning-text);
-    }
-  }
-
   .spinner {
-    animation: de-spin 0.9s linear infinite;
+    animation: vx-spin 0.9s linear infinite;
     @include ds.bp-reduced-motion { animation: none; }
   }
-
-  @keyframes de-spin { to { transform: rotate(360deg); } }
 
   .download-btn { padding-inline: var(--space-3); }
 }

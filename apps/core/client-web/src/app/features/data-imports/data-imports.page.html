@@ -89,13 +89,13 @@
                         <td>{{ item.date }}</td>
                         <td>{{ item.user }}</td>
                         <td class="text-center">
-                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                            <vx-badge [tone]="statusTone(item.status)">
                                 @if(item.status === 'Completed') { <lucide-icon [img]="SuccessIcon" size="14" /> }
                                 @if(item.status === 'Failed') { <lucide-icon [img]="ErrorIcon" size="14" /> }
                                 @if(item.status === 'Processing') { <lucide-icon [img]="ProcessingIcon" size="14"
                                     class="spinner" /> }
                                 {{ item.status }}
-                            </span>
+                            </vx-badge>
                         </td>
                         <td class="text-right">{{ item.recordsProcessed }}</td>
                         <td class="text-right" [class.has-errors]="item.recordsFailed > 0">{{ item.recordsFailed }}</td>

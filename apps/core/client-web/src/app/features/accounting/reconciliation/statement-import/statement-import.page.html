@@ -33,14 +33,14 @@
           <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
         </label>
 
-        <label class="field">
+        <label class="field" for="startDate">
           <span>{{ 'reports.common.from' | translate }} *</span>
-          <input type="date" formControlName="startDate" />
+          <vx-date-field inputId="startDate" formControlName="startDate" />
         </label>
 
-        <label class="field">
+        <label class="field" for="endDate">
           <span>{{ 'reports.common.to' | translate }} *</span>
-          <input type="date" formControlName="endDate" />
+          <vx-date-field inputId="endDate" formControlName="endDate" />
         </label>
 
         <label class="field">

@@ -270,12 +270,7 @@
   }
 
   &__spin {
-    animation: ext-spin 1s linear infinite;
+    animation: vx-spin 1s linear infinite;
   }
 }
 
-@keyframes ext-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}

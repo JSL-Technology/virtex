@@ -155,8 +155,8 @@
                 @for (entry of data.previews; track entry.entryId) {
                   <tr [class.row--invalid]="entry.errors.length > 0">
                     <td>{{ entry.entryId }}</td>
-                    <td class="text-right">{{ entry.totalDebit | vxNumber: '1.2-2' }}</td>
-                    <td class="text-right">{{ entry.totalCredit | vxNumber: '1.2-2' }}</td>
+                    <td class="text-right"><vx-amount [value]="entry.totalDebit" /></td>
+                    <td class="text-right"><vx-amount [value]="entry.totalCredit" /></td>
                     <td>
                       @if (entry.errors.length === 0 && entry.isBalanced) {
                         <span class="status status--ok">

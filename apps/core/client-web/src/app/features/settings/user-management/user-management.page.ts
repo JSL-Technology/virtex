@@ -69,6 +69,9 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxPagerComponent } from '../../../shared/components/pager';
+import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-user-management-page',
@@ -79,8 +82,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })
@@ -154,7 +156,13 @@ export class UserManagementPage implements OnInit, OnDestroy {
 
   // Paginación y Filtros
   currentPage = signal(1);
-  pageSize = 8;
+  /**
+   * Cuántas filas por página, ahora elegible.
+   *
+   * Era la constante `8`, decidida aquí y distinta de las otras dos del producto (50 en asientos,
+   * 50 en nómina). El paginador ofrece 25/50/100 y esta señal recuerda lo elegido.
+   */
+  pageSize = signal(25);
   totalUsers = signal(0);
   statusFilter = signal<string>('all');
   searchTerm = signal<string>('');
@@ -164,14 +172,15 @@ export class UserManagementPage implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private subscriptions = new Subscription();
 
-  totalPages = computed(() => Math.ceil(this.totalUsers() / this.pageSize));
+  totalPages = computed(() => Math.ceil(this.totalUsers() / this.pageSize()));
 
-  readonly statusClassMap: Record<UserStatus, string> = {
-    [UserStatus.ACTIVE]: 'status-active',
-    [UserStatus.PENDING]: 'status-pending',
-    [UserStatus.BLOCKED]: 'status-blocked',
-    [UserStatus.ARCHIVED]: 'status-archived',
-    [UserStatus.INACTIVE]: 'status-inactive',
+  /** Lo que significa cada situación de una cuenta. El color lo pone `vx-badge`, una vez. */
+  private readonly statusToneMap: Record<UserStatus, VxTone> = {
+    [UserStatus.ACTIVE]: 'ok',
+    [UserStatus.PENDING]: 'warning',
+    [UserStatus.BLOCKED]: 'danger',
+    [UserStatus.ARCHIVED]: 'neutral',
+    [UserStatus.INACTIVE]: 'neutral',
   };
 
   ngOnInit(): void {
@@ -221,7 +230,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.loading.set(true);
     const options = {
       page: this.currentPage(),
-      pageSize: this.pageSize,
+      pageSize: this.pageSize(),
       searchTerm: this.searchTerm(),
       statusFilter: this.statusFilter(),
       sortColumn: this.sortColumn(),
@@ -492,6 +501,12 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.loadUsers();
   }
 
+  changePageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+
   changePage(page: number): void {
     if (page > 0 && page <= this.totalPages()) {
       this.currentPage.set(page);
@@ -504,23 +519,8 @@ export class UserManagementPage implements OnInit, OnDestroy {
     return user.roles.map((r) => r.name).join(', ');
   }
 
-  getStatusClass(status: UserStatus): string {
-    return this.statusClassMap[status] || 'status-inactive';
-  }
-
-  getPageNumbers(): number[] {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    if (total <= 7) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
-    if (current < 5) {
-      return [1, 2, 3, 4, 5, -1, total];
-    }
-    if (current > total - 4) {
-      return [1, -1, total - 4, total - 3, total - 2, total - 1, total];
-    }
-    return [1, -1, current - 1, current, current + 1, -1, total];
+  statusTone(status: UserStatus): VxTone {
+    return this.statusToneMap[status] ?? 'neutral';
   }
 
   openUserActions(event: MouseEvent, user: ApiUser): void {

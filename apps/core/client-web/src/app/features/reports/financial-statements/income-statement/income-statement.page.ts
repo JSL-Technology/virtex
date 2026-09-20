@@ -9,6 +9,8 @@ import {
   IncomeStatementReport,
 } from '../../../../core/api/financial-reporting.service';
 import { defaultPeriod } from '../report-period';
+import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateRangeComponent } from '../../../../shared/components/date';
 
 /**
  * The income statement.
@@ -24,7 +26,7 @@ import { defaultPeriod } from '../report-period';
 @Component({
   selector: 'app-income-statement-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './income-statement.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
