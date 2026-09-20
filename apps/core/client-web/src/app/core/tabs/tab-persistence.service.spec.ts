@@ -4,6 +4,7 @@ import { TabPersistenceService } from './tab-persistence.service';
 import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
 import { ActiveOrganizationService } from '../tenancy/active-organization.service';
+import { WorkspaceSyncService } from './workspace-sync.service';
 import { TabType } from './tab.model';
 
 /**
@@ -60,6 +61,12 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
   };
   let bootRoute: jest.Mock;
   let slug: string | null;
+  const remoteDouble = {
+    pull: jest.fn().mockResolvedValue(null),
+    push: jest.fn().mockResolvedValue({ saved: true }),
+    forget: jest.fn().mockResolvedValue(undefined),
+    resetRevision: jest.fn(),
+  };
 
   const build = () => {
     tabState = {
@@ -82,6 +89,9 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
         // cuál está. Se provee un doble para no arrastrar AuthService —y con él HttpClient— a una
         // prueba que no habla con el servidor.
         { provide: ActiveOrganizationService, useValue: { slug: () => slug } },
+        // El nivel remoto se prueba aparte; aquí se calla para que estas pruebas sigan siendo
+        // sobre la restauración local y no sobre la red.
+        { provide: WorkspaceSyncService, useValue: remoteDouble },
       ],
     });
     return TestBed.inject(TabPersistenceService);

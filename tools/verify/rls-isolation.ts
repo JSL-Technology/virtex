@@ -45,7 +45,8 @@ async function main() {
   // nothing anybody can re-check.
   await owner.query(`DELETE FROM customers WHERE organization_id IN ($1, $2)`, [ORG_A, ORG_B]);
   await owner.query(`
-    INSERT INTO organizations (id, legal_name) VALUES ($1,'Empresa A'), ($2,'Empresa B')
+    INSERT INTO organizations (id, legal_name, slug)
+    VALUES ($1,'Empresa A','empresa-a-rls'), ($2,'Empresa B','empresa-b-rls')
     ON CONFLICT (id) DO NOTHING`, [ORG_A, ORG_B]);
 
   for (const [org, tag] of [[ORG_A, 'A'], [ORG_B, 'B']] as const) {

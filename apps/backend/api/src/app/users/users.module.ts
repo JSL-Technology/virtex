@@ -6,6 +6,9 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { UsersService } from './users.service';
 import { UserProfilePort } from './ports/user-profile.port';
 import { UsersController } from './users.controller';
+import { UserWorkspace } from './workspace/user-workspace.entity';
+import { UserWorkspaceController } from './workspace/user-workspace.controller';
+import { UserWorkspaceService } from './workspace/user-workspace.service';
 import { MailModule } from '../mail/mail.module';
 import { RolesModule } from '../roles/roles.module';
 import { UserSubscriber } from './subscribers/user.subscriber';
@@ -19,7 +22,7 @@ import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Organization]),
+    TypeOrmModule.forFeature([User, Organization, UserWorkspace]),
     RolesModule,
     MailModule,
     UserCacheModule,
@@ -29,8 +32,9 @@ import { OrganizationsModule } from '../organizations/organizations.module';
     forwardRef(() => OrganizationsModule),
   ],
 
-  controllers: [UsersController],
+  controllers: [UsersController, UserWorkspaceController],
   providers: [
+    UserWorkspaceService,
     UsersService,
     { provide: UserProfilePort, useExisting: UsersService },
     UserSubscriber,

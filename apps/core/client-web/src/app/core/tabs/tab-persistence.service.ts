@@ -2,6 +2,8 @@ import { Injectable, effect, inject } from '@angular/core';
 import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
 import { ActiveOrganizationService } from '../tenancy/active-organization.service';
+import { WorkspaceSyncService } from './workspace-sync.service';
+import { mergeWorkspaces } from './workspace-merge';
 import { TabModel, TabType } from './tab.model';
 
 /** Versión del esquema de persistencia. Incrementar ante cambios incompatibles. */
@@ -72,8 +74,10 @@ export class TabPersistenceService {
   private tabState = inject(TabStateService);
   private tabRouter = inject(TabRouterService);
   private tenancy = inject(ActiveOrganizationService);
+  private remote = inject(WorkspaceSyncService);
 
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private remoteTimer: ReturnType<typeof setTimeout> | null = null;
   private restored = false;
 
   constructor() {
@@ -97,6 +101,11 @@ export class TabPersistenceService {
       this.tabState.ensureDefaultTab();
       return;
     }
+
+    // El servidor se consulta DESPUÉS de restaurar de local, no antes: esperar la respuesta para
+    // dibujar añadiría un viaje de red al arranque de cada sesión y un armazón vacío mientras
+    // llega. El nivel local es el rápido; el remoto trae lo que se abrió en otro equipo.
+    void this.adoptRemote();
 
     try {
       const raw = localStorage.getItem(this.storageKey());
@@ -212,7 +221,12 @@ export class TabPersistenceService {
 
   setRemember(enabled: boolean): void {
     localStorage.setItem(REMEMBER_KEY, String(enabled));
-    if (!enabled) this.clearState();
+    if (!enabled) {
+      this.clearState();
+      // También en el servidor: «no recuerdes mis pestañas» y dejarlas guardadas en la nube sería
+      // desobedecer la única preferencia que la persona expresó sobre esto.
+      void this.remote.forget();
+    }
     else this.scheduleSave(this.tabState.tabs(), this.tabState.activeTabId());
   }
 
@@ -236,6 +250,7 @@ export class TabPersistenceService {
         tabs: toPersist.map((t) => this.serialize(t)),
       };
       localStorage.setItem(this.storageKey(), JSON.stringify(payload));
+      this.scheduleRemoteSave(payload);
     } catch (e) {
       console.error('Failed to save tab state', e);
     }
@@ -310,6 +325,77 @@ export class TabPersistenceService {
       return undefined;
     });
   }
+  /**
+   * Trae el espacio de trabajo del servidor y lo une al que ya está en pantalla.
+   *
+   * Une en vez de elegir: las pestañas de los dos equipos son trabajo real de la misma persona.
+   * `mergeWorkspaces` tiene las reglas y el porqué de cada una.
+   *
+   * El foco NO se toca. Adoptar la pestaña activa del otro equipo movería la vista de alguien que
+   * está mirando otra cosa, y el foco es la única parte del espacio de trabajo que pertenece a
+   * esta ventana y no a la persona.
+   */
+  private async adoptRemote(): Promise<void> {
+    const remote = await this.remote.pull();
+    if (!remote) return;
+
+    const data = remote.payload as Partial<PersistedWorkspace> | null;
+    // Las DOS versiones: la columna que guarda el servidor y la que viaja dentro de la carga.
+    // Comprobar solo la de dentro dejaba pasar una carga que el servidor ya marcaba como de otra
+    // versión, y comprobar solo la de fuera dejaría pasar una carga cuyo contenido no coincide con
+    // lo que su propia cabecera dice. Un cliente de otra versión puede estar abierto a la vez
+    // durante un despliegue, así que no se descarta lo que escribió —lo necesita él— pero tampoco
+    // se restaura a medias.
+    if (
+      remote.schemaVersion !== SCHEMA_VERSION ||
+      !data ||
+      data.schemaVersion !== SCHEMA_VERSION ||
+      !Array.isArray(data.tabs)
+    ) {
+      return;
+    }
+
+    const incoming = data.tabs.map((t) => this.deserialize(t));
+    const merged = mergeWorkspaces(this.tabState.tabs(), incoming);
+    if (merged.length !== this.tabState.tabs().length) {
+      this.tabState.setTabs(merged);
+      this.tabState.ensureDefaultTab();
+    }
+  }
+
+  /**
+   * Manda el espacio de trabajo al servidor, con un retardo mayor que el del guardado local.
+   *
+   * Local son 300 ms porque escribir en `localStorage` no cuesta nada; esto son 3 segundos porque
+   * cada envío es una petición, y abrir cinco pestañas seguidas no debería producir cinco.
+   */
+  private scheduleRemoteSave(payload: PersistedWorkspace): void {
+    if (this.remoteTimer) clearTimeout(this.remoteTimer);
+    this.remoteTimer = setTimeout(() => void this.pushRemote(payload), 3000);
+  }
+
+  private async pushRemote(payload: PersistedWorkspace): Promise<void> {
+    const result = await this.remote.push(SCHEMA_VERSION, payload);
+    if (!result || 'saved' in result) return;
+
+    // Otro equipo escribió entremedias. Se une lo suyo con lo que hay en pantalla y se vuelve a
+    // intentar UNA vez: si vuelve a chocar, el siguiente cambio lo reintentará con la revisión ya
+    // actualizada, y reintentar en bucle aquí sería pelearse con el otro equipo.
+    const theirs = result.conflict.payload as Partial<PersistedWorkspace> | null;
+    if (!theirs || theirs.schemaVersion !== SCHEMA_VERSION || !Array.isArray(theirs.tabs)) return;
+
+    const merged = mergeWorkspaces(
+      this.tabState.tabs(),
+      theirs.tabs.map((t) => this.deserialize(t)),
+    );
+    this.tabState.setTabs(merged);
+    await this.remote.push(SCHEMA_VERSION, {
+      schemaVersion: SCHEMA_VERSION,
+      activeTabId: this.tabState.activeTabId(),
+      tabs: merged.map((t) => this.serialize(t)),
+    });
+  }
+
   /** La clave del espacio de trabajo de la empresa activa. */
   private storageKey(): string {
     return `${STORAGE_PREFIX}:${this.tenancy.slug() ?? 'sin-empresa'}`;
