@@ -812,6 +812,7 @@
   "auth.oauth_state_mismatch_possible_csrf": "OAuth state mismatch — possible CSRF.",
   "auth.oauth_state_missing_start_process_again": "The OAuth state is missing. Start the process again.",
   "auth.organization_has_no_roles_assign_sso_users": "The organization has no roles to assign to SSO users.",
+  "auth.organization_not_accessible": "You do not have access to that company.",
   "auth.original_administrator_account_no_longer_active": "The original administrator's account is no longer active.",
   "auth.original_administrator_account_not_found": "The original administrator's account was not found.",
   "auth.other_sessions_have_closed": "The other sessions have been closed.",

@@ -49,6 +49,11 @@ export interface CachedUser {
   /** Tenant context. Kept because it is attached to the request principal on every call. */
   organization?: Organization;
 
-  /** Every tenant the user may act in, for multi-organization access checks. */
-  organizations?: Array<{ id: string; legalName: string }>;
+  /**
+   * Every tenant the user may act in, for multi-organization access checks.
+   *
+   * `slug` viaja con cada una porque el cliente construye las URLs a partir de él: sin el slug,
+   * el selector de empresa podría listarlas y no podría navegar a ninguna.
+   */
+  organizations?: Array<{ id: string; legalName: string; slug: string }>;
 }

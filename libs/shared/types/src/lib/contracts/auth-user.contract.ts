@@ -50,6 +50,14 @@ export interface RoleContract {
 export interface OrganizationContract {
   id: string;
   legalName: string;
+  /**
+   * El identificador de la empresa en la URL: `/e/nortex-comercial/...`.
+   *
+   * El cliente lo necesita para construir cualquier enlace, así que viaja en el principal y no
+   * detrás de una petición aparte: sin él, la primera navegación tras iniciar sesión no sabría a
+   * qué empresa pertenece.
+   */
+  slug: string;
   taxId?: string | null;
   logoUrl?: string | null;
   subscriptionStatus?: string | null;

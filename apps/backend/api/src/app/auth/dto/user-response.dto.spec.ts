@@ -25,6 +25,7 @@ describe('UserResponseDto serialization contract', () => {
     organization: {
       id: 'org-uuid',
       legalName: 'Acme',
+      slug: 'acme',
       taxId: 'RNC-1',
       logoUrl: 'https://cdn.example/logo.png',
       subscriptionStatus: 'active',
@@ -106,6 +107,10 @@ describe('UserResponseDto serialization contract', () => {
       [
         'id',
         'legalName',
+        // El identificador de la empresa en la URL. El cliente construye con él cada enlace, así
+        // que tiene que viajar en el principal: sin él, la primera navegación tras iniciar sesión
+        // no sabría a qué empresa pertenece.
+        'slug',
         'taxId',
         'logoUrl',
         'subscriptionStatus',

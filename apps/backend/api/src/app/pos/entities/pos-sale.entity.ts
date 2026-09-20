@@ -39,12 +39,12 @@ export class PosSale {
 
   /** `uuid` with the migration's own index and foreign-key names. See `PosShift`. */
   @Index('IDX_pos_sales_org')
-  @Column({ type: 'uuid' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({
-    name: 'organizationId',
+    name: 'organization_id',
     foreignKeyConstraintName: 'FK_pos_sales_organization',
   })
   organization: Organization;

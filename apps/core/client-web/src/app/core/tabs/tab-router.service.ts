@@ -2,6 +2,11 @@ import { Injectable, effect, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TabStateService } from './tab-state.service';
+import {
+  ActiveOrganizationService,
+  ORGANIZATION_SEGMENT,
+  pathWithoutOrganization,
+} from '../tenancy/active-organization.service';
 
 /**
  * Puente bidireccional Router ↔ Workspace (TAB_ARCHITECTURE §1, §2).
@@ -16,6 +21,7 @@ import { TabStateService } from './tab-state.service';
 export class TabRouterService {
   private router = inject(Router);
   private tabState = inject(TabStateService);
+  private tenancy = inject(ActiveOrganizationService);
 
   /** Evita el bucle Router→Tab→Router. */
   private suppressOpen = false;
@@ -43,7 +49,7 @@ export class TabRouterService {
 
       const target = this.buildUrl(active.route, active.queryParams);
       const current = this.stripFragment(this.router.url);
-      if (target === current) return;
+      if (this.sameDestination(target, current)) return;
 
       /**
        * Fuera del área de trabajo, el sistema de pestañas no manda.
@@ -86,6 +92,16 @@ export class TabRouterService {
     return this.isWorkspaceUrl(url) ? this.parseUrl(url) : null;
   }
 
+  /**
+   * Comparación entre la URL del router y la ruta de una pestaña.
+   *
+   * La pestaña guarda `/invoices` y el router está en `/e/nortex/invoices`: comparadas en crudo
+   * nunca coinciden, y el efecto Pestañas→Router navegaría en bucle a la URL en la que ya está.
+   */
+  private sameDestination(target: string, current: string): boolean {
+    return pathWithoutOrganization(target) === pathWithoutOrganization(current);
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────
 
   /**
@@ -123,12 +139,23 @@ export class TabRouterService {
     // Rutas públicas / fuera del workspace.
     if (['auth', 'payment', 'unauthorized'].includes(first)) return false;
     if (/^[a-z]{2}$/i.test(first)) return false; // prefijo de idioma
+    //  `/e/{empresa}` sí es workspace, pero `/e` a secas —una redirección a medias— no tiene
+    //  página que abrir.
+    if (first === ORGANIZATION_SEGMENT && segments.length < 3) return false;
 
     return true;
   }
 
+  /**
+   * La ruta de la pestaña, sin la empresa.
+   *
+   * Una pestaña es «la lista de facturas», no «la lista de facturas de Nortex»: la empresa la pone
+   * la VENTANA. Guardarla dentro de la pestaña haría que restaurar un espacio de trabajo
+   * arrastrara la empresa en la que se guardó, y abrir dos ventanas en dos empresas acabaría con
+   * las pestañas de una apuntando a los libros de la otra.
+   */
   private parseUrl(url: string): { path: string; query: Record<string, string> } {
-    const [path, queryString] = url.split('#')[0].split('?');
+    const [path, queryString] = pathWithoutOrganization(url.split('#')[0]).split('?');
     const query: Record<string, string> = {};
     if (queryString) {
       for (const [k, v] of new URLSearchParams(queryString)) query[k] = v;
@@ -136,8 +163,9 @@ export class TabRouterService {
     return { path, query };
   }
 
+  /** Al revés: la empresa de esta ventana se vuelve a poner al navegar. */
   private buildUrl(route: string, query?: Record<string, string>): string {
-    const base = this.stripFragment(route);
+    const base = this.tenancy.urlFor(this.stripFragment(route));
     if (!query || Object.keys(query).length === 0) return base;
     const qs = new URLSearchParams(query).toString();
     return `${base}?${qs}`;

@@ -15,6 +15,7 @@ import { UsersModule } from '../users/users.module';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
 import { OrgSettingsModule } from './org-settings.module';
 import { OrgSettingsService } from './services/org-settings.service';
+import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.ports';
 
 @Module({
   imports: [
@@ -38,7 +39,14 @@ import { OrgSettingsService } from './services/org-settings.service';
     forwardRef(() => UsersModule),
   ],
   controllers: [OrganizationsController],
-  providers: [OrganizationsService, MembershipService],
-  exports: [OrganizationsService, MembershipService, OrgSettingsModule]
+  providers: [
+    OrganizationsService,
+    MembershipService,
+    // El guard que resuelve la empresa activa vive en plataforma y no puede importar este módulo
+    // por dentro. `useExisting` en vez de `useClass` para que sea LA misma instancia y no una
+    // segunda con su propio repositorio.
+    { provide: OrganizationLookupPort, useExisting: OrganizationsService },
+  ],
+  exports: [OrganizationsService, MembershipService, OrgSettingsModule, OrganizationLookupPort]
 })
 export class OrganizationsModule {}

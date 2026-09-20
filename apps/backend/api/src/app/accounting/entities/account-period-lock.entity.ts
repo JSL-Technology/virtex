@@ -6,7 +6,7 @@ import { AccountingPeriod } from './accounting-period.entity';
 @Entity({ name: 'account_period_locks' })
 @Index(['organizationId', 'accountId', 'periodId'], { unique: true })
 export class AccountPeriodLock {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @PrimaryColumn({ type: 'uuid' })

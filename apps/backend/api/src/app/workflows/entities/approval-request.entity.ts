@@ -15,7 +15,7 @@ export class ApprovalRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organizationId' })
+  @Column({ name: 'organization_id' })
   organizationId: string;
 
   @Column({ name: 'documentId', type: 'uuid' })

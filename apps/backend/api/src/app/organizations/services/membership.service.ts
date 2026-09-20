@@ -9,6 +9,8 @@ import { UserCacheService } from '../../auth/modules/user-cache.service';
 export interface MembershipSummary {
   id: string;
   legalName: string;
+  /** El identificador de la empresa en la URL; el cliente construye los enlaces con él. */
+  slug: string;
   isActive: boolean;
 }
 
@@ -89,9 +91,9 @@ export class MembershipService {
       .createQueryBuilder('o')
       .innerJoin(UserOrganization, 'uo', 'uo.organization_id = o.id')
       .where('uo.user_id = :userId', { userId })
-      .select(['o.id AS id', 'o.legal_name AS "legalName"'])
+      .select(['o.id AS id', 'o.legal_name AS "legalName"', 'o.slug AS slug'])
       .orderBy('o.legal_name', 'ASC')
-      .getRawMany<{ id: string; legalName: string }>();
+      .getRawMany<{ id: string; legalName: string; slug: string }>();
 
     if (activeOrganizationId && !rows.some((row) => row.id === activeOrganizationId)) {
       const active = await this.organizationRepository.findOneBy({ id: activeOrganizationId });
@@ -101,7 +103,7 @@ export class MembershipService {
           'Active organization has no user_organizations row; including it and self-healing.',
         );
         await this.grant(userId, activeOrganizationId);
-        rows.push({ id: active.id, legalName: active.legalName });
+        rows.push({ id: active.id, legalName: active.legalName, slug: active.slug });
       }
     }
 

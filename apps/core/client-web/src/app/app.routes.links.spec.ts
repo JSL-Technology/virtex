@@ -44,6 +44,25 @@ describe('Client routes — links emitted by the backend', () => {
         continue;
       }
 
+      //  El redirector de empresa: un `**` DECLARADO como tal. Las rutas autenticadas viven bajo
+      //  `/e/{empresa}/...` desde que la empresa está en la URL, y el backend sigue enviando por
+      //  correo enlaces sin prefijo —`/dashboard`, `/settings/billing`—. Esta rama los reenvía a
+      //  la misma página dentro de la empresa del usuario, conservando consulta y fragmento, que
+      //  es justamente lo que un comodín ciego NO hace y por lo que existe esta prueba.
+      if (route.data?.['organizationRedirect']) {
+        // No basta con la marca: se le pregunta al matcher si esta URL le corresponde. Así una
+        // ruta pública mal escrita sigue sin resolver, que es lo que el bloque de contraejemplos
+        // de abajo garantiza.
+        if (!route.matcher) return true;
+        const accepted = route.matcher(
+          remaining.map((path) => new UrlSegment(path, {})),
+          null as never,
+          route,
+        );
+        if (accepted) return true;
+        continue;
+      }
+
       if (route.matcher) {
         // langCodeMatcher / countryCodeMatcher consume one segment when it matches.
         const consumed = route.matcher(

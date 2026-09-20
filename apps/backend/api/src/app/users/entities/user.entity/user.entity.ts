@@ -101,7 +101,8 @@ export class User {
   organization?: Organization;
 
   // Virtual property — populated manually for multi-tenant access checks.
-  organizations?: Array<{ id: string; legalName: string }>;
+  // `slug` viaja con cada empresa porque el cliente construye las URLs con él.
+  organizations?: Array<{ id: string; legalName: string; slug: string }>;
 
   @ManyToMany(() => Role, { eager: false })
   @JoinTable({

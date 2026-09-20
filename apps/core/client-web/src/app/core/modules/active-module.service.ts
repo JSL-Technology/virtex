@@ -6,6 +6,10 @@ import { MODULES, buildMenu, ownerOf, resolveRoute, railModules } from './module
 import { GROUP_LABEL } from './menu-labels';
 import { moduleIcon } from './module-icons';
 import { AuthService } from '../services/auth';
+import {
+  ActiveOrganizationService,
+  pathWithoutOrganization,
+} from '../tenancy/active-organization.service';
 
 /** One destination in a module's panel, ready to render. */
 export interface PanelEntry {
@@ -47,11 +51,22 @@ export interface ReachableModule {
 export class ActiveModuleService {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly tenancy = inject(ActiveOrganizationService);
   private readonly url = signal(this.router.url);
+
+  /**
+   * La URL sin el prefijo de empresa, que es la forma en la que habla el manifiesto.
+   *
+   * El manifiesto declara `/accounting/journal-entries`; el navegador está en
+   * `/e/nortex/accounting/journal-entries`. Resolver la URL cruda contra el manifiesto no casaría
+   * con nada y todo módulo parecería ser «Mi trabajo». Quitar el prefijo aquí mantiene el
+   * manifiesto libre de la empresa, que no es parte de la identidad de la página.
+   */
+  private readonly modulePath = computed(() => pathWithoutOrganization(this.url()));
 
   /** The module that owns the current URL, or the workspace module as the resting place. */
   readonly active = computed<ModuleManifest | null>(() => {
-    const match = resolveRoute(this.url());
+    const match = resolveRoute(this.modulePath());
     // A satellite resolves to its owner: `/masters/warehouses` is an Inventory screen that happens
     // to live under another prefix, and the panel beside it must be Inventory's.
     if (match) return ownerOf(match.entry.module);
@@ -83,8 +98,11 @@ export class ActiveModuleService {
             (entry) =>
               entry.permission === 'authenticated' || this.auth.hasPermissions([entry.permission]),
           )
+          //  El prefijo de empresa se añade AQUÍ y en ningún otro sitio. Las plantillas reciben
+          //  la URL terminada, así que ninguna puede olvidarse de la empresa —y la que se
+          //  olvidara mandaría a alguien a los libros de otra sin que nada fallara—.
           .map((entry) => ({
-            path: entry.path,
+            path: this.tenancy.urlFor(entry.path),
             labelKey: entry.labelKey,
             icon: moduleIcon(entry.icon),
           })),

@@ -279,4 +279,20 @@ export class OrganizationsService {
   async findByTaxId(taxId: string): Promise<Organization | null> {
     return this.organizationRepository.findOneBy({ taxId });
   }
+
+  /**
+   * Implementa `OrganizationLookupPort`: el id de la empresa cuyo slug —o uuid— es `ref`.
+   *
+   * Lo llama `ActiveTenantGuard` en cada petición que nombra su empresa, así que solo pide la
+   * columna `id`: no hace falta hidratar la entidad entera para traducir un identificador.
+   *
+   * Devuelve null en vez de lanzar porque quien llama no debe poder distinguir «no existe» de
+   * «no tienes acceso»; esa distinción revelaría qué empresas hay en el producto.
+   */
+  async findIdByRef(ref: string): Promise<string | null> {
+    const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const where = UUID.test(ref) ? { id: ref } : { slug: ref };
+    const found = await this.organizationRepository.findOne({ where, select: { id: true } });
+    return found?.id ?? null;
+  }
 }

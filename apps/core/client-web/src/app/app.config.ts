@@ -29,6 +29,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { watchRecaptchaScript } from './core/auth/recaptcha-token';
 import { API_URL } from './core/tokens/api-url.token';
 import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
+import { activeOrganizationInterceptor } from './core/tenancy/active-organization.interceptor';
 
 const CORE_PROVIDERS = [
   // Resolve the session before the first route is evaluated, so the guards never see a "pending"
@@ -128,7 +129,14 @@ export const appConfig: ApplicationConfig = {
     ...CHARTS_PROVIDERS,
     ...I18N_PROVIDERS,
     ...RECAPTCHA_PROVIDERS,
-    provideHttpClient(withInterceptors([authInterceptor, idempotencyInterceptor]), withFetch()),
+    provideHttpClient(
+      // `activeOrganizationInterceptor` va después del de autenticación y antes del de
+      // idempotencia: necesita que la petición ya sea la definitiva para sellarla con la empresa,
+      // y la clave de idempotencia se calcula sobre la petición con su empresa dentro —la misma
+      // operación en dos empresas no es la misma operación—.
+      withInterceptors([authInterceptor, activeOrganizationInterceptor, idempotencyInterceptor]),
+      withFetch(),
+    ),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

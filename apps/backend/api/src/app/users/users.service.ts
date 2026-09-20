@@ -964,9 +964,9 @@ export class UsersService extends UserProfilePort {
   private async findAccessibleOrganizations(
     userId: string,
     activeOrg?: Organization,
-  ): Promise<Array<{ id: string; legalName: string }>> {
+  ): Promise<Array<{ id: string; legalName: string; slug: string }>> {
     const memberships = await this.membershipService.listFor(userId, activeOrg?.id ?? null);
-    return memberships.map(({ id, legalName }) => ({ id, legalName }));
+    return memberships.map(({ id, legalName, slug }) => ({ id, legalName, slug }));
   }
 
   async save(user: User): Promise<User> {

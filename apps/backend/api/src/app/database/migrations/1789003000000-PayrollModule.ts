@@ -19,6 +19,27 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * 6. Seeds the Dominican Republic parameters, versioned by effective date. **The values are the
  *    documented 2017–2025 figures and must be confirmed against the current TSS/DGII resolution
  *    before a live filing — which is a data update, not a code change, by design.**
+ *
+ * ## Por qué este paso 5 nunca se había ejecutado
+ *
+ * El bucle de «provisionar inquilinos existentes» solo tiene cuerpo si `organizations` tiene
+ * filas. CI migra desde una base vacía —su propio comentario dice «proves they still apply
+ * cleanly from nothing»—, así que en CI el bucle da cero vueltas y sus consultas ni se planifican.
+ * Ejecutado contra una base con inquilinos, que es lo que hace un despliegue de actualización,
+ * fallaba cuatro veces seguidas —cada arreglo destapaba el siguiente—:
+ *
+ * 1. `$4` y `$5` se deducían como `text` en la lista del SELECT y como `character varying` al
+ *    compararlos con `code` / `system_role`: «inconsistent types deduced for parameter $4».
+ *    Llevan `::varchar` explícito.
+ * 2. `MAX(id)` sobre `uuid`: `max(uuid)` no existe en PostgreSQL 16 —llegó en la 17—. Se usa
+ *    `(array_agg(id ORDER BY id) FILTER (...))[1]`, que además es determinista.
+ * 3. El mismo problema de deducción con `$2` en el INSERT del cierre transitivo, donde la
+ *    `UNION ALL` obliga a unificar `text` con `uuid`.
+ * 4. Un `.catch()` que reintentaba una consulta idéntica y borraba la traza del fallo real.
+ *
+ * Los cuatro se reprodujeron y se verificaron contra una base con 234 organizaciones. Lo que
+ * impide que vuelva a pasar no es este comentario: es el paso de CI que migra sobre una base
+ * que ya tiene un inquilino.
  */
 export class PayrollModule1789003000000 implements MigrationInterface {
   name = 'PayrollModule1789003000000';
@@ -373,20 +394,17 @@ export class PayrollModule1789003000000 implements MigrationInterface {
   }
 
   private async ensureJournal(q: QueryRunner, orgId: string): Promise<void> {
+    // Sin `.catch()`: había uno que, ante cualquier fallo, reintentaba una consulta
+    // byte a byte idéntica «por si el esquema nombra la empresa de otra forma». No podía
+    // salvar nada —el segundo intento falla por lo mismo que el primero— y a cambio
+    // perdía la traza del error original. Una migración que no puede provisionar a un
+    // inquilino tiene que detenerse diciéndolo, no seguir como si nada.
     await q.query(
       `INSERT INTO "journals" ("id", "code", "name", "type", "organization_id")
        SELECT uuid_generate_v4(), 'NOMINA', 'Diario de Nómina', 'GENERAL', $1
        WHERE NOT EXISTS (SELECT 1 FROM "journals" WHERE "organization_id" = $1 AND "code" = 'NOMINA')`,
       [orgId],
-    ).catch(async () => {
-      // Some schemas key the journal's organization differently; fall back to a minimal insert.
-      await q.query(
-        `INSERT INTO "journals" ("id", "code", "name", "type", "organization_id")
-         SELECT uuid_generate_v4(), 'NOMINA', 'Diario de Nómina', 'GENERAL', $1
-         WHERE NOT EXISTS (SELECT 1 FROM "journals" WHERE "organization_id" = $1 AND "code" = 'NOMINA')`,
-        [orgId],
-      );
-    });
+    );
   }
 
   private async stampRole(q: QueryRunner, orgId: string, code: string, role: string): Promise<void> {
@@ -421,10 +439,10 @@ export class PayrollModule1789003000000 implements MigrationInterface {
           "organization_id","created_at","updated_at","version","code","system_role")
        SELECT uuid_generate_v4(), $3::jsonb, NULL, src."type", src."category", src."nature", true, true, true,
               src."parent_id", false, false, CURRENT_DATE, false,
-              src."organization_id", now(), now(), 1, $4, $5
+              src."organization_id", now(), now(), 1, $4::varchar, $5::varchar
        FROM src
-       WHERE NOT EXISTS (SELECT 1 FROM "accounts" WHERE "organization_id" = $1 AND "code" = $4)
-         AND NOT EXISTS (SELECT 1 FROM "accounts" WHERE "organization_id" = $1 AND "system_role" = $5)
+       WHERE NOT EXISTS (SELECT 1 FROM "accounts" WHERE "organization_id" = $1 AND "code" = $4::varchar)
+         AND NOT EXISTS (SELECT 1 FROM "accounts" WHERE "organization_id" = $1 AND "system_role" = $5::varchar)
        RETURNING "id"`,
       [orgId, siblingCode, JSON.stringify({ es: nameEs, en: nameEs, pt: nameEs }), code, role],
     );
@@ -434,11 +452,14 @@ export class PayrollModule1789003000000 implements MigrationInterface {
 
     // Closure: the new account inherits the sibling's ancestors (they are peers) plus itself.
     await q.query(
+      // `$2::uuid` en las tres posiciones: la UNION obliga a unificar los tipos de ambas
+      // ramas, y sin el cast Postgres deduce `text` para el parámetro en la lista del SELECT
+      // y `uuid` para el mismo parámetro donde se alinea con `c."id_ancestor"`.
       `INSERT INTO "accounts_closure" ("id_ancestor", "id_descendant")
-       SELECT c."id_ancestor", $2 FROM "accounts_closure" c
+       SELECT c."id_ancestor", $2::uuid FROM "accounts_closure" c
        JOIN "accounts" s ON s."id" = c."id_descendant"
-       WHERE s."organization_id" = $1 AND s."code" = $3 AND c."id_ancestor" <> s."id"
-       UNION ALL SELECT $2, $2`,
+       WHERE s."organization_id" = $1 AND s."code" = $3::varchar AND c."id_ancestor" <> s."id"
+       UNION ALL SELECT $2::uuid, $2::uuid`,
       [orgId, newId, siblingCode],
     );
 
@@ -462,13 +483,13 @@ export class PayrollModule1789003000000 implements MigrationInterface {
          "default_payroll_tax_withholding_payable_account_id" = COALESCE(s."default_payroll_tax_withholding_payable_account_id", r."PAYROLL_TAX_WITHHOLDING_PAYABLE")
        FROM (
          SELECT
-           MAX(id) FILTER (WHERE system_role = 'SALARY_EXPENSE') AS "SALARY_EXPENSE",
-           MAX(id) FILTER (WHERE system_role = 'EMPLOYER_CONTRIBUTIONS_EXPENSE') AS "EMPLOYER_CONTRIBUTIONS_EXPENSE",
-           MAX(id) FILTER (WHERE system_role = 'PAYROLL_NET_PAYABLE') AS "PAYROLL_NET_PAYABLE",
-           MAX(id) FILTER (WHERE system_role = 'AFP_PAYABLE') AS "AFP_PAYABLE",
-           MAX(id) FILTER (WHERE system_role = 'SFS_PAYABLE') AS "SFS_PAYABLE",
-           MAX(id) FILTER (WHERE system_role = 'INFOTEP_PAYABLE') AS "INFOTEP_PAYABLE",
-           MAX(id) FILTER (WHERE system_role = 'PAYROLL_TAX_WITHHOLDING_PAYABLE') AS "PAYROLL_TAX_WITHHOLDING_PAYABLE"
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'SALARY_EXPENSE'))[1] AS "SALARY_EXPENSE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'EMPLOYER_CONTRIBUTIONS_EXPENSE'))[1] AS "EMPLOYER_CONTRIBUTIONS_EXPENSE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'PAYROLL_NET_PAYABLE'))[1] AS "PAYROLL_NET_PAYABLE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'AFP_PAYABLE'))[1] AS "AFP_PAYABLE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'SFS_PAYABLE'))[1] AS "SFS_PAYABLE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'INFOTEP_PAYABLE'))[1] AS "INFOTEP_PAYABLE",
+           (array_agg(id ORDER BY id) FILTER (WHERE system_role = 'PAYROLL_TAX_WITHHOLDING_PAYABLE'))[1] AS "PAYROLL_TAX_WITHHOLDING_PAYABLE"
          FROM "accounts" WHERE "organization_id" = $1
        ) r
        WHERE s."organization_id" = $1`,

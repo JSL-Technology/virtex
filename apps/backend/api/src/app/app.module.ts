@@ -9,6 +9,8 @@ import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionsGuard } from './security/guards/permissions.guard';
+import { ActiveTenantGuard } from './shared/tenancy/active-tenant.guard';
+import { TenantIsolationCheck } from './shared/tenancy/tenant-isolation.check';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from './auth/guards/csrf.guard';
@@ -345,6 +347,24 @@ import { PosModule } from './pos/pos.module';
       // token's user binding can be verified rather than only its signature.
       provide: APP_GUARD,
       useClass: CsrfGuard,
+    },
+    //  Dice al arrancar si las políticas de aislamiento rigen de verdad o solo están instaladas.
+    //  Una API conectada como dueña de las tablas las ignora, y esa configuración es
+    //  indistinguible de la correcta desde dentro: todo funciona hasta que alguien ve datos de
+    //  otra empresa.
+    TenantIsolationCheck,
+    {
+      // Resuelve y AUTORIZA la empresa en la que actúa cada petición, cuando la nombra en la
+      // cabecera `x-virtex-organization`. Es lo que permite dos empresas abiertas a la vez sin
+      // que una pise a la otra: antes la empresa vivía solo en el token, que comparten todas las
+      // pestañas del navegador.
+      //
+      // Ordenación: después de JwtAuthGuard, porque necesita `request.user`; y ANTES de
+      // PermissionsGuard, porque recalcula los roles y permisos para la empresa pedida y es
+      // PermissionsGuard quien los lee. Al revés, alguien actuaría en la empresa B con los
+      // permisos que tiene en la A.
+      provide: APP_GUARD,
+      useClass: ActiveTenantGuard,
     },
     {
       // Authorisation, enforced by default. Declared per-endpoint it reached 47 of 76 controllers

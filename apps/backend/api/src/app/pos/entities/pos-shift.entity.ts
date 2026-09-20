@@ -41,12 +41,12 @@ export class PosShift {
    * and re-adding the column — losing every shift — and renaming both objects, on every run.
    */
   @Index('IDX_pos_shifts_org')
-  @Column({ type: 'uuid' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({
-    name: 'organizationId',
+    name: 'organization_id',
     foreignKeyConstraintName: 'FK_pos_shifts_organization',
   })
   organization: Organization;

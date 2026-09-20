@@ -40,7 +40,8 @@
     "verify:required-markers": "node tools/verify/required-markers.mjs",
     "verify:typescript-prose": "node tools/i18n/scan-typescript-prose.mjs --list",
     "verify:numeric-transformers": "node tools/verify/numeric-transformers.mjs",
-    "verify:date-columns": "node tools/verify/date-columns.mjs"
+    "verify:date-columns": "node tools/verify/date-columns.mjs",
+    "verify:upgrade-path": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/upgrade-path.ts"
   },
   "private": true,
   "devDependencies": {
