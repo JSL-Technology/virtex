@@ -91,12 +91,20 @@
           @for (line of lines.controls; track $index) {
             <tr [formGroupName]="$index">
               <td>
-                <select formControlName="accountId">
-                  <option value="" disabled>{{ 'accounting.journal_entry_form.select_account' | translate }}</option>
-                  @for (account of accounts(); track account.id) {
-                    <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
-                  }
-                </select>
+                <!--
+                  Era un `<select>` con el plan contable ENTERO dentro. En una empresa real ronda
+                  las mil cuentas —cada una con su padre y sus segmentos cargados—, renderizadas
+                  como mil `<option>` por cada línea del asiento, sin forma de buscarlas.
+                -->
+                <vx-select
+                  formControlName="accountId"
+                  [search]="searchAccounts"
+                  [resolveWith]="resolveAccount"
+                  [displayWith]="accountLabel"
+                  [valueWith]="accountId"
+                  [ariaLabel]="'accounting.journal_entry_form.select_account' | translate"
+                  placeholderKey="accounting.journal_entry_form.select_account"
+                />
               </td>
               <td>
                 <input type="text" formControlName="description">

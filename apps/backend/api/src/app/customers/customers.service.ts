@@ -10,6 +10,7 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
+import { likeTerm } from '../common/database/search-term';
 
 @Injectable()
 export class CustomersService {
@@ -146,13 +147,13 @@ export class CustomersService {
       .where('customer.organizationId = :organizationId', { organizationId })
       .orderBy('customer.companyName', 'ASC');
 
-    const term = options.search?.trim();
+    const term = likeTerm(options.search);
     if (term) {
       query.andWhere(
         `(customer.companyName ILIKE :term
           OR customer.taxId ILIKE :term
           OR customer.email ILIKE :term)`,
-        { term: `%${term.replace(/[\\%_]/g, '\\$&')}%` },
+        { term },
       );
     }
 

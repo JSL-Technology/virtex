@@ -140,12 +140,22 @@
                 @for (line of lineItems.controls; track $index; let i = $index) {
                   <tr [formGroupName]="i">
                     <td>
-                      <select formControlName="productId" class="form-control" (change)="onProductSelect(i)">
-                        <option value="">{{ 'invoices.new.free_text_line' | translate }}</option>
-                        @for (product of products(); track product.id) {
-                          <option [value]="product.id">{{ product.name }}</option>
-                        }
-                      </select>
+                      <!--
+                        Era el catálogo ENTERO dentro de un `<select>`, repetido por cada línea de
+                        la factura. Vacío sigue significando «línea de texto libre», que es lo que
+                        dice el marcador de posición.
+                      -->
+                      <vx-select
+                        formControlName="productId"
+                        [search]="searchProducts"
+                        [resolveWith]="resolveProduct"
+                        [displayWith]="productName"
+                        [valueWith]="productId"
+                        [describeWith]="productSku"
+                        [ariaLabel]="'invoices.new.item' | translate"
+                        placeholderKey="invoices.new.free_text_line"
+                        (optionSelected)="onProductSelect(i, $event)"
+                      />
                     </td>
                     <td><input type="text" formControlName="description" class="form-control" /></td>
                     <td>

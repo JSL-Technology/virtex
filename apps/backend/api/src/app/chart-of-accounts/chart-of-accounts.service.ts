@@ -30,6 +30,7 @@ import { JournalEntryLineValuation } from '../journal-entries/entities/journal-e
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { likeTerm } from '../common/database/search-term';
 
 @Injectable()
 export class ChartOfAccountsService {
@@ -162,11 +163,37 @@ export class ChartOfAccountsService {
     return savedAccount;
   }
 
-  async findAllForOrg(organizationId: string): Promise<Account[]> {
-    const accounts = await this.accountRepository.find({
-      where: { organizationId },
-      relations: ['parent', 'segments'],
-    });
+  /**
+   * El plan contable del inquilino, opcionalmente acotado.
+   *
+   * Ambos parámetros opcionales; omitirlos es lo de siempre. Existen para los selectores de cuenta
+   * —el asiento manual, el ajuste de auditoría, la factura de proveedor, el padre de una cuenta—,
+   * que se traían el plan entero: en una empresa real ronda las mil cuentas, cada una con sus
+   * relaciones cargadas, para enseñar diez filas.
+   *
+   * El NOMBRE es una columna `jsonb` con una traducción por idioma, así que se busca sobre su
+   * texto: buscar solo en el idioma del lector dejaría fuera la cuenta que alguien nombró en otro.
+   */
+  async findAllForOrg(
+    organizationId: string,
+    options: { search?: string; limit?: number } = {},
+  ): Promise<Account[]> {
+    const query = this.accountRepository
+      .createQueryBuilder('account')
+      .leftJoinAndSelect('account.parent', 'parent')
+      .leftJoinAndSelect('account.segments', 'segments')
+      .where('account.organizationId = :organizationId', { organizationId });
+
+    const term = likeTerm(options.search);
+    if (term) {
+      query.andWhere('(account.code ILIKE :term OR account.name::text ILIKE :term)', { term });
+    }
+
+    if (options.limit !== undefined && options.limit > 0) {
+      query.take(options.limit);
+    }
+
+    const accounts = await query.getMany();
 
     accounts.forEach((acc) => {
       if (acc.segments) {

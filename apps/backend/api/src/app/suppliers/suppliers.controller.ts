@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { SuppliersService } from './suppliers.service';
@@ -17,6 +18,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { clampLimit } from '../common/database/search-term';
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -28,10 +30,18 @@ export class SuppliersController {
     return this.suppliersService.create(createSupplierDto, user.organizationId);
   }
 
+  /** Los proveedores, acotados por `search` y limitados por `limit`. Ambos opcionales. */
   @Get()
   @HasPermission(PERMISSIONS.SUPPLIERS_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.suppliersService.findAll(user.organizationId);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('search') search?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.suppliersService.findAll(user.organizationId, {
+      search,
+      limit: clampLimit(limit),
+    });
   }
 
   @Get(':id')

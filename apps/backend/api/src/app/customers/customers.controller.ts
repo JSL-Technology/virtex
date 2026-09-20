@@ -19,6 +19,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
+import { clampLimit } from '../common/database/search-term';
 
 @Controller('customers')
 /**
@@ -50,10 +51,9 @@ export class CustomersController {
     @Query('search') search?: string,
     @Query('limit') limit?: string,
   ) {
-    const requested = Number.parseInt(limit ?? '', 10);
     return this.customersService.findAll(user.organizationId, {
       search,
-      limit: Number.isFinite(requested) ? Math.min(Math.max(requested, 1), 200) : undefined,
+      limit: clampLimit(limit),
     });
   }
 

@@ -2,7 +2,7 @@
     <!-- Encabezado de la Página -->
     <div class="page-header">
         <h1>{{ 'accounting.bulk_operations.bulk_operations' | translate }}</h1>
-        <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
+        <a routerLink="/accounting/chart-of-accounts" class="secondary-button">
             <i class="fas fa-arrow-left"></i> {{ 'accounting.bulk_operations.back_chart_accounts' | translate }}
         </a>
     </div>
@@ -31,7 +31,7 @@
                     <input id="file-upload" type="file" (change)="onFileSelected($event)"
                         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
 
-                    <button class="btn btn-primary" (click)="onUpload()" [disabled]="!selectedFile() || isUploading()">
+                    <button class="primary-button" (click)="onUpload()" [disabled]="!selectedFile() || isUploading()">
                         <span *ngIf="!isUploading()"><i class="fas fa-cogs"></i> {{ 'accounting.bulk_operations.process_file' | translate }}</span>
                         <span *ngIf="isUploading()">
                             <i class="fas fa-spinner fa-spin"></i> {{ 'accounting.bulk_operations.processing' | translate }}
@@ -91,11 +91,11 @@
                     <span>Jerarquía: <strong>{{ state.selectedHierarchy() }}</strong></span>
                 </div>
                 <div class="export-actions">
-                    <button class="btn btn-secondary" (click)="onExport('csv')" [disabled]="isExporting()">
+                    <button class="secondary-button" (click)="onExport('csv')" [disabled]="isExporting()">
                         <span *ngIf="!isExporting()"><i class="fas fa-file-csv"></i> Exportar a CSV</span>
                         <span *ngIf="isExporting()"><i class="fas fa-spinner fa-spin"></i> Exportando...</span>
                     </button>
-                    <button class="btn btn-secondary" (click)="onExport('json')" [disabled]="isExporting()">
+                    <button class="secondary-button" (click)="onExport('json')" [disabled]="isExporting()">
                         <span *ngIf="!isExporting()"><i class="fas fa-file-code"></i> Exportar a JSON</span>
                         <span *ngIf="isExporting()"><i class="fas fa-spinner fa-spin"></i> Exportando...</span>
                     </button>

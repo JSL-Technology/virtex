@@ -14,9 +14,12 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SELECT } from '../../../shared/components/select';
+import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
+import { Observable } from 'rxjs';
 
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {
@@ -55,7 +58,7 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,6 +74,7 @@ export class JournalEntryFormPage implements OnInit {
   // resolved imperatively. Everything the reader sees in the template goes through the pipe.
   private translate = inject(TranslateService);
   private accountingService = inject(AccountingService);
+  private chartOfAccountsService = inject(ChartOfAccountsApiService);
   private ledgersService = inject(LedgersService);
   private journalsService = inject(JournalsService);
   /** Optional: the page is also reachable through the router outlet, where there is no tab. */
@@ -98,7 +102,6 @@ export class JournalEntryFormPage implements OnInit {
   readonly editBlockedKey = signal<string | null>(null);
   /** The entry being modified, once loaded. */
   readonly original = signal<ApiJournalEntry | null>(null);
-  accounts = signal<Account[]>([]);
   ledgers = signal<Ledger[]>([]);
   journals = signal<Journal[]>([]);
   totalDebit = signal(0);
@@ -192,11 +195,27 @@ export class JournalEntryFormPage implements OnInit {
     });
   }
 
+  /**
+   * Busca cuentas en el servidor.
+   *
+   * Campo de función y no método: `vx-select` lo recibe como entrada, y una referencia a método
+   * llegaría sin `this`. Declararlo así mantiene además su identidad estable entre ciclos de
+   * detección de cambios.
+   */
+  protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
+    this.accountingService.searchAccounts(query, limit);
+
+  /** Nombra la cuenta que un id designa: el asiento puede llegar ya con cuentas puestas. */
+  protected readonly resolveAccount = (id: string): Observable<Account> =>
+    this.chartOfAccountsService.getAccountById(id);
+
+  /** «1101 — Efectivo en caja». El código primero: es como se busca una cuenta. */
+  protected readonly accountLabel = (account: Account): string =>
+    `${account.code} — ${accountNameOf(account.name)}`;
+
+  protected readonly accountId = (account: Account): string => account.id;
+
   loadInitialData(): void {
-    this.accountingService.getAccounts().subscribe({
-        next: data => this.accounts.set(data),
-        error: () => this.notificationService.showError('accounting.journal_entry_form.accounts_load_failed')
-    });
     this.ledgersService.getLedgers().subscribe({
       next: data => this.ledgers.set(data),
       error: () => this.notificationService.showError('accounting.journal_entry_form.ledgers_load_failed')

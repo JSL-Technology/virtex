@@ -61,12 +61,16 @@
           @for (line of lines.controls; track $index; let i = $index) {
             <tr [formGroupName]="i">
               <td>
-                <select [id]="'aa-line-account-' + i" formControlName="accountId">
-                  <option value="">{{ 'audit_adjustments.choose_account' | translate }}</option>
-                  @for (account of postableAccounts(); track account.id) {
-                    <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
-                  }
-                </select>
+                <!-- Era el plan contable entero dentro de un `<select>`, por línea del ajuste. -->
+                <vx-select
+                  [inputId]="'aa-line-account-' + i"
+                  formControlName="accountId"
+                  [search]="searchAccounts"
+                  [resolveWith]="resolveAccount"
+                  [displayWith]="accountLabel"
+                  [valueWith]="accountId"
+                  placeholderKey="audit_adjustments.choose_account"
+                />
               </td>
               <td>
                 <input

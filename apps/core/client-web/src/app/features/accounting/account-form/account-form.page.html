@@ -64,12 +64,19 @@
               </div>
               <div class="form-field">
                 <label for="parentId">{{ 'accounting.account_form.parent_account_grouping' | translate }}</label>
-                <select id="parentId" formControlName="parentId">
-                  <option [ngValue]="null">{{ 'accounting.account_form.none_root_account' | translate }}</option>
-                  @for (opt of stateService.parentAccountOptions(); track opt.id) {
-                    <option [value]="opt.id">{{ opt.code }} - {{ opt.name | vxName }}</option>
-                  }
-                </select>
+                <!--
+                  Lista cerrada y corta a propósito: solo las cuentas de agrupación, que son las
+                  cabeceras del árbol. Por eso va en modo `[options]` —filtrado en el cliente— y no
+                  con búsqueda en el servidor como los selectores de catálogo.
+                -->
+                <vx-select
+                  inputId="parentId"
+                  formControlName="parentId"
+                  [options]="stateService.parentAccountOptions()"
+                  [displayWith]="parentLabel"
+                  [valueWith]="parentId"
+                  placeholderKey="accounting.account_form.none_root_account"
+                />
               </div>
               <div class="form-field">
                 <label for="type">{{ 'accounting.account_form.account_type' | translate }} *</label>

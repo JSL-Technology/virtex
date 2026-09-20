@@ -12,10 +12,13 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
+import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { ChartOfAccountsApiService } from '../../data/chart-of-accounts.service';
+import { VX_SELECT } from '../../../../shared/components/select';
+import { Observable, map } from 'rxjs';
 
 /**
  * Proposing a correction to a year that is already closed.
@@ -42,9 +45,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     LucideAngularModule,
     DraftShellComponent,
-    VxLocalizedNamePipe,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, ...VX_SELECT],
   templateUrl: './audit-adjustment-form.page.html',
   styleUrls: ['./audit-adjustment-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +58,7 @@ export class AuditAdjustmentFormPage implements OnInit {
   private readonly adjustments = inject(AuditAdjustmentsService);
   private readonly fiscalYears = inject(FiscalYearsService);
   private readonly accounting = inject(AccountingService);
+  private readonly chartOfAccounts = inject(ChartOfAccountsApiService);
   private readonly journals = inject(JournalsService);
   private readonly notifications = inject(NotificationService);
 
@@ -80,7 +82,26 @@ export class AuditAdjustmentFormPage implements OnInit {
    * to by itself, because a manual entry into one of those puts the subledger and the ledger into
    * permanent disagreement.
    */
-  readonly postableAccounts = computed(() => this.accounts().filter(isChargeable));
+  /**
+   * Busca cuentas en el servidor y deja fuera las que este documento no puede tocar.
+   *
+   * El filtro sigue siendo del cliente porque es una regla del PRODUCTO, no del esquema: una
+   * cuenta de control es perfectamente válida en otros sitios. Aplicarlo sobre la página que
+   * devuelve el servidor puede dejar menos de `limit` filas, que es un precio muy inferior al de
+   * traerse el plan entero para enseñar diez.
+   */
+  protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
+    this.accounting.searchAccounts(query, limit).pipe(map((rows) => rows.filter(isChargeable)));
+
+  /** Nombra la cuenta que un id designa: un ajuste guardado se reabre con cuentas puestas. */
+  protected readonly resolveAccount = (id: string): Observable<Account> =>
+    this.chartOfAccounts.getAccountById(id);
+
+  /** «1101 — Efectivo en caja». El código primero: es como se busca una cuenta. */
+  protected readonly accountLabel = (account: Account): string =>
+    `${account.code} — ${accountNameOf(account.name)}`;
+
+  protected readonly accountId = (account: Account): string => account.id;
 
   readonly totalDebit = signal(0);
   readonly totalCredit = signal(0);
@@ -109,10 +130,6 @@ export class AuditAdjustmentFormPage implements OnInit {
     this.journals.getJournals().subscribe({
       next: (rows) => this.journalOptions.set(rows),
       error: () => this.journalOptions.set([]),
-    });
-    this.accounting.getAccounts().subscribe({
-      next: (rows) => this.accounts.set(rows),
-      error: () => this.accounts.set([]),
     });
   }
 

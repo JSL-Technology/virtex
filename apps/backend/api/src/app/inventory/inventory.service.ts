@@ -7,6 +7,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { InventoryPostingService } from './inventory-posting.service';
 import { ProductCategoriesService } from './product-categories.service';
+import { likeTerm } from '../common/database/search-term';
 
 @Injectable()
 export class InventoryService {
@@ -44,14 +45,38 @@ export class InventoryService {
     });
   }
 
-  findAll(organizationId: string): Promise<Product[]> {
-    return this.productRepository.find({
-      where: { organizationId },
+  /**
+   * El catálogo del inquilino, opcionalmente acotado a lo que se busca.
+   *
+   * Los dos parámetros son opcionales y OMITIRLOS ES EL COMPORTAMIENTO DE SIEMPRE —la lista
+   * entera, en el mismo orden—, así que nada de lo que llama hoy cambia. Existen para los
+   * selectores de producto, que en la factura nueva, el pedido de compra, la solicitud y la lista
+   * de precios se traían el catálogo completo para enseñar diez filas.
+   *
+   * Se busca por lo que el operador tiene delante: el nombre y el código del artículo.
+   */
+  findAll(
+    organizationId: string,
+    options: { search?: string; limit?: number } = {},
+  ): Promise<Product[]> {
+    const query = this.productRepository
+      .createQueryBuilder('product')
       // The category travels with the product: the register shows its name, and looking each one
       // up separately would be one query per row.
-      relations: ['category'],
-      order: { name: 'ASC' },
-    });
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.organizationId = :organizationId', { organizationId })
+      .orderBy('product.name', 'ASC');
+
+    const term = likeTerm(options.search);
+    if (term) {
+      query.andWhere('(product.name ILIKE :term OR product.sku ILIKE :term)', { term });
+    }
+
+    if (options.limit !== undefined && options.limit > 0) {
+      query.take(options.limit);
+    }
+
+    return query.getMany();
   }
 
   async findOne(id: string, organizationId: string): Promise<Product> {

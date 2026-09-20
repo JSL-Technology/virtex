@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
 import { PriceListsService, CreatePriceListDto, UpdatePriceListDto } from '../../../../core/api/price-lists.service';
@@ -12,10 +13,11 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../sh
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
+import { VX_SELECT } from '../../../../shared/components/select';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,7 +43,24 @@ export class PriceListFormPage implements OnInit {
   isEditMode = signal(false);
   isLoading = signal(true);
   isSaving = signal(false);
-  products = signal<Product[]>([]);
+
+  /**
+   * Busca productos en el servidor.
+   *
+   * Antes la lista de precios descargaba el catálogo entero y lo repetía dentro de un `<select>`
+   * por cada línea. Una lista de precios de cien líneas sobre un catálogo de miles era cien copias
+   * del catálogo en el DOM.
+   */
+  protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
+    this.inventoryService.searchProducts(query, limit);
+
+  /** Nombra el producto que un id designa: una lista guardada se reabre con sus líneas puestas. */
+  protected readonly resolveProduct = (id: string): Observable<Product> =>
+    this.inventoryService.getProductById(id);
+
+  protected readonly productName = (product: Product): string => product.name;
+  protected readonly productId = (product: Product): string => product.id;
+  protected readonly productSku = (product: Product): string | null => product.sku ?? null;
   private priceListId: string | null = null;
 
   statusOptions: PriceListStatus[] = [PriceListStatus.DRAFT, PriceListStatus.ACTIVE, PriceListStatus.INACTIVE];
@@ -79,15 +98,6 @@ export class PriceListFormPage implements OnInit {
         validators: dateOrder('validFrom', 'validTo'),
       },
     );
-
-    this.loadProducts();
-  }
-
-  loadProducts(): void {
-    this.inventoryService.getProducts().subscribe({
-      next: (products) => this.products.set(products),
-      error: () => this.notificationService.showError('masters.price_lists_form.products_could_not_loaded'),
-    });
   }
 
   loadPriceListData(id: string): void {

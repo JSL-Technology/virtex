@@ -56,12 +56,17 @@
             @for (line of lines.controls; track $index; let i = $index) {
               <tr [formGroupName]="i">
                 <td>
-                  <select formControlName="productId" (change)="onProductChange(i, $any($event.target).value)">
-                    <option value="">{{ 'purchasing.requisitions.form.not_in_catalogue' | translate }}</option>
-                    @for (product of products(); track product.id) {
-                      <option [value]="product.id">{{ product.name }}</option>
-                    }
-                  </select>
+                  <vx-select
+                    formControlName="productId"
+                    [search]="searchProducts"
+                    [resolveWith]="resolveProduct"
+                    [displayWith]="productName"
+                    [valueWith]="productId"
+                    [describeWith]="productSku"
+                    [ariaLabel]="'purchasing.requisitions.form.product' | translate"
+                    placeholderKey="purchasing.requisitions.form.not_in_catalogue"
+                    (optionSelected)="onProductChange(i, $event)"
+                  />
                 </td>
                 <td><input type="text" formControlName="description" maxlength="500" /></td>
                 <td class="numeric"><input type="number" step="0.000001" min="0" formControlName="quantity" /></td>

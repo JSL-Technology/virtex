@@ -1125,11 +1125,6 @@
     "en": "Account",
     "pt": "Conta"
   },
-  "accounting.journal_entry_form.accounts_load_failed": {
-    "es": "No pudimos cargar el catálogo de cuentas.",
-    "en": "We could not load the chart of accounts.",
-    "pt": "Não foi possível carregar o plano de contas."
-  },
   "accounting.journal_entry_form.add_line": {
     "es": "Añadir línea",
     "en": "Add line",

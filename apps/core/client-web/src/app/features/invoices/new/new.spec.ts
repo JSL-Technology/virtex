@@ -23,6 +23,11 @@ import { TranslateModule } from '@ngx-translate/core';
  * saw the Dominican rate and a Dominican one invoiced in dollars by default. Neither is something a
  * client can know.
  */
+const catalogue = [
+  { id: 'p-1', name: 'Servicio', price: 500, stock: 0, taxTreatment: 'TAXED', taxRate: 0.18 },
+  { id: 'p-2', name: 'Mercancía', price: 100, stock: 3, taxTreatment: 'TAXED', taxRate: 0.18 },
+];
+
 describe('NewInvoicePage', () => {
   let component: NewInvoicePage;
   let fixture: ComponentFixture<NewInvoicePage>;
@@ -126,12 +131,12 @@ describe('NewInvoicePage', () => {
           { provide: CustomersService, useValue: customersService },
           {
             provide: InventoryService,
+            //  El catálogo ya no se descarga entero: el campo de producto busca en el servidor y
+            //  pide por id el registro de una línea que llega puesta (una factura copiada).
             useValue: {
-              getProducts: () =>
-                of([
-                  { id: 'p-1', name: 'Servicio', price: 500, stock: 0, taxTreatment: 'TAXED', taxRate: 0.18 },
-                  { id: 'p-2', name: 'Mercancía', price: 100, stock: 3, taxTreatment: 'TAXED', taxRate: 0.18 },
-                ]),
+              getProducts: () => of(catalogue),
+              searchProducts: () => of(catalogue),
+              getProductById: (id: string) => of(catalogue.find((p) => p.id === id)!),
             },
           },
           { provide: CurrenciesService, useValue: { getCurrencies: () => of([{ code: 'DOP', name: 'Peso', symbol: 'RD$' }]) } },
@@ -238,8 +243,9 @@ describe('NewInvoicePage', () => {
   });
 
   it('fills a line from the catalogue, including its tax treatment', () => {
-    component.lineItems.at(0).patchValue({ productId: 'p-2' });
-    component.onProductSelect(0);
+    //  El campo entrega el registro elegido, no un id que la página tenga que buscar en una lista
+    //  descargada de antemano.
+    component.onProductSelect(0, catalogue[1] as never);
 
     expect(component.lineItems.at(0).get('unitPrice')?.value).toBe(100);
     expect(component.lineItems.at(0).get('taxTreatment')?.value).toBe('TAXED');

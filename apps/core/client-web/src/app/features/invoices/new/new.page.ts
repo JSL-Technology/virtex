@@ -91,7 +91,38 @@ export class NewInvoicePage implements OnInit {
 
   /** Debounces the preview requests; see `requestPreview`. */
   private readonly previewRequests = new Subject<CreateInvoiceDto>();
-  products = signal<Product[]>([]);
+  /**
+   * Los productos que este formulario ha visto, por id.
+   *
+   * Mismo motivo que con los clientes: el catálogo ya no se descarga entero, pero las líneas
+   * siguen necesitando el REGISTRO y no solo el id —el aviso de existencias insuficientes lee el
+   * stock—. Así que en vez de una lista de todos, se recuerdan los que han pasado por delante.
+   */
+  private readonly productsById = new Map<string, Product>();
+
+  /** Busca productos en el servidor. Campo de función: `vx-select` lo recibe como entrada. */
+  protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
+    this.inventoryService
+      .searchProducts(query, limit)
+      .pipe(tap((products) => products.forEach((product) => this.rememberProduct(product))));
+
+  /** Nombra el producto que un id designa: una factura copiada llega con líneas de catálogo. */
+  protected readonly resolveProduct = (id: string): Observable<Product> =>
+    this.inventoryService.getProductById(id).pipe(tap((product) => this.rememberProduct(product)));
+
+  protected readonly productName = (product: Product): string => product.name;
+  protected readonly productId = (product: Product): string => product.id;
+  protected readonly productSku = (product: Product): string | null =>
+    (product as { sku?: string }).sku ?? null;
+
+  private rememberProduct(product: Product): void {
+    this.productsById.set(product.id, product);
+  }
+
+  /** Una línea que vuelve a texto libre deja de tener existencias que vigilar. */
+  private forgetProduct(id: string | null | undefined): void {
+    if (id) this.productsById.delete(id);
+  }
   currencies = signal<Currency[]>([]);
   context = signal<InvoicingContext | null>(null);
   isSaving = signal(false);
@@ -158,7 +189,6 @@ export class NewInvoicePage implements OnInit {
     this.loadContext();
     //  Los clientes ya NO se descargan enteros al abrir: el campo los busca en el servidor. Ver
     //  `searchCustomers` más abajo.
-    this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
     this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
     this.checkCopyFrom();
 
@@ -425,10 +455,15 @@ export class NewInvoicePage implements OnInit {
   }
 
   /** Selecting a catalogue item fills the line from the catalogue, including its tax treatment. */
-  onProductSelect(index: number): void {
+  onProductSelect(index: number, product: Product | null): void {
     const control = this.lineItems.at(index);
-    const product = this.products().find((p) => p.id === control.get('productId')?.value);
-    if (!product) return;
+    //  El producto llega del campo, no de una lista que la página tuviera cargada: el catálogo ya
+    //  no se descarga entero. Limpiarlo devuelve la línea a texto libre y deja lo tecleado.
+    if (!product) {
+      this.forgetProduct(control.get('productId')?.value);
+      return;
+    }
+    this.rememberProduct(product);
 
     const treatment = (product as { taxTreatment?: TaxTreatment }).taxTreatment ?? 'TAXED';
 
@@ -464,7 +499,7 @@ export class NewInvoicePage implements OnInit {
   /** A line billing a stocked good beyond what is on hand. Shown, never silently accepted. */
   stockShortfall(index: number): number {
     const control = this.lineItems.at(index);
-    const product = this.products().find((p) => p.id === control.get('productId')?.value);
+    const product = this.productsById.get(control.get('productId')?.value);
     if (!product) return 0;
     const quantity = Number(control.get('quantity')?.value) || 0;
     const available = Number((product as { stock?: number }).stock ?? 0);
