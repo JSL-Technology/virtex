@@ -16,6 +16,8 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SELECT } from '../../../shared/components/select';
+import { Observable } from 'rxjs';
 
 /**
  * Recording a collection from a customer.
@@ -48,7 +50,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,8 +71,29 @@ export class CustomerReceiptFormPage implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   form!: FormGroup;
-  readonly customers = signal<Customer[]>([]);
+  /**
+   * Busca clientes en el servidor.
+   *
+   * Campo de función y no método: `vx-select` lo recibe como entrada y una referencia a método
+   * llegaría sin `this`.
+   */
+  protected readonly searchCustomers = (query: string, limit: number): Observable<Customer[]> =>
+    this.customersApi.searchCustomers(query, limit);
+
+  /** Nombra el cliente que un id designa: un recibo guardado se reabre con el suyo puesto. */
+  protected readonly resolveCustomer = (id: string): Observable<Customer> =>
+    this.customersApi.getCustomerById(id);
+
+  protected readonly customerName = (customer: Customer): string => customer.companyName;
+  protected readonly customerId = (customer: Customer): string => customer.id;
+  protected readonly customerTaxId = (customer: Customer): string | null => customer.taxId ?? null;
   readonly bankAccounts = signal<BankAccount[]>([]);
+
+  /** «BHD Corriente (DOP)»: la moneda importa tanto como el nombre para elegir una cuenta. */
+  protected readonly bankAccountLabel = (account: BankAccount): string =>
+    `${account.name} (${account.currencyCode})`;
+  protected readonly bankAccountId = (account: BankAccount): string => account.id;
+
   readonly openInvoices = signal<Invoice[]>([]);
   readonly saving = signal(false);
   /** Recomputed on every keystroke, so the arithmetic is visible before it is committed. */
@@ -112,10 +135,6 @@ export class CustomerReceiptFormPage implements OnInit {
       lines: this.fb.array([]),
     });
 
-    this.customersApi.getCustomers().subscribe({
-      next: (data) => this.customers.set(data),
-      error: () => this.customers.set([]),
-    });
     this.treasury.listBankAccounts().subscribe({
       next: (data) => {
         this.bankAccounts.set(data);
@@ -141,8 +160,7 @@ export class CustomerReceiptFormPage implements OnInit {
    * The server refuses a receipt whose currency the account cannot receive — it would need a rate
    * nobody has stated — so following the account is the only combination that always posts.
    */
-  onBankAccountChange(bankAccountId: string): void {
-    const account = this.bankAccounts().find((candidate) => candidate.id === bankAccountId);
+  onBankAccountChange(account: BankAccount | null): void {
     if (!account) return;
     this.form.patchValue({ currencyCode: account.currencyCode });
     this.currency.set(account.currencyCode);

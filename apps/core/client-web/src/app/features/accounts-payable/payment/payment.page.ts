@@ -12,6 +12,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SELECT } from '../../../shared/components/select';
 
 /**
  * Paying supplier invoices.
@@ -37,7 +38,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,12 @@ export class VendorPaymentPage implements OnInit {
 
   form!: FormGroup;
   readonly bankAccounts = signal<BankAccount[]>([]);
+
+  /** «BHD Corriente (DOP)»: la moneda importa tanto como el nombre para elegir una cuenta. */
+  protected readonly bankAccountLabel = (account: BankAccount): string =>
+    `${account.name} (${account.currencyCode})`;
+  protected readonly bankAccountId = (account: BankAccount): string => account.id;
+
   /**
    * The chosen account, mirrored out of the form.
    *
@@ -126,9 +133,10 @@ export class VendorPaymentPage implements OnInit {
   }
 
   /** Changing the account can strand a line the new account cannot settle, so the list resets. */
-  onBankAccountChange(bankAccountId: string): void {
-    this.form.patchValue({ bankAccountId }, { emitEvent: false });
-    this.selectedBankAccountId.set(bankAccountId);
+  onBankAccountChange(account: BankAccount | null): void {
+    //  Las líneas seleccionadas pertenecen a la cuenta desde la que se iba a pagar: cambiarla las
+    //  invalida, porque la moneda y el saldo disponible son otros.
+    this.selectedBankAccountId.set(account?.id ?? '');
     this.lines.clear();
     this.recomputeTotals();
   }

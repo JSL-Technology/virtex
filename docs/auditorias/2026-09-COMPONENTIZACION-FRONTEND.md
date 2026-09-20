@@ -40,50 +40,75 @@ que acordarse de invocar.
 
 ---
 
-## Prioridad 1 — Selector de entidad (`vx-select`) · **construido, falta migrar**
+## Prioridad 1 — Selector de entidad (`vx-select`) · **migrado**
 
-**Ya existe**: `apps/core/client-web/src/app/shared/components/select/`.
-Lo que queda es la migración, y es la más grande del inventario.
+**Componente**: `apps/core/client-web/src/app/shared/components/select/`.
+**Estado**: los trece controles del inventario están migrados.
 
 | Evidencia | Cifra |
 |---|---|
-| `<select>` nativos en plantillas | **102 en 45 archivos** |
+| `<select>` nativos en plantillas (al levantar la auditoría) | **102 en 45 archivos** |
 | de ellos, listas de entidad **sin cota** | 13 controles en 12 archivos |
-| páginas que descargan el catálogo entero para rellenarlos | 7 |
+| páginas que descargaban el catálogo entero para rellenarlos | 7 |
+| páginas que lo siguen descargando | **0** |
 
 ```
 grep -rn "<select" --include=*.html apps/core/client-web/src/app | wc -l
 ```
 
-Los que no escalan, con la línea de la plantilla y la del fetch que la alimenta:
+Los que no escalaban, con la línea de la plantilla, la del fetch que la
+alimentaba, y el modo en el que quedaron:
 
-| Control | Plantilla | Carga completa |
-|---|---|---|
-| `customerId` | `features/customer-receipts/form/form.page.html:17` | `form.page.ts:114` `getCustomers()` |
-| `supplierId` | `features/purchasing/orders/form/form.page.html:35` | `form.page.ts:111` `getSuppliers()` |
-| `productId` | `features/purchasing/orders/form/form.page.html:84` | `form.page.ts:115` `getProducts()` |
-| `productId` | `features/purchasing/requisitions/form/form.page.html:59` | `form.page.ts:89` `getProducts()` |
-| `productId` | `features/masters/price-lists/price-lists-form/price-list-form.page.html:71` | `price-list-form.page.ts:79` `getProducts()` |
-| `productId` | `features/invoices/new/new.page.html:125` | `new.page.ts` `getProducts()` |
-| `vendorId` | `features/accounts-payable/form/form.page.html:24` | `form.page.ts:241` `getSuppliers()` |
-| `accountId` | `features/accounting/journal-entry-form/journal-entry-form.page.html:94` | `journal-entry-form.page.ts:195` `getAccounts()` |
-| `accountId` | `features/accounting/audit-adjustments/audit-adjustment-form/audit-adjustment-form.page.html:64` | `audit-adjustment-form.page.ts:113` `getAccounts()` |
-| `expenseAccountId` | `features/accounts-payable/form/form.page.html:111` | `form.page.ts:278` `getAccounts()` |
-| `parentId` | `features/accounting/account-form/account-form.page.html:64` | catálogo completo de cuentas |
-| `bankAccountId` | `features/accounts-payable/payment/payment.page.html:31`, `features/customer-receipts/form/form.page.html:33`, `features/accounting/reconciliation/statement-import/statement-import.page.html:24` | — |
-| `roleId` | `features/settings/user-management/user-management.page.html:172` | — |
+| Control | Plantilla | Carga completa que tenía | Modo |
+|---|---|---|---|
+| `customerId` | `features/customer-receipts/form/form.page.html:18` | `form.page.ts:114` `getCustomers()` | servidor |
+| `customerId` | `features/invoices/new/new.page.html:90` | `new.page.ts` `getCustomers()` | servidor + alta en línea |
+| `supplierId` | `features/purchasing/orders/form/form.page.html:36` | `form.page.ts:111` `getSuppliers()` | servidor |
+| `productId` | `features/purchasing/orders/form/form.page.html:88` | `form.page.ts:115` `getProducts()` | servidor |
+| `productId` | `features/purchasing/requisitions/form/form.page.html:59` | `form.page.ts:89` `getProducts()` | servidor |
+| `productId` | `features/masters/price-lists/price-lists-form/price-list-form.page.html:71` | `price-list-form.page.ts:79` `getProducts()` | servidor |
+| `productId` | `features/invoices/new/new.page.html:148` | `new.page.ts` `getProducts()` | servidor |
+| `vendorId` | `features/accounts-payable/form/form.page.html:25` | `form.page.ts:241` `getSuppliers()` | servidor |
+| `accountId` | `features/accounting/journal-entry-form/journal-entry-form.page.html:94` | `journal-entry-form.page.ts:195` `getAccounts()` | servidor |
+| `accountId` | `features/accounting/audit-adjustments/audit-adjustment-form/audit-adjustment-form.page.html:64` | `audit-adjustment-form.page.ts:113` `getAccounts()` | servidor |
+| `expenseAccountId` | `features/accounts-payable/form/form.page.html:117` | `form.page.ts:278` `getAccounts()` | servidor + filtro de producto |
+| `parentId` | `features/accounting/account-form/account-form.page.html:72` | catálogo completo de cuentas | cliente (lista cerrada) |
+| `bankAccountId` ×3 | `features/accounts-payable/payment/payment.page.html:31`, `features/customer-receipts/form/form.page.html:41`, `features/accounting/reconciliation/statement-import/statement-import.page.html:24` | — | cliente (lista cerrada) |
+| `roleId` | `features/settings/user-management/user-management.page.html:158` | — | cliente (lista cerrada) |
 
-**Por qué es la primera.** No es una diferencia estética: es la única de la
+**Por qué era la primera.** No es una diferencia estética: era la única de la
 lista que se rompe **con los datos del cliente**, no con el código. Un plan
 contable real ronda las mil cuentas y un catálogo de productos las decenas de
-miles; cada uno de esos formularios los mete enteros en el DOM como `<option>`,
+miles; cada uno de esos formularios los metía enteros en el DOM como `<option>`,
 sin buscador, y sin forma de dar de alta el que falta sin abandonar el
 formulario a medio escribir.
 
-**Trabajo de servidor que arrastra.** Cada entidad necesita su
-`?search=&limit=`, como el que la Parte 1 añadió a `GET /customers`
-(`apps/backend/api/src/app/customers/customers.controller.ts`). Productos,
-cuentas y proveedores son los tres siguientes.
+**Trabajo de servidor que arrastró.** Cada entidad necesitaba su
+`?search=&limit=`. Los cuatro están hechos, compartiendo el escapado de
+comodines y el tope de `apps/backend/api/src/app/common/database/search-term.ts`:
+
+| Ruta | Controlador | Columnas que busca |
+|---|---|---|
+| `GET /customers` | `customers/customers.controller.ts` | `name`, `taxId` |
+| `GET /inventory/products` | `inventory/inventory.controller.ts` | `name`, `sku` |
+| `GET /suppliers` | `suppliers/suppliers.controller.ts` | `name`, `taxId` |
+| `GET /chart-of-accounts` | `chart-of-accounts/chart-of-accounts.controller.ts` | `code`, `name::text` |
+
+Los dos parámetros son opcionales y omitirlos reproduce exactamente lo que la
+ruta hacía antes, que es lo que dejaba migrar página por página sin romper a las
+que todavía no lo estaban. Cubierto por
+`inventory/inventory-search.spec.ts`, `suppliers/suppliers-search.spec.ts`,
+`chart-of-accounts/chart-of-accounts-search.spec.ts` y
+`customers/customers-search.spec.ts`.
+
+**Dos `<select>` de entidad que se quedan como están, a propósito.** El de
+empleado de una nómina (`features/payroll/runs/detail/detail.page.html:106`) y
+el de cuenta bancaria de la conciliación
+(`features/accounting/reconciliation/account-reconciliation/account-reconciliation.page.html:48`)
+no están dentro de un formulario reactivo —van con `[value]` y `(change)`— y las
+dos listas son cerradas y cortas. No son el problema que esta migración
+ataca, y meterlos obligaría a arrastrar `FormsModule` a esas dos páginas para no
+ganar nada.
 
 ---
 
@@ -373,16 +398,31 @@ cuando se toque alguna de las tres.
 
 ---
 
-## Orden de ejecución sugerido
+## Estado de ejecución
 
-1. **`vx-badge`** — 23 archivos, mecánico, sin lógica, y detiene la divergencia
-   que más ha avanzado. Es también el que deja el diff más legible.
-2. **`vx-amount`** — corrige un defecto real (moneda ausente, negativo
-   invisible) en los informes financieros.
-3. **Migrar los `<select>` de entidad a `vx-select`** por orden de tamaño de
-   catálogo: cuentas → productos → proveedores. Cada uno arrastra su
-   `?search=&limit=` en el servidor.
-4. **`vx-dialog` sobre CDK Overlay** con trampa de foco; empezar por retirar
-   `shared/service/modal.service.ts`, que ya está roto.
-5. **`vx-date-range`** — entra con el primer informe financiero que se toque.
-6. El resto, oportunista: con la pantalla ya abierta por otro motivo.
+El orden que esta auditoría proponía se ejecutó entero. Lo que quedó:
+
+| Prioridad | Componente | Estado |
+|---|---|---|
+| 1 | `vx-select` | construido y migrado — 13/13 controles, 4 rutas de búsqueda en el servidor |
+| 2 | `vx-badge` | construido y migrado |
+| 3 | `vx-amount` | construido y migrado |
+| 4 | `vx-dialog` | construido y migrado — 9 diálogos con trampa de foco; `shared/service/modal.service.ts` retirado |
+| 5 | `vx-date-field`, `vx-date-range` | construidos y migrados |
+| 6 | `vx-spinner`, `vx-empty-state`, `vx-error-state` | construidos y migrados |
+| 7 | `vx-pager` | construido y migrado |
+| 8 | vocabulario de botones | convergido sobre los mixins existentes |
+| 9 | `vx-tabs` | construido y migrado |
+
+Tres defectos de producción que la auditoría destapó y que quedaron corregidos
+por el camino: ningún diálogo atrapaba el foco (ahora los nueve lo atrapan y lo
+devuelven), `ModalService.open()` lanzaba `TypeError` —el aviso de cierre de
+sesión forzado no llegaba a verse nunca (`core/auth/auth.ts:154`)— y tres
+asteriscos de «campo obligatorio» marcaban campos que no lo eran, que el
+verificador `verify:required-markers` destapó al subir de 121 a 139 controles
+etiquetados bajo su cobertura.
+
+Lo que sigue abierto es el **resto de `<select>` nativos**: de los 102 del
+inventario, los que quedan son enumeraciones (estado, tipo de documento, moneda)
+y no listas de entidad. No escalan mal y no es urgente tocarlos; entran cuando
+se abra la pantalla por otro motivo.

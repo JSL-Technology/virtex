@@ -1,6 +1,6 @@
 // app/core/api/chart-of-accounts.service.ts
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -59,6 +59,19 @@ export class ChartOfAccountsApiService {
 
   getAccounts(): Observable<Account[]> {
     return this.http.get<Account[]>(this.apiUrl);
+  }
+
+  /**
+   * Las cuentas que coinciden con `search`, como mucho `limit`.
+   *
+   * Para los selectores de cuenta. `getAccounts()` se trae el plan entero —en una empresa real,
+   * cerca de mil cuentas con su padre y sus segmentos cargados—, que es lo correcto para la
+   * pantalla que los LISTA y lo que no escala para un campo que enseña diez a la vez.
+   */
+  searchAccounts(search: string, limit: number): Observable<Account[]> {
+    let params = new HttpParams().set('limit', limit);
+    if (search.trim()) params = params.set('search', search.trim());
+    return this.http.get<Account[]>(this.apiUrl, { params });
   }
   
   getAccountTree(): Observable<Account[]> {

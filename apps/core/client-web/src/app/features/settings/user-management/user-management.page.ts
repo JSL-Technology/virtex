@@ -72,6 +72,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VX_SELECT } from '../../../shared/components/select';
 
 @Component({
   selector: 'app-user-management-page',
@@ -82,7 +83,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
-    ...VX_FORM_A11Y, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })
@@ -144,6 +145,9 @@ export class UserManagementPage implements OnInit, OnDestroy {
   // Estado
   users = signal<ApiUser[]>([]);
   roles = signal<Role[]>([]);
+
+  protected readonly roleName = (role: Role): string => role.name;
+  protected readonly roleId = (role: Role): string => role.id;
   loading = signal(true);
   isEditMode = signal(false);
   userModalOpen = signal(false);

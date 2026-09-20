@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { InventoryService } from './inventory.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { clampLimit } from '../common/database/search-term';
 
 @Controller('inventory')
 export class InventoryController {
@@ -20,10 +21,23 @@ export class InventoryController {
     return this.inventoryService.create(createProductDto, user.organizationId, user.id);
   }
 
+  /**
+   * El catálogo, acotado por `search` y limitado por `limit`.
+   *
+   * Ambos opcionales; omitirlos es lo que esta ruta ha hecho siempre. Existen para los selectores
+   * de producto, que no tienen por qué descargarse el catálogo entero para enseñar diez filas.
+   */
   @Get()
   @HasPermission(PERMISSIONS.PRODUCTS_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.inventoryService.findAll(user.organizationId);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('search') search?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.inventoryService.findAll(user.organizationId, {
+      search,
+      limit: clampLimit(limit),
+    });
   }
 
   @Get(':id')

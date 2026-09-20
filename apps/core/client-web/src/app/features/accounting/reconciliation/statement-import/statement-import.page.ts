@@ -10,6 +10,7 @@ import { ReconciliationApiService } from '../../../../core/api/reconciliation.se
 import { NotificationService } from '../../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
+import { VX_SELECT } from '../../../../shared/components/select';
 
 /**
  * Importing a bank statement.
@@ -29,7 +30,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +59,12 @@ export class StatementImportPage implements OnInit {
 
   form!: FormGroup;
   readonly bankAccounts = signal<BankAccount[]>([]);
+
+  /** «BHD Corriente (DOP)»: la moneda importa tanto como el nombre para elegir una cuenta. */
+  protected readonly bankAccountLabel = (account: BankAccount): string =>
+    `${account.name} (${account.currencyCode})`;
+  protected readonly bankAccountId = (account: BankAccount): string => account.id;
+
   readonly file = signal<File | null>(null);
   readonly uploading = signal(false);
   /** The server names the row it could not read; the user needs to see which one. */

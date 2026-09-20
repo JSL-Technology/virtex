@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf, VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
+import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
@@ -16,6 +16,10 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SELECT } from '../../../shared/components/select';
+
+/** Una cuenta de agrupación, tal y como la ofrece el selector de cuenta padre. */
+type ParentOption = { id: string; name: string; code: string };
 
 @Component({
   selector: 'app-account-form-page',
@@ -27,13 +31,17 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
     LucideAngularModule,
     TranslateModule,
     DraftShellComponent,
-    VxLocalizedNamePipe,
-    ...VX_FORM_A11Y, VxTabsComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountFormPage implements OnInit {
+  /** «1100 - Efectivo y equivalentes»: el código primero, que es por donde se busca. */
+  protected readonly parentLabel = (option: ParentOption): string =>
+    `${option.code} - ${accountNameOf(option.name)}`;
+  protected readonly parentId = (option: ParentOption): string => option.id;
+
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly translate = inject(TranslateService);

@@ -21,12 +21,18 @@
       <div class="card-body grid-form">
         <div class="form-field">
           <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }} *</label>
-          <select id="vendorId" formControlName="vendorId">
-            <option value="">{{ 'accounts_payable.form.supplier_placeholder' | translate }}</option>
-            @for (supplier of supplierOptions(); track supplier.id) {
-              <option [value]="supplier.id">{{ supplier.name }}</option>
-            }
-          </select>
+          <!-- Era la lista entera de proveedores dentro de un `<select>`, sin buscador. -->
+          <vx-select
+            inputId="vendorId"
+            formControlName="vendorId"
+            [search]="searchSuppliers"
+            [resolveWith]="resolveSupplier"
+            [displayWith]="supplierName"
+            [valueWith]="supplierId"
+            [describeWith]="supplierTaxId"
+            [required]="true"
+            placeholderKey="accounts_payable.form.supplier_placeholder"
+          />
           @if (form.controls['vendorId'].touched && form.controls['vendorId'].invalid) {
             <p class="field-error">{{ 'accounts_payable.form.select_supplier' | translate }}</p>
           }
@@ -107,14 +113,16 @@
               step="0.01"
               min="0"
               [attr.aria-label]="'accounts_payable.form.price' | translate">
-            <select
+            <!-- Era el plan contable entero dentro de un `<select>`, por línea de la factura. -->
+            <vx-select
               formControlName="expenseAccountId"
-              [attr.aria-label]="'accounts_payable.form.expense_account' | translate">
-              <option value="">{{ 'accounts_payable.form.select_account' | translate }}</option>
-              @for (account of expenseAccounts(); track account.id) {
-                <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
-              }
-            </select>
+              [search]="searchExpenseAccounts"
+              [resolveWith]="resolveAccount"
+              [displayWith]="accountLabel"
+              [valueWith]="accountId"
+              [ariaLabel]="'accounts_payable.form.expense_account' | translate"
+              placeholderKey="accounts_payable.form.select_account"
+            />
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>
             <button
               type="button"

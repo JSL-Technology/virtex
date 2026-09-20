@@ -155,10 +155,15 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="roleid">{{ 'settings.user_management.role' | translate }}</label>
-          <select id="roleid" class="form-control" formControlName="roleId" required>
-            <option [ngValue]="null" disabled>{{ 'settings.user_management.select_role' | translate }}</option>
-            <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
-          </select>
+          <!-- Lista corta y cerrada: los roles de la organización. Filtrado en el cliente. -->
+          <vx-select
+            inputId="roleid"
+            formControlName="roleId"
+            [options]="roles()"
+            [displayWith]="roleName"
+            [valueWith]="roleId"
+            placeholderKey="settings.user_management.select_role"
+          />
         </div>
          <div class="form-group" *ngIf="!isEditMode()">
             <label class="form-label" for="invitationmessage">{{ 'settings.user_management.invitation_message_optional' | translate }}</label>

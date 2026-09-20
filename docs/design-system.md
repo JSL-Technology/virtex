@@ -362,6 +362,154 @@ mismos mixins que visten los `<input>` nativos, y la altura de fila se **mide**
 del token `--vx-select-row-height`, así que la densidad compacta la sigue sin
 tocar el componente.
 
+### `vx-dialog` — diálogo modal
+
+`apps/core/client-web/src/app/shared/components/dialog/`
+
+```ts
+import { VxDialogComponent } from '../../shared/components/dialog';
+```
+
+```html
+@if (confirming()) {
+  <vx-dialog size="sm" titleKey="x.confirm_title" [busy]="saving()" (dismissed)="cancel()">
+    <p>{{ 'x.confirm_body' | translate }}</p>
+    <div dialogActions>
+      <button type="button" class="btn" (click)="cancel()">…</button>
+      <button type="button" class="btn btn-primary" cdkFocusInitial (click)="go()">…</button>
+    </div>
+  </vx-dialog>
+}
+```
+
+Se monta y se desmonta con un `@if`: mientras está en el DOM, está abierto. El
+contenido va por proyección y los botones por el hueco `[dialogActions]`.
+
+Sobre CDK Overlay, con `blockScrollStrategy` y reposicionamiento. **Atrapa el
+foco** con `FocusTrapFactory` y lo devuelve a quien lo abrió al cerrarse;
+`cdkFocusInitial` decide dónde entra. Escape cierra **solo el diálogo de
+encima**, que es lo que hace que apilar dos no se convierta en cerrar los dos.
+`[busy]` desactiva Escape, el velo y el botón de cerrar mientras hay algo en
+vuelo: un diálogo que se desvanece a medio guardar deja sin saber si guardó.
+`DialogService.alert()` / `.confirm()` cubren la pregunta de una sola línea sin
+montar una plantilla.
+
+Antes había tres mecanismos distintos y ninguno atrapaba el foco: el lector de
+pantalla seguía leyendo la página de debajo mientras el diálogo estaba abierto.
+
+### `vx-badge` — insignia de estado
+
+`apps/core/client-web/src/app/shared/components/badge/`
+
+```html
+<vx-badge [tone]="statusTone()" [struck]="status() === 'VOID'">
+  {{ 'x.status.' + status() | translate }}
+</vx-badge>
+```
+
+`tone`: `neutral`, `draft`, `ok`, `warning`, `danger`, `info`, `accent`. `struck`
+tacha el texto para un documento anulado, que es la única forma de distinguirlo
+de uno vivo sin depender del color. Los contrastes de los siete tonos están bajo
+`npm run lint:contrast`, en claro y en oscuro.
+
+La página decide **qué tono** merece un estado; el componente decide **cómo se
+pinta**. Un `switch` que devuelve `VxTone` vive en la página; ningún color vive
+en ella.
+
+### `vx-amount` — importe monetario
+
+`apps/core/client-web/src/app/shared/components/amount/`
+
+```html
+<vx-amount [value]="totals().payable" [currency]="currency()" />
+<vx-amount [value]="-discount()" />
+```
+
+Alineado a la derecha con cifras tabulares, la moneda cuando se le da una, y
+`—` cuando el valor es nulo —que no es lo mismo que cero—. **Un negativo se pinta
+como negativo**: antes había informes que anteponían un `−` a mano y otros que no,
+así que un descuento podía leerse como un cargo. Repinta al cambiar de idioma
+porque lee el locale dentro del `computed`.
+
+### `vx-date-field` y `vx-date-range` — fechas
+
+`apps/core/client-web/src/app/shared/components/date/`
+
+```html
+<label class="field" for="issueDate">
+  <span>{{ 'x.issue_date' | translate }}</span>
+  <vx-date-field inputId="issueDate" formControlName="issueDate" />
+</label>
+```
+
+Normaliza `Date`, ISO y `YYYY-MM-DD` en UTC, que es donde estaba el defecto de
+«la factura se guarda con el día de ayer» en las zonas al oeste de Greenwich.
+Para un rango, el validador de grupo `dateOrder('desde', 'hasta')` pone el error
+**en el grupo y en el control tardío**, para que el resumen de errores del
+armazón de borrador pueda nombrar un campo en lugar de decir «el formulario».
+
+`inputId` va junto a un `for` **literal** en la etiqueta: `verify:required-markers`
+lee el atributo en crudo y un `[attr.for]` lo deja fuera de su cobertura.
+
+### `vx-spinner`, `vx-empty-state`, `vx-error-state` — los tres estados
+
+`apps/core/client-web/src/app/shared/components/feedback/`
+
+```html
+@if (loading()) {
+  <vx-spinner />
+} @else if (failure()) {
+  <vx-error-state [detail]="failure()" (retry)="load()" />
+} @else if (!rows().length) {
+  <vx-empty-state [icon]="BuildingIcon" titleKey="x.empty" descriptionKey="x.empty_help">
+    <button action type="button" class="btn btn-primary" (click)="create()">…</button>
+  </vx-empty-state>
+}
+```
+
+`vx-error-state` toma `[detail]` como **mensaje ya traducido**, no como clave: lo
+que devuelve el API viene localizado por el API, y un cliente que lo buscase en
+su propio catálogo imprimiría la clave de todo lo que el servidor conoce y él no.
+La acción del estado vacío se proyecta en el hueco `[action]`, para que pueda ser
+un enlace, un botón o un campo de subida según el caso.
+
+Los tres existen porque los tres se escribían a mano y **el de error casi nunca**:
+lo normal era una pantalla en blanco indistinguible de «no hay nada». Un error
+sin reintento obliga a recargar la página entera.
+
+### `vx-pager` — paginación
+
+`apps/core/client-web/src/app/shared/components/pager/`
+
+```html
+<vx-pager
+  [page]="page()"
+  [pageSize]="limit()"
+  [total]="total()"
+  [disabled]="isLoading()"
+  (pageChange)="goToPage($event)"
+  (pageSizeChange)="setLimit($event)"
+/>
+```
+
+Emite **la página de destino**, no un delta: un `goToPage(+1)` obliga a cada
+llamante a conocer los límites y a decidir qué hace en el último. `[total]` puede
+ser nulo cuando el endpoint no lo dice; entonces se consulta `[hasMore]`.
+
+### `vx-tabs` — pestañas dentro de página
+
+`apps/core/client-web/src/app/shared/components/tabs/`
+
+```html
+<vx-tabs #tabs [tabs]="TABS" [(active)]="activeTab" />
+<section role="tabpanel" [id]="tabs.panelId('lines')" [attr.aria-labelledby]="tabs.tabId('lines')">
+```
+
+Patrón de pestañas de ARIA: `tabindex` móvil —solo la activa es tabulable—,
+flechas para moverse entre ellas, Home y End a los extremos. `tabId()` y
+`panelId()` son públicos para que el panel pueda apuntar a su pestaña sin
+inventarse los identificadores.
+
 ---
 
 ## Añadir un componente

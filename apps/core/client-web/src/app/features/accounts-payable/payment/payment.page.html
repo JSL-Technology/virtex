@@ -25,16 +25,16 @@
           <vx-date-field inputId="paymentDate" formControlName="paymentDate" />
         </label>
 
-        <label class="field">
+        <label class="field" for="bankAccountId">
           <span>{{ 'accounts_payable.payment.bank_account' | translate }} *</span>
-          <select
+          <vx-select
+            inputId="bankAccountId"
             formControlName="bankAccountId"
-            (change)="onBankAccountChange($any($event.target).value)"
-          >
-            @for (account of activeBankAccounts(); track account.id) {
-              <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
-            }
-          </select>
+            [options]="activeBankAccounts()"
+            [displayWith]="bankAccountLabel"
+            [valueWith]="bankAccountId"
+            (optionSelected)="onBankAccountChange($event)"
+          />
         </label>
 
         <label class="field">

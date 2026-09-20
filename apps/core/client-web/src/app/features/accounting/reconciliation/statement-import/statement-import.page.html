@@ -19,13 +19,15 @@
     } @else {
       <section class="form-section">
         <div class="form-grid">
-        <label class="field">
+        <label class="field" for="bankAccountId">
           <span>{{ 'accounting.reconciliation.choose_bank_account' | translate }} *</span>
-          <select formControlName="bankAccountId">
-            @for (account of bankAccounts(); track account.id) {
-              <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
-            }
-          </select>
+          <vx-select
+            inputId="bankAccountId"
+            formControlName="bankAccountId"
+            [options]="bankAccounts()"
+            [displayWith]="bankAccountLabel"
+            [valueWith]="bankAccountId"
+          />
         </label>
 
         <label class="field">

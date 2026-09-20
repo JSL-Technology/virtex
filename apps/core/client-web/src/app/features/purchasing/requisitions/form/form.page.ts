@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -19,6 +21,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
+import { VX_SELECT } from '../../../../shared/components/select';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -42,7 +45,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,7 +67,6 @@ export class RequisitionFormPage implements OnInit {
 
   form!: FormGroup;
   readonly saving = signal(false);
-  readonly products = signal<Product[]>([]);
   readonly current = signal<PurchaseRequisition | null>(null);
   readonly problems = signal<DraftProblem[]>([]);
 
@@ -104,11 +106,6 @@ export class RequisitionFormPage implements OnInit {
       lines: this.fb.array([]),
     });
 
-    this.inventory.getProducts().subscribe({
-      next: (data) => this.products.set(data),
-      error: () => this.products.set([]),
-    });
-
     if (this.id) {
       this.purchasing.getRequisition(this.id).subscribe({
         next: (requisition) => this.load(requisition),
@@ -142,6 +139,33 @@ export class RequisitionFormPage implements OnInit {
     this.recomputeTotal();
   }
 
+  /** Busca productos en el servidor. Campo de función: `vx-select` lo recibe como entrada. */
+  protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
+    this.inventory
+      .searchProducts(query, limit)
+      .pipe(tap((products) => products.forEach((product) => this.remember(product))));
+
+  /** Nombra el producto que un id designa: una requisición guardada llega con líneas de catálogo. */
+  protected readonly resolveProduct = (id: string): Observable<Product> =>
+    this.inventory.getProductById(id).pipe(tap((product) => this.remember(product)));
+
+  protected readonly productName = (product: Product): string => product.name;
+  protected readonly productId = (product: Product): string => product.id;
+  protected readonly productSku = (product: Product): string | null =>
+    (product as { sku?: string }).sku ?? null;
+
+  /**
+   * Los productos que este formulario ha visto, por id.
+   *
+   * El catálogo ya no se descarga entero, pero nada aquí necesita el registro después de haber
+   * rellenado la línea: se guarda solo para no volver a pedir el mismo producto.
+   */
+  private readonly productsById = new Map<string, Product>();
+
+  private remember(product: Product): void {
+    this.productsById.set(product.id, product);
+  }
+
   /**
    * Picking a catalogue product fills the line in.
    *
@@ -149,9 +173,11 @@ export class RequisitionFormPage implements OnInit {
    * then the supplier read, and "Tóner negro, el de la impresora de recepción" is more useful than
    * the catalogue's name.
    */
-  onProductChange(index: number, productId: string): void {
-    const product = this.products().find((candidate) => candidate.id === productId);
+  onProductChange(index: number, product: Product | null): void {
+    //  El producto llega del campo, no de una lista cargada de antemano. Limpiarlo devuelve la
+    //  línea a texto libre y deja intacto lo que el solicitante ya había escrito.
     if (!product) return;
+    this.remember(product);
     const line = this.lines.at(index);
     line.patchValue({
       description: line.value.description || product.name,

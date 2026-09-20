@@ -17,7 +17,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Observable, of, map } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import {
@@ -34,11 +34,14 @@ import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
+import { VX_SELECT } from '../../../shared/components/select';
+import { Supplier } from '../../../core/models/supplier.model';
+import { Account } from '../../../core/models/account.model';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -89,7 +92,7 @@ interface BillTotals {
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxDateFieldComponent],
+    ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,7 +121,17 @@ export class VendorBillFormPage implements OnInit {
   readonly isLoading = signal(false);
   readonly showFiscalDetail = signal(false);
 
-  readonly supplierOptions = signal<{ id: string; name: string }[]>([]);
+  /** Busca proveedores en el servidor. Campo de función: `vx-select` lo recibe como entrada. */
+  protected readonly searchSuppliers = (query: string, limit: number): Observable<Supplier[]> =>
+    this.suppliers.searchSuppliers(query, limit);
+
+  /** Nombra el proveedor que un id designa: una factura guardada se reabre con el suyo puesto. */
+  protected readonly resolveSupplier = (id: string): Observable<Supplier> =>
+    this.suppliers.getSupplierById(id);
+
+  protected readonly supplierName = (supplier: Supplier): string => supplier.name;
+  protected readonly supplierId = (supplier: Supplier): string => supplier.id;
+  protected readonly supplierTaxId = (supplier: Supplier): string | null => supplier.taxId ?? null;
 
   /** The currencies the tenant transacts in. Same source the sales invoice uses. */
   readonly currencies = signal<Currency[]>([]);
@@ -127,9 +140,32 @@ export class VendorBillFormPage implements OnInit {
    * in the template. Resolving it here instead would freeze the language at fetch time, so
    * switching language would leave the list in the old one until the next refetch.
    */
-  readonly expenseAccounts = signal<
-    { id: string; code: string; name: string | Record<string, string> }[]
-  >([]);
+  /**
+   * Busca cuentas de gasto en el servidor, dejando fuera las de sub-mayor.
+   *
+   * El filtro sigue siendo del cliente porque es una regla del PRODUCTO: `chargeableExpenseAccounts`
+   * lee el mismo `systemRole` contra el que resuelven los asientos automáticos, de modo que el
+   * campo y el mayor no pueden discrepar sobre qué cuentas pertenecen a un sub-mayor. Aplicarlo
+   * sobre la página que devuelve el servidor puede dejar menos de `limit` filas — un precio muy
+   * inferior al de traerse el plan entero por cada línea de la factura.
+   */
+  protected readonly searchExpenseAccounts = (
+    query: string,
+    limit: number,
+  ): Observable<Account[]> =>
+    this.accounts
+      .searchAccounts(query, limit)
+      .pipe(map((list) => chargeableExpenseAccounts(list ?? [])));
+
+  /** Nombra la cuenta que un id designa: una factura guardada se reabre con cuentas puestas. */
+  protected readonly resolveAccount = (id: string): Observable<Account> =>
+    this.accounts.getAccountById(id);
+
+  /** «6101 — Servicios profesionales». El código primero: es como se busca una cuenta. */
+  protected readonly accountLabel = (account: Account): string =>
+    `${account.code} — ${accountNameOf(account.name)}`;
+
+  protected readonly accountId = (account: Account): string => account.id;
   readonly totals = signal<BillTotals>({
     subtotal: 0,
     taxAmount: 0,
@@ -245,14 +281,6 @@ export class VendorBillFormPage implements OnInit {
   }
 
   private loadPickers(): void {
-    this.suppliers.getSuppliers().subscribe({
-      next: (list) =>
-        this.supplierOptions.set(
-          (list ?? []).map((supplier) => ({ id: supplier.id, name: supplier.name })),
-        ),
-      error: () => this.supplierOptions.set([]),
-    });
-
     this.currenciesService.getCurrencies().subscribe({
       next: (list) => this.currencies.set(list ?? []),
       //  A failed load must not leave an empty list that silently blanks the field.
@@ -282,19 +310,6 @@ export class VendorBillFormPage implements OnInit {
     // what customers owe us. `chargeableExpenseAccounts` reads the same `systemRole` the automatic
     // postings resolve against, so the picker and the ledger cannot disagree about which accounts
     // belong to a sub-ledger.
-    this.accounts.getAccounts().subscribe({
-      next: (list) =>
-        this.expenseAccounts.set(
-          chargeableExpenseAccounts(list ?? [])
-            .map((account) => ({
-              id: account.id,
-              code: account.code,
-              name: account.name,
-            }))
-            .sort((a, b) => a.code.localeCompare(b.code)),
-        ),
-      error: () => this.expenseAccounts.set([]),
-    });
   }
 
   private checkMode(): void {

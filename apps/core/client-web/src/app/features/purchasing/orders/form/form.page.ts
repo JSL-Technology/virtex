@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
@@ -22,6 +23,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
+import { VX_SELECT } from '../../../../shared/components/select';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -46,7 +48,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
     ...FORMAT_PIPES,
     DraftShellComponent,
     RouterLink,
-    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,8 +70,40 @@ export class PurchaseOrderFormPage implements OnInit {
 
   form!: FormGroup;
   readonly saving = signal(false);
-  readonly suppliers = signal<Supplier[]>([]);
-  readonly products = signal<Product[]>([]);
+  /** Busca proveedores en el servidor. Campo de función: `vx-select` lo recibe como entrada. */
+  protected readonly searchSuppliers = (query: string, limit: number): Observable<Supplier[]> =>
+    this.suppliersApi.searchSuppliers(query, limit);
+
+  /** Nombra el proveedor que un id designa: un pedido guardado se reabre con el suyo puesto. */
+  protected readonly resolveSupplier = (id: string): Observable<Supplier> =>
+    this.suppliersApi.getSupplierById(id);
+
+  protected readonly supplierName = (supplier: Supplier): string => supplier.name;
+  protected readonly supplierId = (supplier: Supplier): string => supplier.id;
+  protected readonly supplierTaxId = (supplier: Supplier): string | null => supplier.taxId ?? null;
+
+  /** Busca productos en el servidor: el catálogo ya no se descarga entero por cada línea. */
+  protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
+    this.inventory
+      .searchProducts(query, limit)
+      .pipe(tap((products) => products.forEach((product) => this.rememberProduct(product))));
+
+  /** Nombra el producto que un id designa: un pedido guardado se reabre con sus líneas puestas. */
+  protected readonly resolveProduct = (id: string): Observable<Product> =>
+    this.inventory.getProductById(id).pipe(tap((product) => this.rememberProduct(product)));
+
+  protected readonly productName = (product: Product): string => product.name;
+  protected readonly productId = (product: Product): string => product.id;
+  protected readonly productSku = (product: Product): string | null =>
+    (product as { sku?: string }).sku ?? null;
+
+  /** Los productos que este formulario ha visto, por id, para no volver a pedirlos. */
+  private readonly productsById = new Map<string, Product>();
+
+  private rememberProduct(product: Product): void {
+    this.productsById.set(product.id, product);
+  }
+
   readonly current = signal<PurchaseOrder | null>(null);
   readonly problems = signal<DraftProblem[]>([]);
 
@@ -142,15 +176,6 @@ export class PurchaseOrderFormPage implements OnInit {
       },
     );
 
-    this.suppliersApi.getSuppliers().subscribe({
-      next: (data) => this.suppliers.set(data),
-      error: () => this.suppliers.set([]),
-    });
-    this.inventory.getProducts().subscribe({
-      next: (data) => this.products.set(data),
-      error: () => this.products.set([]),
-    });
-
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
         next: (order) => this.load(order),
@@ -194,9 +219,11 @@ export class PurchaseOrderFormPage implements OnInit {
    * the supplier, and defaulting to the price we charge our own customers would quietly inflate
    * every purchase order in the system.
    */
-  onProductChange(index: number, productId: string): void {
-    const product = this.products().find((candidate) => candidate.id === productId);
+  onProductChange(index: number, product: Product | null): void {
+    //  El producto llega del campo, no de una lista cargada de antemano. Limpiarlo devuelve la
+    //  línea a texto libre y deja intacto lo que el comprador ya había escrito.
     if (!product) return;
+    this.rememberProduct(product);
     const line = this.lines.at(index);
     line.patchValue({
       description: line.value.description || product.name,

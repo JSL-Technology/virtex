@@ -25,6 +25,7 @@ import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { clampLimit } from '../common/database/search-term';
 
 @Controller('chart-of-accounts')
 export class ChartOfAccountsController {
@@ -44,10 +45,18 @@ export class ChartOfAccountsController {
     );
   }
 
+  /** El plan contable, acotado por `search` y limitado por `limit`. Ambos opcionales. */
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get()
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.chartOfAccountsService.findAllForOrg(user.organizationId);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('search') search?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.chartOfAccountsService.findAllForOrg(user.organizationId, {
+      search,
+      limit: clampLimit(limit),
+    });
   }
 
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)

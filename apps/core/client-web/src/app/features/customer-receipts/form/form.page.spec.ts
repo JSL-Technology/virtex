@@ -72,7 +72,8 @@ describe('CustomerReceiptFormPage', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
 
-    httpMock.expectOne((c) => c.url === `${API}/customers`).flush([]);
+    //  Ya no se pide la cartera entera al abrir: el selector de cliente busca en el servidor
+    //  cuando el usuario teclea. Las cuentas bancarias sí, porque son una lista corta y cerrada.
     httpMock.expectOne((c) => c.url === `${API}/treasury/bank-accounts`).flush(bankAccounts);
     fixture.detectChanges();
   });
@@ -82,6 +83,11 @@ describe('CustomerReceiptFormPage', () => {
    * ahead. `advances` defaults to nothing on account, which is the ordinary case.
    */
   const pickCustomer = (advances: { currencyCode: string; amount: number; baseAmount: number }[] = []) => {
+    //  Como en pantalla: el selector escribe el id en el control y avisa con el registro. El
+    //  campo pide entonces el nombre del cliente, que es lo que muestra mientras no se busque.
+    component.form.patchValue({ customerId: 'c1' });
+    fixture.detectChanges();
+    httpMock.expectOne((c) => c.url === `${API}/customers/c1`).flush({ id: 'c1', name: 'Cliente' });
     component.onCustomerChange('c1');
     httpMock.expectOne((c) => c.url === `${API}/invoices`).flush({
       items: [
@@ -103,7 +109,8 @@ describe('CustomerReceiptFormPage', () => {
 
   it('takes the currency from the bank account, not the user', () => {
     expect(component.form.value.currencyCode).toBe('DOP');
-    component.onBankAccountChange('b2');
+    //  El selector entrega el registro elegido, no su id: la moneda se lee de la cuenta.
+    component.onBankAccountChange(component.activeBankAccounts().find((a) => a.id === 'b2')!);
     expect(component.form.value.currencyCode).toBe('USD');
     httpMock.verify();
   });

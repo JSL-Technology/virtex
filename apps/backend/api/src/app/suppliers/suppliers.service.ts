@@ -10,6 +10,7 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
+import { likeTerm } from '../common/database/search-term';
 
 @Injectable()
 export class SuppliersService {
@@ -103,11 +104,35 @@ export class SuppliersService {
     });
   }
 
-  findAll(organizationId: string): Promise<Supplier[]> {
-    return this.supplierRepository.find({
-      where: { organizationId },
-      order: { name: 'ASC' },
-    });
+  /**
+   * Los proveedores del inquilino, opcionalmente acotados.
+   *
+   * Ambos parámetros opcionales, y omitirlos es el comportamiento de siempre. Existen para los
+   * selectores de proveedor del pedido de compra y de la factura de proveedor, que se traían la
+   * lista entera.
+   */
+  findAll(
+    organizationId: string,
+    options: { search?: string; limit?: number } = {},
+  ): Promise<Supplier[]> {
+    const query = this.supplierRepository
+      .createQueryBuilder('supplier')
+      .where('supplier.organizationId = :organizationId', { organizationId })
+      .orderBy('supplier.name', 'ASC');
+
+    const term = likeTerm(options.search);
+    if (term) {
+      query.andWhere(
+        '(supplier.name ILIKE :term OR supplier.taxId ILIKE :term OR supplier.email ILIKE :term)',
+        { term },
+      );
+    }
+
+    if (options.limit !== undefined && options.limit > 0) {
+      query.take(options.limit);
+    }
+
+    return query.getMany();
   }
 
   async findOne(id: string, organizationId: string): Promise<Supplier> {

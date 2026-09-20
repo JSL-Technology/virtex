@@ -406,6 +406,12 @@ export class VxSelectComponent<TOption, TValue = TOption>
       return;
     }
 
+    //  Lo que ya está en pantalla cuenta como resuelto. Un formulario que vuelve a escribir el
+    //  mismo id —`patchValue` sobre un grupo entero lo hace en cada guardado— no puede costar otra
+    //  petición al servidor por un nombre que el campo ya está mostrando.
+    const shown = this.selectedOption();
+    if (shown && this.matches(this.valueWith()(shown), value)) return;
+
     const known =
       this.findByValue(this.options() ?? [], value) ??
       this.findByValue(this.serverOptions(), value);

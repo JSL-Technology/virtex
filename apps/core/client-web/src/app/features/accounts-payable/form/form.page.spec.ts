@@ -103,8 +103,9 @@ describe('VendorBillFormPage', () => {
   ];
 
   const flushPickers = () => {
-    httpMock.expectOne(`${API}/suppliers`).flush(suppliers);
-    httpMock.expectOne(`${API}/chart-of-accounts`).flush(accounts);
+    //  Ni la lista de proveedores ni el plan de cuentas se descargan al abrir: los dos selectores
+    //  buscan en el servidor mientras el usuario teclea. Lo que queda es lo que la página sí
+    //  necesita saber de entrada.
     // The currency is chosen from the tenant's own list now, not typed into a three-character box
     // where a code the tenant does not hold is accepted and then refused with an exchange-rate
     // error. Same source the sales invoice uses.
@@ -119,6 +120,18 @@ describe('VendorBillFormPage', () => {
     ]);
   };
 
+  /**
+   * Los dos selectores piden el nombre del registro cuyo id acaba de entrar en el control, que es
+   * lo que muestran mientras el usuario no busque. Un test que rellena el formulario a mano
+   * dispara lo mismo que la pantalla, así que aquí se responde igual.
+   */
+  const flushResolvedPickers = () => {
+    httpMock.match((r) => r.url === `${API}/suppliers/s1`).forEach((r) => r.flush(suppliers[0]));
+    httpMock
+      .match((r) => r.url === `${API}/chart-of-accounts/a1`)
+      .forEach((r) => r.flush(accounts[0]));
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VendorBillFormPage, TranslateModule.forRoot()],
@@ -131,7 +144,10 @@ describe('VendorBillFormPage', () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    flushResolvedPickers();
+    httpMock.verify();
+  });
 
   /**
    * Postable and unblocked was not enough.
@@ -141,10 +157,15 @@ describe('VendorBillFormPage', () => {
    * customers owe us, which silently corrupts the ageing report. The filter now reads the same
    * `systemRole` the automatic postings resolve against.
    */
-  it('offers only accounts a purchase can actually be charged to', () => {
+  it('offers only accounts a purchase can actually be charged to', (done) => {
     flushPickers();
-    const offered = component.expenseAccounts().map((account) => account.code);
-    expect(offered).toEqual(['5101']);
+    //  La búsqueda va al servidor, pero el filtro de qué cuenta admite un gasto sigue siendo del
+    //  cliente: es una regla del producto, la misma que aplican los asientos automáticos.
+    component.searchExpenseAccounts('', 20).subscribe((offered) => {
+      expect(offered.map((account) => account.code)).toEqual(['5101']);
+      done();
+    });
+    httpMock.expectOne((r) => r.url === `${API}/chart-of-accounts`).flush(accounts);
   });
 
   /**
@@ -156,17 +177,15 @@ describe('VendorBillFormPage', () => {
    */
   it('renders an account name out of its translation map instead of printing an object', () => {
     flushPickers();
-    fixture.detectChanges();
 
-    const options = Array.from(
-      fixture.nativeElement.querySelectorAll('select[formControlName="expenseAccountId"] option'),
-    ).map((option) => (option as HTMLOptionElement).textContent?.trim() ?? '');
+    //  El nombre sigue siendo un mapa de traducciones dentro del componente; quien lo resuelve es
+    //  la función que el campo usa para etiquetar, no el `<option>` que ya no existe. El defecto
+    //  que esto vigila —una cuenta pintada como `[object Object]`— se ve aquí igual de bien.
+    const label = component.accountLabel(accounts[0]);
 
-    expect(options.join(' ')).not.toContain('[object Object]');
-    // Whichever language the reader is in, the option names the account rather than its shape.
-    const offered = options.find((text) => text.startsWith('5101 —'));
-    expect(offered).toBeDefined();
-    expect(Object.values(accounts[0].name)).toContain(offered!.replace('5101 — ', ''));
+    expect(label).not.toContain('[object Object]');
+    expect(label.startsWith('5101 — ')).toBe(true);
+    expect(Object.values(accounts[0].name)).toContain(label.replace('5101 — ', ''));
   });
 
   it('posts the field names the server actually requires', () => {
