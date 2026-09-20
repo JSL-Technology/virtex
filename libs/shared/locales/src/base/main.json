@@ -54,6 +54,11 @@
     "en": "Search Results",
     "pt": "Resultados da Busca"
   },
+  "main.searching": {
+    "es": "Buscando…",
+    "en": "Searching…",
+    "pt": "Pesquisando…"
+  },
   "main.see_all_results": {
     "es": "Ver todos los resultados",
     "en": "See all results",

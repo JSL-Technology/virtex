@@ -94,6 +94,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';
+import { VxSpinnerComponent } from '../../shared/components/feedback';
 
 @Component({
   selector: 'app-main-layout',
@@ -113,8 +114,7 @@ import { DesktopWindowService } from '../../core/windows/desktop-window.service'
     DialogHostComponent,
     StatusBarComponent,
     ModuleRailComponent,
-    ...FORMAT_PIPES,
-  ], // ✅ Directiva añadida a los imports
+    ...FORMAT_PIPES, VxSpinnerComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })

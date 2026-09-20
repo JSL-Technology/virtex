@@ -93,13 +93,9 @@
 }
 
 .dr__spin {
-  animation: dr-spin 0.9s linear infinite;
+  animation: vx-spin 0.9s linear infinite;
 
   @include ds.bp-reduced-motion { animation: none; }
-}
-
-@keyframes dr-spin {
-  to { transform: rotate(360deg); }
 }
 
 .dr__cancel { @include ds.button-secondary('md'); }

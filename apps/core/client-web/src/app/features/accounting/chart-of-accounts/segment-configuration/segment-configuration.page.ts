@@ -11,11 +11,12 @@ import { take } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 @Component({
   selector: 'app-segment-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, VxSpinnerComponent, VxEmptyStateComponent],
   templateUrl: './segment-configuration.page.html',
   styleUrls: ['./segment-configuration.page.scss'],
 })

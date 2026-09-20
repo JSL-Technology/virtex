@@ -5,6 +5,7 @@ import { LucideAngularModule, AlertTriangle, AlertCircle, CheckCircle } from 'lu
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { DashboardAlert, DashboardApiService } from '../../../../core/api/dashboard-api.service';
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 /**
  * What needs attention, derived from the tenant's own data.
@@ -23,7 +24,7 @@ import { DashboardAlert, DashboardApiService } from '../../../../core/api/dashbo
 @Component({
   selector: 'app-alerts-panel',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxEmptyStateComponent],
   templateUrl: './alerts-panel.html',
   styleUrls: ['../widget-styles.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

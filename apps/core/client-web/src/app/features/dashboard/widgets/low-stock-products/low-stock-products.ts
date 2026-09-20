@@ -6,6 +6,7 @@ import { LucideAngularModule, Package, AlertCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { DashboardApiService, LowStockItem } from '../../../../core/api/dashboard-api.service';
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 /**
  * What is running out, from the catalogue.
@@ -24,7 +25,7 @@ import { DashboardApiService, LowStockItem } from '../../../../core/api/dashboar
 @Component({
   selector: 'app-low-stock-products',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, VxEmptyStateComponent],
   templateUrl: './low-stock-products.html',
   styleUrls: ['./low-stock-products.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

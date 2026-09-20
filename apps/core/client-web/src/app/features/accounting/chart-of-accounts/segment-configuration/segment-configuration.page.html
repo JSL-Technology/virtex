@@ -26,7 +26,7 @@
 
     @if (isLoading()) {
         <div class="loading-state card">
-            <span class="spinner"></span>
+            <vx-spinner size="lg" />
             <p>{{ 'accounting.segment_configuration.loading_configuration' | translate }}</p>
         </div>
     } @else {
@@ -74,9 +74,9 @@
                     }
 
                     @if (segments.length === 0) {
-                        <div class="empty-state">
-                            <p>{{ 'accounting.segment_configuration.no_levels_defined_add_one_load' | translate }}</p>
-                        </div>
+                        <vx-empty-state
+                            titleKey="accounting.segment_configuration.no_levels_defined_add_one_load"
+                        />
                     }
 
                     <div class="list-footer">

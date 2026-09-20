@@ -1,4 +1,19 @@
 {
+  "billing.add_payment_method": {
+    "es": "Agregar método de pago",
+    "en": "Add a payment method",
+    "pt": "Adicionar forma de pagamento"
+  },
+  "billing.change_payment_method": {
+    "es": "Cambiar método de pago",
+    "en": "Change payment method",
+    "pt": "Alterar forma de pagamento"
+  },
+  "billing.opening_portal": {
+    "es": "Abriendo…",
+    "en": "Opening…",
+    "pt": "Abrindo…"
+  },
   "billing.plans.enterprise.description": {
     "es": "Solución completa sin límites para grandes organizaciones",
     "en": "The complete product, without limits, for large organizations",

@@ -57,8 +57,7 @@
   &:hover { background-color: var(--bg-hover); }
 }
 
-.spinner { animation: spin 1.5s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: vx-spin 1.5s linear infinite; }
 .progress-caption {
   margin: 6px 0 0;
   font-size: var(--text-xs);

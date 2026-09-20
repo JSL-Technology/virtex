@@ -26,8 +26,6 @@
     </highcharts-chart>
     } @else {
     <!-- A tenant with no budget gets told so, rather than shown somebody else's plan. -->
-    <div class="empty-state">
-        <p>{{ 'dashboard.comparison_chart.no_budget_defined_period' | translate }}</p>
-    </div>
+    <vx-empty-state titleKey="dashboard.comparison_chart.no_budget_defined_period" />
     }
 </div>

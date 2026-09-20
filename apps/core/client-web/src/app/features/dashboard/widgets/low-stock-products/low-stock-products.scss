@@ -48,18 +48,3 @@
   &.critical { background: var(--error-bg); color: var(--error); }
 }
 
-.empty-state {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  padding: var(--space-8);
-  text-align: center;
-  color: var(--text-tertiary);
-
-  lucide-icon { color: var(--success); opacity: 0.7; }
-  span { font-size: var(--text-base); font-weight: var(--font-bold); color: var(--text-primary); }
-  p { font-size: var(--text-md); max-width: 200px; line-height: 1.5; }
-}

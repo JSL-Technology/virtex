@@ -69,6 +69,7 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxSpinnerComponent } from '../../../shared/components/feedback';
 
 @Component({
   selector: 'app-user-management-page',
@@ -79,8 +80,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxSpinnerComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })

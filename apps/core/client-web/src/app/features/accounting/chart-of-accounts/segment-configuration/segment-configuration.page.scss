@@ -147,13 +147,6 @@
         }
     }
 
-    .empty-state {
-        padding: var(--space-12);
-        text-align: center;
-        color: var(--text-secondary);
-        font-style: italic;
-    }
-
     .list-footer {
         padding: 1rem 1.5rem;
         background: var(--bg-card);
@@ -168,19 +161,6 @@
     padding: var(--space-16);
     gap: var(--space-4);
     color: var(--text-secondary);
-}
-
-.spinner {
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 2px solid var(--border-color);
-    border-top-color: var(--accent-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
 }
 
 // UI Elements (assuming these classes exist globally or should be defined)

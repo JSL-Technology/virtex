@@ -19,10 +19,10 @@
         }
     </ul>
     } @else {
-    <div class="empty-state">
-        <lucide-icon [img]="PackageIcon" size="48"></lucide-icon>
-        <span>{{ 'dashboard.low_stock_products.all_good' | translate }}</span>
-        <p>{{ 'dashboard.low_stock_products.no_products_low_stock_right_now' | translate }}</p>
-    </div>
+    <vx-empty-state
+        [icon]="PackageIcon"
+        titleKey="dashboard.low_stock_products.all_good"
+        descriptionKey="dashboard.low_stock_products.no_products_low_stock_right_now"
+    />
     }
 </div>

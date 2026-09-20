@@ -14,7 +14,7 @@
   <!-- Loading -->
   @if (loading()) {
     <div class="sess-card sess-loading">
-      <div class="sess-spinner"></div>
+      <vx-spinner size="lg" />
       <span>{{ 'settings.sessions.loading_sessions' | translate }}</span>
     </div>
   }
@@ -70,7 +70,7 @@
                     [disabled]="processingId() === session.id"
                     [title]="'settings.sessions.revoke_session' | translate">
               @if (processingId() === session.id) {
-                <span class="sess-spinner sess-spinner--sm"></span>
+                <vx-spinner size="sm" />
               } @else {
                 <lucide-icon [img]="RevokeIcon" size="16"></lucide-icon>
               }

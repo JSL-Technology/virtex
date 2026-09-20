@@ -125,9 +125,7 @@
                 >{{ 'main.search_results' | translate }}</span
               >
               @if (isSearchLoading()) {
-              <div class="loading-spinner">
-                <div class="spinner"></div>
-              </div>
+                <vx-spinner size="sm" labelKey="main.searching" />
               }
             </div>
           </div>

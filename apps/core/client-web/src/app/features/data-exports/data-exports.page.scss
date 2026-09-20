@@ -69,11 +69,9 @@
   }
 
   .spinner {
-    animation: de-spin 0.9s linear infinite;
+    animation: vx-spin 0.9s linear infinite;
     @include ds.bp-reduced-motion { animation: none; }
   }
-
-  @keyframes de-spin { to { transform: rotate(360deg); } }
 
   .download-btn { padding-inline: var(--space-3); }
 }
