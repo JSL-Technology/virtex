@@ -37,6 +37,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 
 /**
  * Issuing a sales document.
@@ -66,7 +67,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
     DraftShellComponent,
     ...VX_SELECT,
     CustomerQuickCreateComponent,
-    ...VX_FORM_A11Y, VxAmountComponent],
+    ...VX_FORM_A11Y, VxAmountComponent, VxTabsComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,6 +95,12 @@ export class NewInvoicePage implements OnInit {
   context = signal<InvoicingContext | null>(null);
   isSaving = signal(false);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
+
+  /** Las secciones del documento. Declaradas como datos porque `vx-tabs` las dibuja. */
+  protected readonly TABS: VxTab[] = [
+    { id: 'content', labelKey: 'invoices.new.content' },
+    { id: 'finance', labelKey: 'invoices.new.tax_collection' },
+  ];
 
   /**
    * Document types the tenant may issue. Empty in a market with no stamping regime.

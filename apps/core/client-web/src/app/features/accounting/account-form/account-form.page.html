@@ -37,16 +37,19 @@
       }
 
       <div class="form-section" [class.disabled-form]="isConfigMissing()">
-        <div class="tabs">
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">{{ 'accounting.account_form.general' | translate }}</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'mappings'" (click)="activeTab.set('mappings')">{{ 'accounting.account_form.mappings' | translate }}</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'rules'" (click)="activeTab.set('rules')">{{ 'accounting.account_form.rules' | translate }}</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'advanced'" (click)="activeTab.set('advanced')">{{ 'accounting.account_form.advanced' | translate }}</button>
-        </div>
+        <!--
+          Cuatro <button> con una clase .active: sin role="tablist", sin aria-selected y sin
+          flechas, así que llegar al primer campo costaba cuatro pulsaciones de Tab.
+        -->
+        <vx-tabs #tabs [tabs]="TABS" [(active)]="activeTab" />
 
         <div class="tab-content">
           @if (activeTab() === 'general') {
-            <section class="form-grid">
+            <section class="form-grid"
+              role="tabpanel"
+              [id]="tabs.panelId('general')"
+              [attr.aria-labelledby]="tabs.tabId('general')"
+            >
               <div class="form-field">
                 <label for="code">{{ 'accounting.account_form.account_code' | translate }} *</label>
                 <input id="code" formControlName="code" [readonly]="isEditing()">
@@ -102,7 +105,11 @@
           }
 
           @if (activeTab() === 'mappings') {
-            <section formGroupName="statementMapping">
+            <section formGroupName="statementMapping"
+              role="tabpanel"
+              [id]="tabs.panelId('mappings')"
+              [attr.aria-labelledby]="tabs.tabId('mappings')"
+            >
               <h3>{{ 'accounting.account_form.financial_statement_mapping' | translate }}</h3>
               <p class="section-description">{{ 'accounting.account_form.define_how_account_appears_key_financial' | translate }}</p>
               <div class="form-grid">
@@ -127,7 +134,11 @@
           }
 
           @if (activeTab() === 'rules') {
-            <section formGroupName="rules">
+            <section formGroupName="rules"
+              role="tabpanel"
+              [id]="tabs.panelId('rules')"
+              [attr.aria-labelledby]="tabs.tabId('rules')"
+            >
               <h3>{{ 'accounting.account_form.posting_rules' | translate }}</h3>
               <p class="section-description">{{ 'accounting.account_form.set_restrictions_specific_behaviour_account' | translate }}</p>
               <div class="form-grid">
@@ -151,7 +162,11 @@
           }
           
           @if (activeTab() === 'advanced') {
-            <section formGroupName="advanced">
+            <section formGroupName="advanced"
+              role="tabpanel"
+              [id]="tabs.panelId('advanced')"
+              [attr.aria-labelledby]="tabs.tabId('advanced')"
+            >
                 <h3>{{ 'accounting.account_form.advanced_settings' | translate }}</h3>
                 <p class="section-description">{{ 'accounting.account_form.control_audit_parameters_account' | translate }}</p>
                 <div class="form-grid">

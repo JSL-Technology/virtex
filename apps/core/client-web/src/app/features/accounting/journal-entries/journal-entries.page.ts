@@ -11,6 +11,7 @@ import {
 } from '../../../core/api/journal-entries.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VxPagerComponent } from '../../../shared/components/pager';
 
 /**
  * The journal.
@@ -33,7 +34,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,22 +60,25 @@ export class JournalEntriesPage {
     this.load();
   }
 
-  nextPage(): void {
-    if (!this.hasMore()) return;
-    this.page.update((current) => current + 1);
+  /** El tamaño de página, ahora elegible por el lector en vez de fijado por una constante. */
+  pageSize = PAGE_SIZE;
+
+  goToPage(page: number): void {
+    if (page < 1) return;
+    this.page.set(page);
     this.load();
   }
 
-  previousPage(): void {
-    if (this.page() <= 1) return;
-    this.page.update((current) => current - 1);
+  changePageSize(size: number): void {
+    this.pageSize = size;
+    this.page.set(1);
     this.load();
   }
 
   load(): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.entriesApi.list({ page: this.page(), pageSize: PAGE_SIZE }).subscribe({
+    this.entriesApi.list({ page: this.page(), pageSize: this.pageSize }).subscribe({
       next: (page) => {
         this.entries.set(page.rows);
         this.total.set(page.total);

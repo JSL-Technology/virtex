@@ -48,9 +48,9 @@
             <tr>
               <td class="mono">{{ d.domain }}</td>
               <td>
-                <span class="badge" [class.badge-ok]="d.verified" [class.badge-pending]="!d.verified">
+                <vx-badge [tone]="d.verified ? 'ok' : 'warning'">
                   {{ d.verified ? 'Verificado' : 'Pendiente' }}
-                </span>
+                </vx-badge>
               </td>
               <td>
                 @if (!d.verified) {
@@ -159,9 +159,9 @@
                 <button type="button" class="btn-link" (click)="copy(p.redirectUri)">{{ 'settings.sso.copy' | translate }}</button>
               </td>
               <td>
-                <span class="badge" [class.badge-ok]="p.enabled" [class.badge-pending]="!p.enabled">
+                <vx-badge [tone]="p.enabled ? 'ok' : 'warning'">
                   {{ p.enabled ? 'Activo' : 'Inactivo' }}
-                </span>
+                </vx-badge>
               </td>
               <td class="row-actions">
                 <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">{{ 'settings.sso.edit' | translate }}</button>

@@ -77,9 +77,9 @@
           <td>{{ c.subjectCommonName || '—' }}</td>
           <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
           <td>
-            <span class="badge" [class.active]="c.isActive && !c.expired" [class.inactive]="!c.isActive || c.expired">
+            <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
               {{ c.expired ? 'Vencido' : (c.isActive ? 'Activo' : 'Inactivo') }}
-            </span>
+            </vx-badge>
           </td>
           <td>
             <button type="button" class="link-danger" *ngIf="c.isActive" (click)="deactivateCertificate(c.id)">
@@ -135,9 +135,9 @@
           <td>{{ s.endsAt }}</td>
           <td>{{ s.currentSequence }}</td>
           <td>
-            <span class="badge" [class.active]="s.isActive" [class.inactive]="!s.isActive">
+            <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
               {{ s.isActive ? 'Activo' : 'Inactivo' }}
-            </span>
+            </vx-badge>
           </td>
         </tr>
       </tbody>

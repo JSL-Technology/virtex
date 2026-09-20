@@ -21,6 +21,7 @@ import {
 } from '../../../core/export/csv-export';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VxPagerComponent } from '../../../shared/components/pager';
 
 /**
  * The invoice list.
@@ -38,7 +39,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -143,10 +144,22 @@ export class InvoicesListPage implements OnInit {
     this.loadInvoices();
   }
 
-  goToPage(delta: number): void {
-    const next = this.page() + delta;
-    if (next < 1 || next > this.pages()) return;
-    this.page.set(next);
+  /** Una página concreta, no un desplazamiento: el paginador sabe a cuál quiere ir. */
+  goToPage(page: number): void {
+    if (page < 1 || page > this.pages()) return;
+    this.page.set(page);
+    this.loadInvoices();
+  }
+
+  /**
+   * Cuántas filas por página.
+   *
+   * Vuelve a la primera: mantener el número mientras cambia lo que significa deja al lector en un
+   * sitio que no eligió, y con 100 por página la «página 9» de antes puede no existir.
+   */
+  changePageSize(size: number): void {
+    this.limit.set(size);
+    this.page.set(1);
     this.loadInvoices();
   }
 

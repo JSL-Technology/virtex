@@ -17,34 +17,6 @@
     }
 }
 
-.sap-tabs {
-    display: flex;
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: var(--space-2);
-
-    button {
-        background: transparent;
-        border: none;
-        color: var(--text-secondary);
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        font-weight: var(--font-medium);
-        transition: all 0.2s;
-        border-bottom: 2px solid transparent;
-
-        &:hover {
-            color: var(--primary);
-        }
-
-        &.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-    }
-}
-
 .detail-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

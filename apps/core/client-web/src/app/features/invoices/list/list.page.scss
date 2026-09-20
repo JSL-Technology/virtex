@@ -25,13 +25,6 @@
     }
   }
 
-  .pager-range {
-    margin-right: auto;
-    color: var(--content-secondary);
-    font-size: var(--text-sm);
-    font-variant-numeric: tabular-nums;
-  }
-
   //  Un vencimiento pasado en una factura por cobrar se lee antes que la fecha.
   .text-danger { color: var(--error-text); font-weight: var(--font-semibold); }
   .font-semibold { font-weight: var(--font-semibold); }

@@ -24,13 +24,20 @@
   ></app-invoice-toolbar>
 
   <!-- Document Tabs -->
-  <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'invoices.detail.content' | translate }}</button>
-    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">{{ 'invoices.detail.logistics' | translate }}</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'invoices.detail.finance' | translate }}</button>
-  </div>
+  <vx-tabs
+    #tabs
+    [tabs]="TABS"
+    [(active)]="activeTab"
+    [ariaLabel]="'invoices.detail.content' | translate"
+  />
 
-  <div class="invoice-document card" [class.hidden]="activeTab() !== 'content'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('content')"
+    [attr.aria-labelledby]="tabs.tabId('content')"
+    [class.hidden]="activeTab() !== 'content'"
+  >
     <div class="card-body">
       <!-- Invoice Header -->
       <div class="invoice-header">
@@ -130,7 +137,13 @@
     </div>
   </div>
 
-  <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('logistics')"
+    [attr.aria-labelledby]="tabs.tabId('logistics')"
+    *ngIf="activeTab() === 'logistics'"
+  >
     <div class="card-body">
         <h3>{{ 'invoices.detail.logistics_delivery' | translate }}</h3>
         <div class="detail-grid">
@@ -150,7 +163,13 @@
     </div>
   </div>
 
-  <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
+  <div
+    class="invoice-document card"
+    role="tabpanel"
+    [id]="tabs.panelId('finance')"
+    [attr.aria-labelledby]="tabs.tabId('finance')"
+    *ngIf="activeTab() === 'finance'"
+  >
     <div class="card-body">
         <h3>{{ 'invoices.detail.financial_information' | translate }}</h3>
         <div class="detail-grid">

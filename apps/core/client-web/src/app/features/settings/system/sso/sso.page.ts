@@ -9,6 +9,7 @@ import {
 } from '../../../../core/services/sso-admin.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxBadgeComponent } from '../../../../shared/components/badge';
 
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
@@ -18,7 +19,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })

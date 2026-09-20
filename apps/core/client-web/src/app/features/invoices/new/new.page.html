@@ -49,14 +49,32 @@
     (back)="router.navigate(['/invoices'])"
   ></app-invoice-toolbar>
 
-  <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'invoices.new.content' | translate }}</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'invoices.new.tax_collection' | translate }}</button>
-  </div>
+  <!--
+    Eran dos `<button>` con una clase `.active`: sin `role="tablist"`, sin `aria-selected` y sin
+    flechas, así que para un lector de pantalla eran dos botones sueltos y para el teclado dos
+    paradas de tabulación antes del primer campo del formulario.
+  -->
+  <vx-tabs
+    #tabs
+    [tabs]="TABS"
+    [(active)]="activeTab"
+    [ariaLabel]="'invoices.new.create_sales_invoice' | translate"
+  />
 
   <div [formGroup]="invoiceForm">
     <!-- ── Contenido ─────────────────────────────────────────────────────── -->
-    <div class="grid-layout" [class.hidden]="activeTab() !== 'content'">
+    <!--
+      Los paneles siguen SIEMPRE montados y solo se ocultan: son secciones de un mismo formulario
+      reactivo, y desmontar una pestaña sacaría sus controles del formulario, descartando en
+      silencio lo que se hubiera escrito en ellos.
+    -->
+    <div
+      class="grid-layout"
+      role="tabpanel"
+      [id]="tabs.panelId('content')"
+      [attr.aria-labelledby]="tabs.tabId('content')"
+      [class.hidden]="activeTab() !== 'content'"
+    >
       <div class="main-content">
         <div class="card invoice-card">
           <div class="card-body">
@@ -235,7 +253,13 @@
     </div>
 
     <!-- ── Fiscal y cobro ────────────────────────────────────────────────── -->
-    <div class="grid-layout" [class.hidden]="activeTab() !== 'finance'">
+    <div
+      class="grid-layout"
+      role="tabpanel"
+      [id]="tabs.panelId('finance')"
+      [attr.aria-labelledby]="tabs.tabId('finance')"
+      [class.hidden]="activeTab() !== 'finance'"
+    >
       <div class="main-content">
         <div class="card">
           <div class="card-body">

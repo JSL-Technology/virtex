@@ -23,9 +23,9 @@
           <td>{{ role.name }}</td>
           <td>{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
           <td>
-            <span class="badge" [class.badge-system]="role.isSystemRole">
+            <vx-badge [tone]="role.isSystemRole ? 'accent' : 'neutral'">
               {{ role.isSystemRole ? 'Sistema' : 'Personalizado' }}
-            </span>
+            </vx-badge>
           </td>
           <td class="actions-column">
             <button class="icon-button" (click)="cloneRole(role)" [title]="'settings.roles.clone_role' | translate" *appHasPermission="'roles:create'">

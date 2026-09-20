@@ -46,7 +46,7 @@
               {{ session.browser || ('settings.sessions.unknown_browser' | translate) }}
               <span class="sess-item__os">en {{ session.os || ('settings.sessions.unknown_os' | translate) }}</span>
               @if (session.isCurrent) {
-                <span class="sess-badge-current">{{ 'settings.sessions.current_session' | translate }}</span>
+                <vx-badge tone="accent" size="sm">{{ 'settings.sessions.current_session' | translate }}</vx-badge>
               }
             </div>
             <div class="sess-item__meta">

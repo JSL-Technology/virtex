@@ -16,13 +16,14 @@ import { token } from '../../../../core/utils/chart-theme';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
+import { VxBadgeComponent } from '../../../../shared/components/badge';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

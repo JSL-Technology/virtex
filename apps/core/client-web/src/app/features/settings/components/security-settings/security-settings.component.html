@@ -60,9 +60,9 @@
                   <div>
                     {{ session.browser }} on {{ session.os }}
                     @if (session.isCurrent) {
-                      <span class="sessions-list__current-badge">
+                      <vx-badge tone="accent" size="sm">
                         {{ 'settings.security.current_session' | translate }}
-                      </span>
+                      </vx-badge>
                     }
                   </div>
                   <div>

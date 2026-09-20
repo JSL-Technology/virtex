@@ -10,11 +10,12 @@ import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { VxBadgeComponent } from '../../../../shared/components/badge';
 
 @Component({
   selector: 'app-sessions',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxSpinnerComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxSpinnerComponent, VxBadgeComponent],
   templateUrl: './sessions.component.html',
   styleUrls: ['./sessions.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
