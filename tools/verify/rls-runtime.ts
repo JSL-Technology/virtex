@@ -4,7 +4,10 @@ import { DataSource, Repository } from 'typeorm';
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Customer } from '../../apps/backend/api/src/app/customers/entities/customer.entity';
 import { runInTenantContext } from '../../apps/backend/api/src/app/shared/tenancy/tenant-context';
+import { TenantConnectionInterceptor } from '../../apps/backend/api/src/app/shared/tenancy/tenant-connection.interceptor';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import type { CallHandler, ExecutionContext } from '@nestjs/common';
+import { firstValueFrom, from, switchMap } from 'rxjs';
 
 /**
  * Proves that tenant isolation holds THROUGH the application, not just in the database.
@@ -50,7 +53,14 @@ async function main() {
     process.exit(1);
   }
 
-  /** What the interceptor does, without an HTTP request to hang it on. */
+  /**
+   * What the interceptor does, without an HTTP request to hang it on.
+   *
+   * Ser una COPIA de lo que hace el interceptor es la limitación de este ayudante, y hay que
+   * nombrarla: durante meses estas comprobaciones pasaron mientras las 17 rutas con
+   * `@Idempotent()` no veían ni una fila, porque el fallo estaba en el interceptor de verdad y
+   * no en esta copia. La comprobación 6 usa el interceptor real por eso.
+   */
   async function asTenant<T>(organizationId: string, fn: () => Promise<T>): Promise<T> {
     const runner = dataSource.createQueryRunner();
     await runner.connect();
@@ -112,6 +122,42 @@ async function main() {
   //    forgot to establish one: it returns nothing and is noticed, rather than returning everything.
   const outside = await repo.find();
   check('fuera de contexto de empresa no se ve nada', outside.length, 0);
+
+  // 6. El interceptor DE VERDAD, con un interceptor de dentro que aplaza `next.handle()`.
+  //
+  //    Esta es la forma de `IdempotencyInterceptor`: reclama la clave con una promesa y solo
+  //    después llama al manejador. El manejador corre entonces en un microtask posterior, y el
+  //    interceptor tiene que haber abierto el contexto alrededor de la SUSCRIPCIÓN para que el
+  //    inquilino siga puesto ahí. Cuando no lo hacía, esta consulta devolvía cero filas: la
+  //    transacción del servicio cogía una conexión limpia del pool y las políticas no veían nada.
+  //
+  //    Las comprobaciones 1-5 no lo detectaban porque `asTenant` es una copia del interceptor, no
+  //    el interceptor. Esta corre el real.
+  const contextoHttp = {
+    getType: () => 'http',
+    switchToHttp: () => ({ getRequest: () => ({ user: { organizationId: ORG_A } }) }),
+  } as unknown as ExecutionContext;
+
+  const manejadorAplazado: CallHandler = {
+    handle: () =>
+      from(Promise.resolve('clave-reclamada')).pipe(
+        // Una consulta real, dentro de una transacción real, como la haría un servicio.
+        switchMap(() =>
+          from(
+            dataSource.transaction(async (manager) =>
+              (await manager.find(Customer)).map((c) => c.companyName),
+            ),
+          ),
+        ),
+      ),
+  };
+
+  const trasAplazar = await firstValueFrom(
+    new TenantConnectionInterceptor(dataSource).intercept(contextoHttp, manejadorAplazado),
+  );
+  check('el interceptor real sostiene el inquilino tras un `await` de otro interceptor', trasAplazar, [
+    'Cliente de A',
+  ]);
 
   // Clean up under each tenant's own policy.
   for (const org of [ORG_A, ORG_B]) {
