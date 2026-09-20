@@ -2,8 +2,11 @@ import { Component, ChangeDetectionStrategy, computed, signal, inject, OnInit } 
 import { LucideAngularModule, Key } from 'lucide-angular';
 import { MyWorkService, WorkItem } from './my-work.service';
 import { AuthService } from '../../core/services/auth';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/components/gestures';
+import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
+import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
+import { MODULES } from '../../core/modules/module-registry';
 
 @Component({
   selector: 'app-my-work-page',
@@ -16,6 +19,9 @@ import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/compo
 export class MyWorkPage implements OnInit {
   private myWorkService = inject(MyWorkService);
   private authService = inject(AuthService);
+  private moduleInbox = inject(ModuleInboxService);
+  private tenancy = inject(ActiveOrganizationService);
+  private translate = inject(TranslateService);
 
   protected readonly SecurityIcon = Key;
 
@@ -34,12 +40,42 @@ export class MyWorkPage implements OnInit {
    */
   readonly sections = computed<InboxSection[]>(() => [
     { labelKey: 'my_work.approvals', items: this.approvals().map(toInboxItem) },
+    ...this.moduleSections(),
     { labelKey: 'my_work.tasks', items: this.tasks().map(toInboxItem) },
     { labelKey: 'my_work.notifications', items: this.notifications().map(toInboxItem) },
   ]);
 
+  /**
+   * Una sección por módulo con trabajo bloqueado.
+   *
+   * Van entre las aprobaciones —que bloquean a OTRA persona, y por eso siguen primero— y las
+   * tareas propias. Cada módulo trae lo suyo ya ordenado por lo que lleva más tiempo esperando, y
+   * el servidor devuelve los módulos en ese mismo orden entre sí: la bandeja se lee de arriba
+   * abajo sin tener que comparar nada.
+   */
+  private readonly moduleSections = computed<InboxSection[]>(() =>
+    this.moduleInbox.modules().map((module) => ({
+      labelKey: MODULES.find((m) => m.id === module.moduleId)?.titleKey ?? module.moduleId,
+      //  El armazón de bandeja recibe texto ya compuesto, no claves: es su contrato, y lo que
+      //  evita que cada pantalla invente su propia forma de traducir. El módulo manda la clave y
+      //  sus parámetros —no decide idioma— y aquí se resuelve, una sola vez.
+      items: module.items.map((item) => ({
+        id: item.id,
+        title: this.translate.instant(item.titleKey, item.titleParams),
+        when: this.translate.instant('inbox.blocked_since', {
+          date: item.blockedSince.slice(0, 10),
+        }),
+        // La empresa se añade aquí: el módulo declara la ruta del manifiesto, sin prefijo.
+        link: this.tenancy.urlFor(item.route),
+      })),
+    })),
+  );
+
   ngOnInit(): void {
     this.loadWorkItems();
+    // Se pide aquí y no en el armazón: quien abre «Mi trabajo» quiere el número de ahora, y el
+    // riel se actualiza con la misma respuesta porque las dos vistas leen el mismo servicio.
+    void this.moduleInbox.refresh();
   }
 
   loadWorkItems(): void {

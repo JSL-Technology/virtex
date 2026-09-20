@@ -2,6 +2,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
+import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
 import { PeriodClosingService } from './period-closing.service';
 import { AccountingController } from './accounting.controller';
 import { AuthModule } from '../auth/auth.module';
@@ -34,6 +35,7 @@ import { FiscalCalendarService } from './fiscal-calendar.service';
 import { LedgerLookupService } from './services/ledger-lookup.service';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { OrganizationProvisioningHandler } from './handlers/organization-provisioning.handler';
+import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
 
 
 @Module({
@@ -43,6 +45,9 @@ import { OrganizationProvisioningHandler } from './handlers/organization-provisi
     ChartOfAccountsModule,
     // Only entities this module owns.
     TypeOrmModule.forFeature([
+      // La bandeja de Contabilidad cuenta los asientos en borrador. `journal-entries` es del
+      // mismo módulo de negocio —contabilidad— así que esto no cruza ninguna frontera.
+      JournalEntry,
       AccountingPeriod,
       InflationIndex,
       FiscalYear,
@@ -62,6 +67,7 @@ import { OrganizationProvisioningHandler } from './handlers/organization-provisi
     CurrenciesModule,
   ],
   providers: [
+    AccountingInboxProvider,
     PeriodClosingService,
     InflationAdjustmentService,
     FiscalYearArchivingService,

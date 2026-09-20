@@ -94,9 +94,13 @@ import { IdempotencyModule } from './shared/idempotency/idempotency.module';
 import { TenancyModule } from './shared/tenancy/tenancy.module';
 import { ExtensionsModule } from './extensions/extensions.module';
 import { PosModule } from './pos/pos.module';
+import { InboxModule } from './shared/inbox/inbox.module';
 
 @Module({
   imports: [
+    // El registro de bandejas: cada módulo se apunta solo, y Reportes lee la lista sin
+    // conocer a ninguno.
+    InboxModule,
     SchedulerModule,
     ConfigModule.forRoot({
       isGlobal: true,

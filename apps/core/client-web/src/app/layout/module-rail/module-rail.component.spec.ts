@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModuleRailComponent } from './module-rail.component';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
+import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
 import { MODULES } from '../../core/modules/module-registry';
 import { ModuleManifest } from '../../core/modules/module-manifest';
 
@@ -21,6 +22,9 @@ describe('ModuleRailComponent', () => {
   const ventas = MODULES.find((m) => m.id === 'ventas') as ModuleManifest;
   const compras = MODULES.find((m) => m.id === 'compras') as ModuleManifest;
 
+  /** Lo pendiente por módulo, como lo devolvería el servidor. */
+  let pendientes: Record<string, number> = {};
+
   async function render(reachable: ReachableModule[], active: ModuleManifest | null) {
     navigateByUrl.mockReset();
     await TestBed.configureTestingModule({
@@ -34,6 +38,10 @@ describe('ModuleRailComponent', () => {
             active: signal(active).asReadonly(),
           },
         },
+        {
+          provide: ModuleInboxService,
+          useValue: { countFor: (id: string) => pendientes[id] ?? 0 },
+        },
       ],
     }).compileComponents();
 
@@ -42,7 +50,51 @@ describe('ModuleRailComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
+  beforeEach(() => {
+    pendientes = {};
+  });
+
   afterEach(() => TestBed.resetTestingModule());
+
+  it('pone el número de lo pendiente sobre el módulo que lo tiene', async () => {
+    pendientes = { ventas: 3 };
+    const el = await render(
+      [
+        { module: ventas, allowed: true, target: '/invoices' },
+        { module: compras, allowed: true, target: '/accounts-payable' },
+      ],
+      ventas,
+    );
+
+    const insignias = el.querySelectorAll('.rail__badge');
+    expect(insignias).toHaveLength(1);
+    expect(insignias[0].textContent?.trim()).toBe('3');
+  });
+
+  it('un módulo bloqueado no lleva número', async () => {
+    // Decir que hay tres cosas pendientes detrás de un candado es enseñar el tamaño de algo que
+    // no se puede abrir.
+    pendientes = { compras: 7 };
+    const el = await render(
+      [{ module: compras, allowed: false, target: null }],
+      null,
+    );
+
+    expect(el.querySelectorAll('.rail__badge')).toHaveLength(0);
+  });
+
+  it('a partir de cien dice 99+, porque tres cifras deforman un riel de 64px', async () => {
+    pendientes = { ventas: 240 };
+    const el = await render([{ module: ventas, allowed: true, target: '/invoices' }], ventas);
+
+    expect(el.querySelector('.rail__badge')?.textContent?.trim()).toBe('99+');
+  });
+
+  it('sin nada pendiente no dibuja ninguna insignia', async () => {
+    const el = await render([{ module: ventas, allowed: true, target: '/invoices' }], ventas);
+
+    expect(el.querySelectorAll('.rail__badge')).toHaveLength(0);
+  });
 
   it('muestra los módulos sin permiso, apagados, en vez de esconderlos', async () => {
     const el = await render(

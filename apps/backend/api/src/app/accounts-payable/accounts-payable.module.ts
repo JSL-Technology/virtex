@@ -25,6 +25,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 // What is withheld from a supplier follows from who they are, resolved by the same service the
 // sales side uses.
 import { WithholdingModule } from '../localization/fiscal/withholding.module';
+import { PayablesInboxProvider } from './inbox/payables-inbox.provider';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
   providers: [
+    PayablesInboxProvider,
     AccountsPayableService,
     VendorDebitNotesService,
     // Posts the bill when its approval is granted, inside the approving transaction.

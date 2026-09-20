@@ -19,6 +19,12 @@
       @if (!item.allowed) {
         <lucide-icon [img]="LockIcon" size="10" class="rail__lock" aria-hidden="true"></lucide-icon>
       }
+      @if (item.pending > 0) {
+        <span
+          class="rail__badge"
+          [attr.aria-label]="'inbox.module_count' | translate: { count: item.pending }"
+        >{{ item.pending > 99 ? '99+' : item.pending }}</span>
+      }
     </button>
   }
 </nav>
