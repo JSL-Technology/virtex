@@ -1,8 +1,14 @@
-<app-ui-modal
-  [isOpen]="true"
+<!--
+  Se construyó sobre `app-ui-modal`, que era el modal compartido del momento y tampoco atrapaba el
+  foco. Ahora sobre `vx-dialog`, que sí — y eso importa aquí en particular: este diálogo se abre
+  DESDE un campo de una factura a medio escribir, y sin trampa el tabulador volvía a esa factura
+  con el diálogo todavía encima.
+-->
+<vx-dialog
   size="sm"
-  [title]="'contacts.quick_create.title' | translate"
-  (closed)="cancel()"
+  titleKey="contacts.quick_create.title"
+  [busy]="saving()"
+  (dismissed)="cancel()"
 >
   <form class="quick-create" [formGroup]="form" (ngSubmit)="save()">
     <p class="quick-create__hint">
@@ -13,7 +19,7 @@
       <label for="companyName">
         {{ 'contacts.customer_form.company_name' | translate }} *
       </label>
-      <input id="companyName" #nameInput formControlName="companyName" />
+      <input id="companyName" cdkFocusInitial formControlName="companyName" />
     </div>
 
     <!--
@@ -60,7 +66,7 @@
     }
   </form>
 
-  <div footer class="quick-create__actions">
+  <ng-container dialogActions>
     <button type="button" class="quick-create__cancel" (click)="cancel()">
       {{ 'contacts.customer_form.cancel' | translate }}
     </button>
@@ -70,5 +76,5 @@
           | translate
       }}
     </button>
-  </div>
-</app-ui-modal>
+  </ng-container>
+</vx-dialog>

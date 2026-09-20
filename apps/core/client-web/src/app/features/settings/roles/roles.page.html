@@ -46,12 +46,18 @@
 </div>
 
 @if (isModalOpen()) {
-<div class="modal-overlay" (click)="closeModal()" tabindex="0" role="button" (keydown.enter)="closeModal()" (keydown.space)="$event.preventDefault(); closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()" tabindex="0" role="button" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.preventDefault(); $event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ editingRole() ? ('settings.roles.edit_role' | translate) : ('settings.roles.create_role' | translate) }}</h2>
-      <button class="icon-button" (click)="closeModal()"><lucide-icon [img]="CloseIcon" size="20"></lucide-icon></button>
-    </div>
+<!--
+  El velo llevaba `role="button"` y `tabindex="0"` para contentar a la regla de accesibilidad que
+  exige que lo pulsable sea enfocable. El resultado era lo contrario de lo que se pretendía: una
+  parada de tabulación DELANTE del diálogo, y otra en el panel, mientras el foco seguía pudiendo
+  salirse hacia la página de detrás porque no había trampa. `vx-dialog` pone la trampa y el velo
+  deja de ser un control.
+-->
+<vx-dialog
+  size="lg"
+  [title]="editingRole() ? ('settings.roles.edit_role' | translate) : ('settings.roles.create_role' | translate)"
+  (dismissed)="closeModal()"
+>
     <div class="modal-body">
       <form [formGroup]="roleForm">
         <div class="form-field"><label for="name">{{ 'settings.roles.role_name' | translate }} *</label><input id="name" type="text" formControlName="name"></div>
@@ -72,10 +78,13 @@
         </div>
       </form>
     </div>
-    <div class="modal-footer">
-      <button class="secondary-button" (click)="closeModal()">{{ 'settings.roles.cancel' | translate }}</button>
-      <button class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">{{ 'settings.roles.save' | translate }}</button>
-    </div>
-  </div>
-</div>
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" (click)="closeModal()">
+        {{ 'settings.roles.cancel' | translate }}
+      </button>
+      <button type="button" class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">
+        {{ 'settings.roles.save' | translate }}
+      </button>
+    </ng-container>
+</vx-dialog>
 }

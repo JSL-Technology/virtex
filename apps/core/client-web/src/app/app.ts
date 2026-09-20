@@ -4,9 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme';
 import { LanguageService } from './core/services/language';
 import { AuthService } from './core/services/auth';
-import { ModalService } from './shared/service/modal.service';
 import { LoaderService } from './shared/service/loader.service';
-import { ModalComponent } from './shared/components/modal/modal.component';
 import { CommonModule } from '@angular/common';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 import { GeoMismatchModalComponent } from './shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
@@ -18,7 +16,14 @@ import { OfflineBannerComponent } from './shared/components/offline-banner/offli
 
 @Component({
   selector: 'app-root',
-  imports: [TranslateModule, RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent, OfflineBannerComponent],
+  imports: [
+    TranslateModule,
+    RouterOutlet,
+    CommonModule,
+    GeoMismatchModalComponent,
+    ToastContainerComponent,
+    OfflineBannerComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -26,7 +31,6 @@ export class App implements OnInit {
   public themeService = inject(ThemeService);
   private languageService = inject(LanguageService);
   private authService = inject(AuthService);
-  public modalService = inject(ModalService);
   public loaderService = inject(LoaderService);
   private router = inject(Router);
   private idleService = inject(IdleService); // Initialize Idle Service
@@ -101,14 +105,4 @@ export class App implements OnInit {
     void this.router.navigateByUrl(rest ? `${path}?${rest}` : path, { replaceUrl: true });
   }
 
-  openTestModal(): void {
-    this.modalService.open({
-      title: 'Modal de Prueba',
-      message: '¡El servicio de modales está funcionando correctamente!',
-      confirmText: 'Aceptar',
-      cancelText: 'Cancelar'
-    })?.onClose$.subscribe(result => {
-      console.log('Modal cerrado con resultado:', result);
-    });
-  }
 }

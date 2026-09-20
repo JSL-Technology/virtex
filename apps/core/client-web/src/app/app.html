@@ -11,15 +11,6 @@
   <!-- <app-loader [overlay]="true"></app-loader> -->
 }
 
-@if (modalService.isOpen() && modalService.options(); as options) {
-  <app-modal 
-    [options]="options"
-    (closed)="modalService.close(null)"
-    (confirmed)="modalService.close(true)"
-    (cancelled)="modalService.close(false)"
-  />
-}
-
 <app-geo-mismatch-modal></app-geo-mismatch-modal>
 
 <app-toast-container></app-toast-container>

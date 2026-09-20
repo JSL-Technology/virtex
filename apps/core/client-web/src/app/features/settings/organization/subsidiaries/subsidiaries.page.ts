@@ -7,11 +7,13 @@ import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidia
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDialogComponent } from '../../../../shared/components/dialog';
+import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss']
 })

@@ -59,11 +59,6 @@
     "en": "Type here...",
     "pt": "Digite aqui..."
   },
-  "shared.modal.close": {
-    "es": "Close",
-    "en": "Close",
-    "pt": "Fechar"
-  },
   "shared.no_active_document_sequence_found_type": {
     "es": "No se encontró una secuencia de documento activa para el tipo {{type}}. Configura las secuencias.",
     "en": "No active document sequence was found for type {{type}}. Configure the sequences.",

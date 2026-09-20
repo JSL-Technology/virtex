@@ -17,6 +17,7 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDialogComponent } from '../../../shared/components/dialog';
 
 
 
@@ -29,8 +30,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     LucideAngularModule,
     HasPermissionDirective,
     TranslateModule,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxDialogComponent],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],
 })

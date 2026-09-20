@@ -1,59 +1,75 @@
-<!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
-<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-<div class="modal-backdrop" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (close())" (keydown.escape)="close()">
-  <div class="modal-container" tabindex="0">
-    <div class="modal-header">
-      <h2>{{ 'invoices.invoice_selection_dialog.select_source_document_copy_from' | translate }}</h2>
-      <button class="close-btn" (click)="close()">
-        <lucide-icon [img]="CloseIcon" size="20"></lucide-icon>
-      </button>
+<!--
+  El velo, el apilado, el Escape acotado al overlay de arriba y la trampa de foco los pone
+  `vx-dialog`. Antes este diálogo los dibujaba a mano y no tenía trampa: con él abierto, el
+  tabulador salía a la factura de detrás y quien navega con teclado acababa editando el documento
+  que este diálogo existía para rellenar.
+-->
+@if (isOpen()) {
+  <vx-dialog
+    size="lg"
+    titleKey="invoices.invoice_selection_dialog.select_source_document_copy_from"
+    (dismissed)="close()"
+  >
+    <div class="search-bar">
+      <lucide-icon [img]="SearchIcon" size="18" aria-hidden="true"></lucide-icon>
+      <input
+        type="text"
+        cdkFocusInitial
+        [attr.aria-label]="'invoices.invoice_selection_dialog.search_number_customer' | translate"
+        [placeholder]="'invoices.invoice_selection_dialog.search_number_customer' | translate"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
     </div>
 
-    <div class="modal-body">
-      <div class="search-bar">
-        <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
-        <input
-          type="text"
-          [placeholder]="'invoices.invoice_selection_dialog.search_number_customer' | translate"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="searchTerm.set($event)"
-        >
-      </div>
-
-      <div class="invoice-list" [class.loading]="isLoading()">
-        @if (isLoading()) {
-          <div class="loader">{{ 'invoices.invoice_selection_dialog.loading_documents' | translate }}</div>
-        } @else {
-          <table>
-            <thead>
-              <tr>
-                <th>{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
-                <th>{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
-                <th>{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
-                <th>{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
+    <div class="invoice-list">
+      @if (isLoading()) {
+        <vx-spinner withLabel labelKey="invoices.invoice_selection_dialog.loading_documents" />
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
+              <th>{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
+              <th>{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
+              <th class="numeric">{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (invoice of filteredInvoices(); track invoice.id) {
+              <tr
+                class="selectable-row"
+                tabindex="0"
+                (click)="selectInvoice(invoice)"
+                (keydown.enter)="selectInvoice(invoice)"
+                (keydown.space)="$event.preventDefault(); selectInvoice(invoice)"
+              >
+                <td><strong>{{ invoice.invoiceNumber }}</strong></td>
+                <td>{{ invoice.customerName }}</td>
+                <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
+                <td class="numeric">
+                  <vx-amount [value]="invoice.total" [currency]="invoice.currencyCode" />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              @for (invoice of filteredInvoices(); track invoice.id) {
-                <tr (click)="selectInvoice(invoice)" class="selectable-row" tabindex="0" (keydown.enter)="selectInvoice(invoice)" (keydown.space)="$event.preventDefault(); selectInvoice(invoice)">
-                  <td><strong>{{ invoice.invoiceNumber }}</strong></td>
-                  <td>{{ invoice.customerName }}</td>
-                  <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
-                  <td class="text-right">{{ invoice.currencyCode }} {{ invoice.total | vxNumber:'1.2-2' }}</td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="4" class="empty-msg">{{ 'invoices.invoice_selection_dialog.no_invoices_found' | translate }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        }
-      </div>
+            } @empty {
+              <tr>
+                <td colspan="4">
+                  <vx-empty-state
+                    titleKey="invoices.invoice_selection_dialog.no_invoices_found"
+                    [params]="{ query: searchTerm() }"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
 
-    <div class="modal-footer">
-      <button class="secondary-button" (click)="close()">{{ 'invoices.invoice_selection_dialog.cancel' | translate }}</button>
-    </div>
-  </div>
-</div>
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" (click)="close()">
+        {{ 'invoices.invoice_selection_dialog.cancel' | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}

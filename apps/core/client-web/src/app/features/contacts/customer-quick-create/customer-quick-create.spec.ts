@@ -13,6 +13,18 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
  * `null` — and neither of them may be silence: the field that opened this dialog is waiting on it.
  */
 describe('CustomerQuickCreateComponent', () => {
+  /**
+   * El contenido vive en el contenedor del overlay del CDK, no bajo el host.
+   *
+   * Es lo mismo que ocurre en el navegador —y es justo lo que permite que un diálogo se salga de
+   * cualquier contenedor con overflow oculto—, así que la prueba busca donde está de verdad.
+   */
+  const inDialog = (selector: string) => document.querySelector(selector);
+
+  afterEach(() => {
+    document.querySelectorAll('.cdk-overlay-container').forEach((node) => node.remove());
+  });
+
   let fixture: ComponentFixture<CustomerQuickCreateComponent>;
   let customers: { createCustomer: jest.Mock };
 
@@ -64,17 +76,17 @@ describe('CustomerQuickCreateComponent', () => {
 
   it('arranca con lo que ya se había tecleado en el campo', () => {
     //  Quien escribió el nombre en el buscador y no lo encontró no debería escribirlo otra vez.
-    const name = fixture.nativeElement.querySelector('#companyName') as HTMLInputElement;
+    const name = inDialog('#companyName') as HTMLInputElement;
     expect(name.value).toBe('Bloques del Sur');
   });
 
   it('no envía nada mientras falte el nombre', () => {
-    const name = fixture.nativeElement.querySelector('#companyName') as HTMLInputElement;
+    const name = inDialog('#companyName') as HTMLInputElement;
     name.value = '';
     name.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    (fixture.nativeElement.querySelector('.quick-create__save') as HTMLButtonElement).click();
+    (inDialog('.quick-create__save') as HTMLButtonElement).click();
 
     expect(customers.createCustomer).not.toHaveBeenCalled();
   });
@@ -83,7 +95,7 @@ describe('CustomerQuickCreateComponent', () => {
     let answer: unknown = 'nada';
     fixture.componentInstance.resolved.subscribe((customer) => (answer = customer));
 
-    (fixture.nativeElement.querySelector('.quick-create__save') as HTMLButtonElement).click();
+    (inDialog('.quick-create__save') as HTMLButtonElement).click();
     fixture.detectChanges();
 
     expect(customers.createCustomer).toHaveBeenCalledWith(
@@ -94,7 +106,7 @@ describe('CustomerQuickCreateComponent', () => {
 
   it('no manda una cadena vacía como documento fiscal', () => {
     //  El servidor validaría `''` COMO documento y respondería 422. Vacío es ausencia, no valor.
-    (fixture.nativeElement.querySelector('.quick-create__save') as HTMLButtonElement).click();
+    (inDialog('.quick-create__save') as HTMLButtonElement).click();
 
     const payload = customers.createCustomer.mock.calls[0][0];
     expect(payload.taxId).toBeUndefined();
@@ -108,11 +120,11 @@ describe('CustomerQuickCreateComponent', () => {
     let answered = false;
     fixture.componentInstance.resolved.subscribe(() => (answered = true));
 
-    (fixture.nativeElement.querySelector('.quick-create__save') as HTMLButtonElement).click();
+    (inDialog('.quick-create__save') as HTMLButtonElement).click();
     tick();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.quick-create__error')?.textContent).toContain(
+    expect(inDialog('.quick-create__error')?.textContent).toContain(
       'El RNC no es válido.',
     );
     //  Y sobre todo: el diálogo NO se cierra, porque cerrarlo devolvería al usuario al formulario
@@ -125,7 +137,7 @@ describe('CustomerQuickCreateComponent', () => {
     let answer: unknown = 'nada';
     fixture.componentInstance.resolved.subscribe((customer) => (answer = customer));
 
-    (fixture.nativeElement.querySelector('.quick-create__cancel') as HTMLButtonElement).click();
+    (inDialog('.quick-create__cancel') as HTMLButtonElement).click();
 
     expect(answer).toBeNull();
   });

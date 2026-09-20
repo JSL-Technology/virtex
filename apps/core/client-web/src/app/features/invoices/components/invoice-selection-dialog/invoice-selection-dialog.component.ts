@@ -6,11 +6,25 @@ import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDialogComponent } from '../../../../shared/components/dialog';
+import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 @Component({
   selector: 'app-invoice-selection-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    TranslateModule,
+    ...FORMAT_PIPES,
+    VxDialogComponent,
+    VxAmountComponent,
+    VxSpinnerComponent,
+    VxEmptyStateComponent,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './invoice-selection-dialog.component.html',
   styleUrls: ['./invoice-selection-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

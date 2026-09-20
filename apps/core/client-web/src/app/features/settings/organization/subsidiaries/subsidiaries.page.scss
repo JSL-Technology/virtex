@@ -33,64 +33,6 @@
   position: relative;
 }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  color: var(--text-secondary);
-  gap: var(--space-4);
-
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  padding: var(--space-8);
-  text-align: center;
-
-  .empty-icon {
-    width: 80px;
-    height: 80px;
-    background: var(--bg-tertiary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-6);
-  }
-
-  h3 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  p {
-    color: var(--text-secondary);
-    max-width: 400px;
-    margin-bottom: var(--space-8);
-  }
-}
-
 .subsidiaries-list {
   display: flex;
   flex-direction: column;
@@ -179,62 +121,6 @@
 }
 
 /* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(var(--shadow-color-rgb), 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
-}
-
-.modal-content {
-  background: var(--bg-card);
-  width: 100%;
-  max-width: 500px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-  padding: var(--space-6);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h3 {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: var(--space-1);
-
-    &:hover {
-      color: var(--text-primary);
-    }
-  }
-}
-
 .modal-body {
   padding: var(--space-6);
   display: flex;
@@ -263,27 +149,11 @@
   }
 }
 
-.modal-footer {
-  padding: 1.25rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
 
-  .btn-secondary {
-    padding: 0.625rem 1rem;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: var(--transition);
-
-    &:hover {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-    }
-  }
+//  Sitio para el estado de carga, que ya no dibuja nada por su cuenta: solo
+//  reserva el alto para que la tarjeta no salte cuando llegan los datos.
+.state-slot {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
 }

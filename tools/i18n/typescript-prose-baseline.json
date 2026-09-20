@@ -1,8 +1,6 @@
 {
-  "count": 57,
+  "count": 53,
   "files": {
-    "apps/core/client-web/src/app/app.ts": 3,
-    "apps/core/client-web/src/app/core/services/auth.ts": 1,
     "apps/core/client-web/src/app/core/services/billing.ts": 1,
     "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
     "apps/core/client-web/src/app/features/accounting/merge-tool/merge-tool.ts": 6,

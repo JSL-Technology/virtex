@@ -7,7 +7,6 @@ import { AuthService } from './auth';
 import { API_URL } from '../tokens/api-url.token';
 import { NotificationService } from './notification';
 import { WebSocketService } from './websocket.service';
-import { ModalService } from '../../shared/service/modal.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { AuthStatus } from '../../shared/enums/auth-status.enum';
 
@@ -45,7 +44,6 @@ describe('AuthService — session bootstrap', () => {
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: NotificationService, useValue: { showSuccess: jest.fn(), showError: jest.fn(), showWarning: jest.fn() } },
         { provide: WebSocketService, useValue: webSocket },
-        { provide: ModalService, useValue: { open: jest.fn() } },
         { provide: ErrorHandlerService, useValue: { handleError: jest.fn() } },
       ],
     });

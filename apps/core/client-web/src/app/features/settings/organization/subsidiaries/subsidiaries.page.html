@@ -10,21 +10,22 @@
 </div>
 
 <div class="content-card">
-  <div class="loading-state" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>{{ 'settings.subsidiaries.loading_subsidiaries' | translate }}</p>
-  </div>
-
-  <div class="empty-state" *ngIf="!loading && subsidiaries.length === 0">
-    <div class="empty-icon">
-      <lucide-icon [img]="BuildingIcon" size="48"></lucide-icon>
+  @if (loading) {
+    <!-- El aro giratorio de aquí era uno de los dieciséis «gira 360 grados» escritos a mano. -->
+    <div class="state-slot">
+      <vx-spinner size="lg" withLabel labelKey="settings.subsidiaries.loading_subsidiaries" />
     </div>
-    <h3>{{ 'settings.subsidiaries.no_subsidiaries_record' | translate }}</h3>
-    <p>{{ 'settings.subsidiaries.start_adding_subsidiary_branch_expand_your' | translate }}</p>
-    <button class="btn-primary" (click)="openCreateModal()">
-      {{ 'settings.subsidiaries.create_first_subsidiary' | translate }}
-    </button>
-  </div>
+  } @else if (subsidiaries.length === 0) {
+    <vx-empty-state
+      [icon]="BuildingIcon"
+      titleKey="settings.subsidiaries.no_subsidiaries_record"
+      descriptionKey="settings.subsidiaries.start_adding_subsidiary_branch_expand_your"
+    >
+      <button action type="button" class="primary-button" (click)="openCreateModal()">
+        {{ 'settings.subsidiaries.create_first_subsidiary' | translate }}
+      </button>
+    </vx-empty-state>
+  }
 
   <div class="subsidiaries-list" *ngIf="!loading && subsidiaries.length > 0">
     <div class="subsidiary-item" *ngFor="let sub of subsidiaries">
@@ -54,17 +55,19 @@
   </div>
 </div>
 
-<!-- Simple Modal Overlay -->
-<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()" tabindex="0" role="button" (keydown.enter)="closeModal()" (keydown.space)="$event.preventDefault(); closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()" tabindex="0" role="button" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.preventDefault(); $event.stopPropagation()">
-    <div class="modal-header">
-      <h3>{{ 'settings.subsidiaries.new_subsidiary' | translate }}</h3>
-      <button class="close-btn" (click)="closeModal()">
-        <lucide-icon [img]="XIcon" size="20"></lucide-icon>
-      </button>
-    </div>
-
-    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+<!--
+  El velo llevaba `role="button"` y `tabindex="0"`, y el panel también: dos paradas de tabulación
+  añadidas DELANTE del formulario para contentar a la regla de accesibilidad, sobre un diálogo que
+  seguía sin atrapar el foco. `vx-dialog` pone la trampa y el velo vuelve a ser un velo.
+-->
+@if (showModal) {
+  <vx-dialog
+    size="md"
+    titleKey="settings.subsidiaries.new_subsidiary"
+    [busy]="submitting"
+    (dismissed)="closeModal()"
+  >
+    <form id="subsidiary-form" [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <div class="form-field">
           <label for="legalname">{{ 'settings.subsidiaries.legal_name' | translate }}</label>
@@ -92,12 +95,25 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'settings.subsidiaries.cancel' | translate }}</button>
-        <button type="submit" class="btn-primary" [disabled]="createForm.invalid || submitting">
-          {{ submitting ? 'Guardando...' : ('settings.subsidiaries.create_subsidiary' | translate) }}
-        </button>
-      </div>
     </form>
-  </div>
-</div>
+
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" [disabled]="submitting" (click)="closeModal()">
+        {{ 'settings.subsidiaries.cancel' | translate }}
+      </button>
+      <!--
+        Fuera del `<form>` y enlazado por `form=`: el pie es del diálogo, no del formulario, y el
+        botón tiene que seguir enviándolo. De paso se va el «Guardando...» en español literal que
+        veía todo el mundo, cualquiera que fuera su idioma.
+      -->
+      <button
+        type="submit"
+        form="subsidiary-form"
+        class="primary-button"
+        [disabled]="createForm.invalid || submitting"
+      >
+        {{ (submitting ? 'common.saving' : 'settings.subsidiaries.create_subsidiary') | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}

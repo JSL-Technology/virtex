@@ -24,7 +24,7 @@ import { UserStatus } from '../../shared/enums/user-status.enum';
 import { UserPayload } from '../../shared/interfaces/user-payload.interface';
 import { NotificationService } from './notification';
 import { WebSocketService } from './websocket.service';
-import { ModalService } from '../../shared/service/modal.service';
+import { DialogService } from './dialog.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { readCsrfCookie } from '../auth/csrf-token';
@@ -131,7 +131,7 @@ export class AuthService {
   public isAuthenticated$ = toObservable(this.isAuthenticated);
   public user$ = toObservable(this.currentUser);
 
-  private modalService = inject(ModalService);
+  private dialogService = inject(DialogService);
 
 
   constructor() {
@@ -151,15 +151,18 @@ export class AuthService {
         .listen<{ reason: string }>('force-logout')
         .subscribe((data) => {
           this.logout();
-          this.modalService
-            .open({
-              title: 'Sesión Terminada',
-              message: data.reason,
-              confirmText: 'Aceptar',
-            })
-            // Subscribed only to open the modal; the session is already gone, so there is
-            // nothing to do when it closes.
-            ?.onClose$.subscribe();
+          //  Este aviso NO SE MOSTRABA NUNCA. Pasaba por `ModalService.open()`, que se suscribe
+          //  a `onConfirm`/`onCancel`/`onCloseModal` mientras `ModalComponent` declara
+          //  `confirmed`/`cancelled`/`closed`: la llamada lanzaba `TypeError` antes de adjuntar
+          //  nada al DOM. El usuario acababa en la pantalla de acceso sin saber por qué.
+          //
+          //  `data.reason` es prosa del servidor, ya localizada por el servidor, así que va como
+          //  mensaje y no como clave. El título sí es del catálogo.
+          void this.dialogService.alert({
+            title: 'dialog.session_ended.title',
+            message: data.reason,
+            variant: 'warning',
+          });
         });
     });
   }

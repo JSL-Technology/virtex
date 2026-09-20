@@ -234,6 +234,11 @@
     "en": "Sign the user out",
     "pt": "Encerrar a sessão"
   },
+  "dialog.session_ended.title": {
+    "es": "Sesión terminada",
+    "en": "Session ended",
+    "pt": "Sessão encerrada"
+  },
   "dialog.submit_bill.message": {
     "es": "La factura pasará a aprobación y, si no hay política que la retenga, se contabilizará de inmediato.",
     "en": "The bill goes to approval and, if no policy holds it, is posted immediately.",

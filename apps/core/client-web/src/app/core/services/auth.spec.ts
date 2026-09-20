@@ -6,7 +6,6 @@ import { AuthService } from './auth';
 import { API_URL } from '../tokens/api-url.token';
 import { NotificationService } from './notification';
 import { WebSocketService } from './websocket.service';
-import { ModalService } from '../../shared/service/modal.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { Subject } from 'rxjs';
 
@@ -32,10 +31,6 @@ describe('AuthService', () => {
     disconnect: jest.fn(),
   };
 
-  const mockModalService = {
-    open: jest.fn(),
-  };
-
   const mockErrorHandlerService = {
     handleError: jest.fn().mockImplementation((op, err) => { throw err; }),
   };
@@ -49,7 +44,6 @@ describe('AuthService', () => {
         { provide: Router, useValue: mockRouter },
         { provide: NotificationService, useValue: mockNotificationService },
         { provide: WebSocketService, useValue: mockWebSocketService },
-        { provide: ModalService, useValue: mockModalService },
         { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
       ],
     });

@@ -1,5 +1,5 @@
 
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,13 +15,14 @@ import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDialogComponent } from '../../../../shared/components/dialog';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +52,6 @@ export class SecuritySettingsComponent implements OnInit {
   protected readonly CopyIcon = Copy;
   protected readonly DownloadIcon = Download;
   protected readonly RefreshIcon = RefreshCw;
-  protected readonly XIcon = X;
   protected readonly ArrowRightIcon = ArrowRight;
   protected readonly ImageIcon = ImageIcon;
   protected readonly UserIcon = User;
@@ -65,6 +65,26 @@ export class SecuritySettingsComponent implements OnInit {
   is2faEnabled = signal(false);
   showSetupModal = signal(false);
   currentStep = signal<SetupStep>('EMAIL_VERIFY');
+
+  /**
+   * El nombre del diálogo, que cambia con el paso.
+   *
+   * Estaba en un `@switch` dentro de un `<h2>` del cuerpo, así que el diálogo no tenía nombre
+   * accesible: un lector de pantalla anunciaba «diálogo» y el título llegaba después, como texto
+   * cualquiera. Ahora es el `aria-labelledby` del propio diálogo.
+   */
+  readonly setupTitle = computed(() => {
+    switch (this.currentStep()) {
+      case 'INTRO':
+        return this.translate.instant('settings.security.two_step_verification');
+      case 'EMAIL_VERIFY':
+        return this.translate.instant('settings.security.setup_2_fa_title');
+      case 'QR_SETUP':
+        return this.translate.instant('settings.security.setup_authenticator');
+      default:
+        return this.translate.instant('settings.security.backup_codes_title');
+    }
+  });
 
   // Step 1: Email Verify
   emailCode = signal('');

@@ -1,30 +1,45 @@
-<div *ngIf="geoLocationService.mismatchSignal(); let mismatch" class="modal-backdrop">
-  <div class="modal-content">
-    <div class="modal-header">
-      <div class="icon-wrapper">
+<!--
+  El velo, el apilado y —sobre todo— la trampa de foco los pone `vx-dialog`. Este diálogo se
+  dibujaba a mano y no tenía ninguna, así que con él abierto el tabulador se iba a la página de
+  detrás: no era modal para quien navega con teclado.
+
+  No se puede descartar pulsando fuera ni con Escape a propósito: la pregunta es en qué país está
+  operando el usuario, y cerrarla sin responder deja la sesión en una configuración fiscal que
+  puede no ser la suya. Las dos salidas son explícitas y están abajo.
+-->
+@if (geoLocationService.mismatchSignal(); as mismatch) {
+  <vx-dialog
+    size="sm"
+    titleKey="shared.geo_mismatch_modal.location_detected"
+    [closeOnScrim]="false"
+    [closeOnEscape]="false"
+    [hideCloseButton]="true"
+    (dismissed)="close()"
+  >
+    <div class="geo-mismatch">
+      <div class="icon-wrapper" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.413 1.68l-1.225.956a1.8 1.8 0 00-.499 1.444l.762 3.727a1.5 1.5 0 00.363 1.118l3.24 3.24a.75.75 0 001.06 0l2.335-2.335a.75.75 0 011.06 0L21 21M12 21.75a9.75 9.75 0 100-19.5 9.75 9.75 0 000 19.5zM4.35 9.75L6 9.75M6 9.75l-.435 2.435M6 9.75l-1.65 1.65M6 14.25l-2.25 2.25" />
         </svg>
       </div>
-      <h2>{{ 'shared.geo_mismatch_modal.location_detected' | translate }}</h2>
-    </div>
 
-    <div class="modal-body">
       <p>
-        {{ 'shared.geo_mismatch_modal.we_detected_you' | translate }} <strong>{{ getCountryName(mismatch.detected) }}</strong>{{ 'shared.geo_mismatch_modal.but_you_trying_reach_version' | translate }} <strong>{{ getCountryName(mismatch.current) }}</strong>.
+        {{ 'shared.geo_mismatch_modal.we_detected_you' | translate }}
+        <strong>{{ getCountryName(mismatch.detected) }}</strong>{{ 'shared.geo_mismatch_modal.but_you_trying_reach_version' | translate }}
+        <strong>{{ getCountryName(mismatch.current) }}</strong>.
       </p>
-      <p style="margin-top: 1rem; opacity: 0.8;">
+      <p class="geo-mismatch__advice">
         {{ 'shared.geo_mismatch_modal.we_recommend_switching_your_local_region' | translate }}
       </p>
     </div>
 
-    <div class="modal-actions">
-      <button class="btn-primary" (click)="switchCountry(mismatch.detected)">
-        {{ 'geo_mismatch.switch_to' | translate: { country: getCountryName(mismatch.detected) } }}
-      </button>
-      <button class="btn-secondary" (click)="close()">
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" (click)="close()">
         {{ 'geo_mismatch.stay_in' | translate: { country: getCountryName(mismatch.current) } }}
       </button>
-    </div>
-  </div>
-</div>
+      <button type="button" class="primary-button" cdkFocusInitial (click)="switchCountry(mismatch.detected)">
+        {{ 'geo_mismatch.switch_to' | translate: { country: getCountryName(mismatch.detected) } }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}

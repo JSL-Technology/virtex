@@ -1,122 +1,44 @@
-@use '../../../../assets/styles/design-system' as ds;
+// =============================================================================
+//  GEO-MISMATCH
+// =============================================================================
+//  El armazón del diálogo —velo, panel, sombra, apilado— es de `vx-dialog`.
+//  Aquí solo queda lo propio de ESTE aviso.
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
 
-@keyframes slideUpFade {
-  0% { opacity: 0; transform: translate(-50%, -40%) scale(0.95); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
-@keyframes backdropFade {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
+.geo-mismatch {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background-color: var(--scrim);
-  animation: backdropFade 0.3s ease-out forwards;
-  @include ds.glass-blur(8px);
-}
+  gap: var(--space-3);
 
-.modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 440px;
-  
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-  padding: var(--space-8);
-  @include ds.glass-surface('strong', var(--glass-blur-strong));
-  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  color: var(--content-secondary);
-}
-
-.modal-header {
   text-align: center;
-  margin-bottom: var(--space-6);
+  color: var(--content-secondary);
+  line-height: var(--leading-normal);
 
-  .icon-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    // Ensure these variables exist or fallback to primary-light/primary
-    background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 50%;
-    margin-bottom: var(--space-5);
-
-    svg {
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
+  p {
     margin: 0;
   }
 }
 
-.modal-body {
-  text-align: center;
-  color: var(--content-secondary);
-  margin-bottom: var(--space-8);
-  font-size: var(--text-base);
-  line-height: 1.6;
+.icon-wrapper {
+  display: grid;
+  place-items: center;
 
-  strong {
-    color: var(--text-primary);
-    font-weight: var(--font-semibold);
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+
+  background-color: var(--info-surface);
+  color: var(--info-text);
+
+  svg {
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-
-  button {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-md);
-    font-weight: var(--font-semibold);
-    font-size: var(--text-md);
-    cursor: pointer;
-    transition: var(--transition);
-    border: 1px solid transparent;
-
-    &.btn-primary {
-      background: var(--primary);
-      color: var(--accent-text);
-      box-shadow: var(--shadow-sm);
-
-      &:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-      }
-    }
-
-    &.btn-secondary {
-      background: transparent;
-      color: var(--content-secondary);
-      border-color: var(--border-color);
-
-      &:hover {
-        background: var(--bg-hover);
-        color: var(--text-primary);
-      }
-    }
-  }
+.geo-mismatch__advice {
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
 }

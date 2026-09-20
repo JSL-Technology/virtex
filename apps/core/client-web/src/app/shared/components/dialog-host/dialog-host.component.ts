@@ -1,41 +1,48 @@
-import { Component, ChangeDetectionStrategy, inject, HostListener, effect, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  LucideAngularModule, AlertTriangle, Info, ShieldAlert, Save, Trash2, X,
+  LucideAngularModule, AlertTriangle, Info, ShieldAlert, Save, Trash2,
 } from 'lucide-angular';
 import { DialogService } from '../../../core/services/dialog.service';
+import { VxDialogComponent } from '../dialog';
 
+/**
+ * Where every confirmation in the product is drawn.
+ *
+ * ## What changed
+ *
+ * It used to draw its own overlay: a fixed `div`, a backdrop click, and an Escape listener on the
+ * document. What it did not have — and what nothing in this product had — was a focus trap, so
+ * with a confirmation open the Tab key walked out of it and into the page behind. Twenty callers
+ * of `DialogService` were affected, which is why this one file is where it was worth fixing.
+ *
+ * `vx-dialog` now provides the surface: trap, focus restore, block-scroll, Escape scoped to the
+ * topmost overlay rather than to the document. Everything below is what this host actually has to
+ * decide — which buttons a `confirm`, a `close` and a `prompt` carry, and what each resolves to.
+ */
 @Component({
   selector: 'app-dialog-host',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dialog(); as d) {
-      <!-- Backdrop dismiss is a mouse convenience; Escape is handled at the document level in the component. See onEscapeKey(). -->
-      <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-      <div class="dialog-overlay"
-           (click)="$event.target === $event.currentTarget && onBackdrop()"
-           (keydown.escape)="onBackdrop()">
+      <vx-dialog
+        size="sm"
+        [title]="d.title"
+        [hideCloseButton]="false"
+        (dismissed)="cancel()"
+      >
         <div
-          class="dialog-card"
+          class="dialog-body"
           [class.variant-danger]="d.variant === 'danger'"
           [class.variant-warning]="d.variant === 'warning'"
-          role="dialog"
-          aria-modal="true"
-          [attr.aria-label]="d.title"
-
         >
-          <button class="dialog-close" type="button" [attr.aria-label]="'common.close' | translate" (click)="cancel()">
-            <lucide-icon [img]="XIcon" size="18"></lucide-icon>
-          </button>
-
           <div class="dialog-icon">
             <lucide-icon [img]="iconFor(d.variant)" size="24"></lucide-icon>
           </div>
 
-          <h3 class="dialog-title">{{ d.title }}</h3>
           <p class="dialog-message">{{ d.message }}</p>
 
           @if (d.kind === 'prompt') {
@@ -43,10 +50,12 @@ import { DialogService } from '../../../core/services/dialog.service';
               <span class="sr-only">{{ d.message }}</span>
               <input
                 #promptInput
+                cdkFocusInitial
                 class="dialog-input"
                 type="text"
                 autocomplete="off"
                 [attr.placeholder]="d.placeholder || null"
+                [attr.aria-invalid]="promptError() ? 'true' : null"
                 [value]="draft()"
                 (input)="draft.set(promptInput.value)"
                 (keydown.enter)="submitPrompt()"
@@ -56,45 +65,53 @@ import { DialogService } from '../../../core/services/dialog.service';
               <p class="dialog-error" role="alert">{{ d.tooShort }}</p>
             }
           }
+        </div>
 
-          <div class="dialog-actions">
-            @if (d.kind === 'close') {
-              <button class="btn btn-ghost" type="button" (click)="resolve('cancel')">
-                {{ d.cancelText }}
-              </button>
-              <button class="btn btn-danger-soft" type="button" (click)="resolve('discard')">
-                <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
-                {{ d.discardText }}
-              </button>
-              <!--
-                "Save" only appears when something can act on it. A tab with no registered save
-                handler used to show a "Save" button that, when pressed, told the reader to save
-                from the view itself and refused to close — a dead end. Now that case shows only
-                Discard / Cancel.
-              -->
-              @if (d.allowSave) {
-                <button class="btn btn-primary" type="button" (click)="resolve('save')">
-                  <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                  {{ d.saveText }}
-                </button>
-              }
-            } @else {
-              <button class="btn btn-ghost" type="button" (click)="cancel()">
-                {{ d.cancelText }}
-              </button>
-              <button
-                class="btn"
-                type="button"
-                [class.btn-primary]="d.variant === 'primary'"
-                [class.btn-danger]="d.variant === 'danger' || d.variant === 'warning'"
-                (click)="d.kind === 'prompt' ? submitPrompt() : resolve(true)"
-              >
-                {{ d.confirmText }}
+        <ng-container dialogActions>
+          @if (d.kind === 'close') {
+            <button class="btn btn-ghost" type="button" (click)="resolve('cancel')">
+              {{ d.cancelText }}
+            </button>
+            <button class="btn btn-danger-soft" type="button" (click)="resolve('discard')">
+              <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
+              {{ d.discardText }}
+            </button>
+            <!--
+              "Save" only appears when something can act on it. A tab with no registered save
+              handler used to show a "Save" button that, when pressed, told the reader to save
+              from the view itself and refused to close — a dead end. Now that case shows only
+              Discard / Cancel.
+            -->
+            @if (d.allowSave) {
+              <button class="btn btn-primary" type="button" (click)="resolve('save')">
+                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                {{ d.saveText }}
               </button>
             }
-          </div>
-        </div>
-      </div>
+          } @else if (d.kind === 'alert') {
+            <!--
+              Un aviso no tiene «cancelar»: no se está preguntando nada. Un botón de cancelar en un
+              mensaje que solo informa sugiere que hay algo que deshacer.
+            -->
+            <button class="btn btn-primary" type="button" (click)="resolve(true)">
+              {{ d.confirmText }}
+            </button>
+          } @else {
+            <button class="btn btn-ghost" type="button" (click)="cancel()">
+              {{ d.cancelText }}
+            </button>
+            <button
+              class="btn"
+              type="button"
+              [class.btn-primary]="d.variant === 'primary'"
+              [class.btn-danger]="d.variant === 'danger' || d.variant === 'warning'"
+              (click)="d.kind === 'prompt' ? submitPrompt() : resolve(true)"
+            >
+              {{ d.confirmText }}
+            </button>
+          }
+        </ng-container>
+      </vx-dialog>
     }
   `,
   styleUrls: ['./dialog-host.component.scss'],
@@ -139,7 +156,6 @@ export class DialogHostComponent {
   protected readonly ShieldAlertIcon = ShieldAlert;
   protected readonly SaveIcon = Save;
   protected readonly Trash2Icon = Trash2;
-  protected readonly XIcon = X;
 
   iconFor(variant: string) {
     if (variant === 'danger') return this.ShieldAlertIcon;
@@ -154,16 +170,14 @@ export class DialogHostComponent {
   cancel(): void {
     const d = this.dialog();
     if (!d) return;
+    if (d.kind === 'alert') return this.resolve(true);
     this.resolve(d.kind === 'close' ? 'cancel' : d.kind === 'prompt' ? null : false);
   }
 
-  onBackdrop(): void {
-    // Backdrop click is treated as a non-destructive cancel.
-    this.cancel();
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.cancel();
-  }
+  /**
+   * Un aviso solo se puede aceptar, así que cerrarlo por cualquier vía es aceptarlo.
+   *
+   * El resto se cancela. Antes esto vivía además en un `@HostListener` sobre el documento, que
+   * con dos diálogos encima cerraba los dos: el CDK entrega la tecla al overlay de arriba.
+   */
 }

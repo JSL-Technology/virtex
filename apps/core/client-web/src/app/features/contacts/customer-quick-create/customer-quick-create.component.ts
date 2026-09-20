@@ -2,12 +2,10 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   inject,
   input,
   output,
   signal,
-  viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -21,7 +19,7 @@ import {
   IdentityDocumentTypeOption,
 } from '../../../core/api/identity-documents.service';
 import { CountryNamesService } from '../../../core/i18n/countries';
-import { UiModalComponent } from '../../../shared/components/ui/modal';
+import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VX_SELECT } from '../../../shared/components/select';
 import { CountryOption } from '../../../core/i18n/countries';
 
@@ -43,7 +41,7 @@ import { CountryOption } from '../../../core/i18n/countries';
 @Component({
   selector: 'app-customer-quick-create',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, UiModalComponent, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslateModule, VxDialogComponent, ...VX_SELECT, ...VX_FORM_A11Y],
   templateUrl: './customer-quick-create.component.html',
   styleUrls: ['./customer-quick-create.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,7 +76,6 @@ export class CustomerQuickCreateComponent implements AfterViewInit {
   protected readonly saving = signal(false);
   protected readonly failure = signal<string | null>(null);
 
-  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
 
   protected readonly form = this.fb.group({
     companyName: ['', Validators.required],
@@ -104,10 +101,13 @@ export class CustomerQuickCreateComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    //  Se arranca con lo ya tecleado y el cursor dentro: quien escribió «Ferretería» en el campo y
-    //  no la encontró no debería tener que escribirla otra vez aquí.
+    //  Se arranca con lo ya tecleado: quien escribió «Ferretería» en el campo y no la encontró no
+    //  debería tener que escribirla otra vez aquí.
+    //
+    //  El FOCO ya no se coloca desde aquí: lo hace `vx-dialog` al adjuntar el panel, guiado por el
+    //  `cdkFocusInitial` de la plantilla. Hacerlo en los dos sitios es una carrera, y la que
+    //  perdía era esta —el diálogo coloca el foco después—.
     this.form.patchValue({ companyName: this.initialName() });
-    this.nameInput()?.nativeElement.focus();
   }
 
   protected documentLabel(type: IdentityDocumentTypeOption): string {
