@@ -65,7 +65,7 @@
           <div class="switch-status">{{ 'main.company_switcher.switching_company' | translate }}</div>
         }
         @if (switchError()) {
-          <div class="switch-error">{{ switchError() }}</div>
+          <div class="switch-error">{{ switchError()! | translate }}</div>
         }
       </div>
 

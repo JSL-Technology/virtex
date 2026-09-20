@@ -34,6 +34,11 @@
     "en": "No companies were found",
     "pt": "Nenhuma empresa encontrada"
   },
+  "main.company_switcher.switch_failed": {
+    "es": "No se pudo cambiar de empresa.",
+    "en": "The company could not be switched.",
+    "pt": "Não foi possível mudar de empresa."
+  },
   "main.company_switcher.switching_company": {
     "es": "Cambiando de empresa…",
     "en": "Switching company…",

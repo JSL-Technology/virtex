@@ -1,0 +1,20 @@
+@if (visible()) {
+  <!--
+    `list` y no una tabla: es una secuencia, y así un lector de pantalla la anuncia como
+    «lista de 6 elementos, elemento 4» en vez de leer seis palabras sueltas.
+  -->
+  <ol class="ls" [attr.aria-label]="documentLabelKey() | translate">
+    @for (stage of stages(); track stage.status) {
+      <li
+        class="ls__stage"
+        [class.ls__stage--done]="stage.done"
+        [class.ls__stage--current]="stage.current"
+        [class.ls__stage--exceptional]="stage.current && excepcionalAlFinal()"
+        [attr.aria-current]="stage.current ? 'step' : null"
+      >
+        <span class="ls__dot" aria-hidden="true"></span>
+        <span class="ls__label">{{ stage.labelKey | translate }}</span>
+      </li>
+    }
+  </ol>
+}

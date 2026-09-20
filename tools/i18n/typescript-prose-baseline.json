@@ -1,5 +1,5 @@
 {
-  "count": 53,
+  "count": 52,
   "files": {
     "apps/core/client-web/src/app/core/services/billing.ts": 1,
     "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
@@ -15,7 +15,6 @@
     "apps/core/client-web/src/app/features/settings/my-profile/my-profile.page.ts": 1,
     "apps/core/client-web/src/app/features/settings/system/sso/sso.page.ts": 7,
     "apps/core/client-web/src/app/features/settings/user-management/user-management.page.ts": 1,
-    "apps/core/client-web/src/app/layout/main/components/company-switcher/company-switcher.component.ts": 1,
     "apps/core/client-web/src/app/shared/components/geo-mismatch-modal/geo-mismatch-modal.component.ts": 3,
     "apps/core/client-web/src/testing/country.service.mock.ts": 3
   }

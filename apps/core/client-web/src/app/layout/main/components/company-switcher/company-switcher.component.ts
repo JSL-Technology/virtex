@@ -23,6 +23,7 @@ export class CompanySwitcherComponent {
   isOpen = signal(false);
   searchQuery = signal('');
   switching = signal(false);
+  /** La CLAVE del aviso, no su texto: quien lo escribe no decide en qué idioma se lee. */
   switchError = signal<string | null>(null);
 
   //  De la URL, no del token: es la empresa de ESTA ventana. Con dos ventanas en dos empresas,
@@ -124,12 +125,12 @@ export class CompanySwitcherComponent {
           this.closeDropdown();
         } else {
           // Un guard rechazó la navegación: la razón la da él, no este menú.
-          this.switchError.set('No se pudo cambiar de empresa.');
+          this.switchError.set('main.company_switcher.switch_failed');
         }
       })
       .catch(() => {
         this.switching.set(false);
-        this.switchError.set('No se pudo cambiar de empresa.');
+        this.switchError.set('main.company_switcher.switch_failed');
       });
   }
 

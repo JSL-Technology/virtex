@@ -22,28 +22,8 @@ import {
 import { ProcurementService } from './procurement.service';
 import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
-
-/** The lifecycle, stated once. */
-const ORDER_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> = {
-  [PurchaseOrderStatus.DRAFT]: [PurchaseOrderStatus.PENDING_APPROVAL, PurchaseOrderStatus.CANCELLED],
-  [PurchaseOrderStatus.PENDING_APPROVAL]: [
-    PurchaseOrderStatus.APPROVED,
-    PurchaseOrderStatus.DRAFT,
-    PurchaseOrderStatus.CANCELLED,
-  ],
-  [PurchaseOrderStatus.APPROVED]: [PurchaseOrderStatus.SENT, PurchaseOrderStatus.CANCELLED],
-  [PurchaseOrderStatus.SENT]: [
-    PurchaseOrderStatus.PARTIALLY_RECEIVED,
-    PurchaseOrderStatus.RECEIVED,
-    PurchaseOrderStatus.CANCELLED,
-  ],
-  [PurchaseOrderStatus.PARTIALLY_RECEIVED]: [
-    PurchaseOrderStatus.RECEIVED,
-    PurchaseOrderStatus.CANCELLED,
-  ],
-  [PurchaseOrderStatus.RECEIVED]: [],
-  [PurchaseOrderStatus.CANCELLED]: [],
-};
+import { canTransition } from '@virteex/shared/types';
+import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 
 /** Once an order has been sent to a supplier, its terms are not ours alone to change. */
 const EDITABLE = [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.PENDING_APPROVAL];
@@ -307,7 +287,9 @@ export class PurchaseOrdersService {
   ): Promise<PurchaseOrder> {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
-      if (!ORDER_TRANSITIONS[order.status].includes(to)) {
+      // La regla está declarada, no copiada aquí: la misma que lee la pantalla para dibujar en
+      // qué punto está la orden y qué puede pasarle después.
+      if (!canTransition(PURCHASE_ORDER_LIFECYCLE, order.status, to)) {
         throw new BadRequestError('procurement.order_cannot_move_from_from', {
           from: order.status,
           to,

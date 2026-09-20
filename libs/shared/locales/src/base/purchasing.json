@@ -1,4 +1,9 @@
 {
+  "purchasing.orders.document_name": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Ordem de compra"
+  },
   "purchasing.orders.form.add_line": {
     "es": "Agregar línea",
     "en": "Add line",
@@ -209,6 +214,11 @@
     "es": "Fecha",
     "en": "Date",
     "pt": "Data"
+  },
+  "purchasing.requisitions.document_name": {
+    "es": "Requisición de compra",
+    "en": "Purchase requisition",
+    "pt": "Requisição de compra"
   },
   "purchasing.requisitions.form.add_line": {
     "es": "Agregar línea",

@@ -96,6 +96,7 @@ import { ExtensionsModule } from './extensions/extensions.module';
 import { PosModule } from './pos/pos.module';
 import { InboxModule } from './shared/inbox/inbox.module';
 import { JobsModule } from './shared/jobs/jobs.module';
+import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
 
 @Module({
   imports: [
@@ -104,6 +105,9 @@ import { JobsModule } from './shared/jobs/jobs.module';
     InboxModule,
     // El panel de trabajos: lo que se encoló, en qué estado está y por qué falló.
     JobsModule,
+    // Los ciclos de vida declarados: el servicio decide con ellos y la pantalla los dibuja,
+    // en vez de escribir cada uno su copia de las mismas reglas.
+    LifecycleModule,
     SchedulerModule,
     ConfigModule.forRoot({
       isGlobal: true,

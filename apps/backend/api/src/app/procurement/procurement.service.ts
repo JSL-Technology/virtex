@@ -15,24 +15,8 @@ import {
   SEQUENCE_SCOPE,
 } from '../journal-entries/journal-entry-numbering.service';
 import { roundAmount, toCents } from '../common/money';
-
-/**
- * Which statuses a requisition may move between, and nothing else.
- *
- * Stated as a table rather than scattered through `if`s: a lifecycle spelled out at each call site
- * is a lifecycle that ends up different at each call site.
- */
-const REQUISITION_TRANSITIONS: Record<PurchaseRequisitionStatus, PurchaseRequisitionStatus[]> = {
-  [PurchaseRequisitionStatus.DRAFT]: [PurchaseRequisitionStatus.PENDING_APPROVAL],
-  [PurchaseRequisitionStatus.PENDING_APPROVAL]: [
-    PurchaseRequisitionStatus.APPROVED,
-    PurchaseRequisitionStatus.REJECTED,
-    PurchaseRequisitionStatus.DRAFT,
-  ],
-  [PurchaseRequisitionStatus.APPROVED]: [PurchaseRequisitionStatus.CONVERTED_TO_PO],
-  [PurchaseRequisitionStatus.REJECTED]: [PurchaseRequisitionStatus.DRAFT],
-  [PurchaseRequisitionStatus.CONVERTED_TO_PO]: [],
-};
+import { canTransition } from '@virteex/shared/types';
+import { REQUISITION_LIFECYCLE } from './procurement-lifecycles';
 
 /**
  * Purchase requisitions: somebody in the business asking to buy something.
@@ -221,8 +205,14 @@ export class ProcurementService {
     });
   }
 
+  /**
+   * La tabla de transiciones vivía aquí dentro, y por eso la pantalla que muestra una requisición
+   * no podía decir qué venía después sin volver a escribirla. Ahora la regla está declarada en
+   * `procurement-lifecycles.ts` y la leen los dos: esto para rechazar lo ilegal, la interfaz para
+   * dibujar el recorrido.
+   */
   private assertTransition(from: PurchaseRequisitionStatus, to: PurchaseRequisitionStatus): void {
-    if (!REQUISITION_TRANSITIONS[from].includes(to)) {
+    if (!canTransition(REQUISITION_LIFECYCLE, from, to)) {
       throw new BadRequestError('procurement.requisition_cannot_move_from_from', { from, to });
     }
   }
