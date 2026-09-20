@@ -1,4 +1,6 @@
 import { DataSource } from 'typeorm';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -89,7 +91,12 @@ describeWithDb('inventory posting', () => {
     inventory = new InventoryService(
       dataSource.getRepository(Product),
       dataSource,
-      new InventoryPostingService(entries, narrative),
+      new InventoryPostingService(
+        entries,
+        narrative,
+        new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+        new JournalLookupService(dataSource.getRepository(Journal)),
+      ),
       // The real category service: a product's category must belong to this tenant and still be
       // offered, and that check is part of what creating a product means now.
       new ProductCategoriesService(
@@ -233,7 +240,12 @@ describeWithDb('inventory posting', () => {
       new InventoryService(
         dataSource.getRepository(Product),
         dataSource,
-        new InventoryPostingService(entries, new LedgerNarrativeService(new I18nService())),
+        new InventoryPostingService(
+          entries,
+          new LedgerNarrativeService(new I18nService()),
+          new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+          new JournalLookupService(dataSource.getRepository(Journal)),
+        ),
         new ProductCategoriesService(
           dataSource.getRepository(ProductCategory),
           dataSource.getRepository(Product),
@@ -327,6 +339,8 @@ describeWithDb('inventory posting', () => {
           testExchangeRateResolver(dataSource),
         ),
         narrative,
+        new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+        new JournalLookupService(dataSource.getRepository(Journal)),
       ).postOpeningStock(manager, product, ACTOR),
     );
 

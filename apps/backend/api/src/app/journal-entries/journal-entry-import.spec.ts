@@ -178,7 +178,8 @@ describeWithDb('journal entry import', () => {
     } as unknown as FileParserService;
 
     importer = new JournalEntryImportService(
-      dataSource.getRepository(Account),
+      // El repositorio de cuentas salió de la firma: la importación resuelve las cuentas por el
+      // servicio de asientos en vez de leer la tabla por su cuenta. El spec seguía pasándolo.
       dataSource.getRepository(JournalEntryImportBatch),
       entries,
       dataSource,

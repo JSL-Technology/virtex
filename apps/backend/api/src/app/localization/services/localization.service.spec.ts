@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { LocalizationService } from './localization.service';
 import { supportedCountryCodes } from '../fiscal/country-profiles';
+import { catalogueForCountry } from '../fiscal/identity-document-catalogue';
 import { I18nService } from '../../i18n/i18n.service';
 
 /**
@@ -38,7 +39,11 @@ describe('LocalizationService — public country configuration', () => {
     // `IdentityDocumentService` is stubbed rather than constructed: it owns a repository and a
     // cache of its own, and what these tests need from it is the list it hands the public config.
     const identityDocuments = {
-      listForCountry: jest.fn().mockResolvedValue([]),
+      // El catálogo REAL del país, no una lista vacía. La configuración pública separa el
+      // identificador de la empresa —RNC— del documento de la persona —cédula—, y con una lista
+      // vacía esa separación no se puede comprobar: `individualDocument` sale null y la prueba
+      // pasaría igual si el producto volviera a juntarlos en una sola cadena.
+      listForCountry: jest.fn(async (countryCode: string) => catalogueForCountry(countryCode)),
       ...(overrides.identityDocuments as object),
     };
 
@@ -63,7 +68,14 @@ describe('LocalizationService — public country configuration', () => {
       const config = await makeService().getPublicCountryConfig('DO');
       expect(config.fiscalRegionId).toBe(REGION_ID);
       expect(config.countryCode).toBe('DO');
-      expect(config.taxIdLabel).toBe('RNC / Cédula');
+      //  `RNC`, no `RNC / Cédula`.
+      //
+      //  El rótulo era un literal que metía dos documentos en uno. Desde que el identificador
+      //  fiscal es una fila del catálogo (C-01), el de la EMPRESA y el de la PERSONA son cosas
+      //  distintas: la cédula se expone aparte, en `individualDocument`. Juntarlos en una cadena
+      //  obligaba a cualquier formulario a decidir por su cuenta cuál de los dos estaba pidiendo.
+      expect(config.taxIdLabel).toBe('RNC');
+      expect(config.individualDocument?.label).toBe('Cédula');
       expect(config.currency).toBe('DOP');
       expect(config.phoneCode).toBe('+1');
     });

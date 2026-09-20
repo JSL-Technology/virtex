@@ -5,6 +5,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { UserCacheService } from '../auth/modules/user-cache.service';
+import { PasswordVerifierPort } from '../auth/ports/password-verifier.port';
+import { SessionInvalidatorPort } from '../auth/ports/session-invalidator.port';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
 import { EventsGateway } from '../websockets/events.gateway';
@@ -58,6 +60,10 @@ describe('UsersService', () => {
         // `findOne` resolves the ACTIVE organization now, not the user's home one.
         { provide: getRepositoryToken(Organization), useValue: { findOneBy: jest.fn().mockResolvedValue(null) } },
         { provide: UserCacheService, useValue: userCacheServiceMock },
+        // `PasswordVerifierPort` se introdujo para que Identidad no dependiera de Auth por dentro
+        // (B-02). El módulo de prueba no lo declaró, así que este archivo no resolvía sus
+        // dependencias y sus siete pruebas no se han ejecutado desde entonces.
+        { provide: PasswordVerifierPort, useValue: { verify: jest.fn().mockResolvedValue(true) } },
         { provide: MailService, useValue: {} },
         { provide: RolesService, useValue: rolesServiceMock },
         { provide: EventsGateway, useValue: {} },
@@ -65,6 +71,9 @@ describe('UsersService', () => {
         { provide: SaasService, useValue: {} },
         { provide: DataSource, useValue: {} },
         { provide: PasswordService, useValue: { hash: jest.fn(), verify: jest.fn() } },
+        // El PUERTO, no el servicio concreto: `SessionInvalidatorPort` se introdujo junto con
+        // `PasswordVerifierPort` para que Identidad no dependiera de Auth por dentro (B-02).
+        { provide: SessionInvalidatorPort, useValue: { terminateAllSessions: jest.fn() } },
         { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } },
         // `user_organizations` is written by this service now, not just read by a raw query.
         { provide: MembershipService, useValue: { grant: jest.fn(), revoke: jest.fn(), isMember: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) } },

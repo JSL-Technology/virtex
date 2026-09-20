@@ -1,6 +1,6 @@
 import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
-import { FiscalYear } from '../accounting/entities/fiscal-year.entity';
+import { FiscalYear } from './entities/fiscal-year.entity';
 import { FiscalCalendarService } from './fiscal-calendar.service';
 
 /**
@@ -56,7 +56,11 @@ describeWithDb('fiscal calendar', () => {
 
     organizations = dataSource.getRepository(Organization);
     fiscalYears = dataSource.getRepository(FiscalYear);
-    calendar = new FiscalCalendarService(organizations, fiscalYears);
+    // Firma actual: el servicio dejó de recibir el repositorio de empresas cuando la separación
+    // modular de septiembre lo movió aquí desde `shared/` — lee el inquilino por el DataSource.
+    // El spec se quedó llamándolo con la firma vieja y dejó de COMPILAR, así que estas cinco
+    // pruebas sobre el día contable del inquilino no se han ejecutado desde entonces.
+    calendar = new FiscalCalendarService(fiscalYears, dataSource);
   });
 
   afterAll(async () => {

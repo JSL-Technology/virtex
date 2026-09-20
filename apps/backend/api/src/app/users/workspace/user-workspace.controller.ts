@@ -52,7 +52,12 @@ export class UserWorkspaceController {
   }
 
   @Put()
-  @AuthenticatedOnly('Igual que la lectura: solo se puede escribir el propio.')
+  @AuthenticatedOnly(
+    'Escribe las pestañas de quien pregunta, en su empresa activa. El usuario sale del principal ' +
+      'y la empresa del contexto de la petición, así que la ruta no admite un sujeto ajeno ni ' +
+      'escribiéndolo a mano: no hay nadie más cuyo espacio de trabajo se pueda tocar. Pedir un ' +
+      'permiso aquí sería pedir autorización para guardar las propias pestañas.',
+  )
   @ApiOperation({
     summary: 'Guarda el espacio de trabajo',
     description:
@@ -66,7 +71,11 @@ export class UserWorkspaceController {
 
   @Delete()
   @HttpCode(204)
-  @AuthenticatedOnly('Igual que la lectura: solo se puede olvidar el propio.')
+  @AuthenticatedOnly(
+    'Olvida el espacio de trabajo de quien pregunta, en su empresa activa. Mismo razonamiento que ' +
+      'la lectura y la escritura: el sujeto lo fija el principal, no la petición, y el único ' +
+      'espacio de trabajo alcanzable es el propio.',
+  )
   @ApiOperation({ summary: 'Olvida el espacio de trabajo guardado' })
   async forget(@CurrentUser() user: AuthenticatedUser) {
     await this.workspace.forget(user.id, user.organizationId);

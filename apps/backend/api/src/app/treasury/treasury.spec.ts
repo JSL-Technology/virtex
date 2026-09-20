@@ -62,6 +62,9 @@ describeWithDb('treasury', () => {
   let dataSource: DataSource;
   let treasury: TreasuryService;
   let balances: AccountBalancesService;
+  // En el ámbito del describe para que las pruebas usen LA MISMA instancia que recibió el
+  // servicio, en vez de entrar en su campo privado por el nombre.
+  let entries: JournalEntriesService;
 
   let organizationId: string;
   let ledgerId: string;
@@ -85,7 +88,7 @@ describeWithDb('treasury', () => {
 
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
     balances = new AccountBalancesService(dataSource);
-    const entries = new JournalEntriesService(
+    entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
       dataSource.getRepository(JournalEntryAttachment),
       dataSource,
@@ -103,10 +106,9 @@ describeWithDb('treasury', () => {
       entries,
       balances,
       testExchangeRateResolver(dataSource),
-      new FiscalCalendarService(
-        dataSource.getRepository(Organization),
-        dataSource.getRepository(FiscalYear),
-      ),
+      // El calendario fiscal dejó de recibir el repositorio de empresas al moverse a `accounting/`:
+      // lee el inquilino por el DataSource. Con la firma vieja el spec no compilaba.
+      new FiscalCalendarService(dataSource.getRepository(FiscalYear), dataSource),
       dataSource,
     );
   });
@@ -311,8 +313,12 @@ describeWithDb('treasury', () => {
         .getRepository(Journal)
         .findOneByOrFail({ organizationId, code: 'BANCOS' });
       await dataSource.transaction((manager) =>
-        (treasury as never as { journalEntriesService: JournalEntriesService })
-          .journalEntriesService.createWithManager(
+        // La MISMA instancia que se le pasó al servicio, en vez de entrar en su campo privado por
+        // el nombre. El campo pasó a llamarse `posting` al introducirse `AccountingPostingPort`, y
+        // el spec siguió buscando `journalEntriesService`: encontraba `undefined` y reventaba al
+        // llamar al método. Alcanzar lo privado por su nombre se rompe con cada renombrado; usar
+        // lo que ya está en el ámbito, no.
+        entries.createWithManager(
             manager,
             {
               date: '2026-03-05',
@@ -361,8 +367,12 @@ describeWithDb('treasury', () => {
         .getRepository(Journal)
         .findOneByOrFail({ organizationId, code: 'BANCOS' });
       await dataSource.transaction((manager) =>
-        (treasury as never as { journalEntriesService: JournalEntriesService })
-          .journalEntriesService.createWithManager(
+        // La MISMA instancia que se le pasó al servicio, en vez de entrar en su campo privado por
+        // el nombre. El campo pasó a llamarse `posting` al introducirse `AccountingPostingPort`, y
+        // el spec siguió buscando `journalEntriesService`: encontraba `undefined` y reventaba al
+        // llamar al método. Alcanzar lo privado por su nombre se rompe con cada renombrado; usar
+        // lo que ya está en el ámbito, no.
+        entries.createWithManager(
             manager,
             {
               date: '2026-03-05',
@@ -471,8 +481,12 @@ describeWithDb('treasury', () => {
         .getRepository(Journal)
         .findOneByOrFail({ organizationId, code: 'BANCOS' });
       await dataSource.transaction((manager) =>
-        (treasury as never as { journalEntriesService: JournalEntriesService })
-          .journalEntriesService.createWithManager(
+        // La MISMA instancia que se le pasó al servicio, en vez de entrar en su campo privado por
+        // el nombre. El campo pasó a llamarse `posting` al introducirse `AccountingPostingPort`, y
+        // el spec siguió buscando `journalEntriesService`: encontraba `undefined` y reventaba al
+        // llamar al método. Alcanzar lo privado por su nombre se rompe con cada renombrado; usar
+        // lo que ya está en el ámbito, no.
+        entries.createWithManager(
             manager,
             {
               date: '2026-03-05',

@@ -1,9 +1,10 @@
 import { DataSource } from 'typeorm';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -75,7 +76,15 @@ describeWithDb('the statement of cash flows', () => {
     await dataSource.initialize();
 
     const balances = new AccountBalancesService(dataSource);
-    reporting = new FinancialReportingService(dataSource, balances);
+    reporting = new FinancialReportingService(
+      dataSource,
+      balances,
+      // El SERVICIO real, no un doble: los informes leen de él la moneda funcional del inquilino,
+      // y un doble devolvería la que la prueba quisiera en vez de la que el inquilino tiene.
+      // Este tercer argumento llegó con la separación modular de septiembre y el spec se quedó
+      // llamando con dos, así que dejó de compilar y no se ha ejecutado desde entonces.
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+    );
 
     entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),

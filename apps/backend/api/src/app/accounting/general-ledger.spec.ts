@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -96,6 +97,10 @@ describeWithDb('general ledger and daybook', () => {
     ledgers = new LedgersService(
       dataSource.getRepository(Ledger),
       balances,
+      // `JournalQueryService` es la superficie de lectura que se creó para que otros módulos
+      // dejaran de leer las tablas de asientos directamente (B-03/B-04). El spec se quedó con la
+      // firma anterior.
+      new JournalQueryService(dataSource),
       dataSource,
     );
   });
