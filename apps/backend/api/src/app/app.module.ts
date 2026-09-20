@@ -95,12 +95,15 @@ import { TenancyModule } from './shared/tenancy/tenancy.module';
 import { ExtensionsModule } from './extensions/extensions.module';
 import { PosModule } from './pos/pos.module';
 import { InboxModule } from './shared/inbox/inbox.module';
+import { JobsModule } from './shared/jobs/jobs.module';
 
 @Module({
   imports: [
     // El registro de bandejas: cada módulo se apunta solo, y Reportes lee la lista sin
     // conocer a ninguno.
     InboxModule,
+    // El panel de trabajos: lo que se encoló, en qué estado está y por qué falló.
+    JobsModule,
     SchedulerModule,
     ConfigModule.forRoot({
       isGlobal: true,

@@ -24,3 +24,25 @@
 .sb__item--closed { color: var(--warning-text); }
 
 .sb__spacer { flex: 1 1 auto; }
+
+//  El indicador de trabajos en cola.
+.sb__item--jobs {
+  color: var(--text-secondary);
+}
+
+//  El giro dice «sigue ocurriendo». Es la única animación de la barra a propósito: todo lo demás
+//  aquí es un hecho estable —la empresa, el periodo, la moneda— y un hecho estable que se mueve
+//  distrae sin informar.
+.sb__spin {
+  animation: sb-spin 1.2s linear infinite;
+}
+
+@keyframes sb-spin {
+  to { transform: rotate(360deg); }
+}
+
+//  Quien haya pedido menos movimiento no debería recibir un icono girando indefinidamente en el
+//  borde de la pantalla.
+@media (prefers-reduced-motion: reduce) {
+  .sb__spin { animation: none; }
+}

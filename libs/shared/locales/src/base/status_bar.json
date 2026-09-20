@@ -18,5 +18,15 @@
     "es": "Periodo {{period}} abierto",
     "en": "Period {{period}} open",
     "pt": "Período {{period}} aberto"
+  },
+  "status_bar.jobs_running": {
+    "es": "{{count}} en proceso",
+    "en": "{{count}} running",
+    "pt": "{{count}} em andamento"
+  },
+  "status_bar.jobs_failed": {
+    "es": "{{count}} fallaron",
+    "en": "{{count}} failed",
+    "pt": "{{count}} falharam"
   }
 }

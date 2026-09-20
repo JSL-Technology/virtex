@@ -4461,6 +4461,8 @@
   "sidebar.operations.purchasing_sub.orders": "Pedidos de compra",
   "sidebar.operations.purchasing_sub.requisitions": "Requisições",
   "sidebar.reports.reporting_sub.datasheets": "DataSheets",
+  "status_bar.jobs_failed": "{{count}} falharam",
+  "status_bar.jobs_running": "{{count}} em andamento",
   "status_bar.offline": "Sem ligação",
   "status_bar.online": "Ligado",
   "status_bar.period_closed": "Período {{period}} fechado",
