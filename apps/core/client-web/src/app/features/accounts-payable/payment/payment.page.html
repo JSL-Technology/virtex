@@ -20,9 +20,9 @@
     } @else {
       <section class="form-section">
         <div class="form-grid">
-        <label class="field">
-          <span>{{ 'accounts_payable.payment.payment_date' | translate }} *</span>
-          <input type="date" formControlName="paymentDate" />
+        <label class="field" for="paymentDate">
+          <span>{{ 'accounts_payable.payment.payment_date' | translate }}</span>
+          <vx-date-field inputId="paymentDate" formControlName="paymentDate" />
         </label>
 
         <label class="field">

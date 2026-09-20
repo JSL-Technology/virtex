@@ -22,9 +22,9 @@
         </select>
       </label>
 
-      <label class="field">
-        <span>{{ 'customer_receipts.list.date' | translate }} *</span>
-        <input type="date" formControlName="paymentDate" />
+      <label class="field" for="paymentDate">
+        <span>{{ 'customer_receipts.list.date' | translate }}</span>
+        <vx-date-field inputId="paymentDate" formControlName="paymentDate" />
       </label>
 
       <label class="field">

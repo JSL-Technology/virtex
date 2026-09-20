@@ -89,6 +89,11 @@
     "en": "Nothing matches “{{term}}”.",
     "pt": "Nada corresponde a “{{term}}”."
   },
+  "shell.problem_date_order": {
+    "es": "«{{field}}» es anterior a la fecha de inicio",
+    "en": "“{{field}}” is earlier than the start date",
+    "pt": "“{{field}}” é anterior à data inicial"
+  },
   "shell.problem_email": {
     "es": "«{{field}}» no es un correo válido",
     "en": "“{{field}}” is not a valid email address",

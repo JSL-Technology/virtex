@@ -2,14 +2,9 @@
   <div class="subview-header">
     <h3>{{ titleKey | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
+      <label class="date-picker" for="agingAsOf">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <input
-          type="date"
-          [value]="asOfDate()"
-          (change)="onDateChange($any($event.target).value)"
-          [attr.aria-label]="'reports.common.to' | translate"
-        />
+        <vx-date-field inputId="agingAsOf" [value]="asOfDate()" (valueChange)="onDateChange(($event ?? ''))" [attr.aria-label]="'reports.common.to' | translate" />
       </label>
       <button class="primary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>

@@ -24,9 +24,9 @@
 
     <section class="form-section">
       <div class="form-grid">
-        <label class="field">
+        <label class="field" for="requiredDate">
           <span>{{ 'purchasing.requisitions.required_date' | translate }}</span>
-          <input type="date" formControlName="requiredDate" />
+          <vx-date-field inputId="requiredDate" formControlName="requiredDate" />
         </label>
 
         <label class="field field--wide">

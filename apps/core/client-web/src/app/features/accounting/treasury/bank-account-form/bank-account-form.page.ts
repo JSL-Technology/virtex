@@ -12,6 +12,7 @@ import { Account } from '../../../../core/models/account.model';
 import { bankLedgerAccounts } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
  * Registering a bank account.
@@ -35,8 +36,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y,
-  ],
+    ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './bank-account-form.page.html',
   styleUrls: ['./bank-account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

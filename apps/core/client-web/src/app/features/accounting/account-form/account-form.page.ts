@@ -15,6 +15,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
+import { VxDateFieldComponent } from '../../../shared/components/date';
 
 @Component({
   selector: 'app-account-form-page',
@@ -27,7 +28,7 @@ import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
     TranslateModule,
     DraftShellComponent,
     VxLocalizedNamePipe,
-    ...VX_FORM_A11Y, VxTabsComponent],
+    ...VX_FORM_A11Y, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

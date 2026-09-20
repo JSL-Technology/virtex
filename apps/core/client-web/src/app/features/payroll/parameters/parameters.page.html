@@ -33,10 +33,9 @@
             <option value="INFOTEP">{{ 'payroll.parameters.regime_label.infotep' | translate }}</option>
           </select>
         </label>
-        <label class="field">
+        <label class="field" for="contributionEffectiveFrom">
           <span>{{ 'payroll.parameters.effective_from' | translate }}</span>
-          <input type="date" [value]="draft.effectiveFrom"
-            (input)="patchContribution({ effectiveFrom: $any($event.target).value })" />
+          <vx-date-field inputId="contributionEffectiveFrom" [value]="draft.effectiveFrom" (valueChange)="patchContribution({ effectiveFrom: ($event ?? '') })" />
         </label>
         <label class="field">
           <span>{{ 'payroll.parameters.employee_rate' | translate }}</span>
@@ -130,10 +129,9 @@
             </option>
           </select>
         </label>
-        <label class="field">
+        <label class="field" for="referenceEffectiveFrom">
           <span>{{ 'payroll.parameters.effective_from' | translate }}</span>
-          <input type="date" [value]="draft.effectiveFrom"
-            (input)="patchReference({ effectiveFrom: $any($event.target).value })" />
+          <vx-date-field inputId="referenceEffectiveFrom" [value]="draft.effectiveFrom" (valueChange)="patchReference({ effectiveFrom: ($event ?? '') })" />
         </label>
         <label class="field">
           <span>{{ 'payroll.parameters.value' | translate }}</span>

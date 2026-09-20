@@ -15,6 +15,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxDateFieldComponent } from '../../../shared/components/date';
 
 /**
  * Recording a collection from a customer.
@@ -47,7 +48,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxAmountComponent],
+    ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

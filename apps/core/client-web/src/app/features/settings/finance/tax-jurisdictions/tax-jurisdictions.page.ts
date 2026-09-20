@@ -18,6 +18,7 @@ import {
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
 /**
  * Where the tenant is registered to collect sales tax, and at what rate.
@@ -36,7 +37,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,7 +84,14 @@ export class TaxJurisdictionsPage implements OnInit {
     sourcing: ['DESTINATION'],
     effectiveFrom: [new Date().toISOString().slice(0, 10), Validators.required],
     effectiveTo: [''],
-  });
+  },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('effectiveFrom', 'effectiveTo'),
+      },
+    );
 
   /** Grouped by state, which is how a taxpayer thinks about where they are registered. */
   readonly byState = computed(() => {

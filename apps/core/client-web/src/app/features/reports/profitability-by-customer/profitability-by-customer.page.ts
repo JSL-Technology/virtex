@@ -9,6 +9,7 @@ import {
 } from '../../../core/api/profitability.service';
 import { StatementExportService } from '../../../core/export/statement-export.service';
 import { defaultPeriod } from '../financial-statements/report-period';
+import { VxDateRangeComponent } from '../../../shared/components/date';
 
 /**
  * Gross margin by customer.
@@ -20,7 +21,7 @@ import { defaultPeriod } from '../financial-statements/report-period';
 @Component({
   selector: 'app-profitability-by-customer-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent],
   templateUrl: './profitability-by-customer.page.html',
   styleUrls: ['./profitability-by-customer.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

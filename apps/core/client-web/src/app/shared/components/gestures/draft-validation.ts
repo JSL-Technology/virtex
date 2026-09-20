@@ -31,6 +31,10 @@ const MESSAGE_BY_ERROR: Record<string, string> = {
   minlength: 'shell.problem_minlength',
   maxlength: 'shell.problem_maxlength',
   pattern: 'shell.field_not_expected_format',
+  //  El par desde/hasta invertido. `dateOrder` deja el error en el control TARDÍO además de en el
+  //  grupo, precisamente para que el resumen pueda nombrar un campo en vez de decir que el
+  //  formulario está mal en algún sitio.
+  dateOrder: 'shell.problem_date_order',
 };
 
 function describe(name: string, label: string, errors: ValidationErrors): DraftProblem {

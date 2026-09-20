@@ -38,6 +38,7 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
+import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
 
 /**
  * Issuing a sales document.
@@ -67,7 +68,7 @@ import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
     DraftShellComponent,
     ...VX_SELECT,
     CustomerQuickCreateComponent,
-    ...VX_FORM_A11Y, VxAmountComponent, VxTabsComponent],
+    ...VX_FORM_A11Y, VxAmountComponent, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -143,7 +144,14 @@ export class NewInvoicePage implements OnInit {
       incomeTaxWithholdingRate: [0, [Validators.min(0), Validators.max(1)]],
       notes: [''],
       lineItems: this.fb.array([this.createLineItem()]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('issueDate', 'dueDate'),
+      },
+    );
   }
 
   ngOnInit(): void {

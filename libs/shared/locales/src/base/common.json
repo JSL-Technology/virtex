@@ -159,11 +159,6 @@
     "en": "Not recorded",
     "pt": "Sem registro"
   },
-  "common.page_of_total": {
-    "es": "Página {{page}} · {{total}} registros",
-    "en": "Page {{page}} · {{total}} records",
-    "pt": "Página {{page}} · {{total}} registos"
-  },
   "common.pager_page": {
     "es": "Página {{page}}",
     "en": "Page {{page}}",
@@ -178,11 +173,6 @@
     "es": "Paginación",
     "en": "Pagination",
     "pt": "Paginação"
-  },
-  "common.previous": {
-    "es": "Anterior",
-    "en": "Previous",
-    "pt": "Anterior"
   },
   "common.previous_page": {
     "es": "Página anterior",

@@ -40,14 +40,14 @@
           </select>
         </label>
 
-        <label class="field">
-          <span>{{ 'purchasing.orders.order_date' | translate }} *</span>
-          <input type="date" formControlName="orderDate" />
+        <label class="field" for="orderDate">
+          <span>{{ 'purchasing.orders.order_date' | translate }}</span>
+          <vx-date-field inputId="orderDate" formControlName="orderDate" />
         </label>
 
-        <label class="field">
+        <label class="field" for="expectedDate">
           <span>{{ 'purchasing.orders.form.expected_date' | translate }}</span>
-          <input type="date" formControlName="expectedDate" />
+          <vx-date-field inputId="expectedDate" formControlName="expectedDate" />
           <small class="field__note">{{ 'purchasing.orders.form.expected_date_help' | translate }}</small>
         </label>
 

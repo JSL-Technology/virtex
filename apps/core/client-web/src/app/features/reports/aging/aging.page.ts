@@ -7,6 +7,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxDateFieldComponent } from '../../../shared/components/date';
 
 export type AgingSide = 'payables' | 'receivables';
 
@@ -24,7 +25,7 @@ export type AgingSide = 'payables' | 'receivables';
 @Component({
   selector: 'app-aging-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './aging.page.html',
   styleUrls: ['./aging.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

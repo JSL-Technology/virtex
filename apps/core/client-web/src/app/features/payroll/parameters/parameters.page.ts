@@ -12,6 +12,7 @@ import {
   StatutoryReference,
 } from '../../../core/api/payroll.service';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { VxDateFieldComponent } from '../../../shared/components/date';
 
 /**
  * The statutory parameters a payroll is computed from: the TSS rates, the reference values, and the
@@ -32,7 +33,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 @Component({
   selector: 'app-payroll-parameters-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './parameters.page.html',
   styleUrls: ['./parameters.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

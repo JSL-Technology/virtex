@@ -21,6 +21,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -45,7 +46,7 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
     ...FORMAT_PIPES,
     DraftShellComponent,
     RouterLink,
-    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -132,7 +133,14 @@ export class PurchaseOrderFormPage implements OnInit {
       expectedDate: [''],
       notes: [''],
       lines: this.fb.array([]),
-    });
+    },
+      {
+        //  El orden de las dos fechas, que no comprobaba nadie: un rango invertido se
+        //  guardaba tal cual. El error cae en el grupo Y en el control tardío, para que
+        //  el resumen del armazón de borrador pueda nombrar un campo.
+        validators: dateOrder('orderDate', 'expectedDate'),
+      },
+    );
 
     this.suppliersApi.getSuppliers().subscribe({
       next: (data) => this.suppliers.set(data),

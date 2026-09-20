@@ -123,9 +123,9 @@
               <span>{{ 'settings.pages.einvoicing.ends_at' | translate }}</span>
               <input type="number" min="1" formControlName="endsAt" />
             </label>
-            <label class="form-field">
+            <label class="form-field" for="validUntil">
               <span>{{ 'settings.pages.einvoicing.valid_until' | translate }}</span>
-              <input type="date" formControlName="validUntil" />
+              <vx-date-field inputId="validUntil" formControlName="validUntil" />
               <small class="field-hint">
                 {{ 'settings.pages.einvoicing.dian_resolution_sii_caf_both_expire' | translate }}
               </small>

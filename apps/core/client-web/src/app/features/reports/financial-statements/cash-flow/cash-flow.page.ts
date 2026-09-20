@@ -10,6 +10,7 @@ import {
 } from '../../../../core/api/financial-reporting.service';
 import { defaultPeriod } from '../report-period';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDateRangeComponent } from '../../../../shared/components/date';
 
 /**
  * The statement of cash flows.
@@ -23,7 +24,7 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
 @Component({
   selector: 'app-cash-flow-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './cash-flow.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

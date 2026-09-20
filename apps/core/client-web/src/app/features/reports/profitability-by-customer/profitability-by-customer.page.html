@@ -2,23 +2,19 @@
   <div class="subview-header">
     <h3>{{ 'reports.profitability_by_customer.profitability_by_customer' | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
-        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
-        <input
-          type="date"
-          [value]="startDate()"
-          (change)="onStartDateChange($any($event.target).value)"
-        />
-      </label>
-      <label class="date-picker">
-        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
-        <input
-          type="date"
-          [value]="endDate()"
-          (change)="onEndDateChange($any($event.target).value)"
-        />
-      </label>
+      <!--
+        Ninguno de los dos extremos acotaba al otro y nadie comprobaba el orden: un rango invertido
+        devolvía un informe vacío y ningún mensaje.
+      -->
+      <vx-date-range
+        class="report-range"
+        [from]="startDate()"
+        [to]="endDate()"
+        fromLabelKey="reports.common.from"
+        toLabelKey="reports.common.to"
+        (fromChange)="onStartDateChange($event ?? '')"
+        (toChange)="onEndDateChange($event ?? '')"
+      />
       <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
         <span>{{ 'reports.common.export' | translate }}</span>

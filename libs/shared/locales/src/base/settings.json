@@ -2966,11 +2966,6 @@
     "en": "Send invitation",
     "pt": "Enviar convite"
   },
-  "settings.user_management.showing_shown_total_users": {
-    "es": "Mostrando {{shown}} de {{total}} usuarios",
-    "en": "Showing {{shown}} of {{total}} users",
-    "pt": "A mostrar {{shown}} de {{total}} utilizadores"
-  },
   "settings.user_management.user_company_com": {
     "es": "usuario@empresa.com",
     "en": "user@company.com",

@@ -2,15 +2,20 @@
   <div class="subview-header">
     <h3>{{ 'reports.income_statement.income_statement' | translate }}</h3>
     <div class="header-actions">
-      <label class="date-picker">
-        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span class="date-picker__label">{{ 'reports.common.from' | translate }}</span>
-        <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
-      </label>
-      <label class="date-picker">
-        <span class="date-picker__label">{{ 'reports.common.to' | translate }}</span>
-        <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
-      </label>
+      <!--
+        Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
+        comprobaba el orden, así que un rango invertido devolvía un informe VACÍO y ningún
+        mensaje — que se lee como «no hay datos en este período».
+      -->
+      <vx-date-range
+        class="report-range"
+        [from]="startDate()"
+        [to]="endDate()"
+        fromLabelKey="reports.common.from"
+        toLabelKey="reports.common.to"
+        (fromChange)="onStartDateChange($event ?? '')"
+        (toChange)="onEndDateChange($event ?? '')"
+      />
       <!--
         A real export.
         The balance sheet carried the download icon on a button whose handler is `load()`, so the
