@@ -79,6 +79,43 @@ describe('ActiveTenantGuard', () => {
     expect(request.user.permissions).toEqual(['coa:view']);
   });
 
+  it('una empresa ajena responde LO MISMO que una inexistente: 403 y el mismo motivo', async () => {
+    lookup.findIdByRef.mockResolvedValue(ORG_B);
+    // Así rechaza `resolveOrganizationContext` a quien no pertenece.
+    resolver.resolveForOrganization.mockRejectedValue(
+      Object.assign(new Error('Unauthorized'), {
+        status: 401,
+        response: { code: 'AUTH_INVALID_CREDENTIALS' },
+      }),
+    );
+    const request = {
+      user: principal(ORG_A, []),
+      headers: { [ACTIVE_ORGANIZATION_HEADER]: 'empresa-ajena' },
+    };
+
+    // Sin esta traducción daba 401 para una empresa que existe y 403 para una que no, y esa
+    // diferencia permite enumerar qué empresas hay en el producto probando slugs.
+    await expect(guard.canActivate(contextFor(request))).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('un motivo que NO habla de la empresa se propaga tal cual', async () => {
+    lookup.findIdByRef.mockResolvedValue(ORG_B);
+    resolver.resolveForOrganization.mockRejectedValue(
+      Object.assign(new Error('Unauthorized'), {
+        status: 401,
+        response: { code: 'AUTH_USER_BLOCKED' },
+      }),
+    );
+    const request = {
+      user: principal(ORG_A, []),
+      headers: { [ACTIVE_ORGANIZATION_HEADER]: 'otra-empresa' },
+    };
+
+    // Una cuenta bloqueada entre dos peticiones no es un problema de la empresa, y convertirlo en
+    // 403 «no tienes acceso a esa empresa» mandaría a alguien a buscar el problema donde no está.
+    await expect(guard.canActivate(contextFor(request))).rejects.toMatchObject({ status: 401 });
+  });
+
   it('un identificador que no existe se rechaza', async () => {
     lookup.findIdByRef.mockResolvedValue(null);
     const request = {

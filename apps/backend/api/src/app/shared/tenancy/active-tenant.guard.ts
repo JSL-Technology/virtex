@@ -5,6 +5,21 @@ import { ForbiddenError } from '../../i18n/localized.exception';
 import { isOrganizationSlug } from './organization-slug';
 import { OrganizationLookupPort, PrincipalResolverPort } from './ports/active-tenant.ports';
 
+/**
+ * ¿Es este error «no perteneces a esa empresa» y no otra cosa?
+ *
+ * Se mira el código estable y no el mensaje: el mensaje está localizado y cambia de idioma.
+ */
+function isMembershipDenial(error: unknown): boolean {
+  const response = (error as { response?: unknown })?.response;
+  const code =
+    typeof response === 'object' && response !== null
+      ? (response as { code?: unknown; message?: unknown }).code ??
+        (response as { message?: unknown }).message
+      : response;
+  return code === 'AUTH_INVALID_CREDENTIALS';
+}
+
 /** La cabecera con la que el cliente dice en qué empresa actúa esta petición. */
 export const ACTIVE_ORGANIZATION_HEADER = 'x-virtex-organization';
 
@@ -91,7 +106,24 @@ export class ActiveTenantGuard implements CanActivate {
 
     // Aquí está la autorización: vuelve a resolver el principal para la empresa pedida, lo que
     // comprueba la pertenencia y recalcula roles y permisos para ella.
-    request.user = await this.identity.resolveForOrganization(user, organizationId);
+    try {
+      request.user = await this.identity.resolveForOrganization(user, organizationId);
+    } catch (error) {
+      // Una empresa que existe y no es tuya tiene que responder LO MISMO que una que no existe.
+      // Sin esto daba 401 en un caso y 403 en el otro, y esa diferencia es un oráculo: permite
+      // enumerar qué empresas hay en el producto probando slugs. La resolución del principal
+      // rechaza al no miembro con `INVALID_CREDENTIALS`; solo ese motivo se traduce, y cualquier
+      // otro —una cuenta desactivada o bloqueada entre dos peticiones— sigue su camino, porque no
+      // habla de la empresa sino de quien pregunta.
+      if (isMembershipDenial(error)) {
+        this.logger.warn(
+          { event: 'active_tenant_denied', userId: user.id, requested: raw },
+          'El usuario no pertenece a la empresa que pide la cabecera',
+        );
+        throw new ForbiddenError('auth.organization_not_accessible');
+      }
+      throw error;
+    }
     return true;
   }
 

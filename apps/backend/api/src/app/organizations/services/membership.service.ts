@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UserOrganization } from '../entities/user-organization.entity';
 import { Organization } from '../entities/organization.entity';
 import { UserCacheService } from '../../auth/modules/user-cache.service';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /** One tenant a person can act in, as the UI and the token both need it. */
 export interface MembershipSummary {
@@ -36,6 +37,7 @@ export class MembershipService {
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     private readonly userCacheService: UserCacheService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -102,7 +104,16 @@ export class MembershipService {
           { event: 'membership_row_missing', userId, organizationId: activeOrganizationId },
           'Active organization has no user_organizations row; including it and self-healing.',
         );
-        await this.grant(userId, activeOrganizationId);
+        // Con el contexto de la empresa a la que pertenece la fila.
+        //
+        // `user_organizations` tiene política de aislamiento, y este remiendo se ejecuta durante
+        // el INICIO DE SESIÓN, que por definición no tiene inquilino todavía: la autenticación
+        // ocurre antes de que haya una empresa a la que pertenecer. Sin contexto, `WITH CHECK`
+        // rechaza el INSERT y —como esto está en el camino del login— tumbaba el login entero con
+        // un 500. La fila es de esta empresa, así que se escribe como ella.
+        await runAsTenantJob(this.dataSource, activeOrganizationId, () =>
+          this.grant(userId, activeOrganizationId),
+        );
         rows.push({ id: active.id, legalName: active.legalName, slug: active.slug });
       }
     }

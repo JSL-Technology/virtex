@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { runInTenantContext } from './tenant-context';
 
 /**
@@ -43,4 +43,33 @@ export async function runAsTenantJob<T>(
     await runner.query(`RESET app.current_organization`).catch(() => undefined);
     await runner.release().catch(() => undefined);
   }
+}
+
+/**
+ * Da contexto de inquilino a una transacción que acaba de CREAR ese inquilino.
+ *
+ * ## El problema del huevo y la gallina
+ *
+ * Provisionar una empresa nueva —su catálogo de cuentas, sus segmentos, sus impuestos— escribe
+ * filas de un inquilino que todavía no existía cuando la petición empezó. No hay contexto que
+ * heredar: el alta ocurre precisamente ANTES de que haya empresa a la que pertenecer. Con las
+ * políticas en vigor, `WITH CHECK` rechaza esas escrituras —«new row violates row-level security
+ * policy»—, y el alta falla entera.
+ *
+ * Que falle es correcto: la alternativa sería que las políticas no gobernasen la escritura, y
+ * entonces un inquilino podría crear filas estampadas con el id de otro. Lo que hace falta es
+ * decirle a la transacción, en cuanto la empresa tiene id, que a partir de ahí actúa como ella.
+ *
+ * ## Por qué `local = true`
+ *
+ * El ajuste se limita a ESTA transacción y se deshace al terminar, con commit o con rollback. Un
+ * `set_config(..., false)` dentro de una transacción dejaría el valor pegado a la conexión, que
+ * vuelve a un pool compartido: quien la cogiera después heredaría el contexto de una empresa que
+ * no es la suya, y eso es exactamente la fuga que las políticas existen para impedir.
+ */
+export async function stampTenantOnTransaction(
+  manager: EntityManager,
+  organizationId: string,
+): Promise<void> {
+  await manager.query(`SELECT set_config('app.current_organization', $1, true)`, [organizationId]);
 }

@@ -16,6 +16,11 @@ import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
 import { TaxpayerKind } from '../localization/fiscal/tax-id-validators';
 import {
+  nextFreeSlug,
+  slugifyOrganizationName,
+} from '../shared/tenancy/organization-slug';
+import { stampTenantOnTransaction } from '../shared/tenancy/tenant-job';
+import {
   canonicalizeTaxId,
   fiscalIdentifierLabel,
   validateTaxId,
@@ -253,8 +258,22 @@ export class OrganizationsService {
     };
 
     const save = async (m: EntityManager): Promise<Organization> => {
-      const org = m.create(Organization, attributes);
+      // El identificador de la URL se asigna AQUÍ, que es el único sitio que crea empresas. La
+      // columna es NOT NULL, así que un camino que lo olvidara fallaría en la base en vez de
+      // crear una empresa sin enlace — y eso es exactamente lo que pasó al añadir la columna: el
+      // alta de desarrollo se rompió al instante, que es la forma correcta de fallar.
+      const org = m.create(Organization, {
+        ...attributes,
+        slug: attributes.slug ?? (await this.nextSlug(m, attributes)),
+      });
       const savedOrg = await m.save(org);
+      // Desde aquí la transacción actúa COMO la empresa que acaba de crear. Sin esto, todo lo que
+      // se escribe a continuación —los segmentos del catálogo, y después el catálogo entero y los
+      // impuestos— lo rechazan las políticas de aislamiento: son filas de un inquilino que no
+      // existía cuando la petición empezó, así que no había contexto que heredar. El alta fallaba
+      // con «new row violates row-level security policy», que es la respuesta correcta a escribir
+      // sin contexto y la razón por la que hay que darlo explícitamente.
+      await stampTenantOnTransaction(m, savedOrg.id);
       await this.accountSegmentsService.initializeDefault(savedOrg.id, m, segments);
       return savedOrg;
     };
@@ -274,6 +293,27 @@ export class OrganizationsService {
     this.eventEmitter.emit('organization.created', event);
 
     return savedOrg;
+  }
+
+  /**
+   * El primer slug libre para una empresa nueva.
+   *
+   * Se piden de una vez los que EMPIEZAN por la base en vez de comprobar candidato a candidato:
+   * dos empresas con el mismo nombre son lo normal —un grupo con varias sociedades «Comercial …»—
+   * y una consulta por candidato haría N viajes justo en el caso que más se repite.
+   *
+   * La unicidad la garantiza el índice, no esta consulta: entre leer y escribir puede colarse otra
+   * alta. Si eso pasa, el índice rechaza el INSERT y el alta falla con un conflicto, que es la
+   * respuesta correcta y no un slug duplicado.
+   */
+  private async nextSlug(m: EntityManager, attributes: Partial<Organization>): Promise<string> {
+    const name = attributes.commercialName || attributes.legalName || 'empresa';
+    const base = slugifyOrganizationName(name);
+    const rows: Array<{ slug: string }> = await m.query(
+      `SELECT "slug" FROM "organizations" WHERE "slug" = $1 OR "slug" LIKE $1 || '-%'`,
+      [base],
+    );
+    return nextFreeSlug(name, new Set(rows.map((r) => r.slug)));
   }
 
   async findByTaxId(taxId: string): Promise<Organization | null> {
