@@ -111,10 +111,6 @@
     }
 }
 
-.primary-button {
-    @include mixins.submit-button;
-}
-
 .history-section {
     .section-title {
         font-size: var(--text-2xl);

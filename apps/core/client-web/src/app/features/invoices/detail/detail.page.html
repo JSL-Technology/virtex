@@ -192,13 +192,13 @@
         {{ 'invoices.detail.has_no_fiscal_document_number_carries' | translate }}
       </div>
       <div class="draft-actions">
-        <button type="button" class="btn btn-primary" [disabled]="ecfBusy() || previewBusy()" (click)="previewIssue()">
+        <button type="button" class="primary-button" [disabled]="ecfBusy() || previewBusy()" (click)="previewIssue()">
           {{
             (ecfBusy() ? 'invoices.detail.issuing' : 'invoices.detail.issue_document')
               | translate
           }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="discardDraft()">
+        <button type="button" class="secondary-button" (click)="discardDraft()">
           {{ 'invoices.detail.delete_draft' | translate }}
         </button>
       </div>

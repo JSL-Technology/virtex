@@ -13,12 +13,21 @@
 @use 'design-system' as ds;
 
 // -----------------------------------------------------------------------------
-//  BOTONES GLOBALES
+//  BOTONES GLOBALES — ALIAS HEREDADO
 // -----------------------------------------------------------------------------
-//  `.btn-primary` aparece en 27 plantillas. Antes se definía como
-//  `button.btn-primary`, así que no surtía efecto sobre un `<a>` ni sobre un
-//  componente — de ahí que varias pantallas reimplementasen el botón entero a
-//  mano, cada una con su propio azul.
+//  Antes se definían como `button.btn-primary`, así que no surtían efecto sobre
+//  un `<a>` ni sobre un componente — de ahí que varias pantallas
+//  reimplementasen el botón entero a mano, cada una con su propio azul.
+//
+//  EL VOCABULARIO DEL PRODUCTO ES `base/_controls.scss`: `.primary-button`,
+//  `.secondary-button`, `.danger-button`, `.icon-button`, `.ghost-button`. Es el
+//  mayoritario por mucho —94 usos frente a 22— y es el que hay que escribir en
+//  una plantilla nueva.
+//
+//  Esta familia se queda porque todavía la usan las pantallas cuyas hojas
+//  propias tienen reglas `.btn*` encima, donde renombrar cambiaría lo que se ve.
+//  Resuelve a los mismos mixins, así que no hay diferencia visual: lo que hay
+//  son dos nombres para la misma cosa, y solo uno debería sobrevivir.
 // -----------------------------------------------------------------------------
 .btn-primary   { @include ds.button-primary; }
 .btn-secondary { @include ds.button-secondary; }

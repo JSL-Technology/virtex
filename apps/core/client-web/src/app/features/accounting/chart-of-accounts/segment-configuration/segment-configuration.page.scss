@@ -164,24 +164,6 @@
 }
 
 // UI Elements (assuming these classes exist globally or should be defined)
-.primary-button, .secondary-button, .ghost-button {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-size: var(--text-md);
-    font-weight: var(--font-semibold);
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-}
-
 .primary-button {
     background: var(--accent-primary);
     color: white;

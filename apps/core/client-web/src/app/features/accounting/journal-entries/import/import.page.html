@@ -1,6 +1,6 @@
 <div class="view-container">
   <div class="view-header">
-    <a routerLink="/accounting/journal-entries" class="btn-icon">
+    <a routerLink="/accounting/journal-entries" class="icon-button">
       <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
     </a>
     <h1>{{ 'accounting.import.import_journal_entries' | translate }}</h1>
@@ -101,7 +101,7 @@
           <div class="form-actions">
             <button
               type="button"
-              class="btn-primary"
+              class="primary-button"
               [disabled]="!isMappingComplete() || isLoading()"
               (click)="previewImport()"
             >
@@ -199,7 +199,7 @@
           <div class="form-actions">
             <button
               type="button"
-              class="btn-primary"
+              class="primary-button"
               [disabled]="!hasPostableEntries() || isLoading()"
               (click)="confirmImport()"
             >

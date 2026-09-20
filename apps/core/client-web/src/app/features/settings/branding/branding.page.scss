@@ -34,10 +34,6 @@
   }
 }
 
-.primary-button {
-  @include s.btn-primary;
-}
-
 // ── Branding Grid ─────────────────────────────────────────────────
 .branding-grid {
   display: grid;

@@ -2,7 +2,7 @@
   <!-- Encabezado -->
   <div class="page-header">
     <h1><i class="fas fa-code-merge"></i> {{ 'accounting.merge_tool.account_merge_tool' | translate }}</h1>
-    <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
+    <a routerLink="/accounting/chart-of-accounts" class="secondary-button">
       <i class="fas fa-arrow-left"></i> {{ 'accounting.merge_tool.back_chart_accounts' | translate }}
     </a>
   </div>
@@ -77,7 +77,7 @@
       </div>
 
       <div class="wizard-actions">
-        <button class="btn btn-primary" (click)="goToAnalysis()">{{ 'accounting.merge_tool.analyse' | translate }}</button>
+        <button class="primary-button" (click)="goToAnalysis()">{{ 'accounting.merge_tool.analyse' | translate }}</button>
         <button class="btn btn-outline" (click)="reset()">{{ 'accounting.merge_tool.clear' | translate }}</button>
       </div>
     </div>
@@ -109,8 +109,8 @@
       </div>
 
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="goToSelection()">{{ 'accounting.merge_tool.back' | translate }}</button>
-        <button class="btn btn-primary" [disabled]="!analysis()?.ok || isAnalyzing()" (click)="goToConfirmation()">{{ 'accounting.merge_tool.continue' | translate }}</button>
+        <button class="secondary-button" (click)="goToSelection()">{{ 'accounting.merge_tool.back' | translate }}</button>
+        <button class="primary-button" [disabled]="!analysis()?.ok || isAnalyzing()" (click)="goToConfirmation()">{{ 'accounting.merge_tool.continue' | translate }}</button>
       </div>
     </div>
 
@@ -126,8 +126,8 @@
         </p>
       </div>
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="goToAnalysis()">{{ 'accounting.merge_tool.back' | translate }}</button>
-        <button class="btn btn-danger" [disabled]="isMerging()" (click)="confirmAndMerge()">{{ 'accounting.merge_tool.confirm_merge' | translate }}</button>
+        <button class="secondary-button" (click)="goToAnalysis()">{{ 'accounting.merge_tool.back' | translate }}</button>
+        <button class="danger-button" [disabled]="isMerging()" (click)="confirmAndMerge()">{{ 'accounting.merge_tool.confirm_merge' | translate }}</button>
       </div>
     </div>
 
@@ -153,8 +153,8 @@
       </ng-template>
 
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="reset()">{{ 'accounting.merge_tool.merge_another_pair' | translate }}</button>
-        <a routerLink="/accounting/chart-of-accounts" class="btn btn-primary">{{ 'accounting.merge_tool.back_chart_accounts' | translate }}</a>
+        <button class="secondary-button" (click)="reset()">{{ 'accounting.merge_tool.merge_another_pair' | translate }}</button>
+        <a routerLink="/accounting/chart-of-accounts" class="primary-button">{{ 'accounting.merge_tool.back_chart_accounts' | translate }}</a>
       </div>
     </div>
 
