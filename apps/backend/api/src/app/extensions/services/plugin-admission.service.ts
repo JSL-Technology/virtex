@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
 import { SigningKeyProvider } from './signing-key.provider';
+import { isDevLikeEnvironment } from '../../auth/auth.config';
 
 export interface AdmissionResult {
   status: 'approved' | 'rejected' | 'pending';
@@ -45,13 +46,21 @@ export interface PluginPackage {
 @Injectable()
 export class PluginAdmissionService {
   private readonly logger = new Logger(PluginAdmissionService.name);
-  private readonly nodeEnv = process.env['NODE_ENV'] ?? 'development';
+  /**
+   * Whether the external scanners may be skipped.
+   *
+   * Derived from the project's allow-list rather than from `NODE_ENV !== 'production'`. The
+   * deny-list form treated every value that was not exactly `production` — including an unset one
+   * — as a developer's laptop, and so silently waived SAST, OPA and DAST on any deployment that
+   * had not spelled the variable correctly.
+   */
+  private readonly devLike = isDevLikeEnvironment();
   private readonly sonarUrl = process.env['SONAR_HOST_URL'] || 'http://localhost:9000';
   private readonly sonarToken = process.env['SONAR_TOKEN'] || '';
   private readonly dastUrl = process.env['PLUGIN_DAST_URL'] || '';
   private readonly dastToken = process.env['PLUGIN_DAST_TOKEN'] || '';
   private readonly requireDast =
-    (process.env['PLUGIN_DAST_MODE'] ?? (this.nodeEnv === 'production' ? 'required' : 'best-effort')) ===
+    (process.env['PLUGIN_DAST_MODE'] ?? (this.devLike ? 'best-effort' : 'required')) ===
     'required';
   private readonly opaBin = process.env['OPA_BIN'] || path.join(process.cwd(), 'tools', 'opa');
   private readonly opaPolicy =
@@ -125,10 +134,10 @@ export class PluginAdmissionService {
 
   private async performSastScan(pluginName: string): Promise<{ valid: boolean; details?: unknown }> {
     if (!this.sonarToken) {
-      if (this.nodeEnv === 'production') {
-        return { valid: false, details: 'SONAR_TOKEN is required in production for SAST admission.' };
+      if (!this.devLike) {
+        return { valid: false, details: 'SONAR_TOKEN is required outside development for SAST admission.' };
       }
-      return { valid: true, details: 'SONAR_TOKEN not configured; SAST skipped in non-production.' };
+      return { valid: true, details: 'SONAR_TOKEN not configured; SAST skipped in development/test.' };
     }
     try {
       const response = await axios.get(`${this.sonarUrl}/api/qualitygates/project_status`, {
@@ -162,8 +171,8 @@ export class PluginAdmissionService {
     // OPA is optional: if the binary or policy is absent, admission proceeds (dev-friendly), but
     // any OPA *failure* while it is present is fatal — a present policy that errors is not skipped.
     if (!fs.existsSync(this.opaBin) || !fs.existsSync(this.opaPolicy)) {
-      if (this.nodeEnv === 'production') {
-        return { allow: false, reasons: ['OPA binary/policy not available in production'] };
+      if (!this.devLike) {
+        return { allow: false, reasons: ['OPA binary/policy not available outside development'] };
       }
       return { allow: true };
     }

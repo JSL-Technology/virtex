@@ -75,4 +75,12 @@ export interface AuthenticatedUser {
   isImpersonating?: boolean;
   originalUserId?: string;
   sessionId?: string;
+
+  /**
+   * La sesión está retenida hasta que esta persona active un segundo factor que su empresa exige.
+   *
+   * Lo pone `AuthService.login` y lo hace cumplir `MfaEnrolmentGuard`: mientras sea cierto, solo
+   * se puede llegar a las rutas de alta del factor y a cerrar sesión.
+   */
+  mfaEnrolmentRequired?: boolean;
 }

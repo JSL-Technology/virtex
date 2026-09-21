@@ -15,6 +15,7 @@ import { PasswordService } from './password.service';
 import { EnterpriseSsoService } from './enterprise-sso.service';
 import { OidcProviderService } from './oidc-provider.service';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
+import { MfaPolicyPort } from '../ports/mfa-policy.port';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { AuthError } from '../enums/auth-error.enum';
 import { AuthException } from '../exceptions/auth.exception';
@@ -107,6 +108,9 @@ describe('AuthService — sign in', () => {
           provide: AtomicCacheService,
           useValue: { increment: jest.fn(async () => 1), reset: jest.fn(), claimOnce: jest.fn(async () => true) },
         },
+        // The tenant MFA policy. Off in these tests: they exercise credentials, not the
+        // organization-wide enrolment requirement, which has its own suite.
+        { provide: MfaPolicyPort, useValue: { requiresMfa: jest.fn(async () => false) } },
       ],
     }).compile();
 

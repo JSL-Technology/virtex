@@ -39,6 +39,7 @@ import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-sub
 import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
 import { UnauthorizedError } from '../i18n/localized.exception';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
+import { AllowWithoutMfaEnrolment } from './decorators/allow-without-mfa-enrolment.decorator';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
@@ -160,6 +161,10 @@ export class AuthController {
   }
 
   @Post('logout')
+  @AllowWithoutMfaEnrolment(
+    'Signing out must always work. A session held pending enrolment that could not be ended would\n' +
+    'leave the only way out of the hold as waiting for the token to expire.',
+  )
   @AuthenticatedOnly(
     'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
     'password with the old one in hand, cannot depend on a permission a role might not carry.',
@@ -176,6 +181,9 @@ export class AuthController {
   }
 
   @Post('logout-all')
+  @AllowWithoutMfaEnrolment(
+    'Same reason as logout: ending sessions is never the thing a security hold should block.',
+  )
   @AuthenticatedOnly(
     'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
     'password with the old one in hand, cannot depend on a permission a role might not carry.',
@@ -224,6 +232,11 @@ export class AuthController {
    * already sent.
    */
   @Public()
+  @AllowWithoutMfaEnrolment(
+    'The bootstrap the client calls to discover WHAT its session is — including that it is held\n' +
+    'pending enrolment. Denying it would leave the client unable to render the prompt that\n' +
+    'resolves the hold.',
+  )
   @Get('session')
   @UseGuards(OptionalJwtAuthGuard)
   @Header('Cache-Control', 'no-store')

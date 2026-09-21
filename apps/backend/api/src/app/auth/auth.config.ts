@@ -182,6 +182,47 @@ export const AuthConfig = {
   get STEP_UP_TOKEN_TTL() { return parseDuration(AuthConfig.JWT_STEP_UP_EXPIRATION); },
 
   /**
+   * The longest a session may live, counted from when it was FIRST opened.
+   *
+   * Without this a session never ends. `expiresAt` is recomputed on every rotation as
+   * `now + refreshExpiration`, so a browser that refreshes every fifteen minutes carries the same
+   * session family indefinitely — a credential issued once and valid forever, which is the
+   * property "remember me for 30 days" is supposed to bound and did not. OWASP ASVS 3.3.2 and
+   * NIST SP 800-63B §7.2 both require an absolute bound independent of activity.
+   *
+   * Measured against the family's own first row, so a rotation cannot extend it.
+   */
+  get SESSION_ABSOLUTE_MAX() { return parseDuration(envDuration('AUTH_SESSION_ABSOLUTE_MAX', '30d')); },
+
+  /**
+   * How long a session may sit unused before it is over.
+   *
+   * `lastActiveAt` was written on every rotation and read only to render the "Sesiones activas"
+   * list and to feed impossible-travel detection. Nothing ever expired a session for being idle,
+   * which is the case that matters on a shared or stolen device: the person stopped using it, the
+   * session did not.
+   *
+   * Deliberately longer than the refresh lifetime would suggest, because a rotation IS activity:
+   * this only fires for a family whose cookie has not been presented at all for the whole window.
+   */
+  get SESSION_IDLE_TIMEOUT() { return parseDuration(envDuration('AUTH_SESSION_IDLE_TIMEOUT', '14d')); },
+
+  /**
+   * Instant after which a refresh-token row MUST carry its hash.
+   *
+   * `assertTokenHashMatches` accepts a row with no `tokenHash`, so that deploying the hashing
+   * change did not sign every user out. That compatibility is correct and it needs an end: left
+   * open, a future write path that forgets to populate the column would silently disable the
+   * check for everything it writes, with nothing to notice.
+   *
+   * Rows created after this moment are required to have one. Set it to the deployment that
+   * introduced hashing; the default is the date this bound was added, which is safely after it.
+   */
+  get TOKEN_HASH_REQUIRED_AFTER() {
+    return new Date(process.env['AUTH_TOKEN_HASH_REQUIRED_AFTER'] || '2026-09-21T00:00:00Z');
+  },
+
+  /**
    * How long a started signup may take to come back from Stripe and be confirmed.
    *
    * Sized to match `PENDING_REGISTRATION_TTL_MS` in RegistrationService: the transaction cookie

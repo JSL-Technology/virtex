@@ -4,6 +4,11 @@
     "en": "The full permission (*) cannot be delegated to a role.",
     "pt": "A permissão total (*) não pode ser delegada a um perfil."
   },
+  "roles.platform_permission_cannot_delegated_role": {
+    "es": "El permiso «{{permission}}» es de plataforma y no puede formar parte de un rol de empresa.",
+    "en": "The permission “{{permission}}” is a platform right and cannot be part of an organization role.",
+    "pt": "A permissão “{{permission}}” é de plataforma e não pode fazer parte de um papel de empresa."
+  },
   "roles.role_assigned_assigned_count_user_cannot": {
     "es": "No se puede eliminar un rol asignado a {{assignedCount}} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo.",
     "en": "A role assigned to {{assignedCount}} user(s) cannot be deleted. Move those users to another role first.",
@@ -68,5 +73,10 @@
     "es": "No puedes asignar un rol con privilegios totales (*).",
     "en": "You cannot assign a role with full privileges (*).",
     "pt": "Você não pode atribuir um perfil com privilégios totais (*)."
+  },
+  "roles.you_cannot_assign_role_with_platform": {
+    "es": "No puedes asignar un rol que incluye el permiso de plataforma «{{permission}}».",
+    "en": "You cannot assign a role that includes the platform permission “{{permission}}”.",
+    "pt": "Não pode atribuir um papel que inclui a permissão de plataforma “{{permission}}”."
   }
 }

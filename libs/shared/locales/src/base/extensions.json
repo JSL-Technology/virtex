@@ -82,6 +82,11 @@
     "en": "Granted capabilities",
     "pt": "Capacidades concedidas"
   },
+  "extensions.inline_code_requires_platform_permission": {
+    "es": "Ejecutar código arbitrario requiere un permiso de plataforma.",
+    "en": "Running arbitrary code requires a platform permission.",
+    "pt": "Executar código arbitrário requer uma permissão de plataforma."
+  },
   "extensions.loading_runtime": {
     "es": "Cargando extensiones…",
     "en": "Loading extensions…",
@@ -91,6 +96,11 @@
     "es": "Medida",
     "en": "Metered",
     "pt": "Medida"
+  },
+  "extensions.name_belongs_another_publisher": {
+    "es": "Ese nombre de extensión pertenece a otro publicador.",
+    "en": "That extension name belongs to another publisher.",
+    "pt": "Esse nome de extensão pertence a outro publicador."
   },
   "extensions.named_plugin_not_found": {
     "en": "We could not find the extension “{{pluginName}}”.",

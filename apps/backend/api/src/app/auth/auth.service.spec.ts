@@ -31,6 +31,7 @@ import { PasswordService } from './services/password.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
+import { MfaPolicyPort } from './ports/mfa-policy.port';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -161,6 +162,9 @@ describe('AuthService', () => {
         { provide: EnterpriseSsoService, useValue: { discoverByEmail: jest.fn().mockResolvedValue(null) } },
         { provide: OidcProviderService, useValue: { isProviderConfigured: jest.fn().mockReturnValue(false) } },
         { provide: AtomicCacheService, useValue: { increment: jest.fn(async () => 1), reset: jest.fn(), claimOnce: jest.fn(async () => true) } },
+        // The tenant MFA policy. Off in these tests: they exercise credentials, not the
+        // organization-wide enrolment requirement, which has its own suite.
+        { provide: MfaPolicyPort, useValue: { requiresMfa: jest.fn(async () => false) } },
       ],
     }).compile();
 

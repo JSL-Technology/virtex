@@ -14,6 +14,7 @@ import { TenantIsolationCheck } from './shared/tenancy/tenant-isolation.check';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from './auth/guards/csrf.guard';
+import { MfaEnrolmentGuard } from './auth/guards/mfa-enrolment.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
@@ -389,6 +390,24 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       // permission needed" a sentence someone wrote rather than a line nobody did.
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      // The organization's MFA policy, enforced by default.
+      //
+      // Whether a person holds a second factor used to be their own choice and nothing else: a
+      // tenant could not require it of its staff, which for a product holding payroll, treasury
+      // and the ledger is the first thing any security questionnaire asks about.
+      //
+      // A member of a tenant that requires MFA and has not enrolled still gets a session —
+      // enrolling needs one — but the token carries `mfaEnrolmentRequired` and this guard refuses
+      // every route that is not on the enrolment path. The exemption is
+      // @AllowWithoutMfaEnrolment(reason), on the same principle as the two guards above.
+      //
+      // After PermissionsGuard, so a route the caller could not reach anyway is refused for the
+      // reason it is really refused for; before SubscriptionActiveGuard, because "enrol first" is
+      // a truer answer than "your subscription lapsed" to someone who cannot act at all.
+      provide: APP_GUARD,
+      useClass: MfaEnrolmentGuard,
     },
     {
       // Entitlement, enforced by default. Declared per-controller it reached 1 of 67 controllers,

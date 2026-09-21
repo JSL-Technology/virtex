@@ -3,13 +3,31 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { MfaPolicyPort } from '../../auth/ports/mfa-policy.port';
 
 @Injectable()
-export class OrgSettingsService {
+export class OrgSettingsService extends MfaPolicyPort {
   constructor(
     @InjectRepository(OrganizationSettings)
     private readonly repo: Repository<OrganizationSettings>,
-  ) {}
+  ) {
+    super();
+  }
+
+  /**
+   * Whether this tenant requires a second factor of every member.
+   *
+   * Implements {@link MfaPolicyPort} so `auth` can ask without importing this module. A tenant
+   * with no settings row has not turned anything on, so the answer is no — the safe reading for a
+   * policy whose default is off.
+   */
+  async requiresMfa(organizationId: string): Promise<boolean> {
+    const settings = await this.repo.findOne({
+      where: { organizationId },
+      select: ['id', 'requireMfa'],
+    });
+    return settings?.requireMfa ?? false;
+  }
 
   async getForOrg(
     organizationId: string,

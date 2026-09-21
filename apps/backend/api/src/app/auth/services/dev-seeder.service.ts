@@ -1,18 +1,29 @@
+import { randomBytes } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RegistrationService } from './registration.service';
+import { isDevLikeEnvironment } from '../auth.config';
 
 /**
  * Seeds a ready-to-use administrator for local development so a login exists without registering
  * one by hand on every fresh database.
  *
- * The one rule that keeps this from being a backdoor: it **refuses to run in production**. A seeded
- * account with a known password reaching a real deployment is a textbook critical vulnerability
- * (CWE-798), so the guard here is not a convenience — it is the whole safety of the feature. It is
- * also idempotent (skips if the user exists) and resilient (never throws into application boot).
+ * Three rules keep this from being a backdoor, and together they are the whole safety of the
+ * feature — a seeded account with a known password reaching a real deployment is a textbook
+ * critical vulnerability (CWE-798):
+ *
+ *  1. It runs only where `isDevLikeEnvironment()` is true — the project's ALLOW-list. The previous
+ *     guard was `NODE_ENV === 'production'`, a deny-list that admitted every other value including
+ *     an unset one, which the configuration schema then resolved to `development`.
+ *  2. It is opt-in, affirmatively: `DEV_SEED=true` in `main.ts`. The default is to create nothing.
+ *  3. The password is never a literal in this file. It is taken from `DEV_SEED_PASSWORD` or
+ *     generated per boot and printed once.
+ *
+ * It is also idempotent (skips if the user exists) and resilient (never throws into application
+ * boot).
  *
  * It reuses {@link RegistrationService.provisionTenantDirect} — the same `materializeAccount` the
  * paid signup uses — so the seeded tenant is a real one (organization, administrator role, chart of
@@ -28,19 +39,50 @@ export class DevSeederService {
     private readonly config: ConfigService,
   ) {}
 
+  /**
+   * A password nobody knows in advance, and that the product's own policy would accept.
+   *
+   * The literal that used to be here — `dev12345` — was a credential committed to the repository
+   * (CWE-798), eight characters long, and therefore also BELOW the twelve-character minimum this
+   * same product publishes at `GET /auth/password-policy`. The one code path that created an
+   * administrator was the one path that did not honour the password rules.
+   *
+   * 32 bytes of base64url guarantee the length and the lower/upper/digit mix that
+   * `PASSWORD_POLICY_REGEX` asks for; the suffix guarantees it deterministically rather than by
+   * luck, so a seed can never fail validation on an unlucky draw.
+   */
+  private generatePassword(): string {
+    return `${randomBytes(24).toString('base64url')}Aa1!`;
+  }
+
   async seed(): Promise<void> {
-    const nodeEnv = this.config.get<string>('NODE_ENV') ?? 'development';
-    if (nodeEnv === 'production') {
-      // Defence in depth: the caller in main.ts already gates on this, but a seeded admin must be
-      // impossible to create in production even if that guard is ever removed.
-      this.logger.warn('Refusing to seed a development user in production.');
+    // The project's allow-list, not `NODE_ENV !== 'production'`. Defence in depth behind the same
+    // gate in main.ts: a seeded administrator must be impossible to create outside development
+    // even if the caller's gate is ever removed or weakened.
+    if (!isDevLikeEnvironment()) {
+      this.logger.warn(
+        { event: 'dev_seed_refused', nodeEnv: process.env['NODE_ENV'] ?? '<unset>' },
+        'Refusing to seed a development user outside development/test.',
+      );
       return;
     }
 
     const email = this.config.get<string>('DEV_SEED_EMAIL') || 'dev@virtex.local';
-    const password = this.config.get<string>('DEV_SEED_PASSWORD') || 'dev12345';
+    // Configured or generated — never a literal from the source. When it is generated it is
+    // printed once below, because a password nobody can read is a login nobody can use.
+    const configuredPassword = this.config.get<string>('DEV_SEED_PASSWORD');
+    const password = configuredPassword || this.generatePassword();
+    const passwordIsGenerated = !configuredPassword;
     const organizationName = this.config.get<string>('DEV_SEED_ORG') || 'Virtex Dev';
     const countryCode = this.config.get<string>('DEV_SEED_COUNTRY') || 'DO';
+
+    /** Say the password only when we generated it, and say it exactly once. */
+    const announce = (detail: string) =>
+      this.logger.warn(
+        passwordIsGenerated
+          ? `${detail} — password: ${password} (generated for this boot; DEVELOPMENT ONLY)`
+          : `${detail} — password: the configured DEV_SEED_PASSWORD (DEVELOPMENT ONLY)`,
+      );
 
     const existing = await this.dataSource.getRepository(User).findOne({
       where: { email },
@@ -67,9 +109,7 @@ export class DevSeederService {
         countryCode,
         taxpayerKind: 'company',
       });
-      this.logger.warn(
-        `Seeded DEV admin — ${email} / ${password} — org "${organizationName}" (${countryCode}). DEVELOPMENT ONLY.`,
-      );
+      announce(`Seeded DEV admin ${email} in org "${organizationName}" (${countryCode})`);
     } catch (err) {
       // Full provisioning (chart of accounts, taxes) can fail on an incomplete local database.
       // Fall back to a minimal tenant (no country → provisioning skipped) so a login still exists.
@@ -84,9 +124,7 @@ export class DevSeederService {
           organizationName,
           countryCode: null,
         });
-        this.logger.warn(
-          `Seeded MINIMAL dev admin — ${email} / ${password} (no chart of accounts). DEVELOPMENT ONLY.`,
-        );
+        announce(`Seeded MINIMAL dev admin ${email} (no chart of accounts)`);
       } catch (err2) {
         const message2 = err2 instanceof Error ? err2.message : String(err2);
         this.logger.error(`Dev seed failed; no dev user created: ${message2}`);

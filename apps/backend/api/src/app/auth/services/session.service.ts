@@ -20,7 +20,7 @@ import { UsersService } from '../../users/users.service';
 import { SecurityAnalysisService } from './security-analysis.service';
 import { TokenService } from './token.service';
 import { UserSecurity } from '../../users/entities/user-security.entity';
-import { AuthEvents, AuthAuditActionEvent } from '../events/auth.events';
+import { AuthEvents, AuthAuditActionEvent, AuthSessionsRevokedEvent } from '../events/auth.events';
 import { AuthError } from '../enums/auth-error.enum';
 import { GeoService } from '../../geo/geo.service';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
@@ -155,6 +155,16 @@ export class SessionService extends SessionInvalidatorPort {
       await this.assertTokenHashMatches(payload.jti, token);
 
       const sessionId = refreshTokenEntity.sessionId ?? refreshTokenEntity.id;
+
+      // A session has to end on its own eventually, even when it is being used.
+      //
+      // Rotation recomputes `expiresAt` as `now + refreshExpiration`, so the stored expiry only
+      // ever measures time since the LAST refresh. A browser refreshing every fifteen minutes
+      // therefore carried one session family for as long as it kept running — a credential minted
+      // once and good forever, which is precisely what an absolute bound exists to prevent
+      // (OWASP ASVS 3.3.2, NIST SP 800-63B §7.2). Both bounds below are measured against facts
+      // the family cannot rewrite: when it was first opened, and when it was last used.
+      await this.assertSessionWithinLifetimeBounds(user, sessionId, refreshTokenEntity);
 
       // A session revoked out-of-band (logout, "revoke device", admin action) must not be
       // resurrectable by a refresh token that is still cryptographically valid.
@@ -353,6 +363,56 @@ export class SessionService extends SessionInvalidatorPort {
   }
 
   /**
+   * End a session that has outlived either bound: absolute age, or time since last use.
+   *
+   * Both are computed from the family rather than from the presented row, because the presented
+   * row is the newest one and says nothing about when the session began. `MIN(created_at)` over
+   * the family is the moment the user actually signed in, and no rotation can move it.
+   *
+   * Exceeding a bound revokes the whole family, not just this token: the point is that the
+   * session is over, and leaving its siblings alive would let the next rotation continue it.
+   */
+  private async assertSessionWithinLifetimeBounds(
+    user: User,
+    sessionId: string,
+    current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt'>,
+  ): Promise<void> {
+    const bounds = await this.refreshTokenRepository
+      .createQueryBuilder('rt')
+      .select('MIN(rt.created_at)', 'openedAt')
+      .addSelect('MAX(rt.last_active_at)', 'lastActiveAt')
+      .where('rt.session_id = :sessionId', { sessionId })
+      .getRawOne<{ openedAt: Date | string | null; lastActiveAt: Date | string | null }>();
+
+    const toDate = (value: Date | string | null | undefined): Date | null =>
+      value ? (value instanceof Date ? value : new Date(value)) : null;
+
+    const openedAt = toDate(bounds?.openedAt) ?? current.createdAt;
+    const lastActiveAt =
+      toDate(bounds?.lastActiveAt) ?? current.lastActiveAt ?? current.createdAt;
+
+    const now = Date.now();
+
+    if (now - openedAt.getTime() > AuthConfig.SESSION_ABSOLUTE_MAX) {
+      this.logger.log(
+        { event: 'session_absolute_expiry', sessionPrefix: sessionId.slice(0, 8) },
+        'Session reached its absolute maximum lifetime and was ended',
+      );
+      await this.invalidateSessionFamily(user, sessionId);
+      throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
+    }
+
+    if (now - lastActiveAt.getTime() > AuthConfig.SESSION_IDLE_TIMEOUT) {
+      this.logger.log(
+        { event: 'session_idle_expiry', sessionPrefix: sessionId.slice(0, 8) },
+        'Session was idle past the configured window and was ended',
+      );
+      await this.invalidateSessionFamily(user, sessionId);
+      throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
+    }
+  }
+
+  /**
    * Confirm the presented refresh token matches the hash recorded when it was issued.
    * `tokenHash` is `select: false`, so it is fetched explicitly.
    */
@@ -360,12 +420,31 @@ export class SessionService extends SessionInvalidatorPort {
     const row = await this.refreshTokenRepository
       .createQueryBuilder('rt')
       .select('rt.tokenHash', 'tokenHash')
+      .addSelect('rt.createdAt', 'createdAt')
       .where('rt.id = :id', { id: tokenId })
-      .getRawOne<{ tokenHash: string | null }>();
+      .getRawOne<{ tokenHash: string | null; createdAt: Date | string }>();
 
-    // Rows issued before hashing existed have no hash; accept them rather than logging out
-    // every user at deploy time. Every token issued from now on carries one.
-    if (!row?.tokenHash) return;
+    if (!row?.tokenHash) {
+      // Rows issued before hashing existed have no hash; accepting them is what kept the rollout
+      // from signing every user out. That exemption now has an end date. A row created AFTER the
+      // cut-off with no hash is not a legacy row — it is a write path that failed to populate the
+      // column, and treating it as legacy would silently disable the check for everything that
+      // path writes.
+      const createdAt = row?.createdAt
+        ? row.createdAt instanceof Date
+          ? row.createdAt
+          : new Date(row.createdAt)
+        : null;
+
+      if (createdAt && createdAt > AuthConfig.TOKEN_HASH_REQUIRED_AFTER) {
+        this.logger.error(
+          { event: 'refresh_hash_missing', jtiPrefix: tokenId.substring(0, 8) },
+          '[SECURITY] Refresh token row created after the cut-off carries no hash',
+        );
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
+      return;
+    }
 
     const presentedHash = crypto.createHash('sha256').update(presentedToken).digest('hex');
     const a = Buffer.from(presentedHash, 'hex');
@@ -391,6 +470,7 @@ export class SessionService extends SessionInvalidatorPort {
     );
     await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(user.id);
+    this.announceRevocation(user.id, [sessionId]);
   }
 
   /**
@@ -436,6 +516,72 @@ export class SessionService extends SessionInvalidatorPort {
   }
 
   /**
+   * The real IP a session was opened from — the reader `refresh_tokens.encrypted_ip` never had.
+   *
+   * The column was written on every issue and every refresh and read by nothing, so the stated
+   * purpose ("the encrypted copy exists only for incident forensics") could not be served: during
+   * an actual incident there was no way to get the value out. Personal data collected for a
+   * purpose it cannot fulfil is a liability, not a capability.
+   *
+   * Scoping: the session must belong to somebody who is a member of the calling tenant. Membership
+   * is read from `user_organizations` via `findUserByIdForAuth`, which is the same source
+   * `resolveOrganizationContext` uses, so "who belongs here" has one answer. A session that does
+   * not exist and one that belongs to another tenant produce the SAME error, so this cannot be
+   * used to probe for session ids.
+   *
+   * The caller needs `users:sessions_forensics` AND a single-use step-up token; the route records
+   * an audit entry whether it succeeds or fails, because reading somebody's address is itself an
+   * act that has to be attributable.
+   */
+  async revealSessionOrigin(
+    sessionId: string,
+    organizationId: string,
+  ): Promise<{ sessionId: string; userId: string; ipAddress: string; recordedAt: Date }> {
+    const row = await this.refreshTokenRepository
+      .createQueryBuilder('rt')
+      .select(['rt.id', 'rt.sessionId', 'rt.userId', 'rt.createdAt', 'rt.lastActiveAt'])
+      // `encryptedIp` is `select: false`, so it is named explicitly and never travels by accident.
+      .addSelect('rt.encryptedIp', 'rt_encryptedIp')
+      .where('rt.sessionId = :sessionId', { sessionId })
+      .orderBy('rt.createdAt', 'DESC')
+      .getOne();
+
+    if (!row?.encryptedIp) {
+      throw new NotFoundError('auth.session_not_found_does_not_belong');
+    }
+
+    const owner = await this.usersService.findUserByIdForAuth(row.userId);
+    const isMember = (owner?.organizations ?? []).some((org) => org.id === organizationId);
+    if (!owner || !isMember) {
+      this.logger.warn(
+        { event: 'session_origin_denied', sessionPrefix: sessionId.slice(0, 8), organizationId },
+        '[SECURITY] Session origin requested for a session outside the caller tenant',
+      );
+      throw new NotFoundError('auth.session_not_found_does_not_belong');
+    }
+
+    let ipAddress: string;
+    try {
+      ipAddress = this.cryptoUtil.decrypt(row.encryptedIp);
+    } catch (error) {
+      // A row written before the formats were unified, or with a key no longer in the ring. Say so
+      // plainly rather than returning a masked value that reads like the real one.
+      this.logger.error(
+        { event: 'session_origin_undecryptable', sessionPrefix: sessionId.slice(0, 8) },
+        `Stored session origin could not be decrypted: ${(error as Error).message}`,
+      );
+      throw new NotFoundError('auth.session_origin_unavailable');
+    }
+
+    return {
+      sessionId,
+      userId: row.userId,
+      ipAddress,
+      recordedAt: row.lastActiveAt ?? row.createdAt,
+    };
+  }
+
+  /**
    * Revoke one session (the "cerrar sesión en este dispositivo" action).
    *
    * C-2: revoking must reach the access token too. Flagging the refresh row alone left the
@@ -457,6 +603,7 @@ export class SessionService extends SessionInvalidatorPort {
 
     await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(userId);
+    this.announceRevocation(userId, [sessionId]);
 
     return { messageKey: 'auth.session_revoked' };
   }
@@ -484,6 +631,7 @@ export class SessionService extends SessionInvalidatorPort {
     );
     await this.sessionRegistry.revokeMany(toRevoke);
     await this.userCacheService.clearUserSession(userId);
+    this.announceRevocation(userId, toRevoke);
   }
 
   /**
@@ -506,6 +654,7 @@ export class SessionService extends SessionInvalidatorPort {
     );
     await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(userId);
+    this.announceRevocation(userId, [sessionId]);
   }
 
   /**
@@ -526,6 +675,26 @@ export class SessionService extends SessionInvalidatorPort {
     );
     await this.sessionRegistry.revokeMany(families);
     await this.userCacheService.clearUserSession(userId);
+    this.announceRevocation(userId, families);
+  }
+
+  /**
+   * Tell the rest of the process that these session families are over.
+   *
+   * The HTTP path does not need telling — `UserIdentityService` consults the denylist on every
+   * request — but a WebSocket that is already connected never makes another authenticated request,
+   * so nothing would re-check it. Without this, "cerrar sesión" left the socket receiving the
+   * tenant's events until the access token expired on its own, up to fifteen minutes later.
+   *
+   * Fire-and-forget by design: a listener that fails must not roll back a revocation that has
+   * already been written to the database and the denylist.
+   */
+  private announceRevocation(userId: string, sessionIds: readonly string[]): void {
+    if (!sessionIds.length) return;
+    this.eventEmitter.emit(
+      AuthEvents.SESSIONS_REVOKED,
+      new AuthSessionsRevokedEvent(userId, sessionIds),
+    );
   }
 
   /**
@@ -702,8 +871,16 @@ export class SessionService extends SessionInvalidatorPort {
     }
   }
 
-  // L-13 FIX: delegate to the centralized CryptoUtil so all encryption shares one key
-  // derivation (ENCRYPTION_SECRET + AUTH_SALT). Removes the third, divergent derivation.
+  /**
+   * Delegates to the one shared primitive.
+   *
+   * The comment that used to sit here claimed this change had "removed the third, divergent
+   * derivation". It had removed it from THIS caller only: `TokenService` kept its own scrypt
+   * derivation, its own 16-byte IV and its own `iv:ct:tag` field order until that was fixed too —
+   * and both methods wrote the same `encrypted_ip` column, so the claim was not merely incomplete,
+   * it described a property the code did not have. `tools/verify/crypto-single-derivation.mjs` now
+   * asserts it instead of asserting it in prose.
+   */
   private encryptIp(ip: string): string {
      return this.cryptoUtil.encrypt(ip);
   }

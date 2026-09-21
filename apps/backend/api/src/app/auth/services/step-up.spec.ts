@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
+import { MfaPolicyPort } from '../ports/mfa-policy.port';
 import { AuthService } from '../auth.service';
 import { UsersService } from '../../users/users.service';
 import { SessionService } from './session.service';
@@ -94,6 +95,9 @@ describe('AuthService — step-up re-authentication', () => {
         { provide: OidcProviderService, useValue: oidcProviderService },
         { provide: CACHE_MANAGER, useValue: cacheManager },
         { provide: AtomicCacheService, useValue: atomicCache },
+        // The tenant MFA policy. Off in these tests: they exercise credentials, not the
+        // organization-wide enrolment requirement, which has its own suite.
+        { provide: MfaPolicyPort, useValue: { requiresMfa: jest.fn(async () => false) } },
       ],
     }).compile();
 

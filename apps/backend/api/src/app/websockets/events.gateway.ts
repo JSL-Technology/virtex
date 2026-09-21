@@ -12,6 +12,9 @@ import { Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { KeyManagementService } from '../auth/services/key-management.service';
+import { SessionRegistryService } from '../auth/services/session-registry.service';
+import { AuthEvents, AuthSessionsRevokedEvent } from '../auth/events/auth.events';
+import { readAccessTokenCookie } from '../auth/services/access-token-cookie';
 
 @WebSocketGateway({
   cors: {
@@ -24,12 +27,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private readonly logger = new Logger(EventsGateway.name);
-  /** userId → the socket it is on, and the tenant whose room that socket joined. */
-  private connectedUsers = new Map<string, { socketId: string; organizationId: string }>();
+  /** userId → the socket it is on, the tenant whose room it joined, and the session behind it. */
+  private connectedUsers = new Map<
+    string,
+    { socketId: string; organizationId: string; sessionId?: string }
+  >();
 
   constructor(
     private readonly userCacheService: UserCacheService,
     private readonly keyManagementService: KeyManagementService,
+    private readonly sessionRegistry: SessionRegistryService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -40,10 +47,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      const cookies = cookieHeader.split(';').map(c => c.trim());
-      const token = cookies
-        .find((row) => row.startsWith('access_token=') || row.startsWith('__Host-access_token='))
-        ?.split('=')[1];
+      // Read through the SAME rule the HTTP path uses. This used to accept the unprefixed
+      // `access_token` cookie in every environment, while `JwtStrategy` restricts that name to
+      // development — two different contracts for one credential. One function now decides.
+      const token = readAccessTokenCookie(cookieHeader);
 
       if (!token) {
         client.disconnect();
@@ -53,6 +60,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = this.verifyAccessToken(token);
       if (!payload) {
         client.disconnect();
+        return;
+      }
+
+      // A session revoked out of band must not keep a socket alive.
+      //
+      // `logout` and "revoke this device" deliberately do NOT bump `tokenVersion`, because that
+      // would end every other session the user has. Their only effect on an access token already
+      // in circulation is the denylist — which the HTTP path consults on every request
+      // (`UserIdentityService.resolveFromPayload`) and which this handshake did not consult at
+      // all. So a captured token still opened a socket after the victim pressed "cerrar sesión",
+      // and that socket kept receiving the tenant's events until the token expired on its own.
+      if (await this.sessionRegistry.isRevoked(payload.sessionId)) {
+        this.logger.warn(
+          { event: 'ws_revoked_session', userId: payload.id },
+          '[SECURITY] WebSocket handshake refused: the session behind this token was revoked',
+        );
+        client.disconnect(true);
         return;
       }
 
@@ -87,7 +111,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       client.join(tenantRoom(organizationId));
-      this.connectedUsers.set(payload.id, { socketId: client.id, organizationId });
+      // The session is remembered so a later revocation can find this socket and hang up on it.
+      this.connectedUsers.set(payload.id, {
+        socketId: client.id,
+        organizationId,
+        sessionId: payload.sessionId,
+      });
 
       this.server.to(tenantRoom(organizationId)).emit('user-status-update', {
         userId: payload.id,
@@ -108,7 +137,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   private verifyAccessToken(
     token: string,
-  ): { id: string; tokenVersion: number; organizationId?: string } | null {
+  ): { id: string; tokenVersion: number; organizationId?: string; sessionId?: string } | null {
     try {
       const decoded = jwt.decode(token, { complete: true });
       const kid = decoded?.header?.kid;
@@ -121,10 +150,37 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         algorithms: ['RS256'],
         issuer: 'virteex-api',
         audience: 'virteex-web',
-      }) as { id: string; tokenVersion: number; organizationId?: string };
+      }) as { id: string; tokenVersion: number; organizationId?: string; sessionId?: string };
     } catch (e) {
       this.logger.debug(`WebSocket token verification failed: ${(e as Error).message}`);
       return null;
+    }
+  }
+
+  /**
+   * Hang up on the sockets of a session that has just been revoked.
+   *
+   * The handshake check above closes the door for NEW connections; this closes it for the one
+   * already inside. A WebSocket authenticates once and then never makes another authenticated
+   * request, so without this the denylist has nothing to act on and the socket outlives the
+   * session by up to the full access-token lifetime.
+   */
+  @OnEvent(AuthEvents.SESSIONS_REVOKED)
+  handleSessionsRevoked(event: AuthSessionsRevokedEvent): void {
+    const revoked = new Set(event.sessionIds);
+    for (const [userId, presence] of this.connectedUsers.entries()) {
+      if (userId !== event.userId) continue;
+      // A socket that predates the `sessionId` claim cannot be attributed to a family. Ending
+      // every socket of a user whose sessions are being revoked is the safe reading: the worst
+      // case is that they reconnect, which costs a round trip and proves the token again.
+      if (presence.sessionId && !revoked.has(presence.sessionId)) continue;
+
+      this.server.sockets.sockets.get(presence.socketId)?.disconnect(true);
+      this.connectedUsers.delete(userId);
+      this.logger.log(
+        { event: 'ws_disconnected_on_revocation', userId },
+        'Socket closed because its session was revoked',
+      );
     }
   }
 
