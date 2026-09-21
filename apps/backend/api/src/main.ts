@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -11,11 +12,23 @@ import { Logger } from 'nestjs-pino';
 import { I18nService } from './app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
 import { DevSeederService } from './app/auth/services/dev-seeder.service';
+import { isDevLikeEnvironment } from './app/auth/auth.config';
 
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+
+/**
+ * Compare two strings without leaking their common prefix through timing.
+ *
+ * Both sides are hashed to a fixed width first, so `timingSafeEqual` never sees buffers of
+ * different lengths (it throws on those) and the comparison cost does not depend on the inputs.
+ */
+export function timingSafeEquals(a: string, b: string): boolean {
+  const digest = (value: string) => createHash('sha256').update(value, 'utf8').digest();
+  return timingSafeEqual(digest(a), digest(b));
+}
 
 /**
  * A-1 FIX: Resolve the Fastify `trustProxy` setting from the environment.
@@ -27,7 +40,7 @@ import {
  * pending-2FA session.
  *
  * Accepted values, mirroring Fastify's own contract:
- *   - unset  => `1` in production (trust exactly one proxy hop), `false` in dev (direct socket).
+ *   - unset  => `false` in development/test (direct socket), `1` everywhere else (one proxy hop).
  *   - "true" => trust every hop. ONLY safe when the app is unreachable except through the proxy;
  *               otherwise a client can spoof its IP by injecting X-Forwarded-For entries.
  *   - "2"    => trust N hops (use when chaining CDN + LB).
@@ -36,7 +49,12 @@ import {
 export function parseTrustProxy(raw?: string): boolean | number | string[] {
   const value = raw?.trim();
   if (!value) {
-    return process.env['NODE_ENV'] === 'production' ? 1 : false;
+    // Allow-list. Getting this wrong is not cosmetic: with `trustProxy: false` behind a proxy,
+    // `request.ip` is the proxy's address for every request, which collapses the login rate limit
+    // into one shared bucket, misattributes lockouts, and defeats impossible-travel detection and
+    // the IP binding of the pending-2FA session. A deployment that has not set NODE_ENV correctly
+    // must get the deployment default (one hop), not the development one.
+    return isDevLikeEnvironment() ? false : 1;
   }
   if (value.toLowerCase() === 'true') return true;
   if (value.toLowerCase() === 'false') return false;
@@ -61,7 +79,13 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
 
-  const isProduction = configService.get('NODE_ENV') === 'production';
+  // The security headers follow the project's allow-list, not `=== 'production'`.
+  //
+  // With the deny-list, a deployment whose NODE_ENV was anything other than exactly `production`
+  // — including unset — served no HSTS, no `upgrade-insecure-requests`, and a CSP that admits
+  // `'unsafe-inline'` in `script-src`. Those are the headers that matter most on a real origin,
+  // and they were switched off by the same misconfiguration that switched on the dev secrets.
+  const hardenHeaders = !isDevLikeEnvironment();
 
   // H17 FIX: Harden security headers.
   // Production: explicit HSTS + remove unsafe-inline from script-src.
@@ -75,7 +99,7 @@ async function bootstrap() {
 
   await app.register(fastifyHelmet, {
     // HSTS: 1 year, include subdomains, preload — applied in production only.
-    strictTransportSecurity: isProduction
+    strictTransportSecurity: hardenHeaders
       ? { maxAge: 31536000, includeSubDomains: true, preload: true }
       : false,
     contentSecurityPolicy: {
@@ -83,7 +107,7 @@ async function bootstrap() {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"], // needed by Swagger UI inline styles
         // Production: remove unsafe-inline from scripts; Angular must emit hashes/nonces via build config.
-        scriptSrc: isProduction ? ["'self'"] : ["'self'", "'unsafe-inline'"],
+        scriptSrc: hardenHeaders ? ["'self'"] : ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         // connectSrc must allow the frontend origin(s) + their ws:// counterparts for Socket.IO.
         connectSrc: ["'self'", ...corsOrigins, ...wsOrigins],
@@ -92,7 +116,7 @@ async function bootstrap() {
         baseUri: ["'self'"],
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
-        ...(isProduction ? { upgradeInsecureRequests: [] } : {}),
+        ...(hardenHeaders ? { upgradeInsecureRequests: [] } : {}),
       },
     },
     crossOriginEmbedderPolicy: false,
@@ -159,7 +183,10 @@ async function bootstrap() {
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
   app.setGlobalPrefix(apiPrefix);
 
-  if (process.env.NODE_ENV !== 'production') {
+  // Same allow-list as everything else that is "development only". `NODE_ENV !== 'production'`
+  // published the whole API surface — every route, DTO and example — to any value that was not
+  // exactly `production`.
+  if (isDevLikeEnvironment()) {
     const config = new DocumentBuilder()
       .setTitle('Virtex API')
       .setDescription('Enterprise Resource Planning API')
@@ -189,7 +216,11 @@ async function bootstrap() {
       const colonIdx = decoded.indexOf(':');
       const user = decoded.slice(0, colonIdx);
       const pass = decoded.slice(colonIdx + 1);
-      if (user !== swaggerUser || pass !== swaggerPassword) {
+      // Constant-time comparison. `!==` short-circuits on the first differing byte, so the reply
+      // latency leaks a prefix of the expected credential one character at a time. The rest of
+      // this codebase already compares secrets with `timingSafeEqual` (SessionService, TOTP); this
+      // was the one place that did not.
+      if (!timingSafeEquals(user, swaggerUser) || !timingSafeEquals(pass, swaggerPassword)) {
         reply
           .header('WWW-Authenticate', 'Basic realm="Swagger Docs"')
           .status(401)
@@ -212,12 +243,24 @@ async function bootstrap() {
   await app.init();
 
   // Development convenience: seed a ready-to-use administrator so a login exists on a fresh
-  // database, without registering one by hand each time. Hard-gated to non-production (and the
-  // service refuses to run in production as well — defence in depth); opt out with DEV_SEED=false.
-  if (
-    configService.get<string>('NODE_ENV') !== 'production' &&
-    configService.get<string>('DEV_SEED') !== 'false'
-  ) {
+  // database, without registering one by hand each time.
+  //
+  // Two gates, and the shape of both matters.
+  //
+  // The environment gate is the project's allow-list (`isDevLikeEnvironment`), not the deny-list
+  // `NODE_ENV !== 'production'` that used to be here. The deny-list was the same mistake
+  // `auth.config.ts` documents at the top of the file: it admits every value that is not exactly
+  // `production`, including an unset one — and an unset NODE_ENV used to resolve to `development`
+  // in the schema, so a deployment that merely forgot the variable created an administrator whose
+  // password is in this repository (CWE-798).
+  //
+  // The opt-in gate is affirmative. It used to be `DEV_SEED !== 'false'`, which seeds unless
+  // somebody remembers to say no — the default was "create a privileged account". Now nothing is
+  // created unless a human wrote `DEV_SEED=true`.
+  // `DEV_SEED` is declared as a boolean in the schema, so Joi has already coerced it. Comparing
+  // against the string 'true' here would never match — the hazard the DB_SSL note in
+  // env.validation.ts documents.
+  if (isDevLikeEnvironment() && configService.get<boolean>('DEV_SEED') === true) {
     try {
       await app.get(DevSeederService).seed();
     } catch (err) {

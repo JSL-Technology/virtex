@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { authenticator } from 'otplib';
@@ -15,6 +15,8 @@ import { BadRequestError, UnauthorizedError } from '../../i18n/localized.excepti
 
 @Injectable()
 export class TwoFactorAuthService {
+  private readonly logger = new Logger(TwoFactorAuthService.name);
+
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(UserSecurity) private readonly userSecurityRepository: Repository<UserSecurity>,
@@ -300,14 +302,64 @@ export class TwoFactorAuthService {
           // expected an encoded hash, failed to parse it, and threw — meaning backup codes never
           // worked at all and surfaced as a 500 rather than "invalid code".
           if (await this.passwordService.verify(hashedCode, code)) {
-              // Code is valid. Remove it (Burn on use).
-              security.backupCodes = security.backupCodes.filter(c => c !== hashedCode);
-              await this.userSecurityRepository.save(security);
-              return true;
+              return this.burnBackupCode(security, hashedCode);
           }
       }
 
       return false;
+  }
+
+  /**
+   * Spend one backup code, atomically.
+   *
+   * This used to be `filter` then `save`: read the array, remove the entry, write the array back.
+   * Two requests presenting the SAME code concurrently both read a list containing it, both
+   * matched, and both returned true — a single-use credential used twice. The window is small and
+   * entirely reachable: a backup code is what somebody types when their phone is gone, and a
+   * double-submitted form or a retried request hits it. The last write also wins wholesale, so a
+   * code spent on the losing branch comes back.
+   *
+   * Two lines away, `verifyTotpWithReplayProtection` solves exactly this problem with a
+   * conditional UPDATE and says why. Same problem, same answer: the update only succeeds if the
+   * code is still in the array, and `affected === 1` is what proves this caller is the one that
+   * spent it.
+   *
+   * The removal is PostgreSQL's own operation on the stored value, so the read and the write are
+   * one statement and no version of the array travels through the application. `backup_codes` is
+   * `jsonb`, hence the `jsonb_array_elements` rebuild rather than `array_remove`, and `@>` in the
+   * WHERE clause is the guard: if another request already spent the code, the row does not match
+   * and nothing is returned.
+   */
+  private async burnBackupCode(security: UserSecurity, hashedCode: string): Promise<boolean> {
+      const spentRows: Array<{ id: string }> = await this.userSecurityRepository.query(
+          `
+          UPDATE "user_security"
+             SET "backup_codes" = COALESCE(
+                   (SELECT jsonb_agg(elem)
+                      FROM jsonb_array_elements("backup_codes") AS elem
+                     WHERE elem <> to_jsonb($2::text)),
+                   '[]'::jsonb)
+           WHERE "id" = $1
+             AND "backup_codes" @> jsonb_build_array($2::text)
+          RETURNING "id"
+          `,
+          [security.id, hashedCode],
+      );
+
+      const spent = spentRows.length === 1;
+
+      if (spent) {
+          // Keep the in-memory copy consistent for anything that reads it after this call.
+          security.backupCodes = (security.backupCodes ?? []).filter((c) => c !== hashedCode);
+          await this.userCacheService.clearUserSession(security.userId);
+      } else {
+          this.logger.warn(
+              { event: 'backup_code_double_spend_blocked', userId: security.userId },
+              '[SECURITY] A backup code was presented twice concurrently; the second attempt was refused',
+          );
+      }
+
+      return spent;
   }
 
   private async createBackupCodes(): Promise<{ codes: string[], hashedCodes: string[] }> {

@@ -8,6 +8,8 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { hasPermission } from '@virteex/shared/util-auth';
+import { isPlatformPermission } from '../security/platform-permissions';
+import { RoleDelegationPort } from '../auth/ports/role-delegation.port';
 /**
  * A role as the API reports it.
  *
@@ -25,13 +27,35 @@ import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.
 import { I18nService } from '../i18n/i18n.service';
 
 @Injectable()
-export class RolesService {
+export class RolesService extends RoleDelegationPort {
     constructor(
         @InjectRepository(Role)
         private readonly roleRepository: Repository<Role>,
         private readonly userCacheService: UserCacheService,
         private readonly i18n: I18nService,
-    ) { }
+    ) {
+        super();
+    }
+
+    /**
+     * {@link RoleDelegationPort}: the same rule as `assertCanAssignRole`, reachable by id.
+     *
+     * For callers outside this module that hold a role id rather than the entity — today, the SSO
+     * administration surface, where `defaultRoleId` decides the role every JIT-provisioned user is
+     * created with. Scoped to the tenant, so an id from another organization is "not found"
+     * rather than assignable.
+     */
+    async assertCanAssignRoleById(
+        actor: AuthenticatedUser,
+        roleId: string,
+        organizationId: string,
+    ): Promise<void> {
+        const role = await this.roleRepository.findOne({ where: { id: roleId, organizationId } });
+        if (!role) {
+            throw new NotFoundError('roles.role_id_not_found', { id: roleId });
+        }
+        this.assertCanAssignRole(actor, role);
+    }
 
     /**
      * The tenant's roles, saying which descriptions are keys and which are text somebody typed.
@@ -83,6 +107,22 @@ export class RolesService {
             throw new ForbiddenError('roles.full_permission_cannot_delegated_role');
         }
 
+        // Nor is any PLATFORM permission, by anybody, ever.
+        //
+        // These are rights over the shared catalogue that every tenant reads — publishing an
+        // extension, revoking one, running arbitrary code in the sandbox. They belong to
+        // platform roles, which carry a NULL organization_id and are seeded rather than created
+        // here. Without this line a tenant administrator holding '*' would fall through the
+        // `actorPermissions.includes('*')` shortcut below and be able to mint a tenant role
+        // carrying `platform:extensions:publish` — which is the hole the whole tier exists to
+        // close, reopened one level down.
+        const platform = permissions.filter(isPlatformPermission);
+        if (platform.length) {
+            throw new ForbiddenError('roles.platform_permission_cannot_delegated_role', {
+                permission: platform[0],
+            });
+        }
+
         if (actorPermissions.includes('*')) return;
 
         for (const permission of permissions) {
@@ -120,6 +160,20 @@ export class RolesService {
         const actorPermissions = actor?.permissions || [];
         const actorIsWildcard = actorPermissions.includes('*');
         const rolePermissions = role?.permissions || [];
+
+        // A role carrying a platform permission is never assignable from here, by anybody.
+        //
+        // `assertAssignablePermissions` stops such a role being CREATED, and this stops a role
+        // that already carries one — a seeded platform role, or a row written before that rule
+        // existed — being handed to a tenant member. Both doors, because the escalation only needs
+        // one of them: the wildcard shortcut two lines below would otherwise let a tenant
+        // administrator assign a platform role to themselves.
+        const platform = rolePermissions.filter(isPlatformPermission);
+        if (platform.length) {
+            throw new ForbiddenError('roles.you_cannot_assign_role_with_platform', {
+                permission: platform[0],
+            });
+        }
 
         // Assigning a role that grants the full wildcard requires the actor to be a super-admin.
         if (rolePermissions.includes('*')) {

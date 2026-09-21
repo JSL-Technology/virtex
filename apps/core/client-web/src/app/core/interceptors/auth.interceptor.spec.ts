@@ -66,6 +66,51 @@ describe('authInterceptor — subscription handling', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  describe('una sesión retenida hasta activar el segundo factor', () => {
+    /**
+     * Cuando la empresa exige MFA y la persona no lo tiene, `MfaEnrolmentGuard` rechaza toda ruta
+     * que no sea la de alta. Sin tratarlo, eso es un panel lleno de errores y ninguna explicación
+     * — y la única acción que lo resuelve es justo la que nadie le ha dicho que haga.
+     */
+    it('lleva a la pantalla donde se activa', async () => {
+      await run(
+        new HttpErrorResponse({
+          status: 403,
+          error: { messageKey: 'auth.mfa_required_by_organization' },
+        }),
+      );
+
+      expect(navigate).toHaveBeenCalledWith(['/settings/security'], {
+        queryParams: { reason: 'MFA_REQUIRED' },
+      });
+    });
+
+    it('no navega si ya está allí', async () => {
+      await run(
+        new HttpErrorResponse({
+          status: 403,
+          error: { messageKey: 'auth.mfa_required_by_organization' },
+        }),
+        '/settings/security',
+      );
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    /**
+     * La sesión existe: la retención viaja DENTRO del token, así que renovarlo saldría bien y no
+     * cambiaría nada. Por eso es 403 y no 401, y por eso no debe disparar el refresco.
+     */
+    it('no intenta refrescar la sesión', async () => {
+      const error = new HttpErrorResponse({
+        status: 403,
+        error: { messageKey: 'auth.mfa_required_by_organization' },
+      });
+
+      await expect(run(error)).resolves.toBe(error);
+    });
+  });
+
   it('leaves an ordinary permission denial alone', async () => {
     await run(new HttpErrorResponse({ status: 403, error: { message: 'Forbidden resource' } }));
 

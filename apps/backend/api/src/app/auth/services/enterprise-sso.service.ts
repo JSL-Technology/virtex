@@ -11,6 +11,7 @@ import { Role } from '../../roles/entities/role.entity';
 import { SocialUser } from '../interfaces/social-user.interface';
 import { OidcClientConfig, OidcProviderService } from './oidc-provider.service';
 import { SecretEncryptionService } from './secret-encryption.service';
+import { isPlatformPermission } from '../../security/platform-permissions';
 import { TokenService } from './token.service';
 import { UsersService } from '../../users/users.service';
 import { AuditTrailService } from '../../audit/audit.service';
@@ -186,6 +187,11 @@ export class EnterpriseSsoService {
         avatarUrl: socialUser.picture,
         isEmailVerified: true,
         organizationId: idp.organizationId,
+        // role-assignment-allow: there is no actor here — the IdP is provisioning an account, not
+        // a person delegating rights. The equivalent control is `resolveDefaultRole`, which
+        // refuses any role carrying a wildcard or a platform permission and fails rather than
+        // falling back to whatever is first; and `defaultRoleId`, when configured, went through
+        // `assertCanAssignRoleById` at the moment it was set.
         roles: [role],
         status: UserStatus.ACTIVE,
         security,
@@ -208,20 +214,88 @@ export class EnterpriseSsoService {
     }
   }
 
+  /**
+   * The role a JIT-provisioned SSO user is created with.
+   *
+   * ## What this used to be, and why it was an escalation
+   *
+   * ```ts
+   * const nonAdmin = roles.find((r) => !/admin/i.test(r.name));
+   * return nonAdmin ?? roles[0];
+   * ```
+   *
+   * Two separate defects, and the second is worse than the first.
+   *
+   * The comment above it said "preferring the least-privileged one" and the code compared no
+   * privileges at all: it took the FIRST row of a query with no `ORDER BY` whose NAME did not
+   * contain "admin". Tenants name roles whatever they like — `RolesService` allows it, and this
+   * very module's `ImpersonationService` documents the same anti-pattern being removed from there
+   * after it produced "a full privilege escalation". A role called "Dirección General" or
+   * "Gerente" carrying `'*'` passes that regular expression.
+   *
+   * And `?? roles[0]`: when every role in the tenant happened to match `/admin/i`, the fallback
+   * for "I could not find a safe role" was "use whichever came back first" — which may be the
+   * ADMINISTRATOR role itself. The failure mode of the safety check was to hand out the thing it
+   * was checking for.
+   *
+   * ## What it is now
+   *
+   * Privileges decide, names are irrelevant, and there is no fallback. Any role carrying `'*'`, a
+   * prefix wildcard, or a platform permission is excluded outright; among what remains the one
+   * with the fewest permissions wins, with the name as a tie-break only so the choice is stable
+   * across boots. If nothing qualifies, provisioning FAILS: refusing to create an account is a
+   * recoverable inconvenience, creating it with the wrong rights is not.
+   */
   private async resolveDefaultRole(idp: IdentityProvider): Promise<Role> {
     if (idp.defaultRoleId) {
       const role = await this.roleRepository.findOne({
         where: { id: idp.defaultRoleId, organizationId: idp.organizationId },
       });
-      if (role) return role;
-      this.logger.warn(`IdP ${idp.id} defaultRoleId not found; falling back to a member role.`);
+      // A configured role is still checked: it was validated when it was set, but the role's
+      // permissions can have been edited since, and this is the moment it is actually used.
+      if (role && EnterpriseSsoService.isSafeDefaultRole(role)) return role;
+      this.logger.warn(
+        { event: 'sso_default_role_unusable', idpId: idp.id, roleId: idp.defaultRoleId },
+        `IdP ${idp.id} defaultRoleId is missing or too privileged to auto-assign; selecting by permissions.`,
+      );
     }
-    // Fall back to a non-admin role in the org, preferring the least-privileged one.
+
     const roles = await this.roleRepository.find({ where: { organizationId: idp.organizationId } });
     if (!roles.length) {
       throw new BadRequestError('auth.organization_has_no_roles_assign_sso_users');
     }
-    const nonAdmin = roles.find((r) => !/admin/i.test(r.name));
-    return nonAdmin ?? roles[0];
+
+    const candidates = roles.filter((role) => EnterpriseSsoService.isSafeDefaultRole(role));
+    if (!candidates.length) {
+      // No `?? roles[0]`. Every role in this tenant is privileged enough that handing it to an
+      // account created automatically, from an email domain, would be an escalation.
+      this.logger.error(
+        { event: 'sso_no_safe_default_role', idpId: idp.id, organizationId: idp.organizationId },
+        '[SECURITY] Refusing to JIT-provision: no sufficiently unprivileged role exists in this organization',
+      );
+      throw new BadRequestError('auth.organization_has_no_safe_default_role_sso');
+    }
+
+    // Fewest permissions wins; name breaks ties so the selection does not depend on row order.
+    return candidates.sort(
+      (a, b) =>
+        (a.permissions?.length ?? 0) - (b.permissions?.length ?? 0) ||
+        a.name.localeCompare(b.name),
+    )[0];
+  }
+
+  /**
+   * Whether a role may be handed to an account created automatically.
+   *
+   * By permissions only. A wildcard of any kind is refused — `'*'` grants everything, and a prefix
+   * wildcard such as `users:*` grants an open-ended set that can grow when a permission is added
+   * to that namespace later. A platform permission is refused because it reaches outside the
+   * tenant entirely.
+   */
+  private static isSafeDefaultRole(role: Role): boolean {
+    const permissions = role.permissions ?? [];
+    return !permissions.some(
+      (permission) => permission.endsWith('*') || isPlatformPermission(permission),
+    );
   }
 }

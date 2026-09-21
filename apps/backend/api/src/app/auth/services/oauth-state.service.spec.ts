@@ -5,6 +5,14 @@ import { OauthStateService, OauthTransaction } from './oauth-state.service';
 function makeService(env: Record<string, string> = {}): OauthStateService {
   const config = {
     get: (key: string, def?: unknown) => env[key] ?? def,
+    // `getOrThrow` for the values the service now REQUIRES rather than defaults: AUTH_SALT has
+    // no literal fallback any more, and OAUTH_STATE_SECRET no longer silently borrows
+    // ENCRYPTION_SECRET — a fallback that undid the key separation this service exists for.
+    getOrThrow: (key: string) => {
+      const value = env[key];
+      if (value === undefined) throw new Error(`Missing configuration: ${key}`);
+      return value;
+    },
   } as unknown as ConfigService;
   const service = new OauthStateService(config);
   service.onModuleInit();

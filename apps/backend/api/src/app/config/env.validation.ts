@@ -10,8 +10,23 @@ import * as crypto from 'crypto';
  * Those two claims are pinned in `env.validation.spec.ts`.
  */
 
-/** The two environments that are allowed to fall back to generated values. */
-const DEV_LIKE = Joi.valid('development', 'test');
+/**
+ * The two environments that are allowed to fall back to generated values.
+ *
+ * `.required()` is load-bearing and is not about NODE_ENV being mandatory (it is, separately,
+ * below). `Joi.when(key, { is })` matches when the key's value SATISFIES the `is` schema, and a
+ * Joi schema accepts `undefined` unless told otherwise — so `Joi.valid('development', 'test')`
+ * alone matched an ABSENT NODE_ENV, and every helper built on it therefore took the development
+ * branch: generated secrets, localhost database credentials, reCAPTCHA off.
+ *
+ * That made "the operator forgot to set NODE_ENV" indistinguishable from "the operator asked for
+ * development", in a way that survived even a required NODE_ENV — because with
+ * `abortEarly: false` Joi still evaluates and defaults every other key while collecting the error.
+ *
+ * With `.required()` on the `is` schema, an absent NODE_ENV matches nothing and every branch falls
+ * to `otherwise`, which is the strict one.
+ */
+const DEV_LIKE = Joi.string().valid('development', 'test').required();
 
 /** Third-party credentials: mandatory in a deployment, absent-and-degraded in development. */
 const optionalInDev = () =>
@@ -58,11 +73,46 @@ const requiredForS3 = () =>
 export const devSecret = (name: string): string =>
   crypto.createHash('sha256').update(`virteex-dev-only:${name}`).digest('hex');
 
+/**
+ * Placeholder values that indicate a secret was shipped rather than chosen.
+ *
+ * The same list `auth.config.ts` applies to the secrets it resolves itself. It lives in both
+ * places on purpose — this one runs at boot for ALL nine secrets, including the five that never
+ * pass through `requireSecret` (`JWT_SECRET`, `JWT_REFRESH_SECRET`, `ENCRYPTION_SECRET`,
+ * `AUTH_SALT`, `JWT_SOCIAL_REGISTER_SECRET`) — and `env.validation.spec.ts` pins that the two
+ * lists agree.
+ */
+export const INSECURE_SECRET_PATTERNS: readonly RegExp[] = [
+  /change[_-]?me/i,
+  /^default/i,
+  /dev[_-]only/i,
+  /insecure/i,
+  /placeholder/i,
+  /^(secret|password|changeit)$/i,
+];
+
+/** Reject a placeholder secret in a real deployment, by value rather than by length alone. */
+const rejectPlaceholders = (value: string, helpers: Joi.CustomHelpers) => {
+  const offending = INSECURE_SECRET_PATTERNS.find((pattern) => pattern.test(value));
+  return offending ? helpers.error('string.placeholderSecret') : value;
+};
+
 const secret = (name: string, min = 32) =>
   Joi.when('NODE_ENV', {
     is: DEV_LIKE,
     then: Joi.string().min(min).default(devSecret(name)),
-    otherwise: Joi.string().min(min).required(),
+    // Outside development the value must be present, long enough, AND not a recognisable
+    // placeholder. Length alone accepted `change-me-change-me-change-me-32` — thirty-two
+    // characters of nothing.
+    otherwise: Joi.string()
+      .min(min)
+      .custom(rejectPlaceholders)
+      .required()
+      .messages({
+        'string.placeholderSecret':
+          '{{#label}} looks like a placeholder rather than a secret. Generate a random value ' +
+          '(e.g. `openssl rand -hex 32`).',
+      }),
   });
 
 /** Every secret that gets a generated development value. Exported so the spec can sweep them. */
@@ -76,12 +126,42 @@ export const CRYPTOGRAPHIC_SECRETS = [
   'AUTH_SALT',
   'JWT_SOCIAL_REGISTER_SECRET',
   'JWT_STEP_UP_SECRET',
+  'OAUTH_STATE_SECRET',
 ] as const;
 
 export const envValidation = Joi.object({
+  /**
+   * Declared explicitly, always. There is no default.
+   *
+   * There used to be one — `development` — and it was the single widest hole in the configuration
+   * surface, because it turned "the operator forgot" into "the operator asked for the development
+   * posture". An empty environment validated clean and became a development boot: the nine
+   * cryptographic secrets below were filled with values derived from a string in this file, HSTS
+   * was off, the CSP admitted `unsafe-inline`, the signing key was ephemeral, reCAPTCHA was
+   * disabled, `trustProxy` was false and the seeder created an administrator with a password that
+   * is also in this repository. A Dockerfile missing one `ENV NODE_ENV=production` line got all of
+   * that, silently.
+   *
+   * It also made this schema contradict `auth.config.ts`, which states the rule both files claim to
+   * implement: "Every other value — including unset — is treated as a real deployment and fails
+   * fast." Unset now fails fast here too, which is what makes that sentence true.
+   *
+   * The cost is one line in `.env` for a local checkout, and the error says so.
+   */
   NODE_ENV: Joi.string()
     .valid('development', 'test', 'production')
-    .default('development'),
+    .required()
+    .messages({
+      'any.required':
+        'NODE_ENV must be set explicitly to "development", "test" or "production". ' +
+        'There is no default: an unset value used to mean "development", which silently unlocked ' +
+        'development secrets and a seeded administrator account. For a local checkout, copy ' +
+        '.env.example to .env (it sets NODE_ENV=development).',
+      'any.only':
+        'NODE_ENV must be exactly "development", "test" or "production" (got "{{#value}}"). ' +
+        'A value such as "staging" or "prod" is rejected rather than falling through to the ' +
+        'development branch.',
+    }),
 
   // ── Exchange rates (XE Currency Data API) ─────────────────────────────────
   //
@@ -105,10 +185,55 @@ export const envValidation = Joi.object({
   ENCRYPTION_SECRET: secret('ENCRYPTION_SECRET'),
   AUTH_SALT: secret('AUTH_SALT', 16),
 
+  /**
+   * The outgoing encryption secret during a rotation. Decrypt-only: {@link CryptoUtil} writes with
+   * `ENCRYPTION_SECRET` and keeps this one in the ring so data re-encrypts itself as it is
+   * touched. Drop it once the longest-lived ciphertext has been rewritten.
+   *
+   * Optional everywhere, and never a placeholder when present.
+   */
+  ENCRYPTION_SECRET_PREVIOUS: Joi.string()
+    .min(32)
+    .custom(rejectPlaceholders)
+    .optional()
+    .messages({
+      'string.placeholderSecret':
+        '{{#label}} looks like a placeholder rather than a secret. Remove it or set the real ' +
+        'previous value.',
+    }),
+
   // Used with `getOrThrow` at runtime but absent from this schema, so the application started
   // happily and then failed on the first social sign-up with a 500 that named no cause.
   JWT_SOCIAL_REGISTER_SECRET: secret('JWT_SOCIAL_REGISTER_SECRET'),
   JWT_STEP_UP_SECRET: secret('JWT_STEP_UP_SECRET'),
+
+  /**
+   * Keys the OAuth/SSO handshake cookie. Declared here because `OauthStateService` reads it with
+   * `get` and used to fall back to `ENCRYPTION_SECRET` when it was absent — which silently undid
+   * the key separation the service exists to provide, on every deployment that had not set it.
+   */
+  OAUTH_STATE_SECRET: secret('OAUTH_STATE_SECRET'),
+
+  /**
+   * The development seeder. Declared here so its contract is visible and validated rather than
+   * being three undeclared strings read straight from the environment.
+   *
+   * `DEV_SEED` is affirmative and only meaningful in development/test: `main.ts` requires the
+   * literal `'true'`, so the default is to create nothing. `DEV_SEED_PASSWORD` has NO default —
+   * when it is absent the seeder generates one per boot and prints it once, which is how the
+   * committed `dev12345` stopped being a credential in this repository.
+   */
+  DEV_SEED: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().default(false),
+    otherwise: Joi.boolean().valid(false).default(false).messages({
+      'any.only': 'DEV_SEED cannot be enabled outside development/test.',
+    }),
+  }),
+  DEV_SEED_EMAIL: Joi.string().email().optional(),
+  DEV_SEED_PASSWORD: Joi.string().min(12).optional(),
+  DEV_SEED_ORG: Joi.string().optional(),
+  DEV_SEED_COUNTRY: Joi.string().length(2).uppercase().optional(),
 
   // Passkeys are bound to the relying-party id. It defaulted to 'localhost', which does not match
   // any production origin, so every WebAuthn operation failed the origin check — silently, since

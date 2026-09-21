@@ -1,9 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as https from 'https';
-import * as dns from 'dns';
+import { lookup as dnsLookup } from 'dns/promises';
+import * as ipaddr from 'ipaddr.js';
 import { PLUGIN_POLICY } from '../config/plugin-policy.config';
 import { SigningKeyProvider } from './signing-key.provider';
+
+/** Every address a hostname resolves to, in one call, in the order the resolver returned them. */
+const lookupAll = (hostname: string): Promise<Array<{ address: string; family: number }>> =>
+  dnsLookup(hostname, { all: true, verbatim: true });
 
 export interface SandboxResult {
   success: boolean;
@@ -40,7 +45,12 @@ interface SyscallEnvelope {
  *    execute at all;
  *  - a narrow syscall bridge — the isolate has no ambient `require`, `fetch`, or globals; it can
  *    only `log` and, if the tenant granted `egress:http`, `fetch` a host on the egress allowlist;
- *  - SSRF protection on that fetch: the resolved address is rejected if it is private/loopback.
+ *  - SSRF protection on that fetch, in three parts: https only, an EXACT host match against the
+ *    allow-list (a suffix match opened every subdomain, including ones somebody else controls),
+ *    and a single DNS resolution whose every address must be globally routable unicast — then the
+ *    connection is pinned to it, so `https.get` cannot resolve the name a second time and reach
+ *    somewhere else. Classification is by range rather than by a list of private prefixes, which
+ *    is how `169.254.169.254` — the cloud metadata service — came to be reachable.
  */
 @Injectable()
 export class SandboxService {
@@ -266,40 +276,123 @@ export class SandboxService {
     }
   }
 
+  /**
+   * Refuse any address that is not globally routable unicast.
+   *
+   * The previous check was four string prefixes — `127.`, `10.`, `192.168.`, `172.16.` — and what
+   * it left out mattered more than what it caught:
+   *
+   *  - `169.254.0.0/16`, which holds the cloud metadata service at 169.254.169.254. That endpoint
+   *    hands out instance credentials and is the single most valuable target of any SSRF in a
+   *    hosted environment. It was not covered.
+   *  - Fifteen sixteenths of `172.16.0.0/12`: only `172.16.` matched, so `172.17.`–`172.31.` were
+   *    allowed — and `172.17.0.0/16` is Docker's default bridge network.
+   *  - `100.64.0.0/10` (carrier-grade NAT), `0.0.0.0/8`, broadcast, multicast, and every reserved
+   *    range.
+   *  - All of IPv6, including `::1` and unique-local `fc00::/7`; `{ family: 4 }` constrained the
+   *    lookup but not the connection.
+   *
+   * Classifying with `ipaddr.js` — already a dependency, already used for IP masking — replaces
+   * the deny-list of things somebody remembered with an ALLOW-list of one value: `unicast`. Every
+   * special-use range the library knows about is rejected by construction, including ones added to
+   * the registry after this code was written.
+   */
+  private assertGloballyRoutable(address: string): void {
+    let parsed: ipaddr.IPv4 | ipaddr.IPv6;
+    try {
+      parsed = ipaddr.parse(address);
+    } catch {
+      throw new Error(`Security Exception: unparseable address ${address}.`);
+    }
+
+    // An IPv4-mapped IPv6 address (::ffff:169.254.169.254) must be judged by the address it
+    // actually carries, not by the wrapper.
+    if (parsed.kind() === 'ipv6' && (parsed as ipaddr.IPv6).isIPv4MappedAddress()) {
+      parsed = (parsed as ipaddr.IPv6).toIPv4Address();
+    }
+
+    const range = parsed.range();
+    if (range !== 'unicast') {
+      throw new Error(
+        `Security Exception: egress to ${address} blocked (${range} address, not globally routable).`,
+      );
+    }
+  }
+
   private async doSecureFetch(url: string): Promise<string> {
     const parsedUrl = new URL(url);
-    const isAllowed = PLUGIN_POLICY.egress.allowlist.some(
-      (allowed) => allowed === parsedUrl.hostname || parsedUrl.hostname.endsWith(`.${allowed}`),
-    );
+
+    // Only HTTPS. Without this, `file:`, `http:` and `gopher:` reached the URL parser and the
+    // allow-list check passed on hostname alone.
+    if (parsedUrl.protocol !== 'https:') {
+      throw new Error(`Security Exception: only https is permitted (got ${parsedUrl.protocol}).`);
+    }
+
+    // Exact host match, not a suffix match.
+    //
+    // `hostname.endsWith('.' + allowed)` admitted EVERY subdomain of an allowed host, which is a
+    // much larger surface than the list reads as: an allowed `api.taxjar.com` also permitted
+    // `anything.api.taxjar.com`, including a name whose DNS somebody else controls. Combined with
+    // the DNS re-resolution that used to happen below, that was the whole SSRF path.
+    //
+    // A wildcard is still expressible, and now it has to be written down: an entry of the form
+    // `*.example.com` opts into subdomains explicitly, so the breadth of the policy is visible in
+    // the policy.
+    const host = parsedUrl.hostname.toLowerCase();
+    const isAllowed = PLUGIN_POLICY.egress.allowlist.some((allowed) => {
+      const entry = allowed.toLowerCase();
+      if (entry.startsWith('*.')) {
+        const suffix = entry.slice(1); // '.example.com'
+        return host.endsWith(suffix) && host.length > suffix.length;
+      }
+      return host === entry;
+    });
     if (!isAllowed) {
       throw new Error(`Security Exception: Egress to ${parsedUrl.hostname} is not allowed by policy.`);
     }
 
-    if (process.env['NODE_ENV'] !== 'test') {
-      await new Promise<void>((resolve, reject) => {
-        dns.lookup(parsedUrl.hostname, { family: 4 }, (err, address) => {
-          if (err) reject(new Error(`DNS Lookup failed: ${err.message}`));
-          else if (
-            address.startsWith('127.') ||
-            address.startsWith('10.') ||
-            address.startsWith('192.168.') ||
-            address.startsWith('172.16.')
-          )
-            reject(new Error('SSRF blocked'));
-          else resolve();
-        });
-      });
+    // Resolve ONCE, and connect to what was resolved.
+    //
+    // The previous implementation called `dns.lookup` to validate an address and then handed the
+    // URL to `https.get`, which resolves the name again on its own. Between the two resolutions a
+    // hostname the attacker controls can return a different address — classic DNS rebinding, and
+    // with a zero-second TTL it needs no timing luck at all. Validating a resolution nobody
+    // subsequently uses is not a control.
+    //
+    // `all: true` because a name with several A/AAAA records must be judged on every one of them:
+    // validating the first and letting the agent pick another is the same bug one level down.
+    const resolved = await lookupAll(parsedUrl.hostname).catch((error: Error) => {
+      throw new Error(`DNS lookup failed: ${error.message}`);
+    });
+    if (!resolved.length) {
+      throw new Error(`DNS lookup for ${parsedUrl.hostname} returned no addresses.`);
+    }
+    for (const entry of resolved) {
+      this.assertGloballyRoutable(entry.address);
     }
 
-    if (process.env['NODE_ENV'] === 'test') return `Fetched from ${url} (Simulated in test)`;
+    const pinned = resolved[0];
 
     return new Promise((resolve, reject) => {
       const req = https.get(
         url,
-        { timeout: 5000, minVersion: 'TLSv1.2', rejectUnauthorized: true },
+        {
+          timeout: 5000,
+          minVersion: 'TLSv1.2',
+          rejectUnauthorized: true,
+          // Pin the connection to the address we validated. The Host header and the TLS SNI still
+          // come from the URL, so certificate verification is unaffected and the request is
+          // indistinguishable from an ordinary one to the legitimate server.
+          lookup: (_hostname, _options, callback) =>
+            callback(null, pinned.address as never, pinned.family),
+        },
         (res) => {
-          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300))
+          // `https.get` does not follow redirects, so a 3xx simply lands here. Rejecting every
+          // non-2xx keeps it that way: a redirect to an internal address is never followed.
+          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+            res.resume();
             return reject(new Error(`Status ${res.statusCode}`));
+          }
           let data = '';
           res.on('data', (chunk) => {
             data += chunk;
@@ -319,8 +412,16 @@ export class SandboxService {
     });
   }
 
+  /**
+   * Verify the admission pipeline's attestation over the exact source about to run.
+   *
+   * There used to be a first line here reading
+   * `if (process.env['NODE_ENV'] === 'test' && signature === 'valid-signature') return true;`
+   * — a literal string in the repository standing in for an RSA signature, on the one check that
+   * decides whether untrusted code executes. It is gone. Tests inject a `SigningKeyProvider` with
+   * an ephemeral key pair and sign for real, so the production path has no branch a test can take.
+   */
   private verifyCodeSignature(code: string, signature?: string): boolean {
-    if (process.env['NODE_ENV'] === 'test' && signature === 'valid-signature') return true;
     if (!signature) return false;
     let publicKey: string;
     try {

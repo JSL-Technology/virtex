@@ -338,6 +338,8 @@ export class MfaOrchestratorService {
     let payload: { email: string; nonce: string; type: string };
 
     try {
+      // session-revocation-allow: an EMAIL MAGIC LINK. It proves control of an inbox and is
+      // exchanged for a pre-verified token; it is not a session and grants no access on its own.
       payload = this.jwtService.verify(token, {
         secret: this.configService.getOrThrow('JWT_SECRET'),
       });

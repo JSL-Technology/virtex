@@ -42,6 +42,7 @@ import {
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
+import { AllowWithoutMfaEnrolment } from './decorators/allow-without-mfa-enrolment.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 
@@ -55,6 +56,11 @@ import { AuthenticatedOnly } from '../security/decorators/authenticated-only.dec
  * authentication, which is never gated on billing.
  */
 @ApiTags('Auth')
+@AllowWithoutMfaEnrolment(
+  'This controller IS the enrolment path. A session held pending MFA enrolment must be able to\n' +
+  'generate a secret, confirm it and collect backup codes — refusing here would be a lockout, not\n' +
+  'a control. Everything else the held session can reach is denied by default.',
+)
 @AllowInactiveSubscription()
 @Controller('auth')
 @AuthenticatedOnly(

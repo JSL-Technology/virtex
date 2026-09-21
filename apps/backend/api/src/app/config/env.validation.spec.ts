@@ -193,14 +193,42 @@ describe('environment validation', () => {
       },
     );
 
-    it('rejects an unset NODE_ENV that carries no secrets', () => {
-      // NODE_ENV defaults to `development`, so an unset value is a development boot by design.
-      // What must never happen is a *production* deployment forgetting to set it AND relying on
-      // the defaults for anything a deployment needs — so pin that the default is development and
-      // that production is the only branch that demands the credentials.
-      expect(check({}).value.NODE_ENV).toBe('development');
-      expect(check({}).error).toBeUndefined();
-      expect(check({ ...productionEnv(), NODE_ENV: undefined as unknown as string }).error).toBeUndefined();
+    it('rejects an unset NODE_ENV outright, with no default', () => {
+      // This used to assert the opposite — that an empty environment defaults to `development` —
+      // and that default was the widest hole in the configuration surface: a deployment that
+      // forgot the variable got the whole development posture (generated secrets, no HSTS,
+      // ephemeral signing key, reCAPTCHA off, seeded administrator) and nothing said so.
+      //
+      // "Forgot to configure" must never resolve to "asked for the development branch".
+      const { error } = check({});
+      expect(error).toBeDefined();
+      expect(error!.details.map((d) => d.context?.key)).toContain('NODE_ENV');
+    });
+
+    it('rejects an unset NODE_ENV even when everything else is supplied', () => {
+      // The dangerous shape specifically: a real deployment, fully configured, that simply never
+      // set NODE_ENV. Previously this validated clean and booted as development.
+      const env = { ...productionEnv(), NODE_ENV: undefined as unknown as string };
+      const { error } = check(env);
+      expect(error).toBeDefined();
+      expect(error!.details.map((d) => d.context?.key)).toContain('NODE_ENV');
+    });
+
+    it('explains what to do when NODE_ENV is missing', () => {
+      // A refusal to boot is only useful if it says how to fix itself.
+      const { error } = check({});
+      const message = error!.details.find((d) => d.context?.key === 'NODE_ENV')?.message ?? '';
+      expect(message).toContain('NODE_ENV must be set explicitly');
+      expect(message).toContain('.env.example');
+    });
+
+    it('never fills a secret when NODE_ENV is absent', () => {
+      // Belt and braces: even if the requirement above were relaxed, no generated secret may be
+      // produced for an environment that has not declared itself as development or test.
+      const { value } = check({});
+      for (const name of CRYPTOGRAPHIC_SECRETS) {
+        expect(value[name]).toBeUndefined();
+      }
     });
 
     it('rejects a secret that is present but too short to be one', () => {

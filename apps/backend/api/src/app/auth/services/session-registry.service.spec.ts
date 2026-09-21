@@ -43,7 +43,7 @@ describe('SessionRegistryService', () => {
     // the hot path for every authenticated request.
     cache.get.mockResolvedValue(null);
     await expect(service.isRevoked('session-1')).resolves.toBe(false);
-    expect(repo.findOne).not.toHaveBeenCalled();
+    expect(repo.find).not.toHaveBeenCalled();
   });
 
   it('ignores a token with no session anchor instead of failing it closed', async () => {
@@ -63,40 +63,57 @@ describe('SessionRegistryService', () => {
      * the duration of an outage, so we fall back to the source of truth.
      */
     it('falls back to the database', async () => {
-      repo.findOne.mockResolvedValue({
-        id: 'session-1',
-        isRevoked: true,
-        expiresAt: new Date(Date.now() + 60_000),
-      });
+      repo.find.mockResolvedValue([
+        { id: 'row-1', isRevoked: true, expiresAt: new Date(Date.now() + 60_000) },
+      ]);
       await expect(service.isRevoked('session-1')).resolves.toBe(true);
-      expect(repo.findOne).toHaveBeenCalled();
+      expect(repo.find).toHaveBeenCalled();
+    });
+
+    /**
+     * The query is over the FAMILY, not over one row, and this is the case that proves why.
+     *
+     * `sessionId` is the family id, which equals the id of the family's FIRST row. Every rotation
+     * writes a new row with the same `sessionId` and revokes the previous one — so after fifteen
+     * minutes the first row is revoked while the session is perfectly alive. The previous
+     * implementation looked up `where: { id: sessionId }`, found that revoked first row, and
+     * answered "revoked" for every live session in the system whenever Redis was down.
+     */
+    it('reads the whole family: one live row means a live session', async () => {
+      repo.find.mockResolvedValue([
+        // The original row, superseded by rotation.
+        { id: 'session-1', isRevoked: true, expiresAt: new Date(Date.now() + 60_000) },
+        // The row the browser actually holds.
+        { id: 'row-2', isRevoked: false, expiresAt: new Date(Date.now() + 60_000) },
+      ]);
+      await expect(service.isRevoked('session-1')).resolves.toBe(false);
+      expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { sessionId: 'session-1' } }),
+      );
     });
 
     it('accepts a live session found in the database', async () => {
-      repo.findOne.mockResolvedValue({
-        id: 'session-1',
-        isRevoked: false,
-        expiresAt: new Date(Date.now() + 60_000),
-      });
+      repo.find.mockResolvedValue([
+        { id: 'row-1', isRevoked: false, expiresAt: new Date(Date.now() + 60_000) },
+      ]);
       await expect(service.isRevoked('session-1')).resolves.toBe(false);
     });
 
-    it('treats an expired row as revoked', async () => {
-      repo.findOne.mockResolvedValue({
-        id: 'session-1',
-        isRevoked: false,
-        expiresAt: new Date(Date.now() - 1),
-      });
+    it('treats a family whose every row is expired as revoked', async () => {
+      repo.find.mockResolvedValue([
+        { id: 'row-1', isRevoked: false, expiresAt: new Date(Date.now() - 1) },
+        { id: 'row-2', isRevoked: false, expiresAt: new Date(Date.now() - 1) },
+      ]);
       await expect(service.isRevoked('session-1')).resolves.toBe(true);
     });
 
     it('treats an unknown session id as revoked', async () => {
-      repo.findOne.mockResolvedValue(null);
+      repo.find.mockResolvedValue([]);
       await expect(service.isRevoked('session-1')).resolves.toBe(true);
     });
 
     it('fails CLOSED when the database is unreachable too', async () => {
-      repo.findOne.mockRejectedValue(new Error('db down'));
+      repo.find.mockRejectedValue(new Error('db down'));
       await expect(service.isRevoked('session-1')).resolves.toBe(true);
     });
   });

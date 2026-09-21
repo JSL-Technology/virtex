@@ -28,6 +28,7 @@ import { StepUpScope } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
+import { MfaPolicyPort } from './ports/mfa-policy.port';
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
@@ -70,6 +71,8 @@ export class AuthService extends SessionSwitchPort {
     private readonly oidcProviderService: OidcProviderService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly atomicCache: AtomicCacheService,
+    // The narrow port, not OrgSettingsService: `auth` must not depend on `organizations`.
+    private readonly mfaPolicy: MfaPolicyPort,
   ) { super(); }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
@@ -185,7 +188,24 @@ export class AuthService extends SessionSwitchPort {
         new AuthLoginSuccessEvent(user.id, user.email, ipAddress, userAgent, correlationId)
     );
 
-    const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent, rememberMe);
+    // Reaching here means the account has no second factor — the 2FA branch above returned
+    // otherwise. If the organization requires one, the session is issued but HELD: the claim
+    // travels in the token and `MfaEnrolmentGuard` refuses everything except enrolling and
+    // signing out.
+    //
+    // Issued-and-held rather than refused, because enrolling requires a session. Refusing the
+    // sign-in would tell the user to do something they cannot reach — the same dead end the SSO
+    // step-up path documents, where federated accounts were told to enable two-step verification
+    // for an action that itself required two-step verification.
+    const mfaEnrolmentRequired = await this.organizationRequiresMfa(user.organizationId);
+
+    const authResponse = await this.tokenService.generateAuthResponse(
+      user,
+      mfaEnrolmentRequired ? { mfaEnrolmentRequired: true } : {},
+      ipAddress,
+      userAgent,
+      rememberMe,
+    );
   return {
       user: authResponse.user,
       accessToken: authResponse.accessToken,
@@ -196,6 +216,31 @@ export class AuthService extends SessionSwitchPort {
 
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     return this.tokenService.validateTokenAndGetUser(payload);
+  }
+
+  /**
+   * Whether this tenant requires every member to hold a second factor.
+   *
+   * Read through the port rather than by injecting `OrgSettingsService`, so `auth` keeps not
+   * depending on `organizations` — the direction that module graph deliberately runs in.
+   *
+   * Fails OPEN by explicit trade-off, and this is the one place in this file where that is the
+   * right answer: the setting is a tenant policy, not a credential. A settings row that cannot be
+   * read must not stop a user with a correct password from signing in, and the control is not
+   * bypassed by an attacker — it degrades for everyone equally and is restored with the read.
+   * A closed failure here would turn one slow query into a tenant-wide outage.
+   */
+  private async organizationRequiresMfa(organizationId: string | null | undefined): Promise<boolean> {
+    if (!organizationId) return false;
+    try {
+      return await this.mfaPolicy.requiresMfa(organizationId);
+    } catch (error) {
+      this.logger.warn(
+        { event: 'mfa_policy_unavailable', organizationId },
+        `Could not read the organization MFA policy: ${(error as Error).message}`,
+      );
+      return false;
+    }
   }
 
   private async simulateDelay() {
@@ -252,6 +297,17 @@ export class AuthService extends SessionSwitchPort {
 
   async revokeSession(userId: string, sessionId: string) {
     return this.sessionService.revokeSession(userId, sessionId);
+  }
+
+  /**
+   * The real IP a session was opened from — the reader `refresh_tokens.encrypted_ip` never had.
+   *
+   * Scoped to the calling tenant inside `SessionService`, and gated on the route by
+   * `users:sessions_forensics` plus a single-use step-up token, because reading somebody's
+   * address is a disclosure of personal data rather than an administrative convenience.
+   */
+  async revealSessionOrigin(sessionId: string, organizationId: string) {
+    return this.sessionService.revealSessionOrigin(sessionId, organizationId);
   }
 
   async verifyUserFromToken(token: string): Promise<User | null> {

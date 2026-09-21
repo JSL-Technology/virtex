@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import { ValueTransformer } from 'typeorm';
+import { isDevLikeEnvironment } from '../../auth/auth.config';
 
 /**
  * Column-level encryption for personal data at rest (cédula, bank account number).
@@ -71,9 +72,15 @@ function keyFor(keyId: string): Buffer {
 
   const secret = process.env.ENCRYPTION_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
+    // The project's allow-list, not `=== 'production'`.
+    //
+    // This seals payroll personal data. The deny-list form meant that any NODE_ENV which was not
+    // exactly `production` — `staging`, a typo, or an unset value that the schema used to resolve
+    // to `development` — encrypted real employees' salaries under a key literal written three
+    // lines below and visible to anyone with repository access.
+    if (!isDevLikeEnvironment()) {
       throw new Error(
-        'FATAL: ENCRYPTION_SECRET is required to encrypt personal data (payroll) in production.',
+        'FATAL: ENCRYPTION_SECRET is required to encrypt personal data (payroll) outside development.',
       );
     }
     const derived = crypto.scryptSync('dev-pii-encryption-secret', KEY_SALT, 32);

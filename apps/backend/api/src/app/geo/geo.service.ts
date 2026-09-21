@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { isDevLikeEnvironment } from '../auth/auth.config';
 import * as geoip from 'geoip-lite';
 
 export interface GeoLocation {
@@ -20,7 +21,9 @@ export class GeoService {
   getLocation(ip: string): GeoLocation {
 
     // 1. Handle Debug Override
-    if (process.env['NODE_ENV'] !== 'production' && this.DEBUG_COUNTRY_OVERRIDE) {
+    // Allow-list: a hardcoded country override is development behaviour, and `!== 'production'`
+    // admitted every other value of NODE_ENV — including an unset one.
+    if (isDevLikeEnvironment() && this.DEBUG_COUNTRY_OVERRIDE) {
         this.logger.debug(`Using DEBUG_COUNTRY_OVERRIDE: ${this.DEBUG_COUNTRY_OVERRIDE}`);
         return { country: this.DEBUG_COUNTRY_OVERRIDE, city: 'Debug City', region: null, ll: [0, 0], ip };
     }

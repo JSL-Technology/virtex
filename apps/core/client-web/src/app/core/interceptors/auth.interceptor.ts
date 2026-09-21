@@ -72,6 +72,26 @@ export const authInterceptor: HttpInterceptorFn = (
         return throwError(() => error);
       }
 
+      /**
+       * The session is held until this person enrols a second factor their organization requires.
+       *
+       * Same shape as the entitlement case above, and it needs the same handling for the same
+       * reason: `MfaEnrolmentGuard` refuses every route that is not on the enrolment path, so a
+       * held session produces a 403 on every data call at once. Unhandled, that is a dashboard
+       * full of failures and no explanation — and the one action that resolves it is precisely
+       * the one the person has not been told to take.
+       *
+       * The session is real, so this is not a 401 and must not trigger a refresh: renewing the
+       * token would succeed and change nothing, because the hold travels IN the token.
+       */
+      if (error.status === 403 && String(error.error?.messageKey ?? '') === 'auth.mfa_required_by_organization') {
+        const router = injector.get(Router);
+        if (!router.url.includes('/settings/security')) {
+          router.navigate(['/settings/security'], { queryParams: { reason: 'MFA_REQUIRED' } });
+        }
+        return throwError(() => error);
+      }
+
       // A 401 is only worth answering with a refresh when we believe there is a session to renew.
       // Without this check, any authenticated call made while signed out — a stray component that
       // outlived a logout, a deep link that starts loading before the redirect lands — answers the

@@ -48,6 +48,28 @@ export class Plugin {
   @Column({ type: 'varchar', length: 255, nullable: true })
   author: string | null;
 
+  /**
+   * The organization that published this extension, when it was published by a tenant.
+   *
+   * The catalogue is global, and that is correct — an extension is authored once and offered to
+   * everyone. What was missing is WHO may write each row. `register` looked a plugin up by name
+   * and, if it existed, appended a version to it, with no check at all on who was appending: any
+   * tenant administrator could publish a new version of any extension in the catalogue, and since
+   * the newest version is the one that executes, that code then ran in other tenants' isolates and
+   * browsers.
+   *
+   * A name is an identity. This column is what makes it one: `register` refuses a name whose
+   * publisher is somebody else.
+   *
+   * NULL means "published by the platform itself" (the first-party catalogue, seeded or published
+   * by an operator holding a platform role). Those are not owned by any tenant and only a platform
+   * principal can touch them — which is already true, because publishing at all now requires
+   * `platform:extensions:publish`.
+   */
+  @Index('IDX_plugins_publisher_organization')
+  @Column({ name: 'publisher_organization_id', type: 'uuid', nullable: true })
+  publisherOrganizationId: string | null;
+
   @Column({ type: 'enum', enum: PluginStatus, default: PluginStatus.ACTIVE })
   status: PluginStatus;
 

@@ -110,6 +110,7 @@ export class UserIdentityService {
       isImpersonating: payload.isImpersonating,
       originalUserId: payload.originalUserId,
       sessionId,
+      mfaEnrolmentRequired: payload.mfaEnrolmentRequired,
     });
   }
 
@@ -128,6 +129,7 @@ export class UserIdentityService {
       isImpersonating: current.isImpersonating ?? false,
       originalUserId: current.originalUserId,
       sessionId: current.sessionId,
+      mfaEnrolmentRequired: current.mfaEnrolmentRequired,
     });
   }
 
@@ -158,6 +160,7 @@ export class UserIdentityService {
       isImpersonating: current.isImpersonating ?? false,
       originalUserId: current.originalUserId,
       sessionId: current.sessionId,
+      mfaEnrolmentRequired: current.mfaEnrolmentRequired,
     });
   }
 
@@ -172,7 +175,12 @@ export class UserIdentityService {
   private async buildPrincipal(
     user: CachedUser,
     requestedOrganizationId: string | undefined,
-    session: { isImpersonating?: boolean; originalUserId?: string; sessionId?: string },
+    session: {
+      isImpersonating?: boolean;
+      originalUserId?: string;
+      sessionId?: string;
+      mfaEnrolmentRequired?: boolean;
+    },
   ): Promise<AuthenticatedUser> {
     const organization = await this.resolveOrganizationContext(user, requestedOrganizationId);
     const activeOrganizationId = organization?.id ?? user.organizationId;
@@ -192,6 +200,7 @@ export class UserIdentityService {
       isImpersonating: session.isImpersonating,
       originalUserId: session.originalUserId,
       sessionId: session.sessionId,
+      mfaEnrolmentRequired: session.mfaEnrolmentRequired,
     };
   }
 

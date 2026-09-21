@@ -187,6 +187,22 @@ jobs:
       # Until the row-level-security cutover makes the database enforce it, this static guard does.
       - run: npm run verify:tenant-scope
 
+      # Cuatro reglas de seguridad que el proyecto ya había escrito —en comentarios— y que no
+      # llegaban a todos sus sitios. Una auditoría encontró cinco de ellas contradichas por un
+      # comentario que afirmaba que la unificación ya había ocurrido, que es lo peor que puede
+      # pasarle a una regla: el siguiente lector la cree y no mira. Una frase no sostiene un
+      # invariante; un paso de CI sí.
+      #
+      #   env-gating          toda decisión de entorno pasa por la lista blanca, no por
+      #                       `!== 'production'`, que admite hasta el valor sin definir.
+      #   crypto              una sola derivación por material de clave. `encrypted_ip` llegó a
+      #                       escribirse en dos formatos incompatibles, sin lector.
+      #   role-assignment     todo sitio que asigna un rol pasa por el control de delegación.
+      #                       Eran «los únicos dos» según un comentario, y había un tercero.
+      #   session-revocation  todo validador de token de sesión consulta la lista de revocación.
+      #                       El WebSocket tenía copia propia y era la copia la que divergía.
+      - run: npm run verify:security
+
       # Las políticas de aislamiento existían y NADIE comprobaba su cobertura. La migración que
       # las instala deriva su lista de `information_schema`, pero la evalúa una sola vez: todo lo
       # creado después queda fuera. Medido antes de añadir este paso: 86 políticas instaladas y

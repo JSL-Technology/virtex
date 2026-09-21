@@ -319,4 +319,23 @@ export class OrganizationSettings {
    */
   @Column({ name: 'fx_rate_max_age_days', type: 'int', default: 10 })
   fxRateMaxAgeDays!: number;
+
+  /**
+   * Whether every member of this organization must hold a second factor.
+   *
+   * `user_security.is_two_factor_enabled` is a per-person choice, and until now it was the ONLY
+   * lever: a tenant could not require MFA of its own staff. For a product that holds payroll,
+   * treasury and the general ledger, "we would like everyone to turn it on" is not a control —
+   * and it is the first thing any customer with a security questionnaire asks for.
+   *
+   * Enforcement is at sign-in: a member without a second factor is issued a session that carries
+   * `mfaEnrolmentRequired`, and `MfaEnrolmentGuard` refuses every route except the ones needed to
+   * enrol and to sign out. Refusing the login outright would be a lockout, since enrolling
+   * requires being signed in.
+   *
+   * Off by default: turning this on for an existing tenant interrupts everyone's next sign-in, so
+   * it is a decision its administrator makes deliberately.
+   */
+  @Column({ name: 'require_mfa', type: 'boolean', default: false })
+  requireMfa!: boolean;
 }

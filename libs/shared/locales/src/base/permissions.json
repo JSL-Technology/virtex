@@ -219,6 +219,11 @@
     "en": "Run inflation adjustment",
     "pt": "Executar ajuste inflacionário"
   },
+  "permissions.actions.sessions_forensics": {
+    "es": "Revelar el origen de una sesión",
+    "en": "Reveal a session's origin",
+    "pt": "Revelar a origem de uma sessão"
+  },
   "permissions.actions.sessions_revoke": {
     "es": "Revocar sesiones",
     "en": "Revoke sessions",

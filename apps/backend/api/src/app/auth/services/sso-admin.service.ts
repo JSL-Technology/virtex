@@ -8,6 +8,8 @@ import { IdentityProvider } from '../entities/identity-provider.entity';
 import { OrganizationDomain } from '../../organizations/entities/organization-domain.entity';
 import { SecretEncryptionService } from './secret-encryption.service';
 import { CreateIdentityProviderDto, UpdateIdentityProviderDto } from '../dto/sso-admin.dto';
+import { AuthenticatedUser } from '../../security/principal';
+import { RoleDelegationPort } from '../ports/role-delegation.port';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
 // DNS host (relative to the domain) where the org must publish the verification TXT record.
@@ -39,6 +41,8 @@ export class SsoAdminService {
     private readonly domainRepository: Repository<OrganizationDomain>,
     private readonly secretEncryption: SecretEncryptionService,
     private readonly configService: ConfigService,
+    // The narrow port, so `auth` asks `roles` its one question without importing the module.
+    private readonly roleDelegation: RoleDelegationPort,
   ) {}
 
   private redirectUriFor(idpId: string): string {
@@ -69,7 +73,41 @@ export class SsoAdminService {
     return idps.map((i) => this.toView(i));
   }
 
-  async createProvider(organizationId: string, dto: CreateIdentityProviderDto): Promise<IdentityProviderView> {
+  /**
+   * The check that was missing on the third place a role is assigned.
+   *
+   * This product has one rule about handing out rights, and it is well implemented: nobody
+   * delegates a permission they do not themselves hold (`RolesService.assertCanAssignRole`). It is
+   * applied in `UsersService.updateUser` and `UsersService.inviteUser`, and the comment on the
+   * latter states those are "the only other two places a role is assigned".
+   *
+   * They were not. `IdentityProvider.defaultRoleId` is a third: every user JIT-provisioned through
+   * this IdP is created with that role (`EnterpriseSsoService.provisionUser`). It was accepted
+   * straight from the request body, behind `settings:edit_company` — a configuration permission
+   * that implies nothing about managing users. Someone holding only that could point the IdP at
+   * the ADMINISTRATOR role and every new account from their verified domain would be created with
+   * `'*'`.
+   *
+   * Assigning a role through an IdP is assigning a role. Same rule, same check.
+   */
+  private async assertRoleIsDelegable(
+    actor: AuthenticatedUser,
+    organizationId: string,
+    roleId: string,
+  ): Promise<void> {
+    // Scoped to the tenant, so an id from another organization cannot be pointed at.
+    await this.roleDelegation.assertCanAssignRoleById(actor, roleId, organizationId);
+  }
+
+  async createProvider(
+    organizationId: string,
+    dto: CreateIdentityProviderDto,
+    actor: AuthenticatedUser,
+  ): Promise<IdentityProviderView> {
+    if (dto.defaultRoleId) {
+      await this.assertRoleIsDelegable(actor, organizationId, dto.defaultRoleId);
+    }
+
     const idp = this.idpRepository.create({
       organizationId,
       name: dto.name,
@@ -88,8 +126,13 @@ export class SsoAdminService {
     organizationId: string,
     id: string,
     dto: UpdateIdentityProviderDto,
+    actor: AuthenticatedUser,
   ): Promise<IdentityProviderView> {
     const idp = await this.getOwnedProvider(organizationId, id);
+
+    if (dto.defaultRoleId) {
+      await this.assertRoleIsDelegable(actor, organizationId, dto.defaultRoleId);
+    }
 
     if (dto.enabled === true) {
       // Cannot enable an IdP unless the org has at least one verified domain.

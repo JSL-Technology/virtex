@@ -6,6 +6,8 @@ module.exports = {
   output: {
     path: join(__dirname, '../../../dist/apps/backend/api'),
     clean: true,
+    // env-gating-allow: build-time bundler options (source maps, optimisation). Not a runtime
+    // security control, and it runs before the application exists.
     ...(process.env.NODE_ENV !== 'production' && {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),

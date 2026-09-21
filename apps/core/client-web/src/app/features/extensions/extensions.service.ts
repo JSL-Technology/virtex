@@ -3,13 +3,41 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+/**
+ * One version, as the CATALOGUE describes it.
+ *
+ * Deliberately carries no `code`, no `uiEntry` and no `signature`. The API used to return the
+ * entity straight from the repository, so any tenant with `extensions:view` could read every
+ * vendor's server-side and client-side source, plus the platform's attestation over it. The
+ * source travels to the isolate and to the sandboxed iframe, and nowhere else.
+ */
+export interface ExtensionVersionSummary {
+  id: string;
+  version: string;
+  channel: string;
+  createdAt: string;
+  capabilities: string[] | null;
+  contributes?: unknown;
+  /** Whether it ships a UI — without shipping the UI. */
+  hasUi: boolean;
+  /** Whether the platform has an attestation on file — without publishing it. */
+  signed: boolean;
+}
+
 export interface ExtensionSummary {
   id: string;
   name: string;
   status: 'ACTIVE' | 'DISABLED' | 'REVOKED';
   description: string | null;
   author: string | null;
+  /**
+   * Who published it. The publisher's organization id is deliberately not exposed — it would
+   * enumerate tenant ids across the platform.
+   */
+  publisher: 'platform' | 'organization' | 'third_party';
   versionCount: number;
+  /** Present on the detail response only. */
+  versions?: ExtensionVersionSummary[];
 }
 
 export interface ExtensionConsent {
@@ -17,6 +45,15 @@ export interface ExtensionConsent {
   pluginId: string;
   grantedCapabilities: string[];
   enabled: boolean;
+  /**
+   * The version this tenant runs, and the one waiting for its decision.
+   *
+   * Consent used to be to a NAME, and execution resolved "the newest version", so a version
+   * published later inherited it automatically — along with the capabilities granted to the
+   * version that was actually reviewed. Pinning turns a release into a proposal.
+   */
+  consentedVersionId: string | null;
+  pendingVersionId: string | null;
 }
 
 export interface RegisterExtensionRequest {
@@ -44,6 +81,13 @@ export interface RuntimeExtension {
 export interface ExecuteExtensionRequest {
   pluginName?: string;
   version?: string;
+  /**
+   * Arbitrary code, run in the isolate.
+   *
+   * Requires `platform:extensions:run_arbitrary_code`, which no tenant role can carry. It is a
+   * development and incident-response tool; an ordinary tenant executes an INSTALLED extension by
+   * name.
+   */
   code?: string;
 }
 
@@ -97,9 +141,16 @@ export class ExtensionsService {
     );
   }
 
+  /**
+   * Install an extension, or accept a new version of one.
+   *
+   * `versionId` is what the tenant is agreeing to RUN. Omitted on a first consent, the server
+   * pins whatever is current at that moment; omitted later, it keeps the existing pin — silence
+   * is not acceptance of a pending upgrade.
+   */
   setConsent(
     name: string,
-    body: { grantedCapabilities?: string[]; enabled?: boolean },
+    body: { grantedCapabilities?: string[]; enabled?: boolean; versionId?: string },
   ): Observable<ExtensionConsent> {
     return this.http.put<ExtensionConsent>(
       `${this.apiUrl}/${encodeURIComponent(name)}/consent`,

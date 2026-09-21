@@ -98,20 +98,37 @@ export class SessionRegistryService {
     }
   }
 
-  /** Source-of-truth check used when the cache cannot be reached. */
+  /**
+   * Source-of-truth check used when the cache cannot be reached.
+   *
+   * ## Why this queries the family and not the id
+   *
+   * `sessionId` is the id of the FAMILY, which by construction equals the id of the family's FIRST
+   * row (see `TokenService.generateAuthResponse`). Every rotation writes a new row carrying the
+   * same `sessionId` and marks the previous one revoked.
+   *
+   * So `where: { id: sessionId }` — which is what this used to do — found the original row, and
+   * that row is revoked the moment the session rotates for the first time, i.e. after fifteen
+   * minutes. During a Redis outage the "source of truth" therefore answered "revoked" for every
+   * live session in the system. It failed in the safe direction, which is why nobody saw it, but
+   * it never answered the question it was asked.
+   *
+   * A family is revoked when every row in it is revoked or expired. One live row means one live
+   * session.
+   */
   private async isRevokedInDatabase(sessionId: string): Promise<boolean> {
     try {
-      const row = await this.refreshTokenRepository.findOne({
-        where: { id: sessionId },
+      const rows = await this.refreshTokenRepository.find({
+        where: { sessionId },
         select: ['id', 'isRevoked', 'expiresAt'],
       });
 
-      // An unknown session id means the row was purged or never existed — treat as revoked.
-      // This is the fail-closed direction and cannot lock out a legitimate live session, whose
-      // row exists by construction.
-      if (!row) return true;
+      // No rows at all means the family was purged or never existed — treat as revoked. This is
+      // the fail-closed direction and cannot lock out a legitimate live session, whose rows exist
+      // by construction.
+      if (!rows.length) return true;
 
-      return row.isRevoked || row.expiresAt.getTime() < Date.now();
+      return rows.every((row) => row.isRevoked || row.expiresAt.getTime() < Date.now());
     } catch (error) {
       // Both cache and database are unreachable. The request cannot be authorised safely.
       this.logger.error(

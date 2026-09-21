@@ -1,5 +1,5 @@
 
-import { Injectable, UnauthorizedException, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,11 +20,10 @@ import { UsersService } from '../../users/users.service';
 import { AuthenticatedUser } from '../../security/principal';
 import { GeoService } from '../../geo/geo.service';
 import { UserIdentityService } from './user-identity.service';
+import { CryptoUtil } from '../../shared/utils/crypto.util';
 
 @Injectable()
-export class TokenService implements OnModuleInit {
-  private encryptionKey!: Buffer;
-
+export class TokenService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -37,18 +36,18 @@ export class TokenService implements OnModuleInit {
     private readonly geoService: GeoService,
     private readonly keyManagementService: KeyManagementService,
     private readonly userIdentityService: UserIdentityService,
+    private readonly cryptoUtil: CryptoUtil,
   ) {}
 
-  onModuleInit(): void {
-    // H-01 FIX: Fail fast — getOrThrow throws at startup if any required secret is absent.
-    const secret = this.configService.getOrThrow<string>('ENCRYPTION_SECRET');
-    const salt = this.configService.getOrThrow<string>('AUTH_SALT');
-    const isProduction = process.env['NODE_ENV'] === 'production';
-    if (isProduction && /change-me|default/i.test(secret + salt)) {
-      throw new Error('FATAL: weak ENCRYPTION_SECRET or AUTH_SALT detected in production environment.');
-    }
-    this.encryptionKey = crypto.scryptSync(secret, salt, 32);
-  }
+  // The key derivation that used to live here is gone, and so is the placeholder check beside it.
+  //
+  // The derivation was the third copy of `scryptSync(ENCRYPTION_SECRET, AUTH_SALT, 32)` in this
+  // codebase, and it serialised as `iv:ct:tag` while `CryptoUtil` serialised as `iv:tag:ct` — with
+  // both of them writing `refresh_tokens.encrypted_ip`. One column, two unreadable formats.
+  //
+  // The placeholder check moved to `env.validation.ts`, where it runs at boot for all nine
+  // cryptographic secrets instead of two, and where it is not gated on `NODE_ENV === 'production'`
+  // (a deny-list that skipped the check for every other value, including an unset one).
 
   private maskIp(ip?: string): string | undefined {
     if (!ip) return undefined;
@@ -71,13 +70,15 @@ export class TokenService implements OnModuleInit {
     }
   }
 
+  /**
+   * The encrypted copy kept for incident forensics, written through the single shared primitive.
+   *
+   * Note the IV width that used to be here: 16 bytes. GCM's standard is 12, which is what
+   * `CryptoUtil` uses — so even with the same key and the same field order, values written by this
+   * method and by `SessionService.encryptIp` were not interchangeable.
+   */
   private encryptIp(ip: string): string {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-gcm', this.encryptionKey, iv);
-    let encrypted = cipher.update(ip, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    const authTag = cipher.getAuthTag().toString('hex');
-    return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+    return this.cryptoUtil.encrypt(ip);
   }
 
   // A-3: identity resolution is centralised in UserIdentityService. These two methods used to

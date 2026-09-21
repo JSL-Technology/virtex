@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { HttpResponse as Response, HttpRequest as Request } from '../../common/http/http.types';
 import * as crypto from 'crypto';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { isDevLikeEnvironment } from '../auth.config';
 
 /**
  * The payload carried across the OAuth/OIDC redirect handshake. It never touches the
@@ -43,15 +44,23 @@ export class OauthStateService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit(): void {
-    // Fail fast: a dedicated secret for the handshake cookie keeps key separation from JWTs.
-    const secret =
-      this.configService.get<string>('OAUTH_STATE_SECRET') ||
-      this.configService.get<string>('ENCRYPTION_SECRET');
-    const salt = this.configService.get<string>('AUTH_SALT', 'oauth-state-salt');
+    // A dedicated secret, and only the dedicated secret.
+    //
+    // Key separation from the JWTs is the stated reason this service has its own key — and the
+    // `|| ENCRYPTION_SECRET` fallback that used to be here quietly undid it: whenever
+    // OAUTH_STATE_SECRET was not set, which is the common case, the handshake cookie was keyed
+    // from the same material as everything else. A separation that disappears when nobody
+    // configures it is not a separation. The variable is required by the schema outside
+    // development, so this is now simply what it says.
+    const secret = this.configService.get<string>('OAUTH_STATE_SECRET');
+    const salt = this.configService.getOrThrow<string>('AUTH_SALT');
 
     if (!secret) {
-      if (this.configService.get('NODE_ENV') === 'production') {
-        throw new Error('FATAL: OAUTH_STATE_SECRET (or ENCRYPTION_SECRET) is required in production.');
+      // The project's allow-list, not `=== 'production'`: a deployment whose NODE_ENV was
+      // anything else — `staging`, a typo, or unset — keyed its OAuth state from a literal
+      // written on the next line.
+      if (!isDevLikeEnvironment()) {
+        throw new Error('FATAL: OAUTH_STATE_SECRET is required outside development/test.');
       }
       this.key = crypto.scryptSync('dev-oauth-state-secret', salt, 32);
       return;

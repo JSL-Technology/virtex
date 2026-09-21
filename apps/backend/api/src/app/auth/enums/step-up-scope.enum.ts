@@ -24,6 +24,11 @@ export enum StepUpScope {
   MANAGE_ROLES = 'manage_roles',
   /** Binding a new passkey adds a credential that can sign in on its own. */
   REGISTER_PASSKEY = 'register_passkey',
+  /**
+   * Revealing the real IP address a session was opened from. Disclosure of personal data during an
+   * incident investigation: irreversible once read, so it is single-use and audited.
+   */
+  REVEAL_SESSION_ORIGIN = 'reveal_session_origin',
 
   // ---------------------------------------------------------------------------------------
   // Administration of other people's accounts. Reusable within the token's lifetime (see
@@ -36,6 +41,43 @@ export enum StepUpScope {
   MANAGE_USER_STATUS = 'manage_user_status',
   /** Trigger a password reset or force a logout on someone else's account. */
   MANAGE_USER_CREDENTIALS = 'manage_user_credentials',
+
+  // ---------------------------------------------------------------------------------------
+  // Actions that were left uncovered by the first pass of this mechanism. Each one is
+  // irreversible, moves money, or grants access the operator does not otherwise hold — the same
+  // test every scope above satisfies.
+  // ---------------------------------------------------------------------------------------
+  /**
+   * Configuring the tenant's identity provider.
+   *
+   * An IdP decides who may sign in and, through `defaultRoleId`, with what rights. It is a change
+   * to the authorization graph exactly as `MANAGE_ROLES` is, and it was reachable with a live
+   * session and `settings:edit_company` alone.
+   */
+  MANAGE_SSO = 'manage_sso',
+  /**
+   * Publishing or revoking an extension.
+   *
+   * Publishing puts code into the sandbox and into other people's browsers; revoking withdraws it
+   * from every tenant at once. Both are platform-wide and irreversible in effect.
+   */
+  PUBLISH_EXTENSION = 'publish_extension',
+  /**
+   * Approving or paying a payroll run.
+   *
+   * It moves money and settles the salary data of every employee in the tenant. Reusable within
+   * the token's lifetime would mean one re-authentication covering an unbounded number of runs, so
+   * this one burns.
+   */
+  APPROVE_PAYROLL = 'approve_payroll',
+  /**
+   * Reading payroll data: runs, payslips, individual salaries.
+   *
+   * Deliberately NOT single-use. Payroll is a job people do for hours at a time, and a control
+   * that prompts on every row is a control people route around. Re-authenticating once per
+   * ten-minute window is the trade the rest of this enum already makes for routine administration.
+   */
+  VIEW_PAYROLL_DATA = 'view_payroll_data',
 }
 
 /**
@@ -59,4 +101,8 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.REGISTER_PASSKEY,
   StepUpScope.ENABLE_2FA,
   StepUpScope.MANAGE_ROLES,
+  StepUpScope.REVEAL_SESSION_ORIGIN,
+  StepUpScope.MANAGE_SSO,
+  StepUpScope.PUBLISH_EXTENSION,
+  StepUpScope.APPROVE_PAYROLL,
 ]);

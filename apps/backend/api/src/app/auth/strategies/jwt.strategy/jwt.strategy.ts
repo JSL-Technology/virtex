@@ -7,7 +7,7 @@ import { KeyManagementService } from '../../services/key-management.service';
 import { UserIdentityService } from '../../services/user-identity.service';
 import { JwtPayload } from '../../interfaces/jwt-payload.interface';
 import { AuthenticatedUser } from '../../../security/principal';
-import { isDevLikeEnvironment } from '../../auth.config';
+import { selectAccessToken } from '../../services/access-token-cookie';
 import { UnauthorizedError } from '../../../i18n/localized.exception';
 
 @Injectable()
@@ -26,17 +26,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // body, so also accepting an Authorization header only widened the attack surface: any
       // accidental leak of the JWT into JS, logs or a third party would be directly replayable.
       // Machine-to-machine callers must use a dedicated strategy with their own audience/scopes.
+      // Which cookie names count is decided in ONE place, shared with the WebSocket handshake.
+      // The rule used to be written out here and again, differently, in `EventsGateway` — which
+      // accepted the unprefixed name in production too.
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request | undefined) => {
-          const cookies = req?.cookies ?? {};
-          // The unprefixed name only exists in local plain-HTTP development, where browsers
-          // reject the Secure attribute that __Host- requires.
-          return (
-            cookies['__Host-access_token'] ??
-            (isDevLikeEnvironment() ? cookies['access_token'] : null) ??
-            null
-          );
-        },
+        (req: Request | undefined) =>
+          selectAccessToken(req?.cookies as Record<string, string | undefined> | undefined),
       ]),
       ignoreExpiration: false,
       // H-05: RS256 with a `kid` header so the signing key can be rotated without invalidating

@@ -667,14 +667,23 @@ export class AuthService {
 
   /**
    * Envía la nueva contraseña y el token de reseteo al backend.
+   *
+   * `twoFactorCode` viaja cuando la cuenta tiene segundo factor. Recuperar la contraseña era el
+   * único camino que reemplazaba una credencial con solo acceso al buzón: quien controlara el
+   * correo de una cuenta con 2FA podía cambiarle la contraseña sin presentar el factor. No le
+   * daba una sesión —el inicio de sesión sigue pidiendo el código— pero sí dejaba fuera de su
+   * propia cuenta a la persona legítima. El servidor lo exige ahora; el cliente lo pregunta
+   * cuando el servidor responde que falta, y acepta también un código de respaldo, para que
+   * perder el teléfono no signifique perder la cuenta.
+   *
    * @param token El token recibido por el usuario (generalmente en la URL).
    * @param password La nueva contraseña.
-   * @returns Un observable que emite el objeto User con la información actualizada.
+   * @param twoFactorCode Código TOTP o de respaldo, si la cuenta tiene 2FA activo.
    */
-  resetPassword(token: string, password: string): Observable<User> {
+  resetPassword(token: string, password: string, twoFactorCode?: string): Observable<User> {
     const url = `${this.apiUrl}/reset-password`;
     return this.http
-      .post<User>(url, { token, password }, {
+      .post<User>(url, twoFactorCode ? { token, password, twoFactorCode } : { token, password }, {
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
       .pipe(catchError((err) => this.errorHandlerService.handleError('resetPassword', err)));

@@ -26,6 +26,7 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
+import { AllowWithoutMfaEnrolment } from './decorators/allow-without-mfa-enrolment.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
@@ -51,6 +52,11 @@ import { AuthenticatedOnly } from '../security/decorators/authenticated-only.dec
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
+@AllowWithoutMfaEnrolment(
+  'Enrolling a second factor is gated by @StepUp(ENABLE_2FA), and the token for it is minted\n' +
+  'here. A held session that could not reach this route could never satisfy the challenge that\n' +
+  'lets it stop being held.',
+)
 @AuthenticatedOnly(
   'Step-up re-verifies the identity the session already carries, so it cannot itself require a\n' +
   'permission: it is the mechanism a later permission check depends on. Impersonation is the one\n' +
