@@ -1,5 +1,10 @@
 # Justificación del scorecard — evidencia por eje
 
+> **ESTADO: REMEDIADO.** Las notas de abajo son las del código tal como se encontró. Lo que hacía
+> falta para llevar cada eje a 10 está hecho; `REMEDIACION.md` recorre las 32 acciones y dice
+> dónde quedó cada una. Este documento se conserva porque la calibración —por qué un 4 y no un 6,
+> qué evidencia lo sostenía— es lo que hace comprobable el 10 de después.
+
 Complemento de `AUDITORIA_SEGURIDAD_AUTENTICACION.md`. Para cada eje: por qué esa nota y no otra,
 la evidencia que la sostiene en ambas direcciones, y la lista concreta de lo que falta para llegar
 a 10.

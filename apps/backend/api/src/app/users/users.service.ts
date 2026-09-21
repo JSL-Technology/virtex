@@ -714,11 +714,19 @@ export class UsersService extends UserProfilePort {
     // An invitation grants a role, so it is a privilege delegation and carries the same limit
     // `updateUser` applies: nobody may hand out rights they do not hold themselves.
     //
-    // This check was missing here and in `addExistingUserToOrganization`, which were the only
-    // other two places a role is assigned. An operator holding just `users:create` could invite
-    // an address they control as ADMINISTRATOR — a role carrying '*' — and take over the tenant.
-    // The MANAGE_USERS step-up in front of the route does not help: it proves who the caller is,
-    // not what they are entitled to give away.
+    // This check was missing here and in `addExistingUserToOrganization`. An operator holding
+    // just `users:create` could invite an address they control as ADMINISTRATOR — a role carrying
+    // '*' — and take over the tenant. The MANAGE_USERS step-up in front of the route does not
+    // help: it proves who the caller is, not what they are entitled to give away.
+    //
+    // This comment used to end by calling those "the only other two places a role is assigned".
+    // They were not: `IdentityProvider.defaultRoleId` decides the role every user JIT-provisioned
+    // through enterprise SSO is created with, it was taken straight from a request body, and it
+    // sat behind `settings:edit_company` — a permission that implies nothing about managing
+    // people. A later audit found it precisely because the sentence was believed.
+    //
+    // An inventory of call sites cannot live in prose, so it does not: `verify:role-assignment`
+    // fails the build when a site writes a role without passing this check.
     this.rolesService.assertCanAssignRole(actor, role);
 
     // Platform-wide, not organization-scoped. The unique constraint is platform-wide, so a

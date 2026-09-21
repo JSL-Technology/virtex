@@ -45,7 +45,12 @@ interface SyscallEnvelope {
  *    execute at all;
  *  - a narrow syscall bridge — the isolate has no ambient `require`, `fetch`, or globals; it can
  *    only `log` and, if the tenant granted `egress:http`, `fetch` a host on the egress allowlist;
- *  - SSRF protection on that fetch: the resolved address is rejected if it is private/loopback.
+ *  - SSRF protection on that fetch, in three parts: https only, an EXACT host match against the
+ *    allow-list (a suffix match opened every subdomain, including ones somebody else controls),
+ *    and a single DNS resolution whose every address must be globally routable unicast — then the
+ *    connection is pinned to it, so `https.get` cannot resolve the name a second time and reach
+ *    somewhere else. Classification is by range rather than by a list of private prefixes, which
+ *    is how `169.254.169.254` — the cloud metadata service — came to be reachable.
  */
 @Injectable()
 export class SandboxService {
@@ -323,9 +328,25 @@ export class SandboxService {
       throw new Error(`Security Exception: only https is permitted (got ${parsedUrl.protocol}).`);
     }
 
-    const isAllowed = PLUGIN_POLICY.egress.allowlist.some(
-      (allowed) => allowed === parsedUrl.hostname || parsedUrl.hostname.endsWith(`.${allowed}`),
-    );
+    // Exact host match, not a suffix match.
+    //
+    // `hostname.endsWith('.' + allowed)` admitted EVERY subdomain of an allowed host, which is a
+    // much larger surface than the list reads as: an allowed `api.taxjar.com` also permitted
+    // `anything.api.taxjar.com`, including a name whose DNS somebody else controls. Combined with
+    // the DNS re-resolution that used to happen below, that was the whole SSRF path.
+    //
+    // A wildcard is still expressible, and now it has to be written down: an entry of the form
+    // `*.example.com` opts into subdomains explicitly, so the breadth of the policy is visible in
+    // the policy.
+    const host = parsedUrl.hostname.toLowerCase();
+    const isAllowed = PLUGIN_POLICY.egress.allowlist.some((allowed) => {
+      const entry = allowed.toLowerCase();
+      if (entry.startsWith('*.')) {
+        const suffix = entry.slice(1); // '.example.com'
+        return host.endsWith(suffix) && host.length > suffix.length;
+      }
+      return host === entry;
+    });
     if (!isAllowed) {
       throw new Error(`Security Exception: Egress to ${parsedUrl.hostname} is not allowed by policy.`);
     }

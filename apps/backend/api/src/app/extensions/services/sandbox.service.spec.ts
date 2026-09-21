@@ -151,6 +151,13 @@ describe('SandboxService', () => {
       await expect(fetchThrough('https://evil.example.com/')).rejects.toThrow(/not allowed/);
     });
 
+    it('exige que el host coincida EXACTAMENTE con la lista', async () => {
+      // `endsWith('.' + allowed)` admitía todo subdominio de un host permitido, incluido uno cuyo
+      // DNS controla otra persona. Con la re-resolución que había debajo, ese era el camino SSRF
+      // completo. Un comodín sigue siendo expresable, pero hay que escribirlo: `*.example.com`.
+      await expect(fetchThrough('https://atacante.api.taxjar.com/')).rejects.toThrow(/not allowed/);
+    });
+
     it('rechaza cualquier esquema que no sea https', async () => {
       // Sin esto, `file:` y `http:` llegaban al parser de URL y pasaban la comprobación de host.
       await expect(fetchThrough('http://api.taxjar.com/')).rejects.toThrow(/only https/);

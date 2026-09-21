@@ -299,6 +299,17 @@ export class AuthService extends SessionSwitchPort {
     return this.sessionService.revokeSession(userId, sessionId);
   }
 
+  /**
+   * The real IP a session was opened from — the reader `refresh_tokens.encrypted_ip` never had.
+   *
+   * Scoped to the calling tenant inside `SessionService`, and gated on the route by
+   * `users:sessions_forensics` plus a single-use step-up token, because reading somebody's
+   * address is a disclosure of personal data rather than an administrative convenience.
+   */
+  async revealSessionOrigin(sessionId: string, organizationId: string) {
+    return this.sessionService.revealSessionOrigin(sessionId, organizationId);
+  }
+
   async verifyUserFromToken(token: string): Promise<User | null> {
     return this.sessionService.verifyUserFromToken(token);
   }

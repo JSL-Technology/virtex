@@ -1,5 +1,23 @@
 # Auditoría de seguridad y autenticación — Virtex
 
+> **ESTADO: REMEDIADO.** Este informe describe el estado en que se encontró el código. Todos sus
+> hallazgos están corregidos en esta rama; `REMEDIACION.md`, en este mismo directorio, dice cómo
+> se cerró cada uno y qué lo impide volver. El informe se conserva sin reescribir porque el
+> razonamiento de por qué algo era un fallo sigue siendo la mejor explicación de por qué la
+> corrección tiene la forma que tiene.
+>
+> Tres cosas que la remediación encontró y este informe no vio, por si se lee solo:
+>
+> - El disparador de A-3 no es `NODE_ENV=staging` —el esquema lo rechaza y el proceso no arranca—
+>   sino `NODE_ENV` **sin definir**. Y es más profundo de lo que parecía: `Joi.when` con
+>   `is: Joi.valid(...)` casaba también con el valor **ausente**, así que TODOS los ayudantes del
+>   esquema tomaban la rama de desarrollo cuando la variable no estaba.
+> - No había tres implementaciones de cifrado, sino **seis**. Dos son separación de claves
+>   legítima; una cuarta cifraba datos personales de nómina y caía a una clave literal fuera de
+>   `production`.
+> - `verify:env-gating` encontró **once** lecturas de `NODE_ENV`, dos de ellas puertas de
+>   seguridad que el informe no había identificado: el cifrado de nómina y `trustProxy`.
+
 **Alcance:** todo el repositorio. Backend (`apps/backend/api`), cliente web (`apps/core/client-web`),
 punto de venta (`apps/pos`), escritorio (`apps/desktop`), librerías compartidas (`libs/shared`),
 políticas de plataforma (`platform/policies`) y utilidades de verificación (`tools/verify`).
