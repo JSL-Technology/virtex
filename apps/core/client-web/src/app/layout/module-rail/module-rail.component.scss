@@ -109,3 +109,27 @@
   top: 3px;
   right: 3px;
 }
+
+//  La insignia de trabajo pendiente.
+//
+//  Se corta en 99+ a propósito: a partir de ahí el número exacto no cambia ninguna decisión —hay
+//  mucho— y tres cifras deforman el riel, que mide 64px y tiene que seguir siendo una columna de
+//  iconos legibles.
+.rail__badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: var(--color-danger);
+  color: var(--color-danger-contrast, #fff);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  //  Sin transición: aparecer de golpe es lo correcto para un número que informa. Una animación
+  //  aquí llamaría la atención cada vez que se recarga la bandeja, incluso sin cambios.
+  pointer-events: none;
+}

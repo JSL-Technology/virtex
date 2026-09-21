@@ -26,12 +26,12 @@ export class TenantConsent {
   id: string;
 
   @Index('IDX_plugin_consent_org')
-  @Column({ type: 'uuid' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({
-    name: 'organizationId',
+    name: 'organization_id',
     foreignKeyConstraintName: 'FK_plugin_consent_organization',
   })
   organization: Organization;

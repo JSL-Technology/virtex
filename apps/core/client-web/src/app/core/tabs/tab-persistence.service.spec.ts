@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { TabPersistenceService } from './tab-persistence.service';
 import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
+import { ActiveOrganizationService } from '../tenancy/active-organization.service';
+import { WorkspaceSyncService } from './workspace-sync.service';
 import { TabType } from './tab.model';
 
 /**
@@ -15,7 +17,10 @@ import { TabType } from './tab.model';
  * `/accounting/chart-of-accounts` devolvía al usuario a Inicio.
  */
 describe('TabPersistenceService · la URL de arranque manda', () => {
-  const STORAGE_KEY = 'erp_tab_session';
+  //  La clave lleva la empresa: `localStorage` lo comparten todas las pestañas del navegador, y
+  //  con una sola clave abrir una segunda ventana en otra empresa sobrescribía el espacio de la
+  //  primera.
+  const STORAGE_KEY = 'erp_tab_session:cliente-a';
 
   /**
    * `localStorage` and `schemaVersion: 3` because that is what the service writes: the workspace
@@ -55,6 +60,13 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
     activeTabId: () => string | null;
   };
   let bootRoute: jest.Mock;
+  let slug: string | null;
+  const remoteDouble = {
+    pull: jest.fn().mockResolvedValue(null),
+    push: jest.fn().mockResolvedValue({ saved: true }),
+    forget: jest.fn().mockResolvedValue(undefined),
+    resetRevision: jest.fn(),
+  };
 
   const build = () => {
     tabState = {
@@ -66,12 +78,20 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
       activeTabId: () => null,
     };
     bootRoute = jest.fn().mockReturnValue(null);
+    slug = 'cliente-a';
 
     TestBed.configureTestingModule({
       providers: [
         TabPersistenceService,
         { provide: TabStateService, useValue: tabState },
         { provide: TabRouterService, useValue: { bootRoute } },
+        // El espacio de trabajo se guarda por empresa, así que la persistencia necesita saber en
+        // cuál está. Se provee un doble para no arrastrar AuthService —y con él HttpClient— a una
+        // prueba que no habla con el servidor.
+        { provide: ActiveOrganizationService, useValue: { slug: () => slug } },
+        // El nivel remoto se prueba aparte; aquí se calla para que estas pruebas sigan siendo
+        // sobre la restauración local y no sobre la red.
+        { provide: WorkspaceSyncService, useValue: remoteDouble },
       ],
     });
     return TestBed.inject(TabPersistenceService);
@@ -131,4 +151,19 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
     expect(tabState.setTabs).toHaveBeenCalledTimes(1);
     expect(tabState.setTabs.mock.calls[0][0]).toHaveLength(1);
   });
+  it('el espacio de trabajo de una empresa no se ve desde otra', () => {
+    // Guardado mientras se trabajaba en «cliente-a».
+    localStorage.setItem(STORAGE_KEY, persisted('inicio'));
+    const service = build();
+
+    // La misma sesión, otra ventana, otra empresa.
+    slug = 'cliente-b';
+    service.restoreState();
+
+    // Nada que restaurar allí: se abre la pestaña por defecto de esa empresa en vez de heredar
+    // las pestañas —y los documentos abiertos— del inquilino anterior.
+    expect(tabState.setTabs).not.toHaveBeenCalled();
+    expect(tabState.ensureDefaultTab).toHaveBeenCalled();
+  });
+
 });

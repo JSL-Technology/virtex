@@ -16,7 +16,7 @@ export class CostCenter {
   id: string;
 
   @Index()
-  @Column()
+  @Column({ name: 'organization_id' })
   organizationId: string;
 
   @Column()

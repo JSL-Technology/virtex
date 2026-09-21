@@ -1,14 +1,31 @@
 import { Injectable, effect, inject } from '@angular/core';
 import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
+import { ActiveOrganizationService } from '../tenancy/active-organization.service';
+import { WorkspaceSyncService } from './workspace-sync.service';
+import { mergeWorkspaces } from './workspace-merge';
 import { TabModel, TabType } from './tab.model';
 
 /** Versión del esquema de persistencia. Incrementar ante cambios incompatibles. */
 const SCHEMA_VERSION = 3;
-const STORAGE_KEY = 'erp_tab_session';
-const LAYOUT_KEY = 'erp_tab_layout';
+const STORAGE_PREFIX = 'erp_tab_session';
+const LAYOUT_PREFIX = 'erp_tab_layout';
+//  «Recordar pestañas» es una preferencia de la PERSONA, no de la empresa: quien no quiere que se
+//  le restauren las pestañas no lo quiere en ninguna. Por eso esta clave no se acota por empresa.
 const REMEMBER_KEY = 'erp_remember_tabs';
 
+/**
+ * El espacio de trabajo se guarda POR EMPRESA.
+ *
+ * `localStorage` lo comparten todas las pestañas del navegador y sobrevive al cierre. Con una
+ * sola clave, abrir una segunda ventana en otra empresa sobrescribía el espacio de la primera, y
+ * al volver a la primera aparecían las pestañas de la segunda: los mismos documentos, los libros
+ * de otro. Acotar la clave por empresa es lo que hace que «dos empresas a la vez» signifique dos
+ * espacios de trabajo y no dos vistas del mismo.
+ *
+ * Sin empresa —durante el arranque, o en una pantalla pública— se usa un sufijo neutro en vez de
+ * no guardar: así el espacio de una sesión que aún no ha resuelto su empresa no se pierde.
+ */
 interface PersistedTab {
   id: string;
   type: TabType;
@@ -56,8 +73,11 @@ interface PersistedWorkspace {
 export class TabPersistenceService {
   private tabState = inject(TabStateService);
   private tabRouter = inject(TabRouterService);
+  private tenancy = inject(ActiveOrganizationService);
+  private remote = inject(WorkspaceSyncService);
 
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private remoteTimer: ReturnType<typeof setTimeout> | null = null;
   private restored = false;
 
   constructor() {
@@ -82,8 +102,13 @@ export class TabPersistenceService {
       return;
     }
 
+    // El servidor se consulta DESPUÉS de restaurar de local, no antes: esperar la respuesta para
+    // dibujar añadiría un viaje de red al arranque de cada sesión y un armazón vacío mientras
+    // llega. El nivel local es el rápido; el remoto trae lo que se abrió en otro equipo.
+    void this.adoptRemote();
+
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(this.storageKey());
       if (!raw) {
         // Sin sesión de pestañas que emparejar, un layout suelto solo dejaría
         // paneles huérfanos: se descarta.
@@ -147,7 +172,7 @@ export class TabPersistenceService {
   }
 
   clearState(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(this.storageKey());
     this.clearLayout();
   }
 
@@ -163,7 +188,7 @@ export class TabPersistenceService {
     if (!this.restored || !this.rememberEnabled()) return;
     try {
       const payload: PersistedLayout = { schemaVersion: SCHEMA_VERSION, layout };
-      localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload));
+      localStorage.setItem(this.layoutKey(), JSON.stringify(payload));
     } catch (e) {
       console.error('Failed to save dockview layout', e);
     }
@@ -173,11 +198,11 @@ export class TabPersistenceService {
   loadLayout(): unknown | null {
     if (!this.rememberEnabled()) return null;
     try {
-      const raw = localStorage.getItem(LAYOUT_KEY);
+      const raw = localStorage.getItem(this.layoutKey());
       if (!raw) return null;
       const data = JSON.parse(raw) as Partial<PersistedLayout>;
       if (data?.schemaVersion !== SCHEMA_VERSION || data.layout == null) {
-        localStorage.removeItem(LAYOUT_KEY);
+        localStorage.removeItem(this.layoutKey());
         return null;
       }
       return data.layout;
@@ -187,7 +212,7 @@ export class TabPersistenceService {
   }
 
   clearLayout(): void {
-    localStorage.removeItem(LAYOUT_KEY);
+    localStorage.removeItem(this.layoutKey());
   }
 
   rememberEnabled(): boolean {
@@ -196,7 +221,12 @@ export class TabPersistenceService {
 
   setRemember(enabled: boolean): void {
     localStorage.setItem(REMEMBER_KEY, String(enabled));
-    if (!enabled) this.clearState();
+    if (!enabled) {
+      this.clearState();
+      // También en el servidor: «no recuerdes mis pestañas» y dejarlas guardadas en la nube sería
+      // desobedecer la única preferencia que la persona expresó sobre esto.
+      void this.remote.forget();
+    }
     else this.scheduleSave(this.tabState.tabs(), this.tabState.activeTabId());
   }
 
@@ -219,7 +249,8 @@ export class TabPersistenceService {
         activeTabId: activeId,
         tabs: toPersist.map((t) => this.serialize(t)),
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(this.storageKey(), JSON.stringify(payload));
+      this.scheduleRemoteSave(payload);
     } catch (e) {
       console.error('Failed to save tab state', e);
     }
@@ -294,4 +325,85 @@ export class TabPersistenceService {
       return undefined;
     });
   }
+  /**
+   * Trae el espacio de trabajo del servidor y lo une al que ya está en pantalla.
+   *
+   * Une en vez de elegir: las pestañas de los dos equipos son trabajo real de la misma persona.
+   * `mergeWorkspaces` tiene las reglas y el porqué de cada una.
+   *
+   * El foco NO se toca. Adoptar la pestaña activa del otro equipo movería la vista de alguien que
+   * está mirando otra cosa, y el foco es la única parte del espacio de trabajo que pertenece a
+   * esta ventana y no a la persona.
+   */
+  private async adoptRemote(): Promise<void> {
+    const remote = await this.remote.pull();
+    if (!remote) return;
+
+    const data = remote.payload as Partial<PersistedWorkspace> | null;
+    // Las DOS versiones: la columna que guarda el servidor y la que viaja dentro de la carga.
+    // Comprobar solo la de dentro dejaba pasar una carga que el servidor ya marcaba como de otra
+    // versión, y comprobar solo la de fuera dejaría pasar una carga cuyo contenido no coincide con
+    // lo que su propia cabecera dice. Un cliente de otra versión puede estar abierto a la vez
+    // durante un despliegue, así que no se descarta lo que escribió —lo necesita él— pero tampoco
+    // se restaura a medias.
+    if (
+      remote.schemaVersion !== SCHEMA_VERSION ||
+      !data ||
+      data.schemaVersion !== SCHEMA_VERSION ||
+      !Array.isArray(data.tabs)
+    ) {
+      return;
+    }
+
+    const incoming = data.tabs.map((t) => this.deserialize(t));
+    const merged = mergeWorkspaces(this.tabState.tabs(), incoming);
+    if (merged.length !== this.tabState.tabs().length) {
+      this.tabState.setTabs(merged);
+      this.tabState.ensureDefaultTab();
+    }
+  }
+
+  /**
+   * Manda el espacio de trabajo al servidor, con un retardo mayor que el del guardado local.
+   *
+   * Local son 300 ms porque escribir en `localStorage` no cuesta nada; esto son 3 segundos porque
+   * cada envío es una petición, y abrir cinco pestañas seguidas no debería producir cinco.
+   */
+  private scheduleRemoteSave(payload: PersistedWorkspace): void {
+    if (this.remoteTimer) clearTimeout(this.remoteTimer);
+    this.remoteTimer = setTimeout(() => void this.pushRemote(payload), 3000);
+  }
+
+  private async pushRemote(payload: PersistedWorkspace): Promise<void> {
+    const result = await this.remote.push(SCHEMA_VERSION, payload);
+    if (!result || 'saved' in result) return;
+
+    // Otro equipo escribió entremedias. Se une lo suyo con lo que hay en pantalla y se vuelve a
+    // intentar UNA vez: si vuelve a chocar, el siguiente cambio lo reintentará con la revisión ya
+    // actualizada, y reintentar en bucle aquí sería pelearse con el otro equipo.
+    const theirs = result.conflict.payload as Partial<PersistedWorkspace> | null;
+    if (!theirs || theirs.schemaVersion !== SCHEMA_VERSION || !Array.isArray(theirs.tabs)) return;
+
+    const merged = mergeWorkspaces(
+      this.tabState.tabs(),
+      theirs.tabs.map((t) => this.deserialize(t)),
+    );
+    this.tabState.setTabs(merged);
+    await this.remote.push(SCHEMA_VERSION, {
+      schemaVersion: SCHEMA_VERSION,
+      activeTabId: this.tabState.activeTabId(),
+      tabs: merged.map((t) => this.serialize(t)),
+    });
+  }
+
+  /** La clave del espacio de trabajo de la empresa activa. */
+  private storageKey(): string {
+    return `${STORAGE_PREFIX}:${this.tenancy.slug() ?? 'sin-empresa'}`;
+  }
+
+  /** La clave de la disposición de ventanas de la empresa activa. */
+  private layoutKey(): string {
+    return `${LAYOUT_PREFIX}:${this.tenancy.slug() ?? 'sin-empresa'}`;
+  }
+
 }

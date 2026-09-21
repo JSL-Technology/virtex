@@ -48,10 +48,10 @@ export class DatasheetBook {
   ownerId: string;
 
   @ManyToOne(() => Organization)
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @Column()
+  @Column({ name: 'organization_id' })
   organizationId: string;
 
   @OneToMany(() => DatasheetSheet, (sheet) => sheet.book, { cascade: true })

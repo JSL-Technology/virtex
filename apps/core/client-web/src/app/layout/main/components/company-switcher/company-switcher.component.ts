@@ -5,9 +5,8 @@ import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, S
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { AuthService } from '../../../../core/services/auth';
 import { Organization } from '../../../../shared/interfaces/user.interface';
-import { TabStateService } from '../../../../core/tabs/tab-state.service';
-import { TabPersistenceService } from '../../../../core/tabs/tab-persistence.service';
-import { OrganizationService } from '../../../../shared/service/organization.service';
+import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-company-switcher',
@@ -18,16 +17,18 @@ import { OrganizationService } from '../../../../shared/service/organization.ser
 })
 export class CompanySwitcherComponent {
   private authService = inject(AuthService);
-  private tabState = inject(TabStateService);
-  private tabPersistence = inject(TabPersistenceService);
-  private organizationService = inject(OrganizationService);
+  private tenancy = inject(ActiveOrganizationService);
+  private router = inject(Router);
 
   isOpen = signal(false);
   searchQuery = signal('');
   switching = signal(false);
+  /** La CLAVE del aviso, no su texto: quien lo escribe no decide en qué idioma se lee. */
   switchError = signal<string | null>(null);
 
-  currentOrg = computed(() => this.authService.currentUser()?.organization ?? null);
+  //  De la URL, no del token: es la empresa de ESTA ventana. Con dos ventanas en dos empresas,
+  //  el token dice una sola cosa y cada ventana tiene que mostrar la suya.
+  currentOrg = computed(() => this.tenancy.organization());
 
   /**
    * Tenants the user can actually switch into.
@@ -75,17 +76,26 @@ export class CompanySwitcherComponent {
   }
 
   /**
-   * Switch the active tenant.
+   * Cambia de empresa navegando.
    *
-   * This used to end at `// In a real app, this would call a service to switch organization.` —
-   * it cleared the workspace and did nothing else, so choosing a different company closed every
-   * open tab and left the user in exactly the tenant they started in. That is worse than not
-   * offering the control: the interface reported a change that never happened.
+   * Tuvo dos vidas anteriores, y las dos costaban algo. La primera terminaba en
+   * `// In a real app, this would call a service to switch organization.`: la interfaz decía que
+   * habías cambiado de empresa y no habías cambiado. La segunda llamaba a
+   * `POST /organizations/switch` para emitir tokens nuevos y recargaba la página entera, lo que
+   * cerraba todas las pestañas y tiraba el espacio de trabajo — cambiar de empresa costaba la
+   * sesión de trabajo completa.
    *
-   * The switch has to reach the server because the tenant is a claim in the access token; a
-   * client-side selection would leave the API enforcing the previous tenant. The workspace is
-   * cleared only AFTER the server confirms, and the page then reloads so every resolver re-runs
-   * against the new tenant rather than leaving the previous customer's data on screen.
+   * Con la empresa en la ruta, cambiarla es ir a la misma página en la otra empresa. No hay
+   * recarga, no hay tokens nuevos y no se pierde nada: el espacio de trabajo de cada empresa se
+   * guarda con su propia clave y sigue ahí al volver. Y los datos de una no quedan en pantalla
+   * junto a los de otra, porque la ventana navega y cada pantalla vuelve a pedir los suyos con la
+   * cabecera de la empresa nueva.
+   *
+   * El token sigue llevando una empresa, y sigue siendo la que se usa cuando una petición no
+   * nombra ninguna. No se reemite aquí a propósito: el token lo comparten todas las pestañas, así
+   * que reemitirlo por un cambio local volvería a convertir una decisión de ESTA ventana en una
+   * decisión de todas, que es exactamente lo que este diseño elimina. Dónde aterriza la próxima
+   * sesión lo recuerda `ActiveOrganizationService`, por navegador.
    */
   selectOrganization(org: Organization) {
     const current = this.currentOrg();
@@ -97,31 +107,31 @@ export class CompanySwitcherComponent {
     this.switching.set(true);
     this.switchError.set(null);
 
-    this.organizationService.switchOrganization(org.id).subscribe({
-      next: () => {
-        // §10: the data belongs to another tenant now — close every tab and drop the persisted
-        // workspace before reloading.
-        this.tabPersistence.clearState();
-        this.tabState.reset();
-        this.reloadApplication();
-      },
-      error: () => {
+    // Navegar, no recargar. Antes esto llamaba a `POST /organizations/switch` para emitir tokens
+    // nuevos y recargaba la página entera, lo que cerraba todas las pestañas y tiraba el espacio
+    // de trabajo: cambiar de empresa costaba la sesión de trabajo completa. Con la empresa en la
+    // ruta, cambiarla es ir a la misma página en la otra empresa; el espacio de trabajo de cada
+    // una se guarda con su propia clave y sigue ahí al volver.
+    //
+    // Tampoco hace falta cerrar pestañas: las de la otra empresa no se pierden, se quedan donde
+    // estaban. Y no hay datos de un inquilino en pantalla junto a los de otro, porque la ventana
+    // navega a la nueva empresa y cada pantalla vuelve a pedir sus datos con la cabecera nueva.
+    void this.router
+      .navigateByUrl(this.tenancy.urlInOrganization(org.slug))
+      .then((ok) => {
         this.switching.set(false);
-        this.switchError.set('No se pudo cambiar de empresa.');
-      },
-    });
-  }
-
-  /**
-   * Reload the application after a tenant switch.
-   *
-   * A full reload rather than a router navigation: the tenant changes the answer to every resolver
-   * and every cached signal in the app, and re-running them piecemeal is how one customer's data
-   * ends up rendered beside another's. Isolated as a method so tests can observe it — `location`
-   * is not redefinable in jsdom.
-   */
-  protected reloadApplication(): void {
-    window.location.reload();
+        if (ok) {
+          this.tenancy.remember(org.slug);
+          this.closeDropdown();
+        } else {
+          // Un guard rechazó la navegación: la razón la da él, no este menú.
+          this.switchError.set('main.company_switcher.switch_failed');
+        }
+      })
+      .catch(() => {
+        this.switching.set(false);
+        this.switchError.set('main.company_switcher.switch_failed');
+      });
   }
 
   onSearch(event: Event) {

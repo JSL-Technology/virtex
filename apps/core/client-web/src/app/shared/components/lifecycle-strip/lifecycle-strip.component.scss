@@ -1,0 +1,99 @@
+/**
+ * La tira de etapas.
+ *
+ * El estado actual se distingue por TRES cosas a la vez —color, peso y un punto relleno— y no solo
+ * por color: una de cada doce personas que compran no distingue el verde del gris, y «dónde está
+ * mi orden» no puede depender de eso.
+ */
+:host {
+  display: block;
+  /* Separada de la insignia: son dos lecturas distintas —dónde está y por dónde va— y
+     pegadas se leen como una sola línea de ruido. */
+  margin-top: var(--space-2);
+}
+
+.ls {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ls__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-3);
+  color: var(--content-tertiary);
+  font-size: var(--text-sm);
+
+  /* La línea que une una etapa con la siguiente. La última no la lleva. */
+  &:not(:last-child)::after {
+    content: '';
+    width: var(--space-4);
+    height: 1px;
+    margin-left: var(--space-1);
+    background: var(--border-default);
+  }
+
+  &--done {
+    color: var(--content-secondary);
+
+    .ls__dot {
+      background: var(--content-secondary);
+      border-color: var(--content-secondary);
+    }
+  }
+
+  &--current {
+    color: var(--accent-text);
+    font-weight: 600;
+
+    .ls__dot {
+      background: var(--accent-text);
+      border-color: var(--accent-text);
+      /* Un anillo, para que el punto actual se vea también sin color. */
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-text) 22%, transparent);
+    }
+  }
+
+  /* Anulada o rechazada: el final, y no un final bueno. */
+  &--exceptional {
+    color: var(--error-text);
+
+    .ls__dot {
+      background: var(--error-text);
+      border-color: var(--error-text);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-text) 22%, transparent);
+    }
+  }
+}
+
+.ls__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+}
+
+.ls__label {
+  white-space: nowrap;
+}
+
+/* En un móvil la tira se apila: seis etapas en fila no caben y partirlas a mitad de palabra se
+   lee peor que una columna. */
+@media (max-width: 640px) {
+  .ls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ls__stage:not(:last-child)::after {
+    display: none;
+  }
+}

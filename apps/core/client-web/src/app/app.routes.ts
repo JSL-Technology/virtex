@@ -9,7 +9,8 @@ import { languageInitGuard } from './core/guards/language-init.guard';
 import { languageRedirectGuard } from './core/guards/language-redirect.guard';
 import { CountryGuard } from './core/guards/country.guard';
 import { isLanguageCode } from '@virteex/shared/types';
-import { buildModuleRoutes } from './core/modules/module-registry';
+import { buildModuleRoutes, resolveRoute } from './core/modules/module-registry';
+import { organizationRouteGuard } from './core/tenancy/organization-route.guard';
 
 // Only match 2-letter country codes so route segments like 'login' or 'auth' never bleed into :country
 export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
@@ -31,6 +32,26 @@ export function langCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
     return { consumed: [segments[0]], posParams: { lang: segments[0] } };
   }
   return null;
+}
+
+/**
+ * Rutas autenticadas escritas sin el prefijo de empresa.
+ *
+ * El backend envía por correo enlaces como `/dashboard` o `/settings/billing`, y hay marcadores
+ * y enlaces compartidos de antes de que la empresa estuviera en la URL. Esta rama los reenvía a
+ * la misma página dentro de la empresa del usuario.
+ *
+ * Solo acepta lo que el manifiesto DECLARA —más `/settings/*`, que se reabre en la modal—, y por
+ * eso es un matcher y no un `path: ''`: un comodín en la raíz se tragaría también
+ * `/auth/reset-password`, que es una de las cinco formas rotas que `app.routes.links.spec.ts`
+ * existe para mantener rotas. Un enlace de restablecimiento que aterriza en una página real
+ * habiendo perdido su token por el camino es peor que uno que falla.
+ */
+export function unprefixedAuthenticatedMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length === 0) return null;
+  const path = `/${segments.map((s) => s.path).join('/')}`;
+  if (segments[0].path === 'settings') return { consumed: [] };
+  return resolveRoute(path) ? { consumed: [] } : null;
 }
 
 export const APP_ROUTES: Routes = [
@@ -195,10 +216,20 @@ export const APP_ROUTES: Routes = [
     title: 'unauthorized.title',
   },
 
+  //  La empresa va en la ruta: `/e/{empresa}/accounting/journal-entries`.
+  //
+  //  Vivía solo en el token, y cambiarla emitía tokens nuevos. Como el token lo comparten todas
+  //  las pestañas del navegador, cambiar de empresa en una cambiaba en silencio la empresa en la
+  //  que escribían las demás: una pestaña mostrando los libros de A y posteando en los de B. En un
+  //  ERP eso no es una molestia de interfaz, es un asiento en el libro equivocado.
+  //
+  //  El manifiesto NO conoce este prefijo: sigue declarando `/accounting/journal-entries`, porque
+  //  la empresa no es parte de la identidad de la página. Lo añade `ActiveOrganizationService`,
+  //  que es el único sitio del cliente que sabe construir una URL.
   {
-    path: '',
+    path: 'e/:org',
     component: MainLayout,
-    canActivate: [authGuard],
+    canActivate: [authGuard, organizationRouteGuard],
     children: [
       ...buildModuleRoutes().map((route) => ({
         ...route,
@@ -222,6 +253,20 @@ export const APP_ROUTES: Routes = [
           ),
       }
     ]
+  },
+
+  //  Rutas autenticadas SIN prefijo de empresa: marcadores de antes de este cambio, enlaces
+  //  compartidos, y el `/overview` al que redirigen varios sitios. `organizationRouteGuard` las
+  //  reenvía a la misma página dentro de la empresa del principal, de modo que nada de lo que la
+  //  gente tenga guardado se rompe. Va DESPUÉS de `e/:org` para no capturarlo.
+  {
+    matcher: unprefixedAuthenticatedMatcher,
+    canActivate: [authGuard, organizationRouteGuard],
+    //  `organizationRedirect` declara la intención: esto redirige, no se traga. La prueba de
+    //  enlaces distingue las dos cosas, y además le pregunta al matcher si de verdad aceptaría
+    //  la URL, en vez de creerse la marca.
+    data: { organizationRedirect: true },
+    children: [{ path: '**', component: RouteRedirectorComponent }],
   },
 
   // 5. Fallback

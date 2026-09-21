@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { TenantBookkeepingProvisioner } from '../provisioning/tenant-bookkeeping.provisioner';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { findCountryProfile } from '../../localization/fiscal/country-profiles';
@@ -45,17 +46,29 @@ export class OrganizationProvisioningHandler {
   @OnEvent('organization.created')
   async onOrganizationCreated(event: OrganizationCreatedEvent): Promise<void> {
     try {
-      await this.dataSource.transaction(async (manager) => {
-        const org = await manager.findOneBy(Organization, { id: event.organizationId });
-        if (!org) return;
-        const profile = findCountryProfile(event.country);
-        const baseCurrency = profile?.currency ?? 'USD';
-        await this.bookkeeping.provision(org, baseCurrency, manager);
+      // Con contexto de la empresa RECIÉN creada. Este manejador corre después del commit, fuera
+      // de la petición y fuera de toda transacción, así que no hay inquilino que heredar: bajo las
+      // políticas de aislamiento, escribir el catálogo de cuentas aquí se rechazaba entero. Y el
+      // `catch` de abajo lo habría convertido en una línea de registro y un inquilino sin libros,
+      // que es exactamente el fallo que `verify:provisioning` existe para impedir.
+      await runAsTenantJob(this.dataSource, event.organizationId, async () => {
+        await this.dataSource.transaction(async (manager) => {
+          const org = await manager.findOneBy(Organization, { id: event.organizationId });
+          if (!org) return;
+          const profile = findCountryProfile(event.country);
+          const baseCurrency = profile?.currency ?? 'USD';
+          await this.bookkeeping.provision(org, baseCurrency, manager);
+        });
       });
       this.logger.log(`Contabilidad provisionada para la organización ${event.organizationId}.`);
     } catch (error) {
+      // Se registra y no se relanza porque el commit ya ocurrió: la empresa existe, y tumbar
+      // este manejador no la desharía. Pero un inquilino sin catálogo de cuentas no puede llevar
+      // libros, así que el mensaje nombra el remedio en vez de dejar un error suelto.
       this.logger.error(
-        `Error al provisionar contabilidad para ${event.organizationId}: ${(error as Error).message}`,
+        `Error al provisionar contabilidad para ${event.organizationId}: ` +
+          `${(error as Error).message}. La empresa existe SIN catálogo de cuentas y no puede ` +
+          'registrar asientos; hay que reprovisionarla desde Configuración.',
         (error as Error).stack,
       );
     }

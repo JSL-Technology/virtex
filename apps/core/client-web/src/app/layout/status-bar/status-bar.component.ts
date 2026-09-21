@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Building2, CalendarCheck, CalendarX, Coins, Wifi, WifiOff } from 'lucide-angular';
+import { LucideAngularModule, Building2, CalendarCheck, CalendarX, Coins, Wifi, WifiOff, LoaderCircle, TriangleAlert } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { StatusBarService } from './status-bar.service';
+import { JobsPanelService } from '../../core/jobs/jobs-panel.service';
 
 /**
  * The state of the world, always visible.
@@ -30,6 +31,21 @@ import { StatusBarService } from './status-bar.service';
 export class StatusBarComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly status = inject(StatusBarService);
+
+  private readonly jobsPanel = inject(JobsPanelService);
+
+  protected readonly JobsIcon = LoaderCircle;
+  protected readonly JobFailedIcon = TriangleAlert;
+
+  /**
+   * Cuántos trabajos siguen en marcha y cuántos fallaron.
+   *
+   * En la barra de estado y no en una pantalla propia porque la pregunta que responden —«¿terminó
+   * lo que lancé?»— se hace mientras se está haciendo otra cosa. Obligar a abrir una página para
+   * saberlo es garantizar que nadie lo mire.
+   */
+  protected readonly jobsRunning = computed(() => this.jobsPanel.running().length);
+  protected readonly jobsFailed = computed(() => this.jobsPanel.failed().length);
 
   protected readonly CompanyIcon = Building2;
   protected readonly OpenIcon = CalendarCheck;
@@ -68,5 +84,8 @@ export class StatusBarComponent implements OnInit {
 
   ngOnInit(): void {
     this.status.refresh();
+    // Se pregunta una vez al abrir; a partir de ahí el servicio vuelve a preguntar solo mientras
+    // quede algo en marcha, y se calla cuando la cola se vacía.
+    void this.jobsPanel.refresh();
   }
 }

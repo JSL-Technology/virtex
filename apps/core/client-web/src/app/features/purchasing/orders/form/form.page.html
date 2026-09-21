@@ -26,7 +26,16 @@
           <span class="doc-status__reason">{{ current()!.cancellationReason }}</span>
         }
       </div>
+      <!--
+        El recorrido completo, no solo dónde está. La insignia dice «Enviada»; esto dice
+        que antes hubo una aprobación y que lo siguiente es recibir. Las etapas las
+        declara el servidor: es la misma tabla con la que rechaza una transición. Va
+        dentro de `@if (current())` porque un documento que todavía no se ha guardado no
+        está en ninguna etapa, y dibujarle el recorrido diría que sí.
+      -->
+      <vx-lifecycle-strip documentType="purchase-order" [status]="status()" />
     }
+
 
     <section class="form-section">
       <div class="form-grid">

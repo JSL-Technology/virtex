@@ -54,12 +54,21 @@ export class VendorBillInventoryHandler {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Devuelve la promesa además de atrapar el error.
+   *
+   * `{ async: false }` significa que el emisor no la espera, así que en producción no cambia
+   * nada: el efecto sigue siendo posterior al commit y su fallo sigue siendo una línea de
+   * registro, porque a estas alturas no hay transacción que deshacer. Lo que cambia es que ahora
+   * se PUEDE esperar, y eso es lo que permite probar de punta a punta que aprobar una compra
+   * recibe la mercancía. Sin la promesa, la única forma de comprobarlo era sondear un reloj.
+   */
   @OnEvent('vendor.bill.posted', { async: false })
-  onBillPosted(payload: VendorBillPostedEvent): void {
+  onBillPosted(payload: VendorBillPostedEvent): Promise<void> {
     const productLines = payload.lines.filter((line) => line.productId);
-    if (productLines.length === 0) return;
+    if (productLines.length === 0) return Promise.resolve();
 
-    this.dataSource
+    return this.dataSource
       .transaction(async (manager) => {
         for (const line of productLines) {
           await this.inventory.increaseStock(
@@ -78,13 +87,14 @@ export class VendorBillInventoryHandler {
       });
   }
 
+  /** Igual que `onBillPosted`: la promesa se devuelve para poder esperarla en una prueba. */
   @OnEvent('vendor.bill.voided', { async: false })
-  onBillVoided(payload: VendorBillVoidedEvent): void {
-    if (!payload.wasPosted) return;
+  onBillVoided(payload: VendorBillVoidedEvent): Promise<void> {
+    if (!payload.wasPosted) return Promise.resolve();
     const productLines = payload.lines.filter((line) => line.productId);
-    if (productLines.length === 0) return;
+    if (productLines.length === 0) return Promise.resolve();
 
-    this.dataSource
+    return this.dataSource
       .transaction(async (manager) => {
         for (const line of productLines) {
           await this.inventory.decreaseStock(

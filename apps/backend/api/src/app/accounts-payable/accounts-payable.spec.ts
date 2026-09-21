@@ -1,4 +1,7 @@
 import { DataSource } from 'typeorm';
+import { VendorBillInventoryHandler } from '../inventory/handlers/vendor-bill-inventory.handler';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { AfterCommitService } from '../shared/after-commit/after-commit.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -73,6 +76,12 @@ describeWithDb('accounts payable', () => {
   /** A persona física supplier, used by the tests that are about withholding. */
   let individualVendorId: string;
   let inventory: { increaseStock: jest.Mock; decreaseStock: jest.Mock };
+  let eventBus: EventEmitter2;
+  const efectosDeInventario: Array<Promise<unknown>> = [];
+  /** Espera a que los efectos de inventario en vuelo terminen. */
+  const inventarioAlDia = async (): Promise<void> => {
+    await Promise.all(efectosDeInventario.splice(0));
+  };
   const account: Record<string, string> = {};
   let bankAccountId: string;
 
@@ -101,6 +110,40 @@ describeWithDb('accounts payable', () => {
       increaseStock: jest.fn().mockResolvedValue(undefined),
       decreaseStock: jest.fn().mockResolvedValue(undefined),
     };
+
+    //  El emisor es COMPARTIDO, y el manejador de inventario es el de verdad.
+    //
+    //  Cuentas por pagar dejó de llamar al inventario directamente: publica `vendor.bill.posted` y
+    //  `vendor.bill.voided` después del commit, y `VendorBillInventoryHandler` mueve el stock
+    //  (B-14, para romper la dependencia entre los dos módulos). El spec seguía comprobando la
+    //  llamada directa, así que afirmaba un diseño que ya no existe.
+    //
+    //  Registrar el manejador real, y no cambiar la afirmación por «se emitió el evento», mantiene
+    //  lo que esta prueba protege: aprobar una compra RECIBE la mercancía y anularla la devuelve.
+    //  Comprobar que se emitió un evento no habría cazado el defecto que este bloque documenta
+    //  —una anulación que AUMENTABA el stock— porque el evento se emitía igual.
+    eventBus = new EventEmitter2();
+
+    //  `onModuleInit()` a mano. `AfterCommitService` se registra ahí como suscriptor de TypeORM
+    //  —a propósito, para poder ser un inyectable normal— y construido con `new` nunca lo hace:
+    //  los efectos post-commit se encolan y no se ejecutan jamás. Con el servicio sin registrar,
+    //  `vendor.bill.posted` no llegaba a emitirse y la mercancía no se recibía, sin que nada
+    //  fallara: el silencio es exactamente la forma del defecto que esta prueba vigila.
+    const afterCommit = new AfterCommitService(dataSource);
+    afterCommit.onModuleInit();
+    const inventoryHandler = new VendorBillInventoryHandler(
+      inventory as never,
+      dataSource,
+    );
+    //  Se guarda la promesa de cada efecto para poder esperarla. El manejador es síncrono desde
+    //  fuera —el emisor no lo espera, y no debe: a estas alturas ya se hizo commit— así que sin
+    //  esto la afirmación corría antes de que la mercancía se hubiera movido.
+    eventBus.on('vendor.bill.posted', (payload) => {
+      efectosDeInventario.push(inventoryHandler.onBillPosted(payload as never));
+    });
+    eventBus.on('vendor.bill.voided', (payload) => {
+      efectosDeInventario.push(inventoryHandler.onBillVoided(payload as never));
+    });
     balances = new AccountBalancesService(dataSource);
     const entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
@@ -117,11 +160,17 @@ describeWithDb('accounts payable', () => {
 
     payables = new AccountsPayableService(
       dataSource.getRepository(VendorBill),
-      dataSource.getRepository(OrganizationSettings),
+      // El servicio, no el repositorio: la lectura de los ajustes del inquilino tiene dueño desde
+      // la separación modular, y pasarle el repositorio ya no compila.
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
       entries,
-      inventory as never,
       dataSource,
-      new EventEmitter2(),
+      eventBus,
+      // El inventario salió de la firma —`AccountsPayable` dejó de llamarlo y pasó a publicar un
+      // evento post-commit (B-14)— y en su lugar entró `AfterCommitService`, que es quien espera
+      // al commit antes de publicarlo. El spec seguía pasando el doble de inventario en la
+      // posición del DataSource.
+      afterCommit,
       { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
       { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
       testExchangeRateResolver(dataSource),
@@ -777,6 +826,7 @@ describeWithDb('accounts payable', () => {
       inventory.decreaseStock.mockClear();
 
       const bill = await openBill({ withProduct: true });
+      await inventarioAlDia();
       // Approving a purchase receives the goods. Nothing did this: the ledger debited inventory
       // and the subledger never moved.
       expect(inventory.increaseStock).toHaveBeenCalledWith(
@@ -787,6 +837,7 @@ describeWithDb('accounts payable', () => {
       );
 
       await payables.voidBill(bill.id, organizationId, { reason: 'Devuelta al proveedor' }, ACTOR);
+      await inventarioAlDia();
 
       // And annulling returns them. It used to *increase* stock here, so every annulment added
       // goods that had never arrived.

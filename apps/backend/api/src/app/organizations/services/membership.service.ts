@@ -1,14 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UserOrganization } from '../entities/user-organization.entity';
 import { Organization } from '../entities/organization.entity';
 import { UserCacheService } from '../../auth/modules/user-cache.service';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /** One tenant a person can act in, as the UI and the token both need it. */
 export interface MembershipSummary {
   id: string;
   legalName: string;
+  /** El identificador de la empresa en la URL; el cliente construye los enlaces con él. */
+  slug: string;
   isActive: boolean;
 }
 
@@ -34,6 +37,7 @@ export class MembershipService {
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     private readonly userCacheService: UserCacheService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -89,9 +93,9 @@ export class MembershipService {
       .createQueryBuilder('o')
       .innerJoin(UserOrganization, 'uo', 'uo.organization_id = o.id')
       .where('uo.user_id = :userId', { userId })
-      .select(['o.id AS id', 'o.legal_name AS "legalName"'])
+      .select(['o.id AS id', 'o.legal_name AS "legalName"', 'o.slug AS slug'])
       .orderBy('o.legal_name', 'ASC')
-      .getRawMany<{ id: string; legalName: string }>();
+      .getRawMany<{ id: string; legalName: string; slug: string }>();
 
     if (activeOrganizationId && !rows.some((row) => row.id === activeOrganizationId)) {
       const active = await this.organizationRepository.findOneBy({ id: activeOrganizationId });
@@ -100,8 +104,17 @@ export class MembershipService {
           { event: 'membership_row_missing', userId, organizationId: activeOrganizationId },
           'Active organization has no user_organizations row; including it and self-healing.',
         );
-        await this.grant(userId, activeOrganizationId);
-        rows.push({ id: active.id, legalName: active.legalName });
+        // Con el contexto de la empresa a la que pertenece la fila.
+        //
+        // `user_organizations` tiene política de aislamiento, y este remiendo se ejecuta durante
+        // el INICIO DE SESIÓN, que por definición no tiene inquilino todavía: la autenticación
+        // ocurre antes de que haya una empresa a la que pertenecer. Sin contexto, `WITH CHECK`
+        // rechaza el INSERT y —como esto está en el camino del login— tumbaba el login entero con
+        // un 500. La fila es de esta empresa, así que se escribe como ella.
+        await runAsTenantJob(this.dataSource, activeOrganizationId, () =>
+          this.grant(userId, activeOrganizationId),
+        );
+        rows.push({ id: active.id, legalName: active.legalName, slug: active.slug });
       }
     }
 

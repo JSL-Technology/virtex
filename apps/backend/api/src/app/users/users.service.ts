@@ -931,6 +931,12 @@ export class UsersService extends UserProfilePort {
     user.organization = user.organizationId
       ? ((await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined)
       : undefined;
+    // Las empresas en las que puede actuar, igual que en `findUserByIdForAuth`. Este camino —el
+    // de iniciar sesión por correo— no las traía, así que la respuesta del login llegaba con
+    // `organizations: []` y el selector de empresa aparecía con una sola opción hasta la primera
+    // recarga. Con la empresa en la URL importa más: es la lista con la que se construyen los
+    // enlaces a las demás.
+    user.organizations = await this.findAccessibleOrganizations(user.id, user.organization);
     return user;
   }
 
@@ -964,9 +970,9 @@ export class UsersService extends UserProfilePort {
   private async findAccessibleOrganizations(
     userId: string,
     activeOrg?: Organization,
-  ): Promise<Array<{ id: string; legalName: string }>> {
+  ): Promise<Array<{ id: string; legalName: string; slug: string }>> {
     const memberships = await this.membershipService.listFor(userId, activeOrg?.id ?? null);
-    return memberships.map(({ id, legalName }) => ({ id, legalName }));
+    return memberships.map(({ id, legalName, slug }) => ({ id, legalName, slug }));
   }
 
   async save(user: User): Promise<User> {

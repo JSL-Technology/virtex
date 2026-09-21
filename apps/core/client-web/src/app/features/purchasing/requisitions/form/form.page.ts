@@ -19,6 +19,7 @@ import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
+import { VxLifecycleStripComponent } from '../../../../shared/components/lifecycle-strip';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -45,7 +46,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, ...VX_SELECT, VxBadgeComponent, VxAmountComponent, VxDateFieldComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxBadgeComponent, VxLifecycleStripComponent, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

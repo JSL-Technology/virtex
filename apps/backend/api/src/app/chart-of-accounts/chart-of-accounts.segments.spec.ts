@@ -7,6 +7,7 @@ import { AccountHistory } from './entities/account-history.entity';
 import { DataSource } from 'typeorm';
 import { getQueueToken } from '@nestjs/bullmq';
 import { AuditTrailService } from '../audit/audit.service';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { BadRequestException } from '@nestjs/common';
 import { expectLocalizedError } from '../i18n/testing/expect-localized-error';
@@ -37,6 +38,10 @@ describe('ChartOfAccountsService - Segment Mismatch', () => {
         { provide: getRepositoryToken(AccountHistory), useValue: {} },
         { provide: DataSource, useValue: { manager } },
         { provide: AuditTrailService, useValue: {} },
+        // `JournalQueryService` entró en la firma cuando se creó la superficie de lectura de
+        // asientos (B-03/B-04). Un doble vacío basta: esta prueba es sobre la validación de
+        // segmentos y no llega a consultar asientos.
+        { provide: JournalQueryService, useValue: {} },
         { provide: getQueueToken('account-jobs'), useValue: {} },
       ],
     }).compile();

@@ -37,6 +37,7 @@ import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
 import { SessionRegistryService } from './services/session-registry.service';
 import { UserIdentityService } from './services/user-identity.service';
+import { PrincipalResolverPort } from '../shared/tenancy/ports/active-tenant.ports';
 import { OauthStateService } from './services/oauth-state.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
@@ -195,6 +196,9 @@ import { KeyManagementModule } from './services/key-management.module';
     // C-2 / A-3: session revocation registry and the single identity-resolution service.
     SessionRegistryService,
     UserIdentityService,
+    // El guard de empresa activa vive en plataforma y no puede importar este servicio por
+    // dentro; `useExisting` le da LA misma instancia a través del puerto.
+    { provide: PrincipalResolverPort, useExisting: UserIdentityService },
     GoogleRecaptchaGuard,
     OauthStateService,
     OidcProviderService,
@@ -242,6 +246,7 @@ import { KeyManagementModule } from './services/key-management.module';
     SessionService,
     SessionRegistryService,
     UserIdentityService,
+    PrincipalResolverPort,
     TokenService,
     CsrfGuard,
     StepUpGuard,

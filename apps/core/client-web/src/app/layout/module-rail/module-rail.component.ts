@@ -4,10 +4,18 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Lock } from 'lucide-angular';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
 import { moduleIcon } from '../../core/modules/module-icons';
+import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
 
 /** One strip entry: what the shell already computed, plus the drawing. */
 interface RailItem extends ReachableModule {
   readonly icon: unknown;
+  /**
+   * Cuántas cosas esperan en este módulo.
+   *
+   * Es el número que permite saber dónde hay trabajo sin entrar a mirar, que es exactamente lo
+   * que un riel de diez módulos no podía decir: había que abrirlos uno a uno.
+   */
+  readonly pending: number;
 }
 
 /**
@@ -44,11 +52,18 @@ interface RailItem extends ReachableModule {
 export class ModuleRailComponent {
   private readonly router = inject(Router);
   private readonly modules = inject(ActiveModuleService);
+  private readonly inbox = inject(ModuleInboxService);
 
   protected readonly LockIcon = Lock;
 
   protected readonly items = computed<RailItem[]>(() =>
-    this.modules.reachable().map((entry) => ({ ...entry, icon: moduleIcon(entry.module.icon) })),
+    this.modules.reachable().map((entry) => ({
+      ...entry,
+      icon: moduleIcon(entry.module.icon),
+      // Un módulo al que no se puede entrar no lleva número: decir que hay tres cosas pendientes
+      // detrás de un candado es enseñar el tamaño de algo que no se puede abrir.
+      pending: entry.allowed ? this.inbox.countFor(entry.module.id) : 0,
+    })),
   );
 
   protected readonly activeId = computed(() => this.modules.active()?.id ?? null);

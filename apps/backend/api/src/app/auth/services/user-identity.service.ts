@@ -106,27 +106,11 @@ export class UserIdentityService {
 
     this.assertAuthenticable(user);
 
-    const organization = await this.resolveOrganizationContext(user, organizationId);
-
-    // Both the tenant AND the rights are resolved for the organization the request acts in.
-    const activeOrganizationId = organization?.id ?? user.organizationId;
-
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      organizationId: activeOrganizationId as string,
-      roles: UserIdentityService.roleNamesFor(user, activeOrganizationId).map((name) => ({
-        name,
-      })) as never,
-      permissions: UserIdentityService.permissionsFor(user, activeOrganizationId),
-      organization,
-      isTwoFactorEnabled: user.isTwoFactorEnabled,
+    return this.buildPrincipal(user, organizationId, {
       isImpersonating: payload.isImpersonating,
       originalUserId: payload.originalUserId,
       sessionId,
-    };
+    });
   }
 
   /**
@@ -140,7 +124,57 @@ export class UserIdentityService {
     }
     this.assertAuthenticable(user);
 
-    const organization = await this.resolveOrganizationContext(user, current.organization?.id);
+    return this.buildPrincipal(user, current.organization?.id, {
+      isImpersonating: current.isImpersonating ?? false,
+      originalUserId: current.originalUserId,
+      sessionId: current.sessionId,
+    });
+  }
+
+  /**
+   * El mismo principal, resuelto para OTRA empresa del usuario.
+   *
+   * Lo usa `ActiveTenantGuard` cuando la petición nombra su empresa en la cabecera
+   * `x-virtex-organization`, que es lo que permite tener dos empresas abiertas a la vez sin que
+   * una pise a la otra. Pasa por `resolveOrganizationContext`, así que la pertenencia se comprueba
+   * igual que cuando la empresa venía en el token: un usuario que no pertenece recibe 401 desde
+   * ahí, y el guard lo traduce a 403 en su caso.
+   *
+   * Se resuelve el principal COMPLETO y no solo el `organizationId`: los roles y los permisos son
+   * por empresa, y copiar únicamente el identificador dejaría a alguien actuando en la empresa B
+   * con los permisos que tiene en la A.
+   */
+  async resolveForOrganization(
+    current: AuthenticatedUser,
+    organizationId: string,
+  ): Promise<AuthenticatedUser> {
+    const user = await this.loadUser(current.id);
+    if (!user) {
+      throw new UnauthorizedException(AuthError.USER_NOT_FOUND);
+    }
+    this.assertAuthenticable(user);
+
+    return this.buildPrincipal(user, organizationId, {
+      isImpersonating: current.isImpersonating ?? false,
+      originalUserId: current.originalUserId,
+      sessionId: current.sessionId,
+    });
+  }
+
+  /**
+   * El principal, en un solo sitio.
+   *
+   * Estaba escrito dos veces, palabra por palabra, en `resolveFromPayload` y en `resolveFresh`.
+   * Dos copias de la regla «el inquilino Y los derechos se resuelven para la empresa en la que
+   * actúa la petición» son dos sitios donde se puede olvidar la segunda mitad, que es justo la
+   * mitad que convierte un cambio de empresa en una escalada de privilegios.
+   */
+  private async buildPrincipal(
+    user: CachedUser,
+    requestedOrganizationId: string | undefined,
+    session: { isImpersonating?: boolean; originalUserId?: string; sessionId?: string },
+  ): Promise<AuthenticatedUser> {
+    const organization = await this.resolveOrganizationContext(user, requestedOrganizationId);
     const activeOrganizationId = organization?.id ?? user.organizationId;
 
     return {
@@ -155,9 +189,9 @@ export class UserIdentityService {
       permissions: UserIdentityService.permissionsFor(user, activeOrganizationId),
       organization,
       isTwoFactorEnabled: user.isTwoFactorEnabled,
-      isImpersonating: current.isImpersonating ?? false,
-      originalUserId: current.originalUserId,
-      sessionId: current.sessionId,
+      isImpersonating: session.isImpersonating,
+      originalUserId: session.originalUserId,
+      sessionId: session.sessionId,
     };
   }
 

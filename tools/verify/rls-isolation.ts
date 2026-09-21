@@ -45,7 +45,8 @@ async function main() {
   // nothing anybody can re-check.
   await owner.query(`DELETE FROM customers WHERE organization_id IN ($1, $2)`, [ORG_A, ORG_B]);
   await owner.query(`
-    INSERT INTO organizations (id, legal_name) VALUES ($1,'Empresa A'), ($2,'Empresa B')
+    INSERT INTO organizations (id, legal_name, slug)
+    VALUES ($1,'Empresa A','empresa-a-rls'), ($2,'Empresa B','empresa-b-rls')
     ON CONFLICT (id) DO NOTHING`, [ORG_A, ORG_B]);
 
   for (const [org, tag] of [[ORG_A, 'A'], [ORG_B, 'B']] as const) {
@@ -130,6 +131,38 @@ async function main() {
     ORDER BY 1`);
   check('ninguna tabla con empresa obligatoria queda sin política',
     unprotected.rows.map((r) => r.table_name), []);
+
+  // 6-bis. La comprobación de arriba solo puede ver las columnas que se llaman
+  // `organization_id`. Catorce tablas se llamaban `"organizationId"` —sus entidades no declaraban
+  // `name` y la estrategia por defecto de TypeORM la escribe así—, de modo que ni recibían
+  // política ni aparecían como descubiertas: eran invisibles para el único control que las
+  // buscaba. Se renombraron, y esto impide que el nombre vuelva a desviarse.
+  const camelCase = await owner.query(`
+    SELECT c.table_name
+    FROM information_schema.columns c
+    JOIN information_schema.tables t
+      ON t.table_name = c.table_name AND t.table_schema = 'public' AND t.table_type = 'BASE TABLE'
+    WHERE c.table_schema = 'public' AND c.column_name = 'organizationId'
+    ORDER BY 1`);
+  check('ninguna tabla nombra la empresa en camelCase',
+    camelCase.rows.map((r) => r.table_name), []);
+
+  // 6-ter. Las tablas con empresa OPCIONAL se excluyen a propósito —guardan filas que no son de
+  // ningún inquilino—, pero la exclusión tiene que verse. Enumerarlas convierte «no está
+  // protegida» en una decisión revisable en vez de un silencio.
+  const nullableTenant = await owner.query(`
+    SELECT c.table_name
+    FROM information_schema.columns c
+    JOIN information_schema.tables t
+      ON t.table_name = c.table_name AND t.table_schema = 'public' AND t.table_type = 'BASE TABLE'
+    WHERE c.table_schema = 'public'
+      AND c.column_name = 'organization_id'
+      AND c.is_nullable = 'YES'
+    ORDER BY 1`);
+  console.log(
+    `  · ${nullableTenant.rows.length} tabla(s) con empresa OPCIONAL, excluidas por diseño: ` +
+    `${nullableTenant.rows.map((r: { table_name: string }) => r.table_name).join(', ') || '(ninguna)'}`,
+  );
 
   await owner.query(`DELETE FROM customers WHERE organization_id IN ($1, $2)`, [ORG_A, ORG_B]);
 

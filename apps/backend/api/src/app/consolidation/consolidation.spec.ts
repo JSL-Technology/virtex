@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { OrganizationSubsidiary } from '../organizations/entities/organization-subsidiary.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
@@ -75,7 +76,15 @@ describeWithDb('group consolidation', () => {
 
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
     const balances = new AccountBalancesService(dataSource);
-    const reporting = new FinancialReportingService(dataSource, balances);
+    const reporting = new FinancialReportingService(
+      dataSource,
+      balances,
+      // El SERVICIO real, no un doble: los informes leen de él la moneda funcional del inquilino,
+      // y un doble devolvería la que la prueba quisiera en vez de la que el inquilino tiene.
+      // Este tercer argumento llegó con la separación modular de septiembre y el spec se quedó
+      // llamando con dos, así que dejó de compilar y no se ha ejecutado desde entonces.
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+    );
     const resolver = testExchangeRateResolver(dataSource);
 
     entries = new JournalEntriesService(

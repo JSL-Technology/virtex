@@ -198,6 +198,7 @@
   "main.company_switcher.current_company": "Current company",
   "main.company_switcher.manage_organizations": "Manage organizations",
   "main.company_switcher.no_companies_found": "No companies were found",
+  "main.company_switcher.switch_failed": "The company could not be switched.",
   "main.company_switcher.switching_company": "Switching company…",
   "main.no_results_found": "No results were found",
   "main.resolve_now": "Resolve Now",

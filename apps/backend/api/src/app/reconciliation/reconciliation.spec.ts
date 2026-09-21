@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -96,6 +97,10 @@ describeWithDb('bank reconciliation', () => {
       new CsvParserService(),
       entries,
       balances,
+      // La superficie de lectura de asientos (B-03/B-04): la conciliación dejó de consultar las
+      // tablas de asientos directamente. El spec se quedó con la firma anterior y dejó de
+      // compilar, así que la conciliación bancaria no se ha probado desde septiembre.
+      new JournalQueryService(dataSource),
       dataSource,
     );
   });

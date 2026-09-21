@@ -29,12 +29,12 @@ export class MeteringRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({
-    name: 'organizationId',
+    name: 'organization_id',
     foreignKeyConstraintName: 'FK_plugin_metering_organization',
   })
   organization: Organization;

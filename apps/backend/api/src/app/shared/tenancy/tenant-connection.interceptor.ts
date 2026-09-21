@@ -30,6 +30,13 @@ import { runInTenantContext } from './tenant-context';
  *
  * Requests without a tenant — signing in, the health probe, a Stripe webhook — pass straight
  * through. They must: authentication runs before there is an organization to bind to.
+ *
+ * ## Por qué el contexto envuelve la suscripción
+ *
+ * Ver el comentario en `switchMap`. En resumen: un interceptor de dentro que aplaza
+ * `next.handle()` tras una promesa ejecutaba el manejador fuera del contexto, y entonces el
+ * inquilino no viajaba. Envolver la suscripción cubre a cualquier interceptor que aplace, no
+ * solo al que lo hacía hoy.
  */
 @Injectable()
 export class TenantConnectionInterceptor implements NestInterceptor {
@@ -56,10 +63,30 @@ export class TenantConnectionInterceptor implements NestInterceptor {
           return queryRunner;
         }),
       ).pipe(
-        switchMap((runner) =>
-          runInTenantContext(
-            { organizationId, manager: this.dataSource.createEntityManager(runner) },
-            () => next.handle(),
+        switchMap((runner) => {
+          const store = {
+            organizationId,
+            manager: this.dataSource.createEntityManager(runner),
+          };
+
+          // El contexto se abre alrededor de la SUSCRIPCIÓN, no de la construcción.
+          //
+          // `runInTenantContext(store, () => next.handle())` parecía bastar y no bastaba.
+          // `next.handle()` devuelve un observable; quién ejecuta el manejador es quien se
+          // SUSCRIBE a él. Cuando todos los interceptores de dentro llaman a `next.handle()` en
+          // el acto, la suscripción cae dentro de la llamada y el almacén está puesto. Pero un
+          // interceptor que APLAZA —`from(promesa).pipe(switchMap(() => next.handle()))`, que es
+          // exactamente lo que hace el de idempotencia— llama al manejador en un microtask
+          // posterior, y ese microtask heredaba un contexto sin inquilino: la transacción del
+          // servicio cogía una conexión limpia del pool, sin `app.current_organization`, y las
+          // políticas no veían NADA. No era un error visible, era una tabla vacía.
+          //
+          // Rompía las 17 rutas con `@Idempotent()`, que son justo las que mueven dinero:
+          // contabilizar un asiento, aprobar y pagar una factura de proveedor, emitir una
+          // factura, registrar un cobro, crear una orden de compra, dar de baja un activo, el
+          // cierre anual y una transferencia de tesorería.
+          return new Observable<unknown>((subscriber) =>
+            runInTenantContext(store, () => next.handle().subscribe(subscriber)),
           ).pipe(
             finalize(() => {
               // RESET, not set_config to '': it returns the variable to unset, which is what the
@@ -70,8 +97,8 @@ export class TenantConnectionInterceptor implements NestInterceptor {
                 .catch(() => undefined)
                 .finally(() => void runner.release().catch(() => undefined));
             }),
-          ),
-        ),
+          );
+        }),
       );
     });
   }

@@ -187,6 +187,33 @@ jobs:
       # Until the row-level-security cutover makes the database enforce it, this static guard does.
       - run: npm run verify:tenant-scope
 
+      # Las políticas de aislamiento existían y NADIE comprobaba su cobertura. La migración que
+      # las instala deriva su lista de `information_schema`, pero la evalúa una sola vez: todo lo
+      # creado después queda fuera. Medido antes de añadir este paso: 86 políticas instaladas y
+      # 32 tablas de inquilino sin ninguna —18 porque su columna pasó a NOT NULL después del
+      # barrido, y 14 porque se llamaba `"organizationId"` y el propio verificador no podía verlas—.
+      #
+      # Que el verificador exista y no se ejecute es indistinguible de que no exista.
+      - name: tenant isolation policies cover every tenant table
+        run: npm run verify:rls
+
+      # Lo mismo a través de la aplicación y como el rol `virtex_app`, que es el que no posee las
+      # tablas y por tanto el único para el que las políticas rigen. Se niega a correr como dueño
+      # para no reportar un éxito que vendría del motivo equivocado.
+      - name: tenant isolation holds through the application
+        env:
+          # El rol lo crea la propia migración, sin contraseña. En CI la base acepta conexiones
+          # locales sin autenticar, así que basta con decirle a la aplicación con quién conectarse.
+          DB_USERNAME: virtex_app
+        run: npm run verify:rls-runtime
+
+      # Un despliegue de ACTUALIZACIÓN aplica migraciones sobre una base que ya tiene inquilinos.
+      # El `migration:run` de arriba lo hace sobre una base vacía, y eso dejó pasar cuatro defectos
+      # en el paso «provisionar inquilinos existentes» de la migración de Nómina: su bucle solo
+      # tiene cuerpo si `organizations` tiene filas, así que en CI daba cero vueltas.
+      - name: migrations apply to a database that already has a tenant
+        run: npm run verify:upgrade-path
+
       # Proves the frontera entre módulos no retrocede. La auditoría de septiembre de 2026 midió
       # 1.686 violaciones (imports prohibidos, ciclos, entidades ajenas registradas, transacciones
       # compartidas); el baseline las congela y este paso falla si alguna cuenta SUBE. Bajar es

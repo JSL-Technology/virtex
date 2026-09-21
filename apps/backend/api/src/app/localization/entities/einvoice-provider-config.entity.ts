@@ -5,7 +5,7 @@ export class EInvoiceProviderConfig {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'organization_id' })
   organizationId: string;
 
   @Column()

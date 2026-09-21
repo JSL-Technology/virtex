@@ -1,9 +1,10 @@
 import { DataSource } from 'typeorm';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Ledger } from './entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -87,7 +88,15 @@ describeWithDb('the accounting core', () => {
 
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
     balances = new AccountBalancesService(dataSource);
-    reporting = new FinancialReportingService(dataSource, balances);
+    reporting = new FinancialReportingService(
+      dataSource,
+      balances,
+      // El SERVICIO real, no un doble: los informes leen de él la moneda funcional del inquilino,
+      // y un doble devolvería la que la prueba quisiera en vez de la que el inquilino tiene.
+      // Este tercer argumento llegó con la separación modular de septiembre y el spec se quedó
+      // llamando con dos, así que dejó de compilar y no se ha ejecutado desde entonces.
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+    );
 
     // The collaborators that are not under test. The workflow stub returns null, which means "no
     // approval policy applies", so entries post directly — the path every subledger uses.

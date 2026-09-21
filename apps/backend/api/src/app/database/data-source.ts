@@ -38,8 +38,21 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env['DB_HOST'] || 'localhost',
   port: parseInt(process.env['DB_PORT'] || '5432', 10),
-  username: process.env['DB_USERNAME'] || 'postgres',
-  password: process.env['DB_PASSWORD'] || 'postgres',
+  //  Las migraciones corren como el DUEÑO del esquema; la aplicación NO debe hacerlo.
+  //
+  //  `ENABLE ROW LEVEL SECURITY` no se aplica al dueño de una tabla, así que una API conectada
+  //  como dueña ignora las 118 políticas de aislamiento. Pero crear tablas, índices y políticas
+  //  exige justamente ser el dueño. Son dos credenciales distintas para dos trabajos distintos, y
+  //  mezclarlas fuerza a elegir entre «no puedo migrar» y «el aislamiento no rige».
+  //
+  //  Por eso este data source —que solo lo usa el CLI de TypeORM— prefiere
+  //  `DB_MIGRATION_USERNAME`, y `DB_USERNAME` queda para la aplicación, que debería apuntar a
+  //  `virtex_app`. Si no se declara, se cae a `DB_USERNAME` para no romper ninguna instalación
+  //  existente.
+  username:
+    process.env['DB_MIGRATION_USERNAME'] || process.env['DB_USERNAME'] || 'postgres',
+  password:
+    process.env['DB_MIGRATION_PASSWORD'] || process.env['DB_PASSWORD'] || 'postgres',
   // Must match `env.validation.ts`'s development default. It said `virteex` while the API said
   // `erp`, so following the README exactly — create `erp`, then `npm run migration:run` — ran the
   // migrations against a database that does not exist, and the API then aborted on a schema that

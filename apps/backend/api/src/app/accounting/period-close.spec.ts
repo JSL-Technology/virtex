@@ -1,7 +1,10 @@
 import { DataSource } from 'typeorm';
+import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
+import { AssetPostingService } from '../fixed-assets/asset-posting.service';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Ledger } from './entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -32,7 +35,7 @@ import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-ent
 import { ClosingAutomationService } from './closing-automation.service';
 import { ResultTransferService } from './result-transfer.service';
 import { DepreciationService } from '../fixed-assets/depreciation.service';
-import { CurrencyRevaluationService } from '../batch-processes/currency-revaluation.service';
+import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
@@ -96,7 +99,15 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
 
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
     balances = new AccountBalancesService(dataSource);
-    reporting = new FinancialReportingService(dataSource, balances);
+    reporting = new FinancialReportingService(
+      dataSource,
+      balances,
+      // El SERVICIO real, no un doble: los informes leen de él la moneda funcional del inquilino,
+      // y un doble devolvería la que la prueba quisiera en vez de la que el inquilino tiene.
+      // Este tercer argumento llegó con la separación modular de septiembre y el spec se quedó
+      // llamando con dos, así que dejó de compilar y no se ha ejecutado desde entonces.
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+    );
 
     const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null) };
     const saas = { enforceLimit: jest.fn().mockResolvedValue(undefined) };
@@ -115,15 +126,31 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     );
 
     const schedulerLock = new SchedulerLockService(dataSource);
-    const depreciation = new DepreciationService(entries, schedulerLock, dataSource);
+    // Cinco argumentos, y el primero ya no es el servicio de asientos sino `AssetPostingService`,
+    // que es la envoltura que aplica el puerto de contabilización a los activos. Ese cambio llegó
+    // con `DepreciationPort` —el que rompió el ciclo Accounting↔FixedAssets— y dejó este spec sin
+    // compilar.
+    const depreciation = new DepreciationService(
+      new AssetPostingService(entries),
+      schedulerLock,
+      dataSource,
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+      new JournalLookupService(dataSource.getRepository(Journal)),
+    );
     // The real resolver, on the real data source. Stubbing it would put back exactly the kind of
     // gap that let the close crash in production while this suite's ancestor passed.
     const rateResolver = testExchangeRateResolver(dataSource);
+    // Seis argumentos desde la separación modular de septiembre: la revaluación lee la moneda
+    // funcional del inquilino y resuelve su diario por código en vez de recibirlos hechos. El spec
+    // se quedó con cuatro y dejó de compilar, así que el cierre de periodo —el proceso que este
+    // archivo existe para proteger— no se ha ejecutado desde entonces.
     const revaluation = new CurrencyRevaluationService(
       entries,
       balances,
       rateResolver,
       dataSource,
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+      new JournalLookupService(dataSource.getRepository(Journal)),
     );
 
     closing = new PeriodClosingService(
@@ -317,9 +344,11 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
 
   it('does not charge the same month twice when the close runs after the scheduler', async () => {
     const depreciation = new DepreciationService(
-      entries,
+      new AssetPostingService(entries),
       new SchedulerLockService(dataSource),
       dataSource,
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+      new JournalLookupService(dataSource.getRepository(Journal)),
     );
     await addAsset();
     await post('2026-01-10', 'Venta', [

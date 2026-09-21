@@ -14,6 +14,17 @@ export class Organization {
   @Column({ name: 'legal_name' })
   legalName: string;
 
+  /**
+   * El identificador de la empresa en la URL: `/e/nortex-comercial/...`.
+   *
+   * Único en todo el producto, porque un slug ambiguo no es un slug. Lo deriva
+   * `OrganizationSlugService` del nombre comercial —o del legal si no hay— y resuelve los choques
+   * con un sufijo numérico, que se puede dictar por teléfono; el uuid no.
+   */
+  @Index('UQ_organizations_slug', { unique: true })
+  @Column({ type: 'varchar', length: 80 })
+  slug: string;
+
   /** Unique per fiscal region when given; blank is stored as NULL so "not given" is not a value. */
   @Column({
     type: 'varchar',

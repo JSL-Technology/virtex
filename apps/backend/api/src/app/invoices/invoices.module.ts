@@ -35,6 +35,7 @@ import { SharedModule } from '../shared/shared.module';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { WithholdingModule } from '../localization/fiscal/withholding.module';
+import { SalesInboxProvider } from './inbox/sales-inbox.provider';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
   ],
   controllers: [InvoicesController],
   providers: [
+    SalesInboxProvider,
     InvoicesService,
     InvoicePostingService,
     // Withholding is resolved from the parties and the sale, never taken from the request.

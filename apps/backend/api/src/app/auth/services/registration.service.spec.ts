@@ -21,6 +21,7 @@ import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { PaymentService } from '../../payment/payment.service';
+import { RegistrationPaymentPort } from '../ports/registration-payment.port';
 import { ConfigService } from '@nestjs/config';
 import { UserCacheService } from '../modules/user-cache.service';
 import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
@@ -117,7 +118,12 @@ describe('RegistrationService', () => {
         // Memberships are written in the same transaction as the account, so the service needs
         // the real collaborator here even though these tests assert nothing about it.
         { provide: MembershipService, useValue: { grant: jest.fn(), listFor: jest.fn().mockResolvedValue([]) } },
-        { provide: PaymentService, useValue: mockPaymentService },
+        // El PUERTO, no el servicio concreto: `RegistrationPaymentPort` se introdujo para
+        // desacoplar Auth de PaymentService (B-01), y el módulo de prueba se quedó declarando la
+        // clase. Nest no resolvía las dependencias, así que las pruebas del alta —el camino que
+        // da libros a un cliente que paga— no se han ejecutado desde entonces. El doble es el
+        // mismo; solo cambia con qué llave se registra.
+        { provide: RegistrationPaymentPort, useValue: mockPaymentService },
         // Repairing a tenant drops the cached principals of its members, or the entitlement it
         // just wrote stays invisible until the cache expires. Nothing here asserts on it.
         { provide: UserCacheService, useValue: { clearOrganizationMembers: jest.fn() } },

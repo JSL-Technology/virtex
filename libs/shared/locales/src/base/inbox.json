@@ -1,0 +1,42 @@
+{
+  "inbox.accounting.draft_entry": {
+    "es": "Asiento {{number}} en borrador",
+    "en": "Journal entry {{number}} is a draft",
+    "pt": "Lançamento {{number}} em rascunho"
+  },
+  "inbox.accounting.period_overdue": {
+    "es": "El periodo {{period}} debió cerrarse",
+    "en": "Period {{period}} should have been closed",
+    "pt": "O período {{period}} deveria ter sido fechado"
+  },
+  "inbox.sales.draft_invoice": {
+    "es": "Factura {{number}} sin emitir",
+    "en": "Invoice {{number}} not issued",
+    "pt": "Fatura {{number}} não emitida"
+  },
+  "inbox.sales.overdue_invoice": {
+    "es": "Factura {{number}} vencida sin cobrar",
+    "en": "Invoice {{number}} overdue",
+    "pt": "Fatura {{number}} vencida"
+  },
+  "inbox.payables.draft_bill": {
+    "es": "Factura de proveedor {{number}} en borrador",
+    "en": "Supplier bill {{number}} is a draft",
+    "pt": "Fatura de fornecedor {{number}} em rascunho"
+  },
+  "inbox.payables.awaiting_approval": {
+    "es": "Factura de proveedor {{number}} esperando aprobación",
+    "en": "Supplier bill {{number}} awaiting approval",
+    "pt": "Fatura de fornecedor {{number}} aguardando aprovação"
+  },
+  "inbox.blocked_since": {
+    "es": "Esperando desde {{date}}",
+    "en": "Waiting since {{date}}",
+    "pt": "Aguardando desde {{date}}"
+  },
+  "inbox.module_count": {
+    "es": "{{count}} pendientes",
+    "en": "{{count}} pending",
+    "pt": "{{count}} pendentes"
+  }
+}

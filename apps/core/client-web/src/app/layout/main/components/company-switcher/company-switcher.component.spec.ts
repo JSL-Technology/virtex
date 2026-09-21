@@ -1,37 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
+
 import { CompanySwitcherComponent } from './company-switcher.component';
 import { AuthService } from '../../../../core/services/auth';
-import { OrganizationService } from '../../../../shared/service/organization.service';
-import { TabStateService } from '../../../../core/tabs/tab-state.service';
-import { TabPersistenceService } from '../../../../core/tabs/tab-persistence.service';
+import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 
 /**
- * Switching tenant is a server operation, and this component used to pretend otherwise.
+ * Cambiar de empresa tuvo dos vidas anteriores, y esta prueba fija que no vuelva a ninguna.
  *
- * `selectOrganization` ended at `// In a real app, this would call a service to switch
- * organization.`: it cleared every open tab and the persisted workspace, then left the user in the
- * tenant they started in. The interface reported a change that never happened, and destroyed the
- * user's workspace on the way.
+ * La primera terminaba en `// In a real app, this would call a service to switch organization.`:
+ * cerraba todas las pestañas y dejaba al usuario en la empresa de la que partía. La segunda
+ * emitía tokens nuevos y recargaba la página, lo que costaba el espacio de trabajo completo.
+ *
+ * Ahora es una navegación, y lo que hay que garantizar es eso: que navega a la misma página en la
+ * otra empresa, que no toca las pestañas y que un fallo se ve.
  */
 describe('CompanySwitcherComponent', () => {
-  const ORG_A = { id: 'org-a', legalName: 'Cliente A' };
-  const ORG_B = { id: 'org-b', legalName: 'Cliente B' };
+  const ORG_A = { id: 'org-a', legalName: 'Cliente A', slug: 'cliente-a' };
+  const ORG_B = { id: 'org-b', legalName: 'Cliente B', slug: 'cliente-b' };
 
   let fixture: ComponentFixture<CompanySwitcherComponent>;
   let component: CompanySwitcherComponent;
-  let reload: jest.SpyInstance;
-
-  const organizationService = {
-    switchOrganization: jest.fn().mockReturnValue(of({ user: {} })),
-  };
-  const tabState = { reset: jest.fn() };
-  const tabPersistence = { clearState: jest.fn() };
+  let navigateByUrl: jest.Mock;
+  let remember: jest.Mock;
+  const activeSlug = signal<string | null>('cliente-a');
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    organizationService.switchOrganization.mockReturnValue(of({ user: {} }));
+    activeSlug.set('cliente-a');
+    navigateByUrl = jest.fn().mockResolvedValue(true);
+    remember = jest.fn();
 
     await TestBed.configureTestingModule({
       imports: [CompanySwitcherComponent, TranslateModule.forRoot()],
@@ -42,81 +42,87 @@ describe('CompanySwitcherComponent', () => {
             currentUser: () => ({ organization: ORG_A, organizations: [ORG_A, ORG_B] }),
           },
         },
-        { provide: OrganizationService, useValue: organizationService },
-        { provide: TabStateService, useValue: tabState },
-        { provide: TabPersistenceService, useValue: tabPersistence },
+        {
+          provide: ActiveOrganizationService,
+          useValue: {
+            slug: activeSlug,
+            organization: () => (activeSlug() === 'cliente-a' ? ORG_A : ORG_B),
+            urlInOrganization: (slug: string) => `/e/${slug}/invoices`,
+            remember,
+          },
+        },
+        { provide: Router, useValue: { navigateByUrl } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CompanySwitcherComponent);
     component = fixture.componentInstance;
-    // `window.location` cannot be redefined in jsdom, so the reload is observed through the
-    // component's own seam.
-    reload = jest
-      .spyOn(component as unknown as { reloadApplication: () => void }, 'reloadApplication')
-      .mockImplementation(() => undefined);
     fixture.detectChanges();
   });
 
-  it('lists the tenants the user actually belongs to', () => {
-    // Three hardcoded placeholders once lived here — 'Virtex Corp', 'Acme Industries',
-    // 'Globex Corporation' — none of which the user could switch into.
-    expect(component.filteredOrganizations().map((o) => o.id)).toEqual(['org-a', 'org-b']);
+  it('lista las empresas reales del usuario', () => {
+    expect(component.filteredOrganizations().map((o) => o.slug)).toEqual([
+      'cliente-a',
+      'cliente-b',
+    ]);
   });
 
-  it('calls the server to switch, rather than only clearing local state', () => {
-    component.selectOrganization(ORG_B as never);
-
-    expect(organizationService.switchOrganization).toHaveBeenCalledWith('org-b');
+  it('la empresa mostrada es la de la URL, no la del token', () => {
+    activeSlug.set('cliente-b');
+    expect(component.currentOrg()?.id).toBe('org-b');
   });
 
-  it('clears the workspace only after the server confirms', () => {
-    let confirm!: () => void;
-    organizationService.switchOrganization.mockReturnValue(
-      new (require('rxjs').Observable)((subscriber: { next: (v: unknown) => void }) => {
-        confirm = () => subscriber.next({ user: {} });
-      }),
-    );
+  it('cambiar de empresa navega a la misma página en la otra', async () => {
+    component.selectOrganization(ORG_B);
+    await Promise.resolve();
 
-    component.selectOrganization(ORG_B as never);
-    expect(tabPersistence.clearState).not.toHaveBeenCalled();
-
-    confirm();
-    expect(tabPersistence.clearState).toHaveBeenCalled();
-    expect(tabState.reset).toHaveBeenCalled();
+    expect(navigateByUrl).toHaveBeenCalledWith('/e/cliente-b/invoices');
   });
 
-  it('reloads so every resolver re-runs against the new tenant', () => {
-    component.selectOrganization(ORG_B as never);
-    expect(reload).toHaveBeenCalled();
+  it('recuerda la empresa elegida para la próxima sesión', async () => {
+    component.selectOrganization(ORG_B);
+    await Promise.resolve();
+
+    expect(remember).toHaveBeenCalledWith('cliente-b');
   });
 
-  it('keeps the workspace intact when the switch fails', () => {
-    organizationService.switchOrganization.mockReturnValue(throwError(() => new Error('403')));
+  it('elegir la empresa en la que ya estás no navega', () => {
+    component.selectOrganization(ORG_A);
 
-    component.selectOrganization(ORG_B as never);
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
 
-    expect(tabPersistence.clearState).not.toHaveBeenCalled();
-    expect(reload).not.toHaveBeenCalled();
-    expect(component.switchError()).toBe('No se pudo cambiar de empresa.');
+  it('una navegación rechazada por un guard se dice, no se calla', async () => {
+    navigateByUrl.mockResolvedValue(false);
+
+    component.selectOrganization(ORG_B);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(component.switchError()).not.toBeNull();
     expect(component.switching()).toBe(false);
   });
 
-  it('does nothing when the active tenant is selected again', () => {
-    component.selectOrganization(ORG_A as never);
+  it('un fallo de navegación deja de girar y se dice', async () => {
+    navigateByUrl.mockRejectedValue(new Error('boom'));
 
-    expect(organizationService.switchOrganization).not.toHaveBeenCalled();
+    component.selectOrganization(ORG_B);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(component.switchError()).not.toBeNull();
+    expect(component.switching()).toBe(false);
   });
 
-  it('will not close the dropdown mid-switch, which would hide the error', () => {
-    organizationService.switchOrganization.mockReturnValue(
-      new (require('rxjs').Observable)(() => undefined),
-    );
-    component.isOpen.set(true);
+  it('el menú no se cierra mientras el cambio está en vuelo', () => {
+    let resolver: (v: boolean) => void = () => undefined;
+    navigateByUrl.mockReturnValue(new Promise<boolean>((r) => (resolver = r)));
 
-    component.selectOrganization(ORG_B as never);
+    component.toggleDropdown();
+    component.selectOrganization(ORG_B);
     component.closeDropdown();
 
     expect(component.isOpen()).toBe(true);
+    resolver(true);
   });
 });

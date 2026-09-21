@@ -18,6 +18,11 @@ export class OrganizationResponseDto implements OrganizationContract {
   @Expose()
   legalName: string;
 
+  /** El identificador de la empresa en la URL: `/e/nortex-comercial/...`. */
+  @ApiProperty()
+  @Expose()
+  slug: string;
+
   @ApiPropertyOptional()
   @Expose()
   taxId: string | null;

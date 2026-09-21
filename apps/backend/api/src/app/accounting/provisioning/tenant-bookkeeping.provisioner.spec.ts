@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { Ledger } from '../../accounting/entities/ledger.entity';
+import { Ledger } from '../entities/ledger.entity';
 import { Journal } from '../../journal-entries/entities/journal.entity';
 import { TenantBookkeepingProvisioner } from './tenant-bookkeeping.provisioner';
 import { I18nService } from '../../i18n/i18n.service';
