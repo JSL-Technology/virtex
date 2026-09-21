@@ -10,7 +10,7 @@
  *     # → entra en http://localhost:4200 con demo@virtex.test / Demo1234!
  *
  * Nunca debe ejecutarse contra una base de producción: crea un usuario con contraseña conocida.
- * Se niega a arrancar si `NODE_ENV` es `production`.
+ * Se niega a arrancar fuera de `development` y `test` (lista blanca del proyecto).
  */
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
@@ -26,13 +26,23 @@ import {
 } from '../../apps/backend/api/src/app/auth/entities/pending-registration.entity';
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
+import { isDevLikeEnvironment } from '../../apps/backend/api/src/app/auth/auth.config';
 
 const EMAIL = process.env.DEMO_EMAIL ?? 'demo@virtex.test';
 const PASSWORD = process.env.DEMO_PASSWORD ?? 'Demo1234!';
 
 async function main() {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('demo:tenant no se ejecuta en producción: crea un usuario con contraseña conocida.');
+  // Lista BLANCA, no «todo lo que no sea production».
+  //
+  // Esta herramienta crea un usuario con una contraseña que está escrita arriba, en este archivo.
+  // La puerta anterior dejaba pasar cualquier otro valor de NODE_ENV, incluido no tener ninguno,
+  // que es precisamente el caso que el esquema de entorno resolvía a `development`.
+  if (!isDevLikeEnvironment()) {
+    console.error(
+      'demo:tenant solo corre con NODE_ENV=development o test: crea un usuario con contraseña conocida. ' +
+        // env-gating-allow: solo se imprime, para que el mensaje diga qué valor había.
+      `NODE_ENV actual: "${process.env.NODE_ENV ?? '<sin definir>'}".`,
+    );
     process.exit(1);
   }
 

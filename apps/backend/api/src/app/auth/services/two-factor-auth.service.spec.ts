@@ -29,7 +29,11 @@ describe('TwoFactorAuthService', () => {
           orIgnore: jest.fn().mockReturnThis(),
           execute: jest.fn().mockResolvedValue({})
       })),
-      findOne: jest.fn()
+      findOne: jest.fn(),
+      // Spending a backup code is one conditional UPDATE now, not a read-modify-write: two
+      // requests presenting the SAME code both used to match and both used to return true.
+      // The double returns one row, meaning "this caller is the one that spent it".
+      query: jest.fn().mockResolvedValue([{ id: 'security-1' }])
     };
     userRepo = {
         findOne: jest.fn()
@@ -85,8 +89,11 @@ describe('TwoFactorAuthService', () => {
   });
 
   describe('verifyBackupCode', () => {
-      it('should return true and remove code if valid', async () => {
-           const user = { id: 'user-1', security: { isTwoFactorEnabled: true } } as User;
+      it('should return true and spend the code atomically if valid', async () => {
+           const user = {
+             id: 'user-1',
+             security: { id: 'security-1', userId: 'user-1', isTwoFactorEnabled: true },
+           } as User;
 
            passwordService.verify.mockResolvedValue(true);
 
@@ -95,9 +102,37 @@ describe('TwoFactorAuthService', () => {
            const result = await service.verifyBackupCode(user, 'plain-code');
 
            expect(result).toBe(true);
-           expect(userSecurityRepo.save).toHaveBeenCalled();
-           const savedSecurity = userSecurityRepo.save.mock.calls[0][0];
-           expect(savedSecurity.backupCodes.length).toBe(0);
+           // Removed by a single guarded UPDATE, not by writing an array back.
+           expect(userSecurityRepo.query).toHaveBeenCalledTimes(1);
+           const [sql, parameters] = userSecurityRepo.query.mock.calls[0];
+           expect(sql).toContain('jsonb_array_elements');
+           // The guard is what makes it atomic: no match, no spend.
+           expect(sql).toContain('@>');
+           expect(parameters).toEqual(['security-1', 'hashed-code']);
+           // And the in-memory copy follows, for anything that reads it after this call.
+           expect(user.security.backupCodes).toEqual([]);
+      });
+
+      /**
+       * The case the old read-modify-write could not distinguish.
+       *
+       * `filter` + `save` meant two concurrent requests presenting the same code both read a list
+       * containing it, both matched, and both returned true — a single-use credential used twice.
+       * A backup code is what somebody types when their phone is gone, so a double-submitted form
+       * lands here. Zero rows affected means somebody else already spent it.
+       */
+      it('refuses a code another request already spent', async () => {
+           const user = {
+             id: 'user-1',
+             security: { id: 'security-1', userId: 'user-1', isTwoFactorEnabled: true },
+           } as User;
+
+           passwordService.verify.mockResolvedValue(true);
+           user.security.backupCodes = ['hashed-code'];
+           // The guarded UPDATE matched nothing: the code is gone.
+           userSecurityRepo.query.mockResolvedValue([]);
+
+           await expect(service.verifyBackupCode(user, 'plain-code')).resolves.toBe(false);
       });
 
        it('should return false if invalid', async () => {
@@ -109,7 +144,7 @@ describe('TwoFactorAuthService', () => {
            const result = await service.verifyBackupCode(user, 'wrong-code');
 
            expect(result).toBe(false);
-           expect(userSecurityRepo.save).not.toHaveBeenCalled();
+           expect(userSecurityRepo.query).not.toHaveBeenCalled();
       });
   });
 

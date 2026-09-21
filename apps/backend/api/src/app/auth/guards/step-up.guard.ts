@@ -66,6 +66,10 @@ export class StepUpGuard implements CanActivate {
 
     let payload: StepUpPayload;
     try {
+      // session-revocation-allow: a STEP-UP PROOF, not a session. It carries no `sessionId`, is
+      // valid for ten minutes, is bound to the caller (`payload.sub !== request.user.id` is
+      // rejected below) and — for the irreversible scopes — is burned on first use by
+      // `consumeSingleUse`. The session behind the request was already checked by JwtAuthGuard.
       payload = this.jwtService.verify<StepUpPayload>(token, {
         secret: AuthConfig.JWT_STEP_UP_SECRET,
         issuer: 'virteex-api',

@@ -61,6 +61,8 @@ export class DevSeederService {
     // even if the caller's gate is ever removed or weakened.
     if (!isDevLikeEnvironment()) {
       this.logger.warn(
+        // env-gating-allow: reported in the log line, not used to decide anything. The
+        // decision is the isDevLikeEnvironment() call above.
         { event: 'dev_seed_refused', nodeEnv: process.env['NODE_ENV'] ?? '<unset>' },
         'Refusing to seed a development user outside development/test.',
       );

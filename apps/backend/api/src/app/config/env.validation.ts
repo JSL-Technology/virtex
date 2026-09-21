@@ -126,6 +126,7 @@ export const CRYPTOGRAPHIC_SECRETS = [
   'AUTH_SALT',
   'JWT_SOCIAL_REGISTER_SECRET',
   'JWT_STEP_UP_SECRET',
+  'OAUTH_STATE_SECRET',
 ] as const;
 
 export const envValidation = Joi.object({
@@ -205,6 +206,13 @@ export const envValidation = Joi.object({
   // happily and then failed on the first social sign-up with a 500 that named no cause.
   JWT_SOCIAL_REGISTER_SECRET: secret('JWT_SOCIAL_REGISTER_SECRET'),
   JWT_STEP_UP_SECRET: secret('JWT_STEP_UP_SECRET'),
+
+  /**
+   * Keys the OAuth/SSO handshake cookie. Declared here because `OauthStateService` reads it with
+   * `get` and used to fall back to `ENCRYPTION_SECRET` when it was absent — which silently undid
+   * the key separation the service exists to provide, on every deployment that had not set it.
+   */
+  OAUTH_STATE_SECRET: secret('OAUTH_STATE_SECRET'),
 
   /**
    * The development seeder. Declared here so its contract is visible and validated rather than

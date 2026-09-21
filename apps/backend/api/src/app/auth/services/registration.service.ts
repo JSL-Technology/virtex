@@ -279,6 +279,10 @@ export class RegistrationService {
       // carry `organization_id`, so this grants no rights anywhere they already work, and their
       // active organization is deliberately left alone — they can switch to the new one when
       // they choose, rather than being moved out from under whatever they had open.
+      // role-assignment-allow: tenant provisioning. This is the moment an organization is
+      // created and its first administrator is the person who just signed up and paid for it —
+      // there is no prior actor whose rights could be exceeded, and the role being granted is the
+      // one this provisioning just created.
       existingUser.roles = [...(existingUser.roles ?? []), adminRole];
       await manager.save(User, existingUser);
       user = existingUser;
@@ -341,6 +345,10 @@ export class RegistrationService {
     // points at their previous one, which is correct in the database and wrong in this response.
     user.organization = organization;
     user.organizationId = organization.id;
+    // role-assignment-allow: this is shaping the RESPONSE object, not a grant. The role was
+    // persisted by the provisioning above — where the owner of a brand new organization receives
+    // the administrator role that same provisioning created — and there is no prior actor whose
+    // rights this could exceed.
     user.roles = [adminRole];
 
     return { user, organization, isNewIdentity: !existingUser };
@@ -823,6 +831,9 @@ export class RegistrationService {
     if (this.isPreVerifiedToken(code)) {
       let payload: { sub: string; verType: string; type: string };
       try {
+        // session-revocation-allow: a PRE-VERIFICATION token, issued during signup to record that
+        // an address or phone was confirmed. It stands in for a one-time code, belongs to no
+        // account yet, and cannot authenticate anything.
         payload = this.jwtService.verify(code, {
           secret: AuthConfig.JWT_PREVERIFY_SECRET,
         });

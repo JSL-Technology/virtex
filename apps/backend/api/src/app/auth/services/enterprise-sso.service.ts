@@ -187,6 +187,11 @@ export class EnterpriseSsoService {
         avatarUrl: socialUser.picture,
         isEmailVerified: true,
         organizationId: idp.organizationId,
+        // role-assignment-allow: there is no actor here — the IdP is provisioning an account, not
+        // a person delegating rights. The equivalent control is `resolveDefaultRole`, which
+        // refuses any role carrying a wildcard or a platform permission and fails rather than
+        // falling back to whatever is first; and `defaultRoleId`, when configured, went through
+        // `assertCanAssignRoleById` at the moment it was set.
         roles: [role],
         status: UserStatus.ACTIVE,
         security,

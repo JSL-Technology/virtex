@@ -110,6 +110,9 @@ export class SocialAuthService {
 
   async getSocialRegisterInfo(token: string): Promise<SocialUser> {
     try {
+      // session-revocation-allow: a SOCIAL-REGISTER handoff token. It carries the profile an OAuth
+      // provider returned, across the one redirect between the callback and the signup form. There
+      // is no account behind it yet, so there is no session to revoke.
       const payload = this.jwtService.verify(token, {
         secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
       });
