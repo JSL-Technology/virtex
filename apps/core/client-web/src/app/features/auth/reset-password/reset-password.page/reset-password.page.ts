@@ -56,6 +56,16 @@ export class ResetPasswordPage implements OnInit {
   successMessage: string | null = null;
   token: string | null = null;
 
+  /**
+   * Whether the server has told us this account needs its second factor to complete the reset.
+   *
+   * Asked for only when the server says so, rather than always: the client cannot know whether an
+   * account has 2FA without being told, and asking everybody "enter your code (if you have one)"
+   * is how a prompt stops meaning anything. The server answers `auth.2_fa_verification_required`
+   * on the first attempt and the field appears.
+   */
+  requiresTwoFactor = false;
+
   ngOnInit(): void {
     // H4/H-12 FIX: Read token exclusively from the URL fragment (#token=...) so it is never
     // sent to the server or stored in browser history/logs/Referer (RFC 3986 §3.5; CWE-598).
@@ -76,7 +86,10 @@ export class ResetPasswordPage implements OnInit {
           confirmPassword: ['', Validators.required],
         },
         { validators: passwordMatchValidator }
-      )
+      ),
+      // Revealed by `requiresTwoFactor`. No validator until then, so the form is not blocked by a
+      // field the account may not need; `requireTwoFactor()` adds it when the server asks.
+      twoFactorCode: [''],
     });
   }
 
@@ -90,6 +103,14 @@ export class ResetPasswordPage implements OnInit {
      return '';
   }
 
+  /** Reveal the second-factor field and make it required, once the server has asked for it. */
+  private requireTwoFactor(): void {
+    this.requiresTwoFactor = true;
+    const control = this.resetPasswordForm.get('twoFactorCode');
+    control?.setValidators([Validators.required]);
+    control?.updateValueAndValidity();
+  }
+
   onSubmit() {
     if (this.resetPasswordForm.invalid || !this.token) {
       this.resetPasswordForm.markAllAsTouched();
@@ -101,8 +122,9 @@ export class ResetPasswordPage implements OnInit {
     this.successMessage = null;
 
     const newPassword = this.resetPasswordForm.value.passwordGroup.password;
+    const twoFactorCode: string = (this.resetPasswordForm.value.twoFactorCode ?? '').trim();
 
-    this.authService.resetPassword(this.token, newPassword).subscribe({
+    this.authService.resetPassword(this.token, newPassword, twoFactorCode || undefined).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMessage = 'reset_password.success';
@@ -110,7 +132,24 @@ export class ResetPasswordPage implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.customMessage || 'reset_password.errors.invalid_token';
+
+        // The account has a second factor and the server wants it. Asking for it is the whole
+        // point — recovery is the one flow that could otherwise replace a credential on mailbox
+        // access alone — so this is a prompt, not a failure.
+        if (err?.messageKey === 'auth.2_fa_verification_required' && !this.requiresTwoFactor) {
+          this.requireTwoFactor();
+          this.errorMessage = 'reset_password.two_factor_required';
+          return;
+        }
+
+        if (err?.messageKey === 'auth.invalid_2_fa_code') {
+          this.errorMessage = 'reset_password.two_factor_invalid';
+          return;
+        }
+
+        // `customMessage` never existed on AppError, so this fallback was the only branch that
+        // ever ran. `message` is the sentence the error handler already resolved.
+        this.errorMessage = err.message || 'reset_password.errors.invalid_token';
       }
     });
   }

@@ -124,19 +124,63 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Which API paths a granted capability actually opens.
+   *
+   * `api:read` used to be the whole gate, and it opened everything: the only checks were that the
+   * method was GET and the path started with a slash. An extension installed to draw a sales
+   * heatmap could therefore read `/payroll/runs`, `/users` and `/audit` — with the session of
+   * whoever had the screen open, so for an administrator holding `'*'` that is the entire ERP.
+   *
+   * The consent screen showed the string `api:read`, so what the customer approved did not
+   * describe what they were granting.
+   *
+   * Scoped capabilities fix both halves: the extension declares which areas it needs, the tenant
+   * sees those areas by name when consenting, and the bridge refuses anything outside them.
+   * `api:read` itself is kept for extensions published before scopes existed, and is deliberately
+   * narrowed to the reference data that motivated it rather than left as a skeleton key.
+   */
+  private static readonly CAPABILITY_SCOPES: Record<string, readonly string[]> = {
+    'api:read:sales': ['/invoices', '/sales', '/customers', '/price-lists'],
+    'api:read:inventory': ['/inventory', '/products', '/units-of-measure'],
+    'api:read:purchasing': ['/suppliers', '/purchasing', '/procurement', '/accounts-payable'],
+    'api:read:accounting': ['/chart-of-accounts', '/journal-entries', '/accounting', '/reports'],
+    'api:read:projects': ['/projects', '/dimensions'],
+    // Legacy grant. Reference data only — never payroll, users, audit, treasury or settings.
+    'api:read': ['/currencies', '/taxes', '/units-of-measure', '/localization'],
+  };
+
+  /** Every path prefix this extension's granted capabilities allow. */
+  private allowedPrefixes(): string[] {
+    return this.extension.grantedCapabilities.flatMap(
+      (capability) => ExtensionHostComponent.CAPABILITY_SCOPES[capability] ?? [],
+    );
+  }
+
   private async handleApiRequest(id: number, payload: any): Promise<void> {
     const path: string = payload?.path ?? '';
     const method: string = (payload?.opts?.method ?? 'GET').toUpperCase();
 
-    // Capability gate: reading requires api:read; writes are out of scope for the runtime v1.
-    if (!this.extension.grantedCapabilities.includes('api:read')) {
-      return this.post({ id, error: 'Missing capability: api:read' });
-    }
     if (method !== 'GET') {
       return this.post({ id, error: 'Only GET requests are allowed from extensions' });
     }
     if (typeof path !== 'string' || !path.startsWith('/') || path.includes('..')) {
       return this.post({ id, error: 'Invalid API path' });
+    }
+
+    const prefixes = this.allowedPrefixes();
+    if (!prefixes.length) {
+      return this.post({ id, error: 'This extension has no API read capability' });
+    }
+
+    // Prefix match on a SEGMENT boundary: `/users` must not be opened by a grant of `/user`, and
+    // `/payroll-summary` must not be opened by a grant of `/payroll`.
+    const [pathname] = path.split('?');
+    const permitted = prefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    );
+    if (!permitted) {
+      return this.post({ id, error: `Path outside the granted capabilities: ${pathname}` });
     }
 
     try {

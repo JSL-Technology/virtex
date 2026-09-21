@@ -56,6 +56,19 @@ export interface AppError {
   status: number;
   code: string | null;
   message: string;
+  /**
+   * The catalogue key this failure resolved to.
+   *
+   * Carried alongside the rendered sentence because a call site that has to BRANCH on which
+   * failure happened cannot do it on `message`: that string is translated, so the branch would
+   * break the first time somebody switched language or reworded the catalogue. `message` is for
+   * showing, this is for deciding.
+   *
+   * The reset-password page is the case that needed it: the server answers
+   * `auth.2_fa_verification_required` when an account has a second factor, and the page turns
+   * that into a prompt for the code rather than an error.
+   */
+  messageKey: string;
   /** Per-field messages, already translated, keyed by the field's dotted path. */
   fieldErrors: Record<string, string[]>;
 }
@@ -94,6 +107,7 @@ export class ErrorHandlerService {
       status: error?.status ?? 0,
       code: this.extractCode(error),
       message: this.resolveMessage(error),
+      messageKey: this.keyFor(error),
       fieldErrors: this.resolveFieldErrors(error),
     };
   }
