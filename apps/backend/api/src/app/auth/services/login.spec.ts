@@ -178,26 +178,68 @@ describe('AuthService — sign in', () => {
     });
   });
 
-  describe('account state, once the password is proven', () => {
+  describe('the lockout says nothing a wrong password does not', () => {
     /**
-     * Distinct states ARE reported — but only to a caller who has already demonstrated they hold
-     * the password, at which point they learn nothing they did not already know.
+     * The lockout used to answer `AUTH_USER_BLOCKED` with `meta.lockoutUntil` to a caller holding
+     * the RIGHT password and `AUTH_INVALID_CREDENTIALS` to one holding a wrong one — and only the
+     * wrong-password branch paid `simulateDelay()`. Two oracles, in the body and in the clock, on
+     * the one control whose entire job is to stop online guessing.
+     *
+     * What that allowed: lock the account with five junk passwords, keep guessing, and watch for
+     * the response that changes. The lockout did not stop the guessing; it announced the winning
+     * guess and then told the attacker exactly how long to wait.
+     *
+     * These three tests pin the fix from the attacker's side: the two replies must be
+     * indistinguishable in code, in body, and in the work done to produce them.
      */
-    it('reports a lockout only after the password checks out', async () => {
+    const lockedOutUser = () => {
       const user = activeUser();
       user.security.lockoutUntil = new Date(Date.now() + 60_000) as never;
-      usersService.findUserForAuth.mockResolvedValue(user);
-      passwordService.verify.mockResolvedValue(true);
+      return user;
+    };
 
-      await expect(
-        service.login({ email: 'someone@example.com', password: 'right' } as never),
-      ).rejects.toMatchObject({ message: expect.any(String) });
+    it('answers a locked account with the right password exactly as it answers a wrong one', async () => {
+      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
+      passwordService.verify.mockResolvedValue(true);
 
       const error = await service
         .login({ email: 'someone@example.com', password: 'right' } as never)
         .catch((e) => e);
-      expect((error as AuthException).message).toContain(AuthError.USER_BLOCKED);
+
+      expect((error as AuthException).message).toContain(AuthError.INVALID_CREDENTIALS);
+      expect((error as AuthException).message).not.toContain(AuthError.USER_BLOCKED);
     });
+
+    it('never puts lockoutUntil on the wire', async () => {
+      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
+      passwordService.verify.mockResolvedValue(true);
+
+      const error = await service
+        .login({ email: 'someone@example.com', password: 'right' } as never)
+        .catch((e) => e);
+
+      // `getResponse()` is what the client actually receives.
+      const body = (error as AuthException).getResponse() as Record<string, unknown>;
+      expect(body).not.toHaveProperty('meta');
+      expect(JSON.stringify(body)).not.toContain('lockoutUntil');
+    });
+
+    it('does the same work for a right password as for a wrong one, so the clock cannot tell either', async () => {
+      // The wrong-password branch performs an UPDATE on `user_security` before its delay.
+      // Skipping it on the right-password branch would leave a timing difference of exactly one
+      // database round-trip between "correct" and "incorrect" — the same oracle, quieter.
+      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
+      passwordService.verify.mockResolvedValue(true);
+
+      await service
+        .login({ email: 'someone@example.com', password: 'right' } as never)
+        .catch(() => undefined);
+
+      expect(securityAnalysisService.handleFailedLoginAttempt).toHaveBeenCalled();
+    });
+  });
+
+  describe('account state, once the password is proven', () => {
 
     it('refuses a blocked account', async () => {
       const user = { ...activeUser(), status: UserStatus.BLOCKED };

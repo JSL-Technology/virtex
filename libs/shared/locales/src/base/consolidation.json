@@ -1,8 +1,18 @@
 {
+  "consolidation.account_not_found": {
+    "es": "Una o más cuentas indicadas no pertenecen a la empresa correspondiente.",
+    "en": "One or more of the accounts given do not belong to the corresponding company.",
+    "pt": "Uma ou mais das contas indicadas não pertencem à empresa correspondente."
+  },
   "consolidation.elimination.investment_in_subsidiary": {
     "es": "Inversión en {{member}} contra su patrimonio a la fecha de adquisición ({{date}}).",
     "en": "Investment in {{member}} against its equity at the acquisition date ({{date}}).",
     "pt": "Investimento em {{member}} contra o seu património à data de aquisição ({{date}})."
+  },
+  "consolidation.mapping_updated_with_count_correspondences": {
+    "es": "Mapeo actualizado con {{count}} correspondencias.",
+    "en": "Mapping updated with {{count}} correspondences.",
+    "pt": "Mapeamento atualizado com {{count}} correspondências."
   },
   "consolidation.organization_has_no_subsidiaries_configured_consolidate": {
     "es": "La organización no tiene subsidiarias configuradas para consolidar.",

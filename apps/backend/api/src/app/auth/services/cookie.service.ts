@@ -28,7 +28,11 @@ export class CookieService {
 
   /** True when cookies may be issued without the Secure attribute (plain-HTTP local dev). */
   private isInsecureDevEnvironment(): boolean {
-    return isDevLikeEnvironment() && this.configService.get('NODE_ENV') !== 'production';
+    // One reading of the environment, not two. The second half was a deny-list restating what the
+    // allow-list already decides — `isDevLikeEnvironment()` is true only for `development` and
+    // `test`, neither of which is `production` — so it could never change the answer while adding
+    // a second place to get it wrong.
+    return isDevLikeEnvironment();
   }
 
   /**

@@ -1,5 +1,13 @@
 import { Client } from 'pg';
 
+import {
+  CLASSIFIED_TABLE_NAMES,
+  CROSS_TENANT_TABLES,
+  GLOBAL_TABLES,
+  INHERITED_TENANT_TABLES,
+  MATERIALIZED_VIEWS,
+} from '../../apps/backend/api/src/app/shared/tenancy/tenant-table-classification';
+
 /**
  * Proves, against a live database, that the row-level policies isolate tenants.
  *
@@ -147,21 +155,98 @@ async function main() {
   check('ninguna tabla nombra la empresa en camelCase',
     camelCase.rows.map((r) => r.table_name), []);
 
-  // 6-ter. Las tablas con empresa OPCIONAL se excluyen a propósito —guardan filas que no son de
-  // ningún inquilino—, pero la exclusión tiene que verse. Enumerarlas convierte «no está
-  // protegida» en una decisión revisable en vez de un silencio.
-  const nullableTenant = await owner.query(`
-    SELECT c.table_name
-    FROM information_schema.columns c
-    JOIN information_schema.tables t
-      ON t.table_name = c.table_name AND t.table_schema = 'public' AND t.table_type = 'BASE TABLE'
-    WHERE c.table_schema = 'public'
-      AND c.column_name = 'organization_id'
-      AND c.is_nullable = 'YES'
-    ORDER BY 1`);
+  // ── 6-ter. TODA tabla clasificada, o el build falla ────────────────────────
+  //
+  // Las dos comprobaciones de arriba preguntan por el NOMBRE de una columna, y ese es el defecto
+  // que esta cierra. Una tabla de inquilino cuya columna se llame de otro modo
+  // (`consolidation_maps` lleva `parent_organization_id`), una hija que hereda el inquilino de su
+  // padre y no tiene columna propia, o una vista materializada, son invisibles para ellas: ni
+  // reciben política ni aparecen como descubiertas.
+  //
+  // Medido cuando se añadió esto: nueve tablas de inquilino sin ninguna política y sin figurar en
+  // ningún informe — entre ellas `stock_items`, `stock_movements` y `vendor_payment`.
+  //
+  // Así que la pregunta se invierte: cada tabla base de `public` tiene que estar en EXACTAMENTE
+  // uno de cuatro sitios — con política, heredando de un padre declarado, global por diseño, o
+  // fontanería de identidad y tenencia. Lo que no esté en ninguno rompe el build, y añadirla a una
+  // lista es una afirmación que alguien firma.
+  const allTables = await owner.query(`
+    SELECT table_name FROM information_schema.tables
+     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+     ORDER BY 1`);
+
+  const protectedTables = new Set<string>(
+    (await owner.query(
+      `SELECT DISTINCT tablename FROM pg_policies
+        WHERE schemaname = 'public' AND policyname = 'tenant_isolation'`,
+    )).rows.map((r: { tablename: string }) => r.tablename),
+  );
+
+  const tableNames: string[] = allTables.rows.map((r: { table_name: string }) => r.table_name);
+
+  const unclassified = tableNames
+    .filter((table) => !protectedTables.has(table) && !CLASSIFIED_TABLE_NAMES.has(table))
+    .sort();
+
+  check('toda tabla está protegida o clasificada explícitamente', unclassified, []);
+
+  // Una entrada de la clasificación que ya no corresponde a ninguna tabla es una lista
+  // envejeciendo: se denuncia igual, porque una lista en la que nadie confía deja de leerse.
+  const existing = new Set<string>(tableNames);
+  const stale = [...CLASSIFIED_TABLE_NAMES].filter((table) => !existing.has(table)).sort();
+  check('la clasificación no nombra tablas que ya no existen', stale, []);
+
+  // Y una tabla declarada «sin inquilino» que ADEMÁS lleva política es una contradicción: o la
+  // clasificación miente o la política sobra. En ambos casos alguien tiene que mirar.
+  const contradictory = [...GLOBAL_TABLES, ...CROSS_TENANT_TABLES]
+    .map((entry) => entry.table)
+    .filter((table) => protectedTables.has(table))
+    .sort();
+  check('ninguna tabla declarada sin inquilino lleva política', contradictory, []);
+
+  // Toda hija declarada tiene que tener política de verdad: declararla y no instalarla es
+  // exactamente el silencio que esto viene a eliminar.
+  const inheritedWithoutPolicy = INHERITED_TENANT_TABLES
+    .map((entry) => entry.table)
+    .filter((table) => existing.has(table) && !protectedTables.has(table))
+    .sort();
+  check('toda hija declarada tiene su política instalada', inheritedWithoutPolicy, []);
+
+  // ── 6-quater. Las vistas materializadas, que RLS no puede alcanzar ─────────
+  //
+  // PostgreSQL no aplica políticas a una vista materializada: guarda sus propias filas, y las
+  // políticas de las tablas base no llegan. Su aislamiento depende ENTERAMENTE del `WHERE` de
+  // cada consulta, lo que las convierte en la única parte del producto sin red de seguridad.
+  //
+  // No se arregla con una política, así que se hace explícito: cada una se declara con su columna
+  // de inquilino, y aparecer sin declarar rompe el build.
+  const matviews = await owner.query(
+    `SELECT matviewname FROM pg_matviews WHERE schemaname = 'public' ORDER BY 1`,
+  );
+  const declaredViews = new Set(MATERIALIZED_VIEWS.map((v) => v.view));
+  const undeclaredViews = matviews.rows
+    .map((r: { matviewname: string }) => r.matviewname)
+    .filter((view: string) => !declaredViews.has(view))
+    .sort();
+  check('ninguna vista materializada queda sin declarar', undeclaredViews, []);
+
+  for (const view of MATERIALIZED_VIEWS) {
+    const column = await owner.query(
+      `SELECT count(*)::int AS n
+         FROM pg_attribute a
+         JOIN pg_class c ON c.oid = a.attrelid AND c.relname = $1 AND c.relkind = 'm'
+        WHERE a.attname = $2 AND a.attnum > 0 AND NOT a.attisdropped`,
+      [view.view, view.tenantColumn],
+    );
+    check(`${view.view} conserva su columna de inquilino "${view.tenantColumn}"`, column.rows[0].n, 1);
+  }
+
   console.log(
-    `  · ${nullableTenant.rows.length} tabla(s) con empresa OPCIONAL, excluidas por diseño: ` +
-    `${nullableTenant.rows.map((r: { table_name: string }) => r.table_name).join(', ') || '(ninguna)'}`,
+    `  · ${protectedTables.size} tabla(s) con política; ` +
+    `${INHERITED_TENANT_TABLES.length} heredan de un padre declarado; ` +
+    `${GLOBAL_TABLES.length} globales por diseño; ` +
+    `${CROSS_TENANT_TABLES.length} de identidad/tenencia; ` +
+    `${MATERIALIZED_VIEWS.length} vista(s) materializada(s) declarada(s).`,
   );
 
   await owner.query(`DELETE FROM customers WHERE organization_id IN ($1, $2)`, [ORG_A, ORG_B]);

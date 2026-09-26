@@ -43,6 +43,8 @@ export class OrganizationsService {
   ) {}
 
   async findOne(id: string): Promise<Organization> {
+    // tenant-scope-guard-allow: la propia empresa, por su id. `organizations` ES el registro de
+    // inquilinos; acotarlo por inquilino es circular.
     const organization = await this.organizationRepository.findOneBy({ id });
     if (!organization) {
       throw new NotFoundError('organizations.organization_with_id_not_found', { id });

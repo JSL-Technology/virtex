@@ -69,10 +69,13 @@ export class OauthStateService implements OnModuleInit {
   }
 
   private cookieName(): string {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    // The project's allow-list, like the secret above and like `CookieService`. With the deny-list
+    // a deployment whose NODE_ENV was misspelled served the OAuth transaction cookie unprefixed
+    // and without `Secure`.
+    const isDeployment = !isDevLikeEnvironment();
     // __Host- prefix in production pins the cookie to the exact host with Secure + path=/,
     // but __Host- forbids a Path other than '/'. We need a scoped path, so use __Secure-.
-    return isProduction ? '__Secure-oauth_tx' : 'oauth_tx';
+    return isDeployment ? '__Secure-oauth_tx' : 'oauth_tx';
   }
 
   /** Encrypt + authenticate the transaction into a compact token string. */
@@ -143,10 +146,10 @@ export class OauthStateService implements OnModuleInit {
 
   /** Persist the transaction in the encrypted httpOnly cookie. */
   setTransactionCookie(res: Response, tx: OauthTransaction): void {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const isDeployment = !isDevLikeEnvironment();
     res.cookie(this.cookieName(), this.seal(tx), {
       httpOnly: true,
-      secure: isProduction,
+      secure: isDeployment,
       // 'lax' is required: the IdP redirects back via a top-level GET, and 'strict' would
       // drop the cookie on that cross-site navigation, breaking the handshake.
       sameSite: 'lax',
@@ -168,9 +171,9 @@ export class OauthStateService implements OnModuleInit {
 
   /** Remove the transaction cookie after the handshake completes (success or failure). */
   clearTransactionCookie(res: Response): void {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const isDeployment = !isDevLikeEnvironment();
     res.clearCookie('__Secure-oauth_tx', { path: '/api/v1/auth', secure: true });
-    res.clearCookie('oauth_tx', { path: '/api/v1/auth', secure: isProduction });
+    res.clearCookie('oauth_tx', { path: '/api/v1/auth', secure: isDeployment });
   }
 
   /**

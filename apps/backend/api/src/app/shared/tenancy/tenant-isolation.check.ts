@@ -2,6 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { isDevLikeEnvironment } from '../../auth/auth.config';
+import { CLASSIFIED_TABLE_NAMES } from './tenant-table-classification';
 
 /**
  * Comprueba al arrancar que el aislamiento por empresa RIGE de verdad, y se niega a servir si no.
@@ -48,6 +49,66 @@ export class TenantIsolationCheck implements OnApplicationBootstrap {
 
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
+  /**
+   * Instaladas no es lo mismo que suficientes.
+   *
+   * La consulta de `onApplicationBootstrap` cuenta políticas. Contarlas no dice nada sobre si
+   * cubren lo que tienen que cubrir: con UNA política de ciento veintiocho tablas de inquilino, el
+   * arranque informaba `tenant_isolation_enforcing` y seguía sirviendo.
+   *
+   * La cobertura se comprobaba solo en CI (`verify:rls`), es decir, contra el esquema de CI. El
+   * esquema donde están los datos de los clientes es este, y es el que puede divergir: una
+   * migración que no corrió, un `DROP POLICY` manual durante una incidencia, una restauración
+   * desde un volcado que no arrastró las políticas. Preguntarlo aquí es preguntarlo donde importa.
+   *
+   * La clasificación es la misma que usa el verificador —un solo fichero, `tenant-table-classification.ts`—
+   * para que no haya dos ideas distintas de qué cuenta como cubierto.
+   */
+  private async assertCoverage(user: string): Promise<void> {
+    const rows: Array<{ table_name: string }> = await this.dataSource.query(`
+      SELECT t.table_name
+        FROM information_schema.tables t
+       WHERE t.table_schema = 'public'
+         AND t.table_type = 'BASE TABLE'
+         AND NOT EXISTS (
+           SELECT 1 FROM pg_policies p
+            WHERE p.schemaname = 'public'
+              AND p.tablename = t.table_name
+              AND p.policyname = 'tenant_isolation'
+         )
+       ORDER BY 1
+    `);
+
+    const unclassified = rows
+      .map((row) => row.table_name)
+      .filter((table) => !CLASSIFIED_TABLE_NAMES.has(table));
+
+    if (!unclassified.length) return;
+
+    const detail =
+      `${unclassified.length} tabla(s) sin política de aislamiento y sin clasificar: ` +
+      `${unclassified.join(', ')}.`;
+
+    if (isDevLikeEnvironment()) {
+      this.logger.warn(
+        { event: 'tenant_isolation_coverage_incomplete_dev', user, unclassified },
+        `${detail} Se tolera en desarrollo; en un despliegue el arranque se detiene.`,
+      );
+      return;
+    }
+
+    this.logger.error(
+      { event: 'tenant_isolation_coverage_incomplete', user, unclassified },
+      `FATAL: ${detail}`,
+    );
+
+    throw new Error(
+      `FATAL: tenant isolation does not cover the whole schema. ${detail} ` +
+        `Either the migrations have not all run, or the table is new: classify it in ` +
+        `shared/tenancy/tenant-table-classification.ts and give it a policy if it holds tenant data.`,
+    );
+  }
+
   async onApplicationBootstrap(): Promise<void> {
     if (this.dataSource.options.type !== 'postgres') return;
 
@@ -91,15 +152,49 @@ export class TenantIsolationCheck implements OnApplicationBootstrap {
     }
 
     if (row.policies === 0) {
-      // El primer despliegue, antes de que las migraciones hayan corrido. Es el caso legítimo que
-      // justifica no abortar aquí; la aplicación no puede instalar sus propias políticas.
+      // Cero políticas es el caso PEOR de los tres, y era el único que no impedía servir.
+      //
+      // El motivo declarado —«el primer despliegue, antes de que las migraciones hayan corrido»—
+      // es legítimo y sigue atendido, pero como una puerta que alguien abre a propósito y no como
+      // el comportamiento por defecto. Tal como estaba, una base sin aislamiento ninguno arrancaba
+      // con un `logger.error` que nadie lee, mientras que los dos casos PARCIALES (superusuario,
+      // FORCE ausente) sí abortaban. La gravedad iba justo al revés que la consecuencia.
+      //
+      // Y el propio fichero explica por qué eso importa: esa configuración «es INDISTINGUIBLE de
+      // la correcta desde dentro. Todo funciona […] y nadie se entera hasta que alguien ve datos
+      // de otra empresa».
+      const bootstrapping =
+        (process.env['DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP'] ?? '').toLowerCase() === 'true';
+
+      if (isDevLikeEnvironment() || bootstrapping) {
+        this.logger.error(
+          { event: 'tenant_isolation_absent', user: row.user, bootstrapping },
+          'No hay políticas de aislamiento por empresa en la base de datos. El aislamiento ' +
+            'depende por completo del filtro de cada consulta. Ejecuta las migraciones.',
+        );
+        return;
+      }
+
       this.logger.error(
-        { event: 'tenant_isolation_absent', user: row.user },
-        'No hay políticas de aislamiento por empresa en la base de datos. El aislamiento ' +
-          'depende por completo del filtro de cada consulta. Ejecuta las migraciones.',
+        { event: 'tenant_isolation_absent_fatal', user: row.user },
+        'FATAL: no hay ninguna política de aislamiento por empresa en la base de datos.',
       );
-      return;
+
+      throw new Error(
+        'FATAL: tenant isolation is not installed at all (0 policies). Run the migrations. ' +
+          'If this really is the first deploy against an empty database, set ' +
+          'DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP=true for that one boot and remove it afterwards.',
+      );
     }
+
+    // Instaladas no es lo mismo que suficientes.
+    //
+    // La consulta de arriba cuenta políticas; no las compara contra las tablas que deberían
+    // tenerlas. Con UNA política de ciento veinte tablas de inquilino, el arranque informaba
+    // `tenant_isolation_enforcing` y seguía adelante. La cobertura se comprobaba solo en CI
+    // (`verify:rls`), es decir, contra el esquema de CI y no contra el de este despliegue —
+    // que es donde están los datos de los clientes.
+    await this.assertCoverage(row.user);
 
     const problems: string[] = [];
     if (row.bypasses) {

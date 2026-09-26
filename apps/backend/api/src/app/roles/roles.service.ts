@@ -305,6 +305,8 @@ export class RolesService extends RoleDelegationPort {
         // (OWASP ASVS V4; CWE-613/CWE-863.)
         await this.roleRepository.manager.transaction(async (manager) => {
             const assignedCount = await manager.getRepository(User)
+                // tenant-scope-guard-allow: usuarios que tienen asignado un rol, acotado por `roleId`. El rol
+                // ya fue resuelto dentro de la empresa del llamante.
                 .createQueryBuilder('user')
                 .innerJoin('user.roles', 'role')
                 .where('role.id = :roleId', { roleId: role.id })

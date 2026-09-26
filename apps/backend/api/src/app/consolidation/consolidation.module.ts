@@ -15,6 +15,7 @@ import { CurrenciesModule } from '../currencies/currencies.module';
 import { IntercompanyTransaction } from '../intercompany/entities/intercompany-transaction.entity';
 import { ConsolidationMappingController } from './consolidation-mapping.controller';
 import { ConsolidationMappingService } from './consolidation-mapping.service';
+import { Account } from '../chart-of-accounts/entities/account.entity';
 
 
 @Module({
@@ -24,6 +25,10 @@ import { ConsolidationMappingService } from './consolidation-mapping.service';
       OrganizationSubsidiary,
       ConsolidationMap,
 
+      // `Account` para que el mapeo pueda comprobar que cada cuenta nombrada pertenece a la
+      // empresa que le corresponde. Sin esa comprobación, un miembro legítimo del grupo podía
+      // apuntar `parentAccountId` a una cuenta de una tercera empresa.
+      Account,
 
       OrganizationSettings,
       IntercompanyTransaction,

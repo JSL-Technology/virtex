@@ -13,6 +13,7 @@ import { ActiveTenantGuard } from './shared/tenancy/active-tenant.guard';
 import { TenantIsolationCheck } from './shared/tenancy/tenant-isolation.check';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
+import { isDevLikeEnvironment } from './auth/auth.config';
 import { CsrfGuard } from './auth/guards/csrf.guard';
 import { MfaEnrolmentGuard } from './auth/guards/mfa-enrolment.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
@@ -126,7 +127,10 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       useFactory: async (config: ConfigService) => {
         return {
           pinoHttp: {
+            // env-gating-allow: the log LEVEL and the pretty-printer. Not a security gate —
+            // getting this wrong costs verbose logs, not a weaker control.
             level: config.get<string>('NODE_ENV') !== 'production' ? 'debug' : 'info',
+            // env-gating-allow: as above, the development pretty-printer.
             transport: config.get<string>('NODE_ENV') !== 'production'
               ? { target: 'pino-pretty' }
               : undefined,
@@ -217,11 +221,19 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
-        const isProduction = config.get<string>('NODE_ENV') === 'production';
+        // The project's allow-list, not `=== 'production'`. This decides whether a DISTRIBUTED
+        // rate-limit store is mandatory, and the deny-list form let every deployment that was not
+        // spelled exactly `production` fall through to an in-memory bucket — which means the login
+        // limit of 5/minute becomes 5/minute PER REPLICA and resets on every deploy.
+        //
+        // It escaped `verify:env-gating` because the checker's patterns required `NODE_ENV` to sit
+        // next to the operator, and a `ConfigService` read puts a `)` in between. The checker now
+        // sees this shape too.
+        const isDeployment = !isDevLikeEnvironment();
         const hasRedis = Boolean(config.get<string>('REDIS_URL') || config.get<string>('REDIS_HOST'));
 
-        if (isProduction && !hasRedis) {
-          throw new Error('REDIS_URL or REDIS_HOST is required for distributed throttling in production');
+        if (isDeployment && !hasRedis) {
+          throw new Error('REDIS_URL or REDIS_HOST is required for distributed throttling outside development/test');
         }
 
         // Same connection description as the cache and the queues, so credentials and TLS are

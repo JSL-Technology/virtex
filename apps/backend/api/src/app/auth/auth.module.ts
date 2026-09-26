@@ -6,6 +6,8 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
+import { isDevLikeEnvironment } from './auth.config';
+import { RolesModule } from '../roles/roles.module';
 import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { AuthController } from './auth.controller';
 import { AuthRegistrationController } from './auth-registration.controller';
@@ -86,6 +88,17 @@ import { KeyManagementModule } from './services/key-management.module';
     GeoModule,
     KeyManagementModule,
     forwardRef(() => UsersModule),
+    // `SsoAdminService` depende de `RoleDelegationPort`, que provee `RolesModule`. Sin este
+    // import la aplicación NO ARRANCA: «Nest can't resolve dependencies of the SsoAdminService
+    // (…, ?) … make sure that the argument RoleDelegationPort at index [4] is available in the
+    // AuthModule context».
+    //
+    // Estaba oculto detrás de otro fallo de arranque anterior —`EventsGateway` no podía resolver
+    // `SessionRegistryService`, porque `WebsocketsModule` no importaba nada que lo proveyera— y
+    // `verify:boot` se detiene en el primero. Arreglado aquel, apareció este.
+    //
+    // `forwardRef` porque `RolesModule` ya importa este módulo de vuelta.
+    forwardRef(() => RolesModule),
     UserCacheModule,
     TypeOrmModule.forFeature([
       RefreshToken,
@@ -121,10 +134,12 @@ import { KeyManagementModule } from './services/key-management.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
         const redisHost = config.get<string>('REDIS_HOST');
-        const isProduction = config.get<string>('NODE_ENV') === 'production';
+        // The project's allow-list. Same reasoning as the identical gate in `app.module.ts`: a
+        // per-process rate-limit bucket is not a rate limit in a multi-replica deployment.
+        const isDeployment = !isDevLikeEnvironment();
 
-        if (isProduction && !redisHost) {
-          throw new Error('REDIS_HOST is required for distributed throttling in production');
+        if (isDeployment && !redisHost) {
+          throw new Error('REDIS_HOST is required for distributed throttling outside development/test');
         }
 
         const storage = redisHost

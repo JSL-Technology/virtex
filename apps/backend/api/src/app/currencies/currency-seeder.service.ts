@@ -37,6 +37,7 @@ export class CurrencySeederService implements OnModuleInit {
     let inserted = 0;
     for (const definition of missing) {
       const result = await this.currencyRepository
+        // tenant-scope-guard-allow: siembra del catálogo global de monedas al arrancar.
         .createQueryBuilder()
         .insert()
         .into(Currency)

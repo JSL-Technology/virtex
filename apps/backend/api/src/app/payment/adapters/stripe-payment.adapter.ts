@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
 import { STRIPE_CLIENT } from '../stripe/stripe.provider';
+import { isDevLikeEnvironment } from '../../auth/auth.config';
 import { Repository, DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -121,7 +122,10 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     }
 
     const summary = `Plan prices disagree with Stripe:\n  - ${problems.join('\n  - ')}`;
-    if (this.configService.get('NODE_ENV') === 'production') {
+    // The project's allow-list: a price catalogue that disagrees with Stripe is fatal in every
+    // real deployment, not only in one spelled `production`. Charging the wrong amount is not a
+    // staging-only problem.
+    if (!isDevLikeEnvironment()) {
       this.logger.error({ event: 'price_catalog_mismatch' }, summary);
       throw new Error(`FATAL: ${summary}`);
     }

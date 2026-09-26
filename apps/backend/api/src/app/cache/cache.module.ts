@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import Keyv from 'keyv';
+import { isDevLikeEnvironment } from '../auth/auth.config';
 import KeyvRedis from '@keyv/redis';
 import { redisUrl } from './redis.config';
 import { AtomicCacheService } from './atomic-cache.service';
@@ -101,9 +102,8 @@ export class CacheModule implements OnApplicationBootstrap {
    */
   async onApplicationBootstrap(): Promise<void> {
     const key = `cache:selftest:${process.pid}:${Date.now()}`;
-    const isDevLike = ['development', 'test'].includes(
-      (this.configService.get<string>('NODE_ENV') ?? '').toLowerCase(),
-    );
+    // The shared allow-list, not a fifth copy of it. See `atomic-cache.service.ts`.
+    const isDevLike = isDevLikeEnvironment();
 
     try {
       await this.cacheManager.set(key, 'ok', 5_000);
