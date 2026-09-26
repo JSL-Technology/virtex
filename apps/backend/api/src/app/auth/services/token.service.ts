@@ -21,6 +21,7 @@ import { AuthenticatedUser } from '../../security/principal';
 import { GeoService } from '../../geo/geo.service';
 import { UserIdentityService } from './user-identity.service';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
+import { SecurityAnalysisService } from './security-analysis.service';
 
 @Injectable()
 export class TokenService {
@@ -37,6 +38,11 @@ export class TokenService {
     private readonly keyManagementService: KeyManagementService,
     private readonly userIdentityService: UserIdentityService,
     private readonly cryptoUtil: CryptoUtil,
+    // `forwardRef` because `SecurityAnalysisService` reaches `UsersService`, which reaches back
+    // here. The cycle is in the module graph, not in the call graph: nothing this service calls
+    // on it calls back.
+    @Inject(forwardRef(() => SecurityAnalysisService))
+    private readonly securityAnalysisService: SecurityAnalysisService,
   ) {}
 
   // The key derivation that used to live here is gone, and so is the placeholder check beside it.
@@ -113,6 +119,17 @@ export class TokenService {
     // normal sign-in falls back to the user's own. Both the payload and the returned principal are
     // built from it, so the rights in the token match the tenant in the token.
     const activeOrganizationId = extraPayload.organizationId ?? user.organizationId;
+
+    // A NEW session means an authentication just succeeded, whichever of the five ways it took —
+    // password, password + 2FA, WebAuthn, a federated identity, or an invitation being redeemed.
+    // This is the only point all five share, which is why the failed-attempt budget is cleared
+    // here rather than on the one branch that used to remember to (see `resetLoginAttempts`).
+    //
+    // A rotation is NOT an authentication and carries `options.sessionId`, so it is excluded:
+    // re-clearing a budget every fifteen minutes would be a write that says nothing.
+    if (!options.sessionId) {
+      await this.securityAnalysisService.resetLoginAttempts(user);
+    }
 
     const payload = this.buildPayload(user, extraPayload);
     const safeUser = this.buildSafeUser(user, activeOrganizationId);

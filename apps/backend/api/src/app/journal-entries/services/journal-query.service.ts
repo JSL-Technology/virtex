@@ -263,6 +263,8 @@ export class JournalQueryService {
 
     const rawLines = await this.dataSource.manager
       .getRepository(JournalEntryLine)
+      // tenant-scope-guard-allow: líneas de asientos ya acotados por empresa arriba, por sus ids.
+      // `journal_entry_lines` hereda la política de `journal_entries`.
       .createQueryBuilder('line')
       .innerJoin('line.journalEntry', 'entry')
       .innerJoin('line.account', 'account')
@@ -451,6 +453,8 @@ export class JournalQueryService {
     if (lineIds.length === 0) return [];
     const repo = (manager ?? this.dataSource.manager).getRepository(JournalEntryLineValuation);
     const rows = await repo
+      // tenant-scope-guard-allow: valoraciones de líneas ya acotadas por empresa, por sus ids.
+      // `journal_entry_line_valuations` hereda la política de su línea.
       .createQueryBuilder('valuation')
       .where('valuation.journalEntryLineId IN (:...ids)', { ids: lineIds })
       .andWhere('valuation.ledgerId = :ledgerId', { ledgerId })

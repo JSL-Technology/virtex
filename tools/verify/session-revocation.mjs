@@ -52,7 +52,12 @@ const REVOCATION_MARKERS = [
   'sessionRegistry',
   'SessionRegistryService',
   // These delegate to a validator that consults it.
-  'userIdentityService.resolveFromPayload',
+  //
+  // Matched on the METHOD and not on the property it is called through: whether a class injects
+  // it as `userIdentityService`, `userIdentity` or `identity` is a naming choice, and a checker
+  // that depends on that choice reports a hole where there is none — which is how a correctly
+  // delegating WebSocket handshake came to be flagged.
+  'resolveFromPayload',
   'validateTokenAndGetUser',
   'verifyUserFromToken',
 ];

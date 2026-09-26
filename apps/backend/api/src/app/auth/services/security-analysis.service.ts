@@ -239,11 +239,53 @@ export class SecurityAnalysisService {
     }
   }
 
-  async resetLoginAttempts(user: User) {
-    if (user.security && (user.security.failedLoginAttempts > 0 || user.security.lockoutUntil)) {
+  /**
+   * Clear the failed-attempt budget after a successful authentication.
+   *
+   * ## Why this is called from `TokenService` and not from the login path
+   *
+   * It used to be called from exactly one place — `AuthService.login`, on the branch that issues a
+   * session WITHOUT a second factor. Every other way of authenticating skipped it: the 2FA branch
+   * returns before reaching it, and so do WebAuthn, the federated flows and the invitation flow.
+   *
+   * For an account with 2FA the counter therefore only ever went up. After five typos accumulated
+   * across the life of the account, `failed_login_attempts + 1 >= MAX` was permanently true, so
+   * every subsequent mistype — one, ever — locked the account for fifteen minutes. The control
+   * punished precisely the people who had enabled the second factor, and it did so more the longer
+   * they had used it.
+   *
+   * It now hangs off `TokenService.generateAuthResponse`, which is the single point every
+   * successful authentication passes through, so "authenticated" and "budget cleared" cannot come
+   * apart again. `generate-auth-response.spec.ts` fixes that.
+   *
+   * ## Why the write is a conditional UPDATE
+   *
+   * The previous version mutated the in-memory entity and called `usersService.save(user)`, which
+   * persists the whole entity graph — the same read-modify-write that `handleFailedLoginAttempt`
+   * above documents having caused lost increments and clobbered neighbouring columns. Now that
+   * this runs on EVERY sign-in rather than on some of them, that shape would matter far more
+   * often. One statement, one row, only the two columns that are this control's business, and
+   * only when there is something to clear.
+   */
+  async resetLoginAttempts(user: User): Promise<void> {
+    const securityId = user.security?.id;
+    if (!securityId) return;
+
+    await this.userSecurityRepository.query(
+      `
+      UPDATE "user_security"
+         SET "failed_login_attempts" = 0,
+             "lockout_until" = NULL
+       WHERE "id" = $1
+         AND ("failed_login_attempts" <> 0 OR "lockout_until" IS NOT NULL)
+      `,
+      [securityId],
+    );
+
+    // Keep the in-memory copy truthful for anything that inspects it later in the request.
+    if (user.security) {
       user.security.failedLoginAttempts = 0;
       user.security.lockoutUntil = null;
-      await this.usersService.save(user);
     }
   }
 }

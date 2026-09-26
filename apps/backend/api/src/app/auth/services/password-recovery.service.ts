@@ -61,6 +61,8 @@ export class PasswordRecoveryService {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
     const user = await this.userRepository
+      // tenant-scope-guard-allow: recuperación de contraseña. Se busca por correo, que es global, y
+      // ocurre sin sesión: no hay empresa activa por la que filtrar.
       .createQueryBuilder('user')
       .innerJoinAndSelect('user.security', 'security')
       .leftJoinAndSelect('user.roles', 'roles')

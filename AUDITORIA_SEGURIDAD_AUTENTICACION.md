@@ -4,6 +4,19 @@ Alcance: `apps/backend/api` (NestJS/Fastify/TypeORM/PostgreSQL), `apps/core/clie
 `apps/pos`, `libs/shared/util-auth`, `tools/verify/*`, migraciones y CI.
 Fecha: 2026-09-21. Revisión sobre `claude/security-auth-audit-6k564x`.
 
+> **ESTADO: TODOS LOS HALLAZGOS CORREGIDOS.**
+>
+> Este documento se conserva como el informe original —el diagnóstico, el camino de ataque de
+> cada hallazgo y la nota de cada eje antes de tocar nada— porque un informe reescrito a
+> posteriori deja de ser una auditoría y pasa a ser una declaración. Lo que se hizo con cada
+> hallazgo está en `AUDITORIA_SEGURIDAD_REMEDIACION.md`, que también recoge los **tres hallazgos
+> nuevos** que aparecieron al arreglar los quince —uno de ellos crítico, en `bi/`, encontrado por
+> el propio verificador ampliado— y las notas finales.
+>
+> Verificado contra una base de datos PostgreSQL real: 2.276 pruebas, `verify:security` (cinco
+> comprobaciones), `verify:rls`, `verify:rls-runtime` conectando como el rol acotado,
+> `verify:boot` y las invariantes de traducción, todo en verde.
+
 ---
 
 ## Paso 0 — El estándar contra el que se juzga

@@ -22,15 +22,37 @@ export class ImpersonationService {
   }
 
   /**
-   * Los permisos que alguien tiene por sus roles.
+   * Los permisos de una ENTIDAD `User` recién leída, aplanados desde sus roles.
    *
-   * Tipado por lo que realmente lee y no como `Pick<User, 'roles'>`: los dos llamantes le pasan
-   * cosas distintas —la entidad `User` del suplantado y el principal de quien suplanta— y ninguna
-   * de las dos es la otra. Nombrar el requisito real hace que ambas valgan y dice qué se hace con
-   * el argumento.
+   * Solo vale para eso. El principal de la petición NO se resuelve así, y creer que sí era el
+   * defecto: `AuthenticatedUser.roles` lo construye `UserIdentityService.buildPrincipal` como
+   * `roleNamesFor(...).map((name) => ({ name }))` —objetos con nombre y nada más—, mientras que
+   * los permisos viven en `principal.permissions`, que es lo que lee `PermissionsGuard`, lo que
+   * lee `RolesService` y lo que lee el guard del frontend.
+   *
+   * Este servicio era el único que los buscaba en `roles[].permissions`, y ahí el array está
+   * SIEMPRE vacío. Consecuencia medida: `hasPermission([], ['users:impersonate'])` es falso
+   * siempre, de modo que la suplantación respondía 403 a todo el mundo; y
+   * `assertNoPrivilegeGain` —la defensa contra la escalada— comparaba contra el conjunto vacío.
+   * Fallaba cerrado, que es la suerte que se tuvo, no el diseño que se eligió.
+   *
+   * La prueba lo tapaba: `impersonation.service.spec.ts` fabricaba el principal como
+   * `roles: [{ name: 'custom', permissions }]`, una forma que producción no emite jamás. Ahora el
+   * spec construye el principal con el mismo `buildPrincipal` que usa el servidor.
    */
-  private permissionsOf(user: { roles?: readonly { permissions?: string[] }[] | null }): string[] {
+  private permissionsOfEntity(user: { roles?: readonly { permissions?: string[] }[] | null }): string[] {
     return [...new Set((user.roles || []).flatMap((role) => role.permissions || []))];
+  }
+
+  /**
+   * Los permisos de quien actúa, leídos de donde el resto del sistema los lee.
+   *
+   * `principal.permissions` ya viene resuelto POR EMPRESA activa (`UserIdentityService.permissionsFor`),
+   * así que un operador que administra una empresa y solo mira otra no arrastra sus derechos de la
+   * primera a la segunda al suplantar en ella.
+   */
+  private permissionsOfPrincipal(actor: AuthenticatedUser): string[] {
+    return actor?.permissions ?? [];
   }
 
   /**
@@ -49,7 +71,7 @@ export class ImpersonationService {
    * subset of their own, which is invariant to naming and works for arbitrary custom roles.
    */
   private assertNoPrivilegeGain(actorPermissions: string[], target: User): void {
-    const targetPermissions = this.permissionsOf(target);
+    const targetPermissions = this.permissionsOfEntity(target);
 
     // The wildcard is absolute: only another super-admin may assume it.
     if (targetPermissions.includes('*') && !actorPermissions.includes('*')) {
@@ -84,7 +106,7 @@ export class ImpersonationService {
       throw new BadRequestError('auth.you_cannot_impersonate_yourself');
     }
 
-    const actorPermissions = this.permissionsOf(adminUser);
+    const actorPermissions = this.permissionsOfPrincipal(adminUser);
     if (!hasPermission(actorPermissions, ['users:impersonate'])) {
       this.logger.warn(
         { event: 'impersonation_denied', adminId: adminUser.id, reason: 'missing_permission' },
@@ -132,6 +154,9 @@ export class ImpersonationService {
       throw new BadRequestError('auth.no_active_impersonation_session_found_stop');
     }
 
+    // tenant-scope-guard-allow: el operador original de una suplantación, buscado por el id que
+    // lleva el token. Se lee para TERMINAR la suplantación, y su empresa es justamente el dato
+    // que se está restaurando.
     const adminUser = await this.userRepository.findOne({
       where: { id: impersonatingUser.originalUserId },
       relations: ['roles'],

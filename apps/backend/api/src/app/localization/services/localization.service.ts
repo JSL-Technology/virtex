@@ -167,6 +167,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
   }
 
   async findById(id: string): Promise<FiscalRegion | null> {
+    // tenant-scope-guard-allow: `fiscal_regions` es catálogo global de regiones fiscales.
     return this.fiscalRegionRepository.findOneBy({ id });
   }
 

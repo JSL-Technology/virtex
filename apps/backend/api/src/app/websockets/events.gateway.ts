@@ -8,20 +8,27 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger, forwardRef } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { UserCacheService } from '../auth/modules/user-cache.service';
 import { KeyManagementService } from '../auth/services/key-management.service';
-import { SessionRegistryService } from '../auth/services/session-registry.service';
+import { UserIdentityService } from '../auth/services/user-identity.service';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { AuthEvents, AuthSessionsRevokedEvent } from '../auth/events/auth.events';
 import { readAccessTokenCookie } from '../auth/services/access-token-cookie';
 
-@WebSocketGateway({
-  cors: {
-    origin: 'http://localhost:4200',
-    credentials: true,
-  },
-})
+/**
+ * CORS is deliberately NOT declared here.
+ *
+ * It used to be, as `origin: 'http://localhost:4200', credentials: true` — a second, fixed rule
+ * for the same session the HTTP API resolves from `CORS_ORIGIN`. In a deployment that refused the
+ * real front-end and kept a developer's origin on the allow-list of the production API.
+ *
+ * A decorator cannot read configuration: it is evaluated at import time, before `ConfigModule` has
+ * loaded anything, which is how it came to be hardcoded. `ConfiguredIoAdapter` supplies the
+ * origins from the running application instead, and its options override whatever is declared
+ * here — so leaving this bare is what makes there be exactly one rule.
+ */
+@WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -34,9 +41,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   >();
 
   constructor(
-    private readonly userCacheService: UserCacheService,
     private readonly keyManagementService: KeyManagementService,
-    private readonly sessionRegistry: SessionRegistryService,
+    // The one identity implementation. `UserCacheService` and `SessionRegistryService` used to be
+    // injected here so this gateway could re-derive, by hand, what `resolveFromPayload` already
+    // decides — and the hand-written copy got both the cached shape and the membership check
+    // wrong. They are gone from this constructor on purpose: there is nothing left here to
+    // re-derive them for.
+    @Inject(forwardRef(() => UserIdentityService))
+    private readonly userIdentityService: UserIdentityService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -63,33 +75,33 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // A session revoked out of band must not keep a socket alive.
+      // Identity is resolved by the SAME service the HTTP path uses, and that is the whole change.
       //
-      // `logout` and "revoke this device" deliberately do NOT bump `tokenVersion`, because that
-      // would end every other session the user has. Their only effect on an access token already
-      // in circulation is the denylist — which the HTTP path consults on every request
-      // (`UserIdentityService.resolveFromPayload`) and which this handshake did not consult at
-      // all. So a captured token still opened a socket after the victim pressed "cerrar sesión",
-      // and that socket kept receiving the tenant's events until the token expired on its own.
-      if (await this.sessionRegistry.isRevoked(payload.sessionId)) {
-        this.logger.warn(
-          { event: 'ws_revoked_session', userId: payload.id },
-          '[SECURITY] WebSocket handshake refused: the session behind this token was revoked',
-        );
-        client.disconnect(true);
-        return;
-      }
-
-      const cachedUser = await this.userCacheService.getUser(payload.id);
-      if (!cachedUser) {
-        client.disconnect();
-        return;
-      }
-      const cachedVersion = (cachedUser as any)?.security?.tokenVersion ?? 0;
-      if (cachedVersion !== payload.tokenVersion) {
-        client.disconnect();
-        return;
-      }
+      // This handshake used to carry its own copy of the checks, and the copy had drifted in two
+      // directions at once:
+      //
+      //  - It read `cachedUser.security.tokenVersion`. The cache holds the projection
+      //    `UserIdentityService.project()` writes, whose `tokenVersion` is a TOP-LEVEL field —
+      //    there is no `security` object on it. So the comparison was always `0 !== payload
+      //    .tokenVersion`, and every user who had ever changed their password or had a role
+      //    changed (tokenVersion >= 1) was refused a socket permanently. It failed closed, which
+      //    is why nobody read it as a security bug; it was still the same defect as reading the
+      //    wrong field for an authorisation decision.
+      //
+      //  - It never re-checked that the user still belongs to `payload.organizationId`, which is
+      //    the room it then joined. Removing somebody from a company does not bump `tokenVersion`,
+      //    so an ex-member kept receiving that tenant's events until their access token expired.
+      //
+      // `resolveFromPayload` answers all of it in one place: the revocation denylist, the
+      // cache-through load, the token version against the freshly loaded record, the status
+      // allow-list, and membership of the organization the token names. It throws on every
+      // rejection path, which is what the catch below turns into a disconnect.
+      const principal = await this.userIdentityService.resolveFromPayload({
+        id: payload.id,
+        tokenVersion: payload.tokenVersion,
+        organizationId: payload.organizationId,
+        sessionId: payload.sessionId,
+      } as JwtPayload);
 
       // Presence is tenant-scoped, and it was not.
       //
@@ -102,7 +114,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // The room is the boundary. A socket only ever hears what its own organization broadcasts,
       // and the per-document presence the product wants can be built on it without inheriting the
       // leak.
-      const organizationId = payload.organizationId;
+      // The tenant the PRINCIPAL resolved to, not the one the token asserted. They are the same
+      // whenever the token is honest; when it is not, this is the one that was checked.
+      const organizationId = principal.organizationId;
       if (!organizationId) {
         // A token without a tenant cannot be placed in a room, and a socket outside every room
         // would receive nothing anyway. Refusing is clearer than a silent, deaf connection.
@@ -112,14 +126,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.join(tenantRoom(organizationId));
       // The session is remembered so a later revocation can find this socket and hang up on it.
-      this.connectedUsers.set(payload.id, {
+      this.connectedUsers.set(principal.id, {
         socketId: client.id,
         organizationId,
         sessionId: payload.sessionId,
       });
 
       this.server.to(tenantRoom(organizationId)).emit('user-status-update', {
-        userId: payload.id,
+        userId: principal.id,
         isOnline: true,
       });
     } catch (e) {

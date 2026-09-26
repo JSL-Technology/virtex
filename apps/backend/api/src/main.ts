@@ -13,6 +13,8 @@ import { I18nService } from './app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
 import { DevSeederService } from './app/auth/services/dev-seeder.service';
 import { isDevLikeEnvironment } from './app/auth/auth.config';
+import { parseCorsOrigins } from './app/shared/http/cors-origins';
+import { ConfiguredIoAdapter } from './app/websockets/configured-io.adapter';
 
 import {
   FastifyAdapter,
@@ -62,6 +64,35 @@ export function parseTrustProxy(raw?: string): boolean | number | string[] {
   return value.split(',').map((entry) => entry.trim()).filter(Boolean);
 }
 
+/**
+ * A rejected promise nobody awaited must not be able to end the process.
+ *
+ * Node has terminated on `unhandledRejection` by default since v15, and this application had no
+ * handler at all. That turned every fire-and-forget call in a controller into a remote kill
+ * switch: `POST /analytical-reporting/synchronize-view` invoked its service without `await`, the
+ * service re-threw after rolling back, and a dimension whose name failed validation was enough
+ * for any tenant administrator to take the API down — repeatedly, at will.
+ *
+ * The call site is fixed (that route awaits now, and the name is validated at the DTO). This is
+ * the backstop for the class rather than the instance: 96 places in this codebase open their own
+ * transactions, and one of them forgetting an `await` should cost a log line and a request, not
+ * the process serving every other customer.
+ *
+ * Deliberately NOT installed for `uncaughtException`. An exception that escaped every frame leaves
+ * the process in a state nothing here can reason about, and continuing to serve from it is worse
+ * than dying and being restarted. A rejected promise is different: the failure is contained in the
+ * chain that produced it.
+ */
+function installUnhandledRejectionHandler(logger: { error: (...args: unknown[]) => void }): void {
+  process.on('unhandledRejection', (reason: unknown) => {
+    const error = reason instanceof Error ? reason : new Error(String(reason));
+    logger.error(
+      { event: 'unhandled_rejection', message: error.message, stack: error.stack },
+      'Una promesa rechazada llegó sin manejador. Se registra y el proceso sigue sirviendo.',
+    );
+  });
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -79,6 +110,10 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
 
+  // Installed as soon as there is a logger to report through, and before anything below can
+  // schedule work that might reject.
+  installUnhandledRejectionHandler(app.get(Logger));
+
   // The security headers follow the project's allow-list, not `=== 'production'`.
   //
   // With the deny-list, a deployment whose NODE_ENV was anything other than exactly `production`
@@ -93,9 +128,12 @@ async function bootstrap() {
   // styleSrc retains 'unsafe-inline' because Swagger UI injects inline styles at runtime.
   // connectSrc includes CORS_ORIGIN so Socket.IO / WebSocket connections from the frontend
   // are not blocked when the frontend runs on a different origin (H-11).
-  const corsOriginHeader = configService.get<string>('CORS_ORIGIN', 'http://localhost:4200');
-  const corsOrigins = corsOriginHeader.split(',').map((o) => o.trim());
-  const wsOrigins = corsOrigins.map((o) => o.replace(/^http/, 'ws'));
+  // One rule for HTTP and for the WebSocket. `EventsGateway` used to carry its own copy, written
+  // into its decorator as `http://localhost:4200`, which both blocked the real front-end in a
+  // deployment and left a developer's origin on the production allow-list with `credentials: true`.
+  const { http: corsOrigins, websocket: wsOrigins } = parseCorsOrigins(
+    configService.get<string>('CORS_ORIGIN'),
+  );
 
   await app.register(fastifyHelmet, {
     // HSTS: 1 year, include subdomains, preload — applied in production only.
@@ -135,7 +173,7 @@ async function bootstrap() {
 
   // H-01 FIX: corsOrigins already declared at top of bootstrap — reuse it here (CWE-703)
   app.enableCors({
-    origin: corsOrigins,
+    origin: [...corsOrigins],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
@@ -267,6 +305,10 @@ async function bootstrap() {
       console.warn('Dev seed skipped:', err instanceof Error ? err.message : err);
     }
   }
+
+  // Socket.IO answers the same origins the HTTP API does. Registered before `listen`, because
+  // that is when the adapter builds the server.
+  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, { http: corsOrigins, websocket: wsOrigins }));
 
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');

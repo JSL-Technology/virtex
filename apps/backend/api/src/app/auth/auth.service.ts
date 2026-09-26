@@ -18,7 +18,12 @@ import { TokenService } from './services/token.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordService } from './services/password.service';
-import { AuthEvents, AuthLoginFailedEvent, AuthLoginSuccessEvent } from './events/auth.events';
+import {
+  AuthAccountLockedEvent,
+  AuthEvents,
+  AuthLoginFailedEvent,
+  AuthLoginSuccessEvent,
+} from './events/auth.events';
 import { AuthenticatedUser } from '../security/principal';
 import { SafeUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
@@ -82,7 +87,7 @@ export class AuthService extends SessionSwitchPort {
     const user = await this.usersService.findUserForAuth(email);
 
     // ------------------------------------------------------------------------------------
-    // ACCOUNT ENUMERATION
+    // ACCOUNT ENUMERATION, AND THE LOCKOUT ORACLE
     //
     // The password is verified FIRST, before any account-state check, and every rejection
     // below this point returns the same INVALID_CREDENTIALS error.
@@ -93,8 +98,16 @@ export class AuthService extends SessionSwitchPort {
     // addresses were registered and which were locked or disabled — useful both for targeting
     // and as confirmation that a stuffing list is landing.
     //
-    // Distinct states are still reported, but ONLY to a caller who has already proved they hold
-    // the password, at which point they are not learning anything they did not already know.
+    // Verifying first fixed that and opened a second hole, which is what `assertNotLockedOut`
+    // below closes: a LOCKED account answered `AUTH_USER_BLOCKED` with `meta.lockoutUntil` when
+    // the password was right and `AUTH_INVALID_CREDENTIALS` when it was wrong — and only the
+    // wrong-password branch paid `simulateDelay()`. Two oracles, in the body and in the clock,
+    // on the one control whose entire job is to stop online guessing. The lockout did not stop
+    // the attacker guessing; it told them when they had won, and they simply waited it out.
+    //
+    // An account that is locked now answers EXACTLY as a wrong password does, at the same cost,
+    // whatever the password was. A rejection therefore carries one bit — "not signed in" — and
+    // that bit is the same one it has always carried.
     // ------------------------------------------------------------------------------------
     const isLockedOut = Boolean(
       user?.security?.lockoutUntil && new Date() < user.security.lockoutUntil,
@@ -120,16 +133,9 @@ export class AuthService extends SessionSwitchPort {
           throw new AuthException(AuthError.INVALID_CREDENTIALS);
     }
 
-    // Credentials are correct from here on, so revealing account state is safe.
-    if (isLockedOut) {
-      this.eventEmitter.emit(
-          AuthEvents.LOGIN_FAILED,
-          new AuthLoginFailedEvent(user.id, user.email, 'Account Locked', ipAddress, userAgent, correlationId)
-      );
-      throw new AuthException(AuthError.USER_BLOCKED, 401, {
-        lockoutUntil: user.security?.lockoutUntil,
-      });
-    }
+    // The password is right. That is still not enough while the account is locked, and saying so
+    // is what leaked it — so this says nothing the wrong-password branch above does not.
+    await this.assertNotLockedOut(user, isLockedOut, ipAddress, userAgent, correlationId);
 
     if (user.status !== UserStatus.ACTIVE) {
        this.eventEmitter.emit(
@@ -181,7 +187,10 @@ export class AuthService extends SessionSwitchPort {
 
     await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
 
-    await this.securityAnalysisService.resetLoginAttempts(user);
+    // `resetLoginAttempts` is deliberately NOT called here any more. It was called here and only
+    // here, which is exactly why an account with a second factor never had its budget cleared —
+    // the 2FA branch above returns before this line. It now hangs off
+    // `TokenService.generateAuthResponse`, the one point every successful authentication reaches.
 
     this.eventEmitter.emit(
         AuthEvents.LOGIN_SUCCESS,
@@ -245,6 +254,68 @@ export class AuthService extends SessionSwitchPort {
 
   private async simulateDelay() {
     return new Promise((resolve) => setTimeout(resolve, AuthConfig.SIMULATED_DELAY_MS));
+  }
+
+  /**
+   * Refuse a locked account WITHOUT telling the caller that is why.
+   *
+   * ## What this closes
+   *
+   * The lockout used to answer `AUTH_USER_BLOCKED` plus `meta.lockoutUntil` to a caller holding
+   * the correct password, and `AUTH_INVALID_CREDENTIALS` to one holding a wrong one — and only
+   * the second paid `simulateDelay()`. So the control that exists to stop online guessing
+   * announced the winning guess, in the body and in the latency, and the attacker only had to
+   * wait out the window it had just disclosed to them.
+   *
+   * ## Why it does the failed-attempt write too
+   *
+   * Uniformity has to hold in work as well as in words. The wrong-password branch performs an
+   * `UPDATE` on `user_security` before its delay; skipping it here would leave a residual timing
+   * difference of exactly one database round-trip between "right password" and "wrong password",
+   * which is the same oracle at a smaller amplitude.
+   *
+   * Counting it is also correct on its own terms rather than only convenient: while the account
+   * is locked NO password authenticates it, so an attempt made now has failed, and a lockout that
+   * slides on continued attempts is the documented behaviour of the control. It cannot be used to
+   * keep a victim locked out any longer than an attacker could already keep them locked out by
+   * sending wrong passwords, which is the same budget the throttler bounds.
+   *
+   * ## How the owner finds out
+   *
+   * Through `ACCOUNT_LOCKED`, which carries `lockoutUntil` inside the process to a channel that
+   * reaches the address on the account. Whoever is guessing is not that address.
+   */
+  private async assertNotLockedOut(
+    user: User,
+    isLockedOut: boolean,
+    ipAddress?: string,
+    userAgent?: string,
+    correlationId?: string,
+  ): Promise<void> {
+    if (!isLockedOut) return;
+
+    await this.securityAnalysisService.handleFailedLoginAttempt(user);
+
+    this.eventEmitter.emit(
+      AuthEvents.LOGIN_FAILED,
+      new AuthLoginFailedEvent(user.id, user.email, 'Account Locked', ipAddress, userAgent, correlationId),
+    );
+    this.eventEmitter.emit(
+      AuthEvents.ACCOUNT_LOCKED,
+      new AuthAccountLockedEvent(
+        user.id,
+        user.email,
+        user.security?.lockoutUntil ?? null,
+        true,
+        ipAddress,
+        userAgent,
+        correlationId,
+      ),
+    );
+
+    await this.simulateDelay();
+    // Byte for byte what a wrong password returns: no `meta`, no `lockoutUntil`, no distinct code.
+    throw new AuthException(AuthError.INVALID_CREDENTIALS);
   }
 
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {

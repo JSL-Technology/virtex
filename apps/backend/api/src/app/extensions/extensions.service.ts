@@ -303,10 +303,22 @@ export class ExtensionsService {
    * installed, under the capabilities those tenants had granted to a version they had reviewed and
    * this one had merely replaced.
    *
-   * The order of preference now is:
-   *  1. an explicit `version` the caller pinned in the request;
-   *  2. the version this tenant consented to;
-   *  3. the newest — only when there is no consent row at all, which is the case for a plugin that
+   * ## Why a pinned `version` is no longer honoured on its own
+   *
+   * `if (version) resolved = items.find(...)` came FIRST, before the consent row was even read.
+   * The tenant consented to version X and `{"pluginName":"...","version":"Y"}` ran Y. The
+   * capability check further down still applied, so the blast radius was bounded by what the
+   * tenant had already granted — but "this organization approved THIS code" stopped being true,
+   * and that sentence is the entire purpose of `consentedVersionId`.
+   *
+   * A pin is now a filter over the consented choice rather than a replacement for it: it is
+   * accepted only when it names the very version the tenant consented to, which keeps the
+   * legitimate use (a client that pins what it was told to run, so a catalogue update cannot
+   * change it mid-flight) and removes the bypass.
+   *
+   * The order of preference is therefore:
+   *  1. the version this tenant consented to — and if the caller pinned one, it must be that one;
+   *  2. the newest, ONLY when there is no consent row at all, which is the case for a plugin that
    *     declares no capabilities and therefore needs none.
    */
   private async resolveVersion(
@@ -324,19 +336,33 @@ export class ExtensionsService {
     const items = plugin.versions ?? [];
     const newest = [...items].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
 
-    let resolved: PluginVersion | undefined;
-    if (version) {
-      resolved = items.find((v) => v.version === version);
-    } else {
-      const consent = await this.consents.findOne({
-        where: { organizationId, pluginId: plugin.id },
-      });
-      resolved = consent?.consentedVersionId
-        ? items.find((v) => v.id === consent.consentedVersionId)
-        : newest;
-    }
+    const consent = await this.consents.findOne({
+      where: { organizationId, pluginId: plugin.id },
+    });
+
+    const consented = consent?.consentedVersionId
+      ? items.find((v) => v.id === consent.consentedVersionId)
+      : undefined;
+
+    const resolved = consented ?? newest;
 
     if (!resolved) throw new NotFoundError('extensions.version_not_found');
+
+    // A pin that disagrees with the consented version is refused rather than obeyed.
+    if (version && resolved.version !== version) {
+      this.logger.warn(
+        {
+          event: 'plugin_version_pin_refused',
+          organizationId,
+          pluginName,
+          requested: version,
+          consented: resolved.version,
+        },
+        '[SECURITY] Refused a pinned extension version the tenant has not consented to',
+      );
+      throw new ForbiddenError('extensions.version_not_consented', { version });
+    }
+
     resolved.plugin = plugin;
     return resolved;
   }
@@ -400,9 +426,20 @@ export class ExtensionsService {
       signature = admission.signature;
     }
 
-    // Consent enforcement: every declared capability must be granted by this tenant.
+    // Consent enforcement.
+    //
+    // The guard used to be `if (dto.pluginName && requiredCapabilities.length > 0)`, so an
+    // extension declaring `capabilities: []` skipped the block entirely — including the
+    // `consent?.enabled` check. Any tenant could therefore run any extension in the catalogue
+    // without having installed it. What such an extension can do is limited to `log`, so the
+    // blast radius was small; but "is this extension enabled for this tenant" is not a question
+    // whose answer should depend on how many capabilities it happens to declare.
+    //
+    // Installation is now checked whenever a catalogue extension is named. The capability
+    // comparison stays inside its own condition, because an extension needing none has nothing
+    // to compare.
     let authorizedCapabilities: string[] = [];
-    if (dto.pluginName && requiredCapabilities.length > 0) {
+    if (dto.pluginName) {
       const plugin = await this.plugins.findOne({ where: { name: dto.pluginName } });
       const consent = await this.consents.findOne({
         where: { organizationId, pluginId: plugin!.id },
@@ -410,7 +447,8 @@ export class ExtensionsService {
       if (!consent?.enabled) {
         throw new ForbiddenError('extensions.extension_not_enabled_for_this_tenant');
       }
-      const granted = consent?.grantedCapabilities ?? [];
+
+      const granted = consent.grantedCapabilities ?? [];
       const missing = requiredCapabilities.filter((cap) => !granted.includes(cap));
       if (missing.length > 0) {
         throw new ForbiddenException({

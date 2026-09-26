@@ -11,6 +11,7 @@ import { PluginAdmissionService } from './services/plugin-admission.service';
 import { MeteringService } from './services/metering.service';
 import { BillingService } from './services/billing.service';
 import { SigningKeyProvider } from './services/signing-key.provider';
+import { AuthModule } from '../auth/auth.module';
 
 /**
  * The extensions ("virtual machine for extensions") capability, consolidated from the standalone
@@ -21,6 +22,15 @@ import { SigningKeyProvider } from './services/signing-key.provider';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Plugin, PluginVersion, TenantConsent, MeteringRecord]),
+    // `ExtensionsController` aplica `@UseGuards(StepUpGuard)` en publicar y revocar, y ese guard
+    // necesita `JwtService` — que provee `AuthModule`. Sin este import la aplicación NO ARRANCA:
+    // «Nest can't resolve dependencies of the StepUpGuard (Reflector, ?, AtomicCacheService) …
+    // make sure that the argument JwtService at index [1] is available in the ExtensionsModule
+    // context».
+    //
+    // Estaba oculto detrás de dos fallos de arranque anteriores, y `verify:boot` se detiene en el
+    // primero que encuentra.
+    AuthModule,
   ],
   controllers: [ExtensionsController],
   providers: [

@@ -78,6 +78,16 @@ export enum StepUpScope {
    * ten-minute window is the trade the rest of this enum already makes for routine administration.
    */
   VIEW_PAYROLL_DATA = 'view_payroll_data',
+  /**
+   * Rebuilding the shared analytical view.
+   *
+   * `synchronizeView` DROPs `analytical_report_data` and recreates it for the whole installation.
+   * It is destructive, it is platform-wide, and until this audit it was reachable with nothing but
+   * a live session and a permission every tenant administrator holds. Single-use: one
+   * re-authentication must not cover an unbounded number of rebuilds of a view every customer
+   * reports from.
+   */
+  REBUILD_ANALYTICAL_VIEW = 'rebuild_analytical_view',
 }
 
 /**
@@ -105,4 +115,5 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.MANAGE_SSO,
   StepUpScope.PUBLISH_EXTENSION,
   StepUpScope.APPROVE_PAYROLL,
+  StepUpScope.REBUILD_ANALYTICAL_VIEW,
 ]);

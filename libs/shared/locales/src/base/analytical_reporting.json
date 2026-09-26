@@ -4,11 +4,6 @@
     "en": "The analytical view could not be synchronized: {{p1}}",
     "pt": "Não foi possível sincronizar a visão analítica: {{p1}}"
   },
-  "analytical_reporting.analytical_view_synchronization_has_started": {
-    "es": "La sincronización de la vista analítica ha sido iniciada.",
-    "en": "The analytical view synchronization has started.",
-    "pt": "A sincronização da visão analítica foi iniciada."
-  },
   "analytical_reporting.dimension_field_name_contains_invalid_characters": {
     "es": "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}",
     "en": "The dimension or field name contains invalid characters: {{name}}",
@@ -19,10 +14,10 @@
     "en": "The materialized view has been synchronized and rebuilt with the current dimensions.",
     "pt": "A visão materializada foi sincronizada e recriada com as dimensões atuais."
   },
-  "analytical_reporting.materialized_view_refresh_has_started": {
-    "es": "El refresco de la vista materializada ha sido iniciado.",
-    "en": "The materialized view refresh has started.",
-    "pt": "A atualização da visão materializada foi iniciada."
+  "analytical_reporting.materialized_view_refreshed": {
+    "es": "La vista materializada se ha refrescado.",
+    "en": "The materialized view has been refreshed.",
+    "pt": "A vista materializada foi atualizada."
   },
   "analytical_reporting.unsupported_filter_operator_operator": {
     "es": "Operador de filtro no soportado: {{operator}}",

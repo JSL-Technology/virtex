@@ -573,6 +573,7 @@ export class UsersService extends UserProfilePort {
     dto: RequestEmailChangeDto,
     alreadyReauthenticated = false,
   ): Promise<void> {
+    // tenant-scope-guard-allow: la propia cuenta del llamante, al pedir un cambio de correo.
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['security'],
@@ -585,6 +586,8 @@ export class UsersService extends UserProfilePort {
         if (!passwordValid) throw new UnauthorizedError('users.incorrect_credentials');
     }
 
+    // tenant-scope-guard-allow: unicidad del correo, que es GLOBAL en el producto: una persona
+    // tiene una sola cuenta aunque trabaje para varias empresas.
     const conflict = await this.userRepository.findOne({ where: { email: dto.newEmail } });
     if (conflict) {
       // Return generic message to avoid leaking email enumeration
@@ -601,6 +604,7 @@ export class UsersService extends UserProfilePort {
   }
 
   async confirmEmailChange(userId: string, dto: ConfirmEmailChangeDto): Promise<void> {
+    // tenant-scope-guard-allow: la propia cuenta del llamante, al confirmar el cambio de correo.
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['security'],
