@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
 import { Plugin } from './entities/plugin.entity';
 import { PluginVersion } from './entities/plugin-version.entity';
 import { TenantConsent } from './entities/tenant-consent.entity';
@@ -21,6 +22,12 @@ import { SigningKeyProvider } from './services/signing-key.provider';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Plugin, PluginVersion, TenantConsent, MeteringRecord]),
+    // `ExtensionsController` guards two routes with `StepUpGuard`, which needs `JwtService` —
+    // nothing here provided it, so the application could not boot: "make sure that the argument
+    // JwtService ... is available in the ExtensionsModule module." `forwardRef` defensively,
+    // matching how every other module reaches into `AuthModule`, even though nothing here forms
+    // a cycle with it today.
+    forwardRef(() => AuthModule),
   ],
   controllers: [ExtensionsController],
   providers: [

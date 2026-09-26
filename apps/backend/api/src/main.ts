@@ -20,6 +20,12 @@ import {
 } from '@nestjs/platform-fastify';
 
 /**
+ * Mirrors Fastify's own (internal, unexported) `TrustProxyFunction` shape structurally, since
+ * `fastify` does not export it for consumers to name directly.
+ */
+type TrustProxyFunction = (address: string, hop: number) => boolean;
+
+/**
  * Compare two strings without leaking their common prefix through timing.
  *
  * Both sides are hashed to a fixed width first, so `timingSafeEqual` never sees buffers of
@@ -46,7 +52,7 @@ export function timingSafeEquals(a: string, b: string): boolean {
  *   - "2"    => trust N hops (use when chaining CDN + LB).
  *   - CIDR/IP list ("10.0.0.0/8,192.168.1.1") => trust only these proxies. Most precise option.
  */
-export function parseTrustProxy(raw?: string): boolean | number | string[] {
+export function parseTrustProxy(raw?: string): boolean | string[] | TrustProxyFunction {
   const value = raw?.trim();
   if (!value) {
     // Allow-list. Getting this wrong is not cosmetic: with `trustProxy: false` behind a proxy,
@@ -54,12 +60,23 @@ export function parseTrustProxy(raw?: string): boolean | number | string[] {
     // into one shared bucket, misattributes lockouts, and defeats impossible-travel detection and
     // the IP binding of the pending-2FA session. A deployment that has not set NODE_ENV correctly
     // must get the deployment default (one hop), not the development one.
-    return isDevLikeEnvironment() ? false : 1;
+    return isDevLikeEnvironment() ? false : trustHops(1);
   }
   if (value.toLowerCase() === 'true') return true;
   if (value.toLowerCase() === 'false') return false;
-  if (/^\d+$/.test(value)) return Number(value);
+  if (/^\d+$/.test(value)) return trustHops(Number(value));
   return value.split(',').map((entry) => entry.trim()).filter(Boolean);
+}
+
+/**
+ * "Trust N hops" as Fastify's own contract expects it: a function, not a number.
+ *
+ * Fastify's `trustProxy` type dropped the bare-number shorthand this codebase relied on; `hop`
+ * counts outward from the immediate connecting peer (1), which is exactly what the numeric form
+ * meant, so this reproduces it rather than changing the accepted `TRUST_PROXY` values.
+ */
+function trustHops(hops: number): TrustProxyFunction {
+  return (_address, hop) => hop <= hops;
 }
 
 async function bootstrap() {
