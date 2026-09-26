@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { User } from '../entities/user.entity/user.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
  * El espacio de trabajo de una persona en una empresa.
@@ -12,8 +14,19 @@ export class UserWorkspace {
   @PrimaryColumn({ name: 'user_id', type: 'uuid' })
   userId: string;
 
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id', foreignKeyConstraintName: 'FK_user_workspaces_user' })
+  user?: User;
+
   @PrimaryColumn({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organization_id',
+    foreignKeyConstraintName: 'FK_user_workspaces_organization',
+  })
+  organization?: Organization;
 
   /**
    * La versión del esquema con la que el cliente escribió esto.

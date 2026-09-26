@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { PluginVersion } from './plugin-version.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PluginStatus {
   ACTIVE = 'ACTIVE',
@@ -69,6 +72,13 @@ export class Plugin {
   @Index('IDX_plugins_publisher_organization')
   @Column({ name: 'publisher_organization_id', type: 'uuid', nullable: true })
   publisherOrganizationId: string | null;
+
+  @ManyToOne(() => Organization, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'publisher_organization_id',
+    foreignKeyConstraintName: 'FK_plugins_publisher_organization',
+  })
+  publisherOrganization?: Organization;
 
   @Column({ type: 'enum', enum: PluginStatus, default: PluginStatus.ACTIVE })
   status: PluginStatus;

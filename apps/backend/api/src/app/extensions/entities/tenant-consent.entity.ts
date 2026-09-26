@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Plugin } from './plugin.entity';
+import { PluginVersion } from './plugin-version.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
@@ -65,6 +66,13 @@ export class TenantConsent {
   @Column({ name: 'consented_version_id', type: 'uuid', nullable: true })
   consentedVersionId: string | null;
 
+  @ManyToOne(() => PluginVersion, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'consented_version_id',
+    foreignKeyConstraintName: 'FK_plugin_consent_consented_version',
+  })
+  consentedVersion?: PluginVersion;
+
   /**
    * A newer version the publisher has released and this tenant has not yet accepted.
    *
@@ -73,6 +81,13 @@ export class TenantConsent {
    */
   @Column({ name: 'pending_version_id', type: 'uuid', nullable: true })
   pendingVersionId: string | null;
+
+  @ManyToOne(() => PluginVersion, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'pending_version_id',
+    foreignKeyConstraintName: 'FK_plugin_consent_pending_version',
+  })
+  pendingVersion?: PluginVersion;
 
   @Column({ default: true })
   enabled: boolean;
