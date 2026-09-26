@@ -8,13 +8,20 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Inject, Logger, forwardRef } from '@nestjs/common';
+import { Inject, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { KeyManagementService } from '../auth/services/key-management.service';
 import { UserIdentityService } from '../auth/services/user-identity.service';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { AuthEvents, AuthSessionsRevokedEvent } from '../auth/events/auth.events';
 import { readAccessTokenCookie } from '../auth/services/access-token-cookie';
+import { SessionRevocationBroadcaster, SessionsRevokedMessage } from './session-revocation-broadcaster';
+
+interface Presence {
+  socketId: string;
+  organizationId: string;
+  sessionId?: string;
+}
 
 /**
  * CORS is deliberately NOT declared here.
@@ -29,16 +36,24 @@ import { readAccessTokenCookie } from '../auth/services/access-token-cookie';
  * here — so leaving this bare is what makes there be exactly one rule.
  */
 @WebSocketGateway()
-export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(EventsGateway.name);
-  /** userId → the socket it is on, the tenant whose room it joined, and the session behind it. */
-  private connectedUsers = new Map<
-    string,
-    { socketId: string; organizationId: string; sessionId?: string }
-  >();
+  /**
+   * userId → socketId → the tenant that socket joined and the session behind it.
+   *
+   * Keyed by socket, not by user: a user can hold more than one socket at once (two tabs, a
+   * phone and a laptop), and a `Map<userId, Presence>` can only ever remember the LAST one to
+   * connect. The one before it was silently overwritten in this map while its socket stayed
+   * open — so revoking that earlier session found only the newer socket here, decided its
+   * family did not match the revoked one, and left the actually-revoked socket connected until
+   * its access token expired on its own.
+   */
+  private connectedUsers = new Map<string, Map<string, Presence>>();
+  /** socketId → userId, the reverse index a per-socket disconnect needs to find its owner in O(1). */
+  private socketOwners = new Map<string, string>();
 
   constructor(
     private readonly keyManagementService: KeyManagementService,
@@ -49,7 +64,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // re-derive them for.
     @Inject(forwardRef(() => UserIdentityService))
     private readonly userIdentityService: UserIdentityService,
+    private readonly sessionRevocationBroadcaster: SessionRevocationBroadcaster,
   ) {}
+
+  onModuleInit(): void {
+    // Every replica reacts to every revocation through this one path — see
+    // `SessionRevocationBroadcaster` for why, including the one that originated it.
+    this.sessionRevocationBroadcaster.onRevoked((message) => this.disconnectRevokedSessions(message));
+  }
 
   async handleConnection(client: Socket) {
     try {
@@ -125,17 +147,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       client.join(tenantRoom(organizationId));
-      // The session is remembered so a later revocation can find this socket and hang up on it.
-      this.connectedUsers.set(principal.id, {
-        socketId: client.id,
-        organizationId,
-        sessionId: payload.sessionId,
-      });
 
-      this.server.to(tenantRoom(organizationId)).emit('user-status-update', {
-        userId: principal.id,
-        isOnline: true,
-      });
+      // The session is remembered so a later revocation can find this socket and hang up on it.
+      let sockets = this.connectedUsers.get(principal.id);
+      const isFirstSocket = !sockets || sockets.size === 0;
+      if (!sockets) {
+        sockets = new Map();
+        this.connectedUsers.set(principal.id, sockets);
+      }
+      sockets.set(client.id, { socketId: client.id, organizationId, sessionId: payload.sessionId });
+      this.socketOwners.set(client.id, principal.id);
+
+      // Announced only for the user's first socket: a second tab or device reconnecting is not a
+      // new online status, and re-announcing it on every one would be noise the room already saw.
+      if (isFirstSocket) {
+        this.server.to(tenantRoom(organizationId)).emit('user-status-update', {
+          userId: principal.id,
+          isOnline: true,
+        });
+      }
     } catch (e) {
       client.disconnect();
     }
@@ -172,49 +202,72 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /**
-   * Hang up on the sockets of a session that has just been revoked.
+   * Tells every replica a session was revoked; each reacts through `disconnectRevokedSessions`.
    *
-   * The handshake check above closes the door for NEW connections; this closes it for the one
-   * already inside. A WebSocket authenticates once and then never makes another authenticated
-   * request, so without this the denylist has nothing to act on and the socket outlives the
-   * session by up to the full access-token lifetime.
+   * The handshake check in `handleConnection` closes the door for NEW connections; that closes
+   * it for the one already inside. A WebSocket authenticates once and then never makes another
+   * authenticated request, so without this the denylist has nothing to act on and the socket
+   * outlives the session by up to the full access-token lifetime.
+   *
+   * This only publishes — see `SessionRevocationBroadcaster` for why disconnecting also happens
+   * through that same round trip rather than directly here, including on the replica that
+   * received this very event.
    */
   @OnEvent(AuthEvents.SESSIONS_REVOKED)
   handleSessionsRevoked(event: AuthSessionsRevokedEvent): void {
-    const revoked = new Set(event.sessionIds);
-    for (const [userId, presence] of this.connectedUsers.entries()) {
-      if (userId !== event.userId) continue;
+    void this.sessionRevocationBroadcaster.publish({
+      userId: event.userId,
+      sessionIds: [...event.sessionIds],
+    });
+  }
+
+  /** Hangs up on this replica's own sockets for a session family that was just revoked. */
+  private disconnectRevokedSessions(message: SessionsRevokedMessage): void {
+    const sockets = this.connectedUsers.get(message.userId);
+    if (!sockets) return;
+
+    const revoked = new Set(message.sessionIds);
+    for (const [socketId, presence] of [...sockets.entries()]) {
       // A socket that predates the `sessionId` claim cannot be attributed to a family. Ending
       // every socket of a user whose sessions are being revoked is the safe reading: the worst
       // case is that they reconnect, which costs a round trip and proves the token again.
       if (presence.sessionId && !revoked.has(presence.sessionId)) continue;
 
-      this.server.sockets.sockets.get(presence.socketId)?.disconnect(true);
-      this.connectedUsers.delete(userId);
+      this.server.sockets.sockets.get(socketId)?.disconnect(true);
+      sockets.delete(socketId);
+      this.socketOwners.delete(socketId);
       this.logger.log(
-        { event: 'ws_disconnected_on_revocation', userId },
+        { event: 'ws_disconnected_on_revocation', userId: message.userId },
         'Socket closed because its session was revoked',
       );
     }
+    if (sockets.size === 0) this.connectedUsers.delete(message.userId);
   }
 
   handleDisconnect(client: Socket) {
-    for (const [userId, presence] of this.connectedUsers.entries()) {
-      if (presence.socketId === client.id) {
-        this.connectedUsers.delete(userId);
-        this.logger.debug(`User disconnected: ${userId}`);
+    const userId = this.socketOwners.get(client.id);
+    if (!userId) return;
+    this.socketOwners.delete(client.id);
 
-        this.server
-          .to(tenantRoom(presence.organizationId))
-          .emit('user-status-update', { userId, isOnline: false });
-        break;
-      }
+    const sockets = this.connectedUsers.get(userId);
+    const presence = sockets?.get(client.id);
+    sockets?.delete(client.id);
+    this.logger.debug(`Socket disconnected: ${client.id} (user ${userId})`);
+
+    // Announced only once the user's LAST socket is gone: while another tab or device is still
+    // connected, the user is still online from the room's point of view.
+    if (presence && (!sockets || sockets.size === 0)) {
+      this.connectedUsers.delete(userId);
+      this.server
+        .to(tenantRoom(presence.organizationId))
+        .emit('user-status-update', { userId, isOnline: false });
     }
   }
 
   sendToUser(userId: string, event: string, data: unknown) {
-    const presence = this.connectedUsers.get(userId);
-    if (presence) {
+    const sockets = this.connectedUsers.get(userId);
+    if (!sockets) return;
+    for (const presence of sockets.values()) {
       this.server.to(presence.socketId).emit(event, data);
     }
   }
@@ -228,22 +281,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleUserStatusChanged(payload: { userId: string; isOnline: boolean }) {
     // Only the user's own tenant hears it. An event for somebody who is not connected has no room
     // to go to, and broadcasting it to everyone was how the leak got in.
-    const presence = this.connectedUsers.get(payload.userId);
+    const sockets = this.connectedUsers.get(payload.userId);
+    const presence = sockets ? sockets.values().next().value : undefined;
     if (!presence) return;
     this.server.to(tenantRoom(presence.organizationId)).emit('user-status-update', payload);
   }
 
   @SubscribeMessage('user-status')
   handleUserStatus(client: Socket, payload: { isOnline: boolean }): void {
-    for (const [userId, presence] of this.connectedUsers.entries()) {
-      if (presence.socketId === client.id) {
-        this.server.to(tenantRoom(presence.organizationId)).emit('user-status-update', {
-          userId,
-          isOnline: payload.isOnline,
-        });
-        break;
-      }
-    }
+    const userId = this.socketOwners.get(client.id);
+    if (!userId) return;
+    const presence = this.connectedUsers.get(userId)?.get(client.id);
+    if (!presence) return;
+    this.server.to(tenantRoom(presence.organizationId)).emit('user-status-update', {
+      userId,
+      isOnline: payload.isOnline,
+    });
   }
 }
 

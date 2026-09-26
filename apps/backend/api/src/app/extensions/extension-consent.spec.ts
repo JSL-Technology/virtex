@@ -27,27 +27,35 @@ describe('ExtensionsService.execute — el consentimiento no se elude', () => {
     const plugin = { id: 'plugin-1', name: 'demo', status: 'ACTIVE', versions };
 
     const sandbox = { run: jest.fn().mockResolvedValue({ success: true, logs: [] }) };
+    const save = jest.fn().mockImplementation((entity) => Promise.resolve(entity));
 
     // Constructor order: plugins, versions, consents, admission, sandbox, metering, billing.
     const service = new ExtensionsService(
       { findOne: jest.fn().mockResolvedValue(plugin) } as never,
       { find: jest.fn(), findOne: jest.fn() } as never,
-      { findOne: jest.fn().mockResolvedValue(options.consent ?? null), find: jest.fn() } as never,
+      {
+        findOne: jest.fn().mockResolvedValue(options.consent ?? null),
+        find: jest.fn(),
+        // Pinning a legacy, unpinned consent row on first read (see `resolveVersion`) saves it.
+        save,
+      } as never,
       { validatePlugin: jest.fn() } as never,
       sandbox as never,
       { recordExecution: jest.fn().mockResolvedValue('metering-1'), finishExecution: jest.fn() } as never,
       { reconcile: jest.fn() } as never,
     );
 
-    return { service, sandbox };
+    return { service, sandbox, save };
   }
 
-  const version = (over: Partial<{ id: string; version: string; capabilities: string[] }> = {}) => ({
+  const version = (
+    over: Partial<{ id: string; version: string; capabilities: string[]; createdAt: Date }> = {},
+  ) => ({
     id: over.id ?? 'v1',
     version: over.version ?? '1.0.0',
     code: 'log("hi")',
     capabilities: over.capabilities ?? [],
-    createdAt: new Date('2026-01-01'),
+    createdAt: over.createdAt ?? new Date('2026-01-01'),
   });
 
   it('refuses a pinned version the tenant has not consented to', async () => {
@@ -98,6 +106,43 @@ describe('ExtensionsService.execute — el consentimiento no se elude', () => {
     );
 
     expect(sandbox.run).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The migration that added per-version consent left every EXISTING consent row with
+   * `consentedVersionId = NULL` — a tenant that had already granted capabilities, just before the
+   * column that pins them existed. That NULL read exactly like "no consent row at all" and kept
+   * resolving to `newest` on every call, forever: the automatic-upgrade behaviour this whole
+   * change exists to remove, reopened for every tenant who was consenting before the migration
+   * ran. A consent row that exists has to be pinned the first time it is read, not left floating.
+   */
+  it('pins a legacy consent row (a row that exists but has never been pinned) on first read', async () => {
+    const { service, sandbox, save } = build({
+      consent: { enabled: true, grantedCapabilities: [], consentedVersionId: undefined },
+      versions: [version({ id: 'v1', version: '1.0.0' }), version({ id: 'v2', version: '2.0.0', createdAt: new Date('2026-02-01') })],
+    });
+
+    await service.execute(ORG, { pluginName: 'demo' } as never, []);
+
+    expect(sandbox.run).toHaveBeenCalled();
+    expect(save).toHaveBeenCalledWith(
+      expect.objectContaining({ consentedVersionId: 'v2' }),
+    );
+  });
+
+  it('does not write a pin when there was no consent row at all', async () => {
+    const { service, save } = build({
+      consent: null,
+      versions: [version({ capabilities: [] })],
+    });
+
+    // No consent row exists for this tenant, so nothing to fall back to but "no capabilities
+    // required" — which the consent-enabled check below still refuses, but it must not have
+    // tried to persist a pin onto a row that was never there.
+    await expect(service.execute(ORG, { pluginName: 'demo' } as never, [])).rejects.toThrow(
+      ForbiddenException,
+    );
+    expect(save).not.toHaveBeenCalled();
   });
 
   it('still refuses inline code to a caller without the platform right', async () => {

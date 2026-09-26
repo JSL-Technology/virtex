@@ -348,6 +348,18 @@ export class ExtensionsService {
 
     if (!resolved) throw new NotFoundError('extensions.version_not_found');
 
+    // A consent ROW that exists but carries no pin is the legacy shape the migration left
+    // behind: "no consent at all" and "consented, but never pinned" both read as `undefined`
+    // above and both fell through to `newest`, which is exactly the automatic-upgrade behaviour
+    // `consentedVersionId` exists to remove. Only the first of those two should keep floating —
+    // a plugin with no capabilities needs no pin. The second is pinned NOW, to the version
+    // resolved today, so a version published tomorrow does not silently become "consented" the
+    // next time this tenant's code runs.
+    if (consent && !consent.consentedVersionId) {
+      consent.consentedVersionId = resolved.id;
+      await this.consents.save(consent);
+    }
+
     // A pin that disagrees with the consented version is refused rather than obeyed.
     if (version && resolved.version !== version) {
       this.logger.warn(

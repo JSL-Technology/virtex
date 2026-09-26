@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -10,16 +10,21 @@ import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { TokenService } from './token.service';
 import { ConflictError, UnauthorizedError } from '../../i18n/localized.exception';
+import { MfaPolicyPort } from '../ports/mfa-policy.port';
+import { resolveMfaEnrolmentClaim } from './mfa-enrolment-claim.util';
 
 @Injectable()
 export class SocialAuthService {
+  private readonly logger = new Logger(SocialAuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly auditService: AuditTrailService,
     private readonly securityAnalysisService: SecurityAnalysisService,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly mfaPolicy: MfaPolicyPort,
   ) {}
 
   // L-10: Hash PII (email/IP/UA) to a short, non-reversible digest before persisting in logs/audit.
@@ -84,7 +89,8 @@ export class SocialAuthService {
         undefined,
       );
 
-       const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
+       const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
+       const authResponse = await this.tokenService.generateAuthResponse(user, mfaClaim, ipAddress, userAgent);
        return { user, tokens: authResponse };
     }
 

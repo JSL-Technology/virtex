@@ -1,6 +1,7 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { EventsGateway } from './events.gateway';
+import { SessionRevocationBroadcaster } from './session-revocation-broadcaster';
 import { KeyManagementModule } from '../auth/services/key-management.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -18,7 +19,7 @@ import { AuthModule } from '../auth/auth.module';
     // today, and this keeps that from becoming a boot-order trap if something ever does.
     forwardRef(() => AuthModule),
   ],
-  providers: [EventsGateway],
+  providers: [EventsGateway, SessionRevocationBroadcaster],
   exports: [EventsGateway],
 })
 export class WebsocketsModule {}

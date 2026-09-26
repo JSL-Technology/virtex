@@ -34,6 +34,7 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
 import { MfaPolicyPort } from './ports/mfa-policy.port';
+import { resolveMfaEnrolmentClaim } from './services/mfa-enrolment-claim.util';
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
@@ -206,11 +207,11 @@ export class AuthService extends SessionSwitchPort {
     // sign-in would tell the user to do something they cannot reach — the same dead end the SSO
     // step-up path documents, where federated accounts were told to enable two-step verification
     // for an action that itself required two-step verification.
-    const mfaEnrolmentRequired = await this.organizationRequiresMfa(user.organizationId);
+    const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
 
     const authResponse = await this.tokenService.generateAuthResponse(
       user,
-      mfaEnrolmentRequired ? { mfaEnrolmentRequired: true } : {},
+      mfaClaim,
       ipAddress,
       userAgent,
       rememberMe,
@@ -225,31 +226,6 @@ export class AuthService extends SessionSwitchPort {
 
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     return this.tokenService.validateTokenAndGetUser(payload);
-  }
-
-  /**
-   * Whether this tenant requires every member to hold a second factor.
-   *
-   * Read through the port rather than by injecting `OrgSettingsService`, so `auth` keeps not
-   * depending on `organizations` — the direction that module graph deliberately runs in.
-   *
-   * Fails OPEN by explicit trade-off, and this is the one place in this file where that is the
-   * right answer: the setting is a tenant policy, not a credential. A settings row that cannot be
-   * read must not stop a user with a correct password from signing in, and the control is not
-   * bypassed by an attacker — it degrades for everyone equally and is restored with the read.
-   * A closed failure here would turn one slow query into a tenant-wide outage.
-   */
-  private async organizationRequiresMfa(organizationId: string | null | undefined): Promise<boolean> {
-    if (!organizationId) return false;
-    try {
-      return await this.mfaPolicy.requiresMfa(organizationId);
-    } catch (error) {
-      this.logger.warn(
-        { event: 'mfa_policy_unavailable', organizationId },
-        `Could not read the organization MFA policy: ${(error as Error).message}`,
-      );
-      return false;
-    }
   }
 
   private async simulateDelay() {

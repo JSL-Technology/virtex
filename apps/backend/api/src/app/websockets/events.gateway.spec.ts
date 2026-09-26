@@ -13,6 +13,24 @@ describe('EventsGateway · aislamiento entre empresas', () => {
   const ORG_A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   const ORG_B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
+  /**
+   * A stand-in for `SessionRevocationBroadcaster` that loops a publish straight back to whatever
+   * handler `onModuleInit` registered — the same round trip a single real Redis instance makes,
+   * just without the network hop. Good enough for these tests: they exercise what happens once a
+   * revocation is DELIVERED, not the delivery mechanism itself.
+   */
+  function buildBroadcaster() {
+    let handler: ((message: { userId: string; sessionIds: string[] }) => void) | null = null;
+    return {
+      onRevoked: (h: (message: { userId: string; sessionIds: string[] }) => void) => {
+        handler = h;
+      },
+      publish: async (message: { userId: string; sessionIds: string[] }) => {
+        handler?.(message);
+      },
+    };
+  }
+
   function build(options: { revokedSessions?: string[] } = {}) {
     const emitted: Array<{ room: string | null; event: string; data: unknown }> = [];
     const sockets = new Map<string, { disconnect: jest.Mock }>();
@@ -52,8 +70,10 @@ describe('EventsGateway · aislamiento entre empresas', () => {
           };
         },
       } as never,
+      buildBroadcaster() as never,
     );
     (gateway as unknown as { server: unknown }).server = server;
+    gateway.onModuleInit();
     return { gateway, emitted, sockets };
   }
 
