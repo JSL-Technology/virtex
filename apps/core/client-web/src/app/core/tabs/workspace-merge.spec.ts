@@ -4,7 +4,7 @@ import { TabModel, TabType } from './tab.model';
 const tab = (over: Partial<TabModel> & { route: string }): TabModel =>
   ({
     id: over.route,
-    type: TabType.LIST,
+    type: TabType.MODULE_LIST,
     title: over.route,
     icon: 'File',
     routeParams: {},

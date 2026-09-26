@@ -18,7 +18,7 @@ describe('Espacio de trabajo en el servidor', () => {
 
   const persistedTab = (route: string, extra: Record<string, unknown> = {}) => ({
     id: route,
-    type: TabType.LIST,
+    type: TabType.MODULE_LIST,
     title: route,
     icon: 'File',
     route,
