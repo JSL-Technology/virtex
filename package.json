@@ -209,7 +209,7 @@
     "nestjs-typeorm-paginate": "^4.1.0",
     "ng-recaptcha-19": "^20.0.4",
     "node-forge": "^1.3.1",
-    "nodemailer": "^7.0.5",
+    "nodemailer": "^10.0.10",
     "openid-client": "^5.7.1",
     "opossum": "^9.0.0",
     "otplib": "^12.0.1",
