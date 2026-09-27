@@ -177,6 +177,13 @@ jobs:
       - name: no untranslated interface text
         run: node tools/i18n/scan-hardcoded-strings.mjs --list
 
+      # The design system: no literal colours outside it, no token used that nothing defines, and
+      # every text/background pair it declares meets WCAG 2.1 contrast. Nothing ran this, and the
+      # module rail's notification badge shipped with `var(--color-danger)` — defined on two pages
+      # only — so everywhere else it rendered with no background at all.
+      - name: design system tokens and contrast
+        run: npm run lint:design-system
+
       # Proves no account name reaches a template as a raw translation map. `accounts.name` is
       # stored as `{ es, en }`, and printing it unguarded renders `[object Object]` — which is not
       # a type error, not a compile error and not a failed render. It is how the manual journal
