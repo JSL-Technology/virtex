@@ -12,7 +12,7 @@ import { Logger } from 'nestjs-pino';
 import { I18nService } from './app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
 import { DevSeederService } from './app/auth/services/dev-seeder.service';
-import { isDevLikeEnvironment } from './app/auth/auth.config';
+import { isDevLikeEnvironment } from './app/config/environment';
 import { parseCorsOrigins } from './app/shared/http/cors-origins';
 import { ConfiguredIoAdapter } from './app/websockets/configured-io.adapter';
 

@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { AnalyticalReportingService } from './analytical-reporting.service';
 import { AnalyticalQueryDto, PaginationOptionsDto } from './dto/analytical-query.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -8,9 +8,7 @@ import { RequiresPlatformPermission } from '../security/decorators/platform-perm
 import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
-import { StepUpGuard } from '../auth/guards/step-up.guard';
-import { StepUp } from '../auth/decorators/step-up.decorator';
-import { StepUpScope } from '../auth/enums/step-up-scope.enum';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 
 /**
  * El cubo analítico.
@@ -79,8 +77,7 @@ export class AnalyticalReportingController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.SYSTEM_MANAGE_VIEWS)
   @RequiresPlatformPermission(PLATFORM_PERMISSIONS.ANALYTICS_REBUILD_VIEW)
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.REBUILD_ANALYTICAL_VIEW)
+  @RequireStepUp(StepUpScope.REBUILD_ANALYTICAL_VIEW)
   async synchronizeView() {
     return this.reportingService.synchronizeView();
   }

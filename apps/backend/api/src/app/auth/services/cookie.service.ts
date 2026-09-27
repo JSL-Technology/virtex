@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { HttpResponse as Response } from '../../common/http/http.types';
-import { AuthConfig, isDevLikeEnvironment } from '../auth.config';
+import { AuthConfig } from '../auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 import * as crypto from 'crypto';
 
 /** Binding value used when a CSRF token is minted outside an authenticated session. */

@@ -11,7 +11,6 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
@@ -19,9 +18,7 @@ import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { StepUpGuard } from '../auth/guards/step-up.guard';
-import { StepUp } from '../auth/decorators/step-up.decorator';
-import { StepUpScope } from '../auth/enums/step-up-scope.enum';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import { AuditAccess } from '../audit/audit-access.decorator';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { ActionType } from '../audit/entities/audit-log.entity';
@@ -105,8 +102,7 @@ export class PayrollController {
    * one re-authentication authorises one approval, not an afternoon of them.
    */
   @Post('runs/:id/approve')
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.APPROVE_PAYROLL)
+  @RequireStepUp(StepUpScope.APPROVE_PAYROLL)
   @HasPermission(PERMISSIONS.PAYROLL_APPROVE)
   approve(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.approve(id, user.organizationId, user.id);
@@ -114,8 +110,7 @@ export class PayrollController {
 
   /** Paying is where the money actually leaves. Same treatment as approving. */
   @Post('runs/:id/pay')
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.APPROVE_PAYROLL)
+  @RequireStepUp(StepUpScope.APPROVE_PAYROLL)
   @HasPermission(PERMISSIONS.PAYROLL_PAY)
   pay(
     @Param('id', UuidParamPipe) id: string,
@@ -160,8 +155,7 @@ export class PayrollController {
    * hour at a time, and a prompt per row is a prompt people learn to click through.
    */
   @Get('runs/:id/payslips')
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.VIEW_PAYROLL_DATA)
+  @RequireStepUp(StepUpScope.VIEW_PAYROLL_DATA)
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
   @AuditAccess({ entity: 'payroll', action: ActionType.READ, identifiers: ['id'] })
   payslips(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { isDevLikeEnvironment } from '../../auth/auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 import { CLASSIFIED_TABLE_NAMES } from './tenant-table-classification';
 
 /**

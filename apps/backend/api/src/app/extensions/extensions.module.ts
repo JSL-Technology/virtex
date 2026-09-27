@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { Plugin } from './entities/plugin.entity';
@@ -22,14 +22,10 @@ import { SigningKeyProvider } from './services/signing-key.provider';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Plugin, PluginVersion, TenantConsent, MeteringRecord]),
-    // `ExtensionsController` aplica `@UseGuards(StepUpGuard)` en publicar y revocar, y ese guard
-    // necesita `JwtService` — que provee `AuthModule`. Sin este import la aplicación NO ARRANCA:
-    // «Nest can't resolve dependencies of the StepUpGuard (Reflector, ?, AtomicCacheService) …
-    // make sure that the argument JwtService at index [1] is available in the ExtensionsModule
-    // context». Estaba oculto detrás de dos fallos de arranque anteriores, y `verify:boot` se
-    // detiene en el primero que encuentra. `forwardRef` defensivamente, igual que el resto de
-    // módulos que alcanzan `AuthModule`, aunque hoy no forme un ciclo con él.
-    forwardRef(() => AuthModule),
+    // `RequireStepUp` aplica `StepUpGuard`, que necesita `JwtService` de `AuthModule`. Import
+    // directo, sin `forwardRef`: no hay ciclo (nada de lo que alcanza `AuthModule` importa este
+    // módulo), y un `forwardRef` sin ciclo solo esconde el que aparezca mañana.
+    AuthModule,
   ],
   controllers: [ExtensionsController],
   providers: [

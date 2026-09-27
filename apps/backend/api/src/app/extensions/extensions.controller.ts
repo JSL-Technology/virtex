@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
@@ -13,9 +12,7 @@ import { RequiresPlatformPermission } from '../security/decorators/platform-perm
 import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
-import { StepUpGuard } from '../auth/guards/step-up.guard';
-import { StepUp } from '../auth/decorators/step-up.decorator';
-import { StepUpScope } from '../auth/enums/step-up-scope.enum';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import { ExtensionsService } from './extensions.service';
 import { RegisterPluginDto } from './dto/register-plugin.dto';
 import { ExecutePluginDto } from './dto/execute-plugin.dto';
@@ -81,8 +78,7 @@ export class ExtensionsController {
   @Post()
   @HasPermission(PERMISSIONS.EXTENSIONS_MANAGE)
   @RequiresPlatformPermission(PLATFORM_PERMISSIONS.EXTENSIONS_PUBLISH)
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.PUBLISH_EXTENSION)
+  @RequireStepUp(StepUpScope.PUBLISH_EXTENSION)
   register(@Body() dto: RegisterPluginDto, @CurrentUser() user: AuthenticatedUser) {
     // The publisher is taken from the authenticated principal, never from the body: a name is an
     // identity, and letting the caller assert whose it is would undo the ownership check inside.
@@ -92,8 +88,7 @@ export class ExtensionsController {
   @Post(':name/revoke')
   @HasPermission(PERMISSIONS.EXTENSIONS_MANAGE)
   @RequiresPlatformPermission(PLATFORM_PERMISSIONS.EXTENSIONS_REVOKE)
-  @UseGuards(StepUpGuard)
-  @StepUp(StepUpScope.PUBLISH_EXTENSION)
+  @RequireStepUp(StepUpScope.PUBLISH_EXTENSION)
   revoke(@Param('name') name: string) {
     return this.extensions.revoke(name);
   }

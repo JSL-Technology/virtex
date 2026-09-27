@@ -13,7 +13,7 @@ import { ActiveTenantGuard } from './shared/tenancy/active-tenant.guard';
 import { TenantIsolationCheck } from './shared/tenancy/tenant-isolation.check';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
-import { isDevLikeEnvironment } from './auth/auth.config';
+import { isDevLikeEnvironment } from './config/environment';
 import { CsrfGuard } from './auth/guards/csrf.guard';
 import { MfaEnrolmentGuard } from './auth/guards/mfa-enrolment.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
@@ -63,6 +63,8 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { DimensionsModule } from './dimensions/dimensions.module';
 import { MailModule } from './mail/mail.module';
 import { WebsocketsModule } from './websockets/websockets.module';
+import { SocketAuthenticationModule } from './auth/socket-authentication.module';
+import { SsoAdminModule } from './auth/sso-admin.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditAdjustmentsModule } from './audit/adjustments/audit-adjustments.module';
 import { ComplianceModule } from './compliance/compliance.module';
@@ -319,6 +321,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     DimensionsModule,
     MailModule,
     WebsocketsModule,
+    SocketAuthenticationModule,
+    SsoAdminModule,
     AuditModule,
     AuditAdjustmentsModule,
     ComplianceModule,

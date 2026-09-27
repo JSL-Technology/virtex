@@ -43,6 +43,7 @@ const ALLOW = 'env-gating-allow';
 /** The file that DEFINES the allow-list is allowed to read the variable. */
 const DEFINITIONS = [
   join('apps', 'backend', 'api', 'src', 'app', 'auth', 'auth.config.ts'),
+  join('apps', 'backend', 'api', 'src', 'app', 'config', 'environment.ts'),
   join('apps', 'backend', 'api', 'src', 'app', 'config', 'env.validation.ts'),
   // This checker names the patterns it looks for, in strings.
   join('tools', 'verify', 'env-gating.mjs'),

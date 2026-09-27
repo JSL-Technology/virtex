@@ -26,7 +26,7 @@ import {
 } from '../../apps/backend/api/src/app/auth/entities/pending-registration.entity';
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
-import { isDevLikeEnvironment } from '../../apps/backend/api/src/app/auth/auth.config';
+import { isDevLikeEnvironment } from '../../apps/backend/api/src/app/config/environment';
 
 const EMAIL = process.env.DEMO_EMAIL ?? 'demo@virtex.test';
 const PASSWORD = process.env.DEMO_PASSWORD ?? 'Demo1234!';

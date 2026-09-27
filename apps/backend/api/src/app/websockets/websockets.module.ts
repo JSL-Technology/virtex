@@ -1,28 +1,18 @@
-
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { EventsGateway } from './events.gateway';
 import { SessionRevocationBroadcaster } from './session-revocation-broadcaster';
-import { KeyManagementModule } from '../auth/services/key-management.module';
-import { AuthModule } from '../auth/auth.module';
 
+/**
+ * The real-time channel. Platform code: it depends on no business module.
+ *
+ * Who a socket belongs to is answered through `SocketAuthenticatorPort`, which Identity provides
+ * globally (`SocketAuthenticationModule`); revocations arrive through `SessionRevocationBroadcaster`,
+ * which Identity publishes to. This module used to import `AuthModule` (behind a `forwardRef`) and
+ * `KeyManagementModule` so the gateway could verify tokens itself — the platform reaching into
+ * Identity, and a second copy of rules the HTTP path already owns.
+ */
 @Module({
-  imports: [
-    // Shares the single RS256 KeyManagementService instance so the gateway verifies
-    // access tokens with the same key the API signs them with.
-    KeyManagementModule,
-    // `EventsGateway` injects `SessionRegistryService`, which `AuthModule` provides and exports;
-    // nothing here imported it before, so the application could not even boot — Nest fails
-    // eagerly on an unresolved constructor dependency. `AuthModule` is also the single identity
-    // implementation, so the handshake decides who the caller is by the same rules every HTTP
-    // request does. `UserCacheModule` used to be imported here instead, for a hand-written copy of
-    // those rules that read the wrong field and skipped the membership check — see
-    // `EventsGateway.handleConnection`.
-    //
-    // `forwardRef` because `AuthModule` is large and central: nothing in it imports this module
-    // today, and this keeps that from becoming a boot-order trap if something ever does.
-    forwardRef(() => AuthModule),
-  ],
   providers: [EventsGateway, SessionRevocationBroadcaster],
-  exports: [EventsGateway],
+  exports: [EventsGateway, SessionRevocationBroadcaster],
 })
 export class WebsocketsModule {}

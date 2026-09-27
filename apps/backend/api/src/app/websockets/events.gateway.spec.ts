@@ -44,38 +44,34 @@ describe('EventsGateway · aislamiento entre empresas', () => {
 
     const revoked = new Set(options.revokedSessions ?? []);
 
-    // The handshake no longer re-derives identity by hand. It delegates to the ONE implementation
-    // every HTTP request uses, which is what closed two drifts at once: it used to read
-    // `cachedUser.security.tokenVersion` — a field the cached projection does not have, so every
-    // user who had ever changed their password was refused a socket forever — and it never
-    // re-checked that the user still belonged to the organization whose room it then joined.
-    //
-    // So the double here is `UserIdentityService`, and it fails exactly where the real one does:
-    // a revoked session, and a membership the token asserts but the user does not hold.
-    const gateway = new EventsGateway(
-      { getPublicKey: () => 'key' } as never,
-      {
-        resolveFromPayload: async (payload: {
+    // The handshake does not decide identity; `SocketAuthenticatorPort` does, with the same rules
+    // as every HTTP request (see `SocketAuthenticator`). This double answers the way the real one
+    // does: `null` for a cookie with no acceptable token, and a rejection for a genuine token whose
+    // session has been revoked. The identity it returns is whatever `connect()` put in the cookie.
+    const authenticator = {
+      authenticate: async (cookieHeader: string) => {
+        const raw = /(?:^|;\s*)access_token=([^;]+)/.exec(cookieHeader)?.[1];
+        if (!raw) return null;
+        const claims = JSON.parse(decodeURIComponent(raw)) as {
           id: string;
-          sessionId?: string;
           organizationId?: string;
-        }) => {
-          if (payload.sessionId && revoked.has(payload.sessionId)) {
-            throw new Error('AUTH_SESSION_EXPIRED');
-          }
-          return {
-            id: payload.id,
-            organizationId: payload.organizationId,
-            sessionId: payload.sessionId,
-          };
-        },
-      } as never,
-      buildBroadcaster() as never,
-    );
+          sessionId?: string;
+        };
+        if (claims.sessionId && revoked.has(claims.sessionId)) {
+          throw new Error('AUTH_SESSION_EXPIRED');
+        }
+        return claims;
+      },
+    };
+    const broadcaster = buildBroadcaster();
+    const gateway = new EventsGateway(authenticator as never, broadcaster as never);
     (gateway as unknown as { server: unknown }).server = server;
     gateway.onModuleInit();
-    return { gateway, emitted, sockets };
+    return { gateway, emitted, sockets, broadcaster };
   }
+
+  const identityCookie = (claims: { id: string; organizationId?: string; sessionId?: string }) =>
+    `access_token=${encodeURIComponent(JSON.stringify(claims))}`;
 
   function connect(
     gateway: EventsGateway,
@@ -87,14 +83,10 @@ describe('EventsGateway · aislamiento entre empresas', () => {
     const joined: string[] = [];
     const client = {
       id: socketId,
-      handshake: { headers: { cookie: 'access_token=t' } },
+      handshake: { headers: { cookie: identityCookie({ id: userId, organizationId, sessionId }) } },
       join: (room: string) => joined.push(room),
       disconnect: jest.fn(),
     };
-    // The token check is exercised by its own path; here the tenant binding is what is under test.
-    jest
-      .spyOn(gateway as unknown as { verifyAccessToken: () => unknown }, 'verifyAccessToken')
-      .mockReturnValue({ id: userId, tokenVersion: 1, organizationId, sessionId });
 
     return { client, joined, done: gateway.handleConnection(client as never) };
   }
@@ -145,13 +137,26 @@ describe('EventsGateway · aislamiento entre empresas', () => {
     const { gateway, emitted } = build();
     const client = {
       id: 'sock-x',
-      handshake: { headers: { cookie: 'access_token=t' } },
+      handshake: { headers: { cookie: identityCookie({ id: 'user-x' }) } },
       join: jest.fn(),
       disconnect: jest.fn(),
     };
-    jest
-      .spyOn(gateway as unknown as { verifyAccessToken: () => unknown }, 'verifyAccessToken')
-      .mockReturnValue({ id: 'user-x', tokenVersion: 1 });
+
+    await gateway.handleConnection(client as never);
+
+    expect(client.disconnect).toHaveBeenCalled();
+    expect(client.join).not.toHaveBeenCalled();
+    expect(emitted).toEqual([]);
+  });
+
+  it('cuelga un handshake sin token aceptable, sin entrar en ninguna sala', async () => {
+    const { gateway, emitted } = build();
+    const client = {
+      id: 'sock-anon',
+      handshake: { headers: { cookie: 'otra_cookie=1' } },
+      join: jest.fn(),
+      disconnect: jest.fn(),
+    };
 
     await gateway.handleConnection(client as never);
 
@@ -192,20 +197,20 @@ describe('EventsGateway · aislamiento entre empresas', () => {
      * dentro. Sin ello, la lista de revocación no tiene sobre qué actuar en un socket abierto.
      */
     it('cuelga el socket que ya estaba abierto cuando su sesión se revoca', async () => {
-      const { gateway, sockets } = build();
+      const { gateway, sockets, broadcaster } = build();
       const a = connect(gateway, 'user-a', ORG_A, 'sock-a');
       await a.done;
 
       const socket = { disconnect: jest.fn() };
       sockets.set('sock-a', socket);
 
-      gateway.handleSessionsRevoked({ userId: 'user-a', sessionIds: ['session-sock-a'] } as never);
+      await broadcaster.publish({ userId: 'user-a', sessionIds: ['session-sock-a'] });
 
       expect(socket.disconnect).toHaveBeenCalledWith(true);
     });
 
     it('no toca el socket de otra persona', async () => {
-      const { gateway, sockets } = build();
+      const { gateway, sockets, broadcaster } = build();
       const a = connect(gateway, 'user-a', ORG_A, 'sock-a');
       const b = connect(gateway, 'user-b', ORG_B, 'sock-b');
       await Promise.all([a.done, b.done]);
@@ -215,7 +220,7 @@ describe('EventsGateway · aislamiento entre empresas', () => {
       sockets.set('sock-a', socketA);
       sockets.set('sock-b', socketB);
 
-      gateway.handleSessionsRevoked({ userId: 'user-a', sessionIds: ['session-sock-a'] } as never);
+      await broadcaster.publish({ userId: 'user-a', sessionIds: ['session-sock-a'] });
 
       expect(socketA.disconnect).toHaveBeenCalled();
       expect(socketB.disconnect).not.toHaveBeenCalled();
@@ -223,14 +228,14 @@ describe('EventsGateway · aislamiento entre empresas', () => {
 
     it('deja en paz otra sesión del mismo usuario', async () => {
       // Revocar UN dispositivo no es cerrar la sesión en todos: el resto sigue.
-      const { gateway, sockets } = build();
+      const { gateway, sockets, broadcaster } = build();
       const a = connect(gateway, 'user-a', ORG_A, 'sock-a', 'session-viva');
       await a.done;
 
       const socket = { disconnect: jest.fn() };
       sockets.set('sock-a', socket);
 
-      gateway.handleSessionsRevoked({ userId: 'user-a', sessionIds: ['session-otra'] } as never);
+      await broadcaster.publish({ userId: 'user-a', sessionIds: ['session-otra'] });
 
       expect(socket.disconnect).not.toHaveBeenCalled();
     });

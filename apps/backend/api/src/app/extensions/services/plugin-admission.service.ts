@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
 import { SigningKeyProvider } from './signing-key.provider';
-import { isDevLikeEnvironment } from '../../auth/auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 export interface AdmissionResult {
   status: 'approved' | 'rejected' | 'pending';
