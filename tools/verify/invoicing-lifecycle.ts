@@ -83,9 +83,18 @@ async function main(): Promise<void> {
   await localization.applyFiscalPackage(org, ds.manager);
   const orgId = org.id;
 
-  // ── The tenant is ready the moment it exists ────────────────────────────────
+  // ── The tenant is ready the moment it exists, save its fiscal numbering ─────
+  // A market that numbers its documents cannot issue until the tax authority's range is loaded,
+  // and readiness says so (`invoices.gaps.fiscal_sequence`) instead of answering `ready` and
+  // letting the first POST fail. So a fresh tenant must be missing that and nothing else.
   const readiness = await invoices.invoicingContext(orgId);
-  check('un inquilino recién creado está listo para facturar', readiness.ready, readiness.missing.join('; '));
+  check(
+    'un inquilino recién creado solo espera su rango de e-NCF para facturar',
+    !readiness.ready &&
+      readiness.missing.length === 1 &&
+      readiness.missing[0] === 'invoices.gaps.fiscal_sequence',
+    readiness.missing.join('; '),
+  );
 
   // ── Fiscal numbering, with its authorization window ─────────────────────────
   await compliance.provisionNcfSequence(orgId, {
@@ -111,6 +120,13 @@ async function main(): Promise<void> {
   }
   check('un rango de e-NCF solapado es rechazado', overlapRejected);
 
+  const readyWithRanges = await invoices.invoicingContext(orgId);
+  check(
+    'con sus rangos de e-NCF cargados, el inquilino está listo para facturar',
+    readyWithRanges.ready,
+    readyWithRanges.missing.join('; '),
+  );
+
   // ── Catalogue ───────────────────────────────────────────────────────────────
   const productRepo = ds.getRepository(Product);
   const good = await productRepo.save(
@@ -130,6 +146,9 @@ async function main(): Promise<void> {
     {
       companyName: 'Cliente Crédito Fiscal', email: `cliente${stamp}@example.com`,
       phone: '8095550101', taxId: dominicanRnc(String(10100000 + (stamp % 700000))),
+      // The document type is chosen, not guessed: without it the country's default (the Cédula)
+      // applies, and a nine-digit RNC is not a valid Cédula. The customer form always sends it.
+      identityDocumentTypeCode: 'RNC',
       address: 'Calle 1', country: 'DO',
     } as never,
     orgId,

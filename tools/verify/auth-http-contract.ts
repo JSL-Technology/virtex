@@ -28,6 +28,8 @@ import { RegistrationService } from '../../apps/backend/api/src/app/auth/service
 import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthConfig } from '../../apps/backend/api/src/app/auth/auth.config';
+import { I18nService } from '../../apps/backend/api/src/app/i18n/i18n.service';
+import { localizedValidationExceptionFactory } from '../../apps/backend/api/src/app/i18n/validation-messages';
 import { purgeProbeAccounts } from './probe-cleanup';
 import {
   PendingRegistration,
@@ -64,6 +66,17 @@ function parseCookies(raw: string | string[] | undefined): Record<
   return jar;
 }
 
+interface FieldError {
+  property: string;
+  key: string;
+  params?: Record<string, unknown>;
+}
+
+const fieldErrorsOf = (body: unknown): FieldError[] => {
+  const errors = (body as { fieldErrors?: unknown } | null)?.fieldErrors;
+  return Array.isArray(errors) ? (errors as FieldError[]) : [];
+};
+
 const cookieHeader = (jar: Record<string, { value: string }>): string =>
   Object.entries(jar)
     .map(([name, { value }]) => `${name}=${value}`)
@@ -74,13 +87,16 @@ async function main() {
     logger: ['error'],
   });
   // The same pipe main.ts registers: one error per field, and unknown properties rejected.
+  // Must match `main.ts` exactly: a pipe without the localized `exceptionFactory` answers with raw
+  // sentences, which `I18nExceptionFilter` refuses to forward, so every validation failure arrived
+  // here as a bare `errors.http_400` and the registration checks below could not see a single field.
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-      stopAtFirstError: true,
+      exceptionFactory: localizedValidationExceptionFactory(app.get(I18nService)),
     }),
   );
   await app.register(fastifyCookie);
@@ -193,35 +209,37 @@ async function main() {
       password,
       address: 'Av. Reforma 1',
       city: 'CDMX',
-      state: '09',
+      state: 'CMX',
       postalCode: '06600',
       planId: plan.slug,
+      // The signup form always sends the group, empty until the user fills it
+      // (`register.page.ts`: `fiscalProfile ?? {}`), which is what makes the refusal name the
+      // missing régimen fiscal instead of the whole absent object.
+      fiscalProfile: {},
     },
   });
-  // `I18nExceptionFilter` answers a validation failure with `message` as ONE translated sentence
-  // and the per-field messages in `details` — a form needs them per field, and a wall of text is
-  // not a form error. This script still read `message` as the array and died on
-  // `mexicanErrors.some is not a function` before reaching a single one of the checks below, so
-  // the whole registration half of the auth contract went unverified. Both shapes are accepted so
-  // the check is about the refusal, not about which field carries it.
-  const mexicanBody = badMexican.json<{ message: string | string[]; details?: string[] }>();
-  const mexicanErrors: string[] = Array.isArray(mexicanBody.message)
-    ? mexicanBody.message
-    : (mexicanBody.details ?? (mexicanBody.message ? [mexicanBody.message] : []));
-  check('an invalid RFC is refused', badMexican.statusCode === 400);
+  // A validation failure travels as `fieldErrors`: one entry per field, naming a catalogue key and
+  // its parameters (the country's label for the identifier, the missing profile field), never a
+  // sentence — `localizedValidationExceptionFactory`. The checks read those entries.
+  const mexicanErrors = fieldErrorsOf(badMexican.json());
+  const mexicanTaxId = mexicanErrors.find((e) => e.property === 'taxId');
+  check('an invalid RFC is refused', badMexican.statusCode === 400 && Boolean(mexicanTaxId));
   check(
     'the refusal names the RFC specifically',
-    mexicanErrors.some((m) => m.includes('RFC')),
-    mexicanErrors[0],
+    mexicanTaxId?.params?.['label'] === 'RFC',
+    JSON.stringify(mexicanTaxId ?? mexicanErrors),
   );
   check(
     "Mexico's régimen fiscal is demanded",
-    mexicanErrors.some((m) => m.toLowerCase().includes('régimen')),
+    mexicanErrors.some(
+      (e) => e.property === 'fiscalProfile' && JSON.stringify(e.params ?? {}).toLowerCase().includes('régimen'),
+    ),
+    JSON.stringify(mexicanErrors.find((e) => e.property === 'fiscalProfile') ?? ''),
   );
   check(
     'no English validator message leaks into a Spanish response',
-    !mexicanErrors.some((m) => /must be|should not|is not a valid/i.test(m)),
-    mexicanErrors.find((m) => /must be|should not/i.test(m)) ?? '',
+    !mexicanErrors.some((e) => e.key === 'validation.constraints.fallback'),
+    JSON.stringify(mexicanErrors.find((e) => e.key === 'validation.constraints.fallback') ?? ''),
   );
 
   const missingAddress = await inject({
@@ -242,14 +260,11 @@ async function main() {
       planId: plan.slug,
     },
   });
-  const addressBody = missingAddress.json<{ message: string | string[]; details?: string[] }>();
-  const addressErrors: string[] = Array.isArray(addressBody.message)
-    ? addressBody.message
-    : (addressBody.details ?? (addressBody.message ? [addressBody.message] : []));
+  const addressErrors = fieldErrorsOf(missingAddress.json()).filter((e) => e.property === 'address');
   check(
     'one empty field produces exactly one error, not three contradictory ones',
-    addressErrors.filter((m) => m.toLowerCase().includes('direcci')).length === 1,
-    addressErrors.filter((m) => m.toLowerCase().includes('direcci')).join(' | '),
+    addressErrors.length === 1 && addressErrors[0].key === 'validation.register_user.registered_address_required',
+    JSON.stringify(addressErrors),
   );
 
   /**

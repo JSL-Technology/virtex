@@ -30,11 +30,11 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Organization } from '../../apps/backend/api/src/app/organizations/entities/organization.entity';
 import { FiscalRegion } from '../../apps/backend/api/src/app/localization/entities/fiscal-region.entity';
+import { TaxpayerKind } from '../../apps/backend/api/src/app/localization/fiscal/tax-id-validators';
 import {
   canonicalizeTaxId,
   validateTaxId,
-  TaxpayerKind,
-} from '../../apps/backend/api/src/app/localization/fiscal/tax-id-validators';
+} from '../../apps/backend/api/src/app/localization/fiscal/identity-document-catalogue';
 import { validateFiscalFields } from '../../apps/backend/api/src/app/localization/fiscal/country-profiles';
 import { purgeProbeAccounts } from './probe-cleanup';
 
