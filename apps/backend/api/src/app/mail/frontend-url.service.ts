@@ -94,6 +94,14 @@ export class FrontendUrlService {
     return errorCode ? `${base}?error=${encodeURIComponent(errorCode)}` : base;
   }
 
+  /**
+   * The login page, opened at the second-factor step: a federated sign-in succeeded at the
+   * provider and the account's own second factor is still owed.
+   */
+  loginSecondFactor(language?: string | null): string {
+    return `${this.origin}/${this.language(language)}/auth/login?step=2fa`;
+  }
+
   /** Password-recovery request page. */
   forgotPassword(language?: string | null): string {
     return `${this.origin}/${this.language(language)}/auth/forgot-password`;

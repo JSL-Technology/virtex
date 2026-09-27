@@ -29,7 +29,11 @@ export class SocialAuthService {
     return crypto.createHash('sha256').update((value || '').toLowerCase().trim()).digest('hex').slice(0, 12);
   }
 
-  async validateOAuthLogin(socialUser: SocialUser, ipAddress?: string, userAgent?: string): Promise<{ user: User | null; tokens?: any }> {
+  async validateOAuthLogin(
+    socialUser: SocialUser,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<{ user: User | null; tokens?: any; secondFactorRequired?: boolean }> {
     // 1. Use findUserForAuth to ensure security relation is loaded (required for tokenVersion)
     const user = await this.usersService.findUserForAuth(socialUser.email);
 
@@ -86,6 +90,12 @@ export class SocialAuthService {
         undefined,
       );
 
+       // A federated sign-in proves who the person is at the PROVIDER. If they also enrolled a
+       // second factor here, it is owed here too: signing in with Google used to skip the TOTP the
+       // same account demands for a password sign-in, so the weaker door was always open.
+       if (user.security?.isTwoFactorEnabled) {
+         return { user, secondFactorRequired: true };
+       }
        const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
        return { user, tokens: authResponse };
     }

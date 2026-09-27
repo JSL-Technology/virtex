@@ -114,7 +114,7 @@ export class EnterpriseSsoService {
     socialUser: SocialUser,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<{ user: User; tokens: any }> {
+  ): Promise<{ user: User; tokens?: any; secondFactorRequired?: boolean }> {
     // The IdP must assert a verified email; otherwise account takeover is possible.
     if (!socialUser.emailVerified) {
       throw new UnauthorizedError('auth.identity_provider_did_not_verify_email_address');
@@ -160,6 +160,10 @@ export class EnterpriseSsoService {
       undefined,
     );
 
+    // The account's own second factor is owed on top of the IdP's, exactly as for a password.
+    if (user.security?.isTwoFactorEnabled) {
+      return { user, secondFactorRequired: true };
+    }
     const tokens = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
     return { user, tokens };
   }

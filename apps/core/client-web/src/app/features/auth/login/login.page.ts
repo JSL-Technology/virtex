@@ -122,6 +122,11 @@ export class LoginPage implements OnInit {
         this.errorMessage.set(this.mapSocialErrorCode(error));
       }
       this.notice.set(SIGN_OUT_NOTICE[params.get('reason') ?? ''] ?? null);
+      // A federated sign-in (Google, Microsoft, the company IdP) succeeded, and the account's own
+      // second factor is still owed: the server opened the pending session and sent us here.
+      if (params.get('step') === '2fa') {
+        this.show2faInput.set(true);
+      }
     });
 
     this.loginForm = this.fb.group({

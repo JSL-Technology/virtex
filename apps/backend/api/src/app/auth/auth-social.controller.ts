@@ -18,6 +18,8 @@ import type { HttpResponse as Response, HttpRequest as Request } from '../common
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthFacade } from './auth.facade';
+import { User } from '../users/entities/user.entity/user.entity';
+import { AuthService } from './auth.service';
 import { SocialUser } from './interfaces/social-user.interface';
 import { CookieService } from './services/cookie.service';
 import { OauthStateService } from './services/oauth-state.service';
@@ -49,7 +51,24 @@ export class AuthSocialController {
     private readonly oidcProviderService: OidcProviderService,
     private readonly enterpriseSsoService: EnterpriseSsoService,
     private readonly links: FrontendUrlService,
+    private readonly authService: AuthService,
   ) {}
+
+  /**
+   * The provider vouched for the person; their own second factor is still owed. Open the same
+   * pending-2FA session a password sign-in opens, and send them to the code step.
+   */
+  private async redirectToSecondFactor(
+    user: User,
+    res: Response,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    const pendingId = await this.authService.create2faPendingSession(user, ipAddress, userAgent);
+    this.cookieService.set2faPendingCookie(res, pendingId);
+    this.cookieService.setCsrfCookie(res);
+    return res.redirect(this.links.loginSecondFactor());
+  }
 
   // ------------------------------------------------------------------
   // Social login (Google / Microsoft) — OIDC, stateless handshake.
@@ -130,7 +149,8 @@ export class AuthSocialController {
 
       const socialUser = this.oidcProviderService.mapClaimsToSocialUser(provider, claims, accessToken);
       this.oauthStateService.clearTransactionCookie(res);
-      return await this.handleSocialCallback(socialUser, res);
+      const userAgent = (req.headers?.['user-agent'] as string | undefined) ?? undefined;
+      return await this.handleSocialCallback(socialUser, res, req.ip, userAgent);
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
       return res.redirect(this.links.login(this.mapSocialErrorToCode(err)));
@@ -146,8 +166,21 @@ export class AuthSocialController {
     return 'oauth_failed';
   }
 
-  private async handleSocialCallback(socialUser: SocialUser, res: Response) {
-    const { user, tokens } = await this.authFacade.socialLogin(socialUser);
+  private async handleSocialCallback(
+    socialUser: SocialUser,
+    res: Response,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    const { user, tokens, secondFactorRequired } = await this.authFacade.socialLogin(
+      socialUser,
+      ipAddress,
+      userAgent,
+    );
+
+    if (user && secondFactorRequired) {
+      return this.redirectToSecondFactor(user, res, ipAddress, userAgent);
+    }
 
     if (!user) {
         // Generate a secure, short-lived token to transfer PII safely
@@ -260,7 +293,11 @@ export class AuthSocialController {
       const socialUser = this.oidcProviderService.mapClaimsToSocialUser('sso', claims, accessToken);
       this.oauthStateService.clearTransactionCookie(res);
 
-      const { user: ssoUser, tokens } = await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
+      const { user: ssoUser, tokens, secondFactorRequired } =
+        await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
+      if (secondFactorRequired) {
+        return this.redirectToSecondFactor(ssoUser, res, ip, userAgent);
+      }
       this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: ssoUser?.id });
       return res.redirect(this.links.dashboard());
     } catch (err) {
