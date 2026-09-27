@@ -60,10 +60,19 @@ jobs:
           output: ${{ runner.temp }}/codeql-sarif
 
       # Code scanning ignores SARIF `suppressions`, so a result excused in source would still open
-      # an alert. The script drops those results, lists every one in the job summary, and fails if
-      # a suppression comment no longer matches anything.
+      # an alert. The script drops those results and lists every one in the job summary. On a full
+      # analysis it also fails on a suppression comment that matches nothing; pull-request analyses
+      # report changed lines only, so there an unmatched comment proves nothing.
       - name: Apply in-source suppressions
-        run: node tools/ci/drop-suppressed-sarif-results.mjs "$RUNNER_TEMP/codeql-sarif"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          LANGUAGE: ${{ matrix.language }}
+        run: |
+          args=("$RUNNER_TEMP/codeql-sarif")
+          if [ "$EVENT_NAME" != pull_request ] && [ "$LANGUAGE" = javascript-typescript ]; then
+            args+=(--fail-on-unused)
+          fi
+          node tools/ci/drop-suppressed-sarif-results.mjs "${args[@]}"
 
       - name: Upload results
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2

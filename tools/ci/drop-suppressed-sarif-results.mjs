@@ -11,18 +11,22 @@
  * alert would stay open. So the suppressed results are dropped here, and each one is listed in the
  * job summary so a suppression is never silent.
  *
- * A suppression comment that no longer matches any result is an error: either the code it excused
- * was fixed and the comment is stale, or the rule id is wrong and the comment excuses nothing.
+ * With --fail-on-unused, a suppression comment that matches no result is an error: either the code
+ * it excused was fixed and the comment is stale, or the rule id is wrong and it excuses nothing.
+ * Only meaningful on a full analysis: on pull requests CodeQL reports results on changed lines
+ * only, so a comment above an unchanged line legitimately matches nothing there.
  *
- *   node tools/ci/drop-suppressed-sarif-results.mjs <sarif file or directory> [source root]
+ *   node tools/ci/drop-suppressed-sarif-results.mjs <sarif file or directory> [--fail-on-unused]
  */
 import { appendFileSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-const [target, sourceRoot = process.cwd()] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const failOnUnused = args.includes('--fail-on-unused');
+const [target] = args.filter((a) => !a.startsWith('--'));
 if (!target) {
-  console.error('usage: drop-suppressed-sarif-results.mjs <sarif file or directory> [source root]');
+  console.error('usage: drop-suppressed-sarif-results.mjs <sarif file or directory> [--fail-on-unused]');
   process.exit(2);
 }
 
@@ -41,7 +45,9 @@ let analysedJavaScript = false;
 for (const file of sarifFiles) {
   const sarif = JSON.parse(readFileSync(file, 'utf8'));
   for (const run of sarif.runs ?? []) {
-    if ((run.tool?.driver?.rules ?? []).some((r) => r.id?.startsWith('js/'))) analysedJavaScript = true;
+    // The CLI lists rules on the driver; the Action lists them on the query-pack extensions.
+    const rules = [run.tool?.driver, ...(run.tool?.extensions ?? [])].flatMap((c) => c?.rules ?? []);
+    if (rules.some((r) => r.id?.startsWith('js/'))) analysedJavaScript = true;
     const kept = [];
     const before = dropped.length;
     for (const result of run.results ?? []) {
@@ -75,13 +81,17 @@ console.log(summary.join('\n'));
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join('\n'));
 
 // Every `// codeql[...]` line in the JavaScript/TypeScript sources must have excused a result.
-if (analysedJavaScript) {
+if (failOnUnused && !analysedJavaScript) {
+  console.error('✗ --fail-on-unused given, but no JavaScript analysis found in the SARIF.');
+  process.exit(1);
+}
+if (failOnUnused) {
   let grep = '';
   try {
     grep = execFileSync(
       'git',
       ['grep', '-n', '-E', '^[[:space:]]*//[[:space:]]*codeql[[:space:]]*\\[', '--', '*.ts', '*.tsx', '*.js', '*.mjs', '*.cjs'],
-      { cwd: sourceRoot, encoding: 'utf8' },
+      { encoding: 'utf8' },
     );
   } catch (error) {
     if (error.status !== 1) throw error; // 1: no matches
