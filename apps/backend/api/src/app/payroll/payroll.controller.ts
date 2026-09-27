@@ -19,6 +19,8 @@ import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
+import { RequiresPlatformPermission } from '../security/decorators/platform-permission.decorator';
+import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { AuditAccess } from '../audit/audit-access.decorator';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { ActionType } from '../audit/entities/audit-log.entity';
@@ -129,12 +131,14 @@ export class PayrollController {
   // ── Variable inputs (novedades) ───────────────────────────────────────────────
 
   @Get('runs/:id/inputs')
+  @RequireStepUp(StepUpScope.VIEW_PAYROLL_DATA)
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
   listInputs(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.inputs.list(id, user.organizationId);
   }
 
   @Put('runs/:id/inputs')
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
   replaceInputs(
     @Param('id', UuidParamPipe) id: string,
@@ -277,18 +281,27 @@ export class PayrollController {
 
   @Put('parameters/contributions')
   @HasPermission(PERMISSIONS.PAYROLL_PARAMETERS_MANAGE)
+  // Statutory tables every tenant's payroll is computed with: platform-only.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.PAYROLL_STATUTORY_MANAGE)
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   upsertContribution(@Body() dto: UpsertContributionDto) {
     return this.parametersAdmin.upsertContribution(dto);
   }
 
   @Put('parameters/references')
   @HasPermission(PERMISSIONS.PAYROLL_PARAMETERS_MANAGE)
+  // Statutory tables every tenant's payroll is computed with: platform-only.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.PAYROLL_STATUTORY_MANAGE)
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   upsertReference(@Body() dto: UpsertReferenceDto) {
     return this.parametersAdmin.upsertReference(dto);
   }
 
   @Put('parameters/tax-brackets')
   @HasPermission(PERMISSIONS.PAYROLL_PARAMETERS_MANAGE)
+  // Statutory tables every tenant's payroll is computed with: platform-only.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.PAYROLL_STATUTORY_MANAGE)
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   replaceTaxScale(@Body() dto: ReplaceTaxScaleDto) {
     return this.parametersAdmin.replaceTaxScale(dto);
   }

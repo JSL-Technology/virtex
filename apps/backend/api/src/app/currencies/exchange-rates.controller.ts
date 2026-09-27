@@ -4,6 +4,9 @@ import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { RequiresPlatformPermission } from '../security/decorators/platform-permission.decorator';
+import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
+import { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
 import { ExchangeRatesService } from './exchange-rates.service';
 import {
@@ -35,6 +38,8 @@ export class ExchangeRatesController {
 
   @Post('update')
   @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
+  // The shared table every tenant converts with, from a provider billed per request.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.EXCHANGE_RATES_REFRESH)
   @Throttle({ default: { limit: 5, ttl: 3_600_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresca las tasas del día desde las fuentes configuradas.' })
@@ -51,6 +56,7 @@ export class ExchangeRatesController {
    */
   @Post('backfill')
   @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.EXCHANGE_RATES_REFRESH)
   @Throttle({ default: { limit: 2, ttl: 3_600_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Rellena las tasas de un rango de fechas pasadas.' })
@@ -69,8 +75,9 @@ export class ExchangeRatesController {
   @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra o corrige la tasa de un par para una fecha.' })
-  record(@Body() dto: RecordRateDto, @CurrentUser('id') actorUserId: string) {
-    return this.exchangeRatesService.record(dto, actorUserId);
+  record(@Body() dto: RecordRateDto, @CurrentUser() user: AuthenticatedUser) {
+    // The tenant's OWN rate: only this tenant's documents convert with it.
+    return this.exchangeRatesService.record(dto, user.id, user.organizationId);
   }
 
   @Get()

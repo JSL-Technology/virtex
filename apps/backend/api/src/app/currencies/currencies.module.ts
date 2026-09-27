@@ -5,6 +5,7 @@ import { CurrenciesService } from './currencies.service';
 import { CurrencySeederService } from './currency-seeder.service';
 import { CurrenciesController } from './currencies.controller';
 import { Currency } from './entities/currency.entity';
+import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { ExchangeRate } from './entities/exchange-rate.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { ExchangeRatesController } from './exchange-rates.controller';
@@ -23,7 +24,7 @@ import { XeRatesProvider } from './xe-rates.provider';
     // being evaluated when this module is defined, so `imports[0]` is literally `undefined` and
     // Nest fails to build the container — which is what stopped the application booting at all.
     forwardRef(() => ChartOfAccountsModule),
-    TypeOrmModule.forFeature([Currency, ExchangeRate]),
+    TypeOrmModule.forFeature([Currency, ExchangeRate, TenantExchangeRate]),
     HttpModule,
   ],
   controllers: [CurrenciesController, ExchangeRatesController],

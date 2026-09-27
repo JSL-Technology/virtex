@@ -17,7 +17,7 @@
   <section class="panel">
     <header class="panel__head">
       <h2 class="panel__title">{{ 'payroll.parameters.contributions' | translate }}</h2>
-      <button type="button" class="secondary-button" (click)="startContribution()">
+      <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startContribution()">
         {{ 'payroll.parameters.new_rate' | translate }}
       </button>
     </header>
@@ -93,7 +93,7 @@
               <td>{{ 'payroll.parameters.base_label.' + row.base | translate }}</td>
               <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
               <td class="text-right">
-                <button type="button" class="secondary-button" (click)="startContribution(row)">
+                <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startContribution(row)">
                   {{ 'payroll.parameters.supersede' | translate }}
                 </button>
               </td>
@@ -108,7 +108,7 @@
   <section class="panel">
     <header class="panel__head">
       <h2 class="panel__title">{{ 'payroll.parameters.references' | translate }}</h2>
-      <button type="button" class="secondary-button" (click)="startReference()">
+      <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startReference()">
         {{ 'payroll.parameters.new_reference' | translate }}
       </button>
     </header>
@@ -167,7 +167,7 @@
               <td class="numeric"><vx-amount [value]="row.value" /></td>
               <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
               <td class="text-right">
-                <button type="button" class="secondary-button" (click)="startReference(row)">
+                <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startReference(row)">
                   {{ 'payroll.parameters.supersede' | translate }}
                 </button>
               </td>

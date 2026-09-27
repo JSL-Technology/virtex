@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRateResolver, ResolvedRate } from './exchange-rate-resolver.service';
@@ -65,6 +66,8 @@ export class ExchangeRatesService {
   constructor(
     @InjectRepository(ExchangeRate)
     private readonly exchangeRateRepository: Repository<ExchangeRate>,
+    @InjectRepository(TenantExchangeRate)
+    private readonly tenantRateRepository: Repository<TenantExchangeRate>,
     @InjectRepository(Currency)
     private readonly currencyRepository: Repository<Currency>,
     private readonly configService: ConfigService,
@@ -199,8 +202,9 @@ export class ExchangeRatesService {
    */
   async record(
     dto: RecordRateDto,
-    actorUserId?: string,
-  ): Promise<LocalizedResult<{ rate: ExchangeRate }>> {
+    actorUserId: string | undefined,
+    organizationId: string,
+  ): Promise<LocalizedResult<{ rate: TenantExchangeRate }>> {
     const fromCurrency = dto.fromCurrency.toUpperCase();
     const toCurrency = dto.toCurrency.toUpperCase();
 
@@ -218,9 +222,12 @@ export class ExchangeRatesService {
       throw new BadRequestError('currencies.exchange_rate_must_greater_than_zero', { rate: dto.rate });
     }
 
-    await this.exchangeRateRepository.upsert(
+    // Into the TENANT's own table. Writing the shared one let one customer's typed rate convert
+    // every other customer's documents; the resolver prefers this row for this tenant only.
+    await this.tenantRateRepository.upsert(
       [
         {
+          organizationId,
           fromCurrency,
           toCurrency,
           rate,
@@ -230,10 +237,11 @@ export class ExchangeRatesService {
           recordedByUserId: actorUserId ?? null,
         },
       ],
-      ['fromCurrency', 'toCurrency', 'date', 'rateType'],
+      ['organizationId', 'fromCurrency', 'toCurrency', 'date', 'rateType'],
     );
 
-    const stored = await this.exchangeRateRepository.findOneByOrFail({
+    const stored = await this.tenantRateRepository.findOneByOrFail({
+      organizationId,
       fromCurrency,
       toCurrency,
       date: date as unknown as Date,

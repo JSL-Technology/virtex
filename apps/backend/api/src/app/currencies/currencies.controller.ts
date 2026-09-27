@@ -12,6 +12,8 @@ import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { RequiresPlatformPermission } from '../security/decorators/platform-permission.decorator';
+import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('currencies')
@@ -20,6 +22,8 @@ export class CurrenciesController {
 
   @Post()
   @HasPermission(PERMISSIONS.CURRENCIES_MANAGE)
+  // The currency catalogue is shared by every tenant.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.REFERENCE_DATA_MANAGE)
   create(@Body() createCurrencyDto: CreateCurrencyDto) {
     return this.currenciesService.create(createCurrencyDto);
   }
@@ -38,6 +42,8 @@ export class CurrenciesController {
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.CURRENCIES_MANAGE)
+  // The currency catalogue is shared by every tenant.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.REFERENCE_DATA_MANAGE)
   update(
     @Param('id') id: string,
     @Body() updateCurrencyDto: UpdateCurrencyDto,
@@ -47,6 +53,8 @@ export class CurrenciesController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.CURRENCIES_MANAGE)
+  // The currency catalogue is shared by every tenant.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.REFERENCE_DATA_MANAGE)
   remove(@Param('id') id: string) {
     return this.currenciesService.remove(id);
   }

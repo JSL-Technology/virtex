@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { Currency, CurrenciesService } from '../../../core/api/currencies.service';
@@ -38,6 +39,14 @@ export class CurrenciesPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly api = inject(CurrenciesService);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * The currency catalogue is shared by every tenant.
+   * Held only by platform operators: a tenant administrator's `'*'` does not reach it (see
+   * `hasPermission`), so the actions are not offered to someone the server would refuse.
+   */
+  readonly canManage = computed(() => this.auth.hasPermissions(['platform:reference_data:manage']));
   private readonly errors = inject(ErrorHandlerService);
   private readonly notifications = inject(NotificationService);
   private readonly locale = inject(LocaleStore);
