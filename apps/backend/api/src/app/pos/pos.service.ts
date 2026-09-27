@@ -5,7 +5,7 @@ import { hasPermission } from '@virteex/shared/util-auth';
 import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
 import { PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';
-import { Product, ProductKind, ProductStatus } from '../inventory/entities/product.entity';
+import { findSellableProduct } from '../inventory/contracts/sellable-product.contract';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
@@ -162,23 +162,21 @@ export class PosService {
 
       const lines: PosSaleItem[] = [];
       for (const item of dto.items) {
-        const product = await manager.findOne(Product, {
-          where: { id: item.productId, organizationId },
-        });
-        if (!product || product.status !== ProductStatus.ACTIVE) {
+        const product = await findSellableProduct(manager, organizationId, item.productId);
+        if (!product) {
           throw new BadRequestError('pos.product_not_available', { productId: item.productId });
         }
 
-        const price = roundAmount(Number(product.price));
+        const price = roundAmount(product.price);
         if (Math.abs(price - item.price) > AMOUNT_TOLERANCE) {
           throw new ConflictError('pos.prices_changed', { productId: product.id });
         }
 
-        const taxRate = product.taxTreatment === 'TAXED' ? Number(product.taxRate) : 0;
+        const taxRate = product.taxRate;
         const lineSubtotal = roundAmount(price * item.quantity);
         const lineTax = roundAmount(lineSubtotal * taxRate);
 
-        if (product.kind !== ProductKind.SERVICE) {
+        if (product.stocked) {
           await this.inventory.decreaseStock(product.id, item.quantity, manager, organizationId);
         }
 

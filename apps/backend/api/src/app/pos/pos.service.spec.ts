@@ -2,7 +2,6 @@ import { BadRequestException, ConflictException, ForbiddenException } from '@nes
 import { PosService } from './pos.service';
 import { PosShiftStatus } from './entities/pos-shift.entity';
 import { PosSaleStatus } from './entities/pos-sale.entity';
-import { ProductKind, ProductStatus } from '../inventory/entities/product.entity';
 
 /**
  * The rules that make a till trustworthy.
@@ -26,12 +25,12 @@ describe('PosService', () => {
 
   const catalogue: Record<string, unknown> = {
     [WIDGET]: {
-      id: WIDGET, name: 'Widget', price: 10, status: ProductStatus.ACTIVE,
-      kind: ProductKind.GOOD, taxTreatment: 'TAXED', taxRate: 0.18,
+      id: WIDGET, name: 'Widget', price: 10, status: 'Active',
+      kind: 'GOOD', taxTreatment: 'TAXED', taxRate: 0.18,
     },
     [SERVICE]: {
-      id: SERVICE, name: 'Instalación', price: 50, status: ProductStatus.ACTIVE,
-      kind: ProductKind.SERVICE, taxTreatment: 'EXEMPT', taxRate: 0,
+      id: SERVICE, name: 'Instalación', price: 50, status: 'Active',
+      kind: 'SERVICE', taxTreatment: 'EXEMPT', taxRate: 0,
     },
   };
 
@@ -155,6 +154,22 @@ describe('PosService', () => {
         total: 5,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('refuses a product the catalogue holds but no longer sells', async () => {
+    const RETIRED = '44444444-4444-4444-8444-444444444444';
+    catalogue[RETIRED] = { id: RETIRED, name: 'Retirado', price: 5, status: 'Inactive', kind: 'GOOD' };
+    const { service, inventory } = makeService({ activeShift: openShift() });
+    await expect(
+      service.processSale('org-1', cashier, {
+        terminalId: 'main',
+        items: [{ productId: RETIRED, price: 5, quantity: 1 }],
+        subtotal: 5,
+        tax: 0,
+        total: 5,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(inventory.decreaseStock).not.toHaveBeenCalled();
   });
 
   it('a card sale counts towards takings but not towards the drawer', async () => {
