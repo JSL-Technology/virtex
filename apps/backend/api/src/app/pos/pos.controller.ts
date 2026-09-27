@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -16,6 +15,7 @@ import { PosService } from './pos.service';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 /**
  * The till's HTTP surface. Everything is tenant-scoped from the authenticated principal — a
@@ -44,13 +44,18 @@ export class PosController {
     @Body() dto: CloseShiftDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.pos.closeShift(user.organizationId, id, dto);
+    return this.pos.closeShift(user.organizationId, id, dto, user);
   }
 
+  /**
+   * Idempotent: a till on a flaky connection retries, and a sale that commits and then loses its
+   * response must not be rung — and its stock moved — a second time.
+   */
   @Post('sales')
+  @Idempotent()
   @HasPermission(PERMISSIONS.POS_OPERATE)
   processSale(@Body() dto: ProcessSaleDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.pos.processSale(user.organizationId, dto);
+    return this.pos.processSale(user.organizationId, user, dto);
   }
 
   @Get('sales')

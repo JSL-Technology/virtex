@@ -139,6 +139,11 @@
     "en": "Manage rules",
     "pt": "Gerir regras"
   },
+  "permissions.actions.manage_shifts": {
+    "es": "Gestionar turnos de otros cajeros",
+    "en": "Manage other cashiers' shifts",
+    "pt": "Gerenciar turnos de outros operadores"
+  },
   "permissions.actions.manage_status": {
     "es": "Cambiar el estado",
     "en": "Change status",

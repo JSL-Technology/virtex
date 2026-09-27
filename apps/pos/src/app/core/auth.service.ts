@@ -58,19 +58,31 @@ export class AuthService {
       );
   }
 
-  login(email: string, password: string): Observable<boolean> {
+  /**
+   * Sign in with a password. Answers `'signed-in'`, or `'second-factor'` when the account has a
+   * second factor and the server is waiting for its code (`verifySecondFactor`).
+   *
+   * This used to map every successful response to `true`, including the one that says "now send
+   * the code" — so an account with a second factor could never use the till, which pushed shops
+   * to turn the factor off for exactly the people who handle cash.
+   */
+  login(email: string, password: string): Observable<'signed-in' | 'second-factor'> {
     return this.http
-      .post<{ user?: SessionUser } | SessionUser>(
+      .post<{ require2fa?: boolean; user?: SessionUser } | SessionUser>(
         `${this.apiUrl}/login`,
         { email, password },
         { withCredentials: true },
       )
       .pipe(
-        // A 2FA-gated account returns without a full session; the POS terminal treats that as
-        // "finish signing in on the main app" rather than implementing the whole challenge here.
-        tap(() => void 0),
-        map(() => true),
+        map((res) =>
+          res && 'require2fa' in res && res.require2fa ? 'second-factor' : 'signed-in',
+        ),
       );
+  }
+
+  /** Complete a sign-in that is waiting for its second factor (TOTP or a backup code). */
+  verifySecondFactor(code: string): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/verify-2fa`, { code }, { withCredentials: true });
   }
 
   private forget(): void {

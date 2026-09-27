@@ -19,17 +19,34 @@ import { AuthService } from '../../core/auth.service';
         @if (errorKey()) {
           <div class="error">{{ errorKey()! | translate }}</div>
         }
-        <label>
-          {{ 'pos.email' | translate }}
-          <input type="email" formControlName="email" autocomplete="username" />
-        </label>
-        <label>
-          {{ 'pos.password' | translate }}
-          <input type="password" formControlName="password" autocomplete="current-password" />
-        </label>
-        <button type="submit" [disabled]="form.invalid || loading()">
-          {{ (loading() ? 'pos.signing_in' : 'pos.sign_in') | translate }}
-        </button>
+        @if (step() === 'credentials') {
+          <label>
+            {{ 'pos.email' | translate }}
+            <input type="email" formControlName="email" autocomplete="username" />
+          </label>
+          <label>
+            {{ 'pos.password' | translate }}
+            <input type="password" formControlName="password" autocomplete="current-password" />
+          </label>
+          <button type="submit" [disabled]="form.invalid || loading()">
+            {{ (loading() ? 'pos.signing_in' : 'pos.sign_in') | translate }}
+          </button>
+        } @else {
+          <p class="sub">{{ 'pos.second_factor_prompt' | translate }}</p>
+          <label>
+            {{ 'pos.second_factor_code' | translate }}
+            <input
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="12"
+              [formControl]="code"
+            />
+          </label>
+          <button type="submit" [disabled]="code.invalid || loading()">
+            {{ (loading() ? 'pos.signing_in' : 'pos.verify_code') | translate }}
+          </button>
+        }
       </form>
     </div>
   `,
@@ -115,30 +132,65 @@ export class LoginComponent {
     password: ['', [Validators.required]],
   });
 
+  /** Which half of the sign-in the form is showing. */
+  readonly step = signal<'credentials' | 'code'>('credentials');
+
+  readonly code = this.fb.control('', [
+    Validators.required,
+    Validators.minLength(6),
+    Validators.maxLength(12),
+  ]);
+
   submit(): void {
-    if (this.form.invalid || this.loading()) return;
+    if (this.loading()) return;
+    if (this.step() === 'code') {
+      this.submitCode();
+      return;
+    }
+    if (this.form.invalid) return;
     const { email, password } = this.form.getRawValue();
     this.loading.set(true);
     this.errorKey.set(null);
     this.auth.login(email!, password!).subscribe({
-      next: () => {
-        // Confirm the session actually resolved (covers 2FA-gated accounts, which do not).
-        this.auth.resolveSession().subscribe((ok) => {
+      next: (outcome) => {
+        if (outcome === 'second-factor') {
           this.loading.set(false);
-          if (ok) this.router.navigateByUrl('/');
-          else this.errorKey.set('pos.step_up_required');
-        });
+          this.code.reset('');
+          this.step.set('code');
+          return;
+        }
+        this.finishSignIn();
       },
-      error: (err) => {
-        this.loading.set(false);
-        // Never the server's own sentence: it is written for whoever is reading the logs, and
-        // forwarding it is how an English string reached a Spanish till.
-        this.errorKey.set(
-          resolveErrorKey(err as { status?: number; error?: unknown }, (key) =>
-            this.translate.instant(key) !== key,
-          ),
-        );
-      },
+      error: (err) => this.fail(err),
     });
+  }
+
+  private submitCode(): void {
+    if (this.code.invalid) return;
+    this.loading.set(true);
+    this.errorKey.set(null);
+    this.auth.verifySecondFactor(String(this.code.value ?? '').trim()).subscribe({
+      next: () => this.finishSignIn(),
+      error: (err) => this.fail(err),
+    });
+  }
+
+  private finishSignIn(): void {
+    this.auth.resolveSession().subscribe((ok) => {
+      this.loading.set(false);
+      if (ok) this.router.navigateByUrl('/');
+      else this.errorKey.set('pos.step_up_required');
+    });
+  }
+
+  private fail(err: unknown): void {
+    this.loading.set(false);
+    // Never the server's own sentence: it is written for whoever is reading the logs, and
+    // forwarding it is how an English string reached a Spanish till.
+    this.errorKey.set(
+      resolveErrorKey(err as { status?: number; error?: unknown }, (key) =>
+        this.translate.instant(key) !== key,
+      ),
+    );
   }
 }

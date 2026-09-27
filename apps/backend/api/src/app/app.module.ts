@@ -9,6 +9,7 @@ import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionsGuard } from './security/guards/permissions.guard';
+import { ExtensionScopeGuard } from './extensions/guards/extension-scope.guard';
 import { ActiveTenantGuard } from './shared/tenancy/active-tenant.guard';
 import { TenantIsolationCheck } from './shared/tenancy/tenant-isolation.check';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
@@ -406,6 +407,15 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       // permission needed" a sentence someone wrote rather than a line nobody did.
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      // What an extension's UI may read, enforced on the request as it ARRIVED. The browser host
+      // tags every request it makes for an extension; this refuses one that names an extension the
+      // tenant has not enabled, or reaches outside the capabilities it was granted. Requests with
+      // no tag are not extension traffic and pass untouched. After ActiveTenantGuard, so the
+      // capabilities read are the ones granted by the tenant the request acts in.
+      provide: APP_GUARD,
+      useExisting: ExtensionScopeGuard,
     },
     {
       // The organization's MFA policy, enforced by default.

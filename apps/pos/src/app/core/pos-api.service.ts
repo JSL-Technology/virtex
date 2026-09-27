@@ -10,6 +10,12 @@ export interface Product {
   price: number;
   stock: number;
   status: 'Active' | 'Inactive';
+  /** 'GOOD' is stocked; 'SERVICE' is not. */
+  kind?: 'GOOD' | 'SERVICE';
+  /** How the item is taxed; only 'TAXED' items carry `taxRate`. */
+  taxTreatment?: string;
+  /** Consumption-tax rate as a fraction (0.18 = 18 %). */
+  taxRate?: number;
 }
 
 export interface PosShift {
@@ -19,6 +25,10 @@ export interface PosShift {
   openingBalance: number;
   salesTotal: number;
   salesCount: number;
+  cashSalesTotal?: number;
+  expectedBalance?: number | null;
+  closingBalance?: number | null;
+  closingVariance?: number | null;
 }
 
 export interface PosSaleItemPayload {
@@ -60,8 +70,15 @@ export class PosApiService {
     return this.http.post<PosShift>(`${this.api}/pos/shifts/${shiftId}/close`, { closingBalance });
   }
 
-  processSale(payload: ProcessSalePayload): Observable<{ id: string; total: number }> {
-    return this.http.post<{ id: string; total: number }>(`${this.api}/pos/sales`, payload);
+  /**
+   * Ring a sale. `idempotencyKey` identifies THIS sale: a retry of the same cart after a lost
+   * response sends the same key, so the server returns the sale it already recorded instead of
+   * ringing — and moving the stock of — a second one.
+   */
+  processSale(payload: ProcessSalePayload, idempotencyKey: string): Observable<{ id: string; total: number }> {
+    return this.http.post<{ id: string; total: number }>(`${this.api}/pos/sales`, payload, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    });
   }
 
   /** The tenant's invoicing context (currency + tax rate), reused so the till taxes correctly. */

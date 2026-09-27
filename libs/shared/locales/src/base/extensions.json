@@ -158,6 +158,11 @@
     "en": "Register extension",
     "pt": "Registar extensão"
   },
+  "extensions.request_outside_granted_scope": {
+    "es": "La extensión intentó leer datos que no se le han concedido.",
+    "en": "The extension tried to read data it has not been granted.",
+    "pt": "A extensão tentou ler dados que não lhe foram concedidos."
+  },
   "extensions.revoke": {
     "es": "Revocar",
     "en": "Revoke",

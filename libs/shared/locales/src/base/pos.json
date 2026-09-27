@@ -1,4 +1,9 @@
 {
+  "pos.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
   "pos.charge": {
     "es": "Cobrar {{amount}}",
     "en": "Charge {{amount}}",
@@ -18,6 +23,16 @@
     "es": "No pudimos cerrar el turno.",
     "en": "We could not close the shift.",
     "pt": "Não foi possível fechar o turno."
+  },
+  "pos.confirm_close_shift": {
+    "es": "Cerrar y cuadrar",
+    "en": "Close and reconcile",
+    "pt": "Fechar e conferir"
+  },
+  "pos.counted_cash": {
+    "es": "Efectivo contado",
+    "en": "Cash counted",
+    "pt": "Dinheiro contado"
   },
   "pos.current_order": {
     "es": "Pedido actual",
@@ -89,6 +104,16 @@
     "en": "Password",
     "pt": "Senha"
   },
+  "pos.prices_changed": {
+    "es": "El precio de un producto cambió. Se han recargado los precios: revisa el total antes de cobrar.",
+    "en": "A product's price has changed. Prices have been reloaded: check the total before charging.",
+    "pt": "O preço de um produto mudou. Os preços foram recarregados: confira o total antes de cobrar."
+  },
+  "pos.product_not_available": {
+    "es": "Uno de los productos ya no está disponible para la venta.",
+    "en": "One of the products is no longer available for sale.",
+    "pt": "Um dos produtos não está mais disponível para venda."
+  },
   "pos.remove_line": {
     "es": "Quitar línea",
     "en": "Remove line",
@@ -124,10 +149,25 @@
     "en": "Search products by name or SKU…",
     "pt": "Procura produtos por nome ou SKU…"
   },
+  "pos.second_factor_code": {
+    "es": "Código de verificación",
+    "en": "Verification code",
+    "pt": "Código de verificação"
+  },
+  "pos.second_factor_prompt": {
+    "es": "Escribe el código de tu aplicación de autenticación o uno de tus códigos de respaldo.",
+    "en": "Enter the code from your authenticator app or one of your backup codes.",
+    "pt": "Digite o código do seu aplicativo autenticador ou um dos seus códigos de backup."
+  },
   "pos.shift_already_closed": {
     "en": "That shift is already closed.",
     "es": "El turno ya está cerrado.",
     "pt": "Esse turno já está fechado."
+  },
+  "pos.shift_belongs_to_another_cashier": {
+    "es": "Este turno lo abrió otro cajero. Solo un supervisor puede operar en él o cerrarlo.",
+    "en": "Another cashier opened this shift. Only a supervisor can operate on it or close it.",
+    "pt": "Outro operador abriu este turno. Somente um supervisor pode operar nele ou fechá-lo."
   },
   "pos.shift_blocked_title": {
     "es": "Esta caja no puede registrar ventas",
@@ -138,6 +178,11 @@
     "es": "Turno cerrado.",
     "en": "Shift closed.",
     "pt": "Turno fechado."
+  },
+  "pos.shift_closed_with_variance": {
+    "es": "Turno cerrado con diferencia de caja. Queda registrada para revisión.",
+    "en": "Shift closed with a cash difference. It has been recorded for review.",
+    "pt": "Turno fechado com diferença de caixa. Ela foi registrada para revisão."
   },
   "pos.shift_error": {
     "es": "No pudimos abrir el turno de caja. Hasta que se abra, ninguna venta puede registrarse.",
@@ -197,10 +242,10 @@
   "pos.subtotal": {
     "literal": "Subtotal"
   },
-  "pos.tax_with_rate": {
-    "es": "Impuesto ({{rate}} %)",
-    "en": "Tax ({{rate}}%)",
-    "pt": "Imposto ({{rate}} %)"
+  "pos.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
   },
   "pos.there_already_active_shift_for_this_terminal": {
     "en": "There is already an open shift on this terminal.",
@@ -209,5 +254,15 @@
   },
   "pos.total": {
     "literal": "Total"
+  },
+  "pos.totals_changed": {
+    "es": "El total calculado no coincide con el que se mostró. Se han recargado los precios: revisa el total antes de cobrar.",
+    "en": "The calculated total does not match the one shown. Prices have been reloaded: check the total before charging.",
+    "pt": "O total calculado não confere com o exibido. Os preços foram recarregados: confira o total antes de cobrar."
+  },
+  "pos.verify_code": {
+    "es": "Verificar",
+    "en": "Verify",
+    "pt": "Verificar"
   }
 }

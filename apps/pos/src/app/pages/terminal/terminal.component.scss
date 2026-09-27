@@ -48,6 +48,25 @@
   font-size: 0.8rem;
 }
 
+/* Cash-up at close: the cashier types what they counted, and the server works out the difference. */
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--pos-muted);
+
+  input {
+    width: 110px;
+    padding: 4px 8px;
+    border: 1px solid var(--pos-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pos-text);
+    font-size: 0.85rem;
+  }
+}
+
 .body {
   flex: 1;
   display: grid;
