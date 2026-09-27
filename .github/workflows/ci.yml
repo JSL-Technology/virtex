@@ -226,9 +226,13 @@ jobs:
       # para no reportar un éxito que vendría del motivo equivocado.
       - name: tenant isolation holds through the application
         env:
-          # El rol lo crea la propia migración, sin contraseña. En CI la base acepta conexiones
-          # locales sin autenticar, así que basta con decirle a la aplicación con quién conectarse.
+          # El rol lo crea la propia migración, con la contraseña que le puso ese mismo
+          # APP_DB_PASSWORD (ver el paso de migraciones). `pg_hba.conf` exige contraseña en toda
+          # conexión TCP aquí, así que hay que dar las dos: el usuario Y la contraseña que
+          # realmente tiene. Sin la segunda esto fallaba en cuanto la primera dejaba de ser
+          # opcional — antes ni siquiera llegaba a intentar autenticar.
           DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
         run: npm run verify:rls-runtime
 
       # Un despliegue de ACTUALIZACIÓN aplica migraciones sobre una base que ya tiene inquilinos.
