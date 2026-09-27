@@ -559,3 +559,14 @@
     from { opacity: 0; transform: scale(0.95) translateY(8px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* Invitaciones a cuentas existentes: pedidas, no concedidas. Van aparte de la tabla de miembros. */
+.sent-invitations {
+  margin-top: var(--space-6);
+}
+
+.sent-invitations-hint {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}

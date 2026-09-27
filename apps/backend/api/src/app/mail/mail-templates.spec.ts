@@ -75,6 +75,11 @@ const CONTEXTS: Record<string, Record<string, unknown>> = {
     organizationName: 'Caribe Logística SRL',
     url: 'https://app.example.test/es/auth/login',
   },
+  'organization-invitation': {
+    name: 'Ana',
+    organizationName: 'Caribe Logística SRL',
+    url: 'https://app.example.test/es/auth/login',
+  },
   'duplicate-registration': {
     name: 'Ana',
     loginUrl: 'https://app.example.test/es/auth/login',

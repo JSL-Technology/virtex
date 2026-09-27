@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import * as crypto from 'crypto';
 import * as ms from 'ms';
+import { saveIdentity } from '../../users/persistence/identity-writes';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { MailService } from '../../mail/mail.service';
 import { UserCacheService } from '../modules/user-cache.service';
@@ -60,7 +61,7 @@ export class PasswordRecoveryService {
     if (!user.security) user.security = new UserSecurity();
     user.security.passwordResetToken = tokenHash;
     user.security.passwordResetExpires = new Date(Date.now() + this.convertToMs(expirationTime));
-    await this.userRepository.save(user);
+    await saveIdentity(this.userRepository.manager, user);
 
     await this.mailService.sendPasswordResetEmail(user, rawToken, expirationTime);
 
@@ -133,7 +134,7 @@ export class PasswordRecoveryService {
     user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
 
     await this.userCacheService.clearUserSession(user.id);
-    const saved = await this.userRepository.save(user);
+    const saved = await saveIdentity(this.userRepository.manager, user);
 
     // End every session, exactly as `AuthService.changePassword` does.
     //
@@ -204,7 +205,7 @@ export class PasswordRecoveryService {
     user.invitationToken = undefined;
     user.invitationTokenExpires = undefined;
 
-    await this.userRepository.save(user);
+    await saveIdentity(this.userRepository.manager, user);
     return user;
   }
 

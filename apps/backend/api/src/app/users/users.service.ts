@@ -28,6 +28,8 @@ import { AuthenticatedUser } from '../security/principal';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
 import { AuditTrailService } from '../audit/audit.service';
+import { saveIdentity, replaceRolesInOrganization } from './persistence/identity-writes';
+import { OrganizationInvitationsService } from './invitations/organization-invitations.service';
 import { BadRequestError, ForbiddenError, NotFoundError, UnauthorizedError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
 
@@ -61,6 +63,7 @@ export class UsersService extends UserProfilePort {
     private readonly sessionService: SessionInvalidatorPort,
     private readonly membershipService: MembershipService,
     private readonly auditTrailService: AuditTrailService,
+    private readonly invitations: OrganizationInvitationsService,
   ) { super(); }
 
   /**
@@ -109,7 +112,9 @@ export class UsersService extends UserProfilePort {
     }
 
     await this.userCacheService.clearUserSession(id);
-    return this.userRepository.save(user);
+    // `findOne` loaded the roles filtered to this tenant; a plain `save` would have synchronised
+    // that filtered list and deleted the person's roles everywhere else. See `identity-writes.ts`.
+    return saveIdentity(this.userRepository.manager, user);
   }
 
   // NOTE: the secure two-step email-change flow (requestEmailChange + confirmEmailChange)
@@ -171,10 +176,18 @@ export class UsersService extends UserProfilePort {
       );
     }
 
+    // What THIS tenant sees as the status is the account's status combined with the membership's:
+    // a person the tenant suspended is blocked here, whatever their account says elsewhere.
     if (statusFilter && statusFilter !== 'all') {
-      queryBuilder.andWhere('user.status = :status', {
-        status: statusFilter,
-      });
+      if (statusFilter === UserStatus.BLOCKED) {
+        queryBuilder.andWhere('(user.status = :status OR membership.suspended_at IS NOT NULL)', {
+          status: statusFilter,
+        });
+      } else {
+        queryBuilder.andWhere('user.status = :status AND membership.suspended_at IS NULL', {
+          status: statusFilter,
+        });
+      }
     }
 
     if (sortColumn && sortDirection) {
@@ -193,8 +206,29 @@ export class UsersService extends UserProfilePort {
     }
 
     const [data, total] = await queryBuilder.getManyAndCount();
+    await this.applyMembershipStatus(data, organizationId);
 
     return { data, total };
+  }
+
+  /**
+   * Show a tenant-suspended member as BLOCKED to that tenant.
+   *
+   * The status column belongs to the ACCOUNT, and a tenant that is not the person's home cannot
+   * change it; what it can change is its own membership. The administration screen reads one
+   * status, so the two are folded together here, for this tenant only, in memory.
+   */
+  private async applyMembershipStatus(users: User[], organizationId: string): Promise<void> {
+    if (!users.length) return;
+    const suspended: Array<{ user_id: string }> = await this.userRepository.manager.query(
+      `SELECT user_id FROM user_organizations
+        WHERE organization_id = $1 AND suspended_at IS NOT NULL AND user_id = ANY($2::uuid[])`,
+      [organizationId, users.map((user) => user.id)],
+    );
+    const ids = new Set(suspended.map((row) => row.user_id));
+    for (const user of users) {
+      if (ids.has(user.id)) user.status = UserStatus.BLOCKED;
+    }
   }
 
   async updateUser(
@@ -205,9 +239,17 @@ export class UsersService extends UserProfilePort {
   ): Promise<User> {
     const user = await this.findMemberWithSecurity(id, organizationId);
 
-    const { roleId, ...userData } = updateUserDto;
+    const { roleId, firstName, lastName } = updateUserDto;
 
-    Object.assign(user, userData);
+    // The name belongs to the IDENTITY, which every tenant the person works for shares. Only the
+    // home organization may rewrite it; any other tenant manages the role it granted, not the
+    // person.
+    if (firstName !== undefined || lastName !== undefined) {
+      this.assertHomeOrganization(user, organizationId);
+      if (firstName !== undefined) user.firstName = firstName;
+      if (lastName !== undefined) user.lastName = lastName;
+      await saveIdentity(this.userRepository.manager, user);
+    }
 
     if (roleId) {
       const role = await this.rolesService.findOne(roleId, organizationId);
@@ -226,17 +268,21 @@ export class UsersService extends UserProfilePort {
         await this.assertOrganizationRetainsAdministrator(organizationId, id);
       }
 
-      user.roles = [role];
-      // Increment token version to invalidate sessions on role change
-      if (user.security) {
-          user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-      }
-      await this.userCacheService.clearUserSession(id);
-    } else {
-      await this.userCacheService.clearUserSession(id);
+      // Written through the join table and scoped to THIS tenant: the roles the person holds in
+      // any other organization are neither read nor touched (see `identity-writes.ts`).
+      await replaceRolesInOrganization(this.userRepository.manager, id, organizationId, [role.id]);
+      user.roles = [
+        ...(user.roles ?? []).filter((existing) => existing.organizationId !== organizationId),
+        role,
+      ];
     }
 
-    return this.userRepository.save(user);
+    // Permissions are resolved per request from the cached projection, so dropping it is what
+    // makes the new role apply to the very next request. The token version is deliberately NOT
+    // bumped: it is global, and bumping it here signed the person out of every OTHER tenant too.
+    await this.userCacheService.clearUserSession(id);
+
+    return user;
   }
 
   /**
@@ -276,7 +322,8 @@ export class UsersService extends UserProfilePort {
       .innerJoin(
         UserOrganization,
         'membership',
-        'membership.user_id = user.id AND membership.organization_id = :organizationId',
+        // A suspended member holds no standing here, so cannot be the administrator who is left.
+        'membership.user_id = user.id AND membership.organization_id = :organizationId AND membership.suspended_at IS NULL',
         { organizationId },
       )
       .leftJoinAndSelect(
@@ -335,13 +382,11 @@ export class UsersService extends UserProfilePort {
       await this.membershipService.revoke(id, organizationId, manager);
 
       // Drop only the roles scoped to this tenant. A platform role (null organization) and roles
-      // held in other tenants are none of this tenant's business. Reloaded inside the transaction
-      // because `user.roles` was filtered to this organization by the lookup above.
-      const fresh = await manager.findOne(User, { where: { id }, relations: ['roles'] });
-      if (fresh) {
-        fresh.roles = (fresh.roles ?? []).filter((role) => role.organizationId !== organizationId);
-        await manager.save(User, fresh);
-      }
+      // held in other tenants are none of this tenant's business, and the scoped writer never
+      // reads them.
+      // role-assignment-allow: an empty list only REMOVES this tenant's roles; it grants nothing.
+      await replaceRolesInOrganization(manager, id, organizationId, []);
+      const fresh = await manager.findOne(User, { where: { id }, select: ['id', 'organizationId'] });
 
       // The seat goes back to the tenant. `USERS` is a LIFETIME quota, so without this a tenant
       // that removed somebody could never replace them: the counter measured hires, not staff.
@@ -448,6 +493,7 @@ export class UsersService extends UserProfilePort {
       throw new NotFoundError('users.user_id_not_found_your_organization', { id });
     }
     user.permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
+    await this.applyMembershipStatus([user], organizationId);
     return user;
   }
 
@@ -485,6 +531,19 @@ export class UsersService extends UserProfilePort {
     return user;
   }
 
+  /**
+   * Change what this tenant lets a member do.
+   *
+   * Two different acts share this endpoint, and which one happens depends on whose account it is:
+   *
+   *  - In the person's HOME organization, the account status itself changes. That organization
+   *    created the identity and answers for it, so blocking there blocks the account everywhere —
+   *    and every live session is ended on the spot, sockets included.
+   *  - In any OTHER tenant, only the membership changes. Blocking or deactivating suspends the
+   *    person's access to THIS tenant and leaves the account, and their work for everyone else,
+   *    untouched. That tenant never had authority over the identity; it has full authority over
+   *    access to itself.
+   */
   async updateUserStatus(
     id: string,
     status: UserStatus,
@@ -502,17 +561,37 @@ export class UsersService extends UserProfilePort {
       await this.assertOrganizationRetainsAdministrator(organizationId, id);
     }
 
-    user.status = status;
-    // Invalidate sessions on status change (e.g., blocking)
-    if (user.security) {
-        user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+    if (!this.isHomeOrganization(user, organizationId)) {
+      if (status === UserStatus.PENDING) {
+        throw new BadRequestError('users.pending_status_only_home_organization');
+      }
+      if (status === UserStatus.ACTIVE) {
+        await this.membershipService.reinstate(id, organizationId);
+      } else {
+        await this.membershipService.suspend(id, organizationId);
+      }
+      await this.applyMembershipStatus([user], organizationId);
+      return user;
     }
-    await this.userCacheService.clearUserSession(id);
-    return this.userRepository.save(user);
+
+    user.status = status;
+    await saveIdentity(this.userRepository.manager, user);
+
+    if (status === UserStatus.ACTIVE) {
+      await this.userCacheService.clearUserSession(id);
+    } else {
+      // Ends every session for real: refresh families revoked, the denylist written, the token
+      // version bumped and the WebSocket hung up. Bumping the version alone left the refresh rows
+      // and the sockets alive.
+      await this.sessionService.terminateAllSessions(id);
+    }
+    return user;
   }
 
   async resetPassword(id: string, organizationId: string): Promise<void> {
     const user = await this.findMemberWithSecurity(id, organizationId);
+    // Credentials belong to the identity; only the organization that owns it may reset them.
+    this.assertHomeOrganization(user, organizationId);
 
     // Ensure security entity exists (it should, but for safety)
     if (!user.security) {
@@ -525,7 +604,7 @@ export class UsersService extends UserProfilePort {
     user.security.passwordResetToken = tokenHash;
     user.security.passwordResetExpires = new Date(Date.now() + 3600000);
 
-    await this.userRepository.save(user);
+    await saveIdentity(this.userRepository.manager, user);
     await this.userCacheService.clearUserSession(id);
 
     try {
@@ -598,7 +677,7 @@ export class UsersService extends UserProfilePort {
     user.security.emailChangeToken = crypto.createHash('sha256').update(raw).digest('hex');
     user.security.emailChangeTarget = dto.newEmail;
     user.security.emailChangeExpires = new Date(Date.now() + 15 * 60_000); // 15 min TTL
-    await this.userRepository.save(user);
+    await saveIdentity(this.userRepository.manager, user);
 
     await this.mailService.sendEmailChangeConfirmation(dto.newEmail, raw, user.firstName);
   }
@@ -638,8 +717,10 @@ export class UsersService extends UserProfilePort {
     user.security.emailChangeExpires = null;
     user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
 
-    await this.userRepository.save(user);
-    await this.userCacheService.clearUserSession(userId);
+    await saveIdentity(this.userRepository.manager, user);
+    // Every other session ends for real, not only by version: the refresh families are revoked
+    // and the sockets hung up.
+    await this.sessionService.terminateAllSessions(userId);
 
     // Tell the address that is LOSING the account.
     //
@@ -711,7 +792,7 @@ export class UsersService extends UserProfilePort {
 
     const role = await this.rolesService.findOne(roleId, organizationId);
     if (!role) {
-      this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
+      this.logger.warn({ event: 'invite_role_not_found', organizationId, requestedRole: roleId }, 'Invite role not found');
       throw new BadRequestError('users.invitation_could_not_sent_with_details');
     }
 
@@ -734,14 +815,17 @@ export class UsersService extends UserProfilePort {
     this.rolesService.assertCanAssignRole(actor, role);
 
     // Platform-wide, not organization-scoped. The unique constraint is platform-wide, so a
-    // lookup that is not tells you nothing about whether the insert can succeed.
+    // lookup that is not tells you nothing about whether the insert can succeed. Nothing but the
+    // id and what the email needs is loaded: the inviting tenant has no business with the rest.
     const existingUser = await this.userRepository.findOne({
       where: { email },
-      relations: ['roles'],
+      select: ['id', 'email', 'firstName', 'preferredLanguage'],
     });
 
     if (existingUser) {
-      return this.addExistingUserToOrganization(existingUser, organizationId, role);
+      // An existing account is ASKED, not added. See `OrganizationInvitationsService`.
+      const invitation = await this.invitations.invite(existingUser, organizationId, role, actor);
+      return UsersService.invitationReceipt(invitation?.id ?? existingUser.id, inviteUserDto, role, organizationId);
     }
 
     // M-03 FIX: Persist only a SHA-256 hash of the invitation token (same approach as the
@@ -767,6 +851,9 @@ export class UsersService extends UserProfilePort {
     const created = await this.dataSource.transaction(async (manager) => {
         await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
 
+        // A brand-new identity: its role list IS the one role granted here, so saving the
+        // relation whole is correct — there is nothing elsewhere to overwrite.
+        // identity-writes-allow: new identity, no roles in any other tenant yet.
         await manager.save(newUser);
 
         // The membership is written INSIDE the transaction. Written outside, it would survive a
@@ -795,68 +882,61 @@ export class UsersService extends UserProfilePort {
       );
     }
 
-    delete created.invitationToken;
-    delete created.invitationTokenExpires;
-
-    return created;
+    return UsersService.invitationReceipt(created.id, inviteUserDto, role, organizationId);
   }
 
   /**
-   * Add somebody who already has an account to another tenant.
+   * What `POST /users/invite` answers, built only from what the INVITER sent.
    *
-   * They keep their identity, their password and their MFA factors; they gain a membership and a
-   * role scoped to this organization. Because roles carry `organization_id` and permissions are
-   * now resolved per active tenant, holding a role here says nothing about their rights anywhere
-   * else.
-   *
-   * Re-inviting somebody who is already a member is not an error and not a way to probe: the same
-   * generic response is returned either way, so the endpoint cannot be used to ask "does this
-   * person have an account with you".
+   * The same shape whether the address was new or belonged to an existing account. It used to
+   * return the existing account itself — its roles and permissions in every other tenant, its
+   * home organization, its phone and whether it had a second factor — to anyone who could type
+   * the address.
    */
-  private async addExistingUserToOrganization(
-    user: User,
-    organizationId: string,
+  private static invitationReceipt(
+    id: string,
+    dto: InviteUserDto,
     role: Role,
-  ): Promise<User> {
-    // The caller (`inviteUser`) has already run `assertCanAssignRole` for this role, before
-    // branching on whether the person already has an account — so both halves of the invitation
-    // are covered by one check. Any future caller of this method must do the same.
-    const alreadyMember = await this.membershipService.isMember(user.id, organizationId);
-    const alreadyHasRoleHere = (user.roles ?? []).some(
-      (existing) => existing.organizationId === organizationId,
-    );
-
-    if (alreadyMember && alreadyHasRoleHere) {
-      this.logger.log(
-        { event: 'invite_existing_member', organizationId, userId: user.id },
-        'Invitation for a user who is already a member of this organization; no change made.',
-      );
-      return user;
-    }
-
-    return this.dataSource.transaction(async (manager) => {
-      await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
-
-      await this.membershipService.grant(user.id, organizationId, manager);
-
-      if (!alreadyHasRoleHere) {
-        user.roles = [...(user.roles ?? []), role];
-        await manager.save(User, user);
-      }
-
-      // Their existing sessions carry a permission set computed before this role existed.
-      await this.userCacheService.clearUserSession(user.id);
-
-      const organization = await manager.findOne(Organization, { where: { id: organizationId } });
-      await this.mailService.sendAddedToOrganizationEmail(
-        user,
-        organization?.legalName ?? 'una organización',
-      );
-
-      return user;
-    });
+    organizationId: string,
+  ): User {
+    return {
+      id,
+      email: dto.email,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      status: UserStatus.PENDING,
+      organizationId,
+      roles: [role],
+      permissions: role.permissions ?? [],
+      isEmailVerified: false,
+      isPhoneVerified: false,
+    } as unknown as User;
   }
 
+  /**
+   * Whether `organizationId` is the organization that owns this identity.
+   *
+   * The home organization created the account (or received it when the person left their
+   * original one) and is the only tenant with authority over what every tenant shares: the email
+   * address, the credentials, the account status and the sessions. Any other tenant administers
+   * its own membership and the role it granted — nothing more.
+   */
+  private isHomeOrganization(user: Pick<User, 'organizationId'>, organizationId: string): boolean {
+    return user.organizationId === organizationId;
+  }
+
+  private assertHomeOrganization(user: Pick<User, 'organizationId'>, organizationId: string): void {
+    if (!this.isHomeOrganization(user, organizationId)) {
+      throw new ForbiddenError('users.identity_managed_by_home_organization');
+    }
+  }
+
+  /**
+   * Change the address of an account this tenant OWNS.
+   *
+   * Restricted to the home organization. From any other tenant this was an account takeover in
+   * two steps: point the address at a mailbox you control, then ask for a password reset.
+   */
   async adminChangeEmail(userId: string, newEmail: string, organizationId: string): Promise<void> {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!newEmail || !emailRegex.test(newEmail)) {
@@ -864,35 +944,48 @@ export class UsersService extends UserProfilePort {
     }
 
     const user = await this.findMemberWithSecurity(userId, organizationId);
+    this.assertHomeOrganization(user, organizationId);
 
-    const existing = await this.userRepository.findOne({ where: { email: newEmail } });
+    const normalized = newEmail.trim().toLowerCase();
+    const existing = await this.userRepository.findOne({ where: { email: normalized }, select: ['id'] });
     if (existing && existing.id !== userId) {
       throw new BadRequestError('users.email_already_use_another_user');
     }
 
     const oldEmail = user.email;
-    user.email = newEmail;
+    user.email = normalized;
     user.isEmailVerified = false;
 
-    if (user.security) {
-      user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+    await saveIdentity(this.userRepository.manager, user);
+    await this.sessionService.terminateAllSessions(userId);
+
+    // The address LOSING the account is told, exactly as on the self-service path: it is the one
+    // channel the new address's holder does not control.
+    try {
+      await this.mailService.sendEmailChangedNotice(oldEmail, user.firstName, normalized);
+    } catch (error) {
+      this.logger.error(
+        { event: 'admin_email_change_notice_failed', userId },
+        `Could not notify the previous address of an administrative email change: ${(error as Error).message}`,
+      );
     }
 
-    await this.userRepository.save(user);
-    await this.userCacheService.clearUserSession(userId);
-
-    this.eventEmitter.emit('user.admin.email-changed', { userId, oldEmail, newEmail, organizationId });
+    this.eventEmitter.emit('user.admin.email-changed', { userId, oldEmail, newEmail: normalized, organizationId });
   }
 
+  /**
+   * End every session of an account this tenant OWNS.
+   *
+   * Sessions belong to the identity, not to a tenant, so this is a home-organization act. Another
+   * tenant that wants somebody out of ITS data suspends the membership (`updateUserStatus`),
+   * which takes effect on their very next request without touching their work elsewhere.
+   */
   // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
   async forceLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
+    this.assertHomeOrganization(user, organizationId);
 
-    if (user.security) {
-        user.security.tokenVersion += 1;
-        await this.userRepository.save(user);
-    }
-    await this.userCacheService.clearUserSession(userId);
+    await this.sessionService.terminateAllSessions(userId);
 
     this.eventEmitter.emit('user.force-logout', {
       userId,
@@ -902,15 +995,28 @@ export class UsersService extends UserProfilePort {
     return { messageKey: 'users.user_session_has_closed' };
   }
 
+  /**
+   * Block and sign out — at the scope this tenant actually governs.
+   *
+   * The home organization blocks the account and ends every session. Any other tenant suspends
+   * its own membership: the person loses access to this tenant immediately and keeps it
+   * everywhere else.
+   */
   async blockAndLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
-    user.status = UserStatus.BLOCKED;
-    if (user.security) {
-        user.security.tokenVersion += 1;
+    if (UsersService.isAdministrator(user)) {
+      await this.assertOrganizationRetainsAdministrator(organizationId, userId);
     }
-    await this.userRepository.save(user);
-    await this.userCacheService.clearUserSession(userId);
+
+    if (!this.isHomeOrganization(user, organizationId)) {
+      await this.membershipService.suspend(userId, organizationId);
+      return { messageKey: 'users.membership_suspended' };
+    }
+
+    user.status = UserStatus.BLOCKED;
+    await saveIdentity(this.userRepository.manager, user);
+    await this.sessionService.terminateAllSessions(userId);
 
     this.eventEmitter.emit('user.force-logout', {
       userId,
@@ -920,14 +1026,15 @@ export class UsersService extends UserProfilePort {
 
     return { messageKey: 'users.user_has_blocked_their_session_closed' };
   }
-  
+
   async setOnlineStatus(userId: string, isOnline: boolean): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundError('users.user_not_found');
     }
     user.isOnline = isOnline;
-    const updatedUser = await this.userRepository.save(user);
+    await this.userRepository.update({ id: userId }, { isOnline });
+    const updatedUser = user;
     this.eventEmitter.emit('user.status.changed', { userId, isOnline });
     return updatedUser;
   }
@@ -987,8 +1094,13 @@ export class UsersService extends UserProfilePort {
     return memberships.map(({ id, legalName, slug }) => ({ id, legalName, slug }));
   }
 
+  /**
+   * Persist an identity's own attributes. Never its roles: those are written per tenant through
+   * `replaceRolesInOrganization`, because a caller holding a tenant-filtered role list would
+   * otherwise delete the person's roles everywhere else (see `identity-writes.ts`).
+   */
   async save(user: User): Promise<User> {
-    return this.userRepository.save(user);
+    return saveIdentity(this.userRepository.manager, user);
   }
 
   async update(id: string, partialEntity: any): Promise<void> {

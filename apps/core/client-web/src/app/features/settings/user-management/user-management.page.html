@@ -127,6 +127,50 @@
         (pageSizeChange)="changePageSize($event)"
       />
     </div>
+
+    @if (sentInvitations().length) {
+      <!--
+        Personas que ya tienen cuenta y a las que esta empresa ha INVITADO. No son miembros: se
+        les ha pedido, y solo ellas deciden. Por eso no están en la tabla de arriba.
+      -->
+      <div class="card sent-invitations">
+        <div class="card-header">
+          <h3>{{ 'settings.user_management.sent_invitations' | translate }}</h3>
+          <p class="sent-invitations-hint">{{ 'settings.user_management.sent_invitations_hint' | translate }}</p>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'users.table.name' | translate }}</th>
+                <th>{{ 'users.table.email' | translate }}</th>
+                <th>{{ 'users.table.role' | translate }}</th>
+                <th>{{ 'settings.user_management.invitation_expires' | translate }}</th>
+                <th>{{ 'users.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invitation of sentInvitations(); track invitation.id) {
+                <tr>
+                  <td>{{ invitation.firstName }} {{ invitation.lastName }}</td>
+                  <td>{{ invitation.email }}</td>
+                  <td>{{ invitation.roleName }}</td>
+                  <td>{{ invitation.expiresAt | date: 'mediumDate' }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn"
+                      *appHasPermission="'users:create'"
+                      (click)="revokeInvitation(invitation)"
+                    >{{ 'settings.user_management.revoke_invitation' | translate }}</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
   </div>
 </div>
 

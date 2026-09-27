@@ -29,6 +29,11 @@
     "en": "The file is required.",
     "pt": "O arquivo é obrigatório."
   },
+  "users.identity_managed_by_home_organization": {
+    "es": "Esta cuenta la administra la organización a la que pertenece originalmente. Aquí puedes cambiar su rol o suspender su acceso a esta organización.",
+    "en": "This account is administered by the organization it originally belongs to. Here you can change its role or suspend its access to this organization.",
+    "pt": "Esta conta é administrada pela organização à qual pertence originalmente. Aqui você pode alterar a função ou suspender o acesso a esta organização."
+  },
   "users.if_details_correct_confirmation_link_has": {
     "es": "Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.",
     "en": "If the details are correct, a confirmation link has been sent to the new address.",
@@ -49,10 +54,35 @@
     "en": "Invalid email format.",
     "pt": "Formato de e-mail inválido."
   },
+  "users.invitation_accepted": {
+    "es": "Invitación aceptada. Ya puedes cambiar a la organización desde el selector.",
+    "en": "Invitation accepted. You can now switch to the organization from the selector.",
+    "pt": "Convite aceito. Agora você pode mudar para a organização pelo seletor."
+  },
   "users.invitation_could_not_sent_with_details": {
     "es": "No se pudo enviar la invitación con los datos proporcionados.",
     "en": "The invitation could not be sent with the details provided.",
     "pt": "Não foi possível enviar o convite com os dados informados."
+  },
+  "users.invitation_declined": {
+    "es": "Invitación rechazada.",
+    "en": "Invitation declined.",
+    "pt": "Convite recusado."
+  },
+  "users.invitation_not_found_or_expired": {
+    "es": "La invitación no existe, ya se respondió o ha caducado.",
+    "en": "The invitation does not exist, has already been answered or has expired.",
+    "pt": "O convite não existe, já foi respondido ou expirou."
+  },
+  "users.invitation_revoked": {
+    "es": "Invitación retirada.",
+    "en": "Invitation withdrawn.",
+    "pt": "Convite retirado."
+  },
+  "users.membership_suspended": {
+    "es": "El acceso de esta persona a la organización ha quedado suspendido.",
+    "en": "This person's access to the organization has been suspended.",
+    "pt": "O acesso desta pessoa à organização foi suspenso."
   },
   "users.no_pending_email_change": {
     "es": "No hay ningún cambio de correo pendiente.",
@@ -68,6 +98,11 @@
     "es": "Enviamos un enlace para restablecer la contraseña.",
     "en": "We sent a password reset link.",
     "pt": "Enviamos um link para redefinir a senha."
+  },
+  "users.pending_status_only_home_organization": {
+    "es": "Solo la organización propietaria de la cuenta puede devolverla al estado pendiente.",
+    "en": "Only the organization that owns the account can return it to pending.",
+    "pt": "Somente a organização proprietária da conta pode voltá-la ao estado pendente."
   },
   "users.role_role_id_not_found": {
     "es": "Rol con ID {{roleId}} no encontrado.",

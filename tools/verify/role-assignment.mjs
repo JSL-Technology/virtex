@@ -48,6 +48,8 @@ const ASSIGNMENT_PATTERNS = [
   { pattern: /\broles:\s*\[\s*role\b/, what: 'creates a user with a role' },
   { pattern: /\b\w*[Rr]oleId\s*=\s*(?!null|undefined)/, what: 'persists a *RoleId' },
   { pattern: /\b\w*[Rr]oleId:\s*dto\./, what: 'persists a *RoleId straight from a DTO' },
+  { pattern: /\breplaceRolesInOrganization\(/, what: 'writes a user\'s roles in a tenant' },
+  { pattern: /\.relation\(\s*User\s*,\s*['"]roles['"]\s*\)/, what: 'writes the user_roles join table' },
 ];
 
 const GUARDS = ['assertCanAssignRole', 'assertCanAssignRoleById'];
@@ -96,15 +98,20 @@ for (const file of collect(SCAN_DIR)) {
   // The file that DEFINES the rule, and the seeding paths that create a tenant's first roles
   // before any actor exists, are exempt by name.
   if (rel.endsWith(join('roles', 'roles.service.ts'))) continue;
+  // The writer primitive itself: it moves rows, and every caller is checked at its call site.
+  if (rel.endsWith(join('users', 'persistence', 'identity-writes.ts'))) continue;
 
   const rawLines = source.split('\n');
   const codeLines = stripComments(source);
-  const guarded = GUARDS.some((guard) => source.includes(guard));
 
   codeLines.forEach((code, index) => {
     const match = ASSIGNMENT_PATTERNS.find(({ pattern }) => pattern.test(code));
     if (!match) return;
-    if (guarded) return;
+    // The delegation check has to precede THIS write, in the code that performs it. It used to be
+    // enough for the check to appear anywhere in the file, so one guarded method certified every
+    // other write beside it.
+    const preceding = codeLines.slice(Math.max(0, index - 150), index + 1).join('\n');
+    if (GUARDS.some((guard) => preceding.includes(guard))) return;
 
     // The annotation may head a short paragraph of justification, so look back further than one
     // line: a reason worth writing is usually a reason worth more than eighty characters.

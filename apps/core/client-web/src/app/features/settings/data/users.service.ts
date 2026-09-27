@@ -34,6 +34,21 @@ export interface PaginatedUsersResponse {
   total: number;
 }
 
+/**
+ * An invitation this organization sent to somebody who already has an account elsewhere. It grants
+ * nothing until that person accepts it from their own session.
+ */
+export interface SentInvitation {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roleId: string;
+  roleName: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private http = inject(HttpClient);
@@ -84,11 +99,13 @@ export class UsersService {
       .set('page', options.page.toString())
       .set('pageSize', options.pageSize.toString());
 
+    // The names `ListUsersQueryDto` declares. This sent `searchTerm` and `statusFilter`, which the
+    // server rejects (`forbidNonWhitelisted`), so searching or filtering the member list failed.
     if (options.searchTerm) {
-      params = params.set('searchTerm', options.searchTerm);
+      params = params.set('search', options.searchTerm);
     }
     if (options.statusFilter && options.statusFilter !== 'all') {
-      params = params.set('statusFilter', options.statusFilter);
+      params = params.set('status', options.statusFilter);
     }
     if (options.sortColumn) {
       params = params.set('sortColumn', options.sortColumn);
@@ -106,6 +123,16 @@ export class UsersService {
 
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /** Invitations this organization sent to existing accounts that are still unanswered. */
+  getSentInvitations(): Observable<SentInvitation[]> {
+    return this.http.get<SentInvitation[]>(`${environment.apiUrl}/invitations/sent`);
+  }
+
+  /** Withdraw an unanswered invitation this organization sent. */
+  revokeInvitation(id: string): Observable<{ messageKey: string }> {
+    return this.http.delete<{ messageKey: string }>(`${environment.apiUrl}/invitations/${id}`);
   }
 
   inviteUser(userData: InviteUserDto): Observable<User> {

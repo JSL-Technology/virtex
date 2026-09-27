@@ -1,12 +1,13 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, Search } from 'lucide-angular';
+import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, Search, Mail, X } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { AuthService } from '../../../../core/services/auth';
 import { Organization } from '../../../../shared/interfaces/user.interface';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Router } from '@angular/router';
+import { OrganizationInvitationsService, ReceivedInvitation } from '../../../../core/services/organization-invitations.service';
 
 @Component({
   selector: 'app-company-switcher',
@@ -15,10 +16,17 @@ import { Router } from '@angular/router';
   templateUrl: './company-switcher.component.html',
   styleUrls: ['./company-switcher.component.scss']
 })
-export class CompanySwitcherComponent {
+export class CompanySwitcherComponent implements OnInit {
   private authService = inject(AuthService);
   private tenancy = inject(ActiveOrganizationService);
   private router = inject(Router);
+  private invitations = inject(OrganizationInvitationsService);
+
+  /** Organizations that have ASKED this person to join. Nothing is granted until they accept. */
+  pendingInvitations = this.invitations.received;
+  /** The invitation whose answer is in flight, so its buttons cannot be pressed twice. */
+  answering = signal<string | null>(null);
+  invitationError = signal<string | null>(null);
 
   isOpen = signal(false);
   searchQuery = signal('');
@@ -61,6 +69,51 @@ export class CompanySwitcherComponent {
   protected readonly PlusIcon = Plus;
   protected readonly SettingsIcon = Settings;
   protected readonly SearchIcon = Search;
+  protected readonly MailIcon = Mail;
+  protected readonly XIcon = X;
+
+  ngOnInit(): void {
+    // A failure here only hides the section; the switcher itself must keep working.
+    this.invitations.refresh().subscribe({ error: () => undefined });
+  }
+
+  /**
+   * Accept: the organization appears in the list once the session is re-read, because the
+   * membership list comes from the server and is never edited on the client.
+   */
+  acceptInvitation(invitation: ReceivedInvitation, event: Event): void {
+    event.stopPropagation();
+    if (this.answering()) return;
+    this.answering.set(invitation.id);
+    this.invitationError.set(null);
+    this.invitations.accept(invitation.id).subscribe({
+      next: () => {
+        this.authService.reloadSession().subscribe({
+          next: () => this.answering.set(null),
+          error: () => this.answering.set(null),
+        });
+      },
+      error: () => {
+        this.answering.set(null);
+        this.invitationError.set('main.company_switcher.invitation_answer_failed');
+        this.invitations.refresh().subscribe({ error: () => undefined });
+      },
+    });
+  }
+
+  declineInvitation(invitation: ReceivedInvitation, event: Event): void {
+    event.stopPropagation();
+    if (this.answering()) return;
+    this.answering.set(invitation.id);
+    this.invitationError.set(null);
+    this.invitations.decline(invitation.id).subscribe({
+      next: () => this.answering.set(null),
+      error: () => {
+        this.answering.set(null);
+        this.invitationError.set('main.company_switcher.invitation_answer_failed');
+      },
+    });
+  }
 
   toggleDropdown() {
     this.isOpen.update(v => !v);

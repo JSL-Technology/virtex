@@ -20,12 +20,20 @@ import { MembershipService } from '../organizations/services/membership.service'
 import { AuditTrailService } from '../audit/audit.service';
 import { ForbiddenException } from '@nestjs/common';
 import { expectLocalizedError } from '../i18n/testing/expect-localized-error';
+import { OrganizationInvitationsService } from './invitations/organization-invitations.service';
+import { UserStatus } from './entities/user.entity/user.entity';
+import * as identityWrites from './persistence/identity-writes';
 
 describe('UsersService', () => {
   let service: UsersService;
   let userRepositoryMock: any;
   let userCacheServiceMock: any;
   let rolesServiceMock: any;
+  let managerMock: any;
+  let membershipMock: any;
+  let invitationsMock: any;
+  let sessionInvalidatorMock: any;
+  let mailMock: any;
 
   beforeEach(async () => {
     rolesServiceMock = {
@@ -36,9 +44,17 @@ describe('UsersService', () => {
     // `findOne` resolves roles for one tenant, so it goes through a query builder now. The
     // double answers from the same `findOne` mock the tests already set up, which keeps them
     // readable and still exercises the real scoping argument.
+    // Identity writes go through the repository's MANAGER (`saveIdentity`), never `repo.save`:
+    // the double records exactly what reached it, roles included or not.
+    managerMock = {
+      save: jest.fn((_entity: unknown, value: unknown) => Promise.resolve(value)),
+      query: jest.fn().mockResolvedValue([]),
+    };
     userRepositoryMock = {
+      manager: managerMock,
       findOne: jest.fn(),
       save: jest.fn(),
+      update: jest.fn(),
       createQueryBuilder: jest.fn(() => ({
         where: jest.fn().mockReturnThis(),
         leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -64,19 +80,20 @@ describe('UsersService', () => {
         // (B-02). El módulo de prueba no lo declaró, así que este archivo no resolvía sus
         // dependencias y sus siete pruebas no se han ejecutado desde entonces.
         { provide: PasswordVerifierPort, useValue: { verify: jest.fn().mockResolvedValue(true) } },
-        { provide: MailService, useValue: {} },
+        { provide: MailService, useValue: (mailMock = { sendEmailChangedNotice: jest.fn(), sendUserInvitation: jest.fn() }) },
         { provide: RolesService, useValue: rolesServiceMock },
         { provide: EventsGateway, useValue: {} },
-        { provide: EventEmitter2, useValue: {} },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
         { provide: SaasService, useValue: {} },
         { provide: DataSource, useValue: {} },
         { provide: PasswordService, useValue: { hash: jest.fn(), verify: jest.fn() } },
         // El PUERTO, no el servicio concreto: `SessionInvalidatorPort` se introdujo junto con
         // `PasswordVerifierPort` para que Identidad no dependiera de Auth por dentro (B-02).
-        { provide: SessionInvalidatorPort, useValue: { terminateAllSessions: jest.fn() } },
+        { provide: SessionInvalidatorPort, useValue: (sessionInvalidatorMock = { terminateAllSessions: jest.fn() }) },
         { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } },
         // `user_organizations` is written by this service now, not just read by a raw query.
-        { provide: MembershipService, useValue: { grant: jest.fn(), revoke: jest.fn(), isMember: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) } },
+        { provide: MembershipService, useValue: (membershipMock = { grant: jest.fn(), revoke: jest.fn(), suspend: jest.fn(), reinstate: jest.fn(), isMember: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) }) },
+        { provide: OrganizationInvitationsService, useValue: (invitationsMock = { invite: jest.fn().mockResolvedValue({ id: 'inv-1' }) }) },
         // The activity log is served from the audit trail now; it used to return a hardcoded [].
         { provide: AuditTrailService, useValue: { findByActor: jest.fn().mockResolvedValue([]), record: jest.fn() } }
       ],
@@ -205,6 +222,180 @@ describe('UsersService', () => {
         'users.invitation_could_not_sent_with_details',
       );
       expect(rolesServiceMock.assertCanAssignRole).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * S-2: a `save` of a user whose roles were loaded for ONE tenant made TypeORM delete the
+   * person's roles in every OTHER tenant. Identity writes must never carry the role relation.
+   */
+  describe('identity writes never carry the role graph', () => {
+    it('updateProfile persists the user WITHOUT its roles, and hands them back intact', async () => {
+      const roleInB = { id: 'role-b', organizationId: 'org-b', permissions: ['x:read'] };
+      const user = Object.assign(new User(), { id: 'u1', phone: '1', roles: [roleInB] });
+      userRepositoryMock.findOne.mockResolvedValue(user);
+
+      let rolesAtSave: unknown = 'not-called';
+      managerMock.save.mockImplementation((_e: unknown, value: { roles?: unknown }) => {
+        rolesAtSave = Object.prototype.hasOwnProperty.call(value, 'roles') ? value.roles : undefined;
+        return Promise.resolve(value);
+      });
+
+      const result = await service.updateProfile('u1', { firstName: 'Z' }, 'org-b');
+
+      expect(rolesAtSave).toBeUndefined();
+      expect(result.roles).toEqual([roleInB]);
+      expect(userRepositoryMock.save).not.toHaveBeenCalled();
+    });
+
+    it('updateUser changes a role through the scoped writer, not through save', async () => {
+      const spy = jest.spyOn(identityWrites, 'replaceRolesInOrganization').mockResolvedValue();
+      const member = Object.assign(new User(), { id: 'u2', organizationId: 'org-a', roles: [] });
+      userRepositoryMock.findOne.mockResolvedValue(member);
+      rolesServiceMock.findOne.mockResolvedValue({ id: 'role-b', organizationId: 'org-b', permissions: ['x:read'] });
+
+      await service.updateUser('u2', { roleId: 'role-b' }, 'org-b', { id: 'admin' } as never);
+
+      expect(spy).toHaveBeenCalledWith(managerMock, 'u2', 'org-b', ['role-b']);
+      expect(managerMock.save).not.toHaveBeenCalled();
+      expect(userRepositoryMock.save).not.toHaveBeenCalled();
+      // A role change here must not sign the person out of every other tenant.
+      expect(sessionInvalidatorMock.terminateAllSessions).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
+  });
+
+  /**
+   * S-1: an identity is shared by every tenant its person works for. Only the HOME organization
+   * may change what they all share; any other tenant administers its membership and its role.
+   */
+  describe('identity authority belongs to the home organization', () => {
+    const guest = () =>
+      Object.assign(new User(), {
+        id: 'victim',
+        email: 'victim@a.test',
+        organizationId: 'org-a',
+        status: UserStatus.ACTIVE,
+        roles: [],
+        security: { tokenVersion: 0 },
+      });
+
+    it('refuses to change the email of a member homed in another organization', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(guest());
+      await expectLocalizedError(
+        service.adminChangeEmail('victim', 'attacker@evil.test', 'org-b'),
+        'users.identity_managed_by_home_organization',
+      );
+      expect(managerMock.save).not.toHaveBeenCalled();
+    });
+
+    it('refuses a password reset for a member homed in another organization', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(guest());
+      await expectLocalizedError(
+        service.resetPassword('victim', 'org-b'),
+        'users.identity_managed_by_home_organization',
+      );
+      expect(managerMock.save).not.toHaveBeenCalled();
+    });
+
+    it('refuses to end the global sessions of a member homed in another organization', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(guest());
+      await expectLocalizedError(
+        service.forceLogout('victim', 'org-b'),
+        'users.identity_managed_by_home_organization',
+      );
+      expect(sessionInvalidatorMock.terminateAllSessions).not.toHaveBeenCalled();
+    });
+
+    it('refuses to rename a member homed in another organization', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(guest());
+      await expectLocalizedError(
+        service.updateUser('victim', { firstName: 'X' }, 'org-b', { id: 'admin' } as never),
+        'users.identity_managed_by_home_organization',
+      );
+    });
+
+    it('blocking a guest member suspends THIS membership and leaves the account alone', async () => {
+      const user = guest();
+      userRepositoryMock.findOne.mockResolvedValue(user);
+
+      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', 'admin');
+
+      expect(membershipMock.suspend).toHaveBeenCalledWith('victim', 'org-b');
+      expect(managerMock.save).not.toHaveBeenCalled();
+      expect(sessionInvalidatorMock.terminateAllSessions).not.toHaveBeenCalled();
+    });
+
+    it('block-and-logout of a guest member suspends the membership only', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(guest());
+      const result = await service.blockAndLogout('victim', 'org-b');
+      expect(result).toEqual({ messageKey: 'users.membership_suspended' });
+      expect(membershipMock.suspend).toHaveBeenCalledWith('victim', 'org-b');
+      expect(managerMock.save).not.toHaveBeenCalled();
+    });
+
+    it('the home organization blocks the account and really ends every session', async () => {
+      const user = Object.assign(guest(), { organizationId: 'org-b' });
+      userRepositoryMock.findOne.mockResolvedValue(user);
+
+      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', 'admin');
+
+      expect(user.status).toBe(UserStatus.BLOCKED);
+      expect(sessionInvalidatorMock.terminateAllSessions).toHaveBeenCalledWith('victim');
+    });
+
+    it('the home organization changes the email, ends the sessions and tells the old address', async () => {
+      const user = Object.assign(guest(), { organizationId: 'org-b' });
+      // The member lookup (query builder) and the uniqueness lookup share this mock: the
+      // uniqueness lookup — the one that filters by email — answers "nobody has it".
+      userRepositoryMock.findOne.mockImplementation((options?: { where?: { email?: string } }) =>
+        Promise.resolve(options?.where?.email ? null : user),
+      );
+
+      await service.adminChangeEmail('victim', 'New@B.test', 'org-b');
+
+      expect(user.email).toBe('new@b.test');
+      expect(sessionInvalidatorMock.terminateAllSessions).toHaveBeenCalledWith('victim');
+      expect(mailMock.sendEmailChangedNotice).toHaveBeenCalledWith('victim@a.test', undefined, 'new@b.test');
+    });
+  });
+
+  describe('inviting an existing account is a request, not a grant', () => {
+    const dto = { email: 'victim@a.test', firstName: 'Given', lastName: 'ByInviter', roleId: 'role-b' };
+    const role = { id: 'role-b', name: 'Viewer', organizationId: 'org-b', permissions: ['x:read'] };
+
+    it('records an invitation, writes no membership, and answers only with what the inviter sent', async () => {
+      rolesServiceMock.findOne.mockResolvedValue(role);
+      userRepositoryMock.findOne.mockResolvedValue({
+        id: 'victim',
+        email: 'victim@a.test',
+        firstName: 'Real',
+        phone: '+18095550000',
+        organizationId: 'org-a',
+        roles: [{ id: 'admin-a', organizationId: 'org-a', permissions: ['*'] }],
+      });
+      const actor = { id: 'admin-b', permissions: ['*'] } as never;
+
+      const receipt = await service.inviteUser(dto as never, 'org-b', actor);
+
+      expect(invitationsMock.invite).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'victim' }),
+        'org-b',
+        role,
+        actor,
+      );
+      expect(membershipMock.grant).not.toHaveBeenCalled();
+      expect(receipt).toMatchObject({
+        id: 'inv-1',
+        email: 'victim@a.test',
+        firstName: 'Given',
+        lastName: 'ByInviter',
+        status: UserStatus.PENDING,
+        organizationId: 'org-b',
+        roles: [role],
+      });
+      expect(JSON.stringify(receipt)).not.toContain('+18095550000');
+      expect(JSON.stringify(receipt)).not.toContain('admin-a');
     });
   });
 });

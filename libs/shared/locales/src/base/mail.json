@@ -189,6 +189,41 @@
     "en": "Use your usual password: it is the same account you already have. Once signed in you can\n        switch between the organizations you belong to from the organization selector.",
     "pt": "Use sua senha de sempre: é a mesma conta que você já tem. Ao entrar, você poderá\n        alternar entre as organizações às quais pertence pelo seletor de organização."
   },
+  "mail.organization_invitation.has_invited_you": {
+    "es": "te ha invitado a unirte a su cuenta en {{appName}}.",
+    "en": "has invited you to join their {{appName}} account.",
+    "pt": "convidou você a participar da conta dela no {{appName}}."
+  },
+  "mail.organization_invitation.if_you_do_not_recognise": {
+    "es": "Si no reconoces a esta organización, rechaza la invitación o simplemente ignórala: caduca sola.",
+    "en": "If you do not recognise this organization, decline the invitation or simply ignore it: it expires on its own.",
+    "pt": "Se você não reconhece esta organização, recuse o convite ou simplesmente ignore-o: ele expira sozinho."
+  },
+  "mail.organization_invitation.nothing_changes_until_you_accept": {
+    "es": "No se ha cambiado nada en tu cuenta. La invitación solo surte efecto si la aceptas después de iniciar sesión, desde el aviso de invitaciones pendientes.",
+    "en": "Nothing about your account has changed. The invitation only takes effect if you accept it after signing in, from the pending invitations notice.",
+    "pt": "Nada na sua conta foi alterado. O convite só tem efeito se você o aceitar depois de entrar, pelo aviso de convites pendentes."
+  },
+  "mail.organization_invitation.preheader": {
+    "es": "{{organization}} te ha invitado. Tú decides si aceptas.",
+    "en": "{{organization}} has invited you. It is your decision whether to accept.",
+    "pt": "{{organization}} convidou você. Você decide se aceita."
+  },
+  "mail.organization_invitation.review": {
+    "es": "Revisar la invitación",
+    "en": "Review the invitation",
+    "pt": "Revisar o convite"
+  },
+  "mail.organization_invitation.subject": {
+    "es": "{{organization}} te ha invitado a {{appName}}",
+    "en": "{{organization}} has invited you to {{appName}}",
+    "pt": "{{organization}} convidou você para o {{appName}}"
+  },
+  "mail.organization_invitation.title": {
+    "es": "Te han invitado a una organización",
+    "en": "You have been invited to an organization",
+    "pt": "Você foi convidado para uma organização"
+  },
   "mail.password_reset.did_you_not_request_change_you": {
     "es": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
     "en": "Did you not request this change? You can safely ignore this email. Your password will not change.",

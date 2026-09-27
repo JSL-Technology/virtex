@@ -47,17 +47,21 @@ export class WelcomeEmailListener {
 
   @OnEvent('user.registered')
   async handleUserRegistered(event: UserRegisteredEvent): Promise<void> {
-    if (!event.isNewIdentity) return;
-
+    // A returning customer is told what changed; only a new person is welcomed. The comment above
+    // promised `organization-added` for the first case, and until now nothing sent it.
     await this.afterCommit.runAfterCommit(
       event.entityManager,
-      `welcome email for organization ${event.organization.id}`,
+      `${event.isNewIdentity ? 'welcome' : 'organization-added'} email for organization ${event.organization.id}`,
       async () => {
         try {
-          await this.mailService.sendWelcomeEmail(
-            event.user,
-            event.organization.legalName,
-          );
+          if (event.isNewIdentity) {
+            await this.mailService.sendWelcomeEmail(event.user, event.organization.legalName);
+          } else {
+            await this.mailService.sendAddedToOrganizationEmail(
+              event.user,
+              event.organization.legalName,
+            );
+          }
         } catch (error) {
           this.logger.warn(
             {

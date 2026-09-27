@@ -1,0 +1,12 @@
+{{#> shell title=(t 'mail.organization_invitation.title') preheader=(t 'mail.organization_invitation.preheader' organization=organizationName)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.organization_invitation.title'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};"><strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{organizationName}}</strong> {{t 'mail.organization_invitation.has_invited_you' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.organization_invitation.nothing_changes_until_you_accept'}}</p>
+
+{{> button href=url label=(t 'mail.organization_invitation.review')}}
+
+{{> link-fallback href=url label=(t 'mail.common.if_button_does_not_work_copy')}}
+
+{{#> note}}{{t 'mail.organization_invitation.if_you_do_not_recognise'}}{{/note}}
+{{/shell}}

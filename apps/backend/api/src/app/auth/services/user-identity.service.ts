@@ -9,7 +9,7 @@ import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UsersService } from '../../users/users.service';
 import { AuthConfig } from '../auth.config';
 import { AuthError } from '../enums/auth-error.enum';
-import { AuthenticatedUser } from '../../security/principal';
+import { AuthenticatedUser, PrincipalRole } from '../../security/principal';
 import { CachedUser } from '../interfaces/cached-user.interface';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { SessionRegistryService } from './session-registry.service';
@@ -191,9 +191,11 @@ export class UserIdentityService {
       firstName: user.firstName,
       lastName: user.lastName,
       organizationId: activeOrganizationId as string,
-      roles: UserIdentityService.roleNamesFor(user, activeOrganizationId).map((name) => ({
-        name,
-      })) as never,
+      // The whole assignment, scoped to the active tenant — not just its name. Workflows route
+      // approvals by role id and datasheets share books by role id; with names only, every
+      // `role.id` they read was undefined and role-based routing and sharing silently matched
+      // nobody.
+      roles: UserIdentityService.rolesFor(user, activeOrganizationId),
       permissions: UserIdentityService.permissionsFor(user, activeOrganizationId),
       organization,
       isTwoFactorEnabled: user.isTwoFactorEnabled,
@@ -266,6 +268,7 @@ export class UserIdentityService {
       // what produced permissions that crossed tenant boundaries; the flattening now happens
       // per active organization, in `permissionsFor`.
       roleAssignments: (user.roles ?? []).map((role) => ({
+        id: role.id,
         name: role.name,
         organizationId: role.organizationId ?? null,
         permissions: role.permissions ?? [],
@@ -295,6 +298,18 @@ export class UserIdentityService {
         assignment.organizationId === null || assignment.organizationId === organizationId,
     );
     return [...new Set(scoped.flatMap((assignment) => assignment.permissions))];
+  }
+
+  /** The role assignments for the active tenant, on the same rule as the permissions above. */
+  static rolesFor(user: CachedUser, organizationId?: string | null): PrincipalRole[] {
+    return user.roleAssignments
+      .filter((a) => a.organizationId === null || a.organizationId === organizationId)
+      .map((a) => ({
+        id: a.id as string,
+        name: a.name,
+        organizationId: a.organizationId,
+        permissions: [...a.permissions],
+      }));
   }
 
   /** Role names for the active tenant, on the same rule as the permissions above. */

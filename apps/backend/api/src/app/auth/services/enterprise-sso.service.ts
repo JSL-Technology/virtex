@@ -200,6 +200,7 @@ export class EnterpriseSsoService {
         status: UserStatus.ACTIVE,
         security,
       });
+      // identity-writes-allow: JIT provisioning creates the identity; it has no roles anywhere else.
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
 

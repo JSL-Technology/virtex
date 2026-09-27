@@ -556,9 +556,12 @@ export class SessionService extends SessionInvalidatorPort {
       throw new NotFoundError('auth.session_not_found_does_not_belong');
     }
 
+    // The session belongs to the IDENTITY, and an identity may work for several tenants — a
+    // session opened to work for tenant A is none of tenant B's business just because the same
+    // person is also B's member. Only the organization that owns the account (its home) may read
+    // where its sessions came from.
     const owner = await this.usersService.findUserByIdForAuth(row.userId);
-    const isMember = (owner?.organizations ?? []).some((org) => org.id === organizationId);
-    if (!owner || !isMember) {
+    if (!owner || owner.organizationId !== organizationId) {
       this.logger.warn(
         { event: 'session_origin_denied', sessionPrefix: sessionId.slice(0, 8), organizationId },
         '[SECURITY] Session origin requested for a session outside the caller tenant',

@@ -2916,10 +2916,25 @@
     "en": "Impersonate User",
     "pt": "Personificar Usuário"
   },
+  "settings.user_management.invitation_expires": {
+    "es": "Caduca",
+    "en": "Expires",
+    "pt": "Expira"
+  },
   "settings.user_management.invitation_message_optional": {
     "es": "Mensaje de invitación (opcional)",
     "en": "Invitation message (optional)",
     "pt": "Mensagem do convite (opcional)"
+  },
+  "settings.user_management.invitation_revoke_failed": {
+    "es": "No se pudo retirar la invitación.",
+    "en": "The invitation could not be withdrawn.",
+    "pt": "Não foi possível retirar o convite."
+  },
+  "settings.user_management.invitation_revoked": {
+    "es": "Invitación retirada.",
+    "en": "Invitation withdrawn.",
+    "pt": "Convite retirado."
   },
   "settings.user_management.invite_new_user": {
     "es": "Invitar nuevo usuario",
@@ -2951,6 +2966,11 @@
     "en": "Reset Password",
     "pt": "Redefinir Senha"
   },
+  "settings.user_management.revoke_invitation": {
+    "es": "Retirar",
+    "en": "Withdraw",
+    "pt": "Retirar"
+  },
   "settings.user_management.role": {
     "es": "Rol",
     "en": "Role",
@@ -2965,6 +2985,16 @@
     "es": "Enviar invitación",
     "en": "Send invitation",
     "pt": "Enviar convite"
+  },
+  "settings.user_management.sent_invitations": {
+    "es": "Invitaciones enviadas",
+    "en": "Sent invitations",
+    "pt": "Convites enviados"
+  },
+  "settings.user_management.sent_invitations_hint": {
+    "es": "Estas personas ya tienen una cuenta. Se les ha pedido que se unan; no tendrán acceso hasta que acepten.",
+    "en": "These people already have an account. They have been asked to join and will have no access until they accept.",
+    "pt": "Estas pessoas já têm uma conta. Foi pedido que participem; não terão acesso até aceitar."
   },
   "settings.user_management.user_company_com": {
     "es": "usuario@empresa.com",

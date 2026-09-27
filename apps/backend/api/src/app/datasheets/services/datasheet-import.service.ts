@@ -1,3 +1,4 @@
+import { hasPermission } from '@virteex/shared/util-auth';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -221,10 +222,15 @@ export class DatasheetImportService {
     return toPage(mapped, total, resolved);
   }
 
+  /**
+   * Through the one permission matcher the guard uses, against the principal's resolved set.
+   *
+   * This read `role.permissions` off the principal's roles with an exact `includes`, which
+   * disagreed with `PermissionsGuard` twice over: it ignored wildcards (`'*'`, `'datasheets:*'`),
+   * and the principal's roles did not carry permissions at all, so it answered "no" to everyone.
+   */
   private holds(user: AuthenticatedUser, permission: string): boolean {
-    return (user.roles ?? []).some((role: { permissions?: string[] }) =>
-      (role.permissions ?? []).includes(permission),
-    );
+    return hasPermission(user.permissions ?? [], [permission]);
   }
 }
 

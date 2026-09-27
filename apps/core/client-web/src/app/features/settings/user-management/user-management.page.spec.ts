@@ -35,6 +35,9 @@ describe('UserManagementPage', () => {
 
   const mockUsersService = {
     getUsers: jest.fn(() => of({ data: mockUsers, total: mockUsers.length })),
+    // Invitations sent to people who already have an account: listed apart, withdrawable.
+    getSentInvitations: jest.fn(() => of([])),
+    revokeInvitation: jest.fn(() => of({ messageKey: 'users.invitation_revoked' })),
     inviteUser: jest.fn(() => of(mockUsers[0])),
     updateUser: jest.fn(() => of(mockUsers[0])),
     deleteUser: jest.fn(() => of(undefined)),

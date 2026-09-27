@@ -137,8 +137,16 @@ async function main() {
         WHERE p.tablename = c.table_name AND p.policyname = 'tenant_isolation'
       )
     ORDER BY 1`);
+  // Salvo las de identidad/tenencia DECLARADAS, cada una con su motivo escrito: una tabla que
+  // relaciona a una persona con varias empresas (`user_organizations`) o que lee su destinatario
+  // desde otra empresa (`organization_invitations`) lleva `organization_id` obligatorio y aun así
+  // no puede llevar la política — se la ocultaría a quien debe verla —.
+  const declaredCrossTenant = new Set(CROSS_TENANT_TABLES.map((entry) => entry.table));
   check('ninguna tabla con empresa obligatoria queda sin política',
-    unprotected.rows.map((r) => r.table_name), []);
+    unprotected.rows
+      .map((r) => r.table_name)
+      .filter((table: string) => !declaredCrossTenant.has(table)),
+    []);
 
   // 6-bis. La comprobación de arriba solo puede ver las columnas que se llaman
   // `organization_id`. Catorce tablas se llamaban `"organizationId"` —sus entidades no declaraban

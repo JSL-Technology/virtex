@@ -57,6 +57,7 @@ import {
   InviteUserDto,
   UpdateUserDto,
   UsersService,
+  SentInvitation,
 } from '../../../core/api/users.service';
 import { Role, RolesService } from '../../../core/api/roles.service';
 import { AuthService } from '../../../core/services/auth';
@@ -178,6 +179,12 @@ export class UserManagementPage implements OnInit, OnDestroy {
 
   totalPages = computed(() => Math.ceil(this.totalUsers() / this.pageSize()));
 
+  /**
+   * Invitations sent to people who already have an account. They are not members yet — they have
+   * been ASKED — so they are listed apart from the table of members, and can be withdrawn.
+   */
+  sentInvitations = signal<SentInvitation[]>([]);
+
   /** Lo que significa cada situación de una cuenta. El color lo pone `vx-badge`, una vez. */
   private readonly statusToneMap: Record<UserStatus, VxTone> = {
     [UserStatus.ACTIVE]: 'ok',
@@ -191,6 +198,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.buildForm();
     this.loadRoles();
     this.loadUsers();
+    this.loadSentInvitations();
 
     const searchSubscription = this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -251,6 +259,24 @@ export class UserManagementPage implements OnInit, OnDestroy {
         this.notificationService.showError('settings.user_management.users_could_not_loaded');
         this.loading.set(false);
       },
+    });
+  }
+
+  loadSentInvitations(): void {
+    this.usersService.getSentInvitations().subscribe({
+      next: (list) => this.sentInvitations.set(list ?? []),
+      // The member list is what matters on this page; a missing side panel must not block it.
+      error: () => this.sentInvitations.set([]),
+    });
+  }
+
+  revokeInvitation(invitation: SentInvitation): void {
+    this.usersService.revokeInvitation(invitation.id).subscribe({
+      next: () => {
+        this.sentInvitations.update((list) => list.filter((item) => item.id !== invitation.id));
+        this.notificationService.showSuccess('settings.user_management.invitation_revoked');
+      },
+      error: () => this.notificationService.showError('settings.user_management.invitation_revoke_failed'),
     });
   }
 
@@ -344,6 +370,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
             this.notificationService.showSuccess('settings.user_management.user_invited_successfully');
             this.closeUserModal();
             this.loadUsers();
+            this.loadSentInvitations();
           },
           error: (err) => {
             this.notificationService.showError(
