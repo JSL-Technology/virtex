@@ -1,13 +1,62 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
+# Dependency updates.
+#
+# Packages that are released together are updated together. A security update that moved `nx`
+# alone once left three Nx releases in the lockfile and a `main` that `npm ci` refused, so no CI
+# step ran at all. The groups below keep every family in one pull request — for security updates
+# as well as version updates — and `npm run verify:package-families` fails CI on anything that
+# still slips through.
 version: 2
+
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
-      
-      
+      interval: weekly
+      day: monday
+    # A release has to have been public for a few days before it is proposed: most malicious
+    # publishes are caught and pulled within that window. Security updates are not delayed.
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: deps
+      prefix-development: deps-dev
+    groups:
+      nx:
+        applies-to: version-updates
+        patterns: ['nx', '@nx/*']
+      nx-security:
+        applies-to: security-updates
+        patterns: ['nx', '@nx/*']
+      angular:
+        applies-to: version-updates
+        patterns: ['@angular/*', '@angular-devkit/*', '@schematics/angular']
+        # The CDK and Material ship on their own cadence.
+        exclude-patterns: ['@angular/cdk', '@angular/material']
+      angular-security:
+        applies-to: security-updates
+        patterns: ['@angular/*', '@angular-devkit/*', '@schematics/angular']
+        exclude-patterns: ['@angular/cdk', '@angular/material']
+      angular-components:
+        patterns: ['@angular/cdk', '@angular/material']
+      nestjs:
+        applies-to: version-updates
+        patterns: ['@nestjs/*']
+      nestjs-security:
+        applies-to: security-updates
+        patterns: ['@nestjs/*']
+
+  # Workflows pin every action by commit SHA; this keeps the pins current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: ci
+    groups:
+      github-actions:
+        patterns: ['*']
