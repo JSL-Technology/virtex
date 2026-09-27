@@ -33,8 +33,6 @@ import { StepUpScope } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
-import { MfaPolicyPort } from './ports/mfa-policy.port';
-import { resolveMfaEnrolmentClaim } from './services/mfa-enrolment-claim.util';
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
@@ -78,7 +76,6 @@ export class AuthService extends SessionSwitchPort {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly atomicCache: AtomicCacheService,
     // The narrow port, not OrgSettingsService: `auth` must not depend on `organizations`.
-    private readonly mfaPolicy: MfaPolicyPort,
   ) { super(); }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
@@ -199,19 +196,17 @@ export class AuthService extends SessionSwitchPort {
     );
 
     // Reaching here means the account has no second factor — the 2FA branch above returned
-    // otherwise. If the organization requires one, the session is issued but HELD: the claim
-    // travels in the token and `MfaEnrolmentGuard` refuses everything except enrolling and
-    // signing out.
+    // otherwise. If the organization requires one, the session is issued but HELD:
+    // `MfaEnrolmentGuard` derives that on every request from the policy of the organization the
+    // request acts in, and refuses everything except enrolling and signing out.
     //
     // Issued-and-held rather than refused, because enrolling requires a session. Refusing the
     // sign-in would tell the user to do something they cannot reach — the same dead end the SSO
     // step-up path documents, where federated accounts were told to enable two-step verification
     // for an action that itself required two-step verification.
-    const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
-
     const authResponse = await this.tokenService.generateAuthResponse(
       user,
-      mfaClaim,
+      {},
       ipAddress,
       userAgent,
       rememberMe,

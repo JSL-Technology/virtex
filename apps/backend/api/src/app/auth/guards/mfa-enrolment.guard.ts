@@ -3,50 +3,60 @@ import { Reflector } from '@nestjs/core';
 import { AuthenticatedUser } from '../../security/principal';
 import { ForbiddenError } from '../../i18n/localized.exception';
 import { ALLOW_WITHOUT_MFA_ENROLMENT_KEY } from '../decorators/allow-without-mfa-enrolment.decorator';
+import { MfaPolicyPort } from '../ports/mfa-policy.port';
 
 /**
- * Holds a session to enrolment-only while its organization requires a second factor the member
- * does not yet have.
+ * Holds a session to the enrolment path while its organization requires a second factor the
+ * member has not enrolled.
  *
- * ## Why a restricted session rather than a refused login
+ * ## Derived per request, not carried in the token
  *
- * Enrolling a second factor requires being signed in: `POST /auth/2fa/generate` is an
- * authenticated route and its step-up challenge is the account password. Refusing the sign-in
- * outright would therefore tell the user to do something they cannot do — the same dead end the
- * SSO step-up path documents, where accounts were told to "enable two-step verification" for an
- * action that itself required two-step verification.
+ * The decision used to be minted once, at sign-in, as a `mfaEnrolmentRequired` claim — and every
+ * other place that issues tokens had to remember to carry it. None of them did: a refresh, a
+ * tenant switch or an invitation-redeemed sign-in each produced a token without it, so a single
+ * `POST /auth/refresh` lifted the hold. It was also decided for the HOME organization only, so a
+ * member acting in another tenant (by the `x-virtex-organization` header) was never held by that
+ * tenant's policy at all.
  *
- * So the session is issued and then narrowed. The token carries `mfaEnrolmentRequired`, this guard
- * denies everything that is not on the enrolment path, and the moment the factor is enrolled the
- * next sign-in issues an ordinary session.
+ * A security decision that depends on every issuer remembering a claim is one issuer away from
+ * being bypassed, so it is not a claim any more. It is asked here, on every request, about the
+ * organization the request ACTS in (`ActiveTenantGuard` has already resolved it) and about the
+ * member's real second-factor state (the principal is re-read from the cached projection, which
+ * enabling 2FA evicts). The policy lookup is cached by `MfaPolicyPort`.
  *
- * ## Why the exemption is a decorator and not a URL list
+ * ## Failing closed
  *
- * A path allow-list in this file would be a second place routes are described, and it would drift
- * from the routes themselves the first time one was renamed. `@AllowWithoutMfaEnrolment(reason)`
- * puts the exemption on the handler, next to what it exempts, and makes the author write down why
- * — the same shape as `@AuthenticatedOnly(reason)` and `@AllowInactiveSubscription()`.
+ * If the policy cannot be read, the request is held. The enrolment path and sign-out stay
+ * reachable, so a transient failure costs a moment of friction, never access that a tenant turned
+ * off.
  *
- * ## Order
+ * ## Impersonation
  *
- * Registered after `PermissionsGuard`, so a route the caller could not reach anyway is refused for
- * the reason it is actually refused for, and before `SubscriptionActiveGuard`, because "you must
- * enrol" is a truer answer than "your subscription lapsed" for someone who cannot act at all.
+ * A session an operator opened by impersonation is not held. The operator authenticated as
+ * themselves, under their own organization's policy, and passed a single-use step-up to begin; the
+ * impersonated person's missing factor says nothing about who is at the keyboard, and the operator
+ * cannot enrol a factor on someone else's behalf.
  */
 @Injectable()
 export class MfaEnrolmentGuard implements CanActivate {
   private readonly logger = new Logger(MfaEnrolmentGuard.name);
 
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly mfaPolicy: MfaPolicyPort,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'http') return true;
 
     const request = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
     const user = request.user;
+    if (!user?.organizationId) return true;
+    if (user.isImpersonating) return true;
 
-    // No session (a @Public() route), or a session that is not held: nothing to do.
-    if (!user?.mfaEnrolmentRequired) return true;
+    const held = !user.isTwoFactorEnabled && (await this.organizationRequiresMfa(user));
+    user.mfaEnrolmentRequired = held;
+    if (!held) return true;
 
     const exemptionReason = this.reflector.getAllAndOverride<string>(
       ALLOW_WITHOUT_MFA_ENROLMENT_KEY,
@@ -59,5 +69,17 @@ export class MfaEnrolmentGuard implements CanActivate {
       'Request held: the organization requires a second factor this member has not enrolled',
     );
     throw new ForbiddenError('auth.mfa_required_by_organization');
+  }
+
+  private async organizationRequiresMfa(user: AuthenticatedUser): Promise<boolean> {
+    try {
+      return await this.mfaPolicy.requiresMfa(user.organizationId);
+    } catch (error) {
+      this.logger.error(
+        { event: 'mfa_policy_unavailable', organizationId: user.organizationId },
+        `MFA policy could not be read; holding the request: ${(error as Error).message}`,
+      );
+      return true;
+    }
   }
 }

@@ -110,7 +110,6 @@ export class UserIdentityService {
       isImpersonating: payload.isImpersonating,
       originalUserId: payload.originalUserId,
       sessionId,
-      mfaEnrolmentRequired: payload.mfaEnrolmentRequired,
     });
   }
 

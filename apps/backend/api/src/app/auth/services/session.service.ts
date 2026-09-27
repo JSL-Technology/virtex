@@ -123,7 +123,7 @@ export class SessionService extends SessionInvalidatorPort {
       const refreshTokenEntity = await this.refreshTokenRepository.findOne({
         where: { id: payload.jti },
         select: [
-          'id', 'sessionId', 'isRevoked', 'revokedAt', 'replacedByToken',
+          'id', 'sessionId', 'isRevoked', 'revokedAt', 'replacedByToken', 'impersonatorId',
           'userAgent', 'ipAddress', 'userId', 'expiresAt', 'createdAt',
         ],
       });
@@ -168,6 +168,21 @@ export class SessionService extends SessionInvalidatorPort {
       // (OWASP ASVS 3.3.2, NIST SP 800-63B §7.2). Both bounds below are measured against facts
       // the family cannot rewrite: when it was first opened, and when it was last used.
       await this.assertSessionWithinLifetimeBounds(user, sessionId, refreshTokenEntity);
+
+      // An impersonated session is only as alive as the operator behind it. Blocking or removing
+      // the operator must end every session they opened as somebody else, at the next rotation
+      // at the latest — the access token in flight is already bounded by its own short life.
+      if (refreshTokenEntity.impersonatorId) {
+        const operator = await this.usersService.findUserByIdForAuth(refreshTokenEntity.impersonatorId);
+        if (!operator || operator.status !== UserStatus.ACTIVE) {
+          this.logger.warn(
+            { event: 'impersonation_operator_inactive', sessionPrefix: sessionId.substring(0, 8) },
+            '[SECURITY] Impersonated session ended: its operator is no longer active',
+          );
+          await this.invalidateSessionFamily(user, sessionId);
+          throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
+        }
+      }
 
       // A session revoked out-of-band (logout, "revoke device", admin action) must not be
       // resurrectable by a refresh token that is still cryptographically valid.
@@ -269,11 +284,8 @@ export class SessionService extends SessionInvalidatorPort {
       const rememberMe =
         originalLifetimeMs > ms(AuthConfig.JWT_REFRESH_EXPIRATION as ms.StringValue) * 1.5;
 
-      // An impersonated session has a deliberately short life; a rotation must not silently
-      // promote it back to a normal one.
-      const refreshExpirationOverride = payload.isImpersonating
-        ? AuthConfig.IMPERSONATION_SESSION_DURATION
-        : undefined;
+      // An impersonated session keeps its short, fixed window and its pinned tenant across the
+      // rotation: `TokenService` reads both from the family's own rows, not from this token.
 
       // Continue the SAME session family so the access token's sessionId claim — and therefore
       // the entry the user sees under "Sesiones activas" — stays stable across rotations.
@@ -295,7 +307,7 @@ export class SessionService extends SessionInvalidatorPort {
         ipAddress,
         sanitizedUserAgent ?? undefined,
         rememberMe,
-        { sessionId, refreshExpirationOverride },
+        { sessionId },
       );
 
       // `QueryDeepPartialEntity` rather than `Partial`: `Repository.update` accepts column values,
@@ -379,7 +391,7 @@ export class SessionService extends SessionInvalidatorPort {
   private async assertSessionWithinLifetimeBounds(
     user: User,
     sessionId: string,
-    current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt'>,
+    current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt' | 'impersonatorId'>,
   ): Promise<void> {
     const bounds = await this.refreshTokenRepository
       // tenant-scope-guard-allow: cotas de vida de una familia de sesiones, acotadas por `session_id`.
@@ -398,7 +410,13 @@ export class SessionService extends SessionInvalidatorPort {
 
     const now = Date.now();
 
-    if (now - openedAt.getTime() > AuthConfig.SESSION_ABSOLUTE_MAX) {
+    // An impersonation's absolute bound is its own short window, not the month a normal session
+    // may live.
+    const absoluteMax = current.impersonatorId
+      ? ms(AuthConfig.IMPERSONATION_SESSION_DURATION as ms.StringValue)
+      : AuthConfig.SESSION_ABSOLUTE_MAX;
+
+    if (now - openedAt.getTime() > absoluteMax) {
       this.logger.log(
         { event: 'session_absolute_expiry', sessionPrefix: sessionId.slice(0, 8) },
         'Session reached its absolute maximum lifetime and was ended',

@@ -164,4 +164,30 @@ describe('ActiveTenantGuard', () => {
     const context = { getType: () => 'ws' } as unknown as ExecutionContext;
     await expect(guard.canActivate(context)).resolves.toBe(true);
   });
+
+  /**
+   * S-3: una sesión de suplantación está anclada a la empresa en la que se autorizó. La persona
+   * suplantada puede pertenecer a otras con las que el operador no tiene relación alguna.
+   */
+  it('una sesión de suplantación no puede actuar en otra empresa de la persona suplantada', async () => {
+    lookup.findIdByRef.mockResolvedValue(ORG_B);
+    const request = {
+      user: { ...principal(ORG_A, ['*']), isImpersonating: true, originalUserId: 'operator' },
+      headers: { [ACTIVE_ORGANIZATION_HEADER]: 'otra-empresa' },
+    };
+
+    await expect(guard.canActivate(contextFor(request))).rejects.toThrow();
+    expect(resolver.resolveForOrganization).not.toHaveBeenCalled();
+    expect(request.user.organizationId).toBe(ORG_A);
+  });
+
+  it('una sesión de suplantación sí puede nombrar su propia empresa', async () => {
+    lookup.findIdByRef.mockResolvedValue(ORG_A);
+    const request = {
+      user: { ...principal(ORG_A, ['*']), isImpersonating: true, originalUserId: 'operator' },
+      headers: { [ACTIVE_ORGANIZATION_HEADER]: 'su-empresa' },
+    };
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+  });
 });

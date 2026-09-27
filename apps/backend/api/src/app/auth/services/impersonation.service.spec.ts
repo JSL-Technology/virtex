@@ -5,6 +5,7 @@ import { ImpersonationService } from './impersonation.service';
 import { UserCacheService } from '../modules/user-cache.service';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../../security/principal';
+import { MembershipService } from '../../organizations/services/membership.service';
 
 /**
  * C-4 regression suite.
@@ -21,6 +22,7 @@ import { AuthenticatedUser } from '../../security/principal';
 describe('ImpersonationService — privilege escalation guards', () => {
   let service: ImpersonationService;
   let userRepositoryMock: { findOne: jest.Mock };
+  let membershipMock: { isMember: jest.Mock };
 
   /**
    * The request principal, built the way production builds it.
@@ -75,12 +77,14 @@ describe('ImpersonationService — privilege escalation guards', () => {
 
   beforeEach(async () => {
     userRepositoryMock = { findOne: jest.fn() };
+    membershipMock = { isMember: jest.fn().mockResolvedValue(true) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ImpersonationService,
         { provide: getRepositoryToken(User), useValue: userRepositoryMock },
         { provide: UserCacheService, useValue: { clearUserSession: jest.fn() } },
+        { provide: MembershipService, useValue: membershipMock },
       ],
     }).compile();
 
@@ -225,5 +229,43 @@ describe('ImpersonationService — privilege escalation guards', () => {
     await expect(
       service.validateImpersonationRequest(productionShaped, 'target-id'),
     ).rejects.toThrow(ForbiddenException);
+  });
+
+  /**
+   * S-3: an impersonated session is pinned to the tenant it was authorised in, so the comparison
+   * is made there too — and the target must be a live member of it.
+   */
+  describe('the tenant boundary', () => {
+    it('compares only the target rights in the operator tenant', async () => {
+      // Administrator ('*') elsewhere, a viewer here: impersonating here grants a viewer's rights.
+      userRepositoryMock.findOne.mockResolvedValue(
+        target({
+          roles: [
+            { name: 'viewer', organizationId: 'org-1', permissions: ['invoices:view'] },
+            { name: 'admin-elsewhere', organizationId: 'org-2', permissions: ['*'] },
+          ],
+        } as never),
+      );
+      await expect(
+        service.validateImpersonationRequest(operator(['users:impersonate', 'invoices:view']), 'target-id'),
+      ).resolves.toBeDefined();
+    });
+
+    it('still refuses a target whose rights HERE exceed the operator', async () => {
+      userRepositoryMock.findOne.mockResolvedValue(
+        target({ roles: [{ name: 'admin', organizationId: 'org-1', permissions: ['*'] }] } as never),
+      );
+      await expect(
+        service.validateImpersonationRequest(operator(['users:impersonate', 'invoices:view']), 'target-id'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('refuses a target whose membership in the tenant is suspended or gone', async () => {
+      membershipMock.isMember.mockResolvedValue(false);
+      userRepositoryMock.findOne.mockResolvedValue(target({ permissions: ['invoices:view'] }));
+      await expect(
+        service.validateImpersonationRequest(operator(['users:impersonate', '*']), 'target-id'),
+      ).rejects.toThrow(NotFoundException);
+    });
   });
 });

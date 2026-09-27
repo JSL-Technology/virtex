@@ -91,6 +91,11 @@ export class OrganizationsController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
+    // An impersonated session stays in the tenant it was authorised for; see ActiveTenantGuard.
+    if (user.isImpersonating) {
+      throw new ForbiddenError('organizations.you_do_not_have_access_organization');
+    }
+
     if (!(await this.membershipService.isMember(user.id, dto.organizationId))) {
       // Same message whether the organization does not exist or the user is simply not a member,
       // so the endpoint cannot be used to enumerate tenants by id.

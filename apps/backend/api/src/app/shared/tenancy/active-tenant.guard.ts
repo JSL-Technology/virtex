@@ -104,6 +104,18 @@ export class ActiveTenantGuard implements CanActivate {
 
     if (organizationId === user.organizationId) return true;
 
+    // A session opened by impersonation is authorised for ONE tenant: the one the operator holds
+    // `users:impersonate` in. The person being impersonated may belong to other tenants the
+    // operator has no relationship with at all, and following them there would turn a support
+    // tool into access to strangers' books.
+    if (user.isImpersonating) {
+      this.logger.warn(
+        { event: 'impersonation_tenant_escape_denied', userId: user.id, requested: raw },
+        'Una sesión de suplantación intentó actuar fuera de la empresa para la que se autorizó',
+      );
+      throw new ForbiddenError('auth.organization_not_accessible');
+    }
+
     // Aquí está la autorización: vuelve a resolver el principal para la empresa pedida, lo que
     // comprueba la pertenencia y recalcula roles y permisos para ella.
     try {

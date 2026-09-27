@@ -33,6 +33,26 @@ export class RefreshToken {
   @Column({ name: 'user_id' })
   userId: string;
 
+  /**
+   * Set when this session was opened by impersonation: the operator who is really at the keyboard.
+   *
+   * The facts that make a session an impersonation live HERE, on the server, and are copied from
+   * row to row by `TokenService` on every rotation. They used to live only in the token's claims,
+   * and the refresh path rebuilt the claims from scratch — so the first rotation turned a
+   * thirty-minute impersonation into an ordinary session of the operator-as-target, renewable for
+   * a month, with the audit trail no longer saying who the operator was.
+   */
+  @Column({ name: 'impersonator_id', type: 'uuid', nullable: true })
+  impersonatorId?: string | null;
+
+  /**
+   * The one organization an impersonated session may act in: the one it was authorised for.
+   *
+   * The impersonated person may belong to other tenants the operator has no relationship with.
+   */
+  @Column({ name: 'impersonation_organization_id', type: 'uuid', nullable: true })
+  impersonationOrganizationId?: string | null;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;

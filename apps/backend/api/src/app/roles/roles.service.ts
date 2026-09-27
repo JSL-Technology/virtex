@@ -21,7 +21,6 @@ export type RoleView = Omit<Role, 'description'> & {
     description: string | null;
     descriptionKey: string | null;
 };
-import { UserSecurity } from '../users/entities/user-security.entity';
 import type { Permission } from '../shared/permissions';
 import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { I18nService } from '../i18n/i18n.service';
@@ -257,38 +256,35 @@ export class RolesService extends RoleDelegationPort {
             await this.assertNameAvailable(updateRoleDto.name, organizationId, role.id);
         }
 
-        return await this.roleRepository.manager.transaction(async transactionalEntityManager => {
-            Object.assign(role, updateRoleDto);
-            const updatedRole = await transactionalEntityManager.save(role);
+        const { updatedRole, userIds } = await this.roleRepository.manager.transaction(
+            async (transactionalEntityManager) => {
+                Object.assign(role, updateRoleDto);
+                const saved = await transactionalEntityManager.save(role);
 
-            // 10/10 SECURITY: When a role is updated, we must invalidate all sessions
-            // for users belonging to this role by incrementing their tokenVersion.
-            const users = await transactionalEntityManager.getRepository(User)
-                .createQueryBuilder('user')
-                .innerJoin('user.roles', 'role')
-                .where('role.id = :roleId', { roleId: role.id })
-                .select(['user.id'])
-                .getMany();
+                const users = await transactionalEntityManager.getRepository(User)
+                    // tenant-scope-guard-allow: members holding THIS role, which belongs to the tenant (findOne above).
+                    .createQueryBuilder('user')
+                    .innerJoin('user.roles', 'role')
+                    .where('role.id = :roleId', { roleId: role.id })
+                    .select(['user.id'])
+                    .getMany();
 
-            if (users.length > 0) {
-                const userIds = users.map(u => u.id);
+                return { updatedRole: saved, userIds: users.map((u) => u.id) };
+            },
+        );
 
-                // Increment tokenVersion globally for all affected users
-                await transactionalEntityManager.getRepository(UserSecurity)
-                    .createQueryBuilder()
-                    .update()
-                    .set({ tokenVersion: () => 'token_version + 1' })
-                    .where('userId IN (:...userIds)', { userIds })
-                    .execute();
+        // The new permissions apply to every holder on their very next request: permissions are
+        // resolved per request from the cached projection, and this drops it.
+        //
+        // AFTER the commit, not inside the transaction: evicting first let a concurrent request
+        // re-cache the OLD permissions from the not-yet-committed row, and then serve them until the
+        // entry expired. And no global token-version bump: the version is shared by every tenant
+        // the person works for, so editing a role in one tenant signed them out of all the others.
+        for (const userId of userIds) {
+            await this.userCacheService.clearUserSession(userId);
+        }
 
-                // Clear cache for each user
-                for (const userId of userIds) {
-                    await this.userCacheService.clearUserSession(userId);
-                }
-            }
-
-            return updatedRole;
-        });
+        return updatedRole;
     }
 
     async remove(id: string, organizationId: string): Promise<void> {
