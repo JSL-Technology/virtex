@@ -191,7 +191,10 @@ export const ALLOWED_DEPENDENCIES = {
  * dependencia, no esta.
  */
 export const PUBLIC_SURFACE = [
-  /^[^/]+\/[^/]+\.module\.ts$/,
+  // Matched against the IMPORT path, which carries no extension (`auth/auth.module`). This read
+  // `\.module\.ts$` and so never matched: importing another domain's Nest module — the one sanctioned
+  // way to integrate with it — was counted as a private import on every edge.
+  /^[^/]+\/[^/]+\.module(\.ts)?$/,
   /^[^/]+\/contracts\//,
   /^[^/]+\/ports\//,
   /^[^/]+\/events\//,

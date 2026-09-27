@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/comm
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
-import { isDevLikeEnvironment } from '../auth/auth.config';
+import { isDevLikeEnvironment } from '../config/environment';
 
 /** The two node-redis calls this service needs, named so no wider client is implied. */
 interface AtomicRedisClient {

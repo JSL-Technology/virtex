@@ -10,18 +10,13 @@
  * A reachable staging environment was therefore token-forgeable by anyone who had read this
  * file (i.e. anyone with repository access).
  *
- * The rule is now inverted and allow-list based: development fallbacks are permitted ONLY when
- * NODE_ENV is explicitly `development` or `test`. Every other value — including unset — is
- * treated as a real deployment and fails fast at boot. Failing to start is the correct outcome:
- * a process that cannot authenticate securely must not accept traffic.
+ * The rule is now inverted and allow-list based (`isDevLikeEnvironment`, in the platform layer):
+ * development fallbacks are permitted ONLY when NODE_ENV is explicitly `development` or `test`.
+ * Every other value — including unset — is treated as a real deployment and fails fast at boot.
+ * Failing to start is the correct outcome: a process that cannot authenticate securely must not
+ * accept traffic.
  */
-
-/** Environments where hardcoded development fallbacks are acceptable. */
-const DEV_LIKE_ENVIRONMENTS = new Set(['development', 'test']);
-
-export function isDevLikeEnvironment(): boolean {
-  return DEV_LIKE_ENVIRONMENTS.has((process.env['NODE_ENV'] ?? '').toLowerCase());
-}
+import { isDevLikeEnvironment } from '../config/environment';
 
 /**
  * Values that indicate a placeholder secret was shipped by mistake. Matched as whole-ish

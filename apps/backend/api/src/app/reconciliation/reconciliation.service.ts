@@ -43,7 +43,7 @@ import {
   toCents,
   toMinorUnits,
 } from '../common/money';
-import { FastifyFile } from '../common/interfaces/fastify-file.interface';
+import { FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-file.interface';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /** A ledger line offered as a counterpart, with why it was offered. */
@@ -227,7 +227,8 @@ export class ReconciliationService {
       throw new BadRequestError('reconciliation.statement_start_date_after_end_date');
     }
 
-    const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
+    const spooled = spooledUploadPath(file);
+    const bytes = file.buffer ?? (spooled ? await readFile(spooled) : undefined);
     if (!bytes || bytes.length === 0) {
       throw new BadRequestError('reconciliation.uploaded_file_empty_could_not_read');
     }

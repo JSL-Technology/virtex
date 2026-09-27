@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { PluginVersion } from './plugin-version.entity';
-import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PluginStatus {
   ACTIVE = 'ACTIVE',
@@ -73,12 +72,15 @@ export class Plugin {
   @Column({ name: 'publisher_organization_id', type: 'uuid', nullable: true })
   publisherOrganizationId: string | null;
 
-  @ManyToOne(() => Organization, { nullable: true, onDelete: 'SET NULL' })
+  // Declared so the entity carries the same named FK the migration creates (otherwise
+  // `check:schema-drift` proposes dropping it). By entity name, not by import: nothing here reads
+  // the publisher's row, and Configuration has no business importing Identity's entity class.
+  @ManyToOne('Organization', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({
     name: 'publisher_organization_id',
     foreignKeyConstraintName: 'FK_plugins_publisher_organization',
   })
-  publisherOrganization?: Organization;
+  publisherOrganization?: { id: string };
 
   @Column({ type: 'enum', enum: PluginStatus, default: PluginStatus.ACTIVE })
   status: PluginStatus;

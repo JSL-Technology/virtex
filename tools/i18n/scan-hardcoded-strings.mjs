@@ -118,6 +118,20 @@ function markupOf(file) {
   return [{ text: match[1], offsetLine }];
 }
 
+/**
+ * Remove HTML comments until none are left. A single pass is not enough: removing one comment can
+ * join the text around it into a new `<!--`, which would then be scanned as markup.
+ */
+function stripHtmlComments(markup) {
+  let previous;
+  let current = markup;
+  do {
+    previous = current;
+    current = current.replace(/<!--[\s\S]*?-->/g, '');
+  } while (current !== previous);
+  return current;
+}
+
 const allowed = fs.existsSync(ALLOW_FILE)
   ? new Set(JSON.parse(fs.readFileSync(ALLOW_FILE, 'utf8')).allowed ?? [])
   : new Set();
@@ -130,7 +144,7 @@ for (const app of APPS) {
     const relative = path.relative(ROOT, file).split(path.sep).join('/');
     for (const { text, offsetLine } of markupOf(file)) {
       scanned++;
-      const src = text.replace(/<!--[\s\S]*?-->/g, '').replace(CONTROL_FLOW, '{');
+      const src = stripHtmlComments(text).replace(CONTROL_FLOW, '{');
 
       for (const match of src.matchAll(TEXT_NODE)) {
         const value = match[1].replace(ENTITY, '').trim();

@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 import { ValueTransformer } from 'typeorm';
-import { isDevLikeEnvironment } from '../../auth/auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 /**
  * Column-level encryption for personal data at rest (cédula, bank account number).

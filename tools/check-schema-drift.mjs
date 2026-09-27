@@ -18,7 +18,7 @@
  */
 
 import { execFileSync, execSync } from 'node:child_process';
-import { mkdtempSync, rmSync, readdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -69,7 +69,7 @@ try {
 
   const runEnv = { ...env, DB_NAME: driftDb };
 
-  console.log(`check-schema-drift: provisioning ${driftDb} from migrations…`);
+  console.log('check-schema-drift: provisioning the scratch database from migrations…');
   execSync('npm run migration:run', { env: runEnv, stdio: 'inherit' });
 
   scratchDir = mkdtempSync(join(tmpdir(), 'schema-drift-'));
@@ -77,7 +77,7 @@ try {
 
   let generated = false;
   try {
-    execSync(`npm run typeorm -- migration:generate ${join(scratchDir, 'Drift')}`, {
+    execFileSync('npm', ['run', 'typeorm', '--', 'migration:generate', join(scratchDir, 'Drift')], {
       env: runEnv,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -92,7 +92,7 @@ try {
   }
 
   const file = readdirSync(scratchDir).find((f) => f.endsWith('-Drift.ts'));
-  const body = file ? execSync(`cat ${join(scratchDir, file)}`).toString() : '';
+  const body = file ? readFileSync(join(scratchDir, file), 'utf8') : '';
   // Only the up() body matters: down() is the inverse of the same statements, and matching on
   // text alone would attribute a down() statement to up() whenever the two happen to be equal.
   const downAt = body.indexOf('public async down');

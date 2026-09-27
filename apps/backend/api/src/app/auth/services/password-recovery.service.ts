@@ -17,6 +17,18 @@ import { TwoFactorAuthService } from './two-factor-auth.service';
 import { SessionInvalidatorPort } from '../ports/session-invalidator.port';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../i18n/localized.exception';
 
+/**
+ * The stored form of a reset or invitation token.
+ *
+ * These tokens are 256 bits from `randomBytes`, not something a person chose: there is nothing to
+ * brute-force, so a fast unsalted hash is the right lookup key — a slow KDF would only make the
+ * lookup impossible (it needs a deterministic value to query by) without adding any strength.
+ */
+function hashOpaqueToken(token: string): string {
+  // codeql[js/insufficient-password-hash] The input is a 256-bit random token, not a password (see above).
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 @Injectable()
 export class PasswordRecoveryService {
   private readonly logger = new Logger(PasswordRecoveryService.name);
@@ -43,7 +55,7 @@ export class PasswordRecoveryService {
     }
 
     const rawToken = crypto.randomBytes(32).toString('base64url');
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const tokenHash = hashOpaqueToken(rawToken);
     const expirationTime = AuthConfig.JWT_RESET_PASSWORD_EXPIRATION;
     if (!user.security) user.security = new UserSecurity();
     user.security.passwordResetToken = tokenHash;
@@ -58,7 +70,7 @@ export class PasswordRecoveryService {
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<User> {
     const { token, password, twoFactorCode } = resetPasswordDto;
 
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const tokenHash = hashOpaqueToken(token);
 
     const user = await this.userRepository
       // tenant-scope-guard-allow: recuperación de contraseña. Se busca por correo, que es global, y
@@ -141,7 +153,7 @@ export class PasswordRecoveryService {
 
   async getInvitationDetails(token: string) {
     // M-03 FIX: invitation tokens are stored hashed; look up by the SHA-256 of the raw token.
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const tokenHash = hashOpaqueToken(token);
     const user = await this.userRepository.findOne({
       where: {
         invitationToken: tokenHash,
@@ -161,7 +173,7 @@ export class PasswordRecoveryService {
     const { token, password } = setPasswordDto;
 
     // M-03 FIX: match against the stored SHA-256 hash of the invitation token.
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const tokenHash = hashOpaqueToken(token);
     const user = await this.userRepository.findOne({
       where: {
         invitationToken: tokenHash,

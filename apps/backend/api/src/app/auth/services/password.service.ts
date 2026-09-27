@@ -95,6 +95,7 @@ export class PasswordService extends PasswordVerifierPort {
   async assertNotBreached(plain: string): Promise<void> {
     if (!AuthConfig.PASSWORD_BREACH_CHECK_ENABLED) return;
 
+    // codeql[js/insufficient-password-hash] Not storage: HIBP's range API is keyed by SHA-1. Passwords are stored with Argon2id.
     const digest = crypto.createHash('sha1').update(plain).digest('hex').toUpperCase();
     const prefix = digest.slice(0, 5);
     const suffix = digest.slice(5);

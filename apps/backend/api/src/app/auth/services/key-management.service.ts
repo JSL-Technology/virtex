@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { isDevLikeEnvironment } from '../auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 interface KeyEntry {
   kid: string;

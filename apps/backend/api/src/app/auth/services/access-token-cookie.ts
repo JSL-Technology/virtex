@@ -1,4 +1,4 @@
-import { isDevLikeEnvironment } from '../auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 /**
  * The one rule for which cookie carries an access token.

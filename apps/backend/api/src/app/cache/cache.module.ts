@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import Keyv from 'keyv';
-import { isDevLikeEnvironment } from '../auth/auth.config';
+import { isDevLikeEnvironment } from '../config/environment';
 import KeyvRedis from '@keyv/redis';
 import { redisUrl } from './redis.config';
 import { AtomicCacheService } from './atomic-cache.service';

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { isDevLikeEnvironment } from '../auth/auth.config';
+import { isDevLikeEnvironment } from '../config/environment';
 import * as geoip from 'geoip-lite';
 
 export interface GeoLocation {

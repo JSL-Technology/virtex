@@ -8,13 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Inject, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
-import { KeyManagementService } from '../auth/services/key-management.service';
-import { UserIdentityService } from '../auth/services/user-identity.service';
-import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
-import { AuthEvents, AuthSessionsRevokedEvent } from '../auth/events/auth.events';
-import { readAccessTokenCookie } from '../auth/services/access-token-cookie';
+import { Logger, OnModuleInit } from '@nestjs/common';
+import { SocketAuthenticatorPort } from './ports/socket-authenticator.port';
 import { SessionRevocationBroadcaster, SessionsRevokedMessage } from './session-revocation-broadcaster';
 
 interface Presence {
@@ -56,14 +51,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   private socketOwners = new Map<string, string>();
 
   constructor(
-    private readonly keyManagementService: KeyManagementService,
-    // The one identity implementation. `UserCacheService` and `SessionRegistryService` used to be
-    // injected here so this gateway could re-derive, by hand, what `resolveFromPayload` already
-    // decides — and the hand-written copy got both the cached shape and the membership check
-    // wrong. They are gone from this constructor on purpose: there is nothing left here to
-    // re-derive them for.
-    @Inject(forwardRef(() => UserIdentityService))
-    private readonly userIdentityService: UserIdentityService,
+    // Who the socket belongs to is Identity's answer, not this gateway's: it used to verify tokens
+    // and re-derive the session checks here by hand, and the copy drifted from the HTTP path. See
+    // `SocketAuthenticator` for what the one implementation checks.
+    private readonly socketAuthenticator: SocketAuthenticatorPort,
     private readonly sessionRevocationBroadcaster: SessionRevocationBroadcaster,
   ) {}
 
@@ -81,49 +72,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         return;
       }
 
-      // Read through the SAME rule the HTTP path uses. This used to accept the unprefixed
-      // `access_token` cookie in every environment, while `JwtStrategy` restricts that name to
-      // development — two different contracts for one credential. One function now decides.
-      const token = readAccessTokenCookie(cookieHeader);
-
-      if (!token) {
+      // The revocation denylist, the token version, the account status and membership of the
+      // organization the token names are all decided by Identity, the same way as for an HTTP
+      // request. `null` is "no acceptable token"; a rejection is "a genuine token whose session,
+      // account or membership no longer holds", which the catch below turns into a disconnect.
+      const principal = await this.socketAuthenticator.authenticate(cookieHeader);
+      if (!principal) {
         client.disconnect();
         return;
       }
-
-      const payload = this.verifyAccessToken(token);
-      if (!payload) {
-        client.disconnect();
-        return;
-      }
-
-      // Identity is resolved by the SAME service the HTTP path uses, and that is the whole change.
-      //
-      // This handshake used to carry its own copy of the checks, and the copy had drifted in two
-      // directions at once:
-      //
-      //  - It read `cachedUser.security.tokenVersion`. The cache holds the projection
-      //    `UserIdentityService.project()` writes, whose `tokenVersion` is a TOP-LEVEL field —
-      //    there is no `security` object on it. So the comparison was always `0 !== payload
-      //    .tokenVersion`, and every user who had ever changed their password or had a role
-      //    changed (tokenVersion >= 1) was refused a socket permanently. It failed closed, which
-      //    is why nobody read it as a security bug; it was still the same defect as reading the
-      //    wrong field for an authorisation decision.
-      //
-      //  - It never re-checked that the user still belongs to `payload.organizationId`, which is
-      //    the room it then joined. Removing somebody from a company does not bump `tokenVersion`,
-      //    so an ex-member kept receiving that tenant's events until their access token expired.
-      //
-      // `resolveFromPayload` answers all of it in one place: the revocation denylist, the
-      // cache-through load, the token version against the freshly loaded record, the status
-      // allow-list, and membership of the organization the token names. It throws on every
-      // rejection path, which is what the catch below turns into a disconnect.
-      const principal = await this.userIdentityService.resolveFromPayload({
-        id: payload.id,
-        tokenVersion: payload.tokenVersion,
-        organizationId: payload.organizationId,
-        sessionId: payload.sessionId,
-      } as JwtPayload);
 
       // Presence is tenant-scoped, and it was not.
       //
@@ -155,7 +112,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         sockets = new Map();
         this.connectedUsers.set(principal.id, sockets);
       }
-      sockets.set(client.id, { socketId: client.id, organizationId, sessionId: payload.sessionId });
+      sockets.set(client.id, { socketId: client.id, organizationId, sessionId: principal.sessionId });
       this.socketOwners.set(client.id, principal.id);
 
       // Announced only for the user's first socket: a second tab or device reconnecting is not a
@@ -169,56 +126,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     } catch (e) {
       client.disconnect();
     }
-  }
-
-  /**
-   * Verifies the httpOnly access-token cookie the same way JwtStrategy does for HTTP requests:
-   * RS256 with the public key resolved from the token's `kid` header, plus issuer/audience checks.
-   *
-   * Previously this used HS256 verification against JWT_SECRET, which can NEVER succeed for the
-   * RS256-signed access tokens the API issues — so every authenticated socket was force-disconnected
-   * ("io server disconnect"), and the client kept reconnecting in an endless storm.
-   */
-  private verifyAccessToken(
-    token: string,
-  ): { id: string; tokenVersion: number; organizationId?: string; sessionId?: string } | null {
-    try {
-      const decoded = jwt.decode(token, { complete: true });
-      const kid = decoded?.header?.kid;
-      const publicKey = this.keyManagementService.getPublicKey(kid);
-      if (!publicKey) {
-        return null;
-      }
-
-      return jwt.verify(token, publicKey, {
-        algorithms: ['RS256'],
-        issuer: 'virteex-api',
-        audience: 'virteex-web',
-      }) as { id: string; tokenVersion: number; organizationId?: string; sessionId?: string };
-    } catch (e) {
-      this.logger.debug(`WebSocket token verification failed: ${(e as Error).message}`);
-      return null;
-    }
-  }
-
-  /**
-   * Tells every replica a session was revoked; each reacts through `disconnectRevokedSessions`.
-   *
-   * The handshake check in `handleConnection` closes the door for NEW connections; that closes
-   * it for the one already inside. A WebSocket authenticates once and then never makes another
-   * authenticated request, so without this the denylist has nothing to act on and the socket
-   * outlives the session by up to the full access-token lifetime.
-   *
-   * This only publishes — see `SessionRevocationBroadcaster` for why disconnecting also happens
-   * through that same round trip rather than directly here, including on the replica that
-   * received this very event.
-   */
-  @OnEvent(AuthEvents.SESSIONS_REVOKED)
-  handleSessionsRevoked(event: AuthSessionsRevokedEvent): void {
-    void this.sessionRevocationBroadcaster.publish({
-      userId: event.userId,
-      sessionIds: [...event.sessionIds],
-    });
   }
 
   /** Hangs up on this replica's own sockets for a session family that was just revoked. */

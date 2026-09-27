@@ -5,7 +5,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RegistrationService } from './registration.service';
-import { isDevLikeEnvironment } from '../auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 /**
  * Seeds a ready-to-use administrator for local development so a login exists without registering

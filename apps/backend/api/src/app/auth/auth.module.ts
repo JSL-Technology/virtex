@@ -6,8 +6,7 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
-import { isDevLikeEnvironment } from './auth.config';
-import { RolesModule } from '../roles/roles.module';
+import { isDevLikeEnvironment } from '../config/environment';
 import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { AuthController } from './auth.controller';
 import { AuthRegistrationController } from './auth-registration.controller';
@@ -44,8 +43,6 @@ import { OauthStateService } from './services/oauth-state.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SecretEncryptionService } from './services/secret-encryption.service';
-import { SsoAdminService } from './services/sso-admin.service';
-import { SsoAdminController } from './sso-admin.controller';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { VerificationCode } from './entities/verification-code.entity';
 import { IdentityProvider } from './entities/identity-provider.entity';
@@ -88,17 +85,6 @@ import { KeyManagementModule } from './services/key-management.module';
     GeoModule,
     KeyManagementModule,
     forwardRef(() => UsersModule),
-    // `SsoAdminService` depende de `RoleDelegationPort`, que provee `RolesModule`. Sin este
-    // import la aplicación NO ARRANCA: «Nest can't resolve dependencies of the SsoAdminService
-    // (…, ?) … make sure that the argument RoleDelegationPort at index [4] is available in the
-    // AuthModule context».
-    //
-    // Estaba oculto detrás de otro fallo de arranque anterior —`EventsGateway` no podía resolver
-    // `SessionRegistryService`, porque `WebsocketsModule` no importaba nada que lo proveyera— y
-    // `verify:boot` se detiene en el primero. Arreglado aquel, apareció este.
-    //
-    // `forwardRef` porque `RolesModule` ya importa este módulo de vuelta.
-    forwardRef(() => RolesModule),
     UserCacheModule,
     TypeOrmModule.forFeature([
       RefreshToken,
@@ -183,7 +169,6 @@ import { KeyManagementModule } from './services/key-management.module';
     AuthMfaController,
     AuthWebAuthnController,
     AuthSessionController,
-    SsoAdminController,
   ],
   providers: [
     AuthService,
@@ -219,7 +204,6 @@ import { KeyManagementModule } from './services/key-management.module';
     OidcProviderService,
     EnterpriseSsoService,
     SecretEncryptionService,
-    SsoAdminService,
     SocialAuthService,
     MfaOrchestratorService,
     PasswordService,
@@ -242,6 +226,7 @@ import { KeyManagementModule } from './services/key-management.module';
   ],
   exports: [
     AuthService,
+    SecretEncryptionService,
     SessionSwitchPort,
     SessionInvalidatorPort,
     PasswordVerifierPort,

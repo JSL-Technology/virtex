@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
 import { STRIPE_CLIENT } from '../stripe/stripe.provider';
-import { isDevLikeEnvironment } from '../../auth/auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 import { Repository, DataSource } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { InjectRepository } from '@nestjs/typeorm';

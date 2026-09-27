@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { HttpResponse as Response, HttpRequest as Request } from '../../common/http/http.types';
 import * as crypto from 'crypto';
 import { BadRequestError } from '../../i18n/localized.exception';
-import { isDevLikeEnvironment } from '../auth.config';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 /**
  * The payload carried across the OAuth/OIDC redirect handshake. It never touches the

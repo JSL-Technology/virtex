@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
-import { toUploadableFile, FastifyFile } from '../common/interfaces/fastify-file.interface';
+import { toUploadableFile, FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { extname } from 'path';
 import * as os from 'os';
@@ -210,13 +210,15 @@ export class UsersController {
         );
         return { avatarUrl: updatedUser.avatarUrl };
       } finally {
-        if (file.path) {
+        // Only ever the interceptor's own temp file: never a path that merely arrived on `file`.
+        const spooled = spooledUploadPath(file);
+        if (spooled) {
           // The upload has already been stored; a failure to remove the temporary file leaves a
           // stray byte on disk and must not fail the request the user made.
           await fs
-            .unlink(file.path)
+            .unlink(spooled)
             .catch((error) =>
-              this.logger.warn(`Failed to remove temporary upload ${file.path}: ${error.message}`),
+              this.logger.warn(`Failed to remove temporary upload ${spooled}: ${error.message}`),
             );
         }
       }

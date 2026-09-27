@@ -12,7 +12,7 @@ import { Logger } from 'nestjs-pino';
 import { I18nService } from './app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
 import { DevSeederService } from './app/auth/services/dev-seeder.service';
-import { isDevLikeEnvironment } from './app/auth/auth.config';
+import { isDevLikeEnvironment } from './app/config/environment';
 import { parseCorsOrigins } from './app/shared/http/cors-origins';
 import { ConfiguredIoAdapter } from './app/websockets/configured-io.adapter';
 
@@ -34,6 +34,7 @@ type TrustProxyFunction = (address: string, hop: number) => boolean;
  * different lengths (it throws on those) and the comparison cost does not depend on the inputs.
  */
 export function timingSafeEquals(a: string, b: string): boolean {
+  // codeql[js/insufficient-password-hash] Not storage: the digests only give timingSafeEqual equal-length inputs.
   const digest = (value: string) => createHash('sha256').update(value, 'utf8').digest();
   return timingSafeEqual(digest(a), digest(b));
 }
