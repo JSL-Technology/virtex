@@ -202,8 +202,23 @@ export class PasswordRecoveryService {
     //  acababa de demostrar que controla, y cualquier regla que dependiera de la verificación
     //  —avisos, recuperación— la trataba como no confirmada para siempre.
     user.isEmailVerified = true;
-    user.invitationToken = undefined;
-    user.invitationTokenExpires = undefined;
+    // `null`, not `undefined`: TypeORM leaves an undefined property out of the UPDATE, so the
+    // token hash used to stay in the row after the invitation was redeemed.
+    user.invitationToken = null;
+    user.invitationTokenExpires = null;
+
+    // Consume the token atomically before anything is written: of two concurrent redemptions of
+    // the same link, exactly one clears it and the other finds nothing to clear.
+    // tenant-scope-guard-allow: one identity row, found above by the secret its invitation carried.
+    const consumed = await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ invitationToken: null, invitationTokenExpires: null })
+      .where('id = :id AND "invitationToken" = :tokenHash', { id: user.id, tokenHash })
+      .execute();
+    if (!consumed.affected) {
+      throw new UnauthorizedError('auth.invitation_token_invalid_has_expired');
+    }
 
     await saveIdentity(this.userRepository.manager, user);
     return user;

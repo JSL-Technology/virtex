@@ -142,13 +142,27 @@ export class TenantIsolationCheck implements OnApplicationBootstrap {
               AND NOT c.relforcerowsecurity) AS "exempt"
       `)) as [typeof row];
     } catch (error) {
-      // No poder comprobarlo no es lo mismo que comprobar que está mal, y tumbar el arranque por
-      // una consulta de diagnóstico que falla sería cambiar un riesgo por otro.
-      this.logger.warn(
-        { event: 'tenant_isolation_check_failed', error: (error as Error).message },
-        'No se pudo comprobar si el aislamiento por empresa está en vigor',
+      // No poder comprobarlo no es lo mismo que comprobar que está mal, pero tampoco es comprobar
+      // que está bien, y esta comprobación existe precisamente para no servir datos de clientes
+      // sin saberlo. Antes se registraba un aviso y se seguía: un rol sin permiso para leer
+      // `pg_roles` o `pg_policies` —exactamente la clase de rol mal configurado que se busca—
+      // desactivaba el control entero. Fuera de desarrollo, el arranque se detiene.
+      const message = (error as Error).message;
+      if (isDevLikeEnvironment()) {
+        this.logger.warn(
+          { event: 'tenant_isolation_check_failed_dev', error: message },
+          'No se pudo comprobar si el aislamiento por empresa está en vigor. Se tolera en desarrollo.',
+        );
+        return;
+      }
+      this.logger.error(
+        { event: 'tenant_isolation_check_failed', error: message },
+        'FATAL: no se pudo comprobar si el aislamiento por empresa está en vigor.',
       );
-      return;
+      throw new Error(
+        `FATAL: could not verify that tenant isolation applies to this connection (${message}). ` +
+          'The application does not serve requests without that proof.',
+      );
     }
 
     if (row.policies === 0) {

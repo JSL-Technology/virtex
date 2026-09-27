@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { AuthConfig } from '../auth.config';
 
@@ -34,6 +34,20 @@ import { AuthConfig } from '../auth.config';
  * A Redis *error* is not a miss. Treating an unreachable cache as "not revoked" would silently
  * disable revocation during an outage, so errors fall back to the `refresh_tokens` table, which
  * is the source of truth. Slower, but correct. We never fail open on a revocation check.
+ *
+ * ## When a miss is NOT meaningful
+ *
+ * "A miss means not revoked" holds only if the denylist has been complete for the last
+ * access-token lifetime. Three ordinary events break that without any error being raised: Redis
+ * restarts without persistence, someone flushes it, or eviction drops keys under memory pressure.
+ * Each silently forgets every revocation made before it, and the tokens those revocations killed
+ * work again until they expire.
+ *
+ * So the denylist carries an epoch: a key holding the moment it started being complete. A
+ * missing epoch means the cache lost its state, so it is re-armed from now, and until one full
+ * access-token lifetime has passed since the epoch, a miss is checked against the database. The
+ * same happens on this instance after one of its own denylist writes fails, because that
+ * revocation exists only in the database.
  */
 @Injectable()
 export class SessionRegistryService {
@@ -44,6 +58,15 @@ export class SessionRegistryService {
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
+
+  /** Holds the moment the denylist became complete; see "When a miss is NOT meaningful". */
+  static readonly EPOCH_KEY = 'sess_revoked:epoch';
+
+  /** The epoch key's own lifetime. It is re-armed well before it lapses, keeping its value. */
+  private static readonly EPOCH_TTL_MS = 24 * 60 * 60 * 1000;
+
+  /** Until when this instance must not trust a miss, after one of its denylist writes failed. */
+  private untrustedUntil = 0;
 
   private key(sessionId: string): string {
     return `sess_revoked:${sessionId}`;
@@ -60,8 +83,10 @@ export class SessionRegistryService {
     try {
       await this.cacheManager.set(this.key(sessionId), 1, AuthConfig.SESSION_DENYLIST_TTL);
     } catch (error) {
-      // Non-fatal: the refresh_tokens row is already flagged by the caller, so the DB fallback
-      // in isRevoked() still returns the correct answer.
+      // The refresh_tokens row is already flagged by the caller, so the database knows. The
+      // denylist does not, so this instance stops trusting a miss until the tokens that
+      // revocation covers have expired.
+      this.untrustedUntil = Date.now() + AuthConfig.SESSION_DENYLIST_TTL;
       this.logger.error(
         { event: 'session_denylist_write_failed', sessionId: sessionId.slice(0, 8) },
         `Failed to add session to denylist: ${(error as Error).message}`,
@@ -85,16 +110,53 @@ export class SessionRegistryService {
   async isRevoked(sessionId: string | null | undefined): Promise<boolean> {
     if (!sessionId) return false;
 
+    let hit: unknown;
+    let epoch: number | null | undefined;
     try {
-      const hit = await this.cacheManager.get(this.key(sessionId));
-      // A miss is meaningful here: the denylist is exhaustive for the window it covers.
-      return hit != null;
+      [hit, epoch] = await Promise.all([
+        this.cacheManager.get(this.key(sessionId)),
+        this.cacheManager.get<number>(SessionRegistryService.EPOCH_KEY),
+      ]);
     } catch (error) {
       this.logger.warn(
         { event: 'session_denylist_unavailable', sessionId: sessionId.slice(0, 8) },
         `Denylist unavailable, falling back to database: ${(error as Error).message}`,
       );
       return this.isRevokedInDatabase(sessionId);
+    }
+
+    if (hit != null) return true;
+    if (await this.missIsAuthoritative(epoch)) return false;
+    return this.isRevokedInDatabase(sessionId);
+  }
+
+  /**
+   * Whether the denylist has been complete for a whole access-token lifetime, so that a miss can
+   * be trusted. Re-arms a missing epoch and keeps a present one from lapsing.
+   */
+  private async missIsAuthoritative(epoch: number | null | undefined): Promise<boolean> {
+    const now = Date.now();
+    if (now < this.untrustedUntil) return false;
+
+    try {
+      if (epoch == null || !Number.isFinite(Number(epoch))) {
+        this.logger.warn(
+          { event: 'session_denylist_epoch_missing' },
+          'The session denylist lost its state (restart, flush or eviction). Revocation is ' +
+            'checked against the database until the access tokens issued before it expire.',
+        );
+        await this.cacheManager.set(SessionRegistryService.EPOCH_KEY, now, SessionRegistryService.EPOCH_TTL_MS);
+        return false;
+      }
+
+      const since = Number(epoch);
+      if (now - since > SessionRegistryService.EPOCH_TTL_MS / 2) {
+        // Keep the epoch alive with its original value: re-arming is not a loss of state.
+        await this.cacheManager.set(SessionRegistryService.EPOCH_KEY, since, SessionRegistryService.EPOCH_TTL_MS);
+      }
+      return now - since >= AuthConfig.SESSION_DENYLIST_TTL;
+    } catch {
+      return false;
     }
   }
 
@@ -137,27 +199,5 @@ export class SessionRegistryService {
       );
       return true;
     }
-  }
-
-  /**
-   * Revoke every live session of a user and return the affected session ids.
-   * Used by "log out everywhere", password change, and refresh-token reuse detection.
-   */
-  async collectLiveSessionIds(userId: string): Promise<string[]> {
-    const rows = await this.refreshTokenRepository.find({
-      where: { userId, isRevoked: false },
-      select: ['id'],
-    });
-    return rows.map((row) => row.id);
-  }
-
-  /** Look up the session ids for a set of refresh-token rows (used for targeted revocation). */
-  async findSessionIds(ids: string[]): Promise<string[]> {
-    if (!ids.length) return [];
-    const rows = await this.refreshTokenRepository.find({
-      where: { id: In(ids) },
-      select: ['id'],
-    });
-    return rows.map((row) => row.id);
   }
 }

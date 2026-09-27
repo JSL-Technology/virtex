@@ -153,11 +153,12 @@ export class User {
   })
   security: UserSecurity;
 
-  @Column({ nullable: true })
-  invitationToken?: string;
+  /** SHA-256 of the invitation token; cleared (null, not undefined) the moment it is redeemed. */
+  @Column({ type: 'varchar', nullable: true })
+  invitationToken?: string | null;
 
   @Column({ type: 'timestamptz', nullable: true })
-  invitationTokenExpires?: Date;
+  invitationTokenExpires?: Date | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
