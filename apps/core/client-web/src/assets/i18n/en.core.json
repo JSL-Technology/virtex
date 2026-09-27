@@ -509,6 +509,7 @@
   "validation.constraints.array_min_size": "{{property}} must have at least {{min}} items.",
   "validation.constraints.array_not_empty": "{{property}} cannot be empty.",
   "validation.constraints.country_code": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
+  "validation.constraints.dimension_name": "It may only contain letters, numbers, underscores and spaces.",
   "validation.constraints.fallback": "{{message}}",
   "validation.constraints.is_array": "{{property}} must be a list.",
   "validation.constraints.is_boolean": "{{property}} must be true or false.",

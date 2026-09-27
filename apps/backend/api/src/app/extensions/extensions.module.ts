@@ -22,11 +22,13 @@ import { SigningKeyProvider } from './services/signing-key.provider';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Plugin, PluginVersion, TenantConsent, MeteringRecord]),
-    // `ExtensionsController` guards two routes with `StepUpGuard`, which needs `JwtService` —
-    // nothing here provided it, so the application could not boot: "make sure that the argument
-    // JwtService ... is available in the ExtensionsModule module." `forwardRef` defensively,
-    // matching how every other module reaches into `AuthModule`, even though nothing here forms
-    // a cycle with it today.
+    // `ExtensionsController` aplica `@UseGuards(StepUpGuard)` en publicar y revocar, y ese guard
+    // necesita `JwtService` — que provee `AuthModule`. Sin este import la aplicación NO ARRANCA:
+    // «Nest can't resolve dependencies of the StepUpGuard (Reflector, ?, AtomicCacheService) …
+    // make sure that the argument JwtService at index [1] is available in the ExtensionsModule
+    // context». Estaba oculto detrás de dos fallos de arranque anteriores, y `verify:boot` se
+    // detiene en el primero que encuentra. `forwardRef` defensivamente, igual que el resto de
+    // módulos que alcanzan `AuthModule`, aunque hoy no forme un ciclo con él.
     forwardRef(() => AuthModule),
   ],
   controllers: [ExtensionsController],

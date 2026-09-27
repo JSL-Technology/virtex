@@ -201,6 +201,11 @@
     "en": "{{count}} version(s)",
     "pt": "{{count}} versão(ões)"
   },
+  "extensions.version_not_consented": {
+    "es": "Tu empresa no ha dado su consentimiento a la versión {{version}} de esta extensión.",
+    "en": "Your company has not consented to version {{version}} of this extension.",
+    "pt": "A sua empresa não consentiu a versão {{version}} desta extensão."
+  },
   "extensions.version_not_found": {
     "en": "We could not find that version of the extension.",
     "es": "No encontramos esa versión de la extensión.",

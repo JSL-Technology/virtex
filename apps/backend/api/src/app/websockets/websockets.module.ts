@@ -1,24 +1,28 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { EventsGateway } from './events.gateway';
-import { UserCacheModule } from '../auth/modules/user-cache.module';
+import { SessionRevocationBroadcaster } from './session-revocation-broadcaster';
 import { KeyManagementModule } from '../auth/services/key-management.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    UserCacheModule,
     // Shares the single RS256 KeyManagementService instance so the gateway verifies
     // access tokens with the same key the API signs them with.
     KeyManagementModule,
     // `EventsGateway` injects `SessionRegistryService`, which `AuthModule` provides and exports;
     // nothing here imported it before, so the application could not even boot — Nest fails
-    // eagerly on an unresolved constructor dependency. `forwardRef` because `AuthModule` is
-    // large and central: nothing in it imports this module today, and this keeps that from
-    // becoming a boot-order trap if something ever does.
+    // eagerly on an unresolved constructor dependency. `AuthModule` is also the single identity
+    // implementation, so the handshake decides who the caller is by the same rules every HTTP
+    // request does. `UserCacheModule` used to be imported here instead, for a hand-written copy of
+    // those rules that read the wrong field and skipped the membership check — see
+    // `EventsGateway.handleConnection`.
+    //
+    // `forwardRef` because `AuthModule` is large and central: nothing in it imports this module
+    // today, and this keeps that from becoming a boot-order trap if something ever does.
     forwardRef(() => AuthModule),
   ],
-  providers: [EventsGateway],
+  providers: [EventsGateway, SessionRevocationBroadcaster],
   exports: [EventsGateway],
 })
 export class WebsocketsModule {}

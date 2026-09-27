@@ -6,6 +6,8 @@ import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owne
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { UpdateSecuritySettingsDto } from './dto/update-security-settings.dto';
+import { OrgSettingsService } from './services/org-settings.service';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { Organization } from './entities/organization.entity';
 import { Post } from '@nestjs/common';
@@ -39,6 +41,7 @@ export class OrganizationsController {
     private readonly tokenService: TokenService,
     private readonly authService: SessionSwitchPort,
     private readonly cookieService: CookieService,
+    private readonly orgSettingsService: OrgSettingsService,
   ) {}
 
   /**
@@ -153,6 +156,43 @@ export class OrganizationsController {
     @Body() updateOrganizationDto: UpdateOrganizationDto,
   ) {
     return this.organizationsService.update(user.organizationId, updateOrganizationDto);
+  }
+
+  /**
+   * Whether this tenant currently requires every member to hold a second factor.
+   *
+   * `OrganizationSettings.requireMfa` had no reader and no writer reachable through the API:
+   * a security audit found the enforcement (`MfaEnrolmentGuard`) fully wired but the setting
+   * itself permanently stuck at its `false` default, since nothing in the product could ever
+   * turn it on. This and the PATCH below are that missing surface.
+   */
+  @Get('security-settings')
+  @AuthenticatedOnly(
+    'Any member may read whether their organization requires a second factor — it explains why ' +
+    'they are being asked to enrol one, and it is not sensitive on its own.',
+  )
+  async getSecuritySettings(@CurrentUser() user: AuthenticatedUser) {
+    return { requireMfa: await this.orgSettingsService.requiresMfa(user.organizationId) };
+  }
+
+  /**
+   * Turn the organization-wide MFA requirement on or off.
+   *
+   * Ownership-gated, the same policy as `PATCH /profile`: this is a tenant-wide security
+   * decision, not a per-user preference, and turning it on interrupts the next sign-in of every
+   * member who has not already enrolled a second factor — deliberately, since `MfaEnrolmentGuard`
+   * holds their session to the enrolment path rather than refusing it outright.
+   */
+  @Patch('security-settings')
+  @CheckPermissions(IsOrganizationOwnerPolicy)
+  async updateSecuritySettings(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateSecuritySettingsDto,
+  ) {
+    const settings = await this.orgSettingsService.update(user.organizationId, {
+      requireMfa: dto.requireMfa,
+    });
+    return { requireMfa: settings.requireMfa };
   }
 
   @Get('subsidiaries')

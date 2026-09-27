@@ -22,6 +22,7 @@ export class CurrenciesService {
   }
 
   findOne(id: string) {
+    // tenant-scope-guard-allow: `currency` es el catálogo ISO 4217, compartido a propósito.
     return this.currencyRepository.findOneBy({ id });
   }
 

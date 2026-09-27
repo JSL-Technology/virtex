@@ -305,6 +305,8 @@ export class InvoicesService {
     titleKey: string,
     manager: EntityManager,
   ): Promise<LedgerEffect | null> {
+    // tenant-scope-guard-allow: el asiento que esta misma transacción acaba de contabilizar, por
+    // su id. `journal_entries` lleva política de aislamiento, que es la red debajo.
     const entry = await manager.getRepository(JournalEntry).findOne({
       where: { id: entryId },
       relations: ['lines'],

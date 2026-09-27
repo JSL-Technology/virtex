@@ -26,7 +26,8 @@
  * ## What counts as a violation
  *
  * A comparison of `NODE_ENV` against a string literal, or a defaulting read of it, in executable
- * code under `apps/` and `tools/`. Reading it to decide something that is NOT a security control
+ * code under `apps/` and `tools/` — whether it is read from `process.env` or through the injected
+ * `ConfigService`, because they are the same decision and the second one used to slip through. Reading it to decide something that is NOT a security control
  * — a log level, a pretty-printer — is common and harmless, so those sites carry
  * `env-gating-allow` on the same line or one of the two above, which is the audit trail: it makes
  * the author write down why this one is not a gate.
@@ -56,6 +57,24 @@ const PATTERNS = [
   /NODE_ENV['\]]*\s*[=!]==?\s*['"]/,
   /['"]\w+['"]\s*[=!]==?\s*(process\.env(\.|\[['"])NODE_ENV)/,
   /NODE_ENV['\]]*\s*(\?\?|\|\|)\s*['"]/,
+
+  // The same decision, read through the injected configuration instead of `process.env`.
+  //
+  // The three patterns above all require `NODE_ENV` to sit next to the operator. A
+  // `ConfigService` read puts a `)` between them:
+  //
+  //     const isProduction = config.get<string>('NODE_ENV') === 'production';
+  //
+  // so none of them matched, and this checker reported success while five places decided
+  // something from the deny-list form it exists to forbid — among them whether a distributed
+  // rate-limit store is required at all (`app.module.ts`), which is the difference between one
+  // shared login budget and one per replica.
+  //
+  // `.get(...)` and `.getOrThrow(...)`, with or without a type argument or a default, followed by
+  // a comparison or a defaulting read.
+  /get(OrThrow)?\s*(<[^>]*>)?\s*\(\s*['"]NODE_ENV['"][^)]*\)\s*[=!]==?\s*['"]/,
+  /get(OrThrow)?\s*(<[^>]*>)?\s*\(\s*['"]NODE_ENV['"][^)]*\)\s*(\?\?|\|\|)\s*['"]/,
+  /['"]\w+['"]\s*[=!]==?\s*\w+\.get(OrThrow)?\s*(<[^>]*>)?\s*\(\s*['"]NODE_ENV['"]/,
 ];
 
 function collect(dir) {

@@ -397,6 +397,8 @@ export class DatasheetVariablesService {
 
       // ── System ────────────────────────────────────────────────────────────
       case 'COMPANY_NAME': {
+        // tenant-scope-guard-allow: `org` ES la empresa activa; esta búsqueda filtra por ella, solo
+        // que la variable no se llama `organizationId`.
         const organization = await this.organizations.findOne({
           where: { id: org },
           select: ['id', 'legalName'],

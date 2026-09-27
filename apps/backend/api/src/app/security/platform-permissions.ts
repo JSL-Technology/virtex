@@ -37,6 +37,22 @@ export const PLATFORM_PERMISSIONS = {
   EXTENSIONS_REVOKE: 'platform:extensions:revoke',
   /** Run arbitrary, unpublished code in the sandbox — a development and incident-response tool. */
   EXTENSIONS_RUN_ARBITRARY_CODE: 'platform:extensions:run_arbitrary_code',
+
+  /**
+   * Rebuild or refresh `analytical_report_data`, the materialised view every tenant reports from.
+   *
+   * The same shape as the extensions catalogue, found in the same audit and for the same reason.
+   * There is ONE such view for the whole installation, and `synchronizeView` drops it and recreates
+   * it with the dimension columns of whichever tenant asked. Behind `system:manage_views` and
+   * `analytics:manage_views` — ordinary tenant permissions that every customer's `'*'` satisfies —
+   * one customer could delete the view out from under everybody and leave the rest of them with
+   * analytical queries referencing columns that no longer existed.
+   *
+   * Rebuilding is separated from refreshing because they are not equally dangerous: a refresh
+   * recomputes rows, a rebuild changes the shape. Both are platform-wide; only one is destructive.
+   */
+  ANALYTICS_REBUILD_VIEW: 'platform:analytics:rebuild_view',
+  ANALYTICS_REFRESH_VIEW: 'platform:analytics:refresh_view',
 } as const;
 
 export type PlatformPermission =

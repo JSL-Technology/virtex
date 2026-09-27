@@ -195,6 +195,7 @@
   "validation.constraints.array_min_size": "{{property}} debe tener al menos {{min}} elementos.",
   "validation.constraints.array_not_empty": "{{property}} no puede estar vacío.",
   "validation.constraints.country_code": "El código de país debe tener exactamente 2 letras (ISO 3166-1 alfa-2).",
+  "validation.constraints.dimension_name": "Solo puede contener letras, números, guiones bajos y espacios.",
   "validation.constraints.fallback": "{{message}}",
   "validation.constraints.is_array": "{{property}} debe ser una lista.",
   "validation.constraints.is_boolean": "{{property}} debe ser verdadero o falso.",

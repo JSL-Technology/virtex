@@ -13,11 +13,36 @@ export class AnalyticalReportingService {
 
   constructor(private readonly dataSource: DataSource) {}
 
-  async synchronizeView(organizationId: string): Promise<LocalizedMessage> {
-    const dimensions = await this.dataSource.manager.find(Dimension, { where: { organizationId } });
+  /**
+   * Reconstruye la vista materializada compartida.
+   *
+   * ## Por qué ya no recibe un `organizationId`
+   *
+   * Lo recibía, y leía `find(Dimension, { where: { organizationId } })` — las dimensiones de UN
+   * inquilino— para después hacer `DROP` y `CREATE` de `analytical_report_data`, que es **una sola
+   * vista para toda la instalación**. El efecto era cruzado y silencioso: el administrador de A
+   * reconstruía la vista con las columnas de A, y las dimensiones de B desaparecían, de modo que
+   * toda consulta analítica de B que las agrupara pasaba a fallar con `column ... does not exist`.
+   * Una acción de un cliente degradaba el producto de otro.
+   *
+   * Un objeto compartido se deriva de datos compartidos. Las columnas salen ahora de TODAS las
+   * dimensiones de la instalación, deduplicadas por el nombre de columna que producen, así que la
+   * vista contiene la unión y ningún inquilino puede quitarle una columna a otro. El acceso sigue
+   * acotado por el `WHERE organization_id` de `query`, y las columnas de dimensión ajenas salen
+   * NULL para quien no las usa, que es lo que ya ocurría con una dimensión no informada.
+   *
+   * La ruta que llega aquí exige además un permiso de plataforma y un step-up de un solo uso
+   * (`analytical-reporting.controller.ts`), porque esto destruye y recrea un objeto del que
+   * depende el reporting de todos los clientes.
+   *
+   * `tenant-scope-guard-allow`: la lectura es deliberadamente de toda la instalación, y ese es
+   * justo el arreglo — acotarla por inquilino es lo que producía el defecto descrito arriba.
+   */
+  async synchronizeView(): Promise<LocalizedMessage> {
+    const dimensions = await this.dataSource.manager.find(Dimension);
     const viewName = this.VIEW_NAME;
 
-    this.logger.log(`Iniciando sincronización de la vista materializada para ${organizationId}. ${dimensions.length} dimensiones encontradas.`);
+    this.logger.log(`Iniciando sincronización de la vista materializada. ${dimensions.length} dimensiones encontradas en la instalación.`);
 
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -29,8 +54,28 @@ export class AnalyticalReportingService {
       await queryRunner.query(`DROP MATERIALIZED VIEW IF EXISTS "${viewName}"`);
 
 
-      const dynamicDimensionColumns = dimensions
-        .map(dim => `jel.dimensions ->> '${dim.name}' AS "${this.sanitizeColumnName(dim.name)}"`)
+      // Una columna por NOMBRE DE COLUMNA distinto, no por fila de `dimensions`: dos inquilinos
+      // que llaman igual a su centro de coste comparten la columna `cost_center`, y sin
+      // deduplicar el `CREATE` fallaría con "column specified more than once".
+      //
+      // El nombre entra en DOS sitios y los dos se sanean. Antes solo se saneaba el alias:
+      //
+      //     `jel.dimensions ->> '${dim.name}' AS "${this.sanitizeColumnName(dim.name)}"`
+      //                        ^^^^^^^^^^^^ crudo, dentro de un literal SQL
+      //
+      // Lo que impedía la inyección era que `sanitizeColumnName` lanzara al evaluar la MISMA
+      // plantilla, antes de que la cadena llegara a `query()`. Funcionaba por el orden de
+      // evaluación de un template literal, no por diseño: separar el alias del valor, o añadir
+      // una columna sin alias, habría abierto el agujero sin que nada fallara. Ahora el literal
+      // lleva su propio escapado y el DTO restringe el juego de caracteres (`CreateDimensionDto`).
+      const seen = new Map<string, string>();
+      for (const dim of dimensions) {
+        const column = this.sanitizeColumnName(dim.name);
+        if (!seen.has(column)) seen.set(column, dim.name);
+      }
+
+      const dynamicDimensionColumns = [...seen.entries()]
+        .map(([column, rawName]) => `jel.dimensions ->> ${this.quoteLiteral(rawName)} AS "${column}"`)
         .join(',\n');
 
 
@@ -70,8 +115,8 @@ export class AnalyticalReportingService {
       await queryRunner.query(`CREATE UNIQUE INDEX ON "${viewName}" (journal_entry_line_id, ledger_id);`);
       await queryRunner.query(`CREATE INDEX ON "${viewName}" (organization_id, ledger_id, date);`);
       await queryRunner.query(`CREATE INDEX ON "${viewName}" (account_id);`);
-      for (const dim of dimensions) {
-        await queryRunner.query(`CREATE INDEX ON "${viewName}" ("${this.sanitizeColumnName(dim.name)}");`);
+      for (const column of seen.keys()) {
+        await queryRunner.query(`CREATE INDEX ON "${viewName}" ("${column}");`);
       }
 
       await queryRunner.commitTransaction();
@@ -162,14 +207,24 @@ export class AnalyticalReportingService {
     };
   }
 
-  async refreshMaterializedView(): Promise<void> {
+  /**
+   * Recalcula las filas. No cambia la forma de la vista.
+   *
+   * Devuelve un mensaje y ya no se traga el error en silencio: el controlador espera esta promesa,
+   * así que un fallo llega al llamante como un 400 con su causa en lugar de quedar solo en un log
+   * que nadie lee mientras la interfaz dice que todo fue bien.
+   */
+  async refreshMaterializedView(): Promise<LocalizedMessage> {
     this.logger.log('Refrescando la vista materializada de reportes analíticos...');
     try {
       await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.VIEW_NAME}"`);
       this.logger.log('Vista materializada refrescada exitosamente.');
+      return { messageKey: 'analytical_reporting.materialized_view_refreshed' };
     } catch (error) {
       this.logger.error('Fallo al refrescar la vista materializada. Puede que necesite ser recreada.', (error as Error).stack);
-
+      throw new BadRequestError('analytical_reporting.analytical_view_could_not_synchronized_p1', {
+        p1: (error as Error).message,
+      });
     }
   }
 
@@ -178,5 +233,21 @@ export class AnalyticalReportingService {
       throw new BadRequestError('analytical_reporting.dimension_field_name_contains_invalid_characters', { name });
     }
     return name.replace(/ /g, '_').toLowerCase();
+  }
+
+  /**
+   * Un literal SQL, escapado.
+   *
+   * `->> 'nombre'` no admite un parámetro enlazado dentro de `CREATE MATERIALIZED VIEW` —la
+   * definición de la vista se guarda expandida, no preparada—, así que el valor tiene que ir en el
+   * texto. Que vaya escapado y no crudo es la diferencia entre una defensa y una coincidencia: el
+   * DTO ya restringe el juego de caracteres, y esto sigue siendo correcto aunque alguien afloje
+   * esa regla o llegue una fila escrita antes de que existiera.
+   *
+   * Duplicar la comilla simple es el escapado que define el estándar SQL para un literal, y es lo
+   * que hace `quote_literal` de PostgreSQL.
+   */
+  private quoteLiteral(value: string): string {
+    return `'${value.replace(/'/g, "''")}'`;
   }
 }

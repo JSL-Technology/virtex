@@ -117,6 +117,9 @@ export class SessionService extends SessionInvalidatorPort {
         throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
       }
 
+      // tenant-scope-guard-allow: la fila de un refresh token, localizada por el `jti` FIRMADO. La
+      // pertenencia se comprueba dos líneas más abajo contra `userId`; `refresh_tokens` no lleva
+      // empresa porque una sesión pertenece a una persona, no a un inquilino.
       const refreshTokenEntity = await this.refreshTokenRepository.findOne({
         where: { id: payload.jti },
         select: [
@@ -195,6 +198,7 @@ export class SessionService extends SessionInvalidatorPort {
         // A token that was superseded by rotation has replacedByToken set; a token revoked by
         // logout never does. Time is still required as a second condition so a genuinely
         // replayed old token (stolen after a legitimate rotation) is still caught.
+        // tenant-scope-guard-allow: relectura de la MISMA fila reclamada arriba, por su `jti`.
         const fresh = await this.refreshTokenRepository.findOne({
           where: { id: payload.jti },
           select: ['id', 'revokedAt', 'replacedByToken'],
@@ -378,6 +382,7 @@ export class SessionService extends SessionInvalidatorPort {
     current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt'>,
   ): Promise<void> {
     const bounds = await this.refreshTokenRepository
+      // tenant-scope-guard-allow: cotas de vida de una familia de sesiones, acotadas por `session_id`.
       .createQueryBuilder('rt')
       .select('MIN(rt.created_at)', 'openedAt')
       .addSelect('MAX(rt.last_active_at)', 'lastActiveAt')
@@ -418,6 +423,7 @@ export class SessionService extends SessionInvalidatorPort {
    */
   private async assertTokenHashMatches(tokenId: string, presentedToken: string): Promise<void> {
     const row = await this.refreshTokenRepository
+      // tenant-scope-guard-allow: sesiones de un usuario, acotadas por `userId`.
       .createQueryBuilder('rt')
       .select('rt.tokenHash', 'tokenHash')
       .addSelect('rt.createdAt', 'createdAt')

@@ -168,6 +168,7 @@ export class WebAuthnService {
       const { authenticationInfo } = verification;
       const { newCounter } = authenticationInfo;
 
+      // tenant-scope-guard-allow: la propia cuenta del llamante, al registrar una passkey.
       const freshUser = await this.userRepository.findOne({
         where: { id: passkey.userId },
         relations: ['roles', 'security'],

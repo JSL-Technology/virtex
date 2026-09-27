@@ -144,6 +144,8 @@ export class TwoFactorAuthService {
 
       // Atomic claim: only the first request to burn this step succeeds.
       const claim = await this.userSecurityRepository
+          // tenant-scope-guard-allow: credenciales de la propia cuenta (`user_security`), en el camino
+          // de autenticación, antes de que exista contexto de inquilino.
           .createQueryBuilder()
           .update(UserSecurity)
           .set({ lastTotpStep: String(matchedStep) })
@@ -169,6 +171,7 @@ export class TwoFactorAuthService {
    *          can decide the policy rather than having it silently succeed.
    */
   async verifyAccountPassword(userId: string, password: string): Promise<boolean> {
+      // tenant-scope-guard-allow: la propia cuenta del llamante, por su id de sesión.
       const user = await this.userRepository.findOne({
           where: { id: userId },
           relations: ['security'],
@@ -182,6 +185,7 @@ export class TwoFactorAuthService {
 
   /** Whether the account can be challenged for a password at all (federated identities cannot). */
   async hasLocalPassword(userId: string): Promise<boolean> {
+      // tenant-scope-guard-allow: la propia cuenta del llamante, por su id de sesión.
       const user = await this.userRepository.findOne({
           where: { id: userId },
           relations: ['security'],
@@ -212,6 +216,7 @@ export class TwoFactorAuthService {
    * and burns the token on first use — see SINGLE_USE_SCOPES.
    */
   async enableTwoFactor(user: UserIdentity, token: string) {
+    // tenant-scope-guard-allow: relectura fresca de la propia cuenta antes de tocar su 2FA.
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security'],
@@ -246,6 +251,7 @@ export class TwoFactorAuthService {
   }
 
   async disableTwoFactor(user: UserIdentity) {
+      // tenant-scope-guard-allow: relectura fresca de la propia cuenta antes de tocar su 2FA.
       const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security']
@@ -381,6 +387,7 @@ export class TwoFactorAuthService {
       const security = user.security;
 
       if (!security) {
+          // tenant-scope-guard-allow: relectura fresca de la propia cuenta antes de tocar su 2FA.
           const freshUser = await this.userRepository.findOne({ where: { id: user.id }, relations: ['security'] });
           if (!freshUser) throw new UnauthorizedError('auth.user_not_found');
           if (freshUser.security) return freshUser.security;
@@ -397,6 +404,7 @@ export class TwoFactorAuthService {
    */
   private async safeCreateSecurity(userId: string): Promise<UserSecurity> {
       try {
+           // tenant-scope-guard-allow: `user_security` de la propia cuenta; no lleva empresa.
            await this.userSecurityRepository.createQueryBuilder()
               .insert()
               .into(UserSecurity)

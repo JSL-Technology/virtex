@@ -52,11 +52,6 @@ import { AuthenticatedOnly } from '../security/decorators/authenticated-only.dec
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
-@AllowWithoutMfaEnrolment(
-  'Enrolling a second factor is gated by @StepUp(ENABLE_2FA), and the token for it is minted\n' +
-  'here. A held session that could not reach this route could never satisfy the challenge that\n' +
-  'lets it stop being held.',
-)
 @AuthenticatedOnly(
   'Step-up re-verifies the identity the session already carries, so it cannot itself require a\n' +
   'permission: it is the mechanism a later permission check depends on. Impersonation is the one\n' +
@@ -85,6 +80,11 @@ export class AuthStepUpController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 900000 } })
   @ApiOperation({ summary: 'Re-authenticate to authorise a sensitive action' })
+  @AllowWithoutMfaEnrolment(
+    'Enrolling a second factor is gated by @StepUp(ENABLE_2FA), and the token for it is minted\n' +
+    'here. A held session that could not reach this route could never satisfy the challenge that\n' +
+    'lets it stop being held.',
+  )
   async stepUp(
       @CurrentUser() user: AuthenticatedUser,
       @Body() dto: StepUpDto,
@@ -116,6 +116,11 @@ export class AuthStepUpController {
   @Get('step-up/sso')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Re-authenticate with the identity provider to authorise a sensitive action' })
+  @AllowWithoutMfaEnrolment(
+    'The federated-account equivalent of @Post("step-up"): a held session with no local password ' +
+    'or TOTP secret can only reach the enrolment challenge through its IdP, and this begins that ' +
+    'round trip.',
+  )
   async stepUpSsoStart(
     @CurrentUser() user: AuthenticatedUser,
     @Query('scope') scope: string,
@@ -166,6 +171,10 @@ export class AuthStepUpController {
    * their own session.
    */
   @Get('step-up/sso/callback')
+  @AllowWithoutMfaEnrolment(
+    'Completes the round trip @Get("step-up/sso") begins; a held session that could reach the ' +
+    'start of the IdP challenge but not its callback could never actually finish it.',
+  )
   async stepUpSsoCallback(
     @CurrentUser() user: AuthenticatedUser,
     @Req() req: Request,
@@ -278,6 +287,10 @@ export class AuthStepUpController {
   @Get('step-up/challenge')
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Ask which factor step-up will require for this account' })
+  @AllowWithoutMfaEnrolment(
+    'Read-only and required to drive the enrolment UI: a held session has to know which factor ' +
+    '@Post("step-up") will demand before it can call it.',
+  )
   async stepUpChallenge(@CurrentUser() user: AuthenticatedUser) {
       return this.authService.describeStepUpChallenge(user.id);
   }
@@ -291,6 +304,10 @@ export class AuthStepUpController {
   @Get('step-up/status')
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Is a step-up proof for this scope already held?' })
+  @AllowWithoutMfaEnrolment(
+    'Read-only, and the enrolment UI polls it to learn whether the proof it just collected via ' +
+    '@Post("step-up") is already usable.',
+  )
   stepUpStatus(
       @CurrentUser() user: AuthenticatedUser,
       @Query('scope') scope: string,

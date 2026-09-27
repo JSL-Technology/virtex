@@ -17,6 +17,8 @@ import { UsersService } from '../../users/users.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../i18n/localized.exception';
+import { MfaPolicyPort } from '../ports/mfa-policy.port';
+import { resolveMfaEnrolmentClaim } from './mfa-enrolment-claim.util';
 
 /**
  * Enterprise SSO (Phase 2): vendor-neutral, per-tenant OIDC. The flow mirrors the social
@@ -45,6 +47,7 @@ export class EnterpriseSsoService {
     private readonly usersService: UsersService,
     private readonly auditService: AuditTrailService,
     private readonly configService: ConfigService,
+    private readonly mfaPolicy: MfaPolicyPort,
   ) {}
 
   private hashPii(value: string): string {
@@ -160,7 +163,8 @@ export class EnterpriseSsoService {
       undefined,
     );
 
-    const tokens = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
+    const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
+    const tokens = await this.tokenService.generateAuthResponse(user, mfaClaim, ipAddress, userAgent);
     return { user, tokens };
   }
 

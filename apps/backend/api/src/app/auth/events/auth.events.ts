@@ -24,6 +24,21 @@ export enum AuthEvents {
      * receiving the tenant's events until the access token expires.
      */
     SESSIONS_REVOKED = 'auth.sessions.revoked',
+
+    /**
+     * An authentication attempt was refused because the account is locked out.
+     *
+     * Exists because the HTTP reply can no longer say so. A locked account answers exactly as a
+     * wrong password does — same code, same body, same latency — since the difference was an
+     * oracle telling an attacker which guess was right (see `AuthService.login`). The legitimate
+     * owner therefore cannot learn about the lockout from the response, and must learn about it
+     * through a channel that already proves they own the address.
+     *
+     * This is that channel's hook. `AuthAuditListener` records every occurrence; a notification
+     * listener attaches here without reopening the oracle, because what it sends goes to the
+     * address on the account rather than to whoever is doing the guessing.
+     */
+    ACCOUNT_LOCKED = 'auth.account.locked',
 }
 
 export class AuthLoginSuccessEvent {
@@ -41,6 +56,26 @@ export class AuthLoginFailedEvent {
         public readonly userId: string,
         public readonly email: string,
         public readonly reason: string,
+        public readonly ipAddress?: string,
+        public readonly userAgent?: string,
+        public readonly correlationId?: string
+    ) {}
+}
+
+/**
+ * An attempt was refused because the account is locked out.
+ *
+ * `lockoutUntil` travels here and NOT in the HTTP reply: that is the whole point. Inside the
+ * process it is what a notification needs in order to tell the owner when they may try again;
+ * on the wire it was what told an attacker their guess had been correct.
+ */
+export class AuthAccountLockedEvent {
+    constructor(
+        public readonly userId: string,
+        public readonly email: string,
+        public readonly lockoutUntil: Date | null,
+        /** Whether the refused attempt actually carried the right password. Never leaves the server. */
+        public readonly credentialsWereValid: boolean,
         public readonly ipAddress?: string,
         public readonly userAgent?: string,
         public readonly correlationId?: string

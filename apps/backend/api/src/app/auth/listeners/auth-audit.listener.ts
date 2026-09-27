@@ -4,7 +4,12 @@ import { createHash } from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
-import { AuthEvents, AuthLoginSuccessEvent, AuthLoginFailedEvent } from '../events/auth.events';
+import {
+  AuthAccountLockedEvent,
+  AuthEvents,
+  AuthLoginSuccessEvent,
+  AuthLoginFailedEvent,
+} from '../events/auth.events';
 
 @Injectable()
 export class AuthAuditListener {
@@ -48,6 +53,41 @@ export class AuthAuditListener {
         emailHash: createHash('sha256').update(event.email ?? '').digest('hex').slice(0, 16),
         emailMasked: maskedEmail,
         reason: event.reason,
+        ipAddressMasked: this.maskIp(event.ipAddress),
+      },
+      undefined,
+    );
+  }
+
+  /**
+   * An attempt refused by the lockout, recorded where the HTTP reply can no longer say it.
+   *
+   * The reply to a locked account is now identical to the reply to a wrong password, because the
+   * difference between them told an attacker which guess had worked. That uniformity is only
+   * affordable if the distinction survives somewhere an operator can read it — otherwise closing
+   * the oracle would have cost the ability to see a credential-stuffing run land on a real
+   * password. `credentialsWereValid` is exactly that signal, and it never crosses the wire.
+   */
+  @OnEvent(AuthEvents.ACCOUNT_LOCKED)
+  async handleAccountLocked(event: AuthAccountLockedEvent) {
+    const maskedEmail = this.maskEmail(event.email);
+    this.logger.warn(
+      `[${event.correlationId ?? 'NO-TRACE'}] Attempt on locked account — email: ${maskedEmail}, ` +
+        `credentials ${event.credentialsWereValid ? 'VALID' : 'invalid'}, ip: ${this.maskIp(event.ipAddress)}`,
+    );
+    await this.auditService.record(
+      event.userId,
+      'User',
+      event.userId,
+      ActionType.LOGIN_FAILED,
+      {
+        emailHash: createHash('sha256').update(event.email ?? '').digest('hex').slice(0, 16),
+        emailMasked: maskedEmail,
+        reason: 'Account Locked',
+        // The alarm worth waking someone for: the guessing has found the password and is only
+        // being held off by the lockout window.
+        credentialsWereValid: event.credentialsWereValid,
+        lockoutUntil: event.lockoutUntil?.toISOString(),
         ipAddressMasked: this.maskIp(event.ipAddress),
       },
       undefined,

@@ -13,6 +13,24 @@ describe('EventsGateway · aislamiento entre empresas', () => {
   const ORG_A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   const ORG_B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
+  /**
+   * A stand-in for `SessionRevocationBroadcaster` that loops a publish straight back to whatever
+   * handler `onModuleInit` registered — the same round trip a single real Redis instance makes,
+   * just without the network hop. Good enough for these tests: they exercise what happens once a
+   * revocation is DELIVERED, not the delivery mechanism itself.
+   */
+  function buildBroadcaster() {
+    let handler: ((message: { userId: string; sessionIds: string[] }) => void) | null = null;
+    return {
+      onRevoked: (h: (message: { userId: string; sessionIds: string[] }) => void) => {
+        handler = h;
+      },
+      publish: async (message: { userId: string; sessionIds: string[] }) => {
+        handler?.(message);
+      },
+    };
+  }
+
   function build(options: { revokedSessions?: string[] } = {}) {
     const emitted: Array<{ room: string | null; event: string; data: unknown }> = [];
     const sockets = new Map<string, { disconnect: jest.Mock }>();
@@ -26,16 +44,36 @@ describe('EventsGateway · aislamiento entre empresas', () => {
 
     const revoked = new Set(options.revokedSessions ?? []);
 
+    // The handshake no longer re-derives identity by hand. It delegates to the ONE implementation
+    // every HTTP request uses, which is what closed two drifts at once: it used to read
+    // `cachedUser.security.tokenVersion` — a field the cached projection does not have, so every
+    // user who had ever changed their password was refused a socket forever — and it never
+    // re-checked that the user still belonged to the organization whose room it then joined.
+    //
+    // So the double here is `UserIdentityService`, and it fails exactly where the real one does:
+    // a revoked session, and a membership the token asserts but the user does not hold.
     const gateway = new EventsGateway(
-      { getUser: async () => ({ security: { tokenVersion: 1 } }) } as never,
       { getPublicKey: () => 'key' } as never,
-      // The revocation registry. A WebSocket authenticates once and never makes another
-      // authenticated request, so unless the handshake asks — and unless a revocation can reach
-      // an already-open socket — "cerrar sesión" leaves it receiving the tenant's events until
-      // the access token expires on its own.
-      { isRevoked: async (id?: string) => Boolean(id && revoked.has(id)) } as never,
+      {
+        resolveFromPayload: async (payload: {
+          id: string;
+          sessionId?: string;
+          organizationId?: string;
+        }) => {
+          if (payload.sessionId && revoked.has(payload.sessionId)) {
+            throw new Error('AUTH_SESSION_EXPIRED');
+          }
+          return {
+            id: payload.id,
+            organizationId: payload.organizationId,
+            sessionId: payload.sessionId,
+          };
+        },
+      } as never,
+      buildBroadcaster() as never,
     );
     (gateway as unknown as { server: unknown }).server = server;
+    gateway.onModuleInit();
     return { gateway, emitted, sockets };
   }
 

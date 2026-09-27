@@ -1,0 +1,7 @@
+{
+  "bi.unknown_cube_field": {
+    "es": "El campo «{{field}}» no existe en el cubo de ventas.",
+    "en": "The field “{{field}}” does not exist in the sales cube.",
+    "pt": "O campo «{{field}}» não existe no cubo de vendas."
+  }
+}

@@ -343,6 +343,28 @@ export class UserIdentityService {
     }
 
     const switched = await this.orgRepository.findOneBy({ id: requestedOrganizationId });
-    return switched ?? user.organization;
+
+    // `?? user.organization` es lo que había aquí, y era un fallo ABIERTO sobre una decisión de
+    // inquilino. Si la fila no se lee —borrada entre la comprobación de pertenencia y esta
+    // búsqueda, o filtrada por una política— la petición NO se rechazaba: seguía adelante actuando
+    // en la empresa de origen.
+    //
+    // `ActiveTenantGuard` ya había decidido que esta petición actúa en la empresa B, el cliente
+    // cree que actúa en B, y la escritura acababa en A. En un ERP eso es un asiento en el libro
+    // equivocado — el daño exacto que ese guard se escribió para impedir, reintroducido por un
+    // operador de dos caracteres una capa más abajo.
+    //
+    // Una decisión de inquilino no tiene respuesta por defecto segura. `INVALID_CREDENTIALS` es el
+    // mismo motivo que devuelve la rama de «no perteneces», así que `ActiveTenantGuard` lo traduce
+    // al mismo 403 y no aparece un oráculo nuevo para distinguir «no existe» de «no es tuya».
+    if (!switched) {
+      this.logger.warn(
+        { event: 'tenant_context_vanished', userId: user.id, requested: requestedOrganizationId },
+        'La empresa pedida figura en la pertenencia del usuario pero no se pudo leer',
+      );
+      throw new UnauthorizedException(AuthError.INVALID_CREDENTIALS);
+    }
+
+    return switched;
   }
 }

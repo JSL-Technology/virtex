@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/comm
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
+import { isDevLikeEnvironment } from '../auth/auth.config';
 
 /** The two node-redis calls this service needs, named so no wider client is implied. */
 interface AtomicRedisClient {
@@ -49,9 +50,9 @@ export class AtomicCacheService implements OnApplicationBootstrap {
   onApplicationBootstrap(): void {
     this.client = this.resolveClient();
 
-    const isDevLike = ['development', 'test'].includes(
-      (this.configService.get<string>('NODE_ENV') ?? '').toLowerCase(),
-    );
+    // The shared allow-list, not a fourth copy of it. This re-implemented
+    // `isDevLikeEnvironment()` inline — same set, same intent, one more place to drift.
+    const isDevLike = isDevLikeEnvironment();
 
     if (this.client) {
       this.logger.log({ event: 'atomic_cache_ready' }, 'Atomic cache operations backed by Redis.');
