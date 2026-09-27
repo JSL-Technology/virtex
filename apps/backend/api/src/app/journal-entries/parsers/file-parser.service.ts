@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as Papa from 'papaparse';
 import * as ExcelJS from 'exceljs';
 import { CsvParsingOptionsDto } from '../dto/journal-entry-import.dto';
-import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
+import { FastifyFile, spooledUploadPath } from '../../common/interfaces/fastify-file.interface';
 import { readFile } from 'fs/promises';
 import { BadRequestError } from '../../i18n/localized.exception';
 
@@ -44,7 +44,8 @@ export class FileParserService {
         // `buffer` is optional on an uploaded file: a streamed upload arrives as a path instead.
         // Reading it unconditionally passed `undefined` into the parsers, which failed later and
         // less clearly than saying so here.
-        const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
+        const spooled = spooledUploadPath(file);
+        const bytes = file.buffer ?? (spooled ? await readFile(spooled) : undefined);
         if (!bytes) {
             throw new BadRequestError('journal_entries.uploaded_file_empty_could_not_read');
         }

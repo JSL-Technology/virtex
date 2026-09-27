@@ -124,7 +124,7 @@ function main() {
       body = blankStrings(body);
     }
 
-    const isAuthority = COLOR_AUTHORITIES.some((a) => rel.replace(/\\/g, '/').includes(a.replace('assets/styles/', 'assets/styles/')));
+    const isAuthority = COLOR_AUTHORITIES.some((a) => rel.replace(/\\/g, '/').includes(a));
 
     for (const [, name] of body.matchAll(/(--[\w-]+)\s*:/g)) definedVars.add(name);
     for (const [, name] of body.matchAll(/var\(\s*(--[\w-]+)/g)) {

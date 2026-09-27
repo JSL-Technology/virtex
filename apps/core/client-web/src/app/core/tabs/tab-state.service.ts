@@ -605,10 +605,10 @@ export class TabStateService {
   }
 
   private newId(): string {
-    const uuid =
-      typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2);
-    return `tab_${uuid}`;
+    // `randomUUID` exists only in secure contexts; `getRandomValues` exists everywhere, so the
+    // fallback stays cryptographically random instead of dropping to `Math.random`.
+    if (typeof crypto.randomUUID === 'function') return `tab_${crypto.randomUUID()}`;
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return `tab_${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`;
   }
 }
