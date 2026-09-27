@@ -114,15 +114,25 @@ jobs:
       ECF_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
 
     steps:
-      - uses: actions/checkout@v4
+      # Pinned by commit: a tag can be moved to other code, a SHA cannot. Dependabot keeps these
+      # current (.github/dependabot.yml, github-actions).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           filter: tree:0
           fetch-depth: 0
+          # Nothing in this job pushes. Left in .git/config, the token would be readable by every
+          # dependency's install script that `npm ci` runs below.
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+
+      # Before `npm ci`, and needing nothing it installs: a family moved piecemeal (one `@nx/*`
+      # plugin bumped without `nx`) produces a lockfile `npm ci` rejects with an ERESOLVE that
+      # names neither the cause nor the fix. This names both.
+      - run: npm run verify:package-families
 
       - run: npm ci
 
@@ -304,5 +314,17 @@ jobs:
       # an invoice end to end. `POST /invoices` failed for every customer on their first attempt.
       - run: npm run verify:invoicing
 
-      - run: npx nx fix-ci
+      # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
+      # which turned every run red after every other step had passed. The token is scoped to this
+      # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in
+      # the job environment is a secret handed to all of them.
+      - name: Nx Cloud self-healing (only when Nx Cloud is configured)
         if: always()
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$NX_CLOUD_ACCESS_TOKEN" ]; then
+            echo "Nx Cloud is not configured for this repository; skipping nx fix-ci."
+            exit 0
+          fi
+          npx nx fix-ci

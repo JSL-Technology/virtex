@@ -34,6 +34,7 @@ type TrustProxyFunction = (address: string, hop: number) => boolean;
  * different lengths (it throws on those) and the comparison cost does not depend on the inputs.
  */
 export function timingSafeEquals(a: string, b: string): boolean {
+  // codeql[js/insufficient-password-hash] Not storage: the digests only give timingSafeEqual equal-length inputs.
   const digest = (value: string) => createHash('sha256').update(value, 'utf8').digest();
   return timingSafeEqual(digest(a), digest(b));
 }

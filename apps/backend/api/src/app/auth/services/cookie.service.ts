@@ -124,6 +124,7 @@ export class CookieService {
       path: '/',
     };
 
+    // codeql[js/clear-text-storage-of-sensitive-data] A session cookie is where a bearer token belongs: HttpOnly, Secure, SameSite, __Host-.
     res.cookie(accessTokenName, accessToken, {
       ...baseOptions,
       maxAge: CookieService.maxAgeSeconds(AuthConfig.COOKIE_ACCESS_MAX_AGE),
@@ -134,6 +135,7 @@ export class CookieService {
         ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
         : AuthConfig.COOKIE_REFRESH_MAX_AGE;
 
+      // codeql[js/clear-text-storage-of-sensitive-data] As above, and path-scoped to the refresh endpoint; the server stores only its hash.
       res.cookie(refresh.name, refreshToken, {
         ...baseOptions,
         maxAge: CookieService.maxAgeSeconds(refreshMaxAge),
@@ -249,6 +251,7 @@ export class CookieService {
 
   setCsrfCookie(res: Response, userId?: string): void {
     const csrfToken = this.generateSignedCsrfToken(userId);
+    // codeql[js/clear-text-storage-of-sensitive-data] Double-submit CSRF: the token must be readable by the SPA. It is an HMAC, not a credential.
     res.cookie(this.csrfCookieName(), csrfToken, {
       secure: !this.isInsecureDevEnvironment(),
       sameSite: 'lax',
@@ -310,10 +313,9 @@ export class CookieService {
   }
 
   private signCsrf(nonce: string, binding: string): string {
-    return crypto
-      .createHmac('sha256', AuthConfig.CSRF_SECRET)
-      .update(`${nonce}:${binding}`)
-      .digest('hex');
+    const payload = `${nonce}:${binding}`;
+    // codeql[js/insufficient-password-hash] HMAC-SHA256 over a random nonce and a user id, keyed with a server secret. No password is involved.
+    return crypto.createHmac('sha256', AuthConfig.CSRF_SECRET).update(payload).digest('hex');
   }
 
   /** Constant-time hex comparison that tolerates malformed input without throwing. */

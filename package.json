@@ -29,6 +29,7 @@
     "verify:session-revocation": "node tools/verify/session-revocation.mjs",
     "verify:security": "npm run verify:tenant-scope && npm run verify:env-gating && npm run verify:crypto && npm run verify:role-assignment && npm run verify:session-revocation",
     "verify:boundaries": "node tools/verify/module-boundaries.mjs",
+    "verify:package-families": "node tools/verify/package-families.mjs",
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/provision-all-markets.ts",
     "verify:boot": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/boot-module-graph.ts",
     "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts",
