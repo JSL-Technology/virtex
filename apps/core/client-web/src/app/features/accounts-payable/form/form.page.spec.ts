@@ -161,7 +161,9 @@ describe('VendorBillFormPage', () => {
     flushPickers();
     //  La búsqueda va al servidor, pero el filtro de qué cuenta admite un gasto sigue siendo del
     //  cliente: es una regla del producto, la misma que aplican los asientos automáticos.
-    component.searchExpenseAccounts('', 20).subscribe((offered) => {
+    // Protected by design (only the template calls it); a unit test reaching past that on
+    // purpose is the accepted escape hatch, not a visibility bug to fix.
+    (component as any).searchExpenseAccounts('', 20).subscribe((offered: { code: string }[]) => {
       expect(offered.map((account) => account.code)).toEqual(['5101']);
       done();
     });
@@ -181,7 +183,8 @@ describe('VendorBillFormPage', () => {
     //  El nombre sigue siendo un mapa de traducciones dentro del componente; quien lo resuelve es
     //  la función que el campo usa para etiquetar, no el `<option>` que ya no existe. El defecto
     //  que esto vigila —una cuenta pintada como `[object Object]`— se ve aquí igual de bien.
-    const label = component.accountLabel(accounts[0]);
+    // Same escape hatch as above: `accountLabel` is protected by design.
+    const label = (component as any).accountLabel(accounts[0]);
 
     expect(label).not.toContain('[object Object]');
     expect(label.startsWith('5101 — ')).toBe(true);

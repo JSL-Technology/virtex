@@ -59,6 +59,7 @@ import { AuditModule } from '../audit/audit.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { GeoModule } from '../geo/geo.module';
 import { UsersModule } from '../users/users.module';
+import { RolesModule } from '../roles/roles.module';
 import { TwilioSmsProvider } from './services/sms.provider';
 import { AbstractSmsProvider } from './services/abstract-sms.provider';
 import { SocialAuthService } from './services/social-auth.service';
@@ -86,6 +87,11 @@ import { KeyManagementModule } from './services/key-management.module';
     GeoModule,
     KeyManagementModule,
     forwardRef(() => UsersModule),
+    // `SsoAdminService` depends on `RoleDelegationPort`, which `RolesModule` provides. Without
+    // this import the application does not boot at all: "make sure that the argument
+    // RoleDelegationPort at index [4] is available in the AuthModule context". `forwardRef`
+    // because `RolesModule` already imports this module back.
+    forwardRef(() => RolesModule),
     UserCacheModule,
     TypeOrmModule.forFeature([
       RefreshToken,

@@ -103,7 +103,7 @@ describe('VendorPaymentPage', () => {
 
   it('offers only its own currency from an account that is not the books’ one', () => {
     boot();
-    component.onBankAccountChange('b2');
+    component.onBankAccountChange(account('b2', 'USD'));
     fixture.detectChanges();
 
     // A USD account paying a DOP or EUR bill needs a rate nobody stated; the server refuses it.

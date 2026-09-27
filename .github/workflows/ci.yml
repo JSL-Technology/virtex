@@ -60,6 +60,14 @@ jobs:
       DB_NAME: virteex_ci
       DB_SSL: 'false'
 
+      # `virtex_app` (the role `verify:rls` connects as to prove the policies) is created with
+      # LOGIN and no password. `pg_hba.conf` requires one for every TCP connection here, including
+      # this one, so without this the role is simply unreachable — `psql` itself refuses to even
+      # try ("no password supplied"), well before the isolation check gets to run. The migration
+      # sets the role's password from this same variable; it is a CI-only credential for an
+      # otherwise-inert role, not a secret that guards anything in production.
+      APP_DB_PASSWORD: ci-app-db-password
+
       # Redis is no longer optional: the cache, the throttler and the mail queue all resolve
       # their connection from these, and the application refuses to boot outside development
       # without a reachable server. A single-process in-memory fallback would make the

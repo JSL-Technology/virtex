@@ -95,19 +95,19 @@ describe('the regional layer', () => {
   it('does not leave one country’s words behind when the locale changes', () => {
     const base = {
       'payroll.runs.type_label.christmas_bonus': 'Bonificación de fin de año',
-      'hcm.employees.form.tss_nss': 'Número de seguridad social',
+      'hcm.employees.form.social_security_number': 'Número de seguridad social',
     };
 
     // Mexico overrides the bonus but not the social security label, so switching from the Dominican
     // Republic must restore the neutral one rather than keep "NSS (TSS)".
     const dominican = applyRegionalCatalogue(base, regional, 'es-DO');
-    expect(dominican['hcm.employees.form.tss_nss']).toBe('NSS (TSS)');
+    expect(dominican['hcm.employees.form.social_security_number']).toBe('NSS (TSS)');
 
     const mexican = applyRegionalCatalogue(base, regional, 'es-MX');
-    expect(mexican['hcm.employees.form.tss_nss']).toBe('NSS (IMSS)');
+    expect(mexican['hcm.employees.form.social_security_number']).toBe('NSS (IMSS)');
 
     const neutral = applyRegionalCatalogue(base, regional, 'es-419');
-    expect(neutral['hcm.employees.form.tss_nss']).toBe('Número de seguridad social');
+    expect(neutral['hcm.employees.form.social_security_number']).toBe('Número de seguridad social');
   });
 
   it('ignores an override for a key the catalogue does not carry', () => {

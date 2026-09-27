@@ -118,6 +118,20 @@ export class TenantRowLevelSecurity1789002100000 implements MigrationInterface {
       END
       $$;
     `);
+    // A role with LOGIN and no password is unreachable over TCP wherever `pg_hba.conf` requires
+    // one (every default Postgres install, this repository's CI included) — `psql` itself refuses
+    // to even attempt it ("no password supplied"). `virtex_app` is otherwise inert today (the API
+    // still connects as the owner; see the module doc above), but `npm run verify:rls` has to
+    // reach it over the same TCP connection the real app will eventually use, so it needs a real
+    // password. Sourced from the environment, like every other credential here, rather than
+    // hardcoded: APP_DB_PASSWORD is unset by default (this ALTER ROLE is then a no-op and the role
+    // stays exactly as inert as before), and CI sets it.
+    const appDbPassword = process.env['APP_DB_PASSWORD'];
+    if (appDbPassword) {
+      await queryRunner.query(
+        `ALTER ROLE virtex_app WITH PASSWORD '${appDbPassword.replace(/'/g, "''")}'`,
+      );
+    }
     await queryRunner.query(`GRANT USAGE ON SCHEMA public TO virtex_app`);
     await queryRunner.query(
       `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO virtex_app`,

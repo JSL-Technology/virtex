@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 
 import { UserWorkspace } from './user-workspace.entity';
@@ -53,18 +54,27 @@ describeWithDb('el espacio de trabajo guardado en el servidor', () => {
 
     service = new UserWorkspaceService(dataSource.getRepository(UserWorkspace));
 
-    // Un usuario y una empresa reales: las dos claves ajenas son en cascada, así que inventar
-    // identificadores no serviría.
+    // Un usuario y una empresa propios de esta prueba: las dos claves ajenas son en cascada, así
+    // que inventar identificadores no serviría, pero apoyarse en "cualquier" fila que ya existiera
+    // en la base tampoco — una base recién migrada, o una suite que corre antes que ninguna otra
+    // haya sembrado datos, no tiene ninguna, y el INSERT fallaba con user_id en null.
+    const suffix = randomUUID();
     const [org] = await dataSource.query(
-      `SELECT id FROM organizations ORDER BY created_at NULLS LAST LIMIT 1`,
+      `INSERT INTO organizations (legal_name, slug) VALUES ($1, $2) RETURNING id`,
+      [`Workspace Test Org ${suffix}`, `workspace-test-${suffix}`],
     );
-    const [user] = await dataSource.query(`SELECT id FROM users LIMIT 1`);
-    organizationId = org?.id;
-    userId = user?.id;
+    const [user] = await dataSource.query(
+      `INSERT INTO users ("firstName", "lastName", email) VALUES ($1, $2, $3) RETURNING id`,
+      ['Workspace', 'Test', `workspace-test-${suffix}@example.invalid`],
+    );
+    organizationId = org.id;
+    userId = user.id;
   });
 
   afterAll(async () => {
     if (userId && organizationId) await service?.forget(userId, organizationId);
+    if (userId) await dataSource?.query(`DELETE FROM users WHERE id = $1`, [userId]);
+    if (organizationId) await dataSource?.query(`DELETE FROM organizations WHERE id = $1`, [organizationId]);
     await dataSource?.destroy();
   });
 

@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common'; // [!code ++]
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RolesService } from './roles.service';
 import { RoleDelegationPort } from '../auth/ports/role-delegation.port';
@@ -8,8 +8,10 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Role]), 
-    forwardRef(() => AuthModule) // [!code ++] // Usa forwardRef aquí
+    TypeOrmModule.forFeature([Role]),
+    // `AuthModule` imports `RolesModule` back (for `RoleDelegationPort`), so this side needs
+    // `forwardRef` too to break the circular reference.
+    forwardRef(() => AuthModule),
   ],
   controllers: [RolesController],
   providers: [RolesService, { provide: RoleDelegationPort, useExisting: RolesService }],
