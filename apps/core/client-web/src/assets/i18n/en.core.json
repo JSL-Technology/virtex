@@ -709,7 +709,6 @@
   "validation.register_user.tax_id_required": "The Tax ID is required.",
   "validation.register_user.tax_region_id_not_valid": "The tax region ID is not valid.",
   "validation.run_consolidation.consolidation_cut_off_date_required": "The consolidation cut-off date is required.",
-  "validation.security_audit.billing_period_not_valid": "The billing period is not valid.",
   "validation.set_password_from_invitation.password_cannot_exceed_128_characters": "The password cannot exceed 128 characters.",
   "validation.set_password_from_invitation.password_must_contain_uppercase_letter_lowercase": "The password must contain an uppercase letter, a lowercase letter and a number or symbol.",
   "validation.set_password_from_invitation.password_must_least_characters_long": "The password must be at least 8 characters long.",

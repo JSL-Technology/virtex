@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewContainerRef } from '@angular/core';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme';
@@ -35,9 +35,13 @@ export class App implements OnInit {
   private router = inject(Router);
   private idleService = inject(IdleService); // Initialize Idle Service
   private stepUpService = inject(StepUpService);
+  private viewContainerRef = inject(ViewContainerRef);
   private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
+    // Where a step-up prompt raised by the HTTP layer is drawn (see stepUpInterceptor).
+    this.stepUpService.registerHost(this.viewContainerRef);
+
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         // If we are navigating to settings and we are already in settings, let the settings loader handle it.

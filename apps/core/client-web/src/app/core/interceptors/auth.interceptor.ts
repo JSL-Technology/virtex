@@ -14,6 +14,7 @@ import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { AuthStatus } from '../../shared/enums/auth-status.enum';
 import { readCsrfCookie } from '../auth/csrf-token';
 import { Router } from '@angular/router';
+import { stepUpScopeOf } from '../services/step-up.service';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -101,8 +102,12 @@ export const authInterceptor: HttpInterceptorFn = (
       //
       // Resolved lazily, and only once we already know we are on the 401 path, so the interceptor
       // still cannot create the AuthService -> HttpClient -> interceptor construction cycle.
+      // A step-up challenge is a 401 about the ACTION, not about the session: the session is fine
+      // and refreshing it cannot help. `stepUpInterceptor` answers those; this must not treat
+      // one as an expired session, refresh, retry, fail again and sign the user out.
       const needsRefresh =
         isUnauthorized &&
+        stepUpScopeOf(error) === null &&
         !isPublicAuthApiRoute &&
         injector.get(AuthService).authStatus() === AuthStatus.authenticated;
 

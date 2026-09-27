@@ -1,3 +1,4 @@
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Controller,
   Get,
@@ -126,6 +127,8 @@ export class AccountsPayableController {
   @Post('payments')
   @Idempotent()
   @UseGuards(PeriodLockGuard)
+  // Money leaving the tenant: the same re-authentication payroll payment already asks for.
+  @RequireStepUp(StepUpScope.MOVE_FUNDS)
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_PAY)
   @ApiOperation({

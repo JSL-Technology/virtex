@@ -122,6 +122,8 @@ export class PaymentController {
     return this.paymentService.getBillingOverview(user.organizationId);
   }
 
+  // step-up-exempt: reconciles a checkout Stripe already charged, for this tenant only (the
+  // session's metadata must name it). It moves no money and grants nothing the payment did not.
   @Post('checkout/confirm')
   @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async confirmCheckout(

@@ -126,3 +126,33 @@ describe('authInterceptor — subscription handling', () => {
     await expect(run(error)).resolves.toBe(error);
   });
 });
+
+
+/**
+ * A step-up challenge is a 401 about the ACTION. Treating it as an expired session refreshed the
+ * session, retried, failed again and could sign the user out.
+ */
+describe('authInterceptor — step-up challenges', () => {
+  it('does not refresh the session for a step-up challenge', async () => {
+    const refreshAccessToken = jest.fn();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { url: '/payroll', navigate: jest.fn() } },
+        { provide: AuthService, useValue: { refreshAccessToken, authStatus: () => 'authenticated' } },
+        { provide: AuthQueueService, useValue: { isRefreshingToken: false } },
+        { provide: HttpXsrfTokenExtractor, useValue: { getToken: () => null } },
+      ],
+    });
+    const error = new HttpErrorResponse({
+      status: 401,
+      error: { messageKey: 'auth.step_up_authentication_required', params: { scope: 'approve_payroll' } },
+    });
+    const req = new HttpRequest('POST', '/api/v1/payroll/runs/1/approve', {});
+    const result = await TestBed.runInInjectionContext(() =>
+      firstValueFrom(authInterceptor(req, () => throwError(() => error))).catch((e) => e),
+    );
+    expect(result).toBe(error);
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+});

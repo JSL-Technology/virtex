@@ -20,15 +20,12 @@ import { plainToInstance } from 'class-transformer';
 import { AuthFacade } from './auth.facade';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { CookieService } from './services/cookie.service';
-import { CsrfGuard } from './guards/csrf.guard';
 import { Public } from '../security/decorators/public.decorator';
-import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../security/principal';
 import { AuthConfig } from './auth.config';
 import { RegisterCheckoutDto } from './dto/register-checkout.dto';
 import { RegisterConfirmDto } from './dto/register-confirm.dto';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
-import { AuthCreateCheckoutSessionDto, InvitationDetailsDto } from './dto/security-audit.dto';
+import { InvitationDetailsDto } from './dto/security-audit.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { RegistrationPaymentPort } from './ports/registration-payment.port';
@@ -36,8 +33,6 @@ import { SaasService } from '../saas/saas.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
-import { HasPermission } from '../security/decorators/permissions.decorator';
-import { PERMISSIONS } from '../shared/permissions';
 
 /**
  * Signup and checkout.
@@ -239,35 +234,8 @@ export class AuthRegistrationController {
     return this.passwordRecoveryService.getInvitationDetails(dto.token);
   }
 
-  @Post('create-checkout-session')
-  @HasPermission(PERMISSIONS.BILLING_MANAGE)
-  @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
-  async createCheckoutSession(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() body: AuthCreateCheckoutSessionDto
-  ) {
-    const plans = await this.saasService.getPlans();
-    const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
-    if (!plan) {
-      throw new BadRequestError('auth.plan_not_found');
-    }
-
-    const priceId = SaasService.priceIdFor(plan, body.billingPeriod ?? 'monthly');
-    if (!priceId) {
-      throw new BadRequestError('auth.plan_does_not_support_billing_period');
-    }
-
-    // Redirect URLs are built server-side. Never pass client-supplied URLs to Stripe — the
-    // backend must control where users land after checkout (CWE-601).
-    const successUrl = this.links.billing(true);
-    const cancelUrl = this.links.billing();
-
-    return this.paymentService.createCheckoutSession(
-      user.organizationId,
-      user.email,
-      priceId,
-      successUrl,
-      cancelUrl
-    );
-  }
+  // `POST /auth/create-checkout-session` lived here: a second implementation of
+  // `POST /payment/checkout-session`, without the MANAGE_PAYMENT step-up the canonical one
+  // requires, and with no caller. Two routes to the same payment, one of them weaker, is the
+  // weaker one's level of protection for both. It was removed rather than hardened.
 }

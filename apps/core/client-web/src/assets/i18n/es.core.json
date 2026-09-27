@@ -709,7 +709,6 @@
   "validation.register_user.tax_id_required": "El ID Fiscal es obligatorio.",
   "validation.register_user.tax_region_id_not_valid": "El ID de la región fiscal no es válido.",
   "validation.run_consolidation.consolidation_cut_off_date_required": "La fecha de corte para la consolidación es obligatoria.",
-  "validation.security_audit.billing_period_not_valid": "El periodo de facturación no es válido.",
   "validation.set_password_from_invitation.password_cannot_exceed_128_characters": "La contraseña no puede superar los 128 caracteres.",
   "validation.set_password_from_invitation.password_must_contain_uppercase_letter_lowercase": "La contraseña debe contener mayúscula, minúscula y un número o símbolo.",
   "validation.set_password_from_invitation.password_must_least_characters_long": "La contraseña debe tener al menos 8 caracteres.",

@@ -301,12 +301,6 @@ export class AuthService {
     );
   }
 
-  createCheckoutSession(planId: string): Observable<{ url: string }> {
-    // H-02 FIX: Send only planId. successUrl/cancelUrl are now built server-side
-    // from FRONTEND_URL so the backend controls redirect destinations (CWE-601).
-    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, { planId }, { withCredentials: true });
-  }
-
   /**
    * Payment-first signup: validates the registration and returns a Stripe
    * Checkout URL. No account is created until the payment completes — so an

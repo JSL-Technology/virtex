@@ -1,3 +1,4 @@
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Body,
   Controller,
@@ -28,6 +29,15 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { CreateCompensationDto } from './dto/create-compensation.dto';
 import { Employee } from './entities/employee.entity';
 import { Page } from '../common/pagination';
+
+/**
+ * Whether a request touches where an employee's wages are paid: the bank, the account number or
+ * its type. Those fields re-authenticate; the rest of the employee record does not.
+ */
+function changesPayoutDestination(request: { body?: unknown }): boolean {
+  const body = (request.body ?? {}) as Record<string, unknown>;
+  return ['bankName', 'bankAccountNumber', 'bankAccountType'].some((field) => field in body);
+}
 
 @Controller('hcm')
 @UseInterceptors(AuditAccessInterceptor)
@@ -110,6 +120,7 @@ export class HcmController {
    * field that rides along on every list.
    */
   @Get('employees/:id/sensitive')
+  @RequireStepUp(StepUpScope.VIEW_PAYROLL_DATA)
   @HasPermission(PERMISSIONS.HCM_VIEW_SENSITIVE)
   @AuditAccess({ entity: 'employee_pii', action: ActionType.READ, identifiers: ['id'] })
   async sensitive(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -126,12 +137,16 @@ export class HcmController {
   }
 
   @Post('employees')
+  // Where wages are paid is set here too; that part re-authenticates, the rest of the record not.
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION, { when: changesPayoutDestination })
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   async createEmployee(@Body() dto: CreateEmployeeDto, @CurrentUser() user: AuthenticatedUser) {
     return this.redact(await this.hcmService.createEmployee(dto, user.organizationId), user);
   }
 
   @Patch('employees/:id')
+  // Editing a name is routine; redirecting someone's wages to another account is not.
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION, { when: changesPayoutDestination })
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   async updateEmployee(
     @Param('id', UuidParamPipe) id: string,
@@ -154,6 +169,7 @@ export class HcmController {
   // ── Compensation (versioned salary) ───────────────────────────────────────────
 
   @Get('employees/:id/compensation')
+  @RequireStepUp(StepUpScope.VIEW_PAYROLL_DATA)
   @HasPermission(PERMISSIONS.PAYROLL_VIEW_COMPENSATION)
   @AuditAccess({ entity: 'employee_compensation', action: ActionType.READ, identifiers: ['id'] })
   listCompensation(
@@ -166,6 +182,7 @@ export class HcmController {
   // Writing a salary is recorded by the FinancialAuditSubscriber (employee_compensations is audited),
   // so a pay change always leaves an actor behind it.
   @Post('employees/:id/compensation')
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   @HasPermission(PERMISSIONS.PAYROLL_EDIT_COMPENSATION)
   addCompensation(
     @Param('id', UuidParamPipe) id: string,
