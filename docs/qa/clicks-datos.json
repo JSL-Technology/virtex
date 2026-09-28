@@ -1,0 +1,4912 @@
+{
+ "masters/taxes": {
+  "mod": "administracion",
+  "route": "masters/taxes",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo impuesto",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/taxes/new",
+     "pestañas 2→3",
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/masters/taxes/new · pestañas 2→3 · cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "TIPO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "TASA (%)",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "PAÍS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "fila",
+    "type": "",
+    "label": "ITBIS 18% Porcentaje 18.00% DO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: net::ERR_FAILED",
+     "requestStorageAccess: Permission denied."
+    ],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 6,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 7,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 8,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 9,
+  "tested": 6
+ },
+ "reports/financial-statements/trial-balance": {
+  "mod": "analisis",
+  "route": "reports/financial-statements/trial-balance",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-0-from",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "cambia contenido",
+     "red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-28 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-28 200"
+   },
+   {
+    "i": 1,
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-0-to",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "cambia contenido",
+     "red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-15 200"
+   },
+   {
+    "i": 2,
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 3,
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /financial-reporting/trial-balance?startDate=2026-09-15&endDate=2026-09-15 200"
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "Cuenta",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "Saldo inicial",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "Movimientos del período",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "Saldo final",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "Debe",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 9,
+    "tag": "th",
+    "type": "",
+    "label": "Haber",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 10,
+    "tag": "th",
+    "type": "",
+    "label": "Debe",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 11,
+    "tag": "th",
+    "type": "",
+    "label": "Haber",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 12,
+    "tag": "th",
+    "type": "",
+    "label": "Debe",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 13,
+    "tag": "th",
+    "type": "",
+    "label": "Haber",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 14,
+    "tag": "fila",
+    "type": "",
+    "label": "1120 Bancos 0.00 0.00 2,360.00 5,000.00 0.00 2,640.00",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   }
+  ],
+  "total": 15,
+  "tested": 4
+ },
+ "reports/profitability-by-product": {
+  "mod": "analisis",
+  "route": "reports/profitability-by-product",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-1-from",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "cambia contenido",
+     "red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-28 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-28 200"
+   },
+   {
+    "i": 1,
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-1-to",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "cambia contenido",
+     "red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-15 200"
+   },
+   {
+    "i": 2,
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 3,
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido",
+     "red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /reports/profitability/by-product?startDate=2026-09-15&endDate=2026-09-15 200"
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "PRODUCTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "UNIDADES VENDIDAS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "INGRESO TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "COSTO TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "UTILIDAD BRUTA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 9,
+    "tag": "th",
+    "type": "",
+    "label": "MARGEN BRUTO (%)",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 10,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-SKU-001 — QA-Producto-01 Silla ergonómica 4 DOP 4,000.00 ",
+    "disabled": false,
+    "action": "clic",
+    "status": "con falla",
+    "result": "no interactuable: locator.click: Timeout 3000ms exceeded."
+   }
+  ],
+  "total": 11,
+  "tested": 11
+ },
+ "accounts-payable": {
+  "mod": "compras",
+  "route": "accounts-payable",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Registrar pago",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounts-payable/payments",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /treasury/bank-accounts 200, GET /accounts-payable 200, GET /treasury/cash-position 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/accounts-payable/payments · pestañas 2→3 · cambia contenido · red: GET /treasury/bank-accounts 200, GET /accounts-payable 200, GET /treasury/cash-position 200"
+   },
+   {
+    "i": 1,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Factura",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounts-payable/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /currencies 200, GET /treasury/cash-position 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/accounts-payable/new · pestañas 2→3 · cambia contenido · red: GET /currencies 200, GET /treasury/cash-position 200"
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "PROVEEDOR",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "NÚMERO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "VENCIMIENTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "SALDO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 9,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Proveedor-01 Suministros Ñ&Co B0100000123 28/09/2026 28/1",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "B0100000123",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b 200, GET /accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b/payments 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b · pestañas 2→3 · cambia contenido · red: GET /accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b 200, GET /accounts-payable/694e8cb8-8918-443e-9493-ccb6c2f6c58b/payments 200"
+   }
+  ],
+  "total": 11,
+  "tested": 11
+ },
+ "masters/suppliers": {
+  "mod": "compras",
+  "route": "masters/suppliers",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Proveedor",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/suppliers/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+      "status": 403,
+      "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:17:09.455Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403 {\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:17:09.455Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"} "
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE DE LA EMPRESA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "PERSONA DE CONTACTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "EMAIL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "TELÉFONO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "fila",
+    "type": "",
+    "label": "",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 7,
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/suppliers/d995d6fe-b617-4568-9e40-9db7b9e9b200/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /suppliers/d995d6fe-b617-4568-9e40-9db7b9e9b200 200, GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+      "status": 403,
+      "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:17:19.789Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403 {\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:17:19.789Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"} "
+   },
+   {
+    "i": 8,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 9,
+  "tested": 8
+ },
+ "purchasing/orders": {
+  "mod": "compras",
+  "route": "purchasing/orders",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Orden",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/purchasing/orders/new",
+     "pestañas 2→3",
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/purchasing/orders/new · pestañas 2→3 · cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "N.º DE ORDEN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "PROVEEDOR",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA DE LA ORDEN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "fila",
+    "type": "",
+    "label": "PO-2026-000001 QA-Proveedor-01 Suministros Ñ&Co 28/09/2026 D",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 7,
+    "tag": "a",
+    "type": "",
+    "label": "PO-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/purchasing/orders/d7fd5736-d941-4161-b34e-3f6ce372dce7/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /procurement/orders/d7fd5736-d941-4161-b34e-3f6ce372dce7 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED, GET /suppliers/d995d6fe-b617-4568-9e40-9db7b9e9b200 200, GET http://localhost:4200/api/v1/lifecycles 200"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED net::ERR_ABORTED "
+   }
+  ],
+  "total": 8,
+  "tested": 8
+ },
+ "purchasing/requisitions": {
+  "mod": "compras",
+  "route": "purchasing/requisitions",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Requisición",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/purchasing/requisitions/new",
+     "pestañas 2→3",
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/purchasing/requisitions/new · pestañas 2→3 · cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "N.º DE REQUISICIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "ARTÍCULOS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA REQUERIDA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "fila",
+    "type": "",
+    "label": "REQ-2026-000001 1 28/09/2026 15/10/2026 USD 3,000.00 Por apr",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 8,
+    "tag": "a",
+    "type": "",
+    "label": "REQ-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/purchasing/requisitions/4747387d-8ea4-47c1-8548-5fc4185038eb/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /procurement/requisitions/4747387d-8ea4-47c1-8548-5fc4185038eb 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED, GET http://localhost:4200/api/v1/lifecycles 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED net::ERR_ABORTED "
+   }
+  ],
+  "total": 9,
+  "tested": 9
+ },
+ "accounting/chart-of-accounts": {
+  "mod": "contabilidad",
+  "route": "accounting/chart-of-accounts",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 1,
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva Cuenta",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/chart-of-accounts/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /chart-of-accounts/segment-definitions 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/accounting/chart-of-accounts/new · pestañas 2→3 · cambia contenido · red: GET /chart-of-accounts/segment-definitions 200"
+   },
+   {
+    "i": 2,
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por código o nombre...",
+    "disabled": false,
+    "action": "escribir \"QA-áéí ñ <b>&\"'\"",
+    "value": "QA-áéí ñ <b>&\"'",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 3,
+    "tag": "select",
+    "type": "",
+    "label": "Estado",
+    "disabled": false,
+    "action": "seleccionar 3 opciones",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 4,
+    "tag": "select",
+    "type": "",
+    "label": "Tipo",
+    "disabled": false,
+    "action": "seleccionar 6 opciones",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "valor queda \"undefined\""
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "CUENTA",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 6,
+    "tag": "button",
+    "type": "button",
+    "label": "CUENTA",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "TIPO",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 8,
+    "tag": "button",
+    "type": "button",
+    "label": "TIPO",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 9,
+    "tag": "th",
+    "type": "",
+    "label": "BALANCE",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 10,
+    "tag": "button",
+    "type": "button",
+    "label": "BALANCE",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 11,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 12,
+    "tag": "button",
+    "type": "button",
+    "label": "ESTADO",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 13,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 14,
+    "tag": "fila",
+    "type": "",
+    "label": "Activo 1000 Activo — Activa",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 15,
+    "tag": "button",
+    "type": "button",
+    "label": "Activo",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 16,
+    "tag": "a",
+    "type": "",
+    "label": "1000",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 17,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 18,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 19,
+    "tag": "button",
+    "type": "button",
+    "label": "Pasivo",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 20,
+    "tag": "a",
+    "type": "",
+    "label": "2000",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 21,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 22,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 23,
+    "tag": "button",
+    "type": "button",
+    "label": "Patrimonio",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 24,
+    "tag": "a",
+    "type": "",
+    "label": "3000",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 25,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 26,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 27,
+    "tag": "button",
+    "type": "button",
+    "label": "Ingresos",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 28,
+    "tag": "a",
+    "type": "",
+    "label": "4000",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 29,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 30,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 31,
+    "tag": "button",
+    "type": "button",
+    "label": "Gastos",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 32,
+    "tag": "a",
+    "type": "",
+    "label": "5000",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 33,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 34,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 35,
+    "tag": "a",
+    "type": "",
+    "label": "5910",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 36,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "status": "no probado",
+    "result": "el elemento no reaparece tras restaurar la página"
+   },
+   {
+    "i": 37,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 38,
+  "tested": 5
+ },
+ "accounting/journal-entries": {
+  "mod": "contabilidad",
+  "route": "accounting/journal-entries",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Asiento",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "N.º DE ASIENTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "DESCRIPCIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "DÉBITO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "CRÉDITO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "fila",
+    "type": "",
+    "label": "30/09/2026 NOMINA-2026-000001 Nómina Nómina 09/2026 USD 75,3",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 8,
+    "tag": "a",
+    "type": "",
+    "label": "NOMINA-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "VENTAS-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 11,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 12,
+    "tag": "a",
+    "type": "",
+    "label": "VENTAS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 13,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 14,
+    "tag": "a",
+    "type": "",
+    "label": "PAGOS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 15,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 16,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000003",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 17,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 18,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 19,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 20,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 21,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 22,
+    "tag": "a",
+    "type": "",
+    "label": "COMPRAS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 23,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 24,
+    "tag": "a",
+    "type": "",
+    "label": "COBROS-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 25,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 26,
+    "tag": "a",
+    "type": "",
+    "label": "COBROS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 27,
+    "tag": "a",
+    "type": "",
+    "label": "Más acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 28,
+    "tag": "button",
+    "type": "button",
+    "label": "Página anterior",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 29,
+    "tag": "button",
+    "type": "button",
+    "label": "Página siguiente",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 30,
+    "tag": "select",
+    "type": "",
+    "label": "25 50 100",
+    "disabled": false,
+    "action": "seleccionar 3 opciones",
+    "effects": [
+     "red: GET /journal-entries?page=1&pageSize=25 200, GET /journal-entries?page=1&pageSize=50 200, GET /journal-entries?page=1&pageSize=100 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /journal-entries?page=1&pageSize=25 200, GET /journal-entries?page=1&pageSize=50 200, GET /journal-entries?page=1&pageSize=100 200"
+   }
+  ],
+  "total": 31,
+  "tested": 29
+ },
+ "accounting/daily-journal": {
+  "mod": "contabilidad",
+  "route": "accounting/daily-journal",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "N.º DE ASIENTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "CUENTA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "DESCRIPCIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "DÉBITO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "CRÉDITO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "fila",
+    "type": "",
+    "label": "30/09/2026 NOMINA-2026-000001 2141 — AFP por Pagar (TSS) Nóm",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 8,
+    "tag": "a",
+    "type": "",
+    "label": "NOMINA-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/74c4d911-15af-4ec1-a941-090daf7addd4/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/74c4d911-15af-4ec1-a941-090daf7addd4 200, GET /chart-of-accounts/dc20a0e2-4794-41dc-99c9-fd390b2ed1bb FAILED"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/dc20a0e2-4794-41dc-99c9-fd390b2ed1bb",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/fb4f9f8d-2398-46b8-8cc2-3ebe7e02e712",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/24d1b997-f18c-4621-a19f-7436207fcd4c",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/9cc75919-a141-4c9d-ae85-9ec8a3294c26",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/55ec8d83-563c-4229-bacc-59e84bdd0f6f",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/b275928b-4695-44e5-b829-d363ec174580",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/691ad088-9664-442b-ac59-22d8bdd16b93",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/dc20a0e2-4794-41dc-99c9-fd390b2ed1bb FAILED net::ERR_ABORTED ; GET /chart-of-accounts/fb4f9f8d-2398-46b8-8cc2-3ebe7e02e712 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/24d1b997-f18c-4621-a19f-7436207fcd4c FAILED net::ERR_ABORTED ; GET /chart-of-accounts/9cc75919-a141-4c9d-ae85-9ec8a3294c26 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/55ec8d83-563c-4229-bacc-59"
+   },
+   {
+    "i": 9,
+    "tag": "a",
+    "type": "",
+    "label": "VENTAS-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/09061d6d-d4ab-4a77-86ad-a32e5144b1e6/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/09061d6d-d4ab-4a77-86ad-a32e5144b1e6 200, GET /chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d FAILED"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/dafd0184-6e35-48fe-a6c7-dcc1470f1ff7",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d FAILED net::ERR_ABORTED ; GET /chart-of-accounts/dafd0184-6e35-48fe-a6c7-dcc1470f1ff7 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED net::ERR_ABORTED "
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "VENTAS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/b560fce5-0c0b-40bf-b1fe-69e56b4523a0/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/b560fce5-0c0b-40bf-b1fe-69e56b4523a0 200, GET /chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d FAILED"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/dafd0184-6e35-48fe-a6c7-dcc1470f1ff7",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/7d4a121a-aed7-4b7f-8d6d-838e92c93b5d FAILED net::ERR_ABORTED ; GET /chart-of-accounts/dafd0184-6e35-48fe-a6c7-dcc1470f1ff7 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED net::ERR_ABORTED "
+   },
+   {
+    "i": 11,
+    "tag": "a",
+    "type": "",
+    "label": "PAGOS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/a93ba7e5-9388-41c4-a6ee-643319d9f6cf/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /journals 200, GET /accounting/ledgers 200, GET /journal-entries/a93ba7e5-9388-41c4-a6ee-643319d9f6cf 200, GET /chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74 FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:58.027Z\",\"path\":\"/api/v1/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:58.029Z\",\"path\":\"/api/v1/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d FAILED net::ERR_ABORTED ; GET /chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:58.027Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 12,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000003",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/97563936-db61-42f4-92dc-af074b13f888/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/97563936-db61-42f4-92dc-af074b13f888 200, GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:59.873Z\",\"path\":\"/api/v1/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:59.874Z\",\"path\":\"/api/v1/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa FAILED net::ERR_ABORTED ; GET /chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:18:59.873Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 13,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/af905ea6-4b0b-4a7e-843b-d227915f3675/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/af905ea6-4b0b-4a7e-843b-d227915f3675 200, GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:01.698Z\",\"path\":\"/api/v1/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:01.707Z\",\"path\":\"/api/v1/chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa FAILED net::ERR_ABORTED ; GET /chart-of-accounts/8ecded2e-5a83-4e58-8fe2-ccd767918428 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:01.698Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 14,
+    "tag": "a",
+    "type": "",
+    "label": "GENERAL-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/52b36107-424f-4bc1-bdd3-dec5d50255ed/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/52b36107-424f-4bc1-bdd3-dec5d50255ed 200, GET /chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:03.534Z\",\"path\":\"/api/v1/chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:03.541Z\",\"path\":\"/api/v1/chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea FAILED net::ERR_ABORTED ; GET /chart-of-accounts/3999f5a0-79c4-4c37-9322-6147d6a859fa FAILED net::ERR_ABORTED ; GET /chart-of-accounts/1d1b9dfd-73e9-400f-a86d-6650fcc5f0ea 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:03.534Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 15,
+    "tag": "a",
+    "type": "",
+    "label": "COMPRAS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/bc8e74fd-6a87-408e-b155-de40440478d8/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /journals 200, GET /accounting/ledgers 200, GET /journal-entries/bc8e74fd-6a87-408e-b155-de40440478d8 200, GET /chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/805653b6-aaa1-4da9-8ed9-3dac2200bfbf",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:05.387Z\",\"path\":\"/api/v1/chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/805653b6-aaa1-4da9-8ed9-3dac2200bfbf",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:05.388Z\",\"path\":\"/api/v1/chart-of-accounts/805653b6-aaa1-4da9-8ed9-3dac2200bfbf\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d FAILED net::ERR_ABORTED ; GET /chart-of-accounts/805653b6-aaa1-4da9-8ed9-3dac2200bfbf FAILED net::ERR_ABORTED ; GET /chart-of-accounts/ea3a056d-25eb-4ef1-b2be-1ccb98503f1d 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:05.387Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 16,
+    "tag": "a",
+    "type": "",
+    "label": "COBROS-2026-000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/c2fee917-ee5d-4b6a-bf8d-db1f64ebd72f/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/c2fee917-ee5d-4b6a-bf8d-db1f64ebd72f 200, GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:07.229Z\",\"path\":\"/api/v1/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:07.229Z\",\"path\":\"/api/v1/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:07.229Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 17,
+    "tag": "a",
+    "type": "",
+    "label": "COBROS-2026-000001",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/journal-entries/d51b5623-0a1e-45f5-b545-275a9a98090f/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /accounting/ledgers 200, GET /journals 200, GET /journal-entries/d51b5623-0a1e-45f5-b545-275a9a98090f 200, GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+     "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:09.058Z\",\"path\":\"/api/v1/chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74",
+      "status": 429,
+      "body": "{\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:09.067Z\",\"path\":\"/api/v1/chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/05069cab-d5a7-463e-93b2-1e1b4229dd74 FAILED net::ERR_ABORTED ; GET /chart-of-accounts/bacb1d27-1085-4d62-9df4-8228c9af8888 429 {\"statusCode\":429,\"code\":\"TOO_MANY_REQUESTS\",\"messageKey\":\"errors.too_many_requests\",\"params\":{},\"timestamp\":\"2026-09-28T08:19:09.058Z\",\"path\":\"/api/v1/chart"
+   },
+   {
+    "i": 18,
+    "tag": "button",
+    "type": "button",
+    "label": "Página anterior",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 19,
+    "tag": "button",
+    "type": "button",
+    "label": "Página siguiente",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 20,
+    "tag": "select",
+    "type": "",
+    "label": "25 50 100",
+    "disabled": false,
+    "action": "seleccionar 3 opciones",
+    "effects": [
+     "red: GET /chart-of-accounts 200, GET /journal-entries?page=1&pageSize=25 200, GET /chart-of-accounts 200, GET /journal-entries?page=1&pageSize=50 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /chart-of-accounts 200, GET /journal-entries?page=1&pageSize=25 200, GET /chart-of-accounts 200, GET /journal-entries?page=1&pageSize=50 200"
+   }
+  ],
+  "total": 21,
+  "tested": 18
+ },
+ "accounting/periods": {
+  "mod": "contabilidad",
+  "route": "accounting/periods",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "red: GET /accounting/periods 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /accounting/periods 200"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "PERÍODO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA DE INICIO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA DE CIERRE",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "fila",
+    "type": "",
+    "label": "enero de 2026 01/01/2026 31/01/2026 Abierto Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 7,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 8,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 9,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 10,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 11,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 12,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 13,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 14,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 15,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 16,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 17,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 18,
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 19,
+  "tested": 5
+ },
+ "inventory/products": {
+  "mod": "inventario",
+  "route": "inventory/products",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Producto",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/inventory/products/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /inventory/categories 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/inventory/products/new · pestañas 2→3 · cambia contenido · red: GET /inventory/categories 200"
+   },
+   {
+    "i": 1,
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por nombre, SKU o categoría...",
+    "disabled": false,
+    "action": "escribir \"QA-áéí ñ <b>&\"'\"",
+    "value": "QA-áéí ñ <b>&\"'",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "PRODUCTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "CATEGORÍA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "PRECIO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "COSTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "STOCK",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Producto-01 Silla ergonómica QA-SKU-001 — 1,000.00 600.00",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "a",
+    "type": "",
+    "label": "QA-Producto-01 Silla ergonómica",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit · pestañas 2→3 · cambia contenido · red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit · pestañas 2→3 · cambia contenido · red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+   },
+   {
+    "i": 11,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   },
+   {
+    "i": 12,
+    "tag": "a",
+    "type": "",
+    "label": "QA-XSS <img src=x onerror=alert(1)> \"'",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/inventory/products/e5de615b-ea33-4038-a159-2826202b2747/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /inventory/categories 200, GET /inventory/e5de615b-ea33-4038-a159-2826202b2747 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/inventory/products/e5de615b-ea33-4038-a159-2826202b2747/edit · pestañas 2→3 · cambia contenido · red: GET /inventory/categories 200, GET /inventory/e5de615b-ea33-4038-a159-2826202b2747 200"
+   },
+   {
+    "i": 13,
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/inventory/products/93628f14-8761-4aa8-a91a-fd464aa18ea5/edit · pestañas 2→3 · cambia contenido · red: GET /inventory/categories 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+   },
+   {
+    "i": 14,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 15,
+  "tested": 13
+ },
+ "inventory/categories": {
+  "mod": "inventario",
+  "route": "inventory/categories",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva Categoría",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "Nombre",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "Código",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "Estado",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "Acciones",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Categoría Muebles & Oficina — Activa Retirar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 6,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 7,
+    "tag": "button",
+    "type": "button",
+    "label": "Retirar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 8,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 9,
+  "tested": 8
+ },
+ "masters/warehouses": {
+  "mod": "inventario",
+  "route": "masters/warehouses",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo almacén",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "CÓDIGO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "UBICACIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Almacén Central QA-1 QA-2 Activo",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   }
+  ],
+  "total": 6,
+  "tested": 6
+ },
+ "payroll/my-payslips": {
+  "mod": "rrhh",
+  "route": "payroll/my-payslips",
+  "elements": [],
+  "total": 0,
+  "tested": 0
+ },
+ "hcm/employees": {
+  "mod": "rrhh",
+  "route": "hcm/employees",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo empleado",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/hcm/employees/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /hcm/departments 200, GET /hcm/identity-document-types 200, GET /hcm/statutory-identifier-types 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/hcm/employees/new · pestañas 2→3 · cambia contenido · red: GET /hcm/departments 200, GET /hcm/identity-document-types 200, GET /hcm/statutory-identifier-types 200"
+   },
+   {
+    "i": 1,
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por nombre, correo o puesto…",
+    "disabled": false,
+    "action": "escribir \"QA-áéí ñ <b>&\"'\"",
+    "value": "QA-áéí ñ <b>&\"'",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 2,
+    "tag": "input",
+    "type": "checkbox",
+    "label": "",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "PUESTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "DEPARTAMENTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA DE INGRESO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "fila",
+    "type": "",
+    "label": "Pérez Ñúñez, QA-Ana qa-ana.perez@example.com QA Analista con",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "a",
+    "type": "",
+    "label": "Pérez Ñúñez, QA-Ana",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5/edit",
+     "pestañas 2→3",
+     "abre diálogo/panel",
+     "abre menú/lista",
+     "cambia contenido",
+     "red: GET /hcm/departments 200, GET /hcm/identity-document-types 200, GET /hcm/statutory-identifier-types 200, GET /hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5 200"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5/compensation",
+      "status": 401,
+      "body": "{\"statusCode\":401,\"code\":\"auth.step_up_authentication_required\",\"messageKey\":\"auth.step_up_authentication_required\",\"params\":{\"scope\":\"view_payroll_data\"},\"timestamp\":\"2026-09-28T08:26:16.198Z\",\"path\":\"/api/v1/hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5/compensation\"}"
+     },
+     {
+      "method": "GET",
+      "url": "/auth/step-up/status?scope=view_payroll_data",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5/compensation 401 {\"statusCode\":401,\"code\":\"auth.step_up_authentication_required\",\"messageKey\":\"auth.step_up_authentication_required\",\"params\":{\"scope\":\"view_payroll_data\"},\"timestamp\":\"2026-09-28T08:26:16.198Z\",\"path\":\"/api/v1/hcm/employees/a1646c63-ee69-4c35-a04a-6d25b2443ca5/compensation\"} ; GET /auth/step-up/status?scope=view_payrol"
+   }
+  ],
+  "total": 10,
+  "tested": 10
+ },
+ "hcm/departments": {
+  "mod": "rrhh",
+  "route": "hcm/departments",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo departamento",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "CENTRO DE COSTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Departamento Finanzas —",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 5,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 6,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 7,
+  "tested": 6
+ },
+ "payroll/concepts": {
+  "mod": "rrhh",
+  "route": "payroll/concepts",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo concepto",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "CÓDIGO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "TIPO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "CÁLCULO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "TASA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "GRAVABLE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-BONO QA Bono productividad Ingreso Porcentaje 0.05 ✓",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 10,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 11,
+  "tested": 10
+ },
+ "accounting/treasury": {
+  "mod": "tesoreria",
+  "route": "accounting/treasury",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "input",
+    "type": "date",
+    "label": "treasuryAsOf",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "cambia contenido",
+     "red: GET /treasury/bank-accounts 200, GET /treasury/cash-position?asOfDate=2026-09-15 200, GET /treasury/bank-transfers?pageSize=25 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /treasury/bank-accounts 200, GET /treasury/cash-position?asOfDate=2026-09-15 200, GET /treasury/bank-transfers?pageSize=25 200"
+   },
+   {
+    "i": 1,
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido",
+     "red: GET /treasury/bank-accounts 200, GET /treasury/cash-position?asOfDate=2026-09-15 200, GET /treasury/bank-transfers?pageSize=25 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /treasury/bank-accounts 200, GET /treasury/cash-position?asOfDate=2026-09-15 200, GET /treasury/bank-transfers?pageSize=25 200"
+   },
+   {
+    "i": 2,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva cuenta bancaria",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "Cuentas bancarias",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "Banco",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "Número",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "Moneda",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "Saldo en su moneda",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "Saldo en moneda de los libros",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 9,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Cuenta Corriente BHD Banco BHD (QA) ••••4567 DOP -DOP 2,6",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "QA-Cuenta Corriente BHD",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   }
+  ],
+  "total": 11,
+  "tested": 11
+ },
+ "masters/banks": {
+  "mod": "tesoreria",
+  "route": "masters/banks",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo banco",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/accounting/treasury/bank-accounts/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /currencies 200, GET /chart-of-accounts 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/accounting/treasury/bank-accounts/new · pestañas 2→3 · cambia contenido · red: GET /currencies 200, GET /chart-of-accounts 200"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE DEL BANCO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "CÓDIGO SWIFT",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "CUENTAS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "MONEDAS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "fila",
+    "type": "",
+    "label": "Banco BHD (QA) — 1 DOP",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   }
+  ],
+  "total": 6,
+  "tested": 6
+ },
+ "invoices": {
+  "mod": "ventas",
+  "route": "invoices",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "aviso: Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito | Exportación completada.",
+     "red: GET /invoices?limit=200 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "aviso: Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito\n\nExportación completada. | Éxito | Exportación completada. · red: GET /invoices?limit=200 200"
+   },
+   {
+    "i": 1,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva factura de venta",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/invoices/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /currencies 200, GET /invoices/context 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/invoices/new · pestañas 2→3 · cambia contenido · red: GET /currencies 200, GET /invoices/context 200"
+   },
+   {
+    "i": 2,
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por cliente o número de factura...",
+    "disabled": false,
+    "action": "escribir \"QA-áéí ñ <b>&\"'\"",
+    "value": "QA-áéí ñ <b>&\"'",
+    "effects": [
+     "cambia contenido",
+     "red: GET /invoices?page=1&limit=50&search=QA-%C3%A1%C3%A9%C3%AD%20%C3%B1%20%3Cb%3E%26%22%27 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /invoices?page=1&limit=50&search=QA-%C3%A1%C3%A9%C3%AD%20%C3%B1%20%3Cb%3E%26%22%27 200"
+   },
+   {
+    "i": 3,
+    "tag": "select",
+    "type": "",
+    "label": "Todos Cobrada Pendiente Parcial Anulada",
+    "disabled": false,
+    "action": "seleccionar 5 opciones",
+    "effects": [
+     "cambia contenido",
+     "red: GET /invoices?page=1&limit=50 200, GET /invoices?page=1&limit=50&status=Paid 200, GET /invoices?page=1&limit=50&status=Pending 200, GET /invoices?page=1&limit=50&status=Pending 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /invoices?page=1&limit=50 200, GET /invoices?page=1&limit=50&status=Paid 200, GET /invoices?page=1&limit=50&status=Pending 200, GET /invoices?page=1&limit=50&status=Pending 200"
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "FACTURA #",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "CLIENTE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "CREACIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "VENCIMIENTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "TOTAL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 9,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 10,
+    "tag": "fila",
+    "type": "",
+    "label": "FAC-00000002 QA-Cliente-01 Distribuidora Ñandú & Hijos 28/09",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 11,
+    "tag": "a",
+    "type": "",
+    "label": "FAC-00000002",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/invoices/030cde06-7d80-490d-8e3c-e895d4065158",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /invoices/030cde06-7d80-490d-8e3c-e895d4065158 200, GET /invoices?limit=50 200, GET /einvoicing/invoices/030cde06-7d80-490d-8e3c-e895d4065158/status 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/invoices/030cde06-7d80-490d-8e3c-e895d4065158 · pestañas 2→3 · cambia contenido · red: GET /invoices/030cde06-7d80-490d-8e3c-e895d4065158 200, GET /invoices?limit=50 200, GET /einvoicing/invoices/030cde06-7d80-490d-8e3c-e895d4065158/status 200"
+   },
+   {
+    "i": 12,
+    "tag": "a",
+    "type": "",
+    "label": "FAC-00000001",
+    "disabled": false,
+    "action": "clic",
+    "status": "con falla",
+    "result": "no interactuable: locator.click: Timeout 3000ms exceeded."
+   },
+   {
+    "i": 13,
+    "tag": "button",
+    "type": "button",
+    "label": "Página anterior",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 14,
+    "tag": "button",
+    "type": "button",
+    "label": "Página siguiente",
+    "disabled": true,
+    "status": "no probado",
+    "result": "deshabilitado en este estado"
+   },
+   {
+    "i": 15,
+    "tag": "select",
+    "type": "",
+    "label": "25 50 100",
+    "disabled": false,
+    "action": "seleccionar 3 opciones",
+    "effects": [
+     "red: GET /invoices?page=1&limit=25&status=Pending 200, GET /invoices?page=1&limit=50&status=Pending 200, GET /invoices?page=1&limit=100&status=Pending 200"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /invoices?page=1&limit=25&status=Pending 200, GET /invoices?page=1&limit=50&status=Pending 200, GET /invoices?page=1&limit=100&status=Pending 200"
+   }
+  ],
+  "total": 16,
+  "tested": 14
+ },
+ "customer-receipts": {
+  "mod": "ventas",
+  "route": "customer-receipts",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Recibo",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NÚMERO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "CLIENTE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "FECHA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "MONTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "NO APLICADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "fila",
+    "type": "",
+    "label": "REC-2026-000002 QA-Cliente-01 Distribuidora Ñandú & Hijos 28",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   }
+  ],
+  "total": 8,
+  "tested": 8
+ },
+ "contacts/customers": {
+  "mod": "ventas",
+  "route": "contacts/customers",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Añadir Cliente",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/contacts/customers/new",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+      "status": 403,
+      "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:47.931Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403 {\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:47.931Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"} "
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE DE LA EMPRESA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "PERSONA DE CONTACTO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "EMAIL",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "TELÉFONO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Cliente-01 Distribuidora Ñandú & Hijos Contacto QA editad",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 7,
+    "tag": "a",
+    "type": "",
+    "label": "QA-Cliente-01 Distribuidora Ñandú & Hijos",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/contacts/customers/8b835f64-15b0-496f-9663-c17aeea4d313/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /customers/8b835f64-15b0-496f-9663-c17aeea4d313 200, GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+      "status": 403,
+      "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:57.957Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403 {\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:57.957Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"} "
+   },
+   {
+    "i": 8,
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/contacts/customers/8b835f64-15b0-496f-9663-c17aeea4d313/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403, GET /customers/8b835f64-15b0-496f-9663-c17aeea4d313 200"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    ],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+      "status": 403,
+      "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:59.792Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403 {\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T08:27:59.792Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"} "
+   },
+   {
+    "i": 9,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 10,
+  "tested": 9
+ },
+ "masters/price-lists": {
+  "mod": "ventas",
+  "route": "masters/price-lists",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Lista",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/price-lists/new",
+     "pestañas 2→3",
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "navega a /e/virtex-dev/masters/price-lists/new · pestañas 2→3 · cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "MONEDA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "VÁLIDO DESDE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "VÁLIDO HASTA",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ÍTEMS",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "ESTADO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Lista Mayoristas DOP 28 de septiembre de 2026 28 de septi",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "a",
+    "type": "",
+    "label": "QA-Lista Mayoristas",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/price-lists/b69b917c-aeef-4120-9a3a-5d8598388020/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /price-lists/b69b917c-aeef-4120-9a3a-5d8598388020 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED net::ERR_ABORTED "
+   },
+   {
+    "i": 10,
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "navega a /e/virtex-dev/masters/price-lists/b69b917c-aeef-4120-9a3a-5d8598388020/edit",
+     "pestañas 2→3",
+     "cambia contenido",
+     "red: GET /price-lists/b69b917c-aeef-4120-9a3a-5d8598388020 200, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED, GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 200"
+    ],
+    "console": [],
+    "apiErrors": [
+     {
+      "method": "GET",
+      "url": "/inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5",
+      "status": "FAILED",
+      "body": "net::ERR_ABORTED"
+     }
+    ],
+    "status": "con falla",
+    "result": "error: GET /inventory/93628f14-8761-4aa8-a91a-fd464aa18ea5 FAILED net::ERR_ABORTED "
+   },
+   {
+    "i": 11,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 12,
+  "tested": 11
+ },
+ "reports/aging/receivables": {
+  "mod": "ventas",
+  "route": "reports/aging/receivables",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "input",
+    "type": "date",
+    "label": "agingAsOf",
+    "disabled": false,
+    "action": "escribir \"2026-09-15\"",
+    "value": "2026-09-15",
+    "effects": [
+     "red: GET /customer-payments/aging?asOfDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /customer-payments/aging?asOfDate=2026-09-15 200"
+   },
+   {
+    "i": 1,
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido",
+     "red: GET /customer-payments/aging?asOfDate=2026-09-15 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /customer-payments/aging?asOfDate=2026-09-15 200"
+   },
+   {
+    "i": 2,
+    "tag": "th",
+    "type": "",
+    "label": "Cliente",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 3,
+    "tag": "th",
+    "type": "",
+    "label": "Corriente",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "1–30 días",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "31–60 días",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "61–90 días",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "Más de 90 días",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "th",
+    "type": "",
+    "label": "Total",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 9,
+    "tag": "fila",
+    "type": "",
+    "label": "QA-Cliente-01 Distribuidora Ñandú & Hijos 2,360.00 0.00 0.00",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   }
+  ],
+  "total": 10,
+  "tested": 10
+ },
+ "documents/repository": {
+  "mod": "workspace",
+  "route": "documents/repository",
+  "elements": [
+   {
+    "i": 0,
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva carpeta",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 1,
+    "tag": "input",
+    "type": "file",
+    "label": "",
+    "disabled": false,
+    "action": "selector de archivo",
+    "status": "pendiente manual",
+    "result": "requiere archivo: se prueba en flujo específico"
+   },
+   {
+    "i": 2,
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar en todos los documentos…",
+    "disabled": false,
+    "action": "escribir \"QA-áéí ñ <b>&\"'\"",
+    "value": "QA-áéí ñ <b>&\"'",
+    "effects": [
+     "cambia contenido",
+     "red: GET /documents?search=QA-%C3%A1%C3%A9%C3%AD%20%C3%B1%20%3Cb%3E%26%22%27 200"
+    ],
+    "console": [
+     "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /documents?search=QA-%C3%A1%C3%A9%C3%AD%20%C3%B1%20%3Cb%3E%26%22%27 200"
+   },
+   {
+    "i": 3,
+    "tag": "button",
+    "type": "button",
+    "label": "Inicio",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido",
+     "red: GET /documents 200, GET /documents 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido · red: GET /documents 200, GET /documents 200"
+   },
+   {
+    "i": 4,
+    "tag": "th",
+    "type": "",
+    "label": "NOMBRE",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 5,
+    "tag": "th",
+    "type": "",
+    "label": "ÚLTIMA MODIFICACIÓN",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 6,
+    "tag": "th",
+    "type": "",
+    "label": "TAMAÑO",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 7,
+    "tag": "th",
+    "type": "",
+    "label": "ACCIONES",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "encabezado no ordenable (sin efecto)",
+    "noSort": true
+   },
+   {
+    "i": 8,
+    "tag": "fila",
+    "type": "",
+    "label": "qa-documento.txt 28/09/2026, 03:54 a.m. 22 B",
+    "disabled": false,
+    "action": "clic",
+    "effects": [],
+    "console": [],
+    "apiErrors": [],
+    "status": "con falla",
+    "result": "sin efecto visible ni llamada de red"
+   },
+   {
+    "i": 9,
+    "tag": "button",
+    "type": "button",
+    "label": "Descargar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "red: GET /documents/e43158e8-992e-4772-a278-587bffe7b1b3/download 200"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "red: GET /documents/e43158e8-992e-4772-a278-587bffe7b1b3/download 200"
+   },
+   {
+    "i": 10,
+    "tag": "button",
+    "type": "button",
+    "label": "Renombrar",
+    "disabled": false,
+    "action": "clic",
+    "effects": [
+     "cambia contenido"
+    ],
+    "console": [],
+    "apiErrors": [],
+    "status": "ok",
+    "result": "cambia contenido"
+   },
+   {
+    "i": 11,
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false,
+    "status": "no probado (auto)",
+    "result": "acción destructiva/irreversible: se prueba manualmente sobre datos QA-"
+   }
+  ],
+  "total": 12,
+  "tested": 10
+ }
+}

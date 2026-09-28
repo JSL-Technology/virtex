@@ -1,0 +1,4691 @@
+[
+ {
+  "mod": "administracion",
+  "full": "masters/taxes",
+  "kind": "LIST",
+  "perm": "taxes:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/taxes",
+  "finalUrl": "/e/virtex-dev/masters/taxes",
+  "ms": 3511,
+  "img": "evidence/inv-administracion-masters_taxes.png",
+  "api": [
+   "GET /taxes 200",
+   "PUT http://localhost:4200/api/v1/me/workspace 404"
+  ],
+  "apiErrors": [
+   {
+    "method": "PUT",
+    "url": "http://localhost:4200/api/v1/me/workspace",
+    "status": 404,
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot PUT /api/v1/me/workspace</pre>\n</body>\n</html>\n"
+   }
+  ],
+  "console": [
+   "Failed to load resource: net::ERR_TOO_MANY_RETRIES",
+   "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo impuesto",
+    "disabled": false,
+    "href": "/masters/taxes/new"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   }
+  ],
+  "textLen": 177,
+  "textHead": "Tasas de impuesto 3 Nuevo impuesto NOMBRE TIPO TASA (%) PAÍS ITBIS 18% Porcentaje 18.00% DO ITBIS Exento 0% Porcentaje 0.00% DO ITBIS Tasa Reducida 16% Porcentaje 16.00% DO"
+ },
+ {
+  "mod": "administracion",
+  "full": "masters/taxes/new",
+  "kind": "DRAFT",
+  "perm": "taxes:create",
+  "url": "http://localhost:4200/e/virtex-dev/masters/taxes/new",
+  "finalUrl": "/e/virtex-dev/masters/taxes/new",
+  "ms": 2768,
+  "img": "evidence/inv-administracion-masters_taxes_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar Impuesto",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "Ej: IVA general",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "rate",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Porcentaje Fijo",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "DO, US, MX",
+    "disabled": false
+   }
+  ],
+  "textLen": 189,
+  "textHead": "Nuevo impuesto Configura una nueva tasa de impuesto para tus transacciones. Sin cambios Cancelar Guardar Impuesto Nombre del Impuesto * Tasa Tipo Porcentaje Fijo Código de País (Opcional)"
+ },
+ {
+  "mod": "administracion",
+  "full": "masters/currencies",
+  "kind": "LIST",
+  "perm": "currencies:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/currencies",
+  "finalUrl": "/e/virtex-dev/masters/currencies",
+  "ms": 2772,
+  "img": "evidence/inv-administracion-masters_currencies.png",
+  "api": [
+   "GET /currencies 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 599,
+  "textHead": "Monedas 23 NOMBRE DE LA MONEDA CÓDIGO SÍMBOLO MONEDA BASE Peso argentino ARS AR$ Boliviano BOB Bs Real brasileño BRL R$ Dólar canadiense CAD CA$ Franco suizo CHF CHF Peso chileno CLP CL$ Yuan chino CNY CN¥ Peso colombiano COP CO$ Colón costarricense CRC ₡ Peso dominicano DOP RD$ Euro EUR €"
+ },
+ {
+  "mod": "administracion",
+  "full": "masters/branches",
+  "kind": "LIST",
+  "perm": "settings:edit_company",
+  "url": "http://localhost:4200/e/virtex-dev/masters/branches",
+  "finalUrl": "/e/virtex-dev/masters/branches",
+  "ms": 2771,
+  "img": "evidence/inv-administracion-masters_branches.png",
+  "api": [
+   "GET /organizations/subsidiaries 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva sucursal",
+    "disabled": false
+   }
+  ],
+  "textLen": 160,
+  "textHead": "Sucursales y ubicaciones Nueva sucursal Todavía no hay sucursales Se crean en Ajustes › Estructura de la empresa, donde se define también su identidad fiscal."
+ },
+ {
+  "mod": "administracion",
+  "full": "masters/extensions",
+  "kind": "LIST",
+  "perm": "extensions:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/extensions",
+  "finalUrl": "/e/virtex-dev/masters/extensions",
+  "ms": 2774,
+  "img": "evidence/inv-administracion-masters_extensions.png",
+  "api": [
+   "GET /extensions 200",
+   "GET /extensions/consents 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Abrir ejecución",
+    "disabled": false,
+    "href": "/masters/extensions/run"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "mi-extension",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "1.0.0",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "egress:http",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "api.taxjar.com",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "code",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "root.innerHTML = '<h3>Hola</h3>'; // usa virtex.api(), virte",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Admitir y registrar",
+    "disabled": true
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "nombre de la extensión",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Ejecutar",
+    "disabled": true
+   }
+  ],
+  "textLen": 517,
+  "textHead": "Extensiones Abrir ejecución Actualizar Todavía no hay extensiones registradas. Registra una a la derecha. Registrar extensión Nombre Versión Descripción Capacidades (separadas por comas) Hosts de salida solicitados Código (lógica de servidor, se ejecuta en el aislamiento) Código de interfaz (opcio"
+ },
+ {
+  "mod": "administracion",
+  "full": "masters/extensions/run",
+  "kind": "CANVAS",
+  "perm": "extensions:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/extensions/run",
+  "finalUrl": "/e/virtex-dev/masters/extensions/run",
+  "ms": 2783,
+  "img": "evidence/inv-administracion-masters_extensions_run.png",
+  "api": [
+   "GET /extensions/runtime 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Ir al gestor de extensiones →",
+    "disabled": false,
+    "href": "/masters/extensions"
+   }
+  ],
+  "textLen": 133,
+  "textHead": "Ejecución de extensiones Actualizar Este inquilino no tiene ninguna extensión de interfaz habilitada. Ir al gestor de extensiones →"
+ },
+ {
+  "mod": "administracion",
+  "full": "manufacturing",
+  "kind": "OVERVIEW",
+  "perm": "manufacturing:view",
+  "url": "http://localhost:4200/e/virtex-dev/manufacturing",
+  "finalUrl": "/e/virtex-dev/manufacturing",
+  "ms": 2759,
+  "img": "evidence/inv-administracion-manufacturing.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 290,
+  "textHead": "Manufactura y producción (MRP) PRÓXIMAMENTE Órdenes de producción Administra órdenes de trabajo activas y programas de producción. Lista de materiales Configura estructuras de producto y listas de componentes. Centros de trabajo Supervisa la capacidad y la eficiencia de cada estación."
+ },
+ {
+  "mod": "administracion",
+  "full": "wms",
+  "kind": "OVERVIEW",
+  "perm": "inventory:view_stock",
+  "url": "http://localhost:4200/e/virtex-dev/wms",
+  "finalUrl": "/e/virtex-dev/wms",
+  "ms": 2768,
+  "img": "evidence/inv-administracion-wms.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 198,
+  "textHead": "Gestión de almacenes (WMS) PRÓXIMAMENTE Inventario en tiempo real Sigue las existencias en varios almacenes. Costos de importación Calcula el costo real del producto incluyendo flete y aranceles."
+ },
+ {
+  "mod": "administracion",
+  "full": "projects",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_sales",
+  "url": "http://localhost:4200/e/virtex-dev/projects",
+  "finalUrl": "/e/virtex-dev/projects",
+  "ms": 2767,
+  "img": "evidence/inv-administracion-projects.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 108,
+  "textHead": "Automatización de servicios y proyectos (PSA) PRÓXIMAMENTE Administra proyectos, recursos y su facturación."
+ },
+ {
+  "mod": "administracion",
+  "full": "procurement",
+  "kind": "OVERVIEW",
+  "perm": "bills:view",
+  "url": "http://localhost:4200/e/virtex-dev/procurement",
+  "finalUrl": "/e/virtex-dev/procurement",
+  "ms": 2763,
+  "img": "evidence/inv-administracion-procurement.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 148,
+  "textHead": "Compras avanzadas y portal de proveedores PRÓXIMAMENTE Administra solicitudes de cotización, requisiciones de compra y la relación con proveedores."
+ },
+ {
+  "mod": "administracion",
+  "full": "contacts/suppliers",
+  "kind": "LIST",
+  "perm": "suppliers:view",
+  "url": "http://localhost:4200/e/virtex-dev/contacts/suppliers",
+  "finalUrl": "/e/virtex-dev/contacts/suppliers",
+  "ms": 2776,
+  "img": "evidence/inv-administracion-contacts_suppliers.png",
+  "api": [
+   "GET /suppliers 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Proveedor",
+    "disabled": false,
+    "href": "/masters/suppliers/new"
+   }
+  ],
+  "textLen": 102,
+  "textHead": "Proveedores Administra la información de tus proveedores. Nuevo Proveedor Todavía no hay nada aquí."
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/financial-statements/balance-sheet",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_financial",
+  "url": "http://localhost:4200/e/virtex-dev/reports/financial-statements/balance-sheet",
+  "finalUrl": "/e/virtex-dev/reports/financial-statements/balance-sheet",
+  "ms": 2772,
+  "img": "evidence/inv-analisis-reports_financial-statements_balance-sheet.png",
+  "api": [
+   "GET /financial-reporting/balance-sheet?asOfDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "balanceSheetAsOf",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 139,
+  "textHead": "Balance General Exportar Actualizar Balance General Al 28/9/2026 — Libro Principal (DOP) No hay movimientos contabilizados en este rango."
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/financial-statements/income-statement",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_financial",
+  "url": "http://localhost:4200/e/virtex-dev/reports/financial-statements/income-statement",
+  "finalUrl": "/e/virtex-dev/reports/financial-statements/income-statement",
+  "ms": 2770,
+  "img": "evidence/inv-analisis-reports_financial-statements_income-statement.png",
+  "api": [
+   "GET /financial-reporting/income-statement?startDate=2026-01-01&endDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-0-from",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-0-to",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 303,
+  "textHead": "Estado de Resultados Desde Hasta Exportar Actualizar Estado de Resultados 1/1/2026 — 28/9/2026 · Libro Principal (DOP) Ingresos Total ingresos 0.00 Costo de ventas Costo de ventas 0.00 Utilidad bruta 0.00 Gastos operacionales Gastos operacionales 0.00 Utilidad operacional 0.00 Resultado neto DOP 0"
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/financial-statements/trial-balance",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_financial",
+  "url": "http://localhost:4200/e/virtex-dev/reports/financial-statements/trial-balance",
+  "finalUrl": "/e/virtex-dev/reports/financial-statements/trial-balance",
+  "ms": 2764,
+  "img": "evidence/inv-analisis-reports_financial-statements_trial-balance.png",
+  "api": [
+   "GET /financial-reporting/trial-balance?startDate=2026-01-01&endDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-1-from",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-1-to",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 194,
+  "textHead": "Balanza de Comprobación Desde Hasta Exportar Actualizar Libro Principal (DOP) La balanza cuadra: el debe y el haber coinciden en cada columna. No hay movimientos contabilizados en este rango."
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/financial-statements/cash-flow",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_financial",
+  "url": "http://localhost:4200/e/virtex-dev/reports/financial-statements/cash-flow",
+  "finalUrl": "/e/virtex-dev/reports/financial-statements/cash-flow",
+  "ms": 2773,
+  "img": "evidence/inv-analisis-reports_financial-statements_cash-flow.png",
+  "api": [
+   "GET /financial-reporting/cash-flow-statement?startDate=2026-01-01&endDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-2-from",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-2-to",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 487,
+  "textHead": "Estado de Flujo de Efectivo Desde Hasta Exportar Actualizar Estado de Flujo de Efectivo 1/1/2026 — 28/9/2026 · Libro Principal (DOP) Efectivo al inicio 0.00 Actividades de operación Resultado neto 0.00 Efectivo generado por la operación 0.00 Actividades de inversión Entradas Salidas Neto Actividad"
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/profitability-by-product",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_sales",
+  "url": "http://localhost:4200/e/virtex-dev/reports/profitability-by-product",
+  "finalUrl": "/e/virtex-dev/reports/profitability-by-product",
+  "ms": 2776,
+  "img": "evidence/inv-analisis-reports_profitability-by-product.png",
+  "api": [
+   "GET /reports/profitability/by-product?startDate=2026-01-01&endDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-3-from",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-3-to",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 202,
+  "textHead": "Rentabilidad por producto Desde Hasta Exportar Actualizar PRODUCTO UNIDADES VENDIDAS INGRESO TOTAL COSTO TOTAL UTILIDAD BRUTA MARGEN BRUTO (%) No hay datos de rentabilidad para el período seleccionado."
+ },
+ {
+  "mod": "analisis",
+  "full": "reports/profitability-by-customer",
+  "kind": "OVERVIEW",
+  "perm": "reports:view_sales",
+  "url": "http://localhost:4200/e/virtex-dev/reports/profitability-by-customer",
+  "finalUrl": "/e/virtex-dev/reports/profitability-by-customer",
+  "ms": 2774,
+  "img": "evidence/inv-analisis-reports_profitability-by-customer.png",
+  "api": [
+   "GET /reports/profitability/by-customer?startDate=2026-01-01&endDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-4-from",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "vx-date-range-4-to",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 191,
+  "textHead": "Rentabilidad por cliente Desde Hasta Exportar Actualizar CLIENTE UNIDADES INGRESO TOTAL COSTO TOTAL UTILIDAD BRUTA MARGEN BRUTO (%) No hay datos de rentabilidad para el período seleccionado."
+ },
+ {
+  "mod": "analisis",
+  "full": "datasheets",
+  "kind": "LIST",
+  "perm": "datasheets:view",
+  "url": "http://localhost:4200/e/virtex-dev/datasheets",
+  "finalUrl": "/e/virtex-dev/datasheets",
+  "ms": 2765,
+  "img": "evidence/inv-analisis-datasheets.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Libro",
+    "disabled": false,
+    "href": "/datasheets/new"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Estado de Resultados Q1",
+    "disabled": false,
+    "href": "/e/virtex-dev/datasheets"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Análisis de Rentabilidad - Laptops",
+    "disabled": false,
+    "href": "/e/virtex-dev/datasheets"
+   }
+  ],
+  "textLen": 262,
+  "textHead": "DataSheets 2 Análisis y hojas de cálculo conectadas al ERP en tiempo real. Nuevo Libro NOMBRE PROPIETARIO ÚLTIMA MODIFICACIÓN Estado de Resultados Q1 Juan Pérez Sep 28, 2026, 5:51:13 AM Análisis de Rentabilidad - Laptops Ana García Sep 28, 2026, 5:51:13 AM"
+ },
+ {
+  "mod": "analisis",
+  "full": "datasheets/:id",
+  "kind": "CANVAS",
+  "perm": "datasheets:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "accounts-payable",
+  "kind": "LIST",
+  "perm": "accounts_payable:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounts-payable",
+  "finalUrl": "/e/virtex-dev/accounts-payable",
+  "ms": 2779,
+  "img": "evidence/inv-compras-accounts-payable.png",
+  "api": [
+   "GET /accounts-payable 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Registrar pago",
+    "disabled": false,
+    "href": "/accounts-payable/payments"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Factura",
+    "disabled": false,
+    "href": "/accounts-payable/new"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Crear Factura",
+    "disabled": false,
+    "href": "/accounts-payable/new"
+   }
+  ],
+  "textLen": 146,
+  "textHead": "Facturas de Proveedor Registrar pago Nueva Factura No hay facturas de proveedor Crea tu primera factura de proveedor para empezar. Crear Factura"
+ },
+ {
+  "mod": "compras",
+  "full": "accounts-payable/new",
+  "kind": "DRAFT",
+  "perm": "accounts_payable:create",
+  "url": "http://localhost:4200/e/virtex-dev/accounts-payable/new",
+  "finalUrl": "/e/virtex-dev/accounts-payable/new",
+  "ms": 2770,
+  "img": "evidence/inv-compras-accounts-payable_new.png",
+  "api": [
+   "GET /currencies 200",
+   "GET /treasury/cash-position 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar factura",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Seleccionar proveedor",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "ncf",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "date",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "dueDate",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "PAB · Balboa panameño BOB · Boliviano VES · Bolívar venezola",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "01 — Efectivo 02 — Cheque o transferencia 03 — Tarjeta 04 — ",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Descripción",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "Cant.",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "Precio",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Cuenta de Gasto",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar línea",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Añadir Línea",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Mostrar",
+    "disabled": false
+   }
+  ],
+  "textLen": 984,
+  "textHead": "Nueva factura de proveedor Sin cambios Cancelar Guardar factura Información General Proveedor * N.º de comprobante fiscal Fecha de Emisión Fecha de Vencimiento Moneda PAB · Balboa panameño BOB · Boliviano VES · Bolívar venezolano CRC · Colón costarricense NIO · Córdoba nicaragüense CAD · Dólar cana"
+ },
+ {
+  "mod": "compras",
+  "full": "accounts-payable/payments",
+  "kind": "DRAFT",
+  "perm": "accounts_payable:pay",
+  "url": "http://localhost:4200/e/virtex-dev/accounts-payable/payments",
+  "finalUrl": "/e/virtex-dev/accounts-payable/payments",
+  "ms": 2759,
+  "img": "evidence/inv-compras-accounts-payable_payments.png",
+  "api": [
+   "GET /treasury/bank-accounts 200",
+   "GET /accounts-payable 200",
+   "GET /treasury/cash-position 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Registrar pago",
+    "disabled": false
+   }
+  ],
+  "textLen": 126,
+  "textHead": "Pagar facturas de proveedor Facturas de Proveedor Sin cambios Cancelar Registrar pago No hay cuentas bancarias registradas."
+ },
+ {
+  "mod": "compras",
+  "full": "accounts-payable/:id/edit",
+  "kind": "DRAFT",
+  "perm": "accounts_payable:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "accounts-payable/:id",
+  "kind": "DOCUMENT",
+  "perm": "accounts_payable:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "masters/suppliers",
+  "kind": "LIST",
+  "perm": "suppliers:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/suppliers",
+  "finalUrl": "/e/virtex-dev/masters/suppliers",
+  "ms": 2766,
+  "img": "evidence/inv-compras-masters_suppliers.png",
+  "api": [
+   "GET /suppliers 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Proveedor",
+    "disabled": false,
+    "href": "/masters/suppliers/new"
+   }
+  ],
+  "textLen": 102,
+  "textHead": "Proveedores Administra la información de tus proveedores. Nuevo Proveedor Todavía no hay nada aquí."
+ },
+ {
+  "mod": "compras",
+  "full": "masters/suppliers/new",
+  "kind": "DRAFT",
+  "perm": "suppliers:create",
+  "url": "http://localhost:4200/e/virtex-dev/masters/suppliers/new",
+  "finalUrl": "/e/virtex-dev/masters/suppliers/new",
+  "ms": 2770,
+  "img": "evidence/inv-compras-masters_suppliers_new.png",
+  "api": [
+   "GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+  ],
+  "apiErrors": [
+   {
+    "method": "GET",
+    "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+    "status": 403,
+    "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T05:51:27.422Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+   }
+  ],
+  "console": [
+   "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar Proveedor",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "contactPerson",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "identityDocumentTypeCode",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "taxId",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "address",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "email",
+    "label": "email",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "tel",
+    "label": "phone",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Afganistán Albania Alemania Andorra Angola Anguila Antártida",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Sin clasificar Persona física Persona jurídica Agente de ret",
+    "disabled": false
+   }
+  ],
+  "textLen": 3325,
+  "textHead": "Nuevo proveedor Completa la información detallada de tu proveedor. Sin cambios Cancelar Guardar Proveedor Información del Proveedor Nombre del proveedor * Persona de Contacto Tipo de documento Número de documento Dirección Correo Electrónico Teléfono País Afganistán Albania Alemania Andorra Angola"
+ },
+ {
+  "mod": "compras",
+  "full": "masters/suppliers/:id/edit",
+  "kind": "DRAFT",
+  "perm": "suppliers:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/orders",
+  "kind": "LIST",
+  "perm": "procurement:view",
+  "url": "http://localhost:4200/e/virtex-dev/purchasing/orders",
+  "finalUrl": "/e/virtex-dev/purchasing/orders",
+  "ms": 2772,
+  "img": "evidence/inv-compras-purchasing_orders.png",
+  "api": [
+   "GET /procurement/orders?page=1&pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Orden",
+    "disabled": false,
+    "href": "/purchasing/orders/new"
+   }
+  ],
+  "textLen": 56,
+  "textHead": "Órdenes de Compra Nueva Orden Todavía no hay nada aquí."
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/orders/new",
+  "kind": "DRAFT",
+  "perm": "procurement:manage",
+  "url": "http://localhost:4200/e/virtex-dev/purchasing/orders/new",
+  "finalUrl": "/e/virtex-dev/purchasing/orders/new",
+  "ms": 2802,
+  "img": "evidence/inv-compras-purchasing_orders_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Buscar o seleccionar…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "orderDate",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "expectedDate",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "notes",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Producto",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "quantity",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "unitPrice",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "taxRate",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Agregar línea",
+    "disabled": false
+   }
+  ],
+  "textLen": 291,
+  "textHead": "Nueva Orden Órdenes de Compra Sin cambios Cancelar Guardar Proveedor * Fecha de la orden Fecha esperada Lo que prometió el proveedor. Notas Líneas de la orden PRODUCTO DESCRIPCIÓN CANTIDAD PRECIO ACORDADO ITBIS TOTAL 0.00 Agregar línea Subtotal 0.00 Impuestos 0.00 Total USD 0.00"
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/orders/:id/edit",
+  "kind": "DRAFT",
+  "perm": "procurement:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/requisitions",
+  "kind": "LIST",
+  "perm": "procurement:view",
+  "url": "http://localhost:4200/e/virtex-dev/purchasing/requisitions",
+  "finalUrl": "/e/virtex-dev/purchasing/requisitions",
+  "ms": 2773,
+  "img": "evidence/inv-compras-purchasing_requisitions.png",
+  "api": [
+   "GET /procurement/requisitions?page=1&pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Requisición",
+    "disabled": false,
+    "href": "/purchasing/requisitions/new"
+   }
+  ],
+  "textLen": 68,
+  "textHead": "Requisiciones de Compra Nueva Requisición Todavía no hay nada aquí."
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/requisitions/new",
+  "kind": "DRAFT",
+  "perm": "procurement:manage",
+  "url": "http://localhost:4200/e/virtex-dev/purchasing/requisitions/new",
+  "finalUrl": "/e/virtex-dev/purchasing/requisitions/new",
+  "ms": 2783,
+  "img": "evidence/inv-compras-purchasing_requisitions_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "requiredDate",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "notes",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Producto",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "quantity",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "estimatedUnitPrice",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Agregar línea",
+    "disabled": false
+   }
+  ],
+  "textLen": 283,
+  "textHead": "Nueva Requisición Requisiciones de Compra Sin cambios Cancelar Guardar Fecha requerida Justificación Lo que leerá quien apruebe. Artículos solicitados PRODUCTO DESCRIPCIÓN CANTIDAD PRECIO ESTIMADO TOTAL 0.00 Agregar línea Total USD 0.00 Estimado: todavía nadie ha cotizado."
+ },
+ {
+  "mod": "compras",
+  "full": "purchasing/requisitions/:id/edit",
+  "kind": "DRAFT",
+  "perm": "procurement:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "compras",
+  "full": "reports/aging/payables",
+  "kind": "OVERVIEW",
+  "perm": "accounts_payable:view",
+  "url": "http://localhost:4200/e/virtex-dev/reports/aging/payables",
+  "finalUrl": "/e/virtex-dev/reports/aging/payables",
+  "ms": 2768,
+  "img": "evidence/inv-compras-reports_aging_payables.png",
+  "api": [
+   "GET /accounts-payable/aging?asOfDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "agingAsOf",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 241,
+  "textHead": "Antigüedad de cuentas por pagar Actualizar Conciliación con la cuenta de control Total del submayor DOP 0.00 Saldo en el mayor DOP 0.00 Diferencia DOP 0.00 El submayor cuadra con la cuenta de control. No hay saldos pendientes a esta fecha."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/chart-of-accounts",
+  "kind": "LIST",
+  "perm": "coa:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/chart-of-accounts",
+  "finalUrl": "/e/virtex-dev/accounting/chart-of-accounts",
+  "ms": 2790,
+  "img": "evidence/inv-contabilidad-accounting_chart-of-accounts.png",
+  "api": [
+   "GET /chart-of-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva Cuenta",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por código o nombre...",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Estado",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Tipo",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "CUENTA",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "TIPO",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "BALANCE",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "ESTADO",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Activo",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "1000",
+    "disabled": false,
+    "href": "/accounting/general-ledger/738a6d06-eee8-4b06-aafa-e9b80e36fb5e"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Pasivo",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "2000",
+    "disabled": false,
+    "href": "/accounting/general-ledger/45e00240-a2e5-42eb-bf56-b37847c7d53a"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Patrimonio",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "3000",
+    "disabled": false,
+    "href": "/accounting/general-ledger/4b49e230-362e-4443-be53-53c9afac1b10"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Ingresos",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "4000",
+    "disabled": false,
+    "href": "/accounting/general-ledger/30d4d347-822c-4b6f-9d02-f6ad14412687"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Gastos",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "5000",
+    "disabled": false,
+    "href": "/accounting/general-ledger/e6e873a5-f1cd-4866-ac13-37a236147a7d"
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Editar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": false
+   }
+  ],
+  "textLen": 365,
+  "textHead": "Catálogo de Cuentas 5 Exportar Nueva Cuenta Todos los Estados Activa Inactiva Todos los Tipos Activo Pasivo Patrimonio Ingreso Gasto CUENTA TIPO BALANCE ESTADO ACCIONES Activo 1000 Activo — Activa Pasivo 2000 Pasivo — Activa Patrimonio 3000 Patrimonio — Activa Ingresos 4000 Ingr"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/chart-of-accounts/segments-configuration",
+  "kind": "DRAFT",
+  "perm": "coa:edit",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/chart-of-accounts/segments-configuration",
+  "finalUrl": "/e/virtex-dev/accounting/chart-of-accounts/segments-configuration",
+  "ms": 2776,
+  "img": "evidence/inv-contabilidad-accounting_chart-of-accounts_segments-configuration.png",
+  "api": [
+   "GET /chart-of-accounts/segment-definitions 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cargar Plantilla",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar Estructura",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Ej: Mayor, Sub-cuenta...",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "length",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "checkbox",
+    "label": "isRequired",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar Nivel",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Agregar Nivel",
+    "disabled": false
+   }
+  ],
+  "textLen": 428,
+  "textHead": "Configuración de Segmentos Define la estructura y longitud de los niveles para tus cuentas contables. Sin cambios Cargar Plantilla Cancelar Guardar Estructura Nota importante: Una vez que comiences a crear cuentas contables, no podrás modificar esta estructura. Asegúrate de que la longitud y cant"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/chart-of-accounts/new",
+  "kind": "DRAFT",
+  "perm": "coa:create",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/chart-of-accounts/new",
+  "finalUrl": "/e/virtex-dev/accounting/chart-of-accounts/new",
+  "ms": 2766,
+  "img": "evidence/inv-contabilidad-accounting_chart-of-accounts_new.png",
+  "api": [
+   "GET /chart-of-accounts/segment-definitions 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar Cuenta",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "General",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Mapeos",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Reglas",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Avanzado",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "code",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "-- Ninguna (Cuenta Raíz) --",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Seleccionar tipo... ASSET LIABILITY EQUITY REVENUE EXPENSE",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "nature",
+    "disabled": true
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Seleccionar categoría... CURRENT_ASSET NON_CURRENT_ASSET CUR",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "checkbox",
+    "label": "isPostable",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "checkbox",
+    "label": "isActive",
+    "disabled": false
+   }
+  ],
+  "textLen": 620,
+  "textHead": "Nueva cuenta contable Completa la información detallada de la cuenta. Sin cambios Cancelar Guardar Cuenta General Mapeos Reglas Avanzado Código de Cuenta * Nombre de la Cuenta * Descripción Cuenta Padre (Agrupadora) Tipo de Cuenta * Seleccionar tipo... ASSET LIABILITY EQUITY REVENUE EXPENSE Natur"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/chart-of-accounts/:id/edit",
+  "kind": "DRAFT",
+  "perm": "coa:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journal-entries",
+  "kind": "LIST",
+  "perm": "journal_entries:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/journal-entries",
+  "finalUrl": "/e/virtex-dev/accounting/journal-entries",
+  "ms": 2762,
+  "img": "evidence/inv-contabilidad-accounting_journal-entries.png",
+  "api": [
+   "GET /journal-entries?page=1&pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Asiento",
+    "disabled": false,
+    "href": "/e/virtex-dev/accounting/journal-entries"
+   }
+  ],
+  "textLen": 59,
+  "textHead": "Asientos Contables Nuevo Asiento Todavía no hay nada aquí."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journal-entries/new",
+  "kind": "DRAFT",
+  "perm": "journal_entries:create",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/journal-entries/new",
+  "finalUrl": "/e/virtex-dev/accounting/journal-entries/new",
+  "ms": 2774,
+  "img": "evidence/inv-contabilidad-accounting_journal-entries_new.png",
+  "api": [
+   "GET /accounting/ledgers 200",
+   "GET /journals 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar asiento",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "date",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Selecciona un libro mayor Libro Principal",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Selecciona un diario Diario de Bancos Diario de Caja Diario ",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Introduce una descripción para el asiento",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Selecciona una cuenta",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "debit",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "credit",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": true
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Selecciona una cuenta",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "debit",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "credit",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Añadir línea",
+    "disabled": false
+   }
+  ],
+  "textLen": 381,
+  "textHead": "Nuevo Asiento Contable Sin cambios Cancelar Guardar asiento Fecha Libro Mayor * Selecciona un libro mayor Libro Principal Diario * Selecciona un diario Diario de Bancos Diario de Caja Diario de Cobros Diario de Compras Diario General Diario de Nómina Diario de Pagos Diario de Ventas Descripción * CU"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journal-entries/import",
+  "kind": "CANVAS",
+  "perm": "journal_entries:create",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/journal-entries/import",
+  "finalUrl": "/e/virtex-dev/accounting/journal-entries/import",
+  "ms": 2771,
+  "img": "evidence/inv-contabilidad-accounting_journal-entries_import.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "",
+    "disabled": false,
+    "href": "/accounting/journal-entries"
+   },
+   {
+    "tag": "div",
+    "type": "button",
+    "label": "Haz clic aquí para seleccionar un fichero (CSV, Excel)",
+    "disabled": false
+   }
+  ],
+  "textLen": 111,
+  "textHead": "Importar Asientos Contables Paso 1: Seleccionar Fichero Haz clic aquí para seleccionar un fichero (CSV, Excel)"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journal-entries/:id/edit",
+  "kind": "DRAFT",
+  "perm": "journal_entries:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/daily-journal",
+  "kind": "LIST",
+  "perm": "journal_entries:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/daily-journal",
+  "finalUrl": "/e/virtex-dev/accounting/daily-journal",
+  "ms": 2771,
+  "img": "evidence/inv-contabilidad-accounting_daily-journal.png",
+  "api": [
+   "GET /chart-of-accounts 200",
+   "GET /journal-entries?page=1&pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": true
+   }
+  ],
+  "textLen": 48,
+  "textHead": "Libro Diario Exportar Todavía no hay nada aquí."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/general-ledger",
+  "kind": "LIST",
+  "perm": "accounting:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/general-ledger",
+  "finalUrl": "/e/virtex-dev/accounting/general-ledger",
+  "ms": 2766,
+  "img": "evidence/inv-contabilidad-accounting_general-ledger.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   }
+  ],
+  "textLen": 68,
+  "textHead": "Libro Mayor Exportar Selecciona una cuenta para ver el libro mayor."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/general-ledger/new",
+  "kind": "DRAFT",
+  "perm": "accounting:manage_ledgers",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/general-ledger/new",
+  "finalUrl": "/e/virtex-dev/accounting/general-ledger/new",
+  "ms": 2772,
+  "img": "evidence/inv-contabilidad-accounting_general-ledger_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar libro",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "Ej: Libro Principal IFRS",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "Ej: Utilizado para reportes financieros bajo NIIF.",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "checkbox",
+    "label": "isDefault",
+    "disabled": false
+   }
+  ],
+  "textLen": 181,
+  "textHead": "Nuevo libro mayor Define un nuevo libro para registrar transacciones contables. Sin cambios Cancelar Guardar libro Nombre del Libro * Descripción Establecer como libro por defecto"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/general-ledger/:id/edit",
+  "kind": "DRAFT",
+  "perm": "accounting:manage_ledgers",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/general-ledger/:accountId",
+  "kind": "LIST",
+  "perm": "accounting:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/subsidiary-ledgers",
+  "kind": "LIST",
+  "perm": "accounting:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/subsidiary-ledgers",
+  "finalUrl": "/e/virtex-dev/accounting/subsidiary-ledgers",
+  "ms": 2787,
+  "img": "evidence/inv-contabilidad-accounting_subsidiary-ledgers.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": true
+   }
+  ],
+  "textLen": 104,
+  "textHead": "Libros Auxiliares Exportar No se encontraron movimientos para este auxiliar en el período seleccionado."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/ledgers",
+  "kind": "LIST",
+  "perm": "accounting:manage_ledgers",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/ledgers",
+  "finalUrl": "/e/virtex-dev/accounting/ledgers",
+  "ms": 2766,
+  "img": "evidence/inv-contabilidad-accounting_ledgers.png",
+  "api": [
+   "GET /accounting/ledgers 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Crear Nuevo Libro",
+    "disabled": false,
+    "href": "/accounting/general-ledger/new"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/general-ledger/a45af47e-85ba-46e4-81c1-a3b5581cdf71/edit"
+   }
+  ],
+  "textLen": 168,
+  "textHead": "Libros Contables 1 Crear Nuevo Libro NOMBRE DESCRIPCIÓN POR DEFECTO Libro Principal Libro contable principal, en la moneda funcional de la organización. Aceptar Editar"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journals",
+  "kind": "LIST",
+  "perm": "journal_entries:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/journals",
+  "finalUrl": "/e/virtex-dev/accounting/journals",
+  "ms": 2770,
+  "img": "evidence/inv-contabilidad-accounting_journals.png",
+  "api": [
+   "GET /journals 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Crear diario",
+    "disabled": false,
+    "href": "/accounting/journals/new"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/e772510a-5896-433b-8198-5138737b4509/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/e14d88b8-1c64-44d1-8e0d-f97e70747065/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/6099d279-73fc-45d3-ae4c-98eb6b75d3c2/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/c844a319-f7b8-4c95-b83f-dc58014463be/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/d13e7a02-5040-49d2-9448-5c1c3b130805/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/95315e04-7fc2-4dbd-85b4-88a033264674/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/3f063f9c-8332-4ce5-94c1-bb3de79e8c82/edit"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Editar",
+    "disabled": false,
+    "href": "/accounting/journals/514f845a-2edf-4482-94c2-53e60c90dc7a/edit"
+   }
+  ],
+  "textLen": 345,
+  "textHead": "Diarios 8 Crear diario NOMBRE CÓDIGO TIPO ACCIONES Diario de Bancos BANCOS BANK Editar Diario de Caja CAJA CASH Editar Diario de Cobros COBROS BANK Editar Diario de Compras COMPRAS PURCHASES Editar Diario General GENERAL GENERAL Editar Diario de Nómina NOMINA GENERAL Editar Diario de Pagos PAGOS BAN"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journals/new",
+  "kind": "DRAFT",
+  "perm": "journal_entries:create",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/journals/new",
+  "finalUrl": "/e/virtex-dev/accounting/journals/new",
+  "ms": 2761,
+  "img": "evidence/inv-contabilidad-accounting_journals_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "code",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Ventas Compras Caja Banco General",
+    "disabled": false
+   }
+  ],
+  "textLen": 98,
+  "textHead": "Nuevo diario Sin cambios Cancelar Guardar Nombre * Código * Tipo Ventas Compras Caja Banco General"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/journals/:id/edit",
+  "kind": "DRAFT",
+  "perm": "journal_entries:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/periods",
+  "kind": "LIST",
+  "perm": "accounting:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/periods",
+  "finalUrl": "/e/virtex-dev/accounting/periods",
+  "ms": 2785,
+  "img": "evidence/inv-contabilidad-accounting_periods.png",
+  "api": [
+   "GET /accounting/periods 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cerrar Período",
+    "disabled": false
+   }
+  ],
+  "textLen": 834,
+  "textHead": "Períodos Contables 12 Actualizar PERÍODO FECHA DE INICIO FECHA DE CIERRE ESTADO ACCIÓN enero de 2026 01/01/2026 31/01/2026 Abierto Cerrar Período febrero de 2026 01/02/2026 28/02/2026 Abierto Cerrar Período marzo de 2026 01/03/2026 31/03/2026 Abierto Cerrar Período abril de 2026 01/04/2026 30/"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/variance-analysis",
+  "kind": "OVERVIEW",
+  "perm": "budgets:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/variance-analysis",
+  "finalUrl": "/e/virtex-dev/accounting/variance-analysis",
+  "ms": 2765,
+  "img": "evidence/inv-contabilidad-accounting_variance-analysis.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Período",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": true
+   }
+  ],
+  "textLen": 170,
+  "textHead": "Análisis de Variaciones (Real vs. Presupuesto) Período Exportar CUENTA REAL PRESUPUESTO VARIACIÓN VARIACIÓN (%) No hay datos disponibles para el análisis de variaciones."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/closing/month-end",
+  "kind": "OVERVIEW",
+  "perm": "accounting:close_period",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/closing/month-end",
+  "finalUrl": "/e/virtex-dev/accounting/closing/month-end",
+  "ms": 2769,
+  "img": "evidence/inv-contabilidad-accounting_closing_month-end.png",
+  "api": [
+   "GET /accounting/periods 200",
+   "GET /accounting/periods/81df8963-3964-47a0-8e52-01b458e9ce99/closing-checklist 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Ir a la tarea",
+    "disabled": false,
+    "href": "/accounting/currency-revaluation"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Ir a la tarea",
+    "disabled": false,
+    "href": "/fixed-assets/depreciation"
+   }
+  ],
+  "textLen": 712,
+  "textHead": "Cierre mensual — enero de 2026 71% completado Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación. Conciliar todas las transacciones bancarias del período. Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación. Devengos pen"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/closing/annual-close",
+  "kind": "OVERVIEW",
+  "perm": "accounting:close_year",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/closing/annual-close",
+  "finalUrl": "/e/virtex-dev/accounting/closing/annual-close",
+  "ms": 2764,
+  "img": "evidence/inv-contabilidad-accounting_closing_annual-close.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 70,
+  "textHead": "Cierre anual El checklist de cierre anual todavía no está disponible."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/audit-adjustments",
+  "kind": "LIST",
+  "perm": "audit:view_trail",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/audit-adjustments",
+  "finalUrl": "/e/virtex-dev/accounting/audit-adjustments",
+  "ms": 2768,
+  "img": "evidence/inv-contabilidad-accounting_audit-adjustments.png",
+  "api": [
+   "GET /accounting/fiscal-years 200",
+   "GET /audit/adjustments?pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Proponer ajuste",
+    "disabled": false
+   }
+  ],
+  "textLen": 240,
+  "textHead": "Ajustes de auditoría Correcciones propuestas por una auditoría sobre un ejercicio ya cerrado. Proponer ajuste Todavía no hay ajustes propuestos. Un ajuste de auditoría corrige un ejercicio ya cerrado y queda registrado con su evidencia."
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/audit-adjustments/new",
+  "kind": "DRAFT",
+  "perm": "audit:propose_adjustment",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/audit-adjustments/new",
+  "finalUrl": "/e/virtex-dev/accounting/audit-adjustments/new",
+  "ms": 2769,
+  "img": "evidence/inv-contabilidad-accounting_audit-adjustments_new.png",
+  "api": [
+   "GET /journals 200",
+   "GET /accounting/fiscal-years?status=CLOSED 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Proponer ajuste",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Elige un ejercicio cerrado…",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Elige un diario… BANCOS — Diario de Bancos CAJA — Diario de ",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Ej. Gasto devengado no registrado",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Elige una cuenta…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "debit",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "credit",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Quitar la línea",
+    "disabled": true
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Elige una cuenta…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "debit",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "credit",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Quitar la línea",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Agregar línea",
+    "disabled": false
+   }
+  ],
+  "textLen": 561,
+  "textHead": "Nuevo ajuste de auditoría Se propone sobre un ejercicio cerrado y se contabiliza cuando se aprueba. Sin cambios Cancelar Proponer ajuste Ejercicio Elige un ejercicio cerrado… Solo se ofrecen ejercicios cerrados: uno abierto admite un asiento ordinario. Diario Elige un diario… BANCOS — Diario de Ba"
+ },
+ {
+  "mod": "contabilidad",
+  "full": "accounting/closing/checklist",
+  "kind": "OVERVIEW",
+  "perm": "accounting:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/closing/checklist",
+  "finalUrl": "/e/virtex-dev/accounting/closing/checklist",
+  "ms": 2781,
+  "img": "evidence/inv-contabilidad-accounting_closing_checklist.png",
+  "api": [
+   "GET /accounting/periods 200",
+   "GET /accounting/periods/81df8963-3964-47a0-8e52-01b458e9ce99/closing-checklist 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "select",
+    "type": "",
+    "label": "01/01/2026 — 31/01/2026 01/02/2026 — 28/02/2026 01/03/2026 —",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Resolver",
+    "disabled": false,
+    "href": "/accounting/currency-revaluation"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Resolver",
+    "disabled": false,
+    "href": "/fixed-assets/depreciation"
+   }
+  ],
+  "textLen": 1042,
+  "textHead": "Listas de verificación del cierre Período 01/01/2026 — 31/01/2026 01/02/2026 — 28/02/2026 01/03/2026 — 31/03/2026 01/04/2026 — 30/04/2026 01/05/2026 — 31/05/2026 01/06/2026 — 30/06/2026 01/07/2026 — 31/07/2026 01/08/2026 — 31/08/2026 01/09/2026 — 30/09/2026 01/10/2026 — 31/10/2026 01/11/2026 — 30/11"
+ },
+ {
+  "mod": "inventario",
+  "full": "inventory/products",
+  "kind": "LIST",
+  "perm": "products:view",
+  "url": "http://localhost:4200/e/virtex-dev/inventory/products",
+  "finalUrl": "/e/virtex-dev/inventory/products",
+  "ms": 2764,
+  "img": "evidence/inv-inventario-inventory_products.png",
+  "api": [
+   "GET /inventory 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Producto",
+    "disabled": false,
+    "href": "/inventory/products/new"
+   },
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por nombre, SKU o categoría...",
+    "disabled": false
+   }
+  ],
+  "textLen": 123,
+  "textHead": "Inventario de Productos Gestiona todos los productos y servicios de tu empresa. Nuevo Producto Todavía no hay nada aquí."
+ },
+ {
+  "mod": "inventario",
+  "full": "inventory/products/new",
+  "kind": "DRAFT",
+  "perm": "products:create",
+  "url": "http://localhost:4200/e/virtex-dev/inventory/products/new",
+  "finalUrl": "/e/virtex-dev/inventory/products/new",
+  "ms": 2770,
+  "img": "evidence/inv-inventario-inventory_products_new.png",
+  "api": [
+   "GET /inventory/categories 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar producto",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "sku",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "file",
+    "label": "imageFile",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "price",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "stock",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "cost",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "reorderLevel",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Sin categoría",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Activo Inactivo",
+    "disabled": false
+   }
+  ],
+  "textLen": 522,
+  "textHead": "Nuevo producto Completa la información detallada de tu producto o servicio. Sin cambios Cancelar Guardar producto Información Básica Nombre del Producto * SKU (Código de Producto) Descripción Imagen del Producto Subir imagen Precios y Stock Precio de Venta Cantidad en Stock Costo Unitario Lo que t"
+ },
+ {
+  "mod": "inventario",
+  "full": "inventory/products/:id/edit",
+  "kind": "DRAFT",
+  "perm": "products:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "inventario",
+  "full": "inventory/categories",
+  "kind": "LIST",
+  "perm": "products:view",
+  "url": "http://localhost:4200/e/virtex-dev/inventory/categories",
+  "finalUrl": "/e/virtex-dev/inventory/categories",
+  "ms": 2777,
+  "img": "evidence/inv-inventario-inventory_categories.png",
+  "api": [
+   "GET /inventory/categories 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva Categoría",
+    "disabled": false
+   }
+  ],
+  "textLen": 159,
+  "textHead": "Categorías Organiza tus productos en diferentes categorías. Nueva Categoría Todavía no hay categorías. Crea la primera para empezar a organizar el catálogo."
+ },
+ {
+  "mod": "inventario",
+  "full": "masters/warehouses",
+  "kind": "LIST",
+  "perm": "inventory:view_stock",
+  "url": "http://localhost:4200/e/virtex-dev/masters/warehouses",
+  "finalUrl": "/e/virtex-dev/masters/warehouses",
+  "ms": 2759,
+  "img": "evidence/inv-inventario-masters_warehouses.png",
+  "api": [
+   "GET /wms/warehouses 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo almacén",
+    "disabled": false
+   }
+  ],
+  "textLen": 114,
+  "textHead": "Almacenes Nuevo almacén Todavía no hay almacenes Crea el primero para poder asignarle existencias y movimientos."
+ },
+ {
+  "mod": "inventario",
+  "full": "masters/units-of-measure",
+  "kind": "LIST",
+  "perm": "units_of_measure:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/units-of-measure",
+  "finalUrl": "/e/virtex-dev/masters/units-of-measure",
+  "ms": 2763,
+  "img": "evidence/inv-inventario-masters_units-of-measure.png",
+  "api": [
+   "GET /units-of-measure 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 114,
+  "textHead": "Unidades de medida Todavía no hay unidades de medida Crea las que uses para contar, pesar o medir lo que vendes."
+ },
+ {
+  "mod": "rrhh",
+  "full": "payroll/my-payslips",
+  "kind": "LIST",
+  "perm": "payroll:view_own",
+  "url": "http://localhost:4200/e/virtex-dev/payroll/my-payslips",
+  "finalUrl": "/e/virtex-dev/payroll/my-payslips",
+  "ms": 2771,
+  "img": "evidence/inv-rrhh-payroll_my-payslips.png",
+  "api": [
+   "GET /payroll/me/payslips 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 47,
+  "textHead": "Mis volantes de pago Todavía no hay nada aquí."
+ },
+ {
+  "mod": "rrhh",
+  "full": "payroll/runs",
+  "kind": "LIST",
+  "perm": "payroll:view",
+  "url": "http://localhost:4200/e/virtex-dev/payroll/runs",
+  "finalUrl": "/e/virtex-dev/payroll/runs",
+  "ms": 2769,
+  "img": "evidence/inv-rrhh-payroll_runs.png",
+  "api": [
+   "GET /payroll/runs?page=1&pageSize=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva nómina",
+    "disabled": false
+   }
+  ],
+  "textLen": 47,
+  "textHead": "Nóminas Nueva nómina Todavía no hay nada aquí."
+ },
+ {
+  "mod": "rrhh",
+  "full": "payroll/runs/:id",
+  "kind": "DOCUMENT",
+  "perm": "payroll:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "rrhh",
+  "full": "hcm/employees",
+  "kind": "LIST",
+  "perm": "hcm:view",
+  "url": "http://localhost:4200/e/virtex-dev/hcm/employees",
+  "finalUrl": "/e/virtex-dev/hcm/employees",
+  "ms": 2764,
+  "img": "evidence/inv-rrhh-hcm_employees.png",
+  "api": [
+   "GET /hcm/employees?pageSize=200 200",
+   "GET /hcm/departments 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo empleado",
+    "disabled": false,
+    "href": "/hcm/employees/new"
+   },
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por nombre, correo o puesto…",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "checkbox",
+    "label": "",
+    "disabled": false
+   }
+  ],
+  "textLen": 73,
+  "textHead": "Empleados Nuevo empleado Incluir desvinculados Todavía no hay nada aquí."
+ },
+ {
+  "mod": "rrhh",
+  "full": "hcm/employees/new",
+  "kind": "DRAFT",
+  "perm": "hcm:manage",
+  "url": "http://localhost:4200/e/virtex-dev/hcm/employees/new",
+  "finalUrl": "/e/virtex-dev/hcm/employees/new",
+  "ms": 2792,
+  "img": "evidence/inv-rrhh-hcm_employees_new.png",
+  "api": [
+   "GET /hcm/departments 200",
+   "GET /hcm/identity-document-types 200",
+   "GET /hcm/statutory-identifier-types 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "firstName",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "lastName",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "email",
+    "label": "email",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "jobTitle",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "departmentId",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "hireDate",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Cédula Pasaporte",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "001-1234567-8",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "bankName",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "bankAccountNumber",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "bankAccountType",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Activo Suspendido Desvinculado",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Indefinido Tiempo determinado Ocasional",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "terminationDate",
+    "disabled": false
+   }
+  ],
+  "textLen": 513,
+  "textHead": "Nuevo empleado Empleados Sin cambios Cancelar Guardar Datos personales Nombres * Apellidos * Correo * Puesto Departamento Fecha de ingreso Identidad fiscal y seguridad social Tipo de documento Cédula Pasaporte Documento Cifrado. Déjalo en blanco para no cambiarlo. Número de seguridad social Fondo "
+ },
+ {
+  "mod": "rrhh",
+  "full": "hcm/employees/:id/edit",
+  "kind": "DRAFT",
+  "perm": "hcm:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "rrhh",
+  "full": "hcm/departments",
+  "kind": "LIST",
+  "perm": "hcm:view",
+  "url": "http://localhost:4200/e/virtex-dev/hcm/departments",
+  "finalUrl": "/e/virtex-dev/hcm/departments",
+  "ms": 2768,
+  "img": "evidence/inv-rrhh-hcm_departments.png",
+  "api": [
+   "GET /hcm/departments 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo departamento",
+    "disabled": false
+   }
+  ],
+  "textLen": 59,
+  "textHead": "Departamentos Nuevo departamento Todavía no hay nada aquí."
+ },
+ {
+  "mod": "rrhh",
+  "full": "payroll/concepts",
+  "kind": "LIST",
+  "perm": "payroll:view",
+  "url": "http://localhost:4200/e/virtex-dev/payroll/concepts",
+  "finalUrl": "/e/virtex-dev/payroll/concepts",
+  "ms": 2766,
+  "img": "evidence/inv-rrhh-payroll_concepts.png",
+  "api": [
+   "GET /payroll/concepts?includeInactive=false 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo concepto",
+    "disabled": false
+   }
+  ],
+  "textLen": 61,
+  "textHead": "Conceptos de nómina Nuevo concepto Todavía no hay nada aquí."
+ },
+ {
+  "mod": "rrhh",
+  "full": "payroll/parameters",
+  "kind": "OVERVIEW",
+  "perm": "payroll:view",
+  "url": "http://localhost:4200/e/virtex-dev/payroll/parameters",
+  "finalUrl": "/e/virtex-dev/payroll/parameters",
+  "ms": 2796,
+  "img": "evidence/inv-rrhh-payroll_parameters.png",
+  "api": [
+   "GET /payroll/parameters/contributions?country=DO 200",
+   "GET /payroll/parameters/references?country=DO 200",
+   "GET /payroll/parameters/tax-brackets?country=DO 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 1062,
+  "textHead": "Parámetros de ley Una tasa es un hecho de un momento: nada se edita en su sitio. Un cambio es una fila nueva con su fecha de vigencia, para que una nómina recalculada después siga produciendo lo que produjo entonces. Aportes de seguridad social RÉGIMEN TASA DEL EMPLEADO TASA PATRONAL BASE VIGENCIA"
+ },
+ {
+  "mod": "tesoreria",
+  "full": "accounting/treasury",
+  "kind": "OVERVIEW",
+  "perm": "treasury:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/treasury",
+  "finalUrl": "/e/virtex-dev/accounting/treasury",
+  "ms": 2790,
+  "img": "evidence/inv-tesoreria-accounting_treasury.png",
+  "api": [
+   "GET /treasury/bank-accounts 200",
+   "GET /treasury/bank-transfers?pageSize=25 200",
+   "GET /treasury/cash-position?asOfDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "treasuryAsOf",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva cuenta bancaria",
+    "disabled": false,
+    "href": "/e/virtex-dev/accounting/treasury"
+   }
+  ],
+  "textLen": 158,
+  "textHead": "Posición de efectivo Actualizar Nueva cuenta bancaria No hay cuentas bancarias registradas. Transferencias entre cuentas No hay transferencias registradas."
+ },
+ {
+  "mod": "tesoreria",
+  "full": "accounting/treasury/bank-accounts/new",
+  "kind": "DRAFT",
+  "perm": "treasury:manage_accounts",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/treasury/bank-accounts/new",
+  "finalUrl": "/e/virtex-dev/accounting/treasury/bank-accounts/new",
+  "ms": 2765,
+  "img": "evidence/inv-tesoreria-accounting_treasury_bank-accounts_new.png",
+  "api": [
+   "GET /currencies 200",
+   "GET /chart-of-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "bankName",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "accountNumber",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Corriente Ahorros Caja / efectivo Tarjeta de crédito",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "PAB BOB VES CRC NIO CAD USD EUR CHF PYG HNL GBP ARS CLP COP ",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "1110 — Efectivo y Equivalentes de Efectivo 1120 — Bancos 116",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "openingBalance",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "iban",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "swiftBic",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "notes",
+    "disabled": false
+   }
+  ],
+  "textLen": 546,
+  "textHead": "Nueva cuenta bancaria Cuentas bancarias Sin cambios Cancelar Guardar Nombre * Banco Número Tipo de cuenta * Corriente Ahorros Caja / efectivo Tarjeta de crédito Moneda * PAB BOB VES CRC NIO CAD USD EUR CHF PYG HNL GBP ARS CLP COP DOP MXN UYU GTQ BRL PEN JPY CNY Cuenta contable * 1110 — Efectivo y "
+ },
+ {
+  "mod": "tesoreria",
+  "full": "accounting/treasury/bank-accounts/:id/edit",
+  "kind": "DRAFT",
+  "perm": "treasury:manage_accounts",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "tesoreria",
+  "full": "accounting/reconciliation/import",
+  "kind": "DRAFT",
+  "perm": "reconciliation:import",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/reconciliation/import",
+  "finalUrl": "/e/virtex-dev/accounting/reconciliation/import",
+  "ms": 2764,
+  "img": "evidence/inv-tesoreria-accounting_reconciliation_import.png",
+  "api": [
+   "GET /treasury/bank-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Importar estado de cuenta",
+    "disabled": false
+   }
+  ],
+  "textLen": 135,
+  "textHead": "Importar estado de cuenta Conciliación bancaria Sin cambios Cancelar Importar estado de cuenta No hay cuentas bancarias registradas."
+ },
+ {
+  "mod": "tesoreria",
+  "full": "accounting/reconciliation",
+  "kind": "OVERVIEW",
+  "perm": "reconciliation:view",
+  "url": "http://localhost:4200/e/virtex-dev/accounting/reconciliation",
+  "finalUrl": "/e/virtex-dev/accounting/reconciliation",
+  "ms": 2780,
+  "img": "evidence/inv-tesoreria-accounting_reconciliation.png",
+  "api": [
+   "GET /treasury/bank-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Importar estado de cuenta",
+    "disabled": false,
+    "href": "/accounting/reconciliation/import"
+   }
+  ],
+  "textLen": 86,
+  "textHead": "Conciliación bancaria Importar estado de cuenta No hay cuentas bancarias registradas."
+ },
+ {
+  "mod": "tesoreria",
+  "full": "masters/banks",
+  "kind": "LIST",
+  "perm": "treasury:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/banks",
+  "finalUrl": "/e/virtex-dev/masters/banks",
+  "ms": 2767,
+  "img": "evidence/inv-tesoreria-masters_banks.png",
+  "api": [
+   "GET /treasury/bank-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo banco",
+    "disabled": false
+   }
+  ],
+  "textLen": 105,
+  "textHead": "Bancos Nuevo banco Todavía no hay bancos Un banco aparece aquí al abrir una cuenta con él en Tesorería."
+ },
+ {
+  "mod": "tesoreria",
+  "full": "masters/payment-methods",
+  "kind": "LIST",
+  "perm": "treasury:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/payment-methods",
+  "finalUrl": "/e/virtex-dev/masters/payment-methods",
+  "ms": 2768,
+  "img": "evidence/inv-tesoreria-masters_payment-methods.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 207,
+  "textHead": "Formas de pago 7 Las fija la DGII para los comprobantes fiscales; no se añaden ni se editan. CÓDIGO NOMBRE 01 Efectivo 02 Cheque o transferencia 03 Tarjeta 04 Crédito 05 Permuta 06 Nota de crédito 07 Mixto"
+ },
+ {
+  "mod": "tesoreria",
+  "full": "masters/payment-terms",
+  "kind": "LIST",
+  "perm": "treasury:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/payment-terms",
+  "finalUrl": "/e/virtex-dev/masters/payment-terms",
+  "ms": 2763,
+  "img": "evidence/inv-tesoreria-masters_payment-terms.png",
+  "api": [
+   "GET /customers 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 223,
+  "textHead": "Condiciones de pago Las condiciones se fijan en cada cliente; aquí se ve cuáles están en uso. Ningún cliente tiene condiciones de pago Fíjalas en la ficha del cliente: son las que calculan el vencimiento de sus facturas."
+ },
+ {
+  "mod": "ventas",
+  "full": "invoices",
+  "kind": "LIST",
+  "perm": "invoices:view",
+  "url": "http://localhost:4200/e/virtex-dev/invoices",
+  "finalUrl": "/e/virtex-dev/invoices",
+  "ms": 2769,
+  "img": "evidence/inv-ventas-invoices.png",
+  "api": [
+   "GET /invoices?page=1&limit=50 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva factura de venta",
+    "disabled": false,
+    "href": "/invoices/new"
+   },
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar por cliente o número de factura...",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Todos Cobrada Pendiente Parcial Anulada",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Página anterior",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Página siguiente",
+    "disabled": true
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "25 50 100",
+    "disabled": false
+   }
+  ],
+  "textLen": 216,
+  "textHead": "Facturas Gestión completa de facturación y seguimiento de documentos. Exportar Nueva factura de venta Estado: Todos Cobrada Pendiente Parcial Anulada Todavía no hay nada aquí. Página 1 Filas por página 25 50 100"
+ },
+ {
+  "mod": "ventas",
+  "full": "invoices/new",
+  "kind": "DRAFT",
+  "perm": "invoices:create",
+  "url": "http://localhost:4200/e/virtex-dev/invoices/new",
+  "finalUrl": "/e/virtex-dev/invoices/new",
+  "ms": 2800,
+  "img": "evidence/inv-ventas-invoices_new.png",
+  "api": [
+   "GET /currencies 200",
+   "GET /invoices/context 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Emitir factura",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar borrador",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Ir a la configuración fiscal",
+    "disabled": false,
+    "href": "/settings/fiscal"
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Volver",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Avanzar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Imprimir",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Enviar por correo",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Búsqueda sobre documento",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Exportar a PDF",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Exportar a Excel",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Exportar a Word",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Copiar de",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Copiar a",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Parametrizaciones de formulario",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Ayuda",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Contenido",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Fiscal y cobro",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Busca por nombre, documento o correo…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "issueDate",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "dueDate",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "PAB · Balboa panameño BOB · Boliviano VES · Bolívar venezola",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "description",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "quantity",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "unitPrice",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "discountRate",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Gravado Tasa cero Exento",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "18% 16% 0%",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Eliminar línea",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "+ Añadir línea",
+    "disabled": false
+   },
+   {
+    "tag": "textarea",
+    "type": "",
+    "label": "notes",
+    "disabled": false
+   }
+  ],
+  "textLen": 1012,
+  "textHead": "Crear factura de venta Facturas Sin cambios Emitir factura Cancelar Guardar borrador Todavía no puedes emitir comprobantes. un rango de comprobantes fiscales activo (Ajustes › Facturación electrónica) Ir a la configuración fiscal Copiar de Copiar a Contenido Fiscal y cobro Cliente * Fecha de emis"
+ },
+ {
+  "mod": "ventas",
+  "full": "invoices/:id",
+  "kind": "DOCUMENT",
+  "perm": "invoices:view",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "ventas",
+  "full": "customer-receipts",
+  "kind": "LIST",
+  "perm": "accounts_receivable:view",
+  "url": "http://localhost:4200/e/virtex-dev/customer-receipts",
+  "finalUrl": "/e/virtex-dev/customer-receipts",
+  "ms": 2785,
+  "img": "evidence/inv-ventas-customer-receipts.png",
+  "api": [
+   "GET /customers 200",
+   "GET /customer-payments 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nuevo Recibo",
+    "disabled": false,
+    "href": "/e/virtex-dev/customer-receipts"
+   }
+  ],
+  "textLen": 104,
+  "textHead": "Recibos de Cliente Nuevo Recibo No hay recibos de cliente Crea tu primer recibo para registrar un pago."
+ },
+ {
+  "mod": "ventas",
+  "full": "customer-receipts/new",
+  "kind": "DRAFT",
+  "perm": "accounts_receivable:collect",
+  "url": "http://localhost:4200/e/virtex-dev/customer-receipts/new",
+  "finalUrl": "/e/virtex-dev/customer-receipts/new",
+  "ms": 2802,
+  "img": "evidence/inv-ventas-customer-receipts_new.png",
+  "api": [
+   "GET /treasury/bank-accounts 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Busca por nombre, documento o correo…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "paymentDate",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Buscar o seleccionar…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "amountReceived",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "currencyCode",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Transferencia Efectivo Cheque Tarjeta Otro",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "reference",
+    "disabled": false
+   }
+  ],
+  "textLen": 371,
+  "textHead": "Nuevo Recibo Recibos de Cliente Sin cambios Cancelar Guardar Cliente * Fecha Cuenta bancaria * Monto recibido * Moneda La moneda la determina la cuenta bancaria. Forma de pago Transferencia Efectivo Cheque Tarjeta Otro Referencia Facturas a aplicar Este cliente no tiene facturas con saldo pendi"
+ },
+ {
+  "mod": "ventas",
+  "full": "contacts/customers",
+  "kind": "LIST",
+  "perm": "customers:view",
+  "url": "http://localhost:4200/e/virtex-dev/contacts/customers",
+  "finalUrl": "/e/virtex-dev/contacts/customers",
+  "ms": 2799,
+  "img": "evidence/inv-ventas-contacts_customers.png",
+  "api": [
+   "GET /customers 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Añadir Cliente",
+    "disabled": false,
+    "href": "/contacts/customers/new"
+   }
+  ],
+  "textLen": 108,
+  "textHead": "Clientes Administra tu base de datos de clientes y su historial. Añadir Cliente Todavía no hay nada aquí."
+ },
+ {
+  "mod": "ventas",
+  "full": "contacts/customers/new",
+  "kind": "DRAFT",
+  "perm": "customers:create",
+  "url": "http://localhost:4200/e/virtex-dev/contacts/customers/new",
+  "finalUrl": "/e/virtex-dev/contacts/customers/new",
+  "ms": 2782,
+  "img": "evidence/inv-ventas-contacts_customers_new.png",
+  "api": [
+   "GET /localization/identity-document-types?appliesTo=both&usedFor=invoicing 403"
+  ],
+  "apiErrors": [
+   {
+    "method": "GET",
+    "url": "/localization/identity-document-types?appliesTo=both&usedFor=invoicing",
+    "status": 403,
+    "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T05:53:46.172Z\",\"path\":\"/api/v1/localization/identity-document-types?appliesTo=both&usedFor=invoicing\"}"
+   }
+  ],
+  "console": [
+   "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar cliente",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "companyName",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "contactPerson",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "identityDocumentTypeCode",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "taxId",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Sin clasificar Persona física Persona jurídica Agente de ret",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "email",
+    "label": "email",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "tel",
+    "label": "phone",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "address",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "city",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "stateOrProvince",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "postalCode",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Afganistán Albania Alemania Andorra Angola Anguila Antártida",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Neto 30",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "paymentTermDays",
+    "disabled": false
+   }
+  ],
+  "textLen": 3544,
+  "textHead": "Nuevo cliente Completa la información detallada de tu cliente. Sin cambios Cancelar Guardar cliente Información Principal Nombre del cliente * Persona de Contacto Tipo de documento Número de documento Tipo de contribuyente Sin clasificar Persona física Persona jurídica Agente de retención designad"
+ },
+ {
+  "mod": "ventas",
+  "full": "contacts/customers/:id/edit",
+  "kind": "DRAFT",
+  "perm": "customers:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "ventas",
+  "full": "masters/price-lists",
+  "kind": "LIST",
+  "perm": "price_lists:view",
+  "url": "http://localhost:4200/e/virtex-dev/masters/price-lists",
+  "finalUrl": "/e/virtex-dev/masters/price-lists",
+  "ms": 2773,
+  "img": "evidence/inv-ventas-masters_price-lists.png",
+  "api": [
+   "GET /price-lists 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Lista",
+    "disabled": false,
+    "href": "/masters/price-lists/new"
+   }
+  ],
+  "textLen": 56,
+  "textHead": "Listas de Precios Nueva Lista Todavía no hay nada aquí."
+ },
+ {
+  "mod": "ventas",
+  "full": "masters/price-lists/new",
+  "kind": "DRAFT",
+  "perm": "price_lists:create",
+  "url": "http://localhost:4200/e/virtex-dev/masters/price-lists/new",
+  "finalUrl": "/e/virtex-dev/masters/price-lists/new",
+  "ms": 2765,
+  "img": "evidence/inv-ventas-masters_price-lists_new.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Cancelar",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Guardar lista",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "",
+    "label": "name",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Draft Active Inactive",
+    "disabled": false
+   },
+   {
+    "tag": "select",
+    "type": "",
+    "label": "USD - Dólar Estadounidense DOP - Peso Dominicano EUR - Euro",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "validFrom",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "validTo",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Producto",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "number",
+    "label": "price",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "",
+    "disabled": true
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Añadir Línea",
+    "disabled": false
+   }
+  ],
+  "textLen": 331,
+  "textHead": "Nueva lista de precios Define precios para un conjunto específico de productos. Sin cambios Cancelar Guardar lista Nombre de la Lista * Estado Draft Active Inactive Moneda USD - Dólar Estadounidense DOP - Peso Dominicano EUR - Euro Válido Desde Válido Hasta Ítems de la Lista de Precios PRODUCTO PR"
+ },
+ {
+  "mod": "ventas",
+  "full": "masters/price-lists/:id/edit",
+  "kind": "DRAFT",
+  "perm": "price_lists:edit",
+  "skipped": "ruta con parámetro: se cubre desde su lista"
+ },
+ {
+  "mod": "ventas",
+  "full": "sales/history",
+  "kind": "LIST",
+  "perm": "invoices:view",
+  "url": "http://localhost:4200/e/virtex-dev/sales/history",
+  "finalUrl": "/e/virtex-dev/sales/history",
+  "ms": 2766,
+  "img": "evidence/inv-ventas-sales_history.png",
+  "api": [
+   "GET /pos/sales 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Exportar",
+    "disabled": false
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Nueva Venta",
+    "disabled": false,
+    "href": "/sales/pos"
+   }
+  ],
+  "textLen": 216,
+  "textHead": "Historial de Ventas Consulta, filtra y gestiona todas las transacciones registradas. Exportar Nueva Venta Todavía no hay ventas de caja Aquí aparece cada venta cobrada en el punto de venta, en cuanto se registra."
+ },
+ {
+  "mod": "ventas",
+  "full": "sales/pos",
+  "kind": "CANVAS",
+  "perm": "invoices:create",
+  "url": "http://localhost:4200/e/virtex-dev/sales/pos",
+  "finalUrl": "/e/virtex-dev/sales/pos",
+  "ms": 2782,
+  "img": "evidence/inv-ventas-sales_pos.png",
+  "api": [
+   "GET /inventory 200",
+   "GET /pos/shifts/active?terminalId=main 200",
+   "GET /invoices/context 200",
+   "POST /pos/shifts 201"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "text",
+    "label": "Buscar productos por nombre o SKU...",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Cobrar",
+    "disabled": true
+   }
+  ],
+  "textLen": 151,
+  "textHead": "Orden Actual Cliente: Cliente General Añade productos para comenzar una venta. Subtotal DOP 0.00 Impuestos (18%) DOP 0.00 Total a Pagar DOP 0.00 Cobrar"
+ },
+ {
+  "mod": "ventas",
+  "full": "reports/aging/receivables",
+  "kind": "OVERVIEW",
+  "perm": "accounts_receivable:view",
+  "url": "http://localhost:4200/e/virtex-dev/reports/aging/receivables",
+  "finalUrl": "/e/virtex-dev/reports/aging/receivables",
+  "ms": 2766,
+  "img": "evidence/inv-ventas-reports_aging_receivables.png",
+  "api": [
+   "GET /customer-payments/aging?asOfDate=2026-09-28 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "date",
+    "label": "agingAsOf",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 242,
+  "textHead": "Antigüedad de cuentas por cobrar Actualizar Conciliación con la cuenta de control Total del submayor DOP 0.00 Saldo en el mayor DOP 0.00 Diferencia DOP 0.00 El submayor cuadra con la cuenta de control. No hay saldos pendientes a esta fecha."
+ },
+ {
+  "mod": "workspace",
+  "full": "overview",
+  "kind": "OVERVIEW",
+  "perm": "authenticated",
+  "url": "http://localhost:4200/e/virtex-dev/overview",
+  "finalUrl": "/e/virtex-dev/overview",
+  "ms": 2773,
+  "img": "evidence/inv-workspace-overview.png",
+  "api": [
+   "GET /overview/news 200",
+   "GET /overview/activity?limit=8 200",
+   "GET /overview/events?days=30&limit=8 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva factura",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Ver dashboard financiero",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva factura",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva cotización",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo cliente",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nuevo producto",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Ver facturas",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Reportes",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Actualizar",
+    "disabled": false
+   }
+  ],
+  "textLen": 456,
+  "textHead": "Buenos días, Dev👋 Lunes, 28 Sept · Aquí tienes un resumen de tu día. Nueva factura Ver dashboard financiero Accesos rápidos Nueva factura Nueva cotización Nuevo cliente Nuevo producto Ver facturas Reportes Actividad reciente Aún no hay actividad reciente. Novedades de Virtex No hay novedades por "
+ },
+ {
+  "mod": "workspace",
+  "full": "my-work",
+  "kind": "INBOX",
+  "perm": "authenticated",
+  "url": "http://localhost:4200/e/virtex-dev/my-work",
+  "finalUrl": "/e/virtex-dev/my-work",
+  "ms": 2770,
+  "img": "evidence/inv-workspace-my-work.png",
+  "api": [
+   "GET http://localhost:4200/api/v1/me/inbox 200",
+   "GET /my-work 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Seguridad",
+    "disabled": false
+   }
+  ],
+  "textLen": 115,
+  "textHead": "Mi trabajo Tu bandeja centralizada de tareas, aprobaciones y notificaciones. Seguridad No tienes nada pendiente."
+ },
+ {
+  "mod": "workspace",
+  "full": "approvals",
+  "kind": "INBOX",
+  "perm": "workflows:decide",
+  "url": "http://localhost:4200/e/virtex-dev/approvals",
+  "finalUrl": "/e/virtex-dev/approvals",
+  "ms": 2774,
+  "img": "evidence/inv-workspace-approvals.png",
+  "api": [
+   "GET /workflows/approvals/pending 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [],
+  "textLen": 124,
+  "textHead": "Centro de Aprobaciones Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa. No tienes nada pendiente."
+ },
+ {
+  "mod": "workspace",
+  "full": "dashboard",
+  "kind": "OVERVIEW",
+  "perm": "dashboard:view",
+  "url": "http://localhost:4200/e/virtex-dev/dashboard",
+  "finalUrl": "/e/virtex-dev/dashboard",
+  "ms": 2802,
+  "img": "evidence/inv-workspace-dashboard.png",
+  "api": [
+   "GET /dashboard/kpi/ebitda 200",
+   "GET /dashboard/kpi/fcf 200",
+   "GET /dashboard/kpi/net-margin 200",
+   "GET /dashboard/budget-vs-actual?months=12 200",
+   "GET /dashboard/kpi/leverage 200",
+   "GET /dashboard/consolidated-cash-flow-waterfall 200",
+   "GET /dashboard/kpi/current-ratio 200",
+   "GET /dashboard/kpi/quick-ratio 200",
+   "GET /dashboard/kpi/working-capital 200",
+   "GET /dashboard/kpi/roe 200",
+   "GET /dashboard/kpi/roa 200",
+   "GET /dashboard/alerts 200",
+   "GET /overview/activity?limit=6 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Editar Layout",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Exportar",
+    "disabled": false
+   }
+  ],
+  "textLen": 1257,
+  "textHead": "Dashboard Lunes, 28 Sept · Un Resumen De La Actividad De Tu Negocio. Arrastra Y Ajusta Los Widgets A Tu Gusto. Editar Layout EBITDA USD 0.00 vs Presupuesto MARGEN NETO 0.00% vs Año Anterior FLUJO DE CAJA LIBRE USD 0.00 vs Presupuesto APALANCAMIENTO (D/E) 0.00 vs Trimestre Anterior Presupuesto vs"
+ },
+ {
+  "mod": "workspace",
+  "full": "notifications",
+  "kind": "LIST",
+  "perm": "authenticated",
+  "url": "http://localhost:4200/e/virtex-dev/notifications",
+  "finalUrl": "/e/virtex-dev/notifications",
+  "ms": 2771,
+  "img": "evidence/inv-workspace-notifications.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Marcar todas como leídas",
+    "disabled": false
+   }
+  ],
+  "textLen": 180,
+  "textHead": "Notificaciones Mantente al día con las últimas actualizaciones y alertas de tu cuenta. Marcar todas como leídas Todo está al día No tienes notificaciones nuevas en este momento."
+ },
+ {
+  "mod": "workspace",
+  "full": "global-search",
+  "kind": "LIST",
+  "perm": "authenticated",
+  "url": "http://localhost:4200/e/virtex-dev/global-search",
+  "finalUrl": "/e/virtex-dev/global-search",
+  "ms": 2767,
+  "img": "evidence/inv-workspace-global-search.png",
+  "api": [
+   "GET /localization/identity-document-types 403"
+  ],
+  "apiErrors": [
+   {
+    "method": "GET",
+    "url": "/localization/identity-document-types",
+    "status": 403,
+    "body": "{\"statusCode\":403,\"code\":\"auth.you_do_not_have_permission_perform\",\"messageKey\":\"auth.you_do_not_have_permission_perform\",\"params\":{},\"timestamp\":\"2026-09-28T05:54:16.711Z\",\"path\":\"/api/v1/localization/identity-document-types\"}"
+   }
+  ],
+  "console": [
+   "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar en todo el sistema...",
+    "disabled": false
+   }
+  ],
+  "textLen": 126,
+  "textHead": "Búsqueda Prueba con otros términos de búsqueda Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc."
+ },
+ {
+  "mod": "workspace",
+  "full": "data-imports",
+  "kind": "CANVAS",
+  "perm": "settings:edit_company",
+  "url": "http://localhost:4200/e/virtex-dev/data-imports",
+  "finalUrl": "/e/virtex-dev/data-imports",
+  "ms": 2774,
+  "img": "evidence/inv-workspace-data-imports.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Selecciona un tipo de dato... Customers Products Suppliers",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "",
+    "label": "Importar datos",
+    "disabled": true
+   }
+  ],
+  "textLen": 824,
+  "textHead": "Importaciones de datos (ETL) Carga datos maestros o transaccionales de forma masiva con archivos CSV o Excel. 1 Selecciona el tipo de dato Elige el tipo de dato que quieres importar para que el mapeo sea el correcto. Selecciona un tipo de dato... Customers Products Suppliers 2 Subir archivo Sel"
+ },
+ {
+  "mod": "workspace",
+  "full": "data-exports",
+  "kind": "LIST",
+  "perm": "settings:edit_company",
+  "url": "http://localhost:4200/e/virtex-dev/data-exports",
+  "finalUrl": "/e/virtex-dev/data-exports",
+  "ms": 2779,
+  "img": "evidence/inv-workspace-data-exports.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "select",
+    "type": "",
+    "label": "Selecciona un tipo de dato... Customers Products Suppliers I",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "CSV",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Excel (XLSX)",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "submit",
+    "label": "Generar archivo",
+    "disabled": true
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Descargar",
+    "disabled": false,
+    "href": "#"
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Descargar",
+    "disabled": false,
+    "href": "#"
+   }
+  ],
+  "textLen": 486,
+  "textHead": "Exportaciones de datos 3 Genera y descarga tus datos maestros o transaccionales en distintos formatos. Datos a exportar * Selecciona un tipo de dato... Customers Products Suppliers Invoices Sales Formato * CSV Excel (XLSX) Generar archivo Exportaciones recientes TIPO DE DATO FORMATO FECHA USUARIO "
+ },
+ {
+  "mod": "workspace",
+  "full": "documents/repository",
+  "kind": "LIST",
+  "perm": "documents:view",
+  "url": "http://localhost:4200/e/virtex-dev/documents/repository",
+  "finalUrl": "/e/virtex-dev/documents/repository",
+  "ms": 2777,
+  "img": "evidence/inv-workspace-documents_repository.png",
+  "api": [
+   "GET /documents 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Nueva carpeta",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "file",
+    "label": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "type": "search",
+    "label": "Buscar en todos los documentos…",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "type": "button",
+    "label": "Inicio",
+    "disabled": false
+   }
+  ],
+  "textLen": 83,
+  "textHead": "Repositorio de archivos Nueva carpeta Upload File Inicio Todavía no hay nada aquí."
+ },
+ {
+  "mod": "workspace",
+  "full": "documents/templates",
+  "kind": "LIST",
+  "perm": "documents:view",
+  "url": "http://localhost:4200/e/virtex-dev/documents/templates",
+  "finalUrl": "/e/virtex-dev/documents/templates",
+  "ms": 2761,
+  "img": "evidence/inv-workspace-documents_templates.png",
+  "api": [
+   "GET /documents?templatesOnly=true 200"
+  ],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "input",
+    "type": "file",
+    "label": "",
+    "disabled": false
+   }
+  ],
+  "textLen": 53,
+  "textHead": "Plantillas Subir plantilla Todavía no hay nada aquí."
+ },
+ {
+  "mod": "workspace",
+  "full": "unauthorized",
+  "kind": "OVERVIEW",
+  "perm": "authenticated",
+  "url": "http://localhost:4200/e/virtex-dev/unauthorized",
+  "finalUrl": "/e/virtex-dev/unauthorized",
+  "ms": 2777,
+  "img": "evidence/inv-workspace-unauthorized.png",
+  "api": [],
+  "apiErrors": [],
+  "console": [],
+  "pageErrors": [],
+  "items": [
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Solicitar Permiso",
+    "disabled": false,
+    "href": "mailto:?subject=Solicitud%20de%20permiso%20para%3A%20una%20ruta%20protegida&body=Hola%3A%0A%0ASoy%20Dev%20User%20(dev%40virtex.local).%0A%0AQuisiera%20solicitar%20acceso%20a%20esta%20ruta%2C%20para%20la%20que%20ahora%20mismo%20no%20tengo%20permiso%3A%0Ahttp%3A%2F%2Flocalhost%3A4200%2F%0A%0AGracias."
+   },
+   {
+    "tag": "a",
+    "type": "",
+    "label": "Volver al Dashboard",
+    "disabled": false,
+    "href": "/dashboard"
+   }
+  ],
+  "textLen": 259,
+  "textHead": "Acceso Denegado No tienes los permisos necesarios para acceder a este recurso. Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios. Solicitar Permiso Volver al Dashboard ¿No sabes qué permisos necesitas?"
+ }
+]

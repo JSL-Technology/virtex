@@ -1,0 +1,34 @@
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  page.on('dialog', (d) => { console.log('DIALOG', d.message()); d.accept(); });
+  await uiLogin(page);
+  const p = panel(page);
+  await go(page, 'masters/extensions'); await page.waitForTimeout(1500);
+  const reg = async (tag, name, caps, hosts, code) => {
+    const n = log.requests.length;
+    await p.getByPlaceholder('mi-extension').fill(name);
+    await p.getByPlaceholder('1.0.0').fill('1.0.0');
+    const caps$ = p.getByPlaceholder('egress:http'); await caps$.fill(caps);
+    await p.getByPlaceholder('api.taxjar.com').fill(hosts);
+    await p.locator('textarea').last().fill(code);
+    const btn = p.getByRole('button', { name: 'Admitir y registrar' }); const dis = await btn.isDisabled(); console.log(`[${tag}] deshabilitado=${dis}`); if (dis) return; await btn.click(); await page.waitForTimeout(2500);
+    console.log(`[${tag}] stepups=${await stepUpAll(page)} red=${netSince(log, n).map((x) => x.slice(0, 220)).join(' ; ')}`);
+    console.log('   ', (await panelText(page)).replace(/\n+/g, ' | ').slice(0, 400));
+    await shot(page, `f-ext-${tag}`);
+  };
+  await reg('vacio', '', '', '', '');
+  await reg('benigna', 'qa-hola', '', '', "root.innerHTML = '<h3>Hola QA</h3>';");
+  await reg('egreso-no-permitido', 'qa-egreso', 'egress:http', 'example.com', "await fetch('https://evil.example.org/x');");
+  await reg('bucle-infinito', 'qa-bucle', '', '', 'while(true){}');
+  await go(page, 'masters/extensions/run'); await page.waitForTimeout(1500);
+  console.log('RUN', (await panelText(page)).replace(/\n+/g, ' | ').slice(0, 400));
+  const n = log.requests.length;
+  const sel = p.locator('select, input').first(); await sel.click().catch(() => {});
+  await p.getByRole('button', { name: 'Ejecutar' }).click().catch((e) => console.log('noejecutar', e.message.split('\n')[0])); await page.waitForTimeout(3000);
+  console.log('[ejecutar]', netSince(log, n).map((x) => x.slice(0, 200)).join(' ; '), (await panelText(page)).replace(/\n+/g, ' | ').slice(0, 300));
+  await shot(page, 'f-ext-run');
+  await browser.close();
+})();
