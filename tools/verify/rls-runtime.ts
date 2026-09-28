@@ -3,6 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { DataSource, Repository } from 'typeorm';
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Customer } from '../../apps/backend/api/src/app/customers/entities/customer.entity';
+import { OrganizationDomain } from '../../apps/backend/api/src/app/organizations/entities/organization-domain.entity';
+import { IdentityProvider } from '../../apps/backend/api/src/app/auth/entities/identity-provider.entity';
+import { EnterpriseSsoService } from '../../apps/backend/api/src/app/auth/services/enterprise-sso.service';
 import { runInTenantContext } from '../../apps/backend/api/src/app/shared/tenancy/tenant-context';
 import { TenantConnectionInterceptor } from '../../apps/backend/api/src/app/shared/tenancy/tenant-connection.interceptor';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -159,10 +162,53 @@ async function main() {
     'Cliente de A',
   ]);
 
+  // 7. Enterprise SSO before sign-in. Discovery runs with NO tenant: it must find the IdP of the
+  //    organization that VERIFIED the domain (through the read-only `sso_routing` policy), load
+  //    that IdP under its own tenant, and see nothing else — not another tenant's pending claim,
+  //    not an IdP outside its context. Before, it saw nothing at all, so for this role enterprise
+  //    SSO could never be discovered.
+  const domains = app.get<Repository<OrganizationDomain>>(getRepositoryToken(OrganizationDomain));
+  const idps = app.get<Repository<IdentityProvider>>(getRepositoryToken(IdentityProvider));
+  const sso = app.get(EnterpriseSsoService);
+  const ssoDomain = `rls-runtime-${Date.now()}.example`;
+
+  const idpOfA = await asTenant(ORG_A, async () => {
+    await domains.save(
+      domains.create({
+        organizationId: ORG_A, domain: ssoDomain, verified: true, verifiedAt: new Date(),
+        verificationToken: 'runtime-a',
+      }),
+    );
+    return idps.save(
+      idps.create({
+        organizationId: ORG_A, name: 'IdP de A', issuerUrl: 'https://idp.example', clientId: 'a',
+        clientSecretEncrypted: 'x', enabled: true,
+      } as Partial<IdentityProvider>),
+    );
+  });
+  await asTenant(ORG_B, async () => {
+    await domains.save(
+      domains.create({ organizationId: ORG_B, domain: ssoDomain, verified: false, verificationToken: 'runtime-b' }),
+    );
+  });
+
+  const discovered = await sso.discoverByEmail(`persona@${ssoDomain}`);
+  check('SSO: el descubrimiento sin inquilino encuentra el IdP de quien verificó el dominio', discovered?.idpId, idpOfA.id);
+  const loaded = await sso.getEnabledIdpOrThrow(idpOfA.id, ORG_A).then((i) => i.id, () => null);
+  check('SSO: el IdP se carga en el contexto de su empresa', loaded, idpOfA.id);
+  const wrongOrg = await sso.getEnabledIdpOrThrow(idpOfA.id, ORG_B).then(() => 'visible', () => 'no');
+  check('SSO: con otra empresa, el IdP no se encuentra', wrongOrg, 'no');
+  const pendingOutside = await domains.count({ where: { domain: ssoDomain, verified: false } });
+  check('SSO: una reclamación pendiente no se ve fuera de su empresa', pendingOutside, 0);
+  const idpOutside = await idps.count({ where: { id: idpOfA.id } });
+  check('SSO: un IdP no se ve fuera de contexto de empresa', idpOutside, 0);
+
   // Clean up under each tenant's own policy.
   for (const org of [ORG_A, ORG_B]) {
     await asTenant(org, async () => {
       await repo.delete({ organizationId: org });
+      await domains.delete({ organizationId: org, domain: ssoDomain });
+      await idps.delete({ organizationId: org, name: 'IdP de A' });
     });
   }
 

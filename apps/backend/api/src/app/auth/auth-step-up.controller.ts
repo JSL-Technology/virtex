@@ -277,7 +277,10 @@ export class AuthStepUpController {
   ): Promise<{ flow: string; config: OidcClientConfig } | null> {
     const discovered = await this.enterpriseSsoService.discoverByEmail(user.email);
     if (discovered) {
-      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(discovered.idpId);
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(
+        discovered.idpId,
+        discovered.organizationId,
+      );
       return {
         flow: `sso-${discovered.idpId}`,
         // The step-up flow has its own callback, so the config's sign-in redirect URI is

@@ -8,6 +8,7 @@ import {
   Req,
   Res,
   Param,
+  Query,
   Ip,
   Headers,
   UseGuards,
@@ -235,16 +236,22 @@ export class AuthSocialController {
     return {
       ssoAvailable: true,
       idpName: result.idpName,
-      startUrl: `/api/v1/auth/sso/${result.idpId}`,
+      // The organization travels with the start URL: the IdP is tenant-isolated, and its id alone
+      // is not enough to read it. A tampered value finds no IdP and falls back to password sign-in.
+      startUrl: `/api/v1/auth/sso/${result.idpId}?org=${encodeURIComponent(result.organizationId)}`,
     };
   }
 
   @Public()
   @Get('sso/:idpId')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
-  async ssoStart(@Param('idpId') idpId: string, @Res() res: Response) {
+  async ssoStart(
+    @Param('idpId') idpId: string,
+    @Query('org') organizationId: string | undefined,
+    @Res() res: Response,
+  ) {
     try {
-      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId, organizationId ?? '');
       const config = this.enterpriseSsoService.buildConfig(idp);
       const tx = this.oauthStateService.createTransaction(`sso:${idpId}`, idp.organizationId);
       const codeChallenge = this.oauthStateService.codeChallengeS256(tx.codeVerifier);
@@ -283,7 +290,8 @@ export class AuthSocialController {
         throw new BadRequestError('auth.missing_authorization_code');
       }
 
-      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
+      // The organization recorded in the signed transaction when the flow began.
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId, tx.orgId ?? '');
       const config = this.enterpriseSsoService.buildConfig(idp);
       const { claims, accessToken } = await this.oidcProviderService.exchangeAndValidate(config, {
         code: query.code,
