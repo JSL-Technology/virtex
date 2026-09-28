@@ -17,7 +17,9 @@ export class QuoteLine {
    * A quote line carries its own description and price, so it stays readable once the catalogue
    * entry is gone — and the default `NO ACTION` blocked tenant deletion.
    */
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'SET NULL' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

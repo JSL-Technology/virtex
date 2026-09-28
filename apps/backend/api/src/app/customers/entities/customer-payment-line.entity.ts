@@ -27,7 +27,9 @@ export class CustomerPaymentLine {
   @Column({ name: 'payment_id', type: 'uuid' })
   paymentId: string;
 
-  @ManyToOne(() => Invoice, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Invoice, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'invoice_id' })
   invoice: Invoice;
 

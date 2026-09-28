@@ -76,7 +76,9 @@ export class CustomerPayment {
   @Column({ name: 'customer_id', type: 'uuid' })
   customerId: string;
 
-  @ManyToOne(() => Customer, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Customer, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
@@ -100,7 +102,9 @@ export class CustomerPayment {
    * user can act on — rather than a constraint whose other effect is that offboarding a customer
    * is impossible.
    */
-  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'bank_account_id' })
   bankAccount: BankAccount;
 

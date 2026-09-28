@@ -43,7 +43,9 @@ export class Quote {
    * The default is `NO ACTION`, which made the tenant undeletable: `organizations` cascades to
    * `customers` and PostgreSQL does not promise to clear the quotes first.
    */
-  @ManyToOne(() => Customer, { eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Customer, { eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 

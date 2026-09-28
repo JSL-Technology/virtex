@@ -89,14 +89,18 @@ export class BankTransfer {
    * user can act on — rather than a constraint whose other effect is that offboarding a customer
    * is impossible.
    */
-  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'from_bank_account_id' })
   fromBankAccount: BankAccount;
 
   @Column({ name: 'to_bank_account_id', type: 'uuid' })
   toBankAccountId: string;
 
-  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'to_bank_account_id' })
   toBankAccount: BankAccount;
 

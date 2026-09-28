@@ -9,6 +9,20 @@ import { InventoryPostingService } from './inventory-posting.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
+import { assertNoDependents, DependentReference } from '../common/database/dependents';
+
+/** Documents that name a product by id. A product on any of them is deactivated, not deleted. */
+const PRODUCT_DEPENDENTS: readonly DependentReference[] = [
+  { table: 'invoice_line_item', column: 'productId', label: 'common.dependents.invoice_lines' },
+  { table: 'purchase_order_lines', column: 'product_id', label: 'common.dependents.purchase_order_lines' },
+  { table: 'purchase_requisition_lines', column: 'product_id', label: 'common.dependents.requisition_lines' },
+  { table: 'quote_lines', column: 'product_id', label: 'common.dependents.quote_lines' },
+  { table: 'vendor_bill_line', column: 'product_id', label: 'common.dependents.vendor_bill_lines' },
+  { table: 'stock_movements', column: 'product_id', label: 'common.dependents.stock_movements' },
+  { table: 'bill_of_materials', column: 'product_id', label: 'common.dependents.boms' },
+  { table: 'production_orders', column: 'product_id', label: 'common.dependents.production_orders' },
+];
+
 @Injectable()
 export class InventoryService {
   constructor(
@@ -132,6 +146,9 @@ export class InventoryService {
       if (!product) {
         throw new NotFoundError('inventory.product_id_not_found', { id });
       }
+      // QA C-03: a product that appears on invoices or orders was deleted (and its invoice lines
+      // silently lost their product). It is deactivated instead; only an unused product goes.
+      await assertNoDependents(manager, product.id, PRODUCT_DEPENDENTS, 'inventory.product_delete_blocked');
       const before = { quantity: product.stock, unitCost: product.cost };
       product.stock = 0;
       await this.posting.postValuationChange(manager, product, before, actorUserId);

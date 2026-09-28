@@ -62,7 +62,9 @@ export class JournalEntryLine {
    * two readers that genuinely need the account (`ReportsService`, the general ledger) join it
    * explicitly.
    */
-  @ManyToOne(() => Account, { nullable: false, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Account, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

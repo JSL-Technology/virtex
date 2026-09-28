@@ -78,7 +78,12 @@ export class AuthStepUpController {
    */
   @Post('step-up')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  // Flood control only. The brute-force control is the per-user FAILURE budget in
+  // `AuthService.createStepUpToken` (5 wrong answers in 5 minutes, cleared by a right one). This
+  // limit used to be 5 per 15 minutes and counted SUCCESSFUL step-ups too, so an administrator
+  // doing ordinary work — a bank account, a payment, an employee, a salary — was told their
+  // account was "temporarily locked" without ever typing a wrong password (QA A-02).
+  @Throttle({ default: { limit: 30, ttl: 900000 } })
   @ApiOperation({ summary: 'Re-authenticate to authorise a sensitive action' })
   @AllowWithoutMfaEnrolment(
     'Enrolling a second factor is gated by @StepUp(ENABLE_2FA), and the token for it is minted\n' +
@@ -88,12 +93,16 @@ export class AuthStepUpController {
   async stepUp(
       @CurrentUser() user: AuthenticatedUser,
       @Body() dto: StepUpDto,
+      @Req() req: Request,
       @Res({ passthrough: true }) res: Response,
   ) {
+      const cookies = req.cookies as Record<string, string | undefined> | undefined;
       const { stepUpToken, maxAgeMs } = await this.authService.createStepUpToken(
           user.id,
           { password: dto.password, otpCode: dto.otpCode },
           dto.scope,
+          // The proof already held, so its still-valid reusable grants carry into the new one.
+          STEP_UP_COOKIE_NAMES.map((name) => cookies?.[name]).find(Boolean),
       );
 
       // The token is delivered as an httpOnly cookie and never enters the response body, so a
@@ -245,6 +254,7 @@ export class AuthStepUpController {
       const { stepUpToken, maxAgeMs } = this.authService.issueStepUpTokenAfterFederatedReauth(
         user.id,
         scope as StepUpScope,
+        STEP_UP_COOKIE_NAMES.map((name) => (req.cookies as Record<string, string | undefined> | undefined)?.[name]).find(Boolean),
       );
       this.cookieService.setStepUpCookie(res, stepUpToken, maxAgeMs);
       return res.redirect(this.links.stepUpComplete(scope, tx.returnTo));

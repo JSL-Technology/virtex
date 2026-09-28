@@ -33,7 +33,9 @@ export class PurchaseRequisitionLine extends BaseEntity {
   @Column({ name: 'product_id', type: 'uuid', nullable: true })
   productId: string | null;
 
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'SET NULL' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
   @JoinColumn({
     name: 'product_id',
     foreignKeyConstraintName: 'FK_purchase_requisition_lines_product',

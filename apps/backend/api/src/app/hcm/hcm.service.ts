@@ -31,6 +31,8 @@ import { StatutoryIdentifierSpec } from '../jurisdictions/jurisdiction-strategy.
  * lives on the entity and its migration. This is the register only — payroll calculation remains
  * out of scope and is called out as such in the audit report.
  */
+import { assertNoDependents } from '../common/database/dependents';
+
 @Injectable()
 export class HcmService {
   constructor(
@@ -371,8 +373,28 @@ export class HcmService {
     );
   }
 
+  /**
+   * Delete a department nobody works in.
+   *
+   * Deleting one with people in it answered 204 and left them assigned to a department that no
+   * longer existed ("—" on their record, QA C-03). Active employees block the delete; people who
+   * have already left (soft-deleted) are detached in the same transaction, since their payslips
+   * keep their own snapshot and nothing else resolves the link.
+   */
   async removeDepartment(id: string, organizationId: string): Promise<void> {
     await this.findOneDepartment(id, organizationId);
-    await this.departmentRepository.delete({ id, organizationId });
+    await this.departmentRepository.manager.transaction(async (manager) => {
+      await assertNoDependents(
+        manager,
+        id,
+        [{ table: 'employees', column: 'department_id', label: 'common.dependents.employees', where: 'deleted_at IS NULL' }],
+        'hcm.department_delete_blocked',
+      );
+      await manager.query(
+        'UPDATE employees SET department_id = NULL WHERE department_id = $1 AND deleted_at IS NOT NULL',
+        [id],
+      );
+      await manager.delete(Department, { id, organizationId });
+    });
   }
 }

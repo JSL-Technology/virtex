@@ -37,7 +37,9 @@ export class BudgetLine {
   accountId: string;
 
 
-  @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Account, { eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

@@ -105,9 +105,17 @@ export const authInterceptor: HttpInterceptorFn = (
       // A step-up challenge is a 401 about the ACTION, not about the session: the session is fine
       // and refreshing it cannot help. `stepUpInterceptor` answers those; this must not treat
       // one as an expired session, refresh, retry, fail again and sign the user out.
+      //
+      // Likewise a 401 that answers a CREDENTIAL CHECK — a wrong password in the step-up dialog,
+      // a wrong current password, a wrong 2FA code, a failed sign-in — says nothing about the
+      // session. Treating one as expiry refreshed, REPLAYED the failed attempt (so each typo cost
+      // two attempts of a five-attempt budget) and then signed the user out with the dialog still
+      // open (QA A-01); on the sign-in page it showed "your session expired" for a mistyped
+      // password (QA M-12).
       const needsRefresh =
         isUnauthorized &&
         stepUpScopeOf(error) === null &&
+        !isCredentialCheck(req, error) &&
         !isPublicAuthApiRoute &&
         injector.get(AuthService).authStatus() === AuthStatus.authenticated;
 
@@ -181,3 +189,45 @@ export const authInterceptor: HttpInterceptorFn = (
     }),
   );
 };
+
+/**
+ * Endpoints that VERIFY a credential. A 401 from one of them is the answer to the check, never a
+ * statement about the session, and must not be answered with a refresh-and-replay.
+ */
+const CREDENTIAL_CHECK_PATHS = [
+  '/auth/login',
+  '/auth/step-up',
+  '/auth/refresh',
+  '/auth/change-password',
+  '/auth/set-password',
+  '/auth/reset-password',
+];
+
+/** Error codes that report a failed credential, whichever endpoint returned them. */
+const CREDENTIAL_FAILURE_CODES = new Set([
+  'AUTH_INVALID_CREDENTIALS',
+  'AUTH_TWO_FACTOR_INVALID',
+  'AUTH_TWO_FACTOR_REQUIRED',
+  'AUTH_VERIFICATION_CODE_INVALID',
+  'AUTH_VERIFICATION_CODE_EXPIRED',
+  'AUTH_VERIFICATION_CODE_NOT_FOUND',
+  'AUTH_ACCOUNT_LOCKED',
+  'STEP_UP_INVALID_CREDENTIALS',
+]);
+
+export function isCredentialCheck(
+  req: { url: string },
+  error: { error?: unknown },
+): boolean {
+  let path = req.url;
+  try {
+    path = new URL(req.url, 'http://local').pathname;
+  } catch {
+    /* relative URL without a base: use as is */
+  }
+  if (CREDENTIAL_CHECK_PATHS.some((p) => path.includes(p))) return true;
+  const body = (error?.error ?? {}) as { code?: unknown; message?: unknown };
+  const code = typeof body.code === 'string' ? body.code : typeof body.message === 'string' ? body.message : '';
+  return CREDENTIAL_FAILURE_CODES.has(code);
+}
+

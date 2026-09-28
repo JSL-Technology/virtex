@@ -12,6 +12,13 @@ import { IdentityDocumentService } from '../localization/services/identity-docum
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { likeTerm } from '../common/database/search-term';
 
+import { assertNoDependents, DependentReference } from '../common/database/dependents';
+
+const SUPPLIER_DEPENDENTS: readonly DependentReference[] = [
+  { table: 'vendor_bills', column: 'vendor_id', label: 'common.dependents.vendor_bills' },
+  { table: 'purchase_orders', column: 'supplier_id', label: 'common.dependents.purchase_orders' },
+];
+
 @Injectable()
 export class SuppliersService {
   constructor(
@@ -192,6 +199,8 @@ export class SuppliersService {
   async remove(id: string, organizationId: string): Promise<void> {
     const supplier = await this.findOne(id, organizationId);
     await this.dataSource.transaction(async (manager) => {
+      // Same rule as customers (QA C-03): a supplier named on bills or orders stays.
+      await assertNoDependents(manager, supplier.id, SUPPLIER_DEPENDENTS, 'suppliers.delete_blocked');
       await manager.remove(Supplier, supplier);
       await this.saasService.releaseUsage(manager, organizationId, SaasResource.SUPPLIERS);
     });

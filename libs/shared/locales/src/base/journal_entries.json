@@ -264,6 +264,11 @@
     "en": "Recurring template {{recurringEntryId}} was not found.",
     "pt": "Modelo recorrente {{recurringEntryId}} não encontrado."
   },
+  "journal_entries.secondary_ledger_currency_differs": {
+    "es": "El libro «{{ledger}}» se lleva en {{currency}} y la moneda base es {{base}}: los asientos manuales solo pueden registrarse en libros de la moneda base. Usa el libro principal y deja que las reglas de mapeo lo trasladen.",
+    "en": "The “{{ledger}}” ledger is kept in {{currency}} and the base currency is {{base}}: manual entries can only be posted to ledgers in the base currency. Use the primary ledger and let the mapping rules carry it over.",
+    "pt": "O livro “{{ledger}}” é mantido em {{currency}} e a moeda base é {{base}}: lançamentos manuais só podem ser registrados em livros da moeda base. Use o livro principal e deixe as regras de mapeamento transferi-lo."
+  },
   "journal_entries.source_destination_accounts_cannot_same": {
     "es": "La cuenta de origen y destino no pueden ser la misma.",
     "en": "The source and destination accounts cannot be the same.",
@@ -273,6 +278,11 @@
     "es": "El diario indicado no existe en esta organización.",
     "en": "The specified journal does not exist in this organization.",
     "pt": "O diário indicado não existe nesta organização."
+  },
+  "journal_entries.specified_ledger_does_not_exist_organization": {
+    "es": "El libro indicado no existe en esta empresa.",
+    "en": "The specified ledger does not exist in this company.",
+    "pt": "O livro indicado não existe nesta empresa."
   },
   "journal_entries.transaction_query_runner_could_not_obtained": {
     "es": "No se pudo obtener el Query Runner de la transacción.",

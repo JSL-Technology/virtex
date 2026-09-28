@@ -71,7 +71,9 @@ export class JournalEntry {
   @Column({ name: 'organization_id' })
   organizationId: string;
   
-  @ManyToOne(() => Ledger, { nullable: false, eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Ledger, { nullable: false, eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 
@@ -241,7 +243,9 @@ export class JournalEntry {
   @Column({ default: false, name: 'is_reversed' })
   isReversed: boolean;
 
-  @ManyToOne(() => Journal, { nullable: false, eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Journal, { nullable: false, eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'journal_id' })
   journal: Journal;
 

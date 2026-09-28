@@ -134,6 +134,11 @@
     "en": "This organization has no inventory and opening-balance accounts configured, so the opening stock cannot be recorded.",
     "pt": "A organização não tem contas de estoque e de saldos iniciais configuradas; não é possível registar a existência inicial."
   },
+  "inventory.product_delete_blocked": {
+    "es": "No se puede eliminar el producto porque aparece en documentos ({{summary}}). Cambia su estado a «Inactivo» para dejar de venderlo y comprarlo.",
+    "en": "The product cannot be deleted because it appears on documents ({{summary}}). Set its status to “Inactive” to stop selling and buying it.",
+    "pt": "O produto não pode ser excluído porque aparece em documentos ({{summary}}). Altere o status para “Inativo” para deixar de vendê-lo e comprá-lo."
+  },
   "inventory.product_form.active": {
     "es": "Activo",
     "en": "Active",

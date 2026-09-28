@@ -4,6 +4,11 @@
     "en": "A compensation with that effective date already exists for this employee.",
     "pt": "Já existe uma remuneração com essa data de vigência para este funcionário."
   },
+  "hcm.department_delete_blocked": {
+    "es": "No se puede eliminar el departamento porque tiene personas asignadas ({{summary}}). Reasígnalas a otro departamento primero.",
+    "en": "The department cannot be deleted because people are assigned to it ({{summary}}). Reassign them to another department first.",
+    "pt": "O departamento não pode ser excluído porque há pessoas atribuídas a ele ({{summary}}). Reatribua-as a outro departamento primeiro."
+  },
   "hcm.department_not_found": {
     "es": "No se encontró el departamento \"{{id}}\".",
     "en": "Department \"{{id}}\" was not found.",

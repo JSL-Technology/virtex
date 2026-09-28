@@ -29,6 +29,15 @@ const FAMILIES = [
       n.startsWith('@angular/') && !['@angular/cdk', '@angular/material', '@angular/cli', '@angular/build'].includes(n),
   },
   {
+    // `dockview-angular` is a thin adapter over `dockview`/`dockview-core` and reaches into their
+    // internals. Dependabot moved the adapter alone from 6.6.1 to 8.3.1: it brought its own nested
+    // dockview 8, the renderer it registered was not the one the grid called, and not one tab in
+    // the product rendered its content (QA C-01). The adapter 8.x also requires Angular >= 21, a
+    // conflict the `overrides` entry for its Angular peers silenced.
+    name: 'Dockview',
+    member: (n) => n === 'dockview' || n === 'dockview-core' || n === 'dockview-angular',
+  },
+  {
     name: 'Angular tooling',
     member: (n) =>
       ['@angular/cli', '@angular/build', '@schematics/angular'].includes(n) || n.startsWith('@angular-devkit/'),

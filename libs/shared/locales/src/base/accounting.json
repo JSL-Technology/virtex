@@ -209,6 +209,16 @@
     "en": "Posting Rules",
     "pt": "Regras de Contabilização"
   },
+  "accounting.account_form.reason_for_change": {
+    "es": "Motivo del cambio",
+    "en": "Reason for the change",
+    "pt": "Motivo da alteração"
+  },
+  "accounting.account_form.reason_for_change_hint": {
+    "es": "Queda en el historial de la cuenta junto con el valor anterior y el nuevo.",
+    "en": "It is recorded in the account history together with the previous and the new value.",
+    "pt": "Fica registrado no histórico da conta junto com o valor anterior e o novo."
+  },
   "accounting.account_form.required_dimensions": {
     "es": "Dimensiones Requeridas",
     "en": "Required Dimensions",
@@ -263,6 +273,16 @@
     "es": "Nueva cuenta contable",
     "en": "New account",
     "pt": "Nova conta contábil"
+  },
+  "accounting.account_nature.credit": {
+    "es": "Acreedora",
+    "en": "Credit",
+    "pt": "Credora"
+  },
+  "accounting.account_nature.debit": {
+    "es": "Deudora",
+    "en": "Debit",
+    "pt": "Devedora"
   },
   "accounting.account_period_lock_removed": {
     "es": "El bloqueo de la cuenta para el período ha sido removido.",
@@ -398,6 +418,26 @@
     "es": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
     "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
     "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
+  },
+  "accounting.cash_flow_category.financing": {
+    "es": "Financiamiento",
+    "en": "Financing",
+    "pt": "Financiamento"
+  },
+  "accounting.cash_flow_category.investing": {
+    "es": "Inversión",
+    "en": "Investing",
+    "pt": "Investimento"
+  },
+  "accounting.cash_flow_category.none": {
+    "es": "No aplica",
+    "en": "Not applicable",
+    "pt": "Não se aplica"
+  },
+  "accounting.cash_flow_category.operating": {
+    "es": "Operación",
+    "en": "Operating",
+    "pt": "Operacional"
   },
   "accounting.categories.capital": {
     "literal": "Capital"
@@ -1209,6 +1249,11 @@
     "es": "No pudimos cargar los libros contables.",
     "en": "We could not load the ledgers.",
     "pt": "Não foi possível carregar os livros contabilísticos."
+  },
+  "accounting.journal_entry_form.line_both_sides": {
+    "es": "Cada línea lleva un débito o un crédito, no ambos. Revisa la(s) línea(s) {{lines}}.",
+    "en": "Each line carries a debit or a credit, not both. Check line(s) {{lines}}.",
+    "pt": "Cada linha leva um débito ou um crédito, não ambos. Verifique a(s) linha(s) {{lines}}."
   },
   "accounting.journal_entry_form.modification_reason_label": {
     "es": "Razón de la modificación",

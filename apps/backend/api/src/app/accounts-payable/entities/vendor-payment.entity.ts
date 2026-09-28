@@ -25,7 +25,9 @@ export class VendorPayment {
   @Column({ name: 'payment_batch_id', type: 'uuid' })
   paymentBatchId: string;
 
-  @ManyToOne('VendorBill', { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne('VendorBill', { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'vendor_bill_id' })
   vendorBill: VendorBill;
 

@@ -11,6 +11,8 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
+import { formPayload } from '../../../shared/utils/form-payload.util';
+import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
 import {
   IdentityDocumentsService,
   IdentityDocumentTypeOption,
@@ -95,7 +97,7 @@ export class CustomerFormPage implements OnInit {
       //  Optional, matching the supplier form and the server. Still validated AS an email when
       //  one is given: an optional field is not an unchecked one.
       email: ['', [Validators.email]],
-      phone: [''],
+      phone: ['', [phoneLikeValidator]],
       taxId: [''],
       // Which identifier `taxId` holds. Filled from the catalogue's default for this tenant's
       // country once the list arrives; there is no literal default, because the only literal that
@@ -235,16 +237,22 @@ export class CustomerFormPage implements OnInit {
     // DEFAULT state of the form could not be saved at all: every customer created without touching
     // this select came back `400 taxpayerType does not accept that value`. Null is the value that
     // means "unclassified" in the column, and the one the validator lets through.
-    const formValue = {
-      ...rest,
-      taxpayerType: taxpayerType || null,
-      //  Vacío no es cero: cero significa «al contado» y vacío «usa el valor por defecto de la
-      //  organización». El `<input type="number">` entrega cadena vacía para ambos.
-      paymentTermDays:
-        rest.paymentTermDays === '' || rest.paymentTermDays === null
-          ? null
-          : Number(rest.paymentTermDays),
-    };
+    const formValue = formPayload(
+      {
+        ...rest,
+        taxpayerType: taxpayerType || null,
+        //  Vacío no es cero: cero significa «al contado» y vacío «usa el valor por defecto de la
+        //  organización». El `<input type="number">` entrega cadena vacía para ambos.
+        paymentTermDays:
+          rest.paymentTermDays === '' || rest.paymentTermDays === null
+            ? null
+            : Number(rest.paymentTermDays),
+      },
+      //  Al crear, un campo en blanco no se envía; al editar se envía `null` para poder vaciarlo.
+      //  Mandar `""` era lo que hacía imposible dar de alta un cliente (QA C-04): la API lo leía
+      //  como un correo y un tipo de documento inválidos.
+      this.id() ? 'update' : 'create',
+    );
 
     const customerId = this.id();
     const operation = customerId
@@ -260,15 +268,14 @@ export class CustomerFormPage implements OnInit {
         void this.router.navigate(['/contacts/customers']).then(() => this.tab?.close());
       },
       error: (err) => {
-        // The server says exactly what it refused and says it in the reader's language; throwing
-        // that away for "Could not create the customer" is what made the failure above impossible
-        // to act on. The generic key stays as the fallback for a network error with no body.
-        const serverMessage = typeof err?.error?.message === 'string' ? err.error.message : null;
-        this.notificationService.showError(
-          serverMessage ??
-            (this.isEditMode()
-              ? 'contacts.customer_form.error_updating_customer'
-              : 'contacts.customer_form.error_creating_customer'),
+        // The server says exactly what it refused, in the reader's language (duplicate tax id,
+        // invalid document, a field too long). `showHttpError` shows that reason and falls back to
+        // the operation's own sentence only when there is nothing more precise to say.
+        this.notificationService.showHttpError(
+          err,
+          this.isEditMode()
+            ? 'contacts.customer_form.error_updating_customer'
+            : 'contacts.customer_form.error_creating_customer',
         );
         this.isLoading.set(false);
       },

@@ -44,6 +44,11 @@
     "en": "The default receivable account is not configured for the organization.",
     "pt": "A conta a receber padrão não está configurada para a organização."
   },
+  "customers.delete_blocked": {
+    "es": "No se puede eliminar el cliente porque tiene documentos asociados ({{summary}}). Los documentos fiscales se conservan: cambia su estado a «Inactivo» para retirarlo de las listas.",
+    "en": "The customer cannot be deleted because it has related documents ({{summary}}). Fiscal documents are kept: set its status to “Inactive” to remove it from lists.",
+    "pt": "O cliente não pode ser excluído porque possui documentos associados ({{summary}}). Os documentos fiscais são mantidos: altere o status para “Inativo” para retirá-lo das listas."
+  },
   "customers.drawn_drawn_from_advance_but_unapplied": {
     "es": "Se tomaron {{drawn}} de anticipo pero quedan {{unapplied}} sin aplicar. Aplique el anticipo a facturas o redúzcalo.",
     "en": "{{drawn}} was drawn from the advance but {{unapplied}} remains unapplied. Apply the advance to invoices or reduce it.",

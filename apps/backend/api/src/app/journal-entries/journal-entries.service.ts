@@ -247,7 +247,7 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<{ entry: JournalEntry; totalDebit: number }> {
-    const { lines, date, journalId, currencyCode, exchangeRate, ...entryData } =
+    const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, ...entryData } =
       createDto;
     const entryDate = new Date(`${String(date).slice(0, 10)}T00:00:00.000Z`);
     if (Number.isNaN(entryDate.getTime())) {
@@ -270,6 +270,29 @@ export class JournalEntriesService {
       throw new BadRequestError(
         'journal_entries.no_default_ledger_has_configured_organization',
       );
+    }
+
+    // The book this entry is posted to. The default ledger unless the caller named another one of
+    // THIS tenant's ledgers. A secondary ledger is only accepted in the tenant's base currency:
+    // every amount below is converted to that currency, and a book kept in another one needs the
+    // conversion the mapping rules perform, which a manual entry does not go through.
+    let postingLedger = defaultLedger;
+    if (requestedLedgerId && requestedLedgerId !== defaultLedger.id) {
+      const requested = await manager.findOneBy(Ledger, { id: requestedLedgerId, organizationId });
+      if (!requested) {
+        throw new BadRequestError('journal_entries.specified_ledger_does_not_exist_organization');
+      }
+      const baseForLedger =
+        (await manager.findOneBy(OrganizationSettings, { organizationId }))?.baseCurrency ??
+        defaultLedger.currency;
+      if (requested.currency && baseForLedger && requested.currency !== baseForLedger) {
+        throw new BadRequestError('journal_entries.secondary_ledger_currency_differs', {
+          ledger: requested.name,
+          currency: requested.currency,
+          base: baseForLedger,
+        });
+      }
+      postingLedger = requested;
     }
 
     const journal = await manager.findOneBy(Journal, { id: journalId, organizationId });
@@ -432,7 +455,11 @@ export class JournalEntriesService {
       date: entryDate,
       organizationId,
       journalId,
-      currencyCode,
+      // Always stated. A base-currency entry used to be stored with `currency_code` NULL — every
+      // receipt, payment and payroll posting — and the list then rendered it in USD, the client's
+      // formatting default, in a DOP company (QA A-12). The entry's currency is a fact of the
+      // entry; it should never have to be inferred at display time.
+      currencyCode: (currencyCode ?? baseCurrency).toUpperCase(),
       exchangeRate: isForeignCurrency ? rate : undefined,
       exchangeRateType: resolvedRate?.rateType ?? null,
       exchangeRateSource: resolvedRate?.source ?? null,
@@ -443,7 +470,7 @@ export class JournalEntriesService {
       // produced a posting — the cash flow statement's exchange-rate line, above all — can only
       // read the ledger.
       systemReason: context.systemReason ?? null,
-      ledgerId: defaultLedger.id,
+      ledgerId: postingLedger.id,
       status: JournalEntryStatus.DRAFT,
       entryNumber: null,
       postedByUserId: null,
@@ -501,7 +528,7 @@ export class JournalEntriesService {
         manager,
         lineDto,
         line,
-        defaultLedger.id,
+        postingLedger.id,
         mappingRules,
       );
       finalLines.push(line);
@@ -533,7 +560,7 @@ export class JournalEntriesService {
       });
       roundingLine.valuations = [
         manager.create(JournalEntryLineValuation, {
-          ledgerId: defaultLedger.id,
+          ledgerId: postingLedger.id,
           debit: roundingLine.debit,
           credit: roundingLine.credit,
         }),
@@ -551,7 +578,7 @@ export class JournalEntriesService {
     //
     // Checked per ledger, because a multi-GAAP entry has to balance in every book it touches, not
     // just in aggregate.
-    this.assertValuationsBalance(finalLines, defaultLedger.id);
+    this.assertValuationsBalance(finalLines, postingLedger.id);
 
     savedEntry.lines = await manager.save(finalLines);
     return { entry: savedEntry, totalDebit: roundAmount(totalDebitCents / 100) };
@@ -1060,6 +1087,8 @@ export class JournalEntriesService {
       date: reverseDto.reversalDate,
       description: reversalWords.entry,
       journalId: original.journalId,
+      // The reversal is posted to the book the original was posted to.
+      ledgerId: original.ledgerId,
       currencyCode: original.currencyCode,
       // The original's amounts are already in ledger currency; re-applying its rate would convert
       // them twice, so the reversal is posted as a base-currency entry.

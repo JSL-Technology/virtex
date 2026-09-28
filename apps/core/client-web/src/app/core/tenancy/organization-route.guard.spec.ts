@@ -96,4 +96,57 @@ describe('organizationRouteGuard', () => {
   it('sin principal no decide nada: de eso se encarga authGuard, que corre antes', () => {
     expect(run('/invoices', null)).toBe(true);
   });
+
+  //  QA C-02: con `organizations: []` en el bootstrap de sesión y la empresa recordada en el
+  //  navegador, el guard devolvía la misma URL que evaluaba y el router congelaba la pestaña.
+  it('acepta la empresa del principal aunque la lista de empresas llegue vacía', () => {
+    expect(run('/e/cliente-a/invoices', { organization: ORG_A, organizations: [] })).toBe(true);
+  });
+
+  it('nunca redirige a la misma URL que está evaluando', () => {
+    parseUrl = jest.fn((u: string) => ({ toString: () => u }) as unknown as UrlTree);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { parseUrl } },
+        // Un principal sin slug utilizable y una empresa recordada que ya no es accesible.
+        { provide: AuthService, useValue: { currentUser: () => ({ organization: { id: 'x' }, organizations: [] }) } },
+        {
+          provide: ActiveOrganizationService,
+          useValue: {
+            urlFor: (path: string, slug: string | null) => `/e/${slug}${path === '/' ? '' : path}`,
+            remember: jest.fn(),
+            lastUsed: () => 'cliente-a',
+          },
+        },
+      ],
+    });
+    const result = TestBed.runInInjectionContext(() =>
+      organizationRouteGuard({} as never, { url: '/e/cliente-a/invoices' } as RouterStateSnapshot),
+    );
+    expect(String(result)).toBe('/unauthorized');
+  });
+
+  it('descarta una empresa recordada a la que ya no se pertenece', () => {
+    parseUrl = jest.fn((u: string) => ({ toString: () => u }) as unknown as UrlTree);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { parseUrl } },
+        { provide: AuthService, useValue: { currentUser: () => user } },
+        {
+          provide: ActiveOrganizationService,
+          useValue: {
+            urlFor: (path: string, slug: string | null) => `/e/${slug}${path === '/' ? '' : path}`,
+            remember: jest.fn(),
+            lastUsed: () => 'empresa-antigua',
+          },
+        },
+      ],
+    });
+    const result = TestBed.runInInjectionContext(() =>
+      organizationRouteGuard({} as never, { url: '/e/empresa-antigua/invoices' } as RouterStateSnapshot),
+    );
+    expect(String(result)).toBe('/e/cliente-a/invoices');
+  });
 });

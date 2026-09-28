@@ -138,7 +138,9 @@ export class Invoice {
    * tenant that had ever used the feature. Refusing to delete a parent still in use belongs in the
    * owning service, which can say why.
    */
-  @ManyToOne(() => Customer, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Customer, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 

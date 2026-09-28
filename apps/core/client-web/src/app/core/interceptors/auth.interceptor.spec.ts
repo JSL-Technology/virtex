@@ -156,3 +156,46 @@ describe('authInterceptor — step-up challenges', () => {
     expect(refreshAccessToken).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * QA A-01 / M-12: a 401 that answers a credential check is not an expired session. Refreshing on
+ * it replayed the failed attempt and then signed the user out with the dialog still open.
+ */
+describe('authInterceptor — credential checks', () => {
+  const run = async (url: string, body: unknown) => {
+    const refreshAccessToken = jest.fn();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { url: '/x', navigate: jest.fn() } },
+        { provide: AuthService, useValue: { refreshAccessToken, authStatus: () => 'authenticated' } },
+        { provide: AuthQueueService, useValue: { isRefreshingToken: false } },
+        { provide: HttpXsrfTokenExtractor, useValue: { getToken: () => null } },
+      ],
+    });
+    const error = new HttpErrorResponse({ status: 401, error: body, url });
+    const req = new HttpRequest('POST', url, {});
+    const result = await TestBed.runInInjectionContext(() =>
+      firstValueFrom(authInterceptor(req, () => throwError(() => error))).catch((e) => e),
+    );
+    return { result, error, refreshAccessToken };
+  };
+
+  it('no refresca ni reintenta ante una contraseña incorrecta en el step-up', async () => {
+    const { result, error, refreshAccessToken } = await run('http://api/api/v1/auth/step-up', {
+      code: 'STEP_UP_INVALID_CREDENTIALS',
+    });
+    expect(result).toBe(error);
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('no refresca ante credenciales inválidas en cualquier ruta', async () => {
+    const { refreshAccessToken } = await run('http://api/api/v1/other', { code: 'AUTH_INVALID_CREDENTIALS' });
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('sí refresca un 401 genérico de sesión', async () => {
+    const { refreshAccessToken } = await run('http://api/api/v1/invoices', { code: 'UNAUTHORIZED' });
+    expect(refreshAccessToken).toHaveBeenCalled();
+  });
+});

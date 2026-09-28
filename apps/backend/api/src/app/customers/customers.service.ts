@@ -11,6 +11,21 @@ import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.excep
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { likeTerm } from '../common/database/search-term';
+import { assertNoDependents, DependentReference } from '../common/database/dependents';
+
+/**
+ * Everything that names a customer and must outlive a change of mind about the customer record.
+ * Invoices and receipts are fiscal records; the rest are the commercial history around them.
+ */
+const CUSTOMER_DEPENDENTS: readonly DependentReference[] = [
+  { table: 'invoices', column: 'customer_id', label: 'common.dependents.invoices' },
+  { table: 'customer_payments', column: 'customer_id', label: 'common.dependents.customer_payments' },
+  { table: 'quotes', column: 'customer_id', label: 'common.dependents.quotes' },
+  { table: 'opportunities', column: 'customer_id', label: 'common.dependents.opportunities' },
+  { table: 'activities', column: 'customer_id', label: 'common.dependents.activities' },
+  { table: 'cases', column: 'customer_id', label: 'common.dependents.cases' },
+  { table: 'projects', column: 'customer_id', label: 'common.dependents.projects' },
+];
 
 @Injectable()
 export class CustomersService {
@@ -219,6 +234,11 @@ export class CustomersService {
   async remove(id: string, organizationId: string): Promise<void> {
     const customer = await this.findOne(id, organizationId);
     await this.dataSource.transaction(async (manager) => {
+      // A customer with documents is deactivated, never deleted (QA C-03). Deleting used to
+      // cascade into its invoices — issued e-NCF included — and its receipts, orphaning their
+      // journal entries and leaving receivables out of balance with the ledger. The database now
+      // refuses as well (ON DELETE RESTRICT); this check is what tells the reader why.
+      await assertNoDependents(manager, customer.id, CUSTOMER_DEPENDENTS, 'customers.delete_blocked');
       await manager.remove(Customer, customer);
       await this.saasService.releaseUsage(manager, organizationId, SaasResource.CUSTOMERS);
     });

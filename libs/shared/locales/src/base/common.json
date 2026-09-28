@@ -59,6 +59,101 @@
     "en": "Delete",
     "pt": "Excluir"
   },
+  "common.dependents.activities": {
+    "es": "actividades",
+    "en": "activities",
+    "pt": "atividades"
+  },
+  "common.dependents.boms": {
+    "es": "listas de materiales",
+    "en": "bills of materials",
+    "pt": "listas de materiais"
+  },
+  "common.dependents.cases": {
+    "es": "casos de servicio",
+    "en": "service cases",
+    "pt": "casos de atendimento"
+  },
+  "common.dependents.customer_payments": {
+    "es": "cobros",
+    "en": "customer receipts",
+    "pt": "recebimentos"
+  },
+  "common.dependents.employees": {
+    "es": "empleados",
+    "en": "employees",
+    "pt": "funcionários"
+  },
+  "common.dependents.invoice_lines": {
+    "es": "líneas de factura",
+    "en": "invoice lines",
+    "pt": "linhas de fatura"
+  },
+  "common.dependents.invoices": {
+    "es": "facturas",
+    "en": "invoices",
+    "pt": "faturas"
+  },
+  "common.dependents.opportunities": {
+    "es": "oportunidades",
+    "en": "opportunities",
+    "pt": "oportunidades"
+  },
+  "common.dependents.payslips": {
+    "es": "recibos de nómina",
+    "en": "payslips",
+    "pt": "holerites"
+  },
+  "common.dependents.production_orders": {
+    "es": "órdenes de producción",
+    "en": "production orders",
+    "pt": "ordens de produção"
+  },
+  "common.dependents.projects": {
+    "es": "proyectos",
+    "en": "projects",
+    "pt": "projetos"
+  },
+  "common.dependents.purchase_order_lines": {
+    "es": "líneas de órdenes de compra",
+    "en": "purchase order lines",
+    "pt": "linhas de pedidos de compra"
+  },
+  "common.dependents.purchase_orders": {
+    "es": "órdenes de compra",
+    "en": "purchase orders",
+    "pt": "pedidos de compra"
+  },
+  "common.dependents.quote_lines": {
+    "es": "líneas de cotizaciones",
+    "en": "quote lines",
+    "pt": "linhas de orçamentos"
+  },
+  "common.dependents.quotes": {
+    "es": "cotizaciones",
+    "en": "quotes",
+    "pt": "orçamentos"
+  },
+  "common.dependents.requisition_lines": {
+    "es": "líneas de requisiciones",
+    "en": "requisition lines",
+    "pt": "linhas de requisições"
+  },
+  "common.dependents.stock_movements": {
+    "es": "movimientos de inventario",
+    "en": "stock movements",
+    "pt": "movimentos de estoque"
+  },
+  "common.dependents.vendor_bill_lines": {
+    "es": "líneas de facturas de proveedor",
+    "en": "vendor bill lines",
+    "pt": "linhas de faturas de fornecedor"
+  },
+  "common.dependents.vendor_bills": {
+    "es": "facturas de proveedor",
+    "en": "vendor bills",
+    "pt": "faturas de fornecedor"
+  },
   "common.discard": {
     "es": "Descartar",
     "en": "Discard",

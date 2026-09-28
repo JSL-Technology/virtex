@@ -69,7 +69,9 @@ export class VendorBill {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @ManyToOne(() => Supplier, { eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Supplier, { eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'vendor_id' })
   vendor: Supplier;
 

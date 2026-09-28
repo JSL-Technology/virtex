@@ -13,15 +13,20 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { BlankToUndefined, IsPhoneLike } from '../../common/transformers/blank-to-undefined.transformer';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 
 export class CreateCustomerDto {
+  @BlankToUndefined()
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   companyName: string;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   contactPerson?: string;
 
   /**
@@ -31,12 +36,15 @@ export class CreateCustomerDto {
    * past the field — which is worse than an empty column, because the next invoice run sends to
    * it. See the `CustomerContactOptional` migration.
    */
+  @BlankToUndefined()
   @IsEmail()
   @IsOptional()
   email?: string;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @IsPhoneLike()
   phone?: string;
 
   /**
@@ -47,6 +55,7 @@ export class CreateCustomerDto {
    * `CustomersService` validates it against the catalogue, and — unlike before, when this carried
    * `@IsString()` and nothing else — a wrong one is now refused rather than stored.
    */
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
   taxId?: string;
@@ -57,6 +66,7 @@ export class CreateCustomerDto {
    * Optional. Omitted, the catalogue's default for the resolved country decides, which is what a
    * domestic customer in a single-identifier market (Colombia, Chile, Peru) will always want.
    */
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
   @Length(1, 32)
@@ -67,6 +77,7 @@ export class CreateCustomerDto {
    *
    * An exporter's customers are abroad by definition. Defaults to the tenant's country.
    */
+  @BlankToUndefined()
   @IsISO31661Alpha2()
   @IsOptional()
   identityDocumentCountry?: string;
@@ -78,24 +89,33 @@ export class CreateCustomerDto {
    * list — so it is stated rather than inferred. Absent, nothing is withheld automatically and a
    * document that withholds has to justify itself.
    */
+  @BlankToUndefined()
   @IsEnum(TaxpayerType)
   @IsOptional()
   taxpayerType?: TaxpayerType;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   address?: string;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   city?: string;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   stateOrProvince?: string;
 
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
+  @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   postalCode?: string;
 
   @IsString()
@@ -108,6 +128,7 @@ export class CreateCustomerDto {
   totalBilled?: number;
 
   /** The terms as they are printed on the document: "Neto 30", "Contado". */
+  @BlankToUndefined()
   @IsString()
   @IsOptional()
   @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })

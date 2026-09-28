@@ -29,7 +29,7 @@ import { SafeUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
 import { AuthException } from './exceptions/auth.exception';
 import { LoginResultDto } from './dto/login-response.dto';
-import { StepUpScope } from './enums/step-up-scope.enum';
+import { StepUpClaims, StepUpScope, carriedGrants, stepUpCovers } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
@@ -294,13 +294,35 @@ export class AuthService extends SessionSwitchPort {
     return this.sessionService.refreshAccessToken(token, ipAddress, userAgent);
   }
 
+  /**
+   * The caller's session, re-read from the source of truth.
+   *
+   * `getFreshUserStatus` answers the AUTHORISATION question (is this principal still allowed in,
+   * with which roles and permissions, in which tenant) and deliberately carries only what the
+   * request pipeline needs. The session bootstrap needs more than that: it is what the client
+   * rebuilds its whole user from on every page load. It used to return the bare principal, so
+   * after a reload the user arrived with `organizations: []` and without the profile fields
+   * (phone, avatar, job title…) that the login response did carry. The client's organization
+   * guard then rejected the tenant in the URL and redirected to that very URL forever, freezing
+   * the tab (QA C-02), and the profile screen came up without the phone it requires (QA A-04).
+   *
+   * The shape now matches the login response: the full safe user for the active tenant, with the
+   * freshly-resolved principal laid over it so authorisation facts always come from one place.
+   */
   async status(userFromJwt: AuthenticatedUser) {
-    // We delegate status retrieval to TokenService as well, or just use what we have.
-    // However, status often requires a fresh check.
-    // Since we removed userCacheService injection, we need to decide:
-    // 1. Re-inject UserCacheService (but this defeats the refactor purpose if TokenService handles validation)
-    // 2. Move status logic to TokenService (best).
-    return this.tokenService.getFreshUserStatus(userFromJwt);
+    const { user: principal } = await this.tokenService.getFreshUserStatus(userFromJwt);
+    const entity = await this.usersService.findUserByIdForAuth(principal.id);
+    if (!entity) {
+      return { user: principal };
+    }
+    const safe = this.tokenService.buildSafeUser(entity, principal.organizationId);
+    return {
+      user: {
+        ...safe,
+        ...principal,
+        organizations: entity.organizations ?? [],
+      },
+    };
   }
 
   async logoutCurrentSession(userId: string, sessionId?: string): Promise<void> {
@@ -513,7 +535,10 @@ export class AuthService extends SessionSwitchPort {
 
       const isValid = await this.passwordService.verify(userWithSec.security.passwordHash, currentPass);
       if (!isValid) {
-          throw new AuthException(AuthError.INVALID_CREDENTIALS, 401, { reason: 'invalid_current_password' });
+          // 400, not 401. The caller IS authenticated — it is the value typed into the "current
+          // password" field that is wrong. A 401 here was read by the client as an expired session:
+          // it refreshed, replayed the request and signed the user out (QA A-01, M-03).
+          throw new AuthException(AuthError.INVALID_CREDENTIALS, 400, { reason: 'invalid_current_password' });
       }
 
       await this.passwordService.assertNotBreached(newPass);
@@ -554,6 +579,7 @@ export class AuthService extends SessionSwitchPort {
       userId: string,
       credentials: { password?: string; otpCode?: string },
       scope: StepUpScope,
+      currentToken?: string,
   ): Promise<{ stepUpToken: string; maxAgeMs: number }> {
       await this.assertWithinStepUpAttemptBudget(userId);
 
@@ -595,16 +621,51 @@ export class AuthService extends SessionSwitchPort {
       }
 
       if (!isValid) {
-          throw new UnauthorizedException(
-              twoFactorEnabled ? 'Código de verificación inválido.' : 'Contraseña incorrecta.',
+          // 400 with its own code, not 401. The session is fine — the value typed into the dialog
+          // is not. A 401 here was indistinguishable from an expired session: the client refreshed,
+          // REPLAYED the failed attempt (spending the budget twice) and signed the user out with
+          // the dialog still on screen (QA A-01). The literal Spanish sentences are gone too.
+          throw new BadRequestError(
+              twoFactorEnabled ? 'auth.step_up_incorrect_code' : 'auth.step_up_incorrect_password',
+              {},
+              'STEP_UP_INVALID_CREDENTIALS',
           );
       }
 
       // Only a successful challenge clears the budget, so failures keep accumulating.
       await this.atomicCache.reset(AuthService.stepUpAttemptKey(userId));
 
+      // Returned to the controller, which delivers it as an httpOnly cookie. It is deliberately
+      // NOT part of the HTTP response body — see StepUpGuard.
+      return this.mintStepUpToken(userId, scope, currentToken);
+  }
+
+  /**
+   * Sign a step-up proof for `scope`, carrying forward the caller's still-valid reusable grants.
+   *
+   * The proof lives in a single cookie. Minting one for scope B used to overwrite the proof for
+   * scope A, so a screen that needs both asked for the password again every time it alternated
+   * (QA A-02). Carried grants keep their ORIGINAL expiry — re-authenticating for B never extends
+   * how long A stays authorised — and single-use scopes are never carried.
+   */
+  private mintStepUpToken(
+      userId: string,
+      scope: StepUpScope,
+      currentToken?: string,
+  ): { stepUpToken: string; maxAgeMs: number } {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const previous = this.readStepUpClaims(currentToken, userId);
+      const grants = carriedGrants(previous, nowSec);
+      delete grants[scope];
+
       const stepUpToken = this.jwtService.sign(
-          { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
+          {
+              sub: userId,
+              stepup: true,
+              scope,
+              jti: crypto.randomUUID(),
+              ...(Object.keys(grants).length ? { grants } : {}),
+          },
           {
               secret: AuthConfig.JWT_STEP_UP_SECRET,
               expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION as `${number}m`,
@@ -614,10 +675,22 @@ export class AuthService extends SessionSwitchPort {
               audience: 'virteex-step-up',
           },
       );
-
-      // Returned to the controller, which delivers it as an httpOnly cookie. It is deliberately
-      // NOT part of the HTTP response body — see StepUpGuard.
       return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
+  }
+
+  /** The claims of the caller's current proof, or null when there is none it may build on. */
+  private readStepUpClaims(token: string | undefined, userId: string): StepUpClaims | null {
+      if (!token) return null;
+      try {
+          const claims = this.jwtService.verify<StepUpClaims>(token, {
+              secret: AuthConfig.JWT_STEP_UP_SECRET,
+              issuer: 'virteex-api',
+              audience: 'virteex-step-up',
+          });
+          return claims.stepup && claims.sub === userId ? claims : null;
+      } catch {
+          return null;
+      }
   }
 
   /**
@@ -636,25 +709,13 @@ export class AuthService extends SessionSwitchPort {
       userId: string,
       scope: StepUpScope,
   ): { valid: boolean; expiresInMs: number } {
-      if (!token) return { valid: false, expiresInMs: 0 };
-      try {
-          const payload = this.jwtService.verify<{
-              sub: string;
-              stepup: boolean;
-              scope: StepUpScope;
-              exp: number;
-          }>(token, {
-              secret: AuthConfig.JWT_STEP_UP_SECRET,
-              issuer: 'virteex-api',
-              audience: 'virteex-step-up',
-          });
-          if (!payload.stepup || payload.sub !== userId || payload.scope !== scope) {
-              return { valid: false, expiresInMs: 0 };
-          }
-          return { valid: true, expiresInMs: Math.max(payload.exp * 1000 - Date.now(), 0) };
-      } catch {
+      const claims = this.readStepUpClaims(token, userId);
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (!claims || !stepUpCovers(claims, scope, nowSec)) {
           return { valid: false, expiresInMs: 0 };
       }
+      const expSec = claims.scope === scope ? claims.exp : (claims.grants?.[scope] ?? claims.exp);
+      return { valid: true, expiresInMs: Math.max((expSec ?? 0) * 1000 - Date.now(), 0) };
   }
 
   /**
@@ -731,17 +792,9 @@ export class AuthService extends SessionSwitchPort {
   issueStepUpTokenAfterFederatedReauth(
       userId: string,
       scope: StepUpScope,
+      currentToken?: string,
   ): { stepUpToken: string; maxAgeMs: number } {
-      const stepUpToken = this.jwtService.sign(
-          { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
-          {
-              secret: AuthConfig.JWT_STEP_UP_SECRET,
-              expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION as `${number}m`,
-              issuer: 'virteex-api',
-              audience: 'virteex-step-up',
-          },
-      );
-      return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
+      return this.mintStepUpToken(userId, scope, currentToken);
   }
 
   /**

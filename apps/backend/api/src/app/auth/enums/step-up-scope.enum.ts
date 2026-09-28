@@ -142,3 +142,67 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.MOVE_FUNDS,
   StepUpScope.MANAGE_BANK_ACCOUNTS,
 ]);
+
+/**
+ * Scopes a proof for another scope already covers.
+ *
+ * Whoever just re-authenticated to CHANGE a salary or APPROVE a payroll run has, by the same
+ * gesture, shown what viewing payroll data asks for. Asking again for the weaker scope inside the
+ * same window was pure friction: creating one salary took three password prompts (QA A-02).
+ * Only strictly weaker, read-only scopes appear on the right-hand side.
+ */
+export const IMPLIED_SCOPES: Readonly<Partial<Record<StepUpScope, readonly StepUpScope[]>>> = {
+  [StepUpScope.MANAGE_COMPENSATION]: [StepUpScope.VIEW_PAYROLL_DATA],
+  [StepUpScope.APPROVE_PAYROLL]: [StepUpScope.VIEW_PAYROLL_DATA],
+};
+
+/**
+ * The claims of a step-up proof.
+ *
+ * `scope` is the action the proof was minted for. `grants` carries the REUSABLE scopes the caller
+ * had already proven within their own windows (scope → expiry, epoch seconds): the proof lives in
+ * one cookie, and minting a new one for scope B used to overwrite the proof for scope A, so a
+ * screen that needs both (view the payroll, then change a salary) asked for the password over and
+ * over. Single-use scopes are never carried: they are spent by the action they were minted for.
+ */
+export interface StepUpClaims {
+  sub: string;
+  stepup: boolean;
+  scope: StepUpScope;
+  jti: string;
+  exp?: number;
+  grants?: Partial<Record<StepUpScope, number>>;
+}
+
+/** Whether a proof authorises `required` right now (`nowSec`, epoch seconds). */
+export function stepUpCovers(claims: StepUpClaims, required: StepUpScope, nowSec: number): boolean {
+  if (claims.scope === required) return true;
+  if ((IMPLIED_SCOPES[claims.scope] ?? []).includes(required)) return true;
+  if (SINGLE_USE_SCOPES.has(required)) return false;
+  const carried = claims.grants?.[required];
+  return typeof carried === 'number' && carried > nowSec;
+}
+
+/** The reusable grants a new proof inherits from the caller's current one. */
+export function carriedGrants(
+  previous: StepUpClaims | null,
+  nowSec: number,
+): Partial<Record<StepUpScope, number>> {
+  if (!previous?.stepup) return {};
+  const grants: Partial<Record<StepUpScope, number>> = {};
+  for (const [scope, exp] of Object.entries(previous.grants ?? {})) {
+    if (typeof exp === 'number' && exp > nowSec && !SINGLE_USE_SCOPES.has(scope as StepUpScope)) {
+      grants[scope as StepUpScope] = exp;
+    }
+  }
+  if (previous.exp && previous.exp > nowSec) {
+    const own = [previous.scope, ...(IMPLIED_SCOPES[previous.scope] ?? [])];
+    for (const scope of own) {
+      if (!SINGLE_USE_SCOPES.has(scope)) {
+        grants[scope] = Math.max(grants[scope] ?? 0, previous.exp);
+      }
+    }
+  }
+  return grants;
+}
+

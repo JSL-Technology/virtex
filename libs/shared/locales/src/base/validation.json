@@ -231,6 +231,11 @@
     "en": "The start date cannot be later than the end date.",
     "pt": "A data inicial não pode ser posterior à data final."
   },
+  "validation.constraints.phone_format": {
+    "es": "{{property}} debe ser un número de teléfono (dígitos, espacios, +, guiones o paréntesis).",
+    "en": "{{property}} must be a phone number (digits, spaces, +, hyphens or parentheses).",
+    "pt": "{{property}} deve ser um número de telefone (dígitos, espaços, +, hífens ou parênteses)."
+  },
   "validation.constraints.property_contains_data_not_valid": {
     "es": "{{property}} contiene datos que no son válidos.",
     "en": "{{property}} contains data that is not valid.",

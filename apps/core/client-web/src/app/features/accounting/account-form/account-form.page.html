@@ -58,6 +58,13 @@
                 <label for="name">{{ 'accounting.account_form.account_name' | translate }} *</label>
                 <input id="name" formControlName="name">
               </div>
+              @if (isEditing()) {
+                <div class="form-field full-width">
+                  <label for="reasonForChange">{{ 'accounting.account_form.reason_for_change' | translate }} *</label>
+                  <textarea id="reasonForChange" formControlName="reasonForChange" rows="2" maxlength="500"></textarea>
+                  <small class="field-hint">{{ 'accounting.account_form.reason_for_change_hint' | translate }}</small>
+                </div>
+              }
               <div class="form-field full-width">
                 <label for="description">{{ 'accounting.account_form.description' | translate }}</label>
                 <textarea id="description" formControlName="description" rows="3"></textarea>
@@ -83,20 +90,22 @@
                 <select id="type" formControlName="type" [attr.disabled]="isEditing() ? true : null">
                   <option [ngValue]="null" disabled>{{ 'accounting.account_form.select_type' | translate }}</option>
                   @for (type of accountTypes; track type) {
-                    <option [value]="type">{{ type }}</option>
+                    <option [value]="type">{{ 'accounting.account_type.' + type | translate }}</option>
                   }
                 </select>
               </div>
                <div class="form-field">
                 <label for="nature">{{ 'accounting.account_form.nature_automatic' | translate }}</label>
-                <input id="nature" formControlName="nature" readonly>
+                <!-- Se muestra traducida («Deudora»/«Acreedora»), no el código DEBIT/CREDIT (QA M-17). -->
+                <input id="nature" readonly
+                       [value]="accountForm.get('nature')?.value ? ('accounting.account_nature.' + accountForm.get('nature')?.value | translate) : ''">
               </div>
               <div class="form-field">
                 <label for="category">{{ 'accounting.account_form.category' | translate }} *</label>
                 <select id="category" formControlName="category">
                   <option [ngValue]="null" disabled>{{ 'accounting.account_form.select_category' | translate }}</option>
-                  @for (cat of accountCategories; track cat) {
-                    <option [value]="cat">{{ cat }}</option>
+                  @for (cat of categoriesForType(); track cat) {
+                    <option [value]="cat">{{ 'accounting.categories.' + cat | translate }}</option>
                   }
                 </select>
               </div>
@@ -132,7 +141,7 @@
                   <label for="cashFlowCategory">{{ 'accounting.account_form.cash_flow_category' | translate }}</label>
                   <select id="cashFlowCategory" formControlName="cashFlowCategory">
                     @for (cat of cashFlowCategories; track cat) {
-                      <option [value]="cat">{{ cat | titlecase }}</option>
+                      <option [value]="cat">{{ 'accounting.cash_flow_category.' + cat | translate }}</option>
                     }
                   </select>
                 </div>

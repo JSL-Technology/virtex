@@ -31,6 +31,7 @@ import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { likeTerm } from '../common/database/search-term';
+import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 
 @Injectable()
 export class ChartOfAccountsService {
@@ -48,11 +49,28 @@ export class ChartOfAccountsService {
     @InjectQueue('account-jobs') private readonly accountJobsQueue: Queue,
   ) {}
 
+  /**
+   * The category must refine the type (QA M-04): an EXPENSE account filed as CURRENT_ASSET is
+   * summed into the balance sheet while it behaves as an expense. Checked on the API paths
+   * (create, update); provisioning builds charts from reviewed templates.
+   */
+  static assertCategoryFitsType(type: string | undefined, category: string | undefined): void {
+    if (!type || !category) return;
+    if (!isCategoryAllowedForType(type, category)) {
+      throw new BadRequestError('chart_of_accounts.category_does_not_match_type', {
+        category,
+        type,
+        allowed: (ACCOUNT_CATEGORIES_BY_TYPE as Record<string, readonly string[]>)[type]?.join(', ') ?? '',
+      });
+    }
+  }
+
   async create(
     createAccountDto: CreateAccountDto,
     organizationId: string,
     externalManager?: EntityManager,
   ): Promise<Account> {
+    ChartOfAccountsService.assertCategoryFitsType(createAccountDto.type, createAccountDto.category);
     return this.createInTransaction(
       createAccountDto,
       organizationId,
@@ -243,6 +261,9 @@ export class ChartOfAccountsService {
       }
       if (updateAccountDto.type && updateAccountDto.type !== account.type) {
         throw new BadRequestError('chart_of_accounts.account_type_cannot_changed');
+      }
+      if (updateAccountDto.category && updateAccountDto.category !== account.category) {
+        ChartOfAccountsService.assertCategoryFitsType(account.type, updateAccountDto.category);
       }
 
       const { reasonForChange, parentId, segments, ...accountDataDto } =

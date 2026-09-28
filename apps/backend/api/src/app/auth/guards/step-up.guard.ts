@@ -3,18 +3,13 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { HttpRequest as Request } from '../../common/http/http.types';
 import { STEP_UP_CONDITION_KEY, STEP_UP_SCOPE_KEY, StepUpCondition } from '../decorators/step-up.decorator';
-import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
+import { SINGLE_USE_SCOPES, StepUpClaims, StepUpScope, stepUpCovers } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
 import { UnauthorizedError } from '../../i18n/localized.exception';
 
-interface StepUpPayload {
-  sub: string;
-  stepup: boolean;
-  scope: StepUpScope;
-  jti: string;
-}
+type StepUpPayload = StepUpClaims;
 
 /**
  * Requires a recent proof of the caller's own identity for a specific action, not merely a live
@@ -93,7 +88,7 @@ export class StepUpGuard implements CanActivate {
       throw new UnauthorizedError('auth.invalid_or_expired_step_up_token', scopeParams);
     }
 
-    if (!payload.stepup || payload.scope !== requiredScope) {
+    if (!payload.stepup || !stepUpCovers(payload, requiredScope, Math.floor(Date.now() / 1000))) {
       throw new UnauthorizedError('auth.invalid_step_up_token_scope', scopeParams);
     }
 
@@ -108,7 +103,9 @@ export class StepUpGuard implements CanActivate {
       throw new UnauthorizedError('auth.step_up_token_mismatch', scopeParams);
     }
 
-    if (SINGLE_USE_SCOPES.has(payload.scope)) {
+    // Single use is a property of the ACTION being authorised. `stepUpCovers` only lets a
+    // single-use scope through when the proof was minted for it, so this spends exactly that.
+    if (SINGLE_USE_SCOPES.has(requiredScope)) {
       await this.consumeSingleUse(payload.jti, scopeParams);
     }
 

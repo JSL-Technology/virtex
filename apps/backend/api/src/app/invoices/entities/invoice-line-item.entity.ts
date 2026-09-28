@@ -47,7 +47,9 @@ export class InvoiceLineItem {
    * rather than in a constraint whose other effect was that a tenant which had issued one invoice
    * for one stocked product could never be deleted.
    */
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'SET NULL' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'productId' })
   product?: Product | null;
 

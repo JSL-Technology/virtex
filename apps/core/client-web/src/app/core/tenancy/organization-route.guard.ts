@@ -39,16 +39,29 @@ export const organizationRouteGuard: CanActivateFn = (_route, state) => {
     ? state.url.split('/').filter(Boolean)[1]
     : null;
 
-  const available = user.organizations ?? [];
+  //  La empresa del principal cuenta siempre como accesible, aunque la lista `organizations`
+  //  llegue vacía (un bootstrap de sesión antiguo, una caché a medio poblar): el principal ES la
+  //  prueba de pertenencia a esa empresa, el servidor la emitió.
+  const available = mergeOrganizations(user.organizations ?? [], user.organization);
+  const isAvailable = (slug: string | null | undefined): slug is string =>
+    !!slug && available.some((o) => o.slug === slug);
+
+  const requestedSlug = requested ? safeDecode(requested) : null;
+  if (requestedSlug && isAvailable(requestedSlug)) {
+    active.remember(requestedSlug);
+    return true;
+  }
+
   //  Orden del respaldo: la última empresa usada en este navegador, luego la del principal, luego
   //  la primera a la que se tenga acceso. Lo primero es lo que hace que volver al producto te deje
   //  donde estabas en vez de en la empresa que el token traiga.
-  const fallback = active.lastUsed() ?? user.organization?.slug ?? available[0]?.slug ?? null;
-
-  if (requested && available.some((o) => o.slug === decodeURIComponent(requested))) {
-    active.remember(decodeURIComponent(requested));
-    return true;
-  }
+  //
+  //  Cada candidata se valida contra `available`. Antes `lastUsed()` se aceptaba a ciegas: si la
+  //  empresa recordada no estaba en la lista (porque la lista llegó vacía o porque el usuario ya
+  //  no pertenece), el guard redirigía a LA MISMA URL que acababa de rechazar, y el router entraba
+  //  en un bucle infinito que congelaba la pestaña (QA C-02).
+  const fallback =
+    [active.lastUsed(), user.organization?.slug, available[0]?.slug].find(isAvailable) ?? null;
 
   if (!fallback) {
     // Un usuario autenticado sin ninguna empresa no puede usar el producto, y el servidor ya lo
@@ -64,6 +77,33 @@ export const organizationRouteGuard: CanActivateFn = (_route, state) => {
   const hash = state.url.indexOf('#');
   const fragment = hash >= 0 ? state.url.slice(hash) : '';
   const withoutOrg = pathWithoutOrganization(hash >= 0 ? state.url.slice(0, hash) : state.url);
+  const target = `${active.urlFor(withoutOrg, fallback)}${fragment}`;
 
-  return router.parseUrl(`${active.urlFor(withoutOrg, fallback)}${fragment}`);
+  //  Cinturón de seguridad contra bucles: un guard que devuelve la URL que está evaluando obliga
+  //  al router a re-evaluarla sin fin. Con la validación de arriba no debería ocurrir, pero el
+  //  coste de equivocarse es una pestaña congelada, así que se corta explícitamente.
+  if (target === state.url) {
+    return router.parseUrl('/unauthorized');
+  }
+
+  return router.parseUrl(target);
 };
+
+type OrganizationRef = { slug?: string | null };
+
+function mergeOrganizations<T extends OrganizationRef>(
+  list: ReadonlyArray<T>,
+  principal: T | null | undefined,
+): T[] {
+  const merged = [...list];
+  if (principal?.slug && !merged.some((o) => o.slug === principal.slug)) merged.unshift(principal);
+  return merged.filter((o) => !!o.slug);
+}
+
+function safeDecode(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
