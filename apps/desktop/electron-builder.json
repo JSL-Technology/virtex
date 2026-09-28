@@ -4,8 +4,25 @@
   "directories": {
     "output": "dist/apps/desktop-package"
   },
-  "files": ["apps/desktop/src/**/*"],
-  "mac": { "category": "public.app-category.business", "target": ["dmg"] },
-  "win": { "target": ["nsis"] },
-  "linux": { "target": ["AppImage"], "category": "Office" }
+  "files": [
+    "apps/desktop/src/**/*",
+    "!apps/desktop/src/**/*.test.js"
+  ],
+  "mac": {
+    "category": "public.app-category.business",
+    "target": [
+      "dmg"
+    ]
+  },
+  "win": {
+    "target": [
+      "nsis"
+    ]
+  },
+  "linux": {
+    "target": [
+      "AppImage"
+    ],
+    "category": "Office"
+  }
 }

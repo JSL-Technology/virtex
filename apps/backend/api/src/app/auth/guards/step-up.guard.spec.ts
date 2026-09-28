@@ -39,7 +39,9 @@ describe('StepUpGuard', () => {
   it('names the scope it wanted, so the client can prompt for exactly that proof', async () => {
     class Controller {
       @StepUp(StepUpScope.MOVE_FUNDS)
-      pay() {}
+      pay(): string {
+        return 'paid';
+      }
     }
     const context = contextFor(Controller.prototype.pay, { user: { id: 'u1' }, cookies: {} });
     await expect(guard.canActivate(context)).rejects.toMatchObject({
@@ -53,7 +55,9 @@ describe('StepUpGuard', () => {
       @StepUp(StepUpScope.MANAGE_COMPENSATION, {
         when: (req) => 'bankAccountNumber' in ((req.body ?? {}) as object),
       })
-      update() {}
+      update(): string {
+        return 'updated';
+      }
     }
     const handler = Controller.prototype.update;
 
@@ -82,7 +86,9 @@ describe('StepUpGuard', () => {
   it('refuses a proof minted for another scope, and says which one it wanted', async () => {
     class Controller {
       @StepUp(StepUpScope.MOVE_FUNDS)
-      pay() {}
+      pay(): string {
+        return 'paid';
+      }
     }
     const token = tokenFor('u1', StepUpScope.VIEW_PAYROLL_DATA);
     await expect(
