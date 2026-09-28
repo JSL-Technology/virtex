@@ -93,18 +93,54 @@ describe('OidcProviderService', () => {
       expect(user.accessToken).toBe('access-token');
     });
 
-    it('treats a Microsoft organization account (tid present) as email-verified', () => {
+    /**
+     * "nOAuth": an administrator of ANY Entra tenant can set a user's `email` to any address,
+     * unverified. Belonging to an organizational tenant says nothing about owning the address, so
+     * it must not make the address verified — that is what let a purpose-made tenant carrying a
+     * victim's address link to the victim's account.
+     */
+    it('does not treat a Microsoft organizational account as email-verified on its tenant alone', () => {
       const service = makeService(FULL_ENV);
       const user = service.mapClaimsToSocialUser('microsoft', {
         sub: 'ms-sub-1',
-        preferred_username: 'bob@acme.com',
+        email: 'victim@acme.com',
         name: 'Bob Smith',
+        tid: 'an-attacker-controlled-tenant',
+      } as any);
+      expect(user.email).toBe('victim@acme.com');
+      expect(user.firstName).toBe('Bob');
+      expect(user.lastName).toBe('Smith');
+      expect(user.emailVerified).toBe(false);
+    });
+
+    it('trusts a Microsoft email only when the domain owner is verified (xms_edov)', () => {
+      const service = makeService(FULL_ENV);
+      const user = service.mapClaimsToSocialUser('microsoft', {
+        sub: 'ms-sub-3',
+        email: 'bob@acme.com',
+        xms_edov: true,
+        tid: 'a-real-tenant-guid',
+      } as any);
+      expect(user.emailVerified).toBe(true);
+    });
+
+    it('never treats a Microsoft sign-in name as a verified address', () => {
+      const service = makeService(FULL_ENV);
+      const user = service.mapClaimsToSocialUser('microsoft', {
+        sub: 'ms-sub-4',
+        preferred_username: 'bob@acme.com',
+        xms_edov: true,
         tid: 'a-real-tenant-guid',
       } as any);
       expect(user.email).toBe('bob@acme.com');
-      expect(user.firstName).toBe('Bob');
-      expect(user.lastName).toBe('Smith');
-      expect(user.emailVerified).toBe(true);
+      expect(user.emailVerified).toBe(false);
+    });
+
+    it('does not fall back to a sign-in name for providers other than Microsoft', () => {
+      const service = makeService(FULL_ENV);
+      expect(() =>
+        service.mapClaimsToSocialUser('google', { sub: 'g', preferred_username: 'a@b.c' } as any),
+      ).toThrow(/email/i);
     });
 
     it('does not auto-verify Microsoft personal accounts (consumers tenant)', () => {

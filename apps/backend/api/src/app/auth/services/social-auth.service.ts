@@ -44,6 +44,23 @@ export class SocialAuthService {
       const isNewLink =
         user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId;
 
+      // An account bound to a subject at this provider stays bound to it. The provider's `sub` is
+      // the person's stable identity there; the email is just an attribute, and the same address
+      // can surface on a different account at the same provider (a recycled mailbox, a second
+      // tenant). Re-binding on a matching email used to hand the account to whichever subject
+      // signed in last.
+      if (
+        user.authProvider === socialUser.provider &&
+        user.authProviderId &&
+        user.authProviderId !== socialUser.providerId
+      ) {
+        this.logger.warn(
+          { event: 'federated_subject_mismatch', provider: socialUser.provider, userId: user.id },
+          '[SECURITY] Federated sign-in presented a different subject for a bound account',
+        );
+        throw new ConflictError('auth.federated_identity_does_not_match_account');
+      }
+
       if (isNewLink) {
         // M-02 FIX: Never (re)link an OAuth identity to an existing local account unless the
         // provider asserts the email is verified. A malicious/custom IdP could otherwise claim

@@ -755,6 +755,7 @@
   "auth.email_verified_successfully": "Email address verified.",
   "auth.every_session_has_closed": "Every session has been closed.",
   "auth.failed_complete_sign_in_with_identity_provider": "The sign-in with the identity provider could not be completed.",
+  "auth.federated_identity_does_not_match_account": "This account is linked to a different identity at that provider. Sign in with the account you linked.",
   "auth.identity_provider_did_not_return_email_address": "The identity provider did not return an email address.",
   "auth.identity_provider_did_not_return_id_token": "The identity provider did not return an id_token.",
   "auth.identity_provider_did_not_verify_email_address": "The identity provider did not verify the email address.",

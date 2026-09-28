@@ -755,6 +755,7 @@
   "auth.email_verified_successfully": "Correo electrónico verificado.",
   "auth.every_session_has_closed": "Todas las sesiones han sido cerradas.",
   "auth.failed_complete_sign_in_with_identity_provider": "No se pudo completar el inicio de sesión con el proveedor de identidad.",
+  "auth.federated_identity_does_not_match_account": "Esta cuenta está vinculada a otra identidad de ese proveedor. Inicia sesión con la cuenta que usaste al vincularla.",
   "auth.identity_provider_did_not_return_email_address": "El proveedor de identidad no devolvió un correo electrónico.",
   "auth.identity_provider_did_not_return_id_token": "El proveedor de identidad no devolvió un id_token.",
   "auth.identity_provider_did_not_verify_email_address": "El proveedor de identidad no verificó el correo electrónico.",
