@@ -1,3 +1,4 @@
+import { SessionPolicyDto } from './dto/responses/session-policy.dto';
 import {
   Controller,
   Post,
@@ -236,8 +237,11 @@ export class AuthMfaController {
       // Loads the pending session and counts the attempt, but does NOT destroy it — a mistyped
       // code must not force the user to restart the whole login.
       const user = await this.authService.consume2faPendingSession(pendingId, ip, userAgent);
+      const rememberMe = await this.authService.pending2faRememberMe(pendingId);
 
-      const authResult = await this.mfaOrchestratorService.complete2faLogin(user, dto.code, ip, userAgent);
+      const authResult = await this.mfaOrchestratorService.complete2faLogin(
+        user, dto.code, ip, userAgent, rememberMe,
+      );
 
       const { user: authUser, accessToken, refreshToken } = authResult;
 
@@ -245,11 +249,17 @@ export class AuthMfaController {
       // be replayable.
       await this.authService.clear2faPendingSession(pendingId);
       this.cookieService.clear2faPendingCookie(res);
-      this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: authUser?.id });
+      this.cookieService.setAuthCookies(res, accessToken, refreshToken, {
+        userId: authUser?.id,
+        rememberMe: authResult.rememberMe,
+      });
       // Through the DTO, like every other auth response. `buildSafeUser` only strips the
       // `security` relation, so returning its output directly leaked `invitationToken`,
       // `invitationTokenExpires` and `authProviderId` — and it did so on the ONE response that
       // completes a second-factor login (CWE-200).
-      return { user: plainToInstance(UserResponseDto, authUser, { excludeExtraneousValues: true }) };
+      return {
+        user: plainToInstance(UserResponseDto, authUser, { excludeExtraneousValues: true }),
+        session: SessionPolicyDto.for(Boolean(authResult.rememberMe)),
+      };
   }
 }

@@ -19,6 +19,12 @@
       <span class="company-plan">{{ 'main.company_switcher.current_company' | translate }}</span>
     </div>
 
+    @if (pendingInvitations().length) {
+      <span
+        class="invitation-badge"
+        [attr.aria-label]="'main.company_switcher.pending_invitations_count' | translate: { count: pendingInvitations().length }"
+      >{{ pendingInvitations().length }}</span>
+    }
     <lucide-icon [img]="ChevronsUpDownIcon" size="14" class="trigger-icon"></lucide-icon>
   </button>
 
@@ -38,6 +44,42 @@
       </div>
 
       <div class="dropdown-body">
+        @if (pendingInvitations().length) {
+          <div class="section-label">{{ 'main.company_switcher.pending_invitations' | translate }}</div>
+          @for (invitation of pendingInvitations(); track invitation.id) {
+            <div class="invitation-item">
+              <div class="org-icon">
+                <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
+              </div>
+              <div class="invitation-text">
+                <span class="org-name">{{ invitation.organizationName }}</span>
+                <span class="invitation-role">
+                  {{ 'main.company_switcher.invitation_role' | translate: { role: invitation.roleName } }}
+                </span>
+              </div>
+              <div class="invitation-actions">
+                <button
+                  type="button"
+                  class="invitation-accept"
+                  [disabled]="answering() === invitation.id"
+                  (click)="acceptInvitation(invitation, $event)"
+                >{{ 'main.company_switcher.accept_invitation' | translate }}</button>
+                <button
+                  type="button"
+                  class="invitation-decline"
+                  [disabled]="answering() === invitation.id"
+                  [attr.aria-label]="'main.company_switcher.decline_invitation' | translate"
+                  (click)="declineInvitation(invitation, $event)"
+                >
+                  <lucide-icon [img]="XIcon" size="14"></lucide-icon>
+                </button>
+              </div>
+            </div>
+          }
+          @if (invitationError()) {
+            <div class="switch-error">{{ invitationError()! | translate }}</div>
+          }
+        }
         <div class="section-label">{{ 'main.company_switcher.companies' | translate }}</div>
         @for (org of filteredOrganizations(); track org.id) {
           <button

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
 import { UserOrganization } from '../entities/user-organization.entity';
 import { Organization } from '../entities/organization.entity';
 import { UserCacheService } from '../../auth/modules/user-cache.service';
@@ -76,8 +76,49 @@ export class MembershipService {
     await this.userCacheService.clearUserSession(userId);
   }
 
+  /**
+   * Whether the person may act in the tenant: a membership exists AND the tenant has not suspended
+   * it. A suspended membership is a membership in the administration screen and nowhere else.
+   */
   async isMember(userId: string, organizationId: string): Promise<boolean> {
+    return (
+      (await this.membershipRepository.countBy({ userId, organizationId, suspendedAt: IsNull() })) > 0
+    );
+  }
+
+  /** Whether a membership row exists at all, suspended or not. */
+  async hasMembershipRow(userId: string, organizationId: string): Promise<boolean> {
     return (await this.membershipRepository.countBy({ userId, organizationId })) > 0;
+  }
+
+  /**
+   * Stop a person acting in ONE tenant, without touching their account.
+   *
+   * The tenant-local counterpart of blocking. A tenant that is not the person's home organization
+   * has no authority over the identity — blocking the account would cut them off from every other
+   * tenant too — but it has full authority over access to itself, and this is that authority.
+   * The cached principal is dropped so the suspension applies to the very next request.
+   */
+  async suspend(userId: string, organizationId: string, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(UserOrganization) : this.membershipRepository;
+    await repo.update({ userId, organizationId }, { suspendedAt: new Date() });
+    await this.userCacheService.clearUserSession(userId);
+  }
+
+  /** Lift a tenant-local suspension. */
+  async reinstate(userId: string, organizationId: string, manager?: EntityManager): Promise<void> {
+    const repo = manager ? manager.getRepository(UserOrganization) : this.membershipRepository;
+    await repo.update({ userId, organizationId }, { suspendedAt: null });
+    await this.userCacheService.clearUserSession(userId);
+  }
+
+  /** Whether this tenant has suspended the person. False when there is no membership at all. */
+  async isSuspended(userId: string, organizationId: string): Promise<boolean> {
+    const row = await this.membershipRepository.findOne({
+      where: { userId, organizationId },
+      select: ['userId', 'suspendedAt'],
+    });
+    return Boolean(row?.suspendedAt);
   }
 
   /**
@@ -93,11 +134,20 @@ export class MembershipService {
       .createQueryBuilder('o')
       .innerJoin(UserOrganization, 'uo', 'uo.organization_id = o.id')
       .where('uo.user_id = :userId', { userId })
+      // A suspended membership grants nothing. This list is what `resolveOrganizationContext`
+      // authorises a tenant switch against, so leaving it out here is what enforces it.
+      .andWhere('uo.suspended_at IS NULL')
       .select(['o.id AS id', 'o.legal_name AS "legalName"', 'o.slug AS slug'])
       .orderBy('o.legal_name', 'ASC')
       .getRawMany<{ id: string; legalName: string; slug: string }>();
 
-    if (activeOrganizationId && !rows.some((row) => row.id === activeOrganizationId)) {
+    if (
+      activeOrganizationId &&
+      !rows.some((row) => row.id === activeOrganizationId) &&
+      // Self-heal only a MISSING row. A row that exists but is suspended is a decision, and
+      // re-adding it here would silently undo it.
+      !(await this.hasMembershipRow(userId, activeOrganizationId))
+    ) {
       const active = await this.organizationRepository.findOneBy({ id: activeOrganizationId });
       if (active) {
         this.logger.warn(

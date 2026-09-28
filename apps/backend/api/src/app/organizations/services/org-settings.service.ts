@@ -1,17 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { MfaPolicyPort } from '../../auth/ports/mfa-policy.port';
 
 @Injectable()
 export class OrgSettingsService extends MfaPolicyPort {
+  private readonly logger = new Logger(OrgSettingsService.name);
+
+  /** How long a tenant's MFA policy is served from the cache. Changing it evicts the entry. */
+  private static readonly MFA_POLICY_TTL_MS = 60_000;
+
   constructor(
     @InjectRepository(OrganizationSettings)
     private readonly repo: Repository<OrganizationSettings>,
+    // Optional only so the many integration suites that build this service by hand for its
+    // accounting defaults keep compiling; the application always injects both.
+    @Optional() @Inject(CACHE_MANAGER) private readonly cache?: Cache,
+    @Optional() private readonly dataSource?: DataSource,
   ) {
     super();
+  }
+
+  private static mfaPolicyKey(organizationId: string): string {
+    return `mfa_policy:${organizationId}`;
   }
 
   /**
@@ -22,11 +38,32 @@ export class OrgSettingsService extends MfaPolicyPort {
    * policy whose default is off.
    */
   async requiresMfa(organizationId: string): Promise<boolean> {
-    const settings = await this.repo.findOne({
-      where: { organizationId },
-      select: ['id', 'requireMfa'],
-    });
-    return settings?.requireMfa ?? false;
+    const key = OrgSettingsService.mfaPolicyKey(organizationId);
+    try {
+      const cached = await this.cache?.get<boolean>(key);
+      if (typeof cached === 'boolean') return cached;
+    } catch (error) {
+      this.logger.warn(`MFA policy cache read failed: ${(error as Error).message}`);
+    }
+
+    // Read AS the tenant. `organization_settings` carries the tenant policy, and this is asked by
+    // `MfaEnrolmentGuard` before the request's tenant connection exists — and at sign-in, before
+    // there is a tenant at all. Without a context the policy hid the row, the answer was "not
+    // required", and connected as `virtex_app` the organization's MFA requirement was never
+    // enforced for anyone. A database error propagates: the guard treats it as "required".
+    const read = () =>
+      this.repo.findOne({ where: { organizationId }, select: ['id', 'requireMfa'] });
+    const settings = this.dataSource
+      ? await runAsTenantJob(this.dataSource, organizationId, read)
+      : await read();
+    const required = settings?.requireMfa ?? false;
+
+    try {
+      await this.cache?.set(key, required, OrgSettingsService.MFA_POLICY_TTL_MS);
+    } catch (error) {
+      this.logger.warn(`MFA policy cache write failed: ${(error as Error).message}`);
+    }
+    return required;
   }
 
   async getForOrg(
@@ -169,6 +206,11 @@ export class OrgSettingsService extends MfaPolicyPort {
     } else {
       Object.assign(settings, partial);
     }
-    return repo.save(settings);
+    const saved = await repo.save(settings);
+    if (partial.requireMfa !== undefined) {
+      // The next request of every member must see the new policy, not a cached one.
+      await this.cache?.del(OrgSettingsService.mfaPolicyKey(organizationId)).catch(() => undefined);
+    }
+    return saved;
   }
 }

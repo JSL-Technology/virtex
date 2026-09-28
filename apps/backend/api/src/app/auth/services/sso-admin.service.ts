@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, QueryFailedError, Repository } from 'typeorm';
 import { promises as dns } from 'dns';
 import * as crypto from 'crypto';
 import { IdentityProvider } from '../entities/identity-provider.entity';
@@ -11,6 +11,12 @@ import { CreateIdentityProviderDto, UpdateIdentityProviderDto } from '../dto/sso
 import { AuthenticatedUser } from '../../security/principal';
 import { RoleDelegationPort } from '../ports/role-delegation.port';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
+
+/**
+ * How long a pending claim may wait for its DNS record. After that it is discarded: an unproven
+ * claim holds nothing for anyone, and leaving it forever only clutters the owner's list.
+ */
+export const PENDING_DOMAIN_CLAIM_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
 // DNS host (relative to the domain) where the org must publish the verification TXT record.
 const DNS_VERIFICATION_PREFIX = '_virteex-sso';
@@ -170,40 +176,40 @@ export class SsoAdminService {
   // --- Domains --------------------------------------------------------------
 
   async listDomains(organizationId: string) {
+    await this.discardExpiredClaims(organizationId);
+    // tenant-scope-guard-allow: filtered by `organizationId` — the `sso_routing` policy would
+    // otherwise also return every other tenant's verified claims.
     const domains = await this.domainRepository.find({
       where: { organizationId },
       order: { createdAt: 'DESC' },
     });
-    return domains.map((d) => ({
-      id: d.id,
-      domain: d.domain,
-      verified: d.verified,
-      verifiedAt: d.verifiedAt,
-      // Tell the admin exactly what DNS record to create.
-      dnsRecord: { host: `${DNS_VERIFICATION_PREFIX}.${d.domain}`, type: 'TXT', value: d.verificationToken },
-    }));
+    return domains.map((d) => this.describe(d));
   }
 
+  /**
+   * Claim a domain for this organization.
+   *
+   * The answer is the same whoever else holds a claim on it: a pending claim of this
+   * organization and the DNS record that would prove it. It used to be refused as "already
+   * registered" when ANY tenant had claimed it, verified or not — so an unproven claim blocked
+   * the real owner for good, and the refusal told a stranger the domain was in use. Whether it can
+   * be verified is settled by DNS, at verification.
+   */
   async addDomain(organizationId: string, rawDomain: string) {
-    const domain = rawDomain.trim().toLowerCase();
-    const existing = await this.domainRepository.findOne({ where: { domain } });
-    if (existing) {
-      // Unique across all orgs — prevents two tenants claiming the same domain.
-      throw new ConflictError('auth.this_domain_already_registered');
-    }
+    const domain = rawDomain.trim().toLowerCase().replace(/\.$/, '');
+    await this.discardExpiredClaims(organizationId);
+
+    // tenant-scope-guard-allow: filtered by `organizationId`.
+    const own = await this.domainRepository.findOne({ where: { domain, organizationId } });
+    if (own) return this.describe(own);
+
     const created = this.domainRepository.create({
       organizationId,
       domain,
       verified: false,
       verificationToken: `virteex-sso-verification=${crypto.randomBytes(24).toString('hex')}`,
     });
-    const saved = await this.domainRepository.save(created);
-    return {
-      id: saved.id,
-      domain: saved.domain,
-      verified: saved.verified,
-      dnsRecord: { host: `${DNS_VERIFICATION_PREFIX}.${saved.domain}`, type: 'TXT', value: saved.verificationToken },
-    };
+    return this.describe(await this.domainRepository.save(created));
   }
 
   async deleteDomain(organizationId: string, id: string): Promise<void> {
@@ -212,11 +218,36 @@ export class SsoAdminService {
     await this.domainRepository.remove(domain);
   }
 
+  /** What the administrator is shown for one claim, including the record to publish. */
+  private describe(d: OrganizationDomain) {
+    return {
+      id: d.id,
+      domain: d.domain,
+      verified: d.verified,
+      verifiedAt: d.verifiedAt ?? null,
+      // When a pending claim will be discarded if its record has not been found by then.
+      expiresAt: d.verified ? null : new Date(d.createdAt.getTime() + PENDING_DOMAIN_CLAIM_TTL_MS),
+      // Tell the admin exactly what DNS record to create.
+      dnsRecord: { host: `${DNS_VERIFICATION_PREFIX}.${d.domain}`, type: 'TXT', value: d.verificationToken },
+    };
+  }
+
+  /** Discard this organization's pending claims that outlived their window. */
+  private async discardExpiredClaims(organizationId: string): Promise<void> {
+    const cutoff = new Date(Date.now() - PENDING_DOMAIN_CLAIM_TTL_MS);
+    await this.domainRepository.delete({
+      organizationId,
+      verified: false,
+      createdAt: LessThan(cutoff),
+    });
+  }
+
   /**
    * Verify domain ownership by looking up the TXT record at `_virteex-sso.<domain>` and
    * matching the issued token. This is the anti-takeover control that gates enabling SSO.
    */
   async verifyDomain(organizationId: string, id: string) {
+    await this.discardExpiredClaims(organizationId);
     const domain = await this.domainRepository.findOne({ where: { id, organizationId } });
     if (!domain) throw new NotFoundError('auth.domain_not_found');
     if (domain.verified) return { verified: true };
@@ -236,9 +267,30 @@ export class SsoAdminService {
       throw new BadRequestError('auth.txt_record_found_but_value_does_not');
     }
 
+    // Proven. It can still be refused: another organization may hold it verified already. Saying
+    // so is fine here — only whoever controls the domain's DNS can get this far.
+    // tenant-scope-guard-allow: the one cross-tenant question verification must ask, answered
+    // from verified claims only (`sso_routing`).
+    const taken = await this.domainRepository.findOne({
+      where: { domain: domain.domain, verified: true },
+    });
+    if (taken && taken.organizationId !== organizationId) {
+      throw new ConflictError('auth.domain_verified_by_another_organization');
+    }
+
     domain.verified = true;
     domain.verifiedAt = new Date();
-    await this.domainRepository.save(domain);
+    domain.lastCheckedAt = new Date();
+    domain.failedChecks = 0;
+    try {
+      await this.domainRepository.save(domain);
+    } catch (error) {
+      // Two organizations proving the same domain at once: the partial unique index lets one win.
+      if (error instanceof QueryFailedError && (error as QueryFailedError & { driverError?: { code?: string } }).driverError?.code === '23505') {
+        throw new ConflictError('auth.domain_verified_by_another_organization');
+      }
+      throw error;
+    }
     this.logger.log(`Domain ${domain.domain} verified for org ${organizationId}`);
     return { verified: true };
   }

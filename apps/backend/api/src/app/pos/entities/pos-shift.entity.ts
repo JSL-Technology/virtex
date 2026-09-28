@@ -28,6 +28,11 @@ export enum PosShiftStatus {
  */
 @Entity({ name: 'pos_shifts' })
 @Index('IDX_pos_shifts_org_terminal_status', ['organizationId', 'terminalId', 'status'])
+// One open shift per terminal, enforced by the database (see PosServerAuthority1789007200000).
+@Index('UQ_pos_shifts_open_terminal', ['organizationId', 'terminalId'], {
+  unique: true,
+  where: `"status" = 'OPEN'`,
+})
 export class PosShift {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -74,6 +79,22 @@ export class PosShift {
 
   @Column({ type: 'int', default: 0 })
   salesCount: number;
+
+  /** Takings that went into the drawer: the part of `salesTotal` paid in cash. */
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
+  cashSalesTotal: number;
+
+  /** What the drawer should hold at close: opening float plus cash takings. Set when it closes. */
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, nullable: true })
+  expectedBalance: number | null;
+
+  /** Counted minus expected. Negative is a shortfall. Set when the shift closes. */
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, nullable: true })
+  closingVariance: number | null;
+
+  /** Who closed it — the cashier who opened it, or a supervisor holding `pos:manage_shifts`. */
+  @Column({ type: 'uuid', nullable: true })
+  closedById: string | null;
 
   @Column({ type: 'enum', enum: PosShiftStatus, default: PosShiftStatus.OPEN })
   status: PosShiftStatus;

@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialUser } from './interfaces/social-user.interface';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
@@ -9,7 +9,6 @@ import { RegistrationService } from './services/registration.service';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { SocialAuthService } from './services/social-auth.service';
 import { TokenService } from './services/token.service';
-import { AuthConfig } from './auth.config';
 import { ImpersonationService } from './services/impersonation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvents, AuthImpersonateEvent } from './events/auth.events';
@@ -70,22 +69,44 @@ export class AuthFacade {
         new AuthImpersonateEvent(adminUser.id, targetUserId, adminUser.email, targetUser.email)
     );
 
-    // An impersonated session must not be a normal 7-30 day session. It is a short,
-    // deliberately expiring window: if the operator walks away, the elevated access dies on its
-    // own rather than lingering as a long-lived refresh token tied to someone else's identity.
+    // The operator's own session ends here. The browser's cookies are about to be replaced by
+    // the impersonated ones, so the operator's session would otherwise live on server-side with
+    // nothing holding it — an orphan in "active sessions" and a credential nobody is watching.
+    // Ending the impersonation issues a fresh session for the operator.
+    await this.endSessionQuietly(adminUser.id, adminUser.sessionId);
+
+    // An impersonated session must not be a normal 7-30 day session. It is a short, deliberately
+    // expiring window, pinned to the tenant it was authorised in. `TokenService` records both
+    // facts on the session itself, so no rotation can drop them.
     return await this.tokenService.generateAuthResponse(
       targetUser,
-      { isImpersonating: true, originalUserId: adminUser.id },
-      undefined,
-      undefined,
-      false,
-      { refreshExpirationOverride: AuthConfig.IMPERSONATION_SESSION_DURATION },
+      {
+        isImpersonating: true,
+        originalUserId: adminUser.id,
+        organizationId: adminUser.organizationId,
+      },
     );
   }
 
   async stopImpersonation(impersonatingUser: AuthenticatedUser) {
     const adminUser = await this.impersonationService.validateStopImpersonation(impersonatingUser);
+    // The impersonated session is ended on the server, not just replaced in the browser: its
+    // refresh token would otherwise stay valid until the window closed.
+    await this.endSessionQuietly(impersonatingUser.id, impersonatingUser.sessionId);
     return await this.tokenService.generateAuthResponse(adminUser);
+  }
+
+  /**
+   * Revoke one session family, tolerating that it is already gone. Never falls back to ending
+   * every session of the user: without a session id there is nothing specific to end.
+   */
+  private async endSessionQuietly(userId: string, sessionId?: string): Promise<void> {
+    if (!sessionId) return;
+    try {
+      await this.authService.revokeSession(userId, sessionId);
+    } catch (error) {
+      if (!(error instanceof NotFoundException)) throw error;
+    }
   }
 
   async generateTokens(user: User, ip?: string, userAgent?: string) {

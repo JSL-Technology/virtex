@@ -64,9 +64,9 @@ each one ending in the same failure.
 | Cookie | Path | HttpOnly | Lifetime | Purpose |
 | --- | --- | --- | --- | --- |
 | `__Host-access_token` | `/` | yes | access-token TTL | the credential |
-| `__Secure-refresh_token` | `/api/v1/auth/refresh` | yes | refresh TTL (longer with "remember me") | renewal, scoped so it is not attached to every API call |
+| `__Secure-refresh_token` | `/api/v1/auth/refresh` | yes | browser session, or 30 days with "remember me" | renewal, scoped so it is not attached to every API call |
 | `__Host-XSRF-TOKEN` | `/` | **no** | ≥ refresh TTL | signed double-submit; the SPA copies it into `X-XSRF-TOKEN` |
-| `__Host-auth_session` | `/` | yes | exactly the refresh cookie's | presence flag: "this browser holds a refresh token" |
+| `__Host-auth_session` | `/` | yes | exactly the refresh cookie's (browser session, or 30 days) | presence flag: "this browser holds a refresh token" |
 
 In local plain-HTTP development every name drops its prefix, because browsers reject the `Secure`
 attribute the prefixes mandate. Both names are read everywhere, so switching `NODE_ENV` cannot
@@ -86,6 +86,45 @@ it is not counted as a session cookie by `CsrfGuard`. It is `HttpOnly` regardles
 in the browser needs to read it. Its lifetime is the refresh cookie's, and both are cleared
 together on sign-out and on any rejected refresh, so a stale marker cannot outlive what it
 describes.
+
+## "Remember me" and inactivity
+
+Whether a session was opened with "remember me" is recorded on the session family
+(`refresh_tokens.remember_me`) when it begins, and inherited by every rotation. It decides the rules
+the session lives under, and the server states them to the client (`session` in the responses of
+`POST /auth/login`, `POST /auth/refresh`, `POST /auth/verify-2fa` and `GET /auth/session`):
+
+| | Not remembered (shared device) | Remembered (personal device) |
+| --- | --- | --- |
+| Refresh cookie | browser session: ends when the browser closes | 30 days |
+| Client inactivity sign-out | 15 min (`AUTH_SESSION_CLIENT_IDLE_TIMEOUT`), warned during the last minute | none |
+| Server idle bound (time without a refresh) | 30 min (`AUTH_SESSION_IDLE_TIMEOUT_STANDARD`) | 14 days (`AUTH_SESSION_IDLE_TIMEOUT`) |
+| Server absolute bound | 12 h (`AUTH_SESSION_ABSOLUTE_MAX_STANDARD`) | 30 days (`AUTH_SESSION_ABSOLUTE_MAX`) |
+
+The client and the server enforce the same model from two sides. The client acts on the person's
+activity (pointer, keyboard, scroll), measured in wall-clock time shared by every tab
+(`ActivityTrackerService`: `localStorage` plus a `BroadcastChannel`). The server acts on refreshes,
+which is what catches a tab that was closed or a laptop that slept before the client could run.
+While the person is active, `IdleService` renews the session every ten minutes, so the server's
+idle window never ends a session somebody is working in.
+
+A remembered session does not show the countdown and is not signed out for inactivity. A sign-in
+route that states no policy (a passkey, a federated identity) is treated as an ordinary session.
+
+### Signing out: `POST /api/v1/auth/refresh/revoke`
+
+Ends the session this browser holds, identified by the refresh cookie alone; it lives under the
+refresh path because that is the only other place the browser sends that cookie. Public, but
+CSRF-protected, always 200, and it always clears the auth cookies.
+
+It exists because signing out used to depend on the access token (`POST /auth/logout`, still
+available): the inactivity sign-out fires at fifteen minutes, which is also the access token's
+lifetime, so the request arrived expired, was refused, and ended nothing — and the next reload
+renewed the session. The client now signs out through `refresh/revoke`, retrying through
+`HttpClient` on any non-2xx answer, and tells every other tab to sign out too.
+
+On load, the client also refuses to restore an ordinary session already idle past its window: it
+revokes it and the sign-in page explains why (`?reason=idle`).
 
 ## The client
 

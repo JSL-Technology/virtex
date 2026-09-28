@@ -7,3 +7,4 @@ export * from './lib/permissions.util';
 // `IsTaxIdValidForCountry()` for a tenant's own identifier and `IdentityDocumentService` for
 // everybody else's; both know which country they are validating for.
 export * from './lib/interfaces/authenticated-request.interface';
+export * from './lib/extension-scope';

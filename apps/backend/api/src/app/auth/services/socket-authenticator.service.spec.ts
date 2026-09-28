@@ -81,4 +81,30 @@ describe('SocketAuthenticator', () => {
 
     await expect(authenticator.authenticate(cookie(sign()))).rejects.toThrow('AUTH_SESSION_EXPIRED');
   });
+
+  describe('revalidating a socket that is already open', () => {
+    it('keeps a socket whose handshake token has since expired, while its session is alive', async () => {
+      // The access token lives fifteen minutes and the socket longer; the clock is not what ends it.
+      const expired = sign({ expiresIn: -60 });
+      await expect(authenticator.revalidate(cookie(expired))).resolves.toBe(true);
+      expect(resolveFromPayload).toHaveBeenCalledWith(claims);
+    });
+
+    it('closes a socket whose session, account or membership no longer holds', async () => {
+      resolveFromPayload.mockRejectedValueOnce(new Error('AUTH_SESSION_EXPIRED'));
+      await expect(authenticator.revalidate(cookie(sign()))).resolves.toBe(false);
+    });
+
+    it.each([
+      ['another audience', () => sign({ audience: 'someone-else' })],
+      ['an unknown key', () => sign({ keyid: 'rotated-out' })],
+      [
+        'an HS256 token keyed with the public key',
+        () => jwt.sign(claims, publicKey, { algorithm: 'HS256', keyid: 'k1', issuer: 'virteex-api', audience: 'virteex-web' }),
+      ],
+    ])('still refuses a token with %s — only expiry is waived', async (_label, token) => {
+      await expect(authenticator.revalidate(cookie(token()))).resolves.toBe(false);
+      expect(resolveFromPayload).not.toHaveBeenCalled();
+    });
+  });
 });

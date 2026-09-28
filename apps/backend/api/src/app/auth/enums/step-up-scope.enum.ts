@@ -88,6 +88,29 @@ export enum StepUpScope {
    * reports from.
    */
   REBUILD_ANALYTICAL_VIEW = 'rebuild_analytical_view',
+  // ---------------------------------------------------------------------------------------
+  // The second pass. The same data and the same money were behind step-up on one route and a
+  // bare session on its neighbour: payslips asked for it, the salary history and the bank
+  // account of the same employee did not; approving payroll asked for it, paying a supplier or
+  // moving money between banks did not. The level of a control is set by its weakest route, so
+  // every route that reads or moves the same thing now asks the same question.
+  // ---------------------------------------------------------------------------------------
+  /**
+   * Changing what someone is paid or where it is paid to: compensation history, payroll inputs,
+   * statutory parameters, and an employee's bank account. Reusable within the token's lifetime —
+   * the same trade `VIEW_PAYROLL_DATA` makes for work that runs for hours.
+   */
+  MANAGE_COMPENSATION = 'manage_compensation',
+  /**
+   * Money leaving or moving between the tenant's accounts: supplier payments and bank transfers.
+   * Single-use, like `APPROVE_PAYROLL`: one proof must not cover an unbounded number of payments.
+   */
+  MOVE_FUNDS = 'move_funds',
+  /**
+   * Creating or editing a bank account the tenant pays from or into. Rewriting an account number
+   * redirects every payment that follows, so it is single-use.
+   */
+  MANAGE_BANK_ACCOUNTS = 'manage_bank_accounts',
 }
 
 /**
@@ -116,4 +139,6 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.PUBLISH_EXTENSION,
   StepUpScope.APPROVE_PAYROLL,
   StepUpScope.REBUILD_ANALYTICAL_VIEW,
+  StepUpScope.MOVE_FUNDS,
+  StepUpScope.MANAGE_BANK_ACCOUNTS,
 ]);

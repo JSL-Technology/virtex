@@ -10,6 +10,27 @@ interface CartLine {
   name: string;
   price: number;
   quantity: number;
+  /** The rate this line is taxed at: the product's own, or zero when it is not a taxed item. */
+  taxRate: number;
+}
+
+/**
+ * The till prices a line exactly as the server does — per line, rounded to the cent — so that the
+ * amount shown to the customer is the amount the server will accept. The server remains the
+ * authority: it re-prices from the catalogue and refuses a sale whose customer saw something else.
+ */
+function lineSubtotal(line: CartLine): number {
+  return round2(line.price * line.quantity);
+}
+
+function lineTax(line: CartLine): number {
+  return round2(lineSubtotal(line) * line.taxRate);
+}
+
+function taxRateOf(product: Product): number {
+  return product.taxTreatment === 'TAXED' || product.taxTreatment === undefined
+    ? Number(product.taxRate ?? 0)
+    : 0;
 }
 
 /**
@@ -42,7 +63,23 @@ interface CartLine {
           @if (shiftId()) {
             <span class="dot open"></span>
             {{ 'pos.shift_open_summary' | translate: { count: salesCount(), amount: format(shiftTotal()) } }}
-            <button class="ghost" (click)="closeShift()">{{ 'pos.close_shift' | translate }}</button>
+            @if (closing()) {
+              <label class="count">
+                {{ 'pos.counted_cash' | translate }}
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputmode="decimal"
+                  [value]="countedCash()"
+                  (input)="countedCash.set($any($event.target).value)"
+                />
+              </label>
+              <button class="ghost" [disabled]="!validCount()" (click)="closeShift()">{{ 'pos.confirm_close_shift' | translate }}</button>
+              <button class="ghost" (click)="closing.set(false)">{{ 'pos.cancel' | translate }}</button>
+            } @else {
+              <button class="ghost" (click)="startClosing()">{{ 'pos.close_shift' | translate }}</button>
+            }
           } @else {
             <span class="dot closed"></span> {{ 'pos.no_shift_open' | translate }}
             <button class="ghost" (click)="openShift()">{{ 'pos.open_shift' | translate }}</button>
@@ -94,7 +131,7 @@ interface CartLine {
                   <span>{{ line.quantity }}</span>
                   <button (click)="changeQty(i, 1)">+</button>
                 </div>
-                <div class="line-total">{{ format(line.price * line.quantity) }}</div>
+                <div class="line-total">{{ format(lineTotal(line)) }}</div>
                 <button class="rm" [attr.aria-label]="'pos.remove_line' | translate" (click)="removeLine(i)">×</button>
               </div>
             } @empty {
@@ -105,7 +142,7 @@ interface CartLine {
           <div class="totals">
             <div><span>{{ 'pos.subtotal' | translate }}</span><span>{{ format(subtotal()) }}</span></div>
             <div>
-              <span>{{ 'pos.tax_with_rate' | translate: { rate: taxPercent() } }}</span>
+              <span>{{ 'pos.taxes' | translate }}</span>
               <span>{{ format(tax()) }}</span>
             </div>
             <div class="grand"><span>{{ 'pos.total' | translate }}</span><span>{{ format(total()) }}</span></div>
@@ -151,7 +188,20 @@ export class TerminalComponent {
   readonly salesCount = signal(0);
 
   private readonly currency = signal<string | null>(null);
-  readonly taxRate = signal(0);
+
+  /** The cash-up form: shown while closing, holding the cash the cashier counted. */
+  readonly closing = signal(false);
+  readonly countedCash = signal<string>('');
+  readonly validCount = computed(() => {
+    const value = Number(this.countedCash());
+    return this.countedCash().trim() !== '' && Number.isFinite(value) && value >= 0;
+  });
+
+  /**
+   * The key the NEXT charge is sent with. It survives a failed attempt, so retrying the same
+   * cart cannot ring it twice, and is replaced once the sale succeeds or the cart changes.
+   */
+  private saleKey: string = PosIdempotency.newKey();
 
   readonly filtered = computed(() => {
     const q = this.query().trim().toLowerCase();
@@ -162,12 +212,13 @@ export class TerminalComponent {
     );
   });
 
-  readonly subtotal = computed(() =>
-    this.cart().reduce((acc, l) => acc + l.price * l.quantity, 0),
-  );
-  readonly tax = computed(() => this.subtotal() * this.taxRate());
-  readonly total = computed(() => this.subtotal() + this.tax());
-  readonly taxPercent = computed(() => this.formatter.number(this.taxRate() * 100, '1.0-2'));
+  readonly subtotal = computed(() => round2(this.cart().reduce((acc, l) => acc + lineSubtotal(l), 0)));
+  readonly tax = computed(() => round2(this.cart().reduce((acc, l) => acc + lineTax(l), 0)));
+  readonly total = computed(() => round2(this.subtotal() + this.tax()));
+
+  lineTotal(line: CartLine): number {
+    return lineSubtotal(line);
+  }
 
   constructor() {
     this.loadProducts();
@@ -206,7 +257,6 @@ export class TerminalComponent {
     this.api.invoicingContext().subscribe({
       next: (ctx) => {
         this.currency.set(ctx?.baseCurrency ?? null);
-        this.taxRate.set(ctx?.taxRates?.[0] ?? 0);
       },
       error: () => void 0,
     });
@@ -235,15 +285,26 @@ export class TerminalComponent {
     });
   }
 
+  startClosing(): void {
+    this.countedCash.set('');
+    this.closing.set(true);
+  }
+
+  /**
+   * Close with the cash the cashier COUNTED. This used to send the shift's sales total as the
+   * closing balance, so the cash-up compared the takings with themselves and always balanced.
+   */
   closeShift(): void {
     const id = this.shiftId();
-    if (!id) return;
-    this.api.closeShift(id, this.shiftTotal()).subscribe({
-      next: () => {
+    if (!id || !this.validCount()) return;
+    this.api.closeShift(id, round2(Number(this.countedCash()))).subscribe({
+      next: (closed) => {
         this.shiftId.set(null);
         this.shiftTotal.set(0);
         this.salesCount.set(0);
-        this.flash('pos.shift_closed');
+        this.closing.set(false);
+        const variance = Number(closed?.closingVariance ?? 0);
+        this.flash(variance === 0 ? 'pos.shift_closed' : 'pos.shift_closed_with_variance', variance !== 0);
       },
       error: (err) => this.flash(this.errorKey(err, 'pos.close_shift_error'), true),
     });
@@ -259,9 +320,16 @@ export class TerminalComponent {
       }
       return [
         ...lines,
-        { productId: product.id, name: product.name, price: product.price, quantity: 1 },
+        {
+          productId: product.id,
+          name: product.name,
+          price: Number(product.price),
+          quantity: 1,
+          taxRate: taxRateOf(product),
+        },
       ];
     });
+    this.saleKey = PosIdempotency.newKey();
   }
 
   changeQty(index: number, delta: number): void {
@@ -270,10 +338,12 @@ export class TerminalComponent {
         .map((l, i) => (i === index ? { ...l, quantity: l.quantity + delta } : l))
         .filter((l) => l.quantity > 0),
     );
+    this.saleKey = PosIdempotency.newKey();
   }
 
   removeLine(index: number): void {
     this.cart.update((lines) => lines.filter((_, i) => i !== index));
+    this.saleKey = PosIdempotency.newKey();
   }
 
   charge(): void {
@@ -289,24 +359,52 @@ export class TerminalComponent {
           price: l.price,
           quantity: l.quantity,
         })),
-        subtotal: round2(this.subtotal()),
-        tax: round2(this.tax()),
-        total: round2(this.total()),
-      })
+        subtotal: this.subtotal(),
+        tax: this.tax(),
+        total: this.total(),
+      }, this.saleKey)
       .subscribe({
-        next: () => {
+        next: (sale) => {
           this.charging.set(false);
           this.salesCount.update((n) => n + 1);
-          this.shiftTotal.update((t) => t + round2(this.total()));
+          this.shiftTotal.update((t) => round2(t + Number(sale?.total ?? this.total())));
           this.cart.set([]);
+          this.saleKey = PosIdempotency.newKey();
           this.flash('pos.sale_completed');
           this.loadProducts();
         },
         error: (err) => {
           this.charging.set(false);
-          this.flash(this.errorKey(err, 'pos.sale_error'), true);
+          const key = this.errorKey(err, 'pos.sale_error');
+          // The server priced the cart differently from this till's copy of the catalogue: reload
+          // it and re-price the open cart, so the next attempt shows — and charges — the real amount.
+          if (key === 'pos.prices_changed' || key === 'pos.totals_changed') {
+            this.repriceCart();
+          }
+          this.flash(key, true);
         },
       });
+  }
+
+  /** Reload the catalogue and bring every open line to its current price and rate. */
+  private repriceCart(): void {
+    this.api.getProducts().subscribe({
+      next: (list) => {
+        const active = list.filter((p) => p.status === 'Active');
+        this.products.set(active);
+        const byId = new Map(active.map((p) => [p.id, p]));
+        this.cart.update((lines) =>
+          lines
+            .filter((line) => byId.has(line.productId))
+            .map((line) => {
+              const product = byId.get(line.productId)!;
+              return { ...line, name: product.name, price: Number(product.price), taxRate: taxRateOf(product) };
+            }),
+        );
+        this.saleKey = PosIdempotency.newKey();
+      },
+      error: () => this.flash('pos.load_products_error', true),
+    });
   }
 
   logout(): void {
@@ -333,6 +431,13 @@ export class TerminalComponent {
     setTimeout(() => this.messageKey.set(null), 4000);
   }
 }
+
+/** Idempotency keys for sales: random, and unique per cart. */
+const PosIdempotency = {
+  newKey(): string {
+    return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  },
+};
 
 function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100;

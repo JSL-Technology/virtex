@@ -26,6 +26,8 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 // sales side uses.
 import { WithholdingModule } from '../localization/fiscal/withholding.module';
 import { PayablesInboxProvider } from './inbox/payables-inbox.provider';
+// Paying a supplier moves money: the payment routes demand step-up, whose guard lives in Auth.
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { PayablesInboxProvider } from './inbox/payables-inbox.provider';
     WithholdingModule,
     PeriodLockModule,
     AccountingModule,
+    AuthModule,
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
   providers: [

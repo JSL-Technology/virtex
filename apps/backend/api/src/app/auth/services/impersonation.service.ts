@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
+import { MembershipService } from '../../organizations/services/membership.service';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { AuthenticatedUser } from '../../security/principal';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
@@ -14,7 +15,8 @@ export class ImpersonationService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly userCacheService: UserCacheService
+    private readonly userCacheService: UserCacheService,
+    private readonly membershipService: MembershipService,
   ) {}
 
   private hashPii(value: string): string {
@@ -70,8 +72,21 @@ export class ImpersonationService {
    * they do not already have". An operator may only impersonate someone whose permissions are a
    * subset of their own, which is invariant to naming and works for arbitrary custom roles.
    */
-  private assertNoPrivilegeGain(actorPermissions: string[], target: User): void {
-    const targetPermissions = this.permissionsOfEntity(target);
+  private assertNoPrivilegeGain(
+    actorPermissions: string[],
+    target: User,
+    organizationId: string,
+  ): void {
+    // The target's rights IN THIS TENANT — the only tenant the impersonated session can act in
+    // (it is pinned there; see TokenService and ActiveTenantGuard). Comparing the target's rights
+    // across every tenant against the operator's rights in one was both wrong and, with the
+    // session unpinned, the gap through which an operator reached tenants they had no role in.
+    const targetPermissions = this.permissionsOfEntity({
+      roles: (target.roles ?? []).filter(
+        // `?? null`: a role whose tenant is unknown counts, which can only make the check stricter.
+        (role) => (role.organizationId ?? null) === null || role.organizationId === organizationId,
+      ),
+    });
 
     // The wildcard is absolute: only another super-admin may assume it.
     if (targetPermissions.includes('*') && !actorPermissions.includes('*')) {
@@ -140,7 +155,13 @@ export class ImpersonationService {
       throw new ForbiddenError('auth.you_cannot_impersonate_user_who_not');
     }
 
-    this.assertNoPrivilegeGain(actorPermissions, targetUser);
+    // The target must be a live member of the tenant, not merely have it as their home.
+    const liveMember = await this.membershipService.isMember(targetUser.id, adminUser.organizationId);
+    if (!liveMember) {
+      throw new NotFoundError('auth.user_impersonate_not_found');
+    }
+
+    this.assertNoPrivilegeGain(actorPermissions, targetUser, adminUser.organizationId);
 
     this.logger.log(
       { event: 'impersonation_authorized', adminId: adminUser.id, targetId: targetUser.id },

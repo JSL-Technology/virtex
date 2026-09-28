@@ -10,8 +10,6 @@ import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { TokenService } from './token.service';
 import { ConflictError, UnauthorizedError } from '../../i18n/localized.exception';
-import { MfaPolicyPort } from '../ports/mfa-policy.port';
-import { resolveMfaEnrolmentClaim } from './mfa-enrolment-claim.util';
 
 @Injectable()
 export class SocialAuthService {
@@ -24,7 +22,6 @@ export class SocialAuthService {
     private readonly auditService: AuditTrailService,
     private readonly securityAnalysisService: SecurityAnalysisService,
     private readonly tokenService: TokenService,
-    private readonly mfaPolicy: MfaPolicyPort,
   ) {}
 
   // L-10: Hash PII (email/IP/UA) to a short, non-reversible digest before persisting in logs/audit.
@@ -32,7 +29,11 @@ export class SocialAuthService {
     return crypto.createHash('sha256').update((value || '').toLowerCase().trim()).digest('hex').slice(0, 12);
   }
 
-  async validateOAuthLogin(socialUser: SocialUser, ipAddress?: string, userAgent?: string): Promise<{ user: User | null; tokens?: any }> {
+  async validateOAuthLogin(
+    socialUser: SocialUser,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<{ user: User | null; tokens?: any; secondFactorRequired?: boolean }> {
     // 1. Use findUserForAuth to ensure security relation is loaded (required for tokenVersion)
     const user = await this.usersService.findUserForAuth(socialUser.email);
 
@@ -42,6 +43,23 @@ export class SocialAuthService {
       // pre-account-hijacking risk (OWASP ASVS 2.1.5; OAuth 2.0 Security BCP; CWE-287).
       const isNewLink =
         user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId;
+
+      // An account bound to a subject at this provider stays bound to it. The provider's `sub` is
+      // the person's stable identity there; the email is just an attribute, and the same address
+      // can surface on a different account at the same provider (a recycled mailbox, a second
+      // tenant). Re-binding on a matching email used to hand the account to whichever subject
+      // signed in last.
+      if (
+        user.authProvider === socialUser.provider &&
+        user.authProviderId &&
+        user.authProviderId !== socialUser.providerId
+      ) {
+        this.logger.warn(
+          { event: 'federated_subject_mismatch', provider: socialUser.provider, userId: user.id },
+          '[SECURITY] Federated sign-in presented a different subject for a bound account',
+        );
+        throw new ConflictError('auth.federated_identity_does_not_match_account');
+      }
 
       if (isNewLink) {
         // M-02 FIX: Never (re)link an OAuth identity to an existing local account unless the
@@ -89,8 +107,13 @@ export class SocialAuthService {
         undefined,
       );
 
-       const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
-       const authResponse = await this.tokenService.generateAuthResponse(user, mfaClaim, ipAddress, userAgent);
+       // A federated sign-in proves who the person is at the PROVIDER. If they also enrolled a
+       // second factor here, it is owed here too: signing in with Google used to skip the TOTP the
+       // same account demands for a password sign-in, so the weaker door was always open.
+       if (user.security?.isTwoFactorEnabled) {
+         return { user, secondFactorRequired: true };
+       }
+       const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
        return { user, tokens: authResponse };
     }
 

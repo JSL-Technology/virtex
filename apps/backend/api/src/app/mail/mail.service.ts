@@ -151,12 +151,11 @@ export class MailService {
   }
 
   /**
-   * Tell somebody who already has an account that they now have access to another tenant.
+   * Tell somebody who already has an account that they now have access to another organization
+   * they themselves created — a returning customer registering a further company.
    *
-   * Distinct from `sendUserInvitation` on purpose: that one carries a set-your-password link, and
-   * sending it to a person who already has a password is both confusing and a nudge towards
-   * changing a credential they never asked to change. This one points at sign-in and says which
-   * organization added them.
+   * Never used for an invitation: an invitation for an existing account is a request the person
+   * accepts (`sendOrganizationInvitationEmail`), not access granted on somebody else's say-so.
    */
   async sendAddedToOrganizationEmail(user: User, organizationName: string) {
     const language = this.languageFor(user);
@@ -167,6 +166,33 @@ export class MailService {
       subjectParams: { organization: organizationName },
       language,
       template: 'organization-added',
+      context: {
+        ...this.baseContext(),
+        name: user.firstName,
+        organizationName,
+        url: this.links.login(undefined, language),
+      },
+    });
+  }
+
+  /**
+   * Tell somebody who already has an account that a tenant has INVITED them — not added them.
+   *
+   * The difference is the point. Adding an existing identity to a tenant on the inviter's say-so
+   * handed that tenant's administrators authority over a person who had agreed to nothing, so an
+   * invitation for an existing account is now a pending request that only its addressee can
+   * accept, from their own session. This email says so, and links to sign-in rather than to any
+   * one-click "accept": accepting is an authenticated act.
+   */
+  async sendOrganizationInvitationEmail(user: User, organizationName: string) {
+    const language = this.languageFor(user);
+
+    await this.enqueue({
+      to: user.email,
+      subjectKey: 'mail.organization_invitation.subject',
+      subjectParams: { organization: organizationName, appName: this.appName },
+      language,
+      template: 'organization-invitation',
       context: {
         ...this.baseContext(),
         name: user.firstName,

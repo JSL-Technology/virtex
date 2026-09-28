@@ -27,6 +27,38 @@ export enum StepUpScope {
   MANAGE_USERS = 'manage_users',
   MANAGE_USER_STATUS = 'manage_user_status',
   MANAGE_USER_CREDENTIALS = 'manage_user_credentials',
+  REVEAL_SESSION_ORIGIN = 'reveal_session_origin',
+  MANAGE_SSO = 'manage_sso',
+  PUBLISH_EXTENSION = 'publish_extension',
+  APPROVE_PAYROLL = 'approve_payroll',
+  VIEW_PAYROLL_DATA = 'view_payroll_data',
+  REBUILD_ANALYTICAL_VIEW = 'rebuild_analytical_view',
+  MANAGE_COMPENSATION = 'manage_compensation',
+  MOVE_FUNDS = 'move_funds',
+  MANAGE_BANK_ACCOUNTS = 'manage_bank_accounts',
+}
+
+/** The error keys with which the server says "this request needs a proof you do not hold". */
+export const STEP_UP_CHALLENGE_KEYS: ReadonlySet<string> = new Set([
+  'auth.step_up_authentication_required',
+  'auth.invalid_or_expired_step_up_token',
+  'auth.invalid_step_up_token_scope',
+  'auth.step_up_token_already_used',
+  'auth.malformed_step_up_token',
+]);
+
+/**
+ * The scope a 401 is asking for, when it is a step-up challenge the client can answer.
+ *
+ * The server names the scope in the error's params. A key the client does not know is not
+ * answered: a prompt for an unknown scope could only obtain a proof the route will refuse.
+ */
+export function stepUpScopeOf(error: { status?: number; error?: unknown }): StepUpScope | null {
+  if (error?.status !== 401) return null;
+  const body = (error.error ?? {}) as { messageKey?: unknown; params?: { scope?: unknown } };
+  if (!STEP_UP_CHALLENGE_KEYS.has(String(body.messageKey ?? ''))) return null;
+  const scope = String(body.params?.scope ?? '');
+  return (Object.values(StepUpScope) as string[]).includes(scope) ? (scope as StepUpScope) : null;
 }
 
 interface StepUpChallenge {
@@ -44,6 +76,23 @@ const RESUME_KEY = 'step_up_pending_scope';
 export class StepUpService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/auth`;
+
+  /**
+   * Where the prompt is drawn when it is raised by the HTTP layer rather than by a screen.
+   *
+   * Screens that know an action is guarded ask for the proof up front and pass their own
+   * container. Everything else — a guarded route a screen did not know about — is answered by
+   * `stepUpInterceptor`, which has no container of its own; the root component registers one.
+   */
+  private host: ViewContainerRef | null = null;
+
+  registerHost(host: ViewContainerRef): void {
+    this.host = host;
+  }
+
+  get defaultHost(): ViewContainerRef | null {
+    return this.host;
+  }
 
   /**
    * Drives the whole step-up flow:

@@ -9,6 +9,11 @@
     "en": "Back to my account",
     "pt": "Voltar à minha conta"
   },
+  "main.company_switcher.accept_invitation": {
+    "es": "Aceptar",
+    "en": "Accept",
+    "pt": "Aceitar"
+  },
   "main.company_switcher.companies": {
     "es": "Empresas",
     "en": "Companies",
@@ -24,6 +29,21 @@
     "en": "Current company",
     "pt": "Empresa atual"
   },
+  "main.company_switcher.decline_invitation": {
+    "es": "Rechazar la invitación",
+    "en": "Decline the invitation",
+    "pt": "Recusar o convite"
+  },
+  "main.company_switcher.invitation_answer_failed": {
+    "es": "No se pudo responder la invitación. Puede que ya haya caducado.",
+    "en": "The invitation could not be answered. It may have expired.",
+    "pt": "Não foi possível responder ao convite. Ele pode ter expirado."
+  },
+  "main.company_switcher.invitation_role": {
+    "es": "Te ofrece el rol {{role}}",
+    "en": "Offers you the {{role}} role",
+    "pt": "Oferece a você a função {{role}}"
+  },
   "main.company_switcher.manage_organizations": {
     "es": "Gestionar organizaciones",
     "en": "Manage organizations",
@@ -33,6 +53,16 @@
     "es": "No se encontraron empresas",
     "en": "No companies were found",
     "pt": "Nenhuma empresa encontrada"
+  },
+  "main.company_switcher.pending_invitations": {
+    "es": "Invitaciones pendientes",
+    "en": "Pending invitations",
+    "pt": "Convites pendentes"
+  },
+  "main.company_switcher.pending_invitations_count": {
+    "es": "{{count}} invitaciones pendientes",
+    "en": "{{count}} pending invitations",
+    "pt": "{{count}} convites pendentes"
   },
   "main.company_switcher.switch_failed": {
     "es": "No se pudo cambiar de empresa.",

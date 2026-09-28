@@ -3,6 +3,8 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UnitsOfMeasureService } from './units-of-measure.service';
 import { CreateUnitOfMeasureDto } from './dto/create-unit-of-measure.dto';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { RequiresPlatformPermission } from '../security/decorators/platform-permission.decorator';
+import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('units-of-measure')
@@ -17,6 +19,8 @@ export class UnitsOfMeasureController {
 
   @Post()
   @HasPermission(PERMISSIONS.UNITS_OF_MEASURE_MANAGE)
+  // Units of measure are shared by every tenant.
+  @RequiresPlatformPermission(PLATFORM_PERMISSIONS.REFERENCE_DATA_MANAGE)
   create(@Body() createUomDto: CreateUnitOfMeasureDto) {
     return this.uomService.create(createUomDto);
   }

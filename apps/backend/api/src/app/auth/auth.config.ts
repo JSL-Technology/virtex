@@ -203,6 +203,33 @@ export const AuthConfig = {
   get SESSION_IDLE_TIMEOUT() { return parseDuration(envDuration('AUTH_SESSION_IDLE_TIMEOUT', '14d')); },
 
   /**
+   * The bounds of a session the person did NOT ask to be remembered.
+   *
+   * "Remember me" is a choice between two kinds of device, and the rules follow from it:
+   *
+   *  - Remembered (a personal, trusted device): the session survives the browser closing and is
+   *    bounded by `SESSION_ABSOLUTE_MAX` / `SESSION_IDLE_TIMEOUT` above.
+   *  - Not remembered (a shared or public device): the cookies are browser-session cookies, the
+   *    client signs out after `SESSION_CLIENT_IDLE_TIMEOUT` without activity, and the server ends
+   *    the session once it has gone `SESSION_IDLE_TIMEOUT_STANDARD` without a refresh — which is
+   *    what catches the tab that was closed, or the laptop that went to sleep, before the client
+   *    timer could run. The absolute bound is a working day.
+   *
+   * Before, both kinds got a persistent cookie and a fourteen-day idle window, so the fifteen-
+   * minute sign-out the interface showed was a client-side courtesy the server did not share: a
+   * reload after it brought the session straight back.
+   */
+  get SESSION_ABSOLUTE_MAX_STANDARD() { return parseDuration(envDuration('AUTH_SESSION_ABSOLUTE_MAX_STANDARD', '12h')); },
+  get SESSION_IDLE_TIMEOUT_STANDARD() { return parseDuration(envDuration('AUTH_SESSION_IDLE_TIMEOUT_STANDARD', '30m')); },
+
+  /**
+   * Inactivity after which the web client signs a NOT-remembered session out, warning first.
+   * Shorter than `SESSION_IDLE_TIMEOUT_STANDARD` on purpose: the client acts on the person's
+   * activity, the server only on refreshes, and the client must win whenever it is running.
+   */
+  get SESSION_CLIENT_IDLE_TIMEOUT() { return parseDuration(envDuration('AUTH_SESSION_CLIENT_IDLE_TIMEOUT', '15m')); },
+
+  /**
    * Instant after which a refresh-token row MUST carry its hash.
    *
    * `assertTokenHashMatches` accepts a row with no `tokenHash`, so that deploying the hashing

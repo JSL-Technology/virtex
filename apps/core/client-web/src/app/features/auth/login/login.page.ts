@@ -122,12 +122,20 @@ export class LoginPage implements OnInit {
         this.errorMessage.set(this.mapSocialErrorCode(error));
       }
       this.notice.set(SIGN_OUT_NOTICE[params.get('reason') ?? ''] ?? null);
+      // A federated sign-in (Google, Microsoft, the company IdP) succeeded, and the account's own
+      // second factor is still owed: the server opened the pending session and sent us here.
+      if (params.get('step') === '2fa') {
+        this.show2faInput.set(true);
+      }
     });
 
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
-      rememberMe: [true],
+      // Unticked by default. Ticking it keeps the session for a month on this device, through
+      // browser restarts and without an inactivity sign-out — a choice the person makes for a
+      // device they trust, not one made for them on a computer that may be shared.
+      rememberMe: [false],
     });
   }
 

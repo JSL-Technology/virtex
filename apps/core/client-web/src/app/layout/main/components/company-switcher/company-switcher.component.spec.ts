@@ -6,6 +6,8 @@ import { signal } from '@angular/core';
 import { CompanySwitcherComponent } from './company-switcher.component';
 import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
+import { of } from 'rxjs';
+import { OrganizationInvitationsService } from '../../../../core/services/organization-invitations.service';
 
 /**
  * Cambiar de empresa tuvo dos vidas anteriores, y esta prueba fija que no vuelva a ninguna.
@@ -26,12 +28,23 @@ describe('CompanySwitcherComponent', () => {
   let navigateByUrl: jest.Mock;
   let remember: jest.Mock;
   const activeSlug = signal<string | null>('cliente-a');
+  const received = signal<Array<Record<string, unknown>>>([]);
+  let invitations: { received: typeof received; refresh: jest.Mock; accept: jest.Mock; decline: jest.Mock };
+  let reloadSession: jest.Mock;
 
   beforeEach(async () => {
     jest.clearAllMocks();
     activeSlug.set('cliente-a');
     navigateByUrl = jest.fn().mockResolvedValue(true);
     remember = jest.fn();
+    received.set([]);
+    reloadSession = jest.fn(() => of(true));
+    invitations = {
+      received,
+      refresh: jest.fn(() => of([])),
+      accept: jest.fn(() => of({ messageKey: 'users.invitation_accepted', organizationId: 'org-c' })),
+      decline: jest.fn(() => of({ messageKey: 'users.invitation_declined' })),
+    };
 
     await TestBed.configureTestingModule({
       imports: [CompanySwitcherComponent, TranslateModule.forRoot()],
@@ -40,8 +53,10 @@ describe('CompanySwitcherComponent', () => {
           provide: AuthService,
           useValue: {
             currentUser: () => ({ organization: ORG_A, organizations: [ORG_A, ORG_B] }),
+            reloadSession,
           },
         },
+        { provide: OrganizationInvitationsService, useValue: invitations },
         {
           provide: ActiveOrganizationService,
           useValue: {
@@ -124,5 +139,32 @@ describe('CompanySwitcherComponent', () => {
 
     expect(component.isOpen()).toBe(true);
     resolver(true);
+  });
+
+  /**
+   * Otra empresa ya no puede añadir esta cuenta a sí misma: solo puede PEDIRLO. La petición espera
+   * aquí, y solo la propia persona decide.
+   */
+  describe('invitaciones pendientes', () => {
+    const INVITATION = { id: 'inv-1', organizationId: 'org-c', organizationName: 'Cliente C', roleName: 'Lector' };
+
+    it('las pide al servidor al iniciarse', () => {
+      expect(invitations.refresh).toHaveBeenCalled();
+    });
+
+    it('aceptar llama al servidor y vuelve a leer la sesión: la lista de empresas nunca se edita en el cliente', () => {
+      received.set([INVITATION]);
+      component.acceptInvitation(INVITATION as never, new Event('click'));
+      expect(invitations.accept).toHaveBeenCalledWith('inv-1');
+      expect(reloadSession).toHaveBeenCalled();
+      expect(component.answering()).toBeNull();
+    });
+
+    it('rechazar no concede nada ni relee la sesión', () => {
+      received.set([INVITATION]);
+      component.declineInvitation(INVITATION as never, new Event('click'));
+      expect(invitations.decline).toHaveBeenCalledWith('inv-1');
+      expect(reloadSession).not.toHaveBeenCalled();
+    });
   });
 });

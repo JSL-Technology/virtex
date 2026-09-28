@@ -6,10 +6,12 @@
   [empty]="!loading() && !error() && currencies().length === 0"
   (reload)="load()"
 >
-  <button listActions type="button" class="primary-button" (click)="toggleCreate()">
-    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'masters.currencies.new_currency' | translate }}</span>
-  </button>
+  @if (canManage()) {
+    <button listActions type="button" class="primary-button" (click)="toggleCreate()">
+      <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'masters.currencies.new_currency' | translate }}</span>
+    </button>
+  }
 
   @if (creating()) {
     <div listCreate class="inline-row card">

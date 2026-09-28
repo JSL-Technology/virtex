@@ -24,6 +24,10 @@ export class AuthenticatedLoginResult {
 
     @ApiProperty({ example: 'uuid-string' })
     refreshTokenId: string;
+
+    /** Whether the session was opened with "remember me" — the family's recorded fact. */
+    @ApiProperty({ required: false })
+    rememberMe?: boolean;
 }
 
 /**

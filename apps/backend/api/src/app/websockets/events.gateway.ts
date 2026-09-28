@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger, OnModuleInit } from '@nestjs/common';
+import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { SocketAuthenticatorPort } from './ports/socket-authenticator.port';
 import { SessionRevocationBroadcaster, SessionsRevokedMessage } from './session-revocation-broadcaster';
 
@@ -16,7 +16,14 @@ interface Presence {
   socketId: string;
   organizationId: string;
   sessionId?: string;
+  /** When this socket's identity is next re-checked (see `revalidateSockets`). */
+  nextCheckAt: number;
 }
+
+/** How often each socket's identity is re-checked. */
+export const SOCKET_REVALIDATE_EVERY_MS = 5 * 60 * 1000;
+/** How often the gateway looks for sockets that are due. */
+const SOCKET_REVALIDATE_SWEEP_MS = 60 * 1000;
 
 /**
  * CORS is deliberately NOT declared here.
@@ -31,7 +38,9 @@ interface Presence {
  * here — so leaving this bare is what makes there be exactly one rule.
  */
 @WebSocketGateway()
-export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+export class EventsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy
+{
   @WebSocketServer()
   server: Server;
 
@@ -58,10 +67,67 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     private readonly sessionRevocationBroadcaster: SessionRevocationBroadcaster,
   ) {}
 
+  private revalidationTimer: ReturnType<typeof setInterval> | null = null;
+  private revalidating = false;
+
   onModuleInit(): void {
     // Every replica reacts to every revocation through this one path — see
     // `SessionRevocationBroadcaster` for why, including the one that originated it.
     this.sessionRevocationBroadcaster.onRevoked((message) => this.disconnectRevokedSessions(message));
+
+    this.revalidationTimer = setInterval(() => void this.revalidateSockets(), SOCKET_REVALIDATE_SWEEP_MS);
+    this.revalidationTimer.unref?.();
+  }
+
+  onModuleDestroy(): void {
+    if (this.revalidationTimer) clearInterval(this.revalidationTimer);
+    this.revalidationTimer = null;
+  }
+
+  /**
+   * Re-check every socket that is due, and hang up on those whose identity no longer holds.
+   *
+   * A socket was authenticated once, at its handshake, and then trusted for as long as it stayed
+   * open. The revocation broadcast covers a session being ended; it does not cover everything else
+   * that ends someone's right to hear a tenant's room — a guest membership suspended, a member
+   * removed, an account blocked, a token version bumped by a message that was lost — and those
+   * sockets kept receiving the tenant's events. Now each one is re-checked on a fixed cadence with
+   * the same rules as an HTTP request (`SocketAuthenticatorPort.revalidate`).
+   */
+  async revalidateSockets(now = Date.now()): Promise<void> {
+    if (this.revalidating) return;
+    this.revalidating = true;
+    try {
+      for (const [userId, sockets] of [...this.connectedUsers.entries()]) {
+        for (const [socketId, presence] of [...sockets.entries()]) {
+          if (presence.nextCheckAt > now) continue;
+          presence.nextCheckAt = now + SOCKET_REVALIDATE_EVERY_MS;
+
+          const socket = this.server?.sockets?.sockets?.get(socketId);
+          const cookieHeader = socket?.handshake?.headers?.cookie;
+          const stillValid = cookieHeader
+            ? await this.socketAuthenticator.revalidate(cookieHeader).catch(() => false)
+            : false;
+          if (stillValid) continue;
+
+          socket?.disconnect(true);
+          this.forgetSocket(userId, socketId);
+          this.logger.log(
+            { event: 'ws_disconnected_on_revalidation', userId },
+            'Socket closed because its identity no longer holds',
+          );
+        }
+      }
+    } finally {
+      this.revalidating = false;
+    }
+  }
+
+  private forgetSocket(userId: string, socketId: string): void {
+    const sockets = this.connectedUsers.get(userId);
+    sockets?.delete(socketId);
+    this.socketOwners.delete(socketId);
+    if (sockets && sockets.size === 0) this.connectedUsers.delete(userId);
   }
 
   async handleConnection(client: Socket) {
@@ -112,7 +178,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         sockets = new Map();
         this.connectedUsers.set(principal.id, sockets);
       }
-      sockets.set(client.id, { socketId: client.id, organizationId, sessionId: principal.sessionId });
+      sockets.set(client.id, {
+        socketId: client.id,
+        organizationId,
+        sessionId: principal.sessionId,
+        nextCheckAt: Date.now() + SOCKET_REVALIDATE_EVERY_MS,
+      });
       this.socketOwners.set(client.id, principal.id);
 
       // Announced only for the user's first socket: a second tab or device reconnecting is not a

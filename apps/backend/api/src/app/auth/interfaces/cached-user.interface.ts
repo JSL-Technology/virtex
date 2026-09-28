@@ -39,7 +39,13 @@ export interface CachedUser {
    * nothing about WHICH permissions came along. Keeping the assignment intact is what lets the
    * permission set be computed for the active tenant, and only that tenant.
    */
-  roleAssignments: Array<{ name: string; organizationId: string | null; permissions: string[] }>;
+  roleAssignments: Array<{
+    /** Optional only for entries cached before the id was projected; they expire within the TTL. */
+    id?: string;
+    name: string;
+    organizationId: string | null;
+    permissions: string[];
+  }>;
 
   /** Bumped on password change, role change, forced logout — invalidates every issued token. */
   tokenVersion: number;

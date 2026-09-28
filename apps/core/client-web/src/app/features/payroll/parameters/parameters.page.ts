@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -40,6 +41,14 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
 })
 export class PayrollParametersPage {
   private readonly payroll = inject(PayrollService);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * The statutory tables every tenant's payroll is computed with.
+   * Held only by platform operators: a tenant administrator's `'*'` does not reach it (see
+   * `hasPermission`), so the actions are not offered to someone the server would refuse.
+   */
+  readonly canManage = computed(() => this.auth.hasPermissions(['platform:payroll:statutory_manage']));
   private readonly notifications = inject(NotificationService);
 
   protected readonly SaveIcon = Save;

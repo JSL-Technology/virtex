@@ -1,4 +1,4 @@
-import { EventsGateway } from './events.gateway';
+import { EventsGateway, SOCKET_REVALIDATE_EVERY_MS } from './events.gateway';
 
 /**
  * Presence never crosses a tenant boundary.
@@ -31,7 +31,7 @@ describe('EventsGateway · aislamiento entre empresas', () => {
     };
   }
 
-  function build(options: { revokedSessions?: string[] } = {}) {
+  function build(options: { revokedSessions?: string[]; invalidUsers?: Set<string> } = {}) {
     const emitted: Array<{ room: string | null; event: string; data: unknown }> = [];
     const sockets = new Map<string, { disconnect: jest.Mock }>();
     const server = {
@@ -61,6 +61,14 @@ describe('EventsGateway · aislamiento entre empresas', () => {
           throw new Error('AUTH_SESSION_EXPIRED');
         }
         return claims;
+      },
+      // Re-checks the identity the handshake proved, as `SocketAuthenticator.revalidate` does.
+      revalidate: async (cookieHeader: string) => {
+        const raw = /(?:^|;\s*)access_token=([^;]+)/.exec(cookieHeader)?.[1];
+        if (!raw) return false;
+        const claims = JSON.parse(decodeURIComponent(raw)) as { id: string; sessionId?: string };
+        if (claims.sessionId && revoked.has(claims.sessionId)) return false;
+        return !(options.invalidUsers?.has(claims.id) ?? false);
       },
     };
     const broadcaster = buildBroadcaster();
@@ -238,6 +246,55 @@ describe('EventsGateway · aislamiento entre empresas', () => {
       await broadcaster.publish({ userId: 'user-a', sessionIds: ['session-otra'] });
 
       expect(socket.disconnect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('revalidación periódica de los sockets abiertos', () => {
+    /** Registers the connected client with the fake server, as Socket.IO would. */
+    async function open(
+      ctx: ReturnType<typeof build>,
+      userId: string,
+      socketId: string,
+    ) {
+      const c = connect(ctx.gateway, userId, ORG_A, socketId);
+      ctx.sockets.set(socketId, { disconnect: c.client.disconnect, handshake: c.client.handshake } as never);
+      await c.done;
+      return c.client;
+    }
+
+    it('cuelga el socket de quien ya no puede estar: miembro suspendido, cuenta bloqueada', async () => {
+      const invalidUsers = new Set<string>();
+      const ctx = build({ invalidUsers });
+      const socket = await open(ctx, 'user-a', 'sock-a');
+
+      invalidUsers.add('user-a');
+      await ctx.gateway.revalidateSockets(Date.now() + SOCKET_REVALIDATE_EVERY_MS + 1);
+
+      expect(socket.disconnect).toHaveBeenCalledWith(true);
+    });
+
+    it('deja en paz a quien sigue siendo válido', async () => {
+      const ctx = build();
+      const socket = await open(ctx, 'user-a', 'sock-a');
+
+      await ctx.gateway.revalidateSockets(Date.now() + SOCKET_REVALIDATE_EVERY_MS + 1);
+
+      expect(socket.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('no vuelve a comprobar un socket antes de que le toque', async () => {
+      const invalidUsers = new Set<string>(['user-a']);
+      const ctx = build({ invalidUsers });
+      const socket = await open(ctx, 'user-a', 'sock-a');
+
+      await ctx.gateway.revalidateSockets(Date.now());
+
+      expect(socket.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('para su temporizador al cerrarse el módulo', () => {
+      const ctx = build();
+      expect(() => ctx.gateway.onModuleDestroy()).not.toThrow();
     });
   });
 });

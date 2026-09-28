@@ -115,6 +115,41 @@ export class TokenService {
     rememberMe = false,
     options: { sessionId?: string; refreshExpirationOverride?: string } = {},
   ) {
+    // The session's own facts, read from the server — never from whatever the caller passed.
+    //
+    // A rotation continues an existing family, and what that family IS (an impersonation, pinned
+    // to one tenant, bounded to a short window) was decided when it began. Every caller that
+    // issued tokens used to rebuild those facts from its own arguments, and the refresh path
+    // forgot them: one rotation turned an impersonation into an ordinary month-long session.
+    // Here, a rotation inherits them from the family and a new session records them.
+    const facts = options.sessionId
+      ? await this.familyFacts(options.sessionId)
+      : {
+          impersonatorId: extraPayload.isImpersonating ? extraPayload.originalUserId ?? null : null,
+          impersonationOrganizationId: extraPayload.isImpersonating
+            ? extraPayload.organizationId ?? user.organizationId ?? null
+            : null,
+          openedAt: new Date(),
+          // An impersonation is never "remembered": it has its own short, fixed window.
+          rememberMe: extraPayload.isImpersonating ? false : rememberMe,
+        };
+    // A rotation continues the family as it began: whether it was remembered is the family's
+    // fact, not the caller's argument.
+    rememberMe = facts.rememberMe;
+    if (facts.impersonatorId) {
+      extraPayload = {
+        ...extraPayload,
+        isImpersonating: true,
+        originalUserId: facts.impersonatorId,
+        organizationId: facts.impersonationOrganizationId ?? undefined,
+      };
+    } else {
+      // A session that is not an impersonation cannot become one by a caller's say-so.
+      extraPayload = { ...extraPayload };
+      delete extraPayload.isImpersonating;
+      delete extraPayload.originalUserId;
+    }
+
     // The tenant these tokens are issued FOR. An organization switch supplies it explicitly; a
     // normal sign-in falls back to the user's own. Both the payload and the returned principal are
     // built from it, so the rights in the token match the tenant in the token.
@@ -142,13 +177,22 @@ export class TokenService {
 
     // "Remember me" must widen the DB row's expiry too, not just the cookie, otherwise the
     // server-side record expires while the browser still holds a usable cookie.
-    const refreshExpiration =
+    let refreshExpiration =
       options.refreshExpirationOverride ??
       (rememberMe
         ? AuthConfig.JWT_REFRESH_REMEMBER_ME_EXPIRATION
         : AuthConfig.JWT_REFRESH_EXPIRATION);
 
-    const expirationDate = new Date(Date.now() + ms(refreshExpiration as ms.StringValue));
+    let expirationDate = new Date(Date.now() + ms(refreshExpiration as ms.StringValue));
+
+    // An impersonation lives for a fixed window counted from when it BEGAN, not from the last
+    // rotation: rotating every fifteen minutes must not keep extending it.
+    if (facts.impersonatorId) {
+      const windowMs = ms(AuthConfig.IMPERSONATION_SESSION_DURATION as ms.StringValue);
+      expirationDate = new Date(facts.openedAt.getTime() + windowMs);
+      const remainingMs = Math.max(expirationDate.getTime() - Date.now(), 1000);
+      refreshExpiration = `${Math.ceil(remainingMs / 1000)}s`;
+    }
 
     // H9: masked IP is what we display; the encrypted copy exists only for incident forensics
     // (GDPR Art.4 data minimisation, CWE-312).
@@ -186,6 +230,9 @@ export class TokenService {
       // to carry a valid jti cannot be swapped in (verified on every refresh).
       tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
       lastActiveAt: new Date(),
+      impersonatorId: facts.impersonatorId,
+      impersonationOrganizationId: facts.impersonationOrganizationId,
+      rememberMe: facts.rememberMe,
     });
 
     if (ipAddress) {
@@ -207,6 +254,30 @@ export class TokenService {
       refreshToken,
       refreshTokenId: rowId,
       sessionId: familyId,
+      rememberMe: facts.rememberMe,
+    };
+  }
+
+  /**
+   * What a session family is, as recorded when it began. Every row of a family carries the same
+   * facts; the earliest row is the authority, and `openedAt` is when the family started.
+   */
+  private async familyFacts(sessionId: string): Promise<{
+    impersonatorId: string | null;
+    impersonationOrganizationId: string | null;
+    openedAt: Date;
+    rememberMe: boolean;
+  }> {
+    const first = await this.refreshTokenRepository.findOne({
+      where: { sessionId },
+      order: { createdAt: 'ASC' },
+      select: ['id', 'createdAt', 'impersonatorId', 'impersonationOrganizationId', 'rememberMe'],
+    });
+    return {
+      impersonatorId: first?.impersonatorId ?? null,
+      impersonationOrganizationId: first?.impersonationOrganizationId ?? null,
+      openedAt: first?.createdAt ?? new Date(),
+      rememberMe: Boolean(first?.rememberMe),
     };
   }
 

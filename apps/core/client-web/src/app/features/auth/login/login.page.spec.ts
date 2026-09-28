@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginPage } from './login.page';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
 import { ReCaptchaV3Service, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
@@ -87,5 +87,17 @@ describe('LoginPage', () => {
         password: 'password123'
     });
     expect(component.loginForm.valid).toBeTruthy();
+  });
+
+  /**
+   * A federated sign-in no longer skips the account's own second factor: the server opens the
+   * pending session and sends the browser here with `?step=2fa`.
+   */
+  it('opens at the second-factor step when the server sends it there', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/?step=2fa');
+    const second = TestBed.createComponent(LoginPage);
+    second.detectChanges();
+    expect(second.componentInstance.show2faInput()).toBe(true);
   });
 });

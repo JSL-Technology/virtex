@@ -1,3 +1,5 @@
+import { PLATFORM_PERMISSION_PREFIX } from '@virteex/shared/util-auth';
+
 /**
  * Rights over the PLATFORM, as distinct from rights inside a tenant.
  *
@@ -53,6 +55,23 @@ export const PLATFORM_PERMISSIONS = {
    */
   ANALYTICS_REBUILD_VIEW: 'platform:analytics:rebuild_view',
   ANALYTICS_REFRESH_VIEW: 'platform:analytics:refresh_view',
+
+  /**
+   * Reference data every tenant reads: the currency catalogue and the units of measure. A tenant
+   * administrator could create, rename and DELETE rows in these tables for the whole installation.
+   */
+  REFERENCE_DATA_MANAGE: 'platform:reference_data:manage',
+  /**
+   * The shared exchange-rate table: refreshing it from the market-data provider (billed per
+   * request) and backfilling it. A tenant records the rates its own authority mandates in its OWN
+   * table (`tenant_exchange_rates`), which only it reads.
+   */
+  EXCHANGE_RATES_REFRESH: 'platform:exchange_rates:refresh',
+  /**
+   * The statutory payroll parameters (contribution rates, caps, income-tax scale) that every
+   * tenant's payroll is calculated with. They were editable by any tenant administrator, for all.
+   */
+  PAYROLL_STATUTORY_MANAGE: 'platform:payroll:statutory_manage',
 } as const;
 
 export type PlatformPermission =
@@ -60,8 +79,11 @@ export type PlatformPermission =
 
 export const ALL_PLATFORM_PERMISSIONS: readonly string[] = Object.values(PLATFORM_PERMISSIONS);
 
-/** The namespace every platform permission lives in, so a new one cannot be missed by a check. */
-export const PLATFORM_PERMISSION_PREFIX = 'platform:';
+/**
+ * The namespace every platform permission lives in, so a new one cannot be missed by a check.
+ * One definition, shared with the browser and with `hasPermission` (`@virteex/shared/util-auth`).
+ */
+export { PLATFORM_PERMISSION_PREFIX };
 
 /** Whether a permission string belongs to the platform tier. */
 export function isPlatformPermission(permission: string): boolean {

@@ -1,6 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager, LessThanOrEqual } from 'typeorm';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
+import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
+import { currentTenantStore } from '../shared/tenancy/tenant-context';
+
+/** The fields a quote contributes, whichever table it came from. */
+/**
+ * A quote from either table. The shared one types its day as `Date` (a legacy column); the
+ * tenant's own as the calendar-day string it is. Everything that reads `date` goes through
+ * `toIsoDate`, which accepts both.
+ */
+type Quote = Pick<ExchangeRate, 'rate' | 'rateType' | 'source'> & { date: Date | string };
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { BadRequestError } from '../i18n/localized.exception';
 import { convert, roundAmount } from '../common/money';
@@ -347,7 +357,40 @@ export class ExchangeRateResolver {
     return null;
   }
 
-  private lookup(
+  /**
+   * The quote for a pair on or before `date`: the newest of the tenant's own rate and the shared
+   * one, the tenant's winning a tie.
+   *
+   * The tenant is the one the work is being done for — the request's, or the background job's —
+   * so every caller of `rateFor` honours a tenant's own official rate without having to pass it.
+   */
+  private async lookup(
+    em: EntityManager,
+    from: string,
+    to: string,
+    date: string,
+    rateType: ExchangeRateType,
+  ): Promise<Quote | null> {
+    const shared = await this.lookupShared(em, from, to, date, rateType);
+    const organizationId = currentTenantStore()?.organizationId;
+    if (!organizationId) return shared;
+
+    const own = await em.findOne(TenantExchangeRate, {
+      where: {
+        organizationId,
+        fromCurrency: from,
+        toCurrency: to,
+        rateType,
+        date: LessThanOrEqual(date),
+      },
+      order: { date: 'DESC' },
+    });
+    if (!own) return shared;
+    if (!shared) return own;
+    return toIsoDate(own.date) >= toIsoDate(shared.date) ? own : shared;
+  }
+
+  private lookupShared(
     em: EntityManager,
     from: string,
     to: string,

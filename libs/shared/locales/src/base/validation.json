@@ -1036,11 +1036,6 @@
     "en": "The consolidation cut-off date is required.",
     "pt": "A data de corte da consolidação é obrigatória."
   },
-  "validation.security_audit.billing_period_not_valid": {
-    "es": "El periodo de facturación no es válido.",
-    "en": "The billing period is not valid.",
-    "pt": "O período de cobrança não é válido."
-  },
   "validation.set_password_from_invitation.password_cannot_exceed_128_characters": {
     "es": "La contraseña no puede superar los 128 caracteres.",
     "en": "The password cannot exceed 128 characters.",

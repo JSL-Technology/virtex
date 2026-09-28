@@ -33,6 +33,38 @@ export class RefreshToken {
   @Column({ name: 'user_id' })
   userId: string;
 
+  /**
+   * Set when this session was opened by impersonation: the operator who is really at the keyboard.
+   *
+   * The facts that make a session an impersonation live HERE, on the server, and are copied from
+   * row to row by `TokenService` on every rotation. They used to live only in the token's claims,
+   * and the refresh path rebuilt the claims from scratch — so the first rotation turned a
+   * thirty-minute impersonation into an ordinary session of the operator-as-target, renewable for
+   * a month, with the audit trail no longer saying who the operator was.
+   */
+  @Column({ name: 'impersonator_id', type: 'uuid', nullable: true })
+  impersonatorId?: string | null;
+
+  /**
+   * The one organization an impersonated session may act in: the one it was authorised for.
+   *
+   * The impersonated person may belong to other tenants the operator has no relationship with.
+   */
+  @Column({ name: 'impersonation_organization_id', type: 'uuid', nullable: true })
+  impersonationOrganizationId?: string | null;
+
+  /**
+   * Whether the person chose "remember me" when this session began — a fact of the FAMILY,
+   * decided once at sign-in and inherited by every rotation (the earliest row is the authority).
+   *
+   * It decides which rules the session lives under: a remembered session survives the browser
+   * closing and is not ended for short inactivity; an ordinary one is a browser-session cookie
+   * with a short idle window and a working-day absolute bound. It used to be re-derived from how
+   * long a row happened to be issued for, which any change to the lifetimes would silently break.
+   */
+  @Column({ name: 'remember_me', type: 'boolean', default: false })
+  rememberMe!: boolean;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;

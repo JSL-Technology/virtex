@@ -1,9 +1,8 @@
-import { IsString, Length, IsEnum, IsObject, IsOptional, IsIn } from 'class-validator';
+import { IsString, Length, IsEnum, IsObject, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
 import { IsVerificationTarget } from '../../common/validators/is-verification-target.validator';
 import { NormalizeContactTarget } from '../../common/transformers/normalize-email.transformer';
-import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 // H-03 FIX: tempToken removed — pending session is tracked via httpOnly cookie only.
 export class Verify2faDto {
@@ -98,23 +97,6 @@ export class VerifyPublicCodeDto extends SendPublicVerificationDto {
   @IsString()
   @Length(4, 12, { message: 'validation.constraints.length|{"min":4,"max":12}' })
   code!: string;
-}
-
-// H-02 FIX: Accept only planId — never trust client-supplied redirect URLs.
-// successUrl/cancelUrl are built server-side from FRONTEND_URL so the backend
-// controls the redirect destination (OWASP Unvalidated Redirects and Forwards
-// Cheat Sheet; CWE-601 URL Redirection to Untrusted Site).
-export class AuthCreateCheckoutSessionDto {
-  @ApiProperty()
-  @IsString()
-  @Length(1, 80, { message: 'validation.constraints.length|{"min":1,"max":80}' })
-  planId!: string;
-
-  /** Monthly or annual. Defaults to monthly. */
-  @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
-  @IsOptional()
-  @IsIn(BILLING_PERIODS, { message: 'validation.security_audit.billing_period_not_valid' })
-  billingPeriod?: BillingPeriod;
 }
 
 export class VerifyWebAuthnRegistrationDto {

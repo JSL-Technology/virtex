@@ -12,6 +12,7 @@ import { PluginAdmissionService } from './services/plugin-admission.service';
 import { MeteringService } from './services/metering.service';
 import { BillingService } from './services/billing.service';
 import { SigningKeyProvider } from './services/signing-key.provider';
+import { ExtensionScopeGuard } from './guards/extension-scope.guard';
 
 /**
  * The extensions ("virtual machine for extensions") capability, consolidated from the standalone
@@ -35,7 +36,9 @@ import { SigningKeyProvider } from './services/signing-key.provider';
     MeteringService,
     BillingService,
     SigningKeyProvider,
+    ExtensionScopeGuard,
   ],
-  exports: [ExtensionsService, SandboxService],
+  // The scope guard is registered as an APP_GUARD by AppModule, which owns guard ORDER.
+  exports: [ExtensionsService, SandboxService, ExtensionScopeGuard],
 })
 export class ExtensionsModule {}

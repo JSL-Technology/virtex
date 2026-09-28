@@ -17,8 +17,7 @@ import { UsersService } from '../../users/users.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { BadRequestError, NotFoundError, UnauthorizedError } from '../../i18n/localized.exception';
-import { MfaPolicyPort } from '../ports/mfa-policy.port';
-import { resolveMfaEnrolmentClaim } from './mfa-enrolment-claim.util';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /**
  * Enterprise SSO (Phase 2): vendor-neutral, per-tenant OIDC. The flow mirrors the social
@@ -47,7 +46,6 @@ export class EnterpriseSsoService {
     private readonly usersService: UsersService,
     private readonly auditService: AuditTrailService,
     private readonly configService: ConfigService,
-    private readonly mfaPolicy: MfaPolicyPort,
   ) {}
 
   private hashPii(value: string): string {
@@ -68,25 +66,50 @@ export class EnterpriseSsoService {
    * caller then falls back to normal login. Intentionally does not reveal whether the domain
    * exists to avoid tenant enumeration.
    */
-  async discoverByEmail(email: string): Promise<{ idpId: string; idpName: string } | null> {
+  /**
+   * Home Realm Discovery: the enabled IdP of the organization that has VERIFIED this address's
+   * domain, if any.
+   *
+   * Runs before sign-in, with no tenant. The verified claim is visible through the read-only
+   * `sso_routing` policy (see migration `SsoDomainClaims1789007500000`); the IdP itself stays
+   * under tenant isolation and is read in its organization's context. Both used to be read with
+   * no context at all, which under the production role found nothing: enterprise SSO could not
+   * be discovered.
+   */
+  async discoverByEmail(
+    email: string,
+  ): Promise<{ idpId: string; idpName: string; organizationId: string } | null> {
     const domain = this.getDomainFromEmail(email);
     if (!domain) return null;
 
+    // tenant-scope-guard-allow: Home Realm Discovery is BY domain, across tenants, before sign-in;
+    // only verified claims are visible to it (`sso_routing`).
     const orgDomain = await this.domainRepository.findOne({
       where: { domain, verified: true },
     });
     if (!orgDomain) return null;
 
-    const idp = await this.idpRepository.findOne({
-      where: { organizationId: orgDomain.organizationId, enabled: true },
-    });
+    const idp = await runAsTenantJob(this.dataSource, orgDomain.organizationId, () =>
+      this.idpRepository.findOne({
+        where: { organizationId: orgDomain.organizationId, enabled: true },
+      }),
+    );
     if (!idp) return null;
 
-    return { idpId: idp.id, idpName: idp.name };
+    return { idpId: idp.id, idpName: idp.name, organizationId: idp.organizationId };
   }
 
-  async getEnabledIdpOrThrow(idpId: string): Promise<IdentityProvider> {
-    const idp = await this.idpRepository.findOne({ where: { id: idpId, enabled: true } });
+  /**
+   * An enabled IdP of a given organization. The organization comes from a verified domain, the
+   * discovery start URL, or the signed OAuth transaction — never from the IdP id alone, which is
+   * not enough to read a tenant-isolated row.
+   */
+  async getEnabledIdpOrThrow(idpId: string, organizationId: string): Promise<IdentityProvider> {
+    const idp = organizationId
+      ? await runAsTenantJob(this.dataSource, organizationId, () =>
+          this.idpRepository.findOne({ where: { id: idpId, organizationId, enabled: true } }),
+        )
+      : null;
     if (!idp) {
       throw new NotFoundError('auth.sso_connection_not_found_or_disabled');
     }
@@ -117,7 +140,7 @@ export class EnterpriseSsoService {
     socialUser: SocialUser,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<{ user: User; tokens: any }> {
+  ): Promise<{ user: User; tokens?: any; secondFactorRequired?: boolean }> {
     // The IdP must assert a verified email; otherwise account takeover is possible.
     if (!socialUser.emailVerified) {
       throw new UnauthorizedError('auth.identity_provider_did_not_verify_email_address');
@@ -163,8 +186,11 @@ export class EnterpriseSsoService {
       undefined,
     );
 
-    const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
-    const tokens = await this.tokenService.generateAuthResponse(user, mfaClaim, ipAddress, userAgent);
+    // The account's own second factor is owed on top of the IdP's, exactly as for a password.
+    if (user.security?.isTwoFactorEnabled) {
+      return { user, secondFactorRequired: true };
+    }
+    const tokens = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
     return { user, tokens };
   }
 
@@ -200,6 +226,7 @@ export class EnterpriseSsoService {
         status: UserStatus.ACTIVE,
         security,
       });
+      // identity-writes-allow: JIT provisioning creates the identity; it has no roles anywhere else.
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
 

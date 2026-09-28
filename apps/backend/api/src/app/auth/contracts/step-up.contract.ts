@@ -1,5 +1,5 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
-import { StepUp } from '../decorators/step-up.decorator';
+import { StepUp, StepUpCondition } from '../decorators/step-up.decorator';
 import { StepUpScope } from '../enums/step-up-scope.enum';
 import { StepUpGuard } from '../guards/step-up.guard';
 
@@ -13,5 +13,7 @@ export { StepUpScope };
  * so a route that carried it without `@UseGuards(StepUpGuard)` would look guarded and be open.
  * One decorator cannot be half-applied.
  */
-export const RequireStepUp = (scope: StepUpScope) =>
-  applyDecorators(UseGuards(StepUpGuard), StepUp(scope));
+export type { StepUpCondition };
+
+export const RequireStepUp = (scope: StepUpScope, options: { when?: StepUpCondition } = {}) =>
+  applyDecorators(UseGuards(StepUpGuard), StepUp(scope, options));

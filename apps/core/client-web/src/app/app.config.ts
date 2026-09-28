@@ -24,6 +24,7 @@ import { RECAPTCHA_SETTINGS, RECAPTCHA_V3_SITE_KEY, RecaptchaSettings, Recaptcha
 import { environment } from '../environments/environment';
 import { ThemeService } from './core/services/theme';
 import { AuthService } from './core/services/auth';
+import { stepUpInterceptor } from './core/interceptors/step-up.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 import { watchRecaptchaScript } from './core/auth/recaptcha-token';
@@ -134,7 +135,14 @@ export const appConfig: ApplicationConfig = {
       // idempotencia: necesita que la petición ya sea la definitiva para sellarla con la empresa,
       // y la clave de idempotencia se calcula sobre la petición con su empresa dentro —la misma
       // operación en dos empresas no es la misma operación—.
-      withInterceptors([authInterceptor, activeOrganizationInterceptor, idempotencyInterceptor]),
+      withInterceptors([
+        authInterceptor,
+        // Inside authInterceptor, so a step-up challenge is answered before it can be mistaken
+        // for an expired session.
+        stepUpInterceptor,
+        activeOrganizationInterceptor,
+        idempotencyInterceptor,
+      ]),
       withFetch(),
     ),
     provideServiceWorker('ngsw-worker.js', {

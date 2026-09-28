@@ -42,6 +42,18 @@ export class UserOrganization {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
+  /**
+   * Set when THIS tenant has suspended the person, null while the membership is live.
+   *
+   * A tenant that is not the person's home organization has no authority over the identity — it
+   * cannot block the account, which would cut the person off from every other tenant too. What it
+   * can do is stop the person acting inside it, and this is that switch. A suspended membership
+   * grants nothing: `MembershipService` leaves it out of every access decision, while the
+   * administration screen still lists it so it can be restored.
+   */
+  @Column({ name: 'suspended_at', type: 'timestamptz', nullable: true })
+  suspendedAt: Date | null;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', foreignKeyConstraintName: 'FK_user_organizations_user' })
   user: User;

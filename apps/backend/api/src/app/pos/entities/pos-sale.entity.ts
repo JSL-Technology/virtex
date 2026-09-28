@@ -15,11 +15,18 @@ export enum PosSaleStatus {
   CANCELLED = 'CANCELLED',
 }
 
+/**
+ * One line as the SERVER priced it. Name, price and tax come from the catalogue at the moment of
+ * sale, never from the till: the till only says which product and how many.
+ */
 export interface PosSaleItem {
   productId: string;
   productName: string;
   price: number;
   quantity: number;
+  taxRate: number;
+  lineSubtotal: number;
+  lineTax: number;
 }
 
 /**
@@ -54,6 +61,10 @@ export class PosSale {
 
   @Column({ type: 'uuid', nullable: true })
   shiftId: string | null;
+
+  /** Who rang the sale. */
+  @Column({ type: 'uuid', nullable: true })
+  cashierId: string | null;
 
   @Column({ type: 'jsonb', default: () => "'[]'" })
   items: PosSaleItem[];

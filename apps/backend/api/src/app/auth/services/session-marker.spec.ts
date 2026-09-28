@@ -43,7 +43,9 @@ describe('CookieService — session marker', () => {
 
   const seconds = (ms: number) => Math.floor(ms / 1000);
 
-  it('expires exactly with the refresh cookie', () => {
+  it('is a browser-session cookie, like the refresh cookie, when the person was not remembered', () => {
+    // Leaving "remember me" unticked means the session ends when the browser closes: neither the
+    // refresh cookie nor its marker may carry a Max-Age.
     const service = build('production');
     const { cookies, res } = recorder();
 
@@ -53,8 +55,8 @@ describe('CookieService — session marker', () => {
     const marker = cookies.find((c) => c.name === '__Host-auth_session');
 
     expect(marker).toBeDefined();
-    expect(marker?.options['maxAge']).toBe(refresh?.options['maxAge']);
-    expect(marker?.options['maxAge']).toBe(seconds(AuthConfig.COOKIE_REFRESH_MAX_AGE));
+    expect(refresh?.options['maxAge']).toBeUndefined();
+    expect(marker?.options['maxAge']).toBeUndefined();
   });
 
   it('follows the refresh cookie into a "remember me" lifetime', () => {

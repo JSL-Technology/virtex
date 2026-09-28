@@ -22,7 +22,12 @@ import { AuthenticatedUser } from '../security/principal';
 describe('GET /auth/session — bootstrap', () => {
   const principal = { id: 'user-1', email: 'a@b.c' } as AuthenticatedUser;
 
-  const authService = { status: jest.fn(), refreshAccessToken: jest.fn() };
+  const authService = {
+    status: jest.fn(),
+    refreshAccessToken: jest.fn(),
+    isRememberedSession: jest.fn().mockResolvedValue(false),
+    endSessionByRefreshToken: jest.fn().mockResolvedValue(undefined),
+  };
   const cookieService = {
     setCsrfCookie: jest.fn(),
     setAuthCookies: jest.fn(),
@@ -54,7 +59,7 @@ describe('GET /auth/session — bootstrap', () => {
     it('answers 200 rather than 401, and does not ask the client to refresh', async () => {
       const result = await controller.getSession(null, request(), response());
 
-      expect(result).toEqual({ authenticated: false, user: null, refreshable: false });
+      expect(result).toEqual({ authenticated: false, user: null, refreshable: false, session: null });
       // Nothing to resolve, so the source of truth is never consulted.
       expect(authService.status).not.toHaveBeenCalled();
     });
@@ -77,7 +82,7 @@ describe('GET /auth/session — bootstrap', () => {
 
       const result = await controller.getSession(null, request({ auth_session: '1' }), response());
 
-      expect(result).toEqual({ authenticated: false, user: null, refreshable: true });
+      expect(result).toEqual({ authenticated: false, user: null, refreshable: true, session: null });
     });
   });
 
@@ -116,7 +121,7 @@ describe('GET /auth/session — bootstrap', () => {
 
       const result = await controller.getSession(principal, request(), response());
 
-      expect(result).toEqual({ authenticated: false, user: null, refreshable: false });
+      expect(result).toEqual({ authenticated: false, user: null, refreshable: false, session: null });
     });
 
     it('clears the cookies, so the next page load does not repeat the failure', async () => {
@@ -181,6 +186,44 @@ describe('GET /auth/session — bootstrap', () => {
       );
     });
   });
+
+  describe('the session policy the client is told to follow', () => {
+    it('tells a remembered session it is persistent and not signed out for inactivity', async () => {
+      authService.status.mockResolvedValue({ user: principal });
+      authService.isRememberedSession.mockResolvedValue(true);
+
+      const result = await controller.getSession({ ...principal, sessionId: 's1' } as never, request(), response());
+
+      expect(result.session).toEqual({ persistent: true, inactivityTimeoutMs: null });
+    });
+
+    it('gives an ordinary session the inactivity timeout the server also enforces', async () => {
+      authService.status.mockResolvedValue({ user: principal });
+      authService.isRememberedSession.mockResolvedValue(false);
+
+      const result = await controller.getSession({ ...principal, sessionId: 's1' } as never, request(), response());
+
+      expect(result.session).toEqual({ persistent: false, inactivityTimeoutMs: expect.any(Number) });
+    });
+  });
+
+  describe('POST /auth/refresh/revoke — signing out without a valid access token', () => {
+    it('ends the session the refresh cookie belongs to and clears the cookies', async () => {
+      const res = response();
+      await controller.revokeBrowserSession(request({ refresh_token: 'rt' }), res);
+
+      expect(authService.endSessionByRefreshToken).toHaveBeenCalledWith('rt');
+      expect(cookieService.clearAuthCookies).toHaveBeenCalledWith(res);
+    });
+
+    it('still clears the cookies when there is nothing to revoke', async () => {
+      const res = response();
+      await controller.revokeBrowserSession(request(), res);
+
+      expect(authService.endSessionByRefreshToken).toHaveBeenCalledWith(undefined);
+      expect(cookieService.clearAuthCookies).toHaveBeenCalledWith(res);
+    });
+  });
 });
 
 describe('OptionalJwtAuthGuard', () => {
@@ -206,4 +249,5 @@ describe('OptionalJwtAuthGuard', () => {
 
     expect(guard.handleRequest(new Error('invalid signature'), false)).toBeNull();
   });
+
 });

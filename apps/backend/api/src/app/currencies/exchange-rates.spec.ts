@@ -6,6 +6,8 @@ import { XeRatesProvider } from './xe-rates.provider';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
+import { runInTenantContext } from '../shared/tenancy/tenant-context';
 
 /**
  * Exchange rates: direction, triangulation, type and staleness.
@@ -31,6 +33,14 @@ describeWithDb('exchange rates', () => {
 
   const ACTOR = '44444444-4444-4444-8444-444444444444';
   const DAY = '2026-03-15';
+  // Tenants are created through the entity's registered name: this module holds tenant ids, it
+  // does not depend on Identity's classes.
+  let tenantA: { id: string };
+  let tenantB: { id: string };
+
+  /** As the resolver sees it when a request or a job acts for `organizationId`. */
+  const asTenant = <T>(organizationId: string, work: () => Promise<T>): Promise<T> =>
+    runInTenantContext({ organizationId, manager: dataSource.manager }, work);
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -47,8 +57,12 @@ describeWithDb('exchange rates', () => {
     await dataSource.initialize();
 
     resolver = testExchangeRateResolver(dataSource);
+    tenantA = { id: (await dataSource.getRepository('Organization').save({ legalName: `FX A ${Date.now()}` })).id };
+    tenantB = { id: (await dataSource.getRepository('Organization').save({ legalName: `FX B ${Date.now()}` })).id };
+
     service = new ExchangeRatesService(
       dataSource.getRepository(ExchangeRate),
+      dataSource.getRepository(TenantExchangeRate),
       dataSource.getRepository(Currency),
       { get: () => undefined } as never,
       resolver,
@@ -98,6 +112,9 @@ describeWithDb('exchange rates', () => {
         codes: ['PYG', 'BOB', 'UYU'],
       })
       .execute();
+    await dataSource.query(
+      `DELETE FROM tenant_exchange_rates WHERE from_currency IN ('PYG','BOB','UYU') OR to_currency IN ('PYG','BOB','UYU')`,
+    );
   });
 
   /** Units of `to` for one unit of `from`, on `date`. */
@@ -238,7 +255,7 @@ describeWithDb('exchange rates', () => {
 
   // ── Recording by hand ─────────────────────────────────────────────────────
 
-  it('records a rate by hand with its source and its author', async () => {
+  it('records a rate by hand with its source and its author, for the tenant that entered it', async () => {
     const result = await service.record(
       {
         fromCurrency: 'usd',
@@ -249,14 +266,40 @@ describeWithDb('exchange rates', () => {
         source: 'dgii',
       },
       ACTOR,
+      tenantA.id,
     );
 
     expect(result.rate.fromCurrency).toBe('USD');
     expect(result.rate.source).toBe('DGII');
     expect(result.rate.recordedByUserId).toBe(ACTOR);
+    expect(result.rate.organizationId).toBe(tenantA.id);
 
-    const resolved = await resolver.resolve('USD', 'PYG', DAY);
+    const resolved = await asTenant(tenantA.id, () => resolver.resolve('USD', 'PYG', DAY));
     expect(resolved.rate).toBeCloseTo(58.75, 6);
+  });
+
+  /**
+   * A rate typed by one tenant used to land in the table every tenant converts with: one
+   * customer's typo changed another customer's invoices. It is that tenant's alone now.
+   */
+  it('a rate one tenant records never converts another tenant\'s documents', async () => {
+    await publish('USD', 'PYG', 58.8, DAY);
+    await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 1, date: DAY }, ACTOR, tenantA.id);
+
+    const forA = await asTenant(tenantA.id, () => resolver.resolve('USD', 'PYG', DAY));
+    const forB = await asTenant(tenantB.id, () => resolver.resolve('USD', 'PYG', DAY));
+    const shared = await resolver.resolve('USD', 'PYG', DAY);
+
+    expect(forA.rate).toBeCloseTo(1, 6);
+    expect(forB.rate).toBeCloseTo(58.8, 6);
+    expect(shared.rate).toBeCloseTo(58.8, 6);
+  });
+
+  it('the newest quote wins, whichever table it is in', async () => {
+    await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 50, date: '2026-03-10' }, ACTOR, tenantA.id);
+    await publish('USD', 'PYG', 58.8, DAY);
+    const resolved = await asTenant(tenantA.id, () => resolver.resolve('USD', 'PYG', DAY));
+    expect(resolved.rate).toBeCloseTo(58.8, 6);
   });
 
   /**
@@ -270,14 +313,16 @@ describeWithDb('exchange rates', () => {
     await service.record(
       { fromCurrency: 'USD', toCurrency: 'PYG', rate: 5.88, date: DAY },
       ACTOR,
+      tenantA.id,
     );
     await service.record(
       { fromCurrency: 'USD', toCurrency: 'PYG', rate: 58.8, date: DAY },
       ACTOR,
+      tenantA.id,
     );
 
-    const rows = await dataSource.getRepository(ExchangeRate).find({
-      where: { fromCurrency: 'USD', toCurrency: 'PYG' },
+    const rows = await dataSource.getRepository(TenantExchangeRate).find({
+      where: { organizationId: tenantA.id, fromCurrency: 'USD', toCurrency: 'PYG' },
     });
     expect(rows).toHaveLength(1);
     expect(Number(rows[0].rate)).toBeCloseTo(58.8, 6);
@@ -285,13 +330,13 @@ describeWithDb('exchange rates', () => {
 
   it('refuses a pair with the same currency on both sides', async () => {
     await expect(
-      service.record({ fromCurrency: 'USD', toCurrency: 'USD', rate: 1, date: DAY }, ACTOR),
+      service.record({ fromCurrency: 'USD', toCurrency: 'USD', rate: 1, date: DAY }, ACTOR, tenantA.id),
     ).rejects.toThrow();
   });
 
   it('refuses a non-positive rate', async () => {
     await expect(
-      service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 0, date: DAY }, ACTOR),
+      service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 0, date: DAY }, ACTOR, tenantA.id),
     ).rejects.toThrow();
   });
 

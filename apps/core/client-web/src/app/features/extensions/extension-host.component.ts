@@ -8,7 +8,14 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  EXTENSION_ALLOWED_METHODS,
+  EXTENSION_REQUEST_HEADER,
+  extensionApiPrefixes,
+  extensionMayRead,
+  normalizeExtensionApiPath,
+} from '@virteex/shared/util-auth';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification';
@@ -140,51 +147,38 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
    * `api:read` itself is kept for extensions published before scopes existed, and is deliberately
    * narrowed to the reference data that motivated it rather than left as a skeleton key.
    */
-  private static readonly CAPABILITY_SCOPES: Record<string, readonly string[]> = {
-    'api:read:sales': ['/invoices', '/sales', '/customers', '/price-lists'],
-    'api:read:inventory': ['/inventory', '/products', '/units-of-measure'],
-    'api:read:purchasing': ['/suppliers', '/purchasing', '/procurement', '/accounts-payable'],
-    'api:read:accounting': ['/chart-of-accounts', '/journal-entries', '/accounting', '/reports'],
-    'api:read:projects': ['/projects', '/dimensions'],
-    // Legacy grant. Reference data only — never payroll, users, audit, treasury or settings.
-    'api:read': ['/currencies', '/taxes', '/units-of-measure', '/localization'],
-  };
-
-  /** Every path prefix this extension's granted capabilities allow. */
-  private allowedPrefixes(): string[] {
-    return this.extension.grantedCapabilities.flatMap(
-      (capability) => ExtensionHostComponent.CAPABILITY_SCOPES[capability] ?? [],
-    );
-  }
-
   private async handleApiRequest(id: number, payload: any): Promise<void> {
-    const path: string = payload?.path ?? '';
-    const method: string = (payload?.opts?.method ?? 'GET').toUpperCase();
+    const method: string = String(payload?.opts?.method ?? 'GET').toUpperCase();
 
-    if (method !== 'GET') {
+    if (!EXTENSION_ALLOWED_METHODS.includes(method)) {
       return this.post({ id, error: 'Only GET requests are allowed from extensions' });
     }
-    if (typeof path !== 'string' || !path.startsWith('/') || path.includes('..')) {
+
+    // Normalised BEFORE it is checked, and refused if normalising changed it. The check used to
+    // compare the path as written while the browser requested it as normalised, so
+    // `/sales/%2e%2e/users` passed as `/sales/…` and fetched `/users`.
+    const normalized = normalizeExtensionApiPath(payload?.path);
+    if (!normalized) {
       return this.post({ id, error: 'Invalid API path' });
     }
 
-    const prefixes = this.allowedPrefixes();
-    if (!prefixes.length) {
+    const capabilities = this.extension.grantedCapabilities;
+    if (!extensionApiPrefixes(capabilities).length) {
       return this.post({ id, error: 'This extension has no API read capability' });
     }
-
-    // Prefix match on a SEGMENT boundary: `/users` must not be opened by a grant of `/user`, and
-    // `/payroll-summary` must not be opened by a grant of `/payroll`.
-    const [pathname] = path.split('?');
-    const permitted = prefixes.some(
-      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-    );
-    if (!permitted) {
-      return this.post({ id, error: `Path outside the granted capabilities: ${pathname}` });
+    if (!extensionMayRead(normalized.pathname, capabilities)) {
+      return this.post({ id, error: `Path outside the granted capabilities: ${normalized.pathname}` });
     }
 
     try {
-      const result = await firstValueFrom(this.http.get(`${environment.apiUrl}${path}`));
+      // Tagged so the API applies the same scope check on its side (ExtensionScopeGuard): the host
+      // is the only way an extension reaches the API, and it must not be the only thing that
+      // enforces what the extension was granted.
+      const result = await firstValueFrom(
+        this.http.get(`${environment.apiUrl}${normalized.pathname}${normalized.search}`, {
+          headers: new HttpHeaders({ [EXTENSION_REQUEST_HEADER]: this.extension.name }),
+        }),
+      );
       this.post({ id, result });
     } catch (err: any) {
       this.post({ id, error: err?.error?.message ?? err?.message ?? 'Request failed' });
@@ -192,11 +186,6 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
   }
 }
 
-/**
- * The static harness loaded into the sandboxed iframe. It contains no extension code — it waits for
- * the parent to post the code, runs it with a `virtex` bridge and a `root` element, and forwards
- * `virtex.api` / `virtex.toast` calls to the parent over postMessage.
- */
 const HARNESS_HTML = `<!doctype html><html><head><meta charset="utf-8">
 <style>
   html,body{margin:0}

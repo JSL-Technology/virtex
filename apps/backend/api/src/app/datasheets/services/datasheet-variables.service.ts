@@ -1,3 +1,4 @@
+import { hasPermission } from '@virteex/shared/util-auth';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -170,12 +171,8 @@ export class DatasheetVariablesService {
   /** The permission the registry declares, actually enforced. */
   private assertPermitted(variable: ERPVariable, user: AuthenticatedUser): void {
     if (!variable.permission) return;
-    const held = new Set(
-      (user.roles ?? []).flatMap(
-        (role: { permissions?: string[] }) => role.permissions ?? [],
-      ),
-    );
-    if (!held.has(variable.permission)) {
+    // The guard's matcher, against the principal's resolved permissions (wildcards included).
+    if (!hasPermission(user.permissions ?? [], [variable.permission])) {
       throw new ForbiddenError('datasheets.you_do_not_have_permission_read', {
         variable: variable.nameEs,
         permission: variable.permission,

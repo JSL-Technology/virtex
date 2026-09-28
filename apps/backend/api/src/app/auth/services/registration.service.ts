@@ -13,6 +13,7 @@ import { RegistrationStrategyFactory } from '../strategies/registration/registra
 import { MfaOrchestratorService } from './mfa-orchestrator.service';
 import { VerificationType } from '../entities/verification-code.entity';
 import { LocalizationService } from '../../localization/services/localization.service';
+import { replaceRolesInOrganization } from '../../users/persistence/identity-writes';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Role } from '../../roles/entities/role.entity';
@@ -283,8 +284,11 @@ export class RegistrationService {
       // created and its first administrator is the person who just signed up and paid for it —
       // there is no prior actor whose rights could be exceeded, and the role being granted is the
       // one this provisioning just created.
+      // Written through the join table and scoped to the NEW tenant, so the person's roles in
+      // every other tenant are neither read nor rewritten (see `users/persistence/identity-writes`).
+      // role-assignment-allow: tenant provisioning, as above.
+      await replaceRolesInOrganization(manager, existingUser.id, organization.id, [adminRole.id]);
       existingUser.roles = [...(existingUser.roles ?? []), adminRole];
-      await manager.save(User, existingUser);
       user = existingUser;
     } else {
       const userSecurity = manager.create(UserSecurity, {
@@ -306,6 +310,7 @@ export class RegistrationService {
         status: UserStatus.ACTIVE,
         security: userSecurity,
       });
+      // identity-writes-allow: a brand-new identity from signup; it has no roles anywhere else.
       await manager.save(user);
     }
 

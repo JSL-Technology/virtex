@@ -66,9 +66,12 @@ export const CONFIG_PERMISSIONS = {
   EXTENSIONS_MANAGE: 'extensions:manage',
 
   /**
-   * Point of sale. `OPERATE` is the cashier's grant: open/close a till shift and ring sales.
-   * `VIEW` reads shifts and the sales journal without the ability to transact.
+   * Point of sale. `OPERATE` is the cashier's grant: open a till shift, ring sales on it and close
+   * it. `VIEW` reads shifts and the sales journal without the ability to transact.
+   * `MANAGE_SHIFTS` is the supervisor's: ring on, or close, a shift somebody ELSE opened. Without it
+   * a cashier can only touch their own shift, so a drawer's takings are always attributable.
    */
   POS_VIEW: 'pos:view',
   POS_OPERATE: 'pos:operate',
+  POS_MANAGE_SHIFTS: 'pos:manage_shifts',
 } as const;

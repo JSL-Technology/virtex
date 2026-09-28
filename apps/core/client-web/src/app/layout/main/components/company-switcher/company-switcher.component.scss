@@ -277,3 +277,106 @@
 .switch-error {
   color: var(--error-text);
 }
+
+/* Organizations that have asked this person to join. Answering is the person's decision alone. */
+.invitation-badge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--accent-solid);
+  color: var(--accent-on-solid);
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+  line-height: 18px;
+  text-align: center;
+}
+
+.invitation-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--accent-surface);
+  margin-bottom: var(--space-2);
+
+  .org-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-text);
+  }
+}
+
+.invitation-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  .org-name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.invitation-role {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+.invitation-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.invitation-accept,
+.invitation-decline {
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.invitation-accept {
+  padding: 4px 8px;
+  background: var(--accent-solid);
+  color: var(--accent-on-solid);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-solid-hover);
+  }
+}
+
+.invitation-decline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  color: var(--text-tertiary);
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}

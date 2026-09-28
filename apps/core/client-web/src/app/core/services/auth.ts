@@ -31,6 +31,7 @@ import { readCsrfCookie } from '../auth/csrf-token';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from './language';
+import { ActivityTrackerService } from './activity-tracker.service';
 
 // H-11 FIX: Backend intentionally omits accessToken/refreshToken from the response body —
 // tokens are delivered exclusively via httpOnly cookies. Removing them from the interface
@@ -38,7 +39,30 @@ import { LanguageService } from './language';
 // (OWASP ASVS 1.5.3; CWE-710).
 interface LoginResponse {
   user: User;
+  /** The rules the new session lives under, decided by the server from "remember me". */
+  session?: SessionPolicy;
 }
+
+/**
+ * The rules the current session lives under — the server's answer, not a client constant.
+ *
+ * `persistent`: the person chose "remember me"; the session survives the browser closing and is
+ * not signed out for inactivity. `inactivityTimeoutMs`: how long without activity before this
+ * client signs out (null for a remembered session). See `SessionPolicyDto` on the API.
+ */
+export interface SessionPolicy {
+  persistent: boolean;
+  inactivityTimeoutMs: number | null;
+}
+
+/**
+ * What the client assumes when a sign-in route has not said: an ordinary session. Never the
+ * permissive answer — an unknown session is signed out for inactivity, not kept forever.
+ */
+export const ORDINARY_SESSION_POLICY: SessionPolicy = {
+  persistent: false,
+  inactivityTimeoutMs: 15 * 60 * 1000,
+};
 
 // H-03 FIX: tempToken removed — pending session ID is delivered only via httpOnly cookie.
 interface TwoFactorRequiredResponse {
@@ -46,7 +70,7 @@ interface TwoFactorRequiredResponse {
   message: string;
 }
 
-type LoginResult = { user: User } | TwoFactorRequiredResponse;
+type LoginResult = LoginResponse | TwoFactorRequiredResponse;
 
 /**
  * What `GET /auth/session` answers. See the endpoint's own documentation for why every field is
@@ -57,6 +81,8 @@ interface SessionSnapshot {
   user: User | null;
   /** Whether `POST /auth/refresh` can succeed. Never call it when this is false. */
   refreshable: boolean;
+  /** The signed-in session's rules; null when signed out. */
+  session?: SessionPolicy | null;
 }
 
 function isTwoFactorRequired(res: LoginResult): res is TwoFactorRequiredResponse {
@@ -85,6 +111,7 @@ export class AuthService {
   private errorHandlerService = inject(ErrorHandlerService);
   private languageService = inject(LanguageService);
   private translate = inject(TranslateService);
+  private activity = inject(ActivityTrackerService);
   private readonly baseUrl = inject(API_URL);
 
   // URL base de tu API de autenticación.
@@ -116,6 +143,17 @@ export class AuthService {
   /** Guards `listenForForcedLogout` against stacking a new socket subscription per sign-in. */
   private forcedLogoutListenerAttached = false;
 
+  /** The rules the current session lives under, as the server stated them. Null when signed out. */
+  private _sessionPolicy = signal<SessionPolicy | null>(null);
+  public readonly sessionPolicy = this._sessionPolicy.asReadonly();
+
+  /**
+   * Why the last session ended, when the client ended it without navigating — a session found
+   * already idle while the application loaded. Read once by the guard that sends the person to
+   * the sign-in page, so that page can explain it.
+   */
+  private pendingSignOutReason: SignOutReason | null = null;
+
   // --- Selectores Públicos (Computed Signals) ---
 
   // Expone el usuario actual de forma pública y de solo lectura.
@@ -136,6 +174,22 @@ export class AuthService {
 
   constructor() {
     this.listenForForcedLogout();
+
+    // Signing out in one tab signs out every tab. Each tab holds its own copy of the session in
+    // memory, and the others used to carry on showing the application until their next request
+    // failed — which surfaced as "your session has expired", about a sign-out the person chose.
+    this.activity.onBroadcast((message) => {
+      if (message.type === 'signed-out' && this.isAuthenticated()) {
+        this.logout(false, message.reason, { broadcast: false });
+      }
+    });
+  }
+
+  /** The reason to show on the sign-in page for a session this client ended; read once. */
+  consumeSignOutReason(): SignOutReason | null {
+    const reason = this.pendingSignOutReason;
+    this.pendingSignOutReason = null;
+    return reason;
   }
 
   private listenForForcedLogout(): void {
@@ -192,7 +246,8 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (response?.user) {
-            this.applyAuthenticated(response.user);
+            // A renewal, not a sign-in: it must not count as the person doing something.
+            this.applyAuthenticated(response.user, response.session, { freshSignIn: false });
           }
         }),
       );
@@ -217,7 +272,7 @@ export class AuthService {
              return;
           }
           if (response.user) {
-             this.applyAuthenticated(response.user);
+             this.applyAuthenticated(response.user, response.session);
           }
         }),
         map((response) => {
@@ -237,7 +292,7 @@ export class AuthService {
           withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }).pipe(
-          tap((response) => this.applyAuthenticated(response.user)),
+          tap((response) => this.applyAuthenticated(response.user, response.session)),
           map((response) => response.user),
           catchError((err) => this.errorHandlerService.handleError('verify2fa', err))
       );
@@ -299,12 +354,6 @@ export class AuthService {
       { email },
       { context: new HttpContext().set(IS_PUBLIC_API, true) },
     );
-  }
-
-  createCheckoutSession(planId: string): Observable<{ url: string }> {
-    // H-02 FIX: Send only planId. successUrl/cancelUrl are now built server-side
-    // from FRONTEND_URL so the backend controls redirect destinations (CWE-601).
-    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, { planId }, { withCredentials: true });
   }
 
   /**
@@ -400,14 +449,23 @@ export class AuthService {
       .pipe(
         switchMap((snapshot) => {
           if (snapshot.authenticated && snapshot.user) {
-            return of(this.applyAuthenticated(snapshot.user));
+            if (this.idledOut(snapshot.session)) return of(this.endIdleSessionOnLoad());
+            return of(this.applyAuthenticated(snapshot.user, snapshot.session, { freshSignIn: false }));
           }
 
           if (snapshot.refreshable) {
             // `refreshAccessToken()` adopts the principal itself on success, so this only has to
             // report the outcome — applying it twice would re-open the socket for no reason.
             return this.refreshAccessToken().pipe(
-              map((response) => (response?.user ? true : this.applySignedOut())),
+              map((response) => {
+                if (!response?.user) return this.applySignedOut();
+                // Checked AFTER the refresh, because only the refresh says what kind of session
+                // this is — and a session left idle past its window must not be restored by the
+                // reload that follows. That reload used to be exactly how a person signed out for
+                // inactivity found themselves back on the dashboard.
+                if (this.idledOut(response.session)) return this.endIdleSessionOnLoad();
+                return true;
+              }),
               // The refresh token was revoked, replayed or expired between being issued and being
               // used. The server has already cleared the cookies; we only have to agree.
               catchError(() => of(this.applySignedOut())),
@@ -435,7 +493,20 @@ export class AuthService {
    * Adopt a signed-in principal. Every entry point into an authenticated state goes through here
    * — bootstrap, refresh, login, 2FA, signup — so none of them can forget a step.
    */
-  private applyAuthenticated(user: User): boolean {
+  private applyAuthenticated(
+    user: User,
+    policy?: SessionPolicy | null,
+    options: { freshSignIn?: boolean } = {},
+  ): boolean {
+    const { freshSignIn = true } = options;
+    // The server's statement wins. A route that did not make one (an organization switch, a
+    // passkey sign-in) keeps what is known, and an unknown session is an ordinary one.
+    this._sessionPolicy.set(policy ?? this._sessionPolicy() ?? ORDINARY_SESSION_POLICY);
+    if (freshSignIn) {
+      // A sign-in is activity, and must be recorded at once: a record left from an earlier
+      // session would otherwise sign this one out as soon as it began.
+      this.activity.touch(true);
+    }
     this._currentUser.set(user);
     this._authStatus.set(AuthStatus.authenticated);
     this.sessionResolution = of(true);
@@ -462,6 +533,7 @@ export class AuthService {
 
   /** The mirror image: the single way the client enters a signed-out state. */
   private applySignedOut(): boolean {
+    this._sessionPolicy.set(null);
     this._currentUser.set(null);
     this._authStatus.set(AuthStatus.unauthenticated);
     this.sessionResolution = of(false);
@@ -471,6 +543,26 @@ export class AuthService {
 
     this.webSocketService.disconnect();
     return false;
+  }
+
+  /** Whether a session of this kind has already gone longer without activity than it may. */
+  private idledOut(policy: SessionPolicy | null | undefined): boolean {
+    const timeout = (policy ?? ORDINARY_SESSION_POLICY).inactivityTimeoutMs;
+    if (timeout === null) return false;
+    const idleFor = this.activity.idleForMs();
+    return idleFor !== null && idleFor >= timeout;
+  }
+
+  /**
+   * End, while the application loads, a session found already idle past its window: revoke it on
+   * the server, settle as signed out, and leave the reason for the sign-in page.
+   */
+  private endIdleSessionOnLoad(): boolean {
+    this.pendingSignOutReason = 'idle';
+    this.revokeServerSession();
+    this.activity.clear();
+    this.activity.broadcast({ type: 'signed-out', reason: 'idle' });
+    return this.applySignedOut();
   }
 
   // H12 FIX: Token is now read from the httpOnly social_register_token cookie by the backend;
@@ -497,7 +589,12 @@ export class AuthService {
    * Cierra la sesión del usuario tanto en el frontend como en el backend.
    * @param notifyBackend Si es true, envía una petición de logout al backend. Si es false, solo limpia el estado local.
    */
-  logout(notifyBackend = true, reason?: SignOutReason): void {
+  logout(
+    notifyBackend = true,
+    reason?: SignOutReason,
+    options: { broadcast?: boolean } = {},
+  ): void {
+    const { broadcast = true } = options;
     // 1. Limpiar estado local inmediatamente para asegurar respuesta rápida de UI.
     // `applySignedOut` also pins the memoised session resolution to "signed out", so the guards
     // that run during the redirect below settle without a request — and, because the server
@@ -505,6 +602,10 @@ export class AuthService {
     // not probe either.
     this.webSocketService.emit('user-status', { isOnline: false });
     this.applySignedOut();
+    this.activity.clear();
+    if (broadcast) {
+      this.activity.broadcast({ type: 'signed-out', reason });
+    }
     // The sign-in page the user lands on must be in the language they were just using. The
     // language lives in one place — `LanguageService` — rather than being re-derived here from a
     // storage key this file also had to know the name of.
@@ -542,7 +643,10 @@ export class AuthService {
    * Uses keepalive fetch (survives unload) when available, otherwise falls back to HttpClient.
    */
   private revokeServerSession(): void {
-    const url = `${this.apiUrl}/logout`;
+    // `refresh/revoke`, not `logout`: it identifies the session by the refresh cookie, so it works
+    // when the access token has already expired — which is exactly when the inactivity sign-out
+    // fires. `logout` answered 401 then, ended nothing, and the next reload renewed the session.
+    const url = `${this.apiUrl}/refresh/revoke`;
     // Read through the same helper the interceptor uses. This used to go through Angular's
     // `HttpXsrfTokenExtractor`, which only knows the unprefixed `XSRF-TOKEN` name — so in every
     // deployment, where the cookie is `__Host-XSRF-TOKEN`, it found nothing and the keepalive
@@ -564,10 +668,16 @@ export class AuthService {
           'X-XSRF-TOKEN': xsrfToken as string,
         },
         body: '{}',
-      }).catch(() => {
-        // Network/unload failure — fall back to a tracked HttpClient request below.
-        this.logoutViaHttpClient(url);
-      });
+      })
+        .then((response) => {
+          // `fetch` resolves on ANY status. A refused request (a stale CSRF token, say) revoked
+          // nothing, so it is retried through HttpClient, whose interceptor refreshes the token.
+          if (!response.ok) this.logoutViaHttpClient(url);
+        })
+        .catch(() => {
+          // Network/unload failure — fall back to a tracked HttpClient request below.
+          this.logoutViaHttpClient(url);
+        });
       return;
     }
 

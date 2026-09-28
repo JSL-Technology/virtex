@@ -19,6 +19,31 @@
     "en": "Signing in with the passkey failed",
     "pt": "Falha ao entrar com a chave de acesso"
   },
+  "core.session_idle.countdown": {
+    "es": "Tu sesión se cerrará en {{seconds}} s.",
+    "en": "Signing out in {{seconds}} s.",
+    "pt": "A sessão termina em {{seconds}} s."
+  },
+  "core.session_idle.message": {
+    "es": "Por seguridad, cerraremos tu sesión por inactividad en un minuto. Si sigues trabajando, pulsa «Seguir conectado».",
+    "en": "For your security, we will sign you out for inactivity in one minute. If you are still working, choose “Stay signed in”.",
+    "pt": "Por segurança, terminaremos a sua sessão por inatividade dentro de um minuto. Se ainda está a trabalhar, escolha «Continuar ligado»."
+  },
+  "core.session_idle.sign_out": {
+    "es": "Cerrar sesión",
+    "en": "Sign out",
+    "pt": "Terminar sessão"
+  },
+  "core.session_idle.stay": {
+    "es": "Seguir conectado",
+    "en": "Stay signed in",
+    "pt": "Continuar ligado"
+  },
+  "core.session_idle.title": {
+    "es": "¿Sigues ahí?",
+    "en": "Are you still there?",
+    "pt": "Ainda está aí?"
+  },
   "core.state.account_deleted_successfully": {
     "es": "Cuenta eliminada correctamente.",
     "en": "Account deleted.",

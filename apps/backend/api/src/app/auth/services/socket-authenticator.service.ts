@@ -48,7 +48,32 @@ export class SocketAuthenticator extends SocketAuthenticatorPort {
     } as JwtPayload);
   }
 
-  private verifyAccessToken(token: string): AccessTokenClaims | null {
+  async revalidate(cookieHeader: string): Promise<boolean> {
+    const token = readAccessTokenCookie(cookieHeader);
+    if (!token) return false;
+
+    // The signature, issuer and audience still have to verify: an expired token is still OUR
+    // token, a forged one is nobody's. Only `exp` is waived — see the port.
+    const claims = this.verifyAccessToken(token, { ignoreExpiration: true });
+    if (!claims) return false;
+
+    try {
+      const principal = await this.userIdentityService.resolveFromPayload({
+        id: claims.id,
+        tokenVersion: claims.tokenVersion,
+        organizationId: claims.organizationId,
+        sessionId: claims.sessionId,
+      } as JwtPayload);
+      return Boolean(principal);
+    } catch {
+      return false;
+    }
+  }
+
+  private verifyAccessToken(
+    token: string,
+    options: { ignoreExpiration?: boolean } = {},
+  ): AccessTokenClaims | null {
     try {
       const kid = jwt.decode(token, { complete: true })?.header?.kid;
       const publicKey = this.keyManagementService.getPublicKey(kid);
@@ -58,6 +83,7 @@ export class SocketAuthenticator extends SocketAuthenticatorPort {
         algorithms: ['RS256'],
         issuer: 'virteex-api',
         audience: 'virteex-web',
+        ignoreExpiration: options.ignoreExpiration ?? false,
       }) as AccessTokenClaims;
     } catch (e) {
       this.logger.debug(`WebSocket token verification failed: ${(e as Error).message}`);

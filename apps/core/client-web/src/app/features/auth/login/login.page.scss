@@ -103,6 +103,13 @@
   color: var(--content-secondary);
 }
 
+.remember-hint {
+  margin: calc(var(--space-2) * -1) 0 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--content-tertiary);
+}
+
 // ── Aviso de error ───────────────────────────────────────────────────────────
 .error-alert  { @include auth.error-alert; }
 .notice-alert { @include auth.notice-alert; }

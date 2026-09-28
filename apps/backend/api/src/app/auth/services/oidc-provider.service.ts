@@ -30,9 +30,6 @@ export interface OidcClientConfig {
   extraAuthParams?: Record<string, string>;
 }
 
-// Azure AD "consumers" tenant (personal Microsoft accounts). Used to decide whether an
-// account is organization-managed (and therefore email-verified by the tenant).
-const MS_CONSUMERS_TENANT = '9188040d-6c67-4c5b-b112-36a304b66dad';
 
 @Injectable()
 export class OidcProviderService {
@@ -260,7 +257,7 @@ export class OidcProviderService {
 
   mapClaimsToSocialUser(provider: string, claims: JWTPayload, accessToken?: string): SocialUser {
     const sub = String(claims.sub ?? '');
-    const email = this.extractEmail(claims);
+    const email = this.extractEmail(provider, claims);
     if (!email) {
       throw new UnauthorizedError('auth.identity_provider_did_not_return_email_address');
     }
@@ -278,9 +275,19 @@ export class OidcProviderService {
     };
   }
 
-  private extractEmail(claims: JWTPayload): string | undefined {
+  /**
+   * The address to identify the person by.
+   *
+   * `preferred_username` and `upn` are Microsoft's sign-in NAMES: they look like addresses, are
+   * mutable, and are not asserted to be a mailbox anybody owns. They are accepted only as a last
+   * resort for display — `extractEmailVerified` never treats an address that came from them as
+   * verified, so it can never link to, or step up, an existing account.
+   */
+  private extractEmail(provider: string, claims: JWTPayload): string | undefined {
+    const email = claims['email'];
+    if (typeof email === 'string' && email) return email;
+    if (provider !== 'microsoft') return undefined;
     return (
-      (claims['email'] as string) ||
       (claims['preferred_username'] as string) ||
       (claims['upn'] as string) ||
       undefined
@@ -306,12 +313,19 @@ export class OidcProviderService {
       return true;
     }
     if (provider === 'microsoft') {
-      // Microsoft v2 id_tokens omit email_verified. Organization-managed accounts (a real
-      // tenant id, not the personal-accounts tenant) have IdP-verified email addresses.
-      const tid = claims['tid'] as string | undefined;
-      const isOrgAccount = !!tid && tid !== MS_CONSUMERS_TENANT;
-      // Microsoft also exposes `xms_edov` (email domain owner verified) on some tokens.
-      return isOrgAccount || claims['xms_edov'] === true || claims['xms_edov'] === 'true';
+      // Microsoft v2 id_tokens carry no `email_verified`. What this used to infer from — "the
+      // account belongs to an organizational tenant, so its email must be verified" — is false:
+      // the administrator of ANY Entra tenant can set the `email` attribute of their own users to
+      // any address, unverified. An account in a tenant somebody created for the purpose, carrying
+      // a victim's address, was therefore "verified", and could be linked to the victim's account
+      // here (the class of flaw published as "nOAuth").
+      //
+      // The only assertion Microsoft makes about the address is `xms_edov` — "the email domain's
+      // owner is verified" — an optional claim the app registration must request. It is only
+      // meaningful for the `email` claim itself, never for a sign-in name standing in for one.
+      const hasEmailClaim = typeof claims['email'] === 'string' && claims['email'] !== '';
+      const domainOwnerVerified = claims['xms_edov'] === true || claims['xms_edov'] === 'true';
+      return hasEmailClaim && domainOwnerVerified;
     }
     return false;
   }

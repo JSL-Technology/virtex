@@ -1,0 +1,28 @@
+@if (idle.warningSecondsLeft(); as seconds) {
+  <vx-dialog
+    size="sm"
+    titleKey="core.session_idle.title"
+    [hideCloseButton]="true"
+    (dismissed)="idle.stayActive()"
+  >
+    <div class="idle-warning">
+      <!--
+        Announced once when the dialog opens, not every second: a live region on the countdown
+        itself would read a number aloud sixty times.
+      -->
+      <p>{{ 'core.session_idle.message' | translate }}</p>
+      <p class="idle-warning__countdown" aria-hidden="true">
+        {{ 'core.session_idle.countdown' | translate: { seconds } }}
+      </p>
+    </div>
+
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" (click)="idle.signOutNow()">
+        {{ 'core.session_idle.sign_out' | translate }}
+      </button>
+      <button type="button" class="primary-button" cdkFocusInitial (click)="idle.stayActive()">
+        {{ 'core.session_idle.stay' | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}

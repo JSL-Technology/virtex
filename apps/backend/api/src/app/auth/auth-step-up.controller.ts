@@ -207,12 +207,34 @@ export class AuthStepUpController {
         expectedNonce: tx.nonce,
       });
 
-      // The provider must have re-authenticated the SAME person. Email is compared
-      // case-insensitively because providers differ on the casing they return.
-      const returnedEmail = typeof claims.email === 'string' ? claims.email.toLowerCase() : '';
-      if (!returnedEmail || returnedEmail !== user.email.toLowerCase()) {
+      // The provider must have re-authenticated the SAME person:
+      //  - an account bound to a subject at this provider must present that subject. The subject
+      //    IS the identity there; an email match alone used to be enough, and the same address
+      //    can belong to a different account at the provider;
+      //  - an account with no bound subject (an enterprise IdP, found by domain) must present an
+      //    address the provider VERIFIED — by the same rules as sign-in, so a Microsoft account
+      //    whose tenant merely set an `email` attribute cannot stand in — and it must be theirs.
+      // Email is compared case-insensitively because providers differ on the casing they return.
+      const asserted = this.oidcProviderService.mapClaimsToSocialUser(
+        federated.flow.startsWith('sso-') ? 'sso' : federated.flow,
+        claims,
+      );
+      const fullUser = await this.authService.findUserForStepUp(user.id);
+      const boundSubject =
+        fullUser?.authProvider === federated.flow ? fullUser.authProviderId ?? null : null;
+      const sameAddress = asserted.email === user.email.toLowerCase();
+      const sameSubject = boundSubject !== null && boundSubject === asserted.providerId;
+      const sameIdentity =
+        boundSubject !== null ? sameSubject : Boolean(asserted.emailVerified) && sameAddress;
+      if (!sameIdentity) {
         this.logger.warn(
-          { event: 'step_up_sso_subject_mismatch', userId: user.id },
+          {
+            event: 'step_up_sso_subject_mismatch',
+            userId: user.id,
+            emailVerified: asserted.emailVerified,
+            sameAddress,
+            sameSubject,
+          },
           '[SECURITY] IdP re-authentication returned a different identity than the signed-in user',
         );
         throw new UnauthorizedError('auth.verified_identity_does_not_match_your');
@@ -255,7 +277,10 @@ export class AuthStepUpController {
   ): Promise<{ flow: string; config: OidcClientConfig } | null> {
     const discovered = await this.enterpriseSsoService.discoverByEmail(user.email);
     if (discovered) {
-      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(discovered.idpId);
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(
+        discovered.idpId,
+        discovered.organizationId,
+      );
       return {
         flow: `sso-${discovered.idpId}`,
         // The step-up flow has its own callback, so the config's sign-in redirect URI is

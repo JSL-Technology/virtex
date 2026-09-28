@@ -33,17 +33,63 @@ describe('SessionRegistryService', () => {
     service = module.get(SessionRegistryService);
   });
 
+  /** A cache whose denylist has been complete for longer than any access token lives. */
+  const settledCache = (revoked: Record<string, unknown> = {}) =>
+    cache.get.mockImplementation(async (key: string) =>
+      key === SessionRegistryService.EPOCH_KEY ? Date.now() - 24 * 60 * 60 * 1000 : revoked[key] ?? null,
+    );
+
   it('reports a revoked session as revoked', async () => {
-    cache.get.mockResolvedValue(1);
+    settledCache({ 'sess_revoked:session-1': 1 });
     await expect(service.isRevoked('session-1')).resolves.toBe(true);
   });
 
   it('treats a cache miss as "not revoked"', async () => {
     // The denylist is exhaustive for the window it covers, so a miss is meaningful — and this is
     // the hot path for every authenticated request.
-    cache.get.mockResolvedValue(null);
+    settledCache();
     await expect(service.isRevoked('session-1')).resolves.toBe(false);
     expect(repo.find).not.toHaveBeenCalled();
+  });
+
+  describe('when the denylist may have forgotten revocations', () => {
+    const revokedFamily = [{ id: 'row-1', isRevoked: true, expiresAt: new Date(Date.now() + 60_000) }];
+
+    /**
+     * Redis restarted without persistence, was flushed, or evicted keys. Nothing errors; the
+     * revocations made before are simply gone, and a miss would let their tokens back in.
+     */
+    it('checks the database, and re-arms the epoch, when the epoch is missing', async () => {
+      cache.get.mockResolvedValue(null);
+      repo.find.mockResolvedValue(revokedFamily);
+
+      await expect(service.isRevoked('session-1')).resolves.toBe(true);
+      expect(cache.set).toHaveBeenCalledWith(SessionRegistryService.EPOCH_KEY, expect.any(Number), expect.any(Number));
+    });
+
+    it('keeps checking the database until a whole access-token lifetime has passed', async () => {
+      cache.get.mockImplementation(async (key: string) =>
+        key === SessionRegistryService.EPOCH_KEY ? Date.now() - 1_000 : null,
+      );
+      repo.find.mockResolvedValue(revokedFamily);
+      await expect(service.isRevoked('session-1')).resolves.toBe(true);
+    });
+
+    it('stops trusting a miss on this instance after its own denylist write failed', async () => {
+      cache.set.mockRejectedValueOnce(new Error('redis down'));
+      await service.revoke('session-1');
+
+      settledCache();
+      repo.find.mockResolvedValue(revokedFamily);
+      await expect(service.isRevoked('session-1')).resolves.toBe(true);
+    });
+
+    it('re-arms an old epoch keeping its value, so staying up is not a loss of state', async () => {
+      const since = Date.now() - 20 * 60 * 60 * 1000;
+      cache.get.mockImplementation(async (key: string) => (key === SessionRegistryService.EPOCH_KEY ? since : null));
+      await expect(service.isRevoked('session-1')).resolves.toBe(false);
+      expect(cache.set).toHaveBeenCalledWith(SessionRegistryService.EPOCH_KEY, since, expect.any(Number));
+    });
   });
 
   it('ignores a token with no session anchor instead of failing it closed', async () => {

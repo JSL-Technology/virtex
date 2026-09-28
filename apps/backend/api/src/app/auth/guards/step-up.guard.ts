@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/commo
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { HttpRequest as Request } from '../../common/http/http.types';
-import { STEP_UP_SCOPE_KEY } from '../decorators/step-up.decorator';
+import { STEP_UP_CONDITION_KEY, STEP_UP_SCOPE_KEY, StepUpCondition } from '../decorators/step-up.decorator';
 import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
@@ -58,10 +58,24 @@ export class StepUpGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request & { user?: { id?: string } }>();
+
+    const condition = this.reflector.getAllAndOverride<StepUpCondition | undefined>(
+      STEP_UP_CONDITION_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (condition && !condition(request as { body?: unknown; method?: string })) {
+      return true;
+    }
+
+    // Every refusal names the scope it wanted. The client reads it to prompt for exactly that
+    // proof and retry the request, instead of each screen having to know which of its calls
+    // happen to be guarded — the knowledge that kept going missing (payroll approval and payslips
+    // were guarded on the server and never prompted for in the browser).
+    const scopeParams = { scope: requiredScope };
     const token = STEP_UP_COOKIE_NAMES.map((name) => request.cookies?.[name]).find(Boolean);
 
     if (!token) {
-      throw new UnauthorizedError('auth.step_up_authentication_required');
+      throw new UnauthorizedError('auth.step_up_authentication_required', scopeParams);
     }
 
     let payload: StepUpPayload;
@@ -76,11 +90,11 @@ export class StepUpGuard implements CanActivate {
         audience: 'virteex-step-up',
       });
     } catch {
-      throw new UnauthorizedError('auth.invalid_or_expired_step_up_token');
+      throw new UnauthorizedError('auth.invalid_or_expired_step_up_token', scopeParams);
     }
 
     if (!payload.stepup || payload.scope !== requiredScope) {
-      throw new UnauthorizedError('auth.invalid_step_up_token_scope');
+      throw new UnauthorizedError('auth.invalid_step_up_token_scope', scopeParams);
     }
 
     // Ownership is checked BEFORE the token is consumed. The previous order burned the jti
@@ -91,11 +105,11 @@ export class StepUpGuard implements CanActivate {
         { event: 'step_up_subject_mismatch', userId: request.user?.id },
         '[SECURITY] Step-up token does not belong to the authenticated user',
       );
-      throw new UnauthorizedError('auth.step_up_token_mismatch');
+      throw new UnauthorizedError('auth.step_up_token_mismatch', scopeParams);
     }
 
     if (SINGLE_USE_SCOPES.has(payload.scope)) {
-      await this.consumeSingleUse(payload.jti);
+      await this.consumeSingleUse(payload.jti, scopeParams);
     }
 
     return true;
@@ -114,9 +128,9 @@ export class StepUpGuard implements CanActivate {
    * shared service finds the client through Keyv's documented accessor and refuses to boot a
    * deployment that has none, so the fallback can no longer be reached without anyone noticing.
    */
-  private async consumeSingleUse(jti: string): Promise<void> {
+  private async consumeSingleUse(jti: string, scopeParams: { scope: StepUpScope }): Promise<void> {
     if (!jti) {
-      throw new UnauthorizedError('auth.malformed_step_up_token');
+      throw new UnauthorizedError('auth.malformed_step_up_token', scopeParams);
     }
 
     const claimed = await this.atomicCache.claimOnce(
@@ -125,7 +139,7 @@ export class StepUpGuard implements CanActivate {
     );
 
     if (!claimed) {
-      throw new UnauthorizedError('auth.step_up_token_already_used');
+      throw new UnauthorizedError('auth.step_up_token_already_used', scopeParams);
     }
   }
 }

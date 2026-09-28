@@ -1,3 +1,4 @@
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Controller,
   Get,
@@ -50,6 +51,7 @@ export class TreasuryController {
    */
   @Post('bank-accounts')
   @UseGuards(PeriodLockGuard)
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   @ApiOperation({ summary: 'Registra una cuenta bancaria de la organización.' })
   createBankAccount(
@@ -76,6 +78,8 @@ export class TreasuryController {
   }
 
   @Patch('bank-accounts/:id')
+  // Rewriting an account number redirects every payment that follows.
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   @ApiOperation({
     summary:
@@ -114,6 +118,7 @@ export class TreasuryController {
   @Post('bank-transfers')
   @Idempotent()
   @UseGuards(PeriodLockGuard)
+  @RequireStepUp(StepUpScope.MOVE_FUNDS)
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.TREASURY_TRANSFER)
   @ApiOperation({

@@ -7,14 +7,37 @@
 // Security posture: context isolation on, node integration off, a narrow preload, and a
 // will-navigate/new-window guard that refuses to follow links outside the configured origins. The
 // renderer is ordinary web content and is treated as such.
-const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, session, shell } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const policy = require('./security-policy');
 
-const PORTAL_URL = process.env.DESKTOP_PORTAL_URL || 'http://localhost:4200';
-const POS_URL = process.env.DESKTOP_POS_URL || 'http://localhost:4300';
+// Every trust decision lives in security-policy.js (tested with `node --test`). A packaged build
+// refuses to start without explicit HTTPS targets instead of falling back to localhost over HTTP.
+let targets;
+try {
+  targets = policy.resolveTargets(process.env, app.isPackaged);
+} catch (error) {
+  dialog.showErrorBox('Virtex', error.message);
+  app.exit(1);
+  throw error;
+}
+const PORTAL_URL = targets.portalUrl;
+const POS_URL = targets.posUrl;
+const ALLOWED_ORIGINS = targets.allowedOrigins;
 
-const ALLOWED_ORIGINS = [PORTAL_URL, POS_URL].map((u) => originOf(u)).filter(Boolean);
+/** Hand a link to the operating system only if its scheme is one we allow (https, mailto). */
+function openExternally(url) {
+  if (policy.mayOpenExternally(url)) {
+    shell.openExternal(url);
+  }
+}
+
+/** The IPC handlers act only for frames served from a trusted origin. */
+function fromTrustedFrame(event) {
+  const url = event.senderFrame ? event.senderFrame.url : '';
+  return policy.isTrustedSender(url, ALLOWED_ORIGINS);
+}
 
 /** @type {BrowserWindow | null} */
 let mainWindow = null;
@@ -66,14 +89,6 @@ function t(key) {
   return typeof fallback[key] === 'string' ? fallback[key] : key;
 }
 
-function originOf(url) {
-  try {
-    return new URL(url).origin;
-  } catch {
-    return null;
-  }
-}
-
 function createWindow() {
   const isMac = process.platform === 'darwin';
 
@@ -121,15 +136,17 @@ function createWindow() {
 
   // Keep navigation inside the trusted origins; anything else opens in the system browser.
   const guard = (event, url) => {
-    if (!ALLOWED_ORIGINS.includes(originOf(url))) {
+    if (!policy.isTrustedUrl(url, ALLOWED_ORIGINS)) {
       event.preventDefault();
-      shell.openExternal(url);
+      openExternally(url);
     }
   };
   mainWindow.webContents.on('will-navigate', guard);
+  // A server redirect is a navigation too; without this a trusted page could be redirected off-origin.
+  mainWindow.webContents.on('will-redirect', guard);
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (ALLOWED_ORIGINS.includes(originOf(url))) return { action: 'allow' };
-    shell.openExternal(url);
+    if (policy.isTrustedUrl(url, ALLOWED_ORIGINS)) return { action: 'allow' };
+    openExternally(url);
     return { action: 'deny' };
   });
 
@@ -168,7 +185,9 @@ function buildMenu() {
         { type: 'separator' },
         { role: 'reload' },
         { role: 'forceReload' },
-        { role: 'toggleDevTools' },
+        // Developer tools are a development aid; in an installed build they are a console into the
+        // session of whoever is signed in.
+        ...(app.isPackaged ? [] : [{ role: 'toggleDevTools' }]),
       ],
     },
     { role: 'editMenu' },
@@ -192,17 +211,22 @@ function applyLanguage(language) {
   buildMenu();
 }
 
-ipcMain.on('virtex:language', (_event, language) => applyLanguage(String(language ?? '')));
+ipcMain.on('virtex:language', (event, language) => {
+  if (!fromTrustedFrame(event)) return;
+  applyLanguage(String(language ?? ''));
+});
 
 //  Controles de ventana del topbar. La acción la ejecuta SIEMPRE el proceso
 //  principal —el renderer no tiene ninguna capacidad sobre la ventana— y se
 //  resuelve sobre la ventana que emite el evento, no sobre una referencia
 //  global, para que siga siendo correcto si algún día hay más de una.
 ipcMain.on('virtex:window-minimize', (event) => {
+  if (!fromTrustedFrame(event)) return;
   BrowserWindow.fromWebContents(event.sender)?.minimize();
 });
 
 ipcMain.on('virtex:window-maximize-toggle', (event) => {
+  if (!fromTrustedFrame(event)) return;
   const win = BrowserWindow.fromWebContents(event.sender);
   if (!win) return;
   if (win.isMaximized()) win.unmaximize();
@@ -210,16 +234,32 @@ ipcMain.on('virtex:window-maximize-toggle', (event) => {
 });
 
 ipcMain.on('virtex:window-close', (event) => {
+  if (!fromTrustedFrame(event)) return;
   BrowserWindow.fromWebContents(event.sender)?.close();
 });
 
 //  Estado inicial: el renderer lo pide al montar el topbar para dibujar el
 //  icono correcto antes de la primera transición.
 ipcMain.handle('virtex:window-is-maximized', (event) => {
+  if (!fromTrustedFrame(event)) return false;
   return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false;
 });
 
+// Hardening that applies to every web contents the app ever creates, not only the main window.
+app.on('web-contents-created', (_event, contents) => {
+  // No <webview>: it would be a second, unguarded browser inside the shell.
+  contents.on('will-attach-webview', (event) => event.preventDefault());
+});
+
 app.whenReady().then(() => {
+  // Deny every permission (camera, microphone, geolocation, …) except a short list, and only to
+  // the trusted origins.
+  session.defaultSession.setPermissionRequestHandler((contents, permission, callback) => {
+    callback(policy.mayGrantPermission(permission, contents.getURL(), ALLOWED_ORIGINS));
+  });
+  session.defaultSession.setPermissionCheckHandler((contents, permission, requestingOrigin) =>
+    policy.mayGrantPermission(permission, requestingOrigin || (contents ? contents.getURL() : ''), ALLOWED_ORIGINS),
+  );
   buildMenu();
   createWindow();
   app.on('activate', () => {

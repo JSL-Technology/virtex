@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserResponseDto } from '../user-response.dto';
+import { SessionPolicyDto } from './session-policy.dto';
 
 /**
  * The answer to "what session does this browser have?" — the SPA's entire bootstrap contract.
@@ -31,4 +32,11 @@ export class SessionResponseDto {
     example: false,
   })
   refreshable: boolean;
+
+  @ApiProperty({
+    type: SessionPolicyDto,
+    nullable: true,
+    description: 'The rules the signed-in session lives under; null when there is no session.',
+  })
+  session?: SessionPolicyDto | null;
 }

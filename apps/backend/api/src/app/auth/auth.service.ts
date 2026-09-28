@@ -33,8 +33,6 @@ import { StepUpScope } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
-import { MfaPolicyPort } from './ports/mfa-policy.port';
-import { resolveMfaEnrolmentClaim } from './services/mfa-enrolment-claim.util';
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
@@ -78,7 +76,6 @@ export class AuthService extends SessionSwitchPort {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly atomicCache: AtomicCacheService,
     // The narrow port, not OrgSettingsService: `auth` must not depend on `organizations`.
-    private readonly mfaPolicy: MfaPolicyPort,
   ) { super(); }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
@@ -161,7 +158,7 @@ export class AuthService extends SessionSwitchPort {
          // H-03 FIX: Store pending 2FA state server-side in cache; never return a bearer
          // tempToken to JavaScript. The pendingId is delivered only via an httpOnly cookie,
          // eliminating XSS-based session-hijacking (OWASP MFA Cheat Sheet; OWASP ASVS 2.8/3.4; CWE-922).
-         const pendingId = await this.create2faPendingSession(user, ipAddress, userAgent);
+         const pendingId = await this.create2faPendingSession(user, ipAddress, userAgent, Boolean(rememberMe));
 
          if (user.isPhoneVerified && user.phone) {
              await this.mfaOrchestratorService.sendLoginOtp(user);
@@ -174,7 +171,7 @@ export class AuthService extends SessionSwitchPort {
          };
       }
 
-      const result = await this.mfaOrchestratorService.complete2faLogin(user, twoFactorCode, ipAddress, userAgent);
+      const result = await this.mfaOrchestratorService.complete2faLogin(user, twoFactorCode, ipAddress, userAgent, Boolean(rememberMe));
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
 
     // Explicitly construct the result to satisfy type system without casting
@@ -199,19 +196,17 @@ export class AuthService extends SessionSwitchPort {
     );
 
     // Reaching here means the account has no second factor — the 2FA branch above returned
-    // otherwise. If the organization requires one, the session is issued but HELD: the claim
-    // travels in the token and `MfaEnrolmentGuard` refuses everything except enrolling and
-    // signing out.
+    // otherwise. If the organization requires one, the session is issued but HELD:
+    // `MfaEnrolmentGuard` derives that on every request from the policy of the organization the
+    // request acts in, and refuses everything except enrolling and signing out.
     //
     // Issued-and-held rather than refused, because enrolling requires a session. Refusing the
     // sign-in would tell the user to do something they cannot reach — the same dead end the SSO
     // step-up path documents, where federated accounts were told to enable two-step verification
     // for an action that itself required two-step verification.
-    const mfaClaim = await resolveMfaEnrolmentClaim(this.mfaPolicy, user.organizationId, this.logger);
-
     const authResponse = await this.tokenService.generateAuthResponse(
       user,
-      mfaClaim,
+      {},
       ipAddress,
       userAgent,
       rememberMe,
@@ -220,7 +215,8 @@ export class AuthService extends SessionSwitchPort {
       user: authResponse.user,
       accessToken: authResponse.accessToken,
       refreshToken: authResponse.refreshToken,
-      refreshTokenId: authResponse.refreshTokenId
+      refreshTokenId: authResponse.refreshTokenId,
+      rememberMe: authResponse.rememberMe,
   };
   }
 
@@ -311,6 +307,11 @@ export class AuthService extends SessionSwitchPort {
     await this.sessionService.terminateCurrentSession(userId, sessionId);
   }
 
+  /** End the session identified by a refresh token alone — see SessionService. */
+  async endSessionByRefreshToken(token: string | undefined | null): Promise<void> {
+    await this.sessionService.endSessionByRefreshToken(token);
+  }
+
   async logoutAll(userId: string): Promise<void> {
     await this.sessionService.terminateAllSessions(userId);
   }
@@ -361,7 +362,18 @@ export class AuthService extends SessionSwitchPort {
     return this.sessionService.verifyUserFromToken(token);
   }
 
-  async create2faPendingSession(user: User, ipAddress?: string, userAgent?: string): Promise<string> {
+  /**
+   * @param rememberMe The choice made on the password step, carried to the step that actually
+   *                   opens the session. Without it, an account with two-factor authentication
+   *                   could never be remembered: the session was opened by `verify-2fa`, which
+   *                   had no idea the box had been ticked.
+   */
+  async create2faPendingSession(
+    user: User,
+    ipAddress?: string,
+    userAgent?: string,
+    rememberMe = false,
+  ): Promise<string> {
     const pendingId = crypto.randomUUID();
     const ipHash = ipAddress
       ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
@@ -379,6 +391,7 @@ export class AuthService extends SessionSwitchPort {
         uaHash,
         attempts: 0,
         expiresAt: Date.now() + AuthService.PENDING_TTL_MS,
+        rememberMe,
       },
       AuthService.PENDING_TTL_MS,
     );
@@ -460,6 +473,12 @@ export class AuthService extends SessionSwitchPort {
     );
 
     return user;
+  }
+
+  /** Whether the sign-in waiting on this second factor asked to be remembered. */
+  async pending2faRememberMe(pendingId: string): Promise<boolean> {
+    const session = await this.cacheManager.get<{ rememberMe?: boolean }>(`2fa_pending:${pendingId}`);
+    return Boolean(session?.rememberMe);
   }
 
   /** Invalidate a pending 2FA session once the second factor has actually been verified. */

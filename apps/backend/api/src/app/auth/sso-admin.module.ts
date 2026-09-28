@@ -6,6 +6,7 @@ import { AuthModule } from './auth.module';
 import { IdentityProvider } from './entities/identity-provider.entity';
 import { SsoAdminService } from './services/sso-admin.service';
 import { SsoAdminController } from './sso-admin.controller';
+import { SsoDomainReverificationService } from './services/sso-domain-reverification.service';
 
 /**
  * Administration of a tenant's enterprise identity providers.
@@ -19,6 +20,6 @@ import { SsoAdminController } from './sso-admin.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([IdentityProvider, OrganizationDomain]), AuthModule, RolesModule],
   controllers: [SsoAdminController],
-  providers: [SsoAdminService],
+  providers: [SsoAdminService, SsoDomainReverificationService],
 })
 export class SsoAdminModule {}

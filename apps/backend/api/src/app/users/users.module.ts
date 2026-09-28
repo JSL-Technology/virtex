@@ -1,4 +1,3 @@
-
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -18,11 +17,14 @@ import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { PasswordService } from '../auth/services/password.service';
 import { OrganizationsModule } from '../organizations/organizations.module';
+import { OrganizationInvitation } from '../organizations/entities/organization-invitation.entity';
+import { OrganizationInvitationsService } from './invitations/organization-invitations.service';
+import { OrganizationInvitationsController } from './invitations/organization-invitations.controller';
 // SessionInvalidatorPort and PasswordVerifierPort are provided by AuthModule (imported below).
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Organization, UserWorkspace]),
+    TypeOrmModule.forFeature([User, Organization, UserWorkspace, OrganizationInvitation]),
     RolesModule,
     MailModule,
     UserCacheModule,
@@ -32,10 +34,11 @@ import { OrganizationsModule } from '../organizations/organizations.module';
     forwardRef(() => OrganizationsModule),
   ],
 
-  controllers: [UsersController, UserWorkspaceController],
+  controllers: [UsersController, UserWorkspaceController, OrganizationInvitationsController],
   providers: [
     UserWorkspaceService,
     UsersService,
+    OrganizationInvitationsService,
     { provide: UserProfilePort, useExisting: UsersService },
     UserSubscriber,
     PasswordService,
