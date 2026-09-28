@@ -16,4 +16,15 @@ export abstract class SocketAuthenticatorPort {
    * organization membership behind it no longer is. Either way the caller must not admit the socket.
    */
   abstract authenticate(cookieHeader: string): Promise<AuthenticatedUser | null>;
+
+  /**
+   * Whether a socket admitted earlier may stay connected.
+   *
+   * The same checks as `authenticate` — the revocation denylist, the token version, the account
+   * status and membership of the organization — applied NOW to the identity the handshake proved.
+   * Only the handshake token's own expiry is not held against it: the access token lives fifteen
+   * minutes and the socket longer, and what must end a socket is its session, account or
+   * membership ending, not the clock. Resolves false (never rejects) when it may not stay.
+   */
+  abstract revalidate(cookieHeader: string): Promise<boolean>;
 }
