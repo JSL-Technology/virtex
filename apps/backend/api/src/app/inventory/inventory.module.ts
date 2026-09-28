@@ -14,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
 import { InventoryPostingService } from './inventory-posting.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
+import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
 
 @Module({
   imports: [
@@ -22,7 +23,14 @@ import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.han
     JournalEntriesModule,
   ],
   controllers: [InventoryController, ProductCategoriesController],
-  providers: [InventoryService, InventoryPostingService, ProductCategoriesService, VendorBillInventoryHandler],
-  exports: [InventoryService, ProductCategoriesService],
+  providers: [
+    InventoryService,
+    InventoryPostingService,
+    ProductCategoriesService,
+    VendorBillInventoryHandler,
+    // Purchasing brings goods into stock through the port, not through the service.
+    { provide: GoodsReceiptPort, useExisting: InventoryService },
+  ],
+  exports: [InventoryService, ProductCategoriesService, GoodsReceiptPort],
 })
 export class InventoryModule {}

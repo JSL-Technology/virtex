@@ -176,6 +176,11 @@
             {{ 'purchasing.orders.form.receive' | translate }}
           </button>
         }
+        @if (canBill()) {
+          <button class="secondary-button" type="button" [disabled]="saving()" (click)="createBill()">
+            {{ 'purchasing.orders.form.create_bill' | translate }}
+          </button>
+        }
         @if (canCancel()) {
           <button class="danger-button" type="button" [disabled]="saving()" (click)="startCancel()">
             {{ 'purchasing.orders.form.cancel_order' | translate }}
@@ -185,6 +190,8 @@
         @if (receiving()) {
           <div class="action-box">
             <h3 class="action-box__title">{{ 'purchasing.orders.form.receive_title' | translate }}</h3>
+            <!-- Lo que hará la recepción, dicho antes de confirmarla: no es solo un contador. -->
+            <p class="hint">{{ 'purchasing.orders.form.receive_effect' | translate }}</p>
             <!-- Pre-filled with what is still outstanding: "everything arrived" is the common case. -->
             <table class="lines-table">
               <thead>
@@ -216,6 +223,34 @@
                 {{ 'common.cancel' | translate }}
               </button>
             </div>
+          </div>
+        }
+
+        @if (receipts().length) {
+          <div class="action-box">
+            <h3 class="action-box__title">{{ 'purchasing.orders.form.receipts_title' | translate }}</h3>
+            <table class="lines-table">
+              <thead>
+                <tr>
+                  <th>{{ 'purchasing.orders.form.receipt_date' | translate }}</th>
+                  <th>{{ 'purchasing.orders.form.description' | translate }}</th>
+                  <th class="numeric">{{ 'purchasing.orders.form.quantity' | translate }}</th>
+                  <th class="numeric">{{ 'purchasing.orders.form.receipt_unit_cost' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (receipt of receipts(); track receipt.id) {
+                  @for (line of receipt.lines; track line.lineId; let first = $first) {
+                    <tr>
+                      <td>{{ first ? (receipt.receivedAt | vxDate: 'dateTime') : '' }}</td>
+                      <td>{{ line.description }}</td>
+                      <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
+                      <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
           </div>
         }
 

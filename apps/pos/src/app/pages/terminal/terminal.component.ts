@@ -27,10 +27,15 @@ function lineTax(line: CartLine): number {
   return round2(lineSubtotal(line) * line.taxRate);
 }
 
-function taxRateOf(product: Product): number {
-  return product.taxTreatment === 'TAXED' || product.taxTreatment === undefined
-    ? Number(product.taxRate ?? 0)
-    : 0;
+/**
+ * The server's rule (`effectiveProductTaxRate`): a taxed product at its own rate, or at the
+ * tenant's standard rate when it carries none; anything else untaxed. The two used to disagree on
+ * products created without a rate, and every such sale was refused as "totals changed" (QA C-08).
+ */
+function taxRateOf(product: Product, standardRate: number): number {
+  if (product.taxTreatment !== 'TAXED' && product.taxTreatment !== undefined) return 0;
+  const own = Number(product.taxRate ?? 0);
+  return own > 0 ? own : standardRate;
 }
 
 /**
@@ -187,6 +192,10 @@ export class TerminalComponent {
   readonly shiftTotal = signal(0);
   readonly salesCount = signal(0);
 
+  /** The tenant's standard consumption-tax rate, for taxed products without their own. */
+
+  private readonly standardRate = signal(0);
+
   private readonly currency = signal<string | null>(null);
 
   /** The cash-up form: shown while closing, holding the cash the cashier counted. */
@@ -257,6 +266,7 @@ export class TerminalComponent {
     this.api.invoicingContext().subscribe({
       next: (ctx) => {
         this.currency.set(ctx?.baseCurrency ?? null);
+        this.standardRate.set(ctx?.taxRates?.[0] ?? 0);
       },
       error: () => void 0,
     });
@@ -325,7 +335,7 @@ export class TerminalComponent {
           name: product.name,
           price: Number(product.price),
           quantity: 1,
-          taxRate: taxRateOf(product),
+          taxRate: taxRateOf(product, this.standardRate()),
         },
       ];
     });
@@ -398,7 +408,7 @@ export class TerminalComponent {
             .filter((line) => byId.has(line.productId))
             .map((line) => {
               const product = byId.get(line.productId)!;
-              return { ...line, name: product.name, price: Number(product.price), taxRate: taxRateOf(product) };
+              return { ...line, name: product.name, price: Number(product.price), taxRate: taxRateOf(product, this.standardRate()) };
             }),
         );
         this.saleKey = PosIdempotency.newKey();

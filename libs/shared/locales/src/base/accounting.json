@@ -1805,6 +1805,16 @@
     "en": "This period cannot be reopened because the following period is already closed.",
     "pt": "Este período não pode ser reaberto porque o período seguinte já está encerrado."
   },
+  "accounting.period_close.depreciation_failed": {
+    "es": "No se pudo registrar la depreciación de {{period}}, así que el período no se cerró. Revisa la configuración de activos fijos e inténtalo de nuevo.",
+    "en": "The depreciation for {{period}} could not be posted, so the period was not closed. Check the fixed-asset settings and try again.",
+    "pt": "Não foi possível registrar a depreciação de {{period}}, então o período não foi encerrado. Verifique a configuração de ativos fixos e tente novamente."
+  },
+  "accounting.period_close.revaluation_failed": {
+    "es": "No se pudo revaluar la moneda extranjera de {{period}}, así que el período no se cerró. Revisa las tasas de cambio e inténtalo de nuevo.",
+    "en": "The foreign-currency revaluation for {{period}} could not be posted, so the period was not closed. Check the exchange rates and try again.",
+    "pt": "Não foi possível reavaliar a moeda estrangeira de {{period}}, então o período não foi encerrado. Verifique as taxas de câmbio e tente novamente."
+  },
   "accounting.period_closed": {
     "es": "El período contable \"{{name}}\" ha sido cerrado exitosamente.",
     "en": "Accounting period \"{{name}}\" has been closed.",
@@ -1840,6 +1850,26 @@
     "en": "Action",
     "pt": "Ação"
   },
+  "accounting.periods.close_confirm_action": {
+    "es": "Cerrar período",
+    "en": "Close period",
+    "pt": "Encerrar período"
+  },
+  "accounting.periods.close_confirm_message": {
+    "es": "Al cerrar {{period}} se registran la depreciación y la revaluación de moneda del mes, y ningún módulo podrá contabilizar en él. Solo podrá reabrirse con un motivo que quedará auditado.",
+    "en": "Closing {{period}} posts the month’s depreciation and currency revaluation, and no module will be able to post into it. It can only be reopened with a reason that is audited.",
+    "pt": "Ao encerrar {{period}} são registradas a depreciação e a reavaliação cambial do mês, e nenhum módulo poderá lançar nele. Só poderá ser reaberto com um motivo que ficará auditado."
+  },
+  "accounting.periods.close_confirm_title": {
+    "es": "¿Cerrar el período?",
+    "en": "Close the period?",
+    "pt": "Encerrar o período?"
+  },
+  "accounting.periods.close_failed": {
+    "es": "No se pudo cerrar {{period}}.",
+    "en": "{{period}} could not be closed.",
+    "pt": "Não foi possível encerrar {{period}}."
+  },
   "accounting.periods.close_period": {
     "es": "Cerrar Período",
     "en": "Close Period",
@@ -1869,6 +1899,11 @@
     "es": "La razón debe tener al menos 10 caracteres.",
     "en": "The reason must be at least 10 characters long.",
     "pt": "O motivo deve ter pelo menos 10 caracteres."
+  },
+  "accounting.periods.reopen_failed": {
+    "es": "No se pudo reabrir {{period}}.",
+    "en": "{{period}} could not be reopened.",
+    "pt": "Não foi possível reabrir {{period}}."
   },
   "accounting.periods.reopen_reason_prompt": {
     "es": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",

@@ -691,6 +691,7 @@
   "validation.payment.selected_plan_not_valid": "The selected plan is not valid.",
   "validation.payment.you_must_select_plan": "You must select a plan.",
   "validation.period_end_adjustment.ledger_id_ledger_id_required": "The ledger ID (ledgerId) is required.",
+  "validation.product.tax_rate_is_a_fraction": "The tax rate is given as a fraction: 0.18 for 18 %.",
   "validation.product_category.name_required": "The category name is required.",
   "validation.product_category.parent_must_be_uuid": "The category identifier must be a valid UUID.",
   "validation.proposed_adjustment.account_id_must_valid_uuid": "The account ID must be a valid UUID.",

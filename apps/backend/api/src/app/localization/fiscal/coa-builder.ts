@@ -146,6 +146,7 @@ const ES = {
   liabilities: 'Pasivo',
   currentLiabilities: 'Pasivo Corriente',
   payables: 'Cuentas por Pagar Comerciales',
+  goodsReceivedNotInvoiced: 'Mercancía Recibida No Facturada',
   accrued: 'Gastos Acumulados por Pagar',
   payroll: 'Remuneraciones y Prestaciones por Pagar',
   serviceCharge: 'Propina Legal por Pagar',
@@ -195,6 +196,7 @@ const PT: typeof ES = {
   liabilities: 'Passivo',
   currentLiabilities: 'Passivo Circulante',
   payables: 'Fornecedores',
+  goodsReceivedNotInvoiced: 'Mercadorias Recebidas Não Faturadas',
   accrued: 'Despesas a Pagar',
   payroll: 'Obrigações Trabalhistas',
   serviceCharge: 'Gorjeta a Pagar',
@@ -244,6 +246,7 @@ const EN: typeof ES = {
   liabilities: 'Liabilities',
   currentLiabilities: 'Current Liabilities',
   payables: 'Accounts Payable',
+  goodsReceivedNotInvoiced: 'Goods Received Not Invoiced',
   accrued: 'Accrued Expenses',
   payroll: 'Payroll Liabilities',
   serviceCharge: 'Service Charge Payable',
@@ -414,6 +417,10 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
     group(code, '2000', t.liabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
       group(code, '2100', t.currentLiabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
         leaf(code, { code: '2110', name: t.payables, role: AccountRole.ACCOUNTS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        // The bridge between a goods receipt and the supplier's invoice (QA C-07): the receipt
+        // credits it when stock arrives, the invoice debits it when the goods are billed. Its
+        // balance is, at any moment, what has been received and not yet invoiced.
+        leaf(code, { code: '2115', name: t.goodsReceivedNotInvoiced, role: AccountRole.GOODS_RECEIVED_NOT_INVOICED }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2120', name: t.accrued }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2130', name: taxPayable, role: AccountRole.TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2135', name: withholdingPayable, role: AccountRole.WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),

@@ -93,11 +93,31 @@ export class PeriodsPage {
     return status === 'OPEN' ? 'ok' : 'danger';
   }
 
-  close(period: AccountingPeriod): void {
+  /**
+   * Closing asks first, and says why it failed when it does.
+   *
+   * It did neither (QA C-06): one click closed a filed month with no confirmation — an action
+   * that stops every module posting into that period — and a refusal (an earlier period still
+   * open, a pre-closing task that could not run) left the button spinning back to its idle state
+   * with nothing on screen.
+   */
+  async close(period: AccountingPeriod): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'accounting.periods.close_confirm_title',
+      message: 'accounting.periods.close_confirm_message',
+      messageParams: { period: period.name },
+      confirmText: 'accounting.periods.close_confirm_action',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+
     this.pending.set(period.id);
     this.periodsApi.close(period.id).subscribe({
       next: (result) => this.applyCommand(result.period, result.message),
-      error: () => this.pending.set(null),
+      error: (err) => {
+        this.pending.set(null);
+        this.notifications.showHttpError(err, 'accounting.periods.close_failed', { period: period.name });
+      },
     });
   }
 
@@ -123,7 +143,10 @@ export class PeriodsPage {
     this.pending.set(period.id);
     this.periodsApi.reopen(period.id, reason).subscribe({
       next: (result) => this.applyCommand(result.period, result.message),
-      error: () => this.pending.set(null),
+      error: (err) => {
+        this.pending.set(null);
+        this.notifications.showHttpError(err, 'accounting.periods.reopen_failed', { period: period.name });
+      },
     });
   }
 

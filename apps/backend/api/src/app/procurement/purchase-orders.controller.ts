@@ -128,7 +128,17 @@ export class PurchaseOrdersController {
     @Body() dto: ReceivePurchaseOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.orders.receive(id, dto, user.organizationId);
+    return this.orders.receive(id, dto, user.organizationId, user.id);
+  }
+
+  @Get(':id/receipts')
+  @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
+  @ApiOperation({ summary: 'Las recepciones registradas contra la orden, con su asiento.' })
+  receipts(
+    @Param('id', UuidParamPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.orders.receipts(id, user.organizationId);
   }
 
   @Post(':id/cancel')

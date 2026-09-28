@@ -51,9 +51,27 @@ export interface PurchaseOrderLine {
   quantity: number;
   /** How much has arrived. Read-only: it moves through the receive endpoint. */
   receivedQuantity?: number;
+  /** How much the supplier has invoiced. Read-only: it moves when a bill for the order is approved. */
+  billedQuantity?: number;
   unitPrice: number;
   taxRate?: number;
   unitOfMeasure?: string;
+}
+
+export interface PurchaseOrderReceipt {
+  id: string;
+  receivedAt: string;
+  receivedByUserId: string | null;
+  journalEntryId: string | null;
+  notes: string | null;
+  lines: Array<{
+    lineId: string;
+    productId: string | null;
+    description: string;
+    quantity: number;
+    unitCost: number;
+    stocked: boolean;
+  }>;
 }
 
 export interface PurchaseOrder {
@@ -211,8 +229,14 @@ export class PurchasingService {
   receiveOrder(
     id: string,
     lines: { lineId: string; quantity: number }[],
+    extra: { receivedAt?: string; notes?: string } = {},
   ): Observable<PurchaseOrder> {
-    return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/receive`, { lines });
+    return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/receive`, { lines, ...extra });
+  }
+
+  /** The deliveries recorded against an order, newest first, each with the entry it posted. */
+  orderReceipts(id: string): Observable<PurchaseOrderReceipt[]> {
+    return this.http.get<PurchaseOrderReceipt[]>(`${this.ordersUrl}/${id}/receipts`);
   }
 
   cancelOrder(id: string, reason: string): Observable<PurchaseOrder> {

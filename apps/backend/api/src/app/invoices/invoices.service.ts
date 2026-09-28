@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { standardSalesTaxRate } from '../inventory/contracts/sellable-product.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -488,6 +489,7 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
       organizationId,
       organization?.country ?? null,
@@ -498,7 +500,7 @@ export class InvoicesService {
     const taxInputs: TaxableLineInput[] = [];
     const resolved: ResolvedLine[] = [];
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index, determined?.rate);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate);
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -571,6 +573,7 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
       organizationId,
       organization?.country ?? null,
@@ -583,7 +586,7 @@ export class InvoicesService {
     const resolved: ResolvedLine[] = [];
 
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index, determined?.rate);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate);
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -769,6 +772,8 @@ export class InvoicesService {
      * city and 6.25 % in another.
      */
     determinedRate?: number,
+    /** The tenant's standard rate, for a taxed product that carries none. */
+    standardRate?: number,
   ): ResolvedLine {
     const product = dto.productId ? products.get(dto.productId) : undefined;
 
@@ -784,9 +789,14 @@ export class InvoicesService {
 
     const isService = dto.isService ?? product?.kind === ProductKind.SERVICE;
     const treatment = dto.taxTreatment ?? this.treatmentOf(product);
+    // Same rule as the till (`effectiveProductTaxRate`): a taxed product with no rate of its own
+    // is taxed at the tenant's standard rate, never at zero.
+    const productRate = Number(product?.taxRate ?? 0);
     const taxRate =
       treatment === TaxTreatment.TAXED
-        ? (determinedRate ?? dto.taxRate ?? Number(product?.taxRate ?? 0))
+        ? (determinedRate ??
+          dto.taxRate ??
+          (productRate > 0 ? productRate : (standardRate ?? 0)))
         : 0;
 
     return {

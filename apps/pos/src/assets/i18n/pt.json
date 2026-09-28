@@ -375,6 +375,7 @@
   "validation.payment.selected_plan_not_valid": "O plano selecionado não é válido.",
   "validation.payment.you_must_select_plan": "Você precisa selecionar um plano.",
   "validation.period_end_adjustment.ledger_id_ledger_id_required": "O ID do livro contábil (ledgerId) é obrigatório.",
+  "validation.product.tax_rate_is_a_fraction": "A taxa de imposto é informada como fração: 0,18 para 18 %.",
   "validation.product_category.name_required": "O nome da categoria é obrigatório.",
   "validation.product_category.parent_must_be_uuid": "O identificador da categoria deve ser um UUID válido.",
   "validation.proposed_adjustment.account_id_must_valid_uuid": "O ID da conta deve ser um UUID válido.",

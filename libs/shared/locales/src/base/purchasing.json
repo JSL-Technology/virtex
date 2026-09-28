@@ -34,6 +34,11 @@
     "en": "Confirm delivery",
     "pt": "Confirmar receção"
   },
+  "purchasing.orders.form.create_bill": {
+    "es": "Crear factura de proveedor",
+    "en": "Create vendor bill",
+    "pt": "Criar fatura de fornecedor"
+  },
   "purchasing.orders.form.description": {
     "es": "Descripción",
     "en": "Description",
@@ -84,10 +89,40 @@
     "en": "Quantity",
     "pt": "Quantidade"
   },
+  "purchasing.orders.form.receipt_date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "purchasing.orders.form.receipt_exceeds_outstanding": {
+    "es": "La cantidad recibida de «{{description}}» supera lo pendiente de la orden.",
+    "en": "The quantity received for “{{description}}” exceeds what is outstanding on the order.",
+    "pt": "A quantidade recebida de “{{description}}” excede o pendente do pedido."
+  },
+  "purchasing.orders.form.receipt_recorded": {
+    "es": "Recepción registrada: el inventario y la contabilidad ya la reflejan.",
+    "en": "Receipt recorded: stock and the books already reflect it.",
+    "pt": "Recebimento registrado: o estoque e a contabilidade já o refletem."
+  },
+  "purchasing.orders.form.receipt_unit_cost": {
+    "es": "Costo unitario",
+    "en": "Unit cost",
+    "pt": "Custo unitário"
+  },
+  "purchasing.orders.form.receipts_title": {
+    "es": "Recepciones registradas",
+    "en": "Recorded receipts",
+    "pt": "Recebimentos registrados"
+  },
   "purchasing.orders.form.receive": {
     "es": "Registrar recepción",
     "en": "Record a delivery",
     "pt": "Registar receção"
+  },
+  "purchasing.orders.form.receive_effect": {
+    "es": "Lo recibido entra al inventario al costo acordado (recalcula el costo promedio) y se contabiliza contra «Mercancía recibida no facturada», que la factura del proveedor liquidará.",
+    "en": "What is received enters stock at the agreed cost (re-averaging the unit cost) and is posted against “Goods received not invoiced”, which the supplier’s bill will clear.",
+    "pt": "O recebido entra no estoque ao custo acordado (recalcula o custo médio) e é contabilizado contra “Mercadorias recebidas não faturadas”, que a fatura do fornecedor liquidará."
   },
   "purchasing.orders.form.receive_title": {
     "es": "Qué llegó",

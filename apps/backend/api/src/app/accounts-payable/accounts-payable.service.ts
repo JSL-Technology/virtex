@@ -1,3 +1,6 @@
+import { PurchaseOrderLine } from '../procurement/entities/purchase-order-line.entity';
+import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
+import { VendorBillLine } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, DataSource, EntityManager } from 'typeorm';
@@ -88,6 +91,9 @@ export interface AgingReport {
 }
 
 /** The standard ageing ladder. Days past due, oldest bucket open-ended. */
+/** Quantities carry six decimals, like the order lines they are matched against. */
+const roundQuantity = (value: number): number => Math.round(value * 1e6) / 1e6;
+
 const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
   { label: '1-30', from: 1, to: 30 },
   { label: '31-60', from: 31, to: 60 },
@@ -229,6 +235,8 @@ export class AccountsPayableService {
       if (!supplier) {
         throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
       }
+
+      await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
       const servicesAmount = dto.servicesAmount ?? subtotal;
       const goodsAmount = dto.goodsAmount ?? 0;
@@ -486,13 +494,25 @@ export class AccountsPayableService {
             'accounts_payable.default_inventory_account_not_configured',
           );
         }
-        debit(
-          settings.defaultInventoryId,
-          line.total,
-          await this.narrative.describe(manager, organizationId, 'ledger.purchase.goods_line', {
-            product: line.product,
-          }),
+        const goodsLine = await this.narrative.describe(
+          manager,
+          organizationId,
+          'ledger.purchase.goods_line',
+          { product: line.product },
         );
+        // Three-way match (QA C-07). The part of this line that was already RECEIVED against its
+        // purchase order is already in inventory — the receipt debited it and credited GRNI — so
+        // here it clears GRNI at the value it was received at. Only the remainder (goods the bill
+        // itself brings in, and any difference between the billed and the agreed price) debits
+        // inventory. Without this, receiving and then billing the same goods counted them twice.
+        const matched = await this.matchAgainstReceipts(manager, line, bill.exchangeRate);
+        if (matched.grniAmount > 0) {
+          if (!settings.defaultGoodsReceivedNotInvoicedAccountId) {
+            throw new BadRequestError('accounts_payable.grni_account_not_configured');
+          }
+          debit(settings.defaultGoodsReceivedNotInvoicedAccountId, matched.grniAmount, goodsLine);
+        }
+        debit(settings.defaultInventoryId, roundAmount(line.total - matched.grniAmount), goodsLine);
       } else {
         if (!line.expenseAccountId) {
           throw new BadRequestError(
@@ -590,10 +610,16 @@ export class AccountsPayableService {
     // (emitted after commit via AfterCommitService) carries the lines and `VendorBillInventoryHandler`
     // in InventoryModule applies the stock movement. The movement is no longer atomic with the
     // accounting entry — an accepted trade-off while the modules remain decoupled.
-    const billLinesForInventory = bill.lines.map((line) => ({
-      productId: line.productId,
-      quantity: line.quantity,
-    }));
+    // Only what the bill itself brings in moves stock: the part matched against a receipt is
+    // already on the shelf.
+    const billLinesForInventory = bill.lines
+      .map((line) => ({
+        productId: line.productId,
+        quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
+        unitCost: roundAmount(Number(line.unitPrice) * (Number(bill.exchangeRate) || 1)),
+        reference: bill.ncf ?? bill.id.slice(0, 8),
+      }))
+      .filter((line) => line.quantity > 0);
 
     bill.status = VendorBillStatus.OPEN;
     bill.balance = payable;
@@ -615,6 +641,116 @@ export class AccountsPayableService {
       () => Promise.resolve(this.eventEmitter.emit('vendor.bill.posted', postedPayload)),
     );
     return saved;
+  }
+
+  /**
+   * A bill that names a purchase order must match it: same supplier, lines from that order, and the
+   * product of each line the product that was ordered. Lines naming an order line pick up the order
+   * when the header did not name it.
+   */
+  private async assertPurchaseOrderLinks(
+    manager: EntityManager,
+    organizationId: string,
+    dto: CreateVendorBillDto,
+    lines: Array<{ purchaseOrderLineId?: string; productId?: string }>,
+  ): Promise<void> {
+    const lineIds = lines.map((line) => line.purchaseOrderLineId).filter((id): id is string => !!id);
+    if (!dto.purchaseOrderId && lineIds.length === 0) return;
+
+    const orderLines = lineIds.length
+      ? await manager.find(PurchaseOrderLine, { where: { id: In(lineIds), organizationId } })
+      : [];
+    if (orderLines.length !== new Set(lineIds).size) {
+      throw new BadRequestError('accounts_payable.purchase_order_line_not_found');
+    }
+    const orderIds = new Set(orderLines.map((line) => line.orderId));
+    if (dto.purchaseOrderId) orderIds.add(dto.purchaseOrderId);
+    if (orderIds.size > 1) {
+      throw new BadRequestError('accounts_payable.bill_spans_several_purchase_orders');
+    }
+    const orderId = [...orderIds][0];
+    const order = await manager.findOne(PurchaseOrder, { where: { id: orderId, organizationId } });
+    if (!order) throw new BadRequestError('accounts_payable.purchase_order_not_found');
+    if (order.supplierId !== dto.vendorId) {
+      throw new BadRequestError('accounts_payable.purchase_order_supplier_mismatch', { order: order.number });
+    }
+    dto.purchaseOrderId = order.id;
+
+    const byId = new Map(orderLines.map((line) => [line.id, line]));
+    for (const line of lines) {
+      if (!line.purchaseOrderLineId) continue;
+      const ordered = byId.get(line.purchaseOrderLineId);
+      if (!ordered) continue;
+      if (ordered.productId && line.productId && ordered.productId !== line.productId) {
+        throw new BadRequestError('accounts_payable.purchase_order_line_product_mismatch', {
+          description: ordered.description,
+        });
+      }
+      line.productId ??= ordered.productId ?? undefined;
+    }
+  }
+
+  /**
+   * How much of a bill line clears goods already received against its order line.
+   *
+   * Locks the order line, takes `min(billed quantity, received − already billed)` as the matched
+   * quantity, values it at the agreed price and the ORDER's rate — the value the receipt put into
+   * inventory — expressed in the bill's currency, and advances the line's billed quantity. Billing
+   * more than was ordered is refused: that is the exception a three-way match exists to catch.
+   */
+  private async matchAgainstReceipts(
+    manager: EntityManager,
+    line: VendorBillLine,
+    billRate: number,
+  ): Promise<{ grniAmount: number }> {
+    if (!line.purchaseOrderLineId) return { grniAmount: 0 };
+    const orderLine = await manager
+      .createQueryBuilder(PurchaseOrderLine, 'line')
+      .innerJoinAndSelect('line.order', 'order')
+      .where('line.id = :id', { id: line.purchaseOrderLineId })
+      .setLock('pessimistic_write', undefined, ['line'])
+      .getOne();
+    if (!orderLine) return { grniAmount: 0 };
+
+    const billedAfter = roundQuantity(orderLine.billedQuantity + Number(line.quantity));
+    if (billedAfter - orderLine.quantity > 0.000001) {
+      throw new BadRequestError('accounts_payable.bill_exceeds_ordered_quantity', {
+        description: orderLine.description,
+        ordered: orderLine.quantity,
+        billed: billedAfter,
+      });
+    }
+    const receivedNotBilled = Math.max(roundQuantity(orderLine.receivedQuantity - orderLine.billedQuantity), 0);
+    const grniQuantity = Math.min(Number(line.quantity), receivedNotBilled);
+
+    orderLine.billedQuantity = billedAfter;
+    await manager.update(PurchaseOrderLine, { id: orderLine.id }, { billedQuantity: billedAfter });
+    line.grniQuantity = grniQuantity;
+    await manager.update(VendorBillLine, { id: line.id }, { grniQuantity });
+
+    if (grniQuantity <= 0) return { grniAmount: 0 };
+    const orderRate = Number(orderLine.order?.exchangeRate) > 0 ? Number(orderLine.order.exchangeRate) : 1;
+    const receivedValueInBase = grniQuantity * Number(orderLine.unitPrice) * orderRate;
+    const rate = Number(billRate) > 0 ? Number(billRate) : 1;
+    const grniAmount = Math.min(roundAmount(receivedValueInBase / rate), Number(line.total));
+    return { grniAmount };
+  }
+
+  /** Undo what a posted bill advanced on its order lines, when the bill is voided. */
+  private async releaseBilledQuantities(manager: EntityManager, bill: VendorBill): Promise<void> {
+    for (const line of bill.lines) {
+      if (!line.purchaseOrderLineId) continue;
+      const orderLine = await manager.findOne(PurchaseOrderLine, {
+        where: { id: line.purchaseOrderLineId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!orderLine) continue;
+      await manager.update(
+        PurchaseOrderLine,
+        { id: orderLine.id },
+        { billedQuantity: Math.max(roundQuantity(orderLine.billedQuantity - Number(line.quantity)), 0) },
+      );
+    }
   }
 
   /** An account by its operational role, falling back to the legacy settings column. */
@@ -1107,9 +1243,20 @@ export class AccountsPayableService {
         bill.status === VendorBillStatus.PARTIALLY_PAID;
 
       // Stock to be returned is collected here; the actual decrease fires post-commit via event.
+      // What the bill itself received. The part matched against a purchase-order receipt stays in
+      // stock: the goods did arrive, and the reversal below puts them back into "received not
+      // invoiced", which is exactly their state once the bill is gone.
       const voidLines = wasPosted
-        ? bill.lines.map((line) => ({ productId: line.productId, quantity: line.quantity }))
+        ? bill.lines
+            .map((line) => ({
+              productId: line.productId,
+              quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
+            }))
+            .filter((line) => line.quantity > 0)
         : [];
+      if (wasPosted) {
+        await this.releaseBilledQuantities(manager, bill);
+      }
 
       if (bill.journalEntryId) {
         const reversal = await this.journalEntriesService.createSystemReversal(

@@ -13,7 +13,9 @@ import {
   ReceivePurchaseOrderDto,
   UpdatePurchaseOrderDto,
 } from './dto/purchase-order.dto';
-import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
+import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import {
   JournalEntryNumberingService,
@@ -24,6 +26,10 @@ import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 import { canTransition } from '@virteex/shared/types';
 import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
+
+/** Quantities carry six decimals; comparisons tolerate the last one. */
+const QUANTITY_EPSILON = 0.000001;
+const roundQuantity = (value: number): number => Math.round(value * 1e6) / 1e6;
 
 /** Once an order has been sent to a supplier, its terms are not ours alone to change. */
 const EDITABLE = [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.PENDING_APPROVAL];
@@ -38,12 +44,13 @@ const EDITABLE = [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.PENDING_APPROVA
  * tenant of the product, with no table behind them, no endpoint, and no way to create a fifth. A
  * buyer could look at the screen and not act on it.
  *
- * ## Why nothing here posts to the ledger
+ * ## What posts to the ledger, and what does not
  *
- * A purchase order is a **commitment**, not a transaction. Nothing has been bought, nothing is owed
- * and nothing has moved until the goods or the invoice arrive; the ledger records what happened,
- * not what was agreed. The vendor bill already debits inventory and credits payables when it is
- * approved, and posting here as well would count every purchase twice.
+ * A purchase order is a **commitment**, not a transaction: creating, approving or sending one
+ * posts nothing. A **receipt** is a transaction — the goods arrived — and posts
+ * Dr Inventory / Cr Goods received not invoiced. The vendor bill raised against the order then
+ * clears that bridge (Dr GRNI / Cr Payables) instead of debiting inventory again, so a purchase is
+ * booked exactly once whichever document comes first.
  *
  * What the order does carry is the chain in both directions — the requisition it came from, and
  * what has been received against it — because that is what lets anyone answer "was this
@@ -60,6 +67,7 @@ export class PurchaseOrdersService {
     private readonly dataSource: DataSource,
     private readonly numbering: JournalEntryNumberingService,
     private readonly requisitions: ProcurementService,
+    private readonly inventory: GoodsReceiptPort,
   ) {}
 
   async findAll(organizationId: string, query: PurchaseOrderQueryDto = {}): Promise<Page<PurchaseOrder>> {
@@ -193,8 +201,25 @@ export class PurchaseOrdersService {
     return this.transition(id, organizationId, PurchaseOrderStatus.PENDING_APPROVAL);
   }
 
+  /**
+   * Approve an order — never your own (QA M-08).
+   *
+   * Whoever raised an order could approve it, which makes the approval a formality: the control
+   * exists so that a second person agrees to spend the money. Payroll already enforces this split;
+   * purchasing now does too. A company run by a single person has nobody else to ask, so the rule
+   * applies only while the organization has another member who could approve.
+   */
   approve(id: string, organizationId: string, actorUserId: string): Promise<PurchaseOrder> {
-    return this.transition(id, organizationId, PurchaseOrderStatus.APPROVED, (order) => {
+    return this.transition(id, organizationId, PurchaseOrderStatus.APPROVED, async (order, manager) => {
+      if (order.createdByUserId && order.createdByUserId === actorUserId) {
+        const others: Array<{ count: string }> = await manager.query(
+          'SELECT COUNT(*)::int AS count FROM user_organizations WHERE organization_id = $1 AND user_id <> $2',
+          [organizationId, actorUserId],
+        );
+        if (Number(others[0]?.count ?? 0) > 0) {
+          throw new ForbiddenError('procurement.cannot_approve_own_order');
+        }
+      }
       order.approvedByUserId = actorUserId;
       order.approvedAt = new Date();
     });
@@ -222,17 +247,27 @@ export class PurchaseOrdersService {
   }
 
   /**
-   * Record what arrived.
+   * Record what arrived, and bring it into stock and onto the books (QA C-07).
    *
-   * Quantities only: no ledger entry and no stock movement, because the vendor bill is what brings
-   * the goods onto the books, and doing it here as well would double every purchase. What this
-   * gives the buyer is the answer to "what is still outstanding", which the order could not answer
-   * before.
+   * This used to count quantities and nothing else: the order read "Recibida · 10" while the
+   * product's stock did not move, the stock ledger stayed empty and the ledger never heard of the
+   * goods. A receipt is the moment the goods physically arrive, so it is where they enter stock.
+   *
+   * Each call is one delivery and may be partial: every line says how much of it arrived, and a
+   * line may be omitted. What arrives is valued at the agreed price converted at the order's rate,
+   * re-averages the item's unit cost, writes a stock-ledger line and posts
+   * Dr Inventory / Cr Goods received not invoiced. The supplier's invoice, raised against the order,
+   * clears that bridge instead of receiving the goods a second time — see
+   * `AccountsPayableService.approve`. All of it is one transaction.
+   *
+   * `lines` empty or omitted means "everything that is still outstanding", which is what the
+   * one-click "Registrar recepción" did — now with its effects.
    */
   async receive(
     id: string,
     dto: ReceivePurchaseOrderDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<PurchaseOrder> {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
@@ -241,31 +276,104 @@ export class PurchaseOrdersService {
       }
 
       const byId = new Map(order.lines.map((line) => [line.id, line]));
-      for (const received of dto.lines) {
+      const requested = dto.lines?.length
+        ? dto.lines
+        : order.lines.map((line) => ({
+            lineId: line.id,
+            quantity: roundQuantity(line.quantity - line.receivedQuantity),
+          }));
+
+      const rate = Number(order.exchangeRate) > 0 ? Number(order.exchangeRate) : 1;
+      const arriving: Array<{ line: PurchaseOrderLine; quantity: number; unitCost: number }> = [];
+      for (const received of requested) {
         const line = byId.get(received.lineId);
         if (!line) throw new BadRequestError('procurement.order_line_not_found', { id: received.lineId });
+        if (received.quantity <= 0) continue;
 
-        const total = roundAmount(line.receivedQuantity + received.quantity);
-        if (toCents(total) > toCents(line.quantity)) {
+        const total = roundQuantity(line.receivedQuantity + received.quantity);
+        if (total - line.quantity > QUANTITY_EPSILON) {
           throw new BadRequestError('procurement.receipt_exceeds_ordered', {
             description: line.description,
             ordered: line.quantity,
             received: total,
           });
         }
-        line.receivedQuantity = total;
+        arriving.push({
+          line,
+          quantity: received.quantity,
+          unitCost: Math.round(line.unitPrice * rate * 1e6) / 1e6,
+        });
+      }
+      if (arriving.length === 0) {
+        throw new BadRequestError('procurement.receipt_has_no_quantities');
+      }
+
+      // The receipt row first, so the stock ledger and the entry can name it.
+      const receipt = await manager.save(
+        manager.create(PurchaseOrderReceipt, {
+          organizationId,
+          orderId: order.id,
+          receivedAt: new Date(),
+          receivedByUserId: actorUserId,
+          notes: dto.notes ?? null,
+          lines: [],
+        }),
+      );
+
+      const { journalEntryId, stocked } = await this.inventory.receiveGoods(
+        manager,
+        organizationId,
+        {
+          reference: order.number,
+          sourceType: 'purchase_order_receipt',
+          sourceId: receipt.id,
+          date: toIsoDate(dto.receivedAt ?? new Date()),
+          lines: arriving.map(({ line, quantity, unitCost }) => ({
+            productId: line.productId,
+            quantity,
+            unitCost,
+            description: line.description,
+          })),
+        },
+        actorUserId,
+      );
+
+      for (const { line, quantity } of arriving) {
+        line.receivedQuantity = roundQuantity(line.receivedQuantity + quantity);
         await manager.save(line);
       }
 
+      receipt.journalEntryId = journalEntryId;
+      receipt.lines = arriving.map(({ line, quantity, unitCost }, index) => ({
+        lineId: line.id,
+        productId: line.productId,
+        description: line.description,
+        quantity,
+        unitCost,
+        stocked: stocked[index] ?? false,
+      }));
+      await manager.save(receipt);
+
       const fresh = await this.findOneWith(manager, id, organizationId);
       const complete = fresh.lines.every(
-        (line) => toCents(line.receivedQuantity) >= toCents(line.quantity),
+        (line) => line.quantity - line.receivedQuantity <= QUANTITY_EPSILON,
       );
       fresh.status = complete ? PurchaseOrderStatus.RECEIVED : PurchaseOrderStatus.PARTIALLY_RECEIVED;
       await manager.save(fresh);
 
-      this.logger.log(`Orden ${fresh.number} → ${fresh.status}.`);
+      this.logger.log(
+        `Orden ${fresh.number} → ${fresh.status}; recepción ${receipt.id}, asiento ${journalEntryId ?? '—'}.`,
+      );
       return this.findOneWith(manager, id, organizationId);
+    });
+  }
+
+  /** The deliveries recorded against an order, newest first. */
+  async receipts(id: string, organizationId: string): Promise<PurchaseOrderReceipt[]> {
+    await this.findOne(id, organizationId);
+    return this.dataSource.manager.find(PurchaseOrderReceipt, {
+      where: { orderId: id, organizationId },
+      order: { receivedAt: 'DESC' },
     });
   }
 
@@ -283,7 +391,7 @@ export class PurchaseOrdersService {
     id: string,
     organizationId: string,
     to: PurchaseOrderStatus,
-    mutate?: (order: PurchaseOrder) => void,
+    mutate?: (order: PurchaseOrder, manager: EntityManager) => void | Promise<void>,
   ): Promise<PurchaseOrder> {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
@@ -296,7 +404,7 @@ export class PurchaseOrdersService {
         });
       }
       order.status = to;
-      mutate?.(order);
+      await mutate?.(order, manager);
       await manager.save(order);
       this.logger.log(`Orden ${order.number} → ${to}.`);
       return this.findOneWith(manager, id, organizationId);

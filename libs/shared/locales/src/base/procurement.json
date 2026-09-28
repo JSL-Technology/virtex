@@ -1,4 +1,9 @@
 {
+  "procurement.cannot_approve_own_order": {
+    "es": "No puedes aprobar una orden de compra que creaste tú. Pide a otra persona con permiso de aprobación que la revise.",
+    "en": "You cannot approve a purchase order you created. Ask another person with approval rights to review it.",
+    "pt": "Você não pode aprovar um pedido de compra que você criou. Peça a outra pessoa com permissão de aprovação para revisá-lo."
+  },
   "procurement.only_draft_order_can_deleted_one": {
     "es": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
     "en": "Only a draft order can be deleted; this one is {{status}}.",
@@ -33,6 +38,11 @@
     "es": "Se recibieron {{received}} de «{{description}}» y solo se ordenaron {{ordered}}.",
     "en": "{{received}} of “{{description}}” were received but only {{ordered}} were ordered.",
     "pt": "Foram recebidos {{received}} de «{{description}}» e apenas {{ordered}} foram encomendados."
+  },
+  "procurement.receipt_has_no_quantities": {
+    "es": "Indica al menos una línea con cantidad recibida mayor que cero.",
+    "en": "Enter at least one line with a received quantity greater than zero.",
+    "pt": "Informe pelo menos uma linha com quantidade recebida maior que zero."
   },
   "procurement.requisition_cannot_move_from_from": {
     "es": "Una requisición no puede pasar de {{from}} a {{to}}.",

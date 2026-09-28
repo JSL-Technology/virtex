@@ -3,13 +3,21 @@
         <div class="catalog-header">
             <div class="search-bar">
                 <lucide-icon [img]="SearchIcon" size="20"></lucide-icon>
-                <input type="text" [placeholder]="'sales.pos.search_products_name_sku' | translate">
+                <input type="search" [placeholder]="'sales.pos.search_products_name_sku' | translate"
+                       [attr.aria-label]="'sales.pos.search_products_name_sku' | translate"
+                       [value]="query()" (input)="query.set($any($event.target).value)">
             </div>
         </div>
         <div class="product-grid">
-            @for (product of allProducts(); track product.id) {
+            @for (product of visibleProducts(); track product.id) {
             <div class="product-card" (click)="addToCart(product)" [class.disabled]="product.stock === 0" tabindex="0" role="button" (keydown.enter)="addToCart(product)" (keydown.space)="$event.preventDefault(); addToCart(product)">
-                <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                @if (product.imageUrl && !brokenImages().has(product.id)) {
+                  <img [src]="product.imageUrl" [alt]="product.name" class="product-image" loading="lazy"
+                       (error)="markImageBroken(product.id)">
+                } @else {
+                  <!-- Sin imagen, o una que no carga: las iniciales, nunca el icono de imagen rota. -->
+                  <div class="product-image product-image--placeholder" aria-hidden="true">{{ initialsOf(product.name) }}</div>
+                }
                 <div class="product-info">
                     <span class="product-name">{{ product.name }}</span>
                     <span class="product-price">{{ product.price | vxNumber:'1.2-2' }}</span>
@@ -66,7 +74,11 @@
               <span>{{ subtotal() | vxMoney: currencyCode() }}</span>
             </div>
             <div class="summary-row">
-              <span>{{ 'sales.pos.tax_at_rate' | translate: { rate: taxRate() | vxPercent } }}</span>
+              @if (taxRate() !== null) {
+                <span>{{ 'sales.pos.tax_at_rate' | translate: { rate: taxRate() | vxPercent } }}</span>
+              } @else {
+                <span>{{ 'sales.pos.tax' | translate }}</span>
+              }
               <span>{{ taxAmount() | vxMoney: currencyCode() }}</span>
             </div>
             <div class="summary-total">

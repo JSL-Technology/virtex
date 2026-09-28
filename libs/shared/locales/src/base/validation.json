@@ -791,6 +791,11 @@
     "en": "The ledger ID (ledgerId) is required.",
     "pt": "O ID do livro contábil (ledgerId) é obrigatório."
   },
+  "validation.product.tax_rate_is_a_fraction": {
+    "es": "La tasa de impuesto se indica como fracción: 0.18 para un 18 %.",
+    "en": "The tax rate is given as a fraction: 0.18 for 18 %.",
+    "pt": "A taxa de imposto é informada como fração: 0,18 para 18 %."
+  },
   "validation.product_category.name_required": {
     "es": "El nombre de la categoría es obligatorio.",
     "en": "The category name is required.",

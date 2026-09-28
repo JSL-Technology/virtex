@@ -58,6 +58,20 @@ export class PurchaseOrderLine extends BaseEntity {
   })
   receivedQuantity: number;
 
+  /**
+   * How much of it the supplier has invoiced. With `receivedQuantity` and `quantity` it completes
+   * the three-way match: ordered, received, billed. A bill line that names this order line clears
+   * the goods-received-not-invoiced balance for the received part instead of receiving them again.
+   */
+  @Column('decimal', {
+    name: 'billed_quantity',
+    precision: 18,
+    scale: 6,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  billedQuantity: number;
+
   /** The price agreed with the supplier — not the catalogue's, which is what we would sell it for. */
   @Column('decimal', {
     name: 'unit_price',
