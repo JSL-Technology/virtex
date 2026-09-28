@@ -52,7 +52,7 @@ export class Tax {
 
 
 
-   @ManyToOne('TaxGroup', 'taxes', { nullable: true })
+   @ManyToOne('TaxGroup', 'taxes', { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'tax_group_id' })
   taxGroup?: TaxGroup;
 

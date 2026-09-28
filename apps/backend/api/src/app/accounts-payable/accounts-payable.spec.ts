@@ -75,7 +75,7 @@ describeWithDb('accounts payable', () => {
   let vendorId: string;
   /** A persona física supplier, used by the tests that are about withholding. */
   let individualVendorId: string;
-  let inventory: { increaseStock: jest.Mock; decreaseStock: jest.Mock };
+  let inventory: { receiveGoods: jest.Mock; decreaseStock: jest.Mock; recordMovement: jest.Mock };
   let eventBus: EventEmitter2;
   const efectosDeInventario: Array<Promise<unknown>> = [];
   /** Espera a que los efectos de inventario en vuelo terminen. */
@@ -107,8 +107,11 @@ describeWithDb('accounts payable', () => {
     // under test. Approving a purchase never increased stock and annulling one increased it, so
     // every annulment added goods that had never arrived.
     inventory = {
-      increaseStock: jest.fn().mockResolvedValue(undefined),
+      // Receiving goes through the same port a purchase-order receipt uses (QA C-07): stock in,
+      // cost re-averaged, a stock-ledger line — and no second entry, since the bill booked it.
+      receiveGoods: jest.fn().mockResolvedValue({ journalEntryId: null, stocked: [true] }),
       decreaseStock: jest.fn().mockResolvedValue(undefined),
+      recordMovement: jest.fn().mockResolvedValue(undefined),
     };
 
     //  El emisor es COMPARTIDO, y el manejador de inventario es el de verdad.
@@ -822,18 +825,23 @@ describeWithDb('accounts payable', () => {
     });
 
     it('receives goods on approval and returns them on annulment', async () => {
-      inventory.increaseStock.mockClear();
+      inventory.receiveGoods.mockClear();
       inventory.decreaseStock.mockClear();
 
       const bill = await openBill({ withProduct: true });
       await inventarioAlDia();
       // Approving a purchase receives the goods. Nothing did this: the ledger debited inventory
       // and the subledger never moved.
-      expect(inventory.increaseStock).toHaveBeenCalledWith(
-        PRODUCT_ID,
-        4,
+      expect(inventory.receiveGoods).toHaveBeenCalledWith(
         expect.anything(),
         organizationId,
+        expect.objectContaining({
+          sourceType: 'vendor_bill',
+          sourceId: bill.id,
+          post: false,
+          lines: [expect.objectContaining({ productId: PRODUCT_ID, quantity: 4 })],
+        }),
+        null,
       );
 
       await payables.voidBill(bill.id, organizationId, { reason: 'Devuelta al proveedor' }, ACTOR);

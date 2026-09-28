@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Employee } from './employee.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /** How often the base salary is paid. The statutory bases are monthly, so others are normalised. */
 export enum PayFrequency {
@@ -54,4 +55,8 @@ export class EmployeeCompensation extends BaseEntity {
 
   @Column({ name: 'currency_code', length: 3, default: 'DOP' })
   currencyCode: string;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_employee_compensations_organization')
+  organization?: TenantRef;
 }

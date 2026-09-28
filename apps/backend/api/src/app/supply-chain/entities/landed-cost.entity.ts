@@ -1,6 +1,7 @@
 
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum LandedCostAllocationMethod {
   VALUE = 'VALUE',
@@ -26,4 +27,8 @@ export class LandedCost extends BaseEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_landed_costs_organization')
+  organization?: TenantRef;
 }

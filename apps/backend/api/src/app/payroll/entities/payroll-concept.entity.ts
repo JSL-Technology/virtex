@@ -1,6 +1,7 @@
 import { Entity, Column, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /** Which side of the payslip a concept lands on. */
 export enum ConceptType {
@@ -97,4 +98,8 @@ export class PayrollConcept extends BaseEntity {
   /** Seeded concept that the product relies on (AFP/SFS/ISR/BASE). Cannot be deleted by a tenant. */
   @Column({ name: 'is_system', type: 'boolean', default: false })
   isSystem: boolean;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payroll_concepts_organization')
+  organization?: TenantRef;
 }

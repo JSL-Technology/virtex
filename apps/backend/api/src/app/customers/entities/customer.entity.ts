@@ -236,7 +236,7 @@ export class Customer {
   })
   addresses: CustomerAddress[];
 
-  @ManyToOne('CustomerGroup', 'customers', { nullable: true })
+  @ManyToOne('CustomerGroup', 'customers', { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'customer_group_id' })
   group?: CustomerGroup;
 

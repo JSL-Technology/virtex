@@ -1,6 +1,7 @@
 
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity('departments')
 export class Department extends BaseEntity {
@@ -12,4 +13,8 @@ export class Department extends BaseEntity {
 
   @Column({ name: 'cost_center', nullable: true })
   costCenter: string;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_departments_organization')
+  organization?: TenantRef;
 }

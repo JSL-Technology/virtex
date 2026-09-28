@@ -49,7 +49,7 @@ export class InvoiceLineItem {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'productId' })
   product?: Product | null;
 

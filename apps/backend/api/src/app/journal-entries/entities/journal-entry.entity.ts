@@ -73,7 +73,7 @@ export class JournalEntry {
   
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Ledger, { nullable: false, eager: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Ledger, { nullable: false, eager: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 
@@ -245,7 +245,7 @@ export class JournalEntry {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Journal, { nullable: false, eager: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Journal, { nullable: false, eager: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'journal_id' })
   journal: Journal;
 

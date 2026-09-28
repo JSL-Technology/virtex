@@ -52,7 +52,7 @@ export async function standardSalesTaxRate(
   organizationId: string,
 ): Promise<number> {
   const rows: Array<{ rate: string | number | null }> = await manager.query(
-    `SELECT MAX(rate) AS rate FROM taxes WHERE organization_id = $1`,
+    `SELECT MAX(rate) AS rate FROM taxes WHERE organization_id = $1 AND type = 'Porcentaje'`,
     [organizationId],
   );
   const percent = Number(rows[0]?.rate ?? 0);

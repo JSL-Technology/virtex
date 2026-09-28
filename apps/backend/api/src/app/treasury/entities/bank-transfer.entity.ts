@@ -91,7 +91,7 @@ export class BankTransfer {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => BankAccount, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'from_bank_account_id' })
   fromBankAccount: BankAccount;
 
@@ -100,7 +100,7 @@ export class BankTransfer {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => BankAccount, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'to_bank_account_id' })
   toBankAccount: BankAccount;
 

@@ -36,7 +36,7 @@ export class JournalEntryLineValuation {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Ledger, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Ledger, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 

@@ -2,6 +2,7 @@ import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn } from 'typeorm
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Payslip } from './payslip.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * The lifecycle of a run. It only moves forward.
@@ -148,4 +149,8 @@ export class PayrollRun extends BaseEntity {
 
   @OneToMany(() => Payslip, (p) => p.run)
   payslips: Payslip[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payroll_runs_organization')
+  organization?: TenantRef;
 }

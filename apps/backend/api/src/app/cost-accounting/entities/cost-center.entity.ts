@@ -1,5 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum CostCenterType {
   COST_CENTER = 'COST_CENTER',
@@ -16,7 +17,7 @@ export class CostCenter {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -27,4 +28,8 @@ export class CostCenter {
 
   @Column({ type: 'enum', enum: CostCenterType })
   type: CostCenterType;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_cost_centers_organization')
+  organization?: TenantRef;
 }

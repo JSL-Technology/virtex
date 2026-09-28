@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, Index } from 'typeorm';
 import { Product } from '../../inventory/entities/product.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export type StockMovementType =
   | 'PURCHASE_RECEIPT'
@@ -26,7 +27,9 @@ export class StockMovement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product)
+  // A product with a stock history is deactivated, not deleted (QA C-03); checked at commit so the
+  // tenant's own delete, which removes both, still goes through.
+  @ManyToOne(() => Product, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
@@ -61,4 +64,8 @@ export class StockMovement {
 
   @CreateDateColumn()
   date: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_stock_movements_organization')
+  organization?: TenantRef;
 }

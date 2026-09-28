@@ -72,7 +72,7 @@ export class VendorBill {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Supplier, { eager: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Supplier, { eager: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'vendor_id' })
   vendor: Supplier;
 
@@ -83,7 +83,7 @@ export class VendorBill {
   @Column({ name: 'purchase_order_id', type: 'uuid', nullable: true })
   purchaseOrderId?: string | null;
 
-  @ManyToOne(() => PurchaseOrder, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => PurchaseOrder, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'purchase_order_id', foreignKeyConstraintName: 'FK_vendor_bills_purchase_order' })
   purchaseOrder?: PurchaseOrder | null;
 

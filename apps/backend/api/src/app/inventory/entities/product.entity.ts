@@ -87,7 +87,7 @@ export class Product {
   @Column({ name: 'category_id', type: 'uuid', nullable: true })
   categoryId: string | null;
 
-  @ManyToOne(() => ProductCategory, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => ProductCategory, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'category_id', foreignKeyConstraintName: 'FK_products_category' })
   category: ProductCategory | null;
 

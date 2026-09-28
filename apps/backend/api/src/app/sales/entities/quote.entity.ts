@@ -45,11 +45,11 @@ export class Quote {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Customer, { eager: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Customer, { eager: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
-  @ManyToOne(() => Opportunity, { nullable: true })
+  @ManyToOne(() => Opportunity, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'opportunity_id' })
   opportunity?: Opportunity;
 

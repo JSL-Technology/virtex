@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +17,15 @@ import { EnterpriseSsoService } from './enterprise-sso.service';
 import { OidcProviderService } from './oidc-provider.service';
 import { PasswordService } from './password.service';
 import { StepUpScope, SINGLE_USE_SCOPES } from '../enums/step-up-scope.enum';
+
+/**
+ * A wrong password or code is the answer to a credential check, not an expired session (QA A-01).
+ * As a 401 the client's interceptor refreshed the session, REPLAYED the failed attempt — two of
+ * the five-attempt budget per typo — and then signed the user out with the dialog still open.
+ * It is a 400 with a stable code the client can recognise.
+ */
+const WRONG_CREDENTIAL = expect.objectContaining({ code: 'STEP_UP_INVALID_CREDENTIALS' });
+
 
 /**
  * Step-up re-authentication.
@@ -125,7 +134,7 @@ describe('AuthService — step-up re-authentication', () => {
 
       await expect(
         service.createStepUpToken('user-1', { password: 'wrong' }, StepUpScope.DELETE_ACCOUNT),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject(WRONG_CREDENTIAL);
     });
 
     it('asks for the password when none was supplied', async () => {
@@ -172,7 +181,7 @@ describe('AuthService — step-up re-authentication', () => {
 
       await expect(
         service.createStepUpToken('user-2', { otpCode: '000000' }, StepUpScope.IMPERSONATE),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject(WRONG_CREDENTIAL);
     });
   });
 
@@ -199,7 +208,7 @@ describe('AuthService — step-up re-authentication', () => {
     for (let attempt = 0; attempt < 5; attempt++) {
       await expect(
         service.createStepUpToken('user-1', { password: 'wrong' }, StepUpScope.DELETE_ACCOUNT),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject(WRONG_CREDENTIAL);
     }
 
     // The sixth is refused before the password is even checked.
@@ -216,7 +225,7 @@ describe('AuthService — step-up re-authentication', () => {
 
     await expect(
       service.createStepUpToken('user-1', { password: 'wrong' }, StepUpScope.DELETE_ACCOUNT),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    ).rejects.toMatchObject(WRONG_CREDENTIAL);
 
     await service.createStepUpToken('user-1', { password: 'right' }, StepUpScope.DELETE_ACCOUNT);
 

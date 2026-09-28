@@ -15,7 +15,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * ## What changes
  *
- * Every such reference becomes ON DELETE RESTRICT. Fiscal and accounting records are corrected
+ * Every such reference becomes ON DELETE NO ACTION. Fiscal and accounting records are corrected
  * by voiding, crediting or reversing, never by deleting, and the master data they name follows
  * the same rule: it is deactivated. The services now check first and say what is in the way; this
  * is the guarantee underneath them, and the exception filter turns its violation into a 409.
@@ -24,7 +24,22 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * that no longer exist (the orphans the old delete produced) are cleared first, or the constraint
  * could not be created.
  *
- * Constraint names are kept, so the entities (which now declare `onDelete: 'RESTRICT'`) and the
+ * ## Why NO ACTION DEFERRABLE INITIALLY DEFERRED, and not RESTRICT
+ *
+ * A tenant must remain deletable in one statement — offboarding and privacy erasure depend on it
+ * (`TenantDeletionRemainder1788910000000`, `tenant-deletion.spec.ts`). That delete cascades from
+ * `organizations` down every path at once, and PostgreSQL runs each cascade level as its own
+ * trigger, in an order that is not ours to choose: a RESTRICT (checked at once) or plain NO ACTION
+ * (checked per trigger) edge fails the moment the cascade reaches a ledger before the valuations
+ * that name it arrive by the other path. That is why the previous design settled for CASCADE and
+ * SET NULL here, and left the protection to the services alone.
+ *
+ * A DEFERRED check runs at COMMIT, after every cascade has finished. Deleting the tenant then
+ * finds nothing dangling and succeeds; deleting the customer, product or ledger on its own still
+ * leaves its invoices pointing at it and is refused — by the database, not only by the service
+ * that remembered to check (`assertNoDependents`). Defence in depth without giving up erasure.
+ *
+ * Constraint names are kept, so the entities (which now declare `onDelete: 'NO ACTION'`) and the
  * database stay identical for `check:schema-drift`.
  */
 const RESTRICTED: ReadonlyArray<{
@@ -64,7 +79,7 @@ export class ProtectReferencedMasterData1789007600000 implements MigrationInterf
 
   public async up(q: QueryRunner): Promise<void> {
     for (const fk of RESTRICTED) {
-      await this.replace(q, fk, 'RESTRICT');
+      await this.replace(q, fk, 'NO ACTION');
     }
 
     // Orphans left by the old unchecked department delete. Keeping them would make the constraint
@@ -79,7 +94,7 @@ export class ProtectReferencedMasterData1789007600000 implements MigrationInterf
       ALTER TABLE "employees"
         ADD CONSTRAINT "FK_employees_department"
         FOREIGN KEY ("department_id") REFERENCES "departments"("id")
-        ON DELETE RESTRICT ON UPDATE NO ACTION
+        ON DELETE NO ACTION ON UPDATE NO ACTION DEFERRABLE INITIALLY DEFERRED
     `);
   }
 
@@ -93,14 +108,14 @@ export class ProtectReferencedMasterData1789007600000 implements MigrationInterf
   private async replace(
     q: QueryRunner,
     fk: (typeof RESTRICTED)[number],
-    onDelete: 'RESTRICT' | 'CASCADE' | 'SET NULL',
+    onDelete: 'NO ACTION' | 'CASCADE' | 'SET NULL',
   ): Promise<void> {
     await q.query(`ALTER TABLE "${fk.table}" DROP CONSTRAINT IF EXISTS "${fk.name}"`);
     await q.query(`
       ALTER TABLE "${fk.table}"
         ADD CONSTRAINT "${fk.name}"
         FOREIGN KEY ("${fk.column}") REFERENCES "${fk.references}"("id")
-        ON DELETE ${onDelete} ON UPDATE NO ACTION
+        ON DELETE ${onDelete} ON UPDATE NO ACTION${onDelete === 'NO ACTION' ? ' DEFERRABLE INITIALLY DEFERRED' : ''}
     `);
   }
 }

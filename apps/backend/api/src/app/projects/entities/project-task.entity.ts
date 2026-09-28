@@ -2,10 +2,11 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Project } from './project.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity('project_tasks')
 export class ProjectTask extends BaseEntity {
-  @ManyToOne(() => Project)
+  @ManyToOne(() => Project, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
@@ -23,4 +24,8 @@ export class ProjectTask extends BaseEntity {
 
   @Column({ type: 'int', default: 0 })
   percentComplete: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_project_tasks_organization')
+  organization?: TenantRef;
 }

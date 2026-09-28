@@ -89,7 +89,7 @@ export class GoodsReceipts1789007900000 implements MigrationInterface {
         "lines" jsonb NOT NULL DEFAULT '[]'::jsonb,
         CONSTRAINT "PK_purchase_order_receipts" PRIMARY KEY ("id"),
         CONSTRAINT "FK_purchase_order_receipts_order"
-          FOREIGN KEY ("order_id") REFERENCES "purchase_orders"("id") ON DELETE RESTRICT
+          FOREIGN KEY ("order_id") REFERENCES "purchase_orders"("id") ON DELETE CASCADE
       )
     `);
     await q.query(`
@@ -119,7 +119,7 @@ export class GoodsReceipts1789007900000 implements MigrationInterface {
       ALTER TABLE "vendor_bill_line"
         ADD CONSTRAINT "FK_vendor_bill_line_purchase_order_line"
         FOREIGN KEY ("purchase_order_line_id") REFERENCES "purchase_order_lines"("id")
-        ON DELETE RESTRICT ON UPDATE NO ACTION
+        ON DELETE NO ACTION ON UPDATE NO ACTION DEFERRABLE INITIALLY DEFERRED
     `);
     await q.query(`
       ALTER TABLE "vendor_bills" ADD COLUMN IF NOT EXISTS "purchase_order_id" uuid
@@ -128,7 +128,7 @@ export class GoodsReceipts1789007900000 implements MigrationInterface {
       ALTER TABLE "vendor_bills"
         ADD CONSTRAINT "FK_vendor_bills_purchase_order"
         FOREIGN KEY ("purchase_order_id") REFERENCES "purchase_orders"("id")
-        ON DELETE RESTRICT ON UPDATE NO ACTION
+        ON DELETE NO ACTION ON UPDATE NO ACTION DEFERRABLE INITIALLY DEFERRED
     `);
 
     // ── 4. Stock ledger ──────────────────────────────────────────────────────────────────────

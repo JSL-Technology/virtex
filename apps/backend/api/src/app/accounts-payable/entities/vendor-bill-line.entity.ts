@@ -41,7 +41,7 @@ export class VendorBillLine {
   @Column({ name: 'purchase_order_line_id', type: 'uuid', nullable: true })
   purchaseOrderLineId?: string | null;
 
-  @ManyToOne(() => PurchaseOrderLine, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => PurchaseOrderLine, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({
     name: 'purchase_order_line_id',
     foreignKeyConstraintName: 'FK_vendor_bill_line_purchase_order_line',

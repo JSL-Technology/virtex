@@ -64,7 +64,7 @@ export class JournalEntryLine {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Account, { nullable: false, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Account, { nullable: false, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

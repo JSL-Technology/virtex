@@ -1,5 +1,6 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { DocumentTypeForApproval } from './approval-policy.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ApprovalStatus {
   PENDING = 'PENDING',
@@ -15,7 +16,7 @@ export class ApprovalRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column({ name: 'documentId', type: 'uuid' })
@@ -68,4 +69,8 @@ export class ApprovalRequest {
   get typedDocumentType(): DocumentTypeForApproval {
     return this.documentType as DocumentTypeForApproval;
   }
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_approval_requests_organization')
+  organization?: TenantRef;
 }

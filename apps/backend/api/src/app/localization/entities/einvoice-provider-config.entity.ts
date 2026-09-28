@@ -1,11 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'einvoice_provider_configs' })
 export class EInvoiceProviderConfig {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -22,4 +23,8 @@ export class EInvoiceProviderConfig {
 
   @Column({ type: 'jsonb' })
   credentials: Record<string, any>;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_einvoice_provider_configs_organization')
+  organization?: TenantRef;
 }

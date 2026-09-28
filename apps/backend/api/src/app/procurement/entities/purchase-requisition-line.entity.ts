@@ -3,6 +3,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { PurchaseRequisition } from './purchase-requisition.entity';
 import { Product } from '../../inventory/entities/product.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * What is actually being requested.
@@ -35,7 +36,7 @@ export class PurchaseRequisitionLine extends BaseEntity {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({
     name: 'product_id',
     foreignKeyConstraintName: 'FK_purchase_requisition_lines_product',
@@ -69,4 +70,8 @@ export class PurchaseRequisitionLine extends BaseEntity {
 
   @Column({ name: 'sort_order', type: 'int', default: 0 })
   sortOrder: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_purchase_requisition_lines_organization')
+  organization?: TenantRef;
 }

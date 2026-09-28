@@ -119,7 +119,7 @@ export class BankAccount {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Account, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Account, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'gl_account_id' })
   glAccount: Account;
 

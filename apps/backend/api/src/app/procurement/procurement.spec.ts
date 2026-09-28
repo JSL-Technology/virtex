@@ -24,6 +24,16 @@ describeWithDb('purchasing', () => {
   let dataSource: DataSource;
   let requisitions: ProcurementService;
   let orders: PurchaseOrdersService;
+  /**
+   * The stock and ledger side of a receipt belongs to inventory (QA C-07) and has its own suite.
+   * Here it is the port the order talks to, so what the order hands over can be asserted.
+   */
+  const goodsReceipts = {
+    receiveGoods: jest.fn(async (_m: unknown, _org: string, receipt: { lines: readonly unknown[] }) => ({
+      journalEntryId: null,
+      stocked: receipt.lines.map(() => false),
+    })),
+  };
 
   let organizationId: string;
   let supplierId: string;
@@ -56,6 +66,7 @@ describeWithDb('purchasing', () => {
       dataSource,
       numbering,
       requisitions,
+      goodsReceipts,
     );
   });
 
@@ -220,6 +231,12 @@ describeWithDb('purchasing', () => {
       );
       expect(partial.status).toBe(PurchaseOrderStatus.PARTIALLY_RECEIVED);
       expect(partial.lines.find((l) => l.id === sent.lines[0].id)?.receivedQuantity).toBe(4);
+      // The delivery is handed to inventory as it arrives — quantity and agreed cost — so stock
+      // and the ledger move with the receipt, not with the supplier's invoice weeks later.
+      const handed = goodsReceipts.receiveGoods.mock.calls.at(-1)?.[2] as {
+        lines: Array<{ quantity: number; unitCost: number }>;
+      };
+      expect(handed.lines).toEqual([expect.objectContaining({ quantity: 4 })]);
 
       const complete = await orders.receive(
         order.id,

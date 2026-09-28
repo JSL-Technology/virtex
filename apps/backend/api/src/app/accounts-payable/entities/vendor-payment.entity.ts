@@ -27,7 +27,7 @@ export class VendorPayment {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne('VendorBill', { onDelete: 'RESTRICT' })
+  @ManyToOne('VendorBill', { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'vendor_bill_id' })
   vendorBill: VendorBill;
 

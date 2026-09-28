@@ -78,7 +78,7 @@ export class CustomerPayment {
 
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => Customer, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Customer, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
@@ -104,7 +104,7 @@ export class CustomerPayment {
    */
   // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
   // names. See migration ProtectReferencedMasterData.
-  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => BankAccount, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'bank_account_id' })
   bankAccount: BankAccount;
 

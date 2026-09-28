@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * A variable input for one employee on one run — the "novedades de nómina" of the period.
@@ -50,4 +51,8 @@ export class PayrollInput extends BaseEntity {
 
   @Column({ name: 'note', type: 'varchar', nullable: true })
   note: string | null;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payroll_inputs_organization')
+  organization?: TenantRef;
 }

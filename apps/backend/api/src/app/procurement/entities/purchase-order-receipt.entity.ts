@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { PurchaseOrder } from './purchase-order.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /** One line of a delivery, as it was valued when it arrived. */
 export interface PurchaseOrderReceiptLine {
@@ -28,7 +29,9 @@ export class PurchaseOrderReceipt extends BaseEntity {
   @Column({ name: 'order_id', type: 'uuid' })
   orderId: string;
 
-  @ManyToOne(() => PurchaseOrder, { onDelete: 'RESTRICT' })
+  // Part of the order's own record, like its lines: it goes only when the order goes, and the
+  // service never deletes an order that has been sent, let alone received against.
+  @ManyToOne(() => PurchaseOrder, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id', foreignKeyConstraintName: 'FK_purchase_order_receipts_order' })
   order?: PurchaseOrder;
 
@@ -50,4 +53,8 @@ export class PurchaseOrderReceipt extends BaseEntity {
 
   @Column({ type: 'jsonb', default: [] })
   lines: PurchaseOrderReceiptLine[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_purchase_order_receipts_organization')
+  organization?: TenantRef;
 }

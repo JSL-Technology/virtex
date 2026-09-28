@@ -3,6 +3,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { PayrollRun } from './payroll-run.entity';
 import { PayslipLine } from './payslip-line.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * One employee's result for one run — the volante de pago.
@@ -122,4 +123,8 @@ export class Payslip extends BaseEntity {
 
   @OneToMany(() => PayslipLine, (l) => l.payslip)
   lines: PayslipLine[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payslips_organization')
+  organization?: TenantRef;
 }

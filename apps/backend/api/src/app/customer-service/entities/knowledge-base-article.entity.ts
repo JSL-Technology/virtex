@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ArticleStatus {
   DRAFT = 'DRAFT',
@@ -12,7 +13,7 @@ export class KnowledgeBaseArticle {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -32,4 +33,8 @@ export class KnowledgeBaseArticle {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_knowledge_base_articles_organization')
+  organization?: TenantRef;
 }
