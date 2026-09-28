@@ -375,9 +375,11 @@ export class PayrollRunService {
     runId: string,
     organizationId: string,
     actorUserId: string,
-    bankGlAccountId?: string,
+    source: { bankAccountId?: string; bankGlAccountId?: string } | string = {},
   ): Promise<PayrollRun> {
-    if (!bankGlAccountId) {
+    // A bare string is the ledger account id, as older callers pass it.
+    const from = typeof source === 'string' ? { bankGlAccountId: source } : source;
+    if (!from.bankAccountId && !from.bankGlAccountId) {
       throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
     return this.dataSource.transaction(async (em) => {
@@ -386,6 +388,7 @@ export class PayrollRunService {
       if (run.status !== PayrollRunStatus.APPROVED) {
         throw new ConflictError('payroll.only_approved_run_can_paid');
       }
+      const bankGlAccountId = await this.resolvePayingAccount(em, organizationId, from);
 
       // The cash actually leaves here: DR net-wages-payable / CR bank, idempotent on the run, so an
       // approved run and a paid run cannot drift and the payable approval created is cleared.
@@ -402,6 +405,51 @@ export class PayrollRunService {
       run.paidAt = new Date();
       return em.save(run);
     });
+  }
+
+  /**
+   * The ledger account the wages leave from, checked.
+   *
+   * Read with plain SQL on purpose: payroll does not depend on the treasury module, and the check
+   * is a lookup, not a use of its behaviour. A bank account must be the tenant's, active and kept in
+   * the books' currency (a payroll is computed in it); a ledger account id must be one a bank
+   * account owns or the cash role — not any account the caller names.
+   */
+  private async resolvePayingAccount(
+    em: EntityManager,
+    organizationId: string,
+    from: { bankAccountId?: string; bankGlAccountId?: string },
+  ): Promise<string> {
+    if (from.bankAccountId) {
+      const rows: Array<{ gl_account_id: string; is_active: boolean; currency_code: string; base: string | null }> =
+        await em.query(
+          `SELECT b.gl_account_id, b.is_active, b.currency_code, s.base_currency AS base
+             FROM bank_accounts b
+             LEFT JOIN organization_settings s ON s.organization_id = b.organization_id
+            WHERE b.id = $1 AND b.organization_id = $2`,
+          [from.bankAccountId, organizationId],
+        );
+      const account = rows[0];
+      if (!account) throw new BadRequestError('payroll.paying_bank_account_not_found');
+      if (!account.is_active) throw new BadRequestError('payroll.paying_bank_account_inactive');
+      if (account.base && account.currency_code !== account.base) {
+        throw new BadRequestError('payroll.paying_bank_account_currency', {
+          currency: account.currency_code,
+          base: account.base,
+        });
+      }
+      return account.gl_account_id;
+    }
+    const owned: Array<{ ok: boolean }> = await em.query(
+      `SELECT EXISTS (
+         SELECT 1 FROM bank_accounts b WHERE b.gl_account_id = $1 AND b.organization_id = $2 AND b.is_active
+       ) OR EXISTS (
+         SELECT 1 FROM accounts a WHERE a.id = $1 AND a.organization_id = $2 AND a.system_role IN ('CASH', 'BANK')
+       ) AS ok`,
+      [from.bankGlAccountId, organizationId],
+    );
+    if (!owned[0]?.ok) throw new BadRequestError('payroll.paying_bank_account_not_found');
+    return from.bankGlAccountId as string;
   }
 
   async cancel(runId: string, organizationId: string): Promise<PayrollRun> {

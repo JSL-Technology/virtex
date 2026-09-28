@@ -505,7 +505,7 @@ export class AccountsPayableService {
         // here it clears GRNI at the value it was received at. Only the remainder (goods the bill
         // itself brings in, and any difference between the billed and the agreed price) debits
         // inventory. Without this, receiving and then billing the same goods counted them twice.
-        const matched = await this.matchAgainstReceipts(manager, line, bill.exchangeRate);
+        const matched = await this.matchAgainstReceipts(manager, bill.organizationId, line, bill.exchangeRate);
         if (matched.grniAmount > 0) {
           if (!settings.defaultGoodsReceivedNotInvoicedAccountId) {
             throw new BadRequestError('accounts_payable.grni_account_not_configured');
@@ -700,6 +700,7 @@ export class AccountsPayableService {
    */
   private async matchAgainstReceipts(
     manager: EntityManager,
+    organizationId: string,
     line: VendorBillLine,
     billRate: number,
   ): Promise<{ grniAmount: number }> {
@@ -708,6 +709,7 @@ export class AccountsPayableService {
       .createQueryBuilder(PurchaseOrderLine, 'line')
       .innerJoinAndSelect('line.order', 'order')
       .where('line.id = :id', { id: line.purchaseOrderLineId })
+      .andWhere('order.organizationId = :organizationId', { organizationId })
       .setLock('pessimistic_write', undefined, ['line'])
       .getOne();
     if (!orderLine) return { grniAmount: 0 };

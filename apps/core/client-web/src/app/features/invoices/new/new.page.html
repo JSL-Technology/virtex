@@ -47,7 +47,9 @@
     [canNavigate]="false"
     [isNew]="true"
     (back)="router.navigate(['/invoices'])"
+    (copyFrom)="openCopyFrom()"
   ></app-invoice-toolbar>
+  <app-invoice-selection-dialog></app-invoice-selection-dialog>
 
   <!--
     Eran dos `<button>` con una clase `.active`: sin `role="tablist"`, sin `aria-selected` y sin

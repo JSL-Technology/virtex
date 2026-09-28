@@ -353,6 +353,21 @@
     "en": "Value",
     "pt": "Valor"
   },
+  "payroll.paying_bank_account_currency": {
+    "es": "La nómina se paga en {{base}} y la cuenta elegida es en {{currency}}. Elige una cuenta en {{base}}.",
+    "en": "Payroll is paid in {{base}} and the chosen account is in {{currency}}. Choose an account in {{base}}.",
+    "pt": "A folha é paga em {{base}} e a conta escolhida é em {{currency}}. Escolha uma conta em {{base}}."
+  },
+  "payroll.paying_bank_account_inactive": {
+    "es": "La cuenta bancaria elegida está inactiva.",
+    "en": "The chosen bank account is inactive.",
+    "pt": "A conta bancária escolhida está inativa."
+  },
+  "payroll.paying_bank_account_not_found": {
+    "es": "La cuenta bancaria elegida no existe en esta empresa o no es una cuenta de banco o caja.",
+    "en": "The chosen bank account does not exist in this company or is not a bank or cash account.",
+    "pt": "A conta bancária escolhida não existe nesta empresa ou não é uma conta de banco ou caixa."
+  },
   "payroll.paying_payroll_requires_selecting_bank_account": {
     "es": "El pago de la nómina requiere seleccionar una cuenta bancaria.",
     "en": "Paying the payroll requires selecting a bank account.",
@@ -582,6 +597,51 @@
     "es": "Marcar como pagada",
     "en": "Mark as paid",
     "pt": "Marcar como paga"
+  },
+  "payroll.runs.pay_accounts_failed": {
+    "es": "No se pudieron cargar las cuentas bancarias.",
+    "en": "Bank accounts could not be loaded.",
+    "pt": "Não foi possível carregar as contas bancárias."
+  },
+  "payroll.runs.pay_amount": {
+    "es": "Neto a pagar",
+    "en": "Net to pay",
+    "pt": "Líquido a pagar"
+  },
+  "payroll.runs.pay_confirm": {
+    "es": "Registrar el pago",
+    "en": "Record the payment",
+    "pt": "Registrar o pagamento"
+  },
+  "payroll.runs.pay_from": {
+    "es": "Cuenta de la que sale el pago",
+    "en": "Account the payment leaves from",
+    "pt": "Conta de onde sai o pagamento"
+  },
+  "payroll.runs.pay_no_bank_accounts": {
+    "es": "No hay cuentas bancarias en la moneda de la nómina. Crea una en Tesorería.",
+    "en": "There are no bank accounts in the payroll currency. Create one in Treasury.",
+    "pt": "Não há contas bancárias na moeda da folha. Crie uma em Tesouraria."
+  },
+  "payroll.runs.pay_overdraft_hint": {
+    "es": "El saldo de la cuenta no cubre el neto: el pago la dejaría en negativo.",
+    "en": "The account balance does not cover the net: the payment would overdraw it.",
+    "pt": "O saldo da conta não cobre o líquido: o pagamento a deixaria negativa."
+  },
+  "payroll.runs.pay_overdraft_message": {
+    "es": "{{account}} tiene {{balance}} y la nómina neta es {{net}}. ¿Registrar el pago de todas formas?",
+    "en": "{{account}} holds {{balance}} and the net payroll is {{net}}. Record the payment anyway?",
+    "pt": "{{account}} tem {{balance}} e a folha líquida é {{net}}. Registrar o pagamento mesmo assim?"
+  },
+  "payroll.runs.pay_overdraft_title": {
+    "es": "La cuenta quedará en sobregiro",
+    "en": "The account will be overdrawn",
+    "pt": "A conta ficará a descoberto"
+  },
+  "payroll.runs.pay_title": {
+    "es": "Pagar la nómina",
+    "en": "Pay the payroll",
+    "pt": "Pagar a folha"
   },
   "payroll.runs.payslips": {
     "es": "Volantes de pago",

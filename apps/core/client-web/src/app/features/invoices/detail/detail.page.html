@@ -11,16 +11,25 @@
     puede hacer con el documento —una factura emitida no se edita, una anulada no se cobra—, así
     que enterarse a dos clics es enterarse tarde.
   -->
+  <!--
+    Los nombres de salida son los del componente. La página escuchaba `(navigate)`, `(print)`,
+    `(email)` y `(export)` mientras la barra emitía `navigateRequested`, `printRequested`…: catorce
+    de dieciséis botones no hacían nada (QA A-09).
+  -->
   <app-invoice-toolbar
     documentActions
-    (navigate)="handleNavigate($event)"
-    (print)="printInvoice()"
-    (email)="notificationService.showInfo('invoices.detail.sending_email')"
-    (export)="handleExport($event)"
+    [canCopyFrom]="inv.status === 'Draft'"
+    (navigateRequested)="handleNavigate($event)"
+    (printRequested)="printInvoice()"
+    (emailRequested)="emailInvoice()"
+    (exportRequested)="handleExport($event)"
+    (searchRequested)="focusLineSearch()"
     (copyFrom)="handleCopyFrom()"
     (copyTo)="handleCopyTo()"
     (back)="goBack()"
     (forward)="goForward()"
+    (tools)="openInvoicingSettings()"
+    (help)="openHelp()"
   ></app-invoice-toolbar>
 
   <!-- Document Tabs -->
@@ -80,7 +89,9 @@
 
       <!-- Line Items Table -->
       <div class="line-items-toolbar">
-          <input type="text" [placeholder]="'invoices.detail.search_within_lines' | translate" [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
+          <input #lineSearch type="search" [placeholder]="'invoices.detail.search_within_lines' | translate"
+                 [attr.aria-label]="'invoices.detail.search_within_lines' | translate"
+                 [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
       </div>
       <table class="line-items-table">
         <thead>
@@ -184,6 +195,66 @@
         </div>
     </div>
   </div>
+
+  @if (canCredit(inv)) {
+    <!--
+      Un documento fiscal emitido no se borra ni se edita: se anula o se corrige con una nota de
+      crédito, que es lo que la DGII espera ver. La pantalla no ofrecía ninguna de las dos (A-09).
+    -->
+    <div class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
+      <span>{{ 'invoices.detail.corrections_hint' | translate }}</span>
+      <div class="draft-actions">
+        <button type="button" class="secondary-button" [disabled]="ecfBusy()" (click)="createCreditNote(inv.id)">
+          {{ 'invoices.detail.credit_note' | translate }}
+        </button>
+        <button type="button" class="danger-button" [disabled]="ecfBusy()" (click)="voidInvoice(inv)">
+          {{ 'invoices.detail.void_invoice' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (crediting()) {
+    <div class="card credit-panel" role="region" [attr.aria-label]="'invoices.detail.credit_note_title' | translate">
+      <div class="card-body">
+        <h3>{{ 'invoices.detail.credit_note_title' | translate }}</h3>
+        <p class="hint">{{ 'invoices.detail.credit_note_message' | translate }}</p>
+        <table class="line-items-table">
+          <thead>
+            <tr>
+              <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
+              <th class="text-right">{{ 'invoices.detail.credit_available' | translate }}</th>
+              <th class="text-right">{{ 'invoices.detail.credit_now' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of inv.lineItems; track line.id) {
+              <tr>
+                <td>{{ line.description }}</td>
+                <td class="text-right">{{ creditable(line) | vxNumber: '1.0-6' }}</td>
+                <td class="text-right">
+                  <input type="number" min="0" step="0.000001" [max]="creditable(line)"
+                         [attr.aria-label]="('invoices.detail.credit_now' | translate) + ' — ' + line.description"
+                         [value]="creditQuantities()[line.id!] ?? 0"
+                         (input)="setCreditQuantity(line.id!, $any($event.target).value)" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <label class="field">
+          <span>{{ 'invoices.detail.credit_note_reason' | translate }}</span>
+          <textarea rows="2" maxlength="500" [value]="creditReason()" (input)="creditReason.set($any($event.target).value)"></textarea>
+        </label>
+        <div class="draft-actions">
+          <button type="button" class="primary-button" [disabled]="ecfBusy()" (click)="confirmCredit()">
+            {{ 'invoices.detail.credit_note_issue' | translate }}
+          </button>
+          <button type="button" class="secondary-button" (click)="cancelCredit()">{{ 'common.cancel' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
 
   @if (inv.status === 'Draft') {
     <div class="alert alert-info draft-banner" role="status">

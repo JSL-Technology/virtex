@@ -107,3 +107,30 @@ export function bankLedgerAccounts(accounts: readonly Account[]): Account[] {
     return role === '' || role === 'CASH' || role === 'BANK';
   });
 }
+
+/**
+ * The accounts a bank account's movements can be posted to: money, and nothing else (QA A-06).
+ *
+ * `bankLedgerAccounts` let through every role-less asset, so the bank-account form offered
+ * prepaid expenses, property and equipment and intangibles (1160, 1210, 1230) as if they were
+ * bank accounts. This keeps the CASH/BANK role accounts and, for tenants that opened more bank
+ * accounts than the chart provided, role-less CURRENT assets numbered in the same block as one of
+ * them (1121, 1122… next to 1120 "Bancos") — the way a chart grows a second bank.
+ */
+export function moneyLedgerAccounts(accounts: readonly Account[]): Account[] {
+  const usable = accounts.filter(
+    (account) =>
+      account.isPostable && !account.isBlockedForPosting && account.isActive && account.type === 'ASSET',
+  );
+  const money = usable.filter((account) => account.systemRole === 'CASH' || account.systemRole === 'BANK');
+  const blocks = new Set(money.map((account) => String(account.code ?? '').slice(0, 3)).filter(Boolean));
+  const siblings = usable.filter(
+    (account) =>
+      !account.systemRole &&
+      account.category === 'CURRENT_ASSET' &&
+      blocks.has(String(account.code ?? '').slice(0, 3)),
+  );
+  // A chart without the roles (imported before they existed) keeps the old, looser behaviour.
+  return money.length ? [...money, ...siblings] : bankLedgerAccounts(accounts);
+}
+

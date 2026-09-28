@@ -125,6 +125,16 @@
   .col-tax { width: 15%; }
   .col-total { width: 15%; }
   .col-actions { width: 5%; }
+
+  // QA A-09: in a narrow window the auto-layout table gave the article picker whatever width was
+  // left over, which could be zero — the combobox was in the DOM but could not be clicked. The
+  // container already scrolls horizontally, so the table grows instead of crushing its inputs.
+  min-width: 960px;
+
+  vx-select {
+    display: block;
+    min-width: 14rem;
+  }
 }
 
 .text-center { text-align: center; }

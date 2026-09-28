@@ -1856,7 +1856,7 @@
     "pt": "Encerrar período"
   },
   "accounting.periods.close_confirm_message": {
-    "es": "Al cerrar {{period}} se registran la depreciación y la revaluación de moneda del mes, y ningún módulo podrá contabilizar en él. Solo podrá reabrirse con un motivo que quedará auditado.",
+    "es": "Al cerrar {{period}} se registran la depreciación y la revaluación de moneda del mes, y ningún módulo puede contabilizar en él después. Reabrirlo exige un motivo, que queda auditado.",
     "en": "Closing {{period}} posts the month’s depreciation and currency revaluation, and no module will be able to post into it. It can only be reopened with a reason that is audited.",
     "pt": "Ao encerrar {{period}} são registradas a depreciação e a reavaliação cambial do mês, e nenhum módulo poderá lançar nele. Só poderá ser reaberto com um motivo que ficará auditado."
   },

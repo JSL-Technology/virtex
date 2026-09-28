@@ -37,8 +37,11 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
 import { WithholdingModule } from '../localization/fiscal/withholding.module';
 import { SalesInboxProvider } from './inbox/sales-inbox.provider';
 
+import { MailModule } from '../mail/mail.module';
 @Module({
   imports: [
+    // Sending an invoice to the customer by e-mail (QA A-09).
+    MailModule,
     WithholdingModule,
     TypeOrmModule.forFeature([
       Invoice,

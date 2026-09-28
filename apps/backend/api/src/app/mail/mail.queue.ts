@@ -42,6 +42,11 @@ export interface MailJob {
   /** Handlebars template name, as `@nestjs-modules/mailer` resolves it. */
   template: string;
   context: Record<string, unknown>;
+  /**
+   * Files to attach, base64-encoded so the job stays plain JSON in Redis. Kept small by the
+   * callers (an invoice PDF is tens of kilobytes); anything large belongs in storage with a link.
+   */
+  attachments?: Array<{ filename: string; contentBase64: string; contentType: string }>;
 }
 
 /**

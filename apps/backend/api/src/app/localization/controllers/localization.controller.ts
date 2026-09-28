@@ -12,6 +12,7 @@ import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 /**
  * Fiscal configuration the signup form needs before anyone has an account.
  *
@@ -75,6 +76,12 @@ export class LocalizationController {
    * precisely because each had its own source.
    */
   @Get('identity-document-types')
+  @AuthenticatedOnly(
+    'Reference data every form that captures a fiscal identity reads: the customer, supplier and\n' +
+    'employee forms and the global search. It lists the documents the tenant\'s country prints on its\n' +
+    'own tax forms — nothing tenant-specific, nothing secret. It had no declaration at all, so the\n' +
+    'deny-by-default guard answered 403 to every user, administrators included (QA A-07).',
+  )
   async getTenantIdentityDocumentTypes(
     @CurrentUser() user: AuthenticatedUser,
     @Query('appliesTo') appliesTo?: DocumentAppliesTo,

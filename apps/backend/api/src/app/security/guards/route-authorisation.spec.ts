@@ -54,21 +54,55 @@ interface Route {
   declared: boolean;
 }
 
+/**
+ * The source with its comments blanked out (lengths kept, so offsets stay meaningful).
+ *
+ * A doc comment that says "no `@Public()` here" used to count as a declaration: that is how the
+ * route it described went out with none (QA A-07).
+ */
+function withoutComments(source: string): string {
+  const blank = (text: string) => text.replace(/[^\n]/g, ' ');
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, blank)
+    .replace(/^(\s*)\/\/.*$/gm, (line) => blank(line));
+}
+
 function routesIn(file: string): Route[] {
-  const src = readFileSync(file, 'utf8');
+  const src = withoutComments(readFileSync(file, 'utf8'));
   const classMatch = /@Controller\([\s\S]*?export\s+class\s+(\w+)/.exec(src);
   // Decorators between @Controller and `export class` apply to every handler in the file.
   const classHeader = classMatch ? src.slice(classMatch.index, classMatch.index + classMatch[0].length) : '';
   const classDeclares = DECLARATIONS.some((d) => classHeader.includes(d));
 
   const hits = [...src.matchAll(HTTP_METHOD)];
+
+  /**
+   * Where a handler's decorator block ends: the line that opens the method itself.
+   *
+   * The previous version bounded "above" at the previous HTTP decorator and "below" at a fixed 700
+   * characters, so a route could borrow the declaration of its NEIGHBOUR. That is exactly how
+   * `GET /localization/identity-document-types` shipped with no declaration at all — it sat below a
+   * `@Public()` route — and answered 403 to every administrator (QA A-07).
+   */
+  const signatureAt = (from: number): { name: string; end: number } | null => {
+    const match = /\n\s*(?:async\s+)?(\w+)\s*\(/.exec(src.slice(from));
+    return match ? { name: match[1], end: from + match.index + match[0].length } : null;
+  };
+
   return hits.map((hit, i) => {
     const start = hit.index as number;
-    // Decorators sit either above the HTTP one (since the previous handler) or just below it.
-    const previousEnd = i > 0 ? (hits[i - 1].index as number) : (classMatch ? classMatch.index + classMatch[0].length : 0);
+    // Decorators sit either above the HTTP one (after the previous handler's signature) or between
+    // it and this handler's own signature — never beyond either.
+    const previousSignature = i > 0 ? signatureAt(hits[i - 1].index as number) : null;
+    const previousEnd = previousSignature
+      ? previousSignature.end
+      : classMatch
+        ? classMatch.index + classMatch[0].length
+        : 0;
+    const own = signatureAt(start);
     const above = src.slice(previousEnd, start);
-    const below = src.slice(start, start + 700);
-    const handler = /\n\s*(?:async\s+)?(\w+)\s*\(/.exec(src.slice(start, start + 800));
+    const below = src.slice(start, own ? own.end : start + 700);
+    const handler = own ? [own.name, own.name] : null;
 
     return {
       file: file.slice(APP_DIR.length + 1),

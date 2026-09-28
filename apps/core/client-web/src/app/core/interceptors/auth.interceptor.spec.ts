@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth';
 import { AuthQueueService } from '../services/auth-queue.service';
@@ -163,13 +163,24 @@ describe('authInterceptor — step-up challenges', () => {
  */
 describe('authInterceptor — credential checks', () => {
   const run = async (url: string, body: unknown) => {
-    const refreshAccessToken = jest.fn();
+    const refreshAccessToken = jest.fn(() => throwError(() => new Error('refresh failed')));
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { url: '/x', navigate: jest.fn() } },
-        { provide: AuthService, useValue: { refreshAccessToken, authStatus: () => 'authenticated' } },
-        { provide: AuthQueueService, useValue: { isRefreshingToken: false } },
+        {
+          provide: AuthService,
+          useValue: { refreshAccessToken, authStatus: () => 'authenticated', logout: jest.fn(() => of(null)) },
+        },
+        {
+          provide: AuthQueueService,
+          useValue: {
+            isRefreshingToken: false,
+            startRefresh: jest.fn(),
+            finishRefreshSuccess: jest.fn(),
+            finishRefreshError: jest.fn(),
+          },
+        },
         { provide: HttpXsrfTokenExtractor, useValue: { getToken: () => null } },
       ],
     });

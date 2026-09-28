@@ -1,0 +1,12 @@
+{{#> shell title=(t 'mail.invoice.title' number=invoiceNumber) preheader=(t 'mail.invoice.preheader' company=companyName total=total)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.invoice.title' number=invoiceNumber}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=customerName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.invoice.body' company=companyName number=invoiceNumber total=total}}</p>
+{{#if dueDate}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.invoice.due' date=dueDate}}</p>
+{{/if}}
+{{#if message}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}}; white-space:pre-line;">{{message}}</p>
+{{/if}}
+<p class="ink3" style="margin:0; font:400 14px/1.6 {{brand 'font'}}; color:{{brand 'ink3'}};">{{t 'mail.invoice.attachment_note'}}</p>
+{{/shell}}

@@ -59,6 +59,11 @@
     "en": "{{property}} cannot be empty.",
     "pt": "{{property}} não pode ficar vazio."
   },
+  "validation.constraints.bic": {
+    "es": "{{property}} no es un código SWIFT/BIC válido (8 u 11 caracteres).",
+    "en": "{{property}} is not a valid SWIFT/BIC code (8 or 11 characters).",
+    "pt": "{{property}} não é um código SWIFT/BIC válido (8 ou 11 caracteres)."
+  },
   "validation.constraints.country_code": {
     "es": "El código de país debe tener exactamente 2 letras (ISO 3166-1 alfa-2).",
     "en": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
@@ -74,6 +79,11 @@
     "en": "{{message}}",
     "pt": "{{message}}",
     "note": "Passes class-validator's own sentence through when no catalogue key covers the rule. Visible on purpose: a rule with no wording of ours is a gap to close, and a blank field error hides it."
+  },
+  "validation.constraints.iban": {
+    "es": "{{property}} no es un IBAN válido (revisa los dígitos de control).",
+    "en": "{{property}} is not a valid IBAN (check the check digits).",
+    "pt": "{{property}} não é um IBAN válido (verifique os dígitos de controle)."
   },
   "validation.constraints.is_array": {
     "es": "{{property}} debe ser una lista.",

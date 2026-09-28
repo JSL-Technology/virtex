@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { Invoice, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
+import { CreditNoteRequest, Invoice, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
@@ -167,6 +167,7 @@ export class InvoiceDetailPage implements OnInit {
     { id: 'finance', labelKey: 'invoices.detail.finance' },
   ];
   lineItemSearch = signal('');
+  @ViewChild('lineSearch') private lineSearch?: ElementRef<HTMLInputElement>;
 
   filteredLineItems = computed(() => {
     const items = this.invoice()?.lineItems || [];
@@ -325,8 +326,81 @@ export class InvoiceDetailPage implements OnInit {
     }
   }
   
+  /**
+   * Print the fiscal representation, not the application.
+   *
+   * `window.print()` printed the whole shell — rail, tabs, toolbar — around the document. The server
+   * renders the same representation the PDF uses (`/invoices/:id/print`); it is opened in a window
+   * of its own and printed from there.
+   */
   printInvoice(): void {
-    window.print();
+    const invoice = this.invoice();
+    if (!invoice) return;
+    this.invoicesService.printableHtml(invoice.id).subscribe({
+      next: (html) => {
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+        const printable = window.open(url, '_blank', 'noopener=no');
+        if (!printable) {
+          // A pop-up blocker: the PDF is the same document and always downloads.
+          this.notificationService.showWarning('invoices.detail.popup_blocked_pdf');
+          this.downloadPdf();
+          URL.revokeObjectURL(url);
+          return;
+        }
+        printable.addEventListener('load', () => {
+          printable.focus();
+          printable.print();
+          setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        });
+      },
+      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.print_failed'),
+    });
+  }
+
+  /** Send the document to the customer, with its PDF attached. */
+  async emailInvoice(): Promise<void> {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    if (invoice.status === 'Draft') {
+      this.notificationService.showError('invoices.draft_cannot_be_sent');
+      return;
+    }
+    const to = await this.dialog.prompt({
+      title: 'invoices.detail.email_title',
+      message: 'invoices.detail.email_message',
+      messageParams: { number: invoice.fiscalNumber ?? invoice.invoiceNumber, customer: invoice.customerName },
+      placeholder: 'invoices.detail.email_placeholder',
+      confirmText: 'invoices.detail.email_send',
+      minLength: 0,
+    });
+    if (to === null || to === undefined) return;
+    const address = String(to).trim();
+    if (address && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
+      this.notificationService.showError('invoices.detail.email_invalid');
+      return;
+    }
+    this.invoicesService.sendInvoice(invoice.id, { to: address || undefined }).subscribe({
+      next: (result) => this.notificationService.showSuccess('invoices.detail.email_queued', { to: result.to }),
+      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.email_failed'),
+    });
+  }
+
+  /** The search box over the lines — what the toolbar's magnifier means on a document. */
+  focusLineSearch(): void {
+    this.activeTab.set('content');
+    queueMicrotask(() => this.lineSearch?.nativeElement.focus());
+  }
+
+  /** "Parametrizaciones": the fiscal and numbering settings this document follows. */
+  openInvoicingSettings(): void {
+    void this.router.navigate([], { fragment: 'settings/fiscal' });
+  }
+
+  async openHelp(): Promise<void> {
+    await this.dialog.alert({
+      title: 'invoices.detail.help_title',
+      message: this.translate.instant('invoices.detail.help_body'),
+    });
   }
 
   handleExport(format: 'pdf' | 'word' | 'excel'): void {
@@ -335,8 +409,42 @@ export class InvoiceDetailPage implements OnInit {
     } else if (format === 'word') {
         this.downloadWord();
     } else {
-        this.notificationService.showInfo('invoices.detail.export_upper_case_will_available_soon', { toUpperCase: format.toUpperCase() });
+        void this.downloadExcel();
     }
+  }
+
+  /**
+   * The document's lines as a spreadsheet — the export an accountant actually reconciles from.
+   * It announced "coming soon" (QA A-09); `exceljs` was already a dependency.
+   */
+  private async downloadExcel(): Promise<void> {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    const { Workbook } = await import('exceljs');
+    const workbook = new Workbook();
+    const sheet = workbook.addWorksheet(invoice.fiscalNumber ?? invoice.invoiceNumber);
+    const t = (key: string) => this.translate.instant(key);
+    sheet.addRow([t('invoices.detail.description'), t('invoices.detail.qty'), t('invoices.detail.price'), t('invoices.detail.tax'), t('invoices.detail.total')]);
+    for (const line of invoice.lineItems ?? []) {
+      sheet.addRow([
+        line.description,
+        Number(line.quantity),
+        Number(line.price),
+        Number(line.taxAmount ?? 0),
+        Number(line.lineSubtotal ?? 0) + Number(line.taxAmount ?? 0),
+      ]);
+    }
+    sheet.addRow([]);
+    sheet.addRow([t('invoices.detail.subtotal'), '', '', '', Number(invoice.subtotal)]);
+    sheet.addRow([t('invoices.detail.tax'), '', '', '', Number(invoice.tax)]);
+    sheet.addRow([t('invoices.detail.total'), '', '', '', Number(invoice.total)]);
+    sheet.getRow(1).font = { bold: true };
+    sheet.columns.forEach((column, index) => (column.width = index === 0 ? 48 : 16));
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(
+      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      `${invoice.fiscalNumber ?? invoice.invoiceNumber}.xlsx`,
+    );
   }
 
   downloadPdf(): void {
@@ -386,8 +494,11 @@ export class InvoiceDetailPage implements OnInit {
     }
   }
 
+  /** "Copiar de" only makes sense on a draft: it pulls another document's lines into this one. */
   handleCopyFrom(): void {
-    this.notificationService.showInfo('invoices.detail.copy_from_open_choose_source_document');
+    const invoice = this.invoice();
+    if (!invoice || invoice.status !== 'Draft') return;
+    void this.router.navigate(['/invoices/new'], { queryParams: { replaceDraft: invoice.id, pickSource: 1 } });
   }
 
   handleCopyTo(): void {
@@ -423,7 +534,7 @@ export class InvoiceDetailPage implements OnInit {
       },
       error: (err) => {
         this.previewBusy.set(false);
-        this.notificationService.showError(err?.error?.message || 'errors.issue_document');
+        this.notificationService.showHttpError(err, 'errors.issue_document');
       },
     });
   }
@@ -453,14 +564,14 @@ export class InvoiceDetailPage implements OnInit {
     this.invoicesService.issue(invoice.id).subscribe({
       next: (issued) => {
         this.ecfBusy.set(false);
-        this.notificationService.showSuccess(
-          `Documento emitido con el comprobante ${issued.fiscalNumber ?? issued.invoiceNumber}.`,
-        );
+        this.notificationService.showSuccess('invoices.detail.document_issued', {
+          number: issued.fiscalNumber ?? issued.invoiceNumber,
+        });
         this.loadInvoice();
       },
       error: (err) => {
         this.ecfBusy.set(false);
-        this.notificationService.showError(err?.error?.message || 'errors.issue_document');
+        this.notificationService.showHttpError(err, 'errors.issue_document');
       },
     });
   }
@@ -484,27 +595,105 @@ export class InvoiceDetailPage implements OnInit {
         this.router.navigate(['/invoices']);
       },
       error: (err) =>
-        this.notificationService.showError(err?.error?.message || 'errors.delete_draft'),
+        this.notificationService.showHttpError(err, 'errors.delete_draft'),
     });
   }
 
-  createCreditNote(invoiceId: string): void {
-      const reason = prompt(
-        'Motivo de la nota de crédito (se imprime en el comprobante y determina el código de modificación):',
-      );
-      if (reason === null) return;
+  /** Whether the document can still be corrected: issued, not a note itself, not fully credited. */
+  canCredit(invoice: Invoice): boolean {
+    return (
+      invoice.type === 'INVOICE' &&
+      !['Draft', 'Void', 'Credit Note'].includes(invoice.status) &&
+      Number(invoice.creditedTotal ?? 0) < Number(invoice.total ?? 0)
+    );
+  }
 
-      this.invoicesService.createCreditNote(invoiceId, { reason: reason || undefined }).subscribe({
-        next: (note) => {
-          this.notificationService.showSuccess(
-            `Nota de crédito ${note.fiscalNumber ?? note.invoiceNumber} emitida.`,
-          );
-          this.loadInvoice();
-        },
-        error: (err) =>
-          this.notificationService.showError(
-            err?.error?.message || this.translate.instant('errors.issue_credit_note'),
-          ),
-      });
+  /** The partial credit note being composed: line id → quantity to credit. */
+  readonly crediting = signal(false);
+  readonly creditQuantities = signal<Record<string, number>>({});
+  readonly creditReason = signal('');
+
+  /** What can still be credited on each line. */
+  creditable(line: { quantity: number; creditedQuantity?: number }): number {
+    return Math.max(Number(line.quantity) - Number(line.creditedQuantity ?? 0), 0);
+  }
+
+  /**
+   * A partial correction: which lines, how much of each, and why.
+   *
+   * It used a native `prompt()` with a Spanish sentence written in the code, credited the whole
+   * balance whatever was meant, and was not reachable from the screen at all (QA A-09).
+   */
+  createCreditNote(_invoiceId: string): void {
+    this.creditQuantities.set({});
+    this.creditReason.set('');
+    this.crediting.set(true);
+  }
+
+  setCreditQuantity(lineId: string, value: string): void {
+    this.creditQuantities.update((current) => ({ ...current, [lineId]: Math.max(Number(value) || 0, 0) }));
+  }
+
+  cancelCredit(): void {
+    this.crediting.set(false);
+  }
+
+  confirmCredit(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    const reason = this.creditReason().trim();
+    if (reason.length < 5) {
+      this.notificationService.showError('invoices.detail.credit_note_reason_too_short');
+      return;
+    }
+    const items = Object.entries(this.creditQuantities())
+      .filter(([, quantity]) => quantity > 0)
+      .map(([lineId, quantity]) => ({ lineId, quantity }));
+    if (items.length === 0) {
+      this.notificationService.showError('invoices.detail.credit_note_no_lines');
+      return;
+    }
+    for (const item of items) {
+      const line = invoice.lineItems.find((candidate) => candidate.id === item.lineId);
+      if (line && item.quantity - this.creditable(line) > 0.000001) {
+        this.notificationService.showError('invoices.detail.credit_note_exceeds', { description: line.description });
+        return;
+      }
+    }
+    this.crediting.set(false);
+    this.issueCredit(invoice.id, { reason, items, modificationCode: '3' });
+  }
+
+  /** Annul the whole document: a full credit note with the DGII "annulment" modification code. */
+  async voidInvoice(invoice: Invoice): Promise<void> {
+    const reason = await this.dialog.prompt({
+      title: 'invoices.detail.void_title',
+      message: 'invoices.detail.void_message',
+      messageParams: { number: invoice.fiscalNumber ?? invoice.invoiceNumber },
+      placeholder: 'invoices.detail.credit_note_reason',
+      minLength: 5,
+      tooShort: 'invoices.detail.credit_note_reason_too_short',
+      confirmText: 'invoices.detail.void_invoice',
+      variant: 'danger',
+    });
+    if (!reason) return;
+    this.issueCredit(invoice.id, { reason, modificationCode: '1' });
+  }
+
+  private issueCredit(invoiceId: string, request: CreditNoteRequest): void {
+    this.ecfBusy.set(true);
+    this.invoicesService.createCreditNote(invoiceId, request).subscribe({
+      next: (note) => {
+        this.ecfBusy.set(false);
+        this.notificationService.showSuccess('invoices.detail.credit_note_issued', {
+          number: note.fiscalNumber ?? note.invoiceNumber,
+        });
+        this.loadInvoice();
+      },
+      error: (err) => {
+        this.ecfBusy.set(false);
+        this.notificationService.showHttpError(err, 'errors.issue_credit_note');
+      },
+    });
   }
 }

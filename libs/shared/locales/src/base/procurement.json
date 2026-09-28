@@ -1,6 +1,6 @@
 {
   "procurement.cannot_approve_own_order": {
-    "es": "No puedes aprobar una orden de compra que creaste tú. Pide a otra persona con permiso de aprobación que la revise.",
+    "es": "No puedes aprobar una orden de compra que creaste tú. Pide su aprobación a otra persona con ese permiso.",
     "en": "You cannot approve a purchase order you created. Ask another person with approval rights to review it.",
     "pt": "Você não pode aprovar um pedido de compra que você criou. Peça a outra pessoa com permissão de aprovação para revisá-lo."
   },

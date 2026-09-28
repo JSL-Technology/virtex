@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { DocumentLifecycle } from '@virteex/shared/types';
 
+import { environment } from '../../../environments/environment';
 /**
  * Los ciclos de vida declarados, leídos una vez.
  *
@@ -47,7 +48,7 @@ export class DocumentLifecycleService {
   private async fetch(): Promise<void> {
     try {
       const declarados = await firstValueFrom(
-        this.http.get<DocumentLifecycle[]>('/api/v1/lifecycles'),
+        this.http.get<DocumentLifecycle[]>(`${environment.apiUrl}/lifecycles`),
       );
       this.byType.set(new Map((declarados ?? []).map((l) => [l.documentType, l])));
     } catch (error) {

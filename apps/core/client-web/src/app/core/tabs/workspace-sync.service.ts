@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 /** Lo que el servidor guarda: la revisión más la carga que le mandó el cliente. */
 export interface RemoteWorkspace {
   schemaVersion: number;
@@ -35,7 +36,7 @@ type SaveResult = RemoteWorkspace | { conflict: true; current: RemoteWorkspace }
 @Injectable({ providedIn: 'root' })
 export class WorkspaceSyncService {
   private readonly http = inject(HttpClient);
-  private static readonly URL = '/api/v1/me/workspace';
+  private static readonly URL = `${environment.apiUrl}/me/workspace`;
 
   /**
    * La última revisión conocida de ESTE navegador.
