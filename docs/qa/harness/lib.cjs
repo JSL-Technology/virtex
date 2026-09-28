@@ -67,7 +67,7 @@ async function field(page, labelText) {
   const byLabel = root.getByLabel(labelText, { exact: false });
   if (await byLabel.count()) return byLabel.first();
   const handle = await root.evaluateHandle((rootEl, txt) => {
-    const norm = (s) => s.replace(/\s+/g, ' ').replace('*', '').trim().toLowerCase();
+    const norm = (s) => s.replace(/\s+/g, ' ').replace(/\*/g, '').trim().toLowerCase();
     const labels = [...rootEl.querySelectorAll('label, .label, span, p, div')].filter((l) => l.childElementCount <= 2 && norm(l.innerText || '') === norm(txt));
     for (const l of labels) {
       let c = l;

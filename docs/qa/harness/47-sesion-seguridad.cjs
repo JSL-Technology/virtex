@@ -19,7 +19,7 @@ const { launch, instrument, uiLogin, shot, go, fill, click, panel, panelText, ne
     if (i === 1 || i === 7) await shot(page, `f-sec-login-${i}`);
   }
   // Reset del contador para el resto
-  require('child_process').execSync(`${__dirname}/reset-throttle.sh`);
+  require('child_process').execFileSync(require('path').join(__dirname, 'reset-throttle.sh'));
   await uiLogin(page);
   const p = panel(page);
   // 2. XSS almacenado en nombre de producto
