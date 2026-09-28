@@ -231,7 +231,7 @@ export class ExchangeRatesService {
           fromCurrency,
           toCurrency,
           rate,
-          date: date as unknown as Date,
+          date,
           rateType,
           source: dto.source?.toUpperCase() ?? 'MANUAL',
           recordedByUserId: actorUserId ?? null,
@@ -244,7 +244,7 @@ export class ExchangeRatesService {
       organizationId,
       fromCurrency,
       toCurrency,
-      date: date as unknown as Date,
+      date,
       rateType,
     });
 

@@ -46,8 +46,9 @@ export class TenantExchangeRate {
   @Column('decimal', { precision: 18, scale: 6, transformer: numericTransformerNotNull })
   rate: number;
 
+  /** A calendar day (`YYYY-MM-DD`), not an instant: a quote is valid for a day, in no time zone. */
   @Column({ type: 'date' })
-  date: Date;
+  date: string;
 
   @Column({
     name: 'rate_type',

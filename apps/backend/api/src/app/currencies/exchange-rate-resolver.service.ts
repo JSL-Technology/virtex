@@ -5,7 +5,12 @@ import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { currentTenantStore } from '../shared/tenancy/tenant-context';
 
 /** The fields a quote contributes, whichever table it came from. */
-type Quote = Pick<ExchangeRate, 'rate' | 'date' | 'rateType' | 'source'>;
+/**
+ * A quote from either table. The shared one types its day as `Date` (a legacy column); the
+ * tenant's own as the calendar-day string it is. Everything that reads `date` goes through
+ * `toIsoDate`, which accepts both.
+ */
+type Quote = Pick<ExchangeRate, 'rate' | 'rateType' | 'source'> & { date: Date | string };
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { BadRequestError } from '../i18n/localized.exception';
 import { convert, roundAmount } from '../common/money';
@@ -376,7 +381,7 @@ export class ExchangeRateResolver {
         fromCurrency: from,
         toCurrency: to,
         rateType,
-        date: LessThanOrEqual(date as unknown as Date),
+        date: LessThanOrEqual(date),
       },
       order: { date: 'DESC' },
     });
