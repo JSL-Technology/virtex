@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Issuer } from 'openid-client';
+import { discovery, type ServerMetadata } from 'openid-client';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { SocialUser } from '../interfaces/social-user.interface';
 import { BadRequestError, UnauthorizedError } from '../../i18n/localized.exception';
@@ -37,9 +37,9 @@ const MS_CONSUMERS_TENANT = '9188040d-6c67-4c5b-b112-36a304b66dad';
 @Injectable()
 export class OidcProviderService {
   private readonly logger = new Logger(OidcProviderService.name);
-  // Discovery is network I/O; cache the resolved Issuer and JWKS per issuer URL so we do it
-  // once per process, not per request.
-  private readonly issuerCache = new Map<string, Promise<Issuer>>();
+  // Discovery is network I/O; cache the resolved server metadata and JWKS per issuer URL so we
+  // do it once per process, not per request.
+  private readonly issuerCache = new Map<string, Promise<ServerMetadata>>();
   private readonly jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
   constructor(private readonly configService: ConfigService) {}
@@ -116,15 +116,19 @@ export class OidcProviderService {
   // Discovery (cached)
   // ---------------------------------------------------------------------------
 
-  private discover(issuerUrl: string): Promise<Issuer> {
+  private discover(issuerUrl: string, clientId: string): Promise<ServerMetadata> {
     let cached = this.issuerCache.get(issuerUrl);
     if (!cached) {
-      cached = Issuer.discover(issuerUrl).catch((err) => {
-        // Don't cache failures — allow the next request to retry discovery.
-        this.issuerCache.delete(issuerUrl);
-        this.logger.error(`OIDC discovery failed for ${issuerUrl}: ${err?.message}`);
-        throw new BadRequestError('auth.identity_provider_temporarily_unavailable');
-      });
+      // openid-client v6: `discovery()` fetches and validates the well-known document and
+      // returns a Configuration; we only need the authorization server's metadata.
+      cached = discovery(new URL(issuerUrl), clientId)
+        .then((config) => config.serverMetadata())
+        .catch((err) => {
+          // Don't cache failures — allow the next request to retry discovery.
+          this.issuerCache.delete(issuerUrl);
+          this.logger.error(`OIDC discovery failed for ${issuerUrl}: ${err?.message}`);
+          throw new BadRequestError('auth.identity_provider_temporarily_unavailable');
+        });
       this.issuerCache.set(issuerUrl, cached);
     }
     return cached;
@@ -147,8 +151,8 @@ export class OidcProviderService {
     config: OidcClientConfig,
     params: { state: string; nonce: string; codeChallenge: string },
   ): Promise<string> {
-    const issuer = await this.discover(config.issuerUrl);
-    const authEndpoint = issuer.metadata.authorization_endpoint;
+    const metadata = await this.discover(config.issuerUrl, config.clientId);
+    const authEndpoint = metadata.authorization_endpoint;
     if (!authEndpoint) {
       throw new BadRequestError('auth.identity_provider_has_no_authorization_endpoint');
     }
@@ -182,9 +186,9 @@ export class OidcProviderService {
     config: OidcClientConfig,
     input: { code: string; codeVerifier: string; expectedNonce: string },
   ): Promise<{ claims: JWTPayload; accessToken?: string }> {
-    const issuer = await this.discover(config.issuerUrl);
-    const tokenEndpoint = issuer.metadata.token_endpoint;
-    const jwksUri = issuer.metadata.jwks_uri;
+    const metadata = await this.discover(config.issuerUrl, config.clientId);
+    const tokenEndpoint = metadata.token_endpoint;
+    const jwksUri = metadata.jwks_uri;
     if (!tokenEndpoint || !jwksUri) {
       throw new BadRequestError('auth.identity_provider_metadata_incomplete');
     }
@@ -225,7 +229,7 @@ export class OidcProviderService {
         clockTolerance: 60, // tolerate minor clock skew
       };
       if (config.issuerValidation === 'exact') {
-        verifyOptions.issuer = issuer.metadata.issuer;
+        verifyOptions.issuer = metadata.issuer;
       }
       ({ payload } = await jwtVerify(tokens.id_token, jwks, verifyOptions));
     } catch (err) {
