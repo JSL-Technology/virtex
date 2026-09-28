@@ -404,10 +404,18 @@ async function main() {
     Number(access?.attrs['max-age']) === 900,
     `Max-Age=${access?.attrs['max-age']}`,
   );
+  // Without "remember me" the session must end when the browser closes: a browser-session
+  // cookie carries neither Max-Age nor Expires. It used to be a seven-day persistent cookie, so
+  // leaving the box unticked changed nothing a person could notice.
   check(
-    'the refresh cookie expires in seven days, not nineteen years',
-    Number(refresh?.attrs['max-age']) === 604800,
-    `Max-Age=${refresh?.attrs['max-age']}`,
+    'without "remember me" the refresh cookie is a browser-session cookie',
+    refresh?.attrs['max-age'] === undefined && refresh?.attrs['expires'] === undefined,
+    `Max-Age=${refresh?.attrs['max-age']} Expires=${refresh?.attrs['expires']}`,
+  );
+  check(
+    'without "remember me" the client is told to sign out for inactivity',
+    /"persistent":false/.test(login.body) && /"inactivityTimeoutMs":\d+/.test(login.body),
+    login.body.slice(0, 200),
   );
 
   // ---------------------------------------------------------------------------------------
@@ -514,6 +522,64 @@ async function main() {
     'the access token stops working the moment the session is revoked',
     afterLogout.statusCode === 401,
     String(afterLogout.statusCode),
+  );
+
+  // ---------------------------------------------------------------------------------------
+  // "Remember me", and signing out once the access token has expired.
+  // ---------------------------------------------------------------------------------------
+  const rememberedLogin = await inject({
+    method: 'POST',
+    url: '/api/v1/auth/login',
+    payload: { email, password, rememberMe: true },
+  });
+  check('a remembered sign-in succeeds', rememberedLogin.statusCode === 200, String(rememberedLogin.statusCode));
+  const rememberedJar = parseCookies(rememberedLogin.headers['set-cookie'] as string[] | undefined);
+  const rememberedRefresh = rememberedJar['refresh_token'] ?? rememberedJar['__Secure-refresh_token'];
+  check(
+    'with "remember me" the refresh cookie lasts thirty days, in seconds',
+    Number(rememberedRefresh?.attrs['max-age']) === 30 * 24 * 60 * 60,
+    `Max-Age=${rememberedRefresh?.attrs['max-age']}`,
+  );
+  check(
+    'with "remember me" the client is told not to sign out for inactivity',
+    /"persistent":true/.test(rememberedLogin.body) && /"inactivityTimeoutMs":null/.test(rememberedLogin.body),
+    rememberedLogin.body.slice(0, 200),
+  );
+
+  // The inactivity sign-out fires when the access token has just expired. Simulated by sending
+  // everything EXCEPT the access cookie: the refresh cookie alone must be enough to end the
+  // session, or the next reload renews it — the bug this pins.
+  const rememberedCsrf = (rememberedJar['XSRF-TOKEN'] ?? rememberedJar['__Host-XSRF-TOKEN']).value;
+  const withoutAccess = Object.fromEntries(
+    Object.entries(rememberedJar).filter(([name]) => !name.includes('access_token')),
+  ) as typeof rememberedJar;
+  const revoke = await inject({
+    method: 'POST',
+    url: '/api/v1/auth/refresh/revoke',
+    headers: { cookie: cookieHeader(withoutAccess), 'x-xsrf-token': rememberedCsrf },
+  });
+  check('signing out needs no valid access token', revoke.statusCode === 200, String(revoke.statusCode));
+
+  const reloadAfterSignOut = await inject({
+    method: 'POST',
+    url: '/api/v1/auth/refresh',
+    headers: { cookie: cookieHeader(withoutAccess), 'x-xsrf-token': rememberedCsrf },
+  });
+  check(
+    'a reload after signing out cannot renew the session',
+    reloadAfterSignOut.statusCode === 401,
+    String(reloadAfterSignOut.statusCode),
+  );
+
+  const revokeWithoutCsrf = await inject({
+    method: 'POST',
+    url: '/api/v1/auth/refresh/revoke',
+    headers: { cookie: cookieHeader(withoutAccess) },
+  });
+  check(
+    'another site cannot sign a visitor out (CSRF)',
+    revokeWithoutCsrf.statusCode === 403,
+    String(revokeWithoutCsrf.statusCode),
   );
 
   console.log(

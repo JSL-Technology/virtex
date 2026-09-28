@@ -18,6 +18,7 @@ describe('authGuard', () => {
     // we only care that the guard routes on the answer it is given.
     authServiceMock = {
       resolveSession: jest.fn(),
+      consumeSignOutReason: jest.fn().mockReturnValue(null),
     };
     routerMock = routerMockFactory();
     languageServiceMock = {
@@ -64,6 +65,20 @@ describe('authGuard', () => {
     runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
       (authGuard(null as any, null as any) as any).subscribe(() => {
         expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/', 'es', 'auth', 'login']);
+        done();
+      });
+    });
+  });
+
+  it('explains a session the client ended while loading because it had been idle', (done) => {
+    authServiceMock.resolveSession.mockReturnValue(of(false));
+    authServiceMock.consumeSignOutReason.mockReturnValue('idle');
+
+    runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
+      (authGuard(null as any, null as any) as any).subscribe(() => {
+        expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/', 'en', 'auth', 'login'], {
+          queryParams: { reason: 'idle' },
+        });
         done();
       });
     });

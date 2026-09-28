@@ -131,14 +131,19 @@ export class CookieService {
     });
 
     if (refreshToken) {
-      const refreshMaxAge = rememberMe
-        ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
-        : AuthConfig.COOKIE_REFRESH_MAX_AGE;
+      // "Remember me" decides whether the session outlives the browser.
+      //
+      // Remembered: a persistent cookie for the remembered lifetime. Not remembered: a
+      // BROWSER-SESSION cookie (no Max-Age), which the browser discards when it closes — the
+      // behaviour a person on a shared computer expects when they leave the box unticked. Both
+      // kinds used to be persistent (seven days against thirty), so closing the browser ended
+      // neither, and the checkbox changed almost nothing anyone could see.
+      const refreshMaxAge = rememberMe ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE : null;
 
       // codeql[js/clear-text-storage-of-sensitive-data] As above, and path-scoped to the refresh endpoint; the server stores only its hash.
       res.cookie(refresh.name, refreshToken, {
         ...baseOptions,
-        maxAge: CookieService.maxAgeSeconds(refreshMaxAge),
+        ...(refreshMaxAge !== null ? { maxAge: CookieService.maxAgeSeconds(refreshMaxAge) } : {}),
         // Path-scoped so the long-lived refresh token is not attached to every API call.
         path: refresh.path,
       });
@@ -187,14 +192,15 @@ export class CookieService {
    * the two expire together and a stale marker cannot outlive the session it describes; both are
    * also cleared together on sign-out and on a refresh that the server rejects.
    */
-  setSessionMarkerCookie(res: Response, maxAgeMs: number): void {
+  setSessionMarkerCookie(res: Response, maxAgeMs: number | null): void {
     const insecureDev = this.isInsecureDevEnvironment();
     res.cookie(this.sessionMarkerCookieName(), '1', {
       httpOnly: true,
       secure: !insecureDev,
       sameSite: 'lax',
       path: '/',
-      maxAge: CookieService.maxAgeSeconds(maxAgeMs),
+      // `null`: a browser-session cookie, like the refresh cookie it describes.
+      ...(maxAgeMs !== null ? { maxAge: CookieService.maxAgeSeconds(maxAgeMs) } : {}),
     });
   }
 

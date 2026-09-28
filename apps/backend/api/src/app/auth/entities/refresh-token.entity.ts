@@ -53,6 +53,18 @@ export class RefreshToken {
   @Column({ name: 'impersonation_organization_id', type: 'uuid', nullable: true })
   impersonationOrganizationId?: string | null;
 
+  /**
+   * Whether the person chose "remember me" when this session began — a fact of the FAMILY,
+   * decided once at sign-in and inherited by every rotation (the earliest row is the authority).
+   *
+   * It decides which rules the session lives under: a remembered session survives the browser
+   * closing and is not ended for short inactivity; an ordinary one is a browser-session cookie
+   * with a short idle window and a working-day absolute bound. It used to be re-derived from how
+   * long a row happened to be issued for, which any change to the lifetimes would silently break.
+   */
+  @Column({ name: 'remember_me', type: 'boolean', default: false })
+  rememberMe!: boolean;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;

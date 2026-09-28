@@ -139,12 +139,13 @@
       </app-auth-input>
 
       <label class="remember-label">
-        <input type="checkbox" formControlName="rememberMe" class="remember-checkbox">
+        <input type="checkbox" formControlName="rememberMe" class="remember-checkbox" aria-describedby="remember-hint">
         <span class="checkmark" aria-hidden="true">
           <lucide-icon [img]="icons.Check" size="12"></lucide-icon>
         </span>
         <span class="remember-text">{{ 'login.keep_me_logged' | translate }}</span>
       </label>
+      <p id="remember-hint" class="remember-hint">{{ 'login.keep_me_logged_hint' | translate }}</p>
 
       <!--
         A session that ended on its own is explained, not alarmed about. `role="status"` and not

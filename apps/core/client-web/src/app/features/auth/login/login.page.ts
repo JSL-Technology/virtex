@@ -132,7 +132,10 @@ export class LoginPage implements OnInit {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
-      rememberMe: [true],
+      // Unticked by default. Ticking it keeps the session for a month on this device, through
+      // browser restarts and without an inactivity sign-out — a choice the person makes for a
+      // device they trust, not one made for them on a computer that may be shared.
+      rememberMe: [false],
     });
   }
 

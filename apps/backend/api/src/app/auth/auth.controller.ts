@@ -28,6 +28,7 @@ import {
 } from './dto/password-policy';
 import { AuthConfig } from './auth.config';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { SessionPolicyDto } from './dto/responses/session-policy.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { LoginResponseDto } from './dto/responses/login-response.dto';
@@ -103,13 +104,16 @@ export class AuthController {
     }
 
     const { user, accessToken, refreshToken } = result;
-    const rememberMe = loginUserDto.rememberMe || false;
+    // The session's own record of the choice, not the request's: they agree today, and the
+    // record is what every later rotation, bound and cookie is derived from.
+    const rememberMe = Boolean(result.rememberMe);
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken, { rememberMe, userId: user.id });
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
       // accessToken omitted — delivered only via httpOnly cookie
+      session: SessionPolicyDto.for(rememberMe),
     };
   }
 
@@ -157,7 +161,35 @@ export class AuthController {
     return {
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
       // accessToken omitted — delivered only via httpOnly cookie
+      session: SessionPolicyDto.for(Boolean(result.rememberMe)),
     };
+  }
+
+  /**
+   * Sign this browser out, using the credential that keeps it signed in.
+   *
+   * The refresh cookie is path-scoped under `auth/refresh`, which is why this lives beneath it:
+   * it is the one route besides the refresh itself that the browser sends that cookie to. Unlike
+   * `POST /auth/logout` it needs no valid access token — the inactivity sign-out fires exactly
+   * when that token has just expired, and a sign-out that fails then is the bug this fixes (see
+   * `SessionService.endSessionByRefreshToken`).
+   *
+   * Public, but not unprotected: the global CSRF guard still demands the double-submit token, so
+   * another site cannot sign a visitor out. Always 200 and always clears the cookies — being
+   * signed out is the outcome whether or not there was anything left to revoke.
+   */
+  @Public()
+  @Post('refresh/revoke')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'End the session held by this browser (works with an expired access token)' })
+  async revokeBrowserSession(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.['__Secure-refresh_token'] || req.cookies?.refresh_token;
+    await this.authService.endSessionByRefreshToken(refreshToken);
+    this.cookieService.clearAuthCookies(res);
+    return { messageKey: 'auth.signed_out' };
   }
 
   @Post('logout')
@@ -257,11 +289,13 @@ export class AuthController {
         // switch must reach the client on the next page load, not at token expiry.
         const { user: freshUser } = await this.authService.status(user);
         this.cookieService.setCsrfCookie(res, freshUser.id);
+        const remembered = await this.authService.isRememberedSession(user.sessionId);
         return {
           authenticated: true,
           user: plainToInstance(UserResponseDto, freshUser, { excludeExtraneousValues: true }),
           // Nothing to renew: the access token presented with this request is valid.
           refreshable: false,
+          session: SessionPolicyDto.for(remembered),
         };
       } catch (error) {
         // The token verified but the principal behind it no longer may sign in — deactivated,
@@ -278,7 +312,7 @@ export class AuthController {
         // this browser reporting `refreshable` forever.
         this.cookieService.clearAuthCookies(res);
         this.cookieService.setCsrfCookie(res);
-        return { authenticated: false, user: null, refreshable: false };
+        return { authenticated: false, user: null, refreshable: false, session: null };
       }
     }
 
@@ -287,6 +321,7 @@ export class AuthController {
       authenticated: false,
       user: null,
       refreshable: this.cookieService.hasSessionMarker(cookies),
+      session: null,
     };
   }
 

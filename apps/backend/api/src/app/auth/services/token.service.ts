@@ -130,7 +130,12 @@ export class TokenService {
             ? extraPayload.organizationId ?? user.organizationId ?? null
             : null,
           openedAt: new Date(),
+          // An impersonation is never "remembered": it has its own short, fixed window.
+          rememberMe: extraPayload.isImpersonating ? false : rememberMe,
         };
+    // A rotation continues the family as it began: whether it was remembered is the family's
+    // fact, not the caller's argument.
+    rememberMe = facts.rememberMe;
     if (facts.impersonatorId) {
       extraPayload = {
         ...extraPayload,
@@ -227,6 +232,7 @@ export class TokenService {
       lastActiveAt: new Date(),
       impersonatorId: facts.impersonatorId,
       impersonationOrganizationId: facts.impersonationOrganizationId,
+      rememberMe: facts.rememberMe,
     });
 
     if (ipAddress) {
@@ -248,6 +254,7 @@ export class TokenService {
       refreshToken,
       refreshTokenId: rowId,
       sessionId: familyId,
+      rememberMe: facts.rememberMe,
     };
   }
 
@@ -259,16 +266,18 @@ export class TokenService {
     impersonatorId: string | null;
     impersonationOrganizationId: string | null;
     openedAt: Date;
+    rememberMe: boolean;
   }> {
     const first = await this.refreshTokenRepository.findOne({
       where: { sessionId },
       order: { createdAt: 'ASC' },
-      select: ['id', 'createdAt', 'impersonatorId', 'impersonationOrganizationId'],
+      select: ['id', 'createdAt', 'impersonatorId', 'impersonationOrganizationId', 'rememberMe'],
     });
     return {
       impersonatorId: first?.impersonatorId ?? null,
       impersonationOrganizationId: first?.impersonationOrganizationId ?? null,
       openedAt: first?.createdAt ?? new Date(),
+      rememberMe: Boolean(first?.rememberMe),
     };
   }
 

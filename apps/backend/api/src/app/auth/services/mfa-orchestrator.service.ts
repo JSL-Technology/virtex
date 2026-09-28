@@ -383,7 +383,7 @@ export class MfaOrchestratorService {
     return { preVerifiedToken };
   }
 
-  async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string) {
+  async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string, rememberMe = false) {
       // A locked account cannot complete a second factor either.
       //
       // The lockout was only ever consulted on the password step, so once an attacker had the
@@ -459,6 +459,6 @@ export class MfaOrchestratorService {
         undefined,
     );
 
-    return await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent);
+    return await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent, rememberMe);
   }
 }

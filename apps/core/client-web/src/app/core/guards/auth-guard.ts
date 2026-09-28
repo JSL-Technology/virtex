@@ -24,7 +24,12 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
     map((isAuthenticated) => {
       if (isAuthenticated) return true;
       const lang = languageService.currentLang() || 'es';
-      return router.createUrlTree(['/', lang, 'auth', 'login']);
+      // A session the client ended while loading — found idle past its window — is explained on
+      // the page the person lands on, like one that ended while they were looking.
+      const reason = authService.consumeSignOutReason();
+      return reason
+        ? router.createUrlTree(['/', lang, 'auth', 'login'], { queryParams: { reason } })
+        : router.createUrlTree(['/', lang, 'auth', 'login']);
     }),
   );
 };

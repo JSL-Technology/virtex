@@ -314,6 +314,33 @@ describe('AuthService — sign in', () => {
     });
 
     /**
+     * "Remember me" is ticked on the password step, but the session is opened by the second
+     * factor. The choice has to travel with the pending session, or no account with two-factor
+     * authentication could ever be remembered.
+     */
+    it('carries "remember me" from the password step to the second factor', async () => {
+      usersService.findUserForAuth.mockResolvedValue(withTwoFactor());
+      passwordService.verify.mockResolvedValue(true);
+
+      const remembered = await service.login({
+        email: 'someone@example.com',
+        password: 'right',
+        rememberMe: true,
+      } as never);
+      const ordinary = await service.login({
+        email: 'someone@example.com',
+        password: 'right',
+      } as never);
+
+      await expect(
+        service.pending2faRememberMe((remembered as { pendingId: string }).pendingId),
+      ).resolves.toBe(true);
+      await expect(
+        service.pending2faRememberMe((ordinary as { pendingId: string }).pendingId),
+      ).resolves.toBe(false);
+    });
+
+    /**
      * A mistyped digit must not destroy the pending session — it used to, which also made the
      * five-attempt counter it carried permanently unreachable.
      */

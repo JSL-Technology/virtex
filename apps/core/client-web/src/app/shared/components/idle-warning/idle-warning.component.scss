@@ -1,0 +1,25 @@
+// =============================================================================
+//  AVISO DE INACTIVIDAD
+// =============================================================================
+//  El armazón del diálogo —velo, panel, foco— es de `vx-dialog`. Aquí solo el
+//  cuerpo: el aviso y la cuenta atrás.
+// =============================================================================
+
+.idle-warning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  color: var(--content-secondary);
+  line-height: var(--leading-normal);
+
+  p {
+    margin: 0;
+  }
+}
+
+.idle-warning__countdown {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--content-tertiary);
+}

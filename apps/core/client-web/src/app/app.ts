@@ -13,6 +13,7 @@ import { StepUpService } from './core/services/step-up.service';
 import { NotificationService } from './core/services/notification';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
+import { IdleWarningComponent } from './shared/components/idle-warning/idle-warning.component';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ import { OfflineBannerComponent } from './shared/components/offline-banner/offli
     GeoMismatchModalComponent,
     ToastContainerComponent,
     OfflineBannerComponent,
+    IdleWarningComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

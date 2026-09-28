@@ -62,24 +62,6 @@ export class SessionService extends SessionInvalidatorPort {
       return truncated.replace(/[\r\n]/g, '');
   }
 
-  /**
-   * Whether a session family was opened with "remember me".
-   *
-   * Derived from the stored row's own lifetime rather than from a claim, so it cannot be
-   * tampered with and survives rotation — the same rule `refreshAccessToken` applies below. The
-   * margin exists because the row is written slightly before its expiry is computed.
-   */
-  async isRememberedSession(sessionId: string): Promise<boolean> {
-    const row = await this.refreshTokenRepository.findOne({
-      where: { sessionId },
-      order: { createdAt: 'DESC' },
-      select: ['expiresAt', 'createdAt'],
-    });
-    if (!row) return false;
-
-    const lifetimeMs = row.expiresAt.getTime() - row.createdAt.getTime();
-    return lifetimeMs > ms(AuthConfig.JWT_REFRESH_EXPIRATION as ms.StringValue) * 1.5;
-  }
 
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {
     try {
@@ -124,7 +106,7 @@ export class SessionService extends SessionInvalidatorPort {
         where: { id: payload.jti },
         select: [
           'id', 'sessionId', 'isRevoked', 'revokedAt', 'replacedByToken', 'impersonatorId',
-          'userAgent', 'ipAddress', 'userId', 'expiresAt', 'createdAt',
+          'userAgent', 'ipAddress', 'userId', 'expiresAt', 'createdAt', 'rememberMe',
         ],
       });
 
@@ -275,14 +257,9 @@ export class SessionService extends SessionInvalidatorPort {
       const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
       const parsedUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent || '');
 
-      // Whether this was a "remember me" session is not in the token — it is in how long the
-      // stored row was given. Re-deriving it from the row's own lifetime keeps the property across
-      // rotations without adding a claim a client could tamper with. The comparison uses a margin
-      // because the row was written slightly before its expiry was computed.
-      const originalLifetimeMs =
-        refreshTokenEntity.expiresAt.getTime() - refreshTokenEntity.createdAt.getTime();
-      const rememberMe =
-        originalLifetimeMs > ms(AuthConfig.JWT_REFRESH_EXPIRATION as ms.StringValue) * 1.5;
+      // Whether this is a remembered session is a fact of the family, recorded at sign-in
+      // (`remember_me`); `TokenService` carries it across the rotation from the family's first row.
+      const rememberMe = Boolean(refreshTokenEntity.rememberMe);
 
       // An impersonated session keeps its short, fixed window and its pinned tenant across the
       // rotation: `TokenService` reads both from the family's own rows, not from this token.
@@ -367,7 +344,7 @@ export class SessionService extends SessionInvalidatorPort {
         // lifetime. It was re-derived here and then dropped: the rotated token was minted for
         // thirty days while the cookie carrying it was written for seven, so a "recordarme"
         // session died at seven days anyway — the fix one layer down, undone one layer up.
-        rememberMe,
+        rememberMe: authResponse.rememberMe,
       };
     } catch (error) {
       this.logger.error('Error al verificar el refresh token:', (error as Error).message);
@@ -391,7 +368,7 @@ export class SessionService extends SessionInvalidatorPort {
   private async assertSessionWithinLifetimeBounds(
     user: User,
     sessionId: string,
-    current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt' | 'impersonatorId'>,
+    current: Pick<RefreshToken, 'createdAt' | 'lastActiveAt' | 'impersonatorId' | 'rememberMe'>,
   ): Promise<void> {
     const bounds = await this.refreshTokenRepository
       // tenant-scope-guard-allow: cotas de vida de una familia de sesiones, acotadas por `session_id`.
@@ -410,11 +387,19 @@ export class SessionService extends SessionInvalidatorPort {
 
     const now = Date.now();
 
-    // An impersonation's absolute bound is its own short window, not the month a normal session
-    // may live.
+    // Which rules apply depends on what the session IS (see AuthConfig.SESSION_*_STANDARD):
+    //  - an impersonation lives for its own short, fixed window;
+    //  - a remembered session, on a device its owner trusts, for up to a month and two idle weeks;
+    //  - any other session for a working day, and not past half an hour without a refresh — which
+    //    is what ends the session of a tab that was closed or a laptop that went to sleep.
     const absoluteMax = current.impersonatorId
       ? ms(AuthConfig.IMPERSONATION_SESSION_DURATION as ms.StringValue)
-      : AuthConfig.SESSION_ABSOLUTE_MAX;
+      : current.rememberMe
+        ? AuthConfig.SESSION_ABSOLUTE_MAX
+        : AuthConfig.SESSION_ABSOLUTE_MAX_STANDARD;
+    const idleMax = current.rememberMe
+      ? AuthConfig.SESSION_IDLE_TIMEOUT
+      : AuthConfig.SESSION_IDLE_TIMEOUT_STANDARD;
 
     if (now - openedAt.getTime() > absoluteMax) {
       this.logger.log(
@@ -425,7 +410,7 @@ export class SessionService extends SessionInvalidatorPort {
       throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
     }
 
-    if (now - lastActiveAt.getTime() > AuthConfig.SESSION_IDLE_TIMEOUT) {
+    if (now - lastActiveAt.getTime() > idleMax) {
       this.logger.log(
         { event: 'session_idle_expiry', sessionPrefix: sessionId.slice(0, 8) },
         'Session was idle past the configured window and was ended',
@@ -667,6 +652,68 @@ export class SessionService extends SessionInvalidatorPort {
    * C-2: the denylist entry is what actually stops the access token. Without it, logout only
    * cleared cookies — a token already captured by an attacker stayed valid until expiry.
    */
+  /**
+   * End the session this browser holds, identified by its refresh token alone.
+   *
+   * ## Why signing out cannot depend on the access token
+   *
+   * `POST /auth/logout` identified the session from the access token. The client's inactivity
+   * sign-out fires after fifteen minutes without activity — which is also the access token's
+   * lifetime — so the request that was meant to end the session regularly arrived with an expired
+   * token, was refused with 401, and ended nothing. The interface showed the sign-in page; the
+   * refresh cookie was still valid; the next page load renewed it and put the person back in.
+   *
+   * The refresh token is the credential that keeps a session alive, so it is the one that ends it.
+   * Its signature is verified (an expired one is fine: there may still be live siblings in the
+   * family), its row must match the stored hash, and then the whole family is revoked. Anything
+   * that does not verify ends nothing and says nothing: the caller clears the cookies either way.
+   */
+  async endSessionByRefreshToken(token: string | undefined | null): Promise<void> {
+    if (!token) return;
+
+    let payload: JwtPayload & { jti?: string };
+    try {
+      payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
+        ignoreExpiration: true,
+      });
+    } catch {
+      return;
+    }
+    if (!payload.jti || !payload.id) return;
+
+    // tenant-scope-guard-allow: la fila de un refresh token, localizada por el `jti` FIRMADO y
+    // atada a su sujeto justo debajo.
+    const row = await this.refreshTokenRepository.findOne({
+      where: { id: payload.jti, userId: payload.id },
+      select: ['id', 'sessionId', 'userId'],
+    });
+    if (!row) return;
+
+    try {
+      await this.assertTokenHashMatches(row.id, token);
+    } catch {
+      return;
+    }
+
+    const sessionId = row.sessionId ?? row.id;
+    await this.terminateCurrentSession(row.userId, sessionId);
+  }
+
+  /** Whether a session family was opened with "remember me". False for an unknown family. */
+  async isRememberedSession(sessionId: string | undefined | null): Promise<boolean> {
+    if (!sessionId) return false;
+    // tenant-scope-guard-allow: los hechos de UNA familia de sesiones, por su `session_id`.
+    const first = await this.refreshTokenRepository.findOne({
+      where: { sessionId },
+      order: { createdAt: 'ASC' },
+      select: ['id', 'rememberMe'],
+    });
+    return Boolean(first?.rememberMe);
+  }
+
   async terminateCurrentSession(userId: string, sessionId?: string): Promise<void> {
     if (!sessionId) {
       // No session anchor (token predates the claim): fall back to a full logout rather than
