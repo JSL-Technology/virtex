@@ -1,0 +1,174 @@
+[
+ {
+  "sname": "Mi Perfil",
+  "hash": "#settings/my-profile",
+  "n": 40,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Facturación y Plan",
+  "hash": "#settings/billing",
+  "n": 21,
+  "bad": [],
+  "api": [
+   "GET /saas/plans 200",
+   "GET /payment/invoices 200",
+   "GET /payment/overview 200",
+   "GET /saas/usage 200"
+  ]
+ },
+ {
+  "sname": "Perfil de la Empresa",
+  "hash": "#settings/profile",
+  "n": 30,
+  "bad": [],
+  "api": [
+   "GET /organizations/profile 200"
+  ]
+ },
+ {
+  "sname": "Estructura Empresarial",
+  "hash": "#settings/subsidiaries",
+  "n": 22,
+  "bad": [],
+  "api": [
+   "GET /organizations/subsidiaries 200"
+  ]
+ },
+ {
+  "sname": "Personalización",
+  "hash": "#settings/branding",
+  "n": 40,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Contabilidad",
+  "hash": "#settings/accounting",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Multimoneda",
+  "hash": "#settings/currencies",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Impuestos",
+  "hash": "#settings/taxes",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Cierre Fiscal",
+  "hash": "#settings/closing-rules",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Intercompañía",
+  "hash": "#settings/intercompany",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Facturación Electrónica",
+  "hash": "#settings/fiscal",
+  "n": 34,
+  "bad": [],
+  "api": [
+   "GET /localization/fiscal-coverage 200",
+   "GET /einvoicing/certificates 200",
+   "GET /compliance/ncf-sequences 200"
+  ]
+ },
+ {
+  "sname": "Secuencias",
+  "hash": "#settings/sequences",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Aprobaciones",
+  "hash": "#settings/approvals",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Inventario",
+  "hash": "#settings/inventory-policies",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Usuarios",
+  "hash": "#settings/users",
+  "n": 48,
+  "bad": [],
+  "api": [
+   "GET /roles 200",
+   "GET /invitations/sent 200",
+   "GET /users?page=1&pageSize=25&sortColumn=createdAt&sortDirection=DESC 200"
+  ]
+ },
+ {
+  "sname": "Roles y Permisos",
+  "hash": "#settings/roles",
+  "n": 34,
+  "bad": [],
+  "api": [
+   "GET /roles/available-permissions 200",
+   "GET /roles 200"
+  ]
+ },
+ {
+  "sname": "Seguridad y Auditoría",
+  "hash": "#settings/security",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Integraciones",
+  "hash": "#settings/integrations",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "Servidor de Correo",
+  "hash": "#settings/smtp",
+  "n": 21,
+  "bad": [],
+  "api": []
+ },
+ {
+  "sname": "SSO",
+  "hash": "#settings/sso",
+  "n": 4,
+  "bad": [
+   "GET /auth/sso/admin/domains 401 {\"statusCode\":401,\"code\":\"auth.step_up_authentication_required\",\"messageKey\":\"auth.step_up_authentication_required\",\"params\":{\"scope\":\"manage_sso\"},\"timestamp\":\"2026-09-28T06:11:03.727Z\",\"path\":\"/api/",
+   "GET /auth/sso/admin/providers 401 {\"statusCode\":401,\"code\":\"auth.step_up_authentication_required\",\"messageKey\":\"auth.step_up_authentication_required\",\"params\":{\"scope\":\"manage_sso\"},\"timestamp\":\"2026-09-28T06:11:03.730Z\",\"path\":\"/api/",
+   "GET /auth/step-up/challenge FAILED net::ERR_ABORTED"
+  ],
+  "api": [
+   "GET /auth/sso/admin/domains 401",
+   "GET /auth/sso/admin/providers 401",
+   "GET /auth/step-up/status?scope=manage_sso 200",
+   "GET /auth/step-up/status?scope=manage_sso 200",
+   "GET /auth/step-up/challenge 200",
+   "GET /auth/step-up/challenge FAILED",
+   "GET /auth/step-up/challenge 200"
+  ]
+ }
+]

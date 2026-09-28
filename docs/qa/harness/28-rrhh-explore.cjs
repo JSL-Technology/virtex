@@ -1,0 +1,21 @@
+const { launch, uiLogin, go, panel, panelText, shot, click } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  await uiLogin(page);
+  const p = panel(page);
+  await go(page, 'hcm/employees/new');
+  console.log('EMPLEADO', (await panelText(page)).replace(/\n+/g, ' | '));
+  await go(page, 'hcm/departments');
+  await click(page, 'Nuevo departamento'); await page.waitForTimeout(1200); await shot(page, 'rh-dep-new');
+  console.log('DEP', (await page.locator('[role=dialog]').last().innerText().catch(() => panelText(page))).replace(/\n+/g, ' | ').slice(0, 600));
+  await page.keyboard.press('Escape');
+  await go(page, 'payroll/runs');
+  await click(page, 'Nueva nómina'); await page.waitForTimeout(1200); await shot(page, 'rh-run-new');
+  console.log('RUN', (await page.locator('[role=dialog]').last().innerText().catch(() => panelText(page))).replace(/\n+/g, ' | ').slice(0, 800));
+  await page.keyboard.press('Escape');
+  await go(page, 'payroll/concepts');
+  await click(page, 'Nuevo concepto'); await page.waitForTimeout(1200); await shot(page, 'rh-concept-new');
+  console.log('CONCEPTO', (await page.locator('[role=dialog]').last().innerText().catch(() => panelText(page))).replace(/\n+/g, ' | ').slice(0, 800));
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

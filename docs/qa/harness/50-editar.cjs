@@ -1,0 +1,21 @@
+const { launch, instrument, uiLogin, shot, go, fill, click, panel, netSince, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  await uiLogin(page);
+  const p = panel(page);
+  await go(page, 'contacts/customers'); await p.getByText('QA-Cliente-01 Distribuidora').first().click(); await page.waitForTimeout(2000);
+  let n = log.requests.length;
+  await fill(page, 'Persona de Contacto', 'Contacto QA editado'); await fill(page, 'Días de crédito', '15');
+  await click(page, /Guardar/); await stepUpAll(page); await page.waitForTimeout(1500);
+  console.log('[cliente-editar]', netSince(log, n).join(' ; ').slice(0, 500), JSON.stringify(await errorsShown(page)));
+  await shot(page, 'f-edit-cliente');
+  await go(page, 'inventory/products'); await p.getByText('QA-Producto-01 Silla ergonómica').first().click(); await page.waitForTimeout(2000);
+  n = log.requests.length;
+  await fill(page, 'Precio de Venta', '1100'); await fill(page, 'Cantidad en Stock', '999');
+  await click(page, /Guardar/); await stepUpAll(page); await page.waitForTimeout(1500);
+  console.log('[producto-editar]', netSince(log, n).join(' ; ').slice(0, 500), JSON.stringify(await errorsShown(page)));
+  await shot(page, 'f-edit-producto');
+  await browser.close();
+})();
