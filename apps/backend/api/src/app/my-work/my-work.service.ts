@@ -1,44 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ApprovalRequest, ApprovalStatus } from '../workflows/entities/approval-request.entity';
-import { Repository } from 'typeorm';
+import { AuthenticatedUser } from '../security/principal';
+import { ApprovalsInboxService } from './approvals-inbox.service';
 import { MyWorkDto, WorkItemDto } from './dto/my-work.dto';
 
+/**
+ * The caller's work queue.
+ *
+ * Its approvals used to be every pending request of the generic workflow engine — whether or not
+ * the caller could decide it, and blind to purchase orders and requisitions, which have their own
+ * approval lifecycle (QA A-11). They are now the approvals inbox's items THIS user can decide:
+ * what is waiting on them, and nothing that is waiting on someone else.
+ */
 @Injectable()
 export class MyWorkService {
-  constructor(
-    @InjectRepository(ApprovalRequest)
-    private readonly approvalRequestRepository: Repository<ApprovalRequest>,
-  ) {}
+  constructor(private readonly inbox: ApprovalsInboxService) {}
 
-  async getWorkItems(userId: string, organizationId: string): Promise<MyWorkDto> {
-    const approvals = await this.getPendingApprovals(userId, organizationId);
-
-    return {
-      tasks: [],
-      approvals,
-      notifications: [],
-    };
-  }
-
-  private async getPendingApprovals(userId: string, organizationId: string): Promise<WorkItemDto[]> {
-
-
-
-    const pendingApprovals = await this.approvalRequestRepository.find({
-      where: {
-        organizationId,
-        status: ApprovalStatus.PENDING,
-      },
-    });
-
-    return pendingApprovals.map(approval => ({
-      id: approval.id,
-      title: `Approve ${approval.documentType} #${approval.documentId.substring(0, 8)}`,
-      description: `Request for ${approval.documentType} is pending approval.`,
-      dueDate: approval.approvedAt?.toISOString() || new Date().toISOString(),
-      status: 'pending',
-      link: `/approvals/${approval.id}`,
-    }));
+  async getWorkItems(user: AuthenticatedUser): Promise<MyWorkDto> {
+    const decisions = await this.inbox.pending(user);
+    const approvals: WorkItemDto[] = decisions
+      .filter((decision) => decision.canDecide)
+      .map((decision) => ({
+        id: `${decision.source}:${decision.id}`,
+        titleKey: decision.documentTypeKey,
+        titleParams: {
+          number: decision.number,
+          party: decision.party,
+          amount: decision.amount,
+          currency: decision.currencyCode,
+        },
+        dueDate: decision.requestedAt,
+        status: 'pending',
+        route: decision.route,
+      }));
+    return { tasks: [], approvals, notifications: [] };
   }
 }

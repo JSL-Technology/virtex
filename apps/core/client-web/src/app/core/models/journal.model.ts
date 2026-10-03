@@ -13,4 +13,8 @@ export interface Journal {
   code: string;
   type: JournalType;
   organizationId: string;
+  /** One the product posts to by code (sales, payroll, depreciation…): its code is fixed. */
+  isSystem?: boolean;
+  /** Entries posted to it; once there is one, its code and type are part of history. */
+  entryCount?: number;
 }

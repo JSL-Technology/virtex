@@ -44,6 +44,35 @@
 
   @if (run(); as payrollRun) {
     <div class="run-page">
+      @if (paying()) {
+        <!-- De qué cuenta sale el dinero: el servidor lo exige y la pantalla no lo preguntaba (C-09). -->
+        <section class="pay-panel" role="region" [attr.aria-label]="'payroll.runs.pay_title' | translate">
+          <h2 class="pay-panel__title">{{ 'payroll.runs.pay_title' | translate }}</h2>
+          <label class="pay-panel__field">
+            <span>{{ 'payroll.runs.pay_from' | translate }}</span>
+            <select [value]="payFromAccountId() ?? ''" (change)="payFromAccountId.set($any($event.target).value || null)">
+              @for (account of payingAccounts(); track account.bankAccountId) {
+                <option [value]="account.bankAccountId">
+                  {{ account.name }}{{ account.accountNumberMasked ? ' · ' + account.accountNumberMasked : '' }} —
+                  {{ account.balanceInBaseCurrency | vxMoney: payrollRun.currencyCode }}
+                </option>
+              }
+            </select>
+          </label>
+          <p class="pay-panel__amount">
+            {{ 'payroll.runs.pay_amount' | translate }}: <strong>{{ payrollRun.totalNet | vxMoney: payrollRun.currencyCode }}</strong>
+          </p>
+          @if (payWouldOverdraw()) {
+            <p class="pay-panel__warning" role="alert">{{ 'payroll.runs.pay_overdraft_hint' | translate }}</p>
+          }
+          <div class="pay-panel__actions">
+            <button type="button" class="primary-button" [disabled]="busy() || !payFromAccountId()" (click)="confirmPay()">
+              {{ 'payroll.runs.pay_confirm' | translate }}
+            </button>
+            <button type="button" class="secondary-button" (click)="cancelPay()">{{ 'common.cancel' | translate }}</button>
+          </div>
+        </section>
+      }
       <!--
         What the payroll costs, in the three figures that answer different questions: what was
         earned, what reaches the bank, and what the company actually pays out including its own

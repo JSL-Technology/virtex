@@ -30,6 +30,10 @@ import { AuthenticatedUser } from '../security/principal';
 import { InvoiceStatus } from './entities/invoice.entity';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
+import { MailService } from '../mail/mail.service';
+import { SendInvoiceDto } from './dto/send-invoice.dto';
+import { Throttle } from '@nestjs/throttler';
+import { BadRequestError } from '../i18n/localized.exception';
 /**
  * Sales documents.
  *
@@ -45,6 +49,7 @@ export class InvoicesController {
   constructor(
     private readonly invoicesService: InvoicesService,
     private readonly renderer: InvoiceRendererService,
+    private readonly mail: MailService,
   ) {}
 
   @Post()
@@ -200,6 +205,47 @@ export class InvoicesController {
       )
       .header('Content-Length', String(pdf.length))
       .send(pdf);
+  }
+
+  /**
+   * Send the invoice to the customer by e-mail, with its PDF attached (QA A-09).
+   *
+   * The toolbar's "Enviar por correo" was wired to nothing. The address defaults to the customer's
+   * on file; the operator may send it elsewhere (the customer's accounts-payable desk, say). A
+   * draft has no fiscal number and is not something to send a customer. Throttled: this renders a
+   * PDF and queues mail on every call.
+   */
+  @Post(':id/send')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async send(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: SendInvoiceDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const { invoice, context } = await this.invoicesService.renderContext(id, user.organizationId);
+    if (invoice.status === InvoiceStatus.DRAFT) {
+      throw new BadRequestError('invoices.draft_cannot_be_sent');
+    }
+    const to = dto.to?.trim() || invoice.customer?.email || null;
+    if (!to) {
+      throw new BadRequestError('invoices.customer_has_no_email');
+    }
+    const pdf = await this.renderer.renderPdf(context);
+    const number = invoice.fiscalNumber ?? invoice.invoiceNumber;
+    await this.mail.sendInvoiceEmail({
+      to,
+      language: invoice.customer?.preferredLanguage ?? null,
+      invoiceNumber: number,
+      customerName: invoice.customer?.companyName ?? '',
+      companyName: context.organization.legalName,
+      total: `${invoice.currencyCode ?? ''} ${Number(invoice.total ?? 0).toFixed(2)}`.trim(),
+      dueDate: invoice.dueDate ? String(invoice.dueDate).slice(0, 10) : null,
+      message: dto.message ?? null,
+      pdf,
+    });
+    return { queued: true, to };
   }
 
   /** The same representation as HTML, for on-screen printing without a round trip to Chromium. */

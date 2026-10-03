@@ -1,17 +1,10 @@
-import {
-  Check,
-  Column,
-  DeleteDateColumn,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Check, Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { IdentityDocumentType } from '../../localization/entities/identity-document-type.entity';
 import { encryptedColumnTransformer } from '../../common/database/encrypted-column.transformer';
 import { EmployeeCompensation } from './employee-compensation.entity';
+import { Department } from './department.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /** How the employment ended, or that it has not. Drives whether payroll picks the person up. */
 export enum EmploymentStatus {
@@ -106,6 +99,17 @@ export class Employee extends BaseEntity {
 
   @Column({ name: 'department_id', type: 'uuid', nullable: true })
   departmentId: string;
+
+  /**
+   * The department, as a real foreign key.
+   *
+   * The id used to be a bare uuid with no constraint, so deleting a department left its people
+   * pointing at a row that no longer existed ("—" on their record, QA C-03). RESTRICT makes the
+   * database refuse that delete even if a code path forgets to check first.
+   */
+  @ManyToOne(() => Department, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
+  @JoinColumn({ name: 'department_id', foreignKeyConstraintName: 'FK_employees_department' })
+  department?: Department | null;
 
   @Column({ name: 'hire_date', type: 'date', nullable: true })
   hireDate: string;
@@ -239,4 +243,8 @@ export class Employee extends BaseEntity {
   /** Soft delete. A person with payroll history is deactivated, never physically removed. */
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz', nullable: true })
   deletedAt: Date | null;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_employees_organization')
+  organization?: TenantRef;
 }

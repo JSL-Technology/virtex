@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Employee } from './entities/employee.entity';
+import { Employee, EmploymentStatus } from './entities/employee.entity';
 import { Department } from './entities/department.entity';
 import { EmployeeCompensation } from './entities/employee-compensation.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -31,6 +31,8 @@ import { StatutoryIdentifierSpec } from '../jurisdictions/jurisdiction-strategy.
  * lives on the entity and its migration. This is the register only — payroll calculation remains
  * out of scope and is called out as such in the audit report.
  */
+import { assertNoDependents } from '../common/database/dependents';
+
 @Injectable()
 export class HcmService {
   constructor(
@@ -282,9 +284,25 @@ export class HcmService {
     return this.jurisdictions.forCountry(country).statutoryIdentifiers ?? [];
   }
 
-  /** Soft delete: a person with payroll history is deactivated, never physically removed. */
+  /**
+   * Soft delete — and, for anyone who has been paid, only after they have LEFT.
+   *
+   * A person with payroll history is never physically removed (their payslips, entries and TSS
+   * filings name them). But removing an ACTIVE employee who has been paid skipped the termination
+   * itself: no exit date, no reason, and the social-security filing of the month never learned
+   * they had gone. HR systems keep the two apart — an erroneous hire with no history can simply be
+   * removed; anyone else is terminated first, and only then archived from the register.
+   */
   async removeEmployee(id: string, organizationId: string): Promise<void> {
-    await this.findOneEmployee(id, organizationId);
+    const employee = await this.findOneEmployee(id, organizationId);
+    if (employee.employmentStatus !== EmploymentStatus.TERMINATED) {
+      const [{ paid }] = await this.employeeRepository.manager.query(
+        `SELECT (EXISTS (SELECT 1 FROM payslips WHERE organization_id = $1 AND employee_id = $2)
+              OR EXISTS (SELECT 1 FROM payroll_inputs WHERE organization_id = $1 AND employee_id = $2)) AS paid`,
+        [organizationId, employee.id],
+      );
+      if (paid) throw new ConflictError('hcm.employee_with_payroll_terminate_first');
+    }
     await this.employeeRepository.softDelete({ id, organizationId });
   }
 
@@ -371,8 +389,28 @@ export class HcmService {
     );
   }
 
+  /**
+   * Delete a department nobody works in.
+   *
+   * Deleting one with people in it answered 204 and left them assigned to a department that no
+   * longer existed ("—" on their record, QA C-03). Active employees block the delete; people who
+   * have already left (soft-deleted) are detached in the same transaction, since their payslips
+   * keep their own snapshot and nothing else resolves the link.
+   */
   async removeDepartment(id: string, organizationId: string): Promise<void> {
     await this.findOneDepartment(id, organizationId);
-    await this.departmentRepository.delete({ id, organizationId });
+    await this.departmentRepository.manager.transaction(async (manager) => {
+      await assertNoDependents(
+        manager,
+        id,
+        [{ table: 'employees', column: 'department_id', label: 'common.dependents.employees', where: 'deleted_at IS NULL' }],
+        'hcm.department_delete_blocked',
+      );
+      await manager.query(
+        'UPDATE employees SET department_id = NULL WHERE department_id = $1 AND deleted_at IS NOT NULL',
+        [id],
+      );
+      await manager.delete(Department, { id, organizationId });
+    });
   }
 }

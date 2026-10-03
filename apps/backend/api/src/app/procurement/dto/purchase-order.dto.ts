@@ -148,11 +148,22 @@ export class ReceiptLineDto {
 }
 
 export class ReceivePurchaseOrderDto {
+  /** Omitted or empty: everything still outstanding arrived. */
   @IsArray()
-  @ArrayMinSize(1, { message: 'validation.constraints.array_min_size|{"min":1}' })
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => ReceiptLineDto)
-  lines: ReceiptLineDto[];
+  lines?: ReceiptLineDto[];
+
+  /** When the goods arrived. Defaults to now; decides the date of the receipt entry. */
+  @IsDateString()
+  @IsOptional()
+  receivedAt?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  notes?: string;
 }
 
 export class RejectDto {

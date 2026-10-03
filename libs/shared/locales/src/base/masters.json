@@ -249,6 +249,21 @@
     "en": "Status",
     "pt": "Situação"
   },
+  "masters.price_lists.status_label.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "masters.price_lists.status_label.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "masters.price_lists.status_label.inactive": {
+    "es": "Inactiva",
+    "en": "Inactive",
+    "pt": "Inativa"
+  },
   "masters.price_lists.valid_from": {
     "es": "Válido Desde",
     "en": "Valid From",
@@ -284,11 +299,6 @@
     "en": "Define prices for a specific set of products.",
     "pt": "Defina preços para um conjunto específico de produtos."
   },
-  "masters.price_lists_form.dop_dominican_peso": {
-    "es": "DOP - Peso Dominicano",
-    "en": "DOP - Dominican Peso",
-    "pt": "DOP - Peso Dominicano"
-  },
   "masters.price_lists_form.error_creating_price_list": {
     "es": "Error al crear la lista de precios.",
     "en": "Error creating the price list.",
@@ -298,9 +308,6 @@
     "es": "Error al actualizar la lista de precios.",
     "en": "Error updating the price list.",
     "pt": "Erro ao atualizar a tabela de preços."
-  },
-  "masters.price_lists_form.eur_euro": {
-    "literal": "EUR - Euro"
   },
   "masters.price_lists_form.list_name": {
     "es": "Nombre de la Lista",
@@ -361,11 +368,6 @@
     "es": "Nueva lista de precios",
     "en": "New price list",
     "pt": "Nova tabela de preços"
-  },
-  "masters.price_lists_form.usd_united_states_dollar": {
-    "es": "USD - Dólar Estadounidense",
-    "en": "USD - United States Dollar",
-    "pt": "USD - Dólar Americano"
   },
   "masters.price_lists_form.valid_from": {
     "es": "Válido Desde",

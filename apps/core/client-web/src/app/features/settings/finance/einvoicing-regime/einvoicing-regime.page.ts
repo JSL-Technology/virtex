@@ -213,9 +213,7 @@ export class EinvoicingRegimePage implements OnInit {
         },
         error: (error) => {
           this.savingSettings.set(false);
-          this.notifications.showError(
-            error?.error?.message ?? 'settings.pages.einvoicing.save_failed',
-          );
+          this.notifications.showHttpError(error, 'settings.pages.einvoicing.save_failed');
         },
       });
   }
@@ -262,9 +260,7 @@ export class EinvoicingRegimePage implements OnInit {
         },
         error: (error) => {
           this.savingRange.set(false);
-          this.notifications.showError(
-            error?.error?.message ?? 'settings.pages.einvoicing.save_failed',
-          );
+          this.notifications.showHttpError(error, 'settings.pages.einvoicing.save_failed');
         },
       });
   }

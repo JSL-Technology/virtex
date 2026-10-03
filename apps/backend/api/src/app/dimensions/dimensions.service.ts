@@ -1,14 +1,14 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
+import { Repository, DataSource, EntityManager, In } from 'typeorm';
 import { Dimension } from './entities/dimension.entity';
 import { CreateDimensionDto, UpdateDimensionDto } from './dto/dimension.dto';
 import { DimensionValue } from './entities/dimension-value.entity';
 import { DimensionRule } from './entities/dimension-rule.entity';
 import { CreateDimensionRuleDto } from './dto/dimension-rule.dto';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { NotFoundError } from '../i18n/localized.exception';
+import { ConflictError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class DimensionsService {
@@ -57,6 +57,14 @@ export class DimensionsService {
         });
 
         if (!dimension) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
+        // Posted lines carry dimensions BY NAME (`{"Centro de costo": "Ventas"}`). Renaming a used
+        // dimension, or renaming or removing a used value, silently changed what those lines mean:
+        // the analytical view pivots on the current names, so the history dropped out of every
+        // report. A dimension code is immutable once entries use it — the rule in every ERP with
+        // analytic dimensions; unused names and values stay freely editable.
+        if (updateDto.name && updateDto.name !== dimension.name) {
+          await this.assertDimensionUnused(manager, organizationId, dimension.name);
+        }
         if (updateDto.name) dimension.name = updateDto.name;
 
         if (updateDto.values) {
@@ -66,6 +74,9 @@ export class DimensionsService {
             for(const valueDto of updateDto.values) {
                 if(valueDto.id && existingValueMap.has(valueDto.id)) {
                     const existingValue = existingValueMap.get(valueDto.id)!;
+                    if (existingValue.value !== valueDto.value) {
+                      await this.assertValueUnused(manager, organizationId, dimension.name, existingValue.value);
+                    }
                     existingValue.value = valueDto.value;
                     updatedValues.push(existingValue);
                     existingValueMap.delete(valueDto.id);
@@ -76,6 +87,9 @@ export class DimensionsService {
             }
             
             const valuesToDelete = Array.from(existingValueMap.values());
+            for (const removed of valuesToDelete) {
+              await this.assertValueUnused(manager, organizationId, dimension.name, removed.value);
+            }
             if (valuesToDelete.length > 0) await valueRepo.remove(valuesToDelete);
             
             dimension.values = updatedValues;
@@ -86,8 +100,41 @@ export class DimensionsService {
   }
 
   async remove(id: string, organizationId: string): Promise<void> {
-    const result = await this.dimensionRepository.delete({ id, organizationId });
-    if (result.affected === 0) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
+    await this.dataSource.transaction(async (manager) => {
+      const dimension = await manager.findOne(Dimension, { where: { id, organizationId } });
+      if (!dimension) throw new NotFoundError('dimensions.dimension_id_not_found', { id });
+      await this.assertDimensionUnused(manager, organizationId, dimension.name);
+      await manager.delete(Dimension, { id, organizationId });
+    });
+  }
+
+  /** Refuses when any of the tenant's journal lines is tagged with this dimension. */
+  private async assertDimensionUnused(manager: EntityManager, organizationId: string, name: string): Promise<void> {
+    const [{ count }] = await manager.query(
+      `SELECT COUNT(*)::int AS count
+         FROM journal_entry_lines l
+         JOIN journal_entries e ON e.id = l.journal_entry_id
+        WHERE e.organization_id = $1 AND l.dimensions ? $2`,
+      [organizationId, name],
+    );
+    if (count > 0) throw new ConflictError('dimensions.dimension_in_use', { name, count });
+  }
+
+  /** Refuses when any of the tenant's journal lines carries this value of the dimension. */
+  private async assertValueUnused(
+    manager: EntityManager,
+    organizationId: string,
+    name: string,
+    value: string,
+  ): Promise<void> {
+    const [{ count }] = await manager.query(
+      `SELECT COUNT(*)::int AS count
+         FROM journal_entry_lines l
+         JOIN journal_entries e ON e.id = l.journal_entry_id
+        WHERE e.organization_id = $1 AND l.dimensions ->> $2 = $3`,
+      [organizationId, name, value],
+    );
+    if (count > 0) throw new ConflictError('dimensions.dimension_value_in_use', { name, value, count });
   }
   
   async getRulesForAccount(accountId: string, organizationId: string): Promise<DimensionRule[]> {

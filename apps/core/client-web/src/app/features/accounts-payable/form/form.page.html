@@ -84,6 +84,11 @@
       <div class="form-section-head">
         <h2>{{ 'accounts_payable.form.invoice_details' | translate }}</h2>
       </div>
+      @if (sourceOrder(); as order) {
+        <p class="source-order" role="status">
+          {{ 'accounts_payable.form.billing_purchase_order' | translate: { number: order.number } }}
+        </p>
+      }
       <div class="card-body">
         <div class="line-grid line-grid--head" aria-hidden="true">
           <span>{{ 'accounts_payable.form.description' | translate }}</span>
@@ -114,6 +119,10 @@
               min="0"
               [attr.aria-label]="'accounts_payable.form.price' | translate">
             <!-- Era el plan contable entero dentro de un `<select>`, por línea de la factura. -->
+            @if (line.value.productId) {
+              <!-- Artículo de inventario: va a inventario (o liquida la mercancía recibida). -->
+              <span class="hint">{{ 'accounts_payable.form.inventory_item' | translate }}</span>
+            } @else {
             <vx-select
               formControlName="expenseAccountId"
               [search]="searchExpenseAccounts"
@@ -123,6 +132,7 @@
               [ariaLabel]="'accounts_payable.form.expense_account' | translate"
               placeholderKey="accounts_payable.form.select_account"
             />
+            }
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>
             <button
               type="button"

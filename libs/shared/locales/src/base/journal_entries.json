@@ -34,6 +34,11 @@
     "en": "Attachment not found.",
     "pt": "Anexo não encontrado."
   },
+  "journal_entries.attachment_of_posted_entry_is_evidence": {
+    "es": "Este adjunto es soporte de un asiento ya contabilizado y se conserva: la evidencia de un asiento no se elimina. Si hace falta corregirlo, agrega el documento correcto o revierte el asiento.",
+    "en": "This attachment supports an entry that is already posted and is kept: the evidence behind an entry is never deleted. To correct it, attach the right document or reverse the entry.",
+    "pt": "Este anexo sustenta um lançamento já contabilizado e é mantido: a evidência de um lançamento não é excluída. Para corrigir, anexe o documento correto ou estorne o lançamento."
+  },
   "journal_entries.audit_adjustments_can_only_applied_closed": {
     "es": "Los ajustes de auditoría solo pueden aplicarse a años fiscales cerrados.",
     "en": "Audit adjustments can only be applied to closed fiscal years.",
@@ -184,6 +189,21 @@
     "en": "The import was confirmed and processed.",
     "pt": "A importação foi confirmada e processada."
   },
+  "journal_entries.journal_code_fixed_once_used": {
+    "es": "El diario ya tiene {{count}} asiento(s) numerados con su código: el código no puede cambiar.",
+    "en": "The journal already has {{count}} entry(ies) numbered with its code: the code cannot change.",
+    "pt": "O diário já tem {{count}} lançamento(s) numerados com seu código: o código não pode mudar."
+  },
+  "journal_entries.journal_code_format": {
+    "es": "El código solo admite letras, números, guion y guion bajo.",
+    "en": "The code only allows letters, digits, dash and underscore.",
+    "pt": "O código só admite letras, números, hífen e sublinhado."
+  },
+  "journal_entries.journal_code_taken": {
+    "es": "Ya existe un diario con el código {{code}}.",
+    "en": "A journal with the code {{code}} already exists.",
+    "pt": "Já existe um diário com o código {{code}}."
+  },
   "journal_entries.journal_entry_does_not_balance": {
     "es": "El asiento contable no está balanceado.",
     "en": "The journal entry does not balance.",
@@ -203,6 +223,26 @@
     "es": "Plantilla de asiento con ID \"{{id}}\" no encontrada.",
     "en": "Journal entry template \"{{id}}\" was not found.",
     "pt": "Modelo de lançamento \"{{id}}\" não encontrado."
+  },
+  "journal_entries.journal_in_use": {
+    "es": "No se puede eliminar el diario porque tiene asientos ({{summary}}): son parte de los libros.",
+    "en": "The journal cannot be deleted because it has entries ({{summary}}): they are part of the books.",
+    "pt": "O diário não pode ser excluído porque tem lançamentos ({{summary}}): eles fazem parte dos livros."
+  },
+  "journal_entries.journal_not_found": {
+    "es": "El diario no existe.",
+    "en": "The journal does not exist.",
+    "pt": "O diário não existe."
+  },
+  "journal_entries.journal_system_code_fixed": {
+    "es": "El código {{code}} lo usa el propio sistema para contabilizar: puedes cambiar el nombre, no el código.",
+    "en": "The code {{code}} is used by the system itself to post: you can rename it, not change the code.",
+    "pt": "O código {{code}} é usado pelo próprio sistema para contabilizar: você pode mudar o nome, não o código."
+  },
+  "journal_entries.journal_type_fixed_once_used": {
+    "es": "El diario ya tiene {{count}} asiento(s): su tipo no puede cambiar.",
+    "en": "The journal already has {{count}} entry(ies): its type cannot change.",
+    "pt": "O diário já tem {{count}} lançamento(s): seu tipo não pode mudar."
   },
   "journal_entries.line_line_carries_both_debit_credit": {
     "es": "La línea {{line}} tiene débito y crédito a la vez. Una línea afecta un solo lado.",
@@ -264,6 +304,11 @@
     "en": "Recurring template {{recurringEntryId}} was not found.",
     "pt": "Modelo recorrente {{recurringEntryId}} não encontrado."
   },
+  "journal_entries.secondary_ledger_currency_differs": {
+    "es": "El libro «{{ledger}}» se lleva en {{currency}} y la moneda base es {{base}}: los asientos manuales solo pueden registrarse en libros de la moneda base. Usa el libro principal y deja que las reglas de mapeo lo trasladen.",
+    "en": "The “{{ledger}}” ledger is kept in {{currency}} and the base currency is {{base}}: manual entries can only be posted to ledgers in the base currency. Use the primary ledger and let the mapping rules carry it over.",
+    "pt": "O livro “{{ledger}}” é mantido em {{currency}} e a moeda base é {{base}}: lançamentos manuais só podem ser registrados em livros da moeda base. Use o livro principal e deixe as regras de mapeamento transferi-lo."
+  },
   "journal_entries.source_destination_accounts_cannot_same": {
     "es": "La cuenta de origen y destino no pueden ser la misma.",
     "en": "The source and destination accounts cannot be the same.",
@@ -273,6 +318,16 @@
     "es": "El diario indicado no existe en esta organización.",
     "en": "The specified journal does not exist in this organization.",
     "pt": "O diário indicado não existe nesta organização."
+  },
+  "journal_entries.specified_ledger_does_not_exist_organization": {
+    "es": "El libro indicado no existe en esta empresa.",
+    "en": "The specified ledger does not exist in this company.",
+    "pt": "O livro indicado não existe nesta empresa."
+  },
+  "journal_entries.system_journal_cannot_be_deleted": {
+    "es": "El diario {{code}} lo usa el propio sistema para contabilizar y no se puede eliminar.",
+    "en": "The journal {{code}} is used by the system itself to post and cannot be deleted.",
+    "pt": "O diário {{code}} é usado pelo próprio sistema para contabilizar e não pode ser excluído."
   },
   "journal_entries.transaction_query_runner_could_not_obtained": {
     "es": "No se pudo obtener el Query Runner de la transacción.",

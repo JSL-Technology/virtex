@@ -16,6 +16,12 @@ import { readCsrfCookie } from '../auth/csrf-token';
 import { Router } from '@angular/router';
 import { stepUpScopeOf } from '../services/step-up.service';
 
+/** The entitlement refusals, and the reason the billing page is opened with for each. */
+const SUBSCRIPTION_REASONS: Readonly<Record<string, string>> = {
+  'saas.subscription_suspended': 'SUBSCRIPTION_SUSPENDED',
+  'saas.subscription_required': 'SUBSCRIPTION_REQUIRED',
+};
+
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
@@ -59,15 +65,16 @@ export const authInterceptor: HttpInterceptorFn = (
        * Routed once per navigation, not once per failed request: a dashboard fires a dozen calls
        * in parallel and they all fail together.
        */
-      const message = String(error.error?.message ?? '');
-      if (
-        error.status === 403 &&
-        (message.startsWith('SUBSCRIPTION_SUSPENDED') || message === 'SUBSCRIPTION_REQUIRED')
-      ) {
+      //
+      // Read from `messageKey`, the field the API actually sends (`SubscriptionActiveGuard`). This
+      // read `error.message`, which the error contract has no such field for — so the redirect never
+      // fired and a lapsed tenant saw every screen fail with no way to the page that fixes it.
+      const entitlement = SUBSCRIPTION_REASONS[String(error.error?.messageKey ?? '')];
+      if (error.status === 403 && entitlement) {
         const router = injector.get(Router);
         if (!router.url.includes('/settings/billing')) {
           router.navigate(['/settings/billing'], {
-            queryParams: { reason: message.split(':')[0] },
+            queryParams: { reason: entitlement },
           });
         }
         return throwError(() => error);
@@ -105,9 +112,17 @@ export const authInterceptor: HttpInterceptorFn = (
       // A step-up challenge is a 401 about the ACTION, not about the session: the session is fine
       // and refreshing it cannot help. `stepUpInterceptor` answers those; this must not treat
       // one as an expired session, refresh, retry, fail again and sign the user out.
+      //
+      // Likewise a 401 that answers a CREDENTIAL CHECK — a wrong password in the step-up dialog,
+      // a wrong current password, a wrong 2FA code, a failed sign-in — says nothing about the
+      // session. Treating one as expiry refreshed, REPLAYED the failed attempt (so each typo cost
+      // two attempts of a five-attempt budget) and then signed the user out with the dialog still
+      // open (QA A-01); on the sign-in page it showed "your session expired" for a mistyped
+      // password (QA M-12).
       const needsRefresh =
         isUnauthorized &&
         stepUpScopeOf(error) === null &&
+        !isCredentialCheck(req, error) &&
         !isPublicAuthApiRoute &&
         injector.get(AuthService).authStatus() === AuthStatus.authenticated;
 
@@ -181,3 +196,45 @@ export const authInterceptor: HttpInterceptorFn = (
     }),
   );
 };
+
+/**
+ * Endpoints that VERIFY a credential. A 401 from one of them is the answer to the check, never a
+ * statement about the session, and must not be answered with a refresh-and-replay.
+ */
+const CREDENTIAL_CHECK_PATHS = [
+  '/auth/login',
+  '/auth/step-up',
+  '/auth/refresh',
+  '/auth/change-password',
+  '/auth/set-password',
+  '/auth/reset-password',
+];
+
+/** Error codes that report a failed credential, whichever endpoint returned them. */
+const CREDENTIAL_FAILURE_CODES = new Set([
+  'AUTH_INVALID_CREDENTIALS',
+  'AUTH_TWO_FACTOR_INVALID',
+  'AUTH_TWO_FACTOR_REQUIRED',
+  'AUTH_VERIFICATION_CODE_INVALID',
+  'AUTH_VERIFICATION_CODE_EXPIRED',
+  'AUTH_VERIFICATION_CODE_NOT_FOUND',
+  'AUTH_ACCOUNT_LOCKED',
+  'STEP_UP_INVALID_CREDENTIALS',
+]);
+
+export function isCredentialCheck(
+  req: { url: string },
+  error: { error?: unknown },
+): boolean {
+  let path = req.url;
+  try {
+    path = new URL(req.url, 'http://local').pathname;
+  } catch {
+    /* relative URL without a base: use as is */
+  }
+  if (CREDENTIAL_CHECK_PATHS.some((p) => path.includes(p))) return true;
+  const body = (error?.error ?? {}) as { code?: unknown; message?: unknown };
+  const code = typeof body.code === 'string' ? body.code : typeof body.message === 'string' ? body.message : '';
+  return CREDENTIAL_FAILURE_CODES.has(code);
+}
+

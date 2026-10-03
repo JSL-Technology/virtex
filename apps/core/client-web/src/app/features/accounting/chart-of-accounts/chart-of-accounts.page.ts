@@ -1,3 +1,4 @@
+import { DatasetExportService } from '../../../core/export/dataset-export';
 // app/features/accounting/chart-of-accounts/chart-of-accounts.page.ts
 import { Component, inject, ChangeDetectionStrategy, OnInit, effect, linkedSignal } from '@angular/core';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -26,6 +27,8 @@ export class ChartOfAccountsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   public readonly state = inject(ChartOfAccountsStateService);
   private readonly router = inject(Router);
+  /** «Exportar» — the whole chart, from the server (QA A-13). */
+  protected readonly exports = inject(DatasetExportService);
 
   // Icons
   protected readonly PlusIcon = Plus;

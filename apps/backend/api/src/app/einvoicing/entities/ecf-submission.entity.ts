@@ -58,7 +58,9 @@ export class EcfSubmission {
    * There was no foreign key: a submission could reference an invoice that did not exist, and
    * discarding a draft left its e-CF row orphaned.
    */
-  @ManyToOne(() => Invoice, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Invoice, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'invoice_id' })
   invoice: Invoice;
 

@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 export interface TenantJob {
   id: string;
   queue: string;
@@ -47,7 +48,7 @@ export class JobsPanelService {
 
   async refresh(): Promise<void> {
     try {
-      this.state.set((await firstValueFrom(this.http.get<TenantJob[]>('/api/v1/me/jobs'))) ?? []);
+      this.state.set((await firstValueFrom(this.http.get<TenantJob[]>(`${environment.apiUrl}/me/jobs`))) ?? []);
     } catch (error) {
       // Se conserva lo último conocido: vaciar diría que no hay trabajos, que es más de lo que se
       // sabe cuando la petición falló.

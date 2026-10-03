@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
 
 @Component({
   selector: 'app-security-settings',
@@ -86,7 +87,9 @@ describe('MyProfilePage', () => {
           LucideAngularModule,
           TranslateModule,
           MockSecuritySettingsComponent,
-          MockPhoneVerificationModalComponent
+          MockPhoneVerificationModalComponent,
+          // The real meter: the password fields show it, and it has no dependencies to mock.
+          PasswordStrengthComponent,
         ]
       }
     })

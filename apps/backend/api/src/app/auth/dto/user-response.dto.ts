@@ -51,6 +51,9 @@ export class OrganizationResponseDto implements OrganizationContract {
    */
   @ApiPropertyOptional()
   @Expose()
+  // The entity stores it as `country` (ISO 3166-1 alpha-2); the field was never mapped, so every
+  // session reported no country and amounts were formatted with a neutral locale.
+  @Transform(({ obj }) => isoCountry(obj.countryCode) ?? isoCountry(obj.country) ?? isoCountry(obj.fiscalRegion?.countryCode))
   countryCode: string | null;
 
   @ApiPropertyOptional()
@@ -230,4 +233,11 @@ export class UserResponseDto implements AuthUserContract {
   @ApiPropertyOptional()
   @Expose()
   originalUserId?: string | null;
+}
+
+/** An ISO 3166-1 alpha-2 code, or null: a free-text country is not a jurisdiction to format by. */
+function isoCountry(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const code = value.trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : null;
 }

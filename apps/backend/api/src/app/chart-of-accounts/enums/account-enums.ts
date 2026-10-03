@@ -114,6 +114,12 @@ export enum AccountRole {
   /** Tax withheld from us by our customers, recoverable against the return. */
   WITHHOLDING_RECEIVABLE = 'WITHHOLDING_RECEIVABLE',
   ACCOUNTS_PAYABLE = 'ACCOUNTS_PAYABLE',
+  /**
+   * Goods received not invoiced: credited by a purchase-order receipt as the stock arrives, debited
+   * by the supplier's invoice for those goods. Perpetual inventory with the receipt and the bill
+   * as separate events needs this bridge, or one of them books the goods twice.
+   */
+  GOODS_RECEIVED_NOT_INVOICED = 'GOODS_RECEIVED_NOT_INVOICED',
   /** VAT/ITBIS/IVA charged on sales — the debit side of the tax return. */
   TAX_PAYABLE = 'TAX_PAYABLE',
   /**

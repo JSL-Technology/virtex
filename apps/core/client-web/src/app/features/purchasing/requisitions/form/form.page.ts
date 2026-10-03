@@ -240,7 +240,7 @@ export class RequisitionFormPage implements OnInit {
 
         this.load(requisition);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -294,16 +294,13 @@ export class RequisitionFormPage implements OnInit {
         this.saving.set(false);
         this.load(requisition);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.saving.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'purchasing.requisitions.form.save_failed',
-    );
+    this.notifications.showHttpError(error, 'purchasing.requisitions.form.save_failed');
   }
 
   private load(requisition: PurchaseRequisition): void {

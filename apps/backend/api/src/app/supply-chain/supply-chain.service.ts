@@ -11,6 +11,7 @@ import { UpdateBinLocationDto } from './dto/update-bin-location.dto';
 import { CreateLandedCostDto } from './dto/create-landed-cost.dto';
 import { UpdateLandedCostDto } from './dto/update-landed-cost.dto';
 import { NotFoundError } from '../i18n/localized.exception';
+import { assertNotInUse } from '../common/database/dependents';
 
 /**
  * Warehouse management master data: warehouses, bin locations and landed-cost schemes.
@@ -65,9 +66,13 @@ export class SupplyChainService {
     );
   }
 
+  /** A warehouse that holds bins or stock is deactivated, not deleted: the stock is somewhere. */
   async removeWarehouse(id: string, organizationId: string): Promise<void> {
     await this.findOneWarehouse(id, organizationId);
-    await this.warehouseRepository.delete({ id, organizationId });
+    await this.warehouseRepository.manager.transaction(async (manager) => {
+      await assertNotInUse(manager, 'warehouses', id, 'supply_chain.warehouse_in_use_deactivate_instead');
+      await manager.delete(Warehouse, { id, organizationId });
+    });
   }
 
   // ── Bin locations ────────────────────────────────────────────────────────────
@@ -112,7 +117,10 @@ export class SupplyChainService {
 
   async removeBinLocation(id: string, organizationId: string): Promise<void> {
     await this.findOneBinLocation(id, organizationId);
-    await this.binLocationRepository.delete({ id, organizationId });
+    await this.binLocationRepository.manager.transaction(async (manager) => {
+      await assertNotInUse(manager, 'bin_locations', id, 'supply_chain.bin_location_in_use');
+      await manager.delete(BinLocation, { id, organizationId });
+    });
   }
 
   // ── Landed-cost schemes ──────────────────────────────────────────────────────

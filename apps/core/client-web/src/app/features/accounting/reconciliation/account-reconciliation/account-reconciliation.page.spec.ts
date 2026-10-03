@@ -10,6 +10,7 @@ import {
   TransactionSuggestion,
 } from '../../../../core/api/reconciliation.service';
 import { environment } from '../../../../../environments/environment';
+import { TRANSLATE_STORE_PROVIDERS, apiErrorBody, useCatalogue } from '../../../../../testing/api-errors';
 
 /**
  * The page it replaces rendered an empty table from a signal nothing ever wrote to, for every
@@ -110,7 +111,7 @@ describe('AccountReconciliationPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AccountReconciliationPage, TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), ...TRANSLATE_STORE_PROVIDERS],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AccountReconciliationPage);
@@ -167,6 +168,7 @@ describe('AccountReconciliationPage', () => {
   });
 
   it("surfaces the server's reason when an operation is refused", () => {
+    useCatalogue({ 'reconciliation.match_sides_do_not_agree': 'La conciliación no balancea.' });
     fixture.detectChanges();
     openStatement();
 
@@ -176,10 +178,7 @@ describe('AccountReconciliationPage', () => {
 
     httpMock
       .expectOne((c) => c.url === `${API}/reconciliation/matches`)
-      .flush(
-        { message: 'La conciliación no balancea.' },
-        { status: 400, statusText: 'Bad Request' },
-      );
+      .flush(apiErrorBody(400, 'reconciliation.match_sides_do_not_agree'), { status: 400, statusText: 'Bad Request' });
     fixture.detectChanges();
 
     // The refusal IS the information — swallowing it into a generic failure hides why.

@@ -33,11 +33,11 @@
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="pf-grid-2">
             <div class="pf-field">
-              <label class="pf-label" for="firstname">{{ 'settings.profile.first_name' | translate }}</label>
+              <label class="pf-label" for="firstname">{{ 'settings.profile.first_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
               <input id="firstname" type="text" formControlName="firstName" [placeholder]="'settings.my_profile.jane' | translate">
             </div>
             <div class="pf-field">
-              <label class="pf-label" for="lastname">{{ 'settings.profile.last_name' | translate }}</label>
+              <label class="pf-label" for="lastname">{{ 'settings.profile.last_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
               <input id="lastname" type="text" formControlName="lastName" [placeholder]="'settings.my_profile.doe' | translate">
             </div>
           </div>
@@ -87,12 +87,15 @@
             <div class="pf-phone-row">
               <div class="pf-icon-wrap pf-icon-wrap--grow">
                 <lucide-icon [img]="PhoneIcon" size="16" class="pf-icon"></lucide-icon>
-                <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000">
+                <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000" autocomplete="tel">
               </div>
               <button type="button" class="pf-verify-btn" (click)="openPhoneVerification()">
                 {{ 'settings.profile.verify' | translate }}
               </button>
             </div>
+            @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+              <small class="pf-error" role="alert">{{ 'settings.profile.errors.invalid_phone' | translate }}</small>
+            }
           </div>
 
           <div class="pf-field">
@@ -116,7 +119,7 @@
 
           <div class="pf-actions">
             <button type="submit"
-                    [disabled]="profileForm.invalid || profileForm.pristine || isLoading"
+                    [disabled]="profileForm.pristine || isLoading"
                     class="pf-btn-primary">
               @if (isLoading) {
                 <span class="pf-spinner"></span>
@@ -147,16 +150,28 @@
                    [value]="currentUser()?.email">
 
             <div class="pf-field">
-              <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }}</label>
-              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••">
+              <label class="pf-label" for="currentpassword">{{ 'settings.profile.current_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="currentpassword" type="password" formControlName="currentPassword" autocomplete="current-password" placeholder="••••••••" required>
+              @if (passwordForm.get('currentPassword')?.hasError('incorrect')) {
+                <small class="pf-error" role="alert">{{ 'settings.profile.errors.current_password_incorrect' | translate }}</small>
+              }
             </div>
             <div class="pf-field">
-              <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }}</label>
-              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••">
+              <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••" required>
+              <!-- Los requisitos, en vivo: antes una contraseña débil dejaba el botón gris sin decir por qué (QA M-03). -->
+              <app-password-strength [password]="passwordForm.get('newPassword')?.value"></app-password-strength>
+            </div>
+            <div class="pf-field">
+              <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+              @if (passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched) {
+                <small class="pf-error" role="alert">{{ 'settings.profile.errors.passwords_do_not_match' | translate }}</small>
+              }
             </div>
 
             <div class="pf-actions">
-              <button type="submit" [disabled]="passwordForm.invalid" class="pf-btn-secondary">
+              <button type="submit" class="pf-btn-secondary">
                 {{ 'settings.profile.update_password' | translate }}
               </button>
             </div>

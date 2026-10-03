@@ -7,12 +7,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseOrder,
   PurchaseOrderStatus,
   PurchasingService,
+  PurchaseOrderReceipt,
 } from '../../../../core/api/purchasing.service';
 import { SuppliersService } from '../../../../core/api/suppliers.service';
 import { Supplier } from '../../../../core/models/supplier.model';
@@ -61,6 +63,8 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly suppliersApi = inject(SuppliersService);
   private readonly inventory = inject(InventoryService);
   private readonly notifications = inject(NotificationService);
+  private readonly locale = inject(LocaleStore);
+  private readonly currencies = inject(CurrenciesService);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -146,6 +150,22 @@ export class PurchaseOrderFormPage implements OnInit {
   readonly canReceive = computed(
     () => this.status() === 'SENT' || this.status() === 'PARTIALLY_RECEIVED',
   );
+  /**
+   * Whether a supplier invoice can still be raised from this order: it has been sent and some line
+   * is not fully billed. Opens the vendor-bill form pre-filled and tied to the order lines, which is
+   * what makes the bill clear "goods received not invoiced" instead of receiving the goods again.
+   */
+  readonly canBill = computed(() => {
+    const order = this.current();
+    if (!order || !['SENT', 'PARTIALLY_RECEIVED', 'RECEIVED'].includes(order.status)) return false;
+    return (order.lines ?? []).some(
+      (line) => Number(line.quantity) - Number(line.billedQuantity ?? 0) > 0.000001,
+    );
+  });
+
+  /** Deliveries recorded against the order, with the entry each one posted. */
+  readonly receipts = signal<PurchaseOrderReceipt[]>([]);
+
   readonly canCancel = computed(
     () => this.status() !== null && !['RECEIVED', 'CANCELLED'].includes(this.status()!),
   );
@@ -161,9 +181,27 @@ export class PurchaseOrderFormPage implements OnInit {
   readonly cancelling = signal(false);
   readonly cancellationReason = signal('');
 
+  /**
+   * The order's currency (QA A-12): it starts on the books currency — the API already defaulted to
+   * it, but the screen offered no choice and showed amounts in the USD fallback. A foreign
+   * supplier's order can be raised in its own currency.
+   */
+  readonly currencyCodes = signal<string[]>([]);
+  readonly currencyOptions = computed(() => {
+    const codes = new Set([this.locale.currency(), ...this.currencyCodes()]);
+    const own = this.current()?.currencyCode;
+    if (own) codes.add(own);
+    return [...codes];
+  });
+  readonly currencyCode = signal<string | null>(null);
+
+  readonly rejecting = signal(false);
+  readonly rejectionReason = signal('');
+
   ngOnInit(): void {
     this.form = this.fb.group({
       supplierId: ['', [Validators.required]],
+      currencyCode: [this.locale.currency(), [Validators.required]],
       orderDate: [todayIso(), [Validators.required]],
       expectedDate: [''],
       notes: [''],
@@ -177,9 +215,19 @@ export class PurchaseOrderFormPage implements OnInit {
       },
     );
 
+    this.currencies.getCurrencies().subscribe({
+      next: (all) => this.currencyCodes.set(all.map((currency) => currency.code)),
+      error: () => this.currencyCodes.set([]),
+    });
+    this.currencyCode.set(this.locale.currency());
+    this.form.get('currencyCode')?.valueChanges.subscribe((code: string) => this.currencyCode.set(code || null));
+
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
-        next: (order) => this.load(order),
+        next: (order) => {
+          this.load(order);
+          this.loadReceipts(order.id);
+        },
         error: () => this.notifications.showError('procurement.order_not_found'),
       });
     } else {
@@ -267,6 +315,7 @@ export class PurchaseOrderFormPage implements OnInit {
     const raw = this.form.getRawValue();
     const body = {
       supplierId: raw.supplierId,
+      currencyCode: raw.currencyCode || undefined,
       orderDate: raw.orderDate,
       expectedDate: raw.expectedDate || undefined,
       notes: raw.notes || undefined,
@@ -301,7 +350,7 @@ export class PurchaseOrderFormPage implements OnInit {
 
         this.load(order);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -324,12 +373,51 @@ export class PurchaseOrderFormPage implements OnInit {
   }
 
   confirmReceive(): void {
+    const order = this.current();
+    if (!order) return;
     const lines = Object.entries(this.receiptQuantities())
       .filter(([, quantity]) => quantity > 0)
       .map(([lineId, quantity]) => ({ lineId, quantity }));
-    if (lines.length === 0) return;
-    this.act(this.purchasing.receiveOrder(this.current()!.id, lines));
-    this.receiving.set(false);
+    if (lines.length === 0) {
+      this.notifications.showError('procurement.receipt_has_no_quantities');
+      return;
+    }
+    //  Se comprueba antes de enviar: recibir más de lo pendiente es lo único que el servidor
+    //  rechazaría, y decirlo aquí señala la línea exacta.
+    for (const { lineId, quantity } of lines) {
+      const line = order.lines.find((candidate) => candidate.id === lineId);
+      if (line && quantity - this.outstanding(line as never) > 0.000001) {
+        this.notifications.showError('purchasing.orders.form.receipt_exceeds_outstanding', {
+          description: line.description,
+        });
+        return;
+      }
+    }
+    this.saving.set(true);
+    this.purchasing.receiveOrder(order.id, lines).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.receiving.set(false);
+        this.load(updated);
+        this.loadReceipts(updated.id);
+        this.notifications.showSuccess('purchasing.orders.form.receipt_recorded');
+      },
+      error: (error) => this.fail(error),
+    });
+  }
+
+  /** Open a supplier invoice for what this order still has to bill. */
+  createBill(): void {
+    const order = this.current();
+    if (!order) return;
+    void this.router.navigate(['/accounts-payable/new'], { queryParams: { purchaseOrderId: order.id } });
+  }
+
+  private loadReceipts(orderId: string): void {
+    this.purchasing.orderReceipts(orderId).subscribe({
+      next: (receipts) => this.receipts.set(receipts),
+      error: () => this.receipts.set([]),
+    });
   }
 
   cancelReceive(): void {
@@ -338,6 +426,17 @@ export class PurchaseOrderFormPage implements OnInit {
 
   startCancel(): void { this.cancelling.set(true); }
   abortCancel(): void { this.cancelling.set(false); this.cancellationReason.set(''); }
+
+  startReject(): void { this.rejecting.set(true); }
+  abortReject(): void { this.rejecting.set(false); this.rejectionReason.set(''); }
+
+  /** Back to draft with the reason, so the requester knows what to fix before resubmitting. */
+  confirmReject(): void {
+    const reason = this.rejectionReason().trim();
+    if (reason.length < 3) return;
+    this.act(this.purchasing.rejectOrder(this.current()!.id, reason));
+    this.abortReject();
+  }
 
   confirmCancel(): void {
     const reason = this.cancellationReason().trim();
@@ -359,16 +458,15 @@ export class PurchaseOrderFormPage implements OnInit {
         this.saving.set(false);
         this.load(order);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.saving.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'purchasing.orders.form.save_failed',
-    );
+    //  El motivo del servidor —cantidad mayor que la pedida, orden que no se puede aprobar por
+    //  quien la creó, cuentas sin configurar— y no un «No se pudo guardar» genérico.
+    this.notifications.showHttpError(error, 'purchasing.orders.form.save_failed');
   }
 
   private load(order: PurchaseOrder): void {
@@ -391,12 +489,14 @@ export class PurchaseOrderFormPage implements OnInit {
     this.form.patchValue(
       {
         supplierId: order.supplierId,
+        currencyCode: order.currencyCode,
         orderDate: order.orderDate,
         expectedDate: order.expectedDate ?? '',
         notes: order.notes ?? '',
       },
       { emitEvent: false },
     );
+    this.currencyCode.set(order.currencyCode);
     if (this.editable()) this.form.enable({ emitEvent: false });
     else this.form.disable({ emitEvent: false });
 

@@ -49,6 +49,11 @@
     "en": "Both accounts must be postable to be merged.",
     "pt": "Ambas as contas devem ser analíticas para poderem ser fundidas."
   },
+  "chart_of_accounts.category_does_not_match_type": {
+    "es": "La categoría no corresponde al tipo de cuenta. Para ese tipo elige una de estas: {{allowed}}.",
+    "en": "The category does not match the account type. For that type choose one of: {{allowed}}.",
+    "pt": "A categoria não corresponde ao tipo de conta. Para esse tipo escolha uma destas: {{allowed}}."
+  },
   "chart_of_accounts.consistency_error_parent_account_parent_code": {
     "es": "Error de consistencia: La cuenta padre '{{parentCode}}' para la cuenta '{{p2}}' no fue encontrada. La transacción será revertida.",
     "en": "Consistency error: the parent account '{{parentCode}}' for account '{{p2}}' was not found. The transaction will be rolled back.",

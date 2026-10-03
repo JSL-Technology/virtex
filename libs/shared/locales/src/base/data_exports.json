@@ -1,9 +1,4 @@
 {
-  "data_exports.action": {
-    "es": "Acción",
-    "en": "Action",
-    "pt": "Ação"
-  },
   "data_exports.data_export": {
     "es": "Datos a exportar",
     "en": "Data to export",
@@ -19,18 +14,28 @@
     "en": "Data type",
     "pt": "Tipo de dado"
   },
+  "data_exports.datasets_failed": {
+    "es": "No se pudieron cargar los tipos de datos.",
+    "en": "The data types could not be loaded.",
+    "pt": "Não foi possível carregar os tipos de dados."
+  },
   "data_exports.date": {
     "es": "Fecha",
     "en": "Date",
     "pt": "Data"
   },
-  "data_exports.download": {
-    "es": "Descargar",
-    "en": "Download",
-    "pt": "Baixar"
-  },
   "data_exports.excel_xlsx": {
     "literal": "Excel (XLSX)"
+  },
+  "data_exports.export_failed": {
+    "es": "No se pudo generar el archivo.",
+    "en": "The file could not be generated.",
+    "pt": "Não foi possível gerar o arquivo."
+  },
+  "data_exports.file_ready": {
+    "es": "«{{name}}» descargado.",
+    "en": "“{{name}}” downloaded.",
+    "pt": "“{{name}}” baixado."
   },
   "data_exports.format_label": {
     "es": "Formato",
@@ -61,6 +66,11 @@
     "es": "Exportaciones recientes",
     "en": "Recent exports",
     "pt": "Exportações recentes"
+  },
+  "data_exports.rows": {
+    "es": "Filas",
+    "en": "Rows",
+    "pt": "Linhas"
   },
   "data_exports.select_data_type": {
     "es": "Selecciona un tipo de dato...",

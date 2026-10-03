@@ -195,6 +195,11 @@
     "en": "The ledger account given is a summary account and cannot take movements.",
     "pt": "A conta contábil indicada é de agrupamento e não admite movimentos."
   },
+  "treasury.ledger_account_not_money_account": {
+    "es": "La cuenta contable de un banco debe ser de efectivo o bancos, no de otro activo.",
+    "en": "A bank account’s ledger account must be a cash or bank account, not another asset.",
+    "pt": "A conta contábil de um banco deve ser de caixa ou bancos, não de outro ativo."
+  },
   "treasury.no_bank_accounts_have_registered": {
     "es": "No hay cuentas bancarias registradas.",
     "en": "No bank accounts have been registered.",

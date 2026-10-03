@@ -10,7 +10,7 @@ export class OrganizationSubscriptionHistory {
   @Column({ name: 'organization_id' })
   organizationId: string;
 
-  @ManyToOne(() => Organization)
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 

@@ -117,7 +117,9 @@ export class BankAccount {
    * user can act on — rather than a constraint whose other effect is that offboarding a customer
    * is impossible.
    */
-  @ManyToOne(() => Account, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Account, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'gl_account_id' })
   glAccount: Account;
 

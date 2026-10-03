@@ -1,0 +1,127 @@
+{
+  "data_transfer.already_exists": {
+    "es": "Ya existe un registro con «{{value}}».",
+    "en": "A record with “{{value}}” already exists.",
+    "pt": "Já existe um registro com “{{value}}”."
+  },
+  "data_transfer.datasets.chart_of_accounts": {
+    "es": "Plan de cuentas",
+    "en": "Chart of accounts",
+    "pt": "Plano de contas"
+  },
+  "data_transfer.datasets.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "data_transfer.datasets.invoices": {
+    "es": "Facturas de venta",
+    "en": "Sales invoices",
+    "pt": "Faturas de venda"
+  },
+  "data_transfer.datasets.journal_entry_lines": {
+    "es": "Libro diario (líneas de asientos)",
+    "en": "General journal (entry lines)",
+    "pt": "Livro diário (linhas de lançamentos)"
+  },
+  "data_transfer.datasets.pos_sales": {
+    "es": "Ventas del punto de venta",
+    "en": "Point-of-sale sales",
+    "pt": "Vendas do ponto de venda"
+  },
+  "data_transfer.datasets.products": {
+    "es": "Productos",
+    "en": "Products",
+    "pt": "Produtos"
+  },
+  "data_transfer.datasets.sales_lines": {
+    "es": "Detalle de ventas (por línea)",
+    "en": "Sales detail (by line)",
+    "pt": "Detalhe de vendas (por linha)"
+  },
+  "data_transfer.datasets.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "data_transfer.datasets.vendor_bills": {
+    "es": "Facturas de proveedor",
+    "en": "Supplier bills",
+    "pt": "Faturas de fornecedor"
+  },
+  "data_transfer.duplicate_in_file": {
+    "es": "«{{value}}» ya aparece en la línea {{first}} de este archivo.",
+    "en": "“{{value}}” already appears on line {{first}} of this file.",
+    "pt": "“{{value}}” já aparece na linha {{first}} deste arquivo."
+  },
+  "data_transfer.export_too_large": {
+    "es": "Hay {{total}} filas; el máximo por archivo es {{max}}. Usa un reporte filtrado para un volumen así.",
+    "en": "There are {{total}} rows; the limit per file is {{max}}. Use a filtered report for that volume.",
+    "pt": "Há {{total}} linhas; o máximo por arquivo é {{max}}. Use um relatório filtrado para esse volume."
+  },
+  "data_transfer.file_has_no_rows": {
+    "es": "El archivo no tiene filas de datos.",
+    "en": "The file has no data rows.",
+    "pt": "O arquivo não tem linhas de dados."
+  },
+  "data_transfer.file_unreadable": {
+    "es": "No se pudo leer el archivo: {{detail}}",
+    "en": "The file could not be read: {{detail}}",
+    "pt": "Não foi possível ler o arquivo: {{detail}}"
+  },
+  "data_transfer.missing_columns": {
+    "es": "Faltan columnas obligatorias: {{columns}}.",
+    "en": "Required columns are missing: {{columns}}.",
+    "pt": "Faltam colunas obrigatórias: {{columns}}."
+  },
+  "data_transfer.not_allowed_to_export": {
+    "es": "No tienes permiso para ver estos datos, así que tampoco para exportarlos.",
+    "en": "You are not allowed to view this data, so you cannot export it either.",
+    "pt": "Você não tem permissão para ver estes dados, portanto também não pode exportá-los."
+  },
+  "data_transfer.not_allowed_to_import": {
+    "es": "No tienes permiso para crear estos registros, así que tampoco para importarlos.",
+    "en": "You are not allowed to create these records, so you cannot import them either.",
+    "pt": "Você não tem permissão para criar estes registros, portanto também não pode importá-los."
+  },
+  "data_transfer.status.completed": {
+    "es": "Completada",
+    "en": "Completed",
+    "pt": "Concluída"
+  },
+  "data_transfer.status.failed": {
+    "es": "Rechazada",
+    "en": "Rejected",
+    "pt": "Rejeitada"
+  },
+  "data_transfer.status.partial": {
+    "es": "Parcial",
+    "en": "Partial",
+    "pt": "Parcial"
+  },
+  "data_transfer.status.validated": {
+    "es": "Validada, sin errores",
+    "en": "Validated, no errors",
+    "pt": "Validada, sem erros"
+  },
+  "data_transfer.too_many_rows": {
+    "es": "El archivo tiene {{count}} filas; el máximo por importación es {{max}}. Divídelo en varios archivos.",
+    "en": "The file has {{count}} rows; the limit per import is {{max}}. Split it into several files.",
+    "pt": "O arquivo tem {{count}} linhas; o máximo por importação é {{max}}. Divida-o em vários arquivos."
+  },
+  "data_transfer.unknown_columns": {
+    "es": "El archivo tiene columnas que esta importación no reconoce: {{columns}}. Usa los encabezados de la plantilla.",
+    "en": "The file has columns this import does not recognise: {{columns}}. Use the template's headers.",
+    "pt": "O arquivo tem colunas que esta importação não reconhece: {{columns}}. Use os cabeçalhos do modelo."
+  },
+  "data_transfer.unknown_dataset": {
+    "es": "El conjunto de datos «{{dataset}}» no existe.",
+    "en": "The dataset “{{dataset}}” does not exist.",
+    "pt": "O conjunto de dados “{{dataset}}” não existe."
+  },
+  "data_transfer.unsupported_file_type": {
+    "es": "Sube un archivo .csv o .xlsx.",
+    "en": "Upload a .csv or .xlsx file.",
+    "pt": "Envie um arquivo .csv ou .xlsx."
+  }
+}

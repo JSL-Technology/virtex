@@ -11,6 +11,7 @@ import {
 import { ProfitabilityReport } from '../api/profitability.service';
 import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { CsvValue, downloadCsv, reportFilename, toCsv } from './csv-export';
+import { GeneralLedger } from '../models/general-ledger.model';
 
 /**
  * The four statutory statements, as files.
@@ -377,4 +378,44 @@ export class StatementExportService {
     );
   }
 
+  /**
+   * One account's ledger, as on screen: opening balance, every movement with its running balance,
+   * closing balance (QA A-13 — «Exportar» in the general ledger did nothing).
+   */
+  exportGeneralLedger(ledger: GeneralLedger, from: string, to: string): void {
+    const rows: CsvValue[][] = [
+      [
+        this.t('accounting.general_ledger.date'),
+        this.t('accounting.general_ledger.reference'),
+        this.t('accounting.general_ledger.description'),
+        this.t('accounting.general_ledger.debit'),
+        this.t('accounting.general_ledger.credit'),
+        this.t('accounting.general_ledger.balance'),
+      ],
+      [from, '', this.t('accounting.general_ledger.opening_balance'), '', '', ledger.initialBalance],
+      ...ledger.lines.map((line) => [
+        line.date,
+        line.reference,
+        line.description,
+        line.debit === null ? '' : Number(line.debit),
+        line.credit === null ? '' : Number(line.credit),
+        Number(line.balance),
+      ]),
+      [to, '', this.t('accounting.general_ledger.ending_balance'), '', '', ledger.finalBalance],
+    ];
+    const account = `${ledger.account.code} ${accountNameOf(ledger.account.name)}`;
+    downloadCsv(
+      reportFilename('libro-mayor', ledger.account.code, from, to),
+      toCsv(rows, {
+        locale: this.locale,
+        preamble: [
+          [this.t('accounting.general_ledger.general_ledger')],
+          [this.t('accounting.general_ledger.account'), account],
+          [this.t('reports.export.period'), `${from} — ${to}`],
+          [this.t('reports.export.generated_at'), new Date().toISOString()],
+          [],
+        ],
+      }),
+    );
+  }
 }

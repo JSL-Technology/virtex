@@ -30,10 +30,21 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 
   let totalDebit = 0;
   let totalCredit = 0;
+  //  Líneas que cargan débito Y crédito a la vez. El servidor las rechaza
+  //  (`line_line_carries_both_debit_credit`) y el formulario las dejaba pasar (QA M-04): se dice
+  //  aquí, con el número de línea, antes de enviar nada.
+  const bothSides: number[] = [];
 
-  for (const line of lines.controls) {
-    totalDebit += Number(line.get('debit')?.value) || 0;
-    totalCredit += Number(line.get('credit')?.value) || 0;
+  lines.controls.forEach((line, index) => {
+    const debit = Number(line.get('debit')?.value) || 0;
+    const credit = Number(line.get('credit')?.value) || 0;
+    totalDebit += debit;
+    totalCredit += credit;
+    if (debit > 0 && credit > 0) bothSides.push(index + 1);
+  });
+
+  if (bothSides.length) {
+    return { bothSides: { lines: bothSides.join(', ') } };
   }
 
   // Redondear para evitar problemas de precisión con decimales
@@ -217,7 +228,16 @@ export class JournalEntryFormPage implements OnInit {
 
   loadInitialData(): void {
     this.ledgersService.getLedgers().subscribe({
-      next: data => this.ledgers.set(data),
+      next: (data) => {
+        this.ledgers.set(data);
+        //  El libro principal viene elegido. Casi todo asiento manual va a él, y dejar el campo
+        //  vacío obligaba a elegir lo obvio en cada asiento.
+        const control = this.entryForm?.get('ledgerId');
+        if (control && !control.value) {
+          const preset = data.find((ledger) => ledger.isDefault) ?? (data.length === 1 ? data[0] : null);
+          if (preset) control.setValue(preset.id, { emitEvent: false });
+        }
+      },
       error: () => this.notificationService.showError('accounting.journal_entry_form.ledgers_load_failed')
     });
     this.journalsService.getJournals().subscribe({
@@ -308,9 +328,12 @@ export class JournalEntryFormPage implements OnInit {
         void this.router.navigate(['/accounting/journal-entries']).then(() => this.tab?.close());
       },
       error: (err) => {
-        this.notificationService.showError(
-          err.error?.message ||
-            (editing ? 'errors.update_journal_entry' : 'errors.create_journal_entry'),
+        //  El motivo del servidor —período cerrado, cuenta que no admite movimientos, fecha fuera
+        //  del rango permitido— es lo que el usuario necesita para corregir el asiento; el
+        //  genérico «No se pudo crear el asiento» no le decía nada (QA C-05, A-17).
+        this.notificationService.showHttpError(
+          err,
+          editing ? 'errors.update_journal_entry' : 'errors.create_journal_entry',
         );
         this.isSaving.set(false);
       },

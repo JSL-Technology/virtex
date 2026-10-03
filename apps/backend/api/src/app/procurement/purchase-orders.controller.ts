@@ -104,6 +104,18 @@ export class PurchaseOrdersController {
     return this.orders.approve(id, user.organizationId, user.id);
   }
 
+  /** Send it back to its author with the reason (QA A-11). */
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
+  reject(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: RejectDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.orders.reject(id, user.organizationId, user.id, dto.reason);
+  }
+
   @Post(':id/reopen')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
@@ -128,7 +140,17 @@ export class PurchaseOrdersController {
     @Body() dto: ReceivePurchaseOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.orders.receive(id, dto, user.organizationId);
+    return this.orders.receive(id, dto, user.organizationId, user.id);
+  }
+
+  @Get(':id/receipts')
+  @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
+  @ApiOperation({ summary: 'Las recepciones registradas contra la orden, con su asiento.' })
+  receipts(
+    @Param('id', UuidParamPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.orders.receipts(id, user.organizationId);
   }
 
   @Post(':id/cancel')

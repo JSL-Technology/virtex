@@ -28,6 +28,7 @@ import {
   UpdateVendorBillDto,
 } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
+import { PurchasingService } from '../../purchasing/data/purchasing.service';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { CurrenciesService, Currency } from '../../../core/api/currencies.service';
 import { TreasuryService } from '../../../core/api/treasury.service';
@@ -114,6 +115,7 @@ export class VendorBillFormPage implements OnInit {
   private readonly treasury = inject(TreasuryService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
+  private readonly purchasing = inject(PurchasingService);
 
   form!: FormGroup;
   readonly isEditMode = signal(false);
@@ -220,12 +222,70 @@ export class VendorBillFormPage implements OnInit {
     this.recomputeTotals();
   }
 
-  private createLine(): FormGroup {
+  private createLine(seed: Partial<BillLineSeed> = {}): FormGroup {
+    const stocked = !!seed.productId;
     return this.fb.group({
-      product: ['', [Validators.required]],
-      quantity: [1, [Validators.required, Validators.min(0.0001)]],
-      unitPrice: [0, [Validators.required, Validators.min(0)]],
-      expenseAccountId: ['', [Validators.required]],
+      product: [seed.product ?? '', [Validators.required]],
+      quantity: [seed.quantity ?? 1, [Validators.required, Validators.min(0.0001)]],
+      unitPrice: [seed.unitPrice ?? 0, [Validators.required, Validators.min(0)]],
+      //  Una línea de un artículo de inventario va a la cuenta de inventario (o liquida la
+      //  mercancía recibida no facturada); solo la de un gasto necesita una cuenta de gasto.
+      expenseAccountId: [seed.expenseAccountId ?? '', stocked ? [] : [Validators.required]],
+      productId: [seed.productId ?? ''],
+      purchaseOrderLineId: [seed.purchaseOrderLineId ?? ''],
+    });
+  }
+
+  /**
+   * The purchase order this bill is being raised from, when it came from one.
+   *
+   * «Crear factura de proveedor» on a received order opens this form with `purchaseOrderId`: the
+   * supplier, the currency and one line per item still to bill arrive filled in, each line tied to
+   * its order line. That link is what lets the server clear "goods received not invoiced" instead
+   * of receiving the goods a second time (QA C-07, three-way match).
+   */
+  readonly sourceOrder = signal<{ id: string; number: string } | null>(null);
+
+  private prefillFromPurchaseOrder(orderId: string): void {
+    this.isLoading.set(true);
+    this.purchasing.getOrder(orderId).subscribe({
+      next: (order) => {
+        this.sourceOrder.set({ id: order.id, number: order.number });
+        const seeds: BillLineSeed[] = (order.lines ?? [])
+          .map((line) => {
+            const billed = Number(line.billedQuantity ?? 0);
+            const received = Number(line.receivedQuantity ?? 0);
+            // What arrived and has not been billed; for an order billed before delivery, what
+            // was ordered and has not been billed.
+            const pending = received > billed ? received - billed : Number(line.quantity) - billed;
+            return {
+              product: line.description,
+              quantity: Math.round(pending * 1e6) / 1e6,
+              unitPrice: Number(line.unitPrice),
+              productId: line.productId ?? '',
+              purchaseOrderLineId: line.id ?? '',
+              taxRate: Number(line.taxRate ?? 0),
+            };
+          })
+          .filter((seed) => seed.quantity > 0);
+
+        this.lines.clear();
+        for (const seed of seeds) this.lines.push(this.createLine(seed));
+        if (this.lines.length === 0) this.addLine();
+
+        const tax = seeds.reduce((sum, seed) => sum + seed.quantity * seed.unitPrice * (seed.taxRate ?? 0), 0);
+        this.form.patchValue({
+          vendorId: order.supplierId,
+          currencyCode: order.currencyCode ?? this.form.get('currencyCode')?.value,
+          taxAmount: round2(tax),
+        });
+        this.isLoading.set(false);
+        this.recomputeTotals();
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.notifications.showHttpError(err, 'procurement.order_not_found');
+      },
     });
   }
 
@@ -313,6 +373,10 @@ export class VendorBillFormPage implements OnInit {
   }
 
   private checkMode(): void {
+    const fromOrder = this.route.snapshot?.queryParamMap?.get('purchaseOrderId');
+    if (fromOrder && !this.route.snapshot?.paramMap?.get('id')) {
+      this.prefillFromPurchaseOrder(fromOrder);
+    }
     this.route.paramMap
       .pipe(
         switchMap((params) => {
@@ -349,11 +413,13 @@ export class VendorBillFormPage implements OnInit {
           this.lines.clear();
           for (const line of bill.lines ?? []) {
             this.lines.push(
-              this.fb.group({
-                product: [line.product, [Validators.required]],
-                quantity: [line.quantity, [Validators.required, Validators.min(0.0001)]],
-                unitPrice: [line.unitPrice, [Validators.required, Validators.min(0)]],
-                expenseAccountId: [line.expenseAccountId ?? '', [Validators.required]],
+              this.createLine({
+                product: line.product,
+                quantity: line.quantity,
+                unitPrice: line.unitPrice,
+                expenseAccountId: line.expenseAccountId ?? '',
+                productId: (line as { productId?: string }).productId ?? '',
+                purchaseOrderLineId: (line as { purchaseOrderLineId?: string }).purchaseOrderLineId ?? '',
               }),
             );
           }
@@ -391,8 +457,10 @@ export class VendorBillFormPage implements OnInit {
           dueDate: 'accounts_payable.detail.due_date',
           currencyCode: 'accounts_payable.detail.currency',
           description: 'accounts_payable.detail.item',
+          product: 'accounts_payable.detail.item',
           quantity: 'accounts_payable.detail.quantity',
           unitPrice: 'accounts_payable.detail.unit_price',
+          expenseAccountId: 'accounts_payable.form.expense_account',
         }),
       );
       return;
@@ -407,13 +475,23 @@ export class VendorBillFormPage implements OnInit {
       vendorId: value.vendorId,
       date: value.date,
       dueDate: value.dueDate,
+      purchaseOrderId: this.sourceOrder()?.id,
       lines: (value.lines ?? []).map(
-        (line: { product: string; quantity: number; unitPrice: number; expenseAccountId: string }) => ({
+        (line: {
+          product: string;
+          quantity: number;
+          unitPrice: number;
+          expenseAccountId: string;
+          productId: string;
+          purchaseOrderLineId: string;
+        }) => ({
           product: line.product,
           quantity: Number(line.quantity),
           unitPrice: Number(line.unitPrice),
           total: round2(Number(line.quantity) * Number(line.unitPrice)),
           expenseAccountId: line.expenseAccountId || undefined,
+          productId: line.productId || undefined,
+          purchaseOrderLineId: line.purchaseOrderLineId || undefined,
         }),
       ),
       total: this.totals().total,
@@ -457,13 +535,22 @@ export class VendorBillFormPage implements OnInit {
         // The server's own message, not a generic one. Every rejection this screen produced was
         // reported as "could not save the bill", which is why a DTO that could never validate went
         // unnoticed for as long as it did.
-        this.notifications.showError(
-          serverMessage(error) ?? 'accounts_payable.form.error_saving_invoice',
-        );
+        this.notifications.showHttpError(error, 'accounts_payable.form.error_saving_invoice');
         this.isLoading.set(false);
       },
     });
   }
+}
+
+/** What a bill line is built from: typed in, loaded from a saved bill, or carried from an order. */
+interface BillLineSeed {
+  product: string;
+  quantity: number;
+  unitPrice: number;
+  expenseAccountId?: string;
+  productId?: string;
+  purchaseOrderLineId?: string;
+  taxRate?: number;
 }
 
 function round2(value: number): number {
@@ -473,13 +560,4 @@ function round2(value: number): number {
 function stripLines(dto: CreateVendorBillDto): Omit<CreateVendorBillDto, 'lines'> {
   const { lines: _lines, ...rest } = dto;
   return rest;
-}
-
-/** The API's message key or sentence, when it sent one. */
-function serverMessage(error: unknown): string | null {
-  const body = (error as { error?: { messageKey?: string; message?: string | string[] } })?.error;
-  if (!body) return null;
-  if (body.messageKey) return body.messageKey;
-  if (Array.isArray(body.message)) return body.message.join(' · ');
-  return body.message ?? null;
 }

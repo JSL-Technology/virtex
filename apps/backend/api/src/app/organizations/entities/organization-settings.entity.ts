@@ -189,6 +189,16 @@ export class OrganizationSettings {
   defaultCustomerAdvancesAccountId: string | null = null;
 
   /**
+   * Goods received not invoiced — see `AccountRole.GOODS_RECEIVED_NOT_INVOICED`.
+   *
+   * A purchase-order receipt debits inventory and credits this; the supplier's invoice for those
+   * goods debits this and credits payables. Without it, receiving goods could not touch the ledger
+   * at all without booking the purchase twice (QA C-07).
+   */
+  @Column({ name: 'default_goods_received_not_invoiced_account_id', type: 'uuid', nullable: true })
+  defaultGoodsReceivedNotInvoicedAccountId: string | null = null;
+
+  /**
    * The counterpart for balances that predate the books — opening stock above all.
    *
    * Deliberately NOT retained earnings: a stock count carried over from the previous system is not

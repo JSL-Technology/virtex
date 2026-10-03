@@ -183,9 +183,13 @@
 }
 
 .pf-label {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-secondary);
+  @include s.form-label;
+}
+
+.pf-error {
+  @include s.field-error;
+  display: block;
+  margin-top: var(--space-1);
 }
 
 .pf-icon-wrap {

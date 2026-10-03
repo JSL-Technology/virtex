@@ -3,6 +3,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { PurchaseOrderLine } from './purchase-order-line.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum PurchaseOrderStatus {
   DRAFT = 'DRAFT',
@@ -48,7 +49,7 @@ export class PurchaseOrder extends BaseEntity {
   @Column({ name: 'supplier_id', type: 'uuid' })
   supplierId: string;
 
-  @ManyToOne(() => Supplier, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Supplier, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'supplier_id', foreignKeyConstraintName: 'FK_purchase_orders_supplier' })
   supplier: Supplier;
 
@@ -122,6 +123,19 @@ export class PurchaseOrder extends BaseEntity {
   @Column({ name: 'cancellation_reason', type: 'text', nullable: true })
   cancellationReason: string | null;
 
+  /**
+   * Why the approver sent it back, and who did, when (QA A-11). Cleared when the order is
+   * submitted again; until then the requester sees what to correct.
+   */
+  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  rejectionReason: string | null;
+
+  @Column({ name: 'rejected_by_user_id', type: 'uuid', nullable: true })
+  rejectedByUserId: string | null;
+
+  @Column({ name: 'rejected_at', type: 'timestamptz', nullable: true })
+  rejectedAt: Date | null;
+
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
@@ -130,4 +144,8 @@ export class PurchaseOrder extends BaseEntity {
 
   @OneToMany(() => PurchaseOrderLine, (line) => line.order, { cascade: true })
   lines: PurchaseOrderLine[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_purchase_orders_organization')
+  organization?: TenantRef;
 }

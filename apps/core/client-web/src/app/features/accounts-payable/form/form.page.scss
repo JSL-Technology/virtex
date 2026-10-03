@@ -38,21 +38,49 @@
     gap: var(--space-4);
   }
 
-  //  Una línea de factura: concepto, cantidad, precio, importe y quitar. En
+  //  Una línea de factura: concepto, cantidad, precio, cuenta, importe y quitar. En
   //  rejilla y no en tabla porque cada celda lleva un control, y una tabla de
   //  controles no se puede desplazar bien en pantalla estrecha.
-  .line-item {
+  //
+  //  La hoja estilizaba `.line-item` mientras la plantilla dibuja `.line-grid`: las
+  //  cabeceras salían pegadas («DescripciónCant.PrecioCuenta…») y los controles
+  //  apilados sin rejilla (QA M-11). El nombre es ahora el de la plantilla.
+  .line-grid {
     display: grid;
-    grid-template-columns: 3fr 1fr 1fr 2fr auto;
-    gap: var(--space-2);
+    grid-template-columns: minmax(12rem, 3fr) minmax(5rem, 1fr) minmax(6rem, 1fr) minmax(12rem, 2fr) minmax(6rem, auto) auto;
+    gap: var(--space-2) var(--space-3);
     align-items: center;
 
     input,
-    select { @include ds.input-base; }
+    select { @include ds.input-base; width: 100%; min-width: 0; }
 
-    .line-description { width: 100%; }
+    .line-total { font-variant-numeric: tabular-nums; }
 
-    @include ds.bp-down('md') { grid-template-columns: 1fr; }
+    &--head {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--content-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding-bottom: var(--space-1);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    @include ds.bp-down('md') {
+      grid-template-columns: 1fr 1fr;
+      &--head { display: none; }
+    }
+  }
+
+  .source-order {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--bg-info-soft);
+    color: var(--content-primary);
+    font-size: var(--text-sm);
   }
 
   //  Los totales, alineados a la derecha y en cifras tabulares: el neto a pagar

@@ -1,3 +1,4 @@
+import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
@@ -37,8 +38,11 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
 import { WithholdingModule } from '../localization/fiscal/withholding.module';
 import { SalesInboxProvider } from './inbox/sales-inbox.provider';
 
+import { MailModule } from '../mail/mail.module';
 @Module({
   imports: [
+    // Sending an invoice to the customer by e-mail (QA A-09).
+    MailModule,
     WithholdingModule,
     TypeOrmModule.forFeature([
       Invoice,
@@ -63,6 +67,8 @@ import { SalesInboxProvider } from './inbox/sales-inbox.provider';
   controllers: [InvoicesController],
   providers: [
     SalesInboxProvider,
+    InvoicesDataTransferProvider,
+    SalesLinesDataTransferProvider,
     InvoicesService,
     InvoicePostingService,
     // Withholding is resolved from the parties and the sale, never taken from the request.

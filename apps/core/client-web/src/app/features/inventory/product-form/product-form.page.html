@@ -70,7 +70,12 @@
             </div>
             <div class="form-field">
               <label for="stock">{{ 'inventory.product_form.quantity_stock' | translate }}</label>
-              <input type="number" id="stock" formControlName="stock" />
+              <input type="number" id="stock" formControlName="stock" min="0" />
+              @if (isEditMode() && productForm.get('kind')?.value !== 'SERVICE') {
+                <button type="button" class="link-button" (click)="adjustStock()">
+                  {{ 'inventory.product_form.adjust_stock' | translate }}
+                </button>
+              }
             </div>
           </div>
 
@@ -91,6 +96,40 @@
               <input type="number" id="reorderLevel" formControlName="reorderLevel" />
             </div>
           </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="form-section-title">{{ 'inventory.product_form.tax_section' | translate }}</h2>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="kind">{{ 'inventory.product_form.kind' | translate }}</label>
+              <select id="kind" formControlName="kind">
+                <option value="GOOD">{{ 'inventory.product_form.kind_good' | translate }}</option>
+                <option value="SERVICE">{{ 'inventory.product_form.kind_service' | translate }}</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="taxTreatment">{{ 'inventory.product_form.tax_treatment' | translate }}</label>
+              <select id="taxTreatment" formControlName="taxTreatment">
+                <option value="TAXED">{{ 'inventory.product_form.tax_treatment_taxed' | translate }}</option>
+                <option value="ZERO_RATED">{{ 'inventory.product_form.tax_treatment_zero_rated' | translate }}</option>
+                <option value="EXEMPT">{{ 'inventory.product_form.tax_treatment_exempt' | translate }}</option>
+              </select>
+            </div>
+          </div>
+          @if (productForm.get('taxTreatment')?.value === 'TAXED') {
+            <div class="form-field">
+              <label for="taxRate">{{ 'inventory.product_form.tax_rate' | translate }}</label>
+              <!-- Las tasas del mercado, en porcentaje; se guardan como fracción (M-05). -->
+              <select id="taxRate" formControlName="taxRate">
+                @for (rate of taxRates(); track rate) {
+                  @if (rate > 0) {
+                    <option [ngValue]="rate">{{ rate | vxPercent }}</option>
+                  }
+                }
+              </select>
+            </div>
+          }
         </section>
 
         <section class="form-section">

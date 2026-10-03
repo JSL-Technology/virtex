@@ -14,22 +14,29 @@
   pantalla existe, y navegar a otro sitio para decidir convierte diez decisiones en veinte clics.
 -->
 <ng-template #decide let-item>
-  <button
-    type="button"
-    class="secondary-button decide decide--reject"
-    [disabled]="deciding() === item.id"
-    (click)="reject(item.id)"
-  >
-    <lucide-icon [img]="RejectIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'approvals.reject' | translate }}</span>
-  </button>
-  <button
-    type="button"
-    class="primary-button decide decide--approve"
-    [disabled]="deciding() === item.id"
-    (click)="approve(item.id)"
-  >
-    <lucide-icon [img]="ApproveIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'approvals.approve' | translate }}</span>
-  </button>
+  @if (decisionOf(item.id); as decision) {
+    @if (decision.canDecide) {
+      <button
+        type="button"
+        class="secondary-button decide decide--reject"
+        [disabled]="deciding() === item.id"
+        (click)="reject(item.id)"
+      >
+        <lucide-icon [img]="RejectIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'approvals.reject' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        class="primary-button decide decide--approve"
+        [disabled]="deciding() === item.id"
+        (click)="approve(item.id)"
+      >
+        <lucide-icon [img]="ApproveIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'approvals.approve' | translate }}</span>
+      </button>
+    } @else {
+      <!-- Shown, not hidden: a document waiting on someone else is still waiting. -->
+      <span class="blocked">{{ (decision.blockedReasonKey ?? 'approvals.blocked.not_your_step') | translate }}</span>
+    }
+  }
 </ng-template>

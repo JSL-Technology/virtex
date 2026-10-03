@@ -8,6 +8,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PosSale, PosService } from '../pos/pos.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { DatasetExportService } from '../../../core/export/dataset-export';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 
@@ -38,6 +39,8 @@ export class HistoryPage implements OnInit {
 
   private readonly pos = inject(PosService);
   private readonly errors = inject(ErrorHandlerService);
+  /** «Exportar» — every sale, from the server (QA A-13). */
+  protected readonly exports = inject(DatasetExportService);
 
   readonly sales = signal<PosSale[]>([]);
   readonly loading = signal(true);

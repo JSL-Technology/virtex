@@ -40,6 +40,9 @@ updates:
         exclude-patterns: ['@angular/cdk', '@angular/material']
       angular-components:
         patterns: ['@angular/cdk', '@angular/material']
+      # The Angular adapter and the grid it drives ship as one release (QA C-01).
+      dockview:
+        patterns: ['dockview', 'dockview-core', 'dockview-angular']
       nestjs:
         applies-to: version-updates
         patterns: ['@nestjs/*']

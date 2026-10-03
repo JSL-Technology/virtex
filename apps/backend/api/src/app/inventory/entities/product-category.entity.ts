@@ -1,5 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * The tenant's own product categories.
@@ -50,7 +51,8 @@ export class ProductCategory extends BaseEntity {
 
   @ManyToOne(() => ProductCategory, (category) => category.children, {
     nullable: true,
-    onDelete: 'RESTRICT',
+    onDelete: 'NO ACTION',
+    deferrable: 'INITIALLY DEFERRED',
   })
   @JoinColumn({ name: 'parent_id', foreignKeyConstraintName: 'FK_product_categories_parent' })
   parent: ProductCategory | null;
@@ -69,4 +71,8 @@ export class ProductCategory extends BaseEntity {
 
   @Column({ name: 'sort_order', type: 'int', default: 0 })
   sortOrder: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_product_categories_organization')
+  organization?: TenantRef;
 }

@@ -53,6 +53,8 @@ export class InvoiceToolbarComponent {
 
   @Input() canNavigate = true;
   @Input() canCopy = true;
+  /** «Copiar de» trae líneas de otro documento: solo tiene sentido en uno que aún se edita. */
+  @Input() canCopyFrom = true;
   @Input() isNew = false;
 
   @Output() navigateRequested = new EventEmitter<'first' | 'prev' | 'next' | 'last'>();

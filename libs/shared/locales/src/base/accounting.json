@@ -209,6 +209,16 @@
     "en": "Posting Rules",
     "pt": "Regras de Contabilização"
   },
+  "accounting.account_form.reason_for_change": {
+    "es": "Motivo del cambio",
+    "en": "Reason for the change",
+    "pt": "Motivo da alteração"
+  },
+  "accounting.account_form.reason_for_change_hint": {
+    "es": "Queda en el historial de la cuenta junto con el valor anterior y el nuevo.",
+    "en": "It is recorded in the account history together with the previous and the new value.",
+    "pt": "Fica registrado no histórico da conta junto com o valor anterior e o novo."
+  },
   "accounting.account_form.required_dimensions": {
     "es": "Dimensiones Requeridas",
     "en": "Required Dimensions",
@@ -263,6 +273,16 @@
     "es": "Nueva cuenta contable",
     "en": "New account",
     "pt": "Nova conta contábil"
+  },
+  "accounting.account_nature.credit": {
+    "es": "Acreedora",
+    "en": "Credit",
+    "pt": "Credora"
+  },
+  "accounting.account_nature.debit": {
+    "es": "Deudora",
+    "en": "Debit",
+    "pt": "Devedora"
   },
   "accounting.account_period_lock_removed": {
     "es": "El bloqueo de la cuenta para el período ha sido removido.",
@@ -398,6 +418,26 @@
     "es": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
     "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
     "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
+  },
+  "accounting.cash_flow_category.financing": {
+    "es": "Financiamiento",
+    "en": "Financing",
+    "pt": "Financiamento"
+  },
+  "accounting.cash_flow_category.investing": {
+    "es": "Inversión",
+    "en": "Investing",
+    "pt": "Investimento"
+  },
+  "accounting.cash_flow_category.none": {
+    "es": "No aplica",
+    "en": "Not applicable",
+    "pt": "Não se aplica"
+  },
+  "accounting.cash_flow_category.operating": {
+    "es": "Operación",
+    "en": "Operating",
+    "pt": "Operacional"
   },
   "accounting.categories.capital": {
     "literal": "Capital"
@@ -770,6 +810,11 @@
     "en": "The fiscal year is not open.",
     "pt": "O exercício fiscal não está aberto."
   },
+  "accounting.general_ledger.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
   "accounting.general_ledger.account_code_name": {
     "es": "Cuenta: {{code}} - {{name}}",
     "en": "Account: {{code}} - {{name}}",
@@ -825,11 +870,6 @@
     "en": "The general ledger could not be loaded. Try again.",
     "pt": "Não foi possível carregar o razão geral. Tente novamente."
   },
-  "accounting.general_ledger.no_account_has_specified": {
-    "es": "No se ha especificado una cuenta.",
-    "en": "No account has been specified.",
-    "pt": "Nenhuma conta foi especificada."
-  },
   "accounting.general_ledger.no_movements_found_account_selected_period": {
     "es": "No se encontraron movimientos para esta cuenta en el período seleccionado.",
     "en": "No movements were found for this account in the selected period.",
@@ -849,6 +889,11 @@
     "es": "Consultar",
     "en": "Run",
     "pt": "Consultar"
+  },
+  "accounting.general_ledger.select_account": {
+    "es": "Busca una cuenta por código o nombre",
+    "en": "Search an account by code or name",
+    "pt": "Busque uma conta por código ou nome"
   },
   "accounting.general_ledger.select_account_see_ledger": {
     "es": "Selecciona una cuenta para ver el libro mayor.",
@@ -1210,6 +1255,11 @@
     "en": "We could not load the ledgers.",
     "pt": "Não foi possível carregar os livros contabilísticos."
   },
+  "accounting.journal_entry_form.line_both_sides": {
+    "es": "Cada línea lleva un débito o un crédito, no ambos. Revisa la(s) línea(s) {{lines}}.",
+    "en": "Each line carries a debit or a credit, not both. Check line(s) {{lines}}.",
+    "pt": "Cada linha leva um débito ou um crédito, não ambos. Verifique a(s) linha(s) {{lines}}."
+  },
   "accounting.journal_entry_form.modification_reason_label": {
     "es": "Razón de la modificación",
     "en": "Reason for the change",
@@ -1290,6 +1340,11 @@
     "en": "General",
     "pt": "Geral"
   },
+  "accounting.journal_form.journal_could_not_loaded": {
+    "es": "No se pudo cargar el diario.",
+    "en": "The journal could not be loaded.",
+    "pt": "Não foi possível carregar o diário."
+  },
   "accounting.journal_form.journal_could_not_saved": {
     "es": "No se pudo guardar el diario.",
     "en": "The journal could not be saved.",
@@ -1325,6 +1380,11 @@
     "en": "Save",
     "pt": "Salvar"
   },
+  "accounting.journal_form.system_code_note": {
+    "es": "Diario del sistema: el código es fijo porque el sistema contabiliza con él.",
+    "en": "System journal: the code is fixed because the system posts with it.",
+    "pt": "Diário do sistema: o código é fixo porque o sistema contabiliza com ele."
+  },
   "accounting.journal_form.title_create": {
     "es": "Nuevo diario",
     "en": "New journal",
@@ -1339,6 +1399,11 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "accounting.journal_form.used_note": {
+    "es": "Tiene {{count}} asiento(s): el código y el tipo ya no pueden cambiar.",
+    "en": "It has {{count}} entry(ies): the code and type can no longer change.",
+    "pt": "Tem {{count}} lançamento(s): o código e o tipo não podem mais mudar."
   },
   "accounting.journal_list.actions": {
     "es": "Acciones",
@@ -1355,10 +1420,35 @@
     "en": "Create journal",
     "pt": "Criar diário"
   },
+  "accounting.journal_list.delete_failed": {
+    "es": "No se pudo eliminar el diario.",
+    "en": "The journal could not be deleted.",
+    "pt": "Não foi possível excluir o diário."
+  },
+  "accounting.journal_list.delete_message": {
+    "es": "¿Eliminar el diario {{name}}? No tiene asientos.",
+    "en": "Delete the journal {{name}}? It has no entries.",
+    "pt": "Excluir o diário {{name}}? Ele não tem lançamentos."
+  },
+  "accounting.journal_list.delete_title": {
+    "es": "Eliminar diario",
+    "en": "Delete journal",
+    "pt": "Excluir diário"
+  },
+  "accounting.journal_list.deleted": {
+    "es": "Diario eliminado.",
+    "en": "Journal deleted.",
+    "pt": "Diário excluído."
+  },
   "accounting.journal_list.edit": {
     "es": "Editar",
     "en": "Edit",
     "pt": "Editar"
+  },
+  "accounting.journal_list.entries": {
+    "es": "Asientos",
+    "en": "Entries",
+    "pt": "Lançamentos"
   },
   "accounting.journal_list.journals": {
     "es": "Diarios",
@@ -1375,10 +1465,40 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "accounting.journal_list.system": {
+    "es": "Sistema",
+    "en": "System",
+    "pt": "Sistema"
+  },
   "accounting.journal_list.type": {
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "accounting.journal_type.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "accounting.journal_type.cash": {
+    "es": "Caja",
+    "en": "Cash",
+    "pt": "Caixa"
+  },
+  "accounting.journal_type.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "accounting.journal_type.purchases": {
+    "es": "Compras",
+    "en": "Purchases",
+    "pt": "Compras"
+  },
+  "accounting.journal_type.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
   },
   "accounting.ledger_form.cancel": {
     "es": "Cancelar",
@@ -1760,6 +1880,16 @@
     "en": "This period cannot be reopened because the following period is already closed.",
     "pt": "Este período não pode ser reaberto porque o período seguinte já está encerrado."
   },
+  "accounting.period_close.depreciation_failed": {
+    "es": "No se pudo registrar la depreciación de {{period}}, así que el período no se cerró. Revisa la configuración de activos fijos e inténtalo de nuevo.",
+    "en": "The depreciation for {{period}} could not be posted, so the period was not closed. Check the fixed-asset settings and try again.",
+    "pt": "Não foi possível registrar a depreciação de {{period}}, então o período não foi encerrado. Verifique a configuração de ativos fixos e tente novamente."
+  },
+  "accounting.period_close.revaluation_failed": {
+    "es": "No se pudo revaluar la moneda extranjera de {{period}}, así que el período no se cerró. Revisa las tasas de cambio e inténtalo de nuevo.",
+    "en": "The foreign-currency revaluation for {{period}} could not be posted, so the period was not closed. Check the exchange rates and try again.",
+    "pt": "Não foi possível reavaliar a moeda estrangeira de {{period}}, então o período não foi encerrado. Verifique as taxas de câmbio e tente novamente."
+  },
   "accounting.period_closed": {
     "es": "El período contable \"{{name}}\" ha sido cerrado exitosamente.",
     "en": "Accounting period \"{{name}}\" has been closed.",
@@ -1795,6 +1925,26 @@
     "en": "Action",
     "pt": "Ação"
   },
+  "accounting.periods.close_confirm_action": {
+    "es": "Cerrar período",
+    "en": "Close period",
+    "pt": "Encerrar período"
+  },
+  "accounting.periods.close_confirm_message": {
+    "es": "Al cerrar {{period}} se registran la depreciación y la revaluación de moneda del mes, y ningún módulo puede contabilizar en él después. Reabrirlo exige un motivo, que queda auditado.",
+    "en": "Closing {{period}} posts the month’s depreciation and currency revaluation, and no module will be able to post into it. It can only be reopened with a reason that is audited.",
+    "pt": "Ao encerrar {{period}} são registradas a depreciação e a reavaliação cambial do mês, e nenhum módulo poderá lançar nele. Só poderá ser reaberto com um motivo que ficará auditado."
+  },
+  "accounting.periods.close_confirm_title": {
+    "es": "¿Cerrar el período?",
+    "en": "Close the period?",
+    "pt": "Encerrar o período?"
+  },
+  "accounting.periods.close_failed": {
+    "es": "No se pudo cerrar {{period}}.",
+    "en": "{{period}} could not be closed.",
+    "pt": "Não foi possível encerrar {{period}}."
+  },
   "accounting.periods.close_period": {
     "es": "Cerrar Período",
     "en": "Close Period",
@@ -1824,6 +1974,11 @@
     "es": "La razón debe tener al menos 10 caracteres.",
     "en": "The reason must be at least 10 characters long.",
     "pt": "O motivo deve ter pelo menos 10 caracteres."
+  },
+  "accounting.periods.reopen_failed": {
+    "es": "No se pudo reabrir {{period}}.",
+    "en": "{{period}} could not be reopened.",
+    "pt": "Não foi possível reabrir {{period}}."
   },
   "accounting.periods.reopen_reason_prompt": {
     "es": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",

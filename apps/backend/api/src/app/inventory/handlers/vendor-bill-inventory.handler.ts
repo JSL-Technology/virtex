@@ -7,6 +7,10 @@ import { InventoryService } from '../inventory.service';
 export interface VendorBillLine {
   productId: string | null | undefined;
   quantity: number;
+  /** Unit cost in the books' currency, to re-average the item's cost. Absent on a void. */
+  unitCost?: number;
+  /** The bill's human reference, for the stock ledger. */
+  reference?: string;
 }
 
 /** Payload for the event emitted after a vendor bill is approved and posted. */
@@ -70,14 +74,27 @@ export class VendorBillInventoryHandler {
 
     return this.dataSource
       .transaction(async (manager) => {
-        for (const line of productLines) {
-          await this.inventory.increaseStock(
-            line.productId as string,
-            line.quantity,
-            manager,
-            payload.organizationId,
-          );
-        }
+        // Stock in, cost re-averaged and a stock-ledger line per item — the same path a
+        // purchase-order receipt takes — without a second entry: the bill already debited
+        // inventory in its own.
+        await this.inventory.receiveGoods(
+          manager,
+          payload.organizationId,
+          {
+            reference: productLines[0]?.reference ?? payload.billId.slice(0, 8),
+            sourceType: 'vendor_bill',
+            sourceId: payload.billId,
+            date: new Date().toISOString().slice(0, 10),
+            post: false,
+            lines: productLines.map((line) => ({
+              productId: line.productId as string,
+              quantity: line.quantity,
+              unitCost: line.unitCost ?? 0,
+              description: line.reference ?? '',
+            })),
+          },
+          null,
+        );
       })
       .catch((error) => {
         this.logger.error(
@@ -103,6 +120,15 @@ export class VendorBillInventoryHandler {
             manager,
             payload.organizationId,
           );
+          await this.inventory.recordMovement(manager, payload.organizationId, {
+            productId: line.productId as string,
+            quantity: -line.quantity,
+            unitCost: 0,
+            type: 'ADJUSTMENT',
+            reference: payload.billId.slice(0, 8),
+            sourceType: 'vendor_bill_void',
+            sourceId: payload.billId,
+          });
         }
       })
       .catch((error) => {

@@ -1,3 +1,4 @@
+import { ChartOfAccountsDataTransferProvider } from './chart-of-accounts-data-transfer.provider';
 
 import { Module, forwardRef } from '@nestjs/common';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
@@ -49,6 +50,8 @@ import { AccountBalancesService } from './account-balances.service';
     AccountBalancesService,
     AccountSegmentsService,
     AccountJobsProcessor,
+    // «Exportar» in the chart of accounts (QA A-13).
+    ChartOfAccountsDataTransferProvider,
   ],
   exports: [ChartOfAccountsService, AccountBalancesService, AccountSegmentsService],
 })

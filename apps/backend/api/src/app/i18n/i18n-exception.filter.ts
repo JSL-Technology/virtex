@@ -160,16 +160,10 @@ export class I18nExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof QueryFailedError) {
-      const driverCode = (exception.driverError as { code?: string } | undefined)?.code;
-      const mapped = POSTGRES_CODES[driverCode ?? ''];
+      const driver = exception.driverError as { code?: string; message?: string } | undefined;
+      const mapped = describePostgresFailure(driver?.code, driver?.message ?? exception.message);
       if (mapped) {
-        return {
-          status: mapped.status,
-          code: mapped.code,
-          messageKey: composeKey('errors', mapped.code),
-          params: {},
-          extra: {},
-        };
+        return { ...mapped, params: {}, extra: {} };
       }
       // An unmapped database failure is a bug in a query, not something a reader can act on.
       // Falling through deliberately: the generic branch logs the stack and says nothing more.
@@ -266,10 +260,79 @@ const REASON_PHRASES = new Set([
  * Everything else stays a 500 with no detail: a constraint name or a column name in an error
  * message tells an attacker about the schema and tells the reader nothing.
  */
-const POSTGRES_CODES: Readonly<Record<string, { status: number; code: string }>> = {
-  '23505': { status: HttpStatus.CONFLICT, code: 'UNIQUE_VIOLATION' },
-  '23503': { status: HttpStatus.BAD_REQUEST, code: 'FOREIGN_KEY_VIOLATION' },
+const POSTGRES_CODES: Readonly<Record<string, { status: number; code: string; messageKey: string }>> = {
+  '23505': {
+    status: HttpStatus.CONFLICT,
+    code: 'UNIQUE_VIOLATION',
+    messageKey: 'errors.record_with_data_already_exists',
+  },
+  '23503': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'FOREIGN_KEY_VIOLATION',
+    messageKey: 'errors.operation_references_record_does_not_exist',
+  },
+  // A value the column cannot hold: a 5000 "rate" into numeric(5,4) used to come back as a 500
+  // (QA M-04). It is the reader's input that is wrong, and saying so is the whole fix.
+  '22003': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'VALUE_OUT_OF_RANGE',
+    messageKey: 'errors.value_out_of_range',
+  },
+  // A text longer than its column. Most DTOs cap lengths already; this is the net under the ones
+  // that do not (QA A-17: a 300-character product name).
+  '22001': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'VALUE_TOO_LONG',
+    messageKey: 'errors.value_too_long',
+  },
+  '23514': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'CHECK_VIOLATION',
+    messageKey: 'errors.request_not_valid_check_data_try',
+  },
+  '23502': {
+    status: HttpStatus.BAD_REQUEST,
+    code: 'REQUIRED_VALUE_MISSING',
+    messageKey: 'errors.request_not_valid_check_data_try',
+  },
+  // Two writers raced on the same rows under SERIALIZABLE / a detected deadlock. Retrying is the
+  // correct response, and 409 is what tells the client so.
+  '40001': {
+    status: HttpStatus.CONFLICT,
+    code: 'CONCURRENT_UPDATE',
+    messageKey: 'errors.concurrent_update',
+  },
+  '40P01': {
+    status: HttpStatus.CONFLICT,
+    code: 'CONCURRENT_UPDATE',
+    messageKey: 'errors.concurrent_update',
+  },
 };
+
+/**
+ * What a PostgreSQL failure means to a reader.
+ *
+ * A foreign-key violation has two very different causes that share SQLSTATE 23503:
+ *
+ *   - an INSERT/UPDATE naming a row that does not exist — the request is wrong (400);
+ *   - a DELETE of a row that other rows still point at — the request is valid but the record is
+ *     IN USE (409). This is the net under every delete in the product: with the cascades on
+ *     fiscal documents replaced by RESTRICT (QA C-03), deleting a customer that has invoices is
+ *     refused by the database even if a service forgets to check first, and the reader is told
+ *     why instead of seeing a generic error.
+ *
+ * PostgreSQL words the second case "update or delete on table … violates foreign key constraint
+ * … on table …"; that prefix is stable across versions and locales of the server's C messages.
+ */
+export function describePostgresFailure(
+  driverCode: string | undefined,
+  message: string | undefined,
+): { status: number; code: string; messageKey: string } | null {
+  if (driverCode === '23503' && /update or delete on table/i.test(message ?? '')) {
+    return { status: HttpStatus.CONFLICT, code: 'RECORD_IN_USE', messageKey: 'errors.record_in_use' };
+  }
+  return POSTGRES_CODES[driverCode ?? ''] ?? null;
+}
 
 const STATUS_CODES: Readonly<Record<number, string>> = {
   400: 'BAD_REQUEST',

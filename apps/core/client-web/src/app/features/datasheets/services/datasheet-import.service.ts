@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { environment } from '../../../../environments/environment';
 export interface ImportModule {
   id: string;
   nameEn: string;
@@ -15,7 +16,7 @@ export interface ImportModule {
   providedIn: 'root'
 })
 export class DatasheetImportService {
-  private apiUrl = '/api/datasheets/import';
+  private apiUrl = `${environment.apiUrl}/datasheets/import`;
 
   private http = inject(HttpClient);
 getModules(): Observable<ImportModule[]> {

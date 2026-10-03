@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, debounceTime, merge, switchMap, tap } from 'rxjs';
@@ -29,6 +30,7 @@ import { Customer } from '../../../core/models/customer.model';
 import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
+import { InvoiceSelectionDialogComponent } from '../components/invoice-selection-dialog/invoice-selection-dialog.component';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { CustomerQuickCreateComponent } from '../../contacts/customer-quick-create/customer-quick-create.component';
@@ -63,6 +65,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date
     ReactiveFormsModule,
     RouterLink,
     InvoiceToolbarComponent,
+    InvoiceSelectionDialogComponent,
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
@@ -401,14 +404,30 @@ export class NewInvoicePage implements OnInit {
 
   private checkCopyFrom(): void {
     const copyFromId = this.route.snapshot.queryParamMap.get('copyFrom');
-    if (!copyFromId) return;
+    if (copyFromId) this.copyFromInvoice(copyFromId);
+    //  «Copiar de» desde un borrador ya guardado abre el selector nada más llegar.
+    if (this.route.snapshot.queryParamMap.get('pickSource')) {
+      queueMicrotask(() => this.openCopyFrom());
+    }
+  }
 
+  /** «Copiar de»: choose a document and bring its customer and lines into this one. */
+  @ViewChild(InvoiceSelectionDialogComponent) private sourcePicker?: InvoiceSelectionDialogComponent;
+
+  openCopyFrom(): void {
+    this.sourcePicker?.open((invoice) => this.copyFromInvoice(invoice.id));
+  }
+
+  private copyFromInvoice(copyFromId: string): void {
     this.invoicesService.getInvoiceById(copyFromId).subscribe((invoice) => {
+      const note = this.translate.instant('invoices.new.copied_from_note', {
+        number: invoice.fiscalNumber ?? invoice.invoiceNumber,
+      });
       this.invoiceForm.patchValue({
         customerId: invoice.customerId,
         currencyCode: invoice.currencyCode,
         paymentMethod: invoice.paymentMethod,
-        notes: `Copiada de ${invoice.invoiceNumber}. ${invoice.notes ?? ''}`.trim(),
+        notes: `${note} ${invoice.notes ?? ''}`.trim(),
       });
 
       this.lineItems.clear();
@@ -661,9 +680,7 @@ export class NewInvoicePage implements OnInit {
         void this.router.navigate(['/invoices', invoice.id]).then(() => this.tab?.close());
       },
       error: (err) => {
-        this.notificationService.showError(
-          err?.error?.message || this.translate.instant('errors.save_document'),
-        );
+        this.notificationService.showHttpError(err, 'errors.save_document');
         this.isSaving.set(false);
       },
     });

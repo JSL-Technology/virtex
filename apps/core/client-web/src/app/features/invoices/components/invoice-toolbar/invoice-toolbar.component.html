@@ -1,16 +1,16 @@
 <div class="sap-toolbar">
   <!-- Navigation Group -->
   <div class="toolbar-group" *ngIf="canNavigate">
-    <button class="tool-btn" (click)="onNavigate('first')" [title]="'invoices.invoice_toolbar.first' | translate">
+    <button class="tool-btn" (click)="onNavigate('first')" [title]="'invoices.invoice_toolbar.first' | translate" [attr.aria-label]="'invoices.invoice_toolbar.first' | translate" type="button">
       <lucide-icon [img]="FirstIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('prev')" [title]="'invoices.invoice_toolbar.previous' | translate">
+    <button class="tool-btn" (click)="onNavigate('prev')" [title]="'invoices.invoice_toolbar.previous' | translate" [attr.aria-label]="'invoices.invoice_toolbar.previous' | translate" type="button">
       <lucide-icon [img]="PrevIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('next')" [title]="'invoices.invoice_toolbar.go_next' | translate">
+    <button class="tool-btn" (click)="onNavigate('next')" [title]="'invoices.invoice_toolbar.go_next' | translate" [attr.aria-label]="'invoices.invoice_toolbar.go_next' | translate" type="button">
       <lucide-icon [img]="NextIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('last')" [title]="'invoices.invoice_toolbar.last' | translate">
+    <button class="tool-btn" (click)="onNavigate('last')" [title]="'invoices.invoice_toolbar.last' | translate" [attr.aria-label]="'invoices.invoice_toolbar.last' | translate" type="button">
       <lucide-icon [img]="LastIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -19,10 +19,10 @@
 
   <!-- History Navigation -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="back.emit()" [title]="'invoices.invoice_toolbar.back' | translate">
+    <button class="tool-btn" (click)="back.emit()" [title]="'invoices.invoice_toolbar.back' | translate" [attr.aria-label]="'invoices.invoice_toolbar.back' | translate" type="button">
       <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="forward.emit()" [title]="'invoices.invoice_toolbar.next' | translate">
+    <button class="tool-btn" (click)="forward.emit()" [title]="'invoices.invoice_toolbar.next' | translate" [attr.aria-label]="'invoices.invoice_toolbar.next' | translate" type="button">
       <lucide-icon [img]="ForwardIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -31,13 +31,13 @@
 
   <!-- Main Actions -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="printRequested.emit()" [title]="'invoices.invoice_toolbar.print' | translate">
+    <button class="tool-btn" (click)="printRequested.emit()" [title]="'invoices.invoice_toolbar.print' | translate" [attr.aria-label]="'invoices.invoice_toolbar.print' | translate" type="button">
       <lucide-icon [img]="PrintIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="emailRequested.emit()" [title]="'invoices.invoice_toolbar.send_email' | translate">
+    <button class="tool-btn" (click)="emailRequested.emit()" [title]="'invoices.invoice_toolbar.send_email' | translate" [attr.aria-label]="'invoices.invoice_toolbar.send_email' | translate" type="button">
       <lucide-icon [img]="EmailIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="searchRequested.emit()" [title]="'invoices.invoice_toolbar.search_within_document' | translate">
+    <button class="tool-btn" (click)="searchRequested.emit()" [title]="'invoices.invoice_toolbar.search_within_document' | translate" [attr.aria-label]="'invoices.invoice_toolbar.search_within_document' | translate" type="button">
       <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -46,13 +46,13 @@
 
   <!-- Export Group -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="exportRequested.emit('pdf')" [title]="'invoices.invoice_toolbar.export_pdf' | translate">
+    <button class="tool-btn" (click)="exportRequested.emit('pdf')" [title]="'invoices.invoice_toolbar.export_pdf' | translate" [attr.aria-label]="'invoices.invoice_toolbar.export_pdf' | translate" type="button">
       <lucide-icon [img]="PdfIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="exportRequested.emit('excel')" [title]="'invoices.invoice_toolbar.export_excel' | translate">
+    <button class="tool-btn" (click)="exportRequested.emit('excel')" [title]="'invoices.invoice_toolbar.export_excel' | translate" [attr.aria-label]="'invoices.invoice_toolbar.export_excel' | translate" type="button">
       <lucide-icon [img]="ExcelIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="exportRequested.emit('word')" [title]="'invoices.invoice_toolbar.export_word' | translate">
+    <button class="tool-btn" (click)="exportRequested.emit('word')" [title]="'invoices.invoice_toolbar.export_word' | translate" [attr.aria-label]="'invoices.invoice_toolbar.export_word' | translate" type="button">
       <lucide-icon [img]="WordIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -61,11 +61,11 @@
 
   <!-- Copy Group -->
   <div class="toolbar-group" *ngIf="canCopy">
-    <button class="tool-btn text-btn" (click)="copyFrom.emit()" [title]="'invoices.invoice_toolbar.copy_from_document' | translate">
+    <button class="tool-btn text-btn" *ngIf="canCopyFrom" (click)="copyFrom.emit()" [title]="'invoices.invoice_toolbar.copy_from_document' | translate" [attr.aria-label]="'invoices.invoice_toolbar.copy_from_document' | translate" type="button">
         <lucide-icon [img]="ImportIcon" size="16"></lucide-icon>
         <span>{{ 'invoices.invoice_toolbar.copy_from' | translate }}</span>
     </button>
-    <button class="tool-btn text-btn" (click)="copyTo.emit()" [title]="'invoices.invoice_toolbar.copy_document' | translate">
+    <button class="tool-btn text-btn" (click)="copyTo.emit()" [title]="'invoices.invoice_toolbar.copy_document' | translate" [attr.aria-label]="'invoices.invoice_toolbar.copy_document' | translate" type="button">
         <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
         <span>{{ 'invoices.invoice_toolbar.copy' | translate }}</span>
     </button>
@@ -75,10 +75,10 @@
 
   <!-- Utility Group -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="tools.emit()" [title]="'invoices.invoice_toolbar.form_settings' | translate">
+    <button class="tool-btn" (click)="tools.emit()" [title]="'invoices.invoice_toolbar.form_settings' | translate" [attr.aria-label]="'invoices.invoice_toolbar.form_settings' | translate" type="button">
       <lucide-icon [img]="ToolsIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="help.emit()" [title]="'invoices.invoice_toolbar.help' | translate">
+    <button class="tool-btn" (click)="help.emit()" [title]="'invoices.invoice_toolbar.help' | translate" [attr.aria-label]="'invoices.invoice_toolbar.help' | translate" type="button">
       <lucide-icon [img]="HelpIcon" size="18"></lucide-icon>
     </button>
   </div>

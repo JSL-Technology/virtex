@@ -8,7 +8,11 @@ import {
   Param,
   Patch,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
+import { VoidVendorDebitNoteDto } from './dto/void-vendor-debit-note.dto';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { CreateVendorDebitNoteDto } from './dto/create-vendor-debit-note.dto';
@@ -58,6 +62,19 @@ export class VendorDebitNotesController {
       updateDto,
       user.organizationId,
     );
+  }
+
+  /** Void: reverse the note's entry and restore the bill's balance. The only correction there is. */
+  @Post(':id/void')
+  @Idempotent()
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
+  voidNote(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: VoidVendorDebitNoteDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.vendorDebitNotesService.voidNote(id, user.organizationId, dto, user.id);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)

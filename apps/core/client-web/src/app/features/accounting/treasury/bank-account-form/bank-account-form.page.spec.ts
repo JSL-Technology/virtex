@@ -5,6 +5,7 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { BankAccountFormPage } from './bank-account-form.page';
 import { environment } from '../../../../../environments/environment';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * Nothing could create a bank account, and every settlement route depends on one. The assertions
@@ -68,6 +69,10 @@ describe('BankAccountFormPage', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         {
+          provide: NotificationService,
+          useValue: { showSuccess: jest.fn(), showError: jest.fn(), showHttpError: jest.fn() },
+        },
+        {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: new Map([['id', id]]) } },
         },
@@ -81,6 +86,10 @@ describe('BankAccountFormPage', () => {
 
     httpMock.expectOne((c) => c.url === `${API}/chart-of-accounts`).flush(accounts);
     httpMock.expectOne((c) => c.url === `${API}/currencies`).flush([{ code: 'DOP' }, { code: 'USD' }]);
+    // The new-account form starts in the tenant's base currency, which the cash position states.
+    httpMock
+      .match((c) => c.url === `${API}/treasury/cash-position`)
+      .forEach((r) => r.flush({ baseCurrency: 'DOP', accounts: [] }));
   };
 
   it('offers only accounts that can take a movement', async () => {

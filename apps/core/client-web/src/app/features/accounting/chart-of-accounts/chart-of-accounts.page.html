@@ -9,7 +9,9 @@
   searchPlaceholderKey="accounting.chart_of_accounts.search_code_name"
   (reload)="state.refreshAccounts()"
 >
-  <button listActions class="secondary-button" type="button">
+  <button listActions class="secondary-button" type="button"
+    [disabled]="exports.exporting() === 'chart_of_accounts'"
+    (click)="exports.export('chart_of_accounts')">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.chart_of_accounts.export' | translate }}</span>
   </button>

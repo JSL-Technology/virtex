@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
-import { Product } from './entities/product.entity';
+import { CostingMethod, Product, ProductKind } from './entities/product.entity';
+import { StockMovement, StockMovementType } from '../supply-chain/entities/stock-movement.entity';
+import { standardSalesTaxRate } from './contracts/sellable-product.contract';
+import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult } from './contracts/goods-receipt.contract';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
@@ -9,8 +12,22 @@ import { InventoryPostingService } from './inventory-posting.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
+import { assertNoDependents, DependentReference } from '../common/database/dependents';
+
+/** Documents that name a product by id. A product on any of them is deactivated, not deleted. */
+const PRODUCT_DEPENDENTS: readonly DependentReference[] = [
+  { table: 'invoice_line_item', column: 'productId', label: 'common.dependents.invoice_lines' },
+  { table: 'purchase_order_lines', column: 'product_id', label: 'common.dependents.purchase_order_lines' },
+  { table: 'purchase_requisition_lines', column: 'product_id', label: 'common.dependents.requisition_lines' },
+  { table: 'quote_lines', column: 'product_id', label: 'common.dependents.quote_lines' },
+  { table: 'vendor_bill_line', column: 'product_id', label: 'common.dependents.vendor_bill_lines' },
+  { table: 'stock_movements', column: 'product_id', label: 'common.dependents.stock_movements' },
+  { table: 'bill_of_materials', column: 'product_id', label: 'common.dependents.boms' },
+  { table: 'production_orders', column: 'product_id', label: 'common.dependents.production_orders' },
+];
+
 @Injectable()
-export class InventoryService {
+export class InventoryService implements GoodsReceiptPort {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -37,8 +54,17 @@ export class InventoryService {
   ): Promise<Product> {
     await this.categories.assertUsable(createProductDto.categoryId, organizationId);
     return this.dataSource.transaction(async (manager) => {
+      // A taxed item states its rate. When the form leaves it out, the tenant's standard rate is
+      // written — not 0, which the till and the invoice would otherwise read as "taxed at zero".
+      const treatment = createProductDto.taxTreatment ?? 'TAXED';
+      const taxRate =
+        treatment === 'TAXED'
+          ? createProductDto.taxRate && createProductDto.taxRate > 0
+            ? createProductDto.taxRate
+            : await standardSalesTaxRate(manager, organizationId)
+          : 0;
       const product = await manager.save(
-        manager.create(Product, { ...createProductDto, organizationId }),
+        manager.create(Product, { ...createProductDto, taxTreatment: treatment, taxRate, organizationId }),
       );
       await this.posting.postOpeningStock(manager, product, actorUserId);
       return product;
@@ -110,8 +136,33 @@ export class InventoryService {
         throw new NotFoundError('inventory.product_id_not_found', { id });
       }
       const before = { quantity: product.stock, unitCost: product.cost };
-      const updated = await manager.save(manager.merge(Product, product, updateProductDto));
-      await this.posting.postValuationChange(manager, updated, before, actorUserId);
+      const { adjustmentReason, ...changes } = updateProductDto;
+
+      // Changing what is on hand, or what it is worth, posts an adjustment. It needs a reason
+      // (QA M-08): the product form used to change stock 46 → 999 and post 571,800 to the books
+      // with nobody asked why.
+      const stockChanges =
+        changes.stock !== undefined && Number(changes.stock) !== Number(product.stock);
+      const costChanges =
+        changes.cost !== undefined && Number(changes.cost) !== Number(product.cost) && Number(product.stock) !== 0;
+      if ((stockChanges || costChanges) && product.kind !== ProductKind.SERVICE && !adjustmentReason?.trim()) {
+        throw new BadRequestError('inventory.adjustment_reason_required');
+      }
+      if (changes.taxTreatment && changes.taxTreatment !== 'TAXED') changes.taxRate = 0;
+
+      const updated = await manager.save(manager.merge(Product, product, changes));
+      await this.posting.postValuationChange(manager, updated, before, actorUserId, adjustmentReason?.trim());
+      if (stockChanges) {
+        await this.recordMovement(manager, organizationId, {
+          productId: updated.id,
+          quantity: Number(updated.stock) - Number(before.quantity),
+          unitCost: Number(updated.cost),
+          type: 'ADJUSTMENT',
+          reference: (adjustmentReason ?? '').trim().slice(0, 255),
+          sourceType: 'product_adjustment',
+          sourceId: updated.id,
+        });
+      }
       return updated;
     });
   }
@@ -132,6 +183,9 @@ export class InventoryService {
       if (!product) {
         throw new NotFoundError('inventory.product_id_not_found', { id });
       }
+      // QA C-03: a product that appears on invoices or orders was deleted (and its invoice lines
+      // silently lost their product). It is deactivated instead; only an unused product goes.
+      await assertNoDependents(manager, product.id, PRODUCT_DEPENDENTS, 'inventory.product_delete_blocked');
       const before = { quantity: product.stock, unitCost: product.cost };
       product.stock = 0;
       await this.posting.postValuationChange(manager, product, before, actorUserId);
@@ -177,6 +231,114 @@ export class InventoryService {
     const product = await this.lockProduct(productId, organizationId, manager);
     product.stock = Number(product.stock) + quantity;
     await manager.save(Product, product);
+  }
+
+  /**
+   * Goods arriving from a supplier: stock in, unit cost re-averaged, a line in the stock ledger per
+   * item, and the entry Dr Inventory / Cr Goods received not invoiced — all in the caller's
+   * transaction, so a receipt either happens entirely or not at all (QA C-07).
+   *
+   * Lines for services, or with no catalogue product, are returned as not stocked: they arrive, but
+   * there is nothing to count.
+   *
+   * The unit cost is re-averaged for weighted-average items — the default and the only method the
+   * product values stock with today. Negative stock (oversold before the goods arrived) is treated
+   * as zero on the old side of the average, so an oversell cannot drag the new cost through zero.
+   */
+  async receiveGoods(
+    manager: EntityManager,
+    organizationId: string,
+    receipt: GoodsReceiptRequest,
+    actorUserId: string | null,
+  ): Promise<GoodsReceiptResult> {
+    const stocked: boolean[] = [];
+    const posted: Array<{ description: string; amount: number }> = [];
+
+    for (const line of receipt.lines) {
+      if (!line.productId || line.quantity <= 0) {
+        stocked.push(false);
+        continue;
+      }
+      const product = await this.lockProduct(line.productId, organizationId, manager);
+      if (product.kind === ProductKind.SERVICE) {
+        stocked.push(false);
+        continue;
+      }
+
+      const onHand = Number(product.stock);
+      const previousCost = Number(product.cost);
+      const averagingBase = Math.max(onHand, 0);
+      if (product.costingMethod === CostingMethod.WEIGHTED_AVERAGE || !product.costingMethod) {
+        const denominator = averagingBase + line.quantity;
+        product.cost =
+          denominator > 0
+            ? Math.round(((averagingBase * previousCost + line.quantity * line.unitCost) / denominator) * 1e6) / 1e6
+            : line.unitCost;
+      }
+      product.stock = onHand + line.quantity;
+      await manager.save(Product, product);
+
+      await manager.save(
+        manager.create(StockMovement, {
+          productId: product.id,
+          organizationId,
+          quantity: line.quantity,
+          cost: line.unitCost,
+          type: 'PURCHASE_RECEIPT',
+          reference: receipt.reference,
+          sourceType: receipt.sourceType,
+          sourceId: receipt.sourceId,
+        }),
+      );
+
+      stocked.push(true);
+      posted.push({
+        description: product.name,
+        amount: Math.round(line.quantity * line.unitCost * 100) / 100,
+      });
+    }
+
+    const journalEntryId = posted.length && receipt.post !== false
+      ? await this.posting.postGoodsReceipt(manager, organizationId, {
+          reference: receipt.reference,
+          sourceId: receipt.sourceId,
+          date: receipt.date,
+          lines: posted,
+        }, actorUserId)
+      : null;
+
+    return { journalEntryId, stocked };
+  }
+
+  /**
+   * Record a movement in the stock ledger without touching the balance — for callers that already
+   * moved the balance themselves (a vendor bill receiving goods, a sale dispatching them).
+   */
+  async recordMovement(
+    manager: EntityManager,
+    organizationId: string,
+    movement: {
+      productId: string;
+      quantity: number;
+      unitCost: number;
+      type: StockMovementType;
+      reference: string;
+      sourceType: string;
+      sourceId: string;
+    },
+  ): Promise<void> {
+    await manager.save(
+      manager.create(StockMovement, {
+        productId: movement.productId,
+        organizationId,
+        quantity: movement.quantity,
+        cost: movement.unitCost,
+        type: movement.type,
+        reference: movement.reference,
+        sourceType: movement.sourceType,
+        sourceId: movement.sourceId,
+      }),
+    );
   }
 
   private async lockProduct(

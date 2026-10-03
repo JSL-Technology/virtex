@@ -23,18 +23,19 @@
 
 .import-process-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    // The page lives in a docked panel, not the window: a viewport media query kept three columns
+    // in a narrow panel and the cards overflowed it (QA M-11). Columns now follow the space the
+    // panel actually has.
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     gap: var(--space-6);
-    margin-bottom: var(--space-12);
-
-    @media (max-width: 992px) {
-        grid-template-columns: 1fr;
-    }
+    margin-bottom: var(--space-8);
 }
 
 .step-card {
     padding: var(--space-6);
     position: relative;
+    // A grid item defaults to min-width: auto, so a long file name pushed the card past its column.
+    min-width: 0;
 
     .step-number {
         position: absolute;
@@ -65,6 +66,11 @@
 
 .template-link {
     @include mixins.link;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    align-self: flex-start;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -132,3 +138,44 @@
     animation: vx-spin 1.5s linear infinite;
 }
 
+
+.columns-hint {
+    font-size: var(--text-sm);
+    code {
+        margin-inline-start: var(--space-1);
+    }
+}
+
+.file-name {
+    overflow-wrap: anywhere;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.report {
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+    min-width: 0;
+    overflow-x: auto;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+        margin-bottom: var(--space-3);
+    }
+
+    &__hint {
+        color: var(--text-secondary);
+        margin-bottom: var(--space-3);
+    }
+}
+
+.empty {
+    color: var(--text-secondary);
+}

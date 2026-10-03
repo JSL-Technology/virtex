@@ -164,7 +164,28 @@ export class ErrorHandlerService {
   }
 
   private resolveMessage(error: HttpErrorResponse): string {
-    return this.translate.instant(this.keyFor(error), errorParamsOf(error));
+    return this.translate.instant(this.keyFor(error), this.paramsFor(error));
+  }
+
+  /**
+   * The failure's parameters, with the ones that are catalogue keys rendered.
+   *
+   * A refused delete names what is in the way as `dependents: [{ label, count }]`, where `label` is
+   * a key ("invoices.plural") rather than a word, because the server does not write prose. It is
+   * joined here into `summary` — "2 facturas, 1 cobro" — so the sentence can say what blocks the
+   * delete in the reader's language (QA C-03).
+   */
+  private paramsFor(error: HttpErrorResponse): Record<string, unknown> {
+    const params = { ...errorParamsOf(error) };
+    const dependents = params['dependents'];
+    if (Array.isArray(dependents)) {
+      params['summary'] = dependents
+        .filter((d): d is { label: string; count: number } =>
+          !!d && typeof d.label === 'string' && typeof d.count === 'number')
+        .map((d) => `${this.translate.instant(d.label)}: ${d.count}`)
+        .join(', ');
+    }
+    return params;
   }
 
   /**

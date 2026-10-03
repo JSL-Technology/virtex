@@ -58,6 +58,15 @@ export class PayrollConceptService {
     if (concept.isSystem) {
       throw new ForbiddenError('payroll.system_concept_cannot_deleted_deactivate_instead');
     }
+    // A concept that has been paid, or is entered on a run, is part of the payroll's history:
+    // payslips and the year-end totals by concept name it by code. Deactivated, it stops being
+    // offered; deleted, a pending run would lose an input and a report would lose a column.
+    const [{ used }] = await this.concepts.manager.query(
+      `SELECT (EXISTS (SELECT 1 FROM payslip_lines WHERE organization_id = $1 AND concept_code = $2)
+            OR EXISTS (SELECT 1 FROM payroll_inputs WHERE organization_id = $1 AND concept_code = $2)) AS used`,
+      [organizationId, concept.code],
+    );
+    if (used) throw new ConflictError('payroll.concept_in_use_deactivate_instead');
     await this.concepts.delete({ id, organizationId });
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductionOrder } from './entities/production-order.entity';
+import { ProductionOrder, ProductionStatus } from './entities/production-order.entity';
 import { BillOfMaterial } from './entities/bill-of-material.entity';
 import { BillOfMaterialItem } from './entities/bill-of-material-item.entity';
 import { WorkCenter } from './entities/work-center.entity';
@@ -11,7 +11,8 @@ import { CreateWorkCenterDto } from './dto/create-work-center.dto';
 import { UpdateWorkCenterDto } from './dto/update-work-center.dto';
 import { CreateBillOfMaterialDto } from './dto/create-bill-of-material.dto';
 import { UpdateBillOfMaterialDto } from './dto/update-bill-of-material.dto';
-import { NotFoundError } from '../i18n/localized.exception';
+import { ConflictError, NotFoundError } from '../i18n/localized.exception';
+import { assertNotInUse } from '../common/database/dependents';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 
 /**
@@ -87,8 +88,22 @@ export class ManufacturingService {
     );
   }
 
+  /**
+   * A production order is deleted only while it is still a plan.
+   *
+   * Once released it has been handed to the floor — material may have been issued, time booked,
+   * output reported — and from then on it is cancelled or completed, never erased: that is the
+   * rule in every MRP system, because the order is what the consumption and the output hang off.
+   * A cancelled order that produced nothing may still be tidied away.
+   */
   async removeOrder(id: string, organizationId: string): Promise<void> {
-    await this.findOneOrder(id, organizationId);
+    const order = await this.findOneOrder(id, organizationId);
+    const deletable =
+      (order.status === ProductionStatus.PLANNED || order.status === ProductionStatus.CANCELLED) &&
+      Number(order.quantityProduced ?? 0) === 0;
+    if (!deletable) {
+      throw new ConflictError('manufacturing.order_started_cancel_instead', { status: order.status });
+    }
     await this.productionOrderRepository.delete({ id, organizationId });
   }
 
@@ -150,9 +165,13 @@ export class ManufacturingService {
     return this.bomRepository.save(bom);
   }
 
+  /** A bill of materials production orders were built from stays; it is superseded, not erased. */
   async removeBom(id: string, organizationId: string): Promise<void> {
     await this.findOneBom(id, organizationId);
-    await this.bomRepository.delete({ id, organizationId });
+    await this.bomRepository.manager.transaction(async (manager) => {
+      await assertNotInUse(manager, 'bill_of_materials', id, 'manufacturing.bom_in_use');
+      await manager.delete(BillOfMaterial, { id, organizationId });
+    });
   }
 
   // ── Work centres ─────────────────────────────────────────────────────────────

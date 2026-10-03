@@ -55,6 +55,7 @@ import { AuthButtonComponent } from '../components/auth-button/auth-button.compo
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { LanguageService } from '../../../core/services/language';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { NotificationService } from '../../../core/services/notification';
 
 const FORM_DRAFT_KEY = 'register_form_draft';
 const TOTAL_STEPS = 6;
@@ -119,6 +120,8 @@ export function passwordMatchValidator(
   ],
 })
 export class RegisterPage implements OnInit {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly BarChart2Icon = BarChart2;
   protected readonly PackageIcon = Package;
@@ -672,14 +675,9 @@ export class RegisterPage implements OnInit {
             // The server's message is already localized, so it is shown verbatim (see
             // `serverErrorMessage`) — this is what surfaces a rejected RNC/RFC/NIT etc. to the
             // user. Only our own fallback is a translation key.
-            const serverMessage = err.error?.message;
-            if (serverMessage) {
-              this.serverErrorMessage.set(
-                Array.isArray(serverMessage) ? serverMessage.join(', ') : serverMessage,
-              );
-            } else {
-              this.errorMessage.set('register.errors.unknown');
-            }
+            // The API sends `messageKey` and `params`, never a `message`: reading `message` meant a
+            // rejected RNC/RFC/NIT always showed «unknown error». Resolved into a sentence here.
+            this.serverErrorMessage.set(this.errorText.httpErrorMessage(err, 'register.errors.unknown'));
             this.isRegistering.set(false);
           },
         });

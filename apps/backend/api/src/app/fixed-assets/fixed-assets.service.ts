@@ -11,7 +11,7 @@ import { AssetPostingService } from './asset-posting.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
-import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
@@ -70,11 +70,25 @@ export class FixedAssetsService {
     return this.fixedAssetRepository.save(updatedAsset);
   }
 
+  /**
+   * Only an asset that never reached the books can be deleted.
+   *
+   * This deleted any asset, including one depreciated for years: the ledger kept its cost and its
+   * accumulated depreciation while the register no longer listed it, so the two stopped
+   * reconciling and nothing could ever depreciate or retire what was left. Every fixed-asset
+   * register works the same way — a draft registered by mistake is deleted; an asset that has been
+   * depreciated, disposed or sold is retired through disposal, which books the result.
+   */
   async remove(id: string, organizationId: string): Promise<void> {
-    const result = await this.fixedAssetRepository.delete({ id, organizationId });
-    if (result.affected === 0) {
-        throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
+    const asset = await this.fixedAssetRepository.findOne({ where: { id, organizationId } });
+    if (!asset) {
+      throw new NotFoundError('fixed_assets.fixed_asset_id_not_found', { id });
     }
+    const depreciated = Number(asset.accumulatedDepreciation ?? 0) > 0 || asset.depreciatedThrough !== null;
+    if (depreciated || asset.status !== FixedAssetStatus.IN_USE) {
+      throw new ConflictError('fixed_assets.asset_in_books_dispose_instead', { name: asset.name });
+    }
+    await this.fixedAssetRepository.delete({ id, organizationId });
   }
 
   async dispose(

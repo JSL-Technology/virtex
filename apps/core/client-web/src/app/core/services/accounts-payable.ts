@@ -94,10 +94,14 @@ export interface CreateVendorBillLineDto {
   total: number;
   productId?: string;
   expenseAccountId?: string;
+  /** The purchase-order line this bills (three-way match). */
+  purchaseOrderLineId?: string;
 }
 
 export interface CreateVendorBillDto {
   vendorId: string;
+  /** The purchase order the bill was raised against, when there is one. */
+  purchaseOrderId?: string;
   date: string;
   dueDate: string;
   lines: CreateVendorBillLineDto[];

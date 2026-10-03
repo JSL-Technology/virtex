@@ -3,13 +3,14 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 // import of `taxes`. It mirrors how Tax.taxGroup already references 'TaxGroup', which keeps the
 // tax_groups ⇄ taxes relation bidirectional without a compile-time or DI cycle between the modules.
 import type { Tax } from '../../taxes/entities/tax.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'tax_groups' })
 export class TaxGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -17,4 +18,8 @@ export class TaxGroup {
 
   @OneToMany('Tax', 'taxGroup')
   taxes: Tax[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_tax_groups_organization')
+  organization?: TenantRef;
 }

@@ -325,12 +325,9 @@ export class CustomerReceiptFormPage implements OnInit {
           //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
           void this.router.navigate(['/customer-receipts']).then(() => this.tab?.close());
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.saving.set(false);
-          const message = error?.error?.message;
-          this.notifications.showError(
-            typeof message === 'string' ? message : 'customer_receipts.form.collection_could_not_recorded',
-          );
+          this.notifications.showHttpError(error, 'customer_receipts.form.collection_could_not_recorded');
         },
       });
   }

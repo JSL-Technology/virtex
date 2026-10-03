@@ -296,7 +296,12 @@ describeWithDb('inventory posting', () => {
 
   it('recognises a shortfall found by a stock count', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
-    await inventory.update(product.id, { stock: 48 } as never, organizationId, ACTOR);
+    await inventory.update(
+      product.id,
+      { stock: 48, adjustmentReason: 'Conteo físico de fin de mes' } as never,
+      organizationId,
+      ACTOR,
+    );
 
     // Two units at 400 gone. Against the adjustment account, never cost of goods sold: a shrinkage
     // is not a cost of what was sold.
@@ -304,9 +309,25 @@ describeWithDb('inventory posting', () => {
     expect(await signedBalance('adjustment')).toBe(800);
   });
 
+  it('refuses to move stock or value without saying why (QA C-08)', async () => {
+    const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
+
+    // A stock or cost change posts to the ledger; an entry with no stated reason is one nobody
+    // can audit. The form asks for it, and so does the server.
+    await expect(
+      inventory.update(product.id, { stock: 48 } as never, organizationId, ACTOR),
+    ).rejects.toMatchObject({ messageKey: 'inventory.adjustment_reason_required' });
+    expect(await signedBalance('adjustment')).toBe(0);
+  });
+
   it('recognises a change in unit cost as a revaluation of everything held', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
-    await inventory.update(product.id, { cost: 420 } as never, organizationId, ACTOR);
+    await inventory.update(
+      product.id,
+      { cost: 420, adjustmentReason: 'Nuevo costo del proveedor' } as never,
+      organizationId,
+      ACTOR,
+    );
 
     expect(await signedBalance('inventory')).toBe(21_000);
     expect(await signedBalance('adjustment')).toBe(-1_000);

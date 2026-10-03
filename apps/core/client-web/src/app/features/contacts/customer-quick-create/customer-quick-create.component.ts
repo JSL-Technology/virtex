@@ -22,6 +22,7 @@ import { CountryNamesService } from '../../../core/i18n/countries';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VX_SELECT } from '../../../shared/components/select';
 import { CountryOption } from '../../../core/i18n/countries';
+import { NotificationService } from '../../../core/services/notification';
 
 /**
  * Register a customer without leaving the document being drafted.
@@ -47,6 +48,8 @@ import { CountryOption } from '../../../core/i18n/countries';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerQuickCreateComponent implements AfterViewInit {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
   private readonly customers = inject(CustomersService);
   private readonly identityDocuments = inject(IdentityDocumentsService);
@@ -141,13 +144,13 @@ export class CustomerQuickCreateComponent implements AfterViewInit {
           this.saving.set(false);
           this.resolved.emit(customer);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.saving.set(false);
           //  El motivo se queda EN el diálogo. Un aviso que se desvanece obliga a reabrir el
           //  formulario para recordar qué había que corregir, y aquí el dato a corregir está
           //  delante.
           this.failure.set(
-            error?.error?.message ?? this.translate.instant('contacts.customer_form.error_creating_customer'),
+            this.errorText.httpErrorMessage(error, 'contacts.customer_form.error_creating_customer'),
           );
         },
       });

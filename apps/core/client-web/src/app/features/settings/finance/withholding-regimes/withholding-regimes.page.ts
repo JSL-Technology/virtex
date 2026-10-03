@@ -160,9 +160,7 @@ export class WithholdingRegimesPage implements OnInit {
         },
         error: (error) => {
           this.saving.set(false);
-          this.notifications.showError(
-            error?.error?.message ?? 'settings.pages.withholding.save_failed',
-          );
+          this.notifications.showHttpError(error, 'settings.pages.withholding.save_failed');
         },
       });
   }

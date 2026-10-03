@@ -149,7 +149,7 @@ export class StatementImportPage implements OnInit {
       error: (error: { error?: { message?: string; detail?: string } }) => {
         this.uploading.set(false);
         // The row the import stopped on is the useful part; a generic failure would hide it.
-        this.importError.set(error?.error?.detail ?? error?.error?.message ?? null);
+        this.importError.set(error?.error?.detail ?? this.notifications.httpErrorMessage(error, 'errors.unexpected'));
       },
     });
   }

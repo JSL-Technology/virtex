@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 /** Una cosa concreta que espera a alguien, tal como la cuenta su módulo. */
 export interface InboxItem {
   id: string;
@@ -61,7 +62,7 @@ export class ModuleInboxService {
   async refresh(): Promise<void> {
     this.loading.set(true);
     try {
-      const modules = await firstValueFrom(this.http.get<ModuleInbox[]>('/api/v1/me/inbox'));
+      const modules = await firstValueFrom(this.http.get<ModuleInbox[]>(`${environment.apiUrl}/me/inbox`));
       this.state.set(modules ?? []);
     } catch (error) {
       console.info('[inbox] no se pudo leer el trabajo pendiente', error);

@@ -27,11 +27,22 @@
       color: var(--content-secondary);
     }
 
+    > span {
+      font-size: var(--text-xs);
+      color: var(--content-secondary);
+    }
+
     input[type='date'] {
       @include ds.input-base;
       height: var(--control-height-md);
       width: auto;
     }
+  }
+
+  // The account comes first and is the widest: it is what the ledger is OF.
+  .filter-group--account {
+    flex: 1 1 18rem;
+    min-width: min(100%, 18rem);
   }
 
   //  Los cuatro totales en una fila que sobrevive a pantallas estrechas: son

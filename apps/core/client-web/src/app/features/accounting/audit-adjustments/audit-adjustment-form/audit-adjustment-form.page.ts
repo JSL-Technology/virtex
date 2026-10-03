@@ -244,12 +244,9 @@ export class AuditAdjustmentFormPage implements OnInit {
           //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
           void this.router.navigate(['/accounting/audit-adjustments']).then(() => this.tab?.close());
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.saving.set(false);
-          const message = error?.error?.message;
-          this.notifications.showError(
-            typeof message === 'string' ? message : 'audit_adjustments.propose_failed',
-          );
+          this.notifications.showHttpError(error, 'audit_adjustments.propose_failed');
         },
       });
   }

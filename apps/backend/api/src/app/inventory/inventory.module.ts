@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InventoryService } from './inventory.service';
+import { ProductsDataTransferProvider } from './products-data-transfer.provider';
 import { InventoryController } from './inventory.controller';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
@@ -14,6 +15,7 @@ import { AuthModule } from '../auth/auth.module';
 import { InventoryPostingService } from './inventory-posting.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
+import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
 
 @Module({
   imports: [
@@ -22,7 +24,15 @@ import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.han
     JournalEntriesModule,
   ],
   controllers: [InventoryController, ProductCategoriesController],
-  providers: [InventoryService, InventoryPostingService, ProductCategoriesService, VendorBillInventoryHandler],
-  exports: [InventoryService, ProductCategoriesService],
+  providers: [
+    InventoryService,
+    ProductsDataTransferProvider,
+    InventoryPostingService,
+    ProductCategoriesService,
+    VendorBillInventoryHandler,
+    // Purchasing brings goods into stock through the port, not through the service.
+    { provide: GoodsReceiptPort, useExisting: InventoryService },
+  ],
+  exports: [InventoryService, ProductCategoriesService, GoodsReceiptPort],
 })
 export class InventoryModule {}

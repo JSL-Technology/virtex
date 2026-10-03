@@ -159,6 +159,36 @@
     "en": "You have been invited to join {{appName}}",
     "pt": "Você foi convidado a entrar no {{appName}}"
   },
+  "mail.invoice.attachment_note": {
+    "es": "El documento va adjunto en PDF.",
+    "en": "The document is attached as a PDF.",
+    "pt": "O documento segue anexado em PDF."
+  },
+  "mail.invoice.body": {
+    "es": "{{company}} te envía la factura {{number}} por un total de {{total}}.",
+    "en": "{{company}} is sending you invoice {{number}} for a total of {{total}}.",
+    "pt": "{{company}} está enviando a fatura {{number}} no total de {{total}}."
+  },
+  "mail.invoice.due": {
+    "es": "Vence el {{date}}.",
+    "en": "It is due on {{date}}.",
+    "pt": "Vence em {{date}}."
+  },
+  "mail.invoice.preheader": {
+    "es": "{{company}} te envía una factura por {{total}}.",
+    "en": "{{company}} sent you an invoice for {{total}}.",
+    "pt": "{{company}} enviou uma fatura de {{total}}."
+  },
+  "mail.invoice.subject": {
+    "es": "Factura {{number}} de {{company}}",
+    "en": "Invoice {{number}} from {{company}}",
+    "pt": "Fatura {{number}} de {{company}}"
+  },
+  "mail.invoice.title": {
+    "es": "Factura {{number}}",
+    "en": "Invoice {{number}}",
+    "pt": "Fatura {{number}}"
+  },
   "mail.organization_added.access_new_organization": {
     "es": "Acceso a una nueva organización",
     "en": "Access to a new organization",

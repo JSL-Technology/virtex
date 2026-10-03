@@ -3,6 +3,7 @@ import { Entity, Column, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { PurchaseRequisitionLine } from './purchase-requisition-line.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum PurchaseRequisitionStatus {
   DRAFT = 'DRAFT',
@@ -67,4 +68,8 @@ export class PurchaseRequisition extends BaseEntity {
 
   @OneToMany(() => PurchaseRequisitionLine, (line) => line.requisition, { cascade: true })
   lines: PurchaseRequisitionLine[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_purchase_requisitions_organization')
+  organization?: TenantRef;
 }

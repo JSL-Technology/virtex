@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * The consecutive counter behind every journal entry's number.
@@ -32,4 +33,8 @@ export class JournalEntrySequence {
   /** The highest number handed out so far. The next entry gets `lastNumber + 1`. */
   @Column({ name: 'last_number', type: 'int', default: 0 })
   lastNumber: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_journal_entry_sequences_organization')
+  organization?: TenantRef;
 }

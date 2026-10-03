@@ -104,7 +104,8 @@ describe('ExtensionHostComponent · alcance de las capacidades', () => {
 
     await bridge.handleApiRequest(1, { path: '/sales/%2e%2e/users' });
     expect(get).not.toHaveBeenCalled();
-    expect(posted[0]).toMatchObject({ id: 1, error: 'Invalid API path' });
+    // A stable code, not an English sentence: the extension branches on it.
+    expect(posted[0]).toMatchObject({ id: 1, error: 'INVALID_PATH' });
 
     await bridge.handleApiRequest(2, { path: '/invoices?page=2' });
     expect(get).toHaveBeenCalledTimes(1);

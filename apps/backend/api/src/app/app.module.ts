@@ -92,6 +92,7 @@ import { PayrollModule } from './payroll/payroll.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CostAccountingModule } from './cost-accounting/cost-accounting.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
+import { DataTransferModule } from './data-transfer/data-transfer.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
 import { SchedulerModule } from './shared/scheduler/scheduler.module';
@@ -352,6 +353,7 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     ProcurementModule,
     CostAccountingModule,
     DatasheetsModule,
+    DataTransferModule,
     IdempotencyModule,
     TenancyModule,
     ExtensionsModule,

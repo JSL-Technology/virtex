@@ -8,8 +8,10 @@ import {
   IsEnum,
   IsUUID,
   MaxLength,
+  Max,
+  IsIn,
 } from 'class-validator';
-import { ProductStatus } from '../entities/product.entity';
+import { ProductKind, ProductStatus } from '../entities/product.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -62,4 +64,29 @@ export class CreateProductDto {
   @IsEnum(ProductStatus)
   @IsOptional()
   status?: ProductStatus;
+
+  /** A good is counted and moves stock; a service is not. */
+  @IsEnum(ProductKind)
+  @IsOptional()
+  kind?: ProductKind;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(16, { message: 'validation.constraints.max_length|{"max":16}' })
+  unitOfMeasure?: string;
+
+  /**
+   * How the item is treated for consumption tax. The form had no field for it — nor for the rate
+   * — so every product was created "taxed at 0 %", which the till read literally (QA C-08).
+   */
+  @IsIn(['TAXED', 'ZERO_RATED', 'EXEMPT'], { message: 'validation.constraints.is_in' })
+  @IsOptional()
+  taxTreatment?: 'TAXED' | 'ZERO_RATED' | 'EXEMPT';
+
+  /** A fraction: 0.18, never 18 (QA M-05). Omitted on a taxed item, the tenant's standard rate. */
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(1, { message: 'validation.product.tax_rate_is_a_fraction' })
+  @IsOptional()
+  taxRate?: number;
 }

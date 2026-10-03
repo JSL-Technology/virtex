@@ -9,6 +9,11 @@
     "en": "Click to browse, or drag the file here",
     "pt": "Clique para procurar ou arraste o arquivo aqui"
   },
+  "data_imports.column": {
+    "es": "Columna",
+    "en": "Column",
+    "pt": "Coluna"
+  },
   "data_imports.data_imports_etl": {
     "es": "Importaciones de datos (ETL)",
     "en": "Data imports (ETL)",
@@ -18,6 +23,11 @@
     "es": "Tipo de dato",
     "en": "Data type",
     "pt": "Tipo de dado"
+  },
+  "data_imports.datasets_failed": {
+    "es": "No se pudieron cargar los tipos de datos.",
+    "en": "The data types could not be loaded.",
+    "pt": "Não foi possível carregar os tipos de dados."
   },
   "data_imports.date": {
     "es": "Fecha",
@@ -39,15 +49,45 @@
     "en": "File name",
     "pt": "Nome do arquivo"
   },
+  "data_imports.file_too_large": {
+    "es": "El archivo pesa más de {{max}}.",
+    "en": "The file is larger than {{max}}.",
+    "pt": "O arquivo é maior que {{max}}."
+  },
   "data_imports.import_data": {
     "es": "Importar datos",
     "en": "Import data",
     "pt": "Importar dados"
   },
-  "data_imports.once_file_selected_start_import": {
-    "es": "Cuando el archivo esté seleccionado, comienza la importación.",
-    "en": "Once the file is selected, start the import.",
-    "pt": "Com o arquivo selecionado, inicie a importação."
+  "data_imports.import_failed": {
+    "es": "No se pudo procesar el archivo.",
+    "en": "The file could not be processed.",
+    "pt": "Não foi possível processar o arquivo."
+  },
+  "data_imports.imported": {
+    "es": "{{count}} registro(s) importado(s).",
+    "en": "{{count}} record(s) imported.",
+    "pt": "{{count}} registro(s) importado(s)."
+  },
+  "data_imports.line": {
+    "es": "Línea",
+    "en": "Line",
+    "pt": "Linha"
+  },
+  "data_imports.no_imports_yet": {
+    "es": "Aún no hay importaciones.",
+    "en": "No imports yet.",
+    "pt": "Ainda não há importações."
+  },
+  "data_imports.nothing_written_fix_and_retry": {
+    "es": "No se guardó nada. Corrige estas filas y vuelve a subir el archivo completo: no se duplicará ningún registro.",
+    "en": "Nothing was saved. Fix these rows and upload the whole file again: no record will be duplicated.",
+    "pt": "Nada foi salvo. Corrija estas linhas e envie o arquivo completo novamente: nenhum registro será duplicado."
+  },
+  "data_imports.problem": {
+    "es": "Problema",
+    "en": "Problem",
+    "pt": "Problema"
   },
   "data_imports.processed": {
     "es": "Procesados",
@@ -63,6 +103,16 @@
     "es": "Importaciones recientes",
     "en": "Recent imports",
     "pt": "Importações recentes"
+  },
+  "data_imports.report_summary": {
+    "es": "{{total}} filas · {{imported}} importadas · {{failed}} con problemas",
+    "en": "{{total}} rows · {{imported}} imported · {{failed}} with problems",
+    "pt": "{{total}} linhas · {{imported}} importadas · {{failed}} com problemas"
+  },
+  "data_imports.required_columns": {
+    "es": "Columnas obligatorias:",
+    "en": "Required columns:",
+    "pt": "Colunas obrigatórias:"
   },
   "data_imports.select_csv_or_excel_file_from": {
     "es": "Selecciona el archivo CSV o Excel desde tu computadora.",
@@ -89,6 +139,11 @@
     "en": "Status",
     "pt": "Situação"
   },
+  "data_imports.template_failed": {
+    "es": "No se pudo descargar la plantilla.",
+    "en": "The template could not be downloaded.",
+    "pt": "Não foi possível baixar o modelo."
+  },
   "data_imports.upload_file": {
     "es": "Subir archivo",
     "en": "Upload a file",
@@ -103,5 +158,20 @@
     "es": "Usuario",
     "en": "User",
     "pt": "Usuário"
+  },
+  "data_imports.validate": {
+    "es": "Validar",
+    "en": "Validate",
+    "pt": "Validar"
+  },
+  "data_imports.validate_then_import": {
+    "es": "Valida primero: se revisa cada fila sin guardar nada. La importación es todo o nada.",
+    "en": "Validate first: every row is checked and nothing is saved. Importing is all-or-nothing.",
+    "pt": "Valide primeiro: cada linha é verificada sem salvar nada. A importação é tudo ou nada."
+  },
+  "data_imports.validated": {
+    "es": "Las {{count}} filas son válidas. Ya puedes importar.",
+    "en": "All {{count}} rows are valid. You can import now.",
+    "pt": "As {{count}} linhas são válidas. Você já pode importar."
   }
 }

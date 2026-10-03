@@ -2,6 +2,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { CustomerStatus } from '../../customers/entities/customer.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'leads' })
 export class Lead {
@@ -9,7 +10,7 @@ export class Lead {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -42,4 +43,8 @@ export class Lead {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_leads_organization')
+  organization?: TenantRef;
 }

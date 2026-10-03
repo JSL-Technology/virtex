@@ -97,11 +97,8 @@ export class DepartmentsPage {
     });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'hcm.departments.save_failed',
-    );
+    this.notifications.showHttpError(error, 'hcm.departments.save_failed');
   }
 }

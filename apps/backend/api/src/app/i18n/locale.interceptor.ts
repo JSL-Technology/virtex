@@ -1,9 +1,10 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable, map } from 'rxjs';
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor, Optional } from '@nestjs/common';
+import { Observable, mergeMap } from 'rxjs';
 import { LanguageCode } from '@virteex/shared/types';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLocale } from './request-locale';
 import { I18nService } from './i18n.service';
+import { TenantCurrencyPort } from './ports/tenant-currency.port';
 
 /**
  * Three jobs, all of which have to happen between the guards and the response.
@@ -32,7 +33,14 @@ import { I18nService } from './i18n.service';
  */
 @Injectable()
 export class LocaleInterceptor implements NestInterceptor {
-  constructor(private readonly i18n: I18nService) {}
+  private readonly logger = new Logger(LocaleInterceptor.name);
+
+  constructor(
+    private readonly i18n: I18nService,
+    // Optional so the interceptor still works in a slice of the application without the
+    // organizations module; the application always binds it.
+    @Optional() private readonly tenantCurrency?: TenantCurrencyPort,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') return next.handle();
@@ -45,36 +53,34 @@ export class LocaleInterceptor implements NestInterceptor {
     if (preferred) setRequestLocale({ language: preferred });
 
     const language = currentLanguage();
-    return next.handle().pipe(map((body) => this.stamp(this.localize(body, language), language)));
+    return next.handle().pipe(mergeMap((body) => this.stamp(this.localize(body, language), language)));
   }
 
-  /**
-   * Walk one level of the response for serialised users.
-   *
-   * One level is enough for every shape the API actually returns — the DTO itself, `{ user }`,
-   * and `{ data: User[] }` — and a full deep walk over an arbitrary payload would be a cost paid
-   * on every request to catch a case that does not exist.
-   */
-  private stamp(body: unknown, language: LanguageCode): unknown {
-    if (body === null || typeof body !== 'object') return body;
-
-    if (body instanceof UserResponseDto) return this.withContext(body, language);
-
-    if (Array.isArray(body)) {
-      for (const item of body) if (item instanceof UserResponseDto) this.withContext(item, language);
-      return body;
-    }
-
-    for (const value of Object.values(body as Record<string, unknown>)) {
-      if (value instanceof UserResponseDto) {
-        this.withContext(value, language);
-      } else if (Array.isArray(value)) {
-        for (const item of value) {
-          if (item instanceof UserResponseDto) this.withContext(item, language);
-        }
-      }
-    }
+  /** Stamp the tenant's locale context on every serialised user in the response. */
+  private async stamp(body: unknown, language: LanguageCode): Promise<unknown> {
+    const users = usersIn(body);
+    if (users.length === 0) return body;
+    const currencies = await this.functionalCurrencies(users);
+    for (const user of users) this.withContext(user, language, currencies);
     return body;
+  }
+
+  /** One lookup per tenant in the response, never one per user. */
+  private async functionalCurrencies(users: UserResponseDto[]): Promise<Map<string, string | null>> {
+    const ids = [...new Set(users.map((u) => u.organization?.id).filter((id): id is string => !!id))];
+    const entries = await Promise.all(
+      ids.map(async (id): Promise<[string, string | null]> => {
+        if (!this.tenantCurrency) return [id, null];
+        try {
+          return [id, await this.tenantCurrency.functionalCurrency(id)];
+        } catch (error) {
+          // The session is still served; only its formatting falls back.
+          this.logger.warn(`Could not read the functional currency of ${id}: ${(error as Error).message}`);
+          return [id, null];
+        }
+      }),
+    );
+    return new Map(entries);
   }
 
   /**
@@ -112,8 +118,37 @@ export class LocaleInterceptor implements NestInterceptor {
     delete record['messageParams'];
   }
 
-  private withContext(user: UserResponseDto, language: LanguageCode): UserResponseDto {
-    user.localeContext = buildLocaleContext(language, user.organization);
+  private withContext(
+    user: UserResponseDto,
+    language: LanguageCode,
+    currencies: Map<string, string | null>,
+  ): UserResponseDto {
+    const organization = user.organization;
+    if (organization) {
+      // The books currency, from the tenant's settings: the DTO declared `currency` and nothing
+      // ever set it, so every tenant was formatted in the `USD` fallback (QA A-12).
+      organization.currency = currencies.get(organization.id) ?? organization.currency ?? null;
+    }
+    user.localeContext = buildLocaleContext(language, organization);
     return user;
   }
+}
+
+/**
+ * The serialised users in a response, one level deep.
+ *
+ * One level is enough for every shape the API actually returns — the DTO itself, `{ user }`,
+ * and `{ data: User[] }` — and a full deep walk over an arbitrary payload would be a cost paid
+ * on every request to catch a case that does not exist.
+ */
+function usersIn(body: unknown): UserResponseDto[] {
+  if (body === null || typeof body !== 'object') return [];
+  if (body instanceof UserResponseDto) return [body];
+  const values = Array.isArray(body) ? body : Object.values(body as Record<string, unknown>);
+  const users: UserResponseDto[] = [];
+  for (const value of values) {
+    if (value instanceof UserResponseDto) users.push(value);
+    else if (Array.isArray(value)) for (const item of value) if (item instanceof UserResponseDto) users.push(item);
+  }
+  return users;
 }

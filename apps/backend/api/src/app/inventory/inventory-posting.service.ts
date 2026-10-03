@@ -81,7 +81,7 @@ export class InventoryPostingService {
     }
 
     //  El relato en el idioma en que se llevan los libros del inquilino, no en castellano fijo.
-    const words = await this.narrative.describeAll(manager, product.organizationId, {
+    const words = await this.words(manager, product.organizationId, {
       entry: { key: 'ledger.inventory.opening_entry', params: { product: product.name } },
       stock: { key: 'ledger.inventory.opening_stock', params: { product: product.name } },
       counterpart: { key: 'ledger.inventory.opening_counterpart' },
@@ -131,6 +131,8 @@ export class InventoryPostingService {
     product: Product,
     before: Valuation,
     actorUserId: string | null,
+    /** Why, when a person made the change. Appended to the entry's narrative. */
+    reason?: string,
   ): Promise<string | null> {
     if (product.kind === ProductKind.SERVICE) return null;
 
@@ -148,7 +150,7 @@ export class InventoryPostingService {
 
     const amount = Math.abs(delta);
     const increase = delta > 0;
-    const words = await this.narrative.describeAll(manager, product.organizationId, {
+    const words = await this.words(manager, product.organizationId, {
       entry: { key: 'ledger.inventory.adjustment_entry', params: { product: product.name } },
       movement: {
         key: increase ? 'ledger.inventory.adjustment_in' : 'ledger.inventory.adjustment_out',
@@ -163,7 +165,7 @@ export class InventoryPostingService {
       product.organizationId,
       {
         date: new Date().toISOString(),
-        description: words.entry,
+        description: reason ? `${words.entry} — ${reason}` : words.entry,
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -191,6 +193,68 @@ export class InventoryPostingService {
     );
   }
 
+  /**
+   * Goods received against a purchase order: Dr Inventory / Cr Goods received not invoiced.
+   *
+   * The supplier's invoice later debits GRNI and credits payables for the same goods, so the
+   * purchase is booked once and the bridge account holds, at any moment, what arrived and has not
+   * been billed yet (QA C-07). Posted in the purchases journal; idempotent per receipt.
+   */
+  async postGoodsReceipt(
+    manager: EntityManager,
+    organizationId: string,
+    receipt: {
+      reference: string;
+      sourceId: string;
+      date: string;
+      lines: ReadonlyArray<{ description: string; amount: number }>;
+    },
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const lines = receipt.lines.filter((line) => toCents(line.amount) > 0);
+    if (lines.length === 0) return null;
+
+    // The purchases journal: a receipt is the first half of a purchase.
+    const { settings, journal } = await this.context(manager, organizationId, 'COMPRAS');
+    const inventoryId = settings.defaultInventoryId;
+    const grniId = settings.defaultGoodsReceivedNotInvoicedAccountId;
+    if (!inventoryId || !grniId) {
+      throw new BadRequestError('inventory.goods_receipt_accounts_not_configured');
+    }
+
+    const total = roundAmount(lines.reduce((sum, line) => sum + line.amount, 0));
+    const words = await this.words(manager, organizationId, {
+      entry: { key: 'ledger.inventory.goods_receipt_entry', params: { reference: receipt.reference } },
+      counterpart: { key: 'ledger.inventory.goods_receipt_counterpart', params: { reference: receipt.reference } },
+    });
+
+    return this.post(
+      manager,
+      organizationId,
+      {
+        date: receipt.date,
+        description: words.entry,
+        journalId: journal.id,
+        currencyCode: settings.baseCurrency ?? undefined,
+        exchangeRate: 1,
+        lines: [
+          ...lines.map((line) => ({
+            accountId: inventoryId,
+            debit: roundAmount(line.amount),
+            credit: 0,
+            description: line.description,
+          })),
+          { accountId: grniId, debit: 0, credit: total, description: words.counterpart },
+        ],
+      },
+      {
+        actorUserId,
+        systemReason: 'goods-receipt',
+        idempotencyKey: `po-receipt:${receipt.sourceId}`,
+      },
+    );
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   private async post(
@@ -210,9 +274,19 @@ export class InventoryPostingService {
   private async context(
     manager: EntityManager,
     organizationId: string,
+    journalCode = 'GENERAL',
   ): Promise<{ settings: OrganizationSettings; journal: Journal }> {
     const settings = await this.orgSettings.requireForOrg(organizationId, manager);
-    const journal = await this.journalLookup.requireByCode(organizationId, 'GENERAL', manager);
+    const journal = await this.journalLookup.requireByCode(organizationId, journalCode, manager);
     return { settings, journal };
+  }
+
+  /** The entry's narrative, in the language the tenant's books are kept in. */
+  private words<K extends string>(
+    manager: EntityManager,
+    organizationId: string,
+    keys: Record<K, { key: string; params?: Record<string, unknown> }>,
+  ): Promise<Record<K, string>> {
+    return this.narrative.describeAll(manager, organizationId, keys);
   }
 }

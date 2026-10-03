@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
@@ -7,6 +7,7 @@ import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '.
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
 import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
@@ -74,6 +75,13 @@ export class AccountFormPage implements OnInit {
   public readonly SettingsIcon = Settings;
   public readonly accountTypes = Object.values(AccountType);
   public readonly accountCategories = Object.values(AccountCategory);
+  /** El tipo elegido, para ofrecer solo las categorías que lo refinan. */
+  protected readonly selectedType = signal<AccountType | null>(null);
+  protected readonly categoriesForType = computed<string[]>(() => {
+    const type = this.selectedType();
+    if (!type) return [];
+    return [...((ACCOUNT_CATEGORIES_BY_TYPE as Record<string, readonly string[]>)[type] ?? [])];
+  });
   public readonly accountNatures = Object.values(AccountNature);
   public readonly cashFlowCategories = Object.values(CashFlowCategory);
   public readonly allDimensions: RequiredDimension[] = ['COST_CENTER', 'PROJECT', 'SEGMENT'];
@@ -147,6 +155,13 @@ export class AccountFormPage implements OnInit {
     // Lógica para autocompletar la naturaleza
     this.accountForm.get('type')?.valueChanges.subscribe((type: AccountType) => {
       this.accountForm.get('nature')?.setValue(this.getNatureFromType(type), { emitEvent: false });
+      this.selectedType.set(type);
+      //  La categoría refina el tipo (QA M-04): si la elegida ya no corresponde, se vacía para que
+      //  el usuario elija una válida en vez de guardar un gasto clasificado como activo.
+      const category = this.accountForm.get('category');
+      if (category?.value && !isCategoryAllowedForType(type, category.value)) {
+        category.setValue(null);
+      }
     });
   }
 
@@ -196,9 +211,19 @@ export class AccountFormPage implements OnInit {
           this.accountForm.get('advanced')?.patchValue(account.advanced);
         }
   
+        this.selectedType.set(account.type ?? null);
         if (this.isEditing()) {
           this.accountForm.get('code')?.disable();
           this.accountForm.get('type')?.disable();
+          //  Toda modificación de una cuenta queda en su historial con un motivo: el servidor lo
+          //  exige y el formulario no tenía dónde escribirlo, así que NINGUNA cuenta era editable
+          //  (QA A-05).
+          if (!this.accountForm.get('reasonForChange')) {
+            this.accountForm.addControl(
+              'reasonForChange',
+              this.fb.control('', [Validators.required, Validators.minLength(5), Validators.maxLength(500)]),
+            );
+          }
         }
         this.isLoading.set(false);
       },
@@ -257,6 +282,7 @@ export class AccountFormPage implements OnInit {
       rules: formData.rules,
       effectiveFrom: advanced.effectiveFrom || undefined,
       effectiveTo: advanced.effectiveTo || undefined,
+      ...(this.isEditing() ? { reasonForChange: String(formData.reasonForChange ?? '').trim() } : {}),
     };
   
     const saveOperation = this.isEditing()
@@ -273,8 +299,7 @@ export class AccountFormPage implements OnInit {
         void this.router.navigate(['/accounting/chart-of-accounts']).then(() => this.tab?.close());
       },
       error: (err) => {
-        const message = this.normalizeErrorMessage(err);
-        this.notificationService.showError(message);
+        this.notificationService.showHttpError(err, 'errors.save_account');
         this.isLoading.set(false);
       }
     });
@@ -286,23 +311,6 @@ export class AccountFormPage implements OnInit {
       .split('-')
       .map(segment => segment.trim())
       .filter(segment => segment.length > 0);
-  }
-
-  private normalizeErrorMessage(err: any): string {
-    const rawMessage = err?.error?.message ?? err?.message;
-
-    if (Array.isArray(rawMessage)) {
-      return rawMessage.join(' | ');
-    }
-
-    if (typeof rawMessage === 'object' && rawMessage !== null) {
-      if (Array.isArray(rawMessage.message)) {
-        return rawMessage.message.join(' | ');
-      }
-      return JSON.stringify(rawMessage);
-    }
-
-    return rawMessage || this.translate.instant('errors.save_account');
   }
 
   private getNatureFromType(type: AccountType): AccountNature {
@@ -339,7 +347,7 @@ export class AccountFormPage implements OnInit {
     const controls = this.accountForm.controls;
     
     // Check general tab fields
-    for (const key of ['code', 'name', 'type', 'category']) {
+    for (const key of ['code', 'name', 'type', 'category', 'reasonForChange']) {
       if (controls[key]?.invalid) {
         this.activeTab.set('general');
         return;
@@ -365,6 +373,7 @@ export class AccountFormPage implements OnInit {
 /** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
 const ACCOUNT_FIELD_LABELS: Record<string, string> = {
   code: 'accounting.account_form.account_code',
+  reasonForChange: 'accounting.account_form.reason_for_change',
   name: 'accounting.account_form.account_name',
   description: 'accounting.account_form.description',
   parentId: 'accounting.account_form.parent_account_grouping',

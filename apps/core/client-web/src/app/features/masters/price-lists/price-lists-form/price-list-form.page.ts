@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,6 +14,8 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
 @Component({
   selector: 'app-price-list-form-page',
@@ -33,6 +35,23 @@ export class PriceListFormPage implements OnInit {
   private priceListsService = inject(PriceListsService);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
+  private readonly locale = inject(LocaleStore);
+  private readonly currencies = inject(CurrenciesService);
+
+  /**
+   * The tenant's currencies (QA A-12). The selector offered three hard-coded ones and started on
+   * USD in a Dominican-peso company; it now starts on the books currency and lists the real ones.
+   * The list's own currency is always present, so editing a list never blanks its value.
+   */
+  private readonly tenantCurrencies = signal<Pick<Currency, 'code' | 'name'>[]>([]);
+  private readonly selectedCurrency = signal<string | null>(null);
+  readonly currencyOptions = computed(() => {
+    const options = [...this.tenantCurrencies()];
+    for (const code of [this.locale.currency(), this.selectedCurrency()]) {
+      if (code && !options.some((option) => option.code === code)) options.unshift({ code, name: code });
+    }
+    return options;
+  });
 
   protected readonly PlusIcon = Plus;
   protected readonly TrashIcon = Trash2;
@@ -83,9 +102,14 @@ export class PriceListFormPage implements OnInit {
 
   ngOnInit(): void {
     const today = new Date().toISOString().split('T')[0];
+    // Without permission to read the catalogue (a seller), the books currency is still offered.
+    this.currencies.getCurrencies().subscribe({
+      next: (all) => this.tenantCurrencies.set(all.map(({ code, name }) => ({ code, name }))),
+      error: () => this.tenantCurrencies.set([]),
+    });
     this.priceListForm = this.fb.group({
       name: ['', Validators.required],
-      currency: ['USD', Validators.required],
+      currency: [this.locale.currency(), Validators.required],
       validFrom: [today, Validators.required],
       validTo: [today, Validators.required],
       status: [PriceListStatus.DRAFT, Validators.required],
@@ -104,6 +128,7 @@ export class PriceListFormPage implements OnInit {
     this.isLoading.set(true);
     this.priceListsService.getPriceListById(id).subscribe({
       next: (priceList) => {
+        this.selectedCurrency.set(priceList.currency);
         this.priceListForm.patchValue({
           ...priceList,
           validFrom: new Date(priceList.validFrom).toISOString().split('T')[0],
@@ -117,8 +142,8 @@ export class PriceListFormPage implements OnInit {
 
         this.isLoading.set(false);
       },
-      error: () => {
-        this.notificationService.showError('masters.price_lists_form.price_list_could_not_loaded');
+      error: (error: unknown) => {
+        this.notificationService.showHttpError(error, 'masters.price_lists_form.price_list_could_not_loaded');
         this.router.navigate(['/masters/price-lists']);
       },
     });

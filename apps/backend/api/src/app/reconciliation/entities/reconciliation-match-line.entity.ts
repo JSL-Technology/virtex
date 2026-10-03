@@ -34,7 +34,9 @@ export class ReconciliationMatchLine {
   @Column({ name: 'journal_entry_line_id', type: 'uuid' })
   journalEntryLineId: string;
 
-  @ManyToOne(() => JournalEntryLine, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => JournalEntryLine, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'journal_entry_line_id' })
   journalEntryLine: JournalEntryLine;
 }

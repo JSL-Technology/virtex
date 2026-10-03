@@ -6,6 +6,7 @@ import { PosController } from './pos.controller';
 import { PosService } from './pos.service';
 import { InventoryModule } from '../inventory/inventory.module';
 import { AuthModule } from '../auth/auth.module';
+import { PosSalesDataTransferProvider } from './pos-data-transfer.provider';
 
 /**
  * Point of sale, consolidated from special-enigma's POS domain. Reuses InventoryModule for
@@ -14,7 +15,8 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule],
   controllers: [PosController],
-  providers: [PosService],
+  // The sales history's export (QA A-13).
+  providers: [PosService, PosSalesDataTransferProvider],
   exports: [PosService],
 })
 export class PosModule {}

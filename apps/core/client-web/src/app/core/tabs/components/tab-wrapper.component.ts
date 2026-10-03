@@ -5,6 +5,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, convertToParamMap, Params } from '@angular/router';
 import { of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { TabStateService } from '../tab-state.service';
 import { TabRegistryService } from '../tab-registry.service';
 import { TabEventBusService } from '../tab-event-bus.service';
@@ -46,6 +47,16 @@ interface WrapperParams {
           <div class="tab-spinner"></div>
         </div>
       }
+      @if (failed()) {
+        <!--
+          Un fallo al montar la página se ve y se puede reintentar. Antes el panel quedaba en blanco
+          sin ninguna pista (QA C-01): la causa solo aparecía en la consola.
+        -->
+        <div class="tab-error" role="alert">
+          <p class="tab-error__title">{{ failureTitle }}</p>
+          <button type="button" class="tab-error__retry" (click)="retry()">{{ retryLabel }}</button>
+        </div>
+      }
       <ng-container #host></ng-container>
     </div>
   `,
@@ -63,6 +74,15 @@ interface WrapperParams {
       animation: tab-spin 0.8s linear infinite;
     }
     @keyframes tab-spin { to { transform: rotate(360deg); } }
+    .tab-error {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 48px 16px; color: var(--text-secondary); text-align: center;
+    }
+    .tab-error__title { margin: 0; font-size: 0.95rem; }
+    .tab-error__retry {
+      padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-color);
+      background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;
+    }
   `],
 })
 export class TabWrapperComponent implements AfterViewInit, OnDestroy {
@@ -79,6 +99,14 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   api: any;
 
   readonly loading = signal(true);
+  readonly failed = signal(false);
+  private readonly translate = inject(TranslateService, { optional: true });
+  get failureTitle(): string {
+    return this.t('tabs.mount_failed');
+  }
+  get retryLabel(): string {
+    return this.t('common.retry');
+  }
 
   private compRef?: ComponentRef<unknown>;
   private activeSub?: { dispose: () => void };
@@ -92,7 +120,15 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit(): Promise<void> {
     const tab = this.currentTab();
-    if (!tab) { this.loading.set(false); return; }
+    if (!tab) {
+      // Sin pestaña no hay nada que montar. Ocurre cuando el adaptador de Dockview no entrega los
+      // `params` del panel (p. ej. una versión de `dockview-angular` desalineada con `dockview`,
+      // QA C-01): se deja constancia y se enseña el error en vez de un panel vacío.
+      console.error('[tab-wrapper] El panel no trae un tabId resoluble', { params: this.params, id: this.api?.id });
+      this.loading.set(false);
+      this.failed.set(true);
+      return;
+    }
 
     await this.mount(tab);
     this.mountedSig = this.signature(tab);
@@ -213,8 +249,22 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
     return `${t.route}|${t.entityKey ?? ''}|${JSON.stringify(t.queryParams ?? {})}`;
   }
 
+  /** Reintenta el montaje tras un fallo (red caída al cargar el chunk, error transitorio). */
+  retry(): void {
+    const tab = this.currentTab();
+    if (!tab) return;
+    this.failed.set(false);
+    void this.remount(tab);
+  }
+
+  private t(key: string): string {
+    const value = this.translate?.instant(key);
+    return typeof value === 'string' ? value : key;
+  }
+
   private async mount(tab: TabModel): Promise<void> {
     this.loading.set(true);
+    this.failed.set(false);
     const { definition } = this.registry.resolve(tab.route);
     try {
       const type = (await definition.load()) as Type<unknown>;
@@ -274,6 +324,7 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
     } catch (err) {
       console.error('[tab-wrapper] Error montando el componente de la pestaña', err);
       this.loading.set(false);
+      this.failed.set(true);
     }
   }
 

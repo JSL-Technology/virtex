@@ -1,5 +1,10 @@
 @use '../../../../assets/styles/form-page' as form;
+@use '../../../../assets/styles/design-system' as ds;
+@use '../../../../assets/styles/forms' as forms;
 
 :host {
   @include form.form-page;
+
+  .field__note { @include ds.field-hint; }
+  .form-error { @include forms.global-error; }
 }

@@ -1,16 +1,12 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { DatasheetSummary, DatasheetVariablesService } from '../../services/datasheet-variables.service';
+import { NotificationService } from '../../../../core/services/notification';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, FileSpreadsheet } from 'lucide-angular';
 import { ListShellComponent } from '../../../../shared/components/gestures';
-
-interface Datasheet {
-  id: string;
-  name: string;
-  owner: string;
-  modifiedAt: Date;
-}
 
 /**
  * Las hojas de datos, listadas.
@@ -29,7 +25,7 @@ interface Datasheet {
 @Component({
   selector: 'app-datasheet-list',
   standalone: true,
-  imports: [DatePipe, RouterModule, TranslateModule, LucideAngularModule, ListShellComponent],
+  imports: [RouterModule, TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
   styleUrl: './datasheet-list.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -37,7 +33,8 @@ interface Datasheet {
       titleKey="datasheets.title"
       subtitleKey="datasheets.analysis_spreadsheets_connected_erp_real_time"
       [count]="documents().length"
-      [empty]="documents().length === 0"
+      [loading]="loading()"
+      [empty]="!loading() && documents().length === 0"
     >
       <!--
         Absolute, because this page is mounted as a window rather than by a router outlet: the
@@ -64,11 +61,11 @@ interface Datasheet {
                 <td>
                   <span class="doc-info">
                     <lucide-icon [img]="FileIcon" size="18" class="doc-icon" aria-hidden="true"></lucide-icon>
-                    <a [routerLink]="[doc.id]" class="table-link">{{ doc.name }}</a>
+                    <a [routerLink]="['/datasheets', doc.id]" class="table-link">{{ doc.name }}</a>
                   </span>
                 </td>
-                <td>{{ doc.owner }}</td>
-                <td>{{ doc.modifiedAt | date: 'medium' }}</td>
+                <td>{{ ownerOf(doc) }}</td>
+                <td>{{ doc.modifiedAt | vxDate: 'dateTime' }}</td>
               </tr>
             }
           </tbody>
@@ -77,12 +74,39 @@ interface Datasheet {
     </vx-list-shell>
   `,
 })
-export class DatasheetListPage {
+export class DatasheetListPage implements OnInit {
+  private readonly books = inject(DatasheetVariablesService);
+  private readonly notifications = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly PlusIcon = Plus;
   protected readonly FileIcon = FileSpreadsheet;
 
-  readonly documents = signal<Datasheet[]>([
-    { id: '1', name: 'Estado de Resultados Q1', owner: 'Juan Pérez', modifiedAt: new Date() },
-    { id: '2', name: 'Análisis de Rentabilidad - Laptops', owner: 'Ana García', modifiedAt: new Date() },
-  ]);
+  /**
+   * The caller's real books. This was two invented rows — «Estado de Resultados Q1 — Juan Pérez»,
+   * «Análisis de Rentabilidad - Laptops» — dated «now» on every visit and opening nothing (QA A-10).
+   */
+  readonly documents = signal<DatasheetSummary[]>([]);
+  readonly loading = signal(true);
+
+  ngOnInit(): void {
+    this.books
+      .listBooks()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (books) => {
+          this.documents.set(books);
+          this.loading.set(false);
+        },
+        error: (error: unknown) => {
+          this.loading.set(false);
+          this.notifications.showHttpError(error, 'datasheets.list_failed');
+        },
+      });
+  }
+
+  ownerOf(book: DatasheetSummary): string {
+    const owner = book.owner;
+    return owner ? `${owner.firstName ?? ''} ${owner.lastName ?? ''}`.trim() || '—' : '—';
+  }
 }

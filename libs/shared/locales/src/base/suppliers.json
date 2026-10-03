@@ -1,4 +1,9 @@
 {
+  "suppliers.delete_blocked": {
+    "es": "No se puede eliminar el proveedor porque tiene documentos asociados ({{summary}}). Desactívalo para que no aparezca en compras nuevas.",
+    "en": "The supplier cannot be deleted because it has related documents ({{summary}}). Deactivate it so it no longer appears in new purchases.",
+    "pt": "O fornecedor não pode ser excluído porque possui documentos associados ({{summary}}). Desative-o para que não apareça em novas compras."
+  },
   "suppliers.supplier_id_not_found": {
     "es": "Proveedor con ID \"{{id}}\" no encontrado.",
     "en": "Supplier \"{{id}}\" was not found.",

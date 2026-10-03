@@ -7,6 +7,7 @@ import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { MfaPolicyPort } from '../../auth/ports/mfa-policy.port';
+import { TenantCurrencyService } from './tenant-currency.service';
 
 @Injectable()
 export class OrgSettingsService extends MfaPolicyPort {
@@ -210,6 +211,10 @@ export class OrgSettingsService extends MfaPolicyPort {
     if (partial.requireMfa !== undefined) {
       // The next request of every member must see the new policy, not a cached one.
       await this.cache?.del(OrgSettingsService.mfaPolicyKey(organizationId)).catch(() => undefined);
+    }
+    if (partial.baseCurrency !== undefined) {
+      // Every session must format in the new currency from its next response on.
+      await this.cache?.del(TenantCurrencyService.key(organizationId)).catch(() => undefined);
     }
     return saved;
   }

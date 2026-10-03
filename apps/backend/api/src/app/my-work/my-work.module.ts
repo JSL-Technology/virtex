@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ApprovalRequest } from '../workflows/entities/approval-request.entity';
 import { MyWorkController } from './my-work.controller';
 import { MyWorkService } from './my-work.service';
 import { ModuleInboxController } from './module-inbox.controller';
 import { ModuleInboxService } from './module-inbox.service';
+import { ApprovalsInboxController } from './approvals-inbox.controller';
+import { ApprovalsInboxService } from './approvals-inbox.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ApprovalRequest])],
-  controllers: [MyWorkController, ModuleInboxController],
-  providers: [MyWorkService, ModuleInboxService],
+  controllers: [MyWorkController, ModuleInboxController, ApprovalsInboxController],
+  providers: [MyWorkService, ModuleInboxService, ApprovalsInboxService],
 })
 export class MyWorkModule {}

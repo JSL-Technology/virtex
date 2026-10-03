@@ -1,14 +1,8 @@
 
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import type { JournalEntry } from './journal-entry.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'journal_entry_attachments' })
 export class JournalEntryAttachment {
@@ -24,7 +18,7 @@ export class JournalEntryAttachment {
   @Column({ name: 'journal_entry_id' })
   journalEntryId: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column({ name: 'file_name' })
@@ -53,4 +47,8 @@ export class JournalEntryAttachment {
   /** Null once the uploader's account is deleted; the attachment itself is evidence and stays. */
   @Column({ name: 'uploaded_by_user_id', type: 'uuid', nullable: true })
   uploadedByUserId: string | null;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_journal_entry_attachments_organization')
+  organization?: TenantRef;
 }

@@ -25,16 +25,16 @@
                 <label for="status">{{ 'masters.price_lists_form.status' | translate }}</label>
                 <select id="status" formControlName="status">
                     @for (s of statusOptions; track s) {
-                        <option [value]="s">{{s}}</option>
+                        <option [value]="s">{{ 'masters.price_lists.status_label.' + s | translate }}</option>
                     }
                 </select>
             </div>
             <div class="form-field">
                 <label for="currency">{{ 'masters.price_lists_form.currency' | translate }}</label>
                 <select id="currency" formControlName="currency">
-                    <option value="USD">{{ 'masters.price_lists_form.usd_united_states_dollar' | translate }}</option>
-                    <option value="DOP">{{ 'masters.price_lists_form.dop_dominican_peso' | translate }}</option>
-                    <option value="EUR">{{ 'masters.price_lists_form.eur_euro' | translate }}</option>
+                    @for (currency of currencyOptions(); track currency.code) {
+                        <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+                    }
                 </select>
             </div>
         </div>

@@ -13,6 +13,14 @@ export interface DatasheetBook {
   sheets: any[];
 }
 
+/** A book as the list shows it. */
+export interface DatasheetSummary {
+  id: string;
+  name: string;
+  modifiedAt: string;
+  owner?: { id: string; firstName: string; lastName: string } | null;
+}
+
 export interface ERPVariable {
   nameEn: string;
   nameEs: string;
@@ -47,6 +55,11 @@ getVariables(): Observable<ERPVariable[]> {
       return this.http.patch<DatasheetBook>(`${this.apiUrl}/${book.id}`, book);
     }
     return this.http.post<DatasheetBook>(this.apiUrl, book);
+  }
+
+  /** The caller's books and the ones shared with them, most recently modified first. */
+  listBooks(): Observable<DatasheetSummary[]> {
+    return this.http.get<DatasheetSummary[]>(this.apiUrl);
   }
 
   getBook(id: string): Observable<DatasheetBook> {

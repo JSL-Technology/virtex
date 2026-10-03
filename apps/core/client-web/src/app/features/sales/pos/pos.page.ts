@@ -77,7 +77,7 @@ export class PosPage {
   private readonly context = toSignal(this.invoicesService.context(), { initialValue: null });
 
   /** The market's standard rate, as a fraction. Zero where the tenant has yet to configure one. */
-  readonly taxRate = computed(() => this.context()?.taxRates?.[0] ?? 0);
+  readonly standardRate = computed(() => this.context()?.taxRates?.[0] ?? 0);
   readonly currencyCode = computed(() => this.context()?.baseCurrency ?? null);
   /** True where the rate is sub-national (US, Brazil) and cannot be assumed from the country. */
   readonly taxNeedsConfiguration = computed(
@@ -125,13 +125,69 @@ export class PosPage {
     initialValue: this.saleForm.getRawValue(),
   });
 
-  subtotal = computed(() => {
-    const items = (this.formValue()?.cartItems ?? []) as Array<{ quantity?: number; price?: number }>;
-    return items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+  /**
+   * Each line priced exactly as the server prices it (QA C-08).
+   *
+   * The till applied the market's standard rate to the whole ticket while the server taxed each
+   * line at the PRODUCT's rate — which, for every product created before the form asked for one,
+   * was 0 — so the two totals never agreed and every sale came back `409 pos.totals_changed`. The
+   * rule is now the server's own (`effectiveProductTaxRate`): the product's rate when it is taxed
+   * and has one, the standard rate when it is taxed and has none, zero otherwise; line amounts are
+   * rounded to cents per line, as the server does, before they are summed.
+   */
+  private readonly pricedLines = computed(() => {
+    const items = (this.formValue()?.cartItems ?? []) as Array<{
+      quantity?: number;
+      price?: number;
+      taxTreatment?: string;
+      taxRate?: number;
+    }>;
+    return items.map((item) => {
+      const rate = effectiveRate(item.taxTreatment, item.taxRate, this.standardRate());
+      const lineSubtotal = round2((item.quantity || 0) * (item.price || 0));
+      return { rate, lineSubtotal, lineTax: round2(lineSubtotal * rate) };
+    });
   });
 
-  taxAmount = computed(() => this.subtotal() * this.taxRate());
-  total = computed(() => this.subtotal() + this.taxAmount());
+  subtotal = computed(() => round2(this.pricedLines().reduce((acc, line) => acc + line.lineSubtotal, 0)));
+  taxAmount = computed(() => round2(this.pricedLines().reduce((acc, line) => acc + line.lineTax, 0)));
+  total = computed(() => round2(this.subtotal() + this.taxAmount()));
+
+  /** The single rate on the ticket, or null when its lines carry different ones. */
+  readonly taxRate = computed<number | null>(() => {
+    const rates = [...new Set(this.pricedLines().map((line) => line.rate))];
+    if (rates.length === 0) return this.standardRate();
+    return rates.length === 1 ? rates[0] : null;
+  });
+
+  /** What the cashier types into the search box, matched against name and SKU. */
+  readonly query = signal('');
+  readonly visibleProducts = computed(() => {
+    const term = this.query().trim().toLocaleLowerCase();
+    const products = this.allProducts();
+    if (!term) return products;
+    return products.filter(
+      (product) =>
+        product.name.toLocaleLowerCase().includes(term) ||
+        (product.sku ?? '').toLocaleLowerCase().includes(term),
+    );
+  });
+
+  /** Products whose picture failed to load: they show their initials instead of a broken image. */
+  readonly brokenImages = signal<ReadonlySet<string>>(new Set());
+
+  markImageBroken(productId: string): void {
+    this.brokenImages.update((current) => new Set([...current, productId]));
+  }
+
+  initialsOf(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toLocaleUpperCase() ?? '')
+      .join('');
+  }
 
   get cartItems(): FormArray {
     return this.saleForm.get('cartItems') as FormArray;
@@ -141,14 +197,23 @@ export class PosPage {
     const existingItem = this.cartItems.controls.find(
       (control) => control.get('productId')?.value === product.id
     );
+    const inCart = Number(existingItem?.get('quantity')?.value ?? 0);
+    //  A good cannot be sold beyond what is on hand: the server refuses the whole sale when one
+    //  line is short. Said at the counter, on the item, before the cashier charges the customer.
+    if (product.kind !== 'SERVICE' && inCart + 1 > Number(product.stock ?? 0)) {
+      this.notifications.showError('sales.pos.not_enough_stock', { name: product.name, available: product.stock ?? 0 });
+      return;
+    }
     if (existingItem) {
-      existingItem.get('quantity')?.setValue(existingItem.get('quantity')?.value + 1);
+      existingItem.get('quantity')?.setValue(inCart + 1);
     } else {
       const newItem = this.fb.group({
         productId: [product.id],
         name: [product.name],
         price: [product.price],
         quantity: [1],
+        taxTreatment: [product.taxTreatment ?? 'TAXED'],
+        taxRate: [Number(product.taxRate ?? 0)],
       });
       this.cartItems.push(newItem);
     }
@@ -175,6 +240,31 @@ export class PosPage {
   constructor() {
     this.loadProducts();
     this.ensureShift();
+  }
+
+  /** Reload the catalogue and re-price what is already in the cart from it. */
+  private refreshCartFromCatalogue(): void {
+    this.inventoryService.getProducts().subscribe({
+      next: (products) => {
+        const active = products.filter((p) => p.status === 'Active');
+        this.allProducts.set(active);
+        const byId = new Map(active.map((p) => [p.id, p]));
+        for (let index = this.cartItems.length - 1; index >= 0; index -= 1) {
+          const control = this.cartItems.at(index);
+          const product = byId.get(control.get('productId')?.value);
+          if (!product) {
+            this.cartItems.removeAt(index);
+            continue;
+          }
+          control.patchValue({
+            price: product.price,
+            taxTreatment: product.taxTreatment ?? 'TAXED',
+            taxRate: Number(product.taxRate ?? 0),
+          });
+        }
+      },
+      error: () => this.notifications.showError('pos.load_products_error'),
+    });
   }
 
   /** Fill the till catalogue from the tenant's own inventory — only sellable, in-stock items. */
@@ -273,9 +363,30 @@ export class PosPage {
           // Never the server's own sentence. It used to be forwarded when present, which put an
           // operator's message — sometimes in the other language — in front of whoever is at the
           // counter. `keyFor` resolves the code the API sent, and falls back to our own wording.
+          const messageKey = (err.error as { messageKey?: string } | null)?.messageKey;
+          if (messageKey === 'pos.totals_changed' || messageKey === 'pos.prices_changed') {
+            // The catalogue moved under the till. Refresh it and say so: the cashier shows the
+            // customer the new amount and charges again, rather than staring at a silent button.
+            this.refreshCartFromCatalogue();
+            this.notifications.showWarning('sales.pos.prices_updated_review');
+            return;
+          }
           const key = this.errors.keyFor(err);
-          this.notifications.showError(key === 'errors.unexpected' ? 'pos.sale_error' : key);
+          this.notifications.showError(
+            key === 'errors.unexpected' || /^errors\.http_/.test(key) ? 'pos.sale_error' : key,
+          );
         },
       });
   }
+}
+
+function round2(value: number): number {
+  return Math.round((Number(value) || 0) * 100) / 100;
+}
+
+/** The server's rule (`effectiveProductTaxRate`), mirrored so the till shows what will be charged. */
+function effectiveRate(treatment: string | undefined, own: number | undefined, standard: number): number {
+  if ((treatment ?? 'TAXED') !== 'TAXED') return 0;
+  const rate = Number(own);
+  return Number.isFinite(rate) && rate > 0 ? rate : standard;
 }
