@@ -4,6 +4,16 @@
     "en": "Bill of materials \"{{id}}\" was not found.",
     "pt": "A lista de materiais \"{{id}}\" não foi encontrada."
   },
+  "manufacturing.bom_in_use": {
+    "es": "No se puede eliminar esta lista de materiales porque hay órdenes de producción basadas en ella ({{summary}}). Crea una versión nueva en lugar de borrarla.",
+    "en": "This bill of materials cannot be deleted because production orders are based on it ({{summary}}). Create a new version instead of deleting it.",
+    "pt": "Esta lista de materiais não pode ser excluída porque há ordens de produção baseadas nela ({{summary}}). Crie uma nova versão em vez de excluí-la."
+  },
+  "manufacturing.order_started_cancel_instead": {
+    "es": "Esta orden ya salió de planificación ({{status}}): puede tener consumos o producción registrados. Cancélala o termínala; solo una orden planificada, o cancelada sin producción, se elimina.",
+    "en": "This order has left planning ({{status}}): it may have material issued or output reported. Cancel or complete it; only a planned order, or a cancelled one that produced nothing, can be deleted.",
+    "pt": "Esta ordem já saiu do planejamento ({{status}}): pode ter consumos ou produção registrados. Cancele-a ou conclua-a; só uma ordem planejada, ou cancelada sem produção, pode ser excluída."
+  },
   "manufacturing.production_order_not_found": {
     "es": "No se encontró la orden de producción \"{{id}}\".",
     "en": "Production order \"{{id}}\" was not found.",

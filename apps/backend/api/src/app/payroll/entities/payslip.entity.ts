@@ -38,6 +38,15 @@ export class Payslip extends BaseEntity {
   @Column({ name: 'employee_id', type: 'uuid' })
   employeeId: string;
 
+  /**
+   * The employee, as a constraint (QA lifecycle audit). Payroll history is a legal record: employees
+   * are terminated and soft-deleted, never physically removed while a payslip names them. Checked
+   * at commit, so deleting the whole tenant still cascades.
+   */
+  @ManyToOne('Employee', { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
+  @JoinColumn({ name: 'employee_id', foreignKeyConstraintName: 'FK_payslips_employee' })
+  employee?: unknown;
+
   // ── Identity snapshot ────────────────────────────────────────────────────────
 
   @Column({ name: 'employee_name' })

@@ -1,8 +1,18 @@
 {
+  "projects.project_in_use_close_instead": {
+    "es": "No se puede eliminar el proyecto porque tiene trabajo registrado ({{summary}}): esas horas son costo y facturación que deben seguir apuntando a él. Ciérralo en su lugar.",
+    "en": "The project cannot be deleted because it has work recorded against it ({{summary}}): those hours are cost and billing that must keep pointing at it. Close it instead.",
+    "pt": "O projeto não pode ser excluído porque tem trabalho registrado ({{summary}}): essas horas são custo e faturamento que devem continuar apontando para ele. Encerre-o."
+  },
   "projects.project_not_found": {
     "es": "No se encontró el proyecto \"{{id}}\".",
     "en": "Project \"{{id}}\" was not found.",
     "pt": "O projeto \"{{id}}\" não foi encontrado."
+  },
+  "projects.task_in_use": {
+    "es": "No se puede eliminar la tarea porque tiene horas registradas ({{summary}}).",
+    "en": "The task cannot be deleted because time has been recorded against it ({{summary}}).",
+    "pt": "A tarefa não pode ser excluída porque tem horas registradas ({{summary}})."
   },
   "projects.task_not_found": {
     "es": "No se encontró la tarea \"{{id}}\".",

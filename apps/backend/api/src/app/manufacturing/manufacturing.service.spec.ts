@@ -70,7 +70,8 @@ describe('ManufacturingService — tenant isolation', () => {
 
   it('scopes deletes by tenant, never by id alone', async () => {
     const { service, productionOrderRepository } = build();
-    productionOrderRepository.findOne.mockResolvedValue({ id: 'x', organizationId: ORG });
+    // Still a plan: only a planned order is deletable at all (record-lifecycle audit).
+    productionOrderRepository.findOne.mockResolvedValue({ id: 'x', organizationId: ORG, status: 'PLANNED', quantityProduced: 0 });
 
     await service.removeOrder('x', ORG);
 

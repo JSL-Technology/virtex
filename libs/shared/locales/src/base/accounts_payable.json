@@ -44,15 +44,40 @@
     "en": "Budget control failed: {{message}}",
     "pt": "Controle orçamentário falhou: {{message}}"
   },
+  "accounts_payable.debit_note_already_voided": {
+    "es": "Esta nota de débito ya fue anulada.",
+    "en": "This debit note has already been voided.",
+    "pt": "Esta nota de débito já foi anulada."
+  },
+  "accounts_payable.debit_note_bill_already_voided": {
+    "es": "La factura de esta nota ya está anulada: su anulación ya dejó el saldo en cero, y restituir la nota haría que una factura anulada volviera a deber.",
+    "en": "The bill this note applies to is already void: its annulment already cleared the balance, and restoring the note would make a voided bill owe money again.",
+    "pt": "A fatura desta nota já está anulada: sua anulação já zerou o saldo, e restaurar a nota faria uma fatura anulada voltar a dever."
+  },
   "accounts_payable.debit_note_cannot_larger_than_invoice": {
     "es": "El monto de la nota de débito no puede ser mayor al saldo de la factura.",
     "en": "The debit note cannot be larger than the invoice balance.",
     "pt": "O valor da nota de débito não pode ser maior que o saldo da fatura."
   },
+  "accounts_payable.debit_note_delete_use_void": {
+    "es": "Una nota de débito emitida no se elimina: su asiento está en el mayor. Anúlala para revertirlo.",
+    "en": "An issued debit note cannot be deleted: its entry is in the ledger. Void it to reverse the entry.",
+    "pt": "Uma nota de débito emitida não pode ser excluída: seu lançamento está no razão. Anule-a para estorná-lo."
+  },
   "accounts_payable.debit_note_id_not_found": {
     "es": "Nota de débito con ID \"{{id}}\" no encontrada.",
     "en": "Debit note \"{{id}}\" was not found.",
     "pt": "Nota de débito \"{{id}}\" não encontrada."
+  },
+  "accounts_payable.debit_note_posted_is_immutable": {
+    "es": "Una nota de débito emitida no se modifica: ya está contabilizada y ya redujo el saldo de la factura. Anúlala y emite la correcta.",
+    "en": "An issued debit note cannot be changed: it is already posted and has already reduced the bill balance. Void it and issue the correct one.",
+    "pt": "Uma nota de débito emitida não pode ser alterada: já foi contabilizada e já reduziu o saldo da fatura. Anule-a e emita a correta."
+  },
+  "accounts_payable.debit_note_without_entry_reverse_manually": {
+    "es": "Esta nota se emitió antes de que se registrara su asiento, así que no se puede identificar con certeza cuál revertir. Reviértelo desde el Libro Diario y registra la anulación allí.",
+    "en": "This note was issued before notes recorded their entry, so which entry to reverse cannot be told for certain. Reverse it from the General Journal and record the annulment there.",
+    "pt": "Esta nota foi emitida antes de as notas registrarem seu lançamento, então não é possível saber com certeza qual estornar. Estorne-o pelo Livro Diário e registre a anulação lá."
   },
   "accounts_payable.debit_notes_can_only_applied_open": {
     "es": "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.",
@@ -865,10 +890,5 @@
     "es": "La factura del proveedor no fue encontrada.",
     "en": "The vendor bill was not found.",
     "pt": "A fatura do fornecedor não foi encontrada."
-  },
-  "accounts_payable.voiding_debit_notes_not_implemented_yet": {
-    "es": "La funcionalidad de anulación de notas de débito aún no está implementada.",
-    "en": "Voiding debit notes is not implemented yet.",
-    "pt": "O cancelamento de notas de débito ainda não está implementado."
   }
 }

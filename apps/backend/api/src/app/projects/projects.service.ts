@@ -11,6 +11,7 @@ import { UpdateProjectTaskDto } from './dto/update-project-task.dto';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
 import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
 import { NotFoundError } from '../i18n/localized.exception';
+import { assertNotInUse } from '../common/database/dependents';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 
 /**
@@ -71,9 +72,16 @@ export class ProjectsService {
     return this.projectRepository.save(this.projectRepository.merge(project, dto));
   }
 
+  /**
+   * A project with booked time is closed, not deleted: the hours are cost, and often billing,
+   * that have to keep pointing at the project they were spent on.
+   */
   async removeProject(id: string, organizationId: string): Promise<void> {
     await this.findOneProject(id, organizationId);
-    await this.projectRepository.delete({ id, organizationId });
+    await this.projectRepository.manager.transaction(async (manager) => {
+      await assertNotInUse(manager, 'projects', id, 'projects.project_in_use_close_instead');
+      await manager.delete(Project, { id, organizationId });
+    });
   }
 
   // ── Tasks ────────────────────────────────────────────────────────────────────
@@ -113,7 +121,10 @@ export class ProjectsService {
 
   async removeTask(id: string, organizationId: string): Promise<void> {
     await this.findOneTask(id, organizationId);
-    await this.taskRepository.delete({ id, organizationId });
+    await this.taskRepository.manager.transaction(async (manager) => {
+      await assertNotInUse(manager, 'project_tasks', id, 'projects.task_in_use');
+      await manager.delete(ProjectTask, { id, organizationId });
+    });
   }
 
   // ── Timesheets ───────────────────────────────────────────────────────────────

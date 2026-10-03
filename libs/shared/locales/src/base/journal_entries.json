@@ -34,6 +34,11 @@
     "en": "Attachment not found.",
     "pt": "Anexo não encontrado."
   },
+  "journal_entries.attachment_of_posted_entry_is_evidence": {
+    "es": "Este adjunto es soporte de un asiento ya contabilizado y se conserva: la evidencia de un asiento no se elimina. Si hace falta corregirlo, agrega el documento correcto o revierte el asiento.",
+    "en": "This attachment supports an entry that is already posted and is kept: the evidence behind an entry is never deleted. To correct it, attach the right document or reverse the entry.",
+    "pt": "Este anexo sustenta um lançamento já contabilizado e é mantido: a evidência de um lançamento não é excluída. Para corrigir, anexe o documento correto ou estorne o lançamento."
+  },
   "journal_entries.audit_adjustments_can_only_applied_closed": {
     "es": "Los ajustes de auditoría solo pueden aplicarse a años fiscales cerrados.",
     "en": "Audit adjustments can only be applied to closed fiscal years.",

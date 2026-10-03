@@ -19,6 +19,11 @@
     "en": "Concept \"{{id}}\" was not found.",
     "pt": "Conceito \"{{id}}\" não encontrado."
   },
+  "payroll.concept_in_use_deactivate_instead": {
+    "es": "Este concepto ya se usó en nóminas, así que forma parte de su historia. Desactívalo para que no se ofrezca más.",
+    "en": "This concept has already been used in payroll, so it is part of its history. Deactivate it so it is no longer offered.",
+    "pt": "Este conceito já foi usado em folhas de pagamento, então faz parte do histórico. Desative-o para que não seja mais oferecido."
+  },
   "payroll.concept_with_code_p1_already_exists": {
     "es": "Ya existe un concepto con el código \"{{p1}}\".",
     "en": "A concept with code \"{{p1}}\" already exists.",

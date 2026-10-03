@@ -42,6 +42,7 @@ import {
 } from '../common/interfaces/fastify-file.interface';
 import {
   BadRequestError,
+  ConflictError,
   ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
@@ -1358,7 +1359,25 @@ export class JournalEntriesService {
     });
     if (!attachment) throw new NotFoundError('journal_entries.attachment_not_found');
 
-    await this.storageService.delete(attachment.storageKey);
+    // Supporting evidence is append-only once the entry has reached the books. It could be deleted
+    // from a posted — or voided — entry, which is exactly what an auditor must be able to rule out:
+    // the tax code keeps supporting records for ten years, and "the invoice was attached, then
+    // removed" is indistinguishable from "there never was one". While the entry is still a draft,
+    // pending or rejected, a wrong file is simply replaced.
+    const [entry] = await this.dataSource.query(
+      `SELECT status FROM journal_entries WHERE id = $1 AND organization_id = $2`,
+      [attachment.journalEntryId, organizationId],
+    );
+    const editable = [JournalEntryStatus.DRAFT, JournalEntryStatus.PENDING_APPROVAL, JournalEntryStatus.REJECTED];
+    if (entry && !editable.includes(entry.status)) {
+      throw new ConflictError('journal_entries.attachment_of_posted_entry_is_evidence');
+    }
+
+    // The row first, then the bytes. The other order left a row pointing at a file that was already
+    // gone whenever the delete of the row failed; this one, at worst, leaves an orphaned object.
     await this.attachmentRepository.remove(attachment);
+    await this.storageService.delete(attachment.storageKey).catch((error: Error) => {
+      this.logger.warn(`No se pudo borrar el objeto ${attachment.storageKey}: ${error.message}`);
+    });
   }
 }

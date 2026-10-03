@@ -40,6 +40,8 @@ import { WithholdingResolverService } from '../invoices/services/withholding-res
 import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { VendorDebitNotesService } from './vendor-debit-notes.service';
+import { VendorDebitNote, VendorDebitNoteStatus } from './entities/vendor-debit-note.entity';
 
 /**
  * Supplier invoices, from recording to settlement.
@@ -68,6 +70,7 @@ describeWithDb('accounts payable', () => {
 
   let dataSource: DataSource;
   let payables: AccountsPayableService;
+  let debitNotes: VendorDebitNotesService;
   let balances: AccountBalancesService;
 
   let organizationId: string;
@@ -185,6 +188,24 @@ describeWithDb('accounts payable', () => {
       // The real narrative service, so the assertions read the sentences the ledger will actually
       // carry rather than a stub's.
       new LedgerNarrativeService(new I18nService()),
+    );
+
+    debitNotes = new VendorDebitNotesService(
+      dataSource.getRepository(VendorDebitNote),
+      dataSource,
+      entries,
+      new LedgerNarrativeService(new I18nService()),
+      // The two lookups, answered from the tenant's own rows: the spec seeds one default ledger and
+      // the COMPRAS journal, which is all the note asks them for.
+      {
+        requireDefault: (org: string, manager = dataSource.manager) =>
+          manager.findOneOrFail(Ledger, { where: { organizationId: org, isDefault: true } }),
+      } as never,
+      {
+        requireByCode: (org: string, code: string, manager = dataSource.manager) =>
+          manager.findOneOrFail(Journal, { where: { organizationId: org, code } }),
+      } as never,
+      new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
     );
   });
 
@@ -785,6 +806,71 @@ describeWithDb('accounts payable', () => {
       );
       return payables.submitForApproval(bill.id, organizationId, ACTOR);
     };
+
+    /**
+     * A debit note is a posted document (lifecycle audit).
+     *
+     * It could be edited after posting — a new amount left its entry and the bill's balance saying
+     * the old one — or deleted, leaving its entry in the ledger for a note that no longer existed,
+     * and its "void" was a stub that refused. Now it is corrected only by voiding.
+     */
+    describe('debit notes', () => {
+      const LATER = '2026-12-31';
+
+      it('reduces what is owed, and a void gives it back and reverses the entry', async () => {
+        const bill = await openBill();
+        const note = await debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Mercancía defectuosa', amount: 1_000, expenseAccountId: account['expense'] },
+          organizationId,
+        );
+        expect(note.status).toBe(VendorDebitNoteStatus.POSTED);
+        expect(note.journalEntryId).toEqual(expect.any(String));
+        expect((await dataSource.getRepository(VendorBill).findOneByOrFail({ id: bill.id })).balance).toBe(10_800);
+        expect(await signedBalance('payable', LATER)).toBe(-10_800);
+
+        const voided = await debitNotes.voidNote(note.id, organizationId, { reason: 'Emitida por error' }, ACTOR);
+
+        expect(voided.status).toBe(VendorDebitNoteStatus.VOIDED);
+        expect(voided.reversalJournalEntryId).toEqual(expect.any(String));
+        expect(voided.voidedByUserId).toBe(ACTOR);
+        const restored = await dataSource.getRepository(VendorBill).findOneByOrFail({ id: bill.id });
+        expect(restored.balance).toBe(11_800);
+        expect(restored.status).toBe(VendorBillStatus.OPEN);
+        expect(await signedBalance('payable', LATER)).toBe(-11_800);
+      });
+
+      it('settles the bill when the note takes it to zero', async () => {
+        const bill = await openBill();
+        await debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Devolución total', amount: 11_800, expenseAccountId: account['expense'] },
+          organizationId,
+        );
+        const settled = await dataSource.getRepository(VendorBill).findOneByOrFail({ id: bill.id });
+        expect(settled.balance).toBe(0);
+        // It used to stay OPEN owing nothing, and kept appearing among the bills to pay.
+        expect(settled.status).toBe(VendorBillStatus.PAID);
+      });
+
+      it('is neither edited nor deleted once posted, and is voided only once', async () => {
+        const bill = await openBill();
+        const note = await debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Ajuste de precio', amount: 500, expenseAccountId: account['expense'] },
+          organizationId,
+        );
+
+        await expect(debitNotes.update(note.id, { amount: 50 }, organizationId)).rejects.toMatchObject({
+          messageKey: 'accounts_payable.debit_note_posted_is_immutable',
+        });
+        await expect(debitNotes.remove(note.id, organizationId)).rejects.toMatchObject({
+          messageKey: 'accounts_payable.debit_note_delete_use_void',
+        });
+
+        await debitNotes.voidNote(note.id, organizationId, { reason: 'Duplicada' }, ACTOR);
+        await expect(
+          debitNotes.voidNote(note.id, organizationId, { reason: 'Otra vez' }, ACTOR),
+        ).rejects.toMatchObject({ messageKey: 'accounts_payable.debit_note_already_voided' });
+      });
+    });
 
     it('reverses the journal entry instead of leaving the debt in the ledger', async () => {
       const bill = await openBill();

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Employee } from './entities/employee.entity';
+import { Employee, EmploymentStatus } from './entities/employee.entity';
 import { Department } from './entities/department.entity';
 import { EmployeeCompensation } from './entities/employee-compensation.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -284,9 +284,25 @@ export class HcmService {
     return this.jurisdictions.forCountry(country).statutoryIdentifiers ?? [];
   }
 
-  /** Soft delete: a person with payroll history is deactivated, never physically removed. */
+  /**
+   * Soft delete — and, for anyone who has been paid, only after they have LEFT.
+   *
+   * A person with payroll history is never physically removed (their payslips, entries and TSS
+   * filings name them). But removing an ACTIVE employee who has been paid skipped the termination
+   * itself: no exit date, no reason, and the social-security filing of the month never learned
+   * they had gone. HR systems keep the two apart — an erroneous hire with no history can simply be
+   * removed; anyone else is terminated first, and only then archived from the register.
+   */
   async removeEmployee(id: string, organizationId: string): Promise<void> {
-    await this.findOneEmployee(id, organizationId);
+    const employee = await this.findOneEmployee(id, organizationId);
+    if (employee.employmentStatus !== EmploymentStatus.TERMINATED) {
+      const [{ paid }] = await this.employeeRepository.manager.query(
+        `SELECT (EXISTS (SELECT 1 FROM payslips WHERE organization_id = $1 AND employee_id = $2)
+              OR EXISTS (SELECT 1 FROM payroll_inputs WHERE organization_id = $1 AND employee_id = $2)) AS paid`,
+        [organizationId, employee.id],
+      );
+      if (paid) throw new ConflictError('hcm.employee_with_payroll_terminate_first');
+    }
     await this.employeeRepository.softDelete({ id, organizationId });
   }
 

@@ -49,6 +49,11 @@
     "en": "An employee with that national id or email already exists in this organization.",
     "pt": "Já existe um funcionário com esse documento ou e-mail nesta organização."
   },
+  "hcm.employee_with_payroll_terminate_first": {
+    "es": "Este empleado tiene nómina registrada. Regístrale primero la salida (estado «Terminado» con fecha de término) para que conste en los reportes a la seguridad social; después podrás archivarlo.",
+    "en": "This employee has payroll history. Record their termination first (status “Terminated” with a termination date) so it reaches the social-security filings; then you can archive them.",
+    "pt": "Este funcionário tem folha de pagamento registrada. Registre primeiro o desligamento (status “Desligado” com data) para que conste nos relatórios à previdência; depois poderá arquivá-lo."
+  },
   "hcm.employees.department": {
     "es": "Departamento",
     "en": "Department",

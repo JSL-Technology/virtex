@@ -24,6 +24,11 @@
     "en": "Customer group \"{{id}}\" was not found.",
     "pt": "Grupo de clientes \"{{id}}\" não encontrado."
   },
+  "customers.customer_group_in_use": {
+    "es": "No se puede eliminar el grupo porque tiene clientes ({{summary}}). Muévelos a otro grupo primero.",
+    "en": "The group cannot be deleted because it has customers ({{summary}}). Move them to another group first.",
+    "pt": "O grupo não pode ser excluído porque tem clientes ({{summary}}). Mova-os para outro grupo primeiro."
+  },
   "customers.customer_id_not_found": {
     "es": "Cliente con ID \"{{id}}\" no encontrado.",
     "en": "Customer \"{{id}}\" was not found.",

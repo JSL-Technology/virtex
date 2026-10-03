@@ -84,6 +84,26 @@
       "incomplete_expired",
       "paused"
     ],
+    "common.dependents": [
+      "activities",
+      "bin_locations",
+      "boms",
+      "cases",
+      "customer_payments",
+      "customers",
+      "employees",
+      "invoices",
+      "locations",
+      "opportunities",
+      "production_orders",
+      "project_tasks",
+      "projects",
+      "purchase_orders",
+      "quotes",
+      "stock_items",
+      "timesheets",
+      "vendor_bills"
+    ],
     "common.toast": [
       "SUCCESS",
       "ERROR",

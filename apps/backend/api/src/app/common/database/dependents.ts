@@ -65,8 +65,9 @@ export async function countDependents(
  * Fiscal documents are legal records: they are voided or credited, never deleted, and so the
  * master data they name cannot disappear from under them either.
  *
- * The database now enforces the same rule (`ON DELETE RESTRICT`, migration
- * `ProtectReferencedMasterData`), and the exception filter turns that violation into a 409 — so a
+ * The database enforces the same rule (`NO ACTION DEFERRABLE INITIALLY DEFERRED`, migrations
+ * `ProtectReferencedMasterData` and `TenantErasureCompleteness`: checked at commit, so deleting a
+ * whole tenant still works), and the exception filter turns that violation into a 409 — so a
  * forgotten check still cannot destroy data. This helper exists for the reader: it names what is
  * in the way and how many, and the message offers the alternative (deactivate / archive).
  *
@@ -89,4 +90,78 @@ export async function assertNoDependents(
     // generic sentence for that code would hide the detail this refusal exists to give.
     'DELETE_BLOCKED',
   );
+}
+
+/**
+ * Every reference the SCHEMA declares to `table`, as the dependents that block deleting a row of it.
+ *
+ * ## Why read the schema instead of listing the tables
+ *
+ * A hand-written list per service is only right on the day it is written: the next module that
+ * adds a table pointing at warehouses or projects does not know the list exists, and deleting the
+ * warehouse then fails with a bare constraint error — or, where nothing constrains it, succeeds and
+ * orphans the new rows. The foreign keys are already the authoritative statement of what refers to
+ * what, and their delete action already says what KIND of reference each one is:
+ *
+ * - `CASCADE` — the row is part of the parent (a document's lines, a BOM's items): it goes with it
+ *   and never blocks.
+ * - `SET NULL` — an optional pointer the schema declares may be cleared: it never blocks.
+ * - `NO ACTION` / `RESTRICT` — something USES the parent and must not be left dangling: it blocks,
+ *   and is named in the refusal.
+ *
+ * Discovered once per table per process (the schema does not change under a running server) and
+ * limited to single-column keys, which is every key this schema has between business tables.
+ */
+const discovered = new Map<string, Promise<DependentReference[]>>();
+
+export async function discoverReferences(
+  manager: EntityManager,
+  table: string,
+): Promise<DependentReference[]> {
+  quote(table);
+  let found = discovered.get(table);
+  if (!found) {
+    found = manager
+      .query(
+        `SELECT child.relname AS "table", col.attname AS "column"
+           FROM pg_constraint k
+           JOIN pg_class child ON child.oid = k.conrelid
+           JOIN pg_attribute col ON col.attrelid = k.conrelid AND col.attnum = k.conkey[1]
+          WHERE k.contype = 'f'
+            AND array_length(k.conkey, 1) = 1
+            AND k.confrelid = to_regclass($1)
+            AND k.confdeltype IN ('a', 'r')
+          ORDER BY child.relname, col.attname`,
+        [`"${table}"`],
+      )
+      .then((rows: Array<{ table: string; column: string }>) =>
+        rows.map((row) => ({
+          table: row.table,
+          column: row.column,
+          label: `common.dependents.${row.table}`,
+        })),
+      );
+    // A failed lookup is not cached: the next call asks again rather than remembering the error.
+    found.catch(() => discovered.delete(table));
+    discovered.set(table, found);
+  }
+  return found;
+}
+
+/**
+ * Refuse to delete a row that anything in the schema still uses (see `discoverReferences`).
+ *
+ * `extra` adds references the schema cannot express — a JSON key, a code copied by value — so one
+ * call covers both. The refusal has the same shape as `assertNoDependents`, and the client already
+ * renders it: what is in the way, how many, and the alternative the message offers.
+ */
+export async function assertNotInUse(
+  manager: EntityManager,
+  table: string,
+  id: string,
+  messageKey = 'errors.record_in_use_detail',
+  extra: readonly DependentReference[] = [],
+): Promise<void> {
+  const references = [...(await discoverReferences(manager, table)), ...extra];
+  await assertNoDependents(manager, id, references, messageKey);
 }
