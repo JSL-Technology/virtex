@@ -4610,6 +4610,8 @@
   "settings.user_management.delete_user": "Delete User",
   "settings.user_management.edit_user": "Edit user",
   "settings.user_management.email": "Email",
+  "settings.user_management.errors.email_invalid": "Enter a valid email address.",
+  "settings.user_management.errors.required": "This field is required.",
   "settings.user_management.force_sign_out": "Force Sign Out",
   "settings.user_management.impersonate_user": "Impersonate User",
   "settings.user_management.invitation_expires": "Expires",

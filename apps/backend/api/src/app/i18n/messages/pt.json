@@ -4872,6 +4872,8 @@
   "settings.user_management.delete_user": "Excluir Usuário",
   "settings.user_management.edit_user": "Editar utilizador",
   "settings.user_management.email": "E-mail",
+  "settings.user_management.errors.email_invalid": "Digite um e-mail válido.",
+  "settings.user_management.errors.required": "Este campo é obrigatório.",
   "settings.user_management.force_sign_out": "Forçar Encerramento de Sessão",
   "settings.user_management.impersonate_user": "Personificar Usuário",
   "settings.user_management.invitation_expires": "Expira",

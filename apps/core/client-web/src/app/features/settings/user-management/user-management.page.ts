@@ -320,6 +320,17 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.selectedUser = null;
   }
 
+  /** Whether a field should show its error: only after the user touched it or tried to save. */
+  invalid(name: string): boolean {
+    const control = this.userForm.get(name);
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  fieldError(name: string): string {
+    const control = this.userForm.get(name);
+    return control?.hasError('email') ? 'settings.user_management.errors.email_invalid' : 'settings.user_management.errors.required';
+  }
+
   save(): void {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();

@@ -32,11 +32,19 @@ npm run dev
 
 También por separado: `npm run dev:api` y `npm run dev:web`.
 
-**Usuario de desarrollo (seed automático).** Al arrancar la API fuera de producción se siembra un
-administrador listo para iniciar sesión, de forma idempotente y con un tenant real (organización +
-plan de cuentas): **`dev@virtex.local` / `dev12345`**. Configurable con `DEV_SEED_EMAIL`,
-`DEV_SEED_PASSWORD`, `DEV_SEED_ORG`, `DEV_SEED_COUNTRY`; se desactiva con `DEV_SEED=false`. **Nunca
-se ejecuta en producción** (el seeder se niega, además del gate por entorno).
+**Usuario de desarrollo (seed opcional).** Con `DEV_SEED=true` (y `NODE_ENV` de desarrollo o
+pruebas), la API siembra al arrancar un administrador listo para iniciar sesión, de forma
+idempotente y con un tenant real (organización + paquete fiscal: plan de cuentas, impuestos,
+diarios, períodos): **`dev@virtex.local`** en la empresa **Virtex Dev** (DO). La contraseña es
+`DEV_SEED_PASSWORD` (mínimo 12 caracteres); si no la defines, se genera una al arrancar y se
+imprime **una sola vez** en el log de la API. Configurable también con `DEV_SEED_EMAIL`,
+`DEV_SEED_ORG` y `DEV_SEED_COUNTRY`. Sin `DEV_SEED=true` no se crea nada. **Nunca se ejecuta en
+producción** (la validación de entorno rechaza `DEV_SEED=true` y el seeder se niega, además del
+gate por entorno).
+
+```bash
+DEV_SEED=true DEV_SEED_PASSWORD='elige-una-de-12+' npm run dev:api
+```
 
 ### Aplicaciones
 

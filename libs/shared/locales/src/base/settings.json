@@ -2926,6 +2926,16 @@
     "en": "Email",
     "pt": "E-mail"
   },
+  "settings.user_management.errors.email_invalid": {
+    "es": "Escribe un correo electrónico válido.",
+    "en": "Enter a valid email address.",
+    "pt": "Digite um e-mail válido."
+  },
+  "settings.user_management.errors.required": {
+    "es": "Este campo es obligatorio.",
+    "en": "This field is required.",
+    "pt": "Este campo é obrigatório."
+  },
   "settings.user_management.force_sign_out": {
     "es": "Forzar Cierre de Sesión",
     "en": "Force Sign Out",

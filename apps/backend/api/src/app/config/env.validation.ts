@@ -230,7 +230,9 @@ export const envValidation = Joi.object({
       'any.only': 'DEV_SEED cannot be enabled outside development/test.',
     }),
   }),
-  DEV_SEED_EMAIL: Joi.string().email().optional(),
+  // `tlds: false`: the documented default is `dev@virtex.local`, and `.local` is not a public TLD,
+  // so the strict check refused to boot with the very address the README tells you to use (QA M-16).
+  DEV_SEED_EMAIL: Joi.string().email({ tlds: false }).optional(),
   DEV_SEED_PASSWORD: Joi.string().min(12).optional(),
   DEV_SEED_ORG: Joi.string().optional(),
   DEV_SEED_COUNTRY: Joi.string().length(2).uppercase().optional(),
