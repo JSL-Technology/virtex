@@ -570,3 +570,11 @@
   font-size: var(--text-sm);
   color: var(--text-tertiary);
 }
+
+// The reason a field blocks the invitation, under the field (QA A-14).
+.field-error {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--error-text);
+}

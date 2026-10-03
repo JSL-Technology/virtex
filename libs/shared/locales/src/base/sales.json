@@ -102,10 +102,20 @@
     "en": "Customer:",
     "pt": "Cliente:"
   },
+  "sales.pos.not_enough_stock": {
+    "es": "No hay existencias suficientes de «{{name}}»: quedan {{available}}.",
+    "en": "Not enough stock of “{{name}}”: {{available}} left.",
+    "pt": "Estoque insuficiente de “{{name}}”: restam {{available}}."
+  },
   "sales.pos.out_stock": {
     "es": "Agotado",
     "en": "Out of stock",
     "pt": "Esgotado"
+  },
+  "sales.pos.prices_updated_review": {
+    "es": "Los precios o impuestos del catálogo cambiaron. El ticket se actualizó: revisa el total con el cliente y vuelve a cobrar.",
+    "en": "Catalogue prices or taxes changed. The ticket was updated: review the total with the customer and charge again.",
+    "pt": "Os preços ou impostos do catálogo mudaram. O cupom foi atualizado: revise o total com o cliente e cobre novamente."
   },
   "sales.pos.search_products_name_sku": {
     "es": "Buscar productos por nombre o SKU...",
@@ -114,6 +124,11 @@
   },
   "sales.pos.subtotal": {
     "literal": "Subtotal"
+  },
+  "sales.pos.tax": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
   },
   "sales.pos.tax_at_rate": {
     "es": "Impuestos ({{rate}})",

@@ -219,8 +219,9 @@ export class PayrollService {
     return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/approve`, {});
   }
 
-  pay(id: string, bankGlAccountId?: string): Observable<PayrollRun> {
-    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/pay`, { bankGlAccountId });
+  /** Pay an approved run from a treasury bank account (preferred) or its ledger account. */
+  pay(id: string, from: { bankAccountId?: string; bankGlAccountId?: string }): Observable<PayrollRun> {
+    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/pay`, from);
   }
 
   cancel(id: string): Observable<PayrollRun> {

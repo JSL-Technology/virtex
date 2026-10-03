@@ -24,6 +24,7 @@ describe('SegmentConfigurationPage', () => {
     };
     const notificationSpy = {
       showError: jest.fn(),
+      showHttpError: jest.fn(),
       showSuccess: jest.fn(),
     };
     // `routerState` is required: routerLink in the template resolves ActivatedRoute through
@@ -97,10 +98,13 @@ describe('SegmentConfigurationPage', () => {
   it('should handle save error', () => {
     component.addSegment();
     component.segments.at(0).patchValue({ name: 'Test', length: 3 });
-    apiService.configureSegmentDefinitions.mockReturnValue(throwError(() => ({ error: { message: 'Error' } })));
+    const refusal = { status: 400, error: { code: 'BAD_REQUEST', messageKey: 'accounting.segments_overlap', params: {} } };
+    apiService.configureSegmentDefinitions.mockReturnValue(throwError(() => refusal));
 
     component.onSave();
 
-    expect(notificationService.showError).toHaveBeenCalledWith('Error');
+    // The error itself goes to the notifier, which resolves the server's reason; the page no longer
+    // reads a `message` field the API does not send.
+    expect(notificationService.showHttpError).toHaveBeenCalledWith(refusal, 'errors.save_configuration');
   });
 });

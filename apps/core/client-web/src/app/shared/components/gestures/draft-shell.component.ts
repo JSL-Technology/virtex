@@ -5,13 +5,14 @@ import {
   Injector,
   afterNextRender,
   computed,
+  contentChild,
   effect,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, FormGroupDirective } from '@angular/forms';
 import { Subscription, merge } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
@@ -88,13 +89,27 @@ export class DraftShellComponent {
    */
   readonly form = input<AbstractControl | null>(null);
 
+  /**
+   * El `[formGroup]` que la página proyecta dentro del armazón, cuando no lo pasa por `form`.
+   *
+   * Ocho de los veinte borradores no pasaban `[form]`, y en ellos el resumen no se podaba nunca:
+   * «Revisa 1 punto(s)» seguía en pantalla con el campo ya corregido (QA A-09). Leerlo del
+   * contenido hace que la poda funcione sin que cada página tenga que acordarse.
+   */
+  private readonly projectedForm = contentChild(FormGroupDirective, { descendants: true });
+
+  /** El formulario que manda: el declarado, o el proyectado si no se declaró ninguno. */
+  private readonly effectiveForm = computed<AbstractControl | null>(
+    () => this.form() ?? this.projectedForm()?.form ?? null,
+  );
+
   /** Se incrementa con cada cambio de validez del formulario, para reevaluar la poda. */
   private readonly formRevision = signal(0);
 
   constructor() {
     let subscription: Subscription | null = null;
     effect((onCleanup) => {
-      const group = this.form();
+      const group = this.effectiveForm();
       subscription?.unsubscribe();
       subscription = null;
       if (!group) return;
@@ -116,7 +131,7 @@ export class DraftShellComponent {
    */
   private readonly livingProblems = computed(() => {
     this.formRevision();
-    const group = this.form();
+    const group = this.effectiveForm();
     const declared = this.problems();
     if (!group) return declared;
     return declared.filter((problem) => {
@@ -141,9 +156,51 @@ export class DraftShellComponent {
     this.livingProblems().map((problem) => {
       const field = problem.params?.['field'];
       if (typeof field !== 'string') return problem;
-      return { ...problem, params: { ...problem.params, field: this.translate.instant(field) } };
+      return { ...problem, params: { ...problem.params, field: this.fieldLabel(field, problem.fieldId) } };
     }),
   );
+
+  /** Cuántos problemas quedan: el MISMO conjunto que se lista, no el declarado originalmente. */
+  protected readonly problemCount = computed(() => this.resolvedProblems().length);
+
+  /**
+   * El rótulo de un campo, en el idioma de quien lee.
+   *
+   * Primero la clave declarada. Si la página no declaró una —o la clave no existe—, el rótulo que
+   * el propio formulario muestra junto al campo: `<label for>`, la `<label>` que lo envuelve o su
+   * `aria-label`. Antes salía el nombre del control tal cual, y el traductor lo marcaba como clave
+   * ausente: «[[taxRate]] es obligatorio», «[[expenseAccountId]]…» (QA A-17). El rótulo visible es
+   * por definición el nombre que el usuario conoce, así que es el respaldo correcto.
+   */
+  private fieldLabel(field: string, fieldId?: string): string {
+    if (this.hasKey(field)) return this.translate.instant(field);
+    return this.labelFromDom(fieldId ?? field) ?? humanise(field);
+  }
+
+  private hasKey(key: string): boolean {
+    if (!/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)+$/.test(key)) return false;
+    const value = this.translate.instant(key);
+    return typeof value === 'string' && value !== key && !value.startsWith('[[');
+  }
+
+  private labelFromDom(fieldId: string): string | null {
+    const root = this.host?.nativeElement;
+    if (!root?.querySelectorAll) return null;
+    const leaf = fieldId.split('.').pop() ?? fieldId;
+    const control =
+      Array.from(root.querySelectorAll<HTMLElement>('[id]')).find((el) => el.id === fieldId) ??
+      Array.from(root.querySelectorAll<HTMLElement>('[formControlName]')).find(
+        (el) => el.getAttribute('formControlName') === leaf,
+      );
+    if (!control) return null;
+    const byFor = control.id
+      ? Array.from(root.querySelectorAll<HTMLLabelElement>('label')).find((l) => l.htmlFor === control.id)
+      : undefined;
+    const wrapping = control.closest('label');
+    const text = (byFor ?? wrapping)?.textContent ?? control.getAttribute('aria-label') ?? '';
+    const cleaned = text.replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+    return cleaned || null;
+  }
 
   /** Error de servidor al guardar, ya localizado. */
   readonly error = input<string | null>(null);
@@ -259,4 +316,11 @@ export class DraftShellComponent {
     //  convertiría un fallo de validación en un formulario que no se puede reenviar.
     afterNextRender(() => this.submitted.set(false), { injector: this.injector });
   }
+}
+
+/** `expenseAccountId` → `Expense account id`: el último recurso, legible y nunca una clave cruda. */
+function humanise(name: string): string {
+  const leaf = name.split('.').pop() ?? name;
+  const words = leaf.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim().toLowerCase();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : name;
 }

@@ -5,7 +5,10 @@ import { environment } from '../../../../environments/environment';
 import { Product } from './product.model';
 
 export type CreateProductDto = Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
-export type UpdateProductDto = Partial<CreateProductDto>;
+export type UpdateProductDto = Partial<CreateProductDto> & {
+  /** Required by the server whenever stock or unit cost changes: it is recorded on the entry. */
+  adjustmentReason?: string;
+};
 
 /**
  * Inventory HTTP client — canonical location is `features/inventory/data/`.

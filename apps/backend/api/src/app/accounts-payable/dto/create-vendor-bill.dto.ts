@@ -38,12 +38,25 @@ class CreateVendorBillLineDto {
   @IsUUID()
   @IsOptional()
   expenseAccountId?: string; 
+
+  /**
+   * The purchase-order line this bills (three-way match, QA C-07). Goods already received
+   * against it clear "goods received not invoiced" instead of entering stock a second time.
+   */
+  @IsUUID()
+  @IsOptional()
+  purchaseOrderLineId?: string;
 }
 
 export class CreateVendorBillDto {
   @IsUUID()
   @IsNotEmpty()
   vendorId: string;
+
+  /** The purchase order the bill was raised against, when there is one. */
+  @IsUUID()
+  @IsOptional()
+  purchaseOrderId?: string;
 
   /**
    * Declared as the string it actually is.

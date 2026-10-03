@@ -118,9 +118,7 @@ export class RolesManagementPage implements OnInit {
         this.loadRoles();
       },
       error: (err: unknown) =>
-        this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('errors.clone_role'),
-        ),
+        this.notificationService.showHttpError(err, 'errors.clone_role'),
     });
   }
 
@@ -169,9 +167,7 @@ export class RolesManagementPage implements OnInit {
         this.closeModal();
       },
       error: (err: unknown) =>
-        this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('errors.save_role'),
-        ),
+        this.notificationService.showHttpError(err, 'errors.save_role'),
     });
   }
 
@@ -191,10 +187,8 @@ export class RolesManagementPage implements OnInit {
         this.notificationService.showSuccess('settings.roles.role_deleted_successfully');
         this.loadRoles();
       },
-      error: (err: unknown) =>
-        this.notificationService.showError(
-          (err as any)?.error?.message || this.translate.instant('errors.delete_role'),
-        ),
+      // The server's reason — a role still assigned to people says so, and to whom.
+      error: (err: unknown) => this.notificationService.showHttpError(err, 'errors.delete_role'),
     });
   }
 }

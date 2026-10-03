@@ -60,7 +60,11 @@ export class DatasheetsService {
           : 'book.ownerId = :userId',
         { userId: user.id, shared },
       )
-      .orderBy('book.modifiedAt', 'DESC');
+      .orderBy('book.modifiedAt', 'DESC')
+      // The owner's NAME for the list's «Propietario» column, and nothing else of the user row: no
+      // e-mail, no status, nothing a colleague browsing shared books has reason to see.
+      .leftJoin('book.owner', 'owner')
+      .addSelect(['owner.id', 'owner.firstName', 'owner.lastName']);
     return query.getMany();
   }
 

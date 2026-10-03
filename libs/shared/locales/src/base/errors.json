@@ -102,6 +102,11 @@
     "en": "The role could not be cloned.",
     "pt": "Não foi possível clonar o perfil."
   },
+  "errors.concurrent_update": {
+    "es": "Otra operación modificó estos datos al mismo tiempo. Vuelve a intentarlo.",
+    "en": "Another operation changed this data at the same time. Try again.",
+    "pt": "Outra operação alterou estes dados ao mesmo tempo. Tente novamente."
+  },
   "errors.create_journal_entry": {
     "es": "No se pudo crear el asiento contable.",
     "en": "The journal entry could not be created.",
@@ -272,6 +277,16 @@
     "en": "The bot check could not be completed. Reload the page and try again.",
     "pt": "Não foi possível concluir a verificação antirrobô. Recarregue a página e tente novamente."
   },
+  "errors.record_in_use": {
+    "es": "No se puede eliminar: otros documentos o registros dependen de este. Desactívalo o archívalo en su lugar.",
+    "en": "It cannot be deleted: other documents or records depend on it. Deactivate or archive it instead.",
+    "pt": "Não é possível excluir: outros documentos ou registros dependem dele. Desative-o ou arquive-o em vez disso."
+  },
+  "errors.record_in_use_detail": {
+    "es": "No se puede eliminar porque tiene registros asociados ({{summary}}). Desactívalo en su lugar.",
+    "en": "It cannot be deleted because it has related records ({{summary}}). Deactivate it instead.",
+    "pt": "Não é possível excluir porque há registros associados ({{summary}}). Desative-o em vez disso."
+  },
   "errors.record_with_data_already_exists": {
     "es": "Ya existe un registro con esos datos.",
     "en": "A record with that data already exists.",
@@ -366,6 +381,16 @@
     "es": "Revisa los datos del formulario.",
     "en": "Check the form's data.",
     "pt": "Verifica os dados do formulário."
+  },
+  "errors.value_out_of_range": {
+    "es": "Uno de los valores numéricos está fuera del rango permitido.",
+    "en": "One of the numeric values is outside the allowed range.",
+    "pt": "Um dos valores numéricos está fora do intervalo permitido."
+  },
+  "errors.value_too_long": {
+    "es": "Uno de los textos supera la longitud máxima permitida.",
+    "en": "One of the texts exceeds the maximum allowed length.",
+    "pt": "Um dos textos excede o comprimento máximo permitido."
   },
   "errors.verify_domain": {
     "es": "Todavía no se pudo verificar el dominio.",

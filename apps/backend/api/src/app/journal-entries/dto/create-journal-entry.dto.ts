@@ -133,6 +133,19 @@ export class CreateJournalEntryDto {
   @IsNotEmpty({ message: 'validation.create_journal_entry.journal_id_journal_id_required' })
   journalId: string;
 
+  /**
+   * The book the entry is posted to. Optional: omitted, it is the tenant's default ledger.
+   *
+   * The form has always asked for it ("Libro Principal") and sent it, and the DTO did not declare
+   * it, so `forbidNonWhitelisted` refused every manual entry the UI could produce (QA C-05). It
+   * is now part of the contract: naming the default ledger posts to every book the mapping rules
+   * reach; naming a secondary ledger in the same currency records a ledger-only adjustment (an
+   * IFRS-only reclassification, say) that the statutory book never sees.
+   */
+  @IsUUID('4', { message: 'validation.create_journal_entry.ledger_id_ledger_id_must_valid' })
+  @IsOptional()
+  ledgerId?: string;
+
   @IsEnum(JournalEntryType, { message: 'validation.create_journal_entry.entry_type_entry_type_not_valid'})
   @IsOptional()
   entryType?: JournalEntryType;

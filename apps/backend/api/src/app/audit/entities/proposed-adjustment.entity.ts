@@ -2,18 +2,9 @@
 import { FiscalYear } from '../../accounting/entities/fiscal-year.entity';
 import { Journal } from '../../journal-entries/entities/journal.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm';
 import { ProposedAdjustmentEvidence } from './proposed-adjustment-evidence.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum AdjustmentStatus {
   PENDING_APPROVAL = 'PENDING_APPROVAL',
@@ -46,7 +37,7 @@ export class ProposedAdjustment {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column({ name: 'fiscal_year_id' })
@@ -113,4 +104,8 @@ export class ProposedAdjustment {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_proposed_audit_adjustments_organization')
+  organization?: TenantRef;
 }

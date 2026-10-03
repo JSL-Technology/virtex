@@ -1,5 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ReportStatus {
   PENDING = 'PENDING',
@@ -12,7 +13,7 @@ export class Report {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -29,4 +30,8 @@ export class Report {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_reports_organization')
+  organization?: TenantRef;
 }

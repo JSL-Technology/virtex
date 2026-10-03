@@ -89,8 +89,8 @@ Monorepo **Nx 22** con cuatro aplicaciones y librerías compartidas:
 | Perfiles de país fiscal | 19 mercados |
 
 **Infra local mínima:** Postgres + Redis. Fuera de producción la API genera sus propios secretos,
-trata Stripe/S3/reCAPTCHA como opcionales, y **auto-siembra** `dev@virtex.local / dev12345` con un
-inquilino real. En producción el esquema de configuración exige todos los secretos al arrancar.
+trata Stripe/S3/reCAPTCHA como opcionales y, con `DEV_SEED=true`, siembra `dev@virtex.local` con un
+inquilino real (contraseña `DEV_SEED_PASSWORD`, o generada e impresa una vez en el log; ver README). En producción el esquema de configuración exige todos los secretos al arrancar.
 
 ---
 

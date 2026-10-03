@@ -340,7 +340,7 @@ export class EmployeeFormPage implements OnInit {
 
         this.load(employee.id);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -350,7 +350,7 @@ export class EmployeeFormPage implements OnInit {
     if (!employee) return;
     this.hcm.getSensitive(employee.id).subscribe({
       next: (full) => this.revealed.set(full),
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -370,7 +370,7 @@ export class EmployeeFormPage implements OnInit {
           this.payAmount.set(0);
           this.loadCompensation(employee.id);
         },
-        error: (error: { error?: { message?: string } }) => this.fail(error),
+        error: (error: unknown) => this.fail(error),
       });
   }
 
@@ -380,9 +380,9 @@ export class EmployeeFormPage implements OnInit {
     this.severanceError.set(null);
     this.payroll.previewSeverance(employee.id, { endDate: this.severanceDate() }).subscribe({
       next: (preview) => this.severance.set(preview),
-      error: (error: { error?: { message?: string } }) => {
+      error: (error: unknown) => {
         this.severance.set(null);
-        this.severanceError.set(error?.error?.message ?? 'hcm.employees.form.severance_failed');
+        this.severanceError.set(this.notifications.httpErrorMessage(error, 'hcm.employees.form.severance_failed'));
       },
     });
   }
@@ -454,12 +454,9 @@ export class EmployeeFormPage implements OnInit {
     );
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.saving.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'hcm.employees.form.save_failed',
-    );
+    this.notifications.showHttpError(error, 'hcm.employees.form.save_failed');
   }
 }
 

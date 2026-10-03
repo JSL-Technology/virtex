@@ -1,4 +1,9 @@
 {
+  "inventory.adjustment_reason_required": {
+    "es": "Indica el motivo del ajuste: cambiar existencias o costo contabiliza un ajuste de inventario.",
+    "en": "State the reason for the adjustment: changing stock or cost posts an inventory adjustment.",
+    "pt": "Informe o motivo do ajuste: alterar estoque ou custo contabiliza um ajuste de estoque."
+  },
   "inventory.cannot_delete_category_has_count_subcategory": {
     "es": "No se puede eliminar: la categoría tiene {{count}} subcategoría(s). Muévelas o elimínalas primero.",
     "en": "Cannot delete: the category has {{count}} subcategory(ies). Move or delete them first.",
@@ -119,6 +124,11 @@
     "en": "The category tree cannot be more than {{max}} levels deep.",
     "pt": "A árvore de categorias não pode ter mais de {{max}} níveis."
   },
+  "inventory.goods_receipt_accounts_not_configured": {
+    "es": "Configura la cuenta de inventario y la de mercancía recibida no facturada antes de registrar recepciones.",
+    "en": "Set up the inventory account and the goods-received-not-invoiced account before recording receipts.",
+    "pt": "Configure a conta de estoque e a de mercadorias recebidas não faturadas antes de registrar recebimentos."
+  },
   "inventory.not_enough_stock_name_available_available": {
     "es": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
     "en": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",
@@ -134,10 +144,60 @@
     "en": "This organization has no inventory and opening-balance accounts configured, so the opening stock cannot be recorded.",
     "pt": "A organização não tem contas de estoque e de saldos iniciais configuradas; não é possível registar a existência inicial."
   },
+  "inventory.product_delete_blocked": {
+    "es": "No se puede eliminar el producto porque aparece en documentos ({{summary}}). Cambia su estado a «Inactivo» para dejar de venderlo y comprarlo.",
+    "en": "The product cannot be deleted because it appears on documents ({{summary}}). Set its status to “Inactive” to stop selling and buying it.",
+    "pt": "O produto não pode ser excluído porque aparece em documentos ({{summary}}). Altere o status para “Inativo” para deixar de vendê-lo e comprá-lo."
+  },
   "inventory.product_form.active": {
     "es": "Activo",
     "en": "Active",
     "pt": "Ativo"
+  },
+  "inventory.product_form.adjust_stock": {
+    "es": "Ajustar existencias",
+    "en": "Adjust stock",
+    "pt": "Ajustar estoque"
+  },
+  "inventory.product_form.adjust_stock_invalid": {
+    "es": "La cantidad debe ser un número mayor o igual que cero.",
+    "en": "The quantity must be a number greater than or equal to zero.",
+    "pt": "A quantidade deve ser um número maior ou igual a zero."
+  },
+  "inventory.product_form.adjust_stock_message": {
+    "es": "Hay {{current}} unidades registradas. Escribe la cantidad real contada.",
+    "en": "{{current}} units are recorded. Enter the actual quantity counted.",
+    "pt": "Há {{current}} unidades registradas. Informe a quantidade real contada."
+  },
+  "inventory.product_form.adjust_stock_quantity": {
+    "es": "Cantidad contada",
+    "en": "Quantity counted",
+    "pt": "Quantidade contada"
+  },
+  "inventory.product_form.adjust_stock_reason_message": {
+    "es": "Las existencias pasarán de {{from}} a {{to}} y se contabilizará un ajuste de {{value}}. ¿Por qué?",
+    "en": "Stock will go from {{from}} to {{to}} and an adjustment of {{value}} will be posted. Why?",
+    "pt": "O estoque passará de {{from}} para {{to}} e será contabilizado um ajuste de {{value}}. Por quê?"
+  },
+  "inventory.product_form.adjust_stock_reason_placeholder": {
+    "es": "Conteo físico, merma, rotura…",
+    "en": "Physical count, shrinkage, breakage…",
+    "pt": "Contagem física, perda, quebra…"
+  },
+  "inventory.product_form.adjust_stock_reason_title": {
+    "es": "Motivo del ajuste",
+    "en": "Reason for the adjustment",
+    "pt": "Motivo do ajuste"
+  },
+  "inventory.product_form.adjust_stock_reason_too_short": {
+    "es": "Describe el motivo en al menos 5 caracteres.",
+    "en": "Describe the reason in at least 5 characters.",
+    "pt": "Descreva o motivo em pelo menos 5 caracteres."
+  },
+  "inventory.product_form.adjust_stock_title": {
+    "es": "Ajustar existencias",
+    "en": "Adjust stock",
+    "pt": "Ajustar estoque"
   },
   "inventory.product_form.basic_information": {
     "es": "Información Básica",
@@ -178,6 +238,21 @@
     "es": "Inactivo",
     "en": "Inactive",
     "pt": "Inativo"
+  },
+  "inventory.product_form.kind": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "inventory.product_form.kind_good": {
+    "es": "Bien (se inventaría)",
+    "en": "Good (stocked)",
+    "pt": "Bem (estocado)"
+  },
+  "inventory.product_form.kind_service": {
+    "es": "Servicio (no se inventaría)",
+    "en": "Service (not stocked)",
+    "pt": "Serviço (não estocado)"
   },
   "inventory.product_form.no_categories_yet_create_them_under": {
     "es": "Todavía no hay categorías. Créalas en Inventario → Categorías.",
@@ -239,6 +314,16 @@
     "en": "Reorder Level",
     "pt": "Ponto de Reposição"
   },
+  "inventory.product_form.revalue_message": {
+    "es": "El costo unitario pasará de {{from}} a {{to}}, lo que revaloriza las existencias en {{value}}. ¿Por qué?",
+    "en": "The unit cost will go from {{from}} to {{to}}, revaluing stock by {{value}}. Why?",
+    "pt": "O custo unitário passará de {{from}} para {{to}}, reavaliando o estoque em {{value}}. Por quê?"
+  },
+  "inventory.product_form.revalue_title": {
+    "es": "Revalorizar existencias",
+    "en": "Revalue stock",
+    "pt": "Reavaliar estoque"
+  },
   "inventory.product_form.sale_price": {
     "es": "Precio de Venta",
     "en": "Sale Price",
@@ -258,6 +343,41 @@
     "es": "Estado",
     "en": "Status",
     "pt": "Situação"
+  },
+  "inventory.product_form.stock_adjusted": {
+    "es": "Existencias ajustadas y ajuste contabilizado.",
+    "en": "Stock adjusted and adjustment posted.",
+    "pt": "Estoque ajustado e ajuste contabilizado."
+  },
+  "inventory.product_form.tax_rate": {
+    "es": "Tasa de impuesto",
+    "en": "Tax rate",
+    "pt": "Alíquota de imposto"
+  },
+  "inventory.product_form.tax_section": {
+    "es": "Tipo e impuestos",
+    "en": "Type and taxes",
+    "pt": "Tipo e impostos"
+  },
+  "inventory.product_form.tax_treatment": {
+    "es": "Tratamiento fiscal",
+    "en": "Tax treatment",
+    "pt": "Tratamento fiscal"
+  },
+  "inventory.product_form.tax_treatment_exempt": {
+    "es": "Exento",
+    "en": "Exempt",
+    "pt": "Isento"
+  },
+  "inventory.product_form.tax_treatment_taxed": {
+    "es": "Gravado",
+    "en": "Taxed",
+    "pt": "Tributado"
+  },
+  "inventory.product_form.tax_treatment_zero_rated": {
+    "es": "Tasa cero",
+    "en": "Zero-rated",
+    "pt": "Alíquota zero"
   },
   "inventory.product_form.title_edit": {
     "es": "Editar producto",

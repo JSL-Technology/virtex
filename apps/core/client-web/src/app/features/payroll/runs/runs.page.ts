@@ -86,11 +86,9 @@ export class PayrollRunsPage {
           this.creating.set(false);
           void this.router.navigate(['/payroll/runs', run.id]);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.busy.set(false);
-          this.notifications.showError(
-            error?.error?.message ?? 'payroll.runs.create_failed',
-          );
+          this.notifications.showHttpError(error, 'payroll.runs.create_failed');
         },
       });
   }

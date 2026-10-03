@@ -1,0 +1,12 @@
+{
+  "supply_chain.bin_location_in_use": {
+    "es": "No se puede eliminar la ubicación porque está en uso ({{summary}}).",
+    "en": "The location cannot be deleted because it is in use ({{summary}}).",
+    "pt": "A localização não pode ser excluída porque está em uso ({{summary}})."
+  },
+  "supply_chain.warehouse_in_use_deactivate_instead": {
+    "es": "No se puede eliminar el almacén porque tiene ubicaciones o existencias ({{summary}}). Desactívalo para dejar de usarlo.",
+    "en": "The warehouse cannot be deleted because it holds locations or stock ({{summary}}). Deactivate it to stop using it.",
+    "pt": "O armazém não pode ser excluído porque tem localizações ou estoque ({{summary}}). Desative-o para deixar de usá-lo."
+  }
+}

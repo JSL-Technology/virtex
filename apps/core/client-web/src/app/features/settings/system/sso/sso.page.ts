@@ -10,6 +10,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
@@ -24,6 +25,8 @@ import { VxBadgeComponent } from '../../../../shared/components/badge';
   styleUrls: ['./sso.page.scss'],
 })
 export class SsoSettingsPage implements OnInit {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly api = inject(SsoAdminService);
   private readonly fb = inject(FormBuilder);
@@ -84,7 +87,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set('Dominio agregado. Publica el registro DNS TXT y verifícalo.');
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.add_domain')),
+      error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.add_domain')),
     });
   }
 
@@ -95,7 +98,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set(`Dominio ${d.domain} verificado.`);
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.verify_domain')),
+      error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.verify_domain')),
     });
   }
 
@@ -170,7 +173,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor creado. Verifica un dominio y actívalo.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.create_sso_provider')),
+        error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.create_sso_provider')),
       });
     } else {
       this.api.updateProvider(editing, base).subscribe({
@@ -179,7 +182,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor actualizado.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.update_sso_provider')),
+        error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.update_sso_provider')),
       });
     }
   }
@@ -188,7 +191,7 @@ export class SsoSettingsPage implements OnInit {
     this.clearMessages();
     this.api.updateProvider(p.id, { enabled: !p.enabled }).subscribe({
       next: () => this.refresh(),
-      error: (e) => this.error.set(e?.error?.message || this.translate.instant('errors.change_status')),
+      error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.change_status')),
     });
   }
 

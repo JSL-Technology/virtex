@@ -54,6 +54,8 @@ describe('PosService', () => {
       save: jest.fn(async (_e, v) => v),
       findOne: jest.fn(async (_e, options: { where: { id: string } }) => catalogue[options.where.id] ?? null),
       createQueryBuilder: jest.fn(() => lockedQuery),
+      // The tenant's standard rate, for a product marked taxed with no rate of its own (QA C-08).
+      query: jest.fn(async () => [{ rate: 18 }]),
     };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
     const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource);

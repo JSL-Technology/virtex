@@ -146,7 +146,81 @@ describeWithDb('tenant deletion', () => {
       [adjustment, org, fiscalYear, journal],
     );
 
+    // ── A posted entry with its ledger valuation ──────────────────────────────
+    // The ledger is reached twice by the cascade — directly and through the entry's lines — which
+    // is exactly the shape that made a RESTRICT or immediate NO ACTION edge fail (QA C-03).
+    const [ledger, entry, entryLine, supplier, order, orderLine, receipt, category, department] = (
+      await dataSource.query<{ id: string }[]>(`SELECT gen_random_uuid() AS id FROM generate_series(1, 9)`)
+    ).map((row) => row.id);
+    await query(
+      `INSERT INTO ledgers (id, organization_id, name, currency) VALUES ($1, $2, 'Libro principal', 'DOP')`,
+      [ledger, org],
+    );
+    await query(
+      `INSERT INTO journal_entries (id, organization_id, ledger_id, journal_id, date, description)
+       VALUES ($1, $2, $3, $4, '2026-01-31', 'Asiento')`,
+      [entry, org, ledger, journal],
+    );
+    // Balanced, or the ledger's own deferred balance check refuses it at commit.
+    const entryCreditLine = (await dataSource.query<{ id: string }[]>(`SELECT gen_random_uuid() AS id`))[0].id;
+    for (const [id, debit, credit] of [[entryLine, 100, 0], [entryCreditLine, 0, 100]] as const) {
+      await query(
+        `INSERT INTO journal_entry_lines (id, journal_entry_id, account_id, debit, credit) VALUES ($1, $2, $3, $4, $5)`,
+        [id, entry, glAccount, debit, credit],
+      );
+      await query(
+        `INSERT INTO journal_entry_line_valuations (journal_entry_line_id, ledger_id, debit, credit)
+         VALUES ($1, $2, $3, $4)`,
+        [id, ledger, debit, credit],
+      );
+    }
+
+    // ── Purchasing, a goods receipt and the stock it moved (QA C-07) ──────────
+    await query(`INSERT INTO product_categories (id, organization_id, name) VALUES ($1, $2, 'Mercancía')`, [
+      category,
+      org,
+    ]);
+    await query(`UPDATE products SET category_id = $1 WHERE id = $2`, [category, product]);
+    await query(`INSERT INTO suppliers (id, organization_id, name) VALUES ($1, $2, 'Proveedor')`, [supplier, org]);
+    await query(
+      `INSERT INTO purchase_orders (id, organization_id, supplier_id, number, order_date)
+       VALUES ($1, $2, $3, $4, '2026-01-03')`,
+      [order, org, supplier, `OC-${order.slice(0, 8)}`],
+    );
+    await query(
+      `INSERT INTO purchase_order_lines (id, organization_id, order_id, product_id, description, quantity, received_quantity)
+       VALUES ($1, $2, $3, $4, 'Producto', 5, 5)`,
+      [orderLine, org, order, product],
+    );
+    await query(`INSERT INTO purchase_order_receipts (id, organization_id, order_id) VALUES ($1, $2, $3)`, [
+      receipt,
+      org,
+      order,
+    ]);
+    await query(
+      `INSERT INTO stock_movements (organization_id, product_id, type, quantity, cost, reference, source_type, source_id)
+       VALUES ($1, $2, 'PURCHASE', 5, 40, 'OC', 'purchase_order_receipt', $3)`,
+      [org, product, receipt],
+    );
+    await query(`INSERT INTO departments (id, organization_id, name) VALUES ($1, $2, 'Ventas')`, [department, org]);
+    await query(
+      `INSERT INTO employees (organization_id, first_name, last_name, email, department_id)
+       VALUES ($1, 'Ana', 'Pérez', $2, $3)`,
+      [org, `ana-${org}@ejemplo.test`, department],
+    );
+
     return org;
+  }
+
+  /**
+   * Runs the checks a COMMIT would run.
+   *
+   * The constraints that protect master data are DEFERRABLE INITIALLY DEFERRED, so they are
+   * checked at commit — and these tests roll back instead, which would skip them entirely and let
+   * a broken schema pass. Forcing them immediate inside the transaction runs every pending check.
+   */
+  async function asAtCommit(query: (sql: string) => Promise<unknown>): Promise<void> {
+    await query(`SET CONSTRAINTS ALL IMMEDIATE`);
   }
 
   /**
@@ -166,6 +240,7 @@ describeWithDb('tenant deletion', () => {
       await expect(
         runner.query(`DELETE FROM organizations WHERE id = $1`, [org]),
       ).resolves.toBeDefined();
+      await expect(asAtCommit((sql) => runner.query(sql))).resolves.toBeUndefined();
 
       const remaining = (await runner.query(
         `SELECT COUNT(*)::text AS count FROM organizations WHERE id = $1`,
@@ -203,6 +278,15 @@ describeWithDb('tenant deletion', () => {
         'payment_batches',
         'fiscal_years',
         'proposed_audit_adjustments',
+        'ledgers',
+        'journal_entries',
+        'suppliers',
+        'purchase_orders',
+        'purchase_order_receipts',
+        'stock_movements',
+        'product_categories',
+        'departments',
+        'employees',
       ]) {
         const rows = (await runner.query(
           `SELECT COUNT(*)::text AS count FROM "${table}" WHERE organization_id = $1`,
@@ -221,5 +305,72 @@ describeWithDb('tenant deletion', () => {
       await runner.rollbackTransaction();
       await runner.release();
     }
+  });
+
+  /**
+   * And the other half of the contract: what a document names cannot be deleted on its own.
+   *
+   * Invoicing a customer, selling a product, ordering from a supplier, posting to a ledger: each of
+   * these makes the master record part of the books. The services refuse first and say what is in
+   * the way (QA C-03); this proves the database refuses too, for any code path that forgets.
+   */
+  it.each([
+    ['a customer that has been invoiced', 'customers'],
+    ['a product that has been sold, ordered and received', 'products'],
+    ['a supplier that has been ordered from', 'suppliers'],
+    ['a ledger that has been posted to', 'ledgers'],
+    ['a department that has employees', 'departments'],
+  ])('refuses to delete %s', async (_label, table) => {
+    const runner = dataSource.createQueryRunner();
+    await runner.connect();
+    await runner.startTransaction();
+    try {
+      const query = (sql: string, params?: unknown[]) => runner.query(sql, params as never[]);
+      const org = await seedTenant(query);
+
+      await runner.query(`DELETE FROM "${table}" WHERE organization_id = $1`, [org]);
+      const refused = await asAtCommit((sql) => runner.query(sql)).catch((error: unknown) => error);
+      expect(refused).toMatchObject({ code: '23503' });
+    } finally {
+      await runner.rollbackTransaction();
+      await runner.release();
+    }
+  });
+
+  /**
+   * Keeps the erasure complete as the schema grows.
+   *
+   * Forty-three tables used to carry an `organization_id` nothing enforced — employees, payslips,
+   * leads, cases — so deleting a tenant left their rows behind, owned by nobody and visible to no
+   * policy (TenantErasureCompleteness1789008100000). A new table that forgets the constraint fails
+   * here, naming itself, instead of silently becoming the next place erased data survives.
+   */
+  it('every tenant table is owned by its tenant', async () => {
+    // Platform events have no tenant; what an erasure does to the audit trail is a retention
+    // policy of its own, not a cascade. A user is an identity that can belong to several tenants:
+    // their default tenant going away clears the pointer (SET NULL); membership is what cascades.
+    const exempt = ['audit_logs', 'users'];
+    const unowned = (await dataSource.query(
+      `SELECT c.table_name AS table
+         FROM information_schema.columns c
+         JOIN information_schema.tables t
+           ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
+        WHERE c.table_schema = current_schema()
+          AND c.column_name = 'organization_id'
+          AND c.table_name <> ALL ($1)
+          AND NOT EXISTS (
+                SELECT 1
+                  FROM pg_constraint k
+                  JOIN pg_attribute a ON a.attrelid = k.conrelid AND a.attnum = ANY (k.conkey)
+                 WHERE k.contype = 'f'
+                   AND k.conrelid = to_regclass(quote_ident(c.table_name))
+                   AND k.confrelid = 'organizations'::regclass
+                   AND a.attname = 'organization_id'
+                   AND k.confdeltype = 'c'
+              )
+        ORDER BY 1`,
+      [exempt],
+    )) as { table: string }[];
+    expect(unowned.map((row) => row.table)).toEqual([]);
   });
 });

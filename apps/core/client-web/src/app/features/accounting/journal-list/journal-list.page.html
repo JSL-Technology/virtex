@@ -18,15 +18,22 @@
           <th>{{ 'accounting.journal_list.name' | translate }}</th>
           <th>{{ 'accounting.journal_list.code' | translate }}</th>
           <th>{{ 'accounting.journal_list.type' | translate }}</th>
+          <th class="text-right">{{ 'accounting.journal_list.entries' | translate }}</th>
           <th class="actions-column">{{ 'accounting.journal_list.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (journal of journals(); track journal.id) {
           <tr>
-            <td>{{ journal.name }}</td>
+            <td>
+              <a [routerLink]="['/accounting/journals', journal.id, 'edit']" class="table-link">{{ journal.name }}</a>
+              @if (journal.isSystem) {
+                <vx-badge tone="neutral">{{ 'accounting.journal_list.system' | translate }}</vx-badge>
+              }
+            </td>
             <td>{{ journal.code }}</td>
-            <td>{{ journal.type }}</td>
+            <td>{{ typeKey(journal) | translate }}</td>
+            <td class="text-right">{{ journal.entryCount ?? 0 }}</td>
             <td class="actions-column">
               <a
                 [routerLink]="['/accounting/journals', journal.id, 'edit']"
@@ -34,6 +41,16 @@
               >
                 {{ 'accounting.journal_list.edit' | translate }}
               </a>
+              @if (canDelete(journal)) {
+                <button
+                  type="button"
+                  class="icon-button"
+                  (click)="remove(journal)"
+                  [attr.aria-label]="'common.delete' | translate"
+                >
+                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
+                </button>
+              }
             </td>
           </tr>
         }

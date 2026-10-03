@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Calculator, CheckCircle, Banknote, XCircle, Download, Plus, Trash2 } from 'lucide-angular';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
+import { TreasuryService, CashPositionRow } from '../../../accounting/data/treasury.service';
 import { DocumentShellComponent, DocumentTone } from '../../../../shared/components/gestures';
 import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -53,6 +54,7 @@ export class PayrollRunDetailPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly format = inject(FormatService);
+  private readonly treasury = inject(TreasuryService);
 
   @Input() id?: string;
 
@@ -150,7 +152,75 @@ export class PayrollRunDetailPage implements OnInit {
     this.act(this.payroll.approve(this.id!));
   }
 
-  pay(): void { this.act(this.payroll.pay(this.id!)); }
+  /**
+   * Paying asks where the money leaves from (QA C-09).
+   *
+   * The server has always required the bank account — the payment credits it — and the screen
+   * never asked, so every approved payroll answered 400 and could not be paid. The panel lists the
+   * tenant's bank and cash accounts with their balance, preselects the one that can cover the net,
+   * and warns before an overdraft instead of letting the bank go negative in silence (QA M-07).
+   */
+  readonly paying = signal(false);
+  readonly payingAccounts = signal<CashPositionRow[]>([]);
+  readonly payFromAccountId = signal<string | null>(null);
+  readonly payFromAccount = computed(
+    () => this.payingAccounts().find((row) => row.bankAccountId === this.payFromAccountId()) ?? null,
+  );
+  /** True when the chosen account does not hold the net to be paid. */
+  readonly payWouldOverdraw = computed(() => {
+    const account = this.payFromAccount();
+    const net = Number(this.run()?.totalNet ?? 0);
+    return !!account && Number(account.balanceInBaseCurrency) < net;
+  });
+
+  pay(): void {
+    const run = this.run();
+    if (!run) return;
+    this.paying.set(true);
+    this.treasury.cashPosition().subscribe({
+      next: (position) => {
+        const inCurrency = position.accounts.filter(
+          (row) => !run.currencyCode || row.currencyCode === run.currencyCode,
+        );
+        this.payingAccounts.set(inCurrency);
+        const net = Number(run.totalNet ?? 0);
+        const covering = inCurrency.find((row) => Number(row.balanceInBaseCurrency) >= net);
+        this.payFromAccountId.set((covering ?? inCurrency[0])?.bankAccountId ?? null);
+        if (inCurrency.length === 0) {
+          this.notifications.showError('payroll.runs.pay_no_bank_accounts');
+        }
+      },
+      error: (err) => this.notifications.showHttpError(err, 'payroll.runs.pay_accounts_failed'),
+    });
+  }
+
+  async confirmPay(): Promise<void> {
+    const accountId = this.payFromAccountId();
+    if (!accountId) {
+      this.notifications.showError('payroll.paying_payroll_requires_selecting_bank_account');
+      return;
+    }
+    if (this.payWouldOverdraw()) {
+      const proceed = await this.dialog.confirm({
+        title: 'payroll.runs.pay_overdraft_title',
+        message: 'payroll.runs.pay_overdraft_message',
+        messageParams: {
+          account: this.payFromAccount()?.name ?? '',
+          balance: this.format.money(Number(this.payFromAccount()?.balanceInBaseCurrency ?? 0), this.run()?.currencyCode ?? null),
+          net: this.format.money(Number(this.run()?.totalNet ?? 0), this.run()?.currencyCode ?? null),
+        },
+        confirmText: 'payroll.runs.pay',
+        variant: 'warning',
+      });
+      if (!proceed) return;
+    }
+    this.paying.set(false);
+    this.act(this.payroll.pay(this.id!, { bankAccountId: accountId }));
+  }
+
+  cancelPay(): void {
+    this.paying.set(false);
+  }
 
   async cancel(): Promise<void> {
     const confirmed = await this.dialog.confirm({
@@ -198,7 +268,7 @@ export class PayrollRunDetailPage implements OnInit {
         this.inputs.set(rows);
         this.notifications.showSuccess('payroll.runs.inputs_saved');
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -230,7 +300,7 @@ export class PayrollRunDetailPage implements OnInit {
         anchor.click();
         URL.revokeObjectURL(url);
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -244,7 +314,7 @@ export class PayrollRunDetailPage implements OnInit {
     this.busy.set(true);
     request.subscribe({
       next: () => { this.busy.set(false); this.load(this.id!); },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -261,7 +331,11 @@ export class PayrollRunDetailPage implements OnInit {
       inputs: this.payroll.listInputs(id).pipe(catchError(() => of([] as PayrollInput[]))),
       concepts: this.payroll.listConcepts().pipe(catchError(() => of([] as PayrollConcept[]))),
       employees: this.hcm.listEmployees({ pageSize: 500 }).pipe(catchError(() => of(null))),
-    }).subscribe(({ run, payslips, inputs, concepts, employees }) => {
+    })
+      //  Si alguna fuente terminara sin emitir, `forkJoin` no llamaría a `subscribe` y la pestaña
+      //  se quedaría en «Cargando» para siempre (QA A-03). `finalize` garantiza que la carga acabe.
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe(({ run, payslips, inputs, concepts, employees }) => {
       this.run.set(run);
       this.payslips.set(payslips);
       this.inputs.set(inputs);
@@ -281,11 +355,11 @@ export class PayrollRunDetailPage implements OnInit {
     return this.format.date(value, 'date', { dateOnly: true });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'payroll.runs.action_failed',
-    );
+    //  Cada rechazo con su motivo: aprobar la nómina que uno mismo calculó (segregación de
+    //  funciones), una nómina duplicada, una cuenta bancaria que no cuadra. Antes la pantalla se
+    //  quedaba muda ante un 403 o un 409 (QA A-15).
+    this.notifications.showHttpError(error, 'payroll.runs.action_failed');
   }
 }

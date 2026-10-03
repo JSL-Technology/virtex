@@ -6,7 +6,7 @@
   [empty]="isEmpty()"
   (reload)="load()"
 >
-  <a listActions [routerLink]="['./new']" class="primary-button">
+  <a listActions [routerLink]="['/accounting/journal-entries/new']" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
   </a>
@@ -33,7 +33,7 @@
                 The number the tenant's sequence gave it, not its UUID. A draft has no number yet
                 and says so, rather than borrowing a primary key to look like one.
               -->
-              <a [routerLink]="['./', entry.id, 'edit']" class="table-link">
+              <a [routerLink]="['/accounting/journal-entries', entry.id, 'edit']" class="table-link">
                 {{ entry.entryNumber || ('accounting.journal_entries.unnumbered' | translate) }}
               </a>
             </td>
@@ -48,7 +48,7 @@
             <td class="actions-column">
               <a
                 class="icon-button"
-                [routerLink]="['./', entry.id, 'edit']"
+                [routerLink]="['/accounting/journal-entries', entry.id, 'edit']"
                 [attr.aria-label]="'accounting.journal_entries.row_actions' | translate"
               >
                 <lucide-icon [img]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>

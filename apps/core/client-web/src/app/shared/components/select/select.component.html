@@ -21,7 +21,7 @@
     autocapitalize="none"
     spellcheck="false"
     aria-autocomplete="list"
-    [id]="inputId() || null"
+    [attr.id]="inputId() || null"
     [attr.aria-expanded]="panelOpen()"
     [attr.aria-controls]="panelOpen() ? listboxId : null"
     [attr.aria-activedescendant]="panelOpen() ? activeOptionId() : null"

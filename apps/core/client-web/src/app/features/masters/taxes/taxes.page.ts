@@ -62,7 +62,7 @@ export class TaxesPage implements OnInit {
           this.notificationService.showSuccess('masters.taxes.tax_deleted');
           this.loadTaxes();
         },
-        error: () => this.notificationService.showError('masters.taxes.error_deleting_tax'),
+        error: (error: unknown) => this.notificationService.showHttpError(error, 'masters.taxes.error_deleting_tax'),
       });
     }
   }

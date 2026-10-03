@@ -107,7 +107,7 @@ export class PayrollConceptsPage {
         this.editing.set(null);
         this.reload();
       },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -129,7 +129,7 @@ export class PayrollConceptsPage {
     this.busy.set(true);
     this.payroll.removeConcept(concept.id).subscribe({
       next: () => { this.busy.set(false); this.reload(); },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -150,12 +150,10 @@ export class PayrollConceptsPage {
       });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  /** The server's own reason: a concept already paid in a payroll says to deactivate it instead. */
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'payroll.concepts.save_failed',
-    );
+    this.notifications.showHttpError(error, 'payroll.concepts.save_failed');
   }
 }
 

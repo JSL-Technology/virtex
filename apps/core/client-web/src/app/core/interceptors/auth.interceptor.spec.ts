@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth';
 import { AuthQueueService } from '../services/auth-queue.service';
@@ -39,7 +39,7 @@ describe('authInterceptor — subscription handling', () => {
 
   it('sends a suspended tenant to billing', async () => {
     await run(
-      new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' } }),
+      new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } } }),
     );
 
     expect(navigate).toHaveBeenCalledWith(['/settings/billing'], {
@@ -48,7 +48,7 @@ describe('authInterceptor — subscription handling', () => {
   });
 
   it('sends a tenant with no subscription there too', async () => {
-    await run(new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_REQUIRED' } }));
+    await run(new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_required', params: {} } }));
 
     expect(navigate).toHaveBeenCalledWith(['/settings/billing'], {
       queryParams: { reason: 'SUBSCRIPTION_REQUIRED' },
@@ -59,7 +59,7 @@ describe('authInterceptor — subscription handling', () => {
     // A dashboard fires a dozen calls in parallel and they all fail together; navigating per
     // failed request would fight the router.
     await run(
-      new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' } }),
+      new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } } }),
       '/settings/billing',
     );
 
@@ -120,7 +120,7 @@ describe('authInterceptor — subscription handling', () => {
   it('re-throws so the caller still sees the failure', async () => {
     const error = new HttpErrorResponse({
       status: 403,
-      error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' },
+      error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } },
     });
 
     await expect(run(error)).resolves.toBe(error);
@@ -154,5 +154,59 @@ describe('authInterceptor — step-up challenges', () => {
     );
     expect(result).toBe(error);
     expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * QA A-01 / M-12: a 401 that answers a credential check is not an expired session. Refreshing on
+ * it replayed the failed attempt and then signed the user out with the dialog still open.
+ */
+describe('authInterceptor — credential checks', () => {
+  const run = async (url: string, body: unknown) => {
+    const refreshAccessToken = jest.fn(() => throwError(() => new Error('refresh failed')));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { url: '/x', navigate: jest.fn() } },
+        {
+          provide: AuthService,
+          useValue: { refreshAccessToken, authStatus: () => 'authenticated', logout: jest.fn(() => of(null)) },
+        },
+        {
+          provide: AuthQueueService,
+          useValue: {
+            isRefreshingToken: false,
+            startRefresh: jest.fn(),
+            finishRefreshSuccess: jest.fn(),
+            finishRefreshError: jest.fn(),
+          },
+        },
+        { provide: HttpXsrfTokenExtractor, useValue: { getToken: () => null } },
+      ],
+    });
+    const error = new HttpErrorResponse({ status: 401, error: body, url });
+    const req = new HttpRequest('POST', url, {});
+    const result = await TestBed.runInInjectionContext(() =>
+      firstValueFrom(authInterceptor(req, () => throwError(() => error))).catch((e) => e),
+    );
+    return { result, error, refreshAccessToken };
+  };
+
+  it('no refresca ni reintenta ante una contraseña incorrecta en el step-up', async () => {
+    const { result, error, refreshAccessToken } = await run('http://api/api/v1/auth/step-up', {
+      code: 'STEP_UP_INVALID_CREDENTIALS',
+    });
+    expect(result).toBe(error);
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('no refresca ante credenciales inválidas en cualquier ruta', async () => {
+    const { refreshAccessToken } = await run('http://api/api/v1/other', { code: 'AUTH_INVALID_CREDENTIALS' });
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('sí refresca un 401 genérico de sesión', async () => {
+    const { refreshAccessToken } = await run('http://api/api/v1/invoices', { code: 'UNAUTHORIZED' });
+    expect(refreshAccessToken).toHaveBeenCalled();
   });
 });

@@ -154,6 +154,11 @@
           {{ 'accounting.journal_entry_form.debits_credits_must_balanced' | translate }}
         </p>
       }
+      @if (entryForm.hasError('bothSides')) {
+        <p class="entry-alert" role="alert">
+          {{ 'accounting.journal_entry_form.line_both_sides' | translate: entryForm.getError('bothSides') }}
+        </p>
+      }
       @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
         <p class="entry-alert" role="alert">
           {{ 'accounting.journal_entry_form.zero_amount_error' | translate }}

@@ -154,20 +154,16 @@ export class DepreciationService extends DepreciationPort {
         return;
       }
 
-      const depreciationJournal = await this.journalLookup.findByCode(
-        organizationId,
-        'DEPREC',
-        em,
-      );
-      if (!depreciationJournal) {
-        throw new BadRequestError(
-          'fixed_assets.depreciation_journal_deprec_not_found_create',
-        );
-      }
-
       const assets = await em.find(FixedAsset, {
         where: { organizationId, status: FixedAssetStatus.IN_USE },
       });
+      // Nothing in use, nothing to charge — and therefore no journal to require. The journal used
+      // to be looked up FIRST, so a company with no fixed assets at all could not close a single
+      // period because a journal it would never post to was missing (QA C-06).
+      if (assets.length === 0) {
+        this.logger.log(`Sin activos en uso en ${organizationId}; nada que depreciar.`);
+        return;
+      }
 
       const month = toIsoMonth(depreciationDate);
       const lines: CreateJournalEntryLineDto[] = [];
@@ -216,6 +212,17 @@ export class DepreciationService extends DepreciationPort {
           `Sin depreciación que registrar en ${organizationId} para ${toIsoMonth(depreciationDate)}.`,
         );
         return;
+      }
+
+      const depreciationJournal = await this.journalLookup.findByCode(
+        organizationId,
+        'DEPREC',
+        em,
+      );
+      if (!depreciationJournal) {
+        throw new BadRequestError(
+          'fixed_assets.depreciation_journal_deprec_not_found_create',
+        );
       }
 
       await this.assetPosting.createWithManager(

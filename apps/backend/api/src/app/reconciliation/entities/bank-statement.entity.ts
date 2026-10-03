@@ -60,7 +60,9 @@ export class BankStatement {
   @Column({ name: 'bank_account_id', type: 'uuid' })
   bankAccountId: string;
 
-  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => BankAccount, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'bank_account_id' })
   bankAccount: BankAccount;
 

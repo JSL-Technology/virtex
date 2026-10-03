@@ -1,8 +1,9 @@
 <vx-list-shell
   titleKey="data_exports.data_exports"
   subtitleKey="data_exports.generate_and_download_your_master_or"
-  [count]="exportHistory().length"
-  [empty]="exportHistory().length === 0"
+  [count]="history().length"
+  [loading]="loading()"
+  [empty]="!loading() && history().length === 0"
 >
   <!--
     El formulario que lanza la exportación va en la barra del gesto, no en una tarjeta aparte: es
@@ -11,28 +12,32 @@
   <form listToolbar class="export-form" [formGroup]="exportForm" (ngSubmit)="startExport()">
     <div class="form-field">
       <label for="dataType">{{ 'data_exports.data_export' | translate }} *</label>
-      <select id="dataType" formControlName="dataType">
-        <option [value]="null" disabled>{{ 'data_exports.select_data_type' | translate }}</option>
-        @for (type of dataTypes; track type.id) {
-          <option [value]="type.id">{{ type.name }}</option>
+      <select id="dataType" formControlName="dataType" required>
+        <option value="" disabled>{{ 'data_exports.select_data_type' | translate }}</option>
+        @for (dataset of datasets(); track dataset.id) {
+          <option [value]="dataset.id">{{ dataset.labelKey | translate }}</option>
         }
       </select>
     </div>
 
     <div class="form-field">
-      <span class="input-label" id="export-group-1">{{ 'data_exports.format_required_label' | translate }} *</span>
-      <div class="button-group" role="group" aria-labelledby="export-group-1">
+      <span class="input-label" id="export-format">{{ 'data_exports.format_required_label' | translate }} *</span>
+      <div class="button-group" role="radiogroup" aria-labelledby="export-format">
         <button
           type="button"
-          [class.active]="exportForm.get('format')?.value === 'csv'"
-          (click)="exportForm.get('format')?.setValue('csv')"
+          role="radio"
+          [attr.aria-checked]="exportForm.controls.format.value === 'csv'"
+          [class.active]="exportForm.controls.format.value === 'csv'"
+          (click)="exportForm.controls.format.setValue('csv')"
         >
           CSV
         </button>
         <button
           type="button"
-          [class.active]="exportForm.get('format')?.value === 'xlsx'"
-          (click)="exportForm.get('format')?.setValue('xlsx')"
+          role="radio"
+          [attr.aria-checked]="exportForm.controls.format.value === 'xlsx'"
+          [class.active]="exportForm.controls.format.value === 'xlsx'"
+          (click)="exportForm.controls.format.setValue('xlsx')"
         >
           {{ 'data_exports.excel_xlsx' | translate }}
         </button>
@@ -60,36 +65,22 @@
           <th>{{ 'data_exports.format_label' | translate }}</th>
           <th>{{ 'data_exports.date' | translate }}</th>
           <th>{{ 'data_exports.user' | translate }}</th>
+          <th class="text-right">{{ 'data_exports.rows' | translate }}</th>
           <th class="text-center">{{ 'data_exports.status' | translate }}</th>
-          <th class="actions-column">{{ 'data_exports.action' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (item of exportHistory(); track item.id) {
+        @for (run of history(); track run.id) {
           <tr>
-            <td>{{ item.dataType }}</td>
-            <td>{{ item.format }}</td>
-            <td>{{ item.date }}</td>
-            <td>{{ item.user }}</td>
+            <td>{{ labelOf(run.dataset) | translate }}</td>
+            <td>{{ run.format.toUpperCase() }}</td>
+            <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
+            <td>{{ run.userName ?? '—' }}</td>
+            <td class="text-right">{{ run.totalRows | vxNumber }}</td>
             <td class="text-center">
-              <vx-badge [tone]="statusTone(item.status)">
-                @if (item.status === 'Completed') {
-                  <lucide-icon [img]="SuccessIcon" size="14" aria-hidden="true"></lucide-icon>
-                } @else if (item.status === 'Failed') {
-                  <lucide-icon [img]="ErrorIcon" size="14" aria-hidden="true"></lucide-icon>
-                } @else if (item.status === 'Generating') {
-                  <lucide-icon [img]="ProcessingIcon" size="14" class="spinner" aria-hidden="true"></lucide-icon>
-                }
-                {{ item.status }}
+              <vx-badge [tone]="statusTone(run.status)">
+                {{ statusKey(run.status) | translate }}
               </vx-badge>
-            </td>
-            <td class="actions-column">
-              @if (item.status === 'Completed' && item.downloadUrl) {
-                <a [href]="item.downloadUrl" download class="secondary-button download-btn">
-                  <lucide-icon [img]="DownloadIcon" size="14" aria-hidden="true"></lucide-icon>
-                  <span>{{ 'data_exports.download' | translate }}</span>
-                </a>
-              }
             </td>
           </tr>
         }

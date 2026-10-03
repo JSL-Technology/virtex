@@ -143,6 +143,14 @@ export class TreasuryService {
       if (!glAccount.isPostable) {
         throw new BadRequestError('treasury.ledger_account_given_summary_account_cannot');
       }
+      // A bank account's control account holds money: an asset, and not one a sub-ledger owns
+      // (receivables, inventory, tax). The form offered prepaid expenses, fixed assets and
+      // intangibles as if they were bank accounts (QA A-06).
+      const MONEY_ROLES = new Set(['CASH', 'BANK']);
+      const role = (glAccount as { systemRole?: string | null }).systemRole ?? null;
+      if (glAccount.type !== 'ASSET' || (role !== null && !MONEY_ROLES.has(role))) {
+        throw new BadRequestError('treasury.ledger_account_not_money_account');
+      }
 
       const openingBalance = roundAmount(dto.openingBalance ?? 0);
       const opening = await this.validateOpeningBalance(

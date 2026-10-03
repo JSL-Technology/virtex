@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Customer } from '../../customers/entities/customer.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum CaseStatus {
   OPEN = 'OPEN',
@@ -14,10 +15,10 @@ export class Case {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
-  @ManyToOne(() => Customer)
+  @ManyToOne(() => Customer, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
@@ -36,4 +37,8 @@ export class Case {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_cases_organization')
+  organization?: TenantRef;
 }

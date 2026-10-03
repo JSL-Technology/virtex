@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * A variable input for one employee on one run — the "novedades de nómina" of the period.
@@ -32,6 +33,15 @@ export class PayrollInput extends BaseEntity {
   @Column({ name: 'employee_id', type: 'uuid' })
   employeeId: string;
 
+  /**
+   * The employee, as a constraint (QA lifecycle audit). Payroll history is a legal record: employees
+   * are terminated and soft-deleted, never physically removed while a payslip names them. Checked
+   * at commit, so deleting the whole tenant still cascades.
+   */
+  @ManyToOne('Employee', { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
+  @JoinColumn({ name: 'employee_id', foreignKeyConstraintName: 'FK_payroll_inputs_employee' })
+  employee?: unknown;
+
   /** The concept this input feeds, by its stable code (e.g. `HE35`, `BONO`, `LOAN`). */
   @Column({ name: 'concept_code' })
   conceptCode: string;
@@ -50,4 +60,8 @@ export class PayrollInput extends BaseEntity {
 
   @Column({ name: 'note', type: 'varchar', nullable: true })
   note: string | null;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payroll_inputs_organization')
+  organization?: TenantRef;
 }

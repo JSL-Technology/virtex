@@ -16,7 +16,10 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  FormControl
+  FormControl,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
 } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -42,6 +45,17 @@ import { FileUtil } from '../../../shared/utils/file.util';
 // change-password form, which previously only required minLength(8).
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
 import { catchError, of } from 'rxjs';
+import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
+import { toE164 } from '../../../shared/utils/phone.util';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
+
+/** «Nueva» y «Confirmar» coinciden. El error vive en el grupo para poder decirlo junto a ambos. */
+const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+  const next = group.get('newPassword')?.value;
+  const confirm = group.get('confirmPassword')?.value;
+  return next && confirm && next !== confirm ? { passwordsMismatch: true } : null;
+};
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Typed Form Interface
@@ -64,6 +78,7 @@ interface ProfileForm {
     SecuritySettingsComponent,
     TranslateModule,
     PhoneVerificationModalComponent,
+    PasswordStrengthComponent,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
@@ -79,6 +94,7 @@ export class MyProfilePage implements OnInit {
   private destroyRef = inject(DestroyRef);
   private stepUpService = inject(StepUpService);
   private viewContainerRef = inject(ViewContainerRef);
+  private readonly locale = inject(LocaleStore);
 
   // Icons
   protected readonly UserIcon = UserIcon;
@@ -120,16 +136,26 @@ export class MyProfilePage implements OnInit {
     this.profileForm = this.fb.group({
       firstName: [user?.firstName || '', Validators.required],
       lastName: [user?.lastName || '', Validators.required],
-      email: [user?.email || '', [Validators.required, Validators.email]],
-      phone: [user?.phone || '', Validators.required],
-      jobTitle: [user?.jobTitle || '', Validators.required],
+      //  Solo lectura: el correo se cambia con su propio flujo de confirmación, nunca por aquí.
+      email: [{ value: user?.email || '', disabled: true }],
+      //  Opcionales, como en el servidor. Eran obligatorios sin asterisco ni mensaje, y el botón
+      //  «Guardar» quedaba gris sin explicación para quien no tenía teléfono (QA A-04).
+      phone: [user?.phone || '', phoneLikeValidator],
+      jobTitle: [user?.jobTitle || ''],
       preferredLanguage: [user?.preferredLanguage || defaultLang]
     }) as FormGroup<ProfileForm>;
 
-    this.passwordForm = this.fb.group({
-      newPassword: ['', [Validators.required, strongPasswordValidator()]],
-      confirmPassword: ['', Validators.required],
-    });
+    //  La contraseña actual es obligatoria (QA M-03, OWASP ASVS 2.1.6): el servidor la verifica y
+    //  la pedía siempre, pero el formulario no tenía el campo y enviaba `''`, así que cambiar la
+    //  contraseña fallaba SIEMPRE.
+    this.passwordForm = this.fb.group(
+      {
+        currentPassword: ['', Validators.required],
+        newPassword: ['', [Validators.required, strongPasswordValidator()]],
+        confirmPassword: ['', Validators.required],
+      },
+      { validators: passwordsMatchValidator },
+    );
 
     if (user?.avatarUrl) {
       this.avatarPreview.set(user.avatarUrl);
@@ -159,10 +185,7 @@ export class MyProfilePage implements OnInit {
         this.authService.logout();
       },
       error: (err) =>
-        this.notificationService.showError(
-          err?.error?.message ||
-            'El enlace de confirmación ha expirado o no es válido. Solicita el cambio de nuevo.',
-        ),
+        this.notificationService.showHttpError(err, 'El enlace de confirmación ha expirado o no es válido. Solicita el cambio de nuevo.'),
     });
   }
 
@@ -192,10 +215,10 @@ export class MyProfilePage implements OnInit {
           error: (error: HttpErrorResponse) => {
               if (error.status === 413) {
                  this.notificationService.showError('settings.profile.errors.file_too_large');
-              } else if (error.status === 400 && error.error?.message?.includes('image')) {
-                 this.notificationService.showError('settings.profile.errors.invalid_format');
               } else {
-                 this.notificationService.showError('settings.profile.errors.avatar_upload');
+                 // The server says what was wrong with the file (format, size, content); it used to
+                 // be matched by searching an English `message` the API does not send.
+                 this.notificationService.showHttpError(error, 'settings.profile.errors.avatar_upload');
               }
           }
       });
@@ -213,18 +236,35 @@ export class MyProfilePage implements OnInit {
   }
 
   saveProfile(): void {
-    if (this.profileForm.valid) {
+    if (this.profileForm.invalid) {
+      //  El botón ya no se apaga sin explicación: se marca cada campo y se dice cuál falla.
+      this.profileForm.markAllAsTouched();
+      this.notificationService.showError('settings.profile.errors.check_fields');
+      return;
+    }
+    {
       this.isLoading = true;
-      const { firstName, lastName, preferredLanguage, email, phone, jobTitle } = this.profileForm.value;
+      const { firstName, lastName, preferredLanguage, phone, jobTitle } = this.profileForm.getRawValue();
 
-      // Clean payload
+      //  Sin `email`: el servidor no lo admite en este endpoint (se cambia con su flujo de
+      //  confirmación) y enviarlo hacía que TODA edición de perfil respondiera 400 (QA A-04). El
+      //  teléfono va en E.164, que es lo que exige la API; en blanco se envía `null` para borrarlo.
+      const region = this.locale.tenantContext()?.countryCode ?? 'DO';
+      const trimmedPhone = (phone ?? '').trim();
+      const e164 = trimmedPhone ? toE164(trimmedPhone, region) : null;
+      if (trimmedPhone && !e164) {
+        this.isLoading = false;
+        this.profileForm.get('phone')?.setErrors({ phone: true });
+        this.profileForm.get('phone')?.markAsTouched();
+        this.notificationService.showError('settings.profile.errors.invalid_phone');
+        return;
+      }
       const payload = {
-          firstName: firstName!,
-          lastName: lastName!,
-          preferredLanguage: preferredLanguage!,
-          email: email!,
-          phone: phone!,
-          jobTitle: jobTitle!
+          firstName: (firstName ?? '').trim(),
+          lastName: (lastName ?? '').trim(),
+          preferredLanguage: preferredLanguage || undefined,
+          phone: e164,
+          jobTitle: jobTitle || null,
       };
 
       this.usersService.updateProfile(payload).subscribe({
@@ -236,8 +276,7 @@ export class MyProfilePage implements OnInit {
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error(err);
-          this.notificationService.showError('settings.profile.errors.update_failed');
+          this.notificationService.showHttpError(err, 'settings.profile.errors.update_failed');
           this.isLoading = false;
           this.cdr.markForCheck();
         }
@@ -246,31 +285,40 @@ export class MyProfilePage implements OnInit {
   }
 
   changePassword(): void {
-    if (this.passwordForm.valid) {
-      const { newPassword, confirmPassword } = this.passwordForm.value;
-
-      if (newPassword !== confirmPassword) {
-        this.notificationService.showError('settings.profile.errors.passwords_do_not_match');
-        return;
-      }
-
-      this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, () => {
-        return this.authService.changePassword({
-          currentPassword: '', // Backend uses the token instead if provided
-          newPassword
-        });
-      }).pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.notificationService.showSuccess('settings.profile.password_changed');
-          this.passwordForm.reset();
-        },
-        error: (err) => {
-          console.error(err);
-          this.notificationService.showError('settings.profile.errors.password_change_failed');
-        }
-      });
+    //  El botón ya no se deshabilita en silencio: se dice qué falta (QA M-03).
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      this.notificationService.showError(
+        this.passwordForm.hasError('passwordsMismatch')
+          ? 'settings.profile.errors.passwords_do_not_match'
+          : this.passwordForm.get('newPassword')?.hasError('strongPassword')
+            ? 'settings.profile.errors.password_too_weak'
+            : 'settings.profile.errors.check_fields',
+      );
+      return;
     }
+    const { currentPassword, newPassword } = this.passwordForm.getRawValue();
+
+    this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, () =>
+      this.authService.changePassword({ currentPassword: currentPassword ?? '', newPassword: newPassword ?? '' }),
+    ).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: () => {
+        this.notificationService.showSuccess('settings.profile.password_changed');
+        this.passwordForm.reset();
+      },
+      error: (err) => {
+        //  Contraseña actual incorrecta: se dice exactamente eso, sin cerrar la sesión.
+        const wrongCurrent =
+          err?.status === 400 && err?.error?.code === 'AUTH_INVALID_CREDENTIALS';
+        if (wrongCurrent) {
+          this.passwordForm.get('currentPassword')?.setErrors({ incorrect: true });
+          this.notificationService.showError('settings.profile.errors.current_password_incorrect');
+          return;
+        }
+        this.notificationService.showHttpError(err, 'settings.profile.errors.password_change_failed');
+      }
+    });
   }
 
   /** True while the user is entering a new address, so the form can swap in the input. */
@@ -324,8 +372,7 @@ export class MyProfilePage implements OnInit {
           this.notificationService.showSuccess('settings.profile.email_change_requested');
         },
         error: (err) => {
-          console.error(err);
-          this.notificationService.showError('settings.profile.errors.email_change_failed');
+          this.notificationService.showHttpError(err, 'settings.profile.errors.email_change_failed');
         },
       });
   }

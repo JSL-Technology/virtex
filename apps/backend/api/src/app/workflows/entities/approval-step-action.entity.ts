@@ -1,13 +1,6 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApprovalRequest } from './approval-request.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ApprovalDecision {
   APPROVED = 'APPROVED',
@@ -68,4 +61,8 @@ export class ApprovalStepAction {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_approval_step_actions_organization')
+  organization?: TenantRef;
 }

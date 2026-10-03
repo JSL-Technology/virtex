@@ -1,3 +1,4 @@
+import { PayPayrollRunDto } from './dto/pay-run.dto';
 import {
   Body,
   Controller,
@@ -116,10 +117,10 @@ export class PayrollController {
   @HasPermission(PERMISSIONS.PAYROLL_PAY)
   pay(
     @Param('id', UuidParamPipe) id: string,
-    @Body() body: { bankGlAccountId?: string },
+    @Body() body: PayPayrollRunDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.runs.markPaid(id, user.organizationId, user.id, body?.bankGlAccountId);
+    return this.runs.markPaid(id, user.organizationId, user.id, body ?? {});
   }
 
   @Post('runs/:id/cancel')

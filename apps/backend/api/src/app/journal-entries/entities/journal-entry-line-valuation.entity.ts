@@ -34,7 +34,9 @@ export class JournalEntryLineValuation {
    * Not eager. Every query that reads a valuation filters on `ledgerId` and never touches the
    * ledger row; loading it fetched one extra row per valuation per line of every entry read.
    */
-  @ManyToOne(() => Ledger, { onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Ledger, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 

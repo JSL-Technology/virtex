@@ -54,6 +54,11 @@
     "en": "Module",
     "pt": "Módulo"
   },
+  "tabs.mount_failed": {
+    "es": "No se pudo abrir esta ventana.",
+    "en": "This window could not be opened.",
+    "pt": "Não foi possível abrir esta janela."
+  },
   "tabs.narrow_screen_one_window_no_splitting": {
     "es": "Pantalla estrecha: una ventana, sin divisiones.",
     "en": "Narrow screen: one window, no splitting.",

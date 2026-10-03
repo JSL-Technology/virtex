@@ -1,6 +1,6 @@
 import { Injectable, inject, ViewContainerRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, of, switchMap, take, catchError } from 'rxjs';
+import { Observable, Subject, of, switchMap, take, catchError, finalize, shareReplay } from 'rxjs';
 import {
   PasswordConfirmModalComponent,
   StepUpFactor,
@@ -36,6 +36,49 @@ export enum StepUpScope {
   MANAGE_COMPENSATION = 'manage_compensation',
   MOVE_FUNDS = 'move_funds',
   MANAGE_BANK_ACCOUNTS = 'manage_bank_accounts',
+}
+
+/**
+ * Mirrors `SINGLE_USE_SCOPES` on the server: a proof for these is spent by the action it
+ * authorises, so two actions need two proofs and their prompts cannot be shared.
+ */
+export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
+  StepUpScope.DISABLE_2FA,
+  StepUpScope.REGENERATE_BACKUP_CODES,
+  StepUpScope.CHANGE_PASSWORD,
+  StepUpScope.CHANGE_EMAIL,
+  StepUpScope.DELETE_ACCOUNT,
+  StepUpScope.MANAGE_PAYMENT,
+  StepUpScope.IMPERSONATE,
+  StepUpScope.REVOKE_SESSION,
+  StepUpScope.REGISTER_PASSKEY,
+  StepUpScope.ENABLE_2FA,
+  StepUpScope.MANAGE_ROLES,
+  StepUpScope.REVEAL_SESSION_ORIGIN,
+  StepUpScope.MANAGE_SSO,
+  StepUpScope.PUBLISH_EXTENSION,
+  StepUpScope.APPROVE_PAYROLL,
+  StepUpScope.REBUILD_ANALYTICAL_VIEW,
+  StepUpScope.MOVE_FUNDS,
+  StepUpScope.MANAGE_BANK_ACCOUNTS,
+]);
+
+/**
+ * The message for a failed verification.
+ *
+ * A wrong password is now a 400 with `STEP_UP_INVALID_CREDENTIALS` (it used to be a 401, which
+ * the session layer mistook for expiry — QA A-01); 401 is still read for older servers.
+ */
+export function stepUpErrorKey(
+  err: { status?: number; error?: { code?: unknown } },
+  factor: StepUpFactor,
+): string {
+  const invalid = err?.error?.code === 'STEP_UP_INVALID_CREDENTIALS' || err?.status === 401;
+  if (invalid) {
+    return factor === 'otp' ? 'auth.step_up.errors.invalid_code' : 'auth.step_up.errors.invalid_password';
+  }
+  if (err?.status === 429 || err?.status === 403) return 'auth.step_up.errors.too_many_attempts';
+  return 'auth.step_up.errors.verification_failed';
 }
 
 /** The error keys with which the server says "this request needs a proof you do not hold". */
@@ -124,114 +167,127 @@ export class StepUpService {
   ): Observable<T> {
     const resultSubject = new Subject<T>();
 
+    const run = () =>
+      action().subscribe({
+        next: (actionResult) => resultSubject.next(actionResult),
+        error: (err) => resultSubject.error(err),
+        complete: () => resultSubject.complete(),
+      });
+
     this.alreadyVerified(scope)
       .pipe(take(1))
       .subscribe((held) => {
         if (held) {
           // A proof for this scope is already in the browser. Nothing to prompt for.
-          action().subscribe({
-            next: (actionResult) => {
-              resultSubject.next(actionResult);
-              resultSubject.complete();
-            },
-            error: (err) => resultSubject.error(err),
-          });
+          run();
           return;
         }
-        this.promptAndRun(scope, viewContainerRef, action, resultSubject);
+        this.proofFor(scope, viewContainerRef).subscribe((proven) => {
+          if (proven) run();
+          else resultSubject.complete();
+        });
       });
 
     return resultSubject.asObservable();
   }
 
-  private promptAndRun<T>(
-    scope: StepUpScope,
-    viewContainerRef: ViewContainerRef,
-    action: () => Observable<T>,
-    resultSubject: Subject<T>,
-  ): void {
-    this.challenge()
-      .pipe(take(1))
-      .subscribe((challenge) => {
-        const componentRef = viewContainerRef.createComponent(PasswordConfirmModalComponent);
-        const instance = componentRef.instance;
-        instance.factor = challenge.factor;
-        instance.idpName = challenge.idpName ?? null;
+  /**
+   * One prompt per scope at a time.
+   *
+   * A screen that fires two guarded requests in parallel — a dashboard, a detail page with several
+   * panels — used to open two dialogs stacked on top of each other, and the user had to type the
+   * password twice for what they experienced as one action (QA A-02). Requests for the SAME
+   * reusable scope now share the in-flight prompt and all proceed once it succeeds. A single-use
+   * scope cannot be shared (each action spends its own proof), so its prompts are queued one
+   * after another instead of stacked.
+   */
+  private readonly inflight = new Map<StepUpScope, Observable<boolean>>();
 
-        // Federated identity: the credential lives at the provider, so confirming means going
-        // there. The current page is remembered so the server can put the user back on it.
-        instance.federate.pipe(take(1)).subscribe(() => {
-          try {
-            sessionStorage.setItem(RESUME_KEY, scope);
-          } catch {
-            // Private browsing or blocked storage. The redirect still works; only the
-            // "verification complete" message on the way back is lost.
-          }
-          const start = challenge.ssoStartPath ?? '/auth/step-up/sso';
-          const base = `${environment.apiUrl}${start}`;
-          const returnTo = this.currentPath();
-          this.redirect(
-            `${base}?scope=${encodeURIComponent(scope)}&returnTo=${encodeURIComponent(returnTo)}`,
-          );
-        });
+  private proofFor(scope: StepUpScope, host: ViewContainerRef): Observable<boolean> {
+    const existing = this.inflight.get(scope);
+    if (existing && !SINGLE_USE_SCOPES.has(scope)) return existing;
 
-        const handleConfirm = (credential: string) => {
-          instance.isLoading = true;
-          instance.error = null;
+    const prompt$ = (existing ?? of(true)).pipe(
+      take(1),
+      // Queued behind a previous single-use prompt: whatever it resolved to, this action needs its
+      // own proof.
+      switchMap(() => this.prompt(scope, host)),
+      finalize(() => {
+        if (this.inflight.get(scope) === shared$) this.inflight.delete(scope);
+      }),
+    );
+    const shared$ = prompt$.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+    this.inflight.set(scope, shared$);
+    return shared$;
+  }
 
-          const body =
-            challenge.factor === 'otp'
-              ? { scope, otpCode: credential }
-              : { scope, password: credential };
+  /** Show the prompt and obtain the proof. Emits `true` once proven, `false` if cancelled. */
+  private prompt(scope: StepUpScope, viewContainerRef: ViewContainerRef): Observable<boolean> {
+    return new Observable<boolean>((subscriber) => {
+      this.challenge()
+        .pipe(take(1))
+        .subscribe((challenge) => {
+          const componentRef = viewContainerRef.createComponent(PasswordConfirmModalComponent);
+          const instance = componentRef.instance;
+          instance.factor = challenge.factor;
+          instance.idpName = challenge.idpName ?? null;
+          const finish = (proven: boolean) => {
+            componentRef.destroy();
+            subscriber.next(proven);
+            subscriber.complete();
+          };
 
-          this.http
-            .post<{ success: boolean }>(`${this.apiUrl}/step-up`, body, { withCredentials: true })
-            .subscribe({
-              next: () => {
-                instance.isLoading = false;
+          // Federated identity: the credential lives at the provider, so confirming means going
+          // there. The current page is remembered so the server can put the user back on it.
+          instance.federate.pipe(take(1)).subscribe(() => {
+            try {
+              sessionStorage.setItem(RESUME_KEY, scope);
+            } catch {
+              // Private browsing or blocked storage. The redirect still works; only the
+              // "verification complete" message on the way back is lost.
+            }
+            const start = challenge.ssoStartPath ?? '/auth/step-up/sso';
+            const base = `${environment.apiUrl}${start}`;
+            const returnTo = this.currentPath();
+            this.redirect(
+              `${base}?scope=${encodeURIComponent(scope)}&returnTo=${encodeURIComponent(returnTo)}`,
+            );
+          });
+
+          const handleConfirm = (credential: string) => {
+            instance.isLoading = true;
+            instance.error = null;
+
+            const body =
+              challenge.factor === 'otp'
+                ? { scope, otpCode: credential }
+                : { scope, password: credential };
+
+            this.http
+              .post<{ success: boolean }>(`${this.apiUrl}/step-up`, body, { withCredentials: true })
+              .subscribe({
                 // The step-up cookie is set; the browser attaches it to the next request.
-                action().subscribe({
-                  next: (actionResult) => {
-                    resultSubject.next(actionResult);
-                    resultSubject.complete();
-                    componentRef.destroy();
-                  },
-                  error: (err) => {
-                    resultSubject.error(err);
-                    componentRef.destroy();
-                  },
-                });
-              },
-              error: (err) => {
-                instance.isLoading = false;
-                instance.error =
-                  err.status === 401
-                    ? challenge.factor === 'otp'
-                      ? 'auth.step_up.errors.invalid_code'
-                      : 'auth.step_up.errors.invalid_password'
-                    : err.status === 429
-                      ? 'auth.step_up.errors.too_many_attempts'
-                      : err.status === 403
-                        ? 'auth.step_up.errors.too_many_attempts'
-                        : 'auth.step_up.errors.verification_failed';
+                next: () => finish(true),
+                error: (err) => {
+                  instance.isLoading = false;
+                  instance.error = stepUpErrorKey(err, challenge.factor);
 
-                if (err.error?.remainingAttempts !== undefined) {
-                  instance.remainingAttempts = err.error.remainingAttempts;
-                }
+                  if (err.error?.remainingAttempts !== undefined) {
+                    instance.remainingAttempts = err.error.remainingAttempts;
+                  }
 
-                instance.credential.set('');
-                instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
-              },
-            });
-        };
+                  // The dialog stays open: a mistyped password is corrected, not a reason to
+                  // abandon the action.
+                  instance.credential.set('');
+                  instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
+                },
+              });
+          };
 
-        instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
-
-        instance.cancelled.subscribe(() => {
-          resultSubject.complete();
-          componentRef.destroy();
+          instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
+          instance.cancelled.pipe(take(1)).subscribe(() => finish(false));
         });
-      });
+    });
   }
 
   /**

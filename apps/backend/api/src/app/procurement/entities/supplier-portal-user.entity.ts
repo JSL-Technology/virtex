@@ -1,6 +1,7 @@
 
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * El acceso de una persona de un proveedor al portal de proveedores.
@@ -47,4 +48,8 @@ export class SupplierPortalUser extends BaseEntity {
    */
   @Column({ default: true })
   isActive: boolean;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_supplier_portal_users_organization')
+  organization?: TenantRef;
 }

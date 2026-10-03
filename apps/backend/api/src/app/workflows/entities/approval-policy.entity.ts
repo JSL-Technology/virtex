@@ -1,6 +1,7 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ApprovalPolicyStep } from './approval-policy-step.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum DocumentTypeForApproval {
   VENDOR_BILL = 'VENDOR_BILL',
@@ -15,7 +16,7 @@ export class ApprovalPolicy {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -26,4 +27,8 @@ export class ApprovalPolicy {
 
   @OneToMany(() => ApprovalPolicyStep, (step) => step.policy, { cascade: true })
   steps: ApprovalPolicyStep[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_approval_policies_organization')
+  organization?: TenantRef;
 }

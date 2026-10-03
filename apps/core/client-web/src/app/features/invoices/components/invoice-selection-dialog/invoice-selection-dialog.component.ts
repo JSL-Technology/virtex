@@ -1,4 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X } from 'lucide-angular';
@@ -29,49 +31,72 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
   styleUrls: ['./invoice-selection-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InvoiceSelectionDialogComponent implements OnInit {
-  private invoicesService = inject(InvoicesService);
+export class InvoiceSelectionDialogComponent {
+  private readonly invoicesService = inject(InvoicesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly SearchIcon = Search;
   protected readonly CloseIcon = X;
 
-  invoices = signal<Invoice[]>([]);
-  isLoading = signal(true);
-  searchTerm = signal('');
+  readonly invoices = signal<Invoice[]>([]);
+  readonly isLoading = signal(false);
+  readonly searchTerm = signal('');
+  readonly isOpen = signal(false);
+  private readonly onSelect = signal<((invoice: Invoice) => void) | null>(null);
+  private readonly searches = new Subject<string>();
 
-  // The dialog will be controlled by a parent via a modal service or direct @Output
-  // For simplicity here, we'll assume a pattern where we can close it.
-  isOpen = signal(false);
-  onSelect = signal<((invoice: Invoice) => void) | null>(null);
+  /** Kept for the template, which renders this list; the filtering now happens on the server. */
+  readonly filteredInvoices = computed(() => this.invoices());
 
-  filteredInvoices = computed(() => {
-    const search = this.searchTerm().toLowerCase();
-    if (!search) return this.invoices();
-    return this.invoices().filter(inv =>
-      inv.invoiceNumber.toLowerCase().includes(search) ||
-      inv.customerName.toLowerCase().includes(search)
-    );
-  });
-
-  ngOnInit(): void {
-    this.loadInvoices();
-  }
-
-  loadInvoices(): void {
-    // One page, ordered newest first. The dialog used to hold every invoice of the tenant in
-    // memory just to let the user pick one.
-    this.invoicesService.getInvoices({ limit: 50 }).subscribe({
-      next: (result) => {
+  constructor() {
+    // It fetched on init, so every «Nueva factura» paid for fifty invoices it would almost never
+    // show, and the search only filtered those fifty: an older invoice could not be found at all.
+    // Now the list is fetched when the dialog opens, and each search asks the server, which
+    // searches the whole ledger of invoices, not the page that happened to be loaded.
+    this.searches
+      .pipe(
+        debounceTime(250),
+        map((term) => term.trim()),
+        distinctUntilChanged(),
+        tap(() => this.isLoading.set(true)),
+        switchMap((search) =>
+          this.invoicesService
+            .getInvoices({ limit: 50, search: search || undefined })
+            .pipe(catchError(() => of({ items: [] as Invoice[] }))),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => {
         this.invoices.set(result.items);
         this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+      });
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm.set(term);
+    this.searches.next(term);
   }
 
   open(callback: (invoice: Invoice) => void): void {
-    this.onSelect.set(() => callback);
+    // The callback itself. It stored `() => callback`, so choosing an invoice called a function that
+    // merely RETURNED the callback: «Copiar de» never copied anything (QA A-09).
+    this.onSelect.set(callback);
     this.isOpen.set(true);
+    this.isLoading.set(true);
+    // A fresh query every time it opens: an invoice issued a minute ago must be offered.
+    this.invoicesService
+      .getInvoices({ limit: 50, search: this.searchTerm().trim() || undefined })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.invoices.set(result.items);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.invoices.set([]);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   close(): void {
@@ -80,9 +105,7 @@ export class InvoiceSelectionDialogComponent implements OnInit {
 
   selectInvoice(invoice: Invoice): void {
     const callback = this.onSelect();
-    if (callback) {
-      callback(invoice);
-    }
     this.close();
+    if (callback) callback(invoice);
   }
 }

@@ -113,7 +113,8 @@ export class ChartOfAccountsStateService {
             this.notificationService.showSuccess('core.state.account_deleted_successfully');
             this.refreshAccounts();
         },
-        error: () => this.notificationService.showError('core.state.failed_delete_account')
+        // An account with movements is refused, and the reason says what to do instead (block it).
+        error: (error: unknown) => this.notificationService.showHttpError(error, 'core.state.failed_delete_account')
     });
   }
 

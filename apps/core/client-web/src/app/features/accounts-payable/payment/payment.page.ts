@@ -255,12 +255,9 @@ export class VendorPaymentPage implements OnInit {
           this.notifications.showSuccess('accounts_payable.payment.payment_recorded');
           this.router.navigate(['/accounts-payable']);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: unknown) => {
           this.saving.set(false);
-          const message = error?.error?.message;
-          this.notifications.showError(
-            typeof message === 'string' ? message : 'accounts_payable.payment.payment_could_not_recorded',
-          );
+          this.notifications.showHttpError(error, 'accounts_payable.payment.payment_could_not_recorded');
         },
       });
   }

@@ -6,6 +6,7 @@ import { map, catchError, tap } from 'rxjs/operators';
 import { Plan } from '../models/plan.model';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from './notification';
 
 export interface BillingPaymentMethod {
   brand: string;
@@ -50,6 +51,8 @@ export type PlansLoadState = 'loading' | 'loaded' | 'error';
 
 @Injectable({ providedIn: 'root' })
 export class BillingService {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
@@ -155,7 +158,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Checkout failed', err);
-        const message = err?.error?.message || this.translate.instant('errors.start_payment');
+        const message = this.errorText.httpErrorMessage(err, 'errors.start_payment');
         return throwError(() => new Error(message));
       })
     );
@@ -177,7 +180,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Portal session failed', err);
-        const message = err?.error?.message || this.translate.instant('errors.open_billing_portal');
+        const message = this.errorText.httpErrorMessage(err, 'errors.open_billing_portal');
         return throwError(() => new Error(message));
       })
     );

@@ -1,6 +1,7 @@
 
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ProjectStatus {
   PLANNING = 'PLANNING',
@@ -36,4 +37,8 @@ export class Project extends BaseEntity {
 
   @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
   budget: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_projects_organization')
+  organization?: TenantRef;
 }

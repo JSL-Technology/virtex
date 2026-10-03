@@ -151,6 +151,47 @@ export class MailService {
   }
 
   /**
+   * Send a customer their invoice, with the PDF attached (QA A-09: "Enviar por correo" did
+   * nothing). Written in the customer's document language, which is what the invoice itself is in.
+   */
+  async sendInvoiceEmail(params: {
+    to: string;
+    language: string | null | undefined;
+    invoiceNumber: string;
+    customerName: string;
+    companyName: string;
+    total: string;
+    dueDate: string | null;
+    message?: string | null;
+    pdf: Buffer;
+  }): Promise<void> {
+    const language = matchLanguage(params.language) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
+    await this.enqueue({
+      to: params.to,
+      subjectKey: 'mail.invoice.subject',
+      subjectParams: { number: params.invoiceNumber, company: params.companyName },
+      language,
+      template: 'invoice',
+      context: {
+        ...this.baseContext(),
+        invoiceNumber: params.invoiceNumber,
+        customerName: params.customerName,
+        companyName: params.companyName,
+        total: params.total,
+        dueDate: params.dueDate,
+        message: params.message ?? null,
+      },
+      attachments: [
+        {
+          filename: `${params.invoiceNumber}.pdf`,
+          contentBase64: params.pdf.toString('base64'),
+          contentType: 'application/pdf',
+        },
+      ],
+    });
+  }
+
+  /**
    * Tell somebody who already has an account that they now have access to another organization
    * they themselves created — a returning customer registering a further company.
    *

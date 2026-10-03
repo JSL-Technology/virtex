@@ -65,13 +65,13 @@
       </div>
     }
 
-    @if (problems().length) {
+    @if (problemCount()) {
       <div class="dr__banner dr__banner--problems" role="alert">
         <h2 class="dr__banner-title">
-          {{ 'shell.problems' | translate: { count: problems().length } }}
+          {{ 'shell.problems' | translate: { count: problemCount() } }}
         </h2>
         <ul class="dr__problems">
-          @for (problem of resolvedProblems(); track problem.message) {
+          @for (problem of resolvedProblems(); track (problem.fieldId ?? '') + '|' + problem.message + '|' + $index) {
             <li>
               @if (problem.fieldId) {
                 <button type="button" class="dr__problem-link" (click)="focusProblem(problem.fieldId)">

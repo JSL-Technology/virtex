@@ -14,6 +14,7 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BankAccountType } from '../entities/bank-account.entity';
 import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
+import { IsBic, IsIban } from '../../common/validators/bank-identifiers.validator';
 
 export class CreateBankAccountDto {
   @IsString()
@@ -34,11 +35,13 @@ export class CreateBankAccountDto {
   @IsString()
   @IsOptional()
   @MaxLength(34, { message: 'validation.constraints.max_length|{"max":34}' })
+  @IsIban()
   iban?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(11, { message: 'validation.constraints.max_length|{"max":11}' })
+  @IsBic()
   swiftBic?: string;
 
   @IsEnum(BankAccountType)
@@ -116,11 +119,13 @@ export class UpdateBankAccountDto {
   @IsString()
   @IsOptional()
   @MaxLength(34, { message: 'validation.constraints.max_length|{"max":34}' })
+  @IsIban()
   iban?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(11, { message: 'validation.constraints.max_length|{"max":11}' })
+  @IsBic()
   swiftBic?: string;
 
   @IsEnum(BankAccountType)

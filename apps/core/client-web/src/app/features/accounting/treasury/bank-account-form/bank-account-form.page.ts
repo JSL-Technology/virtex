@@ -9,7 +9,8 @@ import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-account
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Account } from '../../../../core/models/account.model';
-import { bankLedgerAccounts } from '../../../../core/services/account-selection';
+import { moneyLedgerAccounts } from '../../../../core/services/account-selection';
+import { bicValidator, ibanValidator } from '../../../../shared/validators/bank-identifiers.validator';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
@@ -57,11 +58,22 @@ export class BankAccountFormPage implements OnInit {
   readonly bankAccountId = signal<string | null>(null);
   readonly isEditMode = computed(() => this.bankAccountId() !== null);
   readonly saving = signal(false);
-  readonly postableAccounts = signal<Account[]>([]);
+  /** Every account in the chart, for the two pickers that each take their own slice of it. */
+  private readonly allAccounts = signal<Account[]>([]);
+  /** Money accounts: where the bank account's movements are posted. */
+  readonly postableAccounts = computed(() => moneyLedgerAccounts(this.allAccounts()));
   readonly currencyCodes = signal<string[]>([]);
-  /** What the opening balance's counterpart can be: equity, normally opening-balance equity. */
+  /**
+   * What the opening balance's counterpart can be: equity, normally opening-balance equity.
+   *
+   * It filtered the MONEY accounts for equity — a list that can never contain any — so the
+   * picker was always empty and no bank account could be opened with a balance (QA A-06). It reads
+   * the whole chart now.
+   */
   readonly equityAccounts = computed(() =>
-    this.postableAccounts().filter((account) => account.type === 'EQUITY'),
+    this.allAccounts().filter(
+      (account) => account.type === 'EQUITY' && account.isPostable && account.isActive !== false,
+    ),
   );
   /** Whether the form is declaring a balance at all — the extra fields only matter then. */
   readonly declaresOpeningBalance = signal(false);
@@ -71,8 +83,8 @@ export class BankAccountFormPage implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(120)]],
       bankName: ['', [Validators.maxLength(120)]],
       accountNumber: ['', [Validators.maxLength(60)]],
-      iban: ['', [Validators.maxLength(34)]],
-      swiftBic: ['', [Validators.maxLength(11)]],
+      iban: ['', [Validators.maxLength(34), ibanValidator]],
+      swiftBic: ['', [Validators.maxLength(11), bicValidator]],
       accountType: ['CHECKING', [Validators.required]],
       currencyCode: ['', [Validators.required]],
       glAccountId: ['', [Validators.required]],
@@ -91,27 +103,55 @@ export class BankAccountFormPage implements OnInit {
       this.declaresOpeningBalance.set(declares);
       const date = this.form.get('openingDate');
       const counterpart = this.form.get('openingBalanceAccountId');
+      //  `setValidators`/`clearValidators`, not add/remove: the pair was left requiring a value
+      //  after the balance went back to 0, so the form could not be saved (QA A-06).
       for (const control of [date, counterpart]) {
         if (!control) continue;
-        if (declares) control.addValidators(Validators.required);
-        else {
-          control.removeValidators(Validators.required);
+        if (declares) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
           control.setValue('', { emitEvent: false });
+          control.markAsUntouched();
         }
-        control.updateValueAndValidity({ emitEvent: false });
+        control.updateValueAndValidity();
       }
+      if (declares) {
+        const today = new Date().toISOString().slice(0, 10);
+        if (date && !date.value) date.setValue(today);
+        //  Opening-balance equity is THE account for this, which is why the chart carries a role
+        //  for it. Preselected, never retained earnings.
+        const opening = this.allAccounts().find((account) => account.systemRole === 'OPENING_BALANCE_EQUITY');
+        if (counterpart && !counterpart.value && opening) counterpart.setValue(opening.id);
+      }
+      this.form.updateValueAndValidity();
     });
 
     // Money accounts only. `isPostable` alone offered every postable account in the chart, so a
     // bank account could be mapped onto Accounts Receivable — after which every deposit would have
     // debited what customers owe us.
     this.accounts.getAccounts().subscribe({
-      next: (all) => this.postableAccounts.set(bankLedgerAccounts(all)),
-      error: () => this.postableAccounts.set([]),
+      next: (all) => {
+        this.allAccounts.set(all);
+        //  Una cuenta de dinero sola: se preselecciona en vez de hacer elegir lo obvio.
+        const money = this.postableAccounts();
+        const control = this.form.get('glAccountId');
+        if (control && !control.value && money.length === 1 && !this.isEditMode()) control.setValue(money[0].id);
+      },
+      error: () => this.allAccounts.set([]),
     });
     this.currencies.getCurrencies().subscribe({
       next: (all) => this.currencyCodes.set(all.map((currency) => currency.code)),
       error: () => this.currencyCodes.set([]),
+    });
+    //  The books' currency by default (QA A-06): the field started empty and most bank accounts
+    //  are in the currency the company keeps its books in.
+    this.treasury.cashPosition().subscribe({
+      next: (position) => {
+        const control = this.form.get('currencyCode');
+        if (control && !control.value && !this.isEditMode()) control.setValue(position.baseCurrency);
+      },
+      error: () => undefined,
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -175,12 +215,9 @@ export class BankAccountFormPage implements OnInit {
         //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
         void this.router.navigate(['/accounting/treasury']).then(() => this.tab?.close());
       },
-      error: (error: { error?: { message?: string } }) => {
+      error: (error: unknown) => {
         this.saving.set(false);
-        const message = error?.error?.message;
-        this.notifications.showError(
-          typeof message === 'string' ? message : 'treasury.form.bank_account_could_not_saved',
-        );
+        this.notifications.showHttpError(error, 'treasury.form.bank_account_could_not_saved');
       },
     };
 

@@ -29,7 +29,7 @@ export class MailProcessor extends WorkerHost {
   }
 
   async process(job: Job<MailJob>): Promise<void> {
-    const { to, subjectKey, subjectParams, language, template, context } = job.data;
+    const { to, subjectKey, subjectParams, language, template, context, attachments } = job.data;
 
     // Subject and body are translated from the same `language`, at the same moment, so they
     // cannot disagree. They used to: the subject was a Spanish literal written in `MailService`
@@ -43,6 +43,15 @@ export class MailProcessor extends WorkerHost {
         subject,
         template,
         context: { ...context, language },
+        ...(attachments?.length
+          ? {
+              attachments: attachments.map((file) => ({
+                filename: file.filename,
+                content: Buffer.from(file.contentBase64, 'base64'),
+                contentType: file.contentType,
+              })),
+            }
+          : {}),
       });
       this.logger.log(
         { event: 'mail_sent', template, recipientHash: this.recipientHash(to) },

@@ -149,6 +149,11 @@
     "en": "Last Modified",
     "pt": "Última Modificação"
   },
+  "datasheets.list_failed": {
+    "es": "No se pudieron cargar las hojas de datos.",
+    "en": "The datasheets could not be loaded.",
+    "pt": "Não foi possível carregar as planilhas."
+  },
   "datasheets.mode_live": {
     "es": "En vivo",
     "en": "Live",

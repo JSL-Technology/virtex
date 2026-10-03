@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../../core/services/notification';
 
 type CompleteState = 'verifying' | 'success' | 'error';
 
@@ -18,6 +19,8 @@ type CompleteState = 'verifying' | 'success' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CheckoutCompletePage implements OnInit {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -63,7 +66,7 @@ export class CheckoutCompletePage implements OnInit {
         }
         this.state.set('error');
         this.errorMessage.set(
-          err?.error?.message || 'checkout.we_couldn_confirm_your_payment_automatically'
+          this.errorText.httpErrorMessage(err, 'checkout.we_couldn_confirm_your_payment_automatically'),
         );
       },
     });

@@ -13,6 +13,9 @@
   (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="journalForm">
+    @if (loadError(); as message) {
+      <p class="form-error" role="alert">{{ message }}</p>
+    }
     <section class="form-section">
       <div class="form-grid">
         <div class="form-field">
@@ -21,7 +24,14 @@
         </div>
         <div class="form-field">
           <label for="code">{{ 'accounting.journal_form.code' | translate }} *</label>
-          <input type="text" id="code" formControlName="code" />
+          <input type="text" id="code" formControlName="code" maxlength="10" />
+          @if (original()?.isSystem) {
+            <small class="field__note">{{ 'accounting.journal_form.system_code_note' | translate }}</small>
+          } @else if ((original()?.entryCount ?? 0) > 0) {
+            <small class="field__note">
+              {{ 'accounting.journal_form.used_note' | translate: { count: original()!.entryCount } }}
+            </small>
+          }
         </div>
         <div class="form-field">
           <label for="type">{{ 'accounting.journal_form.type' | translate }}</label>

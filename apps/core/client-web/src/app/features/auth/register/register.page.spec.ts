@@ -24,6 +24,7 @@ import { StepConfiguration } from './steps/step-configuration/step-configuration
 import { StepPlan } from './steps/step-plan/step-plan';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { environment } from '../../../../environments/environment';
+import { TRANSLATE_STORE_PROVIDERS, apiError, useCatalogue } from '../../../../testing/api-errors';
 
 // Fake Loader for Translate
 class FakeLoader implements TranslateLoader {
@@ -86,6 +87,7 @@ describe('RegisterPage', () => {
         // We can override them if they are complex, but for now importing them via RegisterPage is fine.
       ],
       providers: [
+        ...TRANSLATE_STORE_PROVIDERS,
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
@@ -247,40 +249,38 @@ describe('RegisterPage', () => {
   });
 
   describe('submit errors', () => {
-    it('shows the server message verbatim, never through translate', () => {
-      // The backend localizes its own validation messages (a rejected RNC/RFC/NIT arrives as a
-      // full sentence). Passing it through `translate` treated it as a missing key: `[[…]]` in dev
-      // and a BLANK box in production (the humaniser keeps only the segment after the last "."),
-      // so the customer was told nothing about why registration failed.
+    it('shows the reason the server gives, in the reader\'s language', () => {
+      // The API sends `messageKey` and `params`, never a sentence and never `message`. Reading
+      // `error.message` meant a rejected RNC/RFC/NIT always produced «unknown error», so the
+      // customer was never told which field to fix.
       const rejection =
         'El RNC / Cédula no es válido para una empresa. Verifica el dígito verificador (ejemplo: 131-12345-7).';
+      useCatalogue({ 'register.tax_id_invalid_for_company': rejection });
       const authService = TestBed.inject(AuthService) as unknown as {
         registerCheckout: jest.Mock;
       };
       authService.registerCheckout = jest
         .fn()
-        .mockReturnValue(throwError(() => ({ error: { message: rejection } })));
+        .mockReturnValue(throwError(() => apiError(400, 'register.tax_id_invalid_for_company')));
 
       component.onSubmit();
 
-      // Verbatim in the server-message signal; the key-based signal is left untouched, so the
-      // template shows the sentence directly instead of feeding it to `translate`.
       expect(component.serverErrorMessage()).toBe(rejection);
       expect(component.errorMessage()).toBeNull();
     });
 
-    it('falls back to a translation key when the server sends no message', () => {
+    it('falls back to its own sentence when the server gives no usable reason', () => {
+      useCatalogue({ 'register.errors.unknown': 'No pudimos completar el registro.' });
       const authService = TestBed.inject(AuthService) as unknown as {
         registerCheckout: jest.Mock;
       };
       authService.registerCheckout = jest
         .fn()
-        .mockReturnValue(throwError(() => ({ status: 500 })));
+        .mockReturnValue(throwError(() => apiError(500, 'errors.internal', {}, 'INTERNAL_ERROR')));
 
       component.onSubmit();
 
-      expect(component.errorMessage()).toBe('register.errors.unknown');
-      expect(component.serverErrorMessage()).toBeNull();
+      expect(component.serverErrorMessage()).toBe('No pudimos completar el registro.');
     });
   });
 });

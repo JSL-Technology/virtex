@@ -3,6 +3,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { PayrollRun } from './payroll-run.entity';
 import { PayslipLine } from './payslip-line.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * One employee's result for one run — the volante de pago.
@@ -36,6 +37,15 @@ export class Payslip extends BaseEntity {
 
   @Column({ name: 'employee_id', type: 'uuid' })
   employeeId: string;
+
+  /**
+   * The employee, as a constraint (QA lifecycle audit). Payroll history is a legal record: employees
+   * are terminated and soft-deleted, never physically removed while a payslip names them. Checked
+   * at commit, so deleting the whole tenant still cascades.
+   */
+  @ManyToOne('Employee', { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
+  @JoinColumn({ name: 'employee_id', foreignKeyConstraintName: 'FK_payslips_employee' })
+  employee?: unknown;
 
   // ── Identity snapshot ────────────────────────────────────────────────────────
 
@@ -122,4 +132,8 @@ export class Payslip extends BaseEntity {
 
   @OneToMany(() => PayslipLine, (l) => l.payslip)
   lines: PayslipLine[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payslips_organization')
+  organization?: TenantRef;
 }

@@ -16,6 +16,8 @@ import {
   IdentityDocumentTypeOption,
 } from '../../../core/api/identity-documents.service';
 
+import { formPayload } from '../../../shared/utils/form-payload.util';
+import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
@@ -122,7 +124,7 @@ export class SupplierForm implements OnInit {
       name: ['', Validators.required],
       contactPerson: [''],
       email: ['', [Validators.email]],
-      phone: [''],
+      phone: ['', [phoneLikeValidator]],
       taxId: [''],
       // Which identifier `taxId` holds. Filled from the catalogue's default for this tenant's
       // country once the list arrives.
@@ -201,7 +203,14 @@ export class SupplierForm implements OnInit {
     //  «Sin clasificar» es la opción vacía del select, y `@IsEnum` rechaza la cadena vacía —
     //  `@IsOptional()` solo perdona null e undefined—. Null es lo que significa «sin clasificar»
     //  en la columna y lo único que el validador deja pasar.
-    const formValue = { ...rest, taxpayerType: taxpayerType || null };
+    //
+    //  `formPayload` quita los campos en blanco al crear (y los manda como `null` al editar). Enviar
+    //  `"email": ""` y `"identityDocumentTypeCode": ""` hacía imposible dar de alta un proveedor
+    //  desde la UI (QA C-04).
+    const formValue = formPayload(
+      { ...rest, taxpayerType: taxpayerType || null },
+      this.isEditMode() ? 'update' : 'create',
+    );
 
     const operation = this.isEditMode()
       ? this.suppliersService.updateSupplier(this.supplierId!, formValue as UpdateSupplierDto)
@@ -215,8 +224,11 @@ export class SupplierForm implements OnInit {
         //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
         void this.router.navigate(['/masters/suppliers']).then(() => this.tab?.close());
       },
-      error: () => {
-        this.notificationService.showError(this.isEditMode() ? 'masters.supplier_form.error_updating_supplier' : 'masters.supplier_form.error_creating_supplier');
+      error: (err) => {
+        this.notificationService.showHttpError(
+          err,
+          this.isEditMode() ? 'masters.supplier_form.error_updating_supplier' : 'masters.supplier_form.error_creating_supplier',
+        );
         this.isLoading.set(false);
       },
     });

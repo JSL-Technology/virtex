@@ -85,8 +85,13 @@ describeWithDb('tenant bookkeeping provisioning', () => {
     expect(english.journals.map((journal) => journal.code).sort()).toEqual([
       'BANCOS',
       'CAJA',
+      // Period close (QA C-06): depreciation, closing and reconciliation post into journals of
+      // their own, so each is provisioned with the tenant instead of failing on first use.
+      'CIERRE',
       'COBROS',
       'COMPRAS',
+      'CONCIL',
+      'DEPREC',
       'GENERAL',
       'NOMINA',
       'PAGOS',

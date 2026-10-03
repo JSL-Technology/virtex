@@ -14,6 +14,11 @@
     "en": "A bill in {bill} cannot be paid from an account in {account}; use an account in {bill} or in the books’ currency.",
     "pt": "Não é possível pagar uma fatura em {bill} a partir de uma conta em {account}; use uma conta em {bill} ou na moeda dos livros."
   },
+  "accounts_payable.bill_exceeds_ordered_quantity": {
+    "es": "Se facturaría {{billed}} de «{{description}}», pero se pidieron {{ordered}}. Revisa la cantidad o amplía la orden.",
+    "en": "{{billed}} of “{{description}}” would be billed, but {{ordered}} were ordered. Check the quantity or amend the order.",
+    "pt": "Seriam faturados {{billed}} de “{{description}}”, mas foram pedidos {{ordered}}. Revise a quantidade ou amplie o pedido."
+  },
   "accounts_payable.bill_id_does_not_exist_organization": {
     "es": "La factura {{id}} no existe en esta organización.",
     "en": "Bill {{id}} does not exist in this organization.",
@@ -23,6 +28,11 @@
     "es": "La factura {{id}} está en estado {{status}} y no admite pagos.",
     "en": "Bill {{id}} is {{status}} and cannot take a payment.",
     "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
+  },
+  "accounts_payable.bill_spans_several_purchase_orders": {
+    "es": "Una factura de proveedor solo puede referirse a una orden de compra.",
+    "en": "A vendor bill can refer to only one purchase order.",
+    "pt": "Uma fatura de fornecedor só pode se referir a um pedido de compra."
   },
   "accounts_payable.bill_with_payments_applied_cannot_voided": {
     "es": "No puede anular una factura con pagos aplicados. Anule primero los pagos.",
@@ -34,15 +44,40 @@
     "en": "Budget control failed: {{message}}",
     "pt": "Controle orçamentário falhou: {{message}}"
   },
+  "accounts_payable.debit_note_already_voided": {
+    "es": "Esta nota de débito ya fue anulada.",
+    "en": "This debit note has already been voided.",
+    "pt": "Esta nota de débito já foi anulada."
+  },
+  "accounts_payable.debit_note_bill_already_voided": {
+    "es": "La factura de esta nota ya está anulada: su anulación ya dejó el saldo en cero, y restituir la nota haría que una factura anulada volviera a deber.",
+    "en": "The bill this note applies to is already void: its annulment already cleared the balance, and restoring the note would make a voided bill owe money again.",
+    "pt": "A fatura desta nota já está anulada: sua anulação já zerou o saldo, e restaurar a nota faria uma fatura anulada voltar a dever."
+  },
   "accounts_payable.debit_note_cannot_larger_than_invoice": {
     "es": "El monto de la nota de débito no puede ser mayor al saldo de la factura.",
     "en": "The debit note cannot be larger than the invoice balance.",
     "pt": "O valor da nota de débito não pode ser maior que o saldo da fatura."
   },
+  "accounts_payable.debit_note_delete_use_void": {
+    "es": "Una nota de débito emitida no se elimina: su asiento está en el mayor. Anúlala para revertirlo.",
+    "en": "An issued debit note cannot be deleted: its entry is in the ledger. Void it to reverse the entry.",
+    "pt": "Uma nota de débito emitida não pode ser excluída: seu lançamento está no razão. Anule-a para estorná-lo."
+  },
   "accounts_payable.debit_note_id_not_found": {
     "es": "Nota de débito con ID \"{{id}}\" no encontrada.",
     "en": "Debit note \"{{id}}\" was not found.",
     "pt": "Nota de débito \"{{id}}\" não encontrada."
+  },
+  "accounts_payable.debit_note_posted_is_immutable": {
+    "es": "Una nota de débito emitida no se modifica: ya está contabilizada y ya redujo el saldo de la factura. Anúlala y emite la correcta.",
+    "en": "An issued debit note cannot be changed: it is already posted and has already reduced the bill balance. Void it and issue the correct one.",
+    "pt": "Uma nota de débito emitida não pode ser alterada: já foi contabilizada e já reduziu o saldo da fatura. Anule-a e emita a correta."
+  },
+  "accounts_payable.debit_note_without_entry_reverse_manually": {
+    "es": "Esta nota se emitió antes de que se registrara su asiento, así que no se puede identificar con certeza cuál revertir. Reviértelo desde el Libro Diario y registra la anulación allí.",
+    "en": "This note was issued before notes recorded their entry, so which entry to reverse cannot be told for certain. Reverse it from the General Journal and record the annulment there.",
+    "pt": "Esta nota foi emitida antes de as notas registrarem seu lançamento, então não é possível saber com certeza qual estornar. Estorne-o pelo Livro Diário e registre a anulação lá."
   },
   "accounts_payable.debit_notes_can_only_applied_open": {
     "es": "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.",
@@ -222,6 +257,11 @@
     "en": "Add Line",
     "pt": "Adicionar Linha"
   },
+  "accounts_payable.form.billing_purchase_order": {
+    "es": "Factura de la orden de compra {{number}}: las cantidades ya recibidas liquidan la mercancía recibida no facturada y no vuelven a entrar al inventario.",
+    "en": "Bill for purchase order {{number}}: quantities already received clear goods received not invoiced and do not enter stock again.",
+    "pt": "Fatura do pedido de compra {{number}}: as quantidades já recebidas liquidam as mercadorias recebidas não faturadas e não entram novamente no estoque."
+  },
   "accounts_payable.form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -276,6 +316,11 @@
     "es": "Retención de renta",
     "en": "Income tax withheld",
     "pt": "Retenção de rendimento"
+  },
+  "accounts_payable.form.inventory_item": {
+    "es": "Artículo de inventario",
+    "en": "Inventory item",
+    "pt": "Item de estoque"
   },
   "accounts_payable.form.invoice_could_not_loaded": {
     "es": "No se pudo cargar la factura.",
@@ -432,6 +477,11 @@
     "es": "Retenciones",
     "en": "Withholdings",
     "pt": "Retenções"
+  },
+  "accounts_payable.grni_account_not_configured": {
+    "es": "Configura la cuenta de mercancía recibida no facturada antes de aprobar facturas de órdenes de compra recibidas.",
+    "en": "Set up the goods-received-not-invoiced account before approving bills for received purchase orders.",
+    "pt": "Configure a conta de mercadorias recebidas não faturadas antes de aprovar faturas de pedidos de compra recebidos."
   },
   "accounts_payable.invoice_has_already_voided": {
     "es": "La factura ya ha sido anulada.",
@@ -746,6 +796,26 @@
     "en": "Goods and services for the work",
     "pt": "Bens e serviços para o trabalho"
   },
+  "accounts_payable.purchase_order_line_not_found": {
+    "es": "Una de las líneas no pertenece a una orden de compra de esta empresa.",
+    "en": "One of the lines does not belong to a purchase order of this company.",
+    "pt": "Uma das linhas não pertence a um pedido de compra desta empresa."
+  },
+  "accounts_payable.purchase_order_line_product_mismatch": {
+    "es": "La línea «{{description}}» de la orden es de otro producto.",
+    "en": "The order line “{{description}}” is for another product.",
+    "pt": "A linha “{{description}}” do pedido é de outro produto."
+  },
+  "accounts_payable.purchase_order_not_found": {
+    "es": "La orden de compra indicada no existe.",
+    "en": "The purchase order does not exist.",
+    "pt": "O pedido de compra indicado não existe."
+  },
+  "accounts_payable.purchase_order_supplier_mismatch": {
+    "es": "La orden {{order}} es de otro proveedor.",
+    "en": "Order {{order}} belongs to another supplier.",
+    "pt": "O pedido {{order}} é de outro fornecedor."
+  },
   "accounts_payable.purchases_journal_compras_not_found": {
     "es": "Diario de Compras (COMPRAS) no encontrado.",
     "en": "The Purchases journal (COMPRAS) was not found.",
@@ -820,10 +890,5 @@
     "es": "La factura del proveedor no fue encontrada.",
     "en": "The vendor bill was not found.",
     "pt": "A fatura do fornecedor não foi encontrada."
-  },
-  "accounts_payable.voiding_debit_notes_not_implemented_yet": {
-    "es": "La funcionalidad de anulación de notas de débito aún no está implementada.",
-    "en": "Voiding debit notes is not implemented yet.",
-    "pt": "O cancelamento de notas de débito ainda não está implementado."
   }
 }

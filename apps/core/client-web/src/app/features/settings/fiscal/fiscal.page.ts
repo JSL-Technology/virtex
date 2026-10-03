@@ -169,7 +169,7 @@ export class FiscalSettingsPage implements OnInit {
         this.loadCertificates();
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'errors.load_certificate');
+        this.notifications.showHttpError(err, 'errors.load_certificate');
         this.uploading.set(false);
       },
     });
@@ -210,7 +210,7 @@ export class FiscalSettingsPage implements OnInit {
           this.loadSequences();
         },
         error: (err) => {
-          this.notifications.showError(err?.error?.message || 'errors.register_range');
+          this.notifications.showHttpError(err, 'errors.register_range');
           this.provisioning.set(false);
         },
       });
@@ -229,7 +229,7 @@ export class FiscalSettingsPage implements OnInit {
         this.downloading.set(false);
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'errors.generate_report');
+        this.notifications.showHttpError(err, 'errors.generate_report');
         this.downloading.set(false);
       },
     });

@@ -6,6 +6,7 @@ import { CustomerGroup } from './entities/customer-group.entity';
 import { CreateCustomerGroupDto } from './dto/create-customer-group.dto';
 import { UpdateCustomerGroupDto } from './dto/update-customer-group.dto';
 import { NotFoundError } from '../i18n/localized.exception';
+import { assertNotInUse } from '../common/database/dependents';
 
 @Injectable()
 export class CustomerGroupsService {
@@ -37,10 +38,13 @@ export class CustomerGroupsService {
     return this.customerGroupRepository.save(updatedGroup);
   }
 
+  /** A group with members is emptied first: deleting it would leave customers filed nowhere. */
   async remove(id: string, organizationId: string): Promise<void> {
-    const result = await this.customerGroupRepository.delete({ id, organizationId });
-    if (result.affected === 0) {
-      throw new NotFoundError('customers.customer_group_id_not_found', { id });
-    }
+    await this.customerGroupRepository.manager.transaction(async (manager) => {
+      const group = await manager.findOne(CustomerGroup, { where: { id, organizationId } });
+      if (!group) throw new NotFoundError('customers.customer_group_id_not_found', { id });
+      await assertNotInUse(manager, 'customer_groups', id, 'customers.customer_group_in_use');
+      await manager.delete(CustomerGroup, { id, organizationId });
+    });
   }
 }

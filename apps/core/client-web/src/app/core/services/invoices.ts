@@ -317,6 +317,16 @@ export class InvoicesService {
     return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
   }
 
+  /** The fiscal representation as HTML, for printing the document rather than the application. */
+  printableHtml(id: string): Observable<string> {
+    return this.http.get(`${this.apiUrl}/${id}/print`, { responseType: 'text' });
+  }
+
+  /** E-mail the document to the customer (or `to`), with its PDF attached. */
+  sendInvoice(id: string, body: { to?: string; message?: string }): Observable<{ queued: boolean; to: string }> {
+    return this.http.post<{ queued: boolean; to: string }>(`${this.apiUrl}/${id}/send`, body);
+  }
+
   /** Readiness, currency, legal rates and issuable document types for this tenant's market. */
   context(): Observable<InvoicingContext> {
     return this.http.get<InvoicingContext>(`${this.apiUrl}/context`);

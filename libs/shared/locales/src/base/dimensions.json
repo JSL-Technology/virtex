@@ -19,6 +19,16 @@
     "en": "Dimension \"{{id}}\" was not found.",
     "pt": "Dimensão \"{{id}}\" não encontrada."
   },
+  "dimensions.dimension_in_use": {
+    "es": "La dimensión «{{name}}» está en {{count}} línea(s) de asientos contabilizados. No se puede renombrar ni eliminar: la historia perdería su clasificación. Crea una dimensión nueva si necesitas otra.",
+    "en": "The dimension “{{name}}” is used on {{count}} posted journal line(s). It cannot be renamed or deleted: the history would lose its classification. Create a new dimension if you need another.",
+    "pt": "A dimensão “{{name}}” está em {{count}} linha(s) de lançamentos contabilizados. Não pode ser renomeada nem excluída: o histórico perderia sua classificação. Crie uma nova dimensão se precisar de outra."
+  },
+  "dimensions.dimension_value_in_use": {
+    "es": "El valor «{{value}}» de «{{name}}» está en {{count}} línea(s) de asientos contabilizados, así que no se puede renombrar ni quitar. Agrega un valor nuevo en su lugar.",
+    "en": "The value “{{value}}” of “{{name}}” is used on {{count}} posted journal line(s), so it cannot be renamed or removed. Add a new value instead.",
+    "pt": "O valor “{{value}}” de “{{name}}” está em {{count}} linha(s) de lançamentos contabilizados, então não pode ser renomeado nem removido. Adicione um novo valor."
+  },
   "dimensions.specified_dimension_rule_not_found": {
     "es": "La regla de dimensión especificada no fue encontrada.",
     "en": "The specified dimension rule was not found.",

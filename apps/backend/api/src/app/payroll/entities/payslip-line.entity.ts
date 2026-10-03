@@ -1,6 +1,7 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /** What a line represents on the payslip and how it moves the totals. */
 export enum PayslipLineKind {
@@ -54,4 +55,8 @@ export class PayslipLine extends BaseEntity {
 
   @Column({ name: 'sort_order', type: 'int', default: 100 })
   sortOrder: number;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_payslip_lines_organization')
+  organization?: TenantRef;
 }

@@ -16,6 +16,7 @@ import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { PurchaseOrder } from '../../procurement/entities/purchase-order.entity';
 
 /**
  * DGII 606 "Tipo de Bienes y Servicios Comprados". A purchase must be classified for the return;
@@ -69,12 +70,22 @@ export class VendorBill {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @ManyToOne(() => Supplier, { eager: true, onDelete: 'CASCADE' })
+  // ON DELETE RESTRICT (QA C-03): a document outlives any change of mind about the master data it
+  // names. See migration ProtectReferencedMasterData.
+  @ManyToOne(() => Supplier, { eager: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'vendor_id' })
   vendor: Supplier;
 
   @Column({ name: 'vendor_id' })
   vendorId: string;
+
+  /** The purchase order this bill was raised against, if any (three-way match, QA C-07). */
+  @Column({ name: 'purchase_order_id', type: 'uuid', nullable: true })
+  purchaseOrderId?: string | null;
+
+  @ManyToOne(() => PurchaseOrder, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
+  @JoinColumn({ name: 'purchase_order_id', foreignKeyConstraintName: 'FK_vendor_bills_purchase_order' })
+  purchaseOrder?: PurchaseOrder | null;
 
   @Column({ nullable: true })
   ncf?: string;

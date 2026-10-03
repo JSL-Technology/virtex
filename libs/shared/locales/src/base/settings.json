@@ -2046,6 +2046,11 @@
     "en": "Confirm Password",
     "pt": "Confirmar senha"
   },
+  "settings.profile.current_password": {
+    "es": "Contraseña actual",
+    "en": "Current password",
+    "pt": "Senha atual"
+  },
   "settings.profile.email": {
     "es": "Correo Electrónico",
     "en": "Email",
@@ -2060,6 +2065,16 @@
     "es": "Error al subir la imagen.",
     "en": "We couldn't upload the image.",
     "pt": "Não foi possível enviar a imagem."
+  },
+  "settings.profile.errors.check_fields": {
+    "es": "Revisa los campos marcados antes de guardar.",
+    "en": "Check the highlighted fields before saving.",
+    "pt": "Verifique os campos destacados antes de salvar."
+  },
+  "settings.profile.errors.current_password_incorrect": {
+    "es": "La contraseña actual no es correcta.",
+    "en": "The current password is not correct.",
+    "pt": "A senha atual não está correta."
   },
   "settings.profile.errors.email_change_failed": {
     "es": "No se pudo iniciar el cambio de correo.",
@@ -2081,10 +2096,10 @@
     "en": "That email address is not valid.",
     "pt": "O formato do e-mail não é válido."
   },
-  "settings.profile.errors.invalid_format": {
-    "es": "Formato de imagen no válido.",
-    "en": "That image format isn't supported.",
-    "pt": "Formato de imagem inválido."
+  "settings.profile.errors.invalid_phone": {
+    "es": "El teléfono no es válido. Escríbelo con el código de país, por ejemplo +1 809 555 1234.",
+    "en": "The phone number is not valid. Include the country code, for example +1 809 555 1234.",
+    "pt": "O telefone não é válido. Inclua o código do país, por exemplo +1 809 555 1234."
   },
   "settings.profile.errors.otp_invalid": {
     "es": "Código incorrecto.",
@@ -2100,6 +2115,11 @@
     "es": "Error al cambiar la contraseña.",
     "en": "We couldn't change your password.",
     "pt": "Não foi possível alterar a senha."
+  },
+  "settings.profile.errors.password_too_weak": {
+    "es": "La nueva contraseña no cumple los requisitos indicados debajo del campo.",
+    "en": "The new password does not meet the requirements shown below the field.",
+    "pt": "A nova senha não atende aos requisitos indicados abaixo do campo."
   },
   "settings.profile.errors.passwords_do_not_match": {
     "es": "Las contraseñas no coinciden.",
@@ -2905,6 +2925,16 @@
     "es": "Correo Electrónico",
     "en": "Email",
     "pt": "E-mail"
+  },
+  "settings.user_management.errors.email_invalid": {
+    "es": "Escribe un correo electrónico válido.",
+    "en": "Enter a valid email address.",
+    "pt": "Digite um e-mail válido."
+  },
+  "settings.user_management.errors.required": {
+    "es": "Este campo es obligatorio.",
+    "en": "This field is required.",
+    "pt": "Este campo é obrigatório."
   },
   "settings.user_management.force_sign_out": {
     "es": "Forzar Cierre de Sesión",

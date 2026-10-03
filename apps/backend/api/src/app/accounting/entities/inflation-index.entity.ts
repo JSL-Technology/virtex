@@ -1,6 +1,7 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'inflation_indices' })
 @Index(['organizationId', 'year', 'month'], { unique: true })
@@ -8,7 +9,7 @@ export class InflationIndex {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column()
@@ -22,4 +23,8 @@ export class InflationIndex {
 
   @Column({ type: 'text', nullable: true })
   source?: string;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_inflation_indices_organization')
+  organization?: TenantRef;
 }

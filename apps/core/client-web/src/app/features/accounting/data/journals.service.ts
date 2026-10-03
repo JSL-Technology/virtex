@@ -9,9 +9,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class JournalsService {
   private http = inject(HttpClient);
-//   private apiUrl = '/api/journals';
-    private apiUrl = `${environment.apiUrl}/journals`;
-  
+  private apiUrl = `${environment.apiUrl}/journals`;
 
   getJournals(): Observable<Journal[]> {
     return this.http.get<Journal[]>(this.apiUrl);
@@ -25,9 +23,12 @@ export class JournalsService {
     return this.http.post<Journal>(this.apiUrl, journal);
   }
 
-  update(id: string, journal: Journal): Observable<Journal> {
-    return this.http.put<Journal>(`${this.apiUrl}/${id}`, journal);
+  update(id: string, journal: Partial<Pick<Journal, 'name' | 'code' | 'type'>>): Observable<Journal> {
+    return this.http.patch<Journal>(`${this.apiUrl}/${id}`, journal);
   }
 
-  
+  /** Only a journal nothing was posted to, and never one the product posts to itself. */
+  remove(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

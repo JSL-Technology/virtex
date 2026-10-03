@@ -59,6 +59,11 @@
     "en": "{{property}} cannot be empty.",
     "pt": "{{property}} não pode ficar vazio."
   },
+  "validation.constraints.bic": {
+    "es": "{{property}} no es un código SWIFT/BIC válido (8 u 11 caracteres).",
+    "en": "{{property}} is not a valid SWIFT/BIC code (8 or 11 characters).",
+    "pt": "{{property}} não é um código SWIFT/BIC válido (8 ou 11 caracteres)."
+  },
   "validation.constraints.country_code": {
     "es": "El código de país debe tener exactamente 2 letras (ISO 3166-1 alfa-2).",
     "en": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
@@ -74,6 +79,11 @@
     "en": "{{message}}",
     "pt": "{{message}}",
     "note": "Passes class-validator's own sentence through when no catalogue key covers the rule. Visible on purpose: a rule with no wording of ours is a gap to close, and a blank field error hides it."
+  },
+  "validation.constraints.iban": {
+    "es": "{{property}} no es un IBAN válido (revisa los dígitos de control).",
+    "en": "{{property}} is not a valid IBAN (check the check digits).",
+    "pt": "{{property}} não é um IBAN válido (verifique os dígitos de controle)."
   },
   "validation.constraints.is_array": {
     "es": "{{property}} debe ser una lista.",
@@ -230,6 +240,11 @@
     "es": "La fecha inicial no puede ser posterior a la fecha final.",
     "en": "The start date cannot be later than the end date.",
     "pt": "A data inicial não pode ser posterior à data final."
+  },
+  "validation.constraints.phone_format": {
+    "es": "{{property}} debe ser un número de teléfono (dígitos, espacios, +, guiones o paréntesis).",
+    "en": "{{property}} must be a phone number (digits, spaces, +, hyphens or parentheses).",
+    "pt": "{{property}} deve ser um número de telefone (dígitos, espaços, +, hífens ou parênteses)."
   },
   "validation.constraints.property_contains_data_not_valid": {
     "es": "{{property}} contiene datos que no son válidos.",
@@ -785,6 +800,11 @@
     "es": "El ID del libro contable (ledgerId) es obligatorio.",
     "en": "The ledger ID (ledgerId) is required.",
     "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+  },
+  "validation.product.tax_rate_is_a_fraction": {
+    "es": "La tasa de impuesto se indica como fracción: 0.18 para un 18 %.",
+    "en": "The tax rate is given as a fraction: 0.18 for 18 %.",
+    "pt": "A taxa de imposto é informada como fração: 0,18 para 18 %."
   },
   "validation.product_category.name_required": {
     "es": "El nombre de la categoría es obligatorio.",

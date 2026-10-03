@@ -16,6 +16,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Account, HierarchyType } from '../models/account.model';
 
+import { environment } from '../../../environments/environment';
 // --- INTERFACES PARA RESPUESTAS DE API ESPECÍFICAS ---
 
 /**
@@ -49,7 +50,7 @@ export class ChartOfAccountsService {
   // --- INYECCIÓN DE DEPENDENCIAS Y CONFIGURACIÓN ---
   private readonly http = inject(HttpClient);
   // La URL base de la API. Ajústala si tu backend está en un dominio o puerto diferente.
-  private readonly apiUrl = '/api/chart-of-accounts';
+  private readonly apiUrl = `${environment.apiUrl}/chart-of-accounts`;
 
   // --- MÉTODOS DE LECTURA (GET) ---
 

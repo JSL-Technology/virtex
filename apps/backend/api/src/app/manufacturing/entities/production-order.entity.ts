@@ -2,6 +2,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { BillOfMaterial } from './bill-of-material.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export enum ProductionStatus {
   PLANNED = 'PLANNED',
@@ -24,7 +25,7 @@ export class ProductionOrder extends BaseEntity {
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 
-  @ManyToOne(() => BillOfMaterial)
+  @ManyToOne(() => BillOfMaterial, { onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({ name: 'bill_of_material_id' })
   billOfMaterial: BillOfMaterial;
 
@@ -49,4 +50,8 @@ export class ProductionOrder extends BaseEntity {
 
   @Column({ name: 'end_date', type: 'timestamptz', nullable: true })
   endDate: Date;
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_production_orders_organization')
+  organization?: TenantRef;
 }

@@ -129,12 +129,21 @@
 .vx-select__panel {
   @include ds.surface-overlay;
 
+  //  Fills the pane, whose width the component sets from the field (QA A-14). The pane is a flex
+  //  container (CDK), so a panel left to size itself shrank to its content — and its only content
+  //  is a virtual-scroll viewport, whose rows are absolutely positioned and give it no width. The
+  //  list opened two pixels wide: on screen, a line under the field that no mouse could hit, which
+  //  read as "the dropdown opens behind the modal". Only the keyboard could choose.
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
 }
 
 .vx-select__list {
   display: flex;
   flex-direction: column;
+  width: 100%;
   min-width: 0;
 }
 

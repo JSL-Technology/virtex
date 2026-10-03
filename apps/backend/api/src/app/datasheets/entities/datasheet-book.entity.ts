@@ -47,7 +47,7 @@ export class DatasheetBook {
   @Column()
   ownerId: string;
 
-  @ManyToOne(() => Organization)
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 

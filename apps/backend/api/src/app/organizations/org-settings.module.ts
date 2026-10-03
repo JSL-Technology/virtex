@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrganizationSettings } from './entities/organization-settings.entity';
 import { OrgSettingsService } from './services/org-settings.service';
 import { MfaPolicyPort } from '../auth/ports/mfa-policy.port';
+import { TenantCurrencyPort } from '../i18n/ports/tenant-currency.port';
+import { TenantCurrencyService } from './services/tenant-currency.service';
 
 /**
  * `MfaPolicyPort` is bound here, to the service that owns the settings row.
@@ -17,7 +19,9 @@ import { MfaPolicyPort } from '../auth/ports/mfa-policy.port';
   providers: [
     OrgSettingsService,
     { provide: MfaPolicyPort, useExisting: OrgSettingsService },
+    // The session's locale context asks for the tenant's books currency through this (QA A-12).
+    { provide: TenantCurrencyPort, useClass: TenantCurrencyService },
   ],
-  exports: [OrgSettingsService, MfaPolicyPort],
+  exports: [OrgSettingsService, MfaPolicyPort, TenantCurrencyPort],
 })
 export class OrgSettingsModule {}

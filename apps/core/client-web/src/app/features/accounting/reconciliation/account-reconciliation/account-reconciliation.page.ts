@@ -26,6 +26,7 @@ import {
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { NotificationService } from '../../../../core/services/notification';
 
 /**
  * The bank reconciliation workbench.
@@ -61,6 +62,8 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountReconciliationPage {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private readonly treasury = inject(TreasuryService);
   private readonly api = inject(ReconciliationApiService);
 
@@ -364,8 +367,7 @@ export class AccountReconciliationPage {
    * so swallowing them into a generic failure would hide the reason the operation was refused.
    */
   private reportFailure(error: unknown): void {
-    const message = (error as { error?: { message?: string } })?.error?.message;
-    this.errorMessage.set(typeof message === 'string' ? message : null);
+    this.errorMessage.set(this.errorText.httpErrorMessage(error, 'errors.unexpected'));
     this.working.set(false);
   }
 }

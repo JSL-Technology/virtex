@@ -169,9 +169,7 @@ export class TaxJurisdictionsPage implements OnInit {
         },
         error: (error) => {
           this.saving.set(false);
-          this.notifications.showError(
-            error?.error?.message ?? 'settings.pages.tax_jurisdictions.save_failed',
-          );
+          this.notifications.showHttpError(error, 'settings.pages.tax_jurisdictions.save_failed');
         },
       });
   }

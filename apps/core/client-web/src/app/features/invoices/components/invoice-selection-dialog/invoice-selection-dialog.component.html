@@ -18,7 +18,7 @@
         [attr.aria-label]="'invoices.invoice_selection_dialog.search_number_customer' | translate"
         [placeholder]="'invoices.invoice_selection_dialog.search_number_customer' | translate"
         [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
+        (ngModelChange)="onSearch($event)"
       />
     </div>
 

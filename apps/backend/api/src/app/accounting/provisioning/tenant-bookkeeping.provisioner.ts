@@ -74,6 +74,14 @@ export class TenantBookkeepingProvisioner {
     { code: 'CAJA', nameKey: 'ledger.provisioning.journals.cash', type: 'CASH' },
     { code: 'NOMINA', nameKey: 'ledger.provisioning.journals.payroll', type: 'GENERAL' },
     { code: 'GENERAL', nameKey: 'ledger.provisioning.journals.general', type: 'GENERAL' },
+    // The same gap BANCOS had, three more times (QA C-06). `DepreciationService` looks up DEPREC
+    // on every period close, `ResultTransferService`/`AdjustmentsService` look up CIERRE for the
+    // year-end result transfer, and `ReconciliationService` looks up CONCIL when a rule posts an
+    // adjustment. None was provisioned, so no period of a freshly created company could be closed:
+    // the close answered 500 and the screen said nothing.
+    { code: 'DEPREC', nameKey: 'ledger.provisioning.journals.depreciation', type: 'GENERAL' },
+    { code: 'CIERRE', nameKey: 'ledger.provisioning.journals.closing', type: 'GENERAL' },
+    { code: 'CONCIL', nameKey: 'ledger.provisioning.journals.reconciliation', type: 'BANK' },
   ]);
 
   /** Prefixes for the internal document numbering. Fiscal numbering (NCF) is separate. */
@@ -161,6 +169,8 @@ export class TenantBookkeepingProvisioner {
     settings.defaultAfpPayableAccountId ??= byRole.get(AccountRole.AFP_PAYABLE) ?? null;
     settings.defaultSfsPayableAccountId ??= byRole.get(AccountRole.SFS_PAYABLE) ?? null;
     settings.defaultCustomerAdvancesAccountId ??= byRole.get(AccountRole.CUSTOMER_ADVANCES) ?? null;
+    settings.defaultGoodsReceivedNotInvoicedAccountId ??=
+      byRole.get(AccountRole.GOODS_RECEIVED_NOT_INVOICED) ?? null;
     settings.defaultOpeningBalanceEquityAccountId ??=
       byRole.get(AccountRole.OPENING_BALANCE_EQUITY) ?? null;
     settings.defaultInventoryAdjustmentAccountId ??=

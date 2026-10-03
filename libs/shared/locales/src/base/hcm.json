@@ -4,6 +4,11 @@
     "en": "A compensation with that effective date already exists for this employee.",
     "pt": "Já existe uma remuneração com essa data de vigência para este funcionário."
   },
+  "hcm.department_delete_blocked": {
+    "es": "No se puede eliminar el departamento porque tiene personas asignadas ({{summary}}). Reasígnalas a otro departamento primero.",
+    "en": "The department cannot be deleted because people are assigned to it ({{summary}}). Reassign them to another department first.",
+    "pt": "O departamento não pode ser excluído porque há pessoas atribuídas a ele ({{summary}}). Reatribua-as a outro departamento primeiro."
+  },
   "hcm.department_not_found": {
     "es": "No se encontró el departamento \"{{id}}\".",
     "en": "Department \"{{id}}\" was not found.",
@@ -43,6 +48,11 @@
     "es": "Ya existe un empleado con esa cédula o correo en esta organización.",
     "en": "An employee with that national id or email already exists in this organization.",
     "pt": "Já existe um funcionário com esse documento ou e-mail nesta organização."
+  },
+  "hcm.employee_with_payroll_terminate_first": {
+    "es": "Este empleado tiene nómina registrada. Regístrale primero la salida (estado «Terminado» con fecha de término) para que conste en los reportes a la seguridad social; después podrás archivarlo.",
+    "en": "This employee has payroll history. Record their termination first (status “Terminated” with a termination date) so it reaches the social-security filings; then you can archive them.",
+    "pt": "Este funcionário tem folha de pagamento registrada. Registre primeiro o desligamento (status “Desligado” com data) para que conste nos relatórios à previdência; depois poderá arquivá-lo."
   },
   "hcm.employees.department": {
     "es": "Departamento",

@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../shared/services/toast.service';
 import { ToastAction } from '../../shared/interfaces/toast.interface';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandlerService } from './error-handler.service';
 
 /**
  * A call-to-action a caller attaches to a toast, named the way the rest of this service is: the
@@ -50,6 +52,7 @@ export interface NotificationAction {
 export class NotificationService {
   private readonly toastService = inject(ToastService);
   private readonly translate = inject(TranslateService);
+  private readonly errors = inject(ErrorHandlerService);
 
   showSuccess(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
     this.toastService.success(this.resolve(messageKey, params), undefined, this.toAction(action));
@@ -57,6 +60,45 @@ export class NotificationService {
 
   showError(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
     this.toastService.error(this.resolve(messageKey, params), undefined, this.toAction(action));
+  }
+
+  /**
+   * Show a failed request, saying WHY it failed whenever the server said so.
+   *
+   * The pattern across the product was `error: () => showError('x.could_not_create')`: the server
+   * answered a precise, translated reason — duplicate SKU, overlapping NCF range, a name over 255
+   * characters, a period that cannot be closed yet — and the screen threw it away for a sentence
+   * that could only be read as "something went wrong" (QA A-15, A-17). Some call sites showed
+   * nothing at all.
+   *
+   * The specific reason wins; `fallbackKey` is used only when the server gave nothing more precise
+   * than the status class (a network drop, a 5xx), where the caller's own sentence at least names
+   * the operation. A field-level validation message is appended, since "Revisa los datos" with no
+   * field is the other half of the same problem.
+   *
+   * Accepts a raw `HttpErrorResponse` or an `AppError` already described by `ErrorHandlerService`.
+   */
+  showHttpError(error: unknown, fallbackKey: string, params?: Record<string, unknown>): void {
+    this.toastService.error(this.httpErrorMessage(error, fallbackKey, params));
+  }
+
+  /** The sentence {@link showHttpError} would show, for a caller that renders it inline. */
+  httpErrorMessage(error: unknown, fallbackKey: string, params?: Record<string, unknown>): string {
+    const fallback = this.resolve(fallbackKey, params);
+    const described =
+      error instanceof HttpErrorResponse
+        ? this.errors.describe(error)
+        : isAppErrorLike(error)
+          ? error
+          : null;
+    if (!described) return fallback;
+
+    const generic = GENERIC_ERROR_KEYS.test(described.messageKey ?? '');
+    const fieldMessages = Object.values(described.fieldErrors ?? {}).flat().filter(Boolean);
+    if (fieldMessages.length) {
+      return generic ? fieldMessages.join(' ') : `${described.message} ${fieldMessages.join(' ')}`;
+    }
+    return generic || !described.message ? fallback : described.message;
   }
 
   showInfo(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
@@ -92,6 +134,25 @@ export class NotificationService {
     const translated = this.translate.instant(message, params);
     return translated === message ? message : translated;
   }
+}
+
+/** Keys that say only "it failed", with nothing a reader can act on. */
+const GENERIC_ERROR_KEYS =
+  /^errors\.(http_\d{3}|unexpected|internal|validation_failed|request_not_valid_check_data_try)$/;
+
+interface AppErrorLike {
+  message: string;
+  messageKey: string;
+  fieldErrors?: Record<string, string[]>;
+}
+
+function isAppErrorLike(value: unknown): value is AppErrorLike {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof (value as AppErrorLike).message === 'string' &&
+    typeof (value as AppErrorLike).messageKey === 'string'
+  );
 }
 
 /**

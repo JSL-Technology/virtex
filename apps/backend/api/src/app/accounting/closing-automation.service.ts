@@ -4,6 +4,8 @@ import { DepreciationPort } from '../fixed-assets/depreciation.port';
 import { CurrencyRevaluationService } from './services/currency-revaluation.service';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import { toIsoDate, type IsoDate } from '../common/dates';
+import { isLocalizedError } from '../i18n/localized.exception';
+import { UnprocessableEntityError } from '../i18n/localized.exception';
 
 /** What a pre-closing task did, so the close can report it instead of only logging it. */
 export interface PreClosingOutcome {
@@ -74,7 +76,13 @@ export class ClosingAutomationService {
         `Depreciación fallida en el cierre de ${period.name}: ${(error as Error).message}`,
         (error as Error).stack,
       );
-      throw new Error(`Fallo en la depreciación de activos fijos: ${(error as Error).message}`);
+      // A failure the reader can act on (a missing journal or account) travels as itself, so the
+      // close says WHAT is missing. Anything else is reported as a failed pre-closing task, still
+      // a 4xx with a sentence, never a bare 500 that the screen could only swallow (QA C-06).
+      if (isLocalizedError(error)) throw error;
+      throw new UnprocessableEntityError('accounting.period_close.depreciation_failed', {
+        period: period.name,
+      });
     }
 
     try {
@@ -85,7 +93,10 @@ export class ClosingAutomationService {
         `Revaluación de moneda fallida en el cierre de ${period.name}: ${(error as Error).message}`,
         (error as Error).stack,
       );
-      throw new Error(`Fallo en la revaluación de moneda: ${(error as Error).message}`);
+      if (isLocalizedError(error)) throw error;
+      throw new UnprocessableEntityError('accounting.period_close.revaluation_failed', {
+        period: period.name,
+      });
     }
 
     this.logger.log(`Pre-cierre de ${period.name} completado.`);

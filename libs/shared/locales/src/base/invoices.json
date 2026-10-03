@@ -19,6 +19,11 @@
     "en": "A credit note must reference the invoice it modifies.",
     "pt": "Uma nota de crédito deve referenciar a fatura que modifica."
   },
+  "invoices.customer_has_no_email": {
+    "es": "El cliente no tiene correo registrado. Escribe la dirección a la que enviarlo.",
+    "en": "The customer has no e-mail on file. Enter the address to send it to.",
+    "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
+  },
   "invoices.detail.bill": {
     "es": "FACTURADO A:",
     "en": "BILL TO:",
@@ -39,20 +44,75 @@
     "en": "Content",
     "pt": "Conteúdo"
   },
-  "invoices.detail.copy_from_open_choose_source_document": {
-    "es": "Función «Copiar de» abierta. Selecciona un documento base.",
-    "en": "\"Copy from\" is open. Choose a source document.",
-    "pt": "\"Copiar de\" aberto. Escolha um documento de origem."
-  },
   "invoices.detail.copying_current_document_into_new_draft": {
     "es": "Copiando documento actual a nuevo borrador...",
     "en": "Copying the current document into a new draft...",
     "pt": "Copiando o documento atual para um novo rascunho..."
   },
+  "invoices.detail.corrections": {
+    "es": "Correcciones",
+    "en": "Corrections",
+    "pt": "Correções"
+  },
+  "invoices.detail.corrections_hint": {
+    "es": "Un comprobante emitido no se edita ni se borra: se corrige con una nota de crédito o se anula.",
+    "en": "An issued document is never edited or deleted: it is corrected with a credit note or annulled.",
+    "pt": "Um documento emitido não é editado nem excluído: é corrigido com uma nota de crédito ou anulado."
+  },
+  "invoices.detail.credit_available": {
+    "es": "Por acreditar",
+    "en": "Available to credit",
+    "pt": "Disponível para crédito"
+  },
   "invoices.detail.credit_note": {
     "es": "Nota de crédito",
     "en": "Credit note",
     "pt": "Nota de crédito"
+  },
+  "invoices.detail.credit_note_exceeds": {
+    "es": "La cantidad de «{{description}}» supera lo que queda por acreditar.",
+    "en": "The quantity for “{{description}}” exceeds what remains to credit.",
+    "pt": "A quantidade de “{{description}}” excede o que resta a creditar."
+  },
+  "invoices.detail.credit_note_issue": {
+    "es": "Emitir nota de crédito",
+    "en": "Issue credit note",
+    "pt": "Emitir nota de crédito"
+  },
+  "invoices.detail.credit_note_issued": {
+    "es": "Nota de crédito {{number}} emitida.",
+    "en": "Credit note {{number}} issued.",
+    "pt": "Nota de crédito {{number}} emitida."
+  },
+  "invoices.detail.credit_note_message": {
+    "es": "Indica cuánto se acredita de cada línea y el motivo, que se imprime en el comprobante.",
+    "en": "Enter how much of each line is credited and the reason, which is printed on the document.",
+    "pt": "Informe quanto de cada linha será creditado e o motivo, que é impresso no documento."
+  },
+  "invoices.detail.credit_note_no_lines": {
+    "es": "Indica al menos una línea con cantidad a acreditar.",
+    "en": "Enter at least one line with a quantity to credit.",
+    "pt": "Informe pelo menos uma linha com quantidade a creditar."
+  },
+  "invoices.detail.credit_note_reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "invoices.detail.credit_note_reason_too_short": {
+    "es": "Describe el motivo en al menos 5 caracteres.",
+    "en": "Describe the reason in at least 5 characters.",
+    "pt": "Descreva o motivo em pelo menos 5 caracteres."
+  },
+  "invoices.detail.credit_note_title": {
+    "es": "Emitir nota de crédito",
+    "en": "Issue a credit note",
+    "pt": "Emitir nota de crédito"
+  },
+  "invoices.detail.credit_now": {
+    "es": "Acreditar ahora",
+    "en": "Credit now",
+    "pt": "Creditar agora"
   },
   "invoices.detail.currency": {
     "es": "Moneda",
@@ -89,6 +149,11 @@
     "en": "This document is a draft.",
     "pt": "Este documento é um rascunho."
   },
+  "invoices.detail.document_issued": {
+    "es": "Documento emitido con el comprobante {{number}}.",
+    "en": "Document issued with number {{number}}.",
+    "pt": "Documento emitido com o número {{number}}."
+  },
   "invoices.detail.download_signed_xml": {
     "es": "Descargar XML firmado",
     "en": "Download the signed XML",
@@ -109,10 +174,40 @@
     "en": "Electronic Fiscal Document (e-CF)",
     "pt": "Comprovante Fiscal Eletrônico (e-CF)"
   },
-  "invoices.detail.export_upper_case_will_available_soon": {
-    "es": "Exportación a {{toUpperCase}} estará disponible próximamente.",
-    "en": "Export to {{toUpperCase}} will be available soon.",
-    "pt": "A exportação para {{toUpperCase}} estará disponível em breve."
+  "invoices.detail.email_failed": {
+    "es": "No se pudo enviar la factura.",
+    "en": "The invoice could not be sent.",
+    "pt": "Não foi possível enviar a fatura."
+  },
+  "invoices.detail.email_invalid": {
+    "es": "La dirección de correo no es válida.",
+    "en": "The e-mail address is not valid.",
+    "pt": "O endereço de e-mail não é válido."
+  },
+  "invoices.detail.email_message": {
+    "es": "Se enviará {{number}} a {{customer}} con el PDF adjunto. Deja la dirección en blanco para usar la del cliente.",
+    "en": "{{number}} will be sent to {{customer}} with the PDF attached. Leave the address blank to use the customer’s.",
+    "pt": "{{number}} será enviado a {{customer}} com o PDF anexado. Deixe o endereço em branco para usar o do cliente."
+  },
+  "invoices.detail.email_placeholder": {
+    "es": "correo@cliente.com (opcional)",
+    "en": "billing@customer.com (optional)",
+    "pt": "email@cliente.com (opcional)"
+  },
+  "invoices.detail.email_queued": {
+    "es": "Factura enviada a {{to}}.",
+    "en": "Invoice sent to {{to}}.",
+    "pt": "Fatura enviada para {{to}}."
+  },
+  "invoices.detail.email_send": {
+    "es": "Enviar",
+    "en": "Send",
+    "pt": "Enviar"
+  },
+  "invoices.detail.email_title": {
+    "es": "Enviar por correo",
+    "en": "Send by e-mail",
+    "pt": "Enviar por e-mail"
   },
   "invoices.detail.finance": {
     "es": "Finanzas",
@@ -131,6 +226,16 @@
     "es": "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.",
     "en": "It has no fiscal document number and carries no weight with the tax authority.",
     "pt": "Não tem comprovante fiscal atribuído e não tem valor perante a autoridade tributária."
+  },
+  "invoices.detail.help_body": {
+    "es": "Un borrador se emite con «Emitir», que asigna el comprobante fiscal, contabiliza y descuenta existencias. Un documento emitido se corrige con una nota de crédito o se anula. Los botones de la barra navegan entre facturas, imprimen, envían por correo y exportan a PDF, Excel o Word.",
+    "en": "A draft is issued with “Issue”, which assigns the fiscal number, posts the entry and moves stock. An issued document is corrected with a credit note or voided. The toolbar navigates between invoices, prints, e-mails and exports to PDF, Excel or Word.",
+    "pt": "Um rascunho é emitido com “Emitir”, que atribui o número fiscal, contabiliza e baixa o estoque. Um documento emitido é corrigido com nota de crédito ou anulado. A barra navega entre faturas, imprime, envia por e-mail e exporta para PDF, Excel ou Word."
+  },
+  "invoices.detail.help_title": {
+    "es": "Ayuda: factura de venta",
+    "en": "Help: sales invoice",
+    "pt": "Ajuda: fatura de venda"
   },
   "invoices.detail.invoice_could_not_loaded": {
     "es": "No se pudo cargar la factura.",
@@ -207,10 +312,20 @@
     "en": "Payment terms:",
     "pt": "Condição de pagamento:"
   },
+  "invoices.detail.popup_blocked_pdf": {
+    "es": "El navegador bloqueó la ventana de impresión; se descarga el PDF, que es el mismo documento.",
+    "en": "The browser blocked the print window; the PDF, which is the same document, is downloaded instead.",
+    "pt": "O navegador bloqueou a janela de impressão; o PDF, que é o mesmo documento, será baixado."
+  },
   "invoices.detail.price": {
     "es": "Precio",
     "en": "Price",
     "pt": "Preço"
+  },
+  "invoices.detail.print_failed": {
+    "es": "No se pudo preparar la impresión.",
+    "en": "The document could not be prepared for printing.",
+    "pt": "Não foi possível preparar a impressão."
   },
   "invoices.detail.qty": {
     "es": "Cant.",
@@ -241,11 +356,6 @@
     "es": "Código de seguridad:",
     "en": "Security code:",
     "pt": "Código de segurança:"
-  },
-  "invoices.detail.sending_email": {
-    "es": "Enviando el correo…",
-    "en": "Sending the email…",
-    "pt": "Enviando o e-mail…"
   },
   "invoices.detail.shipping_address": {
     "es": "Dirección de Envío:",
@@ -285,6 +395,11 @@
     "en": "Taxes:",
     "pt": "Impostos:"
   },
+  "invoices.detail.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
   "invoices.detail.total_label": {
     "literal": "Total"
   },
@@ -292,6 +407,21 @@
     "en": "Tracking ID:",
     "es": "Id. de seguimiento:",
     "pt": "ID de rastreio:"
+  },
+  "invoices.detail.void_invoice": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Anular"
+  },
+  "invoices.detail.void_message": {
+    "es": "Se emitirá una nota de crédito por el total pendiente de {{number}} con el código de anulación. ¿Por qué se anula?",
+    "en": "A credit note for the whole outstanding amount of {{number}} will be issued with the annulment code. Why is it being voided?",
+    "pt": "Será emitida uma nota de crédito pelo total pendente de {{number}} com o código de anulação. Por que está sendo anulado?"
+  },
+  "invoices.detail.void_title": {
+    "es": "Anular el comprobante",
+    "en": "Void the document",
+    "pt": "Anular o documento"
   },
   "invoices.detail.word_document_generated": {
     "es": "Documento Word generado con éxito.",
@@ -322,6 +452,11 @@
     "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
     "en": "Document type {{type}} is not a sales document.",
     "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+  },
+  "invoices.draft_cannot_be_sent": {
+    "es": "Un borrador no tiene número fiscal: emítelo antes de enviarlo al cliente.",
+    "en": "A draft has no fiscal number: issue it before sending it to the customer.",
+    "pt": "Um rascunho não tem número fiscal: emita-o antes de enviá-lo ao cliente."
   },
   "invoices.draft_not_credited_delete_edit_directly": {
     "es": "Un borrador no se acredita: elimínalo o modifícalo directamente.",
@@ -806,6 +941,11 @@
     "es": "Contenido",
     "en": "Content",
     "pt": "Conteúdo"
+  },
+  "invoices.new.copied_from_note": {
+    "es": "Copiada de la factura {{number}}.",
+    "en": "Copied from invoice {{number}}.",
+    "pt": "Copiada da fatura {{number}}."
   },
   "invoices.new.create_sales_invoice": {
     "es": "Crear factura de venta",

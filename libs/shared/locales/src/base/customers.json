@@ -24,6 +24,11 @@
     "en": "Customer group \"{{id}}\" was not found.",
     "pt": "Grupo de clientes \"{{id}}\" não encontrado."
   },
+  "customers.customer_group_in_use": {
+    "es": "No se puede eliminar el grupo porque tiene clientes ({{summary}}). Muévelos a otro grupo primero.",
+    "en": "The group cannot be deleted because it has customers ({{summary}}). Move them to another group first.",
+    "pt": "O grupo não pode ser excluído porque tem clientes ({{summary}}). Mova-os para outro grupo primeiro."
+  },
   "customers.customer_id_not_found": {
     "es": "Cliente con ID \"{{id}}\" no encontrado.",
     "en": "Customer \"{{id}}\" was not found.",
@@ -43,6 +48,11 @@
     "es": "La cuenta por cobrar por defecto no está configurada para la organización.",
     "en": "The default receivable account is not configured for the organization.",
     "pt": "A conta a receber padrão não está configurada para a organização."
+  },
+  "customers.delete_blocked": {
+    "es": "No se puede eliminar el cliente porque tiene documentos asociados ({{summary}}). Los documentos fiscales se conservan: cambia su estado a «Inactivo» para retirarlo de las listas.",
+    "en": "The customer cannot be deleted because it has related documents ({{summary}}). Fiscal documents are kept: set its status to “Inactive” to remove it from lists.",
+    "pt": "O cliente não pode ser excluído porque possui documentos associados ({{summary}}). Os documentos fiscais são mantidos: altere o status para “Inativo” para retirá-lo das listas."
   },
   "customers.drawn_drawn_from_advance_but_unapplied": {
     "es": "Se tomaron {{drawn}} de anticipo pero quedan {{unapplied}} sin aplicar. Aplique el anticipo a facturas o redúzcalo.",

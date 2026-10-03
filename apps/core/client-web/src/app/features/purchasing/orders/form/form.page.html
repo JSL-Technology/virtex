@@ -25,6 +25,11 @@
         @if (current()!.cancellationReason) {
           <span class="doc-status__reason">{{ current()!.cancellationReason }}</span>
         }
+        @if (status() === 'DRAFT' && current()!.rejectionReason) {
+          <span class="doc-status__reason">
+            {{ 'purchasing.orders.form.rejected_reason' | translate: { reason: current()!.rejectionReason } }}
+          </span>
+        }
       </div>
       <!--
         El recorrido completo, no solo dónde está. La insignia dice «Enviada»; esto dice
@@ -52,6 +57,15 @@
             [describeWith]="supplierTaxId"
             [required]="true"
           />
+        </label>
+
+        <label class="field" for="currencyCode">
+          <span>{{ 'purchasing.orders.form.currency' | translate }} *</span>
+          <select id="currencyCode" formControlName="currencyCode">
+            @for (code of currencyOptions(); track code) {
+              <option [value]="code">{{ code }}</option>
+            }
+          </select>
         </label>
 
         <label class="field" for="orderDate">
@@ -149,7 +163,7 @@
         </div>
         <div class="totals__line totals__line--grand">
           <span>{{ 'purchasing.orders.total' | translate }}</span>
-          <span class="amount">{{ total() | vxMoney: (current()?.currencyCode ?? null) }}</span>
+          <span class="amount">{{ total() | vxMoney: currencyCode() }}</span>
         </div>
       </div>
     </section>
@@ -165,6 +179,9 @@
           <button class="primary-button" type="button" [disabled]="saving()" (click)="approve()">
             {{ 'purchasing.orders.form.approve' | translate }}
           </button>
+          <button class="danger-button" type="button" [disabled]="saving()" (click)="startReject()">
+            {{ 'purchasing.orders.form.reject' | translate }}
+          </button>
         }
         @if (canSend()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="send()">
@@ -176,6 +193,11 @@
             {{ 'purchasing.orders.form.receive' | translate }}
           </button>
         }
+        @if (canBill()) {
+          <button class="secondary-button" type="button" [disabled]="saving()" (click)="createBill()">
+            {{ 'purchasing.orders.form.create_bill' | translate }}
+          </button>
+        }
         @if (canCancel()) {
           <button class="danger-button" type="button" [disabled]="saving()" (click)="startCancel()">
             {{ 'purchasing.orders.form.cancel_order' | translate }}
@@ -185,6 +207,8 @@
         @if (receiving()) {
           <div class="action-box">
             <h3 class="action-box__title">{{ 'purchasing.orders.form.receive_title' | translate }}</h3>
+            <!-- Lo que hará la recepción, dicho antes de confirmarla: no es solo un contador. -->
+            <p class="hint">{{ 'purchasing.orders.form.receive_effect' | translate }}</p>
             <!-- Pre-filled with what is still outstanding: "everything arrived" is the common case. -->
             <table class="lines-table">
               <thead>
@@ -213,6 +237,55 @@
                 {{ 'purchasing.orders.form.confirm_receipt' | translate }}
               </button>
               <button class="secondary-button" type="button" (click)="cancelReceive()">
+                {{ 'common.cancel' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (receipts().length) {
+          <div class="action-box">
+            <h3 class="action-box__title">{{ 'purchasing.orders.form.receipts_title' | translate }}</h3>
+            <table class="lines-table">
+              <thead>
+                <tr>
+                  <th>{{ 'purchasing.orders.form.receipt_date' | translate }}</th>
+                  <th>{{ 'purchasing.orders.form.description' | translate }}</th>
+                  <th class="numeric">{{ 'purchasing.orders.form.quantity' | translate }}</th>
+                  <th class="numeric">{{ 'purchasing.orders.form.receipt_unit_cost' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (receipt of receipts(); track receipt.id) {
+                  @for (line of receipt.lines; track line.lineId; let first = $first) {
+                    <tr>
+                      <td>{{ first ? (receipt.receivedAt | vxDate: 'dateTime') : '' }}</td>
+                      <td>{{ line.description }}</td>
+                      <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
+                      <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (rejecting()) {
+          <div class="action-box">
+            <label class="field">
+              <span>{{ 'purchasing.orders.form.reject_reason' | translate }}</span>
+              <textarea rows="2" maxlength="500"
+                [value]="rejectionReason()"
+                (input)="rejectionReason.set($any($event.target).value)"></textarea>
+            </label>
+            <div class="action-box__actions">
+              <button class="danger-button" type="button"
+                [disabled]="rejectionReason().trim().length < 3"
+                (click)="confirmReject()">
+                {{ 'purchasing.orders.form.confirm_reject' | translate }}
+              </button>
+              <button class="secondary-button" type="button" (click)="abortReject()">
                 {{ 'common.cancel' | translate }}
               </button>
             </div>

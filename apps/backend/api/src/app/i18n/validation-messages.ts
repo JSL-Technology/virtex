@@ -200,7 +200,7 @@ export function explanatoryConstraints(error: ValidationError): [string, string]
  * `@ValidateNested()` produces a tree, and a tree reported as "address is invalid" tells the
  * reader nothing about which line of the address is wrong.
  */
-function flatten(errors: readonly ValidationError[], prefix = ''): ValidationError[] {
+export function flatten(errors: readonly ValidationError[], prefix = ''): ValidationError[] {
   const out: ValidationError[] = [];
   for (const error of errors) {
     const path = prefix ? `${prefix}.${error.property}` : error.property;

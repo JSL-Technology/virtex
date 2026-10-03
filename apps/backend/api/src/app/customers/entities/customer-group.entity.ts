@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
 import { Customer } from './customer.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'customer_groups' })
 export class CustomerGroup {
@@ -7,7 +8,7 @@ export class CustomerGroup {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
   @Column({ unique: true })
@@ -18,4 +19,8 @@ export class CustomerGroup {
 
   @OneToMany(() => Customer, (customer) => customer.group)
   customers: Customer[];
+
+  // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
+  @TenantOwned('FK_customer_groups_organization')
+  organization?: TenantRef;
 }

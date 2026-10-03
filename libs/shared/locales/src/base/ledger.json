@@ -209,6 +209,16 @@
     "en": "Surplus found on stock adjustment",
     "pt": "Sobra em ajuste de inventário"
   },
+  "ledger.inventory.goods_receipt_counterpart": {
+    "es": "Mercancía recibida no facturada — {{reference}}",
+    "en": "Goods received not invoiced — {{reference}}",
+    "pt": "Mercadorias recebidas não faturadas — {{reference}}"
+  },
+  "ledger.inventory.goods_receipt_entry": {
+    "es": "Recepción de mercancía {{reference}}",
+    "en": "Goods receipt {{reference}}",
+    "pt": "Recebimento de mercadorias {{reference}}"
+  },
   "ledger.inventory.opening_counterpart": {
     "es": "Contrapartida de saldos iniciales",
     "en": "Opening balance counterpart",
@@ -319,10 +329,20 @@
     "en": "Cash Journal",
     "pt": "Diário de Caixa"
   },
+  "ledger.provisioning.journals.closing": {
+    "es": "Diario de Cierre",
+    "en": "Closing Journal",
+    "pt": "Diário de Encerramento"
+  },
   "ledger.provisioning.journals.collections": {
     "es": "Diario de Cobros",
     "en": "Collections Journal",
     "pt": "Diário de Cobranças"
+  },
+  "ledger.provisioning.journals.depreciation": {
+    "es": "Diario de Depreciación",
+    "en": "Depreciation Journal",
+    "pt": "Diário de Depreciação"
   },
   "ledger.provisioning.journals.general": {
     "es": "Diario General",
@@ -343,6 +363,11 @@
     "es": "Diario de Compras",
     "en": "Purchases Journal",
     "pt": "Diário de Compras"
+  },
+  "ledger.provisioning.journals.reconciliation": {
+    "es": "Diario de Conciliación",
+    "en": "Reconciliation Journal",
+    "pt": "Diário de Conciliação"
   },
   "ledger.provisioning.journals.sales": {
     "es": "Diario de Ventas",

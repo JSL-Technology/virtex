@@ -4,6 +4,11 @@
     "en": "The asset has been disposed of.",
     "pt": "O ativo foi baixado."
   },
+  "fixed_assets.asset_in_books_dispose_instead": {
+    "es": "«{{name}}» ya está en los libros (tiene depreciación contabilizada o fue dado de baja), así que no se elimina: el mayor conserva su costo y su depreciación acumulada. Regístralo como baja o venta para retirarlo.",
+    "en": "“{{name}}” is already in the books (it has posted depreciation or has been retired), so it cannot be deleted: the ledger still holds its cost and accumulated depreciation. Record a disposal or sale to retire it.",
+    "pt": "“{{name}}” já está nos livros (tem depreciação contabilizada ou foi baixado), então não pode ser excluído: o razão mantém seu custo e depreciação acumulada. Registre a baixa ou venda para retirá-lo."
+  },
   "fixed_assets.asset_not_found_has_already_disposed": {
     "es": "Activo no encontrado o ya ha sido dado de baja.",
     "en": "The asset was not found, or has already been disposed of.",

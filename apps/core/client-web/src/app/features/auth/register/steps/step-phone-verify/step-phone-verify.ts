@@ -16,6 +16,7 @@ import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
 import { switchMap } from 'rxjs/operators';
 import { OtpComponent } from '../../../../../shared/components/otp/otp.component';
 import { AuthService } from '../../../../../core/services/auth';
+import { NotificationService } from '../../../../../core/services/notification';
 
 @Component({
   selector: 'app-step-phone-verify',
@@ -25,6 +26,8 @@ import { AuthService } from '../../../../../core/services/auth';
   styleUrls: ['./step-phone-verify.scss'],
 })
 export class StepPhoneVerify implements OnInit {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   @Input({ required: true }) phone!: string;
   @Output() verified = new EventEmitter<string>();
   /**
@@ -120,7 +123,7 @@ export class StepPhoneVerify implements OnInit {
       },
       error: (err) => {
         this.isVerifying.set(false);
-        const msg = err?.error?.message || 'register.errors.code_invalid';
+        const msg = this.errorText.httpErrorMessage(err, 'register.errors.code_invalid');
         this.otpComponent?.handleError(msg);
       },
     });
