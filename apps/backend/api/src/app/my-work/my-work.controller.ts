@@ -20,6 +20,6 @@ export class MyWorkController {
   @Get()
   @ApiOkResponse({ type: MyWorkDto })
   getMyWork(@CurrentUser() user: AuthenticatedUser): Promise<MyWorkDto> {
-    return this.myWorkService.getWorkItems(user.id, user.organizationId);
+    return this.myWorkService.getWorkItems(user);
   }
 }

@@ -1,3 +1,4 @@
+import { WorkflowApprovalSource } from './workflow-approval.source';
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApprovalPolicy } from './entities/approval-policy.entity';
@@ -21,7 +22,7 @@ import { AuditModule } from '../audit/audit.module';
     // multi-step policy creates is only a record if it is written down.
     forwardRef(() => AuditModule),
   ],
-  providers: [WorkflowsService, ApprovalHandlerRegistry],
+  providers: [WorkflowsService, ApprovalHandlerRegistry, WorkflowApprovalSource],
   controllers: [WorkflowsController],
   // The registry is exported so each module that owns an approvable document can register its
   // handler. See `ApprovalHandlerRegistry` for why registration, and not an event.

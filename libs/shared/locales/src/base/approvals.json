@@ -9,6 +9,16 @@
     "en": "Approve",
     "pt": "Aprovar"
   },
+  "approvals.blocked.not_your_step": {
+    "es": "Este paso le corresponde a otro rol.",
+    "en": "This step belongs to another role.",
+    "pt": "Esta etapa pertence a outra função."
+  },
+  "approvals.blocked.own_request": {
+    "es": "Lo solicitaste tú: otra persona debe decidir (segregación de funciones).",
+    "en": "You requested it: someone else must decide (segregation of duties).",
+    "pt": "Você solicitou: outra pessoa deve decidir (segregação de funções)."
+  },
   "approvals.decision_could_not_recorded": {
     "es": "No se pudo registrar la decisión.",
     "en": "The decision could not be recorded.",
@@ -34,6 +44,16 @@
     "en": "Period reopening",
     "pt": "Reabertura de período"
   },
+  "approvals.document_type.purchase_order": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Pedido de compra"
+  },
+  "approvals.document_type.purchase_requisition": {
+    "es": "Solicitud de compra",
+    "en": "Purchase requisition",
+    "pt": "Requisição de compra"
+  },
   "approvals.document_type.vendor_bill": {
     "es": "Facturas de proveedor",
     "en": "Vendor bills",
@@ -43,6 +63,11 @@
     "es": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
     "en": "The approvals could not be loaded. Try again.",
     "pt": "Não foi possível carregar as aprovações. Tente novamente."
+  },
+  "approvals.not_allowed_to_decide": {
+    "es": "No puedes decidir esta solicitud.",
+    "en": "You cannot decide this request.",
+    "pt": "Você não pode decidir esta solicitação."
   },
   "approvals.reason_rejection": {
     "es": "Motivo del rechazo",
@@ -78,6 +103,11 @@
     "es": "Paso {{step}}",
     "en": "Step {{step}}",
     "pt": "Etapa {{step}}"
+  },
+  "approvals.unknown_source": {
+    "es": "Este tipo de aprobación no existe.",
+    "en": "This kind of approval does not exist.",
+    "pt": "Este tipo de aprovação não existe."
   },
   "approvals.waiting_your_decision": {
     "es": "Pendientes de tu decisión",

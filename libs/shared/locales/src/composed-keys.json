@@ -72,7 +72,9 @@
       "PAYMENT_BATCH",
       "JOURNAL_ENTRY",
       "PERIOD_REOPENING",
-      "AUDIT_ADJUSTMENT"
+      "AUDIT_ADJUSTMENT",
+      "PURCHASE_ORDER",
+      "PURCHASE_REQUISITION"
     ],
     "billing.subscription_status": [
       "active",

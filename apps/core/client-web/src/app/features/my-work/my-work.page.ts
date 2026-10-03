@@ -3,6 +3,7 @@ import { LucideAngularModule, Key } from 'lucide-angular';
 import { MyWorkService, WorkItem } from './my-work.service';
 import { AuthService } from '../../core/services/auth';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/components/gestures';
 import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
@@ -22,6 +23,7 @@ export class MyWorkPage implements OnInit {
   private moduleInbox = inject(ModuleInboxService);
   private tenancy = inject(ActiveOrganizationService);
   private translate = inject(TranslateService);
+  private format = inject(FormatService);
 
   protected readonly SecurityIcon = Key;
 
@@ -39,10 +41,10 @@ export class MyWorkPage implements OnInit {
    * aprobaciones van primero porque son lo que bloquea a otra persona.
    */
   readonly sections = computed<InboxSection[]>(() => [
-    { labelKey: 'my_work.approvals', items: this.approvals().map(toInboxItem) },
+    { labelKey: 'my_work.approvals', items: this.approvals().map((item) => this.toInboxItem(item)) },
     ...this.moduleSections(),
-    { labelKey: 'my_work.tasks', items: this.tasks().map(toInboxItem) },
-    { labelKey: 'my_work.notifications', items: this.notifications().map(toInboxItem) },
+    { labelKey: 'my_work.tasks', items: this.tasks().map((item) => this.toInboxItem(item)) },
+    { labelKey: 'my_work.notifications', items: this.notifications().map((item) => this.toInboxItem(item)) },
   ]);
 
   /**
@@ -100,17 +102,19 @@ export class MyWorkPage implements OnInit {
   async registerPasskey() {
     await this.authService.registerPasskey();
   }
-}
 
-/** Un elemento del servidor, en la forma que la bandeja entiende. */
-function toInboxItem(item: WorkItem): InboxItem {
-  return {
-    id: item.id,
-    title: item.title,
-    detail: item.description,
-    when: item.dueDate,
-    //  Vencido: lo que ya bloquea, frente a lo que bloqueará. Se ordena y se lee distinto.
-    overdue: Boolean(item.dueDate) && new Date(item.dueDate) < new Date(),
-    link: item.link,
-  };
+  /** Un elemento del servidor, en la forma que la bandeja entiende. */
+  private toInboxItem(item: WorkItem): InboxItem {
+    const { number, party, amount, currency } = item.titleParams ?? {};
+    return {
+      id: item.id,
+      title: this.translate.instant(item.titleKey),
+      detail: [number, party].filter(Boolean).join(' · '),
+      amount: amount === null || amount === undefined ? undefined : this.format.money(amount, currency),
+      when: item.dueDate ? this.format.date(item.dueDate) : undefined,
+      //  Vencido: lo que ya bloquea, frente a lo que bloqueará. Se ordena y se lee distinto.
+      overdue: Boolean(item.dueDate) && new Date(item.dueDate as string) < new Date(),
+      link: item.route ? this.tenancy.urlFor(item.route) : null,
+    };
+  }
 }

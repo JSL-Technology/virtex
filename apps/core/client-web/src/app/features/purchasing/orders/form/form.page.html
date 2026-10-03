@@ -25,6 +25,11 @@
         @if (current()!.cancellationReason) {
           <span class="doc-status__reason">{{ current()!.cancellationReason }}</span>
         }
+        @if (status() === 'DRAFT' && current()!.rejectionReason) {
+          <span class="doc-status__reason">
+            {{ 'purchasing.orders.form.rejected_reason' | translate: { reason: current()!.rejectionReason } }}
+          </span>
+        }
       </div>
       <!--
         El recorrido completo, no solo dónde está. La insignia dice «Enviada»; esto dice
@@ -165,6 +170,9 @@
           <button class="primary-button" type="button" [disabled]="saving()" (click)="approve()">
             {{ 'purchasing.orders.form.approve' | translate }}
           </button>
+          <button class="danger-button" type="button" [disabled]="saving()" (click)="startReject()">
+            {{ 'purchasing.orders.form.reject' | translate }}
+          </button>
         }
         @if (canSend()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="send()">
@@ -251,6 +259,27 @@
                 }
               </tbody>
             </table>
+          </div>
+        }
+
+        @if (rejecting()) {
+          <div class="action-box">
+            <label class="field">
+              <span>{{ 'purchasing.orders.form.reject_reason' | translate }}</span>
+              <textarea rows="2" maxlength="500"
+                [value]="rejectionReason()"
+                (input)="rejectionReason.set($any($event.target).value)"></textarea>
+            </label>
+            <div class="action-box__actions">
+              <button class="danger-button" type="button"
+                [disabled]="rejectionReason().trim().length < 3"
+                (click)="confirmReject()">
+                {{ 'purchasing.orders.form.confirm_reject' | translate }}
+              </button>
+              <button class="secondary-button" type="button" (click)="abortReject()">
+                {{ 'common.cancel' | translate }}
+              </button>
+            </div>
           </div>
         }
 

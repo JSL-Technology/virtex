@@ -198,7 +198,38 @@ export class PurchaseOrdersService {
   }
 
   submit(id: string, organizationId: string): Promise<PurchaseOrder> {
-    return this.transition(id, organizationId, PurchaseOrderStatus.PENDING_APPROVAL);
+    return this.transition(id, organizationId, PurchaseOrderStatus.PENDING_APPROVAL, (order) => {
+      // A resubmission answers the previous rejection; its reason is history, not the status now.
+      order.rejectionReason = null;
+      order.rejectedByUserId = null;
+      order.rejectedAt = null;
+    });
+  }
+
+  /**
+   * Send an order awaiting approval back to its author, saying why (QA A-11).
+   *
+   * There was no way to refuse an order: only «reopen», which returned it to draft without a word,
+   * so the requester could not tell a rejection from an edit. A rejection now carries its reason and
+   * its author, and the order goes back to draft to be corrected and resubmitted — the same
+   * contract as a rejected requisition.
+   */
+  async reject(id: string, organizationId: string, actorUserId: string, reason: string): Promise<PurchaseOrder> {
+    const trimmed = (reason ?? '').trim();
+    if (!trimmed) throw new BadRequestError('procurement.rejection_reason_required');
+    return this.dataSource.transaction(async (manager) => {
+      const order = await this.findOneWith(manager, id, organizationId);
+      if (order.status !== PurchaseOrderStatus.PENDING_APPROVAL) {
+        throw new BadRequestError('procurement.only_pending_order_can_be_rejected', { status: order.status });
+      }
+      order.status = PurchaseOrderStatus.DRAFT;
+      order.rejectionReason = trimmed;
+      order.rejectedByUserId = actorUserId;
+      order.rejectedAt = new Date();
+      await manager.save(order);
+      this.logger.log(`Orden ${order.number} rechazada.`);
+      return this.findOneWith(manager, id, organizationId);
+    });
   }
 
   /**

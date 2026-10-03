@@ -4,10 +4,20 @@
     "en": "You cannot approve a purchase order you created. Ask another person with approval rights to review it.",
     "pt": "Você não pode aprovar um pedido de compra que você criou. Peça a outra pessoa com permissão de aprovação para revisá-lo."
   },
+  "procurement.cannot_approve_own_requisition": {
+    "es": "No puedes aprobar tu propia solicitud de compra: debe aprobarla otra persona.",
+    "en": "You cannot approve your own purchase requisition: someone else must approve it.",
+    "pt": "Você não pode aprovar sua própria requisição de compra: outra pessoa deve aprová-la."
+  },
   "procurement.only_draft_order_can_deleted_one": {
     "es": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
     "en": "Only a draft order can be deleted; this one is {{status}}.",
     "pt": "Só uma ordem em rascunho pode ser eliminada; esta está em {{status}}."
+  },
+  "procurement.only_pending_order_can_be_rejected": {
+    "es": "Solo se puede rechazar una orden pendiente de aprobación.",
+    "en": "Only an order pending approval can be rejected.",
+    "pt": "Somente um pedido pendente de aprovação pode ser rejeitado."
   },
   "procurement.order_cannot_move_from_from": {
     "es": "Una orden no puede pasar de {{from}} a {{to}}.",
@@ -43,6 +53,11 @@
     "es": "Indica al menos una línea con cantidad recibida mayor que cero.",
     "en": "Enter at least one line with a received quantity greater than zero.",
     "pt": "Informe pelo menos uma linha com quantidade recebida maior que zero."
+  },
+  "procurement.rejection_reason_required": {
+    "es": "Indica el motivo del rechazo.",
+    "en": "Give the reason for the rejection.",
+    "pt": "Informe o motivo da rejeição."
   },
   "procurement.requisition_cannot_move_from_from": {
     "es": "Una requisición no puede pasar de {{from}} a {{to}}.",

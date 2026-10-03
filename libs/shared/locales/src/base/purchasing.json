@@ -34,6 +34,11 @@
     "en": "Confirm delivery",
     "pt": "Confirmar receção"
   },
+  "purchasing.orders.form.confirm_reject": {
+    "es": "Rechazar y devolver a borrador",
+    "en": "Reject and return to draft",
+    "pt": "Rejeitar e voltar para rascunho"
+  },
   "purchasing.orders.form.create_bill": {
     "es": "Crear factura de proveedor",
     "en": "Create vendor bill",
@@ -138,6 +143,21 @@
     "es": "Recibiendo ahora",
     "en": "Receiving now",
     "pt": "A receber agora"
+  },
+  "purchasing.orders.form.reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
+  "purchasing.orders.form.reject_reason": {
+    "es": "Motivo del rechazo (lo verá quien la solicitó)",
+    "en": "Reason for rejection (the requester will see it)",
+    "pt": "Motivo da rejeição (o solicitante verá)"
+  },
+  "purchasing.orders.form.rejected_reason": {
+    "es": "Rechazada: {{reason}}",
+    "en": "Rejected: {{reason}}",
+    "pt": "Rejeitado: {{reason}}"
   },
   "purchasing.orders.form.save_failed": {
     "es": "No se pudo guardar la orden.",

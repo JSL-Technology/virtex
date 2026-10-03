@@ -123,6 +123,19 @@ export class PurchaseOrder extends BaseEntity {
   @Column({ name: 'cancellation_reason', type: 'text', nullable: true })
   cancellationReason: string | null;
 
+  /**
+   * Why the approver sent it back, and who did, when (QA A-11). Cleared when the order is
+   * submitted again; until then the requester sees what to correct.
+   */
+  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  rejectionReason: string | null;
+
+  @Column({ name: 'rejected_by_user_id', type: 'uuid', nullable: true })
+  rejectedByUserId: string | null;
+
+  @Column({ name: 'rejected_at', type: 'timestamptz', nullable: true })
+  rejectedAt: Date | null;
+
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 

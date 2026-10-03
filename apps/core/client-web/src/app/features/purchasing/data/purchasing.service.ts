@@ -90,6 +90,8 @@ export interface PurchaseOrder {
   approvedAt: string | null;
   sentAt: string | null;
   cancellationReason: string | null;
+  /** Why the last approver sent it back to draft; cleared when it is submitted again. */
+  rejectionReason: string | null;
   notes: string | null;
   lines: PurchaseOrderLine[];
 }
@@ -216,6 +218,11 @@ export class PurchasingService {
 
   approveOrder(id: string): Observable<PurchaseOrder> {
     return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/approve`, {});
+  }
+
+  /** Sends a pending order back to draft with the approver's reason. */
+  rejectOrder(id: string, reason: string): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/reject`, { reason });
   }
 
   reopenOrder(id: string): Observable<PurchaseOrder> {

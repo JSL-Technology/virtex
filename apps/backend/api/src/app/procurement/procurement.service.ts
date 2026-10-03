@@ -8,7 +8,7 @@ import {
 import { PurchaseRequisitionLine } from './entities/purchase-requisition-line.entity';
 import { CreatePurchaseRequisitionDto } from './dto/create-purchase-requisition.dto';
 import { UpdatePurchaseRequisitionDto } from './dto/update-purchase-requisition.dto';
-import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import {
   JournalEntryNumberingService,
@@ -132,7 +132,19 @@ export class ProcurementService {
     organizationId: string,
     actorUserId: string,
   ): Promise<PurchaseRequisition> {
-    return this.transition(id, organizationId, PurchaseRequisitionStatus.APPROVED, (requisition) => {
+    return this.transition(id, organizationId, PurchaseRequisitionStatus.APPROVED, async (requisition, manager) => {
+      // Never your own (QA A-11, as for orders in M-08): a requester approving their own request is
+      // no control at all. A one-person company has nobody else to ask, so the rule applies only
+      // while the organization has another member.
+      if (requisition.requestedByUserId === actorUserId) {
+        const others: Array<{ count: string }> = await manager.query(
+          'SELECT COUNT(*)::int AS count FROM user_organizations WHERE organization_id = $1 AND user_id <> $2',
+          [organizationId, actorUserId],
+        );
+        if (Number(others[0]?.count ?? 0) > 0) {
+          throw new ForbiddenError('procurement.cannot_approve_own_requisition');
+        }
+      }
       requisition.decidedByUserId = actorUserId;
       requisition.decidedAt = new Date();
       requisition.rejectionReason = null;
@@ -192,13 +204,15 @@ export class ProcurementService {
     id: string,
     organizationId: string,
     to: PurchaseRequisitionStatus,
-    mutate?: (requisition: PurchaseRequisition) => void,
+    mutate?: (requisition: PurchaseRequisition, manager: EntityManager) => void | Promise<void>,
   ): Promise<PurchaseRequisition> {
     return this.dataSource.transaction(async (manager) => {
       const requisition = await this.findOneWithManager(manager, id, organizationId);
       this.assertTransition(requisition.status, to);
+      // The rule is checked against the state BEFORE it changes, so a refused approval leaves the
+      // requisition exactly where it was.
+      await mutate?.(requisition, manager);
       requisition.status = to;
-      mutate?.(requisition);
       await manager.save(requisition);
       this.logger.log(`Requisición ${requisition.number} → ${to}.`);
       return this.findOneWithManager(manager, id, organizationId);

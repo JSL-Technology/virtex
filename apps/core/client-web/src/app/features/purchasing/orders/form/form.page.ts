@@ -178,6 +178,9 @@ export class PurchaseOrderFormPage implements OnInit {
   readonly cancelling = signal(false);
   readonly cancellationReason = signal('');
 
+  readonly rejecting = signal(false);
+  readonly rejectionReason = signal('');
+
   ngOnInit(): void {
     this.form = this.fb.group({
       supplierId: ['', [Validators.required]],
@@ -397,6 +400,17 @@ export class PurchaseOrderFormPage implements OnInit {
 
   startCancel(): void { this.cancelling.set(true); }
   abortCancel(): void { this.cancelling.set(false); this.cancellationReason.set(''); }
+
+  startReject(): void { this.rejecting.set(true); }
+  abortReject(): void { this.rejecting.set(false); this.rejectionReason.set(''); }
+
+  /** Back to draft with the reason, so the requester knows what to fix before resubmitting. */
+  confirmReject(): void {
+    const reason = this.rejectionReason().trim();
+    if (reason.length < 3) return;
+    this.act(this.purchasing.rejectOrder(this.current()!.id, reason));
+    this.abortReject();
+  }
 
   confirmCancel(): void {
     const reason = this.cancellationReason().trim();

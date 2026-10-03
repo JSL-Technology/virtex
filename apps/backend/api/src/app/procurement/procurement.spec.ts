@@ -164,6 +164,38 @@ describeWithDb('purchasing', () => {
       ).rejects.toThrow();
     });
 
+    it('lets nobody approve their own request while someone else could (QA A-11)', async () => {
+      const mine = await newRequisition();
+      await requisitions.submit(mine.id, organizationId);
+
+      // A second member exists: the requester approving their own request is no control at all.
+      const [colleague] = await dataSource.query(
+        `INSERT INTO users ("firstName", "lastName", email) VALUES ('Ana', 'Revisa', $1) RETURNING id`,
+        [`approver-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`],
+      );
+      await dataSource.query(
+        'INSERT INTO user_organizations (user_id, organization_id) VALUES ($1, $2)',
+        [colleague.id, organizationId],
+      );
+      try {
+        await expect(requisitions.approve(mine.id, organizationId, REQUESTER)).rejects.toMatchObject({
+          messageKey: 'procurement.cannot_approve_own_requisition',
+        });
+        const approved = await requisitions.approve(mine.id, organizationId, colleague.id);
+        expect(approved.status).toBe(PurchaseRequisitionStatus.APPROVED);
+      } finally {
+        await dataSource.query('DELETE FROM user_organizations WHERE user_id = $1', [colleague.id]);
+        await dataSource.query('DELETE FROM users WHERE id = $1', [colleague.id]);
+      }
+    });
+
+    it('lets a one-person company approve its own request: there is nobody else to ask', async () => {
+      const mine = await newRequisition();
+      await requisitions.submit(mine.id, organizationId);
+      const approved = await requisitions.approve(mine.id, organizationId, REQUESTER);
+      expect(approved.status).toBe(PurchaseRequisitionStatus.APPROVED);
+    });
+
     it('keeps a decided requisition even when somebody deletes it', async () => {
       const requisition = await newRequisition();
       await requisitions.submit(requisition.id, organizationId);
@@ -216,6 +248,31 @@ describeWithDb('purchasing', () => {
       await expect(
         orders.update(order.id, { notes: 'cambio de precio' }, organizationId),
       ).rejects.toThrow();
+    });
+
+    it('is rejected with a reason, back to draft, and the reason clears on resubmission (QA A-11)', async () => {
+      const order = await newOrder();
+      await orders.submit(order.id, organizationId);
+
+      await expect(orders.reject(order.id, organizationId, APPROVER, '   ')).rejects.toMatchObject({
+        messageKey: 'procurement.rejection_reason_required',
+      });
+
+      const rejected = await orders.reject(order.id, organizationId, APPROVER, 'Precio fuera de contrato');
+      expect(rejected.status).toBe(PurchaseOrderStatus.DRAFT);
+      expect(rejected.rejectionReason).toBe('Precio fuera de contrato');
+      expect(rejected.rejectedByUserId).toBe(APPROVER);
+      expect(rejected.rejectedAt).toBeTruthy();
+
+      // Rejecting a draft is not a decision anyone is waiting for.
+      await expect(orders.reject(order.id, organizationId, APPROVER, 'otra vez')).rejects.toMatchObject({
+        messageKey: 'procurement.only_pending_order_can_be_rejected',
+      });
+
+      const resubmitted = await orders.submit(order.id, organizationId);
+      expect(resubmitted.status).toBe(PurchaseOrderStatus.PENDING_APPROVAL);
+      expect(resubmitted.rejectionReason).toBeNull();
+      expect(resubmitted.rejectedByUserId).toBeNull();
     });
 
     it('tracks what is still outstanding as deliveries arrive', async () => {

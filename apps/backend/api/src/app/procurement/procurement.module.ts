@@ -1,3 +1,4 @@
+import { PurchaseOrderApprovalSource, RequisitionApprovalSource } from './procurement-approval.sources';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PurchaseRequisition } from './entities/purchase-requisition.entity';
@@ -33,7 +34,7 @@ import { PURCHASE_ORDER_LIFECYCLE, REQUISITION_LIFECYCLE } from './procurement-l
     JournalEntriesModule,
   ],
   controllers: [ProcurementController, PurchaseOrdersController],
-  providers: [ProcurementService, PurchaseOrdersService],
+  providers: [ProcurementService, PurchaseOrdersService, PurchaseOrderApprovalSource, RequisitionApprovalSource],
   exports: [ProcurementService, PurchaseOrdersService],
 })
 export class ProcurementModule implements OnModuleInit {
