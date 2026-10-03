@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InventoryService } from './inventory.service';
+import { ProductsDataTransferProvider } from './products-data-transfer.provider';
 import { InventoryController } from './inventory.controller';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
@@ -25,6 +26,7 @@ import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
   controllers: [InventoryController, ProductCategoriesController],
   providers: [
     InventoryService,
+    ProductsDataTransferProvider,
     InventoryPostingService,
     ProductCategoriesService,
     VendorBillInventoryHandler,

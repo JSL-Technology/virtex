@@ -111,6 +111,9 @@ export const MODULE_OF_FOLDER = {
   notifications: 'configuracion',
   'push-notifications': 'configuracion',
   projects: 'configuracion',
+  // Moves files in and out; each domain offers its datasets through `contracts/data-transfer`, so
+  // this module depends on none of them.
+  'data-transfer': 'configuracion',
 
   // ── Plataforma (infraestructura; no depende de ningún módulo de negocio) ───────────────────────
   common: 'plataforma',

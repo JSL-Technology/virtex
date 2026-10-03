@@ -1,4 +1,5 @@
 
+import { VendorBillsDataTransferProvider } from './vendor-bills-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsPayableService } from './accounts-payable.service';
@@ -55,6 +56,7 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [AccountsPayableController, VendorDebitNotesController],
   providers: [
     PayablesInboxProvider,
+    VendorBillsDataTransferProvider,
     AccountsPayableService,
     VendorDebitNotesService,
     // Posts the bill when its approval is granted, inside the approving transaction.

@@ -123,6 +123,20 @@
     ],
     "dashboard.financial_ratios": [],
     "dashboard.summary": [],
+    "data_transfer.datasets": [
+      "customers",
+      "suppliers",
+      "products",
+      "invoices",
+      "sales_lines",
+      "vendor_bills"
+    ],
+    "data_transfer.status": [
+      "COMPLETED",
+      "VALIDATED",
+      "FAILED",
+      "PARTIAL"
+    ],
     "dialog": [],
     "dialog.block_user": [
       "TITLE",

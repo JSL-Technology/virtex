@@ -1,6 +1,7 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomersDataTransferProvider } from './customers-data-transfer.provider';
 import { CustomersService } from './customers.service';
 import { CustomersController } from './customers.controller';
 import { Customer } from './entities/customer.entity';
@@ -52,6 +53,7 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
   ],
   providers: [
     CustomersService,
+    CustomersDataTransferProvider,
     CustomerPaymentsService,
     CustomerGroupsService,
     // PeriodLockGuard is provided by PeriodLockModule (imported above).

@@ -1,3 +1,4 @@
+import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
@@ -66,6 +67,8 @@ import { MailModule } from '../mail/mail.module';
   controllers: [InvoicesController],
   providers: [
     SalesInboxProvider,
+    InvoicesDataTransferProvider,
+    SalesLinesDataTransferProvider,
     InvoicesService,
     InvoicePostingService,
     // Withholding is resolved from the parties and the sale, never taken from the request.

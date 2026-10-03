@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ClosingBlockerRegistry } from './closing-blockers/closing-blocker.registry';
+import { DataTransferRegistry } from './data-transfer/data-transfer.registry';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -17,7 +18,7 @@ import { ClosingBlockerRegistry } from './closing-blockers/closing-blocker.regis
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry],
-  exports: [ClosingBlockerRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry],
 })
 export class ContractsModule {}

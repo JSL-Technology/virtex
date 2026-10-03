@@ -60,6 +60,14 @@ export class CustomersService {
    * are abroad by definition, and checking a Panamanian buyer's RUC against Dominican rules would
    * reject every one of them.
    */
+  /**
+   * The identity-document rules a new record must pass, checked without writing — what an import
+   * runs on every row before committing any (QA A-10). Throws the same refusal `create` would.
+   */
+  async assertImportable(dto: CreateCustomerDto, organizationId: string): Promise<void> {
+    await this.resolveIdentityDocument(dto, organizationId);
+  }
+
   private async resolveIdentityDocument(
     dto: Partial<CreateCustomerDto>,
     organizationId: string,

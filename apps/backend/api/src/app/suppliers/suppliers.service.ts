@@ -41,6 +41,14 @@ export class SuppliersService {
    *
    * Both are settled here, from the tenant's country rather than from a constant.
    */
+  /**
+   * The identity-document rules a new record must pass, checked without writing — what an import
+   * runs on every row before committing any (QA A-10). Throws the same refusal `create` would.
+   */
+  async assertImportable(dto: CreateSupplierDto, organizationId: string): Promise<void> {
+    await this.resolveIdentityDocument(dto, organizationId);
+  }
+
   private async resolveIdentityDocument(
     dto: Partial<CreateSupplierDto>,
     organizationId: string,

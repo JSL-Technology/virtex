@@ -1,108 +1,152 @@
 <div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'data_imports.data_imports_etl' | translate }}</h1>
-            <p>{{ 'data_imports.upload_master_or_transactional_data_in' | translate }}</p>
-        </div>
+  <div class="view-header">
+    <div class="header-content">
+      <h1>{{ 'data_imports.data_imports_etl' | translate }}</h1>
+      <p>{{ 'data_imports.upload_master_or_transactional_data_in' | translate }}</p>
     </div>
+  </div>
 
-    <div class="import-process-grid">
-        <div class="step-card card">
-            <div class="step-number">1</div>
-            <div class="step-content">
-                <h3>{{ 'data_imports.select_data_type_label' | translate }}</h3>
-                <p>{{ 'data_imports.choose_type_data_you_want_import' | translate }}</p>
-                <select (change)="onDataTypeChange($event)">
-                    <option [value]="null" disabled selected>{{ 'data_imports.select_data_type_placeholder' | translate }}</option>
-                    @for (type of dataTypes; track type.id) {
-                    <option [value]="type.id">{{ type.name }}</option>
-                    }
-                </select>
-                @if (selectedDataTypeInfo(); as info) {
-                <a [href]="info.templateUrl" download class="template-link">
-                    <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
-                    <span>{{ 'data_imports.download_name_template' | translate: { name: info.name } }}</span>
-                </a>
-                }
-            </div>
-        </div>
+  <div class="import-process-grid">
+    <section class="step-card card" aria-labelledby="import-step-1">
+      <div class="step-number" aria-hidden="true">1</div>
+      <div class="step-content">
+        <h3 id="import-step-1">{{ 'data_imports.select_data_type_label' | translate }}</h3>
+        <p>{{ 'data_imports.choose_type_data_you_want_import' | translate }}</p>
+        <select [attr.aria-label]="'data_imports.select_data_type_label' | translate" (change)="onDatasetChange($event)">
+          <option value="" [selected]="!selectedDatasetId()">{{ 'data_imports.select_data_type_placeholder' | translate }}</option>
+          @for (dataset of importable(); track dataset.id) {
+            <option [value]="dataset.id">{{ dataset.labelKey | translate }}</option>
+          }
+        </select>
+        @if (selectedDataset(); as dataset) {
+          <button type="button" class="template-link" (click)="downloadTemplate()">
+            <lucide-icon [img]="DownloadIcon" size="16" aria-hidden="true"></lucide-icon>
+            <span>{{ 'data_imports.download_name_template' | translate: { name: (dataset.labelKey | translate) } }}</span>
+          </button>
+          <p class="columns-hint">
+            {{ 'data_imports.required_columns' | translate }}
+            @for (column of dataset.columns; track column.key) {
+              @if (column.required) { <code>{{ column.key }}</code> }
+            }
+          </p>
+        }
+      </div>
+    </section>
 
-        <div class="step-card card">
-            <div class="step-number">2</div>
-            <div class="step-content">
-                <h3>{{ 'data_imports.upload_file' | translate }}</h3>
-                <p>{{ 'data_imports.select_csv_or_excel_file_from' | translate }}</p>
-                <div class="file-upload-container">
-                    <input type="file" id="fileUpload" (change)="onFileSelected($event)"
-                        [disabled]="!selectedDataTypeId()"
-                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                    <label for="fileUpload" class="file-upload-label" [class.disabled]="!selectedDataTypeId()">
-                        <lucide-icon [img]="FileIcon" size="24"></lucide-icon>
-                        @if (selectedFile()) {
-                        <span class="file-name">{{ selectedFile()?.name }}</span>
-                        } @else {
-                        <span>{{ 'data_imports.click_browse_drag_file_here' | translate }}</span>
-                        }
-                    </label>
-                </div>
-            </div>
+    <section class="step-card card" aria-labelledby="import-step-2">
+      <div class="step-number" aria-hidden="true">2</div>
+      <div class="step-content">
+        <h3 id="import-step-2">{{ 'data_imports.upload_file' | translate }}</h3>
+        <p>{{ 'data_imports.select_csv_or_excel_file_from' | translate }}</p>
+        <div class="file-upload-container">
+          <input type="file" id="fileUpload" (change)="onFileSelected($event)" [disabled]="!selectedDataset()" accept=".csv,.xlsx" />
+          <label for="fileUpload" class="file-upload-label" [class.disabled]="!selectedDataset()">
+            <lucide-icon [img]="FileIcon" size="24" aria-hidden="true"></lucide-icon>
+            @if (selectedFile(); as file) {
+              <span class="file-name">{{ file.name }}</span>
+            } @else {
+              <span>{{ 'data_imports.click_browse_drag_file_here' | translate }}</span>
+            }
+          </label>
         </div>
+      </div>
+    </section>
 
-        <div class="step-card card">
-            <div class="step-number">3</div>
-            <div class="step-content">
-                <h3>{{ 'data_imports.start_import' | translate }}</h3>
-                <p>{{ 'data_imports.once_file_selected_start_import' | translate }}</p>
-                <button class="primary-button" (click)="startImport()" [disabled]="!selectedFile() || isUploading()">
-                    @if (isUploading()) {
-                    <lucide-icon [img]="ProcessingIcon" size="18" class="spinner"></lucide-icon>
-                    <span>{{ 'data_imports.processing' | translate }}</span>
-                    } @else {
-                    <lucide-icon [img]="UploadIcon" size="18"></lucide-icon>
-                    <span>{{ 'data_imports.import_data' | translate }}</span>
-                    }
-                </button>
-            </div>
+    <section class="step-card card" aria-labelledby="import-step-3">
+      <div class="step-number" aria-hidden="true">3</div>
+      <div class="step-content">
+        <h3 id="import-step-3">{{ 'data_imports.start_import' | translate }}</h3>
+        <p>{{ 'data_imports.validate_then_import' | translate }}</p>
+        <div class="actions">
+          <button class="secondary-button" type="button" (click)="run('validate')" [disabled]="!selectedFile() || !!busy()">
+            @if (busy() === 'validate') {
+              <lucide-icon [img]="ProcessingIcon" size="18" class="spinner" aria-hidden="true"></lucide-icon>
+            } @else {
+              <lucide-icon [img]="ValidateIcon" size="18" aria-hidden="true"></lucide-icon>
+            }
+            <span>{{ 'data_imports.validate' | translate }}</span>
+          </button>
+          <button class="primary-button" type="button" (click)="run('commit')" [disabled]="!selectedFile() || !!busy()">
+            @if (busy() === 'commit') {
+              <lucide-icon [img]="ProcessingIcon" size="18" class="spinner" aria-hidden="true"></lucide-icon>
+              <span>{{ 'data_imports.processing' | translate }}</span>
+            } @else {
+              <lucide-icon [img]="UploadIcon" size="18" aria-hidden="true"></lucide-icon>
+              <span>{{ 'data_imports.import_data' | translate }}</span>
+            }
+          </button>
         </div>
+      </div>
+    </section>
+  </div>
+
+  @if (report(); as result) {
+    <section class="report card" role="status" aria-live="polite">
+      <header class="report__header">
+        <vx-badge [tone]="statusTone(result.status)">{{ statusKey(result.status) | translate }}</vx-badge>
+        <span>
+          {{ 'data_imports.report_summary' | translate: { total: result.totalRows, imported: result.importedRows, failed: result.failedRows } }}
+        </span>
+      </header>
+      @if (result.problems.length) {
+        <p class="report__hint">{{ 'data_imports.nothing_written_fix_and_retry' | translate }}</p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="text-right">{{ 'data_imports.line' | translate }}</th>
+              <th>{{ 'data_imports.column' | translate }}</th>
+              <th>{{ 'data_imports.problem' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (problem of result.problems; track $index) {
+              <tr>
+                <td class="text-right">{{ problem.row || '—' }}</td>
+                <td><code>{{ problem.column ?? '—' }}</code></td>
+                <td>{{ problem.key | translate: problem.params }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+
+  <div class="history-section">
+    <h2 class="section-title">{{ 'data_imports.recent_imports' | translate }}</h2>
+    <div class="table-container card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'data_imports.data_type' | translate }}</th>
+            <th>{{ 'data_imports.file_name' | translate }}</th>
+            <th>{{ 'data_imports.date' | translate }}</th>
+            <th>{{ 'data_imports.user' | translate }}</th>
+            <th class="text-center">{{ 'data_imports.status' | translate }}</th>
+            <th class="text-right">{{ 'data_imports.processed' | translate }}</th>
+            <th class="text-right">{{ 'data_imports.failed' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of history(); track run.id) {
+            <tr>
+              <td>{{ labelOf(run.dataset) | translate }}</td>
+              <td>{{ run.fileName ?? '—' }}</td>
+              <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
+              <td>{{ run.userName ?? '—' }}</td>
+              <td class="text-center">
+                <vx-badge [tone]="statusTone(run.status)">{{ statusKey(run.status) | translate }}</vx-badge>
+              </td>
+              <td class="text-right">{{ run.importedRows | vxNumber }} / {{ run.totalRows | vxNumber }}</td>
+              <td class="text-right" [class.has-errors]="run.failedRows > 0">{{ run.failedRows | vxNumber }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center empty">{{ 'data_imports.no_imports_yet' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-
-    <div class="history-section">
-        <h2 class="section-title">{{ 'data_imports.recent_imports' | translate }}</h2>
-        <div class="table-container card">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>{{ 'data_imports.data_type' | translate }}</th>
-                        <th>{{ 'data_imports.file_name' | translate }}</th>
-                        <th>{{ 'data_imports.date' | translate }}</th>
-                        <th>{{ 'data_imports.user' | translate }}</th>
-                        <th class="text-center">{{ 'data_imports.status' | translate }}</th>
-                        <th class="text-right">{{ 'data_imports.processed' | translate }}</th>
-                        <th class="text-right">{{ 'data_imports.failed' | translate }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for(item of importHistory(); track item.id) {
-                    <tr>
-                        <td>{{ item.dataType }}</td>
-                        <td>{{ item.fileName }}</td>
-                        <td>{{ item.date }}</td>
-                        <td>{{ item.user }}</td>
-                        <td class="text-center">
-                            <vx-badge [tone]="statusTone(item.status)">
-                                @if(item.status === 'Completed') { <lucide-icon [img]="SuccessIcon" size="14" /> }
-                                @if(item.status === 'Failed') { <lucide-icon [img]="ErrorIcon" size="14" /> }
-                                @if(item.status === 'Processing') { <lucide-icon [img]="ProcessingIcon" size="14"
-                                    class="spinner" /> }
-                                {{ item.status }}
-                            </vx-badge>
-                        </td>
-                        <td class="text-right">{{ item.recordsProcessed }}</td>
-                        <td class="text-right" [class.has-errors]="item.recordsFailed > 0">{{ item.recordsFailed }}</td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+  </div>
 </div>

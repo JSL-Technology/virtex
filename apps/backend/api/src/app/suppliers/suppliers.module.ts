@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SuppliersDataTransferProvider } from './suppliers-data-transfer.provider';
 import { SuppliersService } from './suppliers.service';
 import { SuppliersController } from './suppliers.controller';
 import { Supplier } from './entities/supplier.entity';
@@ -14,6 +15,6 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
     LocalizationProvisioningModule,
   ],
   controllers: [SuppliersController],
-  providers: [SuppliersService],
+  providers: [SuppliersService, SuppliersDataTransferProvider],
 })
 export class SuppliersModule {}
