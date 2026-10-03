@@ -93,13 +93,8 @@ export class JournalFormPage implements OnInit {
         //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
         void this.router.navigate(['/accounting/journals']).then(() => this.tab?.close());
       },
-      error: (error: { error?: { message?: string } }) => {
-        const message = error?.error?.message;
-        this.notification.showError(
-          typeof message === 'string'
-            ? message
-            : 'accounting.journal_form.journal_could_not_saved',
-        );
+      error: (error: unknown) => {
+        this.notification.showHttpError(error, 'accounting.journal_form.journal_could_not_saved');
       },
     });
   }

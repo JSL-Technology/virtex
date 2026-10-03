@@ -20,6 +20,7 @@ import {
   ExtensionsService,
 } from './extensions.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { NotificationService } from '../../core/services/notification';
 
 /**
  * The extensions manager: install signed extensions into the tenant, grant them capabilities, run
@@ -46,6 +47,8 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExtensionsPage {
+  /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
+  private readonly errorText = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ExtensionsService);
 
@@ -175,11 +178,8 @@ export class ExtensionsPage {
   private fail(err: unknown): void {
     this.loading.set(false);
     this.busy.set(false);
-    const message =
-      (err as { error?: { message?: string; reason?: string } })?.error?.message ??
-      (err as { error?: { reason?: string } })?.error?.reason ??
-      (err as { message?: string })?.message ??
-      'Request failed';
-    this.error.set(message);
+    // The API's contract has `messageKey`, not `message`; this showed the literal English
+    // "Request failed" for every refusal, whatever the language and whatever the reason.
+    this.error.set(this.errorText.httpErrorMessage(err, 'errors.unexpected'));
   }
 }

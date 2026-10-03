@@ -60,8 +60,8 @@ export class PriceListsPage implements OnInit {
           this.notificationService.showSuccess('masters.price_lists.price_list_deleted');
           this.loadPriceLists();
         },
-        error: () => {
-          this.notificationService.showError('masters.price_lists.price_list_could_not_deleted');
+        error: (error: unknown) => {
+          this.notificationService.showHttpError(error, 'masters.price_lists.price_list_could_not_deleted');
         }
       });
     }

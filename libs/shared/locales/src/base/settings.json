@@ -2096,11 +2096,6 @@
     "en": "That email address is not valid.",
     "pt": "O formato do e-mail não é válido."
   },
-  "settings.profile.errors.invalid_format": {
-    "es": "Formato de imagen no válido.",
-    "en": "That image format isn't supported.",
-    "pt": "Formato de imagem inválido."
-  },
   "settings.profile.errors.invalid_phone": {
     "es": "El teléfono no es válido. Escríbelo con el código de país, por ejemplo +1 809 555 1234.",
     "en": "The phone number is not valid. Include the country code, for example +1 809 555 1234.",

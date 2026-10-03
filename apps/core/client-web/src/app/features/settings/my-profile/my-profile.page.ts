@@ -185,10 +185,7 @@ export class MyProfilePage implements OnInit {
         this.authService.logout();
       },
       error: (err) =>
-        this.notificationService.showError(
-          err?.error?.message ||
-            'El enlace de confirmación ha expirado o no es válido. Solicita el cambio de nuevo.',
-        ),
+        this.notificationService.showHttpError(err, 'El enlace de confirmación ha expirado o no es válido. Solicita el cambio de nuevo.'),
     });
   }
 
@@ -218,10 +215,10 @@ export class MyProfilePage implements OnInit {
           error: (error: HttpErrorResponse) => {
               if (error.status === 413) {
                  this.notificationService.showError('settings.profile.errors.file_too_large');
-              } else if (error.status === 400 && error.error?.message?.includes('image')) {
-                 this.notificationService.showError('settings.profile.errors.invalid_format');
               } else {
-                 this.notificationService.showError('settings.profile.errors.avatar_upload');
+                 // The server says what was wrong with the file (format, size, content); it used to
+                 // be matched by searching an English `message` the API does not send.
+                 this.notificationService.showHttpError(error, 'settings.profile.errors.avatar_upload');
               }
           }
       });
@@ -313,7 +310,7 @@ export class MyProfilePage implements OnInit {
       error: (err) => {
         //  Contraseña actual incorrecta: se dice exactamente eso, sin cerrar la sesión.
         const wrongCurrent =
-          err?.status === 400 && (err?.error?.message === 'AUTH_INVALID_CREDENTIALS' || err?.error?.code === 'AUTH_INVALID_CREDENTIALS');
+          err?.status === 400 && err?.error?.code === 'AUTH_INVALID_CREDENTIALS';
         if (wrongCurrent) {
           this.passwordForm.get('currentPassword')?.setErrors({ incorrect: true });
           this.notificationService.showError('settings.profile.errors.current_password_incorrect');

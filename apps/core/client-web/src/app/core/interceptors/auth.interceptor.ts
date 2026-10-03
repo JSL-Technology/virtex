@@ -16,6 +16,12 @@ import { readCsrfCookie } from '../auth/csrf-token';
 import { Router } from '@angular/router';
 import { stepUpScopeOf } from '../services/step-up.service';
 
+/** The entitlement refusals, and the reason the billing page is opened with for each. */
+const SUBSCRIPTION_REASONS: Readonly<Record<string, string>> = {
+  'saas.subscription_suspended': 'SUBSCRIPTION_SUSPENDED',
+  'saas.subscription_required': 'SUBSCRIPTION_REQUIRED',
+};
+
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
@@ -59,15 +65,16 @@ export const authInterceptor: HttpInterceptorFn = (
        * Routed once per navigation, not once per failed request: a dashboard fires a dozen calls
        * in parallel and they all fail together.
        */
-      const message = String(error.error?.message ?? '');
-      if (
-        error.status === 403 &&
-        (message.startsWith('SUBSCRIPTION_SUSPENDED') || message === 'SUBSCRIPTION_REQUIRED')
-      ) {
+      //
+      // Read from `messageKey`, the field the API actually sends (`SubscriptionActiveGuard`). This
+      // read `error.message`, which the error contract has no such field for — so the redirect never
+      // fired and a lapsed tenant saw every screen fail with no way to the page that fixes it.
+      const entitlement = SUBSCRIPTION_REASONS[String(error.error?.messageKey ?? '')];
+      if (error.status === 403 && entitlement) {
         const router = injector.get(Router);
         if (!router.url.includes('/settings/billing')) {
           router.navigate(['/settings/billing'], {
-            queryParams: { reason: message.split(':')[0] },
+            queryParams: { reason: entitlement },
           });
         }
         return throwError(() => error);

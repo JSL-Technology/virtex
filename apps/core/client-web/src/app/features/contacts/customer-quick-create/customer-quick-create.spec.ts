@@ -5,6 +5,7 @@ import { CustomerQuickCreateComponent } from './customer-quick-create.component'
 import { CustomersService } from '../data/customers.service';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TRANSLATE_STORE_PROVIDERS, apiError, useCatalogue } from '../../../../testing/api-errors';
 
 /**
  * The short form that lets an invoice be finished.
@@ -40,6 +41,7 @@ describe('CustomerQuickCreateComponent', () => {
     await TestBed.configureTestingModule({
         imports: [CustomerQuickCreateComponent, TranslateModule.forRoot()],
         providers: [
+          ...TRANSLATE_STORE_PROVIDERS,
           { provide: CustomersService, useValue: customers },
           {
             provide: IdentityDocumentsService,
@@ -114,8 +116,9 @@ describe('CustomerQuickCreateComponent', () => {
   });
 
   it('deja el motivo del rechazo dentro del diálogo, donde está el dato a corregir', fakeAsync(() => {
+    useCatalogue({ 'customers.tax_id_invalid': 'El RNC no es válido.' });
     customers.createCustomer.mockReturnValue(
-      throwError(() => ({ error: { message: 'El RNC no es válido.' } })),
+      throwError(() => apiError(400, 'customers.tax_id_invalid')),
     );
     let answered = false;
     fixture.componentInstance.resolved.subscribe(() => (answered = true));

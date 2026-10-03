@@ -151,7 +151,7 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
     const method: string = String(payload?.opts?.method ?? 'GET').toUpperCase();
 
     if (!EXTENSION_ALLOWED_METHODS.includes(method)) {
-      return this.post({ id, error: 'Only GET requests are allowed from extensions' });
+      return this.post({ id, error: 'METHOD_NOT_ALLOWED' });
     }
 
     // Normalised BEFORE it is checked, and refused if normalising changed it. The check used to
@@ -159,12 +159,12 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
     // `/sales/%2e%2e/users` passed as `/sales/…` and fetched `/users`.
     const normalized = normalizeExtensionApiPath(payload?.path);
     if (!normalized) {
-      return this.post({ id, error: 'Invalid API path' });
+      return this.post({ id, error: 'INVALID_PATH' });
     }
 
     const capabilities = this.extension.grantedCapabilities;
     if (!extensionApiPrefixes(capabilities).length) {
-      return this.post({ id, error: 'This extension has no API read capability' });
+      return this.post({ id, error: 'CAPABILITY_MISSING' });
     }
     if (!extensionMayRead(normalized.pathname, capabilities)) {
       return this.post({ id, error: `Path outside the granted capabilities: ${normalized.pathname}` });
@@ -181,7 +181,9 @@ export class ExtensionHostComponent implements AfterViewInit, OnDestroy {
       );
       this.post({ id, result });
     } catch (err: any) {
-      this.post({ id, error: err?.error?.message ?? err?.message ?? 'Request failed' });
+      // A stable code the extension can branch on, and the status. The API has no `message` field;
+      // this always fell through to the literal "Request failed".
+      this.post({ id, error: err?.error?.code ?? 'REQUEST_FAILED', status: err?.status ?? 0 });
     }
   }
 }

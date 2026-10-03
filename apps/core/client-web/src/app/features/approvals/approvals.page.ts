@@ -119,10 +119,8 @@ export class ApprovalsPage implements OnInit {
         //  al siguiente paso en lugar de cerrarla, y el servidor es quien sabe cuál de las dos.
         this.load();
       },
-      error: (err: { error?: { message?: string } }) => {
-        this.notifications.showError(
-          err?.error?.message || this.translate.instant('approvals.decision_could_not_recorded'),
-        );
+      error: (err: unknown) => {
+        this.notifications.showHttpError(err, 'approvals.decision_could_not_recorded');
         this.deciding.set(null);
       },
     });

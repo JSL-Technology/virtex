@@ -247,11 +247,8 @@ export class RepositoryPage {
     }
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'documents.repository.action_failed',
-    );
+    this.notifications.showHttpError(error, 'documents.repository.action_failed');
   }
 }

@@ -680,9 +680,7 @@ export class NewInvoicePage implements OnInit {
         void this.router.navigate(['/invoices', invoice.id]).then(() => this.tab?.close());
       },
       error: (err) => {
-        this.notificationService.showError(
-          err?.error?.message || this.translate.instant('errors.save_document'),
-        );
+        this.notificationService.showHttpError(err, 'errors.save_document');
         this.isSaving.set(false);
       },
     });

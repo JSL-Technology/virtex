@@ -118,8 +118,7 @@ export class SegmentConfigurationPage implements OnInit {
         this.router.navigate(['/accounting/chart-of-accounts']);
       },
       error: (err) => {
-        const message = err?.error?.message || this.translate.instant('errors.save_configuration');
-        this.notificationService.showError(message);
+        this.notificationService.showHttpError(err, 'errors.save_configuration');
         this.isSaving.set(false);
       }
     });
@@ -143,8 +142,7 @@ export class SegmentConfigurationPage implements OnInit {
                 this.isSaving.set(false);
             },
             error: (err) => {
-                const message = err?.error?.message || this.translate.instant('errors.default_values_could_not_initialised');
-                this.notificationService.showError(message);
+                this.notificationService.showHttpError(err, 'errors.default_values_could_not_initialised');
                 this.isSaving.set(false);
             }
         });

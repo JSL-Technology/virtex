@@ -347,9 +347,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
             this.loadUsers();
           },
           error: (err) => {
-            this.notificationService.showError(
-              err?.error?.message || this.translate.instant('errors.update_user'),
-            );
+            this.notificationService.showHttpError(err, 'errors.update_user');
             this.loading.set(false);
           },
           complete: () => this.loading.set(false),
@@ -373,9 +371,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
             this.loadSentInvitations();
           },
           error: (err) => {
-            this.notificationService.showError(
-              err?.error?.message || this.translate.instant('errors.invite_user'),
-            );
+            this.notificationService.showHttpError(err, 'errors.invite_user');
             this.loading.set(false);
           },
           complete: () => this.loading.set(false),
@@ -398,7 +394,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
           this.loadUsers();
         },
         error: (err) => {
-          this.notificationService.showError(err.error?.message || 'errors.delete_user');
+          this.notificationService.showHttpError(err, 'errors.delete_user');
           this.loading.set(false);
           this.closeDeleteModal();
         },
@@ -456,7 +452,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           next: (res) => this.notificationService.showSuccess(res.message),
           error: (err) =>
-            this.notificationService.showError(err.error?.message || 'errors.send_mail'),
+            this.notificationService.showHttpError(err, 'errors.send_mail'),
         });
     }
   }
@@ -470,9 +466,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           next: () => this.notificationService.showSuccess('settings.user_management.user_session_has_closed'),
           error: (err) =>
-            this.notificationService.showError(
-              err?.error?.message || this.translate.instant('errors.revoke_session'),
-            ),
+            this.notificationService.showHttpError(err, 'errors.revoke_session'),
         });
     }
   }
@@ -489,9 +483,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
             this.loadUsers();
           },
           error: (err) =>
-            this.notificationService.showError(
-              err?.error?.message || this.translate.instant('errors.block_user'),
-            ),
+            this.notificationService.showHttpError(err, 'errors.block_user'),
         });
     }
   }
@@ -504,9 +496,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           error: (err) =>
-            this.notificationService.showError(
-              err?.error?.message || this.translate.instant('errors.impersonate'),
-            ),
+            this.notificationService.showHttpError(err, 'errors.impersonate'),
         });
     }
   }

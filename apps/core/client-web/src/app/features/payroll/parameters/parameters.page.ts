@@ -97,7 +97,7 @@ export class PayrollParametersPage {
     this.busy.set(true);
     this.payroll.upsertContribution(draft).subscribe({
       next: () => { this.busy.set(false); this.contributionDraft.set(null); this.reload(); },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -124,7 +124,7 @@ export class PayrollParametersPage {
     this.busy.set(true);
     this.payroll.upsertReference(draft).subscribe({
       next: () => { this.busy.set(false); this.referenceDraft.set(null); this.reload(); },
-      error: (error: { error?: { message?: string } }) => this.fail(error),
+      error: (error: unknown) => this.fail(error),
     });
   }
 
@@ -155,12 +155,9 @@ export class PayrollParametersPage {
     });
   }
 
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'payroll.parameters.save_failed',
-    );
+    this.notifications.showHttpError(error, 'payroll.parameters.save_failed');
   }
 }
 

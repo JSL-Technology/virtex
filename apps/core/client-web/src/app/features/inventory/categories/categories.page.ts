@@ -204,11 +204,8 @@ export class CategoriesPage {
    * It is the server that knows a category still has products under it and how many, and that
    * sentence is more useful than any generic failure this page could invent.
    */
-  private fail(error: { error?: { message?: string } }): void {
+  private fail(error: unknown): void {
     this.busy.set(false);
-    const message = error?.error?.message;
-    this.notifications.showError(
-      typeof message === 'string' ? message : 'inventory.categories.save_failed',
-    );
+    this.notifications.showHttpError(error, 'inventory.categories.save_failed');
   }
 }

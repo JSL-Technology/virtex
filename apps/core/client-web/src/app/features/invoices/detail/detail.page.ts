@@ -236,7 +236,7 @@ export class InvoiceDetailPage implements OnInit {
         },
         error: (err) => {
             this.ecfBusy.set(false);
-            this.notificationService.showError(err?.error?.message || 'errors.resend_ecf');
+            this.notificationService.showHttpError(err, 'errors.resend_ecf');
         }
     });
   }

@@ -39,7 +39,7 @@ describe('authInterceptor — subscription handling', () => {
 
   it('sends a suspended tenant to billing', async () => {
     await run(
-      new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' } }),
+      new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } } }),
     );
 
     expect(navigate).toHaveBeenCalledWith(['/settings/billing'], {
@@ -48,7 +48,7 @@ describe('authInterceptor — subscription handling', () => {
   });
 
   it('sends a tenant with no subscription there too', async () => {
-    await run(new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_REQUIRED' } }));
+    await run(new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_required', params: {} } }));
 
     expect(navigate).toHaveBeenCalledWith(['/settings/billing'], {
       queryParams: { reason: 'SUBSCRIPTION_REQUIRED' },
@@ -59,7 +59,7 @@ describe('authInterceptor — subscription handling', () => {
     // A dashboard fires a dozen calls in parallel and they all fail together; navigating per
     // failed request would fight the router.
     await run(
-      new HttpErrorResponse({ status: 403, error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' } }),
+      new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } } }),
       '/settings/billing',
     );
 
@@ -120,7 +120,7 @@ describe('authInterceptor — subscription handling', () => {
   it('re-throws so the caller still sees the failure', async () => {
     const error = new HttpErrorResponse({
       status: 403,
-      error: { message: 'SUBSCRIPTION_SUSPENDED: unpaid' },
+      error: { code: 'FORBIDDEN', messageKey: 'saas.subscription_suspended', params: { status: 'unpaid' } },
     });
 
     await expect(run(error)).resolves.toBe(error);
