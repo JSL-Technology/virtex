@@ -13,6 +13,7 @@ import { PurchaseOrdersService } from './purchase-orders.service';
 import { ProcurementController } from './procurement.controller';
 import { PurchaseOrdersController } from './purchase-orders.controller';
 import { AuthModule } from '../auth/auth.module';
+import { CurrenciesModule } from '../currencies/currencies.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { LifecycleRegistry } from '../shared/lifecycle/lifecycle.registry';
 import { PURCHASE_ORDER_LIFECYCLE, REQUISITION_LIFECYCLE } from './procurement-lifecycles';
@@ -32,6 +33,8 @@ import { PURCHASE_ORDER_LIFECYCLE, REQUISITION_LIFECYCLE } from './procurement-l
     AuthModule,
     // For the document numbering service only: purchasing posts nothing to the ledger.
     JournalEntriesModule,
+    // A foreign-currency order is costed at the spot rate of the day its goods arrive (QA A-12).
+    CurrenciesModule,
   ],
   controllers: [ProcurementController, PurchaseOrdersController],
   providers: [ProcurementService, PurchaseOrdersService, PurchaseOrderApprovalSource, RequisitionApprovalSource],

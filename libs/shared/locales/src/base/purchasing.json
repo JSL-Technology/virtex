@@ -44,6 +44,11 @@
     "en": "Create vendor bill",
     "pt": "Criar fatura de fornecedor"
   },
+  "purchasing.orders.form.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
   "purchasing.orders.form.description": {
     "es": "Descripción",
     "en": "Description",

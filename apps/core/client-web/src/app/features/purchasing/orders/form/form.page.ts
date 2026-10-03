@@ -7,7 +7,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseOrder,
@@ -62,6 +63,8 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly suppliersApi = inject(SuppliersService);
   private readonly inventory = inject(InventoryService);
   private readonly notifications = inject(NotificationService);
+  private readonly locale = inject(LocaleStore);
+  private readonly currencies = inject(CurrenciesService);
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -178,12 +181,27 @@ export class PurchaseOrderFormPage implements OnInit {
   readonly cancelling = signal(false);
   readonly cancellationReason = signal('');
 
+  /**
+   * The order's currency (QA A-12): it starts on the books currency — the API already defaulted to
+   * it, but the screen offered no choice and showed amounts in the USD fallback. A foreign
+   * supplier's order can be raised in its own currency.
+   */
+  readonly currencyCodes = signal<string[]>([]);
+  readonly currencyOptions = computed(() => {
+    const codes = new Set([this.locale.currency(), ...this.currencyCodes()]);
+    const own = this.current()?.currencyCode;
+    if (own) codes.add(own);
+    return [...codes];
+  });
+  readonly currencyCode = signal<string | null>(null);
+
   readonly rejecting = signal(false);
   readonly rejectionReason = signal('');
 
   ngOnInit(): void {
     this.form = this.fb.group({
       supplierId: ['', [Validators.required]],
+      currencyCode: [this.locale.currency(), [Validators.required]],
       orderDate: [todayIso(), [Validators.required]],
       expectedDate: [''],
       notes: [''],
@@ -196,6 +214,13 @@ export class PurchaseOrderFormPage implements OnInit {
         validators: dateOrder('orderDate', 'expectedDate'),
       },
     );
+
+    this.currencies.getCurrencies().subscribe({
+      next: (all) => this.currencyCodes.set(all.map((currency) => currency.code)),
+      error: () => this.currencyCodes.set([]),
+    });
+    this.currencyCode.set(this.locale.currency());
+    this.form.get('currencyCode')?.valueChanges.subscribe((code: string) => this.currencyCode.set(code || null));
 
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
@@ -290,6 +315,7 @@ export class PurchaseOrderFormPage implements OnInit {
     const raw = this.form.getRawValue();
     const body = {
       supplierId: raw.supplierId,
+      currencyCode: raw.currencyCode || undefined,
       orderDate: raw.orderDate,
       expectedDate: raw.expectedDate || undefined,
       notes: raw.notes || undefined,
@@ -463,12 +489,14 @@ export class PurchaseOrderFormPage implements OnInit {
     this.form.patchValue(
       {
         supplierId: order.supplierId,
+        currencyCode: order.currencyCode,
         orderDate: order.orderDate,
         expectedDate: order.expectedDate ?? '',
         notes: order.notes ?? '',
       },
       { emitEvent: false },
     );
+    this.currencyCode.set(order.currencyCode);
     if (this.editable()) this.form.enable({ emitEvent: false });
     else this.form.disable({ emitEvent: false });
 

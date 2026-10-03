@@ -9,6 +9,11 @@
     "en": "You cannot approve your own purchase requisition: someone else must approve it.",
     "pt": "Você não pode aprovar sua própria requisição de compra: outra pessoa deve aprová-la."
   },
+  "procurement.exchange_rate_unavailable": {
+    "es": "No hay tasa de cambio de {{from}} a {{to}} para el {{date}}: regístrala en Monedas antes de recibir.",
+    "en": "There is no {{from}} to {{to}} exchange rate for {{date}}: record it under Currencies before receiving.",
+    "pt": "Não há taxa de câmbio de {{from}} para {{to}} em {{date}}: registre-a em Moedas antes de receber."
+  },
   "procurement.only_draft_order_can_deleted_one": {
     "es": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
     "en": "Only a draft order can be deleted; this one is {{status}}.",

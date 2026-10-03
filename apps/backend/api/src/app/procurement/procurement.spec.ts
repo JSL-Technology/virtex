@@ -275,6 +275,37 @@ describeWithDb('purchasing', () => {
       expect(resubmitted.rejectedByUserId).toBeNull();
     });
 
+    it('costs a foreign-currency delivery at the spot rate of the day it arrives (QA A-12)', async () => {
+      const exchangeRates = { resolveForPosting: jest.fn(async () => ({ rate: 1.1 })) };
+      const fx = new PurchaseOrdersService(
+        dataSource.getRepository(PurchaseOrder),
+        dataSource,
+        new JournalEntryNumberingService(),
+        requisitions,
+        goodsReceipts,
+        exchangeRates as never,
+      );
+      const order = await fx.create(
+        { supplierId, currencyCode: 'eur', lines: [{ description: 'Válvula', quantity: 2, unitPrice: 100 }] },
+        organizationId,
+        REQUESTER,
+      );
+      expect(order.currencyCode).toBe('EUR');
+      await fx.submit(order.id, organizationId);
+      await fx.approve(order.id, organizationId, APPROVER);
+      await fx.send(order.id, organizationId);
+
+      const received = await fx.receive(order.id, { receivedAt: '2026-09-15' }, organizationId);
+
+      expect(exchangeRates.resolveForPosting).toHaveBeenCalledWith(
+        expect.anything(), organizationId, 'EUR', expect.any(String), '2026-09-15', null,
+      );
+      const handed = goodsReceipts.receiveGoods.mock.calls.at(-1)?.[2] as { lines: Array<{ unitCost: number }> };
+      // 100 EUR at 1.1, not 100 "units" of the books currency.
+      expect(handed.lines[0].unitCost).toBeCloseTo(110, 6);
+      expect(Number(received.exchangeRate)).toBeCloseTo(1.1, 6);
+    });
+
     it('tracks what is still outstanding as deliveries arrive', async () => {
       const order = await newOrder();
       await orders.submit(order.id, organizationId);

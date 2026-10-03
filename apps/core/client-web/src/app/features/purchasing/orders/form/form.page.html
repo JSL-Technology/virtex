@@ -59,6 +59,15 @@
           />
         </label>
 
+        <label class="field" for="currencyCode">
+          <span>{{ 'purchasing.orders.form.currency' | translate }} *</span>
+          <select id="currencyCode" formControlName="currencyCode">
+            @for (code of currencyOptions(); track code) {
+              <option [value]="code">{{ code }}</option>
+            }
+          </select>
+        </label>
+
         <label class="field" for="orderDate">
           <span>{{ 'purchasing.orders.order_date' | translate }}</span>
           <vx-date-field inputId="orderDate" formControlName="orderDate" />
@@ -154,7 +163,7 @@
         </div>
         <div class="totals__line totals__line--grand">
           <span>{{ 'purchasing.orders.total' | translate }}</span>
-          <span class="amount">{{ total() | vxMoney: (current()?.currencyCode ?? null) }}</span>
+          <span class="amount">{{ total() | vxMoney: currencyCode() }}</span>
         </div>
       </div>
     </section>

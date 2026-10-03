@@ -238,6 +238,11 @@
       "CREDIT_NOTE"
     ],
     "ledger.sales": [],
+    "masters.price_lists.status_label": [
+      "Draft",
+      "Active",
+      "Inactive"
+    ],
     "overview.activity.item": [],
     "overview.events.item": [],
     "overview.events.kind": [],

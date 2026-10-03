@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { PurchaseOrder, PurchaseOrderStatus } from './entities/purchase-order.entity';
@@ -16,6 +16,7 @@ import {
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import {
   JournalEntryNumberingService,
@@ -68,6 +69,9 @@ export class PurchaseOrdersService {
     private readonly numbering: JournalEntryNumberingService,
     private readonly requisitions: ProcurementService,
     private readonly inventory: GoodsReceiptPort,
+    // Optional only so the suites that build this service by hand for domestic orders keep
+    // compiling; the application always injects it.
+    @Optional() private readonly exchangeRates?: ExchangeRateResolver,
   ) {}
 
   async findAll(organizationId: string, query: PurchaseOrderQueryDto = {}): Promise<Page<PurchaseOrder>> {
@@ -314,7 +318,8 @@ export class PurchaseOrdersService {
             quantity: roundQuantity(line.quantity - line.receivedQuantity),
           }));
 
-      const rate = Number(order.exchangeRate) > 0 ? Number(order.exchangeRate) : 1;
+      const receivedOn = toIsoDate(dto.receivedAt ?? new Date());
+      const rate = await this.receiptRate(manager, order, organizationId, receivedOn);
       const arriving: Array<{ line: PurchaseOrderLine; quantity: number; unitCost: number }> = [];
       for (const received of requested) {
         const line = byId.get(received.lineId);
@@ -358,7 +363,7 @@ export class PurchaseOrdersService {
           reference: order.number,
           sourceType: 'purchase_order_receipt',
           sourceId: receipt.id,
-          date: toIsoDate(dto.receivedAt ?? new Date()),
+          date: receivedOn,
           lines: arriving.map(({ line, quantity, unitCost }) => ({
             productId: line.productId,
             quantity,
@@ -497,6 +502,34 @@ export class PurchaseOrdersService {
       { id: order.id },
       { subtotal, taxTotal, total: order.total },
     );
+  }
+
+  /**
+   * Units of the books currency per unit of the order's currency, for goods arriving on `date`.
+   *
+   * The order stored `exchangeRate: 1` whatever its currency, and the receipt costed every line at
+   * that: a EUR 1,000 order entered stock, and the ledger, as 1,000 pesos. Under IAS 21 a
+   * foreign-currency purchase is measured at the spot rate of the transaction date — the day the
+   * goods arrive — so the rate is resolved then, under the tenant's own rate policy (type, maximum
+   * age of the quote), and recorded on the order as the last rate applied.
+   */
+  private async receiptRate(
+    manager: EntityManager,
+    order: PurchaseOrder,
+    organizationId: string,
+    date: string,
+  ): Promise<number> {
+    const base = (await this.baseCurrency(manager, organizationId)).toUpperCase();
+    const currency = (order.currencyCode ?? base).toUpperCase();
+    if (currency === base) return 1;
+    if (!this.exchangeRates) {
+      throw new BadRequestError('procurement.exchange_rate_unavailable', { from: currency, to: base, date });
+    }
+    const resolved = await this.exchangeRates.resolveForPosting(manager, organizationId, currency, base, date, null);
+    if (Number(order.exchangeRate) !== resolved.rate) {
+      await manager.update(PurchaseOrder, { id: order.id }, { exchangeRate: resolved.rate });
+    }
+    return resolved.rate;
   }
 
   private async baseCurrency(manager: EntityManager, organizationId: string): Promise<string> {
