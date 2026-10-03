@@ -34,6 +34,7 @@
   "common.dependents.employees": "funcionários",
   "common.dependents.invoice_lines": "linhas de fatura",
   "common.dependents.invoices": "faturas",
+  "common.dependents.journal_entries": "lançamentos contábeis",
   "common.dependents.locations": "localizações de armazém",
   "common.dependents.opportunities": "oportunidades",
   "common.dependents.production_orders": "ordens de produção",

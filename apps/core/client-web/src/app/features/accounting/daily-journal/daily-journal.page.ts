@@ -8,6 +8,7 @@ import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journa
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
+import { DatasetExportService } from '../../../core/export/dataset-export';
 
 /**
  * The journal, entry by entry, with every line shown.
@@ -39,6 +40,8 @@ const PAGE_SIZE = 50;
 export class DailyJournalPage {
   private readonly entriesApi = inject(JournalEntriesApiService);
   private readonly accountsApi = inject(ChartOfAccountsApiService);
+  /** «Exportar» — every line of every entry, not the fifty on this page (QA A-13). */
+  protected readonly exports = inject(DatasetExportService);
 
   protected readonly ExportIcon = FileDown;
 

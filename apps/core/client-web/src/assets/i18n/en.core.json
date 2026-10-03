@@ -34,6 +34,7 @@
   "common.dependents.employees": "employees",
   "common.dependents.invoice_lines": "invoice lines",
   "common.dependents.invoices": "invoices",
+  "common.dependents.journal_entries": "journal entries",
   "common.dependents.locations": "warehouse locations",
   "common.dependents.opportunities": "opportunities",
   "common.dependents.production_orders": "production orders",

@@ -34,6 +34,7 @@
   "common.dependents.employees": "empleados",
   "common.dependents.invoice_lines": "líneas de factura",
   "common.dependents.invoices": "facturas",
+  "common.dependents.journal_entries": "asientos contables",
   "common.dependents.locations": "ubicaciones de almacén",
   "common.dependents.opportunities": "oportunidades",
   "common.dependents.production_orders": "órdenes de producción",

@@ -7,12 +7,25 @@
   [empty]="ledgerLines().length === 0"
   (reload)="loadLedgerData()"
 >
-  <button listActions class="primary-button" type="button" [disabled]="loading()">
+  <button listActions class="primary-button" type="button" [disabled]="loading() || !selectedAccount()" (click)="export()">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.general_ledger.export' | translate }}</span>
   </button>
 
   <div listFilters class="ledger-filters">
+    <label class="filter-group filter-group--account" for="ledgerAccount">
+      <span>{{ 'accounting.general_ledger.account' | translate }}</span>
+      <vx-select
+        inputId="ledgerAccount"
+        [ngModel]="accountId()"
+        (ngModelChange)="selectAccount($event)"
+        [search]="searchAccounts"
+        [resolveWith]="resolveAccount"
+        [displayWith]="accountLabel"
+        [valueWith]="accountValue"
+        placeholderKey="accounting.general_ledger.select_account"
+      />
+    </label>
     <!--
       Los dos extremos, que no se acotaban entre sí ni comprobaban el orden: un mayor pedido del
       30 de junio al 1 de enero salía vacío y sin decir por qué.
@@ -26,7 +39,7 @@
       (fromChange)="startDate = $event ?? ''"
       (toChange)="endDate = $event ?? ''"
     />
-    <button class="secondary-button" type="button" (click)="loadLedgerData()" [disabled]="loading()">
+    <button class="secondary-button" type="button" (click)="loadLedgerData()" [disabled]="loading() || !accountId()">
       {{ 'accounting.general_ledger.run' | translate }}
     </button>
   </div>

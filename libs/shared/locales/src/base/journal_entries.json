@@ -189,6 +189,21 @@
     "en": "The import was confirmed and processed.",
     "pt": "A importação foi confirmada e processada."
   },
+  "journal_entries.journal_code_fixed_once_used": {
+    "es": "El diario ya tiene {{count}} asiento(s) numerados con su código: el código no puede cambiar.",
+    "en": "The journal already has {{count}} entry(ies) numbered with its code: the code cannot change.",
+    "pt": "O diário já tem {{count}} lançamento(s) numerados com seu código: o código não pode mudar."
+  },
+  "journal_entries.journal_code_format": {
+    "es": "El código solo admite letras, números, guion y guion bajo.",
+    "en": "The code only allows letters, digits, dash and underscore.",
+    "pt": "O código só admite letras, números, hífen e sublinhado."
+  },
+  "journal_entries.journal_code_taken": {
+    "es": "Ya existe un diario con el código {{code}}.",
+    "en": "A journal with the code {{code}} already exists.",
+    "pt": "Já existe um diário com o código {{code}}."
+  },
   "journal_entries.journal_entry_does_not_balance": {
     "es": "El asiento contable no está balanceado.",
     "en": "The journal entry does not balance.",
@@ -208,6 +223,26 @@
     "es": "Plantilla de asiento con ID \"{{id}}\" no encontrada.",
     "en": "Journal entry template \"{{id}}\" was not found.",
     "pt": "Modelo de lançamento \"{{id}}\" não encontrado."
+  },
+  "journal_entries.journal_in_use": {
+    "es": "No se puede eliminar el diario porque tiene asientos ({{summary}}): son parte de los libros.",
+    "en": "The journal cannot be deleted because it has entries ({{summary}}): they are part of the books.",
+    "pt": "O diário não pode ser excluído porque tem lançamentos ({{summary}}): eles fazem parte dos livros."
+  },
+  "journal_entries.journal_not_found": {
+    "es": "El diario no existe.",
+    "en": "The journal does not exist.",
+    "pt": "O diário não existe."
+  },
+  "journal_entries.journal_system_code_fixed": {
+    "es": "El código {{code}} lo usa el propio sistema para contabilizar: puedes cambiar el nombre, no el código.",
+    "en": "The code {{code}} is used by the system itself to post: you can rename it, not change the code.",
+    "pt": "O código {{code}} é usado pelo próprio sistema para contabilizar: você pode mudar o nome, não o código."
+  },
+  "journal_entries.journal_type_fixed_once_used": {
+    "es": "El diario ya tiene {{count}} asiento(s): su tipo no puede cambiar.",
+    "en": "The journal already has {{count}} entry(ies): its type cannot change.",
+    "pt": "O diário já tem {{count}} lançamento(s): seu tipo não pode mudar."
   },
   "journal_entries.line_line_carries_both_debit_credit": {
     "es": "La línea {{line}} tiene débito y crédito a la vez. Una línea afecta un solo lado.",
@@ -288,6 +323,11 @@
     "es": "El libro indicado no existe en esta empresa.",
     "en": "The specified ledger does not exist in this company.",
     "pt": "O livro indicado não existe nesta empresa."
+  },
+  "journal_entries.system_journal_cannot_be_deleted": {
+    "es": "El diario {{code}} lo usa el propio sistema para contabilizar y no se puede eliminar.",
+    "en": "The journal {{code}} is used by the system itself to post and cannot be deleted.",
+    "pt": "O diário {{code}} é usado pelo próprio sistema para contabilizar e não pode ser excluído."
   },
   "journal_entries.transaction_query_runner_could_not_obtained": {
     "es": "No se pudo obtener el Query Runner de la transacción.",

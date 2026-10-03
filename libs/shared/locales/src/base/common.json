@@ -104,6 +104,11 @@
     "en": "invoices",
     "pt": "faturas"
   },
+  "common.dependents.journal_entries": {
+    "es": "asientos contables",
+    "en": "journal entries",
+    "pt": "lançamentos contábeis"
+  },
   "common.dependents.locations": {
     "es": "ubicaciones de almacén",
     "en": "warehouse locations",

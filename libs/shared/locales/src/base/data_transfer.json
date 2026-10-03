@@ -4,6 +4,11 @@
     "en": "A record with “{{value}}” already exists.",
     "pt": "Já existe um registro com “{{value}}”."
   },
+  "data_transfer.datasets.chart_of_accounts": {
+    "es": "Plan de cuentas",
+    "en": "Chart of accounts",
+    "pt": "Plano de contas"
+  },
   "data_transfer.datasets.customers": {
     "es": "Clientes",
     "en": "Customers",
@@ -13,6 +18,16 @@
     "es": "Facturas de venta",
     "en": "Sales invoices",
     "pt": "Faturas de venda"
+  },
+  "data_transfer.datasets.journal_entry_lines": {
+    "es": "Libro diario (líneas de asientos)",
+    "en": "General journal (entry lines)",
+    "pt": "Livro diário (linhas de lançamentos)"
+  },
+  "data_transfer.datasets.pos_sales": {
+    "es": "Ventas del punto de venta",
+    "en": "Point-of-sale sales",
+    "pt": "Vendas do ponto de venda"
   },
   "data_transfer.datasets.products": {
     "es": "Productos",

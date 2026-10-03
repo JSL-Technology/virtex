@@ -810,6 +810,11 @@
     "en": "The fiscal year is not open.",
     "pt": "O exercício fiscal não está aberto."
   },
+  "accounting.general_ledger.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
   "accounting.general_ledger.account_code_name": {
     "es": "Cuenta: {{code}} - {{name}}",
     "en": "Account: {{code}} - {{name}}",
@@ -865,11 +870,6 @@
     "en": "The general ledger could not be loaded. Try again.",
     "pt": "Não foi possível carregar o razão geral. Tente novamente."
   },
-  "accounting.general_ledger.no_account_has_specified": {
-    "es": "No se ha especificado una cuenta.",
-    "en": "No account has been specified.",
-    "pt": "Nenhuma conta foi especificada."
-  },
   "accounting.general_ledger.no_movements_found_account_selected_period": {
     "es": "No se encontraron movimientos para esta cuenta en el período seleccionado.",
     "en": "No movements were found for this account in the selected period.",
@@ -889,6 +889,11 @@
     "es": "Consultar",
     "en": "Run",
     "pt": "Consultar"
+  },
+  "accounting.general_ledger.select_account": {
+    "es": "Busca una cuenta por código o nombre",
+    "en": "Search an account by code or name",
+    "pt": "Busque uma conta por código ou nome"
   },
   "accounting.general_ledger.select_account_see_ledger": {
     "es": "Selecciona una cuenta para ver el libro mayor.",
@@ -1335,6 +1340,11 @@
     "en": "General",
     "pt": "Geral"
   },
+  "accounting.journal_form.journal_could_not_loaded": {
+    "es": "No se pudo cargar el diario.",
+    "en": "The journal could not be loaded.",
+    "pt": "Não foi possível carregar o diário."
+  },
   "accounting.journal_form.journal_could_not_saved": {
     "es": "No se pudo guardar el diario.",
     "en": "The journal could not be saved.",
@@ -1370,6 +1380,11 @@
     "en": "Save",
     "pt": "Salvar"
   },
+  "accounting.journal_form.system_code_note": {
+    "es": "Diario del sistema: el código es fijo porque el sistema contabiliza con él.",
+    "en": "System journal: the code is fixed because the system posts with it.",
+    "pt": "Diário do sistema: o código é fixo porque o sistema contabiliza com ele."
+  },
   "accounting.journal_form.title_create": {
     "es": "Nuevo diario",
     "en": "New journal",
@@ -1384,6 +1399,11 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "accounting.journal_form.used_note": {
+    "es": "Tiene {{count}} asiento(s): el código y el tipo ya no pueden cambiar.",
+    "en": "It has {{count}} entry(ies): the code and type can no longer change.",
+    "pt": "Tem {{count}} lançamento(s): o código e o tipo não podem mais mudar."
   },
   "accounting.journal_list.actions": {
     "es": "Acciones",
@@ -1400,10 +1420,35 @@
     "en": "Create journal",
     "pt": "Criar diário"
   },
+  "accounting.journal_list.delete_failed": {
+    "es": "No se pudo eliminar el diario.",
+    "en": "The journal could not be deleted.",
+    "pt": "Não foi possível excluir o diário."
+  },
+  "accounting.journal_list.delete_message": {
+    "es": "¿Eliminar el diario {{name}}? No tiene asientos.",
+    "en": "Delete the journal {{name}}? It has no entries.",
+    "pt": "Excluir o diário {{name}}? Ele não tem lançamentos."
+  },
+  "accounting.journal_list.delete_title": {
+    "es": "Eliminar diario",
+    "en": "Delete journal",
+    "pt": "Excluir diário"
+  },
+  "accounting.journal_list.deleted": {
+    "es": "Diario eliminado.",
+    "en": "Journal deleted.",
+    "pt": "Diário excluído."
+  },
   "accounting.journal_list.edit": {
     "es": "Editar",
     "en": "Edit",
     "pt": "Editar"
+  },
+  "accounting.journal_list.entries": {
+    "es": "Asientos",
+    "en": "Entries",
+    "pt": "Lançamentos"
   },
   "accounting.journal_list.journals": {
     "es": "Diarios",
@@ -1420,10 +1465,40 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "accounting.journal_list.system": {
+    "es": "Sistema",
+    "en": "System",
+    "pt": "Sistema"
+  },
   "accounting.journal_list.type": {
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "accounting.journal_type.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "accounting.journal_type.cash": {
+    "es": "Caja",
+    "en": "Cash",
+    "pt": "Caixa"
+  },
+  "accounting.journal_type.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "accounting.journal_type.purchases": {
+    "es": "Compras",
+    "en": "Purchases",
+    "pt": "Compras"
+  },
+  "accounting.journal_type.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
   },
   "accounting.ledger_form.cancel": {
     "es": "Cancelar",

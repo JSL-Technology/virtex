@@ -27,6 +27,9 @@ export class JournalFormPage implements OnInit {
   private notification = inject(NotificationService);
 
   readonly problems = signal<DraftProblem[]>([]);
+  /** The journal being edited, once loaded: what it allows to change depends on its history. */
+  readonly original = signal<Journal | null>(null);
+  readonly loadError = signal<string | null>(null);
 
   journalForm: FormGroup;
   isEditMode = false;
@@ -44,8 +47,20 @@ export class JournalFormPage implements OnInit {
     this.journalId = this.route.snapshot.paramMap.get('id');
     if (this.journalId) {
       this.isEditMode = true;
-      this.journalsService.getJournalById(this.journalId).subscribe((journal) => {
-        this.journalForm.patchValue(journal);
+      this.journalsService.getJournalById(this.journalId).subscribe({
+        next: (journal) => {
+          this.original.set(journal);
+          this.journalForm.patchValue(journal);
+          this.tab?.setTitle(`${journal.code} · ${journal.name}`);
+          // The server enforces the same rule; saying it here spares a refused save. The code
+          // prefixes every entry number the journal issued, and the product looks its own
+          // journals up by code; the type decides which documents may post to it.
+          if (journal.isSystem || (journal.entryCount ?? 0) > 0) this.journalForm.get('code')?.disable();
+          if ((journal.entryCount ?? 0) > 0) this.journalForm.get('type')?.disable();
+          this.journalForm.markAsPristine();
+        },
+        error: (error: unknown) =>
+          this.loadError.set(this.notification.httpErrorMessage(error, 'accounting.journal_form.journal_could_not_loaded')),
       });
     }
   }
@@ -71,7 +86,8 @@ export class JournalFormPage implements OnInit {
 
     this.problems.set([]);
 
-    const journalData: Journal = this.journalForm.value;
+    // `value`, not `getRawValue()`: a field locked by the journal's history is not sent at all.
+    const journalData = this.journalForm.value as Partial<Journal>;
 
     // Success went to `console.log` and failure went nowhere at all: a rejected save left the
     // user on an unchanged form with no navigation and no message, indistinguishable from a
@@ -79,7 +95,7 @@ export class JournalFormPage implements OnInit {
     const request =
       this.isEditMode && this.journalId
         ? this.journalsService.update(this.journalId, journalData)
-        : this.journalsService.create(journalData);
+        : this.journalsService.create(journalData as Journal);
 
     request.subscribe({
       next: () => {

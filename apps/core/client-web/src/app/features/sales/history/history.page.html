@@ -7,7 +7,9 @@
   [empty]="!loading() && !error() && sales().length === 0"
   (reload)="load()"
 >
-  <button listActions type="button" class="secondary-button">
+  <button listActions type="button" class="secondary-button"
+    [disabled]="sales().length === 0 || exports.exporting() === 'pos_sales'"
+    (click)="exports.export('pos_sales')">
     <lucide-icon [img]="FileDownIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'sales.history.export' | translate }}</span>
   </button>

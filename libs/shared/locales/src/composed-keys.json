@@ -48,6 +48,13 @@
       "STATUS_VOID",
       "STATUS_REJECTED"
     ],
+    "accounting.journal_type": [
+      "SALES",
+      "PURCHASES",
+      "CASH",
+      "BANK",
+      "GENERAL"
+    ],
     "accounting.periods": [
       "STATUS_OPEN",
       "STATUS_CLOSED"
@@ -131,7 +138,10 @@
       "products",
       "invoices",
       "sales_lines",
-      "vendor_bills"
+      "vendor_bills",
+      "journal_entry_lines",
+      "chart_of_accounts",
+      "pos_sales"
     ],
     "data_transfer.status": [
       "COMPLETED",

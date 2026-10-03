@@ -6,7 +6,9 @@
   [empty]="isEmpty()"
   (reload)="load()"
 >
-  <button listActions class="primary-button" type="button" [disabled]="isEmpty()">
+  <button listActions class="primary-button" type="button"
+    [disabled]="isEmpty() || exports.exporting() === 'journal_entry_lines'"
+    (click)="exports.export('journal_entry_lines')">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.daily_journal.export' | translate }}</span>
   </button>
