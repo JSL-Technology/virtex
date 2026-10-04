@@ -39,6 +39,11 @@
     "en": "The parent organization was not found.",
     "pt": "Organização controladora não encontrada."
   },
+  "organizations.subsidiary_country_code": {
+    "es": "Indica el país de la subsidiaria con su código ISO de dos letras (por ejemplo, DO).",
+    "en": "Give the subsidiary's country as its two-letter ISO code (for example, DO).",
+    "pt": "Informe o país da subsidiária com o código ISO de duas letras (por exemplo, DO)."
+  },
   "organizations.tax_configuration_country_not_available_right": {
     "es": "La configuración fiscal de ese país no está disponible en este momento.",
     "en": "The tax configuration for that country is not available right now.",

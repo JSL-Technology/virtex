@@ -54,6 +54,7 @@ export class SecuritySettingsComponent implements OnInit {
   protected readonly DownloadIcon = Download;
   protected readonly RefreshIcon = RefreshCw;
   protected readonly ArrowRightIcon = ArrowRight;
+  protected readonly XIcon = X;
   protected readonly ImageIcon = ImageIcon;
   protected readonly UserIcon = User;
   protected readonly MailIcon = Mail;

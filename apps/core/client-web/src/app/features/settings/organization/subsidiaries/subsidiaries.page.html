@@ -10,12 +10,17 @@
 </div>
 
 <div class="content-card">
-  @if (loading) {
+  @if (loading()) {
     <!-- El aro giratorio de aquí era uno de los dieciséis «gira 360 grados» escritos a mano. -->
     <div class="state-slot">
       <vx-spinner size="lg" withLabel labelKey="settings.subsidiaries.loading_subsidiaries" />
     </div>
-  } @else if (subsidiaries.length === 0) {
+  } @else if (loadError(); as message) {
+    <div class="state-slot" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="loadSubsidiaries()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else if (subsidiaries().length === 0) {
     <vx-empty-state
       [icon]="BuildingIcon"
       titleKey="settings.subsidiaries.no_subsidiaries_record"
@@ -27,8 +32,10 @@
     </vx-empty-state>
   }
 
-  <div class="subsidiaries-list" *ngIf="!loading && subsidiaries.length > 0">
-    <div class="subsidiary-item" *ngFor="let sub of subsidiaries">
+  @if (!loading() && !loadError() && subsidiaries().length > 0) {
+  <div class="subsidiaries-list">
+    @for (sub of subsidiaries(); track sub.subsidiary.id) {
+    <div class="subsidiary-item">
       <div class="item-icon">
         <lucide-icon [img]="BuildingIcon" size="24"></lucide-icon>
       </div>
@@ -46,13 +53,10 @@
       <div class="item-ownership">
         <span class="ownership-badge">{{ 'settings.subsidiaries.ownership_ownership' | translate: { ownership: sub.ownership } }}</span>
       </div>
-      <div class="item-actions">
-        <button class="icon-btn">
-          <lucide-icon [img]="MoreVerticalIcon" size="18"></lucide-icon>
-        </button>
-      </div>
     </div>
+    }
   </div>
+  }
 </div>
 
 <!--
@@ -60,18 +64,18 @@
   añadidas DELANTE del formulario para contentar a la regla de accesibilidad, sobre un diálogo que
   seguía sin atrapar el foco. `vx-dialog` pone la trampa y el velo vuelve a ser un velo.
 -->
-@if (showModal) {
+@if (showModal()) {
   <vx-dialog
     size="md"
     titleKey="settings.subsidiaries.new_subsidiary"
-    [busy]="submitting"
+    [busy]="submitting()"
     (dismissed)="closeModal()"
   >
     <form id="subsidiary-form" [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <div class="form-field">
-          <label for="legalname">{{ 'settings.subsidiaries.legal_name' | translate }}</label>
-          <input id="legalname" type="text" formControlName="legalName" [placeholder]="'settings.subsidiaries.ej_virteex_latam' | translate">
+           <label for="legalname">{{ 'settings.subsidiaries.legal_name' | translate }} *</label>
+          <input id="legalname" type="text" formControlName="legalName" maxlength="255" [placeholder]="'settings.subsidiaries.ej_virteex_latam' | translate">
         </div>
 
         <div class="form-row">
@@ -79,13 +83,20 @@
             <!-- Each subsidiary has its OWN country, so both the label and the example follow the
                  country picked below (A-01): the fiscal identifier is named RNC/RUC/CNPJ by that
                  jurisdiction, not renamed per the reader's locale. Neutral base key as fallback. -->
-            <label for="taxid">{{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }}</label>
+            <label for="taxid">{{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} *</label>
             <input id="taxid" type="text" formControlName="taxId" [placeholder]="taxIdExample()">
           </div>
 
           <div class="form-field">
             <label for="country">{{ 'settings.subsidiaries.country_column' | translate }} *</label>
-            <input id="country" type="text" formControlName="country" [placeholder]="'settings.subsidiaries.dominican_republic' | translate">
+            <!-- A list, not free text: the jurisdiction is looked up by ISO code, and a typed
+                 «República Dominicana» matched nothing (QA A-16). -->
+            <select id="country" formControlName="country">
+              <option value="" disabled>{{ 'settings.subsidiaries.select_country' | translate }}</option>
+              @for (country of countries(); track country.countryCode) {
+                <option [value]="country.countryCode">{{ country.name }}</option>
+              }
+            </select>
           </div>
         </div>
 
@@ -98,7 +109,7 @@
     </form>
 
     <ng-container dialogActions>
-      <button type="button" class="secondary-button" [disabled]="submitting" (click)="closeModal()">
+      <button type="button" class="secondary-button" [disabled]="submitting()" (click)="closeModal()">
         {{ 'settings.subsidiaries.cancel' | translate }}
       </button>
       <!--
@@ -110,9 +121,9 @@
         type="submit"
         form="subsidiary-form"
         class="primary-button"
-        [disabled]="createForm.invalid || submitting"
+        [disabled]="submitting()"
       >
-        {{ (submitting ? 'common.saving' : 'settings.subsidiaries.create_subsidiary') | translate }}
+        {{ (submitting() ? 'common.saving' : 'settings.subsidiaries.create_subsidiary') | translate }}
       </button>
     </ng-container>
   </vx-dialog>

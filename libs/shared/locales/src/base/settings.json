@@ -2806,6 +2806,11 @@
     "en": "Country",
     "pt": "País"
   },
+  "settings.subsidiaries.create_failed": {
+    "es": "No se pudo crear la subsidiaria.",
+    "en": "The subsidiary could not be created.",
+    "pt": "Não foi possível criar a subsidiária."
+  },
   "settings.subsidiaries.create_first_subsidiary": {
     "es": "Crear primera subsidiaria",
     "en": "Create the first subsidiary",
@@ -2816,10 +2821,10 @@
     "en": "Create subsidiary",
     "pt": "Criar subsidiária"
   },
-  "settings.subsidiaries.dominican_republic": {
-    "es": "Ej. República Dominicana",
-    "en": "e.g. Dominican Republic",
-    "pt": "Ex.: República Dominicana"
+  "settings.subsidiaries.created": {
+    "es": "Subsidiaria creada.",
+    "en": "Subsidiary created.",
+    "pt": "Subsidiária criada."
   },
   "settings.subsidiaries.ej_virteex_latam": {
     "es": "Ej. Virtex Latam S.A.",
@@ -2835,6 +2840,11 @@
     "es": "Nombre Legal",
     "en": "Legal Name",
     "pt": "Razão Social"
+  },
+  "settings.subsidiaries.load_failed": {
+    "es": "No se pudieron cargar las subsidiarias.",
+    "en": "The subsidiaries could not be loaded.",
+    "pt": "Não foi possível carregar as subsidiárias."
   },
   "settings.subsidiaries.loading_subsidiaries": {
     "es": "Cargando subsidiarias...",
@@ -2865,6 +2875,11 @@
     "es": "Porcentaje de Propiedad (%)",
     "en": "Ownership Percentage (%)",
     "pt": "Percentual de Participação (%)"
+  },
+  "settings.subsidiaries.select_country": {
+    "es": "Elige el país",
+    "en": "Choose the country",
+    "pt": "Escolha o país"
   },
   "settings.subsidiaries.start_adding_subsidiary_branch_expand_your": {
     "es": "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.",
