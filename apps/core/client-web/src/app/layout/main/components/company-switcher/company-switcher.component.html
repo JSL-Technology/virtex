@@ -54,7 +54,7 @@
               <div class="invitation-text">
                 <span class="org-name">{{ invitation.organizationName }}</span>
                 <span class="invitation-role">
-                  {{ 'main.company_switcher.invitation_role' | translate: { role: invitation.roleName } }}
+                  {{ 'main.company_switcher.invitation_role' | translate: { role: (invitation.roleName | vxRoleName) } }}
                 </span>
               </div>
               <div class="invitation-actions">

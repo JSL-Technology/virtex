@@ -2161,6 +2161,36 @@
     "en": "Job Title",
     "pt": "Cargo"
   },
+  "settings.profile.job_titles.accountant": {
+    "es": "Contador",
+    "en": "Accountant",
+    "pt": "Contador"
+  },
+  "settings.profile.job_titles.admin": {
+    "es": "Administrador",
+    "en": "Administrator",
+    "pt": "Administrador"
+  },
+  "settings.profile.job_titles.ceo": {
+    "es": "Director general",
+    "en": "Chief executive",
+    "pt": "Diretor-geral"
+  },
+  "settings.profile.job_titles.employee": {
+    "es": "Empleado",
+    "en": "Employee",
+    "pt": "Funcionário"
+  },
+  "settings.profile.job_titles.manager": {
+    "es": "Gerente",
+    "en": "Manager",
+    "pt": "Gerente"
+  },
+  "settings.profile.job_titles.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
   "settings.profile.last_name": {
     "es": "Apellidos",
     "en": "Last Name",

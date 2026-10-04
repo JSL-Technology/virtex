@@ -28,7 +28,7 @@
                         <i class="fas fa-file-import"></i>
                         <span>{{ selectedFile()?.name || ('accounting.bulk_operations.select_a_file' | translate) }}</span>
                     </label>
-                    <input id="file-upload" type="file" (change)="onFileSelected($event)"
+                    <input id="file-upload" class="sr-only" type="file" (change)="onFileSelected($event)"
                         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
 
                     <button class="primary-button" (click)="onUpload()" [disabled]="!selectedFile() || isUploading()">

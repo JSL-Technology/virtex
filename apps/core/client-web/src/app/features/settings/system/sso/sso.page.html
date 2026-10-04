@@ -160,7 +160,7 @@
               </td>
               <td>
                 <vx-badge [tone]="p.enabled ? 'ok' : 'warning'">
-                  {{ p.enabled ? 'Activo' : 'Inactivo' }}
+                  {{ (p.enabled ? 'common.status_active' : 'common.status_inactive') | translate }}
                 </vx-badge>
               </td>
               <td class="row-actions">

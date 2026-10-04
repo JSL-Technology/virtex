@@ -58,10 +58,10 @@
         <span>{{ 'settings.fiscal.certificate_password' | translate }}</span>
         <input type="password" formControlName="password" autocomplete="off" />
       </label>
-      <label>
+      <div class="field" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
         <span>{{ 'settings.fiscal.file_p12_pfx' | translate }}</span>
-        <input type="file" accept=".p12,.pfx" (change)="onFileSelected($event)" />
-      </label>
+        <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
+      </div>
       <button type="submit" [disabled]="uploading()">
         {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
       </button>
@@ -78,7 +78,7 @@
           <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
           <td>
             <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
-              {{ c.expired ? 'Vencido' : (c.isActive ? 'Activo' : 'Inactivo') }}
+              {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
             </vx-badge>
           </td>
           <td>
@@ -136,7 +136,7 @@
           <td>{{ s.currentSequence }}</td>
           <td>
             <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
-              {{ s.isActive ? 'Activo' : 'Inactivo' }}
+              {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
             </vx-badge>
           </td>
         </tr>

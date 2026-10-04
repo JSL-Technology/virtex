@@ -1,3 +1,5 @@
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
   Component,
   OnInit,
@@ -78,7 +80,7 @@ import { VX_SELECT } from '../../../shared/components/select';
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
-  imports: [
+  imports: [...FORMAT_PIPES, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -147,7 +149,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
   users = signal<ApiUser[]>([]);
   roles = signal<Role[]>([]);
 
-  protected readonly roleName = (role: Role): string => role.name;
+  protected readonly roleName = (role: Role): string => roleLabel(this.translate, role.name);
   protected readonly roleId = (role: Role): string => role.id;
   loading = signal(true);
   isEditMode = signal(false);

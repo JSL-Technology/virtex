@@ -88,6 +88,21 @@
       "PURCHASE_ORDER",
       "PURCHASE_REQUISITION"
     ],
+    "settings.profile.job_titles": [
+      "ceo",
+      "manager",
+      "accountant",
+      "admin",
+      "employee",
+      "other"
+    ],
+    "billing.invoice_status": [
+      "draft",
+      "open",
+      "paid",
+      "uncollectible",
+      "void"
+    ],
     "billing.subscription_status": [
       "active",
       "trialing",
@@ -344,6 +359,11 @@
       "INVOICED",
       "CANCELLED",
       "EXPIRED"
+    ],
+    "search.group": [
+      "invoices",
+      "products",
+      "customers"
     ],
     "settings.fiscal.capability": [
       "accounting",

@@ -4,6 +4,21 @@
     "en": "Global Search",
     "pt": "Busca global"
   },
+  "search.group.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "search.group.invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "search.group.products": {
+    "es": "Productos",
+    "en": "Products",
+    "pt": "Produtos"
+  },
   "search.organizations": {
     "es": "Buscar organizaciones",
     "en": "Search organizations",

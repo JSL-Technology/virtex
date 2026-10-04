@@ -24,6 +24,11 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
+  "common.choose_file": {
+    "es": "Elegir archivo",
+    "en": "Choose file",
+    "pt": "Escolher arquivo"
+  },
   "common.close": {
     "es": "Cerrar",
     "en": "Close",
@@ -279,6 +284,11 @@
     "en": "Next page",
     "pt": "Próxima página"
   },
+  "common.no_file_chosen": {
+    "es": "Ningún archivo seleccionado",
+    "en": "No file chosen",
+    "pt": "Nenhum arquivo selecionado"
+  },
   "common.not_recorded": {
     "es": "Sin registrar",
     "en": "Not recorded",
@@ -335,7 +345,7 @@
     "pt": "A guardar…"
   },
   "common.single_file_expected": {
-    "es": "Single file expected",
+    "es": "Se esperaba un solo archivo",
     "en": "A single file is expected.",
     "pt": "É esperado um único arquivo."
   },
@@ -343,6 +353,21 @@
     "es": "Saltar al contenido principal",
     "en": "Skip to main content",
     "pt": "Ir para o conteúdo principal"
+  },
+  "common.status_active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "common.status_expired": {
+    "es": "Vencido",
+    "en": "Expired",
+    "pt": "Vencido"
+  },
+  "common.status_inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
   },
   "common.success": {
     "es": "Listo",

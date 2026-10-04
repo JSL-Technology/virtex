@@ -1780,6 +1780,11 @@
     "en": "The ledgers could not be loaded. Try again.",
     "pt": "Não foi possível carregar os livros contábeis. Tente novamente."
   },
+  "accounting.ledger_list.main_ledger": {
+    "es": "Principal",
+    "en": "Main",
+    "pt": "Principal"
+  },
   "accounting.ledger_list.name": {
     "es": "Nombre",
     "en": "Name",

@@ -200,6 +200,12 @@ export class BillingPage implements OnInit {
     );
   }
 
+  /** A billing-history invoice's Stripe status, in the reader's language; an unknown one as itself. */
+  invoiceStatusLabel(status: string | undefined): string {
+    if (!status) return '—';
+    return translateOrLiteral(this.translate, composeKey('billing.invoice_status', status), undefined, status);
+  }
+
   /**
    * A plan's pitch, in the reader's language.
    *

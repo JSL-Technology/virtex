@@ -276,7 +276,7 @@
                             @if (inv.status === 'paid') {
                                 <span class="status-paid">{{ 'settings.billing.paid' | translate }}</span>
                             } @else {
-                                <span class="status-paid status-paid--pending">{{ inv.status }}</span>
+                                <span class="status-paid status-paid--pending">{{ invoiceStatusLabel(inv.status) }}</span>
                             }
                         </td>
                         <td class="history-action">

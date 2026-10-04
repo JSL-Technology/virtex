@@ -1,3 +1,4 @@
+import { VxFileInputComponent } from '../../../shared/components/file-input/file-input.component';
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,7 +24,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [VxFileInputComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaxesService, CreateTaxDto, UpdateTaxDto } from '../../../../core/api/taxes.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TaxType } from '../../../../core/models/tax.model';
+import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
@@ -30,6 +30,7 @@ export class TaxFormPage implements OnInit {
   isEditMode = signal(false);
   isLoading = signal(true);
   taxTypes = Object.values(TaxType);
+  readonly taxTypeLabel = taxTypeLabel;
   /**
    * Qué falta antes de guardar, leído del propio formulario.
    *

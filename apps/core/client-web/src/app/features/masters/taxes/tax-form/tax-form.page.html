@@ -27,7 +27,7 @@
           <label for="type">{{ 'masters.tax_form.type' | translate }}</label>
           <select id="type" formControlName="type">
             @for (type of taxTypes; track type) {
-              <option [value]="type">{{ type }}</option>
+              <option [value]="type">{{ taxTypeLabel(type) | translate }}</option>
             }
           </select>
         </div>

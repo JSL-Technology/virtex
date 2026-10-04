@@ -154,8 +154,8 @@
                 <tr>
                   <td>{{ invitation.firstName }} {{ invitation.lastName }}</td>
                   <td>{{ invitation.email }}</td>
-                  <td>{{ invitation.roleName }}</td>
-                  <td>{{ invitation.expiresAt | date: 'mediumDate' }}</td>
+                  <td>{{ invitation.roleName | vxRoleName }}</td>
+                  <td>{{ invitation.expiresAt | vxDate }}</td>
                   <td>
                     <button
                       type="button"

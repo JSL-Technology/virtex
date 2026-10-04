@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@ang
 import { DialogService } from '../../../core/services/dialog.service';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
-import { Tax } from '../../../core/models/tax.model';
+import { Tax, taxTypeLabel } from '../../../core/models/tax.model';
 import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -21,6 +21,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxesPage implements OnInit {
+  readonly taxTypeLabel = taxTypeLabel;
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly TrashIcon = Trash2;

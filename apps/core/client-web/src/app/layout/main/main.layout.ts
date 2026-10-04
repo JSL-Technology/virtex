@@ -1,3 +1,4 @@
+import { RoleNamePipe } from '../../shared/pipes/role-name.pipe';
 // ../app/layout/main/main.layout.ts
 
 import {
@@ -103,7 +104,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
+  imports: [RoleNamePipe, 
     CommonModule,
     RouterLink,
     ThemeToggle,

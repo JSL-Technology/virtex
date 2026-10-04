@@ -4,6 +4,7 @@ import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/ro
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHighcharts } from 'highcharts-angular';
+import { provideChartLanguage } from './core/i18n/chart-language';
 import {
   MissingTranslationHandler,
   provideTranslateService,
@@ -82,6 +83,8 @@ const CHARTS_PROVIDERS = [
       legend: { enabled: false },
     },
   }),
+  // Menus, loading text and the screen-reader description, in the reader's language (QA M-17).
+  provideChartLanguage(),
 ];
 
 const I18N_PROVIDERS = [

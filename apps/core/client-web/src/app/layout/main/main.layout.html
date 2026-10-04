@@ -147,7 +147,7 @@
             <div class="result-group">
               <h4 class="group-title">
                 <lucide-icon [img]="groupIcon" size="16"></lucide-icon>
-                <span>{{ group.type }}</span>
+                <span>{{ 'search.group.' + group.type.toLowerCase() | translate }}</span>
                 <span class="group-count">({{ group.results.length }})</span>
               </h4>
               <ul class="results-list">
@@ -370,13 +370,7 @@
               authService.currentUser()?.lastName }}</span
             >
 
-            <span class="user-role">
-              {{(authService.currentUser()?.roles?.[0]?.isSystemRole ?
-              ('user.role.' +
-              authService.currentUser()!.roles[0].name.toUpperCase() |
-              translate) : (authService.currentUser()?.roles?.[0]?.name ||
-              ('user.role.no_role' | translate)))}}
-            </span>
+            <span class="user-role">{{ authService.currentUser()?.roles?.[0] | vxRoleName }}</span>
           </div>
           <lucide-icon
             [img]="ChevronDownIcon"

@@ -1,3 +1,4 @@
+import { roleLabel } from '../../../../shared/pipes/role-name.pipe';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -95,7 +96,7 @@ export class ApprovalPoliciesPage implements OnInit {
     });
   }
 
-  readonly roleLabel = (role: Role): string => role.name;
+  readonly roleLabel = (role: Role): string => roleLabel(this.translate, role.name);
   readonly roleValue = (role: Role): string => role.id;
   readonly typeLabel = (type: ApprovalDocumentType): string => this.translate.instant(this.typeKey(type));
 
@@ -104,7 +105,8 @@ export class ApprovalPoliciesPage implements OnInit {
   }
 
   roleName(id: string): string {
-    return this.roleNames().get(id) ?? '—';
+    const name = this.roleNames().get(id);
+    return name ? roleLabel(this.translate, name) : '—';
   }
 
   startNew(): void {

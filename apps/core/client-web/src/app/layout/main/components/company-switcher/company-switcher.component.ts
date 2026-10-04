@@ -1,3 +1,4 @@
+import { RoleNamePipe } from '../../../../shared/pipes/role-name.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,7 +13,7 @@ import { OrganizationInvitationsService, ReceivedInvitation } from '../../../../
 @Component({
   selector: 'app-company-switcher',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LucideAngularModule, ClickOutsideDirective],
+  imports: [RoleNamePipe, CommonModule, TranslateModule, LucideAngularModule, ClickOutsideDirective],
   templateUrl: './company-switcher.component.html',
   styleUrls: ['./company-switcher.component.scss']
 })

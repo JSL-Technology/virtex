@@ -30,7 +30,7 @@
         @for (tax of taxes(); track tax.id) {
           <tr>
             <td>{{ tax.name }}</td>
-            <td>{{ tax.type }}</td>
+            <td>{{ taxTypeLabel(tax.type) | translate }}</td>
             <td class="text-right"><vx-amount [value]="tax.rate" />%</td>
             <td class="text-center">{{ tax.countryCode }}</td>
             <td class="actions-column">

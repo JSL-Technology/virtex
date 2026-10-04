@@ -619,6 +619,16 @@
     "en": "Type",
     "pt": "Tipo"
   },
+  "masters.taxes.type_fixed": {
+    "es": "Monto fijo",
+    "en": "Fixed amount",
+    "pt": "Valor fixo"
+  },
+  "masters.taxes.type_percentage": {
+    "es": "Porcentaje",
+    "en": "Percentage",
+    "pt": "Percentual"
+  },
   "masters.units_of_measure.created": {
     "es": "Unidad creada.",
     "en": "Unit created.",
