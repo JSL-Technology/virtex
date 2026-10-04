@@ -12,6 +12,7 @@ import {
 import { Budget } from '../budgets/entities/budget.entity';
 import { AuditLog, ActionType } from './entities/audit-log.entity';
 import { FinancialAuditSubscriber } from './financial-audit.subscriber';
+import { AuditTrailService } from './audit.service';
 
 /**
  * Every change to a financial document leaves a row, in the transaction that made it.
@@ -163,5 +164,29 @@ describeWithDb('the financial audit trail', () => {
       .find({ where: { entity: 'organizations', entityId: organizationId } });
 
     expect(rows).toHaveLength(0);
+  });
+  /**
+   * The trail as the Security page reads it: filtered by who, what and when, with the actor named.
+   * An auditor asks «who changed this, and when»; ids alone answer neither.
+   */
+  it('filters the trail by action, entity and date, and names the actor', async () => {
+    const service = new AuditTrailService(dataSource.getRepository(AuditLog));
+    const repo = dataSource.getRepository(AuditLog);
+    const entityId = '9c000000-0000-4000-8000-000000000001';
+    await repo.save([
+      repo.create({ organizationId, userId: null, entity: 'invoices', entityId, actionType: ActionType.CREATE, newValue: {} }),
+      repo.create({ organizationId, userId: null, entity: 'invoices', entityId, actionType: ActionType.UPDATE, newValue: {} }),
+      repo.create({ organizationId, userId: null, entity: 'customers', entityId, actionType: ActionType.UPDATE, newValue: {} }),
+    ]);
+
+    const updates = await service.find(organizationId, { actionType: ActionType.UPDATE, entity: 'invoices' });
+    expect(updates.total).toBe(1);
+    expect(updates.rows[0]).toMatchObject({ entity: 'invoices', actionType: ActionType.UPDATE, actorName: null });
+
+    const today = new Date().toISOString().slice(0, 10);
+    expect((await service.find(organizationId, { from: today, to: today })).total).toBe(3);
+    expect((await service.find(organizationId, { to: '2000-01-01' })).total).toBe(0);
+
+    expect(await service.entities(organizationId)).toEqual(['customers', 'invoices']);
   });
 });

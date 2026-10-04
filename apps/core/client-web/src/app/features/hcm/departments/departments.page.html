@@ -4,7 +4,7 @@
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()"
-    vxRequires="hcm:manage" (click)="creating.set(!creating())">
+    appRequires="hcm:manage" (click)="creating.set(!creating())">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'hcm.departments.new' | translate }}</span>
   </button>

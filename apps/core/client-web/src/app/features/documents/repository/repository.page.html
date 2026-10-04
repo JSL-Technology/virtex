@@ -8,7 +8,7 @@
   searchPlaceholderKey="documents.repository.search_all"
 >
   <button listActions type="button" class="secondary-button" [disabled]="busy()"
-    vxRequires="documents:manage" (click)="newFolderOpen.set(!newFolderOpen())">
+    appRequires="documents:manage" (click)="newFolderOpen.set(!newFolderOpen())">
     <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'documents.repository.new_folder' | translate }}</span>
   </button>

@@ -17,8 +17,8 @@ describe('CanOpenDirective', () => {
     template: `
       <a listActions id="new-invoice" [routerLink]="['/invoices/new']">new</a>
       <a listActions id="unknown" routerLink="/nowhere/at/all">?</a>
-      <button id="new-warehouse" vxRequires="wms:manage">new warehouse</button>
-      <button id="new-account" vxCanOpen="/accounting/chart-of-accounts/new">new account</button>
+      <button id="new-warehouse" appRequires="wms:manage">new warehouse</button>
+      <button id="new-account" appCanOpen="/accounting/chart-of-accounts/new">new account</button>
     `,
   })
   class Host {}

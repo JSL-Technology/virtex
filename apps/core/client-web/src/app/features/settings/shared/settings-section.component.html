@@ -72,7 +72,7 @@
               }
               @case ('percent') {
                 <span class="ss__unit">
-                  <input type="number" vxPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field"
+                  <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field"
                     step="0.01" [min]="policy.min ?? 0" [max]="policy.max ?? 100"
                     [ngModel]="fieldValueOf(policy.field)" [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="setField(policy.field, $event)" />

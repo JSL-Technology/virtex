@@ -129,7 +129,7 @@
                   </td>
                 }
                 <td class="numeric"><input type="number" step="0.01" min="0" formControlName="unitPrice" /></td>
-                <td class="numeric"><input type="number" vxPercent step="0.01" min="0" max="100" formControlName="taxRate" /></td>
+                <td class="numeric"><input type="number" appPercent step="0.01" min="0" max="100" formControlName="taxRate" /></td>
                 <td class="numeric"><vx-amount [value]="lineTotal(line.value)" /></td>
                 <td>
                   @if (editable()) {

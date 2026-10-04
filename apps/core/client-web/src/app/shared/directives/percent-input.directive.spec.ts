@@ -8,7 +8,7 @@ describe('PercentInputDirective', () => {
   @Component({
     standalone: true,
     imports: [ReactiveFormsModule, PercentInputDirective],
-    template: `<input type="number" vxPercent [formControl]="rate" />`,
+    template: `<input type="number" appPercent [formControl]="rate" />`,
   })
   class Host {
     readonly rate = new FormControl<number | null>(0.18, [Validators.max(1)]);

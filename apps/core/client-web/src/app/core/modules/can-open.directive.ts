@@ -13,12 +13,12 @@ import { resolveRoute } from './module-registry';
  * declaration rather than repeating a permission string in each template — where it would drift.
  *
  * Applied to every list's action links (`a[listActions]`) and, explicitly, wherever a link or
- * button leads to a screen (`[vxCanOpen]="'/invoices/new'"`). The server stays the authority; this
+ * button leads to a screen (`[appCanOpen]="'/invoices/new'"`). The server stays the authority; this
  * only stops the interface offering a door it would slam. An unknown path is left visible: the
  * router's own guard answers it, and hiding it would hide a broken link.
  */
 @Directive({
-  selector: 'a[listActions], [vxCanOpen], [vxRequires]',
+  selector: 'a[listActions], [appCanOpen], [appRequires]',
   standalone: true,
   host: {
     '[hidden]': '!allowed()',
@@ -31,17 +31,17 @@ export class CanOpenDirective {
   /** Read from the same binding the router uses, so the two cannot point at different places. */
   readonly routerLink = input<string | readonly unknown[] | null | undefined>(undefined);
   /** An explicit target, for a button that navigates in code. */
-  readonly vxCanOpen = input<string | null | undefined>(undefined);
+  readonly appCanOpen = input<string | null | undefined>(undefined);
   /**
    * The permission an in-place action needs — "New warehouse" opens a row, not a screen, so there
    * is no route to ask. The same string the API's `@HasPermission` declares for that write.
    */
-  readonly vxRequires = input<string | null | undefined>(undefined);
+  readonly appRequires = input<string | null | undefined>(undefined);
 
   protected readonly allowed = computed(() => {
-    const required = this.vxRequires();
+    const required = this.appRequires();
     if (required) return this.auth.hasPermissions([required]);
-    const target = this.vxCanOpen() ?? pathOf(this.routerLink());
+    const target = this.appCanOpen() ?? pathOf(this.routerLink());
     if (!target) return true;
     const match = resolveRoute(pathWithoutOrganization(target));
     if (!match) return true;

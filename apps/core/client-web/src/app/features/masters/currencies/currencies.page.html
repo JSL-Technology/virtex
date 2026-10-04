@@ -7,7 +7,7 @@
   (reload)="load()"
 >
   @if (canManage()) {
-    <button listActions type="button" class="primary-button" vxRequires="currencies:manage" (click)="toggleCreate()">
+    <button listActions type="button" class="primary-button" appRequires="currencies:manage" (click)="toggleCreate()">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'masters.currencies.new_currency' | translate }}</span>
     </button>

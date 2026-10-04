@@ -1,0 +1,148 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'settings.pages.approvals.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.approvals.subtitle' | translate }}</p>
+  </div>
+
+  @if (loading()) {
+    <p class="ap__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+  } @else if (loadError(); as message) {
+    <div class="ap__state ap__state--error" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else {
+    @if (draft(); as d) {
+      <form class="ap__editor" (ngSubmit)="save()" [attr.aria-busy]="saving()">
+        <h2 class="ap__editor-title">
+          {{ (d.id ? 'settings.approvals.edit_title' : 'settings.approvals.new_title') | translate }}
+        </h2>
+
+        <div class="ap__grid">
+          <label class="ap__field" for="ap-name">
+            <span>{{ 'settings.approvals.name' | translate }} *</span>
+            <input id="ap-name" name="name" class="ap__input" type="text" maxlength="120"
+              [ngModel]="d.name" (ngModelChange)="patchDraft({ name: $event })" />
+          </label>
+
+          <label class="ap__field" for="ap-type">
+            <span>{{ 'settings.approvals.document_type' | translate }} *</span>
+            @if (d.id) {
+              <!-- The type is what the policy governs; changing it would be a different policy. -->
+              <input id="ap-type" class="ap__input" type="text" readonly [value]="typeKey(d.documentType) | translate" />
+            } @else {
+              <vx-select
+                inputId="ap-type"
+                [ngModel]="d.documentType"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="patchDraft({ documentType: $event })"
+                [options]="freeTypes()"
+                [displayWith]="typeLabel"
+              />
+            }
+          </label>
+        </div>
+
+        <h3 class="ap__steps-title">{{ 'settings.approvals.steps' | translate }}</h3>
+        <p class="ap__hint">{{ 'settings.approvals.steps_hint' | translate }}</p>
+
+        <table class="ap__table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{ 'settings.approvals.min_amount' | translate }}</th>
+              <th>{{ 'settings.approvals.role' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (step of d.steps; track $index; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <input class="ap__input ap__input--amount" type="number" min="0" step="0.01"
+                    [name]="'min-' + i"
+                    [attr.aria-label]="'settings.approvals.min_amount' | translate"
+                    [ngModel]="step.minAmount" (ngModelChange)="patchStep(i, { minAmount: +$event })" />
+                </td>
+                <td>
+                  <vx-select
+                    [inputId]="'ap-role-' + i"
+                    [ariaLabel]="'settings.approvals.role' | translate"
+                    [ngModel]="step.roleId || null"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="patchStep(i, { roleId: $event ?? '' })"
+                    [options]="roleList()"
+                    [displayWith]="roleLabel"
+                    [valueWith]="roleValue"
+                  />
+                </td>
+                <td>
+                  <button type="button" class="secondary-button" [disabled]="d.steps.length === 1"
+                    [attr.aria-label]="'settings.approvals.remove_step' | translate"
+                    (click)="removeStep(i)">
+                    {{ 'settings.approvals.remove_step' | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <button type="button" class="secondary-button ap__add-step" (click)="addStep()">
+          {{ 'settings.approvals.add_step' | translate }}
+        </button>
+
+        @if (problem(d); as key) {
+          <p class="ap__problem" role="status">{{ key | translate }}</p>
+        }
+
+        <div class="ap__actions">
+          <button type="button" class="secondary-button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+          <button type="submit" class="primary-button" [disabled]="saving()">{{ 'common.save' | translate }}</button>
+        </div>
+      </form>
+    }
+
+    @if (policies().length === 0 && !draft()) {
+      <p class="ap__state">{{ 'settings.approvals.empty' | translate }}</p>
+    }
+
+    <ul class="ap__list">
+      @for (policy of policies(); track policy.id) {
+        <li class="ap__card">
+          <div class="ap__card-head">
+            <div>
+              <strong>{{ policy.name }}</strong>
+              <span class="ap__type">{{ typeKey(policy.documentType) | translate }}</span>
+            </div>
+            <div class="ap__card-actions">
+              <button type="button" class="secondary-button" [disabled]="!!draft()" (click)="edit(policy)">
+                {{ 'common.edit' | translate }}
+              </button>
+              <button type="button" class="secondary-button danger" [disabled]="!!draft()" (click)="remove(policy)">
+                {{ 'common.delete' | translate }}
+              </button>
+            </div>
+          </div>
+          <ol class="ap__chain">
+            @for (step of policy.steps; track step.order) {
+              <li>
+                {{ 'settings.approvals.step_summary' | translate: { amount: (step.minAmount | vxNumber: '1.2-2'), role: roleName(step.roleId) } }}
+              </li>
+            }
+          </ol>
+        </li>
+      }
+    </ul>
+
+    @if (!draft()) {
+      @if (freeTypes().length > 0) {
+        <button type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
+      } @else {
+        <p class="ap__hint">{{ 'settings.approvals.all_types_covered' | translate }}</p>
+      }
+    }
+  }
+
+  <p class="ap__note">{{ 'settings.approvals.purchasing_note' | translate }}</p>
+</div>

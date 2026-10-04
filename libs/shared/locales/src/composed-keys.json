@@ -362,6 +362,13 @@
       "GOVERNMENT",
       "FOREIGN"
     ],
+    "settings.sequences.type": [
+      "CUSTOMER_INVOICE",
+      "QUOTE",
+      "CREDIT_NOTE",
+      "VENDOR_BILL",
+      "JOURNAL_ENTRY"
+    ],
     "user.role": [
       "ADMINISTRATOR",
       "MEMBER",

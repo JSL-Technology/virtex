@@ -7,7 +7,7 @@
   [empty]="isEmpty()"
   (reload)="reload()"
 >
-  <button listActions type="button" class="primary-button" vxCanOpen="/accounting/audit-adjustments/new" (click)="propose()">
+  <button listActions type="button" class="primary-button" appCanOpen="/accounting/audit-adjustments/new" (click)="propose()">
     <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'audit_adjustments.propose' | translate }}</span>
   </button>

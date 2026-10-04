@@ -24,6 +24,11 @@
     "en": "The policy cannot be deleted: it has {pending} pending requests that would become undecidable.",
     "pt": "A política não pode ser excluída: há {pending} solicitações pendentes que ficariam sem decisão possível."
   },
+  "workflows.policy_exists_for_document_type": {
+    "es": "Ya existe una política de aprobación para este tipo de documento. Edítala en lugar de crear otra.",
+    "en": "An approval policy already exists for this document type. Edit it instead of creating another.",
+    "pt": "Já existe uma política de aprovação para este tipo de documento. Edite-a em vez de criar outra."
+  },
   "workflows.reason_rejection_required": {
     "es": "Debes indicar el motivo del rechazo.",
     "en": "A reason for the rejection is required.",
@@ -33,6 +38,11 @@
     "es": "La solicitud ya ha sido procesada.",
     "en": "The request has already been processed.",
     "pt": "A solicitação já foi processada."
+  },
+  "workflows.step_role_not_found": {
+    "es": "Uno de los pasos indica un rol que no existe en esta empresa.",
+    "en": "One of the steps names a role that does not exist in this company.",
+    "pt": "Uma das etapas indica uma função que não existe nesta empresa."
   },
   "workflows.step_step_no_longer_exists_approval": {
     "es": "El paso {step} ya no existe en la política de aprobación.",

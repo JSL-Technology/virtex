@@ -4,7 +4,7 @@
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()"
-    vxRequires="payroll:process" (click)="creating.set(!creating())">
+    appRequires="payroll:process" (click)="creating.set(!creating())">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'payroll.runs.new' | translate }}</span>
   </button>

@@ -56,6 +56,11 @@ const ROUTE_DECORATOR = /^\s*@(Get|Post|Put|Patch|Delete)\(/;
 const PERMISSION_DECORATOR = /^\s*@HasPermission\(/;
 /** A route deliberately reachable without a session, e.g. a payment webhook. */
 const PUBLIC_DECORATOR = /^\s*@Public\(/;
+/**
+ * Reference data any member needs (currency codes for every document form), declared with a
+ * written reason; `route-authorisation.spec.ts` enforces that the reason is there and substantive.
+ */
+const AUTHENTICATED_ONLY_DECORATOR = /^\s*@AuthenticatedOnly\(/;
 
 function controllersUnder(directory: string): string[] {
   const found: string[] = [];
@@ -75,7 +80,7 @@ function controllersUnder(directory: string): string[] {
 }
 
 /**
- * Routes in a controller that carry no `@HasPermission` and no `@Public`.
+ * Routes in a controller that carry no `@HasPermission`, `@Public` or `@AuthenticatedOnly`.
  *
  * Decorators are read as text rather than through metadata reflection: importing the controllers
  * would pull in the whole Nest graph, and the question here is about what the source declares.
@@ -103,7 +108,10 @@ function unprotectedRoutes(file: string): string[] {
 
     const block = lines.slice(start, end + 1);
     const protectedRoute = block.some(
-      (line) => PERMISSION_DECORATOR.test(line) || PUBLIC_DECORATOR.test(line),
+      (line) =>
+        PERMISSION_DECORATOR.test(line) ||
+        PUBLIC_DECORATOR.test(line) ||
+        AUTHENTICATED_ONLY_DECORATOR.test(line),
     );
     if (!protectedRoute) {
       offenders.push(`${file.replace(APP_ROOT, '')}:${i + 1} ${lines[i].trim()}`);

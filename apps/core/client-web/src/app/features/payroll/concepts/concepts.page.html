@@ -3,7 +3,7 @@
   [count]="concepts().length"
   [empty]="isEmpty()"
 >
-  <button listActions type="button" class="primary-button" [disabled]="busy()" vxRequires="payroll:manage" (click)="startCreate()">
+  <button listActions type="button" class="primary-button" [disabled]="busy()" appRequires="payroll:manage" (click)="startCreate()">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'payroll.concepts.new' | translate }}</span>
   </button>

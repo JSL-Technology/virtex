@@ -12,6 +12,7 @@ import { ApprovalHandlerRegistry } from './approval-handler.registry';
 import { CreateApprovalPolicyDto, UpdateApprovalPolicyDto } from './dto/approval-policy.dto';
 import {
   BadRequestError,
+  ConflictError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
@@ -80,6 +81,17 @@ export class WorkflowsService {
     organizationId: string,
   ): Promise<ApprovalPolicy> {
     this.assertStepsAreCoherent(dto.steps);
+    // `startApprovalProcess` reads one policy per document type with `findOne`: a second policy for
+    // the same type would make which chain applies depend on row order.
+    const existing = await this.policyRepository.count({
+      where: { organizationId, documentType: dto.documentType },
+    });
+    if (existing > 0) {
+      throw new ConflictError('workflows.policy_exists_for_document_type', {
+        documentType: dto.documentType,
+      });
+    }
+    await this.assertRolesBelongToTenant(dto.steps, organizationId);
     const policy = this.policyRepository.create({ ...dto, organizationId });
     return this.policyRepository.save(policy);
   }
@@ -103,6 +115,7 @@ export class WorkflowsService {
       relations: ['steps'],
     });
     if (!policy) throw new NotFoundError('workflows.approval_policy_not_found');
+    if (dto.steps) await this.assertRolesBelongToTenant(dto.steps, organizationId);
 
     const updated = this.policyRepository.merge(policy, dto);
     return this.policyRepository.save(updated);
@@ -120,6 +133,23 @@ export class WorkflowsService {
     const result = await this.policyRepository.delete({ id: policyId, organizationId });
     if (result.affected === 0) {
       throw new NotFoundError('workflows.approval_policy_not_found');
+    }
+  }
+
+  /**
+   * A step names the role that decides it. A role of another tenant, or one that does not exist,
+   * makes the step undecidable — no user of this organisation can ever hold it — and every
+   * document reaching that step stays unposted. System roles (no organisation) are shared.
+   */
+  private async assertRolesBelongToTenant(steps: { roleId: string }[], organizationId: string): Promise<void> {
+    const ids = [...new Set((steps ?? []).map((step) => step.roleId))];
+    if (ids.length === 0) return;
+    const rows: { id: string }[] = await this.dataSource.query(
+      `SELECT id FROM roles WHERE id = ANY($1::uuid[]) AND (organization_id = $2 OR organization_id IS NULL)`,
+      [ids, organizationId],
+    );
+    if (rows.length !== ids.length) {
+      throw new BadRequestError('workflows.step_role_not_found');
     }
   }
 

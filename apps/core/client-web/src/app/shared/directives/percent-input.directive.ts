@@ -13,10 +13,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * holds `0.18`. Nothing else changes — validators, maths and the request keep speaking fractions,
  * so `Validators.max(1)` still means "at most 100 %".
  *
- *     <input type="number" vxPercent formControlName="taxRate" />
+ *     <input type="number" appPercent formControlName="taxRate" />
  */
 @Directive({
-  selector: 'input[vxPercent]',
+  selector: 'input[appPercent]',
   standalone: true,
   host: {
     inputmode: 'decimal',

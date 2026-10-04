@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AuditLog, ActionType } from './entities/audit-log.entity';
 
+/** A trail row as read: the log plus the actor's display name, when there is a person. */
+export type AuditTrailRow = AuditLog & { actorName: string | null };
+
 @Injectable()
 export class AuditTrailService {
   private readonly logger = new Logger(AuditTrailService.name);
@@ -137,23 +140,63 @@ export class AuditTrailService {
    */
   async find(
     organizationId: string,
-    filters: { entity?: string; entityId?: string; page?: number; pageSize?: number } = {},
-  ): Promise<{ rows: AuditLog[]; page: number; pageSize: number; total: number; hasMore: boolean }> {
+    filters: {
+      entity?: string;
+      entityId?: string;
+      userId?: string;
+      actionType?: ActionType;
+      from?: string;
+      to?: string;
+      page?: number;
+      pageSize?: number;
+    } = {},
+  ): Promise<{ rows: AuditTrailRow[]; page: number; pageSize: number; total: number; hasMore: boolean }> {
     const page = Math.max(1, Math.floor(filters.page ?? 1));
     const pageSize = Math.min(200, Math.max(1, Math.floor(filters.pageSize ?? 50)));
 
-    const [rows, total] = await this.auditLogRepository.findAndCount({
-      where: {
-        organizationId,
-        ...(filters.entity && { entity: filters.entity }),
-        ...(filters.entityId && { entityId: filters.entityId }),
-      },
-      order: { timestamp: 'DESC' },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    });
+    const query = this.auditLogRepository
+      .createQueryBuilder('log')
+      .where('log.organizationId = :organizationId', { organizationId })
+      .orderBy('log.timestamp', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+    if (filters.entity) query.andWhere('log.entity = :entity', { entity: filters.entity });
+    if (filters.entityId) query.andWhere('log.entityId = :entityId', { entityId: filters.entityId });
+    if (filters.userId) query.andWhere('log.userId = :userId', { userId: filters.userId });
+    if (filters.actionType) query.andWhere('log.actionType = :actionType', { actionType: filters.actionType });
+    if (filters.from) query.andWhere('log.timestamp >= :from', { from: filters.from });
+    if (filters.to) {
+      // A bare date is the whole of that day, not its first instant.
+      const to = /^\d{4}-\d{2}-\d{2}$/.test(filters.to) ? `${filters.to}T23:59:59.999Z` : filters.to;
+      query.andWhere('log.timestamp <= :to', { to });
+    }
+    const [logs, total] = await query.getManyAndCount();
+
+    // The trail stores the actor's id; a reader needs a name. Read here rather than asking the
+    // client to resolve ids against the user list, which an auditor may not be allowed to read.
+    const ids = [...new Set(logs.map((log) => log.userId).filter((id): id is string => !!id))];
+    const names = new Map<string, string>();
+    if (ids.length > 0) {
+      const people: { id: string; name: string }[] = await this.auditLogRepository.manager.query(
+        `SELECT id, trim(concat_ws(' ', "firstName", "lastName")) AS name FROM users WHERE id = ANY($1::uuid[])`,
+        [ids],
+      );
+      for (const person of people) names.set(person.id, person.name);
+    }
+    const rows = logs.map((log) => ({ ...log, actorName: log.userId ? names.get(log.userId) ?? null : null }));
 
     return { rows, page, pageSize, total, hasMore: page * pageSize < total };
+  }
+
+  /** The entity types that appear in this tenant's trail, for the filter. */
+  async entities(organizationId: string): Promise<string[]> {
+    const rows: { entity: string }[] = await this.auditLogRepository
+      .createQueryBuilder('log')
+      .select('DISTINCT log.entity', 'entity')
+      .where('log.organizationId = :organizationId', { organizationId })
+      .orderBy('entity', 'ASC')
+      .getRawMany();
+    return rows.map((row) => row.entity);
   }
 
   

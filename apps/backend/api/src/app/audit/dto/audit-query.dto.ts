@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import { IsEnum, IsInt, IsISO8601, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import { ActionType } from '../entities/audit-log.entity';
 
 /**
  * Filters for the audit trail.
@@ -18,6 +19,25 @@ export class AuditQueryDto {
   @IsUUID('4')
   @IsOptional()
   entityId?: string;
+
+  /** Who acted. The trail's first question is usually «who did this». */
+  @IsUUID('4')
+  @IsOptional()
+  userId?: string;
+
+  @IsEnum(ActionType)
+  @IsOptional()
+  actionType?: ActionType;
+
+  /** Inclusive lower bound, an ISO date or date-time. */
+  @IsISO8601()
+  @IsOptional()
+  from?: string;
+
+  /** Inclusive upper bound. A bare date covers that whole day. */
+  @IsISO8601()
+  @IsOptional()
+  to?: string;
 
   @Type(() => Number)
   @IsInt()

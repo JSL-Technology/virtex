@@ -174,7 +174,7 @@
                              class="form-control text-right" />
                     </td>
                     <td>
-                      <input type="number" vxPercent step="0.01" min="0" max="99" formControlName="discountRate"
+                      <input type="number" appPercent step="0.01" min="0" max="99" formControlName="discountRate"
                              class="form-control text-right" />
                     </td>
                     <td>
@@ -192,7 +192,7 @@
                           }
                         </select>
                       } @else {
-                        <input type="number" vxPercent step="0.01" min="0" max="100" formControlName="taxRate"
+                        <input type="number" appPercent step="0.01" min="0" max="100" formControlName="taxRate"
                                class="form-control text-right" />
                       }
                     </td>
@@ -320,7 +320,7 @@
             <h3>{{ 'invoices.new.discounts_charges' | translate }}</h3>
             <div class="form-group">
               <label class="form-label" for="documentDiscountRate">{{ 'invoices.new.document_discount_fraction' | translate }}</label>
-              <input id="documentDiscountRate" type="number" vxPercent step="0.01" min="0" max="99"
+              <input id="documentDiscountRate" type="number" appPercent step="0.01" min="0" max="99"
                      formControlName="documentDiscountRate" class="form-control" />
             </div>
             @if ((context()?.serviceChargeRate ?? 0) > 0) {
@@ -335,7 +335,7 @@
                       | translate: { rate: (context()?.serviceChargeRate ?? 0) * 100 }
                   }}
                 </label>
-                <input id="serviceChargeRate" type="number" vxPercent step="0.01" min="0" max="50"
+                <input id="serviceChargeRate" type="number" appPercent step="0.01" min="0" max="50"
                        formControlName="serviceChargeRate" class="form-control" />
               </div>
             }
@@ -350,12 +350,12 @@
             </p>
             <div class="form-group">
               <label class="form-label" for="taxWithholdingRate">{{ 'invoices.new.tax_withheld_fraction_tax' | translate }}</label>
-              <input id="taxWithholdingRate" type="number" vxPercent step="0.01" min="0" max="100"
+              <input id="taxWithholdingRate" type="number" appPercent step="0.01" min="0" max="100"
                      formControlName="taxWithholdingRate" class="form-control" />
             </div>
             <div class="form-group">
               <label class="form-label" for="incomeTaxWithholdingRate">{{ 'invoices.new.income_tax_withheld_fraction_base' | translate }}</label>
-              <input id="incomeTaxWithholdingRate" type="number" vxPercent step="0.01" min="0" max="100"
+              <input id="incomeTaxWithholdingRate" type="number" appPercent step="0.01" min="0" max="100"
                      formControlName="incomeTaxWithholdingRate" class="form-control" />
             </div>
           </div>
