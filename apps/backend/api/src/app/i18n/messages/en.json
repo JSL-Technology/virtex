@@ -897,6 +897,7 @@
   "auth.session_origin_unavailable": "The origin of that session could not be retrieved.",
   "auth.session_revoked": "Session revoked.",
   "auth.set_password.invalid_or_expired_invitation": "Invalid or expired invitation link.",
+  "auth.set_password.password_requirements_unmet": "The password does not meet every requirement in the list yet.",
   "auth.sign_out": "Sign Out",
   "auth.signed_out": "Signed out.",
   "auth.sms_unavailable_use_email": "We cannot send SMS right now. Use email verification.",

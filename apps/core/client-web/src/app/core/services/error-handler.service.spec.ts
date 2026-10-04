@@ -155,4 +155,14 @@ describe('ErrorHandlerService key resolution', () => {
     ).message;
     expect(message).toBe('You cannot invoice yet. Missing: the sales journal; the default ledger.');
   });
+
+  /** QA M-12: a mistyped password was told "your session expired". */
+  it('keeps the key of an error that was already described and rethrown', () => {
+    translate.setTranslation('en', { ...CATALOGUE, 'errors.auth_invalid_credentials': 'Wrong email or password.', 'errors.http_401': 'Session expired.' });
+    const described = service.describe(
+      failure(401, { statusCode: 401, code: 'AUTH_INVALID_CREDENTIALS', messageKey: 'errors.auth_invalid_credentials' }),
+    );
+    expect(service.keyFor(described)).toBe('errors.auth_invalid_credentials');
+    expect(service.describe(described)).toBe(described);
+  });
 });

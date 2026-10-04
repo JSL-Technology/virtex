@@ -897,6 +897,7 @@
   "auth.session_origin_unavailable": "No se pudo recuperar el origen de esa sesión.",
   "auth.session_revoked": "Sesión revocada exitosamente.",
   "auth.set_password.invalid_or_expired_invitation": "Invitación no válida o caducada.",
+  "auth.set_password.password_requirements_unmet": "La contraseña todavía no cumple todos los requisitos de la lista.",
   "auth.sign_out": "Cerrar Sesión",
   "auth.signed_out": "Logout exitoso",
   "auth.sms_unavailable_use_email": "No podemos enviar SMS en este momento. Usa la verificación por correo.",

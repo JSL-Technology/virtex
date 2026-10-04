@@ -103,7 +103,9 @@ export class ErrorHandlerService {
   }
 
   /** Everything a caller needs about a failure, for the call sites that catch it themselves. */
-  describe(error: HttpErrorResponse): AppError {
+  describe(error: HttpErrorResponse | AppError): AppError {
+    // Already described — `AuthService` and others rethrow the AppError from `handleError`.
+    if (isAppError(error)) return error;
     return {
       status: error?.status ?? 0,
       code: this.extractCode(error),
@@ -114,7 +116,8 @@ export class ErrorHandlerService {
   }
 
   /** The sentence alone, for a call site that only needs to show something. */
-  messageFor(error: HttpErrorResponse): string {
+  messageFor(error: HttpErrorResponse | AppError): string {
+    if (isAppError(error)) return error.message;
     return this.resolveMessage(error);
   }
 
@@ -126,7 +129,11 @@ export class ErrorHandlerService {
    * the new language when the reader switches, and a resolved sentence does not. Same order as
    * {@link resolveMessage}.
    */
-  keyFor(error: HttpErrorResponse): string {
+  keyFor(error: HttpErrorResponse | AppError): string {
+    // An error already described carries its key. Re-resolving it as if it were the raw response
+    // found no body, fell back to the status and told a mistyped password "your session expired"
+    // (QA M-12): `AuthService.login` rethrows the described error, not the HttpErrorResponse.
+    if (isAppError(error)) return error.messageKey;
     return resolveErrorKey(error, (key) => this.has(key));
   }
 
@@ -225,4 +232,16 @@ export class ErrorHandlerService {
     return out;
   }
 
+}
+
+/** An error `ErrorHandlerService.handleError` has already described and rethrown. */
+export function isAppError(value: unknown): value is AppError {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !(value instanceof HttpErrorResponse) &&
+    typeof (value as AppError).messageKey === 'string' &&
+    typeof (value as AppError).status === 'number' &&
+    'fieldErrors' in (value as object)
+  );
 }
