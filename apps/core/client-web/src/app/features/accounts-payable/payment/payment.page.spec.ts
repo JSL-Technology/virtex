@@ -22,6 +22,7 @@ describe('VendorPaymentPage', () => {
   const account = (id: string, currencyCode: string) => ({
     id,
     name: `Cuenta ${currencyCode}`,
+    bankId: null,
     bankName: null,
     accountNumber: null,
     iban: null,

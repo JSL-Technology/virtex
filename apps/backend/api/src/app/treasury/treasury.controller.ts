@@ -62,6 +62,8 @@ export class TreasuryController {
     return this.banksService.findOne(id, user.organizationId);
   }
 
+  // step-up-exempt: adds an institution to the catalogue and routes nothing. Its BIC reaches a
+  // payment only once an account is linked to it, and opening that account asks for the step-up.
   @Post('banks')
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   @ApiOperation({ summary: 'Agrega un banco al catálogo.' })
@@ -84,6 +86,8 @@ export class TreasuryController {
     return this.banksService.update(id, dto, user.organizationId);
   }
 
+  // step-up-exempt: only a bank no account is held at can be deleted (the service refuses the
+  // rest), so removing it cannot redirect or interrupt any payment.
   @Delete('banks/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
