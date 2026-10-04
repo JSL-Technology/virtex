@@ -27,6 +27,7 @@ import { VxLifecycleStripComponent } from '../../../../shared/components/lifecyc
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
+import { PercentInputDirective } from '../../../../shared/directives/percent-input.directive';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -43,7 +44,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 @Component({
   selector: 'app-purchase-order-form-page',
   standalone: true,
-  imports: [
+  imports: [PercentInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

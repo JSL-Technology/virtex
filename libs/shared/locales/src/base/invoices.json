@@ -1073,9 +1073,9 @@
     "pt": "Descontos e encargos"
   },
   "invoices.new.document_discount_fraction": {
-    "es": "Descuento del documento (fracción)",
-    "en": "Document discount (fraction)",
-    "pt": "Desconto do documento (fração)"
+    "es": "Descuento del documento (%)",
+    "en": "Document discount (%)",
+    "pt": "Desconto do documento (%)"
   },
   "invoices.new.document_type": {
     "es": "Tipo de comprobante",
@@ -1118,9 +1118,9 @@
     "pt": "Ir para as configurações fiscais"
   },
   "invoices.new.income_tax_withheld_fraction_base": {
-    "es": "ISR retenido (fracción de la base)",
-    "en": "Income tax withheld (fraction of the base)",
-    "pt": "IR retido (fração da base)"
+    "es": "ISR retenido (% de la base)",
+    "en": "Income tax withheld (% of the base)",
+    "pt": "IR retido (% da base)"
   },
   "invoices.new.insufficient_stock": {
     "es": "Una o más líneas superan las existencias disponibles.",
@@ -1228,9 +1228,9 @@
     "pt": "Taxa de serviço"
   },
   "invoices.new.service_charge_fraction_market_rate": {
-    "es": "Propina legal (fracción; en este mercado es {{rate}} %)",
-    "en": "Service charge (fraction; in this market it is {{rate}} %)",
-    "pt": "Taxa de serviço (fração; neste mercado é {{rate}} %)"
+    "es": "Propina legal (%; en este mercado es {{rate}} %)",
+    "en": "Service charge (%; in this market it is {{rate}} %)",
+    "pt": "Taxa de serviço (%; neste mercado é {{rate}} %)"
   },
   "invoices.new.stock_shortfall": {
     "es": "Faltan {{units}} unidades en existencia",
@@ -1262,9 +1262,9 @@
     "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
   },
   "invoices.new.tax_withheld_fraction_tax": {
-    "es": "ITBIS retenido (fracción del impuesto)",
-    "en": "Tax withheld (fraction of the tax)",
-    "pt": "Imposto retido (fração do imposto)"
+    "es": "ITBIS retenido (% del impuesto)",
+    "en": "Tax withheld (% of the tax)",
+    "pt": "Imposto retido (% do imposto)"
   },
   "invoices.new.taxed": {
     "es": "Gravado",

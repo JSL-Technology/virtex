@@ -41,6 +41,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
+import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 
 /**
  * Issuing a sales document.
@@ -60,7 +61,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [
+  imports: [PercentInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
