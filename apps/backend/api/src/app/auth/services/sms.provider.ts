@@ -1,9 +1,9 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
-import { BadRequestError } from '../../i18n/localized.exception';
+import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
 
 /**
  * Tidy an E.164 number for the provider, without guessing a country.
@@ -55,9 +55,7 @@ export class TwilioSmsProvider implements AbstractSmsProvider {
           { event: 'sms_provider_unconfigured' },
           'Twilio credentials are not configured; cannot send SMS.',
         );
-        throw new ServiceUnavailableException(
-          'El envío de SMS no está disponible en este momento. Usa la verificación por correo.',
-        );
+        throw new ServiceUnavailableError('auth.sms_unavailable_use_email');
     }
 
     const normalized = normalizeToE164(to);

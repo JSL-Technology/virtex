@@ -186,6 +186,13 @@ export class ErrorHandlerService {
         .map((d) => `${this.translate.instant(d.label)}: ${d.count}`)
         .join(', ');
     }
+    // A list of catalogue keys — what is missing before invoicing, for instance — read as one
+    // phrase in the reader's language. The server sends keys, never prose (QA A-17).
+    for (const [name, value] of Object.entries(params)) {
+      if (name !== 'dependents' && Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+        params[name] = (value as string[]).map((item) => translateOrLiteral(this.translate, item)).join('; ');
+      }
+    }
     return params;
   }
 

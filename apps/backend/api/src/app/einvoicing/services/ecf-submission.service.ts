@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EcfSubmission, EcfStatus } from '../entities/ecf-submission.entity';
@@ -136,10 +136,9 @@ export class EcfSubmissionService {
       throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestException(
-        `El certificado digital venció el ${cert.notAfter.toISOString().split('T')[0]}. ` +
-          `Carga el certificado renovado antes de transmitir.`,
-      );
+      throw new BadRequestError('einvoicing.do.certificate_expired', {
+        expiredOn: cert.notAfter.toISOString().split('T')[0],
+      });
     }
 
     const loaded = this.vault.load(cert);

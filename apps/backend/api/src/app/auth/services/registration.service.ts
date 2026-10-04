@@ -1,5 +1,5 @@
 
-import { ConflictException, Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
@@ -609,10 +609,7 @@ export class RegistrationService {
         '[SECURITY] Registration attempted with an already-registered fiscal identifier',
       );
       await this.simulateDelay();
-      throw new ConflictException(
-        'Ya existe una organización registrada con ese identificador fiscal. ' +
-          'Si trabajas en esa empresa, pide a un administrador que te invite.',
-      );
+      throw new ConflictError('auth.organization_tax_id_already_registered');
     }
 
     await this.passwordService.assertNotBreached(dto.password);

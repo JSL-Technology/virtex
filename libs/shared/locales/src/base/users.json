@@ -179,6 +179,11 @@
     "en": "All",
     "pt": "Todos"
   },
+  "users.would_leave_no_active_administrator": {
+    "es": "Esta acción dejaría a la organización sin ningún administrador activo. Asigna el rol de administrador a otro usuario antes de continuar.",
+    "en": "This would leave the organization without an active administrator. Give another user the administrator role first.",
+    "pt": "Esta ação deixaria a organização sem nenhum administrador ativo. Atribua a função de administrador a outro usuário antes de continuar."
+  },
   "users.you_cannot_block_your_own_account": {
     "es": "No puedes bloquear tu propia cuenta.",
     "en": "You cannot block your own account.",

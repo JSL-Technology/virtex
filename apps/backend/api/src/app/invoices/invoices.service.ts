@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { standardSalesTaxRate } from '../inventory/contracts/sellable-product.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, In } from 'typeorm';
@@ -548,10 +548,8 @@ export class InvoicesService {
   ): Promise<Invoice> {
     const gaps = await this.bookkeeping.invoicingGaps(organizationId, manager);
     if (gaps.length > 0) {
-      throw new BadRequestException(
-        `La organización todavía no puede facturar. Falta: ${gaps.join('; ')}. ` +
-          `Complétalo en Ajustes → Contabilidad.`,
-      );
+      // `missing` is a list of `invoices.gaps.*` keys; the client translates each (QA A-17).
+      throw new BadRequestError('invoices.organization_cannot_invoice_yet', { missing: gaps });
     }
 
     const organization = await manager.getRepository(Organization).findOne({
@@ -1258,10 +1256,12 @@ export class InvoicesService {
       }
       const available = round6(line.quantity - line.creditedQuantity);
       if (item.quantity > available + 1e-6) {
-        throw new BadRequestException(
-          `No se puede acreditar ${item.quantity} de "${line.description}": ` +
-            `quedan ${available} por acreditar de ${line.quantity} facturadas.`,
-        );
+        throw new BadRequestError('invoices.credit_exceeds_remaining', {
+          quantity: item.quantity,
+          description: line.description,
+          available,
+          invoiced: line.quantity,
+        });
       }
       selections.push({ line, quantity: item.quantity });
     }

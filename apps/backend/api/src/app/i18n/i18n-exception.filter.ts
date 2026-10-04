@@ -11,6 +11,8 @@ import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { I18nService } from './i18n.service';
 import { isLocalizedError } from './localized.exception';
 import { composeKey } from '@virteex/shared/types';
+import { currentLanguage } from './request-locale';
+import { fieldLabel, fieldLabelKey } from './validation-messages';
 
 /**
  * The single place an error becomes a sentence.
@@ -114,6 +116,44 @@ export class I18nExceptionFilter implements ExceptionFilter {
     );
   }
 
+  /**
+   * Which value is already taken, said with the field's own label (QA A-17).
+   *
+   * A duplicate SKU, NCF or code came back as "a record with that data already exists": true, and
+   * no help — the form has twelve fields. PostgreSQL's detail names the key's columns and the
+   * offending value (`Key (organization_id, sku)=(…, QA-1) already exists.`). Only a column the
+   * catalogue has a label for is named, and the value is the one the reader just typed, so nothing
+   * about the schema leaks; anything else keeps the generic message.
+   */
+  private describeDuplicate(detail: string | undefined): Described | null {
+    const match = /^Key \((.+)\)=\((.*)\) already exists\.?$/.exec(detail ?? '');
+    if (!match) return null;
+    const columns = match[1].split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
+    const values = splitKeyValues(match[2]);
+    if (columns.length !== values.length) return null;
+
+    const tenantColumns = new Set(['organization_id', 'tenant_id']);
+    const named = columns
+      .map((column, index) => ({ column, value: values[index] }))
+      .filter(({ column }) => !tenantColumns.has(column));
+    if (named.length !== 1) return null;
+
+    const property = named[0].column.replace(/_([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+    const labelKey = fieldLabelKey(property);
+    if (!this.i18n.has(labelKey)) return null;
+
+    const language = currentLanguage();
+    const field = fieldLabel(this.i18n, property, language);
+    const value = named[0].value;
+    return {
+      status: HttpStatus.CONFLICT,
+      code: 'UNIQUE_VIOLATION',
+      messageKey: 'errors.duplicate_value',
+      params: { field, value },
+      extra: { fieldErrors: [{ property, key: 'errors.duplicate_value', params: { field, value } }] },
+    };
+  }
+
   private describe(exception: unknown): Described {
     if (isLocalizedError(exception)) {
       return {
@@ -160,10 +200,11 @@ export class I18nExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof QueryFailedError) {
-      const driver = exception.driverError as { code?: string; message?: string } | undefined;
+      const driver = exception.driverError as { code?: string; message?: string; detail?: string } | undefined;
       const mapped = describePostgresFailure(driver?.code, driver?.message ?? exception.message);
       if (mapped) {
-        return { ...mapped, params: {}, extra: {} };
+        const duplicate = driver?.code === '23505' ? this.describeDuplicate(driver.detail) : null;
+        return duplicate ?? { ...mapped, params: {}, extra: {} };
       }
       // An unmapped database failure is a bug in a query, not something a reader can act on.
       // Falling through deliberately: the generic branch logs the stack and says nothing more.
@@ -332,6 +373,22 @@ export function describePostgresFailure(
     return { status: HttpStatus.CONFLICT, code: 'RECORD_IN_USE', messageKey: 'errors.record_in_use' };
   }
   return POSTGRES_CODES[driverCode ?? ''] ?? null;
+}
+
+/** `a, "b, c", d` → `['a', 'b, c', 'd']`: PostgreSQL quotes a key value that contains a comma. */
+function splitKeyValues(raw: string): string[] {
+  const out: string[] = [];
+  let current = '';
+  let quoted = false;
+  for (const char of raw) {
+    if (char === '"') quoted = !quoted;
+    else if (char === ',' && !quoted) {
+      out.push(current.trim());
+      current = '';
+    } else current += char;
+  }
+  out.push(current.trim());
+  return out;
 }
 
 const STATUS_CODES: Readonly<Record<number, string>> = {

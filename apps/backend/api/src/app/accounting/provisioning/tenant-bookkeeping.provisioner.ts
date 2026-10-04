@@ -329,11 +329,14 @@ export class TenantBookkeepingProvisioner {
   async assertCanInvoice(organizationId: string, manager: EntityManager): Promise<void> {
     const missing = await this.invoicingGaps(organizationId, manager);
     if (missing.length > 0) {
-      throw new InternalServerError('shared.organization_not_ready_invoice_missing_p1', { p1: missing.join('; ') });
+      throw new InternalServerError('shared.organization_not_ready_invoice_missing_p1', { p1: missing });
     }
   }
 
-  /** Human-readable list of what stops this tenant from invoicing. Empty means ready. */
+  /**
+   * What stops this tenant from invoicing, as catalogue keys (`invoices.gaps.*`). Empty means ready.
+   * Keys and not Spanish phrases: the list reaches readers in every language (QA A-17).
+   */
   async invoicingGaps(organizationId: string, manager: EntityManager): Promise<string[]> {
     const gaps: string[] = [];
 
@@ -341,11 +344,11 @@ export class TenantBookkeepingProvisioner {
       .getRepository(OrganizationSettings)
       .findOne({ where: { organizationId } });
     if (!settings) {
-      gaps.push('la configuración contable de la organización');
+      gaps.push('invoices.gaps.accounting_settings');
     } else {
-      if (!settings.defaultAccountsReceivableId) gaps.push('la cuenta de Cuentas por Cobrar');
-      if (!settings.defaultSalesRevenueId) gaps.push('la cuenta de Ingresos por Ventas');
-      if (!settings.defaultSalesTaxId) gaps.push('la cuenta de Impuesto sobre Ventas por Pagar');
+      if (!settings.defaultAccountsReceivableId) gaps.push('invoices.gaps.receivables_account');
+      if (!settings.defaultSalesRevenueId) gaps.push('invoices.gaps.sales_revenue_account');
+      if (!settings.defaultSalesTaxId) gaps.push('invoices.gaps.sales_tax_account');
 
       // Asked for here rather than discovered mid-sale.
       //
@@ -356,30 +359,30 @@ export class TenantBookkeepingProvisioner {
       // not. Every market this product sells into withholds at source and most tip legally, so
       // these are not exotic.
       if (!settings.defaultTaxWithheldReceivableId) {
-        gaps.push('la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)');
+        gaps.push('invoices.gaps.tax_withheld_account');
       }
       if (!settings.defaultServiceChargePayableId) {
-        gaps.push('la cuenta de Propina Legal por Pagar');
+        gaps.push('invoices.gaps.service_charge_account');
       }
       if (!settings.defaultSalesDiscountsId) {
-        gaps.push('la cuenta de Descuentos sobre Ventas');
+        gaps.push('invoices.gaps.sales_discounts_account');
       }
     }
 
     const ledgers = await manager
       .getRepository(Ledger)
       .count({ where: { organizationId, isDefault: true } });
-    if (ledgers === 0) gaps.push('el libro contable por defecto');
+    if (ledgers === 0) gaps.push('invoices.gaps.default_ledger');
 
     const salesJournal = await manager
       .getRepository(Journal)
       .count({ where: { organizationId, code: 'VENTAS' } });
-    if (salesJournal === 0) gaps.push('el diario de ventas (VENTAS)');
+    if (salesJournal === 0) gaps.push('invoices.gaps.sales_journal');
 
     const sequences = await manager
       .getRepository(DocumentSequence)
       .count({ where: { organizationId, type: DocumentType.CUSTOMER_INVOICE } });
-    if (sequences === 0) gaps.push('la secuencia de numeración de facturas');
+    if (sequences === 0) gaps.push('invoices.gaps.invoice_sequence');
 
     return gaps;
   }

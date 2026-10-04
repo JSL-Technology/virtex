@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 
 /**
@@ -157,6 +158,18 @@ export class UnprocessableEntityError
   extends UnprocessableEntityException
   implements LocalizedError
 {
+  declare readonly [LOCALIZED_ERROR]: true;
+  declare readonly messageKey: string;
+  declare readonly params: Record<string, unknown>;
+  declare readonly code: string;
+
+  constructor(messageKey: string, params: Record<string, unknown> = {}, code?: string) {
+    super(messageKey);
+    localize(this, messageKey, params, code);
+  }
+}
+
+export class ServiceUnavailableError extends ServiceUnavailableException implements LocalizedError {
   declare readonly [LOCALIZED_ERROR]: true;
   declare readonly messageKey: string;
   declare readonly params: Record<string, unknown>;

@@ -24,6 +24,11 @@
     "en": "“{{document}}” is not an electronic accounting document. Available: {{available}}.",
     "pt": "«{{document}}» não é um documento de contabilidade eletrônica. Disponíveis: {{available}}."
   },
+  "compliance.document_type_type_not_authorised_region": {
+    "es": "El tipo de comprobante \"{{type}}\" no está definido para el régimen fiscal de tu país.",
+    "en": "The document type \"{{type}}\" is not defined for your country's fiscal regime.",
+    "pt": "O tipo de documento \"{{type}}\" não está definido para o regime fiscal do teu país."
+  },
   "compliance.ending_number_cannot_lower_than_starting": {
     "es": "El número final no puede ser menor que el inicial.",
     "en": "The ending number cannot be lower than the starting one.",
@@ -38,6 +43,11 @@
     "es": "El mes debe estar entre 1 y 12.",
     "en": "The month must be between 1 and 12.",
     "pt": "O mês deve estar entre 1 e 12."
+  },
+  "compliance.ncf_range_overlaps": {
+    "es": "El rango {{startsAt}}–{{endsAt}} de {{type}} se solapa con un rango ya registrado ({{ranges}}). Reutilizar una numeración ya emitida generaría comprobantes fiscales duplicados.",
+    "en": "The {{type}} range {{startsAt}}–{{endsAt}} overlaps a range already registered ({{ranges}}). Reusing issued numbers would create duplicate fiscal documents.",
+    "pt": "A faixa {{startsAt}}–{{endsAt}} de {{type}} se sobrepõe a uma faixa já registrada ({{ranges}}). Reutilizar uma numeração já emitida geraria documentos fiscais duplicados."
   },
   "compliance.ncf_sequence_not_found": {
     "es": "Secuencia NCF no encontrada.",
@@ -83,11 +93,6 @@
     "es": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
     "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
     "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
-  },
-  "compliance.document_type_type_not_authorised_region": {
-    "es": "El tipo de comprobante \"{{type}}\" no está definido para el régimen fiscal de tu país.",
-    "en": "The document type \"{{type}}\" is not defined for your country's fiscal regime.",
-    "pt": "O tipo de documento \"{{type}}\" não está definido para o regime fiscal do teu país."
   },
   "compliance.report_format_dgii_dominican_republic_filing": {
     "es": "El formato {{report}} es un envío de la DGII (República Dominicana) y no aplica a una organización registrada en {{country}}.",

@@ -132,6 +132,8 @@
   "errors.delete_draft": "No se pudo eliminar el borrador.",
   "errors.delete_role": "No se pudo eliminar el rol.",
   "errors.delete_user": "No se pudo eliminar el usuario.",
+  "errors.duplicate_value": "Ya existe un registro con {{field}} «{{value}}».",
+  "errors.file_upload_failed": "No se pudo recibir el archivo. Comprueba que no supere el tamaño permitido e inténtalo de nuevo.",
   "errors.forbidden": "No tienes permiso para realizar esta acción.",
   "errors.generate_report": "No se pudo generar el reporte.",
   "errors.http_400": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",

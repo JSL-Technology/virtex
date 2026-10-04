@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, ServiceUnavailableException, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
@@ -13,7 +13,7 @@ import { WebhookEvent } from '../entities/webhook-event.entity';
 import { SAAS_CONFIG, SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RegistrationPaymentCompletedEvent } from '../events/registration-payment-completed.event';
-import { BadRequestError } from '../../i18n/localized.exception';
+import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
@@ -140,7 +140,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
   private ensureStripe(): Stripe {
     if (!this.stripe) {
       this.logger.error('Stripe is not configured (missing STRIPE_SECRET_KEY).');
-      throw new ServiceUnavailableException('El sistema de pagos no está configurado. Contacta al administrador.');
+      throw new ServiceUnavailableError('payment.not_configured');
     }
     return this.stripe;
   }
@@ -602,7 +602,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
       if (!webhookSecret) {
         this.logger.error('Stripe webhook secret is not configured (missing STRIPE_WEBHOOK_SECRET).');
-        throw new ServiceUnavailableException('Webhook de pagos no configurado.');
+        throw new ServiceUnavailableError('payment.webhook_not_configured');
       }
       let event: Stripe.Event;
 

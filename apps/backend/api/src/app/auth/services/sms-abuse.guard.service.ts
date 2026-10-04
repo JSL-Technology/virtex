@@ -1,9 +1,9 @@
-import { ForbiddenException, Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { ForbiddenError } from '../../i18n/localized.exception';
+import { ForbiddenError, ServiceUnavailableError } from '../../i18n/localized.exception';
 
 /**
  * Fraud controls for outbound SMS.
@@ -166,9 +166,7 @@ export class SmsAbuseGuardService {
         { event: 'sms_budget_unavailable', reason: (error as Error).message },
         '[SECURITY] SMS abuse counters are unavailable; refusing to send.',
       );
-      throw new ServiceUnavailableException(
-        'No podemos enviar SMS en este momento. Usa la verificación por correo.',
-      );
+      throw new ServiceUnavailableError('auth.sms_unavailable_use_email');
     }
 
     if (current > limit) {

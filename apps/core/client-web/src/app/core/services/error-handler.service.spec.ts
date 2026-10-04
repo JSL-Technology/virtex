@@ -137,4 +137,22 @@ describe('ErrorHandlerService key resolution', () => {
     expect(described.fieldErrors['amount']).toEqual(['Amount must be a number.']);
     expect(described.fieldErrors['taxRate']).toEqual(['tax rate must be a number.']);
   });
+
+  it('reads a list of keys as one phrase in the reader language', () => {
+    translate.setTranslation('en', {
+      ...CATALOGUE,
+      'invoices.organization_cannot_invoice_yet': 'You cannot invoice yet. Missing: {{missing}}.',
+      'invoices.gaps.sales_journal': 'the sales journal',
+      'invoices.gaps.default_ledger': 'the default ledger',
+    });
+    const message = service.describe(
+      failure(400, {
+        statusCode: 400,
+        code: 'BAD_REQUEST',
+        messageKey: 'invoices.organization_cannot_invoice_yet',
+        params: { missing: ['invoices.gaps.sales_journal', 'invoices.gaps.default_ledger'] },
+      }),
+    ).message;
+    expect(message).toBe('You cannot invoice yet. Missing: the sales journal; the default ledger.');
+  });
 });

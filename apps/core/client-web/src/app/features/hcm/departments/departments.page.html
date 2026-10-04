@@ -11,15 +11,20 @@
 
   @if (creating()) {
     <div listCreate class="inline-row card">
-      <input #newName type="text" maxlength="120"
+      <input #newName type="text" maxlength="120" required
+        [attr.aria-invalid]="nameError()"
+        (input)="nameError.set(false)"
         [placeholder]="'hcm.departments.name' | translate" />
       <input #newCost type="text" maxlength="60"
         [placeholder]="'hcm.departments.cost_centre' | translate" />
       <button type="button" class="primary-button" [disabled]="busy()"
-        (click)="create(newName.value, newCost.value); newName.value = ''; newCost.value = ''">
+        (click)="create(newName, newCost)">
         {{ 'common.save' | translate }}
       </button>
-      <button type="button" class="secondary-button" (click)="creating.set(false)">
+      @if (nameError()) {
+        <small class="field-error" role="alert">{{ 'hcm.departments.name_required' | translate }}</small>
+      }
+      <button type="button" class="secondary-button" (click)="creating.set(false); nameError.set(false)">
         {{ 'common.cancel' | translate }}
       </button>
     </div>
@@ -43,7 +48,8 @@
             <tr>
               <td colspan="3">
                 <div class="inline-row">
-                  <input #editName type="text" maxlength="120" [value]="department.name" />
+                  <input #editName type="text" maxlength="120" required [value]="department.name"
+                    [attr.aria-invalid]="nameError()" (input)="nameError.set(false)" />
                   <input #editCost type="text" maxlength="60" [value]="department.costCenter || ''" />
                   <button type="button" class="primary-button" [disabled]="busy()"
                     (click)="update(department, editName.value, editCost.value)">

@@ -41,6 +41,8 @@ export class DepartmentsPage {
   readonly busy = signal(false);
 
   readonly creating = signal(false);
+  /** Saving with no name used to do nothing at all (QA A-15). Now it says why. */
+  readonly nameError = signal(false);
   readonly editing = signal<string | null>(null);
 
   readonly isEmpty = computed(() => !this.loading() && this.departments().length === 0);
@@ -49,19 +51,33 @@ export class DepartmentsPage {
     this.reload();
   }
 
-  create(name: string, costCenter: string): void {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  create(nameInput: HTMLInputElement, costInput: HTMLInputElement): void {
+    const trimmed = nameInput.value.trim();
+    if (!trimmed) {
+      this.nameError.set(true);
+      nameInput.focus();
+      return;
+    }
     this.busy.set(true);
-    this.hcm.createDepartment({ name: trimmed, costCenter: costCenter.trim() || undefined }).subscribe({
-      next: () => { this.busy.set(false); this.creating.set(false); this.reload(); },
+    this.hcm.createDepartment({ name: trimmed, costCenter: costInput.value.trim() || undefined }).subscribe({
+      next: () => {
+        // Cleared only once saved: a refused save keeps what was typed so it can be corrected.
+        nameInput.value = '';
+        costInput.value = '';
+        this.busy.set(false);
+        this.creating.set(false);
+        this.reload();
+      },
       error: (error) => this.fail(error),
     });
   }
 
   update(department: Department, name: string, costCenter: string): void {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      this.nameError.set(true);
+      return;
+    }
     this.busy.set(true);
     this.hcm
       .updateDepartment(department.id, { name: trimmed, costCenter: costCenter.trim() || undefined })

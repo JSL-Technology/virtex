@@ -19,6 +19,11 @@
     "en": "We recommend switching to your local region so the tax configuration is correct.",
     "pt": "Recomendamos mudar para sua região local para garantir a configuração fiscal correta."
   },
+  "shared.lifecycle_not_declared": {
+    "es": "El documento «{{documentType}}» no declara su ciclo de vida.",
+    "en": "The document “{{documentType}}” declares no lifecycle.",
+    "pt": "O documento «{{documentType}}» não declara seu ciclo de vida."
+  },
   "shared.live_preview.cancel": {
     "es": "Cancelar",
     "en": "Cancel",

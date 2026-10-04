@@ -24,6 +24,11 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "hcm.departments.name_required": {
+    "es": "Escribe el nombre del departamento.",
+    "en": "Enter the department name.",
+    "pt": "Digite o nome do departamento."
+  },
   "hcm.departments.new": {
     "es": "Nuevo departamento",
     "en": "New department",

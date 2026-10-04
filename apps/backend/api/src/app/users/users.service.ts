@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, forwardRef, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserProfilePort } from './ports/user-profile.port';
 import { SessionInvalidatorPort } from '../auth/ports/session-invalidator.port';
 import { PasswordVerifierPort } from '../auth/ports/password-verifier.port';
@@ -340,10 +340,7 @@ export class UsersService extends UserProfilePort {
     );
 
     if (remainingAdmins.length === 0) {
-      throw new ForbiddenException(
-        'Esta acción dejaría a la organización sin ningún administrador activo. ' +
-          'Asigna el rol de administrador a otro usuario antes de continuar.',
-      );
+      throw new ForbiddenError('users.would_leave_no_active_administrator');
     }
   }
 
