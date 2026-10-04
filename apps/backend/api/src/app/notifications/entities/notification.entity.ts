@@ -1,4 +1,5 @@
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Index } from 'typeorm';
 
 /**
@@ -49,6 +50,10 @@ export class Notification {
   /** The company the notice is about; null for a notice about the person (their own account). */
   @Column({ name: 'organization_id', type: 'uuid', nullable: true })
   organizationId?: string | null;
+
+  // Tenant-owned: deleting the tenant deletes its notices (see TenantOwned).
+  @TenantOwned('FK_notification_organization')
+  organization?: TenantRef;
 
   /** Where the notice leads in the client — an app path such as `/approvals`. */
   @Column({ type: 'varchar', length: 300, nullable: true })
