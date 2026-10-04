@@ -1,0 +1,8 @@
+.hub { padding: var(--space-6); max-width: 1100px; }
+.hub__header { margin-bottom: var(--space-5); }
+.hub__title { font-size: var(--text-xl); font-weight: 700; color: var(--text-primary); }
+.hub__subtitle, .hub__empty { font-size: var(--text-sm); color: var(--text-secondary); }
+.hub__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--space-4); }
+.hub__group { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-4); background: var(--bg-card); }
+.hub__group-title { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: var(--space-2); }
+.hub__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--text-sm); }

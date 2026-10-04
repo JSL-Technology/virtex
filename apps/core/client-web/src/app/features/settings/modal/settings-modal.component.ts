@@ -31,8 +31,15 @@ export class SettingsModalComponent {
 
   @Input()
   set sectionName(v: string) {
-    this.section.set(v || 'my-profile');
+    // `subsidiaries/new`: the section, then an action the section itself reads from the fragment
+    // (QA M-09: «Nueva sucursal» opened the structure list and left the user to find «add»).
+    const [section, ...action] = (v || 'my-profile').split('/');
+    this.section.set(section || 'my-profile');
+    this.action.set(action.join('/') || null);
   }
+
+  /** What the fragment asks the section to do on arrival, e.g. `new`. */
+  readonly action = signal<string | null>(null);
 
   @Output() closed = new EventEmitter<void>();
 

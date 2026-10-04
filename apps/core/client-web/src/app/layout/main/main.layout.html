@@ -224,6 +224,7 @@
             <div class="dropdown-body">
               <a
                 routerLink="/invoices/new"
+                [appCanOpen]="'/invoices/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -237,6 +238,7 @@
               </a>
               <a
                 routerLink="/quotes/new"
+                [appCanOpen]="'/quotes/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -249,7 +251,8 @@
                 >
               </a>
               <a
-                routerLink="/customers/new"
+                routerLink="/contacts/customers/new"
+                [appCanOpen]="'/contacts/customers/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -262,7 +265,8 @@
                 >
               </a>
               <a
-                routerLink="/products/new"
+                routerLink="/inventory/products/new"
+                [appCanOpen]="'/inventory/products/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >

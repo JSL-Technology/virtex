@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource, Between, In, MoreThan } from 'typeorm';
+import { DataSource, Between, In, LessThan, MoreThan } from 'typeorm';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import {
   JournalEntry,
@@ -57,6 +57,72 @@ export class YearEndCloseService {
     private readonly resultTransfer: ResultTransferService,
     private readonly journalEntriesService: JournalEntriesService,
   ) {}
+
+  /**
+   * Whether a fiscal year can be closed, and what the close will move (QA M-09: the annual-close
+   * screen said «no disponible» while the close itself existed).
+   *
+   * Every precondition `closeFiscalYear` enforces is reported here first, with the figures the
+   * accountant needs to act on it — which periods are still open, how many entries are unposted —
+   * so the screen can say what is in the way instead of offering a button that fails. Two more are
+   * advisory: an earlier year still open (closing out of order is allowed, and usually a mistake),
+   * and the result the transfer will post to retained earnings.
+   */
+  async readiness(fiscalYearId: string, organizationId: string) {
+    const manager = this.dataSource.manager;
+    const fiscalYear = await manager.findOneBy(FiscalYear, { id: fiscalYearId, organizationId });
+    if (!fiscalYear) throw new NotFoundError('accounting.fiscal_year_not_found');
+
+    const periods = await manager.find(AccountingPeriod, {
+      where: { organizationId, startDate: Between(fiscalYear.startDate, fiscalYear.endDate) },
+      order: { startDate: 'ASC' },
+    });
+    const openPeriods = periods.filter((period) => period.status !== PeriodStatus.CLOSED);
+    const unposted = await manager.count(JournalEntry, {
+      where: {
+        organizationId,
+        status: In([JournalEntryStatus.DRAFT, JournalEntryStatus.PENDING_APPROVAL]),
+        date: Between(fiscalYear.startDate, fiscalYear.endDate),
+      },
+    });
+    const prerequisites = await this.resultTransfer.prerequisites(manager, organizationId);
+    const earlierOpen = await manager.count(FiscalYear, {
+      where: { organizationId, status: FiscalYearStatus.OPEN, endDate: LessThan(fiscalYear.startDate) },
+    });
+    const preview = await this.resultTransfer.preview(manager, organizationId, {
+      from: fiscalYear.startDate,
+      to: fiscalYear.endDate,
+    });
+
+    const isOpen = fiscalYear.status === FiscalYearStatus.OPEN;
+    const checks = [
+      { id: 'periods_exist', ok: periods.length > 0, blocking: true, params: { count: periods.length } },
+      {
+        id: 'periods_closed',
+        ok: periods.length > 0 && openPeriods.length === 0,
+        blocking: true,
+        params: { open: openPeriods.map((period) => period.name).join(', '), count: openPeriods.length },
+      },
+      { id: 'entries_posted', ok: unposted === 0, blocking: true, params: { count: unposted } },
+      { id: 'retained_earnings', ok: prerequisites.retainedEarnings, blocking: true, params: {} },
+      { id: 'closing_journal', ok: prerequisites.closingJournal, blocking: true, params: {} },
+      { id: 'default_ledger', ok: prerequisites.defaultLedger, blocking: true, params: {} },
+      { id: 'earlier_years_closed', ok: earlierOpen === 0, blocking: false, params: { count: earlierOpen } },
+    ];
+
+    return {
+      fiscalYear: {
+        id: fiscalYear.id,
+        startDate: toIsoDate(fiscalYear.startDate),
+        endDate: toIsoDate(fiscalYear.endDate),
+        status: fiscalYear.status,
+        closingJournalEntryId: fiscalYear.closingJournalEntryId ?? null,
+      },
+      checks,
+      result: preview,
+      canClose: isOpen && checks.every((check) => check.ok || !check.blocking),
+    };
+  }
 
   async closeFiscalYear(
     dto: YearEndCloseDto,

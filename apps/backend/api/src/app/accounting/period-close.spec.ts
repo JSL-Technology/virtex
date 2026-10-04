@@ -460,6 +460,38 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     expect(revenue).toBe(0);
   });
 
+  /**
+   * The annual-close screen asks before it offers the button (QA M-09): what is in the way, and
+   * what the close will move to retained earnings.
+   */
+  it('reports what stands in the way of the year close, and the result it will transfer', async () => {
+    await post('2026-01-10', 'Venta', [
+      { accountId: account['cash'], debit: 20_000 },
+      { accountId: account['revenue'], credit: 20_000 },
+    ]);
+    await post('2026-02-10', 'Gasto', [
+      { accountId: account['expense'], debit: 7_000 },
+      { accountId: account['cash'], credit: 7_000 },
+    ]);
+
+    const before = await yearEnd.readiness(fiscalYearId, organizationId);
+    expect(before.canClose).toBe(false);
+    expect(before.checks.find((c) => c.id === 'periods_closed')).toMatchObject({ ok: false, params: { count: 2 } });
+    expect(before.result).toEqual({ result: 13_000, accounts: 2 });
+
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+    const ready = await yearEnd.readiness(fiscalYearId, organizationId);
+    expect(ready.checks.filter((c) => c.blocking && !c.ok)).toEqual([]);
+    expect(ready.canClose).toBe(true);
+
+    await yearEnd.closeFiscalYear({ fiscalYearId }, organizationId, ACTOR);
+    const after = await yearEnd.readiness(fiscalYearId, organizationId);
+    expect(after.canClose).toBe(false);
+    expect(after.fiscalYear.status).toBe('CLOSED');
+    expect(after.fiscalYear.closingJournalEntryId).toBeTruthy();
+  });
+
   it('still reports the closed year’s income statement after the annual close', async () => {
     await post('2026-01-10', 'Venta', [
       { accountId: account['cash'], debit: 20_000 },

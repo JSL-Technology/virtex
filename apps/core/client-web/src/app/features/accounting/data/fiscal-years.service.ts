@@ -13,6 +13,23 @@ export interface FiscalYear {
   closingJournalEntryId?: string | null;
 }
 
+export type YearEndCheckId =
+  | 'periods_exist'
+  | 'periods_closed'
+  | 'entries_posted'
+  | 'retained_earnings'
+  | 'closing_journal'
+  | 'default_ledger'
+  | 'earlier_years_closed';
+
+export interface YearEndReadiness {
+  fiscalYear: FiscalYear;
+  checks: { id: YearEndCheckId; ok: boolean; blocking: boolean; params: Record<string, unknown> }[];
+  /** Profit positive, loss negative; null when the books have no default ledger to read. */
+  result: { result: number; accounts: number } | null;
+  canClose: boolean;
+}
+
 /**
  * The tenant's fiscal years.
  *
@@ -24,6 +41,20 @@ export interface FiscalYear {
 export class FiscalYearsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/accounting/fiscal-years`;
+  private readonly closeUrl = `${environment.apiUrl}/accounting/year-end-close`;
+
+  /** What stands between a year and its close, and the result the close will transfer. */
+  readiness(fiscalYearId: string): Observable<YearEndReadiness> {
+    return this.http.get<YearEndReadiness>(`${this.closeUrl}/${fiscalYearId}/readiness`);
+  }
+
+  close(fiscalYearId: string): Observable<{ messageKey: string; messageParams: Record<string, unknown>; fiscalYear: FiscalYear }> {
+    return this.http.post<{ messageKey: string; messageParams: Record<string, unknown>; fiscalYear: FiscalYear }>(this.closeUrl, { fiscalYearId });
+  }
+
+  reopen(fiscalYearId: string, reason: string): Observable<{ messageKey: string; messageParams: Record<string, unknown>; fiscalYear: FiscalYear }> {
+    return this.http.post<{ messageKey: string; messageParams: Record<string, unknown>; fiscalYear: FiscalYear }>(`${this.closeUrl}/reopen`, { fiscalYearId, reason });
+  }
 
   list(options: { status?: FiscalYearStatus } = {}): Observable<FiscalYear[]> {
     let params = new HttpParams();

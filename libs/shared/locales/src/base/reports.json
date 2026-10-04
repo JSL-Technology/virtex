@@ -576,6 +576,21 @@
     "en": "The general ledger needs at least one account selected.",
     "pt": "O razão precisa de pelo menos uma conta selecionada."
   },
+  "reports.hub.empty": {
+    "es": "Tu rol no incluye ningún reporte. Pide acceso a un administrador.",
+    "en": "Your role includes no reports. Ask an administrator for access.",
+    "pt": "Sua função não inclui nenhum relatório. Peça acesso a um administrador."
+  },
+  "reports.hub.subtitle": {
+    "es": "Todos los reportes que puedes abrir, agrupados por módulo.",
+    "en": "Every report you can open, grouped by module.",
+    "pt": "Todos os relatórios que você pode abrir, agrupados por módulo."
+  },
+  "reports.hub.title": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
   "reports.income_statement.cost_sales": {
     "es": "Costo de ventas",
     "en": "Cost of sales",

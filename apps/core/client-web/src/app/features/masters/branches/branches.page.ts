@@ -67,6 +67,6 @@ export class BranchesPage implements OnInit {
    * this works from inside a window as well as from the router.
    */
   openCompanyStructure(): void {
-    void this.router.navigate([], { fragment: 'settings/subsidiaries' });
+    void this.router.navigate([], { fragment: 'settings/subsidiaries/new' });
   }
 }

@@ -96,6 +96,10 @@ import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';
 import { VxSpinnerComponent } from '../../shared/components/feedback';
 
+import { CanOpenDirective } from '../../core/modules/can-open.directive';
+import { requiredPermissionsFor } from '../../core/modules/module-manifest';
+import { resolveRoute } from '../../core/modules/module-registry';
+
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -114,6 +118,7 @@ import { VxSpinnerComponent } from '../../shared/components/feedback';
     DialogHostComponent,
     StatusBarComponent,
     ModuleRailComponent,
+    CanOpenDirective,
     ...FORMAT_PIPES, VxSpinnerComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
@@ -127,8 +132,8 @@ export class MainLayout implements OnInit {
   private readonly quickCreateShortcuts = [
     { key: 'i', route: '/invoices/new' },
     { key: 'q', route: '/quotes/new' },
-    { key: 'c', route: '/customers/new' },
-    { key: 'p', route: '/products/new' },
+    { key: 'c', route: '/contacts/customers/new' },
+    { key: 'p', route: '/inventory/products/new' },
   ] as const;
 
   // ✅ Lógica para la Modal "Crear Nuevo"
@@ -468,7 +473,10 @@ export class MainLayout implements OnInit {
     const shortcut = this.quickCreateShortcuts.find(
       ({ key }) => key === event.key.toLowerCase(),
     );
-    if (!shortcut) {
+    // The same rule as the menu: a shortcut to a screen the user may not open, or that no
+    // manifest declares, does nothing rather than landing on a 403 or a 404.
+    const target = shortcut ? resolveRoute(shortcut.route) : null;
+    if (!shortcut || !target || !this.authService.hasPermissions(requiredPermissionsFor(target.entry.route.permission))) {
       return;
     }
 

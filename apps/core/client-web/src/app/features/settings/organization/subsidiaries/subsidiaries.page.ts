@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { CountryService, SupportedCountry } from '../../../../core/services/country.service';
@@ -41,6 +42,7 @@ export class SubsidiariesPage implements OnInit {
 
   private fb = inject(FormBuilder);
   private readonly countryService = inject(CountryService);
+  private readonly router = inject(Router);
   /**
    * The example identifier for the country currently selected on the form.
    *
@@ -112,6 +114,12 @@ export class SubsidiariesPage implements OnInit {
 
   ngOnInit() {
     this.loadSubsidiaries();
+    // `#settings/subsidiaries/new` (from «Nueva sucursal»): open the form straight away, and leave
+    // the fragment at the section so closing the form or reloading does not reopen it.
+    if (this.router.url.split('#')[1] === 'settings/subsidiaries/new') {
+      this.openCreateModal();
+      void this.router.navigate([], { fragment: 'settings/subsidiaries', replaceUrl: true });
+    }
     this.countryService
       .getSupportedCountries()
       .pipe(catchError(() => of([] as SupportedCountry[])))

@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -7,6 +9,20 @@ import { AuthenticatedUser } from '../security/principal';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+
+/** A request for access to one screen, with an optional reason. */
+export class AccessRequestDto {
+  /** The path the user was refused, as the client router knows it. */
+  @IsString()
+  @MaxLength(300, { message: 'validation.constraints.max_length|{"max":300}' })
+  @Matches(/^\/[^\s]*$/, { message: 'validation.constraints.matches' })
+  path: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  reason?: string;
+}
 
 @Controller('notifications')
 export class NotificationsController {
@@ -18,6 +34,16 @@ export class NotificationsController {
   )
   getNotifications(@CurrentUser() user: AuthenticatedUser) {
     return this.notificationsService.getNotifications(user.id);
+  }
+
+  @Post('access-request')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @AuthenticatedOnly(
+    'Any member who was refused a screen may ask their own tenant\'s administrators for access; it grants nothing, it only notifies them.',
+  )
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  requestAccess(@Body() dto: AccessRequestDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.notificationsService.requestAccess(user, dto);
   }
 
   @Post('test-notification')

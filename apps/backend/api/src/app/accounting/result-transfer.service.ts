@@ -72,6 +72,63 @@ export class ResultTransferService {
    *
    * @returns the entry, or null when there is nothing to close.
    */
+  /** The configuration `transfer` refuses to run without, as facts rather than as errors. */
+  async prerequisites(
+    manager: EntityManager,
+    organizationId: string,
+  ): Promise<{ retainedEarnings: boolean; closingJournal: boolean; defaultLedger: boolean }> {
+    const [settings, closingJournal, defaultLedger] = await Promise.all([
+      manager.findOneBy(OrganizationSettings, { organizationId }),
+      manager.findOneBy(Journal, { organizationId, code: 'CIERRE' }),
+      manager.findOneBy(Ledger, { organizationId, isDefault: true }),
+    ]);
+    return {
+      retainedEarnings: !!settings?.defaultRetainedEarningsAccountId,
+      closingJournal: !!closingJournal,
+      defaultLedger: !!defaultLedger,
+    };
+  }
+
+  /**
+   * What `transfer` would post for the interval, without posting: the result (profit positive,
+   * loss negative) and how many result accounts carry a balance. The same query as the transfer,
+   * so the figure the annual-close screen shows is the figure the close will move.
+   */
+  async preview(
+    manager: EntityManager,
+    organizationId: string,
+    range: { from: Date | string; to: Date | string },
+  ): Promise<{ result: number; accounts: number } | null> {
+    const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
+    if (!defaultLedger) return null;
+    const resultAccounts = await manager.find(Account, {
+      where: { organizationId, type: In([AccountType.REVENUE, AccountType.EXPENSE]) },
+      select: { id: true },
+    });
+    if (resultAccounts.length === 0) return { result: 0, accounts: 0 };
+    const movements = await this.balances.movements(
+      {
+        organizationId,
+        ledgerId: defaultLedger.id,
+        accountIds: resultAccounts.map((a) => a.id),
+        excludeClosingEntries: true,
+        from: range.from,
+        to: range.to,
+      },
+      manager,
+    );
+    let cents = 0;
+    let accounts = 0;
+    for (const movement of movements) {
+      const signed = toCents(roundAmount(movement.debit - movement.credit));
+      if (signed === 0) continue;
+      cents += signed;
+      accounts += 1;
+    }
+    // Revenue is credit (negative) and expense debit: a profit is a negative sum.
+    return { result: roundAmount(-cents / 100), accounts };
+  }
+
   async transfer(
     manager: EntityManager,
     organizationId: string,

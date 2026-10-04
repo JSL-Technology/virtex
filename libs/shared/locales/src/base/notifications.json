@@ -1,4 +1,24 @@
 {
+  "notifications.access_request.body": {
+    "es": "{{name}} ({{email}}) pide acceso a {{path}}.",
+    "en": "{{name}} ({{email}}) is asking for access to {{path}}.",
+    "pt": "{{name}} ({{email}}) pede acesso a {{path}}."
+  },
+  "notifications.access_request.body_with_reason": {
+    "es": "{{name}} ({{email}}) pide acceso a {{path}}: «{{reason}}».",
+    "en": "{{name}} ({{email}}) is asking for access to {{path}}: “{{reason}}”.",
+    "pt": "{{name}} ({{email}}) pede acesso a {{path}}: «{{reason}}»."
+  },
+  "notifications.access_request.title": {
+    "es": "Solicitud de acceso",
+    "en": "Access request",
+    "pt": "Solicitação de acesso"
+  },
+  "notifications.access_request_no_administrator": {
+    "es": "Tu empresa no tiene un administrador activo al que enviar la solicitud.",
+    "en": "Your company has no active administrator to send the request to.",
+    "pt": "Sua empresa não tem um administrador ativo para receber a solicitação."
+  },
   "notifications.earlier": {
     "es": "Anteriores",
     "en": "Earlier",

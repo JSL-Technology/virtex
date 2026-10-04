@@ -414,6 +414,11 @@
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
   },
+  "page_titles.reports_hub": {
+    "es": "Reportes",
+    "en": "Reports",
+    "pt": "Relatórios"
+  },
   "page_titles.sales_history": {
     "es": "Historial de ventas",
     "en": "Sales history",

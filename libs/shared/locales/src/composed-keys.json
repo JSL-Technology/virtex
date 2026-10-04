@@ -12,6 +12,11 @@
       "REVENUE",
       "EXPENSE"
     ],
+    "accounting.annual_close.status": [
+      "OPEN",
+      "CLOSED",
+      "LOCKED"
+    ],
     "accounting.cash_flow_category": [
       "OPERATING",
       "INVESTING",

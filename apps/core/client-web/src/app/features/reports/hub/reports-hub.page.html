@@ -1,0 +1,23 @@
+<div class="hub">
+  <header class="hub__header">
+    <h1 class="hub__title">{{ 'reports.hub.title' | translate }}</h1>
+    <p class="hub__subtitle">{{ 'reports.hub.subtitle' | translate }}</p>
+  </header>
+
+  @if (groups().length === 0) {
+    <p class="hub__empty">{{ 'reports.hub.empty' | translate }}</p>
+  } @else {
+    <div class="hub__grid">
+      @for (group of groups(); track group.moduleTitleKey) {
+        <section class="hub__group">
+          <h2 class="hub__group-title">{{ group.moduleTitleKey | translate }}</h2>
+          <ul class="hub__list">
+            @for (report of group.reports; track report.link) {
+              <li><a [routerLink]="report.link">{{ report.labelKey | translate }}</a></li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+  }
+</div>

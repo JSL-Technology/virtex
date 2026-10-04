@@ -27,25 +27,40 @@
     "en": "Not sure which permissions you need?",
     "pt": "Não sabe de quais permissões precisa?"
   },
-  "unauthorized.protected_route": {
-    "es": "una ruta protegida",
-    "en": "a protected route",
-    "pt": "uma rota protegida"
-  },
-  "unauthorized.request_body": {
-    "es": "Hola:\n\nSoy {{name}} ({{email}}).\n\nQuisiera solicitar acceso a esta ruta, para la que ahora mismo no tengo permiso:\n{{url}}\n\nGracias.",
-    "en": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
-    "pt": "Olá,\n\nSou {{name}} ({{email}}).\n\nGostaria de solicitar acesso a esta rota, para a qual atualmente não tenho permissão:\n{{url}}\n\nObrigado."
+  "unauthorized.request_failed": {
+    "es": "No se pudo enviar la solicitud.",
+    "en": "The request could not be sent.",
+    "pt": "Não foi possível enviar a solicitação."
   },
   "unauthorized.request_permission": {
     "es": "Solicitar Permiso",
     "en": "Request Permission",
     "pt": "Solicitar Permissão"
   },
-  "unauthorized.request_subject": {
-    "es": "Solicitud de permiso para: {{route}}",
-    "en": "Permission request for: {{route}}",
-    "pt": "Solicitação de permissão para: {{route}}"
+  "unauthorized.request_reason_message": {
+    "es": "Tus administradores recibirán una notificación con la pantalla que intentaste abrir. Si quieres, explica para qué la necesitas.",
+    "en": "Your administrators will get a notification naming the screen you tried to open. If you like, say what you need it for.",
+    "pt": "Seus administradores receberão uma notificação com a tela que você tentou abrir. Se quiser, explique para que precisa dela."
+  },
+  "unauthorized.request_reason_placeholder": {
+    "es": "Motivo (opcional)",
+    "en": "Reason (optional)",
+    "pt": "Motivo (opcional)"
+  },
+  "unauthorized.request_reason_title": {
+    "es": "Solicitar acceso",
+    "en": "Request access",
+    "pt": "Solicitar acesso"
+  },
+  "unauthorized.request_send": {
+    "es": "Enviar solicitud",
+    "en": "Send request",
+    "pt": "Enviar solicitação"
+  },
+  "unauthorized.request_sent": {
+    "es": "Solicitud enviada a {{count}} administrador(es).",
+    "en": "Request sent to {{count}} administrator(s).",
+    "pt": "Solicitação enviada a {{count}} administrador(es)."
   },
   "unauthorized.requested_path": {
     "es": "Ruta solicitada:",

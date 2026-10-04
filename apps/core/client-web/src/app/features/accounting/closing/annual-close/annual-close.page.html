@@ -1,39 +1,72 @@
-<div class="closing-container">
-  <div class="closing-header">
-    <h3>{{ 'accounting.annual_close.title' | translate }}</h3>
-    <div
-      class="progress-bar"
-      role="progressbar"
-      [attr.aria-valuenow]="progress()"
-      aria-valuemin="0"
-      aria-valuemax="100"
-    >
-      <div class="progress" [style.width.%]="progress()"></div>
+<div class="closing">
+  <header class="closing__header">
+    <div>
+      <h3>{{ 'accounting.annual_close.title' | translate }}</h3>
+      <p class="closing__subtitle">{{ 'accounting.annual_close.subtitle' | translate }}</p>
     </div>
-  </div>
-
-  <div class="tasks-list card">
-    @for (task of tasks(); track task.id) {
-      <div class="task-item" [ngClass]="statusClass(task)">
-        <div class="task-status-icon">
-          <lucide-icon [img]="iconFor(task)" size="24"></lucide-icon>
-        </div>
-        <div class="task-details">
-          <span class="task-name">{{ task.descriptionKey | translate: task.params }}</span>
-          @if (task.noteKey) {
-            <span class="task-note">{{ task.noteKey | translate }}</span>
-          }
-        </div>
-        <div class="task-action">
-          @if (task.resolutionLink && !task.isCompleted) {
-            <a [routerLink]="task.resolutionLink" class="secondary-button">
-              {{ 'accounting.annual_close.go_task' | translate }}
-            </a>
-          }
-        </div>
-      </div>
-    } @empty {
-      <p class="empty-state">{{ 'accounting.annual_close.empty' | translate }}</p>
+    @if (fiscalYears().length > 0) {
+      <label class="closing__year" for="annual-close-year">
+        <span>{{ 'accounting.annual_close.fiscal_year' | translate }}</span>
+        <vx-select inputId="annual-close-year" [ngModel]="selectedId()" [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="select($event)" [options]="fiscalYears()" [displayWith]="yearLabel" [valueWith]="yearValue" />
+      </label>
     }
-  </div>
+  </header>
+
+  @if (error(); as message) {
+    <div class="closing__error" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="loadYears()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else if (loading()) {
+    <p class="closing__muted" role="status">{{ 'accounting.annual_close.loading' | translate }}</p>
+  } @else if (fiscalYears().length === 0) {
+    <p class="closing__muted">{{ 'accounting.annual_close.no_years' | translate }}</p>
+  } @else if (readiness(); as r) {
+    <section class="card closing__status">
+      <span class="closing__badge" [attr.data-status]="r.fiscalYear.status">
+        {{ 'accounting.annual_close.status.' + r.fiscalYear.status.toLowerCase() | translate }}
+      </span>
+      @if (r.result; as preview) {
+        <p class="closing__result">
+          {{ (preview.result >= 0 ? 'accounting.annual_close.result_profit' : 'accounting.annual_close.result_loss') | translate }}
+          <strong>{{ (preview.result < 0 ? -preview.result : preview.result) | vxNumber: '1.2-2' }}</strong>
+        </p>
+        <p class="closing__muted">{{ 'accounting.annual_close.result_note' | translate: { accounts: preview.accounts } }}</p>
+      }
+      @if (closingEntryLink(); as link) {
+        <a [routerLink]="link">{{ 'accounting.annual_close.view_closing_entry' | translate }}</a>
+      }
+    </section>
+
+    @if (r.fiscalYear.status === 'OPEN') {
+      <ul class="card closing__checks">
+        @for (check of checks(); track check.id) {
+          <li class="closing__check" [class.closing__check--ok]="check.ok" [class.closing__check--blocking]="!check.ok && check.blocking">
+            <lucide-icon [img]="check.ok ? OkIcon : check.blocking ? BlockIcon : AdviceIcon" size="20" aria-hidden="true"></lucide-icon>
+            <span class="closing__check-text">{{ check.text | translate: check.params }}</span>
+            @if (check.link) {
+              <a class="secondary-button" [routerLink]="check.link">{{ 'accounting.annual_close.go_task' | translate }}</a>
+            } @else if (check.fragment) {
+              <a class="secondary-button" [routerLink]="[]" [fragment]="check.fragment">{{ 'accounting.annual_close.go_task' | translate }}</a>
+            }
+          </li>
+        }
+      </ul>
+      <div class="closing__actions">
+        <button type="button" class="primary-button danger" [disabled]="!r.canClose || working()" (click)="close()">
+          {{ 'accounting.annual_close.close' | translate }}
+        </button>
+        @if (!r.canClose) {
+          <p class="closing__muted">{{ 'accounting.annual_close.blocked_note' | translate }}</p>
+        }
+      </div>
+    } @else if (r.fiscalYear.status === 'CLOSED' && canReopen) {
+      <div class="closing__actions">
+        <button type="button" class="secondary-button" [disabled]="working()" (click)="reopen()">
+          {{ 'accounting.annual_close.reopen' | translate }}
+        </button>
+      </div>
+    }
+  }
 </div>
