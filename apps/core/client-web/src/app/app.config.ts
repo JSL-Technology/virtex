@@ -31,6 +31,7 @@ import { watchRecaptchaScript } from './core/auth/recaptcha-token';
 import { API_URL } from './core/tokens/api-url.token';
 import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
 import { activeOrganizationInterceptor } from './core/tenancy/active-organization.interceptor';
+import { dataVersionInterceptor } from './core/data/data-version.interceptor';
 
 const CORE_PROVIDERS = [
   // Resolve the session before the first route is evaluated, so the guards never see a "pending"
@@ -142,6 +143,8 @@ export const appConfig: ApplicationConfig = {
         stepUpInterceptor,
         activeOrganizationInterceptor,
         idempotencyInterceptor,
+        // Innermost: it must see the response the write actually got, after a step-up retry.
+        dataVersionInterceptor,
       ]),
       withFetch(),
     ),

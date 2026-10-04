@@ -21,6 +21,7 @@ import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.s
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
+import { refreshWhenStale } from '../../../../core/data/data-version.service';
 
 /**
  * One person's record: who they are, what they are paid, and what leaving would cost.
@@ -443,6 +444,14 @@ export class EmployeeFormPage implements OnInit {
       error: () => this.notifications.showError('hcm.employee_not_found'),
     });
   }
+
+  /**
+   * The salary history is read-only here; it follows a change made elsewhere (QA M-06: it said
+   * «Sin salario registrado» after a 201). The form above is not reloaded — it may hold edits.
+   */
+  private readonly refreshCompensation = refreshWhenStale(() => {
+    if (this.id) this.loadCompensation(this.id);
+  });
 
   private loadCompensation(employeeId: string): void {
     this.hcm.listCompensation(employeeId).pipe(catchError(() => of([] as EmployeeCompensation[]))).subscribe(
