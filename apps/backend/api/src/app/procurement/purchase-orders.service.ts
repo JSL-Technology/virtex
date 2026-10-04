@@ -30,6 +30,7 @@ import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';
 import { PERMISSIONS } from '../shared/permissions';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 /** Quantities carry six decimals; comparisons tolerate the last one. */
 const QUANTITY_EPSILON = 0.000001;
@@ -114,24 +115,37 @@ export class PurchaseOrdersService {
     this.events?.emit(APPROVAL_DECIDED, event);
   }
 
-  async findAll(organizationId: string, query: PurchaseOrderQueryDto = {}): Promise<Page<PurchaseOrder>> {
+  async findAll(
+    organizationId: string,
+    query: PurchaseOrderQueryDto = {},
+    actorUserId?: string,
+  ): Promise<Page<PurchaseOrder>> {
     const paging = resolvePaging(query.page, query.pageSize);
-    const [rows, total] = await this.orderRepository.findAndCount({
-      where: {
-        organizationId,
-        ...(query.status ? { status: query.status } : {}),
-        ...(query.supplierId ? { supplierId: query.supplierId } : {}),
-      },
-      relations: ['supplier'],
-      order: { orderDate: 'DESC', createdAt: 'DESC' },
-      skip: paging.skip,
-      take: paging.take,
-    });
+    const builder = this.orderRepository
+      .createQueryBuilder('po')
+      .leftJoinAndSelect('po.supplier', 'supplier')
+      .where('po.organizationId = :organizationId', { organizationId });
+    if (query.status) builder.andWhere('po.status = :status', { status: query.status });
+    if (query.supplierId) builder.andWhere('po.supplierId = :supplierId', { supplierId: query.supplierId });
+    if (actorUserId || query.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, actorUserId ?? null);
+      applyBranchScope(builder, 'po', scope, query.branchId);
+    }
+    const [rows, total] = await builder
+      .orderBy('po.orderDate', 'DESC')
+      .addOrderBy('po.createdAt', 'DESC')
+      .skip(paging.skip)
+      .take(paging.take)
+      .getManyAndCount();
     return toPage(rows, total, paging);
   }
 
-  findOne(id: string, organizationId: string): Promise<PurchaseOrder> {
-    return this.findOneWith(this.dataSource.manager, id, organizationId);
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<PurchaseOrder> {
+    const order = await this.findOneWith(this.dataSource.manager, id, organizationId);
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), order.branchId);
+    }
+    return order;
   }
 
   async create(
@@ -147,6 +161,7 @@ export class PurchaseOrdersService {
       const order = await manager.save(
         manager.create(PurchaseOrder, {
           organizationId,
+          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           number: await this.nextNumber(manager, organizationId, orderDate),
           supplierId: dto.supplierId,
           orderDate,
@@ -395,6 +410,8 @@ export class PurchaseOrdersService {
       const receipt = await manager.save(
         manager.create(PurchaseOrderReceipt, {
           organizationId,
+          // Received where it was ordered: the order already names the branch the goods go to.
+          branchId: order.branchId,
           orderId: order.id,
           receivedAt: new Date(),
           receivedByUserId: actorUserId,

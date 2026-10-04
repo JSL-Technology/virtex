@@ -2,6 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { PurchaseOrder } from './purchase-order.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 /** One line of a delivery, as it was valued when it arrived. */
 export interface PurchaseOrderReceiptLine {
@@ -23,6 +24,7 @@ export interface PurchaseOrderReceiptLine {
  * points back at something a person can read. The lines are kept as they were valued at the time:
  * a later change of price on the order must not rewrite what was received.
  */
+@Index('IDX_purchase_order_receipts_org_branch', ['organizationId', 'branchId'])
 @Entity('purchase_order_receipts')
 @Index('IDX_purchase_order_receipts_order', ['orderId'])
 export class PurchaseOrderReceipt extends BaseEntity {
@@ -40,6 +42,13 @@ export class PurchaseOrderReceipt extends BaseEntity {
 
   @Column({ name: 'received_by_user_id', type: 'uuid', nullable: true })
   receivedByUserId: string | null;
+
+  /** The branch the goods arrived at. Null for a company without branches. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_purchase_order_receipts_branch')
+  branch?: BranchRef | null;
 
   /**
    * The entry the receipt posted. An id, not a relation: the ledger belongs to Accounting, and a

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In, EntityManager } from 'typeorm';
+import { Repository, DataSource, In, EntityManager, FindOperator } from 'typeorm';
 import {
   CustomerPayment,
   CustomerPaymentStatus,
@@ -45,6 +45,7 @@ import {
   AgingRow,
 } from '../accounts-payable/accounts-payable.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
   { label: '1-30', from: 1, to: 30 },
@@ -259,6 +260,7 @@ export class CustomerPaymentsService {
 
       const payment = await manager.save(
         manager.create(CustomerPayment, {
+          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           organizationId,
           customerId: dto.customerId,
           paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
@@ -625,29 +627,58 @@ export class CustomerPaymentsService {
   // Reads
   // ───────────────────────────────────────────────────────────────────────────
 
-  findAll(organizationId: string, customerId?: string): Promise<CustomerPayment[]> {
-    return this.paymentRepository.find({
-      where: { organizationId, ...(customerId ? { customerId } : {}) },
-      relations: ['customer'],
-      order: { paymentDate: 'DESC', createdAt: 'DESC' },
-    });
+  async findAll(
+    organizationId: string,
+    customerId?: string,
+    options: { branchId?: string; actorUserId?: string } = {},
+  ): Promise<CustomerPayment[]> {
+    const query = this.paymentRepository
+      .createQueryBuilder('payment')
+      .leftJoinAndSelect('payment.customer', 'customer')
+      .where('payment.organizationId = :organizationId', { organizationId });
+    if (customerId) query.andWhere('payment.customerId = :customerId', { customerId });
+    if (options.actorUserId || options.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+      applyBranchScope(query, 'payment', scope, options.branchId);
+    }
+    return query.orderBy('payment.paymentDate', 'DESC').addOrderBy('payment.createdAt', 'DESC').getMany();
   }
 
-  async findOne(id: string, organizationId: string): Promise<CustomerPayment> {
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<CustomerPayment> {
     const payment = await this.paymentRepository.findOne({
       where: { id, organizationId },
       relations: ['lines', 'lines.invoice', 'customer'],
     });
     if (!payment) throw new NotFoundError('customers.receipt_not_found');
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), payment.branchId);
+    }
     return payment;
   }
 
   /** What customers owe, by customer and by how overdue it is. */
+  private async agingBranchFilter(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string },
+  ): Promise<{ branchId?: string | FindOperator<string> }> {
+    if (!options.actorUserId && !options.branchId) return {};
+    const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+    if (options.branchId) {
+      assertDocumentInScope(scope, options.branchId);
+      return { branchId: options.branchId };
+    }
+    return scope.allowed ? { branchId: In(scope.allowed) } : {};
+  }
+
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
+    options: { branchId?: string; actorUserId?: string } = {},
   ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    // A slice by branch is a view of the same report; the whole-company figure is still the one
+    // that ties to the control account. A person limited to some branches only ever sees theirs.
+    const branchFilter = await this.agingBranchFilter(organizationId, options);
     const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, {
       organizationId,
     });
@@ -657,6 +688,7 @@ export class CustomerPaymentsService {
       where: {
         organizationId,
         status: In([InvoiceStatus.PENDING, InvoiceStatus.PARTIALLY_PAID]),
+        ...branchFilter,
       },
       relations: ['customer'],
     });

@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
 /**
  * The window a profitability report covers.
@@ -15,4 +15,9 @@ export class ProfitabilityQueryDto {
   @IsDateString({}, { message: 'validation.constraints.is_date_string' })
   @IsNotEmpty()
   endDate: string;
+
+  /** One branch's sales only. Omitted: every branch the caller may see. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
 }

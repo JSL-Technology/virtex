@@ -1,6 +1,17 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateWarehouseDto {
+  /** The branch this warehouse serves. Omitted: none, which is right for a company without branches. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsString()
   @IsNotEmpty()
   name: string;

@@ -6,6 +6,7 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { Opportunity } from './opportunity.entity';
 import { QuoteLine } from './quote-line.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum QuoteStatus {
   DRAFT = 'DRAFT',
@@ -20,6 +21,7 @@ export enum QuoteStatus {
 // The number is unique per tenant, like every other document number. It was unique across the
 // whole platform, so two companies could not both have a «COT-2026-000001».
 @Index('UQ_quotes_org_number', ['organizationId', 'quoteNumber'], { unique: true })
+@Index('IDX_quotes_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'quotes' })
 export class Quote {
   @PrimaryGeneratedColumn('uuid')
@@ -35,6 +37,13 @@ export class Quote {
    */
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_quotes_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })

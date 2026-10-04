@@ -17,6 +17,7 @@ import {
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
 import { BankAccount } from '../../treasury/entities/bank-account.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum CustomerPaymentStatus {
   POSTED = 'POSTED',
@@ -45,6 +46,7 @@ export enum PaymentMethod {
  * cash, so a customer advance or an overpayment simply could not be recorded — every receipt had to
  * be applied, to the cent, against invoices that already existed.
  */
+@Index('IDX_customer_payments_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'customer_payments' })
 @Index('IDX_customer_payments_org_date', ['organizationId', 'paymentDate'])
 @Index('IDX_customer_payments_customer', ['customerId'])
@@ -68,6 +70,13 @@ export class CustomerPayment {
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_customer_payments_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })

@@ -40,13 +40,13 @@ export class QuotesController {
   @Get()
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   findAll(@Query() query: ListQuotesQueryDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.quotesService.findAll(user.organizationId, query);
+    return this.quotesService.findAll(user.organizationId, query, user.id);
   }
 
   @Get(':id')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.quotesService.findOne(id, user.organizationId);
+    return this.quotesService.findOne(id, user.organizationId, user.id);
   }
 
   @Patch(':id')

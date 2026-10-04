@@ -6,7 +6,7 @@ import { AccountingPostingPort } from '../journal-entries/accounting-posting.por
 import { CreateIntercompanyTransactionDto } from './dto/create-intercompany-transaction.dto';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { OrganizationGroupMember } from '../organizations/entities/organization-group-member.entity';
+import { inSameCorporateGroup } from '../organizations/contracts/corporate-group.contract';
 import {
   IntercompanyTransaction,
   IntercompanyTransactionStatus,
@@ -51,7 +51,7 @@ export interface DestinationEntryJobData {
  * 1. **No authorization of any kind.** The route carried `JwtAuthGuard` and no permission, and
  *    `toOrganizationId` came from the request body with nothing checked about it. Any authenticated
  *    user of any tenant could have a journal entry posted into another company's books by naming
- *    its uuid. Group membership is now a stored fact (`organization_group_members`) and both
+ *    its uuid. Group membership is now a stored fact (`organization_subsidiaries`) and both
  *    companies must belong to the same group.
  * 2. **A silent 1:1 conversion.** `toAmount = amount * (rate?.rate || 1)` — with no rate on file,
  *    1,000,000 DOP arrived as 1,000,000 USD. The rate is resolved through `ExchangeRateResolver`
@@ -423,29 +423,7 @@ export class IntercompanyService {
     a: string,
     b: string,
   ): Promise<void> {
-    const memberships = await manager.find(OrganizationGroupMember, {
-      where: [
-        { parentOrganizationId: a, memberOrganizationId: b, isActive: true },
-        { parentOrganizationId: b, memberOrganizationId: a, isActive: true },
-      ],
-    });
-    if (memberships.length > 0) return;
-
-    // Siblings: both members of the same parent.
-    const asMember = await manager.find(OrganizationGroupMember, {
-      where: [
-        { memberOrganizationId: a, isActive: true },
-        { memberOrganizationId: b, isActive: true },
-      ],
-    });
-    const parentsOfA = new Set(
-      asMember.filter((m) => m.memberOrganizationId === a).map((m) => m.parentOrganizationId),
-    );
-    const shared = asMember.some(
-      (m) => m.memberOrganizationId === b && parentsOfA.has(m.parentOrganizationId),
-    );
-    if (shared) return;
-
+    if (await inSameCorporateGroup(manager, a, b)) return;
     throw new ForbiddenError('intercompany.organizations_not_same_group_record_relationship');
   }
 

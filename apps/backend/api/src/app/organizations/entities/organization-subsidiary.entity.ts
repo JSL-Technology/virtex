@@ -57,6 +57,17 @@ export class OrganizationSubsidiary {
   acquisitionDate: string | null;
 
   /**
+   * The date the parent lost control — a sale, a dilution below control — or null while it holds.
+   *
+   * NIIF 10.25 deconsolidates from that date. Without it the only way to end a relationship was to
+   * delete it, which erased the history of a group that did own the company for years. A relationship
+   * whose control has ended no longer authorises intercompany postings, and a consolidation of a
+   * period that starts after it leaves the company out.
+   */
+  @Column({ name: 'control_ended_on', type: 'date', nullable: true })
+  controlEndedOn: string | null;
+
+  /**
    * What the parent paid, in the parent's own currency. The consideration transferred, NIIF 3.32.
    */
   @Column({

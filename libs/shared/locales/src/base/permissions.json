@@ -329,6 +329,11 @@
     "en": "Vendor bills",
     "pt": "Faturas de compra"
   },
+  "permissions.groups.branches": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
   "permissions.groups.budgets": {
     "es": "Presupuestos",
     "en": "Budgets",

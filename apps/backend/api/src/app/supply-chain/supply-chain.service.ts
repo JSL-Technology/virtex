@@ -12,6 +12,7 @@ import { CreateLandedCostDto } from './dto/create-landed-cost.dto';
 import { UpdateLandedCostDto } from './dto/update-landed-cost.dto';
 import { NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
+import { assertBranchUsable } from '../organizations/contracts/branch.contract';
 
 /**
  * Warehouse management master data: warehouses, bin locations and landed-cost schemes.
@@ -33,9 +34,9 @@ export class SupplyChainService {
 
   // ── Warehouses ───────────────────────────────────────────────────────────────
 
-  findAllWarehouses(organizationId: string): Promise<Warehouse[]> {
+  findAllWarehouses(organizationId: string, branchId?: string): Promise<Warehouse[]> {
     return this.warehouseRepository.find({
-      where: { organizationId },
+      where: branchId ? { organizationId, branchId } : { organizationId },
       order: { name: 'ASC' },
     });
   }
@@ -50,8 +51,9 @@ export class SupplyChainService {
     return warehouse;
   }
 
-  createWarehouse(dto: CreateWarehouseDto, organizationId: string): Promise<Warehouse> {
-    const warehouse = this.warehouseRepository.create({ ...dto, organizationId });
+  async createWarehouse(dto: CreateWarehouseDto, organizationId: string): Promise<Warehouse> {
+    if (dto.branchId) await this.assertBranch(organizationId, dto.branchId);
+    const warehouse = this.warehouseRepository.create({ ...dto, branchId: dto.branchId ?? null, organizationId });
     return this.warehouseRepository.save(warehouse);
   }
 
@@ -61,9 +63,15 @@ export class SupplyChainService {
     organizationId: string,
   ): Promise<Warehouse> {
     const warehouse = await this.findOneWarehouse(id, organizationId);
+    if (dto.branchId) await this.assertBranch(organizationId, dto.branchId);
     return this.warehouseRepository.save(
       this.warehouseRepository.merge(warehouse, dto),
     );
+  }
+
+  /** A warehouse is assigned to one of this company's active branches, or to none. */
+  private assertBranch(organizationId: string, branchId: string): Promise<void> {
+    return assertBranchUsable(this.warehouseRepository.manager, organizationId, { allowed: null, defaultBranchId: null }, branchId);
   }
 
   /** A warehouse that holds bins or stock is deactivated, not deleted: the stock is somewhere. */

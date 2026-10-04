@@ -160,7 +160,6 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
 export const CROSS_TENANT_TABLES: readonly UnscopedTable[] = [
   { table: 'organizations', why: 'El registro de inquilinos. Acotarlo por inquilino es circular.' },
   { table: 'organization_subsidiaries', why: 'Relación ENTRE dos inquilinos; la consolidación la necesita desde el padre.' },
-  { table: 'organization_group_members', why: 'Relación ENTRE inquilinos de un mismo grupo.' },
   { table: 'intercompany_transactions', why: 'Operación entre dos empresas: lleva `from_organization_id` y `to_organization_id`.' },
 
   { table: 'users', why: 'Se lee para autenticar, antes de que exista contexto de inquilino. `organization_id` es nullable: una persona puede no pertenecer aún a ninguna empresa.' },

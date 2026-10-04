@@ -35,7 +35,13 @@ describe('QuotesService', () => {
   const manager = {
     create: jest.fn((_: unknown, data: object) => Object.assign(new Quote(), data)),
     save: jest.fn(async (q: Quote) => Object.assign(q, { id: q.id ?? 'q-new' })),
-    findOne: jest.fn(async (entity: unknown): Promise<unknown> => (entity === Quote ? stored : { baseCurrency: 'DOP' })),
+    findOne: jest.fn(async (entity: unknown): Promise<unknown> => {
+      if (entity === Quote) return stored;
+      // A company that has not set up branches: no membership default, no headquarters.
+      if (['Branch', 'UserOrganization'].includes((entity as { name?: string }).name ?? '')) return null;
+      return { baseCurrency: 'DOP' };
+    }),
+    find: jest.fn(async () => []),
     delete: jest.fn(),
     update: jest.fn(async (_: unknown, __: unknown, patch: Partial<Quote>) => {
       Object.assign(stored, patch);

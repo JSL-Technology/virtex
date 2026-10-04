@@ -317,6 +317,28 @@ describeWithDb('fiscal numbering across the seven regimes', () => {
       expect(assignment.ncf).toBe('001-002-000000045');
     });
 
+    it('numbers a branch\'s invoice under its own establishment, from its own emission point\'s range', async () => {
+      await settingsFor({ countryCode: 'EC', establishment: '001', emissionPoint: '001' });
+      const [branch] = await dataSource.query(
+        `INSERT INTO "branches" ("organization_id", "code", "name", "fiscal_establishment_code", "emission_point_code")
+         VALUES ($1, 'GYE', 'Guayaquil', '2', '3') RETURNING "id"`,
+        [organizationId],
+      );
+      // The head office's range and the branch's: each emission point keeps its own sequential.
+      await ranges.register(dataSource.manager, {
+        organizationId, countryCode: 'EC', documentType: '01', startsAt: 500, endsAt: 1_000,
+      });
+      await ranges.register(dataSource.manager, {
+        organizationId, countryCode: 'EC', documentType: '01', series: '002-003', startsAt: 7, endsAt: 1_000,
+      });
+
+      const assignment = await dataSource.transaction((manager) =>
+        adapter().assignSalesNumber(contextFor(manager, { currencyCode: 'USD', branchId: branch.id } as Partial<Invoice>)),
+      );
+
+      expect(assignment.ncf).toBe('002-003-000000007');
+    });
+
     it('refuses to number at all when the emission point is not configured', async () => {
       await ranges.register(dataSource.manager, {
         organizationId,

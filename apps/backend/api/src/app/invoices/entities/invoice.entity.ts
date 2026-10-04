@@ -19,6 +19,7 @@ import {
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
 import { roundToCurrency } from '../../common/money';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum InvoiceStatus {
   /** Prepared but not issued. Carries NO fiscal number and is not posted to the ledger. */
@@ -74,6 +75,7 @@ export enum PaymentMethod {
   OTHER = 'OTHER',
 }
 
+@Index('IDX_invoices_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'invoices' })
 @Index('IDX_invoices_org_issue_date', ['organizationId', 'issueDate'])
 @Index('IDX_invoices_org_status', ['organizationId', 'status'])
@@ -93,6 +95,13 @@ export class Invoice {
 
   @Column({ name: 'organization_id' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_invoices_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })

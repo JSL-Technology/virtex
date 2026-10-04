@@ -49,6 +49,11 @@
     "en": "Bargain purchase: the acquisition cost ({{cost}} {{currency}}) is below the share acquired ({{share}} {{currency}}).",
     "pt": "Compra vantajosa: o custo de aquisição ({{cost}} {{currency}}) é inferior à participação adquirida ({{share}} {{currency}})."
   },
+  "consolidation.warning.control_ended_in_period": {
+    "es": "El grupo dejó de controlar {{member}} el {{date}}, dentro del período: su resultado se incluye completo y debería incluirse solo hasta esa fecha.",
+    "en": "The group stopped controlling {{member}} on {{date}}, within the period: its result is included in full and should only be included up to that date.",
+    "pt": "O grupo deixou de controlar {{member}} em {{date}}, dentro do período: o seu resultado é incluído por inteiro e deveria ser incluído apenas até essa data."
+  },
   "consolidation.warning.intercompany_accounts_missing": {
     "es": "La operación intercompañía {{transaction}} no encontró ambas cuentas en los estados consolidados; la eliminación puede estar incompleta.",
     "en": "Intercompany transaction {{transaction}} did not find both accounts in the consolidated statements; the elimination may be incomplete.",

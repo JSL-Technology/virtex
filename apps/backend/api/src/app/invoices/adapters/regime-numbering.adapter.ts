@@ -19,6 +19,7 @@ import { DianBuilder } from '../../einvoicing/regimes/co/dian.builder';
 import { NfeBuilder } from '../../einvoicing/regimes/br/nfe.builder';
 import { CfdiBuilder } from '../../einvoicing/regimes/mx/cfdi.builder';
 import { FiscalRangeSecretKind } from '../../einvoicing/entities/fiscal-document-range.entity';
+import { branchFiscalCodes } from '../../organizations/contracts/branch.contract';
 
 /**
  * Fiscal numbering for the six markets besides the Dominican Republic whose regimes this product
@@ -66,6 +67,18 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
     return undefined;
   }
 
+  /**
+   * The configuration this particular document numbers under, and its series when the document
+   * dictates one. The tenant's settings, unchanged, except in a market that numbers per
+   * establishment, where the issuing branch can supply its own (see Ecuador).
+   */
+  protected async documentSettings(
+    _context: FiscalAssignmentContext,
+    settings: FiscalRegimeSettings | null,
+  ): Promise<{ settings: FiscalRegimeSettings | null; series?: string }> {
+    return { settings };
+  }
+
   /** How the market writes the drawn number on the document. */
   protected abstract format(
     number: number,
@@ -85,7 +98,8 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
 
   private async assign(context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {
     const { organizationId, manager } = context;
-    const settings = await this.settings(manager, organizationId);
+    const resolved = await this.documentSettings(context, await this.settings(manager, organizationId));
+    const settings = resolved.settings;
     this.assertKnownType(context.requestedType);
     const type = this.typeOf(context, settings);
 
@@ -93,7 +107,7 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
       organizationId,
       countryCode: this.countryCode,
       documentType: type,
-      series: this.seriesOf(settings),
+      series: resolved.series ?? this.seriesOf(settings),
       today: await this.today(manager, organizationId),
     });
 
@@ -274,6 +288,25 @@ export class EcuadorNumberingAdapter extends RegimeNumberingAdapter {
     const resolved = this.builder.documentType(context.invoice);
     this.assertTypeMatchesDocument(context.requestedType, resolved);
     return resolved;
+  }
+
+  /**
+   * A branch with its own establishment and emission point numbers under them, from that emission
+   * point's own range (series `EEE-PPP`): the SRI authorises each emission point and each keeps its
+   * own sequential. Without branch codes, the tenant's single establishment applies as before.
+   */
+  protected override async documentSettings(
+    context: FiscalAssignmentContext,
+    settings: FiscalRegimeSettings | null,
+  ): Promise<{ settings: FiscalRegimeSettings | null; series?: string }> {
+    const codes = await branchFiscalCodes(context.manager, context.organizationId, context.invoice.branchId);
+    if (!codes) return { settings };
+    const establishment = codes.establishment.padStart(3, '0').slice(0, 3);
+    const emissionPoint = codes.emissionPoint.padStart(3, '0').slice(0, 3);
+    return {
+      settings: { ...(settings ?? {}), establishment, emissionPoint } as FiscalRegimeSettings,
+      series: `${establishment}-${emissionPoint}`,
+    };
   }
 
   protected format(number: number, _series: string, settings: FiscalRegimeSettings | null): string {

@@ -8,6 +8,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
@@ -55,22 +56,28 @@ export class CustomerPaymentsController {
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @ApiOperation({ summary: 'Lista los cobros registrados.' })
   @ApiQuery({ name: 'customerId', required: false, type: String })
+  @ApiQuery({ name: 'branchId', required: false, type: String })
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query('customerId') customerId?: string,
+    @Query('branchId') branchId?: string,
   ) {
-    return this.customerPaymentsService.findAll(user.organizationId, customerId);
+    return this.customerPaymentsService.findAll(user.organizationId, customerId, { branchId, actorUserId: user.id });
   }
 
   @Get('aging')
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @ApiOperation({ summary: 'Antigüedad de saldos por cliente.' })
   @ApiQuery({ name: 'asOfDate', required: false, type: String })
-  aging(@CurrentUser() user: AuthenticatedUser, @Query('asOfDate') asOfDate?: string) {
-    return this.customerPaymentsService.aging(
-      user.organizationId,
-      asOfDate ?? new Date(),
-    );
+  aging(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('asOfDate') asOfDate?: string,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
+    return this.customerPaymentsService.aging(user.organizationId, asOfDate ?? new Date(), {
+      branchId,
+      actorUserId: user.id,
+    });
   }
 
   @Get('advances/:customerId')
@@ -91,7 +98,7 @@ export class CustomerPaymentsController {
     @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.customerPaymentsService.findOne(id, user.organizationId);
+    return this.customerPaymentsService.findOne(id, user.organizationId, user.id);
   }
 
   @Post(':id/void')

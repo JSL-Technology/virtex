@@ -18,6 +18,7 @@ import {
   ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
+import { applyBranchScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 /** Payment methods that put money in the drawer. A sale that names none is a cash sale. */
 const CASH_METHODS = new Set(['cash', 'efectivo', 'dinheiro']);
@@ -75,8 +76,10 @@ export class PosService {
     if (existing) {
       throw new ConflictError('pos.there_already_active_shift_for_this_terminal');
     }
+    const branchId = await resolveDocumentBranch(this.dataSource.manager, organizationId, userId, dto.branchId);
     const shift = this.shifts.create({
       organizationId,
+      branchId,
       userId,
       terminalId: dto.terminalId,
       openingBalance: roundAmount(dto.openingBalance),
@@ -210,6 +213,8 @@ export class PosService {
         organizationId,
         terminalId: dto.terminalId,
         shiftId: shift.id,
+        // A till sale belongs to the branch the till stands in.
+        branchId: shift.branchId,
         cashierId: cashier.id,
         items: lines,
         subtotal,
@@ -233,12 +238,20 @@ export class PosService {
     });
   }
 
-  listSales(organizationId: string, shiftId?: string): Promise<PosSale[]> {
-    return this.sales.find({
-      where: shiftId ? { organizationId, shiftId } : { organizationId },
-      order: { createdAt: 'DESC' },
-      take: 200,
-    });
+  async listSales(
+    organizationId: string,
+    shiftId?: string,
+    options: { branchId?: string; actorUserId?: string } = {},
+  ): Promise<PosSale[]> {
+    const query = this.sales
+      .createQueryBuilder('sale')
+      .where('sale.organizationId = :organizationId', { organizationId });
+    if (shiftId) query.andWhere('sale.shiftId = :shiftId', { shiftId });
+    if (options.actorUserId || options.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+      applyBranchScope(query, 'sale', scope, options.branchId);
+    }
+    return query.orderBy('sale.createdAt', 'DESC').take(200).getMany();
   }
 
   /** The shift, locked for the rest of the transaction, scoped to the tenant. */

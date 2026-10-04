@@ -16,12 +16,10 @@ import { LocalizationService } from '../../localization/services/localization.se
 import { replaceRolesInOrganization } from '../../users/persistence/identity-writes';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { Role } from '../../roles/entities/role.entity';
 import { MailService } from '../../mail/mail.service';
 import { OrganizationsService } from '../../organizations/organizations.service';
 import { UserRegisteredEvent } from '../events/user-registered.event';
-import { RoleEnum } from '../../roles/enums/role.enum';
-import { DEFAULT_ROLES } from '../../config/roles.config';
+import { createDefaultTenantRoles } from '../../roles/tenant-roles.provisioning';
 import { AuthConfig } from '../auth.config';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { PasswordService } from './password.service';
@@ -264,14 +262,8 @@ export class RegistrationService {
     organization.taxIdVerifiedAt = taxId ? new Date() : null;
     await manager.save(Organization, organization);
 
-    const defaultRoles = this.getDefaultRolesForOrganization(organization.id);
-    const roleEntities = defaultRoles.map((role) => manager.create(Role, { ...role }));
-    await manager.save(roleEntities);
-
-    const adminRole = roleEntities.find((r) => r.name === RoleEnum.ADMINISTRATOR);
-    if (!adminRole) {
-      throw new InternalServerError('auth.default_administrator_role_could_not_found');
-    }
+    // The same provisioning a subsidiary gets, so no path can create a tenant without its roles.
+    const { administrator: adminRole } = await createDefaultTenantRoles(manager, organization.id);
 
     let user: User;
 
@@ -852,13 +844,6 @@ export class RegistrationService {
 
   private isPreVerifiedToken(code: string): boolean {
     return code.split('.').length === 3;
-  }
-
-  private getDefaultRolesForOrganization(organizationId: string) {
-    return DEFAULT_ROLES.map(role => ({
-        ...role,
-        organizationId
-    }));
   }
 
   private async simulateDelay() {

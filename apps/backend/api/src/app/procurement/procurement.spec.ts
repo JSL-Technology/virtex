@@ -339,6 +339,33 @@ describeWithDb('purchasing', () => {
       expect(complete.status).toBe(PurchaseOrderStatus.RECEIVED);
     });
 
+    it('is ordered from the headquarters, and received where it was ordered', async () => {
+      //  A company that has set up branches: the document says where it happened.
+      const [hq] = await dataSource.query(
+        `INSERT INTO "branches" ("organization_id", "code", "name", "is_headquarters")
+         VALUES ($1, 'MATRIZ', 'Casa matriz', true) RETURNING "id"`,
+        [organizationId],
+      );
+      const order = await newOrder();
+      expect(order.branchId).toBe(hq.id);
+
+      await orders.submit(order.id, organizationId);
+      await orders.approve(order.id, organizationId, APPROVER);
+      const sent = await orders.send(order.id, organizationId);
+      await orders.receive(order.id, { lines: [{ lineId: sent.lines[0].id, quantity: 1 }] }, organizationId);
+
+      const [receipt] = await dataSource.query(
+        `SELECT "branch_id" FROM "purchase_order_receipts" WHERE "order_id" = $1`,
+        [order.id],
+      );
+      expect(receipt.branch_id).toBe(hq.id);
+    });
+
+    it('is issued from no branch at all in a company that has none', async () => {
+      const order = await newOrder();
+      expect(order.branchId).toBeNull();
+    });
+
     it('refuses a delivery larger than what was ordered', async () => {
       const order = await newOrder();
       await orders.submit(order.id, organizationId);

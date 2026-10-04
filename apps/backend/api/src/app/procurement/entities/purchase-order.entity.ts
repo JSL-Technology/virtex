@@ -4,6 +4,7 @@ import { numericTransformerNotNull } from '../../common/database/numeric.transfo
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { PurchaseOrderLine } from './purchase-order-line.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum PurchaseOrderStatus {
   DRAFT = 'DRAFT',
@@ -38,6 +39,7 @@ export enum PurchaseOrderStatus {
  * Sent` and three more — as literals in the browser bundle, identical for every tenant of the
  * product, with no table, no endpoint and no way to create a fifth.
  */
+@Index('IDX_purchase_orders_org_branch', ['organizationId', 'branchId'])
 @Entity('purchase_orders')
 @Index('IDX_purchase_orders_org_number', ['organizationId', 'number'], { unique: true })
 @Index('IDX_purchase_orders_org_status', ['organizationId', 'status'])
@@ -59,6 +61,13 @@ export class PurchaseOrder extends BaseEntity {
   /** When the supplier promised it. Null until they say.  */
   @Column({ name: 'expected_date', type: 'date', nullable: true })
   expectedDate: string | null;
+
+  /** The branch that ordered, and where the goods are expected. Null for a company without branches. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_purchase_orders_branch')
+  branch?: BranchRef | null;
 
   @Column({
     type: 'enum',

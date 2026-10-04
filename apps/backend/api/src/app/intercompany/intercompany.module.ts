@@ -11,7 +11,7 @@ import { AccountingModule } from '../accounting/accounting.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 
-// Organization, OrganizationSettings, OrganizationGroupMember, Account, Journal, Ledger,
+// Organization, OrganizationSettings, OrganizationSubsidiary, Account, Journal, Ledger,
 // AccountingPeriod, AccountPeriodLock are all read via DataSource.manager within the service.
 // They are owned by their respective modules; declaring them in forFeature here would make
 // IntercompanyModule look like their owner, which it is not.

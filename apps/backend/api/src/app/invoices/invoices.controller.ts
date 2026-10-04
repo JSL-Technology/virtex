@@ -57,7 +57,7 @@ export class InvoicesController {
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   @CheckPlanLimit(SaasResource.INVOICES, 1)
   create(@Body() dto: CreateInvoiceDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.invoicesService.create(dto, user.organizationId);
+    return this.invoicesService.create(dto, user.organizationId, user.id);
   }
 
   /**
@@ -146,6 +146,8 @@ export class InvoicesController {
       limit: query.limit ? Number(query.limit) : undefined,
       status: query.status as InvoiceStatus | undefined,
       customerId: query.customerId,
+      branchId: query.branchId,
+      actorUserId: user.id,
       from: query.from,
       to: query.to,
       search: query.search,
@@ -167,7 +169,7 @@ export class InvoicesController {
   @Get(':id')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.invoicesService.findOne(id, user.organizationId);
+    return this.invoicesService.findOne(id, user.organizationId, user.id);
   }
 
   @Post(':id/credit-note')

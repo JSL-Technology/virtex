@@ -46,13 +46,13 @@ export class PurchaseOrdersController {
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
   @ApiOperation({ summary: 'Lista las órdenes de compra del inquilino.' })
   findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PurchaseOrderQueryDto) {
-    return this.orders.findAll(user.organizationId, query);
+    return this.orders.findAll(user.organizationId, query, user.id);
   }
 
   @Get(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.orders.findOne(id, user.organizationId);
+    return this.orders.findOne(id, user.organizationId, user.id);
   }
 
   @Post()

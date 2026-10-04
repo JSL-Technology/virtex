@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsNumber, Matches, Max, MaxLength, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsUUID, Matches, Max, MaxLength, Min, ValidateIf } from 'class-validator';
+import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 
 export class CreateSubsidiaryDto {
   @IsString()
@@ -19,4 +20,38 @@ export class CreateSubsidiaryDto {
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @Max(100, { message: 'validation.constraints.max|{"max":100}' })
   ownership: number;
+}
+
+/**
+ * What the group records about a subsidiary after it is created: how much it owns, since when, at
+ * what cost, against which investment account — and when control ended. Consolidation reads all of
+ * it; without the acquisition date it can only warn that pre-acquisition equity cannot be separated.
+ */
+export class UpdateSubsidiaryDto {
+  @IsNumber()
+  @IsOptional()
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(100, { message: 'validation.constraints.max|{"max":100}' })
+  ownership?: number;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsIsoDate()
+  @IsOptional()
+  acquisitionDate?: string | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @IsOptional()
+  acquisitionCost?: number | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsUUID()
+  @IsOptional()
+  investmentAccountId?: string | null;
+
+  @ValidateIf((_, value) => value !== null)
+  @IsIsoDate()
+  @IsOptional()
+  controlEndedOn?: string | null;
 }

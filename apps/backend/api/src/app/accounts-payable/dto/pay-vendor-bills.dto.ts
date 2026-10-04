@@ -49,6 +49,11 @@ export class VendorBillPaymentLineDto {
 }
 
 export class PayVendorBillsDto {
+  /** The branch paying. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsDateString()
   @IsNotEmpty()
   paymentDate: string;

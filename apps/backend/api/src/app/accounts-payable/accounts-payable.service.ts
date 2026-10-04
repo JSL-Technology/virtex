@@ -3,7 +3,7 @@ import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
 import { VendorBillLine } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, DataSource, EntityManager } from 'typeorm';
+import { Repository, In, DataSource, EntityManager, FindOperator } from 'typeorm';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
@@ -45,6 +45,7 @@ import {
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
   label: string;
@@ -198,6 +199,7 @@ export class AccountsPayableService {
   async create(
     dto: CreateVendorBillDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<VendorBill> {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
@@ -299,6 +301,7 @@ export class AccountsPayableService {
       );
 
       const bill = manager.create(VendorBill, {
+        branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
         ...dto,
         organizationId,
         lines,
@@ -864,6 +867,7 @@ export class AccountsPayableService {
 
       const batch = await manager.save(
         manager.create(PaymentBatch, {
+          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           organizationId,
           paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
           bankAccountId: dto.bankAccountId,
@@ -1076,21 +1080,31 @@ export class AccountsPayableService {
   // Reads
   // ───────────────────────────────────────────────────────────────────────────
 
-  findAll(organizationId: string): Promise<VendorBill[]> {
-    return this.vendorBillRepository.find({
-      where: { organizationId },
-      order: { date: 'DESC' },
-      relations: ['vendor'],
-    });
+  async findAll(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string } = {},
+  ): Promise<VendorBill[]> {
+    const query = this.vendorBillRepository
+      .createQueryBuilder('bill')
+      .leftJoinAndSelect('bill.vendor', 'vendor')
+      .where('bill.organizationId = :organizationId', { organizationId });
+    if (options.actorUserId || options.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+      applyBranchScope(query, 'bill', scope, options.branchId);
+    }
+    return query.orderBy('bill.date', 'DESC').getMany();
   }
 
-  async findOne(id: string, organizationId: string): Promise<VendorBill> {
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<VendorBill> {
     const bill = await this.vendorBillRepository.findOne({
       where: { id, organizationId },
       relations: ['lines', 'vendor'],
     });
     if (!bill) {
       throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id });
+    }
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), bill.branchId);
     }
     return bill;
   }
@@ -1109,11 +1123,28 @@ export class AccountsPayableService {
    * There was no ageing report of any kind — for payables or receivables — which is the report a
    * treasurer opens to decide what to pay and an auditor asks for to substantiate the balance.
    */
+  private async agingBranchFilter(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string },
+  ): Promise<{ branchId?: string | FindOperator<string> }> {
+    if (!options.actorUserId && !options.branchId) return {};
+    const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+    if (options.branchId) {
+      assertDocumentInScope(scope, options.branchId);
+      return { branchId: options.branchId };
+    }
+    return scope.allowed ? { branchId: In(scope.allowed) } : {};
+  }
+
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
+    options: { branchId?: string; actorUserId?: string } = {},
   ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    // A slice by branch is a view of the same report; the whole-company figure is still the one
+    // that ties to the control account. A person limited to some branches only ever sees theirs.
+    const branchFilter = await this.agingBranchFilter(organizationId, options);
     const settings = await this.orgSettings.getForOrg(organizationId);
     const baseCurrency = settings?.baseCurrency ?? 'USD';
 
@@ -1121,6 +1152,7 @@ export class AccountsPayableService {
       where: {
         organizationId,
         status: In([VendorBillStatus.OPEN, VendorBillStatus.PARTIALLY_PAID]),
+        ...branchFilter,
       },
       relations: ['vendor'],
     });

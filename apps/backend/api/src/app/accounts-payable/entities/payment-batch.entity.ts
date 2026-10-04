@@ -11,6 +11,7 @@ import {
 import { VendorPayment } from './vendor-payment.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { BankAccount } from '../../treasury/entities/bank-account.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum PaymentBatchStatus {
   PENDING = 'PENDING',
@@ -20,6 +21,7 @@ export enum PaymentBatchStatus {
 }
 
 /** One payment run: the bills it settled, the account the money left, and the entry it produced. */
+@Index('IDX_payment_batches_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'payment_batches' })
 @Index('IDX_payment_batches_org_date', ['organizationId', 'paymentDate'])
 export class PaymentBatch {
@@ -28,6 +30,13 @@ export class PaymentBatch {
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_payment_batches_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })

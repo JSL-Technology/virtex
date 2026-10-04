@@ -52,6 +52,11 @@ export class PurchaseOrderLineDto {
 }
 
 export class CreatePurchaseOrderDto {
+  /** The branch ordering, where the goods are expected. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsUUID()
   @IsNotEmpty()
   supplierId: string;
@@ -114,6 +119,11 @@ export class UpdatePurchaseOrderDto {
 }
 
 export class PurchaseOrderQueryDto {
+  /** Only this branch's orders. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsEnum(PurchaseOrderStatus)
   @IsOptional()
   status?: PurchaseOrderStatus;

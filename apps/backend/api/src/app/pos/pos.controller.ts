@@ -60,7 +60,11 @@ export class PosController {
 
   @Get('sales')
   @HasPermission(PERMISSIONS.POS_VIEW)
-  listSales(@Query('shiftId') shiftId: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.pos.listSales(user.organizationId, shiftId || undefined);
+  listSales(
+    @Query('shiftId') shiftId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('branchId') branchId?: string,
+  ) {
+    return this.pos.listSales(user.organizationId, shiftId || undefined, { branchId, actorUserId: user.id });
   }
 }

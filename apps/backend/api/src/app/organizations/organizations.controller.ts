@@ -1,6 +1,7 @@
 
-import { Controller, Get, Body, Patch, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards, Put, Param } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CheckPermissions } from '../security/decorators/check-permissions.decorator';
 import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owner.policy';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -8,7 +9,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { UpdateSecuritySettingsDto } from './dto/update-security-settings.dto';
 import { OrgSettingsService } from './services/org-settings.service';
-import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
+import { CreateSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { Organization } from './entities/organization.entity';
 import { Post } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
@@ -228,5 +229,18 @@ export class OrganizationsController {
       createSubsidiaryDto,
       user.id,
     );
+  }
+
+  /** The same ownership policy and step-up as creating one: it changes the consolidation. */
+  @Patch('subsidiaries/:subsidiaryId')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_ROLES)
+  @CheckPermissions(IsOrganizationOwnerPolicy)
+  updateSubsidiary(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('subsidiaryId', UuidParamPipe) subsidiaryId: string,
+    @Body() dto: UpdateSubsidiaryDto,
+  ) {
+    return this.organizationsService.updateSubsidiary(user.organizationId, subsidiaryId, dto);
   }
 }

@@ -12,6 +12,7 @@ import {
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum PosShiftStatus {
   OPEN = 'OPEN',
@@ -26,6 +27,7 @@ export enum PosShiftStatus {
  * the service enforces before a sale is allowed — a sale outside an open shift has nowhere to be
  * counted and no one accountable for the drawer.
  */
+@Index('IDX_pos_shifts_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'pos_shifts' })
 @Index('IDX_pos_shifts_org_terminal_status', ['organizationId', 'terminalId', 'status'])
 // One open shift per terminal, enforced by the database (see PosServerAuthority1789007200000).
@@ -48,6 +50,13 @@ export class PosShift {
   @Index('IDX_pos_shifts_org')
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_pos_shifts_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({
