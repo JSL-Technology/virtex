@@ -88,3 +88,15 @@
     }
   }
 }
+
+// What the chosen account holds, and a warning when the payment takes it below zero (QA M-07).
+.totals__funds {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.totals__funds--short {
+  color: var(--error-text);
+  font-weight: 600;
+}

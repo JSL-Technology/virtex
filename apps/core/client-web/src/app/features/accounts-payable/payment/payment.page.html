@@ -55,7 +55,7 @@
         <div class="invoice-picker">
           @for (bill of payableBills(); track bill.id) {
             <button class="chip" type="button" (click)="addBill(bill)">
-              {{ bill.billNumber }} · {{ bill.vendorName }} ·
+              {{ billReference(bill) }} · {{ bill.vendor?.name }} ·
               {{ bill.balance | vxMoney: bill.currencyCode }}
             </button>
           }
@@ -118,6 +118,12 @@
             <span>{{ 'accounts_payable.payment.settles' | translate }}</span>
             <vx-amount class="amount" [value]="totals().settled" />
           </div>
+          @if (available(); as funds) {
+            <p class="totals__funds" [class.totals__funds--short]="overdraws()" [attr.role]="overdraws() ? 'alert' : null">
+              {{ (overdraws() ? 'accounts_payable.payment.overdraft_note' : 'accounts_payable.payment.available_note')
+                 | translate: { available: (funds.amount | vxMoney: funds.currencyCode) } }}
+            </p>
+          }
         </div>
       }
 

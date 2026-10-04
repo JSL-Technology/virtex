@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
+import { CashPositionRow } from '../../accounting/data/treasury.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -67,6 +69,7 @@ export class VendorPaymentPage implements OnInit {
    * showing whatever the first account allowed.
    */
   readonly selectedBankAccountId = signal<string>('');
+  private readonly format = inject(FormatService);
   readonly bills = signal<VendorBill[]>([]);
   readonly baseCurrency = signal<string | null>(null);
   readonly saving = signal(false);
@@ -97,6 +100,29 @@ export class VendorPaymentPage implements OnInit {
 
   readonly totals = signal({ cash: 0, withheld: 0, discount: 0, settled: 0 });
 
+  private readonly dialog = inject(DialogService);
+  /** Each account's balance, to warn before a payment overdraws it (QA M-07). */
+  private readonly positions = signal<CashPositionRow[]>([]);
+  private readonly selectedAccountId = signal<string | null>(null);
+
+  /**
+   * What the chosen account holds, in its own currency, or null when unknown — then nothing is
+   * claimed either way. A payment of 5,000 left the bank at −2,640 without a word: overdrafts are
+   * legitimate (a credit line), so this warns rather than refuses.
+   */
+  readonly available = computed<{ amount: number; currencyCode: string } | null>(() => {
+    const row = this.positions().find((position) => position.bankAccountId === this.selectedAccountId());
+    if (!row) return null;
+    const amount =
+      row.balanceInAccountCurrency ?? (row.currencyCode === this.baseCurrency() ? row.balanceInBaseCurrency : null);
+    return amount === null ? null : { amount, currencyCode: row.currencyCode };
+  });
+
+  readonly overdraws = computed(() => {
+    const available = this.available();
+    return available !== null && this.totals().cash > 0 && this.totals().cash > available.amount + 0.005;
+  });
+
   ngOnInit(): void {
     this.form = this.fb.group({
       paymentDate: [todayIso(), [Validators.required]],
@@ -121,7 +147,10 @@ export class VendorPaymentPage implements OnInit {
       error: () => this.bills.set([]),
     });
     this.treasury.cashPosition().subscribe({
-      next: (position) => this.baseCurrency.set(position.baseCurrency),
+      next: (position) => {
+        this.baseCurrency.set(position.baseCurrency);
+        this.positions.set(position.accounts);
+      },
       error: () => this.baseCurrency.set(null),
     });
 
@@ -141,6 +170,15 @@ export class VendorPaymentPage implements OnInit {
     this.recomputeTotals();
   }
 
+  /**
+   * How a bill is recognised: its fiscal number, or — where the jurisdiction has none — its date.
+   * The chip read `billNumber` and `vendorName`, which the API never sends, and showed «· · DOP
+   * 5,000.00» (QA M-07); the line fell back to a slice of the bill's UUID.
+   */
+  billReference(bill: VendorBill): string {
+    return bill.ncf || this.format.date(bill.date);
+  }
+
   addBill(bill: VendorBill): void {
     if (this.lines.controls.some((line) => line.value.vendorBillId === bill.id)) return;
     this.lines.push(
@@ -148,8 +186,8 @@ export class VendorPaymentPage implements OnInit {
         vendorBillId: [bill.id],
         // `ncf` and the vendor relation, not `billNumber`/`vendorName` — neither of which the
         // API returns. Both columns rendered blank in the payment picker.
-        billNumber: [bill.ncf ?? bill.id.slice(0, 8)],
-        vendorName: [bill.vendor?.name ?? bill.vendorId],
+        billNumber: [this.billReference(bill)],
+        vendorName: [bill.vendor?.name ?? ''],
         currencyCode: [bill.currencyCode],
         balance: [bill.balance],
         amount: [bill.balance, [Validators.min(0)]],
@@ -197,6 +235,7 @@ export class VendorPaymentPage implements OnInit {
       discount += Number(line.value.discount || 0);
       settled += this.settledBy(line.value);
     }
+    this.selectedAccountId.set(this.form.get('bankAccountId')?.value || null);
     this.totals.set({
       cash: round(cash),
       withheld: round(withheld),
@@ -211,7 +250,7 @@ export class VendorPaymentPage implements OnInit {
     void this.router.navigate(['/accounts-payable']);
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (this.form.invalid || this.lines.length === 0) {
       this.form.markAllAsTouched();
       const missing = draftProblems(this.form, {
@@ -233,6 +272,21 @@ export class VendorPaymentPage implements OnInit {
     }
 
     this.problems.set([]);
+
+    const available = this.available();
+    if (this.overdraws() && available) {
+      const proceed = await this.dialog.confirm({
+        title: 'accounts_payable.payment.overdraft_title',
+        message: 'accounts_payable.payment.overdraft_message',
+        messageParams: {
+          available: this.format.money(available.amount, available.currencyCode),
+          after: this.format.money(round(available.amount - this.totals().cash), available.currencyCode),
+        },
+        confirmText: 'accounts_payable.payment.overdraft_confirm',
+        variant: 'danger',
+      });
+      if (!proceed) return;
+    }
 
     this.saving.set(true);
     const raw = this.form.getRawValue();

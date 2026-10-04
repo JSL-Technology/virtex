@@ -606,6 +606,11 @@
     "en": "Only invoices in draft can be edited.",
     "pt": "Somente faturas em rascunho podem ser editadas."
   },
+  "accounts_payable.payment.available_note": {
+    "es": "Disponible en la cuenta: {{available}}.",
+    "en": "Available in the account: {{available}}.",
+    "pt": "Disponível na conta: {{available}}."
+  },
   "accounts_payable.payment.balance": {
     "es": "Saldo",
     "en": "Balance",
@@ -660,6 +665,26 @@
     "es": "No hay facturas que esta cuenta pueda pagar.",
     "en": "There are no invoices this account can pay.",
     "pt": "Não há faturas que esta conta possa pagar."
+  },
+  "accounts_payable.payment.overdraft_confirm": {
+    "es": "Pagar de todos modos",
+    "en": "Pay anyway",
+    "pt": "Pagar mesmo assim"
+  },
+  "accounts_payable.payment.overdraft_message": {
+    "es": "La cuenta tiene {{available}} y quedará en {{after}}. Continúa solo si cuenta con una línea de sobregiro o el depósito ya está en camino.",
+    "en": "The account holds {{available}} and will be left at {{after}}. Continue only if it has an overdraft line or the deposit is on its way.",
+    "pt": "A conta tem {{available}} e ficará em {{after}}. Continue somente se houver limite de cheque especial ou o depósito já estiver a caminho."
+  },
+  "accounts_payable.payment.overdraft_note": {
+    "es": "Este pago supera lo disponible en la cuenta ({{available}}): la dejará en negativo.",
+    "en": "This payment exceeds what the account holds ({{available}}): it will leave it overdrawn.",
+    "pt": "Este pagamento excede o disponível na conta ({{available}}): ela ficará negativa."
+  },
+  "accounts_payable.payment.overdraft_title": {
+    "es": "La cuenta quedará en negativo",
+    "en": "The account will be overdrawn",
+    "pt": "A conta ficará negativa"
   },
   "accounts_payable.payment.pay_supplier_invoices": {
     "es": "Pagar facturas de proveedor",

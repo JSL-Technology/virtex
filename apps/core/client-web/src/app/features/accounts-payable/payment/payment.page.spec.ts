@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { DialogService } from '../../../core/services/dialog.service';
 import { VendorPaymentPage } from './payment.page';
 import { environment } from '../../../../environments/environment';
 
@@ -73,13 +74,17 @@ describe('VendorPaymentPage', () => {
     },
   ];
 
-  const boot = (accounts = [account('b1', 'DOP'), account('b2', 'USD')], baseCurrency = 'DOP') => {
+  const boot = (
+    accounts = [account('b1', 'DOP'), account('b2', 'USD')],
+    baseCurrency = 'DOP',
+    positions: unknown[] = [],
+  ) => {
     fixture.detectChanges();
     httpMock.expectOne((c) => c.url === `${API}/treasury/bank-accounts`).flush(accounts);
     httpMock.expectOne((c) => c.url === `${API}/accounts-payable`).flush(bills);
     httpMock
       .expectOne((c) => c.url === `${API}/treasury/cash-position`)
-      .flush({ asOfDate: '2026-03-31', baseCurrency, accounts: [], total: 0 });
+      .flush({ asOfDate: '2026-03-31', baseCurrency, accounts: positions, total: 0 });
     fixture.detectChanges();
   };
 
@@ -154,6 +159,36 @@ describe('VendorPaymentPage', () => {
       taxWithheld: 1_800,
     });
     request.flush({ id: 'batch1' });
+    httpMock.verify();
+  });
+
+  // QA M-07: a payment of 5,000 left the bank at −2,640 without a word.
+  it('warns before a payment overdraws the account, and pays only if the user insists', async () => {
+    const dialog = TestBed.inject(DialogService);
+    const confirm = jest.spyOn(dialog, 'confirm');
+    boot(undefined, 'DOP', [
+      { bankAccountId: 'b1', currencyCode: 'DOP', balanceInAccountCurrency: 2_360, balanceInBaseCurrency: 2_360 },
+    ]);
+    component.addBill(component.payableBills()[0]);
+    component.lines.at(0).patchValue({ amount: 5_000 });
+
+    expect(component.overdraws()).toBe(true);
+
+    confirm.mockResolvedValueOnce(false);
+    await component.save();
+    httpMock.expectNone((c) => c.url === `${API}/accounts-payable/payments`);
+
+    confirm.mockResolvedValueOnce(true);
+    await component.save();
+    httpMock.expectOne((c) => c.url === `${API}/accounts-payable/payments`).flush({ id: 'batch2' });
+    httpMock.verify();
+  });
+
+  it('says nothing about funds it does not know', () => {
+    boot();
+    component.addBill(component.payableBills()[0]);
+    expect(component.available()).toBeNull();
+    expect(component.overdraws()).toBe(false);
     httpMock.verify();
   });
 });
