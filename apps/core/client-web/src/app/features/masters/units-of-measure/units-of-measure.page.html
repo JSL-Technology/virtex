@@ -7,7 +7,7 @@
   (reload)="load()"
 >
   @if (canManage()) {
-    <button listActions type="button" class="primary-button" (click)="toggleCreate()">
+    <button listActions type="button" class="primary-button" vxRequires="units_of_measure:manage" (click)="toggleCreate()">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'masters.units_of_measure.new_unit' | translate }}</span>
     </button>

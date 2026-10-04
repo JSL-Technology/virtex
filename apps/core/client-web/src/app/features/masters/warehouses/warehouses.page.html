@@ -6,7 +6,7 @@
   [empty]="!loading() && !error() && warehouses().length === 0"
   (reload)="load()"
 >
-  <button listActions type="button" class="primary-button" (click)="toggleCreate()">
+  <button listActions type="button" class="primary-button" vxRequires="wms:manage" (click)="toggleCreate()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.warehouses.new_warehouse' | translate }}</span>
   </button>

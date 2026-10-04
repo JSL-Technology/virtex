@@ -9,10 +9,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

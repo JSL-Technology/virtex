@@ -14,6 +14,7 @@ import {
   PayrollService,
 } from '../../../core/api/payroll.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * Lo que significa cada estado de una nómina, no de qué color se pinta.
@@ -43,7 +44,7 @@ const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

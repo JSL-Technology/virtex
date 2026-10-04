@@ -8,6 +8,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * Los diarios contables.
@@ -25,7 +26,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-journal-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './journal-list.page.html',
   styleUrls: ['./journal-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -13,6 +13,7 @@ import {
   HcmService,
 } from '../../../core/api/hcm.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /** Qué significa la situación de un empleado. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
@@ -35,7 +36,7 @@ const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

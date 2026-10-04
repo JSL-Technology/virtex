@@ -7,6 +7,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { Department, HcmService } from '../../../core/api/hcm.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * Departments: the company's own structure, and the cost centre each part posts to.
@@ -21,7 +22,7 @@ import { Department, HcmService } from '../../../core/api/hcm.service';
 @Component({
   selector: 'app-departments-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

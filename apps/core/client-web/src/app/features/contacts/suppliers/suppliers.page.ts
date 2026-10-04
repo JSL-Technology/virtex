@@ -7,10 +7,11 @@ import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

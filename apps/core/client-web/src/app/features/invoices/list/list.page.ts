@@ -22,6 +22,7 @@ import {
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * The invoice list.
@@ -39,7 +40,7 @@ import { VxPagerComponent } from '../../../shared/components/pager';
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

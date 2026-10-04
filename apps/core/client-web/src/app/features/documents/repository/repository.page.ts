@@ -22,6 +22,7 @@ import {
   DocumentNode,
   DocumentsService,
 } from '../../../core/api/documents.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * The tenant's document repository.
@@ -37,7 +38,7 @@ import {
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

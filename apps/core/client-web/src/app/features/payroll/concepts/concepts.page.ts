@@ -13,6 +13,7 @@ import {
   PayrollConcept,
   PayrollService,
 } from '../../../core/api/payroll.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * The concept catalogue: every line that can appear on a payslip.
@@ -29,7 +30,7 @@ import {
 @Component({
   selector: 'app-payroll-concepts-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './concepts.page.html',
   styleUrls: ['./concepts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

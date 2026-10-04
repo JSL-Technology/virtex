@@ -11,6 +11,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { DatasetExportService } from '../../../core/export/dataset-export';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * Till sales, as they were actually rung up.
@@ -28,7 +29,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

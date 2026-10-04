@@ -12,6 +12,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * The currencies the tenant transacts in.
@@ -30,7 +31,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-currencies-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './currencies.page.html',
   styleUrls: ['./currencies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

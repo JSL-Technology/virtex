@@ -6,6 +6,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * Los libros contables.
@@ -24,7 +25,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-ledger-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './ledger-list.page.html',
   styleUrls: ['./ledger-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

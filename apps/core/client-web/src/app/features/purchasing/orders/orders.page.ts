@@ -12,6 +12,7 @@ import {
   PurchasingService,
 } from '../../../core/api/purchasing.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /** Which badge colour each status carries. Green means the goods are in. */
 /** Lo que significa cada estado de un pedido. El color lo pone `vx-badge`, una vez. */
@@ -38,7 +39,7 @@ const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

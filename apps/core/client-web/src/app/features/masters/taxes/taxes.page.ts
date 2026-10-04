@@ -10,11 +10,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
+  imports: [CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

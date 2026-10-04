@@ -12,6 +12,7 @@ import {
   PurchasingService,
 } from '../../../core/api/purchasing.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /** Lo que significa cada estado de una solicitud. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
@@ -34,7 +35,7 @@ const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

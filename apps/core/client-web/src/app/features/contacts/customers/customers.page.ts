@@ -7,10 +7,11 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -14,11 +14,12 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
+  imports: [CanOpenDirective, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

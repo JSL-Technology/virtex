@@ -12,6 +12,7 @@ import {
   ProposedAdjustment,
 } from '../../../core/api/audit-adjustments.service';
 import { FiscalYear, FiscalYearsService } from '../../../core/api/fiscal-years.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * How each state reads and what colour it wears. One table, so the label and the badge cannot
@@ -45,7 +46,7 @@ const STATUS: Record<AdjustmentStatus, { key: string; badge: string }> = {
 @Component({
   selector: 'app-audit-adjustments-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
+  imports: [CanOpenDirective, CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
   templateUrl: './audit-adjustments.page.html',
   styleUrls: ['./audit-adjustments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

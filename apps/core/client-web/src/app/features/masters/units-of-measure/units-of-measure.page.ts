@@ -10,6 +10,7 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../../core/api/units-of
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
 /**
  * The units products are counted, weighed and measured in.
@@ -27,7 +28,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
+  imports: [CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

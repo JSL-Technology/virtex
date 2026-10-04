@@ -15,7 +15,7 @@
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.chart_of_accounts.export' | translate }}</span>
   </button>
-  <button listActions class="primary-button" type="button" (click)="goToAccountForm()">
+  <button listActions class="primary-button" type="button" vxCanOpen="/accounting/chart-of-accounts/new" (click)="goToAccountForm()">
     <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.chart_of_accounts.new_account' | translate }}</span>
   </button>
