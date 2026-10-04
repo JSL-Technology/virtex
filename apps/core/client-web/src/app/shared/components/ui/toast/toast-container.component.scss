@@ -1,12 +1,17 @@
 @use '../../../../../assets/styles/design-system' as ds;
 
+//  Arriba al centro (QA B-02). Arriba a la derecha caía encima del botón de cerrar de los
+//  diálogos, que vive en esa esquina, y abajo a la derecha caería sobre sus botones de acción. En el
+//  centro superior lo único que puede quedar debajo es el título de un diálogo, que no se pulsa.
 .toast-container {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-3);
   pointer-events: none;
   max-width: calc(100vw - 3rem);
@@ -16,6 +21,7 @@
     bottom: 1rem;
     left: 1rem;
     right: 1rem;
+    transform: none;
     max-width: none;
     align-items: center;
   }

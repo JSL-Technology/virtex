@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ApprovalPolicy, DocumentTypeForApproval } from './entities/approval-policy.entity';
@@ -20,6 +21,7 @@ import {
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { toMinorUnits } from '../common/money';
+import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from './events/approval.events';
 
 /** Who is acting, and under what authority. */
 export interface ApprovalActor {
@@ -70,6 +72,8 @@ export class WorkflowsService {
     private readonly handlers: ApprovalHandlerRegistry,
     private readonly auditTrail: AuditTrailService,
     private readonly dataSource: DataSource,
+    /** Optional so the flow runs without listeners (unit tests); nothing depends on being heard. */
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -226,6 +230,63 @@ export class WorkflowsService {
   }
 
   /**
+   * Tell the approvers of a request's open step that it is waiting for them (QA B-02).
+   *
+   * Called by whoever owns the transaction that raised the request, once it has committed —
+   * `startApprovalProcess` runs inside the caller's transaction and cannot know when that is.
+   * Never throws: the request exists either way, and a notice that fails is logged.
+   */
+  async announcePending(requestId: string): Promise<void> {
+    try {
+      const request = await this.requestRepository.findOne({ where: { id: requestId } });
+      if (!request || request.status !== ApprovalStatus.PENDING) return;
+      const policy = await this.policyRepository.findOne({
+        where: { id: request.policyId, organizationId: request.organizationId },
+        relations: ['steps'],
+      });
+      const step = policy?.steps.find((candidate) => candidate.order === request.currentStep);
+      if (step) this.announceStep(request, step);
+    } catch (error) {
+      this.logger.warn(`Approval ${requestId} raised but not announced: ${(error as Error).message}`);
+    }
+  }
+
+  /** The approvers of the step now open are told. Published after the commit, never inside it. */
+  private announceStep(request: ApprovalRequest, step: ApprovalPolicyStep): void {
+    const event: ApprovalRequestedEvent = {
+      organizationId: request.organizationId,
+      requestId: request.id,
+      documentType: request.documentType,
+      documentId: request.documentId,
+      amount: Number(request.amount),
+      roleId: step.roleId,
+      stepOrder: step.order,
+      requestedByUserId: request.requestedByUserId ?? null,
+    };
+    this.events?.emit(APPROVAL_REQUESTED, event);
+  }
+
+  /** Whoever raised the request is told how it ended. */
+  private announceDecision(
+    request: ApprovalRequest,
+    decision: 'APPROVED' | 'REJECTED',
+    actorUserId: string,
+    reason?: string,
+  ): void {
+    const event: ApprovalDecidedEvent = {
+      organizationId: request.organizationId,
+      requestId: request.id,
+      documentType: request.documentType,
+      documentId: request.documentId,
+      decision,
+      requestedByUserId: request.requestedByUserId ?? null,
+      actorUserId,
+      reason: reason ?? null,
+    };
+    this.events?.emit(APPROVAL_DECIDED, event);
+  }
+
+  /**
    * The steps that apply to an amount, in order.
    *
    * Sorted by `order` first, so the chain is the chain the tenant configured rather than whatever
@@ -249,7 +310,10 @@ export class WorkflowsService {
    * Grant one step. On the final step, post the document in the same transaction.
    */
   async approve(requestId: string, actor: ApprovalActor, comment?: string): Promise<ApprovalRequest> {
-    return this.dataSource.transaction(async (manager) => {
+    // Announced once the transaction has committed: a notice about an approval that rolled back
+    // would tell somebody to act on something that did not happen.
+    const announcements: Array<() => void> = [];
+    const result = await this.dataSource.transaction(async (manager) => {
       const { request, policy, step } = await this.loadDecidable(manager, requestId, actor);
 
       // Segregation of duties. Configurable later if a tenant genuinely wants it off; closed by
@@ -280,6 +344,7 @@ export class WorkflowsService {
           step: step.order,
           nextStep: next.order,
         });
+        announcements.push(() => this.announceStep(escalated, next));
         return escalated;
       }
 
@@ -308,11 +373,14 @@ export class WorkflowsService {
       await this.recordDecision(manager, approved, actor, 'approval-granted', {
         step: step.order,
       });
+      announcements.push(() => this.announceDecision(approved, 'APPROVED', actor.userId));
       this.logger.log(
         `Solicitud ${approved.id} (${approved.documentType}) aprobada por ${actor.userId}.`,
       );
       return approved;
     });
+    for (const announce of announcements) announce();
+    return result;
   }
 
   /** Refuse the request. The document is told, in the same transaction. */
@@ -320,7 +388,7 @@ export class WorkflowsService {
     const trimmed = (reason ?? '').trim();
     if (!trimmed) throw new BadRequestError('workflows.reason_rejection_required');
 
-    return this.dataSource.transaction(async (manager) => {
+    const rejectedRequest = await this.dataSource.transaction(async (manager) => {
       const { request, step } = await this.loadDecidable(manager, requestId, actor);
 
       await manager.save(
@@ -356,6 +424,8 @@ export class WorkflowsService {
       });
       return rejected;
     });
+    this.announceDecision(rejectedRequest, 'REJECTED', actor.userId, trimmed);
+    return rejectedRequest;
   }
 
   /** Requests this tenant has open, for the approval inbox. */

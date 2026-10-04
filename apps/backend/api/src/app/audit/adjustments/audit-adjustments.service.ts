@@ -36,7 +36,8 @@ export class AuditAdjustmentsService {
     organizationId: string,
     proposer: User,
   ): Promise<ProposedAdjustment> {
-    return this.dataSource.transaction(async (manager) => {
+    let raisedRequestId: string | null = null;
+    const proposed = await this.dataSource.transaction(async (manager) => {
       this.logger.log(`Usuario ${proposer.id} propone ajuste de auditoría para el año fiscal ${dto.fiscalYearId}`);
 
       const adjustment = manager.create(ProposedAdjustment, {
@@ -49,14 +50,20 @@ export class AuditAdjustmentsService {
       const savedAdjustment = await manager.save(adjustment);
 
 
+      // On THIS transaction, and naming who proposed it. Without the manager the request was
+      // written outside the transaction — it survived a proposal that rolled back — and without
+      // the proposer nothing stopped them approving their own adjustment.
       const approvalRequest = await this.workflowsService.startApprovalProcess(
         organizationId,
         savedAdjustment.id,
         DocumentTypeForApproval.AUDIT_ADJUSTMENT,
         0,
+        proposer.id,
+        manager,
       );
 
       if (approvalRequest) {
+        raisedRequestId = approvalRequest.id;
         savedAdjustment.approvalRequestId = approvalRequest.id;
         await manager.save(savedAdjustment);
         return savedAdjustment;
@@ -79,6 +86,8 @@ export class AuditAdjustmentsService {
       await this.postApproved(manager, savedAdjustment.id, organizationId);
       return manager.findOneByOrFail(ProposedAdjustment, { id: savedAdjustment.id });
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return proposed;
   }
 
   /**

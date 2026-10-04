@@ -58,7 +58,10 @@
                 </div>
                 <div class="sessions-list__details">
                   <div>
-                    {{ session.browser }} on {{ session.os }}
+                    {{ 'settings.sessions.browser_on_os' | translate: {
+                      browser: known(session.browser) || ('settings.sessions.unknown_browser' | translate),
+                      os: known(session.os) || ('settings.sessions.unknown_os' | translate)
+                    } }}
                     @if (session.isCurrent) {
                       <vx-badge tone="accent" size="sm">
                         {{ 'settings.security.current_session' | translate }}
@@ -67,7 +70,11 @@
                   </div>
                   <div>
                     <lucide-icon [img]="MapPinIcon" class="w-3 h-3"></lucide-icon>
-                    {{ session.city || 'Unknown' }}, {{ session.country || 'Unknown' }}
+                    @if (session.city || session.country) {
+                      {{ session.city }}{{ session.city && session.country ? ', ' : '' }}{{ session.country }}
+                    } @else {
+                      {{ 'settings.sessions.location_unknown' | translate }}
+                    }
                     <span class="mx-1.5 opacity-50">•</span>
                     {{ session.lastActiveAt | vxDate: 'dateTimeLong' }}
                   </div>

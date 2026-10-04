@@ -571,6 +571,11 @@
     "en": "Vendor Bills",
     "pt": "Faturas de Fornecedor"
   },
+  "accounts_payable.ncf_requires_supplier_tax_id": {
+    "es": "La factura con NCF {{ncf}} necesita el RNC o la cédula del proveedor {{supplier}}. Regístralo en la ficha del proveedor: el 606 identifica cada compra por él y la DGII rechaza las que no lo tienen.",
+    "en": "The bill with NCF {{ncf}} needs the RNC or cédula of supplier {{supplier}}. Record it on the supplier: the 606 identifies every purchase by it and the DGII rejects those without one.",
+    "pt": "A fatura com NCF {{ncf}} precisa do RNC ou da cédula do fornecedor {{supplier}}. Registre-o no cadastro do fornecedor: o 606 identifica cada compra por ele e a DGII rejeita as que não o têm."
+  },
   "accounts_payable.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
     "en": "No default ledger has been configured for the organization.",

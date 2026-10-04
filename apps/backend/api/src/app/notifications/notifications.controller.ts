@@ -33,7 +33,7 @@ export class NotificationsController {
     'The caller\'s own notification inbox: reading it, and marking their own items as read.',
   )
   getNotifications(@CurrentUser() user: AuthenticatedUser) {
-    return this.notificationsService.getNotifications(user.id);
+    return this.notificationsService.getNotifications(user.id, undefined, user.organizationId);
   }
 
   @Post('access-request')

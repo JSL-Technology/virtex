@@ -65,7 +65,7 @@ describeWithDb('proposing an audit adjustment', () => {
   const account: Record<string, string> = {};
 
   /** No policy for AUDIT_ADJUSTMENT: the proposal auto-approves, which is the service's rule. */
-  const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null) };
+  const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() };
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -86,7 +86,7 @@ describeWithDb('proposing an audit adjustment', () => {
       dataSource.getRepository(JournalEntryAttachment),
       dataSource,
       {} as never,
-      { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
+      { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() } as never,
       new EventEmitter2(),
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
@@ -325,6 +325,11 @@ describeWithDb('proposing an audit adjustment', () => {
 
     expect(stored.status).toBe(AdjustmentStatus.PENDING_APPROVAL);
     expect(stored.journalEntryId).toBeFalsy();
+    // Raised on the proposal's own transaction, naming the proposer; announced after the commit.
+    const [, , , , requester, manager] = workflows.startApprovalProcess.mock.calls.at(-1)!;
+    expect(requester).toBeTruthy();
+    expect(manager).toBeDefined();
+    expect(workflows.announcePending).toHaveBeenCalledWith('ffffffff-ffff-4fff-8fff-ffffffffffff');
   });
 
   it('lists the proposals of the tenant, newest first', async () => {

@@ -243,6 +243,9 @@
 <!-- Context Menu -->
 <div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
   <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'settings.user_management.edit_user' | translate }}</div>
+  @if (contextMenuUser?.status === 'PENDING') {
+    <div class="menu-item" (click)="handleAction('resend-invitation', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resend-invitation', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resend-invitation', contextMenuUser!)"><lucide-icon [name]="MailIcon" size="16"></lucide-icon> {{ 'settings.user_management.resend_invitation' | translate }}</div>
+  }
   <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'settings.user_management.reset_password' | translate }}</div>
   <div class="menu-divider"></div>
   <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'settings.user_management.impersonate_user' | translate }}</div>

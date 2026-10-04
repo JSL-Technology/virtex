@@ -3621,6 +3621,11 @@
     "en": "Active sessions",
     "pt": "Sessões ativas"
   },
+  "settings.sessions.browser_on_os": {
+    "es": "{{browser}} en {{os}}",
+    "en": "{{browser}} on {{os}}",
+    "pt": "{{browser}} em {{os}}"
+  },
   "settings.sessions.current_session": {
     "es": "Sesión actual",
     "en": "Current session",
@@ -3630,6 +3635,11 @@
     "es": "Cargando sesiones…",
     "en": "Loading sessions…",
     "pt": "Carregando sessões…"
+  },
+  "settings.sessions.location_unknown": {
+    "es": "Ubicación desconocida",
+    "en": "Unknown location",
+    "pt": "Local desconhecido"
   },
   "settings.sessions.no_active_sessions_record": {
     "es": "No hay sesiones activas registradas.",
@@ -4036,6 +4046,11 @@
     "en": "Invitation message (optional)",
     "pt": "Mensagem do convite (opcional)"
   },
+  "settings.user_management.invitation_resent": {
+    "es": "Se envió un enlace nuevo a {{email}}. El anterior ya no funciona.",
+    "en": "A new link was sent to {{email}}. The previous one no longer works.",
+    "pt": "Um novo link foi enviado para {{email}}. O anterior não funciona mais."
+  },
   "settings.user_management.invitation_revoke_failed": {
     "es": "No se pudo retirar la invitación.",
     "en": "The invitation could not be withdrawn.",
@@ -4070,6 +4085,11 @@
     "es": "No se encontraron usuarios.",
     "en": "No users were found.",
     "pt": "Nenhum usuário encontrado."
+  },
+  "settings.user_management.resend_invitation": {
+    "es": "Reenviar invitación",
+    "en": "Resend invitation",
+    "pt": "Reenviar convite"
   },
   "settings.user_management.reset_password": {
     "es": "Resetear Contraseña",

@@ -1,5 +1,5 @@
 import { User } from '../../users/entities/user.entity/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Index } from 'typeorm';
 
 /**
  * One in-app notification.
@@ -16,6 +16,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } f
  * have nothing else. Reading prefers the keys and falls back to the text.
  */
 @Entity()
+@Index('IDX_notification_user_org_created', ['userId', 'organizationId', 'createdAt'])
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -44,6 +45,14 @@ export class Notification {
 
   @Column({ default: false })
   read: boolean;
+
+  /** The company the notice is about; null for a notice about the person (their own account). */
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId?: string | null;
+
+  /** Where the notice leads in the client — an app path such as `/approvals`. */
+  @Column({ type: 'varchar', length: 300, nullable: true })
+  link?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

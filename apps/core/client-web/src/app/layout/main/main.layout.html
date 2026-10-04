@@ -289,6 +289,7 @@
           (clickOutside)="closeNotificationMenu()"
         >
           <button
+            #notificationButton
             class="icon-button"
             type="button"
             [title]="'nav.notifications' | translate"
@@ -321,7 +322,7 @@
               <button
                 class="notification-item"
                 [class.read]="notification.read"
-                (click)="notificationCenter.markAsRead(notification.id); closeNotificationMenu()"
+                (click)="openNotification(notification)"
               >
                 <div class="status-dot"></div>
                 <div class="notification-content">

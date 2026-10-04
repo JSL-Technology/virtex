@@ -30,7 +30,7 @@ import { SessionService } from '../auth/services/session.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { saveIdentity, replaceRolesInOrganization } from './persistence/identity-writes';
 import { OrganizationInvitationsService } from './invitations/organization-invitations.service';
-import { BadRequestError, ForbiddenError, NotFoundError, UnauthorizedError } from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
 
 /** One row of a user's activity, as the administration screen renders it. */
@@ -761,6 +761,39 @@ export class UsersService extends UserProfilePort {
   }
 
   /**
+   * Send a pending member's invitation again, with a new link (QA B-02).
+   *
+   * The only way to reach somebody whose email was lost or whose link expired used to be inviting
+   * them again, which did nothing. The previous link stops working: the token is rotated, so only
+   * the newest email can activate the account.
+   */
+  async resendInvitation(userId: string, organizationId: string, actor: AuthenticatedUser): Promise<{ email: string; expiresAt: Date }> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, organizationId },
+      relations: ['roles'],
+    });
+    if (!user) throw new NotFoundError('users.user_id_not_found_your_organization', { id: userId });
+    if (user.status !== UserStatus.PENDING) {
+      throw new ConflictError('users.invitation_not_pending', { email: user.email });
+    }
+    // Re-sending re-delegates the roles the invitation carries: the same limit as inviting.
+    for (const role of user.roles ?? []) this.rolesService.assertCanAssignRole(actor, role);
+
+    const rawInvitationToken = crypto.randomBytes(32).toString('base64url');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await this.userRepository.update(
+      { id: user.id, organizationId, status: UserStatus.PENDING },
+      {
+        invitationToken: crypto.createHash('sha256').update(rawInvitationToken).digest('hex'),
+        invitationTokenExpires: expiresAt,
+      },
+    );
+    await this.mailService.sendUserInvitation(user, rawInvitationToken);
+    return { email: user.email, expiresAt };
+  }
+
+  /**
    * Invite somebody to a tenant.
    *
    * Two cases, and only one of them used to work.
@@ -816,8 +849,17 @@ export class UsersService extends UserProfilePort {
     // id and what the email needs is loaded: the inviting tenant has no business with the rest.
     const existingUser = await this.userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'firstName', 'preferredLanguage'],
+      select: ['id', 'email', 'firstName', 'preferredLanguage', 'status', 'organizationId'],
     });
+
+    // Somebody already in THIS organization — a member, or invited and not yet in. Saying so is
+    // not an oracle: the administrator can read this tenant's member list. Saying nothing was
+    // (QA B-02): the second invitation answered 201, sent nothing, and looked like it had worked.
+    // Whether the address has an account at any OTHER tenant stays unsaid, as before.
+    if (existingUser && (await this.membershipService.hasMembershipRow(existingUser.id, organizationId))) {
+      const pendingHere = existingUser.status === UserStatus.PENDING && existingUser.organizationId === organizationId;
+      throw new ConflictError(pendingHere ? 'users.invitation_already_pending' : 'users.already_member', { email });
+    }
 
     if (existingUser) {
       // An existing account is ASKED, not added. See `OrganizationInvitationsService`.

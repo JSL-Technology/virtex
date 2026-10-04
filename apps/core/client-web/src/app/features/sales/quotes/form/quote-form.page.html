@@ -33,15 +33,15 @@
             [displayWith]="customerName" [valueWith]="customerId" [required]="true" />
         </label>
         <label class="field" for="currencyCode">
-          <span>{{ 'sales.quotes.currency' | translate }} *</span>
+          <span>{{ 'sales.quotes.currency' | translate }}</span>
           <vx-select inputId="currencyCode" formControlName="currencyCode" [options]="currencyOptions()" [displayWith]="identity" />
         </label>
         <label class="field" for="issueDate">
-          <span>{{ 'sales.quotes.issue_date' | translate }} *</span>
+          <span>{{ 'sales.quotes.issue_date' | translate }}</span>
           <vx-date-field inputId="issueDate" formControlName="issueDate" />
         </label>
         <label class="field" for="expiryDate">
-          <span>{{ 'sales.quotes.expiry_date' | translate }} *</span>
+          <span>{{ 'sales.quotes.expiry_date' | translate }}</span>
           <vx-date-field inputId="expiryDate" formControlName="expiryDate" />
         </label>
         <label class="field field--wide" for="notes">

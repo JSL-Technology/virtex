@@ -43,8 +43,10 @@
 
           <div class="sess-item__info">
             <div class="sess-item__browser">
-              {{ session.browser || ('settings.sessions.unknown_browser' | translate) }}
-              <span class="sess-item__os">en {{ session.os || ('settings.sessions.unknown_os' | translate) }}</span>
+              {{ 'settings.sessions.browser_on_os' | translate: {
+                browser: known(session.browser) || ('settings.sessions.unknown_browser' | translate),
+                os: known(session.os) || ('settings.sessions.unknown_os' | translate)
+              } }}
               @if (session.isCurrent) {
                 <vx-badge tone="accent" size="sm">{{ 'settings.sessions.current_session' | translate }}</vx-badge>
               }
@@ -52,7 +54,11 @@
             <div class="sess-item__meta">
               <span>
                 <lucide-icon [img]="MapPinIcon" size="12"></lucide-icon>
-                {{ session.city || '—' }}{{ session.city && session.country ? ', ' : '' }}{{ session.country || '' }}
+                @if (session.city || session.country) {
+                  {{ session.city }}{{ session.city && session.country ? ', ' : '' }}{{ session.country }}
+                } @else {
+                  {{ 'settings.sessions.location_unknown' | translate }}
+                }
               </span>
               <span class="sess-item__sep">·</span>
               <span>

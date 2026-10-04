@@ -1730,6 +1730,11 @@
     "en": "Set as the default ledger",
     "pt": "Definir como livro padrão"
   },
+  "accounting.ledger_form.subtitle_edit": {
+    "es": "Cambia el nombre o la descripción de este libro. Los asientos ya registrados en él no cambian.",
+    "en": "Change this ledger's name or description. The entries already recorded in it do not change.",
+    "pt": "Altere o nome ou a descrição deste livro. Os lançamentos já registrados nele não mudam."
+  },
   "accounting.ledger_form.title_create": {
     "es": "Nuevo libro mayor",
     "en": "New ledger",

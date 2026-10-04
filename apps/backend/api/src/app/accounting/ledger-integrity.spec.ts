@@ -100,7 +100,7 @@ describeWithDb('the accounting core', () => {
 
     // The collaborators that are not under test. The workflow stub returns null, which means "no
     // approval policy applies", so entries post directly — the path every subledger uses.
-    const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null) };
+    const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() };
     const saas = { enforceLimit: jest.fn().mockResolvedValue(undefined) };
 
     entries = new JournalEntriesService(

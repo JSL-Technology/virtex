@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { BadRequestError } from '../i18n/localized.exception';
 import { LanguageCode, matchLanguage } from '@virteex/shared/types';
@@ -10,6 +10,9 @@ import { Notification } from './entities/notification.entity';
 import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 import { EventsGateway } from '../websockets/events.gateway';
 import { PushSubscription } from '../push-notifications/entities/push-subscription.entity';
+
+/** How many notices the bell receives: the latest, not the whole history. */
+const NOTIFICATION_PAGE = 100;
 
 @Injectable()
 export class NotificationsService {
@@ -66,6 +69,9 @@ export class NotificationsService {
         titleKey: 'notifications.access_request.title',
         bodyKey: reason ? 'notifications.access_request.body_with_reason' : 'notifications.access_request.body',
         params: { name, email: requester.email ?? '', path: request.path, reason: reason ?? '' },
+        // Members and roles, where the access is granted.
+        link: '#settings/users',
+        organizationId: requester.organizationId,
       });
     }
     return { notified: administrators.length };
@@ -85,11 +91,20 @@ export class NotificationsService {
   async createLocalizedNotification(
     userId: string,
     language: LanguageCode,
-    message: { titleKey: string; bodyKey: string; params?: Record<string, unknown> },
+    message: {
+      titleKey: string;
+      bodyKey: string;
+      params?: Record<string, unknown>;
+      /** Where the notice leads in the client (`/approvals`). */
+      link?: string | null;
+      /** The company it is about, so a person in two companies sees each one's in its place. */
+      organizationId?: string | null;
+    },
   ): Promise<Notification> {
     const params = message.params ?? {};
-    const title = this.i18n.translate(message.titleKey, language, params);
-    const body = this.i18n.translate(message.bodyKey, language, params);
+    const rendered = this.renderParams(params, language);
+    const title = this.i18n.translate(message.titleKey, language, rendered);
+    const body = this.i18n.translate(message.bodyKey, language, rendered);
 
     const savedNotification = await this.notificationRepository.save(
       this.notificationRepository.create({
@@ -99,6 +114,8 @@ export class NotificationsService {
         titleKey: message.titleKey,
         bodyKey: message.bodyKey,
         params,
+        link: message.link ?? null,
+        organizationId: message.organizationId ?? null,
       }),
     );
 
@@ -148,20 +165,43 @@ export class NotificationsService {
    * were reading Spanish. A row with no keys (created before notifications were localised) keeps
    * its stored text, which is all it has.
    */
-  async getNotifications(userId: string, language?: LanguageCode): Promise<Notification[]> {
+  async getNotifications(userId: string, language?: LanguageCode, organizationId?: string | null): Promise<Notification[]> {
     const target = matchLanguage(language ?? null) ?? currentLanguage();
+    // The active company's notices and the person's own; never another company's. Bounded: the
+    // bell shows the latest, and a person with years of notices must not download all of them.
     const notifications = await this.notificationRepository.find({
-      where: { userId },
+      where: organizationId
+        ? [
+            { userId, organizationId },
+            { userId, organizationId: IsNull() },
+          ]
+        : { userId },
       order: { createdAt: 'DESC' },
+      take: NOTIFICATION_PAGE,
     });
 
     return notifications.map((notification) => {
       if (!notification.titleKey || !notification.bodyKey) return notification;
-      const params = notification.params ?? {};
+      const params = this.renderParams(notification.params ?? {}, target);
       notification.title = this.i18n.translate(notification.titleKey, target, params);
       notification.body = this.i18n.translate(notification.bodyKey, target, params);
       return notification;
     });
+  }
+
+  /**
+   * A parameter named `…Key` holds a catalogue key — `documentKey: 'approvals.document_type.vendor_bill'`
+   * — and is rendered in the reader's language as the parameter without the suffix (`document`).
+   * Stored as the key, so the history re-renders with the reader's language like the rest.
+   */
+  private renderParams(params: Record<string, unknown>, language: LanguageCode): Record<string, unknown> {
+    const rendered: Record<string, unknown> = { ...params };
+    for (const [name, value] of Object.entries(params)) {
+      if (name.endsWith('Key') && name.length > 3 && typeof value === 'string') {
+        rendered[name.slice(0, -3)] = this.i18n.translate(value, language);
+      }
+    }
+    return rendered;
   }
 
   async markAsRead(notificationId: string, userId: string): Promise<Notification> {

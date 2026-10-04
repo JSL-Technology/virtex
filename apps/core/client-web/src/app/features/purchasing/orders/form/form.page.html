@@ -60,7 +60,7 @@
         </label>
 
         <label class="field" for="currencyCode">
-          <span>{{ 'purchasing.orders.form.currency' | translate }} *</span>
+          <span>{{ 'purchasing.orders.form.currency' | translate }}</span>
           <select id="currencyCode" formControlName="currencyCode">
             @for (code of currencyOptions(); track code) {
               <option [value]="code">{{ code }}</option>

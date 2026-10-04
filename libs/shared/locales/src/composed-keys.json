@@ -96,6 +96,15 @@
       "employee",
       "other"
     ],
+    "notifications.document_type": [
+      "vendor_bill",
+      "journal_entry",
+      "audit_adjustment",
+      "period_reopening",
+      "payment_batch",
+      "purchase_order",
+      "purchase_requisition"
+    ],
     "billing.invoice_status": [
       "draft",
       "open",

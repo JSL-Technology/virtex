@@ -113,15 +113,22 @@ export class OverviewService {
 // ── Traducción de los hechos del servidor a lo que la página pinta ────────────
 
 /** Which icon and which sentence belong to each audited table. */
-const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: string; route: string }> = {
-  invoices:          { kind: 'invoice', icon: Receipt,    key: 'INVOICES',          route: '/invoices' },
+/**
+ * How each audited entity is shown, and where a row about it leads.
+ *
+ * `record` opens the record itself (QA B-02: a row about invoice 42 opened the invoice list, or —
+ * on the dashboard — nothing at all). A deleted record has nothing to open, so it leads to `route`,
+ * the list, as does an entity with no screen of its own.
+ */
+const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: string; route: string; record?: (id: string) => string }> = {
+  invoices:          { kind: 'invoice', icon: Receipt,    key: 'INVOICES',          route: '/invoices',                  record: (id) => `/invoices/${id}` },
   customer_payments: { kind: 'payment', icon: CreditCard, key: 'CUSTOMER_PAYMENTS', route: '/customer-receipts' },
-  vendor_bills:      { kind: 'bill',    icon: Truck,      key: 'VENDOR_BILLS',      route: '/accounts-payable' },
+  vendor_bills:      { kind: 'bill',    icon: Truck,      key: 'VENDOR_BILLS',      route: '/accounts-payable',          record: (id) => `/accounts-payable/${id}` },
   vendor_payments:   { kind: 'payment', icon: Banknote,   key: 'VENDOR_PAYMENTS',   route: '/accounts-payable/payments' },
-  journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries' },
-  customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts/customers' },
-  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers' },
-  products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory/products' },
+  journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries', record: (id) => `/accounting/journal-entries/${id}/edit` },
+  customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts/customers',        record: (id) => `/contacts/customers/${id}/edit` },
+  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers',        record: (id) => `/masters/suppliers/${id}/edit` },
+  products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory/products',        record: (id) => `/inventory/products/${id}/edit` },
 };
 
 const EVENT_VIEW: Record<string, { icon: unknown; overdue: boolean }> = {
@@ -151,7 +158,7 @@ function toActivityItem(row: ActivityDto): ActivityItem {
     amount: row.amount,
     currencyCode: row.currencyCode,
     actorName: row.actorName,
-    route: view.route || undefined,
+    route: (row.action !== 'DELETE' && row.entityId && view.record ? view.record(row.entityId) : view.route) || undefined,
     timestamp: row.timestamp,
   };
 }

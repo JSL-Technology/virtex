@@ -6,6 +6,7 @@ import { NotificationsService } from './notifications.service';
 import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
 import { WebsocketsModule } from '../websockets/websockets.module';
 import { PushSubscription } from '../push-notifications/entities/push-subscription.entity';
+import { ApprovalNotificationsListener } from './listeners/approval-notifications.listener';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { PushSubscription } from '../push-notifications/entities/push-subscripti
     WebsocketsModule,
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService],
+  providers: [NotificationsService, ApprovalNotificationsListener],
   exports: [NotificationsService],
 })
 export class NotificationsModule {}

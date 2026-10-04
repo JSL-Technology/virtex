@@ -458,7 +458,20 @@ export class UserManagementPage implements OnInit, OnDestroy {
       case 'impersonate':
         this.impersonateUser(user);
         break;
+      case 'resend-invitation':
+        this.resendInvitation(user);
+        break;
     }
+  }
+
+  /** A pending member gets a new link; the previous one stops working (QA B-02). */
+  resendInvitation(user: ApiUser): void {
+    this.stepUp
+      .requireStepUp(StepUpScope.MANAGE_USERS, this.viewContainerRef, () => this.usersService.resendInvitation(user.id))
+      .subscribe({
+        next: ({ email }) => this.notificationService.showSuccess('settings.user_management.invitation_resent', { email }),
+        error: (err) => this.notificationService.showHttpError(err, 'errors.send_mail'),
+      });
   }
 
   /**

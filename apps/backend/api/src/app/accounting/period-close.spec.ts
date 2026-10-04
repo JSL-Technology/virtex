@@ -109,7 +109,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
     );
 
-    const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null) };
+    const workflows = { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() };
     const saas = { enforceLimit: jest.fn().mockResolvedValue(undefined) };
 
     entries = new JournalEntriesService(

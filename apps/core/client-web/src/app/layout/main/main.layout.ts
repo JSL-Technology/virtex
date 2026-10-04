@@ -11,6 +11,9 @@ import {
   OnInit,
   WritableSignal,
   computed,
+  effect,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -18,7 +21,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
 import { AuthService } from '../../core/services/auth';
-import { NotificationCenterService } from '../../core/services/notification-center.service';
+import { Notification, NotificationCenterService } from '../../core/services/notification-center.service';
 import { NotificationService } from '../../core/services/notification';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import {
@@ -156,6 +159,15 @@ export class MainLayout implements OnInit {
     if (!org?.gracePeriodEnd) return false;
     return new Date(org.gracePeriodEnd) > new Date();
   }
+
+  /** The bell's button, so closing its panel with Escape returns the focus there. */
+  private readonly notificationButton = viewChild<ElementRef<HTMLButtonElement>>('notificationButton');
+
+  /** The bell lists the active company's notices; a switch reloads them. */
+  private readonly notificationsFollowCompany = effect(() => {
+    const organizationId = this.authService.currentUser()?.organizationId ?? null;
+    untracked(() => this.notificationCenter.setActiveOrganization(organizationId));
+  });
 
   ngOnInit(): void {
     this.notificationCenter.initialize();
@@ -401,6 +413,12 @@ export class MainLayout implements OnInit {
     this.isNotificationMenuOpen.set(false);
   }
 
+  /** The notice opens what it is about; the panel closes behind it. */
+  openNotification(notification: Notification): void {
+    this.closeNotificationMenu();
+    this.notificationCenter.open(notification);
+  }
+
   navigateToSearch(query: string): void {
     if (query && query.trim().length > 0) {
       // §2/§12 P0-2: la ruta real es /global-search (sin prefijo /app).
@@ -463,6 +481,16 @@ export class MainLayout implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
+    // Escape closes the open header menu and gives the focus back to its button (QA B-02: the
+    // bell's panel stayed open). Only when one is open: Escape belongs to dialogs otherwise.
+    if (event.key === 'Escape' && (this.isNotificationMenuOpen() || this.isUserMenuOpen())) {
+      const notificationsWereOpen = this.isNotificationMenuOpen();
+      this.closeNotificationMenu();
+      this.closeUserMenu();
+      if (notificationsWereOpen) this.notificationButton()?.nativeElement.focus();
+      event.preventDefault();
+      return;
+    }
     if (
       !event.altKey ||
       !event.shiftKey ||

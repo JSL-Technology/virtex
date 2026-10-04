@@ -94,6 +94,11 @@
     "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
     "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
   },
+  "compliance.report_606_supplier_tax_id_missing": {
+    "es": "El 606 no se generó: {{count}} factura(s) de proveedor con NCF no tienen un RNC o cédula válido del proveedor ({{bills}}). Corrige el RNC en la ficha del proveedor y vuelve a generarlo.",
+    "en": "The 606 was not generated: {{count}} vendor bill(s) with an NCF have no valid supplier RNC or cédula ({{bills}}). Correct the RNC on the supplier record and generate it again.",
+    "pt": "O 606 não foi gerado: {{count}} fatura(s) de fornecedor com NCF não têm RNC ou cédula válido do fornecedor ({{bills}}). Corrija o RNC no cadastro do fornecedor e gere novamente."
+  },
   "compliance.report_format_dgii_dominican_republic_filing": {
     "es": "El formato {{report}} es un envío de la DGII (República Dominicana) y no aplica a una organización registrada en {{country}}.",
     "en": "The {{report}} format is a DGII (Dominican Republic) filing and does not apply to an organization registered in {{country}}.",

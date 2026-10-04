@@ -130,7 +130,9 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction(async (manager) => {
+    // Announced once the entry has committed: its approvers are told about a request that exists.
+    let raisedRequestId: string | null = null;
+    const created = await this.dataSource.transaction(async (manager) => {
       const replayed = await this.findByIdempotencyKey(manager, organizationId, context);
       if (replayed) return replayed;
 
@@ -159,6 +161,7 @@ export class JournalEntriesService {
         return this.markPosted(manager, prepared.entry, organizationId, context);
       }
 
+      raisedRequestId = approvalRequest.id;
       prepared.entry.status = JournalEntryStatus.PENDING_APPROVAL;
       await manager.save(prepared.entry);
       await this.recordAudit(
@@ -172,6 +175,8 @@ export class JournalEntriesService {
       this.logger.log(`Asiento ${prepared.entry.id} enviado para aprobación.`);
       return prepared.entry;
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return created;
   }
 
   /** Post on a caller-supplied manager, inside the caller's transaction. */
@@ -942,7 +947,8 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction(async (manager) => {
+    let raisedRequestId: string | null = null;
+    const submitted = await this.dataSource.transaction(async (manager) => {
       const entry = await manager.findOne(JournalEntry, {
         where: { id: journalEntryId, organizationId },
         relations: ['lines'],
@@ -970,9 +976,12 @@ export class JournalEntriesService {
         return this.markPosted(manager, entry, organizationId, context);
       }
 
+      raisedRequestId = approvalRequest.id;
       entry.status = JournalEntryStatus.PENDING_APPROVAL;
       return manager.save(entry);
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return submitted;
   }
 
   /**

@@ -1,5 +1,6 @@
 <vx-list-shell
   titleKey="masters.banks.banks"
+  subtitleKey="masters.banks.subtitle"
   [count]="banks().length"
   [loading]="loading()"
   [error]="error()"
@@ -8,7 +9,7 @@
 >
   <button listActions type="button" class="primary-button" (click)="openTreasury()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'masters.banks.new_bank' | translate }}</span>
+    <span>{{ 'masters.banks.open_account' | translate }}</span>
   </button>
 
   <div listEmpty class="empty-copy">

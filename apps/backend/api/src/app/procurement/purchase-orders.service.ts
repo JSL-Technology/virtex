@@ -27,6 +27,9 @@ import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 import { canTransition } from '@virteex/shared/types';
 import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';
+import { PERMISSIONS } from '../shared/permissions';
 
 /** Quantities carry six decimals; comparisons tolerate the last one. */
 const QUANTITY_EPSILON = 0.000001;
@@ -72,7 +75,44 @@ export class PurchaseOrdersService {
     // Optional only so the suites that build this service by hand for domestic orders keep
     // compiling; the application always injects it.
     @Optional() private readonly exchangeRates?: ExchangeRateResolver,
+    /** Who must approve, and who asked, are told (QA B-02). Optional for hand-built suites. */
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  private announceRequested(order: PurchaseOrder, requestedByUserId: string | null): void {
+    const event: ApprovalRequestedEvent = {
+      organizationId: order.organizationId,
+      requestId: order.id,
+      documentType: 'PURCHASE_ORDER',
+      documentId: order.id,
+      amount: Number(order.total),
+      currencyCode: order.currencyCode,
+      reference: order.number,
+      permission: PERMISSIONS.PROCUREMENT_APPROVE,
+      requestedByUserId,
+    };
+    this.events?.emit(APPROVAL_REQUESTED, event);
+  }
+
+  private announceDecided(
+    order: PurchaseOrder,
+    decision: 'APPROVED' | 'REJECTED',
+    actorUserId: string,
+    reason?: string,
+  ): void {
+    const event: ApprovalDecidedEvent = {
+      organizationId: order.organizationId,
+      requestId: order.id,
+      documentType: 'PURCHASE_ORDER',
+      documentId: order.id,
+      decision,
+      requestedByUserId: order.createdByUserId ?? null,
+      actorUserId,
+      reason: reason ?? null,
+      reference: order.number,
+    };
+    this.events?.emit(APPROVAL_DECIDED, event);
+  }
 
   async findAll(organizationId: string, query: PurchaseOrderQueryDto = {}): Promise<Page<PurchaseOrder>> {
     const paging = resolvePaging(query.page, query.pageSize);
@@ -201,13 +241,16 @@ export class PurchaseOrdersService {
     });
   }
 
-  submit(id: string, organizationId: string): Promise<PurchaseOrder> {
-    return this.transition(id, organizationId, PurchaseOrderStatus.PENDING_APPROVAL, (order) => {
+  async submit(id: string, organizationId: string, actorUserId: string | null = null): Promise<PurchaseOrder> {
+    const order = await this.transition(id, organizationId, PurchaseOrderStatus.PENDING_APPROVAL, (order) => {
       // A resubmission answers the previous rejection; its reason is history, not the status now.
       order.rejectionReason = null;
       order.rejectedByUserId = null;
       order.rejectedAt = null;
     });
+    // After the commit: approvers are told about an order that is really waiting for them.
+    this.announceRequested(order, actorUserId ?? order.createdByUserId ?? null);
+    return order;
   }
 
   /**
@@ -221,7 +264,7 @@ export class PurchaseOrdersService {
   async reject(id: string, organizationId: string, actorUserId: string, reason: string): Promise<PurchaseOrder> {
     const trimmed = (reason ?? '').trim();
     if (!trimmed) throw new BadRequestError('procurement.rejection_reason_required');
-    return this.dataSource.transaction(async (manager) => {
+    const rejected = await this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
       if (order.status !== PurchaseOrderStatus.PENDING_APPROVAL) {
         throw new BadRequestError('procurement.only_pending_order_can_be_rejected', { status: order.status });
@@ -234,6 +277,8 @@ export class PurchaseOrdersService {
       this.logger.log(`Orden ${order.number} rechazada.`);
       return this.findOneWith(manager, id, organizationId);
     });
+    this.announceDecided(rejected, 'REJECTED', actorUserId, trimmed);
+    return rejected;
   }
 
   /**
@@ -244,8 +289,8 @@ export class PurchaseOrdersService {
    * purchasing now does too. A company run by a single person has nobody else to ask, so the rule
    * applies only while the organization has another member who could approve.
    */
-  approve(id: string, organizationId: string, actorUserId: string): Promise<PurchaseOrder> {
-    return this.transition(id, organizationId, PurchaseOrderStatus.APPROVED, async (order, manager) => {
+  async approve(id: string, organizationId: string, actorUserId: string): Promise<PurchaseOrder> {
+    const approved = await this.transition(id, organizationId, PurchaseOrderStatus.APPROVED, async (order, manager) => {
       if (order.createdByUserId && order.createdByUserId === actorUserId) {
         const others: Array<{ count: string }> = await manager.query(
           'SELECT COUNT(*)::int AS count FROM user_organizations WHERE organization_id = $1 AND user_id <> $2',
@@ -258,6 +303,8 @@ export class PurchaseOrdersService {
       order.approvedByUserId = actorUserId;
       order.approvedAt = new Date();
     });
+    this.announceDecided(approved, 'APPROVED', actorUserId);
+    return approved;
   }
 
   /** Mark it sent to the supplier: from here the terms are not ours alone to change. */
