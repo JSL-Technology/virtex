@@ -58,15 +58,15 @@
   <h2 class="section-title">{{ 'data_exports.recent_exports' | translate }}</h2>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="dataset">{{ 'data_exports.data_type' | translate }}</th>
-          <th vxSortHeader="format">{{ 'data_exports.format_label' | translate }}</th>
-          <th vxSortHeader="createdAt">{{ 'data_exports.date' | translate }}</th>
-          <th vxSortHeader="userName">{{ 'data_exports.user' | translate }}</th>
-          <th vxSortHeader="totalRows" class="text-right">{{ 'data_exports.rows' | translate }}</th>
-          <th vxSortHeader="status" class="text-center">{{ 'data_exports.status' | translate }}</th>
+          <th appSortHeader="dataset">{{ 'data_exports.data_type' | translate }}</th>
+          <th appSortHeader="format">{{ 'data_exports.format_label' | translate }}</th>
+          <th appSortHeader="createdAt">{{ 'data_exports.date' | translate }}</th>
+          <th appSortHeader="userName">{{ 'data_exports.user' | translate }}</th>
+          <th appSortHeader="totalRows" class="text-right">{{ 'data_exports.rows' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'data_exports.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>

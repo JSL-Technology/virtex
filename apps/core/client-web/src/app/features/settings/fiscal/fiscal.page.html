@@ -67,9 +67,9 @@
       </button>
     </form>
 
-    <table [vxSort]="certificatesTable.sort" class="data-table" *ngIf="certificates().length; else noCerts">
+    <table [appSort]="certificatesTable.sort" class="data-table" *ngIf="certificates().length; else noCerts">
       <thead>
-        <tr><th vxSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th><th vxSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th><th vxSortHeader="notAfter">{{ 'settings.fiscal.expires' | translate }}</th><th vxSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th><th></th></tr>
+        <tr><th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th><th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th><th appSortHeader="notAfter">{{ 'settings.fiscal.expires' | translate }}</th><th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th><th></th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of certificatesTable.rows()">
@@ -123,9 +123,9 @@
       </button>
     </form>
 
-    <table [vxSort]="sequencesTable.sort" class="data-table" *ngIf="sequences().length; else noSeq">
+    <table [appSort]="sequencesTable.sort" class="data-table" *ngIf="sequences().length; else noSeq">
       <thead>
-        <tr><th vxSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th vxSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th vxSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th vxSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th vxSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th vxSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
+        <tr><th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th appSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th appSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th appSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th appSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of sequencesTable.rows()">

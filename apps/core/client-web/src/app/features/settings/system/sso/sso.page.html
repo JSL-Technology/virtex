@@ -34,11 +34,11 @@
     </form>
 
     @if (domains().length > 0) {
-      <table [vxSort]="domainsTable.sort" class="table">
+      <table [appSort]="domainsTable.sort" class="table">
         <thead>
           <tr>
-            <th vxSortHeader="domain">{{ 'settings.sso.domain' | translate }}</th>
-            <th vxSortHeader="verified">{{ 'settings.sso.status' | translate }}</th>
+            <th appSortHeader="domain">{{ 'settings.sso.domain' | translate }}</th>
+            <th appSortHeader="verified">{{ 'settings.sso.status' | translate }}</th>
             <th>{{ 'settings.sso.dns_record_txt' | translate }}</th>
             <th></th>
           </tr>
@@ -139,13 +139,13 @@
     }
 
     @if (providers().length > 0) {
-      <table [vxSort]="providersTable.sort" class="table">
+      <table [appSort]="providersTable.sort" class="table">
         <thead>
           <tr>
-            <th vxSortHeader="name">{{ 'settings.sso.name' | translate }}</th>
-            <th vxSortHeader="issuerUrl">{{ 'settings.sso.issuer' | translate }}</th>
-            <th vxSortHeader="redirectUri">{{ 'settings.sso.redirect_uri' | translate }}</th>
-            <th vxSortHeader="enabled">{{ 'settings.sso.status' | translate }}</th>
+            <th appSortHeader="name">{{ 'settings.sso.name' | translate }}</th>
+            <th appSortHeader="issuerUrl">{{ 'settings.sso.issuer' | translate }}</th>
+            <th appSortHeader="redirectUri">{{ 'settings.sso.redirect_uri' | translate }}</th>
+            <th appSortHeader="enabled">{{ 'settings.sso.status' | translate }}</th>
             <th></th>
           </tr>
         </thead>

@@ -16,13 +16,13 @@
   </a>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'masters.taxes.name' | translate }}</th>
-          <th vxSortHeader="type">{{ 'masters.taxes.type' | translate }}</th>
-          <th vxSortHeader="rate" class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
-          <th vxSortHeader="countryCode" class="text-center">{{ 'masters.taxes.country' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.taxes.name' | translate }}</th>
+          <th appSortHeader="type">{{ 'masters.taxes.type' | translate }}</th>
+          <th appSortHeader="rate" class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
+          <th appSortHeader="countryCode" class="text-center">{{ 'masters.taxes.country' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>

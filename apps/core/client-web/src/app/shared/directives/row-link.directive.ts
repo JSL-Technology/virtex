@@ -3,7 +3,7 @@ import { Directive, ElementRef, inject } from '@angular/core';
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [role="menuitem"], [contenteditable]';
 
 /**
- * A table row that opens like its link: `<tr vxRowLink>` around a row whose first cell holds
+ * A table row that opens like its link: `<tr appRowLink>` around a row whose first cell holds
  * `<a class="table-link" [routerLink]>` (QA B-02: in payroll only the «Período» text opened the
  * run, and the rest of the row — the amounts someone is actually looking at — did nothing).
  *
@@ -13,7 +13,7 @@ const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="
  * selects text to copy, are left alone.
  */
 @Directive({
-  selector: 'tr[vxRowLink]',
+  selector: 'tr[appRowLink]',
   standalone: true,
   host: {
     class: 'vx-row-link',

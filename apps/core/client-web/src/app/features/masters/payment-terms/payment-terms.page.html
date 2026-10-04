@@ -13,12 +13,12 @@
   </div>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'masters.payment_terms.name' | translate }}</th>
-          <th vxSortHeader="days" class="text-center">{{ 'masters.payment_terms.net_days' | translate }}</th>
-          <th vxSortHeader="customerCount" class="text-center">{{ 'masters.payment_terms.customers_on_it' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.payment_terms.name' | translate }}</th>
+          <th appSortHeader="days" class="text-center">{{ 'masters.payment_terms.net_days' | translate }}</th>
+          <th appSortHeader="customerCount" class="text-center">{{ 'masters.payment_terms.customers_on_it' | translate }}</th>
         </tr>
       </thead>
       <tbody>

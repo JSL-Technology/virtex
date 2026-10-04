@@ -12,19 +12,19 @@
   </a>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="companyName">{{ 'contacts.customers.company_name' | translate }}</th>
-          <th vxSortHeader="contactPerson">{{ 'contacts.customers.contact_person' | translate }}</th>
-          <th vxSortHeader="email">{{ 'contacts.customers.email' | translate }}</th>
-          <th vxSortHeader="phone">{{ 'contacts.customers.phone' | translate }}</th>
+          <th appSortHeader="companyName">{{ 'contacts.customers.company_name' | translate }}</th>
+          <th appSortHeader="contactPerson">{{ 'contacts.customers.contact_person' | translate }}</th>
+          <th appSortHeader="email">{{ 'contacts.customers.email' | translate }}</th>
+          <th appSortHeader="phone">{{ 'contacts.customers.phone' | translate }}</th>
           <th class="actions-column">{{ 'contacts.customers.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (customer of table.rows(); track customer.id) {
-          <tr vxRowLink>
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
                 {{ customer.companyName }}

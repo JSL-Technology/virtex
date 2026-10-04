@@ -18,13 +18,13 @@
   </div>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
-          <th vxSortHeader="swiftBic">{{ 'masters.banks.swift_code' | translate }}</th>
-          <th vxSortHeader="accountCount" class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
-          <th vxSortHeader="currencies">{{ 'masters.banks.currencies' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
+          <th appSortHeader="swiftBic">{{ 'masters.banks.swift_code' | translate }}</th>
+          <th appSortHeader="accountCount" class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
+          <th appSortHeader="currencies">{{ 'masters.banks.currencies' | translate }}</th>
         </tr>
       </thead>
       <tbody>

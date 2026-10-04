@@ -31,15 +31,15 @@
       <p class="report-state">{{ 'treasury.no_bank_accounts_have_registered' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table [vxSort]="accountsTable.sort" class="cash-table">
+        <table [appSort]="accountsTable.sort" class="cash-table">
           <thead>
             <tr>
-              <th vxSortHeader="name">{{ 'treasury.bank_accounts' | translate }}</th>
-              <th vxSortHeader="bankName">{{ 'treasury.bank' | translate }}</th>
-              <th vxSortHeader="accountNumberMasked">{{ 'treasury.number' | translate }}</th>
-              <th vxSortHeader="currencyCode">{{ 'treasury.currency' | translate }}</th>
-              <th vxSortHeader="balanceInAccountCurrency" class="numeric">{{ 'treasury.balance_currency' | translate }}</th>
-              <th vxSortHeader="balanceInBaseCurrency" class="numeric">{{ 'treasury.balance_books_currency' | translate }}</th>
+              <th appSortHeader="name">{{ 'treasury.bank_accounts' | translate }}</th>
+              <th appSortHeader="bankName">{{ 'treasury.bank' | translate }}</th>
+              <th appSortHeader="accountNumberMasked">{{ 'treasury.number' | translate }}</th>
+              <th appSortHeader="currencyCode">{{ 'treasury.currency' | translate }}</th>
+              <th appSortHeader="balanceInAccountCurrency" class="numeric">{{ 'treasury.balance_currency' | translate }}</th>
+              <th appSortHeader="balanceInBaseCurrency" class="numeric">{{ 'treasury.balance_books_currency' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,16 +94,16 @@
       <p class="report-state">{{ 'treasury.no_transfers_have_recorded' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table [vxSort]="transfersTable.sort" class="cash-table">
+        <table [appSort]="transfersTable.sort" class="cash-table">
           <thead>
             <tr>
-              <th vxSortHeader="date">{{ 'accounting.reconciliation.date' | translate }}</th>
-              <th vxSortHeader="from">{{ 'treasury.from' | translate }}</th>
-              <th vxSortHeader="to">{{ 'treasury.to' | translate }}</th>
-              <th vxSortHeader="description">{{ 'accounting.reconciliation.description' | translate }}</th>
-              <th vxSortHeader="amount" class="numeric">{{ 'treasury.sent' | translate }}</th>
-              <th vxSortHeader="amountReceived" class="numeric">{{ 'treasury.received' | translate }}</th>
-              <th vxSortHeader="fee" class="numeric">{{ 'treasury.fee' | translate }}</th>
+              <th appSortHeader="date">{{ 'accounting.reconciliation.date' | translate }}</th>
+              <th appSortHeader="from">{{ 'treasury.from' | translate }}</th>
+              <th appSortHeader="to">{{ 'treasury.to' | translate }}</th>
+              <th appSortHeader="description">{{ 'accounting.reconciliation.description' | translate }}</th>
+              <th appSortHeader="amount" class="numeric">{{ 'treasury.sent' | translate }}</th>
+              <th appSortHeader="amountReceived" class="numeric">{{ 'treasury.received' | translate }}</th>
+              <th appSortHeader="fee" class="numeric">{{ 'treasury.fee' | translate }}</th>
             </tr>
           </thead>
           <tbody>

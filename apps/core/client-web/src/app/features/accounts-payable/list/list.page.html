@@ -24,21 +24,21 @@
   </div>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="vendor">{{ 'accounts_payable.list.supplier' | translate }}</th>
-          <th vxSortHeader="ncf">{{ 'accounts_payable.list.number' | translate }}</th>
-          <th vxSortHeader="date">{{ 'accounts_payable.list.date' | translate }}</th>
-          <th vxSortHeader="dueDate">{{ 'accounts_payable.list.due' | translate }}</th>
-          <th vxSortHeader="total" class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
-          <th vxSortHeader="balance" class="text-right">{{ 'accounts_payable.list.balance' | translate }}</th>
-          <th vxSortHeader="status" class="text-center">{{ 'accounts_payable.list.status' | translate }}</th>
+          <th appSortHeader="vendor">{{ 'accounts_payable.list.supplier' | translate }}</th>
+          <th appSortHeader="ncf">{{ 'accounts_payable.list.number' | translate }}</th>
+          <th appSortHeader="date">{{ 'accounts_payable.list.date' | translate }}</th>
+          <th appSortHeader="dueDate">{{ 'accounts_payable.list.due' | translate }}</th>
+          <th appSortHeader="total" class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
+          <th appSortHeader="balance" class="text-right">{{ 'accounts_payable.list.balance' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'accounts_payable.list.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (bill of table.rows(); track bill.id) {
-          <tr vxRowLink>
+          <tr appRowLink>
             <td>{{ bill.vendor?.name ?? '—' }}</td>
             <td>
               <!--

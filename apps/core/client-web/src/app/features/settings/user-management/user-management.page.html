@@ -52,14 +52,14 @@
         </div>
 
         <div class="table-container">
-          <table [vxSort]="sort" class="data-table">
+          <table [appSort]="sort" class="data-table">
             <thead>
               <tr>
                 <th style="width: 30px"><input type="checkbox" /></th>
-                <th vxSortHeader="firstName">{{ "users.table.name" | translate }}</th>
-                <th vxSortHeader="email">{{ "users.table.email" | translate }}</th>
+                <th appSortHeader="firstName">{{ "users.table.name" | translate }}</th>
+                <th appSortHeader="email">{{ "users.table.email" | translate }}</th>
                 <th>{{ "users.table.role" | translate }}</th>
-                <th vxSortHeader="status">{{ "users.table.status" | translate }}</th>
+                <th appSortHeader="status">{{ "users.table.status" | translate }}</th>
                 <th>{{ "users.table.actions" | translate }}</th>
               </tr>
             </thead>
@@ -124,13 +124,13 @@
           <p class="sent-invitations-hint">{{ 'settings.user_management.sent_invitations_hint' | translate }}</p>
         </div>
         <div class="card-body">
-          <table [vxSort]="invitationsTable.sort" class="data-table">
+          <table [appSort]="invitationsTable.sort" class="data-table">
             <thead>
               <tr>
-                <th vxSortHeader="name">{{ 'users.table.name' | translate }}</th>
-                <th vxSortHeader="email">{{ 'users.table.email' | translate }}</th>
-                <th vxSortHeader="role">{{ 'users.table.role' | translate }}</th>
-                <th vxSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
+                <th appSortHeader="name">{{ 'users.table.name' | translate }}</th>
+                <th appSortHeader="email">{{ 'users.table.email' | translate }}</th>
+                <th appSortHeader="role">{{ 'users.table.role' | translate }}</th>
+                <th appSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
                 <th>{{ 'users.table.actions' | translate }}</th>
               </tr>
             </thead>

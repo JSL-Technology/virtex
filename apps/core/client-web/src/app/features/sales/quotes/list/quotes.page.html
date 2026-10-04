@@ -28,20 +28,20 @@
   </div>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="quoteNumber">{{ 'sales.quotes.number' | translate }}</th>
-          <th vxSortHeader="customer">{{ 'sales.quotes.customer' | translate }}</th>
-          <th vxSortHeader="issueDate">{{ 'sales.quotes.issue_date' | translate }}</th>
-          <th vxSortHeader="expiryDate">{{ 'sales.quotes.expiry_date' | translate }}</th>
-          <th vxSortHeader="total" class="text-right">{{ 'sales.quotes.total' | translate }}</th>
-          <th vxSortHeader="status" class="text-center">{{ 'sales.quotes.state' | translate }}</th>
+          <th appSortHeader="quoteNumber">{{ 'sales.quotes.number' | translate }}</th>
+          <th appSortHeader="customer">{{ 'sales.quotes.customer' | translate }}</th>
+          <th appSortHeader="issueDate">{{ 'sales.quotes.issue_date' | translate }}</th>
+          <th appSortHeader="expiryDate">{{ 'sales.quotes.expiry_date' | translate }}</th>
+          <th appSortHeader="total" class="text-right">{{ 'sales.quotes.total' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'sales.quotes.state' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (quote of table.rows(); track quote.id) {
-          <tr vxRowLink>
+          <tr appRowLink>
             <td><a [routerLink]="['/quotes', quote.id, 'edit']" class="table-link">{{ quote.quoteNumber }}</a></td>
             <td>{{ quote.customer?.companyName ?? quote.customer?.name }}</td>
             <td>{{ quote.issueDate | vxDate: 'date' : true }}</td>

@@ -2,20 +2,24 @@ import { ChangeDetectionStrategy, Component, Directive, computed, inject, input 
 import { ArrowDown, ArrowUp, ArrowUpDown, LucideAngularModule } from 'lucide-angular';
 import { TableSort } from './table-sort';
 
-/** The table whose headers sort: `<table [vxSort]="sort">`. */
-@Directive({ selector: '[vxSort]', standalone: true })
+/** The table whose headers sort: `<table [appSort]="sort">`. */
+@Directive({ selector: '[appSort]', standalone: true })
 export class VxSortDirective {
-  readonly vxSort = input.required<TableSort<any, any>>();
+  readonly appSort = input.required<TableSort<any, any>>();
 }
 
 /**
- * A header that sorts its column: `<th vxSortHeader="total">Total</th>`.
+ * A header that sorts its column: `<th appSortHeader="total">Total</th>`.
  *
  * The control inside is a `<button>`, so it is reached with Tab and announced as something that
  * can be pressed; the `<th>` carries `aria-sort`, so the reader hears the current order.
  */
 @Component({
-  selector: 'th[vxSortHeader]',
+  // An attribute on the cell, not an element: the header must stay a native `<th>` for the table's
+  // semantics (`aria-sort`, column headers for screen readers), so the element-selector rule
+  // cannot apply here.
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: 'th[appSortHeader]',
   standalone: true,
   imports: [LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,16 +57,16 @@ export class VxSortDirective {
 })
 export class VxSortHeaderComponent {
   private readonly table = inject(VxSortDirective);
-  readonly vxSortHeader = input.required<string>();
+  readonly appSortHeader = input.required<string>();
 
-  protected readonly ariaSort = computed(() => this.table.vxSort().ariaSort(this.vxSortHeader()));
+  protected readonly ariaSort = computed(() => this.table.appSort().ariaSort(this.appSortHeader()));
   protected readonly icon = computed(() => {
     const state = this.ariaSort();
     return state === 'ascending' ? ArrowUp : state === 'descending' ? ArrowDown : ArrowUpDown;
   });
 
   protected toggle(): void {
-    this.table.vxSort().toggle(this.vxSortHeader());
+    this.table.appSort().toggle(this.appSortHeader());
   }
 }
 

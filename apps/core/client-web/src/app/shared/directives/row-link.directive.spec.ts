@@ -5,7 +5,7 @@ import { RowLinkDirective } from './row-link.directive';
 @Component({
   standalone: true,
   imports: [RowLinkDirective],
-  template: `<table><tbody><tr vxRowLink>
+  template: `<table><tbody><tr appRowLink>
     <td><a class="table-link" href="#" (click)="opened = opened + 1; $event.preventDefault()">2026-08</a></td>
     <td class="amount">1,000.00</td>
     <td><button type="button" (click)="pressed = pressed + 1">Aprobar</button></td>

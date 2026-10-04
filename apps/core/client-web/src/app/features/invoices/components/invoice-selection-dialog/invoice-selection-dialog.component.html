@@ -26,13 +26,13 @@
       @if (isLoading()) {
         <vx-spinner withLabel labelKey="invoices.invoice_selection_dialog.loading_documents" />
       } @else {
-        <table [vxSort]="table.sort" class="data-table">
+        <table [appSort]="table.sort" class="data-table">
           <thead>
             <tr>
-              <th vxSortHeader="invoiceNumber">{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
-              <th vxSortHeader="customerName">{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
-              <th vxSortHeader="issueDate">{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
-              <th vxSortHeader="total" class="numeric">{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
+              <th appSortHeader="invoiceNumber">{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
+              <th appSortHeader="customerName">{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
+              <th appSortHeader="issueDate">{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
+              <th appSortHeader="total" class="numeric">{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
             </tr>
           </thead>
           <tbody>

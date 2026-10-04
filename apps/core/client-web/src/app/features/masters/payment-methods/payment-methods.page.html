@@ -5,11 +5,11 @@
   [empty]="false"
 >
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="code" class="text-center">{{ 'masters.payment_methods.code' | translate }}</th>
-          <th vxSortHeader="name">{{ 'masters.payment_methods.name' | translate }}</th>
+          <th appSortHeader="code" class="text-center">{{ 'masters.payment_methods.code' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.payment_methods.name' | translate }}</th>
         </tr>
       </thead>
       <tbody>

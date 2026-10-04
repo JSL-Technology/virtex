@@ -12,19 +12,19 @@
   </a>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'accounting.journal_list.name' | translate }}</th>
-          <th vxSortHeader="code">{{ 'accounting.journal_list.code' | translate }}</th>
-          <th vxSortHeader="type">{{ 'accounting.journal_list.type' | translate }}</th>
-          <th vxSortHeader="entryCount" class="text-right">{{ 'accounting.journal_list.entries' | translate }}</th>
+          <th appSortHeader="name">{{ 'accounting.journal_list.name' | translate }}</th>
+          <th appSortHeader="code">{{ 'accounting.journal_list.code' | translate }}</th>
+          <th appSortHeader="type">{{ 'accounting.journal_list.type' | translate }}</th>
+          <th appSortHeader="entryCount" class="text-right">{{ 'accounting.journal_list.entries' | translate }}</th>
           <th class="actions-column">{{ 'accounting.journal_list.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (journal of table.rows(); track journal.id) {
-          <tr vxRowLink>
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/accounting/journals', journal.id, 'edit']" class="table-link">{{ journal.name }}</a>
               @if (journal.isSystem) {

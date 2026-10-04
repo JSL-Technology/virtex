@@ -215,15 +215,15 @@
           <p class="section-note">{{ 'payroll.runs.no_payslips' | translate }}</p>
         } @else {
           <div class="table-wrapper">
-            <table [vxSort]="payslipsTable.sort" class="data-table">
+            <table [appSort]="payslipsTable.sort" class="data-table">
               <thead>
                 <tr>
-                  <th vxSortHeader="employeeName">{{ 'payroll.runs.employee' | translate }}</th>
-                  <th vxSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
-                  <th vxSortHeader="afpEmployee" class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
-                  <th vxSortHeader="sfsEmployee" class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
-                  <th vxSortHeader="incomeTax" class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
-                  <th vxSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
+                  <th appSortHeader="employeeName">{{ 'payroll.runs.employee' | translate }}</th>
+                  <th appSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
+                  <th appSortHeader="afpEmployee" class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
+                  <th appSortHeader="sfsEmployee" class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
+                  <th appSortHeader="incomeTax" class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
+                  <th appSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
                 </tr>
               </thead>
               <tbody>

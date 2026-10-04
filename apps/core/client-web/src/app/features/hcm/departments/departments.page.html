@@ -34,11 +34,11 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'hcm.departments.name' | translate }}</th>
-          <th vxSortHeader="costCenter">{{ 'hcm.departments.cost_centre' | translate }}</th>
+          <th appSortHeader="name">{{ 'hcm.departments.name' | translate }}</th>
+          <th appSortHeader="costCenter">{{ 'hcm.departments.cost_centre' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>

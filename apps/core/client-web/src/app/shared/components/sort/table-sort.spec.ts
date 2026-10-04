@@ -63,7 +63,7 @@ describe('TableSort (QA B-01)', () => {
     @Component({
       standalone: true,
       imports: [...VX_SORT],
-      template: `<table [vxSort]="sort"><thead><tr><th vxSortHeader="name">Nombre</th></tr></thead>
+      template: `<table [appSort]="sort"><thead><tr><th appSortHeader="name">Nombre</th></tr></thead>
         <tbody>@for (r of sorted(); track r.name) { <tr><td>{{ r.name }}</td></tr> }</tbody></table>`,
     })
     class Host {

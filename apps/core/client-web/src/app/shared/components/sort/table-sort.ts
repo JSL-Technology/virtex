@@ -110,7 +110,7 @@ export class TableSort<T, K extends string = string> {
 
 /**
  * A sortable view of a list: `readonly table = sortable(() => this.taxes(), { type: (t) => … })`,
- * then `<table [vxSort]="table.sort">` and `@for (tax of table.rows(); …)`.
+ * then `<table [appSort]="table.sort">` and `@for (tax of table.rows(); …)`.
  *
  * The rows are read lazily, so the list may be declared after this field. A column without an
  * accessor sorts by the row property of the same name.

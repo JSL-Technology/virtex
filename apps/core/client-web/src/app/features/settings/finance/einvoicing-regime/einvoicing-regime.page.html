@@ -163,15 +163,15 @@
         <p class="e-empty">{{ 'settings.pages.einvoicing.no_ranges' | translate }}</p>
       } @else {
         <div class="table-wrapper">
-          <table [vxSort]="table.sort" class="data-table">
+          <table [appSort]="table.sort" class="data-table">
             <thead>
               <tr>
-                <th vxSortHeader="documentType">{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
-                <th vxSortHeader="series">{{ 'settings.pages.einvoicing.series' | translate }}</th>
-                <th vxSortHeader="startsAt">{{ 'settings.pages.einvoicing.range' | translate }}</th>
-                <th vxSortHeader="remaining">{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
-                <th vxSortHeader="validUntil">{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
-                <th vxSortHeader="authorizationCode">{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
+                <th appSortHeader="documentType">{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
+                <th appSortHeader="series">{{ 'settings.pages.einvoicing.series' | translate }}</th>
+                <th appSortHeader="startsAt">{{ 'settings.pages.einvoicing.range' | translate }}</th>
+                <th appSortHeader="remaining">{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
+                <th appSortHeader="validUntil">{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
+                <th appSortHeader="authorizationCode">{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
                 <th></th>
               </tr>
             </thead>

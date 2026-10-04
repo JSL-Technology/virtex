@@ -61,13 +61,13 @@
   </div>
 
   <div class="table-container card">
-    <table [vxSort]="table.sort" class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th vxSortHeader="name">{{ 'masters.currencies.currency_name' | translate }}</th>
-          <th vxSortHeader="code" class="text-center">{{ 'masters.currencies.code' | translate }}</th>
-          <th vxSortHeader="symbol" class="text-center">{{ 'masters.currencies.symbol' | translate }}</th>
-          <th vxSortHeader="base" class="text-center">{{ 'masters.currencies.base_currency' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.currencies.currency_name' | translate }}</th>
+          <th appSortHeader="code" class="text-center">{{ 'masters.currencies.code' | translate }}</th>
+          <th appSortHeader="symbol" class="text-center">{{ 'masters.currencies.symbol' | translate }}</th>
+          <th appSortHeader="base" class="text-center">{{ 'masters.currencies.base_currency' | translate }}</th>
         </tr>
       </thead>
       <tbody>
