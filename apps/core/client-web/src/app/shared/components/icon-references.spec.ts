@@ -14,6 +14,11 @@ import { join, relative } from 'node:path';
 const APP = join(__dirname, '..', '..');
 const ICON_BINDING = /\[img\]="([A-Za-z_$][\w$]*)"/g;
 
+/** Every regular-expression metacharacter, backslash included, taken literally. */
+function escapeRegExp(text: string): string {
+  return text.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+}
+
 function templates(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -36,7 +41,7 @@ describe('icon references', () => {
       );
       for (const [, name] of template.matchAll(ICON_BINDING)) {
         if (local.has(name)) continue;
-        const declared = new RegExp(`(^|\\s|\\.)${name.replace(/\$/g, '\\$')}\\s*[=:!?(]|get\\s+${name}\\b`, 'm');
+        const declared = new RegExp(`(^|\\s|\\.)${escapeRegExp(name)}\\s*[=:!?(]|get\\s+${escapeRegExp(name)}\\b`, 'm');
         if (!declared.test(source)) offenders.push(`${relative(APP, html)} → ${name}`);
       }
     }
