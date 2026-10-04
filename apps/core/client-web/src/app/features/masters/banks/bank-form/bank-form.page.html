@@ -1,0 +1,43 @@
+<vx-draft-shell
+  [title]="(isEditMode() ? 'masters.banks.edit_bank' : 'masters.banks.new_bank') | translate"
+  [subtitle]="'masters.banks.banks' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <div class="form-section">
+      <div class="form-field">
+        <label for="bankName">{{ 'masters.banks.bank_name' | translate }} *</label>
+        <input id="bankName" formControlName="name" maxlength="120" />
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="bankSwift">{{ 'masters.banks.swift_code' | translate }}</label>
+          <input id="bankSwift" formControlName="swiftBic" maxlength="11" autocomplete="off" />
+        </div>
+        <div class="form-field">
+          <label for="bankCountry">{{ 'masters.banks.country' | translate }}</label>
+          <input id="bankCountry" formControlName="countryCode" maxlength="2" autocomplete="off" />
+        </div>
+        <div class="form-field">
+          <label for="bankLocalCode">{{ 'masters.banks.local_code' | translate }}</label>
+          <input id="bankLocalCode" formControlName="localCode" maxlength="20" autocomplete="off" />
+          <small class="field-hint">{{ 'masters.banks.local_code_help' | translate }}</small>
+        </div>
+      </div>
+
+      @if (isEditMode()) {
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="isActive" />
+          <span>{{ 'masters.banks.active' | translate }}</span>
+        </label>
+      }
+    </div>
+  </div>
+</vx-draft-shell>

@@ -9,6 +9,8 @@ import { ActiveOrganizationService } from '../../core/tenancy/active-organizatio
 import { apiErrorBody, useCatalogue } from '../../../testing/api-errors';
 import { ApprovalsPage } from './approvals.page';
 import { PendingDecision } from './data/approvals-inbox.service';
+import { signal } from '@angular/core';
+import { ModuleInbox, ModuleInboxService } from '../../core/inbox/module-inbox.service';
 
 /**
  * The approvals inbox (QA A-11): purchase orders and requisitions waiting for a decision used to be
@@ -18,6 +20,8 @@ describe('ApprovalsPage', () => {
   let http: HttpTestingController;
   const notifications = { showSuccess: jest.fn(), showHttpError: jest.fn(), httpErrorMessage: jest.fn(() => 'x') };
   const dialog = { prompt: jest.fn() };
+  const moduleInboxState = signal<ModuleInbox[]>([]);
+  const moduleInbox = { modules: moduleInboxState.asReadonly(), refresh: jest.fn(async () => undefined) };
 
   const order: PendingDecision = {
     source: 'purchase_order',
@@ -53,6 +57,7 @@ describe('ApprovalsPage', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: DialogService, useValue: dialog },
         { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => `/acme${path}` } },
+        { provide: ModuleInboxService, useValue: moduleInbox },
       ],
     });
     useCatalogue({
@@ -69,6 +74,7 @@ describe('ApprovalsPage', () => {
   afterEach(() => {
     http.verify();
     jest.clearAllMocks();
+    moduleInboxState.set([]);
   });
 
   it('lists purchase orders and requisitions, each linking to its document', () => {
@@ -140,5 +146,34 @@ describe('ApprovalsPage', () => {
       'approvals.decision_could_not_recorded',
     );
     expect(fixture.componentInstance.deciding()).toBeNull();
+  });
+
+  it('is the one inbox: each module\'s blocked work follows the decisions', () => {
+    moduleInboxState.set([
+      {
+        moduleId: 'contabilidad',
+        count: 1,
+        items: [
+          {
+            id: 'je-9',
+            titleKey: 'inbox.accounting.unposted_entry',
+            titleParams: {},
+            blockedSince: '2026-09-28T09:00:00Z',
+            route: '/accounting/journal-entries/je-9/edit',
+          },
+        ],
+      },
+    ]);
+    const fixture = create();
+    http.expectOne((r) => r.url.endsWith('/approvals/inbox')).flush([order]);
+    fixture.detectChanges();
+
+    const sections = fixture.componentInstance.sections();
+    expect(sections.map((s) => s.labelKey)).toEqual([
+      'approvals.document_type.purchase_order',
+      'modules.accounting',
+    ]);
+    expect(sections[1].items[0].link).toBe('/acme/accounting/journal-entries/je-9/edit');
+    expect(moduleInbox.refresh).toHaveBeenCalled();
   });
 });

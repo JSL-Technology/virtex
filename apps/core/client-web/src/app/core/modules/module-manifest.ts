@@ -68,8 +68,15 @@ export enum WindowKind {
   CANVAS = 'CANVAS',
 }
 
-/** Where a route appears in the module panel. The order of the groups is fixed across modules. */
-export type MenuGroup = 'inbox' | 'documents' | 'masters' | 'analysis';
+/**
+ * Where a route appears in the module panel. The order of the groups is fixed across modules.
+ *
+ * `configuration` is the module's own setup — what Odoo files under each app's «Configuración»
+ * menu: periods, ledgers, journals, tax codes, currencies, payment terms. It used to be scattered
+ * between `masters` (ledgers, journals) and `documents` (periods), so the panel told the reader
+ * that opening a period was the same kind of act as posting an entry.
+ */
+export type MenuGroup = 'inbox' | 'documents' | 'masters' | 'analysis' | 'configuration';
 
 export interface ModuleRoute {
   /**

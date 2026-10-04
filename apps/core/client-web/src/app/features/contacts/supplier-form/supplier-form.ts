@@ -166,13 +166,13 @@ export class SupplierForm implements OnInit {
       },
       error: () => {
         this.notificationService.showError('masters.supplier_form.supplier_could_not_loaded');
-        this.router.navigate(['/masters/suppliers']);
+        this.router.navigate(['/contacts/suppliers']);
       },
     });
   }
 
   cancel(): void {
-    void this.router.navigate(['/masters/suppliers']);
+    void this.router.navigate(['/contacts/suppliers']);
   }
 
   saveSupplier(): void {
@@ -222,7 +222,7 @@ export class SupplierForm implements OnInit {
         //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
         //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
         //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
-        void this.router.navigate(['/masters/suppliers']).then(() => this.tab?.close());
+        void this.router.navigate(['/contacts/suppliers']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showHttpError(

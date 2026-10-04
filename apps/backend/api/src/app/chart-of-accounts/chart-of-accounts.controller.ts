@@ -21,7 +21,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { BatchDeactivateAccountsDto } from './dto/batch-operations.dto';
-import { MergeAccountsDto } from './dto/merge-accounts.dto';
+import { MergeAccountsDto, MergePreviewQueryDto } from './dto/merge-accounts.dto';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -147,6 +147,20 @@ export class ChartOfAccountsController {
   ) {
     return this.chartOfAccountsService.batchDeactivate(
       dto.accountIds,
+      user.organizationId,
+    );
+  }
+
+  /**
+   * What merging one account into another would move, and every reason it would be refused —
+   * asked before the merge is queued, so the person confirming it reads real figures.
+   */
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_MERGE)
+  @Get('merge/preview')
+  previewMerge(@Query() query: MergePreviewQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.chartOfAccountsService.previewMerge(
+      query.sourceAccountId,
+      query.destinationAccountId,
       user.organizationId,
     );
   }

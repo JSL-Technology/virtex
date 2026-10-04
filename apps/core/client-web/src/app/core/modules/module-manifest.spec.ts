@@ -1,4 +1,5 @@
-import { MODULES, ROUTE_INDEX, resolveRoute, buildModuleRoutes, buildMenu, railModules, ownerOf } from './module-registry';
+import { MODULES, ROUTE_INDEX, resolveRoute, movedTarget, buildModuleRoutes, buildMenu, railModules, ownerOf } from './module-registry';
+import { MOVED_ROUTES } from './moved-routes';
 import { isKnownIcon } from './module-icons';
 import { AUTHENTICATED_ONLY, ModuleManifest, fullPath, requiredPermissionsFor } from './module-manifest';
 
@@ -83,11 +84,11 @@ describe('manifiestos de módulo', () => {
     expect(ownerOf(almacenes?.entry.module as ModuleManifest).id).toBe('inventario');
   });
 
-  it('los cuatro grupos salen siempre en el mismo orden', () => {
+  it('los grupos salen siempre en el mismo orden', () => {
     // The fixed shape is the whole argument for the module panel: whatever module you are in, what
     // needs your attention is at the top and the reference data is where it was next door. A module
     // with nothing in a group omits the heading; it never reorders the rest.
-    const ORDEN = ['inbox', 'documents', 'masters', 'analysis'];
+    const ORDEN = ['inbox', 'documents', 'masters', 'analysis', 'configuration'];
     for (const module of MODULES) {
       const grupos = buildMenu(module).map((s) => s.group);
       expect({ module: module.id, grupos }).toEqual({
@@ -134,7 +135,10 @@ describe('manifiestos de módulo', () => {
   });
 
   it('la tabla de rutas de Angular sale de los mismos manifiestos', () => {
-    const generadas = buildModuleRoutes().map((r) => `/${r.path}`).sort();
+    const generadas = buildModuleRoutes()
+      .filter((r) => !r.redirectTo)
+      .map((r) => `/${r.path}`)
+      .sort();
     const declaradas = ROUTE_INDEX.map((r) => r.path).sort();
     expect(generadas).toEqual(declaradas);
   });
@@ -147,7 +151,7 @@ describe('manifiestos de módulo', () => {
    * Home by a permission no role can hold.
    */
   it('cada ruta de Angular lleva el permiso exigible de su manifiesto', () => {
-    const routes = buildModuleRoutes();
+    const routes = buildModuleRoutes().filter((r) => !r.redirectTo);
     for (const route of routes) {
       const match = resolveRoute(`/${route.path}`);
       const declarado = match?.entry.route.permission;
@@ -195,5 +199,35 @@ describe('manifiestos de módulo', () => {
     expect(contabilidad).toBeDefined();
     const periodos = contabilidad?.routes.find((r) => r.path === 'periods');
     expect(fullPath(contabilidad!, periodos!)).toBe('/accounting/periods');
+  });
+
+  /**
+   * A moved screen keeps its old address working: bookmarks, links in e-mails already sent and
+   * windows saved in a workspace all name it. Each entry must land somewhere real — a declared page
+   * or a settings section — and must not shadow a page that still lives at the old address.
+   */
+  it('toda dirección movida lleva a una página que existe', () => {
+    for (const moved of MOVED_ROUTES) {
+      expect({ from: moved.from, sigueDeclarada: ROUTE_INDEX.some((r) => r.path === moved.from) }).toEqual({
+        from: moved.from,
+        sigueDeclarada: false,
+      });
+      const destino = moved.to.split('?')[0];
+      const valido = destino.startsWith('/settings/') || resolveRoute(destino) !== null;
+      expect({ to: moved.to, valido }).toEqual({ to: moved.to, valido: true });
+    }
+  });
+
+  it('la dirección vieja abre la ventana de la nueva, con sus parámetros', () => {
+    const libro = resolveRoute('/accounting/general-ledger/abc/edit');
+    expect(libro?.entry.path).toBe('/accounting/ledgers/:id/edit');
+    expect(libro?.params).toEqual({ id: 'abc' });
+    expect(movedTarget('/masters/suppliers/7/edit')).toBe('/contacts/suppliers/7/edit');
+  });
+
+  it('el router redirige cada dirección movida sin guardia propia', () => {
+    const redirecciones = buildModuleRoutes().filter((r) => r.redirectTo);
+    expect(redirecciones.map((r) => `/${r.path}`).sort()).toEqual(MOVED_ROUTES.map((m) => m.from).sort());
+    for (const r of redirecciones) expect(r.canActivate).toBeUndefined();
   });
 });

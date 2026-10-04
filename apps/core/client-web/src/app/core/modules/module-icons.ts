@@ -1,12 +1,12 @@
 import {
-  ArrowLeftRight, Banknote, BarChart2, Bell, Blocks, BookOpen, BookText, Briefcase,
-  CalendarCheck, CalendarClock, CalendarRange, CheckCircle, CheckSquare, ClipboardCheck,
-  ClipboardList, Clock, Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen,
-  FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, HandCoins, History, Home,
-  Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree,
-  Network, NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale, Search,
-  ScrollText, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag, TrendingUp, Truck,
-  Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
+  ArrowLeftRight, Banknote, BarChart2, Bell, Blocks, BookOpen, BookText, Briefcase, CalendarCheck,
+  CalendarClock, CalendarRange, CheckCircle, CheckSquare, ClipboardCheck, ClipboardList, Clock,
+  Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen, FilePlus, FileText,
+  FolderArchive, FolderTree, GitCompareArrows, GitMerge, HandCoins, History, Home, Landmark,
+  Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree, Network,
+  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale,
+  ScrollText, Search, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag,
+  TrendingUp, Truck, Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
 } from 'lucide-angular';
 
 /**
@@ -21,14 +21,14 @@ import {
  * fallback covers the running app while the build covers the mistake.
  */
 const ICONS: Record<string, unknown> = {
-  ArrowLeftRight, Banknote, BarChart2, Bell, Blocks, BookOpen, BookText, Briefcase,
-  CalendarCheck, CalendarClock, CalendarRange, CheckCircle, CheckSquare, ClipboardCheck,
-  ClipboardList, Clock, Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen,
-  FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, HandCoins, History, Home,
-  Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree,
-  Network, NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale, Search,
-  ScrollText, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag, TrendingUp, Truck,
-  Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
+  ArrowLeftRight, Banknote, BarChart2, Bell, Blocks, BookOpen, BookText, Briefcase, CalendarCheck,
+  CalendarClock, CalendarRange, CheckCircle, CheckSquare, ClipboardCheck, ClipboardList, Clock,
+  Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen, FilePlus, FileText,
+  FolderArchive, FolderTree, GitCompareArrows, GitMerge, HandCoins, History, Home, Landmark,
+  Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree, Network,
+  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale,
+  ScrollText, Search, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag,
+  TrendingUp, Truck, Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
 };
 
 export function moduleIcon(name: string): unknown {

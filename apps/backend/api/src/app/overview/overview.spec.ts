@@ -1,5 +1,4 @@
 import { DataSource, Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import { Organization } from '../organizations/entities/organization.entity';
 import { AuditLog, ActionType } from '../audit/entities/audit-log.entity';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -60,7 +59,6 @@ describeWithDb('overview', () => {
       dataSource.getRepository(Invoice),
       dataSource.getRepository(VendorBill),
       dataSource.getRepository(AccountingPeriod),
-      { get: () => undefined } as unknown as ConfigService,
     );
   });
 
@@ -265,9 +263,4 @@ describeWithDb('overview', () => {
     });
   });
 
-  describe('news', () => {
-    it('is empty when no feed is configured, rather than three announcements nobody published', async () => {
-      expect(await overview.news()).toEqual([]);
-    });
-  });
 });

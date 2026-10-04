@@ -36,6 +36,30 @@
     </div>
   </div>
 
+  <!--
+    Llaves de acceso (passkeys). Registrar una es una acción sobre la cuenta, así que vive con el resto
+    de la seguridad de la cuenta; estaba como botón en «Mi trabajo», una bandeja de pendientes.
+  -->
+  <div class="security-card">
+    <div class="security-header">
+      <div class="security-header__icon">
+        <lucide-icon [img]="PasskeyIcon" class="w-6 h-6"></lucide-icon>
+      </div>
+      <div class="security-header__content">
+        <h3>{{ 'settings.security.passkey_title' | translate }}</h3>
+        <p>{{ 'settings.security.passkey_description' | translate }}</p>
+      </div>
+      <button
+        type="button"
+        class="security-header__action security-header__action--enable"
+        [disabled]="registeringPasskey()"
+        (click)="registerPasskey()"
+      >
+        {{ 'settings.security.passkey_add' | translate }}
+      </button>
+    </div>
+  </div>
+
   <!-- Active Sessions -->
   <div class="security-card">
     <div class="sessions-list">

@@ -129,10 +129,30 @@
     "en": "Merge complete: account {{source}} has been merged into {{destination}}.",
     "pt": "Fusão concluída: a conta {{source}} foi fundida em {{destination}}."
   },
+  "chart_of_accounts.merge_destination_inactive": {
+    "es": "La cuenta destino está inactiva. Actívala antes de fusionar otra en ella.",
+    "en": "The destination account is inactive. Activate it before merging another into it.",
+    "pt": "A conta de destino está inativa. Ative-a antes de mesclar outra nela."
+  },
   "chart_of_accounts.merge_failed": {
     "es": "La fusión de cuentas no pudo completarse.",
     "en": "The account merge could not be completed.",
     "pt": "A fusão de contas não pôde ser concluída."
+  },
+  "chart_of_accounts.merge_moves_closed_periods": {
+    "es": "Hay movimientos en períodos cerrados. Pasarán a la cuenta destino, y los estados de esos períodos se verán distintos si se vuelven a generar.",
+    "en": "There are movements in closed periods. They will move to the destination account, and those periods' statements will read differently if regenerated.",
+    "pt": "Há movimentos em períodos fechados. Passarão para a conta de destino, e as demonstrações desses períodos ficarão diferentes se forem geradas novamente."
+  },
+  "chart_of_accounts.merge_started": {
+    "es": "Se inició la fusión de la cuenta {{source}} en {{destination}}. Te avisaremos al terminar.",
+    "en": "Merging account {{source}} into {{destination}} has started. You will be notified when it finishes.",
+    "pt": "A mesclagem da conta {{source}} em {{destination}} foi iniciada. Você será avisado ao terminar."
+  },
+  "chart_of_accounts.merge_types_must_match": {
+    "es": "Solo se pueden fusionar cuentas del mismo tipo: fusionar un activo en un gasto movería su historial del balance al estado de resultados.",
+    "en": "Only accounts of the same type can be merged: folding an asset into an expense would move its history from the balance sheet to the income statement.",
+    "pt": "Só é possível mesclar contas do mesmo tipo: mesclar um ativo numa despesa moveria o seu histórico do balanço para a demonstração de resultados."
   },
   "chart_of_accounts.number_segments_supplied_length_does_not": {
     "es": "El número de segmentos proporcionados ({{length}}) no coincide con la definición de la organización ({{length2}}).",

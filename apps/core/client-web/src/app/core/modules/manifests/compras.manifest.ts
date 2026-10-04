@@ -65,7 +65,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounts-payable/detail/detail.page').then((m) => m.VendorBillDetailPage),
     },
     {
-      path: 'masters/suppliers',
+      path: 'contacts/suppliers',
       kind: WindowKind.LIST,
       permission: 'suppliers:view',
       titleKey: 'page_titles.suppliers',
@@ -75,7 +75,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/contacts/suppliers/suppliers.page').then((m) => m.SuppliersPage),
     },
     {
-      path: 'masters/suppliers/new',
+      path: 'contacts/suppliers/new',
       kind: WindowKind.DRAFT,
       permission: 'suppliers:create',
       titleKey: 'page_titles.suppliers',
@@ -84,7 +84,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/contacts/supplier-form/supplier-form').then((m) => m.SupplierForm),
     },
     {
-      path: 'masters/suppliers/:id/edit',
+      path: 'contacts/suppliers/:id/edit',
       kind: WindowKind.DRAFT,
       permission: 'suppliers:edit',
       titleKey: 'page_titles.supplier_edit',

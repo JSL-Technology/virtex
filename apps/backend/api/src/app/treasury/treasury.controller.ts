@@ -10,10 +10,13 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TreasuryService } from './treasury.service';
+import { BanksService } from './banks.service';
+import { CreateBankDto, UpdateBankDto } from './dto/bank.dto';
 import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
 import {
   CashPositionQueryDto,
@@ -39,7 +42,54 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiBearerAuth()
 @Controller('treasury')
 export class TreasuryController {
-  constructor(private readonly treasuryService: TreasuryService) {}
+  constructor(
+    private readonly treasuryService: TreasuryService,
+    private readonly banksService: BanksService,
+  ) {}
+
+  // ── Bank catalogue ─────────────────────────────────────────────────────────
+
+  @Get('banks')
+  @HasPermission(PERMISSIONS.TREASURY_VIEW)
+  @ApiOperation({ summary: 'Catálogo de bancos de la organización, con cuántas cuentas tiene en cada uno.' })
+  findAllBanks(@CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.findAll(user.organizationId);
+  }
+
+  @Get('banks/:id')
+  @HasPermission(PERMISSIONS.TREASURY_VIEW)
+  findBank(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.findOne(id, user.organizationId);
+  }
+
+  @Post('banks')
+  @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  @ApiOperation({ summary: 'Agrega un banco al catálogo.' })
+  createBank(@Body() dto: CreateBankDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.create(dto, user.organizationId);
+  }
+
+  /**
+   * A BIC rewritten here is copied onto every account held at the bank, and payments are routed by
+   * it — the same exposure as editing an account number, so the same step-up.
+   */
+  @Patch('banks/:id')
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
+  @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  updateBank(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: UpdateBankDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.banksService.update(id, dto, user.organizationId);
+  }
+
+  @Delete('banks/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  removeBank(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.remove(id, user.organizationId);
+  }
 
   // ── Bank accounts ──────────────────────────────────────────────────────────
 

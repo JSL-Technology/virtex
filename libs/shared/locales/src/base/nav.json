@@ -1,9 +1,4 @@
 {
-  "nav.dashboard": {
-    "es": "Dashboard",
-    "en": "Dashboard",
-    "pt": "Painel"
-  },
   "nav.history.back": {
     "es": "Volver",
     "en": "Back",

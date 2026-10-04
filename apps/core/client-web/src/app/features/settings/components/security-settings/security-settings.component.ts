@@ -1,7 +1,7 @@
 
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building } from 'lucide-angular';
+import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building, KeyRound } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { SecurityService, Session } from '../../../../core/api/security.service';
@@ -67,6 +67,24 @@ export class SecuritySettingsComponent implements OnInit {
   protected readonly CompanyIcon = Building;
 
   currentUser = this.authService.currentUser;
+
+  protected readonly PasskeyIcon = KeyRound;
+  readonly registeringPasskey = signal(false);
+
+  /**
+   * Registers a passkey for this account. `AuthService` already reports success or failure to the
+   * reader; the rejection is caught here so a cancelled browser prompt is not an unhandled error.
+   */
+  async registerPasskey(): Promise<void> {
+    this.registeringPasskey.set(true);
+    try {
+      await this.authService.registerPasskey();
+    } catch {
+      // Already reported by AuthService.
+    } finally {
+      this.registeringPasskey.set(false);
+    }
+  }
 
   // 2FA State
   is2faEnabled = signal(false);

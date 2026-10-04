@@ -111,6 +111,30 @@
             <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
             <span>{{ 'settings.modal.electronic_invoicing' | translate }}</span>
           </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'einvoicing-regime'"
+            (click)="navigate('einvoicing-regime')"
+          >
+            <lucide-icon [img]="RegimeIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.einvoicing_regime' | translate }}</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'withholding-regimes'"
+            (click)="navigate('withholding-regimes')"
+          >
+            <lucide-icon [img]="WithholdingIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.withholding_regimes' | translate }}</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'tax-jurisdictions'"
+            (click)="navigate('tax-jurisdictions')"
+          >
+            <lucide-icon [img]="JurisdictionsIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.tax_jurisdictions' | translate }}</span>
+          </button>
         </div>
 
         <!-- GRUPO 4: OPERACIONES -->
@@ -198,6 +222,15 @@
           >
             <lucide-icon [img]="SsoIcon" size="16"></lucide-icon>
             <span>SSO</span>
+          </button>
+          <button
+            *appHasPermission="'extensions:view'"
+            class="nav-link"
+            [class.active]="section() === 'extensions'"
+            (click)="navigate('extensions')"
+          >
+            <lucide-icon [img]="ExtensionsIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.extensions' | translate }}</span>
           </button>
         </div>
 

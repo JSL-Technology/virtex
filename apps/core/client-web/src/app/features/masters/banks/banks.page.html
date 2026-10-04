@@ -7,10 +7,10 @@
   [empty]="!loading() && !error() && banks().length === 0"
   (reload)="load()"
 >
-  <button listActions type="button" class="primary-button" (click)="openTreasury()">
+  <a listActions class="primary-button" routerLink="/masters/banks/new" appCanOpen="/masters/banks/new">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'masters.banks.open_account' | translate }}</span>
-  </button>
+    <span>{{ 'masters.banks.new_bank' | translate }}</span>
+  </a>
 
   <div listEmpty class="empty-copy">
     <p class="ls__state-title">{{ 'masters.banks.empty_title' | translate }}</p>
@@ -23,17 +23,37 @@
         <tr>
           <th appSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
           <th appSortHeader="swiftBic">{{ 'masters.banks.swift_code' | translate }}</th>
+          <th appSortHeader="countryCode">{{ 'masters.banks.country' | translate }}</th>
+          <th appSortHeader="localCode">{{ 'masters.banks.local_code' | translate }}</th>
           <th appSortHeader="accountCount" class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
-          <th appSortHeader="currencies">{{ 'masters.banks.currencies' | translate }}</th>
+          <th appSortHeader="isActive">{{ 'masters.banks.status' | translate }}</th>
+          <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (bank of table.rows(); track bank.name) {
+        @for (bank of table.rows(); track bank.id) {
           <tr>
-            <td>{{ bank.name }}</td>
+            <td>
+              <a class="table-link" [routerLink]="['/masters/banks', bank.id, 'edit']">{{ bank.name }}</a>
+            </td>
             <td>{{ bank.swiftBic || '—' }}</td>
-            <td class="text-center">{{ bank.accountCount }}</td>
-            <td>{{ bank.currencies | vxList }}</td>
+            <td>{{ bank.countryCode || '—' }}</td>
+            <td>{{ bank.localCode || '—' }}</td>
+            <td class="text-center">{{ bank.accountCount ?? 0 }}</td>
+            <td>
+              <vx-badge [tone]="bank.isActive ? 'ok' : 'neutral'">
+                {{ (bank.isActive ? 'masters.banks.active' : 'masters.banks.inactive') | translate }}
+              </vx-badge>
+            </td>
+            <td class="text-right row-actions">
+              @if (!bank.accountCount) {
+                <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(bank)"
+                  appCanOpen="/masters/banks/new"
+                  [attr.aria-label]="'common.delete' | translate">
+                  <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
+                </button>
+              }
+            </td>
           </tr>
         }
       </tbody>

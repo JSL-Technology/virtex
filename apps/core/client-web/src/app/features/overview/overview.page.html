@@ -19,10 +19,6 @@
         <lucide-icon [img]="NewInvoiceIcon" size="16"></lucide-icon>
         <span>{{ 'overview.hero.new_invoice' | translate }}</span>
       </button>
-      <button type="button" class="ov-btn ov-btn--ghost" (click)="openDashboard()">
-        <lucide-icon [img]="DashboardIcon" size="16"></lucide-icon>
-        <span>{{ 'overview.hero.open_dashboard' | translate }}</span>
-      </button>
     </div>
   </header>
 
@@ -46,7 +42,7 @@
     </div>
   </section>
 
-  <!-- ── Cuerpo: actividad + novedades/eventos ──────────────────────── -->
+  <!-- ── Cuerpo: actividad + vencimientos ───────────────────────────── -->
   <div class="ov-grid">
 
     <!-- Actividad reciente -->
@@ -113,63 +109,8 @@
       </div>
     </section>
 
-    <!-- Columna lateral: noticias + eventos -->
+    <!-- Columna lateral: vencimientos próximos -->
     <div class="ov-aside">
-
-      <!-- Noticias de Virtex -->
-      <section class="ov-card" aria-labelledby="ov-news-title">
-        <header class="ov-card__head">
-          <div class="ov-card__head-left">
-            <lucide-icon class="ov-card__head-icon" [img]="NewsIcon" size="18"></lucide-icon>
-            <h2 id="ov-news-title" class="ov-card__title">{{ 'overview.news.title' | translate }}</h2>
-          </div>
-        </header>
-
-        <div class="ov-card__body">
-          @switch (newsStatus()) {
-            @case ('loading') {
-              @for (s of skeletons; track s) {
-                <div class="ov-skeleton-row ov-skeleton-row--stacked">
-                  <span class="ov-skeleton ov-skeleton--line ov-skeleton--w60"></span>
-                  <span class="ov-skeleton ov-skeleton--line"></span>
-                </div>
-              }
-            }
-            @case ('error') {
-              <div class="ov-state"><p>{{ 'overview.state.error' | translate }}</p></div>
-            }
-            @default {
-              @if (news().length === 0) {
-                <div class="ov-state ov-state--empty">{{ 'overview.news.empty' | translate }}</div>
-              } @else {
-                <ul class="ov-news-list">
-                  @for (item of news(); track item.id) {
-                    <li class="ov-news">
-                      <span class="ov-news__icon">
-                        <lucide-icon [img]="NewsIcon" size="16"></lucide-icon>
-                      </span>
-                      <div class="ov-news__body">
-                        <div class="ov-news__top">
-                          @if (item.tag) { <span class="ov-tag">{{ item.tag }}</span> }
-                          <span class="ov-news__date">{{ shortDate(item.date) }}</span>
-                        </div>
-                        <p class="ov-news__title">
-                          @if (item.url) {
-                            <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
-                          } @else {
-                            {{ item.title }}
-                          }
-                        </p>
-                        <p class="ov-news__summary">{{ item.summary }}</p>
-                      </div>
-                    </li>
-                  }
-                </ul>
-              }
-            }
-          }
-        </div>
-      </section>
 
       <!-- Eventos -->
       <section class="ov-card" aria-labelledby="ov-events-title">
@@ -229,5 +170,13 @@
 
     </div>
   </div>
+
+  <!--
+    Indicadores del negocio. Eran una segunda página de inicio («Dashboard») con su propia entrada
+    de menú; viven aquí, en la única, como los portlets de la página Home de NetSuite.
+  -->
+  <section class="ov-section ov-section--indicators" aria-label="{{ 'overview.indicators.title' | translate }}">
+    <app-dashboard-page />
+  </section>
 
 </div>

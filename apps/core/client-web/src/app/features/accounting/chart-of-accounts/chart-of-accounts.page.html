@@ -15,6 +15,14 @@
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.chart_of_accounts.export' | translate }}</span>
   </button>
+  <button listActions class="secondary-button" type="button" appCanOpen="/data-imports" (click)="importAccounts()">
+    <lucide-icon [img]="ImportIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'accounting.chart_of_accounts.import' | translate }}</span>
+  </button>
+  <button listActions class="secondary-button" type="button" appCanOpen="/accounting/chart-of-accounts/merge" (click)="openMerge()">
+    <lucide-icon [img]="MergeIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'accounting.merge_tool.account_merge_tool' | translate }}</span>
+  </button>
   <button listActions class="primary-button" type="button" appCanOpen="/accounting/chart-of-accounts/new" (click)="goToAccountForm()">
     <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.chart_of_accounts.new_account' | translate }}</span>

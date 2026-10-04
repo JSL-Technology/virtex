@@ -45,13 +45,4 @@ export class OverviewController {
       query.limit ?? 10,
     );
   }
-
-  @Get('news')
-  @AuthenticatedOnly(
-    'Novedades del producto: el mismo contenido público para todos los usuarios autenticados.',
-  )
-  @ApiOperation({ summary: 'Novedades del producto, desde el feed configurado. Vacío si no hay ninguno.' })
-  news() {
-    return this.overview.news();
-  }
 }

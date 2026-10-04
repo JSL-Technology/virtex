@@ -33,6 +33,27 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localize
 import { likeTerm } from '../common/database/search-term';
 import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 
+export interface MergePreviewAccount {
+  id: string;
+  code: string;
+  name: Record<string, string>;
+  type: AccountType;
+  /** Posted debit − credit, base currency. */
+  postedBalance: number;
+}
+
+export interface MergePreview {
+  source: MergePreviewAccount;
+  destination: MergePreviewAccount;
+  linesToMove: number;
+  linesInClosedPeriods: number;
+  childAccountsToMove: number;
+  /** Translation keys of every reason the merge would be refused. Empty means it may proceed. */
+  blockers: string[];
+  /** Translation keys of consequences the person should accept knowingly. */
+  warnings: string[];
+}
+
 @Injectable()
 export class ChartOfAccountsService {
   private readonly logger = new Logger(ChartOfAccountsService.name);
@@ -347,37 +368,87 @@ export class ChartOfAccountsService {
   }
 
 
+  /**
+   * What a merge of `sourceAccountId` into `destinationAccountId` would do, and whether it may.
+   *
+   * The wizard used to answer this with invented figures — «42 transactions, balance 1,500.75» —
+   * for every pair of accounts. A merge rewrites the account of every line on the source, closed
+   * periods included, so the person confirming it needs the real count, the real balances and the
+   * reasons it would be refused, before anything is queued.
+   *
+   * Blockers are the server's refusals, stated in advance; `merge` enforces the same list. The
+   * one warning is the consequence that is legal but irreversible in practice: lines in closed
+   * periods move, so statements already issued for those periods would read differently if
+   * regenerated.
+   */
+  async previewMerge(
+    sourceAccountId: string,
+    destinationAccountId: string,
+    organizationId: string,
+  ): Promise<MergePreview> {
+    if (sourceAccountId === destinationAccountId) {
+      throw new BadRequestError('chart_of_accounts.source_destination_accounts_cannot_same');
+    }
+    const [source, destination] = await Promise.all([
+      this.accountRepository.findOne({ where: { id: sourceAccountId, organizationId } }),
+      this.accountRepository.findOne({ where: { id: destinationAccountId, organizationId } }),
+    ]);
+    if (!source || !destination) {
+      throw new NotFoundError('chart_of_accounts.one_both_accounts_not_found');
+    }
+
+    const [sourceMovements, destinationMovements, childAccounts] = await Promise.all([
+      this.journalQuery.summarizeAccountMovements(source.id, organizationId),
+      this.journalQuery.summarizeAccountMovements(destination.id, organizationId),
+      this.accountRepository.count({ where: { parentId: source.id, organizationId } }),
+    ]);
+
+    const blockers: string[] = [];
+    if (!source.isPostable || !destination.isPostable) {
+      blockers.push('chart_of_accounts.both_accounts_must_postable_merged');
+    }
+    if (source.isSystemAccount) blockers.push('chart_of_accounts.system_accounts_cannot_merged');
+    //  An asset folded into an expense would move its history from the balance sheet to the income
+    //  statement — for every period, closed ones included. Same type or nothing.
+    if (source.type !== destination.type) blockers.push('chart_of_accounts.merge_types_must_match');
+    if (!destination.isActive) blockers.push('chart_of_accounts.merge_destination_inactive');
+
+    const warnings: string[] = [];
+    if (sourceMovements.linesInClosedPeriods > 0) warnings.push('chart_of_accounts.merge_moves_closed_periods');
+
+    return {
+      source: this.mergeSide(source, sourceMovements.postedBalance),
+      destination: this.mergeSide(destination, destinationMovements.postedBalance),
+      linesToMove: sourceMovements.lines,
+      linesInClosedPeriods: sourceMovements.linesInClosedPeriods,
+      childAccountsToMove: childAccounts,
+      blockers,
+      warnings,
+    };
+  }
+
+  private mergeSide(account: Account, postedBalance: number): MergePreviewAccount {
+    return {
+      id: account.id,
+      code: account.code,
+      name: account.name,
+      type: account.type,
+      postedBalance,
+    };
+  }
+
   async merge(
     dto: MergeAccountsDto,
     organizationId: string,
     userId: string,
-  ): Promise<{ jobId: string; message: string }> {
-    const { sourceAccountId, destinationAccountId } = dto;
-
-    if (sourceAccountId === destinationAccountId) {
-      throw new BadRequestError('chart_of_accounts.source_destination_accounts_cannot_same');
+  ): Promise<{ jobId: string; messageKey: string; messageParams: Record<string, string> }> {
+    const preview = await this.previewMerge(dto.sourceAccountId, dto.destinationAccountId, organizationId);
+    if (preview.blockers.length > 0) {
+      // The first refusal, as the API has always reported it; the wizard shows all of them first.
+      const [first] = preview.blockers;
+      if (first === 'chart_of_accounts.system_accounts_cannot_merged') throw new ForbiddenError(first);
+      throw new BadRequestError(first);
     }
-
-
-    const [sourceAccount, destAccount] = await Promise.all([
-      this.accountRepository.findOne({
-        where: { id: sourceAccountId, organizationId },
-      }),
-      this.accountRepository.findOne({
-        where: { id: destinationAccountId, organizationId },
-      }),
-    ]);
-
-    if (!sourceAccount || !destAccount) {
-      throw new NotFoundError('chart_of_accounts.one_both_accounts_not_found');
-    }
-    if (!sourceAccount.isPostable || !destAccount.isPostable) {
-      throw new BadRequestError('chart_of_accounts.both_accounts_must_postable_merged');
-    }
-    if (sourceAccount.isSystemAccount) {
-      throw new ForbiddenError('chart_of_accounts.system_accounts_cannot_merged');
-    }
-
 
     const job = await this.accountJobsQueue.add(
       'merge-accounts',
@@ -396,7 +467,8 @@ export class ChartOfAccountsService {
 
     return {
       jobId: job.id as string,
-      message: `El proceso de fusión de la cuenta ${sourceAccount.code} en ${destAccount.code} ha sido iniciado. Se le notificará al completarse.`,
+      messageKey: 'chart_of_accounts.merge_started',
+      messageParams: { source: preview.source.code, destination: preview.destination.code },
     };
   }
 

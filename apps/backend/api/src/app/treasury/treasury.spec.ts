@@ -1,3 +1,5 @@
+import { BanksService } from './banks.service';
+import { Bank } from './entities/bank.entity';
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -110,6 +112,7 @@ describeWithDb('treasury', () => {
       // lee el inquilino por el DataSource. Con la firma vieja el spec no compilaba.
       new FiscalCalendarService(dataSource.getRepository(FiscalYear), dataSource),
       dataSource,
+      new BanksService(dataSource.getRepository(Bank), dataSource.getRepository(BankAccount)),
     );
   });
 
@@ -982,6 +985,66 @@ describeWithDb('treasury', () => {
       expect(secondPage.rows.map((row) => row.id)).not.toEqual(
         firstPage.rows.map((row) => row.id),
       );
+    });
+  });
+
+  // ── bank catalogue ─────────────────────────────────────────────────────────
+
+  /**
+   * «Bancos» was a list deduced from the names typed into bank accounts, with no table behind it.
+   * The institution is a catalogue entry now, referenced by the accounts held there.
+   */
+  describe('bank catalogue', () => {
+    const banks = () => new BanksService(dataSource.getRepository(Bank), dataSource.getRepository(BankAccount));
+
+    it('links an account to its catalogue bank and copies its name and BIC', async () => {
+      const bank = await banks().create({ name: 'Banco Popular Dominicano', swiftBic: 'bpdodosx' }, organizationId);
+      expect(bank.swiftBic).toBe('BPDODOSX');
+
+      const saved = await openAccount({ bankId: bank.id, bankName: undefined } as never);
+
+      expect(saved.bankId).toBe(bank.id);
+      expect(saved.bankName).toBe('Banco Popular Dominicano');
+      expect(saved.swiftBic).toBe('BPDODOSX');
+    });
+
+    it('carries a renamed bank onto the accounts held there', async () => {
+      const bank = await banks().create({ name: 'Popular' }, organizationId);
+      const saved = await openAccount({ bankId: bank.id } as never);
+
+      await banks().update(bank.id, { name: 'Banco Popular Dominicano', swiftBic: 'BPDODOSX' }, organizationId);
+
+      const reread = await treasury.findBankAccount(saved.id, organizationId);
+      expect(reread.bankName).toBe('Banco Popular Dominicano');
+      expect(reread.swiftBic).toBe('BPDODOSX');
+    });
+
+    it('refuses the same institution twice, whatever the case', async () => {
+      await banks().create({ name: 'Banreservas' }, organizationId);
+      await expect(banks().create({ name: 'BANRESERVAS' }, organizationId)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_name_taken',
+      });
+    });
+
+    it('will not delete a bank an account still points at', async () => {
+      const bank = await banks().create({ name: 'Scotiabank' }, organizationId);
+      await openAccount({ bankId: bank.id } as never);
+
+      await expect(banks().remove(bank.id, organizationId)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_in_use',
+      });
+
+      const listed = await banks().findAll(organizationId);
+      expect(listed.find((row) => row.id === bank.id)?.accountCount).toBe(1);
+    });
+
+    it('refuses to open an account at an inactive bank', async () => {
+      const bank = await banks().create({ name: 'Banco Cerrado' }, organizationId);
+      await banks().update(bank.id, { isActive: false }, organizationId);
+
+      await expect(openAccount({ bankId: bank.id } as never)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_inactive',
+      });
     });
   });
 });

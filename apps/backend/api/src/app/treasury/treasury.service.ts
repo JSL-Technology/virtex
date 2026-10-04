@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { BankTransfer } from './entities/bank-transfer.entity';
+import { BanksService } from './banks.service';
 import { BankAccount } from './entities/bank-account.entity';
 import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
 import {
@@ -109,6 +110,7 @@ export class TreasuryService {
     private readonly exchangeRates: ExchangeRateResolver,
     private readonly calendar: FiscalCalendarService,
     private readonly dataSource: DataSource,
+    private readonly bankCatalogue: BanksService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -160,14 +162,18 @@ export class TreasuryService {
         dto,
       );
 
+      const bank = await this.bankCatalogue.resolveForAccount(manager, dto.bankId, organizationId);
+
       const account = await manager.save(
         manager.create(BankAccount, {
           organizationId,
           name: dto.name,
-          bankName: dto.bankName ?? null,
+          // A catalogue bank names the institution; free text remains for a bank not catalogued.
+          bankId: bank?.id ?? null,
+          bankName: bank?.name ?? dto.bankName ?? null,
           accountNumber: dto.accountNumber ?? null,
           iban: dto.iban ?? null,
-          swiftBic: dto.swiftBic ?? null,
+          swiftBic: dto.swiftBic ?? bank?.swiftBic ?? null,
           accountType: dto.accountType,
           currencyCode: dto.currencyCode.toUpperCase(),
           glAccountId: dto.glAccountId,
@@ -338,6 +344,14 @@ export class TreasuryService {
     // body contains: movements already posted were measured against both.
     if (dto.name !== undefined) account.name = dto.name;
     if (dto.bankName !== undefined) account.bankName = dto.bankName;
+    const bank = await this.bankCatalogue.resolveForAccount(this.dataSource.manager, dto.bankId, organizationId);
+    if (bank !== undefined) {
+      account.bankId = bank?.id ?? null;
+      if (bank) {
+        account.bankName = bank.name;
+        if (dto.swiftBic === undefined) account.swiftBic = bank.swiftBic;
+      }
+    }
     if (dto.accountNumber !== undefined) account.accountNumber = dto.accountNumber;
     if (dto.iban !== undefined) account.iban = dto.iban;
     if (dto.swiftBic !== undefined) account.swiftBic = dto.swiftBic;

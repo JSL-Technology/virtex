@@ -50,6 +50,8 @@ export const INVENTARIO_MODULE: ModuleManifest = {
       titleKey: 'page_titles.categories',
       icon: 'FolderTree',
       entityKeyFn: () => 'inventario:categories',
+      //  It had no menu entry and nothing linked to it, so the page existed for nobody.
+      menu: { group: 'configuration', labelKey: 'page_titles.categories' },
       load: () => import('../../../features/inventory/categories/categories.page').then((m) => m.CategoriesPage),
     },
   ],
@@ -76,7 +78,7 @@ export const INVENTARIO_MASTERS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.warehouses',
       icon: 'Warehouse',
       entityKeyFn: () => 'inventario:warehouses',
-      menu: { group: 'masters', labelKey: 'sidebar.master_data.warehouses' },
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.warehouses' },
       load: () => import('../../../features/masters/warehouses/warehouses.page').then((m) => m.WarehousesPage),
     },
     {
@@ -86,7 +88,7 @@ export const INVENTARIO_MASTERS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.units_of_measure',
       icon: 'Ruler',
       entityKeyFn: () => 'inventario:uom',
-      menu: { group: 'masters', labelKey: 'sidebar.master_data.uom' },
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.uom' },
       load: () => import('../../../features/masters/units-of-measure/units-of-measure.page').then((m) => m.UnitsOfMeasurePage),
     },
   ],

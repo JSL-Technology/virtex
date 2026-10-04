@@ -1222,10 +1222,20 @@
     "en": "Company Structure",
     "pt": "Estrutura Empresarial"
   },
+  "settings.modal.einvoicing_regime": {
+    "es": "Régimen de facturación electrónica",
+    "en": "E-invoicing regime",
+    "pt": "Regime de faturação eletrônica"
+  },
   "settings.modal.electronic_invoicing": {
     "es": "Facturación Electrónica",
     "en": "Electronic Invoicing",
     "pt": "Faturamento Eletrônico"
+  },
+  "settings.modal.extensions": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
   },
   "settings.modal.finance": {
     "es": "Finanzas",
@@ -1312,6 +1322,11 @@
     "en": "System Settings",
     "pt": "Sistema"
   },
+  "settings.modal.tax_jurisdictions": {
+    "es": "Jurisdicciones fiscales",
+    "en": "Tax jurisdictions",
+    "pt": "Jurisdições fiscais"
+  },
   "settings.modal.taxes": {
     "es": "Impuestos",
     "en": "Taxes",
@@ -1321,6 +1336,11 @@
     "es": "Usuarios",
     "en": "Users",
     "pt": "Usuários"
+  },
+  "settings.modal.withholding_regimes": {
+    "es": "Retenciones",
+    "en": "Withholding",
+    "pt": "Retenções"
   },
   "settings.my_profile.avatar": {
     "literal": "Avatar"
@@ -3370,6 +3390,21 @@
     "es": "Página {{page}} · {{total}} registros",
     "en": "Page {{page}} · {{total}} records",
     "pt": "Página {{page}} · {{total}} registros"
+  },
+  "settings.security.passkey_add": {
+    "es": "Agregar llave de acceso",
+    "en": "Add passkey",
+    "pt": "Adicionar chave de acesso"
+  },
+  "settings.security.passkey_description": {
+    "es": "Inicia sesión con la huella, el rostro o el PIN de tu dispositivo, sin contraseña.",
+    "en": "Sign in with your device's fingerprint, face or PIN, without a password.",
+    "pt": "Entre com a impressão digital, o rosto ou o PIN do seu dispositivo, sem senha."
+  },
+  "settings.security.passkey_title": {
+    "es": "Llaves de acceso",
+    "en": "Passkeys",
+    "pt": "Chaves de acesso"
   },
   "settings.security.password_description": {
     "es": "Toda contraseña, al registrarse, restablecerla o cambiarla, debe cumplir estas reglas.",

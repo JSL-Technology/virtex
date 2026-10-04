@@ -125,7 +125,7 @@ export class ClosingChecklistService {
       params: { count: pendingApprovalsCount },
       isCompleted: pendingApprovalsCount === 0,
       details: { pendingCount: pendingApprovalsCount },
-      resolutionLink: `/my-work/approvals`,
+      resolutionLink: `/approvals`,
     });
 
     return checklist;

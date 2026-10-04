@@ -59,16 +59,6 @@
     "en": "Bank Account",
     "pt": "Conta Bancária"
   },
-  "page_titles.banks": {
-    "es": "Bancos",
-    "en": "Banks",
-    "pt": "Bancos"
-  },
-  "page_titles.branches": {
-    "es": "Sucursales",
-    "en": "Branches",
-    "pt": "Filiais"
-  },
   "page_titles.cash_flow": {
     "es": "Flujo de Efectivo",
     "en": "Cash Flow",
@@ -83,11 +73,6 @@
     "es": "Catálogo de cuentas",
     "en": "Chart of accounts",
     "pt": "Plano de contas"
-  },
-  "page_titles.close_month": {
-    "es": "Cierre mensual",
-    "en": "Month-End Close",
-    "pt": "Fechamento Mensal"
   },
   "page_titles.close_year": {
     "es": "Cierre anual",
@@ -134,11 +119,6 @@
     "en": "Daily journal",
     "pt": "Livro diário"
   },
-  "page_titles.dashboard": {
-    "es": "Panel",
-    "en": "Dashboard",
-    "pt": "Painel"
-  },
   "page_titles.data_exports": {
     "es": "Exportaciones de datos",
     "en": "Data exports",
@@ -168,11 +148,6 @@
     "es": "Repositorio de documentos",
     "en": "Document repository",
     "pt": "Repositório de documentos"
-  },
-  "page_titles.document_templates": {
-    "es": "Plantillas de documento",
-    "en": "Document templates",
-    "pt": "Modelos de documento"
   },
   "page_titles.employee_edit": {
     "es": "Empleado",
@@ -279,20 +254,10 @@
     "en": "Ledgers",
     "pt": "Livros contábeis"
   },
-  "page_titles.manufacturing": {
-    "es": "Manufactura (MRP)",
-    "en": "Manufacturing (MRP)",
-    "pt": "Manufatura (MRP)"
-  },
   "page_titles.my_payslips": {
     "es": "Mis volantes de pago",
     "en": "My payslips",
     "pt": "Os meus recibos"
-  },
-  "page_titles.my_work": {
-    "es": "Mi trabajo",
-    "en": "My Work",
-    "pt": "Meu trabalho"
   },
   "page_titles.notifications": {
     "es": "Notificaciones",
@@ -334,6 +299,11 @@
     "en": "Point of sale",
     "pt": "Ponto de venda"
   },
+  "page_titles.pos_tickets": {
+    "es": "Tickets de punto de venta",
+    "en": "Point-of-sale tickets",
+    "pt": "Tíquetes do ponto de venda"
+  },
   "page_titles.price_list_edit": {
     "es": "Editar lista de precios",
     "en": "Edit price list",
@@ -348,11 +318,6 @@
     "es": "Listas de precios",
     "en": "Price lists",
     "pt": "Tabelas de preços"
-  },
-  "page_titles.procurement": {
-    "es": "Abastecimiento y proveedores",
-    "en": "Procurement and suppliers",
-    "pt": "Suprimentos e fornecedores"
   },
   "page_titles.product_edit": {
     "es": "Editar producto",
@@ -378,11 +343,6 @@
     "es": "Rentabilidad por producto",
     "en": "Profitability by product",
     "pt": "Rentabilidade por produto"
-  },
-  "page_titles.projects": {
-    "es": "Proyectos (PSA)",
-    "en": "Projects (PSA)",
-    "pt": "Projetos (PSA)"
   },
   "page_titles.purchase_order_edit": {
     "es": "Orden de compra",
@@ -433,11 +393,6 @@
     "es": "Reportes",
     "en": "Reports",
     "pt": "Relatórios"
-  },
-  "page_titles.sales_history": {
-    "es": "Historial de ventas",
-    "en": "Sales history",
-    "pt": "Histórico de vendas"
   },
   "page_titles.search": {
     "es": "Búsqueda",
@@ -523,11 +478,6 @@
     "es": "Pago a Proveedores",
     "en": "Supplier Payment",
     "pt": "Pagamento a Fornecedores"
-  },
-  "page_titles.warehouse_management": {
-    "es": "Gestión de almacenes (WMS)",
-    "en": "Warehouse management (WMS)",
-    "pt": "Gestão de armazéns (WMS)"
   },
   "page_titles.warehouses": {
     "es": "Almacenes",

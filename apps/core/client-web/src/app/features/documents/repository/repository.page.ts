@@ -18,10 +18,13 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
-import {
-  DocumentNode,
-  DocumentsService,
-} from '../../../core/api/documents.service';
+import { DocumentNode, DocumentsService, DocumentTemplateType } from '../data/documents.service';
+
+/** What a file can be marked as. `NONE` means an ordinary file. */
+const TEMPLATE_TYPES: readonly DocumentTemplateType[] = ['INVOICE', 'QUOTE', 'EMAIL', 'CONTRACT', 'OTHER'];
+
+/** The two ways of reading the repository: by folder, or the files marked as templates. */
+export type RepositoryView = 'files' | 'templates';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
@@ -35,6 +38,15 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
  * upload button uploaded nothing, the "New folder" button created nothing, the folders did not
  * open, and the search box filtered a list nobody could add to. The storage service it needed had
  * been there the whole time, serving avatars and journal-entry attachments.
+ *
+ * ## Templates are a view of it, not a second page
+ *
+ * A template here is a file marked with what it is a model of — the letterhead invoices are printed
+ * on, the contract adapted per client. It lived on a page of its own («Plantillas») with its own
+ * upload and delete, over the same files. It is now a view of this one: «Plantillas» lists every
+ * marked file across the tree, and any file can be marked or unmarked from its row. Odoo's
+ * Documents and NetSuite's File Cabinet treat it the same way — a facet of the library, not a
+ * second library.
  */
 @Component({
   selector: 'app-repository-page',
@@ -57,6 +69,16 @@ export class RepositoryPage {
   protected readonly DeleteIcon = Trash2;
   protected readonly RenameIcon = Pencil;
   protected readonly UpIcon = CornerLeftUp;
+
+  protected readonly templateTypes = TEMPLATE_TYPES;
+
+  /** By folder, or every file marked as a template wherever it is filed. */
+  readonly view = signal<RepositoryView>('files');
+  /** In the templates view, narrow to one kind; null shows all of them. */
+  readonly templateFilter = signal<DocumentTemplateType | null>(null);
+  /** What an upload made from the templates view is marked as. */
+  readonly uploadType = signal<DocumentTemplateType>('INVOICE');
+  readonly inTemplates = computed(() => this.view() === 'templates');
 
   /** Where we are. Null is the root. */
   readonly currentFolderId = signal<string | null>(null);
@@ -114,6 +136,29 @@ export class RepositoryPage {
     this.reload();
   }
 
+  showView(view: RepositoryView): void {
+    if (this.view() === view) return;
+    this.view.set(view);
+    this.search.set('');
+    this.newFolderOpen.set(false);
+    this.reload();
+  }
+
+  filterTemplates(type: DocumentTemplateType | ''): void {
+    this.templateFilter.set(type === '' ? null : type);
+    this.reload();
+  }
+
+  /** Marks a file as a template of some kind, or (`NONE`) as an ordinary file again. */
+  retag(node: DocumentNode, templateType: DocumentTemplateType): void {
+    if (node.kind !== 'FILE' || node.templateType === templateType) return;
+    this.busy.set(true);
+    this.documents.update(node.id, { templateType }).subscribe({
+      next: () => { this.busy.set(false); this.reload(); },
+      error: (error) => this.fail(error),
+    });
+  }
+
   // ── Actions ────────────────────────────────────────────────────────────────
 
   /** The name field, focused when the row opens: the user just asked to type a name. */
@@ -151,7 +196,12 @@ export class RepositoryPage {
     if (!file) return;
 
     this.busy.set(true);
-    this.documents.upload(file, { parentId: this.currentFolderId() }).subscribe({
+    // From the templates view the file is filed at the root and marked; from a folder it is filed
+    // there, unmarked, exactly as before.
+    const options = this.inTemplates()
+      ? { parentId: null, templateType: this.uploadType() }
+      : { parentId: this.currentFolderId() };
+    this.documents.upload(file, options).subscribe({
       next: () => {
         this.busy.set(false);
         // Clearing the input is what lets the same file be uploaded twice in a row.
@@ -245,8 +295,16 @@ export class RepositoryPage {
     this.loading.set(true);
     this.failed.set(false);
 
+    const query = this.inTemplates()
+      ? {
+          // One or the other: the server reads `templatesOnly` as «any kind but NONE», which would
+          // override a specific kind if both were sent.
+          ...(this.templateFilter() ? { templateType: this.templateFilter() as DocumentTemplateType } : { templatesOnly: true }),
+          search: this.search() || undefined,
+        }
+      : { parentId: this.currentFolderId(), search: this.search() || undefined };
     this.documents
-      .list({ parentId: this.currentFolderId(), search: this.search() || undefined })
+      .list(query)
       .subscribe({
         next: (page) => {
           this.items.set(page.rows);
@@ -259,7 +317,7 @@ export class RepositoryPage {
         },
       });
 
-    const folderId = this.currentFolderId();
+    const folderId = this.inTemplates() ? null : this.currentFolderId();
     if (folderId) {
       this.documents.breadcrumb(folderId).subscribe({
         next: (trail) => this.breadcrumb.set(trail),

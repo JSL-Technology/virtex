@@ -30,19 +30,6 @@ export interface ImpactAnalysisResult {
   isActionAllowed: boolean;
 }
 
-/**
- * Describe el objeto de respuesta esperado del endpoint de operaciones masivas (importación).
- */
-export interface BulkOperationResult {
-  successCount: number;
-  errorCount: number;
-  errors: {
-    rowIndex: number;
-    accountCode: string;
-    message: string;
-  }[];
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -138,34 +125,5 @@ export class ChartOfAccountsService {
   getImpactAnalysis(accountId: string, action: 'DEACTIVATE' | 'MERGE' | 'REPARENT'): Observable<ImpactAnalysisResult> {
     const params = new HttpParams().set('action', action);
     return this.http.get<ImpactAnalysisResult>(`${this.apiUrl}/${accountId}/impact-analysis`, { params });
-  }
-
-  // --- MÉTODOS PARA OPERACIONES MASIVAS ---
-
-  /**
-   * Sube un archivo (CSV o XLSX) al backend para la creación o actualización masiva de cuentas.
-   * @param file El objeto File que representa el archivo seleccionado por el usuario.
-   * @returns Un Observable que emite un objeto BulkOperationResult con el resumen de la importación.
-   */
-  bulkCreateOrUpdate(file: File): Observable<BulkOperationResult> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    return this.http.post<BulkOperationResult>(`${this.apiUrl}/bulk-import`, formData);
-  }
-
-  /**
-   * Descarga el plan de cuentas en el formato especificado.
-   * @param version La versión del plan a exportar.
-   * @param hierarchy La jerarquía del plan a exportar.
-   * @param format El formato de archivo deseado ('csv' o 'json').
-   * @returns Un Observable que emite el contenido del archivo como un Blob.
-   */
-  exportAccounts(version: number, hierarchy: HierarchyType, format: 'csv' | 'json'): Observable<Blob> {
-    const params = new HttpParams()
-      .set('version', version.toString())
-      .set('hierarchy', hierarchy)
-      .set('format', format);
-    // Se espera una respuesta de tipo 'blob' para manejar el archivo.
-    return this.http.get(`${this.apiUrl}/export`, { params, responseType: 'blob' });
   }
 }

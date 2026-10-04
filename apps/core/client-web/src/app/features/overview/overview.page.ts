@@ -13,20 +13,18 @@ import {
   LucideAngularModule,
   ArrowRight,
   FilePlus,
-  LayoutDashboard,
-  Megaphone,
   CalendarDays,
   Activity as ActivityIcon,
   RefreshCw,
 } from 'lucide-angular';
 
 import { AuthService } from '../../core/services/auth';
+import { DashboardPage } from '../dashboard/dashboard.page';
 import { TabStateService } from '../../core/tabs/tab-state.service';
 import { TabAware } from '../../core/tabs/tab.model';
 import {
   OverviewService,
   ActivityItem,
-  NewsItem,
   EventItem,
 } from './overview.service';
 
@@ -43,7 +41,7 @@ type SectionStatus = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-overview-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DashboardPage],
   templateUrl: './overview.page.html',
   styleUrls: ['./overview.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,8 +56,6 @@ export class OverviewPage implements OnInit, TabAware {
   // Iconos expuestos a la plantilla.
   protected readonly ArrowRightIcon = ArrowRight;
   protected readonly NewInvoiceIcon = FilePlus;
-  protected readonly DashboardIcon = LayoutDashboard;
-  protected readonly NewsIcon = Megaphone;
   protected readonly EventsIcon = CalendarDays;
   protected readonly ActivityIcon = ActivityIcon;
   protected readonly RefreshIcon = RefreshCw;
@@ -85,8 +81,6 @@ export class OverviewPage implements OnInit, TabAware {
   readonly activity = signal<ActivityItem[]>([]);
   readonly activityStatus = signal<SectionStatus>('loading');
 
-  readonly news = signal<NewsItem[]>([]);
-  readonly newsStatus = signal<SectionStatus>('loading');
 
   readonly events = signal<EventItem[]>([]);
   readonly eventsStatus = signal<SectionStatus>('loading');
@@ -110,7 +104,6 @@ export class OverviewPage implements OnInit, TabAware {
 
   private loadAll(): void {
     this.loadActivity();
-    this.loadNews();
     this.loadEvents();
   }
 
@@ -144,17 +137,6 @@ export class OverviewPage implements OnInit, TabAware {
     });
   }
 
-  private loadNews(): void {
-    this.newsStatus.set('loading');
-    this.overview.getNews().subscribe({
-      next: (items) => {
-        this.news.set(items);
-        this.newsStatus.set('ready');
-      },
-      error: () => this.newsStatus.set('error'),
-    });
-  }
-
   private loadEvents(): void {
     this.eventsStatus.set('loading');
     this.overview.getEvents().subscribe({
@@ -171,10 +153,6 @@ export class OverviewPage implements OnInit, TabAware {
   open(route: string | undefined): void {
     if (!route) return;
     this.tabState.openTab({ route });
-  }
-
-  openDashboard(): void {
-    this.open('/dashboard');
   }
 
   openNewInvoice(): void {

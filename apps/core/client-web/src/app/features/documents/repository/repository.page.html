@@ -7,11 +7,13 @@
   (searchChange)="onSearch($event)"
   searchPlaceholderKey="documents.repository.search_all"
 >
+  @if (!inTemplates()) {
   <button listActions type="button" class="secondary-button" [disabled]="busy()"
     appRequires="documents:manage" (click)="newFolderOpen.set(!newFolderOpen())">
     <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'documents.repository.new_folder' | translate }}</span>
   </button>
+  }
 
   <!--
     A label wrapping a hidden input, not a button: the file picker can only be opened by a real
@@ -23,6 +25,38 @@
     <input type="file" class="sr-only" [disabled]="busy()" (change)="onFileChosen($event)" />
   </label>
 
+  <div listFilters class="view-switch" role="tablist" [attr.aria-label]="'documents.repository.view' | translate">
+    <button type="button" role="tab" class="view-switch__item" [class.is-active]="!inTemplates()"
+      [attr.aria-selected]="!inTemplates()" (click)="showView('files')">
+      {{ 'documents.repository.view_files' | translate }}
+    </button>
+    <button type="button" role="tab" class="view-switch__item" [class.is-active]="inTemplates()"
+      [attr.aria-selected]="inTemplates()" (click)="showView('templates')">
+      {{ 'documents.repository.view_templates' | translate }}
+    </button>
+  </div>
+
+  @if (inTemplates()) {
+  <div listFilters class="template-filters">
+  <label class="inline-field">
+    <span>{{ 'documents.templates.type_column' | translate }}</span>
+    <select [value]="templateFilter() ?? ''" (change)="filterTemplates($any($event.target).value)">
+      <option value="">{{ 'documents.repository.all_kinds' | translate }}</option>
+      @for (type of templateTypes; track type) {
+        <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+      }
+    </select>
+  </label>
+  <label class="inline-field">
+    <span>{{ 'documents.templates.upload_as' | translate }}</span>
+    <select [value]="uploadType()" (change)="uploadType.set($any($event.target).value)">
+      @for (type of templateTypes; track type) {
+        <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+      }
+    </select>
+  </label>
+  </div>
+  } @else {
   <nav listFilters class="path-breadcrumbs" [attr.aria-label]="'documents.repository.home' | translate">
     <button type="button" class="path-item path-item--link" (click)="goTo(null)">
       {{ 'documents.repository.home' | translate }}
@@ -34,6 +68,7 @@
       </button>
     }
   </nav>
+  }
 
   @if (newFolderOpen()) {
     <div class="new-folder card">
@@ -68,13 +103,14 @@
           <th appSortHeader="name">{{ 'documents.repository.name' | translate }}</th>
           <th appSortHeader="updatedAt">{{ 'documents.repository.last_modified' | translate }}</th>
           <th appSortHeader="size">{{ 'documents.repository.file_size' | translate }}</th>
+          <th>{{ 'documents.templates.type_column' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @if (!atRoot() && !search()) {
+        @if (!inTemplates() && !atRoot() && !search()) {
           <tr class="file-item-row is-clickable" (click)="goUp()">
-            <td colspan="4">
+            <td colspan="5">
               <span class="name-cell">
                 <lucide-icon [img]="UpIcon" size="18" aria-hidden="true"></lucide-icon>
                 <span class="file-name">..</span>
@@ -88,14 +124,25 @@
               <span class="name-cell">
                 <lucide-icon [img]="iconFor(item)" size="20" [class]="item.kind" aria-hidden="true"></lucide-icon>
                 <span class="file-name">{{ item.name }}</span>
-                @if (item.templateType !== 'NONE') {
-                  <span class="tag">{{ 'documents.templates.type.' + item.templateType | translate }}</span>
-                }
               </span>
             </td>
             <!-- A real timestamp through the locale formatter, not the string `Jul 25, 2025`. -->
             <td>{{ item.updatedAt | vxDate: 'dateTime' }}</td>
             <td>{{ sizeOf(item) }}</td>
+            <td>
+              @if (item.kind === 'FILE') {
+                <select [value]="item.templateType" [disabled]="busy()"
+                  [attr.aria-label]="'documents.templates.type_column' | translate"
+                  (change)="retag(item, $any($event.target).value)">
+                  <option value="NONE">{{ 'documents.repository.not_a_template' | translate }}</option>
+                  @for (type of templateTypes; track type) {
+                    <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+                  }
+                </select>
+              } @else {
+                —
+              }
+            </td>
             <td class="text-right row-actions">
               @if (item.kind === 'FILE') {
                 <button type="button" class="icon-button" (click)="download(item)"
@@ -116,7 +163,7 @@
           </tr>
           @if (renaming() === item.id) {
             <tr>
-              <td colspan="4">
+              <td colspan="5">
                 <div class="new-folder">
                   <input #newName type="text" maxlength="255" [value]="item.name"
                     (keydown.enter)="rename(item, newName.value); renaming.set(null)" />

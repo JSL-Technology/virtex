@@ -100,4 +100,46 @@ describe('RepositoryPage', () => {
     expect(component.sizeOf(node({ kind: 'FOLDER', fileSize: 0 }) as never)).toBe('—');
     httpMock.verify();
   });
+
+  it('reads the templates as a view of the same library, across every folder', () => {
+    httpMock.expectOne((c) => c.url === `${API}/documents`).flush(page([]));
+
+    component.showView('templates');
+
+    const templates = httpMock.expectOne(
+      (c) => c.url === `${API}/documents` && c.params.get('templatesOnly') === 'true' && !c.params.has('parentId'),
+    );
+    templates.flush(page([node({ name: 'Membrete.docx', templateType: 'INVOICE' })]));
+    fixture.detectChanges();
+
+    expect(component.files().map((f) => f.name)).toEqual(['Membrete.docx']);
+    httpMock.verify();
+  });
+
+  it('narrows the templates to one kind without the catch-all overriding it', () => {
+    httpMock.expectOne((c) => c.url === `${API}/documents`).flush(page([]));
+    component.showView('templates');
+    httpMock.expectOne((c) => c.params.get('templatesOnly') === 'true').flush(page([]));
+
+    component.filterTemplates('CONTRACT');
+
+    const narrowed = httpMock.expectOne((c) => c.url === `${API}/documents`);
+    expect(narrowed.request.params.get('templateType')).toBe('CONTRACT');
+    expect(narrowed.request.params.has('templatesOnly')).toBe(false);
+    narrowed.flush(page([]));
+    httpMock.verify();
+  });
+
+  it('marks a file as a template from its own row', () => {
+    httpMock.expectOne((c) => c.url === `${API}/documents`).flush(page([node()]));
+    fixture.detectChanges();
+
+    component.retag(component.files()[0], 'CONTRACT');
+
+    const update = httpMock.expectOne((c) => c.url === `${API}/documents/n1` && c.method === 'PATCH');
+    expect(update.request.body).toEqual({ templateType: 'CONTRACT' });
+    update.flush(node({ templateType: 'CONTRACT' }));
+    httpMock.expectOne((c) => c.url === `${API}/documents`).flush(page([]));
+    httpMock.verify();
+  });
 });

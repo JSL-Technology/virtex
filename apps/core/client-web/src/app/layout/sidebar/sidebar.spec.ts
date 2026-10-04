@@ -46,7 +46,7 @@ describe('Sidebar (panel de módulo)', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   const panelCompleto: PanelSection[] = [
-    { group: 'inbox', labelKey: GROUP_LABEL.inbox, entries: [entry('/my-work')] },
+    { group: 'inbox', labelKey: GROUP_LABEL.inbox, entries: [entry('/approvals')] },
     {
       group: 'documents',
       labelKey: GROUP_LABEL.documents,

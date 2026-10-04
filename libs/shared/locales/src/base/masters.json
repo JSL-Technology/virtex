@@ -4,6 +4,11 @@
     "en": "Accounts",
     "pt": "Contas"
   },
+  "masters.banks.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
   "masters.banks.bank_name": {
     "es": "Nombre del banco",
     "en": "Bank name",
@@ -14,75 +19,100 @@
     "en": "Banks",
     "pt": "Bancos"
   },
-  "masters.banks.currencies": {
-    "es": "Monedas",
-    "en": "Currencies",
-    "pt": "Moedas"
+  "masters.banks.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "masters.banks.created": {
+    "es": "Banco agregado al catálogo.",
+    "en": "Bank added to the catalogue.",
+    "pt": "Banco adicionado ao catálogo."
+  },
+  "masters.banks.delete_failed": {
+    "es": "No se pudo eliminar el banco.",
+    "en": "The bank could not be deleted.",
+    "pt": "Não foi possível excluir o banco."
+  },
+  "masters.banks.delete_message": {
+    "es": "«{{name}}» saldrá del catálogo.",
+    "en": "“{{name}}” will leave the catalogue.",
+    "pt": "«{{name}}» sairá do catálogo."
+  },
+  "masters.banks.delete_title": {
+    "es": "¿Eliminar el banco?",
+    "en": "Delete the bank?",
+    "pt": "Excluir o banco?"
+  },
+  "masters.banks.deleted": {
+    "es": "«{{name}}» se eliminó del catálogo.",
+    "en": "“{{name}}” was removed from the catalogue.",
+    "pt": "«{{name}}» foi removido do catálogo."
+  },
+  "masters.banks.edit_bank": {
+    "es": "Editar banco",
+    "en": "Edit bank",
+    "pt": "Editar banco"
   },
   "masters.banks.empty_help": {
-    "es": "Un banco aparece aquí al abrir una cuenta con él en Tesorería.",
-    "en": "A bank appears here once you open an account with it in Treasury.",
-    "pt": "Um banco aparece aqui ao abrir uma conta com ele na Tesouraria."
+    "es": "Agrega los bancos con los que trabajas para elegirlos al abrir una cuenta bancaria.",
+    "en": "Add the banks you work with to pick them when opening a bank account.",
+    "pt": "Adicione os bancos com que trabalha para escolhê-los ao abrir uma conta bancária."
   },
   "masters.banks.empty_title": {
-    "es": "Todavía no hay bancos",
-    "en": "No banks yet",
-    "pt": "Ainda não há bancos"
+    "es": "Todavía no hay bancos en el catálogo",
+    "en": "There are no banks in the catalogue yet",
+    "pt": "Ainda não há bancos no catálogo"
   },
-  "masters.banks.open_account": {
-    "es": "Nueva cuenta bancaria",
-    "en": "New bank account",
-    "pt": "Nova conta bancária"
+  "masters.banks.inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
+  },
+  "masters.banks.load_failed": {
+    "es": "No se pudo cargar el catálogo de bancos.",
+    "en": "The bank catalogue could not be loaded.",
+    "pt": "Não foi possível carregar o catálogo de bancos."
+  },
+  "masters.banks.local_code": {
+    "es": "Código local",
+    "en": "Local code",
+    "pt": "Código local"
+  },
+  "masters.banks.local_code_help": {
+    "es": "El código de compensación nacional (ACH, ruta bancaria).",
+    "en": "The national clearing code (ACH, routing number).",
+    "pt": "O código de compensação nacional (ACH, número de roteamento)."
+  },
+  "masters.banks.new_bank": {
+    "es": "Nuevo banco",
+    "en": "New bank",
+    "pt": "Novo banco"
+  },
+  "masters.banks.save_failed": {
+    "es": "No se pudo guardar el banco.",
+    "en": "The bank could not be saved.",
+    "pt": "Não foi possível salvar o banco."
+  },
+  "masters.banks.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
   },
   "masters.banks.subtitle": {
-    "es": "Los bancos con los que la empresa tiene cuentas. Un banco se agrega abriendo una cuenta en él.",
-    "en": "The banks the company holds accounts with. A bank is added by opening an account with it.",
-    "pt": "Os bancos com os quais a empresa tem contas. Um banco é adicionado abrindo uma conta nele."
+    "es": "Las instituciones con las que trabaja la empresa. Las cuentas bancarias eligen su banco de aquí.",
+    "en": "The institutions the company deals with. Bank accounts pick their bank from here.",
+    "pt": "As instituições com que a empresa trabalha. As contas bancárias escolhem o seu banco aqui."
   },
   "masters.banks.swift_code": {
     "es": "Código SWIFT",
     "en": "SWIFT code",
     "pt": "Código SWIFT"
   },
-  "masters.branches.address": {
-    "es": "Dirección",
-    "en": "Address",
-    "pt": "Endereço"
-  },
-  "masters.branches.branches_locations": {
-    "es": "Sucursales y ubicaciones",
-    "en": "Branches and locations",
-    "pt": "Filiais e localizações"
-  },
-  "masters.branches.city": {
-    "es": "Ciudad",
-    "en": "City",
-    "pt": "Cidade"
-  },
-  "masters.branches.empty_help": {
-    "es": "Se crean en Ajustes › Estructura de la empresa, donde se define también su identidad fiscal.",
-    "en": "They are created in Settings › Company Structure, where their fiscal identity is defined too.",
-    "pt": "São criadas em Definições › Estrutura da empresa, onde também se define a identidade fiscal."
-  },
-  "masters.branches.empty_title": {
-    "es": "Todavía no hay sucursales",
-    "en": "No branches yet",
-    "pt": "Ainda não há sucursais"
-  },
-  "masters.branches.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
-  },
-  "masters.branches.new_branch": {
-    "es": "Nueva sucursal",
-    "en": "New branch",
-    "pt": "Nova filial"
-  },
-  "masters.branches.phone": {
-    "es": "Teléfono",
-    "en": "Phone",
-    "pt": "Telefone"
+  "masters.banks.updated": {
+    "es": "Banco actualizado. Sus cuentas bancarias toman el cambio.",
+    "en": "Bank updated. Its bank accounts take the change.",
+    "pt": "Banco atualizado. As suas contas bancárias recebem a alteração."
   },
   "masters.currencies.base_currency": {
     "es": "Moneda base",

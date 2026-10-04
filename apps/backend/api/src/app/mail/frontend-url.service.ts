@@ -107,9 +107,14 @@ export class FrontendUrlService {
     return `${this.origin}/${this.language(language)}/auth/forgot-password`;
   }
 
-  /** Landing page after a successful sign-in. */
-  dashboard(): string {
-    return `${this.origin}/dashboard`;
+  /**
+   * Landing page after a successful sign-in: the workspace home.
+   *
+   * It was `/dashboard`, a second home page the client has since folded into `/overview`. The
+   * client still redirects the old address, but the link the server mints should name the page.
+   */
+  workspaceHome(): string {
+    return `${this.origin}/overview`;
   }
 
   /**

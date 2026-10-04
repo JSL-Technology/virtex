@@ -60,6 +60,11 @@ describe('BankAccountFormPage', () => {
     },
   ];
 
+  const banks = [
+    { id: 'bank-1', name: 'Banco Popular Dominicano', swiftBic: 'BPDODOSX', countryCode: 'DO', localCode: null, isActive: true },
+    { id: 'bank-2', name: 'Banco Cerrado', swiftBic: null, countryCode: 'DO', localCode: null, isActive: false },
+  ];
+
   const build = async (id: string | null) => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
@@ -86,11 +91,28 @@ describe('BankAccountFormPage', () => {
 
     httpMock.expectOne((c) => c.url === `${API}/chart-of-accounts`).flush(accounts);
     httpMock.expectOne((c) => c.url === `${API}/currencies`).flush([{ code: 'DOP' }, { code: 'USD' }]);
+    httpMock.expectOne((c) => c.url === `${API}/treasury/banks`).flush(banks);
     // The new-account form starts in the tenant's base currency, which the cash position states.
     httpMock
       .match((c) => c.url === `${API}/treasury/cash-position`)
       .forEach((r) => r.flush({ baseCurrency: 'DOP', accounts: [] }));
   };
+
+  it('names the institution from the bank catalogue, as the server will', async () => {
+    await build(null);
+    component.form.get('bankId')?.setValue('bank-1');
+
+    expect(component.form.get('bankName')?.value).toBe('Banco Popular Dominicano');
+    expect(component.form.get('bankName')?.disabled).toBe(true);
+    expect(component.form.get('swiftBic')?.value).toBe('BPDODOSX');
+
+    component.form.patchValue({ name: 'Popular corriente', accountType: 'CHECKING', currencyCode: 'DOP', glAccountId: 'gl1' });
+    component.save();
+    const request = httpMock.expectOne((c) => c.url === `${API}/treasury/bank-accounts`);
+    expect(request.request.body).toMatchObject({ bankId: 'bank-1', bankName: 'Banco Popular Dominicano' });
+    request.flush({ id: 'b1' });
+    httpMock.verify();
+  });
 
   it('offers only accounts that can take a movement', async () => {
     await build(null);

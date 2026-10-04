@@ -64,6 +64,13 @@
     input { flex: 1; min-width: 0; }
   }
 
+  .template-filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
   .inline-field {
     display: inline-flex;
     align-items: center;
@@ -83,4 +90,45 @@
   //  El icono dice el tipo antes de leer la extensión.
   .FOLDER { color: var(--warning-text); }
   .FILE { color: var(--content-secondary); }
+
+  //  «Archivos | Plantillas»: two readings of the same library.
+  .view-switch {
+    display: inline-flex;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .view-switch__item {
+    padding: var(--space-1) var(--space-3);
+    background: transparent;
+    border: 0;
+    color: var(--content-secondary);
+    font: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+
+    &.is-active {
+      background: var(--surface-sunken);
+      color: var(--content-primary);
+      font-weight: var(--font-semibold);
+    }
+
+    &:focus-visible { box-shadow: var(--focus-shadow); }
+  }
+
+  .template-filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
 }

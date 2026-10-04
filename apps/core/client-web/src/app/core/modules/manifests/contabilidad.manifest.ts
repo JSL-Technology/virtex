@@ -35,6 +35,17 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/chart-of-accounts/segment-configuration/segment-configuration.page').then((m) => m.SegmentConfigurationPage),
     },
     {
+      //  A wizard over two accounts, the server's analysis and a confirmation — not a list of
+      //  records nor a document's draft. Opened from the chart of accounts.
+      path: 'chart-of-accounts/merge',
+      kind: WindowKind.CANVAS,
+      permission: 'coa:merge',
+      titleKey: 'accounting.merge_tool.account_merge_tool',
+      icon: 'GitMerge',
+      entityKeyFn: () => 'contabilidad:coa-merge',
+      load: () => import('../../../features/accounting/merge-accounts/merge-accounts.page').then((m) => m.MergeAccountsPage),
+    },
+    {
       path: 'chart-of-accounts/new',
       kind: WindowKind.DRAFT,
       permission: 'coa:create',
@@ -100,7 +111,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.daily_journal',
       icon: 'BookText',
       entityKeyFn: () => 'contabilidad:daily-journal',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.book_journal' },
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.gl_sub.book_journal' },
       load: () => import('../../../features/accounting/daily-journal/daily-journal.page').then((m) => m.DailyJournalPage),
     },
     {
@@ -110,11 +121,11 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.general_ledger',
       icon: 'Library',
       entityKeyFn: () => 'contabilidad:general-ledger',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.book_gl' },
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.gl_sub.book_gl' },
       load: () => import('../../../features/accounting/general-ledger/general-ledger.page').then((m) => m.GeneralLedgerPage),
     },
     {
-      path: 'general-ledger/new',
+      path: 'ledgers/new',
       kind: WindowKind.DRAFT,
       permission: 'accounting:manage_ledgers',
       titleKey: 'page_titles.ledger_new',
@@ -123,10 +134,10 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
     },
     {
-      //  Editar un libro reutiliza el mismo formulario (LedgerFormPage acepta `@Input() id`). Sin esta
-      //  ruta, «Editar» en la lista de libros caía en la página genérica «en construcción» y, por ser
-      //  MODULE_LIST, nunca se abría como vista previa.
-      path: 'general-ledger/:id/edit',
+      //  Editar un libro reutiliza el mismo formulario (LedgerFormPage acepta `@Input() id`). Vivía en
+      //  `general-ledger/:id/edit`, bajo la URL del reporte del mayor: dos conceptos —el reporte de
+      //  una cuenta y la configuración de un libro paralelo— compartiendo dirección.
+      path: 'ledgers/:id/edit',
       kind: WindowKind.DRAFT,
       permission: 'accounting:manage_ledgers',
       titleKey: 'page_titles.ledger_edit',
@@ -155,7 +166,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.subsidiary_ledgers',
       icon: 'Layers',
       entityKeyFn: () => 'contabilidad:subsidiary-ledgers',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.book_subledgers' },
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.gl_sub.book_subledgers' },
       load: () => import('../../../features/accounting/subsidiary-ledgers/subsidiary-ledgers.page').then((m) => m.SubsidiaryLedgersPage),
     },
     {
@@ -165,7 +176,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.ledgers',
       icon: 'Layers3',
       entityKeyFn: () => 'contabilidad:ledgers',
-      menu: { group: 'masters', labelKey: 'sidebar.finance.gl_sub.multi_ledger' },
+      menu: { group: 'configuration', labelKey: 'sidebar.finance.gl_sub.multi_ledger' },
       load: () => import('../../../features/accounting/ledger-list/ledger-list.page').then((m) => m.LedgerListPage),
     },
     {
@@ -175,7 +186,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.journals',
       icon: 'NotebookTabs',
       entityKeyFn: () => 'contabilidad:journals',
-      menu: { group: 'masters', labelKey: 'sidebar.finance.gl_sub.journals' },
+      menu: { group: 'configuration', labelKey: 'sidebar.finance.gl_sub.journals' },
       load: () => import('../../../features/accounting/journal-list/journal-list.page').then((m) => m.JournalListPage),
     },
     {
@@ -206,7 +217,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.accounting_periods',
       icon: 'CalendarRange',
       entityKeyFn: () => 'contabilidad:periods',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.periods' },
+      menu: { group: 'configuration', labelKey: 'sidebar.finance.gl_sub.periods' },
       load: () => import('../../../features/accounting/periods/periods.page').then((m) => m.PeriodsPage),
     },
     {
@@ -218,16 +229,6 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:variance',
       menu: { group: 'analysis', labelKey: 'sidebar.finance.gl_sub.variance_analysis' },
       load: () => import('../../../features/accounting/variance-analysis/variance-analysis.page').then((m) => m.VarianceAnalysisPage),
-    },
-    {
-      path: 'closing/month-end',
-      kind: WindowKind.OVERVIEW,
-      permission: 'accounting:close_period',
-      titleKey: 'page_titles.close_month',
-      icon: 'CheckCircle',
-      entityKeyFn: () => 'contabilidad:month-end',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.closing_monthly' },
-      load: () => import('../../../features/accounting/closing/month-end-close/month-end-close.page').then((m) => m.MonthEndClosePage),
     },
     {
       path: 'closing/annual-close',
@@ -272,8 +273,127 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'page_titles.closing_checklists',
       icon: 'ListChecks',
       entityKeyFn: () => 'contabilidad:closing-checklist',
-      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.closing_checklist' },
+      menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.period_close' },
       load: () => import('../../../features/accounting/closing/checklist/checklist.page').then((m) => m.ChecklistPage),
+    },
+  ],
+};
+
+/**
+ * The financial statements, in Accounting's panel.
+ *
+ * They are served under `/reports/*` — the addresses predate this panel and are kept — so they are
+ * a satellite: their own URL prefix, Accounting's menu. Balance sheet, income statement, trial
+ * balance and cash flow are where an accountant looks for them in Odoo, NetSuite and SAP alike:
+ * beside the ledger they are computed from, not in a separate analytics module.
+ */
+export const CONTABILIDAD_REPORTS_MODULE: ModuleManifest = {
+  id: 'contabilidad-reportes',
+  titleKey: 'modules.accounting',
+  icon: 'Landmark',
+  basePath: 'reports',
+  order: 6,
+  panelOf: 'contabilidad',
+  routes: [
+    {
+      path: 'financial-statements/balance-sheet',
+      kind: WindowKind.OVERVIEW,
+      permission: 'reports:view_financial',
+      titleKey: 'page_titles.balance_sheet',
+      icon: 'Scale',
+      entityKeyFn: () => 'analisis:balance-sheet',
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.balance_sheet' },
+      load: () => import('../../../features/reports/financial-statements/balance-sheet/balance-sheet.page').then((m) => m.BalanceSheetPage),
+    },
+    {
+      path: 'financial-statements/income-statement',
+      kind: WindowKind.OVERVIEW,
+      permission: 'reports:view_financial',
+      titleKey: 'page_titles.income_statement',
+      icon: 'TrendingUp',
+      entityKeyFn: () => 'analisis:income-statement',
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.income_statement' },
+      load: () => import('../../../features/reports/financial-statements/income-statement/income-statement.page').then((m) => m.IncomeStatementPage),
+    },
+    {
+      path: 'financial-statements/trial-balance',
+      kind: WindowKind.OVERVIEW,
+      permission: 'reports:view_financial',
+      titleKey: 'page_titles.trial_balance',
+      icon: 'Scale',
+      entityKeyFn: () => 'analisis:trial-balance',
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.trial_balance' },
+      load: () => import('../../../features/reports/financial-statements/trial-balance/trial-balance.page').then((m) => m.TrialBalancePage),
+    },
+    {
+      path: 'financial-statements/cash-flow',
+      kind: WindowKind.OVERVIEW,
+      permission: 'reports:view_financial',
+      titleKey: 'page_titles.cash_flow',
+      icon: 'Waves',
+      entityKeyFn: () => 'analisis:cash-flow',
+      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.cash_flow' },
+      load: () => import('../../../features/reports/financial-statements/cash-flow/cash-flow.page').then((m) => m.CashFlowPage),
+    },
+  ],
+};
+
+/**
+ * Accounting's configuration lists that live under `/masters/*`: tax codes, currencies and payment
+ * terms.
+ *
+ * They sat in an «Administración» module of their own, next to branches and the extensions
+ * marketplace — a module no reference ERP has. Tax codes and currencies are accounting
+ * configuration everywhere (Odoo «Contabilidad › Configuración», NetSuite «Setup › Accounting»);
+ * payment terms are an accounting list that sales and purchasing both read, which is why Odoo and
+ * NetSuite keep them there rather than in Treasury.
+ */
+export const CONTABILIDAD_MASTERS_MODULE: ModuleManifest = {
+  id: 'contabilidad-masters',
+  titleKey: 'modules.accounting',
+  icon: 'Landmark',
+  basePath: 'masters',
+  order: 6,
+  panelOf: 'contabilidad',
+  routes: [
+    {
+      path: 'taxes',
+      kind: WindowKind.LIST,
+      permission: 'taxes:view',
+      titleKey: 'page_titles.taxes',
+      icon: 'Percent',
+      entityKeyFn: () => 'contabilidad:taxes',
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.taxes' },
+      load: () => import('../../../features/masters/taxes/taxes.page').then((m) => m.TaxesPage),
+    },
+    {
+      path: 'taxes/new',
+      kind: WindowKind.DRAFT,
+      permission: 'taxes:create',
+      titleKey: 'page_titles.tax_new',
+      icon: 'Percent',
+      entityKeyFn: () => 'contabilidad:tax:new',
+      load: () => import('../../../features/masters/taxes/tax-form/tax-form.page').then((m) => m.TaxFormPage),
+    },
+    {
+      path: 'currencies',
+      kind: WindowKind.LIST,
+      permission: 'currencies:view',
+      titleKey: 'page_titles.currencies',
+      icon: 'Banknote',
+      entityKeyFn: () => 'contabilidad:currencies',
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.currencies' },
+      load: () => import('../../../features/masters/currencies/currencies.page').then((m) => m.CurrenciesPage),
+    },
+    {
+      path: 'payment-terms',
+      kind: WindowKind.LIST,
+      permission: 'treasury:view',
+      titleKey: 'page_titles.payment_terms',
+      icon: 'Clock',
+      entityKeyFn: () => 'contabilidad:payment-terms',
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.payment_terms' },
+      load: () => import('../../../features/masters/payment-terms/payment-terms.page').then((m) => m.PaymentTermsPage),
     },
   ],
 };
