@@ -349,6 +349,19 @@
       "needs-credentials",
       "not-implemented"
     ],
+    "settings.sections.rate_type": [
+      "OFFICIAL",
+      "MARKET",
+      "BUY",
+      "SELL"
+    ],
+    "settings.sections.taxpayer_type": [
+      "COMPANY",
+      "INDIVIDUAL",
+      "WITHHOLDING_AGENT",
+      "GOVERNMENT",
+      "FOREIGN"
+    ],
     "user.role": [
       "ADMINISTRATOR",
       "MEMBER",

@@ -926,46 +926,6 @@
     "en": "Preferred Language",
     "pt": "Idioma Preferido"
   },
-  "settings.pages.accounting.empty_description": {
-    "es": "Configura las cuentas del catálogo que se usarán automáticamente en cada transacción, eliminando errores de asignación manual.",
-    "en": "Choose the chart-of-accounts entries used automatically on every transaction, so nothing depends on picking the right account by hand.",
-    "pt": "Configure as contas do plano que serão usadas automaticamente em cada transação, eliminando erros de atribuição manual."
-  },
-  "settings.pages.accounting.empty_title": {
-    "es": "Preferencias contables",
-    "en": "Accounting preferences",
-    "pt": "Preferências contábeis"
-  },
-  "settings.pages.accounting.features.f1": {
-    "es": "Cuenta por cobrar predeterminada",
-    "en": "Default receivables account",
-    "pt": "Conta a receber padrão"
-  },
-  "settings.pages.accounting.features.f2": {
-    "es": "Cuenta por pagar predeterminada",
-    "en": "Default payables account",
-    "pt": "Conta a pagar padrão"
-  },
-  "settings.pages.accounting.features.f3": {
-    "es": "Cuenta de ingresos por ventas",
-    "en": "Sales revenue account",
-    "pt": "Conta de receita de vendas"
-  },
-  "settings.pages.accounting.features.f4": {
-    "es": "Cuenta de ganancias y pérdidas por diferencial cambiario",
-    "en": "Foreign-exchange gain and loss account",
-    "pt": "Conta de ganhos e perdas cambiais"
-  },
-  "settings.pages.accounting.features.f5": {
-    "es": "Cuenta de depreciación acumulada",
-    "en": "Accumulated depreciation account",
-    "pt": "Conta de depreciação acumulada"
-  },
-  "settings.pages.accounting.features.f6": {
-    "es": "Cuenta de impuestos sobre ventas y compras",
-    "en": "Sales and purchase tax account",
-    "pt": "Conta de impostos sobre vendas e compras"
-  },
   "settings.pages.accounting.set_default_accounts_posting_rules_your": {
     "es": "Define las cuentas contables predeterminadas y las reglas de registro para tu organización.",
     "en": "Set the default accounts and posting rules for your organisation.",
@@ -1021,90 +981,20 @@
     "en": "Approval workflows",
     "pt": "Fluxos de aprovação"
   },
-  "settings.pages.closing_rules.empty_description": {
-    "es": "Define y controla los periodos contables de tu organización, bloquea los periodos cerrados para evitar modificaciones y programa el cierre automático.",
-    "en": "Define and control your accounting periods, lock closed periods against changes, and schedule the close.",
-    "pt": "Defina e controle os períodos contábeis da sua organização, bloqueie os períodos fechados contra alterações e programe o fechamento."
-  },
-  "settings.pages.closing_rules.empty_title": {
-    "es": "Cierre de periodos contables",
-    "en": "Accounting period close",
-    "pt": "Fechamento de períodos contábeis"
-  },
-  "settings.pages.closing_rules.features.f1": {
-    "es": "Creación y gestión de periodos contables",
-    "en": "Creating and managing accounting periods",
-    "pt": "Criação e gestão de períodos contábeis"
-  },
-  "settings.pages.closing_rules.features.f2": {
-    "es": "Bloqueo automático de periodos cerrados",
-    "en": "Automatic locking of closed periods",
-    "pt": "Bloqueio automático de períodos fechados"
-  },
-  "settings.pages.closing_rules.features.f3": {
-    "es": "Cierre mensual, trimestral y anual",
-    "en": "Monthly, quarterly and annual close",
-    "pt": "Fechamento mensal, trimestral e anual"
-  },
-  "settings.pages.closing_rules.features.f4": {
-    "es": "Permisos diferenciados para reabrir periodos",
-    "en": "Separate permissions for reopening a period",
-    "pt": "Permissões específicas para reabrir períodos"
-  },
-  "settings.pages.closing_rules.features.f5": {
-    "es": "Proceso guiado de cierre con lista de verificación",
-    "en": "A guided close with a checklist",
-    "pt": "Processo guiado de fechamento com checklist"
-  },
-  "settings.pages.closing_rules.manage_accounting_periods_locking_rules_govern": {
-    "es": "Gestiona los periodos contables y las reglas de bloqueo para el cierre fiscal.",
-    "en": "Manage accounting periods and the locking rules that govern the fiscal close.",
-    "pt": "Gerencie os períodos contábeis e as regras de bloqueio do fechamento fiscal."
+  "settings.pages.closing_rules.subtitle": {
+    "es": "La cuenta que recibe el resultado del ejercicio y cuánto tiempo se conservan los documentos fiscales.",
+    "en": "The account that receives the year's result, and how long fiscal documents are kept.",
+    "pt": "A conta que recebe o resultado do exercício e por quanto tempo os documentos fiscais são guardados."
   },
   "settings.pages.closing_rules.title": {
     "es": "Periodos y cierre fiscal",
     "en": "Fiscal periods and closing",
     "pt": "Períodos e fechamento fiscal"
   },
-  "settings.pages.currencies.empty_description": {
-    "es": "Activa varias monedas para tus transacciones, define la moneda funcional de cada subsidiaria y configura la actualización automática de las tasas de cambio.",
-    "en": "Enable several currencies for your transactions, set each subsidiary functional currency, and keep exchange rates updated automatically.",
-    "pt": "Ative várias moedas para suas transações, defina a moeda funcional de cada subsidiária e configure a atualização automática das taxas de câmbio."
-  },
-  "settings.pages.currencies.empty_title": {
-    "es": "Multimoneda",
-    "en": "Multi-currency",
-    "pt": "Multimoeda"
-  },
-  "settings.pages.currencies.features.f1": {
-    "es": "Moneda base y monedas secundarias activas",
-    "en": "Base currency and active secondary currencies",
-    "pt": "Moeda base e moedas secundárias ativas"
-  },
-  "settings.pages.currencies.features.f2": {
-    "es": "Actualización automática de tasas de cambio (banco central, BCE)",
-    "en": "Automatic exchange-rate updates (central bank, ECB)",
-    "pt": "Atualização automática de taxas de câmbio (banco central, BCE)"
-  },
-  "settings.pages.currencies.features.f3": {
-    "es": "Revaluación periódica de saldos en moneda extranjera",
-    "en": "Periodic revaluation of foreign-currency balances",
-    "pt": "Reavaliação periódica de saldos em moeda estrangeira"
-  },
-  "settings.pages.currencies.features.f4": {
-    "es": "Diferencial cambiario reconocido automáticamente",
-    "en": "Exchange differences recognised automatically",
-    "pt": "Diferenças cambiais reconhecidas automaticamente"
-  },
-  "settings.pages.currencies.features.f5": {
-    "es": "Reportes de ganancia y pérdida por tipo de cambio",
-    "en": "Foreign-exchange gain and loss reports",
-    "pt": "Relatórios de ganhos e perdas cambiais"
-  },
-  "settings.pages.currencies.manage_active_currencies_exchange_rates_used": {
-    "es": "Gestiona las monedas activas y las tasas de cambio para transacciones internacionales.",
-    "en": "Manage active currencies and the exchange rates used for international transactions.",
-    "pt": "Gerencie as moedas ativas e as taxas de câmbio para transações internacionais."
+  "settings.pages.currencies.subtitle": {
+    "es": "La moneda de tus libros y cómo se eligen y controlan las tasas de cambio.",
+    "en": "Your books' currency, and how exchange rates are chosen and checked.",
+    "pt": "A moeda dos seus livros e como as taxas de câmbio são escolhidas e verificadas."
   },
   "settings.pages.currencies.title": {
     "es": "Multimoneda y tasas de cambio",
@@ -1396,65 +1286,20 @@
     "en": "Integrations and API",
     "pt": "Integrações e API"
   },
-  "settings.pages.intercompany.automate_control_transactions_between_companies_your": {
-    "es": "Automatiza y controla las transacciones entre las empresas de tu grupo corporativo.",
-    "en": "Automate and control transactions between the companies in your group.",
-    "pt": "Automatize e controle as transações entre as empresas do seu grupo."
-  },
-  "settings.pages.intercompany.empty_description": {
-    "es": "Configura las reglas para eliminar las transacciones intragrupo en la consolidación, generar asientos espejo automáticos y gestionar los saldos entre subsidiarias.",
-    "en": "Set the rules that eliminate intragroup transactions on consolidation, generate mirror entries automatically, and manage balances between subsidiaries.",
-    "pt": "Configure as regras para eliminar transações intragrupo na consolidação, gerar lançamentos espelho automáticos e gerenciar os saldos entre subsidiárias."
-  },
-  "settings.pages.intercompany.empty_title": {
-    "es": "Gestión intercompañía",
-    "en": "Intercompany management",
-    "pt": "Gestão intercompanhia"
+  "settings.pages.intercompany.subtitle": {
+    "es": "Las cuentas puente que registran lo que se deben las empresas del grupo.",
+    "en": "The bridge accounts that record what the group's companies owe each other.",
+    "pt": "As contas-ponte que registram o que as empresas do grupo devem entre si."
   },
   "settings.pages.intercompany.title": {
     "es": "Reglas intercompañía",
     "en": "Intercompany rules",
     "pt": "Regras intercompanhia"
   },
-  "settings.pages.inventory_policies.define_valuation_replenishment_stock_control_rules": {
-    "es": "Define las reglas de valuación, reposición y control de existencias para tu inventario.",
-    "en": "Define the valuation, replenishment and stock-control rules for your inventory.",
-    "pt": "Defina as regras de valoração, reposição e controle de estoque."
-  },
-  "settings.pages.inventory_policies.empty_description": {
-    "es": "Configura el método de valuación de inventario, los umbrales de reposición automática y las reglas de conteo cíclico para mantener existencias precisas.",
-    "en": "Set the inventory valuation method, the automatic replenishment thresholds and the cycle-count rules that keep stock figures accurate.",
-    "pt": "Configure o método de valoração de estoque, os limites de reposição automática e as regras de contagem cíclica que mantêm o estoque preciso."
-  },
-  "settings.pages.inventory_policies.empty_title": {
-    "es": "Políticas de inventario",
-    "en": "Inventory policies",
-    "pt": "Políticas de estoque"
-  },
-  "settings.pages.inventory_policies.features.f1": {
-    "es": "Método de valuación: PEPS, UEPS o costo promedio",
-    "en": "Valuation method: FIFO, LIFO or average cost",
-    "pt": "Método de valoração: PEPS, UEPS ou custo médio"
-  },
-  "settings.pages.inventory_policies.features.f2": {
-    "es": "Puntos de reorden y cantidades mínimas de existencias",
-    "en": "Reorder points and minimum stock levels",
-    "pt": "Pontos de ressuprimento e quantidades mínimas de estoque"
-  },
-  "settings.pages.inventory_policies.features.f3": {
-    "es": "Conteo cíclico automatizado por categoría",
-    "en": "Automated cycle counting by category",
-    "pt": "Contagem cíclica automatizada por categoria"
-  },
-  "settings.pages.inventory_policies.features.f4": {
-    "es": "Ajustes de inventario con aprobación requerida",
-    "en": "Inventory adjustments that require approval",
-    "pt": "Ajustes de estoque que exigem aprovação"
-  },
-  "settings.pages.inventory_policies.features.f5": {
-    "es": "Alertas de existencias bajas y productos vencidos",
-    "en": "Low-stock and expired-product alerts",
-    "pt": "Alertas de estoque baixo e produtos vencidos"
+  "settings.pages.inventory_policies.subtitle": {
+    "es": "Las cuentas que mueven las entradas, salidas y ajustes de inventario.",
+    "en": "The accounts that receipts, issues and adjustments of stock post to.",
+    "pt": "As contas que movimentam entradas, saídas e ajustes de estoque."
   },
   "settings.pages.inventory_policies.title": {
     "es": "Políticas de inventario",
@@ -1771,45 +1616,10 @@
     "en": "Yes",
     "pt": "Sim"
   },
-  "settings.pages.taxes.configure_rates_apply_sales_purchases_withholding": {
-    "es": "Configura las tasas impositivas aplicables a ventas, compras y retenciones por jurisdicción.",
-    "en": "Configure the rates that apply to sales, purchases and withholding, by jurisdiction.",
-    "pt": "Configure as alíquotas aplicáveis a vendas, compras e retenções, por jurisdição."
-  },
-  "settings.pages.taxes.empty_description": {
-    "es": "Define las reglas fiscales de tu organización para que los impuestos se calculen y contabilicen automáticamente en cada transacción según la jurisdicción.",
-    "en": "Define your tax rules so that tax is calculated and posted automatically on every transaction, according to the jurisdiction.",
-    "pt": "Defina as regras fiscais da sua organização para que os impostos sejam calculados e contabilizados automaticamente em cada transação, conforme a jurisdição."
-  },
-  "settings.pages.taxes.empty_title": {
-    "es": "Motor de impuestos",
-    "en": "Tax engine",
-    "pt": "Motor de impostos"
-  },
-  "settings.pages.taxes.features.f1": {
-    "es": "Tasas de ITBIS/IVA por tipo de producto o servicio",
-    "en": "VAT rates by product or service type",
-    "pt": "Alíquotas de IVA por tipo de produto ou serviço"
-  },
-  "settings.pages.taxes.features.f2": {
-    "es": "Retenciones en la fuente (ISR, ITBIS)",
-    "en": "Withholding at source (income tax, VAT)",
-    "pt": "Retenções na fonte (imposto de renda, IVA)"
-  },
-  "settings.pages.taxes.features.f3": {
-    "es": "Impuestos por jurisdicción y subsidiaria",
-    "en": "Tax by jurisdiction and subsidiary",
-    "pt": "Impostos por jurisdição e subsidiária"
-  },
-  "settings.pages.taxes.features.f4": {
-    "es": "Exenciones fiscales por cliente o categoría",
-    "en": "Exemptions by customer or category",
-    "pt": "Isenções por cliente ou categoria"
-  },
-  "settings.pages.taxes.features.f5": {
-    "es": "Reportes de declaración de impuestos",
-    "en": "Tax return reports",
-    "pt": "Relatórios de declaração de impostos"
+  "settings.pages.taxes.subtitle": {
+    "es": "Tu condición de contribuyente y las cuentas donde se registran impuestos y retenciones.",
+    "en": "Your taxpayer status and the accounts taxes and withholdings post to.",
+    "pt": "Sua condição de contribuinte e as contas em que impostos e retenções são lançados."
   },
   "settings.pages.taxes.title": {
     "es": "Reglas de impuestos",
@@ -2345,6 +2155,466 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "settings.sections.base_currency": {
+    "es": "Moneda base",
+    "en": "Base currency",
+    "pt": "Moeda base"
+  },
+  "settings.sections.base_currency_label": {
+    "es": "Moneda de los libros (código ISO)",
+    "en": "Books currency (ISO code)",
+    "pt": "Moeda dos livros (código ISO)"
+  },
+  "settings.sections.base_currency_locked": {
+    "es": "Ya hay asientos en esta moneda: cambiarla reescribiría toda la contabilidad, así que está bloqueada.",
+    "en": "There are entries in this currency already: changing it would rewrite all the books, so it is locked.",
+    "pt": "Já há lançamentos nesta moeda: mudá-la reescreveria toda a contabilidade, então está bloqueada."
+  },
+  "settings.sections.base_currency_open": {
+    "es": "Todavía puedes cambiarla: se bloquea con el primer asiento.",
+    "en": "You can still change it: it locks with the first entry.",
+    "pt": "Você ainda pode mudá-la: ela é bloqueada com o primeiro lançamento."
+  },
+  "settings.sections.choose_account": {
+    "es": "Busca una cuenta",
+    "en": "Search an account",
+    "pt": "Busque uma conta"
+  },
+  "settings.sections.closing_links": {
+    "es": "El cierre de cada período se hace desde Contabilidad:",
+    "en": "Each period is closed from Accounting:",
+    "pt": "O fechamento de cada período é feito em Contabilidade:"
+  },
+  "settings.sections.currencies_links": {
+    "es": "Las monedas activas y sus tasas se gestionan en Maestros:",
+    "en": "Active currencies and their rates are managed in Masters:",
+    "pt": "As moedas ativas e suas taxas são gerenciadas em Cadastros:"
+  },
+  "settings.sections.expects_type": {
+    "es": "Cuenta de tipo {{type}}.",
+    "en": "An account of type {{type}}.",
+    "pt": "Uma conta do tipo {{type}}."
+  },
+  "settings.sections.fields.accounts_payable": {
+    "es": "Cuentas por pagar",
+    "en": "Accounts payable",
+    "pt": "Contas a pagar"
+  },
+  "settings.sections.fields.accounts_receivable": {
+    "es": "Cuentas por cobrar",
+    "en": "Accounts receivable",
+    "pt": "Contas a receber"
+  },
+  "settings.sections.fields.accounts_receivable_help": {
+    "es": "Donde se registra lo que te deben los clientes al emitir una factura.",
+    "en": "Where what customers owe is recorded when an invoice is issued.",
+    "pt": "Onde se registra o que os clientes devem ao emitir uma fatura."
+  },
+  "settings.sections.fields.accumulated_depreciation_account": {
+    "es": "Depreciación acumulada",
+    "en": "Accumulated depreciation",
+    "pt": "Depreciação acumulada"
+  },
+  "settings.sections.fields.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "settings.sections.fields.bank_fees_account": {
+    "es": "Comisiones bancarias",
+    "en": "Bank fees",
+    "pt": "Tarifas bancárias"
+  },
+  "settings.sections.fields.cash": {
+    "es": "Caja",
+    "en": "Cash",
+    "pt": "Caixa"
+  },
+  "settings.sections.fields.cost_of_goods_sold": {
+    "es": "Costo de ventas",
+    "en": "Cost of goods sold",
+    "pt": "Custo das mercadorias vendidas"
+  },
+  "settings.sections.fields.customer_advances_account": {
+    "es": "Anticipos de clientes",
+    "en": "Customer advances",
+    "pt": "Adiantamentos de clientes"
+  },
+  "settings.sections.fields.customer_advances_account_help": {
+    "es": "Lo cobrado de más o por adelantado: es una deuda con el cliente hasta que se aplica.",
+    "en": "Money received in excess or in advance: a debt to the customer until applied.",
+    "pt": "O recebido a mais ou antecipado: é uma dívida com o cliente até ser aplicado."
+  },
+  "settings.sections.fields.depreciation_expense_account": {
+    "es": "Gasto por depreciación",
+    "en": "Depreciation expense",
+    "pt": "Despesa de depreciação"
+  },
+  "settings.sections.fields.exchange_rate_type": {
+    "es": "Tasa con la que se contabiliza",
+    "en": "Rate the books use",
+    "pt": "Taxa usada na contabilidade"
+  },
+  "settings.sections.fields.exchange_rate_type_help": {
+    "es": "La oficial es la que exige la autoridad fiscal en la mayoría de los países.",
+    "en": "The official one is what the tax authority requires in most countries.",
+    "pt": "A oficial é a exigida pela autoridade fiscal na maioria dos países."
+  },
+  "settings.sections.fields.excise_tax_payable": {
+    "es": "Impuesto selectivo por pagar",
+    "en": "Excise tax payable",
+    "pt": "Imposto seletivo a pagar"
+  },
+  "settings.sections.fields.fiscal_archive_after_years": {
+    "es": "Conservar documentos fiscales (años)",
+    "en": "Keep fiscal documents (years)",
+    "pt": "Guardar documentos fiscais (anos)"
+  },
+  "settings.sections.fields.fiscal_archive_after_years_help": {
+    "es": "Mínimo legal habitual: 5 a 10 años según el país.",
+    "en": "Usual legal minimum: 5 to 10 years depending on the country.",
+    "pt": "Mínimo legal usual: 5 a 10 anos conforme o país."
+  },
+  "settings.sections.fields.forex_gain_loss_account": {
+    "es": "Diferencial cambiario",
+    "en": "Foreign exchange gain or loss",
+    "pt": "Variação cambial"
+  },
+  "settings.sections.fields.forex_gain_loss_account_help": {
+    "es": "Recibe la diferencia entre la tasa de la factura y la del cobro o pago.",
+    "en": "Receives the difference between the invoice's rate and the payment's.",
+    "pt": "Recebe a diferença entre a taxa da fatura e a do recebimento ou pagamento."
+  },
+  "settings.sections.fields.fx_rate_max_age_days": {
+    "es": "Antigüedad máxima de una tasa (días)",
+    "en": "Maximum age of a rate (days)",
+    "pt": "Idade máxima de uma taxa (dias)"
+  },
+  "settings.sections.fields.fx_rate_max_age_days_help": {
+    "es": "Una tasa más vieja que esto se rechaza en lugar de aplicarse.",
+    "en": "A rate older than this is refused rather than applied.",
+    "pt": "Uma taxa mais antiga que isso é recusada em vez de aplicada."
+  },
+  "settings.sections.fields.fx_rate_tolerance": {
+    "es": "Desviación permitida de la tasa",
+    "en": "Allowed rate deviation",
+    "pt": "Desvio permitido da taxa"
+  },
+  "settings.sections.fields.fx_rate_tolerance_help": {
+    "es": "Cuánto puede apartarse una tasa escrita a mano de la publicada.",
+    "en": "How far a typed rate may stray from the published one.",
+    "pt": "Quanto uma taxa digitada pode se afastar da publicada."
+  },
+  "settings.sections.fields.goods_received_not_invoiced_account": {
+    "es": "Mercancía recibida no facturada",
+    "en": "Goods received not invoiced",
+    "pt": "Mercadoria recebida não faturada"
+  },
+  "settings.sections.fields.goods_received_not_invoiced_account_help": {
+    "es": "Puente entre la recepción de una orden de compra y la factura del proveedor.",
+    "en": "Bridge between a purchase order receipt and the supplier's bill.",
+    "pt": "Ponte entre o recebimento de um pedido e a fatura do fornecedor."
+  },
+  "settings.sections.fields.inflation_adjustment_account": {
+    "es": "Ajuste por inflación",
+    "en": "Inflation adjustment",
+    "pt": "Ajuste por inflação"
+  },
+  "settings.sections.fields.inflation_adjustment_account_help": {
+    "es": "Solo en países que reexpresan estados financieros por inflación.",
+    "en": "Only in countries that restate financial statements for inflation.",
+    "pt": "Apenas em países que reajustam demonstrações pela inflação."
+  },
+  "settings.sections.fields.intercompany_payable_account": {
+    "es": "Cuentas por pagar intercompañía",
+    "en": "Intercompany payable",
+    "pt": "Contas a pagar intercompanhia"
+  },
+  "settings.sections.fields.intercompany_payable_account_help": {
+    "es": "Lo que esta empresa debe a otras del grupo.",
+    "en": "What this company owes other group companies.",
+    "pt": "O que esta empresa deve a outras do grupo."
+  },
+  "settings.sections.fields.intercompany_receivable_account": {
+    "es": "Cuentas por cobrar intercompañía",
+    "en": "Intercompany receivable",
+    "pt": "Contas a receber intercompanhia"
+  },
+  "settings.sections.fields.intercompany_receivable_account_help": {
+    "es": "Lo que otras empresas del grupo deben a esta; se elimina al consolidar.",
+    "en": "What other group companies owe this one; eliminated on consolidation.",
+    "pt": "O que outras empresas do grupo devem a esta; eliminado na consolidação."
+  },
+  "settings.sections.fields.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "settings.sections.fields.inventory_adjustment_account": {
+    "es": "Ajustes de inventario",
+    "en": "Inventory adjustments",
+    "pt": "Ajustes de estoque"
+  },
+  "settings.sections.fields.inventory_adjustment_account_help": {
+    "es": "Recibe faltantes, sobrantes y revaluaciones de costo.",
+    "en": "Receives shortages, surpluses and cost revaluations.",
+    "pt": "Recebe faltas, sobras e reavaliações de custo."
+  },
+  "settings.sections.fields.opening_balance_equity_account": {
+    "es": "Patrimonio de apertura",
+    "en": "Opening balance equity",
+    "pt": "Patrimônio de abertura"
+  },
+  "settings.sections.fields.opening_balance_equity_account_help": {
+    "es": "Contrapartida de los saldos iniciales al empezar a usar el sistema.",
+    "en": "Offset for opening balances when you start using the system.",
+    "pt": "Contrapartida dos saldos iniciais ao começar a usar o sistema."
+  },
+  "settings.sections.fields.payment_term_days": {
+    "es": "Plazo de pago predeterminado (días)",
+    "en": "Default payment term (days)",
+    "pt": "Prazo de pagamento padrão (dias)"
+  },
+  "settings.sections.fields.payment_term_days_help": {
+    "es": "Se propone en clientes y facturas nuevos; cada uno puede cambiarlo.",
+    "en": "Proposed on new customers and invoices; each can change it.",
+    "pt": "Proposto em novos clientes e faturas; cada um pode alterá-lo."
+  },
+  "settings.sections.fields.purchase_tax": {
+    "es": "ITBIS / IVA en compras",
+    "en": "Purchase tax (input)",
+    "pt": "Imposto sobre compras"
+  },
+  "settings.sections.fields.purchase_tax_help": {
+    "es": "El impuesto pagado en compras que puedes descontar.",
+    "en": "Tax paid on purchases that you can credit.",
+    "pt": "O imposto pago em compras que pode ser compensado."
+  },
+  "settings.sections.fields.retained_earnings_account": {
+    "es": "Resultados acumulados",
+    "en": "Retained earnings",
+    "pt": "Lucros acumulados"
+  },
+  "settings.sections.fields.retained_earnings_account_help": {
+    "es": "Recibe la utilidad o pérdida del año al cerrar el ejercicio.",
+    "en": "Receives the year's profit or loss when the fiscal year closes.",
+    "pt": "Recebe o lucro ou prejuízo do ano no fechamento do exercício."
+  },
+  "settings.sections.fields.sales_discounts": {
+    "es": "Descuentos sobre ventas",
+    "en": "Sales discounts",
+    "pt": "Descontos sobre vendas"
+  },
+  "settings.sections.fields.sales_revenue": {
+    "es": "Ingresos por ventas",
+    "en": "Sales revenue",
+    "pt": "Receita de vendas"
+  },
+  "settings.sections.fields.sales_tax": {
+    "es": "ITBIS / IVA por pagar",
+    "en": "Sales tax payable",
+    "pt": "Imposto sobre vendas a pagar"
+  },
+  "settings.sections.fields.service_charge_payable": {
+    "es": "Propina legal por pagar",
+    "en": "Service charge payable",
+    "pt": "Taxa de serviço a pagar"
+  },
+  "settings.sections.fields.service_revenue": {
+    "es": "Ingresos por servicios",
+    "en": "Service revenue",
+    "pt": "Receita de serviços"
+  },
+  "settings.sections.fields.tax_withheld_payable": {
+    "es": "Retenciones por pagar",
+    "en": "Withholdings payable",
+    "pt": "Retenções a pagar"
+  },
+  "settings.sections.fields.tax_withheld_payable_help": {
+    "es": "Lo que retienes a tus proveedores y debes entregar a la autoridad.",
+    "en": "What you withhold from suppliers and owe the authority.",
+    "pt": "O que você retém dos fornecedores e deve à autoridade."
+  },
+  "settings.sections.fields.tax_withheld_receivable": {
+    "es": "Retenciones a favor",
+    "en": "Withholdings receivable",
+    "pt": "Retenções a recuperar"
+  },
+  "settings.sections.fields.tax_withheld_receivable_help": {
+    "es": "Lo que tus clientes te retienen: se descuenta en tu declaración.",
+    "en": "What customers withhold from you: credited in your return.",
+    "pt": "O que seus clientes retêm de você: compensado na sua declaração."
+  },
+  "settings.sections.fields.taxpayer_type": {
+    "es": "Tipo de contribuyente",
+    "en": "Taxpayer type",
+    "pt": "Tipo de contribuinte"
+  },
+  "settings.sections.fields.taxpayer_type_help": {
+    "es": "Decide qué retenciones te aplican tus clientes.",
+    "en": "Decides which withholdings your customers apply to you.",
+    "pt": "Define quais retenções seus clientes aplicam a você."
+  },
+  "settings.sections.go_closing_checklist": {
+    "es": "Lista de cierre",
+    "en": "Closing checklist",
+    "pt": "Lista de fechamento"
+  },
+  "settings.sections.go_currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "settings.sections.go_periods": {
+    "es": "Períodos contables",
+    "en": "Accounting periods",
+    "pt": "Períodos contábeis"
+  },
+  "settings.sections.go_structure": {
+    "es": "Estructura Empresarial",
+    "en": "Company structure",
+    "pt": "Estrutura empresarial"
+  },
+  "settings.sections.go_tax_rates": {
+    "es": "Tasas de impuesto",
+    "en": "Tax rates",
+    "pt": "Alíquotas"
+  },
+  "settings.sections.groups.assets_equity": {
+    "es": "Activos fijos y patrimonio",
+    "en": "Fixed assets and equity",
+    "pt": "Ativo imobilizado e patrimônio"
+  },
+  "settings.sections.groups.cash": {
+    "es": "Caja y bancos",
+    "en": "Cash and banks",
+    "pt": "Caixa e bancos"
+  },
+  "settings.sections.groups.closing": {
+    "es": "Cierre del ejercicio",
+    "en": "Year-end close",
+    "pt": "Fechamento do exercício"
+  },
+  "settings.sections.groups.fx": {
+    "es": "Diferencias de cambio",
+    "en": "Exchange differences",
+    "pt": "Diferenças de câmbio"
+  },
+  "settings.sections.groups.intercompany": {
+    "es": "Cuentas intercompañía",
+    "en": "Intercompany accounts",
+    "pt": "Contas intercompanhia"
+  },
+  "settings.sections.groups.inventory": {
+    "es": "Cuentas de inventario",
+    "en": "Inventory accounts",
+    "pt": "Contas de estoque"
+  },
+  "settings.sections.groups.purchases": {
+    "es": "Compras",
+    "en": "Purchases",
+    "pt": "Compras"
+  },
+  "settings.sections.groups.sales": {
+    "es": "Ventas y cobros",
+    "en": "Sales and collections",
+    "pt": "Vendas e recebimentos"
+  },
+  "settings.sections.groups.tax_accounts": {
+    "es": "Cuentas de impuestos",
+    "en": "Tax accounts",
+    "pt": "Contas de impostos"
+  },
+  "settings.sections.intercompany_links": {
+    "es": "Las empresas del grupo se registran en:",
+    "en": "The group's companies are registered in:",
+    "pt": "As empresas do grupo são registradas em:"
+  },
+  "settings.sections.inventory_valuation_note": {
+    "es": "El inventario se valora a costo promedio ponderado; los mínimos y puntos de reorden se fijan en cada producto.",
+    "en": "Stock is valued at weighted average cost; minimums and reorder points are set on each product.",
+    "pt": "O estoque é avaliado pelo custo médio ponderado; mínimos e pontos de reposição são definidos em cada produto."
+  },
+  "settings.sections.load_failed": {
+    "es": "No se pudo cargar esta configuración.",
+    "en": "These settings could not be loaded.",
+    "pt": "Não foi possível carregar esta configuração."
+  },
+  "settings.sections.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "settings.sections.not_stated": {
+    "es": "Sin indicar",
+    "en": "Not stated",
+    "pt": "Não informado"
+  },
+  "settings.sections.policies": {
+    "es": "Políticas",
+    "en": "Policies",
+    "pt": "Políticas"
+  },
+  "settings.sections.rate_type.buy": {
+    "es": "Compra del banco",
+    "en": "Bank buy",
+    "pt": "Compra do banco"
+  },
+  "settings.sections.rate_type.market": {
+    "es": "De mercado",
+    "en": "Market",
+    "pt": "De mercado"
+  },
+  "settings.sections.rate_type.official": {
+    "es": "Oficial (autoridad fiscal)",
+    "en": "Official (tax authority)",
+    "pt": "Oficial (autoridade fiscal)"
+  },
+  "settings.sections.rate_type.sell": {
+    "es": "Venta del banco",
+    "en": "Bank sell",
+    "pt": "Venda do banco"
+  },
+  "settings.sections.save_failed": {
+    "es": "No se pudieron guardar los cambios.",
+    "en": "The changes could not be saved.",
+    "pt": "Não foi possível salvar as alterações."
+  },
+  "settings.sections.saved": {
+    "es": "Cambios guardados.",
+    "en": "Changes saved.",
+    "pt": "Alterações salvas."
+  },
+  "settings.sections.taxes_links": {
+    "es": "Las tasas de cada impuesto se gestionan en Maestros:",
+    "en": "Each tax's rates are managed in Masters:",
+    "pt": "As alíquotas de cada imposto são gerenciadas em Cadastros:"
+  },
+  "settings.sections.taxpayer_type.company": {
+    "es": "Persona jurídica",
+    "en": "Company",
+    "pt": "Pessoa jurídica"
+  },
+  "settings.sections.taxpayer_type.foreign": {
+    "es": "No residente",
+    "en": "Foreign (non-resident)",
+    "pt": "Não residente"
+  },
+  "settings.sections.taxpayer_type.government": {
+    "es": "Entidad gubernamental",
+    "en": "Government entity",
+    "pt": "Entidade governamental"
+  },
+  "settings.sections.taxpayer_type.individual": {
+    "es": "Persona física",
+    "en": "Individual",
+    "pt": "Pessoa física"
+  },
+  "settings.sections.taxpayer_type.withholding_agent": {
+    "es": "Agente de retención / gran contribuyente",
+    "en": "Withholding agent / large taxpayer",
+    "pt": "Agente de retenção / grande contribuinte"
   },
   "settings.security.2_fa_description": {
     "es": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",

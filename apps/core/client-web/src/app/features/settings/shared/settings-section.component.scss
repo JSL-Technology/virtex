@@ -1,0 +1,37 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host { display: block; }
+
+.ss { display: flex; flex-direction: column; gap: var(--space-6); }
+
+.ss__group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+}
+
+.ss__title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ss__field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ss__label { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+.ss__help { @include ds.field-hint; }
+.ss__input { @include ds.input-base; }
+.ss__input--short { max-width: 10rem; }
+.ss__unit { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+.ss__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.ss__state { color: var(--text-secondary); }
+.ss__state--error { color: var(--error-text); display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }

@@ -1,3 +1,5 @@
+import { OrganizationSettingsController } from './organization-settings.controller';
+import { OrganizationSettingsSectionsService } from './services/organization-settings-sections.service';
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Organization } from './entities/organization.entity';
@@ -38,10 +40,12 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
   ],
-  controllers: [OrganizationsController],
+  // Settings by section (QA M-09). Declared first: its paths are more specific than `:id`.
+  controllers: [OrganizationSettingsController, OrganizationsController],
   providers: [
     OrganizationsService,
     MembershipService,
+    OrganizationSettingsSectionsService,
     // El guard que resuelve la empresa activa vive en plataforma y no puede importar este módulo
     // por dentro. `useExisting` en vez de `useClass` para que sea LA misma instancia y no una
     // segunda con su propio repositorio.

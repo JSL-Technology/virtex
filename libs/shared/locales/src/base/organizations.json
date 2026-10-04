@@ -39,6 +39,56 @@
     "en": "The parent organization was not found.",
     "pt": "Organização controladora não encontrada."
   },
+  "organizations.settings.account_not_usable": {
+    "es": "La cuenta elegida no existe, está inactiva o no admite movimientos.",
+    "en": "The chosen account does not exist, is inactive or does not take postings.",
+    "pt": "A conta escolhida não existe, está inativa ou não aceita lançamentos."
+  },
+  "organizations.settings.account_wrong_type": {
+    "es": "La cuenta {{code}} es de tipo {{actual}}; esta función necesita una cuenta de tipo {{expected}}.",
+    "en": "Account {{code}} is of type {{actual}}; this role needs an account of type {{expected}}.",
+    "pt": "A conta {{code}} é do tipo {{actual}}; esta função precisa de uma conta do tipo {{expected}}."
+  },
+  "organizations.settings.base_currency_locked": {
+    "es": "La moneda base no puede cambiar: ya hay asientos registrados en ella.",
+    "en": "The base currency cannot change: entries are already recorded in it.",
+    "pt": "A moeda base não pode mudar: já há lançamentos registrados nela."
+  },
+  "organizations.settings.currency_code": {
+    "es": "Indica la moneda con su código ISO de tres letras (por ejemplo, DOP).",
+    "en": "Give the currency as its three-letter ISO code (for example, DOP).",
+    "pt": "Informe a moeda com o código ISO de três letras (por exemplo, DOP)."
+  },
+  "organizations.settings.integer_between": {
+    "es": "Debe ser un número entero entre {{min}} y {{max}}.",
+    "en": "It must be a whole number between {{min}} and {{max}}.",
+    "pt": "Deve ser um número inteiro entre {{min}} e {{max}}."
+  },
+  "organizations.settings.invalid_option": {
+    "es": "Ese valor no es una de las opciones admitidas ({{options}}).",
+    "en": "That value is not one of the accepted options ({{options}}).",
+    "pt": "Esse valor não é uma das opções aceitas ({{options}})."
+  },
+  "organizations.settings.not_found": {
+    "es": "La organización todavía no tiene su configuración contable.",
+    "en": "The organization has no accounting configuration yet.",
+    "pt": "A organização ainda não tem sua configuração contábil."
+  },
+  "organizations.settings.number_between": {
+    "es": "Debe ser un número entre {{min}} y {{max}}.",
+    "en": "It must be a number between {{min}} and {{max}}.",
+    "pt": "Deve ser um número entre {{min}} e {{max}}."
+  },
+  "organizations.settings.unknown_field": {
+    "es": "Esta sección no configura «{{field}}».",
+    "en": "This section does not configure “{{field}}”.",
+    "pt": "Esta seção não configura «{{field}}»."
+  },
+  "organizations.settings.unknown_section": {
+    "es": "Esa sección de la configuración no existe.",
+    "en": "That settings section does not exist.",
+    "pt": "Essa seção da configuração não existe."
+  },
   "organizations.subsidiary_country_code": {
     "es": "Indica el país de la subsidiaria con su código ISO de dos letras (por ejemplo, DO).",
     "en": "Give the subsidiary's country as its two-letter ISO code (for example, DO).",
