@@ -24,6 +24,16 @@
     "en": "This concept has already been used in payroll, so it is part of its history. Deactivate it so it is no longer offered.",
     "pt": "Este conceito já foi usado em folhas de pagamento, então faz parte do histórico. Desative-o para que não seja mais oferecido."
   },
+  "payroll.concept_multiplier_too_high": {
+    "es": "El multiplicador por hora no puede pasar de 10 (las horas extra van de 1.35 a 2).",
+    "en": "The hourly multiplier cannot exceed 10 (overtime runs from 1.35 to 2).",
+    "pt": "O multiplicador por hora não pode passar de 10 (as horas extras vão de 1,35 a 2)."
+  },
+  "payroll.concept_rate_is_a_fraction": {
+    "es": "Una tasa porcentual se escribe como fracción: 0.03 es el 3 %, así que no puede pasar de 1.",
+    "en": "A percentage rate is written as a fraction: 0.03 is 3 %, so it cannot exceed 1.",
+    "pt": "Uma taxa percentual é escrita como fração: 0,03 é 3 %, então não pode passar de 1."
+  },
   "payroll.concept_with_code_p1_already_exists": {
     "es": "Ya existe un concepto con el código \"{{p1}}\".",
     "en": "A concept with code \"{{p1}}\" already exists.",
@@ -63,6 +73,11 @@
     "es": "Código",
     "en": "Code",
     "pt": "Código"
+  },
+  "payroll.concepts.code_and_name_required": {
+    "es": "Indica el código y el nombre del concepto.",
+    "en": "Give the concept's code and name.",
+    "pt": "Informe o código e o nome do conceito."
   },
   "payroll.concepts.include_inactive": {
     "es": "Incluir inactivos",

@@ -83,7 +83,20 @@ export class PayrollConceptsPage {
 
   save(): void {
     const draft = this.draft();
-    if (!draft.code?.trim() || !draft.name?.trim()) return;
+    // Said, not swallowed (QA A-15/M-04): the save used to return in silence.
+    if (!draft.code?.trim() || !draft.name?.trim()) {
+      this.notifications.showError('payroll.concepts.code_and_name_required');
+      return;
+    }
+    const rate = draft.rate ?? null;
+    if (rate !== null && draft.calculation === 'PERCENTAGE' && rate > 1) {
+      this.notifications.showError('payroll.concept_rate_is_a_fraction');
+      return;
+    }
+    if (rate !== null && draft.calculation === 'HOURLY' && rate > 10) {
+      this.notifications.showError('payroll.concept_multiplier_too_high');
+      return;
+    }
 
     this.busy.set(true);
     const body = {
