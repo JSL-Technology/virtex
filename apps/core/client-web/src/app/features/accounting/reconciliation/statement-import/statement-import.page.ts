@@ -1,3 +1,4 @@
+import { VxFileInputComponent } from '../../../../shared/components/file-input/file-input.component';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -30,7 +31,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
+  imports: [VxFileInputComponent, CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

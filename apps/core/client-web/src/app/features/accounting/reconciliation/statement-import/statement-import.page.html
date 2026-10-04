@@ -30,10 +30,10 @@
           />
         </label>
 
-        <label class="field">
+        <div class="field" role="group" [attr.aria-label]="'accounting.reconciliation.import.csv_file' | translate">
           <span>{{ 'accounting.reconciliation.import.csv_file' | translate }} *</span>
-          <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
-        </label>
+          <vx-file-input accept=".csv,text/csv" (changed)="onFileSelected($event)" />
+        </div>
 
         <label class="field" for="startDate">
           <span>{{ 'reports.common.from' | translate }} *</span>

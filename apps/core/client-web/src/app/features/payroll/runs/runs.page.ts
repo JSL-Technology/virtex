@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -14,6 +14,9 @@ import {
   PayrollService,
 } from '../../../core/api/payroll.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 /**
  * Lo que significa cada estado de una nómina, no de qué color se pinta.
@@ -43,12 +46,15 @@ const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollRunsPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.runs(), { period: (run) => run.periodStart, runType: (run) => this.translate.instant('payroll.runs.type_label.' + run.runType), status: (run) => this.translate.instant('payroll.runs.status_label.' + run.status) });
   private readonly payroll = inject(PayrollService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);

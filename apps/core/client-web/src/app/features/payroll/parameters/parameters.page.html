@@ -119,7 +119,7 @@
           <span>{{ 'payroll.parameters.key' | translate }}</span>
           <select [value]="draft.key" (change)="patchReference({ key: $any($event.target).value })">
             <option value="MIN_WAGE_COTIZABLE">
-              {{ 'payroll.parameters.key_label.minimum_contributory_wage' | translate }}
+              {{ 'payroll.parameters.key_label.min_wage_cotizable' | translate }}
             </option>
             <option value="ISR_ANNUAL_EXEMPT">
               {{ 'payroll.parameters.key_label.isr_annual_exempt' | translate }}

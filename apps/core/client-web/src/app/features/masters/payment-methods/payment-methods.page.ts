@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { LucideAngularModule, Landmark } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PAYMENT_FORMS } from '../../../core/services/accounts-payable';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The forms of payment a fiscal document may declare.
@@ -24,12 +25,15 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-payment-methods-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './payment-methods.page.html',
   styleUrls: ['./payment-methods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentMethodsPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.methods, { name: (method) => this.translate.instant(method.labelKey) });
   protected readonly BankIcon = Landmark;
   private readonly locale = inject(LocaleStore);
 

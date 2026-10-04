@@ -34,22 +34,22 @@
     </form>
 
     @if (domains().length > 0) {
-      <table class="table">
+      <table [appSort]="domainsTable.sort" class="table">
         <thead>
           <tr>
-            <th>{{ 'settings.sso.domain' | translate }}</th>
-            <th>{{ 'settings.sso.status' | translate }}</th>
+            <th appSortHeader="domain">{{ 'settings.sso.domain' | translate }}</th>
+            <th appSortHeader="verified">{{ 'settings.sso.status' | translate }}</th>
             <th>{{ 'settings.sso.dns_record_txt' | translate }}</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          @for (d of domains(); track d.id) {
+          @for (d of domainsTable.rows(); track d.id) {
             <tr>
               <td class="mono">{{ d.domain }}</td>
               <td>
                 <vx-badge [tone]="d.verified ? 'ok' : 'warning'">
-                  {{ d.verified ? 'Verificado' : 'Pendiente' }}
+                  {{ (d.verified ? 'settings.sso.domain_verified' : 'settings.sso.domain_pending') | translate }}
                 </vx-badge>
               </td>
               <td>
@@ -139,18 +139,18 @@
     }
 
     @if (providers().length > 0) {
-      <table class="table">
+      <table [appSort]="providersTable.sort" class="table">
         <thead>
           <tr>
-            <th>{{ 'settings.sso.name' | translate }}</th>
-            <th>{{ 'settings.sso.issuer' | translate }}</th>
-            <th>{{ 'settings.sso.redirect_uri' | translate }}</th>
-            <th>{{ 'settings.sso.status' | translate }}</th>
+            <th appSortHeader="name">{{ 'settings.sso.name' | translate }}</th>
+            <th appSortHeader="issuerUrl">{{ 'settings.sso.issuer' | translate }}</th>
+            <th appSortHeader="redirectUri">{{ 'settings.sso.redirect_uri' | translate }}</th>
+            <th appSortHeader="enabled">{{ 'settings.sso.status' | translate }}</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          @for (p of providers(); track p.id) {
+          @for (p of providersTable.rows(); track p.id) {
             <tr>
               <td style="font-weight: 600; color: var(--text-primary);">{{ p.name }}</td>
               <td class="mono small">{{ p.issuerUrl }}</td>
@@ -160,7 +160,7 @@
               </td>
               <td>
                 <vx-badge [tone]="p.enabled ? 'ok' : 'warning'">
-                  {{ p.enabled ? 'Activo' : 'Inactivo' }}
+                  {{ (p.enabled ? 'common.status_active' : 'common.status_inactive') | translate }}
                 </vx-badge>
               </td>
               <td class="row-actions">
@@ -168,7 +168,7 @@
                 <button type="button" class="btn btn-sm"
                         [disabled]="!p.enabled && !hasVerifiedDomain()"
                         (click)="toggleEnabled(p)">
-                  {{ p.enabled ? 'Desactivar' : 'Activar' }}
+                  {{ (p.enabled ? 'common.deactivate' : 'common.activate') | translate }}
                 </button>
                 <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">{{ 'settings.sso.delete' | translate }}</button>
               </td>

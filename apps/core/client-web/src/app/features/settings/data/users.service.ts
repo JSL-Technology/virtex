@@ -139,6 +139,11 @@ export class UsersService {
     return this.http.post<User>(`${this.apiUrl}/invite`, userData);
   }
 
+  /** A new invitation link for a member who has not activated their account yet. */
+  resendInvitation(userId: string): Observable<{ email: string; expiresAt: string }> {
+    return this.http.post<{ email: string; expiresAt: string }>(`${this.apiUrl}/${userId}/resend-invitation`, {});
+  }
+
   setUserStatus(userId: string, status: string): Observable<User> {
       return this.http.patch<User>(`${this.apiUrl}/${userId}/status`, {
         status,

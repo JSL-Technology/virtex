@@ -1,4 +1,5 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { NotFoundError } from '../../i18n/localized.exception';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
@@ -29,7 +30,7 @@ export class LifecycleController {
     if (!lifecycle) {
       // 404 y no una respuesta vacía: «este documento no declara su vida» y «este documento no
       // existe» son cosas distintas, y la interfaz decide distinto ante cada una.
-      throw new NotFoundException(`Sin ciclo de vida declarado para "${documentType}"`);
+      throw new NotFoundError('shared.lifecycle_not_declared', { documentType });
     }
     return lifecycle;
   }

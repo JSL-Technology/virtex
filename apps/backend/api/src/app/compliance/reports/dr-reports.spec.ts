@@ -181,6 +181,23 @@ describe('DGII periodic reports', () => {
       expect(columns[16]).toBe('02'); // tipo de retención en ISR
       expect(columns[17]).toBe('100.00');
     });
+
+    it('refuses to produce a file the DGII would reject, naming the bills without a supplier id (QA B-02)', async () => {
+      await expect(
+        DominicanRepublicReports.generate606Report(
+          'org-1', 2026, 8,
+          repositoryOf([
+            bill(),
+            bill({ id: 'bill-2', ncf: 'B0100000002', vendor: { taxId: null, name: 'Sin RNC SRL' } as never }),
+            bill({ id: 'bill-3', ncf: 'B0100000003', vendor: { taxId: '130862347', name: 'Dígito malo SRL' } as never }),
+          ]),
+          organization,
+        ),
+      ).rejects.toMatchObject({
+        messageKey: 'compliance.report_606_supplier_tax_id_missing',
+        params: { count: 2, bills: 'B0100000002 (Sin RNC SRL), B0100000003 (Dígito malo SRL)' },
+      });
+    });
   });
 
   describe('608 — comprobantes anulados', () => {

@@ -134,6 +134,11 @@
     "en": "a cash sale must declare at least one payment method",
     "pt": "uma venda à vista deve declarar ao menos uma forma de pagamento"
   },
+  "einvoicing.do.certificate_expired": {
+    "es": "El certificado digital venció el {{expiredOn}}. Carga el certificado renovado antes de transmitir.",
+    "en": "The digital certificate expired on {{expiredOn}}. Upload the renewed certificate before transmitting.",
+    "pt": "O certificado digital venceu em {{expiredOn}}. Carregue o certificado renovado antes de transmitir."
+  },
   "einvoicing.do.certificate_file_empty": {
     "es": "El archivo del certificado está vacío.",
     "en": "The certificate file is empty.",
@@ -353,6 +358,16 @@
     "es": "\"{{value}}\" no tiene el formato de un e-NCF (E + 12 dígitos)",
     "en": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
     "pt": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)"
+  },
+  "einvoicing.do.void_range_already_issued": {
+    "es": "Los e-NCF anteriores a {{current}} ya fueron emitidos y no pueden anularse por rango; emite una nota de crédito sobre el comprobante correspondiente.",
+    "en": "The e-NCFs before {{current}} were already issued and cannot be voided as a range; issue a credit note against the document instead.",
+    "pt": "Os e-NCF anteriores a {{current}} já foram emitidos e não podem ser anulados por faixa; emita uma nota de crédito sobre o documento correspondente."
+  },
+  "einvoicing.do.void_range_must_start_at_next": {
+    "es": "La anulación debe comenzar en el siguiente número disponible ({{current}}); anular un tramo intermedio dejaría números inalcanzables sin declarar.",
+    "en": "The void must start at the next available number ({{current}}); voiding a middle stretch would leave unreachable numbers undeclared.",
+    "pt": "A anulação deve começar no próximo número disponível ({{current}}); anular um trecho intermediário deixaria números inalcançáveis sem declarar."
   },
   "einvoicing.document_document_has_no_fiscal_number": {
     "es": "El documento {document} no tiene número fiscal asignado. La numeración interna no sirve: la autoridad sólo reconoce el número del rango que autorizó.",

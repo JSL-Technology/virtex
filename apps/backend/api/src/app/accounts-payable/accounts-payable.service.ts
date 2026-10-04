@@ -44,6 +44,7 @@ import {
   AccountBalancesService,
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
+import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
 
 export interface AgingBucket {
   label: string;
@@ -230,11 +231,12 @@ export class AccountsPayableService {
       // designation that changed this morning.
       const supplier = await manager.findOne(Supplier, {
         where: { id: dto.vendorId, organizationId },
-        select: ['id', 'taxpayerType', 'country'],
+        select: ['id', 'name', 'taxpayerType', 'country', 'taxId'],
       });
       if (!supplier) {
         throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
       }
+      await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
 
       await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
@@ -326,6 +328,32 @@ export class AccountsPayableService {
     });
   }
 
+  /**
+   * A purchase with a Dominican NCF names a supplier the DGII can identify (QA B-02).
+   *
+   * The 606 reports every such purchase against the supplier's RNC or cédula, and a line without
+   * one is rejected by the DGII — so a bill was accepted that the month's 606 could not file, and
+   * the ITBIS on it could not be claimed. Checked by algorithm, not by presence: a mistyped RNC
+   * fails at the DGII just the same. Outside the Dominican Republic the NCF field is not a DGII
+   * comprobante and nothing here applies.
+   */
+  private async assertFiscalIdentity(
+    manager: EntityManager,
+    organizationId: string,
+    ncf: string | null | undefined,
+    supplier: Pick<Supplier, 'name' | 'taxId'> | null | undefined,
+  ): Promise<void> {
+    if (!ncf?.trim()) return;
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    if ((organization?.country ?? '').toUpperCase() !== 'DO') return;
+    if (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId)) {
+      throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
+        supplier: supplier?.name ?? '',
+        ncf: ncf.trim(),
+      });
+    }
+  }
+
   async update(
     id: string,
     dto: UpdateVendorBillDto,
@@ -352,7 +380,9 @@ export class AccountsPayableService {
     organizationId: string,
     actorUserId: string,
   ): Promise<VendorBill> {
-    return this.dataSource.transaction(async (manager) => {
+    // Announced once the bill has committed: its approvers are told about a request that exists.
+    let raisedRequestId: string | null = null;
+    const submitted = await this.dataSource.transaction(async (manager) => {
       const bill = await manager.findOne(VendorBill, {
         where: { id: billId, organizationId },
         relations: ['lines', 'vendor'],
@@ -367,6 +397,8 @@ export class AccountsPayableService {
           'accounts_payable.only_draft_invoices_can_submitted_approval',
         );
       }
+      // Again here: a draft's supplier and NCF can both change after it was created.
+      await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor);
 
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;
@@ -395,6 +427,7 @@ export class AccountsPayableService {
       );
 
       if (approvalRequest) {
+        raisedRequestId = approvalRequest.id;
         bill.status = VendorBillStatus.PENDING_APPROVAL;
         bill.approvalRequestId = approvalRequest.id;
         return manager.save(bill);
@@ -404,6 +437,8 @@ export class AccountsPayableService {
       // rather than announced to an event handler that swallowed its own failures.
       return this.postApprovedBill(manager, bill, organizationId, actorUserId);
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return submitted;
   }
 
   /**

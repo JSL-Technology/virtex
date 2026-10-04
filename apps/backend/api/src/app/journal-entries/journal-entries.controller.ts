@@ -29,7 +29,7 @@ import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { JournalEntryListQueryDto } from './dto/journal-entry-list-query.dto';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import {
   UpdateJournalEntryDto,
@@ -64,7 +64,7 @@ export class JournalEntriesController {
 
   @Get()
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: JournalEntryListQueryDto) {
     return this.journalEntriesService.findAll(user.organizationId, query);
   }
 

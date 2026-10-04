@@ -12,25 +12,25 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'purchasing.requisitions.requisition' | translate }}</th>
+          <th appSortHeader="number">{{ 'purchasing.requisitions.requisition' | translate }}</th>
           <!--
             The "department" column is gone: the data model never had one, so it showed a value
             invented in the browser. What it shows instead is how many things were asked for, which
             is the figure an approver actually scans the list for.
           -->
-          <th class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
-          <th>{{ 'purchasing.requisitions.date' | translate }}</th>
-          <th>{{ 'purchasing.requisitions.required_date' | translate }}</th>
-          <th class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
-          <th class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
+          <th appSortHeader="items" class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
+          <th appSortHeader="createdAt">{{ 'purchasing.requisitions.date' | translate }}</th>
+          <th appSortHeader="requiredDate">{{ 'purchasing.requisitions.required_date' | translate }}</th>
+          <th appSortHeader="totalAmount" class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (req of requisitions(); track req.id) {
-          <tr>
+        @for (req of table.rows(); track req.id) {
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/purchasing/requisitions', req.id, 'edit']" class="table-link">
                 {{ req.number }}

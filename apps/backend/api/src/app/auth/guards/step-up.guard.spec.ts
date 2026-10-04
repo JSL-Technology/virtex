@@ -7,6 +7,9 @@ import { StepUpGuard } from './step-up.guard';
 import { StepUp } from '../decorators/step-up.decorator';
 import { StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
+import { SetMetadata } from '@nestjs/common';
+import { PLATFORM_PERMISSIONS_KEY } from '../../security/decorators/platform-permission.decorator';
+import { PLATFORM_PERMISSIONS } from '../../security/platform-permissions';
 
 /**
  * What StepUpGuard answers, and what the browser needs from the answer.
@@ -48,6 +51,28 @@ describe('StepUpGuard', () => {
       messageKey: 'auth.step_up_authentication_required',
       params: { scope: StepUpScope.MOVE_FUNDS },
     });
+  });
+
+  /**
+   * QA M-13: a tenant administrator registering an extension re-entered their password and then
+   * got 403 — the platform right was checked after the proof was asked for.
+   */
+  it('asks no proof of someone the platform route will refuse anyway', async () => {
+    class Controller {
+      @SetMetadata(PLATFORM_PERMISSIONS_KEY, [PLATFORM_PERMISSIONS.EXTENSIONS_PUBLISH])
+      @StepUp(StepUpScope.PUBLISH_EXTENSION)
+      register(): string {
+        return 'registered';
+      }
+    }
+    const tenantAdmin = contextFor(Controller.prototype.register, { user: { id: 'u1', permissions: ['*'] }, cookies: {} });
+    await expect(guard.canActivate(tenantAdmin)).resolves.toBe(true);
+
+    const operator = contextFor(Controller.prototype.register, {
+      user: { id: 'u2', permissions: [PLATFORM_PERMISSIONS.EXTENSIONS_PUBLISH] },
+      cookies: {},
+    });
+    await expect(guard.canActivate(operator)).rejects.toMatchObject({ messageKey: 'auth.step_up_authentication_required' });
   });
 
   it('asks only when the declared condition holds', async () => {

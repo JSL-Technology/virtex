@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 export interface VarianceItem {
   accountCode: string;
@@ -44,12 +45,14 @@ export interface VarianceItem {
 @Component({
   selector: 'app-variance-analysis-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './variance-analysis.page.html',
   styleUrls: ['./variance-analysis.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VarianceAnalysisPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.variances());
   protected readonly FilterIcon = Filter;
   protected readonly ExportIcon = FileDown;
   protected readonly PositiveIcon = ArrowDown;

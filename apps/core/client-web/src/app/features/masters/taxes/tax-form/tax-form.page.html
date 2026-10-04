@@ -1,6 +1,6 @@
 <vx-draft-shell
   [title]="(isEditMode() ? 'masters.tax_form.title_edit' : 'masters.tax_form.title_new') | translate"
-  [subtitle]="'masters.tax_form.configure_new_tax_rate_your_transactions' | translate"
+  [subtitle]="(isEditMode() ? 'masters.tax_form.subtitle_edit' : 'masters.tax_form.configure_new_tax_rate_your_transactions') | translate"
   [dirty]="taxForm.dirty"
   [saving]="isLoading()"
   [invalid]="taxForm.invalid"
@@ -27,7 +27,7 @@
           <label for="type">{{ 'masters.tax_form.type' | translate }}</label>
           <select id="type" formControlName="type">
             @for (type of taxTypes; track type) {
-              <option [value]="type">{{ type }}</option>
+              <option [value]="type">{{ taxTypeLabel(type) | translate }}</option>
             }
           </select>
         </div>

@@ -24,6 +24,11 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "hcm.departments.name_required": {
+    "es": "Escribe el nombre del departamento.",
+    "en": "Enter the department name.",
+    "pt": "Digite o nome do departamento."
+  },
   "hcm.departments.new": {
     "es": "Nuevo departamento",
     "en": "New department",
@@ -174,6 +179,11 @@
     "en": "Health insurer",
     "pt": "Seguro de saúde"
   },
+  "hcm.employees.form.hire_date_for_salary": {
+    "es": "Indica la fecha de ingreso: el salario inicial rige desde ese día.",
+    "en": "Give the hire date: the starting pay is in force from that day.",
+    "pt": "Informe a data de admissão: o salário inicial vigora a partir desse dia."
+  },
   "hcm.employees.form.holiday": {
     "es": "Vacaciones",
     "en": "Holiday",
@@ -288,6 +298,16 @@
     "en": "Social security number",
     "pt": "Número da segurança social"
   },
+  "hcm.employees.form.starting_pay": {
+    "es": "Salario inicial",
+    "en": "Starting pay",
+    "pt": "Salário inicial"
+  },
+  "hcm.employees.form.starting_pay_help": {
+    "es": "El salario con el que entra, vigente desde la fecha de ingreso. Los cambios posteriores se registran en el historial de pagos. Guardarlo pide confirmar tu identidad.",
+    "en": "The salary the person starts on, in force from the hire date. Later changes are recorded in the pay history. Saving it asks you to confirm your identity.",
+    "pt": "O salário com que a pessoa entra, vigente desde a data de admissão. Alterações posteriores ficam no histórico de pagamentos. Salvá-lo pede que você confirme sua identidade."
+  },
   "hcm.employees.hire_date": {
     "es": "Fecha de ingreso",
     "en": "Hired",
@@ -367,5 +387,10 @@
     "es": "Indica qué tipo de documento estás registrando para {{country}}.",
     "en": "State which kind of document you are recording for {{country}}.",
     "pt": "Indica que tipo de documento estás a registar para {{country}}."
+  },
+  "hcm.initial_compensation_needs_date": {
+    "es": "El salario inicial necesita una fecha de ingreso o de vigencia.",
+    "en": "The starting pay needs a hire date or an effective date.",
+    "pt": "O salário inicial precisa de uma data de admissão ou de vigência."
   }
 }

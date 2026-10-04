@@ -41,11 +41,11 @@ export class GeoService {
     //
     // An unknown location is honest and the UI already renders it as unknown. A fabricated one
     // is worse than no location at all, because it is believed.
+    //
+    // Development included (QA B-02): a session opened from `localhost` read «Santo Domingo»,
+    // which taught the reader that the screen guesses. A developer who needs a country sets
+    // `DEBUG_COUNTRY_OVERRIDE`, which is explicit and says so («Debug City»).
     if (this.isLocalOrPrivate(ip)) {
-      if (this.isDevelopment()) {
-        this.logger.debug(`Local or private IP ${ip}: using the development placeholder location.`);
-        return { country: 'DO', city: 'Santo Domingo', region: 'Distrito Nacional', ll: [18.4861, -69.9312], ip };
-      }
       this.logger.debug(`Local or private IP ${ip}: no location can be determined.`);
       return { country: null, city: null, region: null, ll: null, ip };
     }
@@ -78,12 +78,6 @@ export class GeoService {
 
   private deg2rad(deg: number): number {
     return deg * (Math.PI / 180);
-  }
-
-  /** True only in the environments where a placeholder location is acceptable. */
-  private isDevelopment(): boolean {
-    const env = process.env['NODE_ENV'];
-    return env === undefined || env === 'development' || env === 'test';
   }
 
   /**

@@ -1,3 +1,4 @@
+import { LIFETIME_USAGE_SOURCES } from '../usage-sources';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -73,24 +74,7 @@ export class SaasCronService {
    */
   private async recountLifetimeQuotas(): Promise<void> {
     // resource → the table and column that is its source of truth.
-    const SOURCES: ReadonlyArray<{ resource: SaasResource; sql: string }> = [
-      {
-        resource: SaasResource.USERS,
-        sql: 'SELECT COUNT(*)::int AS n FROM user_organizations WHERE organization_id = $1',
-      },
-      {
-        resource: SaasResource.CUSTOMERS,
-        sql: 'SELECT COUNT(*)::int AS n FROM customers WHERE organization_id = $1',
-      },
-      {
-        resource: SaasResource.SUPPLIERS,
-        sql: 'SELECT COUNT(*)::int AS n FROM suppliers WHERE organization_id = $1',
-      },
-      {
-        resource: SaasResource.SUBSIDIARIES,
-        sql: 'SELECT COUNT(*)::int AS n FROM organization_subsidiaries WHERE parent_organization_id = $1',
-      },
-    ];
+    const SOURCES = LIFETIME_USAGE_SOURCES;
 
     const organizations = await this.orgRepository.find({ select: ['id'] });
     let corrected = 0;

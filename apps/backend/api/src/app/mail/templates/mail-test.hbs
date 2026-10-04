@@ -1,0 +1,9 @@
+{{#> shell title=(t 'mail.mail_test.title') preheader=(t 'mail.mail_test.preheader' company=senderName)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.mail_test.title'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.mail_test.body' company=senderName}}</p>
+{{#if replyTo}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.mail_test.reply_to' address=replyTo}}</p>
+{{/if}}
+{{#> note}}{{t 'mail.mail_test.note'}}{{/note}}
+{{/shell}}

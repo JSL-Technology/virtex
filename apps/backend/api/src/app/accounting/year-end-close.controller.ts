@@ -1,4 +1,5 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { YearEndCloseService } from './year-end-close.service';
@@ -14,6 +15,16 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @Controller('accounting/year-end-close')
 export class YearEndCloseController {
   constructor(private readonly yearEndCloseService: YearEndCloseService) {}
+
+  /** What stands between a fiscal year and its close, and what the close will move. */
+  @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_YEAR)
+  @Get(':fiscalYearId/readiness')
+  readiness(
+    @Param('fiscalYearId', UuidParamPipe) fiscalYearId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.yearEndCloseService.readiness(fiscalYearId, user.organizationId);
+  }
 
   @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_YEAR)
   @Post()

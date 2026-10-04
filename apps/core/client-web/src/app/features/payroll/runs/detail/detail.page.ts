@@ -18,6 +18,8 @@ import {
 } from '../../../../core/api/payroll.service';
 import { Employee, HcmService } from '../../../../core/api/hcm.service';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { refreshWhenStale } from '../../../../core/data/data-version.service';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /**
  * One payroll run, from draft to paid.
@@ -41,12 +43,14 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
 @Component({
   selector: 'app-payroll-run-detail-page',
   standalone: true,
-  imports: [CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollRunDetailPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly payslipsTable = sortable(() => this.payslips());
   private readonly payroll = inject(PayrollService);
   private readonly hcm = inject(HcmService);
   private readonly router = inject(Router);
@@ -69,6 +73,16 @@ export class PayrollRunDetailPage implements OnInit {
   readonly run = signal<PayrollRun | null>(null);
   readonly payslips = signal<Payslip[]>([]);
   readonly inputs = signal<PayrollInput[]>([]);
+  /** Inputs typed and not saved yet: a refresh must never overwrite them. */
+  private readonly inputsDirty = signal(false);
+
+  /**
+   * The run's status, payslips and totals follow an approval or a payment made in another tab
+   * (QA M-06: it read «CALCULADA» after being approved). Not while there are unsaved inputs.
+   */
+  private readonly refresh = refreshWhenStale(() => {
+    if (this.id && !this.inputsDirty()) this.load(this.id);
+  });
   readonly concepts = signal<PayrollConcept[]>([]);
   readonly employees = signal<Employee[]>([]);
   readonly loading = signal(true);
@@ -250,14 +264,17 @@ export class PayrollRunDetailPage implements OnInit {
       ...rows,
       { employeeId: employee.id, conceptCode: concept.code, amount: 0 },
     ]);
+    this.inputsDirty.set(true);
   }
 
   setInput(index: number, patch: Partial<PayrollInput>): void {
     this.inputs.update((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+    this.inputsDirty.set(true);
   }
 
   removeInput(index: number): void {
     this.inputs.update((rows) => rows.filter((_, i) => i !== index));
+    this.inputsDirty.set(true);
   }
 
   saveInputs(): void {
@@ -266,6 +283,7 @@ export class PayrollRunDetailPage implements OnInit {
       next: (rows) => {
         this.busy.set(false);
         this.inputs.set(rows);
+        this.inputsDirty.set(false);
         this.notifications.showSuccess('payroll.runs.inputs_saved');
       },
       error: (error: unknown) => this.fail(error),
@@ -339,6 +357,7 @@ export class PayrollRunDetailPage implements OnInit {
       this.run.set(run);
       this.payslips.set(payslips);
       this.inputs.set(inputs);
+      this.inputsDirty.set(false);
       this.concepts.set(concepts);
       this.employees.set(
         (employees?.rows ?? []).filter((employee) => employee.employmentStatus !== 'TERMINATED'),

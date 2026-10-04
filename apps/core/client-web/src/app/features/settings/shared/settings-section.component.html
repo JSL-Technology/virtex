@@ -1,0 +1,104 @@
+@if (loading()) {
+  <p class="ss__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+} @else if (loadError(); as message) {
+  <div class="ss__state ss__state--error" role="alert">
+    <p>{{ message }}</p>
+    <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+  </div>
+} @else if (view()) {
+  <form class="ss" (ngSubmit)="save()">
+    @if (showBaseCurrency() && view()!.baseCurrency; as base) {
+      <section class="ss__group">
+        <h2 class="ss__title">{{ 'settings.sections.base_currency' | translate }}</h2>
+        <label class="ss__field" for="ss-base-currency">
+          <span class="ss__label">{{ 'settings.sections.base_currency_label' | translate }}</span>
+          <input id="ss-base-currency" type="text" maxlength="3" class="ss__input ss__input--short"
+            [value]="baseCurrencyEdit() ?? base.code"
+            [disabled]="base.locked"
+            (input)="setBaseCurrency($any($event.target).value)" />
+          <small class="ss__help">
+            {{ (base.locked ? 'settings.sections.base_currency_locked' : 'settings.sections.base_currency_open') | translate }}
+          </small>
+        </label>
+      </section>
+    }
+
+    @for (group of groups(); track group.titleKey) {
+      <section class="ss__group">
+        <h2 class="ss__title">{{ group.titleKey | translate }}</h2>
+        @for (item of group.fields; track item.field) {
+          @if (pickers()[item.field]; as picker) {
+            <label class="ss__field" [for]="'ss-' + item.field">
+              <span class="ss__label">{{ item.labelKey | translate }}</span>
+              <vx-select
+                [inputId]="'ss-' + item.field"
+                [ngModel]="accountIdOf(item.field)"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="setAccount(item.field, $event ?? null)"
+                [search]="picker.search"
+                [resolveWith]="picker.resolve"
+                [displayWith]="accountLabel"
+                [valueWith]="accountValue"
+                placeholderKey="settings.sections.choose_account"
+              />
+              <small class="ss__help">
+                @if (item.helpKey) { {{ item.helpKey | translate }} }
+                @if (expectedTypeOf(item.field); as type) {
+                  {{ 'settings.sections.expects_type' | translate: { type: ('accounting.account_type.' + type | translate) } }}
+                }
+              </small>
+            </label>
+          }
+        }
+      </section>
+    }
+
+    @if (policies().length > 0) {
+      <section class="ss__group">
+        <h2 class="ss__title">{{ 'settings.sections.policies' | translate }}</h2>
+        @for (policy of policies(); track policy.field) {
+          <label class="ss__field" [for]="'ss-' + policy.field">
+            <span class="ss__label">{{ policy.labelKey | translate }}</span>
+            @switch (policy.kind) {
+              @case ('select') {
+                <select class="ss__input" [id]="'ss-' + policy.field"
+                  [ngModel]="fieldValueOf(policy.field) ?? ''" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setField(policy.field, $event === '' ? null : $event)">
+                  @if (policy.nullable) { <option value="">{{ 'settings.sections.not_stated' | translate }}</option> }
+                  @for (option of policy.options ?? []; track option) {
+                    <option [value]="option">{{ (policy.optionPrefix + option) | translate }}</option>
+                  }
+                </select>
+              }
+              @case ('percent') {
+                <span class="ss__unit">
+                  <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field"
+                    step="0.01" [min]="policy.min ?? 0" [max]="policy.max ?? 100"
+                    [ngModel]="fieldValueOf(policy.field)" [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="setField(policy.field, $event)" />
+                  <span aria-hidden="true">%</span>
+                </span>
+              }
+              @default {
+                <input type="number" step="1" class="ss__input ss__input--short" [id]="'ss-' + policy.field"
+                  [min]="policy.min ?? 0" [max]="policy.max ?? null"
+                  [ngModel]="fieldValueOf(policy.field)" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setField(policy.field, $event === null ? null : +$event)" />
+              }
+            }
+            @if (policy.helpKey) { <small class="ss__help">{{ policy.helpKey | translate }}</small> }
+          </label>
+        }
+      </section>
+    }
+
+    <div class="ss__actions">
+      <button type="button" class="secondary-button" [disabled]="!dirty() || saving()" (click)="discard()">
+        {{ 'common.discard' | translate }}
+      </button>
+      <button type="submit" class="primary-button" [disabled]="!dirty() || saving()">
+        {{ (saving() ? 'common.saving' : 'common.save_changes') | translate }}
+      </button>
+    </div>
+  </form>
+}

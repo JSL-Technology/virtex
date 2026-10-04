@@ -7,10 +7,15 @@
 
 .view-container {
     @include views.view-container;
+    // The header carries its own gutter and the body had none, so the step cards and the recent
+    // imports table ran edge to edge and past the panel (QA M-11). One gutter for the page.
+    padding: var(--space-6);
+    box-sizing: border-box;
 }
 
 .view-header {
     @include views.view-header;
+    padding: 0;
 }
 
 .card {

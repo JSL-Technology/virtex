@@ -1,3 +1,4 @@
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -102,7 +103,9 @@ export class ErrorHandlerService {
   }
 
   /** Everything a caller needs about a failure, for the call sites that catch it themselves. */
-  describe(error: HttpErrorResponse): AppError {
+  describe(error: HttpErrorResponse | AppError): AppError {
+    // Already described — `AuthService` and others rethrow the AppError from `handleError`.
+    if (isAppError(error)) return error;
     return {
       status: error?.status ?? 0,
       code: this.extractCode(error),
@@ -113,7 +116,8 @@ export class ErrorHandlerService {
   }
 
   /** The sentence alone, for a call site that only needs to show something. */
-  messageFor(error: HttpErrorResponse): string {
+  messageFor(error: HttpErrorResponse | AppError): string {
+    if (isAppError(error)) return error.message;
     return this.resolveMessage(error);
   }
 
@@ -125,7 +129,11 @@ export class ErrorHandlerService {
    * the new language when the reader switches, and a resolved sentence does not. Same order as
    * {@link resolveMessage}.
    */
-  keyFor(error: HttpErrorResponse): string {
+  keyFor(error: HttpErrorResponse | AppError): string {
+    // An error already described carries its key. Re-resolving it as if it were the raw response
+    // found no body, fell back to the status and told a mistyped password "your session expired"
+    // (QA M-12): `AuthService.login` rethrows the described error, not the HttpErrorResponse.
+    if (isAppError(error)) return error.messageKey;
     return resolveErrorKey(error, (key) => this.has(key));
   }
 
@@ -185,6 +193,13 @@ export class ErrorHandlerService {
         .map((d) => `${this.translate.instant(d.label)}: ${d.count}`)
         .join(', ');
     }
+    // A list of catalogue keys — what is missing before invoicing, for instance — read as one
+    // phrase in the reader's language. The server sends keys, never prose (QA A-17).
+    for (const [name, value] of Object.entries(params)) {
+      if (name !== 'dependents' && Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+        params[name] = (value as string[]).map((item) => translateOrLiteral(this.translate, item)).join('; ');
+      }
+    }
     return params;
   }
 
@@ -205,8 +220,10 @@ export class ErrorHandlerService {
       const params = { ...(entry.params ?? {}) };
       // `property` carries the field's own label KEY, so it is translated before interpolation —
       // otherwise the sentence reads "validation.fields.tax_id is required".
+      // A label key when the API has one, otherwise the field already said in words: shown as it
+      // is. `instant` on a non-key returned «[[taxRate]]» (QA A-17).
       if (typeof params['property'] === 'string') {
-        params['property'] = this.translate.instant(params['property'] as string);
+        params['property'] = translateOrLiteral(this.translate, params['property'] as string);
       }
       const message = this.translate.instant(entry.key, params);
       const field = entry.property || '_';
@@ -215,4 +232,16 @@ export class ErrorHandlerService {
     return out;
   }
 
+}
+
+/** An error `ErrorHandlerService.handleError` has already described and rethrown. */
+export function isAppError(value: unknown): value is AppError {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !(value instanceof HttpErrorResponse) &&
+    typeof (value as AppError).messageKey === 'string' &&
+    typeof (value as AppError).status === 'number' &&
+    'fieldErrors' in (value as object)
+  );
 }

@@ -121,6 +121,24 @@ describe('CustomerReceiptFormPage', () => {
     httpMock.verify();
   });
 
+  // QA M-07: a 5,000 invoice added to a 3,640 receipt applied 5,000 and showed «No aplicado −1,360».
+  it('applies what is left of the money received, not the whole balance', () => {
+    pickCustomer();
+    component.form.patchValue({ amountReceived: 3_640 });
+    component.addInvoice(component.openInvoices()[0]);
+
+    expect(component.lines.at(0).value.amount).toBe(3_640);
+    expect(component.totals().unapplied).toBe(0);
+    httpMock.verify();
+  });
+
+  it('applies the whole balance while nothing received has been entered', () => {
+    pickCustomer();
+    component.addInvoice(component.openInvoices()[0]);
+    expect(component.lines.at(0).value.amount).toBe(11_800);
+    httpMock.verify();
+  });
+
   it('settles an invoice from an advance, with no cash received', () => {
     pickCustomer([{ currencyCode: 'DOP', amount: 20_000, baseAmount: 20_000 }]);
     component.addInvoice(component.openInvoices()[0]);

@@ -3,7 +3,7 @@
   [count]="concepts().length"
   [empty]="isEmpty()"
 >
-  <button listActions type="button" class="primary-button" [disabled]="busy()" (click)="startCreate()">
+  <button listActions type="button" class="primary-button" [disabled]="busy()" appRequires="payroll:manage" (click)="startCreate()">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'payroll.concepts.new' | translate }}</span>
   </button>
@@ -83,20 +83,20 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'payroll.concepts.code' | translate }}</th>
-          <th>{{ 'payroll.concepts.name' | translate }}</th>
-          <th>{{ 'payroll.concepts.type' | translate }}</th>
-          <th>{{ 'payroll.concepts.calculation' | translate }}</th>
-          <th class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
-          <th class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
+          <th appSortHeader="code">{{ 'payroll.concepts.code' | translate }}</th>
+          <th appSortHeader="name">{{ 'payroll.concepts.name' | translate }}</th>
+          <th appSortHeader="type">{{ 'payroll.concepts.type' | translate }}</th>
+          <th appSortHeader="calculation">{{ 'payroll.concepts.calculation' | translate }}</th>
+          <th appSortHeader="rate" class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
+          <th appSortHeader="taxable" class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (concept of concepts(); track concept.id) {
+        @for (concept of table.rows(); track concept.id) {
           <tr [class.is-inactive]="!concept.active">
             <td><code>{{ concept.code }}</code></td>
             <td>{{ concept.name }}</td>

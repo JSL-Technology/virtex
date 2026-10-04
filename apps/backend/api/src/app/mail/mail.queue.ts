@@ -47,6 +47,15 @@ export interface MailJob {
    * callers (an invoice PDF is tens of kilobytes); anything large belongs in storage with a link.
    */
   attachments?: Array<{ filename: string; contentBase64: string; contentType: string }>;
+  /**
+   * The name shown as sender, for a document a company sends its own customer. The address stays
+   * the platform's (`MAIL_FROM_ADDRESS`): that is the domain SPF and DKIM vouch for.
+   */
+  fromName?: string | null;
+  /** Where the recipient's answer goes — the company, not the platform. */
+  replyTo?: string | null;
+  /** A blind copy for the sender's own records. */
+  bcc?: string | null;
 }
 
 /**

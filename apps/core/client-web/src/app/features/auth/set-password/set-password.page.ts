@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
+import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
@@ -56,6 +57,8 @@ export class SetPasswordPage implements OnInit {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
+  private readonly notifications = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly icons = { Lock, AlertCircle };
 
@@ -96,6 +99,11 @@ export class SetPasswordPage implements OnInit {
      if (control?.touched && control.errors) {
          if (control.errors['required']) return 'register.errors.required';
          if (control.errors['minlength']) return 'register.errors.password_length';
+         // The strong-password rule's own codes were never mapped, so a weak password left the
+         // button disabled with nothing on screen saying why (QA M-02). The checklist below the
+         // field names each rule; this line says that one of them is not met yet.
+         const unmet = ['minLength', 'maxLength', 'missingUppercase', 'missingLowercase', 'missingNumberOrSpecial', 'strongPassword'];
+         if (unmet.some((code) => control.errors?.[code])) return 'auth.set_password.password_requirements_unmet';
      }
      return '';
   }
@@ -120,15 +128,20 @@ export class SetPasswordPage implements OnInit {
                 next: () => {
                     this.router.navigate(['/overview']);
                 },
-                error: (err: any) => {
+                error: (err: unknown) => {
                     this.isLoading = false;
-                    this.errorMessage = err.message || this.translate.instant('errors.set_password');
+                    // Not `err.message`: on an HttpErrorResponse that is Angular's English
+                    // "Http failure response for …". The reason the server gave, in the reader's
+                    // language (an expired invitation, a breached password…).
+                    this.errorMessage = this.notifications.httpErrorMessage(err, 'errors.set_password');
+                    this.cdr.markForCheck();
                 }
             });
         },
         error: () => {
             this.isLoading = false;
             this.errorMessage = this.translate.instant('errors.recaptcha');
+            this.cdr.markForCheck();
         }
     });
   }

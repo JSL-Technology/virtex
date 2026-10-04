@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -10,6 +10,8 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../../core/api/units-of
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The units products are counted, weighed and measured in.
@@ -27,12 +29,15 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnitsOfMeasurePage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.units(), { name: (unit) => this.translate.instant(unit.nameKey) });
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly api = inject(UnitsOfMeasureService);

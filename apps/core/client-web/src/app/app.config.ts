@@ -4,6 +4,7 @@ import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/ro
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHighcharts } from 'highcharts-angular';
+import { provideChartLanguage } from './core/i18n/chart-language';
 import {
   MissingTranslationHandler,
   provideTranslateService,
@@ -31,6 +32,7 @@ import { watchRecaptchaScript } from './core/auth/recaptcha-token';
 import { API_URL } from './core/tokens/api-url.token';
 import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
 import { activeOrganizationInterceptor } from './core/tenancy/active-organization.interceptor';
+import { dataVersionInterceptor } from './core/data/data-version.interceptor';
 
 const CORE_PROVIDERS = [
   // Resolve the session before the first route is evaluated, so the guards never see a "pending"
@@ -81,6 +83,8 @@ const CHARTS_PROVIDERS = [
       legend: { enabled: false },
     },
   }),
+  // Menus, loading text and the screen-reader description, in the reader's language (QA M-17).
+  provideChartLanguage(),
 ];
 
 const I18N_PROVIDERS = [
@@ -142,6 +146,8 @@ export const appConfig: ApplicationConfig = {
         stepUpInterceptor,
         activeOrganizationInterceptor,
         idempotencyInterceptor,
+        // Innermost: it must see the response the write actually got, after a step-up retry.
+        dataVersionInterceptor,
       ]),
       withFetch(),
     ),

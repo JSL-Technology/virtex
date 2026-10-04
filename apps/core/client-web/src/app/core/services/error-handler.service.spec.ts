@@ -115,4 +115,54 @@ describe('ErrorHandlerService key resolution', () => {
     expect(translate.instant(key)).not.toContain('salesTotal');
     expect(translate.instant(key)).not.toContain('QueryFailedError');
   });
+
+  /** QA A-17: a field the API names in words must not be "translated" into «[[taxRate]]». */
+  it('shows a field name the catalogue does not hold as it is, and translates one it does', () => {
+    translate.setTranslation('en', {
+      ...CATALOGUE,
+      'validation.constraints.is_number': '{{property}} must be a number.',
+      'validation.fields.amount': 'Amount',
+    });
+    const described = service.describe(
+      failure(400, {
+        statusCode: 400,
+        code: 'VALIDATION_FAILED',
+        messageKey: 'errors.validation_failed',
+        fieldErrors: [
+          { property: 'amount', key: 'validation.constraints.is_number', params: { property: 'validation.fields.amount' } },
+          { property: 'taxRate', key: 'validation.constraints.is_number', params: { property: 'tax rate' } },
+        ],
+      }),
+    );
+    expect(described.fieldErrors['amount']).toEqual(['Amount must be a number.']);
+    expect(described.fieldErrors['taxRate']).toEqual(['tax rate must be a number.']);
+  });
+
+  it('reads a list of keys as one phrase in the reader language', () => {
+    translate.setTranslation('en', {
+      ...CATALOGUE,
+      'invoices.organization_cannot_invoice_yet': 'You cannot invoice yet. Missing: {{missing}}.',
+      'invoices.gaps.sales_journal': 'the sales journal',
+      'invoices.gaps.default_ledger': 'the default ledger',
+    });
+    const message = service.describe(
+      failure(400, {
+        statusCode: 400,
+        code: 'BAD_REQUEST',
+        messageKey: 'invoices.organization_cannot_invoice_yet',
+        params: { missing: ['invoices.gaps.sales_journal', 'invoices.gaps.default_ledger'] },
+      }),
+    ).message;
+    expect(message).toBe('You cannot invoice yet. Missing: the sales journal; the default ledger.');
+  });
+
+  /** QA M-12: a mistyped password was told "your session expired". */
+  it('keeps the key of an error that was already described and rethrown', () => {
+    translate.setTranslation('en', { ...CATALOGUE, 'errors.auth_invalid_credentials': 'Wrong email or password.', 'errors.http_401': 'Session expired.' });
+    const described = service.describe(
+      failure(401, { statusCode: 401, code: 'AUTH_INVALID_CREDENTIALS', messageKey: 'errors.auth_invalid_credentials' }),
+    );
+    expect(service.keyFor(described)).toBe('errors.auth_invalid_credentials');
+    expect(service.describe(described)).toBe(described);
+  });
 });

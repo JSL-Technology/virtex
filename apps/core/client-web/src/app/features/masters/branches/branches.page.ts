@@ -7,6 +7,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { Subsidiary, SubsidiariesService } from '../../../core/api/subsidiaries.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Router } from '@angular/router';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The branches and subsidiaries that make up the organisation.
@@ -25,12 +26,14 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-branches-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './branches.page.html',
   styleUrls: ['./branches.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.branches());
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly api = inject(SubsidiariesService);
@@ -67,6 +70,6 @@ export class BranchesPage implements OnInit {
    * this works from inside a window as well as from the router.
    */
   openCompanyStructure(): void {
-    void this.router.navigate([], { fragment: 'settings/subsidiaries' });
+    void this.router.navigate([], { fragment: 'settings/subsidiaries/new' });
   }
 }

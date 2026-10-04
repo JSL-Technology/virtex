@@ -51,31 +51,31 @@
     }
 
     <div class="table-container card">
-      <table class="data-table">
+      <table [appSort]="table.sort" class="data-table">
         <thead>
           <tr>
-            <th>{{ 'reports.profitability_by_customer.customer_name' | translate }}</th>
-            <th class="text-center">
+            <th appSortHeader="name">{{ 'reports.profitability_by_customer.customer_name' | translate }}</th>
+            <th appSortHeader="unitsSold" class="text-center">
               {{ 'reports.profitability_by_customer.units_sold' | translate }}
             </th>
-            <th class="text-right">
+            <th appSortHeader="totalRevenue" class="text-right">
               {{ 'reports.profitability_by_customer.total_revenue' | translate }}
             </th>
-            <th class="text-right">
+            <th appSortHeader="totalCost" class="text-right">
               {{ 'reports.profitability_by_customer.total_cost' | translate }}
             </th>
-            <th class="text-right">
+            <th appSortHeader="grossProfit" class="text-right">
               {{ 'reports.profitability_by_customer.gross_profit' | translate }}
             </th>
-            <th class="text-right">
+            <th appSortHeader="grossMargin" class="text-right">
               {{ 'reports.profitability_by_customer.gross_margin' | translate }}
             </th>
           </tr>
         </thead>
         <tbody>
-          @for (item of data.rows; track item.id) {
+          @for (item of table.rows(); track item.id) {
             <tr>
-              <td>{{ item.code ? item.code + ' — ' + item.name : item.name }}</td>
+              <td>{{ item.code && item.code !== item.name ? item.code + ' — ' + item.name : item.name }}</td>
               <td class="text-center">{{ item.unitsSold | vxNumber: '1.0-2' }}</td>
               <td class="text-right">{{ item.totalRevenue | vxMoney: data.currency }}</td>
               <td class="text-right">{{ item.totalCost | vxMoney: data.currency }}</td>

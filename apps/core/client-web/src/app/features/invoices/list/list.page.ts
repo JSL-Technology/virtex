@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, PlusCircle, FileSpreadsheet } from 'lucide-angular';
@@ -22,6 +22,11 @@ import {
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
+import { TableSort, VX_SORT } from '../../../shared/components/sort';
+
+type InvoiceSortKey = 'number' | 'customer' | 'issueDate' | 'dueDate' | 'total' | 'status';
 
 /**
  * The invoice list.
@@ -33,13 +38,14 @@ import { VxPagerComponent } from '../../../shared/components/pager';
  * sequential scan of every tenant's invoices. Filtering and pagination now happen in the database,
  * and the page requests one page at a time.
  *
- * Sorting is deliberately server-ordered (newest first) rather than re-sorted client-side: sorting a
- * page of fifty rows by a column reorders that page only, which is worse than not offering it.
+ * Sorting is done by the server (QA B-01): sorting a page of fifty rows by a column would reorder
+ * that page only, which is worse than not offering it. A header click sends the column and returns
+ * to the first page; with no column chosen the order is the server's, newest first.
  */
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +60,8 @@ export class InvoicesListPage implements OnInit {
   private readonly router = inject(Router);
 
   invoices = signal<Invoice[]>([]);
+  /** The server orders the rows; this holds which column and which way (QA B-01). */
+  readonly sort = new TableSort<Invoice, InvoiceSortKey>();
   isLoading = signal(true);
   error = signal<string | null>(null);
   today = new Date().toISOString().split('T')[0];
@@ -93,6 +101,18 @@ export class InvoicesListPage implements OnInit {
       }, 300);
       onCleanup(() => clearTimeout(handle));
     });
+
+    // A new order is a new result set: back to the first page. The first run is the initial
+    // state, which `ngOnInit` already loads.
+    let initial = true;
+    effect(() => {
+      this.sort.state();
+      if (initial) {
+        initial = false;
+        return;
+      }
+      untracked(() => this.applyFilters());
+    });
   }
 
   /** Último término ya enviado al servidor, para no repetir la consulta al restaurar la ventana. */
@@ -121,6 +141,8 @@ export class InvoicesListPage implements OnInit {
       limit: this.limit(),
       search: this.searchTerm() || undefined,
       status: this.statusFilter() === 'All' ? undefined : (this.statusFilter() as InvoiceStatus),
+      sort: this.sort.state().key ?? undefined,
+      direction: this.sort.state().key ? this.sort.state().direction : undefined,
     };
 
     this.invoicesService.getInvoices(query).subscribe({

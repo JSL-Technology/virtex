@@ -7,7 +7,7 @@
   [empty]="isEmpty()"
   (reload)="reload()"
 >
-  <button listActions type="button" class="primary-button" (click)="propose()">
+  <button listActions type="button" class="primary-button" appCanOpen="/accounting/audit-adjustments/new" (click)="propose()">
     <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'audit_adjustments.propose' | translate }}</span>
   </button>
@@ -28,20 +28,20 @@
   </ng-container>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'audit_adjustments.date' | translate }}</th>
-          <th>{{ 'audit_adjustments.fiscal_year' | translate }}</th>
-          <th>{{ 'audit_adjustments.description' | translate }}</th>
-          <th class="text-right">{{ 'audit_adjustments.amount' | translate }}</th>
-          <th>{{ 'audit_adjustments.proposed' | translate }}</th>
-          <th>{{ 'audit_adjustments.state' | translate }}</th>
-          <th class="text-center">{{ 'audit_adjustments.evidence' | translate }}</th>
+          <th appSortHeader="date">{{ 'audit_adjustments.date' | translate }}</th>
+          <th appSortHeader="year">{{ 'audit_adjustments.fiscal_year' | translate }}</th>
+          <th appSortHeader="description">{{ 'audit_adjustments.description' | translate }}</th>
+          <th appSortHeader="amount" class="text-right">{{ 'audit_adjustments.amount' | translate }}</th>
+          <th appSortHeader="proposer">{{ 'audit_adjustments.proposed' | translate }}</th>
+          <th appSortHeader="status">{{ 'audit_adjustments.state' | translate }}</th>
+          <th appSortHeader="evidence" class="text-center">{{ 'audit_adjustments.evidence' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (row of rows(); track row.id) {
+        @for (row of table.rows(); track row.id) {
           <tr>
             <td>{{ row.date | vxDate }}</td>
             <td>{{ yearLabel(row.fiscalYearId) }}</td>

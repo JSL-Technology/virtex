@@ -3,21 +3,27 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillsListPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.vendorBills(), { vendor: (bill) => bill.vendor?.name, status: (bill) => this.translate.instant(this.statusKey(bill.status)) });
   protected readonly PlusCircleIcon = PlusCircle;
 
   private accountsPayableService = inject(AccountsPayableService);

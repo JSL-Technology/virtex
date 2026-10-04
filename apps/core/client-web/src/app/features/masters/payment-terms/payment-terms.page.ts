@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CustomersService } from '../../../core/api/customers.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 interface PaymentTermInUse {
   name: string;
@@ -32,12 +33,14 @@ interface PaymentTermInUse {
 @Component({
   selector: 'app-payment-terms-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './payment-terms.page.html',
   styleUrls: ['./payment-terms.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentTermsPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.terms());
   protected readonly ClockIcon = Clock;
 
   private readonly customers = inject(CustomersService);

@@ -9,6 +9,31 @@
     "en": "Change payment method",
     "pt": "Alterar forma de pagamento"
   },
+  "billing.invoice_status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "billing.invoice_status.open": {
+    "es": "Pendiente de pago",
+    "en": "Awaiting payment",
+    "pt": "Aguardando pagamento"
+  },
+  "billing.invoice_status.paid": {
+    "es": "Pagada",
+    "en": "Paid",
+    "pt": "Paga"
+  },
+  "billing.invoice_status.uncollectible": {
+    "es": "Incobrable",
+    "en": "Uncollectible",
+    "pt": "Incobrável"
+  },
+  "billing.invoice_status.void": {
+    "es": "Anulada",
+    "en": "Void",
+    "pt": "Anulada"
+  },
   "billing.opening_portal": {
     "es": "Abriendo…",
     "en": "Opening…",

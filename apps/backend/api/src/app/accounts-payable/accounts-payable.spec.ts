@@ -156,7 +156,7 @@ describeWithDb('accounts payable', () => {
       dataSource.getRepository(JournalEntryAttachment),
       dataSource,
       {} as never,
-      { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
+      { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() } as never,
       new EventEmitter2(),
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
@@ -177,7 +177,7 @@ describeWithDb('accounts payable', () => {
       // al commit antes de publicarlo. El spec seguía pasando el doble de inventario en la
       // posición del DataSource.
       afterCommit,
-      { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
+      { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() } as never,
       { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
       testExchangeRateResolver(dataSource),
       balances,

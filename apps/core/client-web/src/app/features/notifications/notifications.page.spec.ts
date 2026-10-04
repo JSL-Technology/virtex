@@ -8,6 +8,7 @@ class MockNotificationCenterService {
   notifications = signal<Notification[]>([]);
   unreadCount = signal(0);
   markAsRead = jest.fn();
+  open = jest.fn();
   markAllAsRead = jest.fn();
   initialize = jest.fn();
 }
@@ -47,7 +48,7 @@ describe('NotificationsPage', () => {
     expect(notificationElements.length).toBe(mockNotifications.length);
   });
 
-  it('should call markAsRead when a notification is clicked', () => {
+  it('opens the notification when it is clicked (QA B-02)', () => {
     const mockNotifications: Notification[] = [
       { id: '1', title: 'Test 1', body: 'Body 1', read: false, createdAt: new Date().toISOString() }
     ];
@@ -58,7 +59,7 @@ describe('NotificationsPage', () => {
     const notificationElement = fixture.nativeElement.querySelector('.notification-hit');
     expect(notificationElement).not.toBeNull();
     notificationElement.click();
-    expect(notificationService.markAsRead).toHaveBeenCalledWith('1');
+    expect(notificationService.open).toHaveBeenCalledWith(mockNotifications[0]);
   });
 
   it('should call markAllAsRead when the "mark all as read" button is clicked', () => {

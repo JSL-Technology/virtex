@@ -60,6 +60,19 @@ export interface CreateRunInput {
  * books, so `approve` refuses when `approvedBy` would equal `calculatedBy` — the control the audit
  * requires, enforced in the service rather than hoped for in the UI.
  */
+/** A payslip as its employee reads it: with the period and pay date of the run it belongs to. */
+export type OwnPayslip = Omit<Payslip, 'run'> & {
+  period: {
+    year: number;
+    month: number;
+    start: string;
+    end: string;
+    payDate: string;
+    runType: PayrollRunType;
+    currencyCode: string;
+  };
+};
+
 @Injectable()
 export class PayrollRunService {
   private readonly logger = new Logger(PayrollRunService.name);
@@ -501,11 +514,38 @@ export class PayrollRunService {
     });
   }
 
-  /** The payslips of the employee linked to a user account — scopes `PAYROLL_VIEW_OWN` to the caller. */
-  async payslipsForUser(userId: string, organizationId: string): Promise<Payslip[]> {
+  /**
+   * The payslips of the employee linked to a user account — scopes `PAYROLL_VIEW_OWN` to the caller.
+   *
+   * Only from runs that were approved: a draft or calculated run is still being worked on by
+   * payroll, and its figures are not yet anyone's pay. Each one carries the period it pays —
+   * the list showed the person's own name under «Período», because the payslip alone does not
+   * know which month it is.
+   */
+  async payslipsForUser(userId: string, organizationId: string): Promise<OwnPayslip[]> {
     const employee = await this.employees.findOne({ where: { userId, organizationId } });
     if (!employee) return [];
-    return this.payslipsForEmployee(employee.id, organizationId);
+    const slips = await this.payslips.find({
+      where: {
+        organizationId,
+        employeeId: employee.id,
+        run: { status: In([PayrollRunStatus.APPROVED, PayrollRunStatus.PAID]) },
+      },
+      relations: ['lines', 'run'],
+      order: { run: { periodStart: 'DESC', payDate: 'DESC' } },
+    });
+    return slips.map(({ run, ...slip }) => ({
+      ...slip,
+      period: {
+        year: run.periodYear,
+        month: run.periodMonth,
+        start: run.periodStart,
+        end: run.periodEnd,
+        payDate: run.payDate,
+        runType: run.runType,
+        currencyCode: run.currencyCode,
+      },
+    }));
   }
 
   // ── Internals ────────────────────────────────────────────────────────────────

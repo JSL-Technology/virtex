@@ -11,11 +11,12 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 @Component({
   selector: 'app-invoice-selection-dialog',
   standalone: true,
-  imports: [
+  imports: [...VX_SORT, 
     CommonModule,
     FormsModule,
     LucideAngularModule,
@@ -32,6 +33,8 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceSelectionDialogComponent {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.filteredInvoices());
   private readonly invoicesService = inject(InvoicesService);
   private readonly destroyRef = inject(DestroyRef);
 

@@ -12,16 +12,21 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.filteredProducts(), { category: (product) => product.category?.name, status: (product) => (product.status === 'Active' ? (product.stock > 0 ? 0 : 1) : 2) });
   private readonly dialog = inject(DialogService);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);

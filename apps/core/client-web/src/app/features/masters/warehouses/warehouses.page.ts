@@ -10,6 +10,8 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { NotificationService } from '../../../core/services/notification';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Where stock is held.
@@ -27,12 +29,14 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WarehousesPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.warehouses());
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly api = inject(WarehousesService);

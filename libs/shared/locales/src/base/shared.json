@@ -1,4 +1,24 @@
 {
+  "shared.document_sequence_cannot_go_back": {
+    "es": "El próximo número no puede bajar de {{current}}: los anteriores pueden estar ya en documentos emitidos.",
+    "en": "The next number cannot go below {{current}}: earlier ones may already be on issued documents.",
+    "pt": "O próximo número não pode ser menor que {{current}}: os anteriores podem já estar em documentos emitidos."
+  },
+  "shared.document_sequence_next_number_positive": {
+    "es": "El próximo número debe ser un entero positivo.",
+    "en": "The next number must be a positive whole number.",
+    "pt": "O próximo número deve ser um inteiro positivo."
+  },
+  "shared.document_sequence_not_found": {
+    "es": "No existe la secuencia de {{type}}.",
+    "en": "There is no {{type}} sequence.",
+    "pt": "Não existe a sequência de {{type}}."
+  },
+  "shared.document_sequence_prefix_format": {
+    "es": "El prefijo solo admite letras, números, guion, barra y guion bajo, hasta 20 caracteres.",
+    "en": "The prefix allows only letters, digits, dash, slash and underscore, up to 20 characters.",
+    "pt": "O prefixo admite apenas letras, números, hífen, barra e sublinhado, até 20 caracteres."
+  },
   "shared.geo_mismatch_modal.but_you_trying_reach_version": {
     "es": ",\n        pero estás intentando acceder a la versión de",
     "en": ",\n        but you are trying to reach the version for",
@@ -18,6 +38,11 @@
     "es": "Recomendamos cambiar a tu región local para asegurar la configuración fiscal correcta.",
     "en": "We recommend switching to your local region so the tax configuration is correct.",
     "pt": "Recomendamos mudar para sua região local para garantir a configuração fiscal correta."
+  },
+  "shared.lifecycle_not_declared": {
+    "es": "El documento «{{documentType}}» no declara su ciclo de vida.",
+    "en": "The document “{{documentType}}” declares no lifecycle.",
+    "pt": "O documento «{{documentType}}» não declara seu ciclo de vida."
   },
   "shared.live_preview.cancel": {
     "es": "Cancelar",

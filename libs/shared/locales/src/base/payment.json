@@ -34,6 +34,11 @@
     "en": "No valid plan was specified (priceId is missing).",
     "pt": "Nenhum plano válido foi informado (priceId ausente)."
   },
+  "payment.not_configured": {
+    "es": "El sistema de pagos no está configurado. Contacta al administrador.",
+    "en": "Payments are not configured. Contact the administrator.",
+    "pt": "O sistema de pagamentos não está configurado. Contate o administrador."
+  },
   "payment.organization_not_found": {
     "es": "No se encontró la organización.",
     "en": "The organization was not found.",
@@ -127,6 +132,11 @@
     "es": "El usuario no pertenece a ninguna organización.",
     "en": "The user does not belong to any organization.",
     "pt": "O usuário não pertence a nenhuma organização."
+  },
+  "payment.webhook_not_configured": {
+    "es": "El webhook de pagos no está configurado.",
+    "en": "The payments webhook is not configured.",
+    "pt": "O webhook de pagamentos não está configurado."
   },
   "payment.webhook_signature_verification_failed": {
     "es": "Webhook signature verification failed",

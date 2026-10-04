@@ -11,6 +11,7 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The tenant's accounting calendar.
@@ -37,12 +38,14 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 @Component({
   selector: 'app-periods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './periods.page.html',
   styleUrls: ['./periods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.periods(), { status: (period) => this.translate.instant(this.statusKey(period.status)) });
   private readonly dialog = inject(DialogService);
   private readonly periodsApi = inject(AccountingPeriodsService);
   private readonly notifications = inject(NotificationService);

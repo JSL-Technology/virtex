@@ -92,7 +92,7 @@ describe('UsersService', () => {
         { provide: SessionInvalidatorPort, useValue: (sessionInvalidatorMock = { terminateAllSessions: jest.fn() }) },
         { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } },
         // `user_organizations` is written by this service now, not just read by a raw query.
-        { provide: MembershipService, useValue: (membershipMock = { grant: jest.fn(), revoke: jest.fn(), suspend: jest.fn(), reinstate: jest.fn(), isMember: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) }) },
+        { provide: MembershipService, useValue: (membershipMock = { grant: jest.fn(), revoke: jest.fn(), suspend: jest.fn(), reinstate: jest.fn(), isMember: jest.fn().mockResolvedValue(false), hasMembershipRow: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) }) },
         { provide: OrganizationInvitationsService, useValue: (invitationsMock = { invite: jest.fn().mockResolvedValue({ id: 'inv-1' }) }) },
         // The activity log is served from the audit trail now; it used to return a hardcoded [].
         { provide: AuditTrailService, useValue: { findByActor: jest.fn().mockResolvedValue([]), record: jest.fn() } }
@@ -396,6 +396,55 @@ describe('UsersService', () => {
       });
       expect(JSON.stringify(receipt)).not.toContain('+18095550000');
       expect(JSON.stringify(receipt)).not.toContain('admin-a');
+    });
+  });
+
+  describe('inviting somebody already in this organization (QA B-02)', () => {
+    const dto = { email: 'ana@a.test', firstName: 'Ana', lastName: 'Pérez', roleId: 'role-a' };
+    const role = { id: 'role-a', name: 'Viewer', organizationId: 'org-a', permissions: ['x:read'] };
+    const actor = { id: 'admin-a', permissions: ['*'] } as never;
+
+    beforeEach(() => {
+      rolesServiceMock.findOne.mockResolvedValue(role);
+      membershipMock.hasMembershipRow.mockResolvedValue(true);
+    });
+
+    it('says the invitation is already pending, instead of a 201 that sends nothing', async () => {
+      userRepositoryMock.findOne.mockResolvedValue({ id: 'u-1', email: dto.email, status: UserStatus.PENDING, organizationId: 'org-a' });
+      await expect(service.inviteUser(dto as never, 'org-a', actor)).rejects.toMatchObject({
+        messageKey: 'users.invitation_already_pending',
+      });
+      expect(invitationsMock.invite).not.toHaveBeenCalled();
+    });
+
+    it('says the person is already a member', async () => {
+      userRepositoryMock.findOne.mockResolvedValue({ id: 'u-1', email: dto.email, status: UserStatus.ACTIVE, organizationId: 'org-z' });
+      await expect(service.inviteUser(dto as never, 'org-a', actor)).rejects.toMatchObject({ messageKey: 'users.already_member' });
+    });
+  });
+
+  describe('resending an invitation', () => {
+    const actor = { id: 'admin-a', permissions: ['*'] } as never;
+
+    it('rotates the link and sends it again to a pending member', async () => {
+      userRepositoryMock.findOne.mockResolvedValue({ id: 'u-1', email: 'ana@a.test', status: UserStatus.PENDING, roles: [{ id: 'r' }] });
+      userRepositoryMock.update.mockResolvedValue({ affected: 1 });
+
+      const result = await service.resendInvitation('u-1', 'org-a', actor);
+
+      expect(rolesServiceMock.assertCanAssignRole).toHaveBeenCalledWith(actor, { id: 'r' });
+      const [where, patch] = userRepositoryMock.update.mock.calls[0];
+      expect(where).toEqual({ id: 'u-1', organizationId: 'org-a', status: UserStatus.PENDING });
+      expect(patch.invitationToken).toMatch(/^[0-9a-f]{64}$/);
+      const [, rawToken] = mailMock.sendUserInvitation.mock.calls[0];
+      expect(rawToken).not.toBe(patch.invitationToken);
+      expect(result.email).toBe('ana@a.test');
+    });
+
+    it('refuses for an account that is already active', async () => {
+      userRepositoryMock.findOne.mockResolvedValue({ id: 'u-1', email: 'ana@a.test', status: UserStatus.ACTIVE, roles: [] });
+      await expect(service.resendInvitation('u-1', 'org-a', actor)).rejects.toMatchObject({ messageKey: 'users.invitation_not_pending' });
+      expect(mailMock.sendUserInvitation).not.toHaveBeenCalled();
     });
   });
 });

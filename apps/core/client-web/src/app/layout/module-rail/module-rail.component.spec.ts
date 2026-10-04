@@ -96,7 +96,9 @@ describe('ModuleRailComponent', () => {
     expect(el.querySelectorAll('.rail__badge')).toHaveLength(0);
   });
 
-  it('muestra los módulos sin permiso, apagados, en vez de esconderlos', async () => {
+  // QA M-01: a padlocked module still advertised screens the seat could not open, and every click
+  // on one ended in "access denied". The rail shows a role its own work.
+  it('no muestra los módulos en los que el puesto no puede entrar', async () => {
     const el = await render(
       [
         { module: ventas, allowed: true, target: '/invoices' },
@@ -106,10 +108,8 @@ describe('ModuleRailComponent', () => {
     );
 
     const items = el.querySelectorAll('.rail__item');
-    expect(items.length).toBe(2);
-    expect(items[1].classList.contains('rail__item--locked')).toBe(true);
-    expect(items[1].getAttribute('aria-disabled')).toBe('true');
-    expect(items[1].querySelector('.rail__lock')).not.toBeNull();
+    expect(items.length).toBe(1);
+    expect(el.querySelector('.rail__item--locked')).toBeNull();
   });
 
   it('marca el módulo activo, y solo uno', async () => {
@@ -134,13 +134,12 @@ describe('ModuleRailComponent', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/purchase-orders');
   });
 
-  it('no navega a un módulo bloqueado', async () => {
-    // The point of showing it is to inform, not to offer. A door the server will slam is worse
-    // than no door: the user cannot tell a permission problem from a broken screen.
+  it('no ofrece ninguna puerta a un módulo bloqueado', async () => {
+    // A door the server will slam is worse than no door: the user cannot tell a permission
+    // problem from a broken screen.
     const el = await render([{ module: compras, allowed: false, target: null }], ventas);
 
-    (el.querySelector('.rail__item') as HTMLButtonElement).click();
-
+    expect(el.querySelector('.rail__item')).toBeNull();
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 });

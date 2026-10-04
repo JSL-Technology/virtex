@@ -9,6 +9,11 @@
     "en": "Actions",
     "pt": "Ações"
   },
+  "common.activate": {
+    "es": "Activar",
+    "en": "Activate",
+    "pt": "Ativar"
+  },
   "common.are_you_sure": {
     "es": "¿Seguro que quieres continuar?",
     "en": "Are you sure you want to continue?",
@@ -23,6 +28,11 @@
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
+  },
+  "common.choose_file": {
+    "es": "Elegir archivo",
+    "en": "Choose file",
+    "pt": "Escolher arquivo"
   },
   "common.close": {
     "es": "Cerrar",
@@ -53,6 +63,11 @@
     "es": "La fecha inicial es posterior a la final: no hay ningún período entre las dos.",
     "en": "The start date is after the end date, so there is no period between the two.",
     "pt": "A data inicial é posterior à final: não há período entre as duas."
+  },
+  "common.deactivate": {
+    "es": "Desactivar",
+    "en": "Deactivate",
+    "pt": "Desativar"
   },
   "common.delete": {
     "es": "Eliminar",
@@ -279,6 +294,11 @@
     "en": "Next page",
     "pt": "Próxima página"
   },
+  "common.no_file_chosen": {
+    "es": "Ningún archivo seleccionado",
+    "en": "No file chosen",
+    "pt": "Nenhum arquivo selecionado"
+  },
   "common.not_recorded": {
     "es": "Sin registrar",
     "en": "Not recorded",
@@ -335,7 +355,7 @@
     "pt": "A guardar…"
   },
   "common.single_file_expected": {
-    "es": "Single file expected",
+    "es": "Se esperaba un solo archivo",
     "en": "A single file is expected.",
     "pt": "É esperado um único arquivo."
   },
@@ -343,6 +363,21 @@
     "es": "Saltar al contenido principal",
     "en": "Skip to main content",
     "pt": "Ir para o conteúdo principal"
+  },
+  "common.status_active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "common.status_expired": {
+    "es": "Vencido",
+    "en": "Expired",
+    "pt": "Vencido"
+  },
+  "common.status_inactive": {
+    "es": "Inactivo",
+    "en": "Inactive",
+    "pt": "Inativo"
   },
   "common.success": {
     "es": "Listo",

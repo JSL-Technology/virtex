@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import {
@@ -17,6 +17,9 @@ import {
 import { roundAmount, toCents } from '../common/money';
 import { canTransition } from '@virteex/shared/types';
 import { REQUISITION_LIFECYCLE } from './procurement-lifecycles';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';
+import { PERMISSIONS } from '../shared/permissions';
 
 /**
  * Purchase requisitions: somebody in the business asking to buy something.
@@ -42,7 +45,41 @@ export class ProcurementService {
     private readonly requisitionRepository: Repository<PurchaseRequisition>,
     private readonly dataSource: DataSource,
     private readonly numbering: JournalEntryNumberingService,
+    /** Who must approve, and who asked, are told (QA B-02). Optional for hand-built suites. */
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  /** Published after the transaction has committed, by the caller that owns it. */
+  private announce(
+    requisition: PurchaseRequisition,
+    outcome: 'REQUESTED' | 'APPROVED' | 'REJECTED',
+    actorUserId?: string,
+  ): void {
+    const base = {
+      organizationId: requisition.organizationId,
+      requestId: requisition.id,
+      documentType: 'PURCHASE_REQUISITION',
+      documentId: requisition.id,
+      reference: requisition.number,
+      requestedByUserId: requisition.requestedByUserId ?? null,
+    };
+    if (outcome === 'REQUESTED') {
+      const event: ApprovalRequestedEvent = {
+        ...base,
+        amount: Number(requisition.totalAmount ?? 0),
+        permission: PERMISSIONS.PROCUREMENT_APPROVE,
+      };
+      this.events?.emit(APPROVAL_REQUESTED, event);
+      return;
+    }
+    const event: ApprovalDecidedEvent = {
+      ...base,
+      decision: outcome,
+      actorUserId: actorUserId ?? '',
+      reason: requisition.rejectionReason ?? null,
+    };
+    this.events?.emit(APPROVAL_DECIDED, event);
+  }
 
   async findAll(
     organizationId: string,
@@ -123,8 +160,10 @@ export class ProcurementService {
   }
 
   /** Send it for approval. */
-  submit(id: string, organizationId: string): Promise<PurchaseRequisition> {
-    return this.transition(id, organizationId, PurchaseRequisitionStatus.PENDING_APPROVAL);
+  async submit(id: string, organizationId: string): Promise<PurchaseRequisition> {
+    const requisition = await this.transition(id, organizationId, PurchaseRequisitionStatus.PENDING_APPROVAL);
+    this.announce(requisition, 'REQUESTED');
+    return requisition;
   }
 
   async approve(
@@ -132,7 +171,7 @@ export class ProcurementService {
     organizationId: string,
     actorUserId: string,
   ): Promise<PurchaseRequisition> {
-    return this.transition(id, organizationId, PurchaseRequisitionStatus.APPROVED, async (requisition, manager) => {
+    const approved = await this.transition(id, organizationId, PurchaseRequisitionStatus.APPROVED, async (requisition, manager) => {
       // Never your own (QA A-11, as for orders in M-08): a requester approving their own request is
       // no control at all. A one-person company has nobody else to ask, so the rule applies only
       // while the organization has another member.
@@ -149,6 +188,8 @@ export class ProcurementService {
       requisition.decidedAt = new Date();
       requisition.rejectionReason = null;
     });
+    this.announce(approved, 'APPROVED', actorUserId);
+    return approved;
   }
 
   async reject(
@@ -157,11 +198,13 @@ export class ProcurementService {
     actorUserId: string,
     reason: string,
   ): Promise<PurchaseRequisition> {
-    return this.transition(id, organizationId, PurchaseRequisitionStatus.REJECTED, (requisition) => {
+    const rejected = await this.transition(id, organizationId, PurchaseRequisitionStatus.REJECTED, (requisition) => {
       requisition.decidedByUserId = actorUserId;
       requisition.decidedAt = new Date();
       requisition.rejectionReason = reason;
     });
+    this.announce(rejected, 'REJECTED', actorUserId);
+    return rejected;
   }
 
   /** Send a rejected or in-review requisition back to its author to change. */

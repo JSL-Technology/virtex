@@ -1,0 +1,69 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'settings.pages.sequences.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.sequences.subtitle' | translate }}</p>
+  </div>
+
+  @if (loading()) {
+    <p class="seq__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+  } @else if (loadError(); as message) {
+    <div class="seq__state seq__state--error" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else if (rows().length === 0) {
+    <p class="seq__state">{{ 'settings.sequences.empty' | translate }}</p>
+  } @else {
+    <div class="table-container">
+      <table class="seq__table">
+        <thead>
+          <tr>
+            <th>{{ 'settings.sequences.document' | translate }}</th>
+            <th>{{ 'settings.sequences.prefix' | translate }}</th>
+            <th>{{ 'settings.sequences.next_number' | translate }}</th>
+            <th>{{ 'settings.sequences.next_document' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.type) {
+            <tr>
+              <td>{{ 'settings.sequences.type.' + row.type | translate }}</td>
+              <td>
+                <input class="seq__input" type="text" maxlength="20"
+                  [attr.aria-label]="'settings.sequences.prefix' | translate"
+                  [value]="draftOf(row).prefix"
+                  (input)="edit(row, { prefix: $any($event.target).value })" />
+              </td>
+              <td>
+                <input class="seq__input seq__input--number" type="number" min="1" step="1"
+                  [attr.aria-label]="'settings.sequences.next_number' | translate"
+                  [attr.aria-invalid]="goesBack(row)"
+                  [value]="draftOf(row).nextNumber"
+                  (input)="edit(row, { nextNumber: +$any($event.target).value })" />
+                @if (goesBack(row)) {
+                  <small class="seq__error" role="alert">
+                    {{ 'shared.document_sequence_cannot_go_back' | translate: { current: row.nextNumber } }}
+                  </small>
+                }
+              </td>
+              <td><code>{{ preview(row) }}</code></td>
+              <td>
+                <button type="button" class="primary-button"
+                  [disabled]="!changed(row) || goesBack(row) || savingType() === row.type"
+                  (click)="save(row)">
+                  {{ 'common.save' | translate }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <p class="seq__note">
+    {{ 'settings.sequences.fiscal_note' | translate }}
+    <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.sequences.go_fiscal' | translate }}</a>
+  </p>
+</div>

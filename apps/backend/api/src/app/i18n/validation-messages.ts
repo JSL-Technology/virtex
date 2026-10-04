@@ -81,10 +81,36 @@ export function constraintKey(constraint: string): string {
   return composeKey('validation.constraints', constraint);
 }
 
-/** `taxId` → `validation.fields.tax_id`, falling back to the property name itself. */
+/**
+ * The catalogue key naming a field: `taxId` → `validation.fields.tax_id`.
+ *
+ * The LEAF of a path names it: `lines.0.taxRate` was composed whole into `lines_0_tax_rate`, which
+ * no catalogue holds, so every error inside a document line reached the reader as «[[taxRate]]»
+ * (QA A-17).
+ */
+export function fieldLabelKey(property: string): string {
+  const leaf = property.split('.').filter((segment) => !/^\d+$/.test(segment)).pop() ?? property;
+  return composeKey('validation.fields', leaf);
+}
+
+/**
+ * A field with no label yet, said in words rather than as code: `expenseAccountId` → "expense
+ * account". Never the camelCase identifier — a reader cannot act on `expenseAccountId`.
+ */
+export function humanizeProperty(property: string): string {
+  const leaf = property.split('.').filter((segment) => !/^\d+$/.test(segment)).pop() ?? property;
+  return leaf
+    .replace(/Id$/, '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/** `taxId` → its translated label, falling back to the field said in words. */
 export function fieldLabel(i18n: I18nService, property: string, language: LanguageCode): string {
-  const key = composeKey('validation.fields', property);
-  return i18n.has(key) ? i18n.translate(key, language) : property;
+  const key = fieldLabelKey(property);
+  return i18n.has(key) ? i18n.translate(key, language) : humanizeProperty(property);
 }
 
 /**
@@ -280,8 +306,11 @@ export interface FieldError {
  * visible, and therefore fixable, which a silent blank is not.
  */
 export function describeValidationError(i18n: I18nService, error: ValidationError): FieldError[] {
-  const propertyKey = composeKey('validation.fields', error.property);
-  const property = i18n.has(propertyKey) ? propertyKey : error.property;
+  // A key the client translates, or — when there is none — the field already said in words, which
+  // the client shows as it is. Never the bare identifier: translating `taxRate` as a key is what
+  // put «[[taxRate]]» on screen (QA A-17).
+  const propertyKey = fieldLabelKey(error.property);
+  const property = i18n.has(propertyKey) ? propertyKey : humanizeProperty(error.property);
 
   return explanatoryConstraints(error).map(([constraint, fallback]) => {
     const parsed = parseValidationMessage(fallback);

@@ -163,20 +163,20 @@
         <p class="e-empty">{{ 'settings.pages.einvoicing.no_ranges' | translate }}</p>
       } @else {
         <div class="table-wrapper">
-          <table class="data-table">
+          <table [appSort]="table.sort" class="data-table">
             <thead>
               <tr>
-                <th>{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
-                <th>{{ 'settings.pages.einvoicing.series' | translate }}</th>
-                <th>{{ 'settings.pages.einvoicing.range' | translate }}</th>
-                <th>{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
-                <th>{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
-                <th>{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
+                <th appSortHeader="documentType">{{ 'settings.pages.einvoicing.document_type' | translate }}</th>
+                <th appSortHeader="series">{{ 'settings.pages.einvoicing.series' | translate }}</th>
+                <th appSortHeader="startsAt">{{ 'settings.pages.einvoicing.range' | translate }}</th>
+                <th appSortHeader="remaining">{{ 'settings.pages.einvoicing.remaining' | translate }}</th>
+                <th appSortHeader="validUntil">{{ 'settings.pages.einvoicing.valid_until' | translate }}</th>
+                <th appSortHeader="authorizationCode">{{ 'settings.pages.einvoicing.authorization' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              @for (range of ranges(); track range.id) {
+              @for (range of table.rows(); track range.id) {
                 <tr [class.e-inactive]="!range.isActive">
                   <td>{{ range.documentType }}</td>
                   <td>{{ range.series || '—' }}</td>

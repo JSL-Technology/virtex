@@ -74,7 +74,7 @@ export class ProductFormPage implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(255)]],
       sku: [''],
       description: [''],
       categoryId: [null],

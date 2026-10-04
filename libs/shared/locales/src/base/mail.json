@@ -189,6 +189,36 @@
     "en": "Invoice {{number}}",
     "pt": "Fatura {{number}}"
   },
+  "mail.mail_test.body": {
+    "es": "Este mensaje llega como llegarán las facturas y documentos que {{company}} envía a sus clientes: con ese nombre como remitente.",
+    "en": "This message arrives the way invoices and documents that {{company}} sends its customers will: with that name as sender.",
+    "pt": "Esta mensagem chega como chegarão as faturas e documentos que {{company}} envia aos seus clientes: com esse nome como remetente."
+  },
+  "mail.mail_test.note": {
+    "es": "Lo enviaste tú desde Configuración › Correo saliente.",
+    "en": "You sent this yourself from Settings › Outgoing e-mail.",
+    "pt": "Você mesmo enviou isto em Configurações › E-mail de saída."
+  },
+  "mail.mail_test.preheader": {
+    "es": "Así verán tus clientes los documentos de {{company}}.",
+    "en": "This is how your customers will see documents from {{company}}.",
+    "pt": "É assim que seus clientes verão os documentos de {{company}}."
+  },
+  "mail.mail_test.reply_to": {
+    "es": "Si respondes a este correo, la respuesta irá a {{address}}.",
+    "en": "If you reply to this e-mail, the reply goes to {{address}}.",
+    "pt": "Se você responder a este e-mail, a resposta irá para {{address}}."
+  },
+  "mail.mail_test.subject": {
+    "es": "Prueba de correo de {{company}}",
+    "en": "Test e-mail from {{company}}",
+    "pt": "Teste de e-mail de {{company}}"
+  },
+  "mail.mail_test.title": {
+    "es": "Prueba de correo saliente",
+    "en": "Outgoing e-mail test",
+    "pt": "Teste de e-mail de saída"
+  },
   "mail.organization_added.access_new_organization": {
     "es": "Acceso a una nueva organización",
     "en": "Access to a new organization",

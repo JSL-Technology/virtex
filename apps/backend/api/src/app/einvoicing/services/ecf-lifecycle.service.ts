@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -197,16 +197,10 @@ export class EcfLifecycleService {
     const current = Number(sequence.currentSequence);
     const endsAt = Number(sequence.endsAt);
     if (request.from < current) {
-      throw new BadRequestException(
-        `Los e-NCF anteriores a ${current} ya fueron emitidos y no pueden anularse por rango; ` +
-          `emite una nota de crédito sobre el comprobante correspondiente.`,
-      );
+      throw new BadRequestError('einvoicing.do.void_range_already_issued', { current });
     }
     if (request.from > current) {
-      throw new BadRequestException(
-        `La anulación debe comenzar en el siguiente número disponible (${current}); ` +
-          `anular un tramo intermedio dejaría números inalcanzables sin declarar.`,
-      );
+      throw new BadRequestError('einvoicing.do.void_range_must_start_at_next', { current });
     }
     if (request.to > endsAt) {
       throw new BadRequestError('einvoicing.do.authorized_range_ends_ends_you_cannot', { endsAt });
@@ -297,10 +291,9 @@ export class EcfLifecycleService {
       throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_with');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestException(
-        `El certificado digital venció el ${cert.notAfter.toISOString().split('T')[0]}. ` +
-          `Carga el certificado renovado antes de transmitir.`,
-      );
+      throw new BadRequestError('einvoicing.do.certificate_expired', {
+        expiredOn: cert.notAfter.toISOString().split('T')[0],
+      });
     }
     return { loaded: this.vault.load(cert), taxId: digitsOf(org.taxId as string) };
   }

@@ -18,3 +18,9 @@
     justify-content: flex-end;
   }
 }
+
+// Why the save did nothing, next to the field (QA A-15).
+.field-error {
+  font-size: var(--text-sm);
+  color: var(--error-text);
+}

@@ -5,19 +5,25 @@ import { LucideAngularModule, PlusCircle, Edit, Trash2 } from 'lucide-angular';
 import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PriceListsPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.priceLists(), { items: (list) => list.items.length, status: (list) => this.translate.instant('masters.price_lists.status_label.' + list.status) });
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly EditIcon = Edit;

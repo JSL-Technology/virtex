@@ -12,6 +12,11 @@
       "REVENUE",
       "EXPENSE"
     ],
+    "accounting.annual_close.status": [
+      "OPEN",
+      "CLOSED",
+      "LOCKED"
+    ],
     "accounting.cash_flow_category": [
       "OPERATING",
       "INVESTING",
@@ -82,6 +87,30 @@
       "AUDIT_ADJUSTMENT",
       "PURCHASE_ORDER",
       "PURCHASE_REQUISITION"
+    ],
+    "settings.profile.job_titles": [
+      "ceo",
+      "manager",
+      "accountant",
+      "admin",
+      "employee",
+      "other"
+    ],
+    "notifications.document_type": [
+      "vendor_bill",
+      "journal_entry",
+      "audit_adjustment",
+      "period_reopening",
+      "payment_batch",
+      "purchase_order",
+      "purchase_requisition"
+    ],
+    "billing.invoice_status": [
+      "draft",
+      "open",
+      "paid",
+      "uncollectible",
+      "void"
     ],
     "billing.subscription_status": [
       "active",
@@ -271,7 +300,11 @@
       "SALARY_CAPPED",
       "PAYROLL_UNCAPPED"
     ],
-    "payroll.parameters.key_label": [],
+    "payroll.parameters.key_label": [
+      "MIN_WAGE_COTIZABLE",
+      "ISR_ANNUAL_EXEMPT",
+      "BONUS_EMPLOYEE_LEVY_RATE"
+    ],
     "payroll.parameters.regime_label": [
       "AFP",
       "SFS",
@@ -319,6 +352,28 @@
       "JOURNAL_ENTRIES",
       "SUBSIDIARIES"
     ],
+    "saas.resources": [
+      "invoices",
+      "users",
+      "customers",
+      "suppliers",
+      "journal_entries",
+      "subsidiaries"
+    ],
+    "sales.quotes.status": [
+      "DRAFT",
+      "SENT",
+      "ACCEPTED",
+      "REJECTED",
+      "INVOICED",
+      "CANCELLED",
+      "EXPIRED"
+    ],
+    "search.group": [
+      "invoices",
+      "products",
+      "customers"
+    ],
     "settings.fiscal.capability": [
       "accounting",
       "taxDetermination",
@@ -344,6 +399,39 @@
       "implemented",
       "needs-credentials",
       "not-implemented"
+    ],
+    "settings.sections.rate_type": [
+      "OFFICIAL",
+      "MARKET",
+      "BUY",
+      "SELL"
+    ],
+    "settings.sections.taxpayer_type": [
+      "COMPANY",
+      "INDIVIDUAL",
+      "WITHHOLDING_AGENT",
+      "GOVERNMENT",
+      "FOREIGN"
+    ],
+    "settings.security.action": [
+      "CREATE",
+      "UPDATE",
+      "DELETE",
+      "LOGIN",
+      "LOGOUT",
+      "LOGIN_FAILED",
+      "REFRESH",
+      "IMPERSONATE",
+      "READ",
+      "EXPORT"
+    ],
+    "settings.security.entity": [],
+    "settings.sequences.type": [
+      "CUSTOMER_INVOICE",
+      "QUOTE",
+      "CREDIT_NOTE",
+      "VENDOR_BILL",
+      "JOURNAL_ENTRY"
     ],
     "user.role": [
       "ADMINISTRATOR",

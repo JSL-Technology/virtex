@@ -52,29 +52,14 @@
         </div>
 
         <div class="table-container">
-          <table class="data-table">
+          <table [appSort]="sort" class="data-table">
             <thead>
               <tr>
                 <th style="width: 30px"><input type="checkbox" /></th>
-                <th (click)="sortTable('firstName')" tabindex="0" (keydown.enter)="sortTable('firstName')" (keydown.space)="$event.preventDefault(); sortTable('firstName')">
-                  {{ "users.table.name" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'firstName'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
-                <th (click)="sortTable('email')" tabindex="0" (keydown.enter)="sortTable('email')" (keydown.space)="$event.preventDefault(); sortTable('email')">
-                  {{ "users.table.email" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'email'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
+                <th appSortHeader="firstName">{{ "users.table.name" | translate }}</th>
+                <th appSortHeader="email">{{ "users.table.email" | translate }}</th>
                 <th>{{ "users.table.role" | translate }}</th>
-                <th (click)="sortTable('status')" tabindex="0" (keydown.enter)="sortTable('status')" (keydown.space)="$event.preventDefault(); sortTable('status')">
-                  {{ "users.table.status" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'status'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
+                <th appSortHeader="status">{{ "users.table.status" | translate }}</th>
                 <th>{{ "users.table.actions" | translate }}</th>
               </tr>
             </thead>
@@ -139,23 +124,23 @@
           <p class="sent-invitations-hint">{{ 'settings.user_management.sent_invitations_hint' | translate }}</p>
         </div>
         <div class="card-body">
-          <table class="data-table">
+          <table [appSort]="invitationsTable.sort" class="data-table">
             <thead>
               <tr>
-                <th>{{ 'users.table.name' | translate }}</th>
-                <th>{{ 'users.table.email' | translate }}</th>
-                <th>{{ 'users.table.role' | translate }}</th>
-                <th>{{ 'settings.user_management.invitation_expires' | translate }}</th>
+                <th appSortHeader="name">{{ 'users.table.name' | translate }}</th>
+                <th appSortHeader="email">{{ 'users.table.email' | translate }}</th>
+                <th appSortHeader="role">{{ 'users.table.role' | translate }}</th>
+                <th appSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
                 <th>{{ 'users.table.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (invitation of sentInvitations(); track invitation.id) {
+              @for (invitation of invitationsTable.rows(); track invitation.id) {
                 <tr>
                   <td>{{ invitation.firstName }} {{ invitation.lastName }}</td>
                   <td>{{ invitation.email }}</td>
-                  <td>{{ invitation.roleName }}</td>
-                  <td>{{ invitation.expiresAt | date: 'mediumDate' }}</td>
+                  <td>{{ invitation.roleName | vxRoleName }}</td>
+                  <td>{{ invitation.expiresAt | vxDate }}</td>
                   <td>
                     <button
                       type="button"
@@ -258,6 +243,9 @@
 <!-- Context Menu -->
 <div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
   <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'settings.user_management.edit_user' | translate }}</div>
+  @if (contextMenuUser?.status === 'PENDING') {
+    <div class="menu-item" (click)="handleAction('resend-invitation', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resend-invitation', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resend-invitation', contextMenuUser!)"><lucide-icon [name]="MailIcon" size="16"></lucide-icon> {{ 'settings.user_management.resend_invitation' | translate }}</div>
+  }
   <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'settings.user_management.reset_password' | translate }}</div>
   <div class="menu-divider"></div>
   <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'settings.user_management.impersonate_user' | translate }}</div>

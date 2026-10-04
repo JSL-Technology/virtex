@@ -38,6 +38,9 @@ const MAX_DEPTH = 20;
  * a folder deletes its objects from storage, not only its rows — an orphaned object is a
  * confidential file nobody can see and nobody can delete.
  */
+/** Where template uploads are filed. Stored data, like any folder name. */
+export const TEMPLATES_FOLDER_NAME = 'Plantillas';
+
 @Injectable()
 export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
@@ -58,6 +61,8 @@ export class DocumentsService {
   async list(organizationId: string, query: ListDocumentsDto): Promise<Page<DocumentNode>> {
     const paging = resolvePaging(query.page, query.pageSize);
     const searching = Boolean(query.search?.trim());
+    // The templates library is the set of tagged files wherever they are filed, not one folder.
+    const library = Boolean(query.templatesOnly || query.templateType);
 
     const [rows, total] = await this.nodes.findAndCount({
       where: {
@@ -65,7 +70,9 @@ export class DocumentsService {
         // A search spans the tree; without one the listing is the contents of one folder.
         ...(searching
           ? { name: ILike(`%${query.search!.trim()}%`) }
-          : { parentId: query.parentId ? query.parentId : IsNull() }),
+          : library
+            ? {}
+            : { parentId: query.parentId ? query.parentId : IsNull() }),
         ...(query.templateType ? { templateType: query.templateType } : {}),
         ...(query.templatesOnly ? { templateType: Not(DocumentTemplateType.NONE) } : {}),
       },
@@ -141,7 +148,14 @@ export class DocumentsService {
     organizationId: string,
     actorUserId: string,
   ): Promise<DocumentNode> {
-    const parentId = await this.resolveParent(options.parentId, organizationId);
+    const isTemplate = !!options.templateType && options.templateType !== DocumentTemplateType.NONE;
+    // A template uploaded without a folder goes to the templates folder, not the repository's
+    // root: uploading «Factura.docx» as a template was refused because a repository file of that
+    // name already sat at the root — two libraries sharing one namespace (QA M-14).
+    const parentId =
+      isTemplate && !options.parentId
+        ? await this.templatesFolder(organizationId, actorUserId)
+        : await this.resolveParent(options.parentId, organizationId);
     const name = file.fileName.trim();
     if (!name) throw new BadRequestError('documents.name_required');
     await this.assertNameFree(organizationId, parentId, name);
@@ -261,6 +275,31 @@ export class DocumentsService {
       throw new BadRequestError('documents.parent_is_not_a_folder');
     }
     return parent.id;
+  }
+
+  /**
+   * The root folder templates are filed in, created on first use. Found by name: if someone
+   * renames it, the next template upload creates a new one rather than guessing.
+   */
+  private async templatesFolder(organizationId: string, actorUserId: string): Promise<string> {
+    const existing = await this.nodes.findOne({
+      where: { organizationId, parentId: IsNull(), kind: DocumentNodeKind.FOLDER, name: TEMPLATES_FOLDER_NAME },
+    });
+    if (existing) return existing.id;
+    const folder = await this.nodes.save(
+      this.nodes.create({
+        organizationId,
+        parentId: null,
+        kind: DocumentNodeKind.FOLDER,
+        name: TEMPLATES_FOLDER_NAME,
+        storageKey: null,
+        mimeType: null,
+        fileSize: 0,
+        templateType: DocumentTemplateType.NONE,
+        createdByUserId: actorUserId,
+      }),
+    );
+    return folder.id;
   }
 
   private async assertNameFree(

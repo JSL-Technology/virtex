@@ -140,10 +140,25 @@
     "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
     "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
   },
+  "sales.quote_expired_cannot_accept": {
+    "es": "La cotización {{quoteNumber}} venció. Duplícala con fechas nuevas para que el cliente acepte el precio vigente.",
+    "en": "Quote {{quoteNumber}} has expired. Duplicate it with new dates so the customer accepts a current price.",
+    "pt": "A cotação {{quoteNumber}} venceu. Duplique-a com datas novas para que o cliente aceite um preço vigente."
+  },
+  "sales.quote_expiry_before_issue": {
+    "es": "La fecha de validez no puede ser anterior a la de emisión.",
+    "en": "The valid-until date cannot be before the issue date.",
+    "pt": "A data de validade não pode ser anterior à de emissão."
+  },
   "sales.quote_has_no_lines_invoice": {
     "es": "La cotización no tiene líneas que facturar.",
     "en": "The quote has no lines to invoice.",
     "pt": "O orçamento não tem linhas a faturar."
+  },
+  "sales.quote_not_editable": {
+    "es": "La cotización {{quoteNumber}} ya no es un borrador: duplícala para revisarla.",
+    "en": "Quote {{quoteNumber}} is no longer a draft: duplicate it to revise it.",
+    "pt": "A cotação {{quoteNumber}} não é mais um rascunho: duplique-a para revisá-la."
   },
   "sales.quote_not_found": {
     "es": "Cotización no encontrada.",
@@ -154,5 +169,340 @@
     "es": "La cotización {{quoteNumber}} ya fue facturada.",
     "en": "Quote {{quoteNumber}} has already been invoiced.",
     "pt": "O orçamento {{quoteNumber}} já foi faturado."
+  },
+  "sales.quote_rejection_reason_required": {
+    "es": "Indica por qué el cliente rechazó la cotización.",
+    "en": "Say why the customer rejected the quote.",
+    "pt": "Informe por que o cliente rejeitou a cotação."
+  },
+  "sales.quote_transition_not_allowed": {
+    "es": "La cotización {{quoteNumber}} no admite esta acción en su estado actual.",
+    "en": "Quote {{quoteNumber}} does not allow this action in its current state.",
+    "pt": "A cotação {{quoteNumber}} não permite esta ação no estado atual."
+  },
+  "sales.quotes.accept": {
+    "es": "Aceptada por el cliente",
+    "en": "Accepted by the customer",
+    "pt": "Aceita pelo cliente"
+  },
+  "sales.quotes.accepted": {
+    "es": "Cotización {{number}} aceptada.",
+    "en": "Quote {{number}} accepted.",
+    "pt": "Cotação {{number}} aceita."
+  },
+  "sales.quotes.action_failed": {
+    "es": "No se pudo completar la acción sobre la cotización.",
+    "en": "The action on the quote could not be completed.",
+    "pt": "Não foi possível concluir a ação na cotação."
+  },
+  "sales.quotes.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "sales.quotes.all": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "sales.quotes.cancel_message": {
+    "es": "La cotización se retira y conserva su número. Puedes indicar el motivo.",
+    "en": "The quote is withdrawn and keeps its number. You can give the reason.",
+    "pt": "A cotação é retirada e mantém seu número. Você pode informar o motivo."
+  },
+  "sales.quotes.cancel_quote": {
+    "es": "Cancelar cotización",
+    "en": "Cancel quote",
+    "pt": "Cancelar cotação"
+  },
+  "sales.quotes.cancel_title": {
+    "es": "Cancelar cotización",
+    "en": "Cancel quote",
+    "pt": "Cancelar cotação"
+  },
+  "sales.quotes.cancelled": {
+    "es": "Cotización {{number}} cancelada.",
+    "en": "Quote {{number}} cancelled.",
+    "pt": "Cotação {{number}} cancelada."
+  },
+  "sales.quotes.convert": {
+    "es": "Convertir en factura",
+    "en": "Convert to invoice",
+    "pt": "Converter em fatura"
+  },
+  "sales.quotes.convert_failed": {
+    "es": "No se pudo crear la factura desde la cotización.",
+    "en": "The invoice could not be created from the quote.",
+    "pt": "Não foi possível criar a fatura a partir da cotação."
+  },
+  "sales.quotes.convert_message": {
+    "es": "Se creará una factura en borrador con las líneas de la cotización {{number}}. La emites cuando corresponda.",
+    "en": "A draft invoice will be created with the lines of quote {{number}}. You issue it when appropriate.",
+    "pt": "Será criada uma fatura em rascunho com as linhas da cotação {{number}}. Você a emite quando for o caso."
+  },
+  "sales.quotes.convert_title": {
+    "es": "Convertir en factura",
+    "en": "Convert to invoice",
+    "pt": "Converter em fatura"
+  },
+  "sales.quotes.converted": {
+    "es": "La cotización {{number}} ya tiene su factura en borrador.",
+    "en": "Quote {{number}} now has its draft invoice.",
+    "pt": "A cotação {{number}} já tem sua fatura em rascunho."
+  },
+  "sales.quotes.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "sales.quotes.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "sales.quotes.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "sales.quotes.discount": {
+    "es": "Descuento (%)",
+    "en": "Discount (%)",
+    "pt": "Desconto (%)"
+  },
+  "sales.quotes.discount_total": {
+    "es": "Descuentos",
+    "en": "Discounts",
+    "pt": "Descontos"
+  },
+  "sales.quotes.document_discount": {
+    "es": "Descuento general (%)",
+    "en": "Overall discount (%)",
+    "pt": "Desconto geral (%)"
+  },
+  "sales.quotes.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "sales.quotes.duplicated": {
+    "es": "Se creó la cotización {{number}} como borrador.",
+    "en": "Quote {{number}} was created as a draft.",
+    "pt": "A cotação {{number}} foi criada como rascunho."
+  },
+  "sales.quotes.empty_help": {
+    "es": "Una cotización aceptada se convierte en factura con un clic, con los mismos precios e impuestos.",
+    "en": "An accepted quote becomes an invoice in one click, with the same prices and taxes.",
+    "pt": "Uma cotação aceita vira fatura com um clique, com os mesmos preços e impostos."
+  },
+  "sales.quotes.empty_title": {
+    "es": "Aún no hay cotizaciones",
+    "en": "No quotes yet",
+    "pt": "Ainda não há cotações"
+  },
+  "sales.quotes.expired_note": {
+    "es": "Pasó su fecha de validez: no puede aceptarse. Duplícala con fechas nuevas.",
+    "en": "Past its validity date: it cannot be accepted. Duplicate it with new dates.",
+    "pt": "Passou da data de validade: não pode ser aceita. Duplique-a com datas novas."
+  },
+  "sales.quotes.expiry_date": {
+    "es": "Válida hasta",
+    "en": "Valid until",
+    "pt": "Válida até"
+  },
+  "sales.quotes.filter": {
+    "es": "Filtrar por estado",
+    "en": "Filter by state",
+    "pt": "Filtrar por estado"
+  },
+  "sales.quotes.issue_date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "sales.quotes.line_total": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "sales.quotes.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "sales.quotes.lines_required": {
+    "es": "Agrega al menos una línea.",
+    "en": "Add at least one line.",
+    "pt": "Adicione pelo menos uma linha."
+  },
+  "sales.quotes.load_failed": {
+    "es": "No se pudieron cargar las cotizaciones.",
+    "en": "The quotes could not be loaded.",
+    "pt": "Não foi possível carregar as cotações."
+  },
+  "sales.quotes.mark_sent": {
+    "es": "Marcar como enviada",
+    "en": "Mark as sent",
+    "pt": "Marcar como enviada"
+  },
+  "sales.quotes.new": {
+    "es": "Nueva cotización",
+    "en": "New quote",
+    "pt": "Nova cotação"
+  },
+  "sales.quotes.not_in_catalogue": {
+    "es": "Sin producto del catálogo",
+    "en": "Not from the catalogue",
+    "pt": "Sem produto do catálogo"
+  },
+  "sales.quotes.notes": {
+    "es": "Notas para el cliente",
+    "en": "Notes for the customer",
+    "pt": "Notas para o cliente"
+  },
+  "sales.quotes.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "sales.quotes.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "sales.quotes.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "sales.quotes.reason": {
+    "es": "Motivo: {{reason}}",
+    "en": "Reason: {{reason}}",
+    "pt": "Motivo: {{reason}}"
+  },
+  "sales.quotes.reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo de pelo menos 3 caracteres."
+  },
+  "sales.quotes.reject": {
+    "es": "Rechazada por el cliente",
+    "en": "Rejected by the customer",
+    "pt": "Rejeitada pelo cliente"
+  },
+  "sales.quotes.reject_message": {
+    "es": "¿Por qué la rechazó el cliente? Ayuda a ajustar la próxima oferta.",
+    "en": "Why did the customer reject it? It helps shape the next offer.",
+    "pt": "Por que o cliente a rejeitou? Ajuda a ajustar a próxima oferta."
+  },
+  "sales.quotes.reject_placeholder": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "sales.quotes.reject_title": {
+    "es": "Registrar rechazo",
+    "en": "Record rejection",
+    "pt": "Registrar rejeição"
+  },
+  "sales.quotes.rejected": {
+    "es": "Cotización {{number}} rechazada.",
+    "en": "Quote {{number}} rejected.",
+    "pt": "Cotação {{number}} rejeitada."
+  },
+  "sales.quotes.save_failed": {
+    "es": "No se pudo guardar la cotización.",
+    "en": "The quote could not be saved.",
+    "pt": "Não foi possível salvar a cotação."
+  },
+  "sales.quotes.save_first": {
+    "es": "Guarda los cambios antes de enviar o aceptar.",
+    "en": "Save your changes before sending or accepting.",
+    "pt": "Salve as alterações antes de enviar ou aceitar."
+  },
+  "sales.quotes.saved": {
+    "es": "Cotización {{number}} guardada.",
+    "en": "Quote {{number}} saved.",
+    "pt": "Cotação {{number}} salva."
+  },
+  "sales.quotes.sent": {
+    "es": "Cotización {{number}} marcada como enviada.",
+    "en": "Quote {{number}} marked as sent.",
+    "pt": "Cotação {{number}} marcada como enviada."
+  },
+  "sales.quotes.state": {
+    "es": "Estado",
+    "en": "State",
+    "pt": "Estado"
+  },
+  "sales.quotes.status.accepted": {
+    "es": "Aceptada",
+    "en": "Accepted",
+    "pt": "Aceita"
+  },
+  "sales.quotes.status.cancelled": {
+    "es": "Cancelada",
+    "en": "Cancelled",
+    "pt": "Cancelada"
+  },
+  "sales.quotes.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "sales.quotes.status.expired": {
+    "es": "Vencida",
+    "en": "Expired",
+    "pt": "Vencida"
+  },
+  "sales.quotes.status.invoiced": {
+    "es": "Facturada",
+    "en": "Invoiced",
+    "pt": "Faturada"
+  },
+  "sales.quotes.status.rejected": {
+    "es": "Rechazada",
+    "en": "Rejected",
+    "pt": "Rejeitada"
+  },
+  "sales.quotes.status.sent": {
+    "es": "Enviada",
+    "en": "Sent",
+    "pt": "Enviada"
+  },
+  "sales.quotes.subtotal": {
+    "es": "Subtotal",
+    "en": "Subtotal",
+    "pt": "Subtotal"
+  },
+  "sales.quotes.tax": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "sales.quotes.title": {
+    "es": "Cotizaciones",
+    "en": "Quotes",
+    "pt": "Cotações"
+  },
+  "sales.quotes.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "sales.quotes.totals_pending": {
+    "es": "Elige el cliente y completa las líneas para ver los totales con impuestos.",
+    "en": "Choose the customer and complete the lines to see the totals with tax.",
+    "pt": "Escolha o cliente e complete as linhas para ver os totais com impostos."
+  },
+  "sales.quotes.unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "sales.quotes.view_invoice": {
+    "es": "Ver la factura",
+    "en": "View the invoice",
+    "pt": "Ver a fatura"
   }
 }

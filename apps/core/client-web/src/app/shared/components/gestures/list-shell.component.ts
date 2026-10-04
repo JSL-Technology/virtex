@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Search, Inbox, AlertTriangle, RotateCw, X } from 'lucide-angular';
+import { refreshWhenStale } from '../../../core/data/data-version.service';
 
 /**
  * El gesto LIST: encontrar un conjunto de registros.
@@ -38,6 +39,12 @@ import { LucideAngularModule, Search, Inbox, AlertTriangle, RotateCw, X } from '
   styleUrls: ['./list-shell.component.scss'],
 })
 export class ListShellComponent {
+  constructor() {
+    refreshWhenStale(() => {
+      if (this.refreshOnReturn()) this.reload.emit();
+    });
+  }
+
   /** Clave i18n del título. La ventana ya lleva el nombre; esto es el encabezado de la página. */
   readonly titleKey = input.required<string>();
   readonly subtitleKey = input<string | null>(null);
@@ -67,6 +74,13 @@ export class ListShellComponent {
 
   /** Emite cuando el usuario pide recargar tras un error o desde la barra. */
   readonly reload = output<void>();
+
+  /**
+   * Coming back to a list after changing its data elsewhere — paying an invoice from another tab,
+   * approving a run — showed the list as it was (QA M-06). The shell asks for a reload when the
+   * data moved while it was out of sight; every list that binds `(reload)` gets it.
+   */
+  readonly refreshOnReturn = input(true);
 
   /** Filas del esqueleto de carga. Constante para no crear un array nuevo en cada detección. */
   protected readonly SKELETON = [1, 2, 3, 4, 5, 6] as const;

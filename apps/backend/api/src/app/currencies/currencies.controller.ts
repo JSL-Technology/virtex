@@ -12,6 +12,7 @@ import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 import { RequiresPlatformPermission } from '../security/decorators/platform-permission.decorator';
 import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { PERMISSIONS } from '../shared/permissions';
@@ -29,13 +30,17 @@ export class CurrenciesController {
   }
 
   @Get()
-  @HasPermission(PERMISSIONS.CURRENCIES_VIEW)
+  @AuthenticatedOnly(
+    'Currency codes, names and symbols are reference data every document form needs: a seller raising an invoice got 403 and an empty currency picker (QA M-01).',
+  )
   findAll() {
     return this.currenciesService.findAll();
   }
 
   @Get(':id')
-  @HasPermission(PERMISSIONS.CURRENCIES_VIEW)
+  @AuthenticatedOnly(
+    'One currency of the shared reference list, read by any document form that names it; writing the list still requires currencies:manage.',
+  )
   findOne(@Param('id') id: string) {
     return this.currenciesService.findOne(id);
   }

@@ -29,4 +29,11 @@ export class AuditController {
   findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: AuditQueryDto) {
     return this.auditTrailService.find(user.organizationId, query);
   }
+
+  @Get('entities')
+  @HasPermission(PERMISSIONS.AUDIT_VIEW_TRAIL)
+  @ApiOperation({ summary: 'Tipos de entidad presentes en la pista de auditoría, para filtrar.' })
+  entities(@CurrentUser() user: AuthenticatedUser) {
+    return this.auditTrailService.entities(user.organizationId);
+  }
 }

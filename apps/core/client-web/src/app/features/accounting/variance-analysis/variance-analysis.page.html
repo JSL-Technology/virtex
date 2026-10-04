@@ -13,18 +13,18 @@
         </div>
     </div>
     <div class="table-container card">
-        <table class="data-table variance-table">
+        <table [appSort]="table.sort" class="data-table variance-table">
             <thead>
                 <tr>
-                    <th>{{ 'accounting.variance_analysis.account' | translate }}</th>
-                    <th class="text-right">{{ 'accounting.variance_analysis.actual' | translate }}</th>
-                    <th class="text-right">{{ 'accounting.variance_analysis.budget' | translate }}</th>
-                    <th class="text-right">{{ 'accounting.variance_analysis.variance_amount' | translate }}</th>
-                    <th class="text-right">{{ 'accounting.variance_analysis.variance_percent' | translate }}</th>
+                    <th appSortHeader="accountCode">{{ 'accounting.variance_analysis.account' | translate }}</th>
+                    <th appSortHeader="actual" class="text-right">{{ 'accounting.variance_analysis.actual' | translate }}</th>
+                    <th appSortHeader="budget" class="text-right">{{ 'accounting.variance_analysis.budget' | translate }}</th>
+                    <th appSortHeader="varianceAmount" class="text-right">{{ 'accounting.variance_analysis.variance_amount' | translate }}</th>
+                    <th appSortHeader="variancePercent" class="text-right">{{ 'accounting.variance_analysis.variance_percent' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
-                @for (item of variances(); track item.accountCode) {
+                @for (item of table.rows(); track item.accountCode) {
                 <tr>
                     <td>{{ item.accountCode }} - {{ item.accountName }}</td>
                     <td class="text-right">{{ item.actual | vxMoney: item.currencyCode }}</td>

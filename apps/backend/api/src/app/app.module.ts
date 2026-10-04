@@ -93,6 +93,7 @@ import { ProcurementModule } from './procurement/procurement.module';
 import { CostAccountingModule } from './cost-accounting/cost-accounting.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
 import { DataTransferModule } from './data-transfer/data-transfer.module';
+import { DocumentSequencesModule } from './shared/document-sequences/document-sequences.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
 import { SchedulerModule } from './shared/scheduler/scheduler.module';
@@ -354,6 +355,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     CostAccountingModule,
     DatasheetsModule,
     DataTransferModule,
+    // Document numbering, editable from «Configuración › Secuencias» (QA M-09).
+    DocumentSequencesModule,
     IdempotencyModule,
     TenancyModule,
     ExtensionsModule,

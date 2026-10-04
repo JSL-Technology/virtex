@@ -58,27 +58,27 @@
         <span>{{ 'settings.fiscal.certificate_password' | translate }}</span>
         <input type="password" formControlName="password" autocomplete="off" />
       </label>
-      <label>
+      <div class="field" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
         <span>{{ 'settings.fiscal.file_p12_pfx' | translate }}</span>
-        <input type="file" accept=".p12,.pfx" (change)="onFileSelected($event)" />
-      </label>
+        <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
+      </div>
       <button type="submit" [disabled]="uploading()">
         {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
       </button>
     </form>
 
-    <table class="data-table" *ngIf="certificates().length; else noCerts">
+    <table [appSort]="certificatesTable.sort" class="data-table" *ngIf="certificates().length; else noCerts">
       <thead>
-        <tr><th>{{ 'settings.fiscal.alias' | translate }}</th><th>{{ 'settings.fiscal.holder' | translate }}</th><th>{{ 'settings.fiscal.expires' | translate }}</th><th>{{ 'settings.fiscal.status' | translate }}</th><th></th></tr>
+        <tr><th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th><th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th><th appSortHeader="notAfter">{{ 'settings.fiscal.expires' | translate }}</th><th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th><th></th></tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of certificates()">
+        <tr *ngFor="let c of certificatesTable.rows()">
           <td>{{ c.alias }}</td>
           <td>{{ c.subjectCommonName || '—' }}</td>
           <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
           <td>
             <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
-              {{ c.expired ? 'Vencido' : (c.isActive ? 'Activo' : 'Inactivo') }}
+              {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
             </vx-badge>
           </td>
           <td>
@@ -123,20 +123,20 @@
       </button>
     </form>
 
-    <table class="data-table" *ngIf="sequences().length; else noSeq">
+    <table [appSort]="sequencesTable.sort" class="data-table" *ngIf="sequences().length; else noSeq">
       <thead>
-        <tr><th>{{ 'settings.fiscal.type' | translate }}</th><th>{{ 'settings.fiscal.prefix' | translate }}</th><th>{{ 'settings.fiscal.from' | translate }}</th><th>{{ 'settings.fiscal.to' | translate }}</th><th>{{ 'settings.fiscal.current' | translate }}</th><th>{{ 'settings.fiscal.status' | translate }}</th></tr>
+        <tr><th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th appSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th appSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th appSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th appSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
       </thead>
       <tbody>
-        <tr *ngFor="let s of sequences()">
-          <td>{{ s.type }}</td>
+        <tr *ngFor="let s of sequencesTable.rows()">
+          <td>{{ ncfTypeLabel(s.type) | translate }}</td>
           <td>{{ s.prefix }}</td>
           <td>{{ s.startsAt }}</td>
           <td>{{ s.endsAt }}</td>
           <td>{{ s.currentSequence }}</td>
           <td>
             <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
-              {{ s.isActive ? 'Activo' : 'Inactivo' }}
+              {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
             </vx-badge>
           </td>
         </tr>

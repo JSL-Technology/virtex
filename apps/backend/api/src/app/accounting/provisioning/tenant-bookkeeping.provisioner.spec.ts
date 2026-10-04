@@ -4,6 +4,8 @@ import { Ledger } from '../entities/ledger.entity';
 import { Journal } from '../../journal-entries/entities/journal.entity';
 import { TenantBookkeepingProvisioner } from './tenant-bookkeeping.provisioner';
 import { I18nService } from '../../i18n/i18n.service';
+import { FiscalYear } from '../entities/fiscal-year.entity';
+import { AccountingPeriod } from '../entities/accounting-period.entity';
 
 /**
  * What a tenant's own books are named in.
@@ -111,5 +113,18 @@ describeWithDb('tenant bookkeeping provisioning', () => {
 
     expect(portuguese.ledger?.name).toBe('Livro Principal');
     expect(nameOf(portuguese.journals, 'COBROS')).toBe('Diário de Cobranças');
+  });
+  /**
+   * The periods came alone: twelve months and no fiscal year, so the year-end close had nothing
+   * to close for any tenant (QA M-09).
+   */
+  it('opens the calendar year as a fiscal year together with its twelve periods', async () => {
+    const { organizationId } = await provision('es');
+    const year = new Date().getUTCFullYear();
+    const years = await dataSource.getRepository(FiscalYear).findBy({ organizationId });
+    expect(years.map((y) => [String(y.startDate).slice(0, 10), String(y.endDate).slice(0, 10)])).toEqual([
+      [`${year}-01-01`, `${year}-12-31`],
+    ]);
+    expect(await dataSource.getRepository(AccountingPeriod).countBy({ organizationId })).toBe(12);
   });
 });

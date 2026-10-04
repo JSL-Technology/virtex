@@ -1,5 +1,5 @@
 
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, BadRequestException, mixin, Type } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, HttpException, mixin, Type } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { FastifyRequest } from 'fastify';
 import { writeFile } from 'fs/promises';
@@ -88,7 +88,9 @@ export function FastifyFilesInterceptor(fieldName: string, maxCount = 10, option
         delete body[fieldName];
 
       } catch (err) {
-        throw new BadRequestException('File upload failed: ' + (err as Error).message);
+        // The parser's own words stay in the log; the reader gets a sentence in their language.
+        if (err instanceof HttpException) throw err;
+        throw new BadRequestError('errors.file_upload_failed');
       }
 
       return next.handle();

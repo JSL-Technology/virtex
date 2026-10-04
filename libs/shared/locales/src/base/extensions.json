@@ -153,6 +153,11 @@
     "es": "La extensión fue revocada y no puede ejecutarse.",
     "pt": "Essa extensão foi revogada e não pode ser executada."
   },
+  "extensions.publish_platform_only": {
+    "es": "Publicar extensiones en el catálogo compartido lo hace el equipo de la plataforma. Tu empresa instala y habilita las extensiones publicadas, y decide qué capacidades les concede.",
+    "en": "Publishing extensions to the shared catalogue is done by the platform team. Your company installs and enables published extensions, and decides which capabilities they get.",
+    "pt": "Publicar extensões no catálogo compartilhado é feito pela equipe da plataforma. Sua empresa instala e habilita as extensões publicadas e decide quais capacidades elas recebem."
+  },
   "extensions.register": {
     "es": "Registrar extensión",
     "en": "Register extension",

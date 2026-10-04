@@ -148,6 +148,28 @@
       </div>
     </section>
 
+    @if (!current() && canSetPay) {
+      <section class="form-section">
+        <h2 class="form-section-title">{{ 'hcm.employees.form.starting_pay' | translate }}</h2>
+        <p class="section-note">{{ 'hcm.employees.form.starting_pay_help' | translate }}</p>
+        <div class="form-grid">
+          <label class="field" for="initialSalary">
+            <span>{{ 'hcm.employees.form.base_salary' | translate }}</span>
+            <input id="initialSalary" type="number" step="0.01" min="0" [value]="initialSalary() ?? ''"
+              (input)="initialSalary.set($any($event.target).value === '' ? null : +$any($event.target).value)" />
+          </label>
+          <label class="field" for="initialFrequency">
+            <span>{{ 'hcm.employees.form.frequency' | translate }}</span>
+            <select id="initialFrequency" [value]="initialFrequency()" (change)="initialFrequency.set($any($event.target).value)">
+              @for (frequency of payFrequencies; track frequency) {
+                <option [value]="frequency">{{ 'hcm.employees.form.frequency_label.' + frequency | translate }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </section>
+    }
+
     @if (current()) {
       <section class="form-section">
         <h2 class="form-section-title">{{ 'hcm.employees.form.pay_history' | translate }}</h2>

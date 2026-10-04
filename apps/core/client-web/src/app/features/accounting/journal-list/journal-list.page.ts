@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { JournalsService } from '../../../core/api/journals.service';
 import { Journal } from '../../../core/models/journal.model';
@@ -8,6 +8,9 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 /**
  * Los diarios contables.
@@ -25,12 +28,15 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-journal-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './journal-list.page.html',
   styleUrls: ['./journal-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalListPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.journals(), { type: (journal) => this.translate.instant(this.typeKey(journal)) });
   private journalsService = inject(JournalsService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);

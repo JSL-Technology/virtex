@@ -4,7 +4,7 @@
   [empty]="isEmpty()"
 >
   <button listActions type="button" class="primary-button" [disabled]="busy()"
-    (click)="creating.set(!creating())">
+    appRequires="payroll:process" (click)="creating.set(!creating())">
     <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'payroll.runs.new' | translate }}</span>
   </button>
@@ -42,21 +42,21 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'payroll.runs.period' | translate }}</th>
-          <th>{{ 'payroll.runs.name' | translate }}</th>
-          <th>{{ 'payroll.runs.type' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.net' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
-          <th class="text-center">{{ 'payroll.runs.status' | translate }}</th>
+          <th appSortHeader="period">{{ 'payroll.runs.period' | translate }}</th>
+          <th appSortHeader="name">{{ 'payroll.runs.name' | translate }}</th>
+          <th appSortHeader="runType">{{ 'payroll.runs.type' | translate }}</th>
+          <th appSortHeader="totalGross" class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
+          <th appSortHeader="totalNet" class="text-right">{{ 'payroll.runs.net' | translate }}</th>
+          <th appSortHeader="totalEmployerContributions" class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'payroll.runs.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (run of runs(); track run.id) {
-          <tr>
+        @for (run of table.rows(); track run.id) {
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/payroll/runs', run.id]" class="table-link">{{ periodOf(run) }}</a>
             </td>

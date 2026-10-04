@@ -1,4 +1,104 @@
 {
+  "notifications.access_request.body": {
+    "es": "{{name}} ({{email}}) pide acceso a {{path}}.",
+    "en": "{{name}} ({{email}}) is asking for access to {{path}}.",
+    "pt": "{{name}} ({{email}}) pede acesso a {{path}}."
+  },
+  "notifications.access_request.body_with_reason": {
+    "es": "{{name}} ({{email}}) pide acceso a {{path}}: «{{reason}}».",
+    "en": "{{name}} ({{email}}) is asking for access to {{path}}: “{{reason}}”.",
+    "pt": "{{name}} ({{email}}) pede acesso a {{path}}: «{{reason}}»."
+  },
+  "notifications.access_request.title": {
+    "es": "Solicitud de acceso",
+    "en": "Access request",
+    "pt": "Solicitação de acesso"
+  },
+  "notifications.access_request_no_administrator": {
+    "es": "Tu empresa no tiene un administrador activo al que enviar la solicitud.",
+    "en": "Your company has no active administrator to send the request to.",
+    "pt": "Sua empresa não tem um administrador ativo para receber a solicitação."
+  },
+  "notifications.approval.approved.body": {
+    "es": "Se aprobó: {{document}}. Ya tiene efecto.",
+    "en": "Approved: {{document}}. It has taken effect.",
+    "pt": "Aprovado: {{document}}. Já tem efeito."
+  },
+  "notifications.approval.approved.body_reference": {
+    "es": "Se aprobó: {{document}} {{reference}}.",
+    "en": "Approved: {{document}} {{reference}}.",
+    "pt": "Aprovado: {{document}} {{reference}}."
+  },
+  "notifications.approval.approved.title": {
+    "es": "Solicitud aprobada",
+    "en": "Request approved",
+    "pt": "Solicitação aprovada"
+  },
+  "notifications.approval.rejected.body": {
+    "es": "Se rechazó: {{document}}. Motivo: «{{reason}}».",
+    "en": "Rejected: {{document}}. Reason: «{{reason}}».",
+    "pt": "Rejeitado: {{document}}. Motivo: «{{reason}}»."
+  },
+  "notifications.approval.rejected.body_reference": {
+    "es": "Se rechazó: {{document}} {{reference}}. Motivo: «{{reason}}».",
+    "en": "Rejected: {{document}} {{reference}}. Reason: «{{reason}}».",
+    "pt": "Rejeitado: {{document}} {{reference}}. Motivo: «{{reason}}»."
+  },
+  "notifications.approval.rejected.title": {
+    "es": "Solicitud rechazada",
+    "en": "Request rejected",
+    "pt": "Solicitação rejeitada"
+  },
+  "notifications.approval.requested.body_reference": {
+    "es": "Espera tu aprobación: {{document}} {{reference}} por {{amount}}.",
+    "en": "Waiting for your approval: {{document}} {{reference}} for {{amount}}.",
+    "pt": "Aguarda sua aprovação: {{document}} {{reference}} de {{amount}}."
+  },
+  "notifications.approval.requested.body_step": {
+    "es": "Espera tu aprobación: {{document}} por {{amount}} (paso {{step}}).",
+    "en": "Waiting for your approval: {{document}} for {{amount}} (step {{step}}).",
+    "pt": "Aguarda sua aprovação: {{document}} de {{amount}} (etapa {{step}})."
+  },
+  "notifications.approval.requested.title": {
+    "es": "Aprobación pendiente",
+    "en": "Approval waiting",
+    "pt": "Aprovação pendente"
+  },
+  "notifications.document_type.audit_adjustment": {
+    "es": "Ajuste de auditoría",
+    "en": "Audit adjustment",
+    "pt": "Ajuste de auditoria"
+  },
+  "notifications.document_type.journal_entry": {
+    "es": "Asiento contable",
+    "en": "Journal entry",
+    "pt": "Lançamento contábil"
+  },
+  "notifications.document_type.payment_batch": {
+    "es": "Lote de pagos",
+    "en": "Payment batch",
+    "pt": "Lote de pagamentos"
+  },
+  "notifications.document_type.period_reopening": {
+    "es": "Reapertura de período",
+    "en": "Period reopening",
+    "pt": "Reabertura de período"
+  },
+  "notifications.document_type.purchase_order": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Pedido de compra"
+  },
+  "notifications.document_type.purchase_requisition": {
+    "es": "Requisición de compra",
+    "en": "Purchase requisition",
+    "pt": "Requisição de compra"
+  },
+  "notifications.document_type.vendor_bill": {
+    "es": "Factura de proveedor",
+    "en": "Vendor bill",
+    "pt": "Fatura de fornecedor"
+  },
   "notifications.earlier": {
     "es": "Anteriores",
     "en": "Earlier",

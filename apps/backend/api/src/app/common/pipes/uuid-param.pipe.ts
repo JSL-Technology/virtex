@@ -1,3 +1,4 @@
+import { humanizeProperty } from '../../i18n/validation-messages';
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { composeKey } from '@virteex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
@@ -56,7 +57,7 @@ export class UuidParamPipe implements PipeTransform<unknown, string> {
         {
           property: name,
           key: 'validation.constraints.malformed_identifier',
-          params: { property: this.i18n.has(labelKey) ? labelKey : name },
+          params: { property: this.i18n.has(labelKey) ? labelKey : humanizeProperty(name) },
         },
       ],
     });

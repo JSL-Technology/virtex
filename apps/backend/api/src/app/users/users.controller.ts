@@ -71,6 +71,15 @@ export class UsersController {
     return plainToInstance(UserResponseDto, newUser, { excludeExtraneousValues: true });
   }
 
+  @Post(':id/resend-invitation')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USERS)
+  @HasPermission(PERMISSIONS.USERS_CREATE)
+  @ApiOperation({ summary: 'Send a pending member a new invitation link' })
+  resendInvitation(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.usersService.resendInvitation(id, user.organizationId, user);
+  }
+
   @Get()
   @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'List users in organization' })

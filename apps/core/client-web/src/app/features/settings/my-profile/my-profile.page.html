@@ -104,7 +104,7 @@
               <lucide-icon [img]="CompanyIcon" size="16" class="pf-icon"></lucide-icon>
               <select id="jobtitle" formControlName="jobTitle" class="has-icon">
                 <option value="" disabled>{{ 'settings.profile.select_job_title' | translate }}</option>
-                <option *ngFor="let title of jobTitles()" [value]="title">{{ title }}</option>
+                <option *ngFor="let title of jobTitles()" [value]="title">{{ 'settings.profile.job_titles.' + title.toLowerCase() | translate }}</option>
               </select>
             </div>
           </div>

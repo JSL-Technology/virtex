@@ -35,15 +35,15 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'invoices.list.invoice_number' | translate }}</th>
-          <th>{{ 'invoices.list.customer' | translate }}</th>
-          <th>{{ 'invoices.list.created' | translate }}</th>
-          <th>{{ 'invoices.list.due' | translate }}</th>
-          <th class="text-right">{{ 'invoices.list.total' | translate }}</th>
-          <th>{{ 'invoices.list.status_filter' | translate }}</th>
+          <th appSortHeader="number">{{ 'invoices.list.invoice_number' | translate }}</th>
+          <th appSortHeader="customer">{{ 'invoices.list.customer' | translate }}</th>
+          <th appSortHeader="issueDate">{{ 'invoices.list.created' | translate }}</th>
+          <th appSortHeader="dueDate">{{ 'invoices.list.due' | translate }}</th>
+          <th appSortHeader="total" class="text-right">{{ 'invoices.list.total' | translate }}</th>
+          <th appSortHeader="status">{{ 'invoices.list.status_filter' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -52,7 +52,7 @@
             Clic simple en el número abre en vista previa (una sola pestaña efímera que se reutiliza
             al hojear). Doble clic en la fila la fija, como en VS Code.
           -->
-          <tr (dblclick)="openPermanent(invoice.id)">
+          <tr appRowLink (dblclick)="openPermanent(invoice.id)">
             <td>
               <a [routerLink]="['/invoices', invoice.id]" class="table-link">
                 {{ invoice.invoiceNumber }}

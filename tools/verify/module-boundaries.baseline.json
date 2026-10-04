@@ -1,8 +1,8 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1258,
+  "total": 1257,
   "byRule": {
-    "private-import": 511,
+    "private-import": 510,
     "private-import:spec": 231,
     "forbidden-dependency": 246,
     "forbidden-dependency:spec": 93,
@@ -57,7 +57,7 @@
     "private-import|ventas|configuracion": 27,
     "forbidden-dependency|ventas|compras": 4,
     "private-import|ventas|compras": 4,
-    "private-import|ventas|identidad": 67,
+    "private-import|ventas|identidad": 66,
     "forbidden-dependency|ventas|contabilidad": 36,
     "private-import|ventas|contabilidad": 29,
     "forbidden-dependency:spec|ventas|compras": 1,

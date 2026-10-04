@@ -23,10 +23,10 @@
     </p>
 
     <div class="actions">
-      <a [href]="constructMailtoLink( (attemptedUrl$ | async) )" class="btn btn-primary">
+      <button type="button" class="btn btn-primary" [disabled]="requesting() || requested()" (click)="requestAccess()">
         <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
         <span>{{ 'unauthorized.request_permission' | translate }}</span>
-      </a>
+      </button>
 
       <a routerLink="/dashboard" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> <span>{{ 'unauthorized.back_dashboard' | translate }}</span>

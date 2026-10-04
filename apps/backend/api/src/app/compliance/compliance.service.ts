@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { NcfSequence } from './entities/ncf-sequence.entity';
@@ -250,10 +250,7 @@ export class ComplianceService {
 
       if (overlapping.length > 0) {
         const ranges = overlapping.map((s) => `${s.startsAt}–${s.endsAt}`).join(', ');
-        throw new ConflictException(
-          `El rango ${startsAt}–${endsAt} de ${type} se solapa con un rango ya registrado (${ranges}). ` +
-            `Reutilizar una numeración ya emitida generaría comprobantes fiscales duplicados.`,
-        );
+        throw new ConflictError('compliance.ncf_range_overlaps', { startsAt, endsAt, type, ranges });
       }
 
       // Belt and braces: a number inside the new range that is already on a document means the

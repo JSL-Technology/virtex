@@ -64,19 +64,19 @@
       <p class="report-state">{{ 'reports.aging.nothing_outstanding_date' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table class="aging-table">
+        <table [appSort]="table.sort" class="aging-table">
           <thead>
             <tr>
-              <th class="party-column">{{ partyKey | translate }}</th>
-              <th class="numeric">{{ 'reports.aging.current' | translate }}</th>
+              <th appSortHeader="partyName" class="party-column">{{ partyKey | translate }}</th>
+              <th appSortHeader="current" class="numeric">{{ 'reports.aging.current' | translate }}</th>
               @for (bucket of bucketKeys(); track bucket.label) {
-                <th class="numeric">{{ bucket.key | translate }}</th>
+                <th class="numeric" [appSortHeader]="'bucket:' + bucket.label">{{ bucket.key | translate }}</th>
               }
-              <th class="numeric">{{ 'reports.aging.total' | translate }}</th>
+              <th appSortHeader="total" class="numeric">{{ 'reports.aging.total' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (row of data.rows; track row.partyId) {
+            @for (row of table.rows(); track row.partyId) {
               <tr>
                 <td class="party-column">{{ row.partyName }}</td>
                 <td class="numeric"><vx-amount [value]="row.current" /></td>

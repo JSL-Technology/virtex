@@ -1,3 +1,5 @@
+import { InitialCompensationDto } from './create-compensation.dto';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -9,6 +11,7 @@ import {
   IsString,
   Length,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
 import { ContractType, EmploymentStatus } from '../entities/employee.entity';
 
@@ -35,6 +38,16 @@ export class CreateEmployeeDto {
   @IsDateString()
   @IsOptional()
   hireDate?: string;
+
+  /**
+   * The salary the person is hired at (QA M-15: a hire had no salary, which had to be added
+   * afterwards through a second form and a second re-authentication). Optional — a hire can be
+   * recorded before pay is agreed — and guarded like any pay change when present.
+   */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => InitialCompensationDto)
+  initialCompensation?: InitialCompensationDto;
 
   @IsUUID()
   @IsOptional()

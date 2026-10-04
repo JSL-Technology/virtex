@@ -1,0 +1,26 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'settings.integrations.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.integrations.subtitle' | translate }}</p>
+  </div>
+
+  <ul class="int__grid">
+    @for (card of cards(); track card.id) {
+      <li class="int__card">
+        <div class="int__head">
+          <h2 class="int__title">{{ copy[card.id].title | translate }}</h2>
+          <span class="int__badge" [class.int__badge--on]="card.state === 'active'" [attr.data-state]="card.state">
+            {{ stateLabels[card.state] | translate }}
+          </span>
+        </div>
+        <p class="int__text">{{ copy[card.id].description | translate }}</p>
+        <p class="int__status" role="status">{{ statusKey(card) | translate: card.params }}</p>
+        @if (card.link) {
+          <a class="int__link" [routerLink]="card.link">{{ copy[card.id].action | translate }}</a>
+        } @else {
+          <a class="int__link" [routerLink]="[]" [fragment]="card.fragment">{{ copy[card.id].action | translate }}</a>
+        }
+      </li>
+    }
+  </ul>
+</div>

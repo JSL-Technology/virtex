@@ -11,10 +11,18 @@
                     <lucide-icon [img]="activity.icon" size="16"></lucide-icon>
                 </div>
             </div>
+            @if (activity.route) {
+            <!-- The row opens what it is about (QA B-02: it led nowhere). -->
+            <a class="activity-details activity-details--link" [routerLink]="activity.route">
+                <p class="activity-text">{{ text(activity) }}</p>
+                <span class="activity-time">{{ when(activity) }}</span>
+            </a>
+            } @else {
             <div class="activity-details">
                 <p class="activity-text">{{ text(activity) }}</p>
                 <span class="activity-time">{{ when(activity) }}</span>
             </div>
+            }
         </li>
         }
     </ul>

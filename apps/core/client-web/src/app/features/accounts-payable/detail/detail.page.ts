@@ -22,6 +22,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { refreshWhenStale } from '../../../core/data/data-version.service';
 
 /**
  * A supplier bill, in full.
@@ -97,6 +98,9 @@ export class VendorBillDetailPage implements OnInit {
   ngOnInit(): void {
     this.load();
   }
+
+  /** Read-only: a payment or a debit note from another tab updates the bill on return (QA M-06). */
+  private readonly refresh = refreshWhenStale(() => this.load());
 
   private load(): void {
     this.route.paramMap

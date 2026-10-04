@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
@@ -12,8 +13,13 @@ export enum QuoteStatus {
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
   INVOICED = 'INVOICED',
+  /** Withdrawn before the customer answered. Kept, numbered, never deleted. */
+  CANCELLED = 'CANCELLED',
 }
 
+// The number is unique per tenant, like every other document number. It was unique across the
+// whole platform, so two companies could not both have a «COT-2026-000001».
+@Index('UQ_quotes_org_number', ['organizationId', 'quoteNumber'], { unique: true })
 @Entity({ name: 'quotes' })
 export class Quote {
   @PrimaryGeneratedColumn('uuid')
@@ -34,7 +40,7 @@ export class Quote {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @Column({ unique: true })
+  @Column()
   quoteNumber: string;
 
   /**
@@ -62,11 +68,45 @@ export class Quote {
   @Column({ type: 'date' })
   expiryDate: Date;
 
-  @Column('decimal', { precision: 12, scale: 2, comment: 'Subtotal in transaction currency' })
+  @Column('decimal', { precision: 18, scale: 2, comment: 'Subtotal in transaction currency', transformer: numericTransformerNotNull })
   subtotal: number;
 
-  @Column('decimal', { precision: 12, scale: 2, comment: 'Total in transaction currency' })
+  /** Line discounts plus the document discount. */
+  @Column('decimal', { name: 'discount_total', precision: 18, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  discountTotal: number;
+
+  /**
+   * The tax the invoice will charge, computed by the same engine as the invoice. A quote without
+   * it promised the customer a price the invoice then raised by the ITBIS.
+   */
+  @Column('decimal', { name: 'tax_total', precision: 18, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  taxTotal: number;
+
+  @Column('decimal', { precision: 18, scale: 2, comment: 'Total in transaction currency', transformer: numericTransformerNotNull })
   total: number;
+
+  @Column('decimal', { name: 'document_discount_rate', precision: 7, scale: 6, default: 0, transformer: numericTransformerNotNull })
+  documentDiscountRate: number;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
+
+  @Column({ name: 'sent_at', type: 'timestamptz', nullable: true })
+  sentAt: Date | null;
+
+  @Column({ name: 'accepted_at', type: 'timestamptz', nullable: true })
+  acceptedAt: Date | null;
+
+  @Column({ name: 'rejected_at', type: 'timestamptz', nullable: true })
+  rejectedAt: Date | null;
+
+  /** What the customer said, or why it was withdrawn. */
+  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  rejectionReason: string | null;
+
+  /** The invoice this quote became. */
+  @Column({ name: 'invoice_id', type: 'uuid', nullable: true })
+  invoiceId: string | null;
   
 
   @Column({ length: 3, name: 'currency_code' })

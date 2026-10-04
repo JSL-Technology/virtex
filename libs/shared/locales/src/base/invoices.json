@@ -9,6 +9,11 @@
     "en": "The amount to credit ({amount}) exceeds the creditable balance of invoice {invoiceNumber} ({remaining}).",
     "pt": "O valor a creditar ({amount}) excede o saldo creditável da fatura {invoiceNumber} ({remaining})."
   },
+  "invoices.credit_exceeds_remaining": {
+    "es": "No se puede acreditar {{quantity}} de «{{description}}»: quedan {{available}} por acreditar de {{invoiced}} facturadas.",
+    "en": "Cannot credit {{quantity}} of “{{description}}”: {{available}} of {{invoiced}} invoiced remain to be credited.",
+    "pt": "Não é possível creditar {{quantity}} de «{{description}}»: restam {{available}} de {{invoiced}} faturadas."
+  },
   "invoices.credit_invoice_requires_buyer_tax_id": {
     "es": "Una factura con crédito fiscal necesita la identificación fiscal válida del comprador. Revísala, o emite una factura de consumo.",
     "en": "A tax-credit invoice needs the buyer's valid tax identifier. Check it, or issue a consumer invoice instead.",
@@ -581,10 +586,60 @@
   "invoices.export.total": {
     "literal": "Total"
   },
+  "invoices.gaps.accounting_settings": {
+    "es": "la configuración contable de la organización",
+    "en": "the organization's accounting settings",
+    "pt": "a configuração contábil da organização"
+  },
+  "invoices.gaps.default_ledger": {
+    "es": "el libro contable por defecto",
+    "en": "the default ledger",
+    "pt": "o livro contábil padrão"
+  },
   "invoices.gaps.fiscal_sequence": {
     "es": "un rango de comprobantes fiscales activo (Ajustes › Facturación electrónica)",
     "en": "an active fiscal document range (Settings › Electronic invoicing)",
     "pt": "um intervalo de comprovativos fiscais ativo (Definições › Faturação eletrónica)"
+  },
+  "invoices.gaps.invoice_sequence": {
+    "es": "la secuencia de numeración de facturas",
+    "en": "the invoice numbering sequence",
+    "pt": "a sequência de numeração de faturas"
+  },
+  "invoices.gaps.receivables_account": {
+    "es": "la cuenta de Cuentas por Cobrar",
+    "en": "the Accounts Receivable account",
+    "pt": "a conta de Contas a Receber"
+  },
+  "invoices.gaps.sales_discounts_account": {
+    "es": "la cuenta de Descuentos sobre Ventas",
+    "en": "the Sales Discounts account",
+    "pt": "a conta de Descontos sobre Vendas"
+  },
+  "invoices.gaps.sales_journal": {
+    "es": "el diario de ventas (VENTAS)",
+    "en": "the sales journal (VENTAS)",
+    "pt": "o diário de vendas (VENTAS)"
+  },
+  "invoices.gaps.sales_revenue_account": {
+    "es": "la cuenta de Ingresos por Ventas",
+    "en": "the Sales Revenue account",
+    "pt": "a conta de Receita de Vendas"
+  },
+  "invoices.gaps.sales_tax_account": {
+    "es": "la cuenta de Impuesto sobre Ventas por Pagar",
+    "en": "the Sales Tax Payable account",
+    "pt": "a conta de Imposto sobre Vendas a Pagar"
+  },
+  "invoices.gaps.service_charge_account": {
+    "es": "la cuenta de Propina Legal por Pagar",
+    "en": "the Service Charge Payable account",
+    "pt": "a conta de Taxa de Serviço a Pagar"
+  },
+  "invoices.gaps.tax_withheld_account": {
+    "es": "la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)",
+    "en": "the Tax Withheld by Customers account",
+    "pt": "a conta de Retenções Recebidas (imposto retido pelo cliente)"
   },
   "invoices.invoice_has_already_credited_full": {
     "es": "La factura ya fue acreditada en su totalidad.",
@@ -1018,9 +1073,9 @@
     "pt": "Descontos e encargos"
   },
   "invoices.new.document_discount_fraction": {
-    "es": "Descuento del documento (fracción)",
-    "en": "Document discount (fraction)",
-    "pt": "Desconto do documento (fração)"
+    "es": "Descuento del documento (%)",
+    "en": "Document discount (%)",
+    "pt": "Desconto do documento (%)"
   },
   "invoices.new.document_type": {
     "es": "Tipo de comprobante",
@@ -1063,9 +1118,9 @@
     "pt": "Ir para as configurações fiscais"
   },
   "invoices.new.income_tax_withheld_fraction_base": {
-    "es": "ISR retenido (fracción de la base)",
-    "en": "Income tax withheld (fraction of the base)",
-    "pt": "IR retido (fração da base)"
+    "es": "ISR retenido (% de la base)",
+    "en": "Income tax withheld (% of the base)",
+    "pt": "IR retido (% da base)"
   },
   "invoices.new.insufficient_stock": {
     "es": "Una o más líneas superan las existencias disponibles.",
@@ -1173,9 +1228,9 @@
     "pt": "Taxa de serviço"
   },
   "invoices.new.service_charge_fraction_market_rate": {
-    "es": "Propina legal (fracción; en este mercado es {{rate}} %)",
-    "en": "Service charge (fraction; in this market it is {{rate}} %)",
-    "pt": "Taxa de serviço (fração; neste mercado é {{rate}} %)"
+    "es": "Propina legal (%; en este mercado es {{rate}} %)",
+    "en": "Service charge (%; in this market it is {{rate}} %)",
+    "pt": "Taxa de serviço (%; neste mercado é {{rate}} %)"
   },
   "invoices.new.stock_shortfall": {
     "es": "Faltan {{units}} unidades en existencia",
@@ -1207,9 +1262,9 @@
     "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
   },
   "invoices.new.tax_withheld_fraction_tax": {
-    "es": "ITBIS retenido (fracción del impuesto)",
-    "en": "Tax withheld (fraction of the tax)",
-    "pt": "Imposto retido (fração do imposto)"
+    "es": "ITBIS retenido (% del impuesto)",
+    "en": "Tax withheld (% of the tax)",
+    "pt": "Imposto retido (% do imposto)"
   },
   "invoices.new.taxed": {
     "es": "Gravado",
@@ -1288,6 +1343,11 @@
     "es": "La configuración contable de la organización está incompleta: se requieren las cuentas de Cuentas por Cobrar, Ingresos por Ventas e Impuesto sobre Ventas por Pagar. Revísalas en Ajustes → Contabilidad.",
     "en": "The organization's accounting setup is incomplete: the Accounts Receivable, Sales Revenue and Sales Tax Payable accounts are required. Review them in Settings → Accounting.",
     "pt": "A configuração contábil da organização está incompleta: são necessárias as contas de Contas a Receber, Receita de Vendas e Imposto sobre Vendas a Pagar. Revise em Configurações → Contabilidade."
+  },
+  "invoices.organization_cannot_invoice_yet": {
+    "es": "La organización todavía no puede facturar. Falta: {{missing}}. Complétalo en Ajustes → Contabilidad.",
+    "en": "The organization cannot invoice yet. Missing: {{missing}}. Complete it under Settings → Accounting.",
+    "pt": "A organização ainda não pode faturar. Falta: {{missing}}. Complete em Configurações → Contabilidade."
   },
   "invoices.organization_has_no_default_ledger_create": {
     "es": "La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.",

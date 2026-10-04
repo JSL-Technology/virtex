@@ -5,6 +5,7 @@ import { Cache } from 'cache-manager';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
+import { Organization } from '../entities/organization.entity';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { MfaPolicyPort } from '../../auth/ports/mfa-policy.port';
 import { TenantCurrencyService } from './tenant-currency.service';
@@ -189,6 +190,40 @@ export class OrgSettingsService extends MfaPolicyPort {
       cashId: s.defaultCashId,
       bankId: s.defaultBankId,
       baseCurrency: s.baseCurrency,
+    };
+  }
+
+  /**
+   * How the company appears on the documents it e-mails: its chosen sender name, or its commercial
+   * or legal name; its chosen reply address, or its e-mail on file; and the blind copy, if any.
+   * `configured` carries the stored values alone, for the settings form.
+   */
+  async mailIdentity(organizationId: string): Promise<{
+    senderName: string;
+    replyTo: string | null;
+    copyTo: string | null;
+    configured: { senderName: string | null; replyTo: string | null; copyTo: string | null };
+    defaults: { senderName: string; replyTo: string | null };
+  }> {
+    const [settings, organization] = await Promise.all([
+      this.repo.findOne({ where: { organizationId } }),
+      this.repo.manager.findOne(Organization, { where: { id: organizationId } }),
+    ]);
+    const defaults = {
+      senderName: organization?.commercialName?.trim() || organization?.legalName || '',
+      replyTo: organization?.email?.trim() || null,
+    };
+    const configured = {
+      senderName: settings?.mailSenderName ?? null,
+      replyTo: settings?.mailReplyTo ?? null,
+      copyTo: settings?.mailCopyTo ?? null,
+    };
+    return {
+      senderName: configured.senderName || defaults.senderName,
+      replyTo: configured.replyTo || defaults.replyTo,
+      copyTo: configured.copyTo,
+      configured,
+      defaults,
     };
   }
 

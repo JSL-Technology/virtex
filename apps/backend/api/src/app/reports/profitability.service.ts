@@ -139,7 +139,9 @@ export class ProfitabilityService {
           // Quoted, for the same reason as `productId` above: a raw expression is passed through
           // verbatim, and PostgreSQL folds an unquoted identifier to lower case.
           `invoice."customer_id"::text AS "id"`,
-          `MAX(invoice."customerName") AS "code"`,
+          // The customer's tax id as its code, as printed on the invoice. This selected the name
+          // twice, so every row read «Cliente — Cliente» (QA B-02).
+          `MAX(invoice.customer_tax_id) AS "code"`,
           `MAX(invoice."customerName") AS "name"`,
         ])
         .groupBy(`invoice."customer_id"`);

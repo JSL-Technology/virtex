@@ -30,17 +30,17 @@
   </ng-container>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'extensions.fields.name' | translate }}</th>
-          <th>{{ 'extensions.fields.description' | translate }}</th>
+          <th appSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
+          <th appSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
           <th>{{ 'extensions.granted_capabilities' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (ext of extensions(); track ext.id) {
+        @for (ext of table.rows(); track ext.id) {
           <tr>
             <td>
               <span class="ext__name">{{ ext.name }}</span>
@@ -64,10 +64,12 @@
                 />
                 <span>{{ 'extensions.enabled' | translate }}</span>
               </label>
-              <button type="button" class="danger-button" (click)="revoke(ext)">
-                <lucide-icon [img]="TrashIcon" [size]="14" aria-hidden="true"></lucide-icon>
-                <span>{{ 'extensions.revoke' | translate }}</span>
-              </button>
+              @if (canRevoke()) {
+                <button type="button" class="danger-button" (click)="revoke(ext)">
+                  <lucide-icon [img]="TrashIcon" [size]="14" aria-hidden="true"></lucide-icon>
+                  <span>{{ 'extensions.revoke' | translate }}</span>
+                </button>
+              }
             </td>
           </tr>
         }
@@ -81,6 +83,7 @@
     when you need them.
   -->
   <div listFooter class="ext__panels">
+    @if (canPublish()) {
     <section class="ext__card">
       <h2>{{ 'extensions.register' | translate }}</h2>
       <form [formGroup]="registerForm" (ngSubmit)="register()" class="ext__form">
@@ -135,6 +138,12 @@
         <p class="ext__hint">{{ 'extensions.code_passes_admission_pipeline_sbom_heuristics' | translate }}</p>
       </form>
     </section>
+    } @else {
+    <section class="ext__card">
+      <h2>{{ 'extensions.register' | translate }}</h2>
+      <p class="ext__hint">{{ 'extensions.publish_platform_only' | translate }}</p>
+    </section>
+    }
 
     <section class="ext__card">
       <h2>{{ 'extensions.run_in_sandbox' | translate }}</h2>

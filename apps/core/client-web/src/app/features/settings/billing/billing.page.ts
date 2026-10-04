@@ -1,3 +1,4 @@
+import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -14,7 +15,7 @@ import { VxSpinnerComponent } from '../../../shared/components/feedback';
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, ...FORMAT_PIPES],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,7 +56,9 @@ export class BillingPage implements OnInit {
   // True once the org has an active/trialing subscription managed by Stripe.
   hasActiveSubscription = computed(() => {
     const sub = this.overview()?.subscription;
-    return !!sub && ['active', 'trialing', 'past_due'].includes(sub.status);
+    // Only the provider's subscription has a portal and a card behind it; one the platform
+    // granted is changed by subscribing, not by managing.
+    return !!sub && sub.managedBy !== 'platform' && ['active', 'trialing', 'past_due'].includes(sub.status);
   });
 
   currentPlanSlug = computed(() => this.overview()?.plan?.slug ?? null);
@@ -197,6 +200,12 @@ export class BillingPage implements OnInit {
     );
   }
 
+  /** A billing-history invoice's Stripe status, in the reader's language; an unknown one as itself. */
+  invoiceStatusLabel(status: string | undefined): string {
+    if (!status) return '—';
+    return translateOrLiteral(this.translate, composeKey('billing.invoice_status', status), undefined, status);
+  }
+
   /**
    * A plan's pitch, in the reader's language.
    *
@@ -204,6 +213,16 @@ export class BillingPage implements OnInit {
    * before that change still carries the old Spanish sentence, and that is printed as it stands
    * rather than as a key nobody can read.
    */
+  /**
+   * A metered resource in the reader's language. It was the API identifier with its first
+   * underscore replaced — «invoices/mes», «journal entries» — in a Spanish screen (QA M-10).
+   */
+  resourceLabel(resource: string): string {
+    const key = `saas.resources.${resource}`;
+    const label = this.translate.instant(key);
+    return label === key ? resource.replace(/_/g, ' ') : label;
+  }
+
   planDescription(description: string | null | undefined): string {
     return translateOrLiteral(this.translate, description);
   }

@@ -1,4 +1,4 @@
-import { ModuleManifest, WindowKind } from '../module-manifest';
+import { AUTHENTICATED_ONLY, ModuleManifest, WindowKind } from '../module-manifest';
 
 /**
  * Analysis: the four financial statements, profitability, and the datasheet workbooks.
@@ -13,6 +13,16 @@ export const ANALISIS_MODULE: ModuleManifest = {
   basePath: 'reports',
   order: 8,
   routes: [
+    {
+      // The module's landing: every report the user may open, from every module (QA M-09).
+      path: '',
+      kind: WindowKind.OVERVIEW,
+      permission: AUTHENTICATED_ONLY,
+      titleKey: 'page_titles.reports_hub',
+      icon: 'BarChart2',
+      entityKeyFn: () => 'analisis:reports',
+      load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
+    },
     {
       path: 'financial-statements/balance-sheet',
       kind: WindowKind.OVERVIEW,

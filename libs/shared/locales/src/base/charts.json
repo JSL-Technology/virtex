@@ -59,6 +59,76 @@
     "en": "Chart Type",
     "pt": "Tipo de Gráfico"
   },
+  "charts.container_label": {
+    "es": "{title}. Gráfico de Highcharts.",
+    "en": "{title}. Highcharts interactive chart.",
+    "pt": "{title}. Gráfico do Highcharts."
+  },
+  "charts.default_title": {
+    "es": "Gráfico",
+    "en": "Chart",
+    "pt": "Gráfico"
+  },
+  "charts.download_jpeg": {
+    "es": "Descargar imagen JPEG",
+    "en": "Download JPEG image",
+    "pt": "Baixar imagem JPEG"
+  },
+  "charts.download_pdf": {
+    "es": "Descargar documento PDF",
+    "en": "Download PDF document",
+    "pt": "Baixar documento PDF"
+  },
+  "charts.download_png": {
+    "es": "Descargar imagen PNG",
+    "en": "Download PNG image",
+    "pt": "Baixar imagem PNG"
+  },
+  "charts.download_svg": {
+    "es": "Descargar imagen SVG",
+    "en": "Download SVG image",
+    "pt": "Baixar imagem SVG"
+  },
+  "charts.end_of_chart": {
+    "es": "Fin del gráfico interactivo.",
+    "en": "End of interactive chart.",
+    "pt": "Fim do gráfico interativo."
+  },
+  "charts.exit_fullscreen": {
+    "es": "Salir de pantalla completa",
+    "en": "Exit full screen",
+    "pt": "Sair da tela cheia"
+  },
+  "charts.fullscreen": {
+    "es": "Ver en pantalla completa",
+    "en": "View in full screen",
+    "pt": "Ver em tela cheia"
+  },
+  "charts.interactive_chart": {
+    "es": "Gráfico interactivo",
+    "en": "Interactive chart",
+    "pt": "Gráfico interativo"
+  },
+  "charts.legend_item": {
+    "es": "Mostrar u ocultar {itemName}",
+    "en": "Show {itemName}",
+    "pt": "Mostrar ou ocultar {itemName}"
+  },
+  "charts.legend_label": {
+    "es": "Leyenda del gráfico: {legendTitle}",
+    "en": "Chart legend: {legendTitle}",
+    "pt": "Legenda do gráfico: {legendTitle}"
+  },
+  "charts.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "charts.menu": {
+    "es": "Menú del gráfico",
+    "en": "Chart menu",
+    "pt": "Menu do gráfico"
+  },
   "charts.menu.csv": {
     "es": "Descargar CSV",
     "en": "Download CSV",
@@ -109,6 +179,21 @@
     "en": "Download Excel",
     "pt": "Baixar Excel"
   },
+  "charts.no_data": {
+    "es": "No hay datos para mostrar",
+    "en": "No data to display",
+    "pt": "Não há dados para exibir"
+  },
+  "charts.print": {
+    "es": "Imprimir gráfico",
+    "en": "Print chart",
+    "pt": "Imprimir gráfico"
+  },
+  "charts.reset_zoom": {
+    "es": "Restablecer zoom",
+    "en": "Reset zoom",
+    "pt": "Redefinir zoom"
+  },
   "charts.top_products.series_name": {
     "es": "Unidades",
     "en": "Units",
@@ -128,5 +213,85 @@
     "es": "Línea",
     "en": "Line",
     "pt": "Linha"
+  },
+  "charts.types.area_multiple": {
+    "es": "Gráfico de áreas con {numSeries} series de datos.",
+    "en": "Area chart with {numSeries} data series.",
+    "pt": "Gráfico de áreas com {numSeries} séries de dados."
+  },
+  "charts.types.area_single": {
+    "es": "Gráfico de áreas con {numPoints} {#eq numPoints 1}punto de datos{else}puntos de datos{/eq}.",
+    "en": "Area chart with {numPoints} data {#eq numPoints 1}point{else}points{/eq}.",
+    "pt": "Gráfico de áreas com {numPoints} {#eq numPoints 1}ponto de dados{else}pontos de dados{/eq}."
+  },
+  "charts.types.bar_multiple": {
+    "es": "Gráfico de barras con {numSeries} series de datos.",
+    "en": "Bar chart with {numSeries} data series.",
+    "pt": "Gráfico de barras com {numSeries} séries de dados."
+  },
+  "charts.types.bar_single": {
+    "es": "Gráfico de barras con {numPoints} {#eq numPoints 1}barra{else}barras{/eq}.",
+    "en": "Bar chart with {numPoints} {#eq numPoints 1}bar{else}bars{/eq}.",
+    "pt": "Gráfico de barras com {numPoints} {#eq numPoints 1}barra{else}barras{/eq}."
+  },
+  "charts.types.column_multiple": {
+    "es": "Gráfico de columnas con {numSeries} series de datos.",
+    "en": "Bar chart with {numSeries} data series.",
+    "pt": "Gráfico de colunas com {numSeries} séries de dados."
+  },
+  "charts.types.column_single": {
+    "es": "Gráfico de columnas con {numPoints} {#eq numPoints 1}columna{else}columnas{/eq}.",
+    "en": "Bar chart with {numPoints} {#eq numPoints 1}bar{else}bars{/eq}.",
+    "pt": "Gráfico de colunas com {numPoints} {#eq numPoints 1}coluna{else}colunas{/eq}."
+  },
+  "charts.types.combination_chart": {
+    "es": "Gráfico combinado con {numSeries} series de datos.",
+    "en": "Combination chart with {numSeries} data series.",
+    "pt": "Gráfico combinado com {numSeries} séries de dados."
+  },
+  "charts.types.default_multiple": {
+    "es": "Gráfico con {numSeries} series de datos.",
+    "en": "Chart with {numSeries} data series.",
+    "pt": "Gráfico com {numSeries} séries de dados."
+  },
+  "charts.types.default_single": {
+    "es": "Gráfico con {numPoints} {#eq numPoints 1}punto de datos{else}puntos de datos{/eq}.",
+    "en": "Chart with {numPoints} data {#eq numPoints 1}point{else}points{/eq}.",
+    "pt": "Gráfico com {numPoints} {#eq numPoints 1}ponto de dados{else}pontos de dados{/eq}."
+  },
+  "charts.types.empty_chart": {
+    "es": "Gráfico vacío",
+    "en": "Empty chart",
+    "pt": "Gráfico vazio"
+  },
+  "charts.types.line_multiple": {
+    "es": "Gráfico de líneas con {numSeries} líneas.",
+    "en": "Line chart with {numSeries} lines.",
+    "pt": "Gráfico de linhas com {numSeries} linhas."
+  },
+  "charts.types.line_single": {
+    "es": "Gráfico de líneas con {numPoints} {#eq numPoints 1}punto de datos{else}puntos de datos{/eq}.",
+    "en": "Line chart with {numPoints} data {#eq numPoints 1}point{else}points{/eq}.",
+    "pt": "Gráfico de linhas com {numPoints} {#eq numPoints 1}ponto de dados{else}pontos de dados{/eq}."
+  },
+  "charts.types.pie_multiple": {
+    "es": "Gráfico circular con {numSeries} círculos.",
+    "en": "Pie chart with {numSeries} pies.",
+    "pt": "Gráfico de pizza com {numSeries} pizzas."
+  },
+  "charts.types.pie_single": {
+    "es": "Gráfico circular con {numPoints} {#eq numPoints 1}sector{else}sectores{/eq}.",
+    "en": "Pie chart with {numPoints} {#eq numPoints 1}slice{else}slices{/eq}.",
+    "pt": "Gráfico de pizza com {numPoints} {#eq numPoints 1}fatia{else}fatias{/eq}."
+  },
+  "charts.types.spline_multiple": {
+    "es": "Gráfico de curvas con {numSeries} líneas.",
+    "en": "Line chart with {numSeries} lines.",
+    "pt": "Gráfico de curvas com {numSeries} linhas."
+  },
+  "charts.types.spline_single": {
+    "es": "Gráfico de curvas con {numPoints} {#eq numPoints 1}punto de datos{else}puntos de datos{/eq}.",
+    "en": "Line chart with {numPoints} data {#eq numPoints 1}point{else}points{/eq}.",
+    "pt": "Gráfico de curvas com {numPoints} {#eq numPoints 1}ponto de dados{else}pontos de dados{/eq}."
   }
 }

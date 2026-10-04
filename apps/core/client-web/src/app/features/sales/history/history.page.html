@@ -24,19 +24,19 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'sales.history.id_venta' | translate }}</th>
-          <th>{{ 'sales.history.date' | translate }}</th>
-          <th>{{ 'sales.history.customer' | translate }}</th>
-          <th class="text-right">{{ 'sales.history.total' | translate }}</th>
-          <th>{{ 'sales.history.payment_method' | translate }}</th>
-          <th>{{ 'sales.history.status' | translate }}</th>
+          <th appSortHeader="id">{{ 'sales.history.id_venta' | translate }}</th>
+          <th appSortHeader="createdAt">{{ 'sales.history.date' | translate }}</th>
+          <th appSortHeader="customerName">{{ 'sales.history.customer' | translate }}</th>
+          <th appSortHeader="total" class="text-right">{{ 'sales.history.total' | translate }}</th>
+          <th appSortHeader="paymentMethod">{{ 'sales.history.payment_method' | translate }}</th>
+          <th appSortHeader="status">{{ 'sales.history.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (sale of sales(); track sale.id) {
+        @for (sale of table.rows(); track sale.id) {
           <tr>
             <td><code>{{ sale.id.slice(0, 8) }}</code></td>
             <td>{{ sale.createdAt | vxDate: 'dateTime' }}</td>

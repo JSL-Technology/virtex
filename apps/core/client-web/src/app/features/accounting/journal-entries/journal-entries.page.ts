@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,9 @@ import {
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
+import { TableSort, VX_SORT } from '../../../shared/components/sort';
 
 /**
  * The journal.
@@ -34,7 +37,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,8 +59,23 @@ export class JournalEntriesPage {
   readonly total = signal(0);
   readonly hasMore = signal(false);
 
+  /**
+   * The server orders the rows (QA B-01): sorting one page would reorder the wrong rows. Debit and
+   * credit are sums over the lines, not columns, so they are not offered.
+   */
+  readonly sort = new TableSort<JournalEntry, 'date' | 'entryNumber' | 'description' | 'status'>();
+
   constructor() {
-    this.load();
+    // The first run loads; every later change of order is a new result set, from its first page.
+    let initial = true;
+    effect(() => {
+      this.sort.state();
+      untracked(() => {
+        if (!initial) this.page.set(1);
+        initial = false;
+        this.load();
+      });
+    });
   }
 
   /** El tamaño de página, ahora elegible por el lector en vez de fijado por una constante. */
@@ -78,7 +96,8 @@ export class JournalEntriesPage {
   load(): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.entriesApi.list({ page: this.page(), pageSize: this.pageSize }).subscribe({
+    const { key, direction } = this.sort.state();
+    this.entriesApi.list({ page: this.page(), pageSize: this.pageSize, sort: key ?? undefined, direction }).subscribe({
       next: (page) => {
         this.entries.set(page.rows);
         this.total.set(page.total);

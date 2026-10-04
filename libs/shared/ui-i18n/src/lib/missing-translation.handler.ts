@@ -36,6 +36,18 @@ export class VirtexMissingTranslationHandler implements MissingTranslationHandle
   handle(params: MissingTranslationHandlerParams): string {
     const key = params.key;
 
+    // A key composed from an API value: `status_label.DRAFT`, `user.role.ADMINISTRATOR`. The
+    // catalogue's keys are lower_snake, the enums the API sends are not, and every template that
+    // forgot `.toLowerCase()` showed the English identifier — «Draft», «ADMINISTRATOR» — in a
+    // Spanish screen (QA M-17). The lower-case key is the one the catalogue holds; ask for it.
+    const lowered = key.replace(/[^.]+$/, (segment) => segment.toLowerCase());
+    if (lowered !== key) {
+      const translated = params.translateService.instant(lowered, params.interpolateParams as object);
+      if (typeof translated === 'string' && translated !== lowered && translated !== `[[${lowered}]]` && translated !== humanise(lowered)) {
+        return translated;
+      }
+    }
+
     if (!reported.has(key)) {
       reported.add(key);
       // One line, once, naming the key and the language, so a missing entry is greppable in a

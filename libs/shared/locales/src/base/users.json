@@ -1,4 +1,9 @@
 {
+  "users.already_member": {
+    "es": "{{email}} ya es miembro de esta empresa.",
+    "en": "{{email}} is already a member of this company.",
+    "pt": "{{email}} já é membro desta empresa."
+  },
   "users.confirmation_link_has_expired_request_new": {
     "es": "El enlace de confirmación ha expirado. Solicita uno nuevo.",
     "en": "The confirmation link has expired. Request a new one.",
@@ -59,6 +64,11 @@
     "en": "Invitation accepted. You can now switch to the organization from the selector.",
     "pt": "Convite aceito. Agora você pode mudar para a organização pelo seletor."
   },
+  "users.invitation_already_pending": {
+    "es": "{{email}} ya tiene una invitación pendiente. Usa «Reenviar invitación» en la lista de miembros para mandarle un enlace nuevo.",
+    "en": "{{email}} already has a pending invitation. Use «Resend invitation» in the member list to send a new link.",
+    "pt": "{{email}} já tem um convite pendente. Use «Reenviar convite» na lista de membros para enviar um novo link."
+  },
   "users.invitation_could_not_sent_with_details": {
     "es": "No se pudo enviar la invitación con los datos proporcionados.",
     "en": "The invitation could not be sent with the details provided.",
@@ -73,6 +83,11 @@
     "es": "La invitación no existe, ya se respondió o ha caducado.",
     "en": "The invitation does not exist, has already been answered or has expired.",
     "pt": "O convite não existe, já foi respondido ou expirou."
+  },
+  "users.invitation_not_pending": {
+    "es": "{{email}} ya activó su cuenta; no hay invitación que reenviar.",
+    "en": "{{email}} has already activated their account; there is no invitation to resend.",
+    "pt": "{{email}} já ativou a conta; não há convite para reenviar."
   },
   "users.invitation_revoked": {
     "es": "Invitación retirada.",
@@ -178,6 +193,11 @@
     "es": "Todos",
     "en": "All",
     "pt": "Todos"
+  },
+  "users.would_leave_no_active_administrator": {
+    "es": "Esta acción dejaría a la organización sin ningún administrador activo. Asigna el rol de administrador a otro usuario antes de continuar.",
+    "en": "This would leave the organization without an active administrator. Give another user the administrator role first.",
+    "pt": "Esta ação deixaria a organização sem nenhum administrador ativo. Atribua a função de administrador a outro usuário antes de continuar."
   },
   "users.you_cannot_block_your_own_account": {
     "es": "No puedes bloquear tu propia cuenta.",

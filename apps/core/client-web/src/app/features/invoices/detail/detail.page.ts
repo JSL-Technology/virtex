@@ -30,6 +30,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
+import { refreshWhenStale } from '../../../core/data/data-version.service';
 
 @Component({
   selector: 'app-invoice-detail-page',
@@ -180,6 +181,11 @@ export class InvoiceDetailPage implements OnInit {
   });
 
   constructor() {
+    // An issued invoice is read here, not edited: when a payment or a credit note lands from
+    // another tab, its balance and status follow (QA M-06: it stayed «parcial» after being paid).
+    refreshWhenStale(() => {
+      if (this.id()) this.loadInvoice();
+    });
     effect(() => {
         const currentId = this.id();
         if (currentId) {

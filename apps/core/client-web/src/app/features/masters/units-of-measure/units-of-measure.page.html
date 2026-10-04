@@ -7,7 +7,7 @@
   (reload)="load()"
 >
   @if (canManage()) {
-    <button listActions type="button" class="primary-button" (click)="toggleCreate()">
+    <button listActions type="button" class="primary-button" appRequires="units_of_measure:manage" (click)="toggleCreate()">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'masters.units_of_measure.new_unit' | translate }}</span>
     </button>
@@ -45,16 +45,16 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.units_of_measure.name' | translate }}</th>
-          <th class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
-          <th>{{ 'masters.units_of_measure.type' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.units_of_measure.name' | translate }}</th>
+          <th appSortHeader="symbol" class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
+          <th appSortHeader="category">{{ 'masters.units_of_measure.type' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (unit of units(); track unit.id) {
+        @for (unit of table.rows(); track unit.id) {
           <tr>
             <td>{{ unit.nameKey | translate }}</td>
             <td class="text-center">{{ unit.symbol }}</td>

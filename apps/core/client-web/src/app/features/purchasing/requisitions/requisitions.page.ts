@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -12,6 +12,9 @@ import {
   PurchasingService,
 } from '../../../core/api/purchasing.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /** Lo que significa cada estado de una solicitud. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
@@ -34,12 +37,15 @@ const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequisitionsPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.requisitions(), { items: (req) => this.itemCount(req), status: (req) => this.translate.instant('purchasing.requisitions.status_label.' + req.status) });
   private readonly purchasing = inject(PurchasingService);
 
   protected readonly PlusCircleIcon = PlusCircle;

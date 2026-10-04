@@ -94,7 +94,7 @@ export class PurchaseOrdersController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   submit(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.orders.submit(id, user.organizationId);
+    return this.orders.submit(id, user.organizationId, user.id);
   }
 
   @Post(':id/approve')

@@ -3,7 +3,7 @@
     (isEditMode() ? 'accounting.ledger_form.title_edit' : 'accounting.ledger_form.title_create')
       | translate
   "
-  [subtitle]="'accounting.ledger_form.define_new_ledger_record_accounting_transactions' | translate"
+  [subtitle]="(isEditMode() ? 'accounting.ledger_form.subtitle_edit' : 'accounting.ledger_form.define_new_ledger_record_accounting_transactions') | translate"
   [dirty]="ledgerForm.dirty"
   [saving]="isLoading()"
   [invalid]="ledgerForm.invalid"

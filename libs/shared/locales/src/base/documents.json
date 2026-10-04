@@ -109,6 +109,11 @@
     "en": "Folder name",
     "pt": "Nome da pasta"
   },
+  "documents.repository.folder_name_required": {
+    "es": "Escribe el nombre de la carpeta.",
+    "en": "Enter the folder name.",
+    "pt": "Informe o nome da pasta."
+  },
   "documents.repository.home": {
     "es": "Inicio",
     "en": "Home",
@@ -140,7 +145,7 @@
     "pt": "Procurar em todos os documentos…"
   },
   "documents.repository.upload_file": {
-    "es": "Upload File",
+    "es": "Subir archivo",
     "en": "Upload a file",
     "pt": "Enviar arquivo"
   },

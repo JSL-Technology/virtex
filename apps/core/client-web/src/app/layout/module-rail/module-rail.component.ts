@@ -57,7 +57,11 @@ export class ModuleRailComponent {
   protected readonly LockIcon = Lock;
 
   protected readonly items = computed<RailItem[]>(() =>
-    this.modules.reachable().map((entry) => ({
+    // Only the modules this seat can enter (QA M-01). A padlocked Purchasing, Treasury and HR shown
+    // to a Member advertised screens it could not open — each click ended in "access denied" —
+    // and told every seat which modules the company runs. The ERPs this is measured against show
+    // a role its own work, not the catalogue.
+    this.modules.reachable().filter((entry) => entry.allowed).map((entry) => ({
       ...entry,
       icon: moduleIcon(entry.module.icon),
       // Un módulo al que no se puede entrar no lleva número: decir que hay tres cosas pendientes

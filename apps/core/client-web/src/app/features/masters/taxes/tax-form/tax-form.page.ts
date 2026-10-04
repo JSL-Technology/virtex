@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaxesService, CreateTaxDto, UpdateTaxDto } from '../../../../core/api/taxes.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TaxType } from '../../../../core/models/tax.model';
+import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,
@@ -24,10 +25,12 @@ export class TaxFormPage implements OnInit {
   private router = inject(Router);
   private taxesService = inject(TaxesService);
   private notificationService = inject(NotificationService);
+  private readonly locale = inject(LocaleStore);
   taxForm!: FormGroup;
   isEditMode = signal(false);
   isLoading = signal(true);
   taxTypes = Object.values(TaxType);
+  readonly taxTypeLabel = taxTypeLabel;
   /**
    * Qué falta antes de guardar, leído del propio formulario.
    *
@@ -44,7 +47,20 @@ export class TaxFormPage implements OnInit {
       name: ['', Validators.required],
       rate: [0, [Validators.required, Validators.min(0)]],
       type: [TaxType.PERCENTAGE, Validators.required],
-      countryCode: ['DO'],
+      // The tenant's own country, not a hard-coded 'DO'.
+      countryCode: [this.locale.tenantContext()?.countryCode || ''],
+    });
+    // A percentage is at most 100 (QA M-04: a 150 % tax was accepted); a fixed amount has no cap.
+    const applyRateCap = (type: TaxType) =>
+      this.taxForm.get('rate')?.setValidators(
+        type === TaxType.PERCENTAGE
+          ? [Validators.required, Validators.min(0), Validators.max(100)]
+          : [Validators.required, Validators.min(0)],
+      );
+    applyRateCap(TaxType.PERCENTAGE);
+    this.taxForm.get('type')?.valueChanges.subscribe((type: TaxType) => {
+      applyRateCap(type);
+      this.taxForm.get('rate')?.updateValueAndValidity();
     });
     if (this.id) {
       this.isEditMode.set(true);

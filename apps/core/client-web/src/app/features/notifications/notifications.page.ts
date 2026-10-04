@@ -73,8 +73,9 @@ export class NotificationsPage {
       .filter((group) => group.notifications.length > 0);
   }
 
-  markAsRead(notificationId: string): void {
-    this.notificationCenter.markAsRead(notificationId);
+  /** Opens what the notice is about, and marks it read (QA B-02). */
+  open(notification: Notification): void {
+    this.notificationCenter.open(notification);
   }
 
   markAllAsRead(): void {

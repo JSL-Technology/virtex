@@ -29,6 +29,11 @@ type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SecuritySettingsComponent implements OnInit {
+  /** The server records an agent it cannot read as `'Unknown'`; that word is not for the screen. */
+  protected known(value: string | null | undefined): string | null {
+    return value && value !== 'Unknown' ? value : null;
+  }
+
   private authService = inject(AuthService);
   private securityService = inject(SecurityService);
   private notificationService = inject(NotificationService);
@@ -54,6 +59,7 @@ export class SecuritySettingsComponent implements OnInit {
   protected readonly DownloadIcon = Download;
   protected readonly RefreshIcon = RefreshCw;
   protected readonly ArrowRightIcon = ArrowRight;
+  protected readonly XIcon = X;
   protected readonly ImageIcon = ImageIcon;
   protected readonly UserIcon = User;
   protected readonly MailIcon = Mail;

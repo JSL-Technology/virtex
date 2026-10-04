@@ -3,6 +3,8 @@ import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoic
 import { VendorBill, VendorBillStatus } from '../../accounts-payable/entities/vendor-bill.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { roundAmount } from '../../common/money';
+import { UnprocessableEntityError } from '../../i18n/localized.exception';
+import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contract';
 
 /**
  * The Dominican Republic's "formatos de envío": 606 (purchases), 607 (sales), 608 (voided
@@ -128,6 +130,22 @@ export class DominicanRepublicReports {
       },
       order: { date: 'ASC' },
     });
+
+    // Every line of the 606 identifies the supplier by RNC or cédula, and the DGII rejects the
+    // whole file over one that does not (QA B-02: a bill without one was reported anyway). The
+    // file is not produced; the bills to correct are named instead. Bills posted from now on
+    // cannot reach this point — accounts payable refuses an NCF without a valid supplier id —
+    // but bills recorded before that rule still can.
+    const unidentified = purchases.filter((bill) => !isValidDominicanTaxId(bill.vendor?.taxId ?? ''));
+    if (unidentified.length > 0) {
+      throw new UnprocessableEntityError('compliance.report_606_supplier_tax_id_missing', {
+        count: unidentified.length,
+        bills: unidentified
+          .slice(0, 10)
+          .map((bill) => `${bill.ncf} (${bill.vendor?.name ?? '—'})`)
+          .join(', '),
+      });
+    }
 
     const rows = purchases.map((bill) => {
       const taxId = digitsOnly(bill.vendor?.taxId);

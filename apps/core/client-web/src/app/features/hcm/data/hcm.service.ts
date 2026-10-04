@@ -118,7 +118,13 @@ export interface HcmPage<T> {
 
 export type SaveEmployee = Partial<
   Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>
-> & { firstName: string; lastName: string; email: string };
+> & {
+  firstName: string;
+  lastName: string;
+  email: string;
+  /** The starting salary, on a hire only. Dated the hire day unless `effectiveFrom` says otherwise. */
+  initialCompensation?: { baseSalary: number; payFrequency?: 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY'; effectiveFrom?: string };
+};
 
 /**
  * People: the employee register and the company's departments.

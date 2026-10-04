@@ -21,6 +21,11 @@ import { VxBadgeComponent } from '../../../../shared/components/badge';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionsComponent implements OnInit {
+  /** The server records an agent it cannot read as `'Unknown'`; that word is not for the screen. */
+  protected known(value: string | null | undefined): string | null {
+    return value && value !== 'Unknown' ? value : null;
+  }
+
   private sessionService = inject(SessionService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);

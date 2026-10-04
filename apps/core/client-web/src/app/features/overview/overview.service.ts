@@ -20,6 +20,8 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth';
+import { requiredPermissionsFor } from '../../core/modules/module-manifest';
+import { resolveRoute } from '../../core/modules/module-registry';
 import { FormatService } from '@virteex/shared/ui-i18n';
 
 /**
@@ -50,19 +52,26 @@ export class OverviewService {
   // Configuración declarativa. Se filtra por permisos en `getQuickActions()`, que
   // es la fuente de verdad de la UI. El backend sigue siendo la autoridad real.
   private readonly quickActions: QuickAction[] = [
-    { id: 'new-invoice',  labelKey: 'overview.quick.new_invoice',  icon: FilePlus,  route: '/invoices/new',  permissions: ['invoices:view'], accent: 'primary' },
-    { id: 'new-quote',    labelKey: 'overview.quick.new_quote',    icon: FileText,  route: '/quotes/new',    permissions: ['sales:view'],    accent: 'purple'  },
-    { id: 'new-customer', labelKey: 'overview.quick.new_customer', icon: UserPlus,  route: '/customers/new', permissions: ['contacts:view'], accent: 'green'   },
-    { id: 'new-product',  labelKey: 'overview.quick.new_product',  icon: Package,   route: '/products/new',  permissions: ['inventory:view'],accent: 'orange'  },
-    { id: 'invoices',     labelKey: 'overview.quick.invoices',     icon: Receipt,   route: '/invoices',      permissions: ['invoices:view'], accent: 'blue'    },
-    { id: 'reports',      labelKey: 'overview.quick.reports',      icon: FileBarChart, route: '/reports',    permissions: ['reports:view'],  accent: 'primary' },
+    { id: 'new-invoice',  labelKey: 'overview.quick.new_invoice',  icon: FilePlus,  route: '/invoices/new', accent: 'primary' },
+    { id: 'new-quote',    labelKey: 'overview.quick.new_quote',    icon: FileText,  route: '/quotes/new',    accent: 'purple'  },
+    { id: 'new-customer', labelKey: 'overview.quick.new_customer', icon: UserPlus,  route: '/contacts/customers/new', accent: 'green'   },
+    { id: 'new-product',  labelKey: 'overview.quick.new_product',  icon: Package,   route: '/inventory/products/new',accent: 'orange'  },
+    { id: 'invoices',     labelKey: 'overview.quick.invoices',     icon: Receipt,   route: '/invoices', accent: 'blue'    },
+    { id: 'reports',      labelKey: 'overview.quick.reports',      icon: FileBarChart, route: '/reports',  accent: 'primary' },
   ];
 
-  /** Accesos rápidos visibles para el usuario actual (espejo de RBAC). */
+  /**
+   * Accesos rápidos visibles para el usuario actual.
+   *
+   * El permiso es el de la ventana que abre, leído del manifest: escrito aparte se desincronizaba
+   * (`contacts:view` para un alta que exige `customers:create`) y ofrecía accesos que acababan en
+   * un 403. Una ruta que ningún manifest declara no se ofrece.
+   */
   getQuickActions(): QuickAction[] {
-    return this.quickActions.filter(
-      (a) => !a.permissions?.length || this.auth.hasPermissions(a.permissions)
-    );
+    return this.quickActions.filter((action) => {
+      const resolved = resolveRoute(action.route);
+      return !!resolved && this.auth.hasPermissions(requiredPermissionsFor(resolved.entry.route.permission));
+    });
   }
 
   // ── Actividad reciente ─────────────────────────────────────────────────────
@@ -104,15 +113,22 @@ export class OverviewService {
 // ── Traducción de los hechos del servidor a lo que la página pinta ────────────
 
 /** Which icon and which sentence belong to each audited table. */
-const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: string; route: string }> = {
-  invoices:          { kind: 'invoice', icon: Receipt,    key: 'INVOICES',          route: '/invoices' },
+/**
+ * How each audited entity is shown, and where a row about it leads.
+ *
+ * `record` opens the record itself (QA B-02: a row about invoice 42 opened the invoice list, or —
+ * on the dashboard — nothing at all). A deleted record has nothing to open, so it leads to `route`,
+ * the list, as does an entity with no screen of its own.
+ */
+const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: string; route: string; record?: (id: string) => string }> = {
+  invoices:          { kind: 'invoice', icon: Receipt,    key: 'INVOICES',          route: '/invoices',                  record: (id) => `/invoices/${id}` },
   customer_payments: { kind: 'payment', icon: CreditCard, key: 'CUSTOMER_PAYMENTS', route: '/customer-receipts' },
-  vendor_bills:      { kind: 'bill',    icon: Truck,      key: 'VENDOR_BILLS',      route: '/accounts-payable' },
+  vendor_bills:      { kind: 'bill',    icon: Truck,      key: 'VENDOR_BILLS',      route: '/accounts-payable',          record: (id) => `/accounts-payable/${id}` },
   vendor_payments:   { kind: 'payment', icon: Banknote,   key: 'VENDOR_PAYMENTS',   route: '/accounts-payable/payments' },
-  journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries' },
-  customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts' },
-  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers' },
-  products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory' },
+  journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries', record: (id) => `/accounting/journal-entries/${id}/edit` },
+  customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts/customers',        record: (id) => `/contacts/customers/${id}/edit` },
+  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers',        record: (id) => `/masters/suppliers/${id}/edit` },
+  products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory/products',        record: (id) => `/inventory/products/${id}/edit` },
 };
 
 const EVENT_VIEW: Record<string, { icon: unknown; overdue: boolean }> = {
@@ -142,7 +158,7 @@ function toActivityItem(row: ActivityDto): ActivityItem {
     amount: row.amount,
     currencyCode: row.currencyCode,
     actorName: row.actorName,
-    route: view.route || undefined,
+    route: (row.action !== 'DELETE' && row.entityId && view.record ? view.record(row.entityId) : view.route) || undefined,
     timestamp: row.timestamp,
   };
 }

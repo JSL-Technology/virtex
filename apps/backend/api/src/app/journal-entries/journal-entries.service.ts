@@ -1,6 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, In, Repository, DataSource, QueryRunner } from 'typeorm';
+import { EntityManager, In, Repository, DataSource, QueryRunner, FindOptionsOrder } from 'typeorm';
 import {
   JournalEntry,
   JournalEntryStatus,
@@ -64,6 +64,7 @@ import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 
 import { PostingContext } from './accounting-posting.port';
+import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -129,7 +130,9 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction(async (manager) => {
+    // Announced once the entry has committed: its approvers are told about a request that exists.
+    let raisedRequestId: string | null = null;
+    const created = await this.dataSource.transaction(async (manager) => {
       const replayed = await this.findByIdempotencyKey(manager, organizationId, context);
       if (replayed) return replayed;
 
@@ -158,6 +161,7 @@ export class JournalEntriesService {
         return this.markPosted(manager, prepared.entry, organizationId, context);
       }
 
+      raisedRequestId = approvalRequest.id;
       prepared.entry.status = JournalEntryStatus.PENDING_APPROVAL;
       await manager.save(prepared.entry);
       await this.recordAudit(
@@ -171,6 +175,8 @@ export class JournalEntriesService {
       this.logger.log(`Asiento ${prepared.entry.id} enviado para aprobación.`);
       return prepared.entry;
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return created;
   }
 
   /** Post on a caller-supplied manager, inside the caller's transaction. */
@@ -941,7 +947,8 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction(async (manager) => {
+    let raisedRequestId: string | null = null;
+    const submitted = await this.dataSource.transaction(async (manager) => {
       const entry = await manager.findOne(JournalEntry, {
         where: { id: journalEntryId, organizationId },
         relations: ['lines'],
@@ -969,9 +976,12 @@ export class JournalEntriesService {
         return this.markPosted(manager, entry, organizationId, context);
       }
 
+      raisedRequestId = approvalRequest.id;
       entry.status = JournalEntryStatus.PENDING_APPROVAL;
       return manager.save(entry);
     });
+    if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
+    return submitted;
   }
 
   /**
@@ -1263,12 +1273,25 @@ export class JournalEntriesService {
    */
   async findAll(
     organizationId: string,
-    query: { page?: number; pageSize?: number } = {},
+    query: { page?: number; pageSize?: number; sort?: JournalEntryListSort; direction?: 'asc' | 'desc' } = {},
   ): Promise<Page<JournalEntry>> {
     const paging = resolvePaging(query.page, query.pageSize);
+    // The chosen column first; the default order breaks ties, so a page boundary never splits
+    // equal values differently on the next request.
+    const direction = query.direction === 'desc' ? 'DESC' : 'ASC';
+    const fallback: Record<string, 'ASC' | 'DESC'> = { date: 'DESC', entryNumber: 'DESC', createdAt: 'DESC', id: 'ASC' };
+    const sort = query.sort && JOURNAL_ENTRY_LIST_SORT.includes(query.sort) ? query.sort : null;
+    const order = (
+      sort
+        ? {
+            [sort]: { direction, nulls: 'LAST' },
+            ...Object.fromEntries(Object.entries(fallback).filter(([column]) => column !== sort)),
+          }
+        : fallback
+    ) as FindOptionsOrder<JournalEntry>;
     const [rows, total] = await this.journalEntryRepository.findAndCount({
       where: { organizationId },
-      order: { date: 'DESC', entryNumber: 'DESC', createdAt: 'DESC' },
+      order,
       skip: paging.skip,
       take: paging.take,
     });

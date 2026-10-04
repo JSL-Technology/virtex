@@ -12,21 +12,21 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'accounting.journal_entries.date' | translate }}</th>
-          <th>{{ 'accounting.journal_entries.entry' | translate }}</th>
-          <th>{{ 'accounting.journal_entries.description' | translate }}</th>
+          <th appSortHeader="date">{{ 'accounting.journal_entries.date' | translate }}</th>
+          <th appSortHeader="entryNumber">{{ 'accounting.journal_entries.entry' | translate }}</th>
+          <th appSortHeader="description">{{ 'accounting.journal_entries.description' | translate }}</th>
           <th class="text-right">{{ 'accounting.journal_entries.debit' | translate }}</th>
           <th class="text-right">{{ 'accounting.journal_entries.credit' | translate }}</th>
-          <th class="text-center">{{ 'accounting.journal_entries.status' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'accounting.journal_entries.status' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
       <tbody>
         @for (entry of entries(); track entry.id) {
-          <tr>
+          <tr appRowLink>
             <td>{{ entry.date | vxDate: 'date' : true }}</td>
             <td>
               <!--

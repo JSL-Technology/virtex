@@ -29,10 +29,15 @@
     "en": "No banks yet",
     "pt": "Ainda não há bancos"
   },
-  "masters.banks.new_bank": {
-    "es": "Nuevo banco",
-    "en": "New bank",
-    "pt": "Novo banco"
+  "masters.banks.open_account": {
+    "es": "Nueva cuenta bancaria",
+    "en": "New bank account",
+    "pt": "Nova conta bancária"
+  },
+  "masters.banks.subtitle": {
+    "es": "Los bancos con los que la empresa tiene cuentas. Un banco se agrega abriendo una cuenta en él.",
+    "en": "The banks the company holds accounts with. A bank is added by opening an account with it.",
+    "pt": "Os bancos com os quais a empresa tem contas. Um banco é adicionado abrindo uma conta nele."
   },
   "masters.banks.swift_code": {
     "es": "Código SWIFT",
@@ -539,6 +544,11 @@
     "en": "Save Tax",
     "pt": "Salvar Imposto"
   },
+  "masters.tax_form.subtitle_edit": {
+    "es": "Cambia la tasa o el nombre de este impuesto. Los documentos ya emitidos conservan la tasa con la que se calcularon.",
+    "en": "Change this tax's rate or name. Documents already issued keep the rate they were calculated with.",
+    "pt": "Altere a alíquota ou o nome deste imposto. Os documentos já emitidos mantêm a alíquota com que foram calculados."
+  },
   "masters.tax_form.tax_could_not_loaded": {
     "es": "No se pudo cargar el impuesto.",
     "en": "The tax could not be loaded.",
@@ -618,6 +628,16 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "masters.taxes.type_fixed": {
+    "es": "Monto fijo",
+    "en": "Fixed amount",
+    "pt": "Valor fixo"
+  },
+  "masters.taxes.type_percentage": {
+    "es": "Porcentaje",
+    "en": "Percentage",
+    "pt": "Percentual"
   },
   "masters.units_of_measure.created": {
     "es": "Unidad creada.",

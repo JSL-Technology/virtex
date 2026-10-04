@@ -26,7 +26,7 @@
                 Un botón y no un `<li>` con `tabindex` y tres manejadores de teclado imitándolo:
                 el elemento que se pulsa debe ser el que el navegador ya sabe que se pulsa.
               -->
-              <button type="button" class="notification-hit" (click)="markAsRead(notification.id)">
+              <button type="button" class="notification-hit" (click)="open(notification)">
                 <span class="notification-content">
                   <span class="notification-title">{{ notification.title }}</span>
                   <span class="notification-description">{{ notification.body }}</span>

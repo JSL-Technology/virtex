@@ -1,16 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   SsoAdminService,
   SsoDomain,
   SsoIdentityProvider,
 } from '../../../../core/services/sso-admin.service';
-import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { NotificationService } from '../../../../core/services/notification';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
@@ -20,11 +20,15 @@ import { NotificationService } from '../../../../core/services/notification';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })
 export class SsoSettingsPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly providersTable = sortable(() => this.providers());
+  /** Sortable by its headers (QA B-01). */
+  readonly domainsTable = sortable(() => this.domains());
   /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
   private readonly errorText = inject(NotificationService);
   private readonly translate = inject(TranslateService);

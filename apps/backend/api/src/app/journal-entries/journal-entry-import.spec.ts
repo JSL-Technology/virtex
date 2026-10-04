@@ -165,7 +165,7 @@ describeWithDb('journal entry import', () => {
       dataSource.getRepository(JournalEntryAttachment),
       dataSource,
       {} as never,
-      { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
+      { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() } as never,
       new EventEmitter2(),
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),

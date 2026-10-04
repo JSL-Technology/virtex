@@ -7,6 +7,8 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { Department, HcmService } from '../../../core/api/hcm.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Departments: the company's own structure, and the cost centre each part posts to.
@@ -21,12 +23,14 @@ import { Department, HcmService } from '../../../core/api/hcm.service';
 @Component({
   selector: 'app-departments-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.departments());
   private readonly hcm = inject(HcmService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);
@@ -41,6 +45,8 @@ export class DepartmentsPage {
   readonly busy = signal(false);
 
   readonly creating = signal(false);
+  /** Saving with no name used to do nothing at all (QA A-15). Now it says why. */
+  readonly nameError = signal(false);
   readonly editing = signal<string | null>(null);
 
   readonly isEmpty = computed(() => !this.loading() && this.departments().length === 0);
@@ -49,19 +55,33 @@ export class DepartmentsPage {
     this.reload();
   }
 
-  create(name: string, costCenter: string): void {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  create(nameInput: HTMLInputElement, costInput: HTMLInputElement): void {
+    const trimmed = nameInput.value.trim();
+    if (!trimmed) {
+      this.nameError.set(true);
+      nameInput.focus();
+      return;
+    }
     this.busy.set(true);
-    this.hcm.createDepartment({ name: trimmed, costCenter: costCenter.trim() || undefined }).subscribe({
-      next: () => { this.busy.set(false); this.creating.set(false); this.reload(); },
+    this.hcm.createDepartment({ name: trimmed, costCenter: costInput.value.trim() || undefined }).subscribe({
+      next: () => {
+        // Cleared only once saved: a refused save keeps what was typed so it can be corrected.
+        nameInput.value = '';
+        costInput.value = '';
+        this.busy.set(false);
+        this.creating.set(false);
+        this.reload();
+      },
       error: (error) => this.fail(error),
     });
   }
 
   update(department: Department, name: string, costCenter: string): void {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      this.nameError.set(true);
+      return;
+    }
     this.busy.set(true);
     this.hcm
       .updateDepartment(department.id, { name: trimmed, costCenter: costCenter.trim() || undefined })

@@ -12,19 +12,19 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'contacts.suppliers.company_name' | translate }}</th>
-          <th>{{ 'contacts.suppliers.contact_person' | translate }}</th>
-          <th>{{ 'contacts.suppliers.email' | translate }}</th>
-          <th>{{ 'contacts.suppliers.phone' | translate }}</th>
+          <th appSortHeader="companyName">{{ 'contacts.suppliers.company_name' | translate }}</th>
+          <th appSortHeader="contactPerson">{{ 'contacts.suppliers.contact_person' | translate }}</th>
+          <th appSortHeader="email">{{ 'contacts.suppliers.email' | translate }}</th>
+          <th appSortHeader="phone">{{ 'contacts.suppliers.phone' | translate }}</th>
           <th class="actions-column">{{ 'contacts.suppliers.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (supplier of suppliers(); track supplier.id) {
-          <tr>
+        @for (supplier of table.rows(); track supplier.id) {
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/masters/suppliers', supplier.id, 'edit']" class="table-link">
                 {{ supplier.companyName }}

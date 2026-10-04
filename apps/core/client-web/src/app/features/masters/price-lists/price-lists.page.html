@@ -11,21 +11,21 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.price_lists.name' | translate }}</th>
-          <th>{{ 'masters.price_lists.currency' | translate }}</th>
-          <th>{{ 'masters.price_lists.valid_from' | translate }}</th>
-          <th>{{ 'masters.price_lists.valid_until' | translate }}</th>
-          <th class="text-center">{{ 'masters.price_lists.items' | translate }}</th>
-          <th>{{ 'masters.price_lists.status' | translate }}</th>
+          <th appSortHeader="name">{{ 'masters.price_lists.name' | translate }}</th>
+          <th appSortHeader="currency">{{ 'masters.price_lists.currency' | translate }}</th>
+          <th appSortHeader="validFrom">{{ 'masters.price_lists.valid_from' | translate }}</th>
+          <th appSortHeader="validTo">{{ 'masters.price_lists.valid_until' | translate }}</th>
+          <th appSortHeader="items" class="text-center">{{ 'masters.price_lists.items' | translate }}</th>
+          <th appSortHeader="status">{{ 'masters.price_lists.status' | translate }}</th>
           <th class="actions-column">{{ 'masters.price_lists.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (list of priceLists(); track list.id) {
-          <tr>
+        @for (list of table.rows(); track list.id) {
+          <tr appRowLink>
             <td>
               <a [routerLink]="['/masters/price-lists', list.id, 'edit']" class="table-link">
                 {{ list.name }}

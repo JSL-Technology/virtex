@@ -12,18 +12,18 @@
   </button>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'accounting.periods.period' | translate }}</th>
-          <th>{{ 'accounting.periods.start_date' | translate }}</th>
-          <th>{{ 'accounting.periods.end_date' | translate }}</th>
-          <th class="text-center">{{ 'accounting.periods.status' | translate }}</th>
+          <th appSortHeader="startDate">{{ 'accounting.periods.period' | translate }}</th>
+          <th appSortHeader="startDate">{{ 'accounting.periods.start_date' | translate }}</th>
+          <th appSortHeader="endDate">{{ 'accounting.periods.end_date' | translate }}</th>
+          <th appSortHeader="status" class="text-center">{{ 'accounting.periods.status' | translate }}</th>
           <th class="actions-column">{{ 'accounting.periods.action' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (period of periods(); track period.id) {
+        @for (period of table.rows(); track period.id) {
           <tr>
             <td>
               <!--

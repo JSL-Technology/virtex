@@ -86,6 +86,7 @@ describeWithDb('budget control', () => {
         startApprovalProcess: jest.fn(async () =>
           approvalRequired ? { id: 'approval-request' } : null,
         ),
+        announcePending: jest.fn(),
       } as never,
       new EventEmitter2(),
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,

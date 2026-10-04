@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subject, of, throwError, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VX_SELECT } from './index';
+import { VxSelectComponent } from './select.component';
 
 /**
  * Two unrelated entities, on purpose.
@@ -177,6 +178,17 @@ describe('VxSelectComponent', () => {
       fixture.detectChanges();
       return fixture;
     }
+
+    it('escribe el id pedido, y ninguno —nunca «null»— cuando no se pide (QA B-02)', fakeAsync(() => {
+      const fixture = build();
+      expect(inputOf(fixture).getAttribute('id')).toBe('customer');
+      const bare = TestBed.createComponent(VxSelectComponent);
+      bare.componentRef.setInput('displayWith', (option: unknown) => String(option));
+      bare.componentRef.setInput('options', []);
+      bare.detectChanges();
+      expect(inputOf(bare).hasAttribute('id')).toBe(false);
+      flush();
+    }));
 
     it('no pregunta por un control que nace vacío', fakeAsync(() => {
       //  `['']` es como se declara cualquier campo opcional del producto, y el accessor recibe

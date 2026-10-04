@@ -28,7 +28,7 @@
       <section class="result-group card">
         <h2 class="group-header">
           <lucide-icon [img]="group.icon" size="18" aria-hidden="true"></lucide-icon>
-          <span>{{ group.type }} ({{ group.results.length }})</span>
+          <span>{{ 'search.group.' + group.type.toLowerCase() | translate }} ({{ group.results.length }})</span>
         </h2>
         <ul>
           @for (item of group.results; track item.id) {

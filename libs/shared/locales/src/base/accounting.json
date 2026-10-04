@@ -324,20 +324,190 @@
     "en": "All existing rules were deleted.",
     "pt": "Todas as regras existentes foram excluídas."
   },
-  "accounting.annual_close.empty": {
-    "es": "El checklist de cierre anual todavía no está disponible.",
-    "en": "The year-end closing checklist is not available yet.",
-    "pt": "A lista de verificação do encerramento anual ainda não está disponível."
+  "accounting.annual_close.blocked_note": {
+    "es": "Resuelve los puntos marcados para poder cerrar.",
+    "en": "Resolve the marked items to be able to close.",
+    "pt": "Resolva os itens marcados para poder encerrar."
+  },
+  "accounting.annual_close.check.closing_journal": {
+    "es": "Existe el diario de cierre (CIERRE).",
+    "en": "The closing journal (CIERRE) exists.",
+    "pt": "O diário de encerramento (CIERRE) existe."
+  },
+  "accounting.annual_close.check.closing_journal_failing": {
+    "es": "Falta el diario de cierre (código CIERRE).",
+    "en": "The closing journal (code CIERRE) is missing.",
+    "pt": "Falta o diário de encerramento (código CIERRE)."
+  },
+  "accounting.annual_close.check.default_ledger": {
+    "es": "Hay un libro contable principal.",
+    "en": "There is a main ledger.",
+    "pt": "Há um livro contábil principal."
+  },
+  "accounting.annual_close.check.default_ledger_failing": {
+    "es": "No hay un libro contable principal.",
+    "en": "There is no main ledger.",
+    "pt": "Não há um livro contábil principal."
+  },
+  "accounting.annual_close.check.earlier_years_closed": {
+    "es": "Los ejercicios anteriores están cerrados.",
+    "en": "Earlier years are closed.",
+    "pt": "Os exercícios anteriores estão encerrados."
+  },
+  "accounting.annual_close.check.earlier_years_closed_failing": {
+    "es": "Hay {{count}} ejercicio(s) anterior(es) abierto(s). Puedes cerrar este, pero lo habitual es cerrar en orden.",
+    "en": "{{count}} earlier year(s) still open. You can close this one, but closing in order is usual.",
+    "pt": "Há {{count}} exercício(s) anterior(es) aberto(s). Você pode encerrar este, mas o usual é encerrar em ordem."
+  },
+  "accounting.annual_close.check.entries_posted": {
+    "es": "No hay asientos sin contabilizar.",
+    "en": "There are no unposted entries.",
+    "pt": "Não há lançamentos não contabilizados."
+  },
+  "accounting.annual_close.check.entries_posted_failing": {
+    "es": "Hay {{count}} asiento(s) en borrador o pendiente(s) de aprobación.",
+    "en": "{{count}} entry(ies) in draft or awaiting approval.",
+    "pt": "Há {{count}} lançamento(s) em rascunho ou aguardando aprovação."
+  },
+  "accounting.annual_close.check.periods_closed": {
+    "es": "Todos los períodos están cerrados.",
+    "en": "Every period is closed.",
+    "pt": "Todos os períodos estão fechados."
+  },
+  "accounting.annual_close.check.periods_closed_failing": {
+    "es": "Quedan {{count}} período(s) abierto(s): {{open}}.",
+    "en": "{{count}} period(s) still open: {{open}}.",
+    "pt": "Restam {{count}} período(s) aberto(s): {{open}}."
+  },
+  "accounting.annual_close.check.periods_exist": {
+    "es": "El ejercicio tiene {{count}} período(s) contable(s).",
+    "en": "The year has {{count}} accounting period(s).",
+    "pt": "O exercício tem {{count}} período(s) contábil(is)."
+  },
+  "accounting.annual_close.check.periods_exist_failing": {
+    "es": "El ejercicio no tiene períodos contables.",
+    "en": "The year has no accounting periods.",
+    "pt": "O exercício não tem períodos contábeis."
+  },
+  "accounting.annual_close.check.retained_earnings": {
+    "es": "La cuenta de resultados acumulados está configurada.",
+    "en": "The retained earnings account is set.",
+    "pt": "A conta de lucros acumulados está configurada."
+  },
+  "accounting.annual_close.check.retained_earnings_failing": {
+    "es": "Falta indicar la cuenta de resultados acumulados.",
+    "en": "The retained earnings account is not set.",
+    "pt": "Falta indicar a conta de lucros acumulados."
+  },
+  "accounting.annual_close.close": {
+    "es": "Cerrar ejercicio",
+    "en": "Close year",
+    "pt": "Encerrar exercício"
+  },
+  "accounting.annual_close.close_failed": {
+    "es": "No se pudo cerrar el ejercicio.",
+    "en": "The year could not be closed.",
+    "pt": "Não foi possível encerrar o exercício."
+  },
+  "accounting.annual_close.confirm_message": {
+    "es": "Se registrará el asiento que traspasa el resultado de {{from}} – {{to}} a resultados acumulados, el ejercicio quedará cerrado y se abrirá el siguiente. Solo se puede deshacer reabriéndolo con un motivo. ¿Continuar?",
+    "en": "The entry moving the result of {{from}} – {{to}} to retained earnings will be posted, the year will be closed and the next one opened. It can only be undone by reopening it with a reason. Continue?",
+    "pt": "Será lançado o registro que transfere o resultado de {{from}} – {{to}} para lucros acumulados, o exercício será encerrado e o seguinte aberto. Só pode ser desfeito reabrindo-o com um motivo. Continuar?"
+  },
+  "accounting.annual_close.confirm_title": {
+    "es": "Cerrar el ejercicio fiscal",
+    "en": "Close the fiscal year",
+    "pt": "Encerrar o exercício fiscal"
+  },
+  "accounting.annual_close.fiscal_year": {
+    "es": "Ejercicio fiscal",
+    "en": "Fiscal year",
+    "pt": "Exercício fiscal"
   },
   "accounting.annual_close.go_task": {
     "es": "Ir a la tarea",
     "en": "Go to the task",
     "pt": "Ir para a tarefa"
   },
+  "accounting.annual_close.load_failed": {
+    "es": "No se pudo comprobar el ejercicio.",
+    "en": "The year could not be checked.",
+    "pt": "Não foi possível verificar o exercício."
+  },
+  "accounting.annual_close.loading": {
+    "es": "Comprobando el ejercicio…",
+    "en": "Checking the year…",
+    "pt": "Verificando o exercício…"
+  },
+  "accounting.annual_close.no_years": {
+    "es": "Aún no hay ejercicios fiscales. Se crean al configurar el calendario contable.",
+    "en": "There are no fiscal years yet. They are created when the accounting calendar is set up.",
+    "pt": "Ainda não há exercícios fiscais. Eles são criados ao configurar o calendário contábil."
+  },
+  "accounting.annual_close.reopen": {
+    "es": "Reabrir ejercicio",
+    "en": "Reopen year",
+    "pt": "Reabrir exercício"
+  },
+  "accounting.annual_close.reopen_failed": {
+    "es": "No se pudo reabrir el ejercicio.",
+    "en": "The year could not be reopened.",
+    "pt": "Não foi possível reabrir o exercício."
+  },
+  "accounting.annual_close.reopen_message": {
+    "es": "Se revertirá el asiento de cierre. Indica el motivo (por ejemplo, un ajuste de auditoría); quedará en la pista de auditoría.",
+    "en": "The closing entry will be reversed. Give the reason (an audit adjustment, for example); it is kept in the audit trail.",
+    "pt": "O lançamento de encerramento será revertido. Informe o motivo (por exemplo, um ajuste de auditoria); ele fica na trilha de auditoria."
+  },
+  "accounting.annual_close.reopen_title": {
+    "es": "Reabrir el ejercicio fiscal",
+    "en": "Reopen the fiscal year",
+    "pt": "Reabrir o exercício fiscal"
+  },
+  "accounting.annual_close.result_loss": {
+    "es": "Pérdida del ejercicio:",
+    "en": "Loss for the year:",
+    "pt": "Prejuízo do exercício:"
+  },
+  "accounting.annual_close.result_note": {
+    "es": "Saldo de {{accounts}} cuenta(s) de resultados en el libro principal, que el cierre traspasará a resultados acumulados.",
+    "en": "Balance of {{accounts}} result account(s) in the main ledger, which the close will move to retained earnings.",
+    "pt": "Saldo de {{accounts}} conta(s) de resultado no livro principal, que o fechamento transferirá para lucros acumulados."
+  },
+  "accounting.annual_close.result_profit": {
+    "es": "Utilidad del ejercicio:",
+    "en": "Profit for the year:",
+    "pt": "Lucro do exercício:"
+  },
+  "accounting.annual_close.status.closed": {
+    "es": "Cerrado",
+    "en": "Closed",
+    "pt": "Fechado"
+  },
+  "accounting.annual_close.status.locked": {
+    "es": "Archivado",
+    "en": "Archived",
+    "pt": "Arquivado"
+  },
+  "accounting.annual_close.status.open": {
+    "es": "Abierto",
+    "en": "Open",
+    "pt": "Aberto"
+  },
+  "accounting.annual_close.subtitle": {
+    "es": "Traspasa el resultado del ejercicio a resultados acumulados y abre el siguiente. Antes, comprueba que no quede nada pendiente.",
+    "en": "Moves the year's result to retained earnings and opens the next year. First, it checks that nothing is pending.",
+    "pt": "Transfere o resultado do exercício para lucros acumulados e abre o seguinte. Antes, verifica que nada esteja pendente."
+  },
   "accounting.annual_close.title": {
     "es": "Cierre anual",
     "en": "Year-End Close",
     "pt": "Encerramento Anual"
+  },
+  "accounting.annual_close.view_closing_entry": {
+    "es": "Ver el asiento de cierre",
+    "en": "View the closing entry",
+    "pt": "Ver o lançamento de encerramento"
   },
   "accounting.bulk_operations.account_code": {
     "es": "Código de Cuenta",
@@ -1560,6 +1730,11 @@
     "en": "Set as the default ledger",
     "pt": "Definir como livro padrão"
   },
+  "accounting.ledger_form.subtitle_edit": {
+    "es": "Cambia el nombre o la descripción de este libro. Los asientos ya registrados en él no cambian.",
+    "en": "Change this ledger's name or description. The entries already recorded in it do not change.",
+    "pt": "Altere o nome ou a descrição deste livro. Os lançamentos já registrados nele não mudam."
+  },
   "accounting.ledger_form.title_create": {
     "es": "Nuevo libro mayor",
     "en": "New ledger",
@@ -1609,6 +1784,11 @@
     "es": "No se pudieron cargar los libros contables. Inténtalo de nuevo.",
     "en": "The ledgers could not be loaded. Try again.",
     "pt": "Não foi possível carregar os livros contábeis. Tente novamente."
+  },
+  "accounting.ledger_list.main_ledger": {
+    "es": "Principal",
+    "en": "Main",
+    "pt": "Principal"
   },
   "accounting.ledger_list.name": {
     "es": "Nombre",

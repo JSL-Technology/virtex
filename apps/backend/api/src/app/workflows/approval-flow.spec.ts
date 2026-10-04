@@ -464,4 +464,61 @@ describeWithDb('approval flow', () => {
       expect(unchanged.status).toBe(ApprovalStatus.PENDING);
     });
   });
+  /**
+   * `startApprovalProcess` reads one policy per document type; a second one would make the chain
+   * that applies depend on row order. And a step naming a role no member of this tenant can hold
+   * is a document that never posts.
+   */
+  describe('writing policies', () => {
+    const FOREIGN_ROLE = '9b000000-0000-4000-8000-0000000000f1';
+    const OWN_ROLE = '9b000000-0000-4000-8000-0000000000f2';
+
+    beforeAll(async () => {
+      await dataSource.query(`DELETE FROM roles WHERE id = ANY($1::uuid[])`, [[FOREIGN_ROLE, OWN_ROLE]]);
+      await dataSource.query(
+        `INSERT INTO roles (id, name, permissions, organization_id)
+         VALUES ($1, 'Ajeno', '', $3), ($2, 'Tesorero', '', $4)`,
+        [FOREIGN_ROLE, OWN_ROLE, OTHER_ORG, ORG],
+      );
+    });
+
+    it('refuses a second policy for a document type that already has one', async () => {
+      await expect(
+        workflows.createPolicy(
+          {
+            name: 'Otra',
+            documentType: DocumentTypeForApproval.JOURNAL_ENTRY,
+            steps: [{ order: 1, minAmount: 0, roleId: OWN_ROLE }],
+          },
+          ORG,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'workflows.policy_exists_for_document_type' });
+    });
+
+    it('refuses a step whose role belongs to another tenant', async () => {
+      await expect(
+        workflows.createPolicy(
+          {
+            name: 'Pagos',
+            documentType: DocumentTypeForApproval.PAYMENT_BATCH,
+            steps: [{ order: 1, minAmount: 0, roleId: FOREIGN_ROLE }],
+          },
+          ORG,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'workflows.step_role_not_found' });
+    });
+
+    it('creates a policy whose steps name this tenant\'s roles', async () => {
+      const policy = await workflows.createPolicy(
+        {
+          name: 'Pagos',
+          documentType: DocumentTypeForApproval.PAYMENT_BATCH,
+          steps: [{ order: 1, minAmount: 0, roleId: OWN_ROLE }],
+        },
+        ORG,
+      );
+      expect(policy.id).toBeTruthy();
+      await workflows.deletePolicy(policy.id, ORG);
+    });
+  });
 });

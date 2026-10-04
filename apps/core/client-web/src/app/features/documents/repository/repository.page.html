@@ -8,7 +8,7 @@
   searchPlaceholderKey="documents.repository.search_all"
 >
   <button listActions type="button" class="secondary-button" [disabled]="busy()"
-    (click)="newFolderOpen.set(!newFolderOpen())">
+    appRequires="documents:manage" (click)="newFolderOpen.set(!newFolderOpen())">
     <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'documents.repository.new_folder' | translate }}</span>
   </button>
@@ -37,15 +37,19 @@
 
   @if (newFolderOpen()) {
     <div class="new-folder card">
+      <label class="sr-only" for="new-folder-name">{{ 'documents.repository.folder_name' | translate }}</label>
       <input
-        #folderName
+        #folderInput
+        id="new-folder-name"
         type="text"
         maxlength="255"
         [placeholder]="'documents.repository.folder_name' | translate"
-        (keydown.enter)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)"
+        [value]="folderName()"
+        (input)="folderName.set($any($event.target).value)"
+        (keydown.enter)="createFolder()"
+        (keydown.escape)="newFolderOpen.set(false)"
       />
-      <button type="button" class="primary-button" [disabled]="busy()"
-        (click)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)">
+      <button type="button" class="primary-button" [disabled]="busy() || !folderName().trim()" (click)="createFolder()">
         {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="newFolderOpen.set(false)">
@@ -58,12 +62,12 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'documents.repository.name' | translate }}</th>
-          <th>{{ 'documents.repository.last_modified' | translate }}</th>
-          <th>{{ 'documents.repository.file_size' | translate }}</th>
+          <th appSortHeader="name">{{ 'documents.repository.name' | translate }}</th>
+          <th appSortHeader="updatedAt">{{ 'documents.repository.last_modified' | translate }}</th>
+          <th appSortHeader="size">{{ 'documents.repository.file_size' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
@@ -78,7 +82,7 @@
             </td>
           </tr>
         }
-        @for (item of files(); track item.id) {
+        @for (item of table.rows(); track item.id) {
           <tr class="file-item-row is-clickable">
             <td (click)="open(item)">
               <span class="name-cell">

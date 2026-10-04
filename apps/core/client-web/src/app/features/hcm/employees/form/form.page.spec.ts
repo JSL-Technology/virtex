@@ -161,6 +161,32 @@ describe('Employee form', () => {
     expect(tab.markClean).toHaveBeenCalled();
   });
 
+  /** QA M-15: the hire carries its starting pay, instead of a second form afterwards. */
+  it('sends the starting salary with the hire, dated by the hire date', () => {
+    build();
+    fillIn();
+    (component as unknown as { canSetPay: boolean }).canSetPay = true;
+    component.initialSalary.set(45000);
+
+    component.save();
+    // No hire date: said before sending, since the salary is dated by it.
+    expect(component.problems()).toEqual([{ message: 'hcm.employees.form.hire_date_for_salary' }]);
+    http.expectNone((r) => r.url === `${API}/employees` && r.method === 'POST');
+
+    component.form.patchValue({ hireDate: '2026-10-01' });
+    component.save();
+    const req = http.expectOne((r) => r.url === `${API}/employees` && r.method === 'POST');
+    expect(req.request.body.initialCompensation).toEqual({ baseSalary: 45000, payFrequency: 'MONTHLY' });
+    req.flush(saved);
+  });
+
+  it('never shows the revealed document as the placeholder', () => {
+    build('emp-1');
+    flushEmployee();
+    component.revealed.set({ identityDocument: '00113918204' } as never);
+    expect(component.documentPlaceholder()).not.toContain('00113918204');
+  });
+
   it('opens an existing record clean, having asked nobody to save anything', () => {
     build('emp-1');
     flushEmployee();

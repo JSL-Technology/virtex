@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, ElementRef, effect, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -22,6 +22,8 @@ import {
   DocumentNode,
   DocumentsService,
 } from '../../../core/api/documents.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The tenant's document repository.
@@ -37,12 +39,14 @@ import {
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RepositoryPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.files(), { size: (item) => (item.kind === 'FOLDER' ? null : Number(item.fileSize)) });
   private readonly documents = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);
@@ -112,12 +116,31 @@ export class RepositoryPage {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  createFolder(name: string): void {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  /** The name field, focused when the row opens: the user just asked to type a name. */
+  private readonly folderInput = viewChild<ElementRef<HTMLInputElement>>('folderInput');
+  private readonly focusFolderInput = effect(() => this.folderInput()?.nativeElement.focus());
+
+  /** What the new folder will be called, as typed. The row stays open until the server agrees. */
+  readonly folderName = signal('');
+
+  /**
+   * The row closed before the server answered, so a refused name — one already used in this
+   * folder — disappeared together with the reason (QA M-14). It now closes on success only.
+   */
+  createFolder(): void {
+    const trimmed = this.folderName().trim();
+    if (!trimmed) {
+      this.notifications.showError('documents.repository.folder_name_required');
+      return;
+    }
     this.busy.set(true);
     this.documents.createFolder(trimmed, this.currentFolderId()).subscribe({
-      next: () => { this.busy.set(false); this.reload(); },
+      next: () => {
+        this.busy.set(false);
+        this.folderName.set('');
+        this.newFolderOpen.set(false);
+        this.reload();
+      },
       error: (error) => this.fail(error),
     });
   }

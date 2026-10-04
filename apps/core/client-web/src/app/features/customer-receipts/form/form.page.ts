@@ -207,12 +207,19 @@ export class CustomerReceiptFormPage implements OnInit {
 
   addInvoice(invoice: Invoice): void {
     if (this.lines.controls.some((line) => line.value.invoiceId === invoice.id)) return;
+    // What is left of the money received, not the invoice's whole balance (QA M-07): applying
+    // 5,000 against a 3,640 receipt showed «No aplicado −1,360» the moment the line appeared. With
+    // nothing received entered yet, the balance is the sensible starting point.
+    const received = Number(this.form.get('amountReceived')?.value || 0);
+    const drawn = Number(this.form.get('advanceApplied')?.value || 0);
+    const left = round(Math.max(received + drawn - this.totals().applied, 0));
+    const amount = received + drawn > 0 ? Math.min(invoice.balance, left) : invoice.balance;
     this.lines.push(
       this.fb.group({
         invoiceId: [invoice.id],
         invoiceNumber: [invoice.invoiceNumber],
         balance: [invoice.balance],
-        amount: [invoice.balance, [Validators.min(0)]],
+        amount: [amount, [Validators.min(0), Validators.max(invoice.balance)]],
         taxWithheld: [0, [Validators.min(0)]],
         incomeTaxWithheld: [0, [Validators.min(0)]],
         discount: [0, [Validators.min(0)]],

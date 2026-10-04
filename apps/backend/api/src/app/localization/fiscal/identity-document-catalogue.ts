@@ -170,7 +170,7 @@ export const IDENTITY_DOCUMENT_TYPES: readonly IdentityDocumentTypeSpec[] = Obje
   // ── Dominican Republic ────────────────────────────────────────────────────
   {
     countryCode: 'DO', code: 'CEDULA', labelKey: 'identity_document.do.cedula', labelVerbatim: 'Cédula',
-    example: '001-1234567-8', pattern: '^\\d{3}-?\\d{7}-?\\d$|^\\d{11}$', checksum: 'do_cedula_luhn10',
+    example: '001-1234567-3', pattern: '^\\d{3}-?\\d{7}-?\\d$|^\\d{11}$', checksum: 'do_cedula_luhn10',
     canonicalForm: 'digits', appliesTo: 'individual', requirement: 'required',
     usedFor: ['payroll', 'invoicing', 'registration'], isDefault: true, issuingAuthority: 'JCE', sortOrder: 10,
   },

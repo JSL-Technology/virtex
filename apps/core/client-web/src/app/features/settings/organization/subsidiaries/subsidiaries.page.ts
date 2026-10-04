@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
-import { CountryService } from '../../../../core/services/country.service';
+import { CountryService, SupportedCountry } from '../../../../core/services/country.service';
+import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Building, Plus, MoreVertical, X } from 'lucide-angular';
+import { LucideAngularModule, Building, Plus, X } from 'lucide-angular';
 import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidiaries.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,25 +17,32 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
   standalone: true,
   imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent],
   templateUrl: './subsidiaries.page.html',
-  styleUrls: ['./subsidiaries.page.scss']
+  styleUrls: ['./subsidiaries.page.scss'],
+  // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not
+  // re-check its children on its own, so "loading" could stay on screen after the answer arrived.
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubsidiariesPage implements OnInit {
   // Icons
   protected readonly BuildingIcon = Building;
   protected readonly PlusIcon = Plus;
-  protected readonly MoreVerticalIcon = MoreVertical;
   protected readonly XIcon = X;
 
-  subsidiaries: Subsidiary[] = [];
-  loading = true;
-  showModal = false;
-  submitting = false;
+  readonly subsidiaries = signal<Subsidiary[]>([]);
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+  readonly showModal = signal(false);
+  readonly submitting = signal(false);
+  /** The countries the product supports: the country decides the subsidiary's fiscal rules. */
+  readonly countries = signal<SupportedCountry[]>([]);
   createForm: FormGroup;
+  private readonly notifications = inject(NotificationService);
 
   private subsidiariesService = inject(SubsidiariesService);
 
   private fb = inject(FormBuilder);
   private readonly countryService = inject(CountryService);
+  private readonly router = inject(Router);
   /**
    * The example identifier for the country currently selected on the form.
    *
@@ -105,48 +114,61 @@ export class SubsidiariesPage implements OnInit {
 
   ngOnInit() {
     this.loadSubsidiaries();
+    // `#settings/subsidiaries/new` (from «Nueva sucursal»): open the form straight away, and leave
+    // the fragment at the section so closing the form or reloading does not reopen it.
+    if (this.router.url.split('#')[1] === 'settings/subsidiaries/new') {
+      this.openCreateModal();
+      void this.router.navigate([], { fragment: 'settings/subsidiaries', replaceUrl: true });
+    }
+    this.countryService
+      .getSupportedCountries()
+      .pipe(catchError(() => of([] as SupportedCountry[])))
+      .subscribe((countries) => this.countries.set(countries));
   }
 
   loadSubsidiaries() {
-    this.loading = true;
+    this.loading.set(true);
+    this.loadError.set(null);
     this.subsidiariesService.getSubsidiaries().subscribe({
       next: (data) => {
-        this.subsidiaries = data;
-        this.loading = false;
+        this.subsidiaries.set(data);
+        this.loading.set(false);
       },
-      error: (err) => {
-        console.error('Error loading subsidiaries:', err);
-        this.loading = false;
-      }
+      error: (error: unknown) => {
+        // It went to the console: the screen kept the empty state, which reads as "you have none".
+        this.loadError.set(this.notifications.httpErrorMessage(error, 'settings.subsidiaries.load_failed'));
+        this.loading.set(false);
+      },
     });
   }
 
   openCreateModal() {
-    this.showModal = true;
-    this.createForm.reset({ ownership: 100 });
+    this.createForm.reset({ ownership: 100, country: this.countryService.currentCountry()?.countryCode ?? '' });
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
+    this.showModal.set(false);
   }
 
   onSubmit() {
-    if (this.createForm.valid) {
-      this.submitting = true;
-      const data: CreateSubsidiaryDto = this.createForm.value;
-
-      this.subsidiariesService.createSubsidiary(data).subscribe({
-        next: (newSub) => {
-          this.subsidiaries.push(newSub);
-          this.closeModal();
-          this.submitting = false;
-        },
-        error: (err) => {
-          console.error('Error creating subsidiary:', err);
-          this.submitting = false;
-          // Handle error (show toast, etc.)
-        }
-      });
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+      return;
     }
+    this.submitting.set(true);
+    const data: CreateSubsidiaryDto = this.createForm.value;
+    this.subsidiariesService.createSubsidiary(data).subscribe({
+      next: (created) => {
+        this.subsidiaries.update((list) => [...list, created]);
+        this.notifications.showSuccess('settings.subsidiaries.created');
+        this.submitting.set(false);
+        this.closeModal();
+      },
+      error: (error: unknown) => {
+        this.submitting.set(false);
+        this.notifications.showHttpError(error, 'settings.subsidiaries.create_failed');
+      },
+    });
   }
 }

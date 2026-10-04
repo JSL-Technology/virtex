@@ -20,7 +20,7 @@
       <tbody>
         @for(role of roles(); track role.id) {
         <tr>
-          <td>{{ role.name }}</td>
+          <td>{{ role | vxRoleName }}</td>
           <td>{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
           <td>
             <vx-badge [tone]="role.isSystemRole ? 'accent' : 'neutral'">

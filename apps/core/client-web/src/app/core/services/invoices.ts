@@ -182,6 +182,9 @@ export interface InvoiceQuery {
   from?: string;
   to?: string;
   search?: string;
+  /** A column the server orders by: `number`, `customer`, `issueDate`, `dueDate`, `total`, `status`. */
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }
 
 export interface PaginatedInvoices {

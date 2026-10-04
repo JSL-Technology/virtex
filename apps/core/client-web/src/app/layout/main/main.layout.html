@@ -147,7 +147,7 @@
             <div class="result-group">
               <h4 class="group-title">
                 <lucide-icon [img]="groupIcon" size="16"></lucide-icon>
-                <span>{{ group.type }}</span>
+                <span>{{ 'search.group.' + group.type.toLowerCase() | translate }}</span>
                 <span class="group-count">({{ group.results.length }})</span>
               </h4>
               <ul class="results-list">
@@ -224,6 +224,7 @@
             <div class="dropdown-body">
               <a
                 routerLink="/invoices/new"
+                [appCanOpen]="'/invoices/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -237,6 +238,7 @@
               </a>
               <a
                 routerLink="/quotes/new"
+                [appCanOpen]="'/quotes/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -249,7 +251,8 @@
                 >
               </a>
               <a
-                routerLink="/customers/new"
+                routerLink="/contacts/customers/new"
+                [appCanOpen]="'/contacts/customers/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -262,7 +265,8 @@
                 >
               </a>
               <a
-                routerLink="/products/new"
+                routerLink="/inventory/products/new"
+                [appCanOpen]="'/inventory/products/new'"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
@@ -285,6 +289,7 @@
           (clickOutside)="closeNotificationMenu()"
         >
           <button
+            #notificationButton
             class="icon-button"
             type="button"
             [title]="'nav.notifications' | translate"
@@ -317,7 +322,7 @@
               <button
                 class="notification-item"
                 [class.read]="notification.read"
-                (click)="notificationCenter.markAsRead(notification.id); closeNotificationMenu()"
+                (click)="openNotification(notification)"
               >
                 <div class="status-dot"></div>
                 <div class="notification-content">
@@ -366,13 +371,7 @@
               authService.currentUser()?.lastName }}</span
             >
 
-            <span class="user-role">
-              {{(authService.currentUser()?.roles?.[0]?.isSystemRole ?
-              ('user.role.' +
-              authService.currentUser()!.roles[0].name.toUpperCase() |
-              translate) : (authService.currentUser()?.roles?.[0]?.name ||
-              ('user.role.no_role' | translate)))}}
-            </span>
+            <span class="user-role">{{ authService.currentUser()?.roles?.[0] | vxRoleName }}</span>
           </div>
           <lucide-icon
             [img]="ChevronDownIcon"
