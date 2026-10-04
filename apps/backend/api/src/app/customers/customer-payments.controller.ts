@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { CustomerPayment } from './entities/customer-payment.entity';
 import {
   Controller,
   Post,
@@ -34,6 +36,8 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounts Receivable')
 @ApiBearerAuth()
 @Controller('customer-payments')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(CustomerPayment)
 export class CustomerPaymentsController {
   constructor(private readonly customerPaymentsService: CustomerPaymentsService) {}
 
@@ -60,7 +64,7 @@ export class CustomerPaymentsController {
   findAll(
     @CurrentUser() user: AuthenticatedUser,
     @Query('customerId') customerId?: string,
-    @Query('branchId') branchId?: string,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
   ) {
     return this.customerPaymentsService.findAll(user.organizationId, customerId, { branchId, actorUserId: user.id });
   }

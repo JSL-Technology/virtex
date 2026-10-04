@@ -26,6 +26,7 @@ import { ListShellComponent } from './list-shell.component';
       (reload)="reloads = reloads + 1"
     >
       <button listActions class="new">Nuevo</button>
+      <label listFilters class="account-filter">Cuenta</label>
       <table class="rows">
         <tbody><tr><td>fila</td></tr></tbody>
       </table>
@@ -57,6 +58,18 @@ describe('ListShellComponent', () => {
     host = fixture.componentInstance;
     el = fixture.nativeElement as HTMLElement;
     fixture.detectChanges();
+  });
+
+  it('pinta los filtros también en una lista sin buscador', () => {
+    // They were inside the search toolbar, so a list without search silently dropped them — the
+    // general ledger's account filter among them.
+    expect(host.searchable()).toBe(false);
+    expect(el.querySelector('.ls__filters .account-filter')).not.toBeNull();
+
+    host.searchable.set(true);
+    fixture.detectChanges();
+    expect(el.querySelector('.ls__filters .account-filter')).not.toBeNull();
+    expect(el.querySelector('.ls__search-input')).not.toBeNull();
   });
 
   it('muestra la tabla proyectada cuando hay datos', () => {

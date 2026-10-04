@@ -10,6 +10,14 @@
     <span>{{ 'customer_receipts.list.new_receipt' | translate }}</span>
   </a>
 
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="receipt-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="setBranch($event)"
+  />
+
   <div listEmpty class="empty-invite">
     <h2>{{ 'customer_receipts.list.no_customer_receipts' | translate }}</h2>
     <p>{{ 'customer_receipts.list.create_your_first_receipt_record_payment' | translate }}</p>
@@ -25,6 +33,9 @@
           <th appSortHeader="totalAmount" class="text-right">{{ 'customer_receipts.list.amount' | translate }}</th>
           <th appSortHeader="unappliedAmount" class="text-right">{{ 'customer_receipts.list.unapplied' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'customer_receipts.list.status' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -44,6 +55,9 @@
                 {{ 'customer_receipts.status.' + receipt.status | translate }}
               </vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="receipt.branchId" /></td>
+            }
           </tr>
         }
       </tbody>

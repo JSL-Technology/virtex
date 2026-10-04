@@ -1,3 +1,4 @@
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -93,6 +94,8 @@ export interface PurchaseOrder {
   /** Why the last approver sent it back to draft; cleared when it is submitted again. */
   rejectionReason: string | null;
   notes: string | null;
+  /** The ordering branch; null for a company without branches. */
+  branchId?: string | null;
   lines: PurchaseOrderLine[];
 }
 
@@ -170,9 +173,9 @@ export class PurchasingService {
 
   // ── Orders ─────────────────────────────────────────────────────────────────
 
-  listOrders(page = 1, pageSize = 50): Observable<Paged<PurchaseOrder>> {
+  listOrders(page = 1, pageSize = 50, branchId?: string | null): Observable<Paged<PurchaseOrder>> {
     return this.http.get<Paged<PurchaseOrder>>(this.ordersUrl, {
-      params: new HttpParams().set('page', page).set('pageSize', pageSize),
+      params: BranchesService.params(branchId, new HttpParams().set('page', page).set('pageSize', pageSize)),
     });
   }
 
@@ -185,6 +188,7 @@ export class PurchasingService {
     orderDate?: string;
     expectedDate?: string;
     currencyCode?: string;
+    branchId?: string;
     notes?: string;
     lines: PurchaseOrderLine[];
   }): Observable<PurchaseOrder> {
@@ -198,6 +202,7 @@ export class PurchasingService {
       orderDate?: string;
       expectedDate?: string;
       currencyCode?: string;
+      branchId?: string;
       notes?: string;
       lines?: PurchaseOrderLine[];
     },

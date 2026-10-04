@@ -97,6 +97,8 @@ export interface Invoice {
   lineItems: InvoiceLineItem[];
   notes?: string;
   originalInvoiceId?: string | null;
+  /** Where it was issued; null for a company without branches. */
+  branchId?: string | null;
 }
 
 /** The server derives every amount; the request carries intent, never totals. */
@@ -162,6 +164,8 @@ export interface CreateInvoiceDto {
   incomeTaxWithholdingRate?: number;
   paymentMethod?: PaymentMethod;
   fiscalDocumentType?: string;
+  /** The issuing branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   /** False leaves the document as a draft, consuming no fiscal numbering. */
   issue?: boolean;
   lineItems: CreateInvoiceLine[];
@@ -182,6 +186,8 @@ export interface InvoiceQuery {
   from?: string;
   to?: string;
   search?: string;
+  /** Only this branch's documents; omitted, every branch the person may see. */
+  branchId?: string;
   /** A column the server orders by: `number`, `customer`, `issueDate`, `dueDate`, `total`, `status`. */
   sort?: string;
   direction?: 'asc' | 'desc';

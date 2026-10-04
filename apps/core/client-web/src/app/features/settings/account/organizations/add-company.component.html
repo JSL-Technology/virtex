@@ -1,0 +1,39 @@
+<section class="ac" [attr.aria-busy]="submitting()">
+  <ol class="ac__steps" [attr.aria-label]="'settings.my_companies.steps' | translate">
+    @for (s of steps; track s.id; let i = $index) {
+      <li [class.ac__step--current]="i === stepIndex()" [class.ac__step--done]="i < stepIndex()" [attr.aria-current]="i === stepIndex() ? 'step' : null">
+        {{ s.labelKey | translate }}
+      </li>
+    }
+  </ol>
+
+  <div class="ac__body">
+    @switch (step()) {
+      @case ('configuration') {
+        <app-step-configuration [group]="configuration" (taxpayerKindChanged)="onTaxpayerKindChange()" />
+      }
+      @case ('business') {
+        <app-step-business [group]="business" />
+      }
+      @case ('plan') {
+        <p class="ac__note">{{ 'settings.my_companies.plan_note' | translate }}</p>
+        <app-step-plan [group]="plan" />
+      }
+    }
+  </div>
+
+  @if (serverError(); as message) {
+    <p class="ac__error" role="alert">{{ message }}</p>
+  }
+
+  <div class="ac__actions">
+    <button type="button" class="secondary-button" [disabled]="submitting()" (click)="back()">
+      {{ (stepIndex() === 0 ? 'common.cancel' : 'settings.my_companies.back') | translate }}
+    </button>
+    <button type="button" class="primary-button" [disabled]="submitting()" (click)="next()">
+      {{ (step() === 'plan'
+            ? (submitting() ? 'settings.my_companies.opening_checkout' : 'settings.my_companies.go_to_payment')
+            : 'settings.my_companies.next') | translate }}
+    </button>
+  </div>
+</section>

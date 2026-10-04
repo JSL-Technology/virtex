@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -49,7 +50,8 @@ describe('OrdersPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [OrdersPage, TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [
+        provideTestBranches(),provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrdersPage);

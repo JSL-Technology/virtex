@@ -1,3 +1,6 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
+import { BranchesService } from '../../../../core/tenancy/branches.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
@@ -31,7 +34,7 @@ export const QUOTE_STATUSES: QuoteStatus[] = ['DRAFT', 'SENT', 'ACCEPTED', 'REJE
 @Component({
   selector: 'app-quotes-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './quotes.page.html',
   styleUrls: ['./quotes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +53,9 @@ export class QuotesPage implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly filter = signal<QuoteStatus | null>(null);
+  /** Empty: every branch the person may see. */
+  readonly branchFilter = signal<string | null>(null);
+  protected readonly branches = inject(BranchesService);
   readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0);
 
   ngOnInit(): void {
@@ -59,7 +65,7 @@ export class QuotesPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.quotes.list(this.filter() ?? undefined).subscribe({
+    this.quotes.list(this.filter() ?? undefined, this.branchFilter()).subscribe({
       next: (rows) => {
         this.rows.set(rows);
         this.loading.set(false);
@@ -69,6 +75,11 @@ export class QuotesPage implements OnInit {
         this.error.set(this.notifications.httpErrorMessage(error, 'sales.quotes.load_failed'));
       },
     });
+  }
+
+  setBranch(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
   }
 
   setFilter(status: QuoteStatus | null): void {

@@ -33,6 +33,13 @@
       <option value="Void">{{ 'invoices.list.voided' | translate }}</option>
     </select>
   </div>
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="invoice-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="branchFilter.set($event); applyFilters()"
+  />
 
   <div class="table-container card">
     <table [appSort]="sort" class="data-table">
@@ -44,6 +51,9 @@
           <th appSortHeader="dueDate">{{ 'invoices.list.due' | translate }}</th>
           <th appSortHeader="total" class="text-right">{{ 'invoices.list.total' | translate }}</th>
           <th appSortHeader="status">{{ 'invoices.list.status_filter' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -78,6 +88,9 @@
                 {{ statusKey(invoice.status) | translate }}
               </vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="invoice.branchId" /></td>
+            }
           </tr>
         }
       </tbody>

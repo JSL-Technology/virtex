@@ -41,6 +41,8 @@
           <span>{{ 'accounting.reconciliation.reference' | translate }}</span>
           <input type="text" formControlName="reference" maxlength="80" />
         </label>
+
+        <vx-branch-picker class="field" inputId="branchId" formControlName="branchId" />
       </div>
 
       <h4 class="section-heading">{{ 'accounts_payable.payment.invoices_pay' | translate }}</h4>

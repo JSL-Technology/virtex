@@ -18,9 +18,18 @@ export interface Product {
   taxRate?: number;
 }
 
+export interface MyBranches {
+  branches: { id: string; code: string; name: string; isHeadquarters: boolean }[];
+  closed: { id: string; code: string; name: string }[];
+  defaultBranchId: string | null;
+  restricted: boolean;
+}
+
 export interface PosShift {
   id: string;
   terminalId: string;
+  /** The branch the till stands in; every sale on the shift belongs to it. */
+  branchId?: string | null;
   status: 'OPEN' | 'CLOSED';
   openingBalance: number;
   salesTotal: number;
@@ -62,8 +71,18 @@ export class PosApiService {
     return this.http.get<PosShift | null>(`${this.api}/pos/shifts/active`, { params: { terminalId } });
   }
 
-  openShift(terminalId: string, openingBalance: number): Observable<PosShift> {
-    return this.http.post<PosShift>(`${this.api}/pos/shifts`, { terminalId, openingBalance });
+  /** `branchId` omitted: the cashier's default branch, else the headquarters. */
+  openShift(terminalId: string, openingBalance: number, branchId?: string | null): Observable<PosShift> {
+    return this.http.post<PosShift>(`${this.api}/pos/shifts`, {
+      terminalId,
+      openingBalance,
+      ...(branchId ? { branchId } : {}),
+    });
+  }
+
+  /** The branches this cashier may open a till in, and their default one. */
+  myBranches(): Observable<MyBranches> {
+    return this.http.get<MyBranches>(`${this.api}/organizations/branches/mine`);
   }
 
   closeShift(shiftId: string, closingBalance: number): Observable<PosShift> {

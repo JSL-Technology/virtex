@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormatService, resolveErrorKey } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../core/auth.service';
-import { PosApiService, Product } from '../../core/pos-api.service';
+import { MyBranches, PosApiService, Product } from '../../core/pos-api.service';
 
 interface CartLine {
   productId: string;
@@ -87,6 +87,20 @@ function taxRateOf(product: Product, standardRate: number): number {
             }
           } @else {
             <span class="dot closed"></span> {{ 'pos.no_shift_open' | translate }}
+            <!-- Where the till stands, when the company has branches and there is a choice. -->
+            @if (branches().length > 1) {
+              <label class="branch">
+                <span>{{ 'pos.branch' | translate }}</span>
+                <select [value]="branchId() ?? ''" (change)="branchId.set($any($event.target).value || null)">
+                  @if (!branchId()) {
+                    <option value="" disabled>{{ 'pos.choose_branch' | translate }}</option>
+                  }
+                  @for (branch of branches(); track branch.id) {
+                    <option [value]="branch.id" [selected]="branch.id === branchId()">{{ branch.code }} · {{ branch.name }}</option>
+                  }
+                </select>
+              </label>
+            }
             <button class="ghost" (click)="openShift()">{{ 'pos.open_shift' | translate }}</button>
           }
         </div>
@@ -189,6 +203,9 @@ export class TerminalComponent {
   readonly messageIsError = signal(false);
 
   readonly shiftId = signal<string | null>(null);
+  /** The cashier's branches, and the one a new shift opens in (their default proposed). */
+  readonly branches = signal<MyBranches['branches']>([]);
+  readonly branchId = signal<string | null>(null);
   readonly shiftTotal = signal(0);
   readonly salesCount = signal(0);
 
@@ -273,6 +290,19 @@ export class TerminalComponent {
   }
 
   private ensureShift(): void {
+    this.api.myBranches().subscribe({
+      next: (mine) => {
+        this.branches.set(mine.branches);
+        const proposed =
+          mine.defaultBranchId ??
+          (mine.branches.length === 1 ? mine.branches[0].id : null) ??
+          mine.branches.find((b) => b.isHeadquarters)?.id ??
+          null;
+        if (!this.branchId()) this.branchId.set(proposed);
+      },
+      // No branch list: the shift opens where the server decides, as before branches existed.
+      error: () => this.branches.set([]),
+    });
     this.api.getActiveShift(this.terminalId).subscribe({
       next: (shift) => {
         if (shift) this.adoptShift(shift);
@@ -289,7 +319,7 @@ export class TerminalComponent {
   }
 
   openShift(): void {
-    this.api.openShift(this.terminalId, 0).subscribe({
+    this.api.openShift(this.terminalId, 0, this.branchId()).subscribe({
       next: (shift) => this.adoptShift(shift),
       error: (err) => this.flash(this.errorKey(err, 'pos.open_shift_error'), true),
     });

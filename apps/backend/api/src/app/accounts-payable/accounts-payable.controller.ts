@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { VendorBill } from './entities/vendor-bill.entity';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Controller,
@@ -30,6 +32,8 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
 @Controller('accounts-payable')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(VendorBill)
 export class AccountsPayableController {
   constructor(private readonly accountsPayableService: AccountsPayableService) {}
 
@@ -48,7 +52,10 @@ export class AccountsPayableController {
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @ApiOperation({ summary: 'Lista las facturas de proveedor.' })
   @ApiQuery({ name: 'branchId', required: false, type: String })
-  findAll(@CurrentUser() user: AuthenticatedUser, @Query('branchId') branchId?: string) {
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
     return this.accountsPayableService.findAll(user.organizationId, { branchId, actorUserId: user.id });
   }
 
@@ -103,6 +110,7 @@ export class AccountsPayableController {
       id,
       updateVendorBillDto,
       user.organizationId,
+      user.id,
     );
   }
 

@@ -124,6 +124,8 @@ export const APP_ROUTES: Routes = [
             {
                 path: 'checkout-complete',
                 title: 'auth.titles.confirming_payment',
+                // Also reached signed in: a person adding another company returns here from Stripe.
+                data: { allowSignedIn: true },
                 loadComponent: () =>
                 import('./features/auth/checkout-complete/checkout-complete.page').then(
                     (m) => m.CheckoutCompletePage

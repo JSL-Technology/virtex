@@ -30,7 +30,7 @@ import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';
 import { PERMISSIONS } from '../shared/permissions';
-import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 /** Quantities carry six decimals; comparisons tolerate the last one. */
 const QUANTITY_EPSILON = 0.000001;
@@ -183,6 +183,7 @@ export class PurchaseOrdersService {
     id: string,
     dto: UpdatePurchaseOrderDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<PurchaseOrder> {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
@@ -199,6 +200,7 @@ export class PurchaseOrdersService {
       if (dto.expectedDate !== undefined) order.expectedDate = dto.expectedDate;
       if (dto.currencyCode !== undefined) order.currencyCode = dto.currencyCode.toUpperCase();
       if (dto.notes !== undefined) order.notes = dto.notes;
+      order.branchId = await reassignDocumentBranch(manager, organizationId, actorUserId, order.branchId, dto.branchId);
       await manager.save(order);
 
       if (dto.lines) await this.replaceLines(manager, order, dto.lines, organizationId);

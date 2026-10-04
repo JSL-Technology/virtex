@@ -15,7 +15,13 @@ export interface BranchSummary extends Branch {
 
 /** The branches one person may use, for the pickers on documents. */
 export interface MyBranches {
+  /** Where the person may issue documents: their branches that are open. */
   branches: Pick<Branch, 'id' | 'code' | 'name' | 'isHeadquarters'>[];
+  /**
+   * Their branches that were closed. Never offered for a new document, but the documents they
+   * issued still name them, so a list or a detail can label them instead of showing an id.
+   */
+  closed: Pick<Branch, 'id' | 'code' | 'name'>[];
   defaultBranchId: string | null;
   /** True when the person is limited to the listed branches rather than seeing all of them. */
   restricted: boolean;
@@ -69,17 +75,19 @@ export class BranchesService {
   /** The active branches the caller may issue documents from, and their default. */
   async mine(organizationId: string, userId: string): Promise<MyBranches> {
     const scope = await loadBranchScope(this.dataSource.manager, organizationId, userId);
-    const where = scope.allowed
-      ? { organizationId, isActive: true, id: In(scope.allowed) }
-      : { organizationId, isActive: true };
-    const branches = await this.branches.find({
+    const where = scope.allowed ? { organizationId, id: In(scope.allowed) } : { organizationId };
+    const rows = await this.branches.find({
       where,
       order: { isHeadquarters: 'DESC', code: 'ASC' },
-      select: { id: true, code: true, name: true, isHeadquarters: true },
+      select: { id: true, code: true, name: true, isHeadquarters: true, isActive: true },
     });
+    const branches = rows
+      .filter((b) => b.isActive)
+      .map(({ id, code, name, isHeadquarters }) => ({ id, code, name, isHeadquarters }));
+    const closed = rows.filter((b) => !b.isActive).map(({ id, code, name }) => ({ id, code, name }));
     const defaultBranchId =
       scope.defaultBranchId && branches.some((b) => b.id === scope.defaultBranchId) ? scope.defaultBranchId : null;
-    return { branches, defaultBranchId, restricted: scope.allowed !== null };
+    return { branches, closed, defaultBranchId, restricted: scope.allowed !== null };
   }
 
   async create(dto: CreateBranchDto, organizationId: string): Promise<Branch> {

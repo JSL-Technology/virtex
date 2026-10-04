@@ -257,6 +257,10 @@ export class CustomerPaymentsService {
           })
         : [];
       const invoicesById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+      // Any branch may collect for another (a customer pays at the nearest store), but only
+      // invoices the collector could open: a restricted person cannot settle a branch they cannot see.
+      const collectorScope = await loadBranchScope(manager, organizationId, actorUserId);
+      for (const invoice of invoices) assertDocumentInScope(collectorScope, invoice.branchId);
 
       const payment = await manager.save(
         manager.create(CustomerPayment, {
@@ -656,7 +660,7 @@ export class CustomerPaymentsService {
     return payment;
   }
 
-  /** What customers owe, by customer and by how overdue it is. */
+  /** The branches an ageing report covers: one asked for, the reader's own, or all (`{}`). */
   private async agingBranchFilter(
     organizationId: string,
     options: { branchId?: string; actorUserId?: string },
@@ -670,6 +674,7 @@ export class CustomerPaymentsService {
     return scope.allowed ? { branchId: In(scope.allowed) } : {};
   }
 
+  /** What customers owe, by customer and by how overdue it is. */
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
@@ -774,6 +779,7 @@ export class CustomerPaymentsService {
       controlAccountBalance,
       // Signed: positive means the subledger claims more is collectible than the ledger records.
       controlAccountDifference: roundAmount(total - controlAccountBalance),
+      coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
       totals: {

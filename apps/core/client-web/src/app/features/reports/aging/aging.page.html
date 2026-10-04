@@ -2,6 +2,12 @@
   <div class="subview-header">
     <h3>{{ titleKey | translate }}</h3>
     <div class="header-actions">
+      <vx-branch-picker
+        mode="filter"
+        inputId="aging-branch"
+        [ngModel]="branchFilter()"
+        (ngModelChange)="onBranchChange($event)"
+      />
       <label class="date-picker" for="agingAsOf">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
         <vx-date-field inputId="agingAsOf" [value]="asOfDate()" (valueChange)="onDateChange(($event ?? ''))" [attr.aria-label]="'reports.common.to' | translate" />
@@ -29,36 +35,52 @@
       makes the report evidence, and the second is what stops a reader treating a figure held at a
       stale rate as if it were at the closing rate.
     -->
-    <div class="card control-tieout" [class.control-tieout--off]="!tiesOut()">
-      <h4>{{ 'reports.aging.reconciliation_control_account' | translate }}</h4>
-      <dl>
-        <div>
-          <dt>{{ 'reports.aging.subledger_total' | translate }}</dt>
-          <dd><vx-amount [value]="data.totals.total" [currency]="data.currencyCode" /></dd>
-        </div>
-        <div>
-          <dt>{{ 'reports.aging.general_ledger_balance' | translate }}</dt>
-          <dd><vx-amount [value]="data.controlAccountBalance" [currency]="data.currencyCode" /></dd>
-        </div>
-        <div>
-          <dt>{{ 'reports.aging.difference' | translate }}</dt>
-          <dd class="difference">
-            <vx-amount [value]="data.controlAccountDifference" [currency]="data.currencyCode" />
-          </dd>
-        </div>
-      </dl>
-      <p class="verdict">
-        {{
-          (tiesOut() ? 'reports.aging.subledger_agrees_with_control_account' : 'reports.aging.subledger_does_not_agree_with_control')
-            | translate
-        }}
+    @if (data.coversWholeCompany) {
+      <div class="card control-tieout" [class.control-tieout--off]="!tiesOut()">
+        <h4>{{ 'reports.aging.reconciliation_control_account' | translate }}</h4>
+        <dl>
+          <div>
+            <dt>{{ 'reports.aging.subledger_total' | translate }}</dt>
+            <dd><vx-amount [value]="data.totals.total" [currency]="data.currencyCode" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'reports.aging.general_ledger_balance' | translate }}</dt>
+            <dd><vx-amount [value]="data.controlAccountBalance" [currency]="data.currencyCode" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'reports.aging.difference' | translate }}</dt>
+            <dd class="difference">
+              <vx-amount [value]="data.controlAccountDifference" [currency]="data.currencyCode" />
+            </dd>
+          </div>
+        </dl>
+        <p class="verdict">
+          {{
+            (tiesOut() ? 'reports.aging.subledger_agrees_with_control_account' : 'reports.aging.subledger_does_not_agree_with_control')
+              | translate
+          }}
+        </p>
+        @if (data.unconvertedDocuments > 0) {
+          <p class="caveat">
+            {{ 'reports.aging.count_document_with_no_exchange_rate' | translate: { count: data.unconvertedDocuments } }}
+          </p>
+        }
+      </div>
+    } @else {
+      <!--
+        A slice by branch. The ledger has no branch dimension, so comparing one store's documents
+        with the whole company's control account would show a «difference» that is nothing of the
+        kind. The tie-out is stated for the whole company only.
+      -->
+      <p class="card control-tieout control-tieout--partial">
+        {{ 'reports.aging.partial_no_tieout' | translate }}
       </p>
       @if (data.unconvertedDocuments > 0) {
         <p class="caveat">
           {{ 'reports.aging.count_document_with_no_exchange_rate' | translate: { count: data.unconvertedDocuments } }}
         </p>
       }
-    </div>
+    }
 
     @if (data.rows.length === 0) {
       <p class="report-state">{{ 'reports.aging.nothing_outstanding_date' | translate }}</p>

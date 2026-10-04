@@ -38,6 +38,9 @@
         <div class="ticket-header">
             <h3>{{ 'sales.pos.current_order' | translate }}</h3>
             <div class="customer-info">{{ 'sales.pos.customer' | translate }} <strong>{{ saleForm.get('customer')?.value }}</strong></div>
+            @if (shiftReady() && shiftBranchId()) {
+              <div class="customer-info">{{ 'branches.picker.label' | translate }}: <strong><vx-branch-label [branchId]="shiftBranchId()" /></strong></div>
+            }
         </div>
         <div class="ticket-body" formArrayName="cartItems">
             @if(cartItems.controls.length > 0) {
@@ -92,6 +95,14 @@
               <div class="shift-blocked" role="alert">
                 <p class="shift-blocked__title">{{ 'pos.shift_blocked_title' | translate }}</p>
                 <p class="shift-blocked__reason">{{ (shiftError() ?? 'pos.shift_error') | translate }}</p>
+                <!-- Where the till stands. Hidden for a company without branches. -->
+                <vx-branch-picker
+                  class="shift-blocked__branch"
+                  inputId="pos-shift-branch"
+                  [ngModel]="shiftBranchId()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="shiftBranchId.set($event)"
+                />
                 <button type="button" class="shift-blocked__retry" (click)="retryShift()">
                   {{ 'pos.shift_retry' | translate }}
                 </button>

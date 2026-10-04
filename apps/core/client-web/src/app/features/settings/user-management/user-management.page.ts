@@ -52,8 +52,10 @@ import {
   FileOutput,
   UserCircle2,
   LogOut,
+  MapPin,
 } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
+import { UserBranchAccessDialogComponent } from './branch-access/branch-access.dialog';
 import {
   InviteUserDto,
   UpdateUserDto,
@@ -85,7 +87,8 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
-    ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent],
+    ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
+    UserBranchAccessDialogComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })
@@ -120,6 +123,9 @@ export class UserManagementPage implements OnInit, OnDestroy {
   protected readonly ArchiveIcon = Archive;
   protected readonly TrashIcon = Trash2;
   protected readonly KeyIcon = Key;
+  protected readonly BranchIcon = MapPin;
+  /** The person whose branches are being edited, while that dialog is open. */
+  readonly branchAccessUser = signal<{ id: string; name: string } | null>(null);
   protected readonly UserIcon = User;
   protected readonly UserCheckIcon = UserCheck;
   protected readonly ZapIcon = Zap;
@@ -457,6 +463,9 @@ export class UserManagementPage implements OnInit, OnDestroy {
         break;
       case 'impersonate':
         this.impersonateUser(user);
+        break;
+      case 'branches':
+        this.branchAccessUser.set({ id: user.id, name: `${user.firstName} ${user.lastName}`.trim() || user.email });
         break;
       case 'resend-invitation':
         this.resendInvitation(user);

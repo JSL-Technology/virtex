@@ -2,6 +2,12 @@
   <div class="subview-header">
     <h3>{{ 'reports.profitability_by_product.profitability_by_product' | translate }}</h3>
     <div class="header-actions">
+      <vx-branch-picker
+        mode="filter"
+        inputId="profitability-product-branch"
+        [ngModel]="branchFilter()"
+        (ngModelChange)="onBranchChange($event)"
+      />
       <!--
         A real date range. The two buttons here were a "Last 90 days" label and a "Filters" label,
         neither of which had a handler: the page showed three invented rows whatever was clicked.

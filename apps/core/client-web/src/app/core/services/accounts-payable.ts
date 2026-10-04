@@ -1,3 +1,4 @@
+import { BranchesService } from '../tenancy/branches.service';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -49,6 +50,8 @@ export interface VendorBillLine {
 export interface VendorBill {
   id: string;
   vendorId: string;
+  /** The branch that received it; null for a company without branches. */
+  branchId?: string | null;
   vendor?: { id: string; name: string; taxId?: string | null };
   /** Comprobante fiscal number. Optional: not every jurisdiction has one. */
   ncf?: string | null;
@@ -102,6 +105,8 @@ export interface CreateVendorBillDto {
   vendorId: string;
   /** The purchase order the bill was raised against, when there is one. */
   purchaseOrderId?: string;
+  /** The receiving branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   date: string;
   dueDate: string;
   lines: CreateVendorBillLineDto[];
@@ -174,6 +179,8 @@ export interface PayVendorBillsDto {
   /** The bank account the funds leave. A bank account, not a chart-of-accounts row. */
   bankAccountId: string;
   reference?: string;
+  /** The paying branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   lines: VendorBillPaymentLine[];
 }
 
@@ -204,8 +211,8 @@ export class AccountsPayableService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/accounts-payable`;
 
-  getVendorBills(): Observable<VendorBill[]> {
-    return this.http.get<VendorBill[]>(this.apiUrl);
+  getVendorBills(branchId?: string | null): Observable<VendorBill[]> {
+    return this.http.get<VendorBill[]>(this.apiUrl, { params: BranchesService.params(branchId) });
   }
 
   getVendorBillById(id: string): Observable<VendorBill> {
@@ -241,11 +248,5 @@ export class AccountsPayableService {
 
   submitForApproval(id: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/submit-for-approval`, {});
-  }
-
-  aging(asOfDate?: string): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/aging`, {
-      params: asOfDate ? { asOfDate } : {},
-    });
   }
 }

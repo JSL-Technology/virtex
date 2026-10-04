@@ -45,7 +45,7 @@ import {
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
-import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
   label: string;
@@ -88,6 +88,13 @@ export interface AgingReport {
   controlAccountBalance: number;
   /** `total − controlAccountBalance`. Anything but zero is a subledger that needs investigating. */
   controlAccountDifference: number;
+  /**
+   * False when the report covers only some branches — a branch was asked for, or the reader is
+   * limited to some. The general ledger has no branch dimension, so the control-account tie-out
+   * only means something for the whole company; a partial report must not present the gap between
+   * one store's documents and the company's ledger as a difference to investigate.
+   */
+  coversWholeCompany: boolean;
   /** Documents whose currency has no rate on file for the reporting date, and are therefore held at the booked rate. */
   unconvertedDocuments: number;
 }
@@ -361,6 +368,7 @@ export class AccountsPayableService {
     id: string,
     dto: UpdateVendorBillDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<VendorBill> {
     const bill = await this.findOne(id, organizationId);
     if (bill.status !== VendorBillStatus.DRAFT) {
@@ -371,7 +379,17 @@ export class AccountsPayableService {
         'accounts_payable.lines_existing_invoice_must_changed_through',
       );
     }
-    return this.vendorBillRepository.save(this.vendorBillRepository.merge(bill, dto));
+    // The branch is not merged as sent: a new one must be a branch the editor may use.
+    const { branchId, ...changes } = dto;
+    const merged = this.vendorBillRepository.merge(bill, changes);
+    merged.branchId = await reassignDocumentBranch(
+      this.dataSource.manager,
+      organizationId,
+      actorUserId,
+      bill.branchId,
+      branchId,
+    );
+    return this.vendorBillRepository.save(merged);
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -864,6 +882,10 @@ export class AccountsPayableService {
         where: { id: In(billIds), organizationId },
       });
       const billsById = new Map(bills.map((bill) => [bill.id, bill]));
+      // One branch may pay for another (a head office paying every store's suppliers), but only
+      // bills the payer could open: a restricted person cannot settle a branch they cannot see.
+      const payerScope = await loadBranchScope(manager, organizationId, actorUserId ?? null);
+      for (const bill of bills) assertDocumentInScope(payerScope, bill.branchId);
 
       const batch = await manager.save(
         manager.create(PaymentBatch, {
@@ -1117,12 +1139,7 @@ export class AccountsPayableService {
     });
   }
 
-  /**
-   * What is owed, by supplier and by how overdue it is.
-   *
-   * There was no ageing report of any kind — for payables or receivables — which is the report a
-   * treasurer opens to decide what to pay and an auditor asks for to substantiate the balance.
-   */
+  /** The branches an ageing report covers: one asked for, the reader's own, or all (`{}`). */
   private async agingBranchFilter(
     organizationId: string,
     options: { branchId?: string; actorUserId?: string },
@@ -1136,6 +1153,12 @@ export class AccountsPayableService {
     return scope.allowed ? { branchId: In(scope.allowed) } : {};
   }
 
+  /**
+   * What is owed, by supplier and by how overdue it is.
+   *
+   * There was no ageing report of any kind — for payables or receivables — which is the report a
+   * treasurer opens to decide what to pay and an auditor asks for to substantiate the balance.
+   */
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
@@ -1242,6 +1265,7 @@ export class AccountsPayableService {
       controlAccountBalance,
       // Signed: positive means the subledger claims more is owed than the ledger records.
       controlAccountDifference: roundAmount(total - controlAccountBalance),
+      coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
       totals: {

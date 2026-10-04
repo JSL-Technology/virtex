@@ -270,3 +270,20 @@
     border-top: 1px solid var(--pos-border);
   }
 }
+
+// The branch a new shift opens in, beside «Open shift», when there is more than one to choose.
+.branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 8px;
+
+  select {
+    background: transparent;
+    border: 1px solid var(--pos-border);
+    color: var(--pos-text);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font: inherit;
+  }
+}

@@ -1,3 +1,6 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -30,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +51,9 @@ export class HistoryPage implements OnInit {
   protected readonly exports = inject(DatasetExportService);
 
   readonly sales = signal<PosSale[]>([]);
+  /** Empty: every branch the person may see. */
+  readonly branchFilter = signal<string | null>(null);
+  protected readonly branches = inject(BranchesService);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
@@ -55,10 +61,15 @@ export class HistoryPage implements OnInit {
     this.load();
   }
 
+  setBranch(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
+  }
+
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.pos.listSales().subscribe({
+    this.pos.listSales(undefined, this.branchFilter()).subscribe({
       next: (list) => {
         this.sales.set(list ?? []);
         this.loading.set(false);

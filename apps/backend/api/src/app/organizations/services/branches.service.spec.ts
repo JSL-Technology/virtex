@@ -144,6 +144,17 @@ describeWithDb('BranchesService', () => {
     ).toThrow();
   });
 
+  it('never offers a closed branch, but still names it for the documents it issued', async () => {
+    await branch('MATRIZ');
+    const store = await branch('STI-01');
+    await service.update(store.id, { isActive: false }, organizationId);
+
+    const mine = await service.mine(organizationId, userId);
+    expect(mine.branches.map((b) => b.code)).toEqual(['MATRIZ']);
+    expect(mine.closed).toEqual([{ id: store.id, code: 'STI-01', name: 'Sucursal STI-01' }]);
+    await expect(resolveDocumentBranch(ds.manager, organizationId, userId, store.id)).rejects.toBeDefined();
+  });
+
   it('deletes an unused branch but not the headquarters', async () => {
     const hq = await branch('MATRIZ');
     const unused = await branch('TEMP');

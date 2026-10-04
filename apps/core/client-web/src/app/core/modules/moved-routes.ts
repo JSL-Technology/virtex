@@ -33,8 +33,9 @@ export const MOVED_ROUTES: readonly MovedRoute[] = [
   // Extensions are administration, not master data.
   { from: '/masters/extensions/run', to: '/extensions/run' },
   { from: '/masters/extensions', to: '/settings/extensions' },
-  // A read-only copy of Settings › Company structure.
-  { from: '/masters/branches', to: '/settings/subsidiaries' },
+  // Was a read-only copy of the subsidiaries under the wrong name; branches are now their own
+  // settings section (same legal entity, other place), and subsidiaries stay in Company structure.
+  { from: '/masters/branches', to: '/settings/branches' },
   // «Procurement» announced as coming what Purchasing already does: requisitions and orders.
   { from: '/procurement', to: '/purchasing/requisitions' },
   // A template was a tagged file; the tag is a filter of the repository.

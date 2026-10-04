@@ -112,11 +112,12 @@
       </div>
 
       <div class="dropdown-footer">
-        <button class="footer-action">
+        <!-- Both were buttons with no handler. They open Settings › My companies. -->
+        <button type="button" class="footer-action" (click)="openMyCompanies(true)">
           <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
           <span>{{ 'main.company_switcher.create_new_company' | translate }}</span>
         </button>
-        <button class="footer-action">
+        <button type="button" class="footer-action" (click)="openMyCompanies(false)">
           <lucide-icon [img]="SettingsIcon" size="14"></lucide-icon>
           <span>{{ 'main.company_switcher.manage_organizations' | translate }}</span>
         </button>

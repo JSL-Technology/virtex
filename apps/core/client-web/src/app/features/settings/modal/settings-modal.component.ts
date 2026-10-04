@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
-import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText, Landmark, MapPinned, Scale, Puzzle } from 'lucide-angular';
+import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText, Landmark, MapPin, MapPinned, Building2, Scale, Puzzle } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -46,12 +46,16 @@ export class SettingsModalComponent {
   private readonly SECTION_MAP: Record<string, () => Promise<Type<any>>> = {
     'my-profile': () =>
       import('../my-profile/my-profile.page').then((m) => m.MyProfilePage),
+    'organizations': () =>
+      import('../account/organizations/organizations.page').then((m) => m.OrganizationsSettingsPage),
     'sessions': () =>
       import('../pages/sessions/sessions.component').then((m) => m.SessionsComponent),
     'profile': () =>
       import('../company-profile/company-profile.page').then((m) => m.CompanyProfilePage),
     'subsidiaries': () =>
       import('../organization/subsidiaries/subsidiaries.page').then((m) => m.SubsidiariesPage),
+    'branches': () =>
+      import('../organization/branches/branches.page').then((m) => m.BranchesSettingsPage),
     'branding': () =>
       import('../branding/branding.page').then((m) => m.BrandingPage),
     'accounting': () =>
@@ -133,10 +137,12 @@ export class SettingsModalComponent {
   // Icons — Mi Cuenta
   protected readonly MyProfileIcon = UserCircle;
   protected readonly BillingIcon = CreditCard;
+  protected readonly MyCompaniesIcon = Building2;
 
   // Icons — Organización
   protected readonly OrgProfileIcon = Building;
   protected readonly SubsidiariesIcon = Database;
+  protected readonly BranchesIcon = MapPin;
   protected readonly BrandingIcon = Palette;
 
   // Icons — Finanzas

@@ -19,8 +19,13 @@
     </div>
   </header>
 
-  @if (searchable()) {
-    <div class="ls__toolbar">
+  <!--
+    Los filtros se proyectan haya o no buscador. Antes vivían dentro del `@if (searchable())`, y
+    cinco pantallas sin buscador —el mayor general con su filtro de cuenta, entre ellas— declaraban
+    filtros que nunca se pintaban. Sin nada visible dentro, la barra no ocupa espacio.
+  -->
+  <div class="ls__toolbar" [class.ls__toolbar--bare]="!searchable()">
+    @if (searchable()) {
       <div class="ls__search">
         <lucide-icon [img]="SearchIcon" size="16" aria-hidden="true"></lucide-icon>
         <input
@@ -42,14 +47,14 @@
           </button>
         }
       </div>
+    } @else {
+      <ng-content select="[listToolbar]"></ng-content>
+    }
 
-      <div class="ls__filters">
-        <ng-content select="[listFilters]"></ng-content>
-      </div>
+    <div class="ls__filters">
+      <ng-content select="[listFilters]"></ng-content>
     </div>
-  } @else {
-    <ng-content select="[listToolbar]"></ng-content>
-  }
+  </div>
 
   <!--
     Lo que crea el PRIMER elemento, fuera del `@switch`.

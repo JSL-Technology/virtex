@@ -610,6 +610,25 @@ describeWithDb('customer collections', () => {
     expect(aging.controlAccountDifference).toBe(1_000);
   });
 
+  it('says when it covers only some branches, since the ledger cannot be tied out per branch', async () => {
+    await openInvoice(4_000, { dueDate: '2026-06-30' });
+    await recogniseInLedger('2026-05-01', 4_000);
+    // By entity name: this module does not import the organizations module's entities.
+    const branch = await dataSource
+      .getRepository('Branch')
+      .save({ organizationId, code: 'STI', name: 'Santiago', isHeadquarters: true, isActive: true });
+
+    const whole = await receipts.aging(organizationId, '2026-05-25');
+    const oneBranch = await receipts.aging(organizationId, '2026-05-25', { branchId: branch.id });
+
+    expect(whole.coversWholeCompany).toBe(true);
+    expect(whole.controlAccountDifference).toBe(0);
+    // The invoice predates branches, so the branch slice is empty — and must not read as a
+    // 4,000 discrepancy against the company's ledger.
+    expect(oneBranch.coversWholeCompany).toBe(false);
+    expect(oneBranch.totals.total).toBe(0);
+  });
+
   it('ages a foreign-currency invoice at the closing rate, not the rate it was booked at', async () => {
     const rates = dataSource.getRepository(ExchangeRate);
     await rates.save({

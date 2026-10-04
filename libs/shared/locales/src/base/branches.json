@@ -1,0 +1,362 @@
+{
+  "branches.access.all": {
+    "es": "Todas las sucursales",
+    "en": "All branches",
+    "pt": "Todas as filiais"
+  },
+  "branches.access.all_hint": {
+    "es": "Incluidas las que se abran en el futuro.",
+    "en": "Including those opened in the future.",
+    "pt": "Incluindo as que forem abertas no futuro."
+  },
+  "branches.access.choose_one": {
+    "es": "Marca al menos una sucursal.",
+    "en": "Select at least one branch.",
+    "pt": "Marque ao menos uma filial."
+  },
+  "branches.access.default": {
+    "es": "Sucursal predeterminada",
+    "en": "Default branch",
+    "pt": "Filial padrão"
+  },
+  "branches.access.default_hint": {
+    "es": "La que proponen sus documentos nuevos. Sin ella se usa la casa matriz, o la única que tenga.",
+    "en": "The one their new documents propose. Without it, the headquarters — or their only branch — is used.",
+    "pt": "A que os novos documentos propõem. Sem ela, usa-se a matriz, ou a única que tiver."
+  },
+  "branches.access.lead": {
+    "es": "Dónde puede trabajar {{name}} y desde qué sucursal empiezan sus documentos.",
+    "en": "Where {{name}} may work and which branch their documents start from.",
+    "pt": "Onde {{name}} pode trabalhar e de qual filial seus documentos partem."
+  },
+  "branches.access.load_failed": {
+    "es": "No se pudo cargar el acceso a sucursales.",
+    "en": "Branch access could not be loaded.",
+    "pt": "Não foi possível carregar o acesso às filiais."
+  },
+  "branches.access.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "branches.access.menu": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "branches.access.no_branches": {
+    "es": "Esta empresa aún no tiene sucursales. Créalas en Configuración › Sucursales.",
+    "en": "This company has no branches yet. Create them in Settings › Branches.",
+    "pt": "Esta empresa ainda não tem filiais. Crie-as em Configurações › Filiais."
+  },
+  "branches.access.no_default": {
+    "es": "Sin predeterminada",
+    "en": "No default",
+    "pt": "Sem padrão"
+  },
+  "branches.access.save_failed": {
+    "es": "No se pudo guardar el acceso a sucursales.",
+    "en": "Branch access could not be saved.",
+    "pt": "Não foi possível salvar o acesso às filiais."
+  },
+  "branches.access.saved": {
+    "es": "Acceso a sucursales actualizado.",
+    "en": "Branch access updated.",
+    "pt": "Acesso às filiais atualizado."
+  },
+  "branches.access.scope": {
+    "es": "Acceso",
+    "en": "Access",
+    "pt": "Acesso"
+  },
+  "branches.access.some": {
+    "es": "Solo estas sucursales",
+    "en": "Only these branches",
+    "pt": "Somente estas filiais"
+  },
+  "branches.access.some_hint": {
+    "es": "Solo emite y ve documentos de las sucursales marcadas.",
+    "en": "Issues and sees documents of the selected branches only.",
+    "pt": "Emite e vê documentos somente das filiais marcadas."
+  },
+  "branches.access.title": {
+    "es": "Sucursales de la persona",
+    "en": "Person's branches",
+    "pt": "Filiais da pessoa"
+  },
+  "branches.picker.all": {
+    "es": "Todas mis sucursales",
+    "en": "All my branches",
+    "pt": "Todas as minhas filiais"
+  },
+  "branches.picker.choose": {
+    "es": "Elige la sucursal",
+    "en": "Choose the branch",
+    "pt": "Escolha a filial"
+  },
+  "branches.picker.label": {
+    "es": "Sucursal",
+    "en": "Branch",
+    "pt": "Filial"
+  },
+  "branches.picker.none": {
+    "es": "Sin sucursal (central)",
+    "en": "No branch (central)",
+    "pt": "Sem filial (central)"
+  },
+  "branches.settings.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "branches.settings.activate": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "branches.settings.activated": {
+    "es": "Sucursal reactivada.",
+    "en": "Branch reactivated.",
+    "pt": "Filial reativada."
+  },
+  "branches.settings.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "branches.settings.address_hint": {
+    "es": "Se imprime en los documentos que emite esta sucursal.",
+    "en": "Printed on the documents this branch issues.",
+    "pt": "Impresso nos documentos emitidos por esta filial."
+  },
+  "branches.settings.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "branches.settings.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "branches.settings.code_hint": {
+    "es": "Corto y único: aparece junto a los documentos que emite. Letras, números y guiones.",
+    "en": "Short and unique: shown beside the documents it issues. Letters, digits and dashes.",
+    "pt": "Curto e único: aparece junto aos documentos que emite. Letras, números e hífens."
+  },
+  "branches.settings.create_headquarters": {
+    "es": "Crear la casa matriz",
+    "en": "Create the headquarters",
+    "pt": "Criar a matriz"
+  },
+  "branches.settings.created": {
+    "es": "Sucursal creada.",
+    "en": "Branch created.",
+    "pt": "Filial criada."
+  },
+  "branches.settings.deactivate": {
+    "es": "Desactivar",
+    "en": "Deactivate",
+    "pt": "Desativar"
+  },
+  "branches.settings.deactivate_message": {
+    "es": "«{{name}}» dejará de aparecer para emitir documentos nuevos. Lo que ya emitió se conserva.",
+    "en": "«{{name}}» will no longer be offered for new documents. What it already issued is kept.",
+    "pt": "«{{name}}» deixará de ser oferecida para novos documentos. O que já emitiu é mantido."
+  },
+  "branches.settings.deactivate_title": {
+    "es": "Desactivar sucursal",
+    "en": "Deactivate branch",
+    "pt": "Desativar filial"
+  },
+  "branches.settings.deactivated": {
+    "es": "Sucursal desactivada.",
+    "en": "Branch deactivated.",
+    "pt": "Filial desativada."
+  },
+  "branches.settings.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "branches.settings.delete_failed": {
+    "es": "No se pudo eliminar la sucursal.",
+    "en": "The branch could not be deleted.",
+    "pt": "Não foi possível excluir a filial."
+  },
+  "branches.settings.delete_message": {
+    "es": "¿Eliminar «{{name}}»? Solo es posible si nunca emitió nada; si lo hizo, desactívala.",
+    "en": "Delete «{{name}}»? Only possible if it never issued anything; if it did, deactivate it.",
+    "pt": "Excluir «{{name}}»? Só é possível se nunca emitiu nada; se emitiu, desative-a."
+  },
+  "branches.settings.delete_title": {
+    "es": "Eliminar sucursal",
+    "en": "Delete branch",
+    "pt": "Excluir filial"
+  },
+  "branches.settings.deleted": {
+    "es": "Sucursal eliminada.",
+    "en": "Branch deleted.",
+    "pt": "Filial excluída."
+  },
+  "branches.settings.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "branches.settings.edit_title": {
+    "es": "Editar sucursal",
+    "en": "Edit branch",
+    "pt": "Editar filial"
+  },
+  "branches.settings.emission_point_code": {
+    "es": "Punto de emisión",
+    "en": "Emission point",
+    "pt": "Ponto de emissão"
+  },
+  "branches.settings.empty_description": {
+    "es": "Mientras no haya ninguna, los documentos no piden sucursal. Crea la casa matriz cuando operes desde más de un lugar o tu autoridad fiscal numere por establecimiento.",
+    "en": "Until there is one, documents do not ask for a branch. Create the headquarters when you operate from more than one place or your tax authority numbers documents per establishment.",
+    "pt": "Enquanto não houver nenhuma, os documentos não pedem filial. Crie a matriz quando operar a partir de mais de um local ou a autoridade fiscal numerar por estabelecimento."
+  },
+  "branches.settings.empty_title": {
+    "es": "Esta empresa no usa sucursales",
+    "en": "This company does not use branches",
+    "pt": "Esta empresa não usa filiais"
+  },
+  "branches.settings.establishment_code": {
+    "es": "Código de establecimiento",
+    "en": "Establishment code",
+    "pt": "Código do estabelecimento"
+  },
+  "branches.settings.fiscal_codes": {
+    "es": "Códigos fiscales",
+    "en": "Fiscal codes",
+    "pt": "Códigos fiscais"
+  },
+  "branches.settings.fiscal_hint": {
+    "es": "Solo si tu autoridad fiscal numera por establecimiento y punto de emisión (p. ej. Ecuador: 001-001). Déjalos vacíos si no aplica.",
+    "en": "Only if your tax authority numbers documents by establishment and emission point (e.g. Ecuador: 001-001). Leave them empty otherwise.",
+    "pt": "Somente se a autoridade fiscal numera por estabelecimento e ponto de emissão (p. ex. Equador: 001-001). Deixe vazio se não se aplica."
+  },
+  "branches.settings.fiscal_section": {
+    "es": "Numeración fiscal",
+    "en": "Fiscal numbering",
+    "pt": "Numeração fiscal"
+  },
+  "branches.settings.go_structure": {
+    "es": "Ver estructura empresarial",
+    "en": "See company structure",
+    "pt": "Ver estrutura empresarial"
+  },
+  "branches.settings.headquarters": {
+    "es": "Casa matriz",
+    "en": "Headquarters",
+    "pt": "Matriz"
+  },
+  "branches.settings.headquarters_hint": {
+    "es": "Siempre hay exactamente una. Para cambiarla, marca otra sucursal como casa matriz.",
+    "en": "There is always exactly one. To change it, mark another branch as the headquarters.",
+    "pt": "Há sempre exatamente uma. Para mudá-la, marque outra filial como matriz."
+  },
+  "branches.settings.inactive": {
+    "es": "Inactiva",
+    "en": "Inactive",
+    "pt": "Inativa"
+  },
+  "branches.settings.is_headquarters": {
+    "es": "Es la casa matriz",
+    "en": "This is the headquarters",
+    "pt": "É a matriz"
+  },
+  "branches.settings.load_failed": {
+    "es": "No se pudieron cargar las sucursales.",
+    "en": "The branches could not be loaded.",
+    "pt": "Não foi possível carregar as filiais."
+  },
+  "branches.settings.loading": {
+    "es": "Cargando sucursales…",
+    "en": "Loading branches…",
+    "pt": "Carregando filiais…"
+  },
+  "branches.settings.location": {
+    "es": "Ubicación",
+    "en": "Location",
+    "pt": "Localização"
+  },
+  "branches.settings.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "branches.settings.new": {
+    "es": "Nueva sucursal",
+    "en": "New branch",
+    "pt": "Nova filial"
+  },
+  "branches.settings.no_warehouse": {
+    "es": "Ninguno",
+    "en": "None",
+    "pt": "Nenhum"
+  },
+  "branches.settings.not_subsidiary": {
+    "es": "Una sucursal es esta misma empresa en otro lugar: mismo RNC/RUC, mismos libros. Una empresa distinta que te pertenece es una subsidiaria.",
+    "en": "A branch is this same company in another place: same tax id, same books. A separate company you own is a subsidiary.",
+    "pt": "Uma filial é esta mesma empresa em outro local: mesmo CNPJ, mesmos livros. Uma empresa distinta que lhe pertence é uma subsidiária."
+  },
+  "branches.settings.phone": {
+    "es": "Teléfono",
+    "en": "Phone",
+    "pt": "Telefone"
+  },
+  "branches.settings.postal_code": {
+    "es": "Código postal",
+    "en": "Postal code",
+    "pt": "CEP"
+  },
+  "branches.settings.restricted_users": {
+    "es": "Personas limitadas",
+    "en": "Restricted people",
+    "pt": "Pessoas restritas"
+  },
+  "branches.settings.save_failed": {
+    "es": "No se pudo guardar la sucursal.",
+    "en": "The branch could not be saved.",
+    "pt": "Não foi possível salvar a filial."
+  },
+  "branches.settings.show_inactive": {
+    "es": "Mostrar inactivas ({{count}})",
+    "en": "Show inactive ({{count}})",
+    "pt": "Mostrar inativas ({{count}})"
+  },
+  "branches.settings.state": {
+    "es": "Provincia / estado",
+    "en": "Province / state",
+    "pt": "Estado"
+  },
+  "branches.settings.subtitle": {
+    "es": "Los lugares desde los que opera esta empresa: tiendas, oficinas, puntos de emisión.",
+    "en": "The places this company operates from: stores, offices, points of issue.",
+    "pt": "Os locais de onde esta empresa opera: lojas, escritórios, pontos de emissão."
+  },
+  "branches.settings.title": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "branches.settings.updated": {
+    "es": "Sucursal actualizada.",
+    "en": "Branch updated.",
+    "pt": "Filial atualizada."
+  },
+  "branches.settings.warehouse": {
+    "es": "Almacén predeterminado",
+    "en": "Default warehouse",
+    "pt": "Depósito padrão"
+  },
+  "branches.settings.warehouse_hint": {
+    "es": "De dónde salen por defecto las existencias de lo que vende esta sucursal.",
+    "en": "Where stock for this branch's sales is taken from by default.",
+    "pt": "De onde sai, por padrão, o estoque do que esta filial vende."
+  }
+}

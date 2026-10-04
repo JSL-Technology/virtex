@@ -59,7 +59,7 @@ import { currentLanguage } from '../i18n/request-locale';
 import { isLocalizedError } from '../i18n/localized.exception';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
-import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -940,6 +940,7 @@ export class InvoicesService {
     invoiceId: string,
     dto: CreateInvoiceDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<Invoice> {
     return this.dataSource.transaction(async (manager) => {
       const repo = manager.getRepository(Invoice);
@@ -984,6 +985,7 @@ export class InvoicesService {
         exchangeRate: rebuilt.exchangeRate,
         totalInBaseCurrency: rebuilt.totalInBaseCurrency,
         costOfSale: rebuilt.costOfSale,
+        branchId: await reassignDocumentBranch(manager, organizationId, actorUserId, existing.branchId, dto.branchId),
       });
 
       return manager.save(existing);

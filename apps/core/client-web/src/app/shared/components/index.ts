@@ -18,6 +18,7 @@
  */
 import { VxAmountComponent } from './amount';
 import { VxBadgeComponent } from './badge';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from './branch-picker';
 import { VX_DATE } from './date';
 import { VxDialogComponent } from './dialog';
 import { VX_FEEDBACK } from './feedback';
@@ -27,6 +28,7 @@ import { VxTabsComponent } from './tabs';
 
 export * from './amount';
 export * from './badge';
+export * from './branch-picker';
 export * from './date';
 export * from './dialog';
 export * from './feedback';
@@ -37,6 +39,8 @@ export * from './tabs';
 export const VX_UI = [
   VxAmountComponent,
   VxBadgeComponent,
+  VxBranchLabelComponent,
+  VxBranchPickerComponent,
   ...VX_DATE,
   VxDialogComponent,
   ...VX_FEEDBACK,

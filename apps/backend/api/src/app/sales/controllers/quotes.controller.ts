@@ -1,3 +1,5 @@
+import { BranchScoped } from '../../organizations/contracts/branch-scope.interceptor';
+import { Quote } from '../entities/quote.entity';
 import { Controller, Post, Body, Get, Param, Patch, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { HasPermission } from '../../security/decorators/permissions.decorator';
@@ -19,6 +21,8 @@ import { Idempotent } from '../../shared/idempotency/idempotent.decorator';
  * a quote is the commercial half of an invoice and the same people make both.
  */
 @Controller('sales/quotes')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(Quote)
 export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
@@ -56,7 +60,7 @@ export class QuotesController {
     @Body() dto: UpdateQuoteDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.quotesService.update(id, dto, user.organizationId);
+    return this.quotesService.update(id, dto, user.organizationId, user.id);
   }
 
   @Post(':id/send')

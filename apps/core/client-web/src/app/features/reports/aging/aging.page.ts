@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { LucideAngularModule, Calendar, RefreshCw } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,7 +28,7 @@ export type AgingSide = 'payables' | 'receivables';
 @Component({
   selector: 'app-aging-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent, FormsModule, VxBranchPickerComponent],
   templateUrl: './aging.page.html',
   styleUrls: ['./aging.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +55,8 @@ export class AgingPage {
   protected readonly RefreshIcon = RefreshCw;
 
   readonly asOfDate = signal(toIsoDate(new Date()));
+  /** Empty: every branch the reader may see. */
+  readonly branchFilter = signal<string | null>(null);
   readonly report = signal<AgingReport | null>(null);
   readonly loading = signal(true);
   readonly failed = signal(false);
@@ -86,8 +90,8 @@ export class AgingPage {
     this.failed.set(false);
     const request =
       this.side === 'payables'
-        ? this.api.payables(this.asOfDate())
-        : this.api.receivables(this.asOfDate());
+        ? this.api.payables(this.asOfDate(), this.branchFilter())
+        : this.api.receivables(this.asOfDate(), this.branchFilter());
 
     request.subscribe({
       next: (report) => {
@@ -100,6 +104,11 @@ export class AgingPage {
         this.loading.set(false);
       },
     });
+  }
+
+  onBranchChange(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
   }
 
   onDateChange(value: string): void {

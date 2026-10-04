@@ -21,6 +21,15 @@
             <lucide-icon [img]="MyProfileIcon" size="16"></lucide-icon>
             <span>{{ 'settings.modal.my_profile' | translate }}</span>
           </button>
+          <!-- The companies this person belongs to, and where «Create a new company» leads. -->
+          <button
+            class="nav-link"
+            [class.active]="section() === 'organizations'"
+            (click)="navigate('organizations')"
+          >
+            <lucide-icon [img]="MyCompaniesIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.my_companies' | translate }}</span>
+          </button>
           <button
             class="nav-link"
             [class.active]="section() === 'billing'"
@@ -49,6 +58,16 @@
           >
             <lucide-icon [img]="SubsidiariesIcon" size="16"></lucide-icon>
             <span>{{ 'settings.modal.company_structure' | translate }}</span>
+          </button>
+          <!-- Same legal entity, other places: not the subsidiaries above, which are other companies. -->
+          <button
+            *appHasPermission="'branches:view'"
+            class="nav-link"
+            [class.active]="section() === 'branches'"
+            (click)="navigate('branches')"
+          >
+            <lucide-icon [img]="BranchesIcon" size="16"></lucide-icon>
+            <span>{{ 'branches.settings.title' | translate }}</span>
           </button>
           <button
             class="nav-link"

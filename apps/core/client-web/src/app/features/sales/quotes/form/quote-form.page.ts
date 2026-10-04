@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -41,6 +42,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
   selector: 'app-quote-form-page',
   standalone: true,
   imports: [
+    VxBranchPickerComponent,
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,
@@ -140,6 +142,7 @@ export class QuoteFormPage implements OnInit {
       {
         customerId: ['', [Validators.required]],
         currencyCode: [this.locale.currency(), [Validators.required]],
+        branchId: [null as string | null],
         issueDate: [today, [Validators.required]],
         expiryDate: [addDays(today, DEFAULT_VALIDITY_DAYS), [Validators.required]],
         documentDiscountRate: [0, [Validators.min(0), Validators.max(0.999999)]],
@@ -330,6 +333,7 @@ export class QuoteFormPage implements OnInit {
       issueDate: raw.issueDate,
       expiryDate: raw.expiryDate,
       currencyCode: raw.currencyCode || undefined,
+      branchId: raw.branchId || undefined,
       documentDiscountRate: Number(raw.documentDiscountRate) || undefined,
       notes: raw.notes?.trim() || undefined,
       lines: (raw.lines as Record<string, unknown>[]).map((line) => ({
@@ -393,6 +397,7 @@ export class QuoteFormPage implements OnInit {
       {
         customerId: quote.customer?.id ?? '',
         currencyCode: quote.currencyCode,
+        branchId: quote.branchId ?? null,
         issueDate: String(quote.issueDate).slice(0, 10),
         expiryDate: String(quote.expiryDate).slice(0, 10),
         documentDiscountRate: Number(quote.documentDiscountRate) || 0,

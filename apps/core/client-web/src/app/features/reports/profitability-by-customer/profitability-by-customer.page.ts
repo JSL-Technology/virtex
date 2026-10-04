@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
@@ -22,7 +24,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-profitability-by-customer-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, VxBranchPickerComponent],
   templateUrl: './profitability-by-customer.page.html',
   styleUrls: ['./profitability-by-customer.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +42,8 @@ export class ProfitabilityByCustomerPage {
 
   readonly startDate = signal(defaultPeriod().startDate);
   readonly endDate = signal(defaultPeriod().endDate);
+  /** Empty: every branch the reader may see. */
+  readonly branchFilter = signal<string | null>(null);
   readonly report = signal<ProfitabilityReport | null>(null);
   readonly loading = signal(true);
   readonly failed = signal(false);
@@ -54,7 +58,7 @@ export class ProfitabilityByCustomerPage {
     this.loading.set(true);
     this.failed.set(false);
     this.api
-      .byCustomer({ startDate: this.startDate(), endDate: this.endDate() })
+      .byCustomer({ startDate: this.startDate(), endDate: this.endDate(), branchId: this.branchFilter() })
       .subscribe({
         next: (report) => {
           this.report.set(report);
@@ -65,6 +69,11 @@ export class ProfitabilityByCustomerPage {
           this.loading.set(false);
         },
       });
+  }
+
+  onBranchChange(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
   }
 
   onStartDateChange(value: string): void {

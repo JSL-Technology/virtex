@@ -36,6 +36,7 @@
           <span>{{ 'sales.quotes.currency' | translate }}</span>
           <vx-select inputId="currencyCode" formControlName="currencyCode" [options]="currencyOptions()" [displayWith]="identity" />
         </label>
+        <vx-branch-picker class="field" inputId="branchId" formControlName="branchId" />
         <label class="field" for="issueDate">
           <span>{{ 'sales.quotes.issue_date' | translate }}</span>
           <vx-date-field inputId="issueDate" formControlName="issueDate" />

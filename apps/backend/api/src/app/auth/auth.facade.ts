@@ -31,6 +31,12 @@ export class AuthFacade {
     return this.registrationService.createPendingRegistration(registerUserDto, planSlug);
   }
 
+  async createPendingAdditionalCompany(
+    ...args: Parameters<RegistrationService['createPendingAdditionalCompany']>
+  ) {
+    return this.registrationService.createPendingAdditionalCompany(...args);
+  }
+
   async attachSessionToPending(pendingId: string, sessionId: string) {
     return this.registrationService.attachSessionToPending(pendingId, sessionId);
   }

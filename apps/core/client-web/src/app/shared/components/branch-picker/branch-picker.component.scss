@@ -1,0 +1,48 @@
+@use 'assets/styles/design-system' as ds;
+
+//  As a form field: label above the control, like every other field on a document.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.vx-branch-picker__label {
+  @include ds.field-label;
+}
+
+.vx-branch-picker__select {
+  @include ds.input-base;
+}
+
+.vx-branch-picker__fixed {
+  @include ds.input-base;
+  display: flex;
+  align-items: center;
+  color: var(--content-secondary);
+  background: var(--surface-sunken);
+}
+
+//  As a list filter: inline, beside the search box, like the status filter it sits next to.
+:host(.vx-branch-picker--filter) {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+
+  .vx-branch-picker__label {
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .vx-branch-picker__select {
+    height: var(--control-height-md);
+    width: auto;
+  }
+}

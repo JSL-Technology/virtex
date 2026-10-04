@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 
@@ -28,7 +29,7 @@ describe('Warehouses', () => {
   ];
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [WarehousesPage] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [WarehousesPage], providers: [provideTestBranches()] }).compileComponents();
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(WarehousesPage);
     component = fixture.componentInstance;

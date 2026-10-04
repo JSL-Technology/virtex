@@ -40,6 +40,8 @@ export interface Quote {
   rejectedAt: string | null;
   rejectionReason: string | null;
   invoiceId: string | null;
+  /** Where it was quoted from; null for a company without branches. */
+  branchId?: string | null;
   lines: QuoteLine[];
 }
 
@@ -56,6 +58,8 @@ export interface QuoteInput {
   issueDate: string;
   expiryDate: string;
   currencyCode?: string;
+  /** The quoting branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   documentDiscountRate?: number;
   notes?: string;
   lines: QuoteLineInput[];
@@ -67,8 +71,10 @@ export class QuotesService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/sales/quotes`;
 
-  list(status?: QuoteStatus): Observable<Quote[]> {
-    const params = status ? new HttpParams().set('status', status) : undefined;
+  list(status?: QuoteStatus, branchId?: string | null): Observable<Quote[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    if (branchId) params = params.set('branchId', branchId);
     return this.http.get<Quote[]>(this.url, { params });
   }
 

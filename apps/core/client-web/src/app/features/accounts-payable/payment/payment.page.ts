@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -34,6 +35,7 @@ import { VX_SELECT } from '../../../shared/components/select';
   selector: 'app-vendor-payment-page',
   standalone: true,
   imports: [
+    VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -128,6 +130,7 @@ export class VendorPaymentPage implements OnInit {
       paymentDate: [todayIso(), [Validators.required]],
       bankAccountId: ['', [Validators.required]],
       reference: [''],
+      branchId: [null as string | null],
       lines: this.fb.array([]),
     });
 
@@ -296,6 +299,7 @@ export class VendorPaymentPage implements OnInit {
         paymentDate: raw.paymentDate,
         bankAccountId: raw.bankAccountId,
         reference: raw.reference || undefined,
+        branchId: raw.branchId || undefined,
         lines: (raw.lines as Record<string, string | number>[]).map((line) => ({
           vendorBillId: String(line['vendorBillId']),
           amount: Number(line['amount']),

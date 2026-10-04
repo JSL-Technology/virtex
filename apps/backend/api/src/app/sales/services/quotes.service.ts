@@ -14,7 +14,7 @@ import { ComputedDocument } from '../../invoices/sales-tax.engine';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
-import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../../organizations/contracts/branch.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../../organizations/contracts/branch.contract';
 
 /** A quote as read: the row plus whether its validity has run out. */
 export type QuoteView = Quote & { expired: boolean };
@@ -88,7 +88,7 @@ export class QuotesService {
     });
   }
 
-  async update(id: string, dto: UpdateQuoteDto, organizationId: string): Promise<Quote> {
+  async update(id: string, dto: UpdateQuoteDto, organizationId: string, actorUserId: string | null = null): Promise<Quote> {
     this.assertDates(dto);
     const computed = await this.invoicesService.preview(this.asInvoice(dto), organizationId);
     return this.dataSource.transaction(async (manager) => {
@@ -108,6 +108,7 @@ export class QuotesService {
         expiryDate: dto.expiryDate,
         currencyCode,
         exchangeRate,
+        branchId: await reassignDocumentBranch(manager, organizationId, actorUserId, quote.branchId, dto.branchId),
       });
       this.applyComputation(quote, dto, computed, exchangeRate);
       return manager.save(quote);

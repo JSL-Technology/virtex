@@ -1,0 +1,185 @@
+<div class="s-page">
+  <div class="s-header">
+    <div>
+      <h1 class="s-header__title">{{ 'branches.settings.title' | translate }}</h1>
+      <p class="s-header__subtitle">{{ 'branches.settings.subtitle' | translate }}</p>
+    </div>
+    <button *appHasPermission="'branches:manage'" type="button" class="primary-button" (click)="openCreate()">
+      <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'branches.settings.new' | translate }}</span>
+    </button>
+  </div>
+
+  <!-- The difference that the old «Sucursales» screen got wrong, stated where the confusion starts. -->
+  <p class="b-note">
+    {{ 'branches.settings.not_subsidiary' | translate }}
+    <a [routerLink]="[]" fragment="settings/subsidiaries">{{ 'branches.settings.go_structure' | translate }}</a>
+  </p>
+
+  @if (loading()) {
+    <div class="s-state"><vx-spinner size="lg" withLabel labelKey="branches.settings.loading" /></div>
+  } @else if (loadError(); as message) {
+    <div class="s-state" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else if (branches().length === 0) {
+    <vx-empty-state
+      [icon]="MapPinIcon"
+      titleKey="branches.settings.empty_title"
+      descriptionKey="branches.settings.empty_description"
+    >
+      <button *appHasPermission="'branches:manage'" action type="button" class="primary-button" (click)="openCreate()">
+        {{ 'branches.settings.create_headquarters' | translate }}
+      </button>
+    </vx-empty-state>
+  } @else {
+    @if (inactiveCount() > 0) {
+      <label class="b-toggle">
+        <input type="checkbox" [checked]="showInactive()" (change)="showInactive.set(!showInactive())" />
+        <span>{{ 'branches.settings.show_inactive' | translate: { count: inactiveCount() } }}</span>
+      </label>
+    }
+    <div class="card">
+      <table class="b-table">
+        <thead>
+          <tr>
+            <th>{{ 'branches.settings.code' | translate }}</th>
+            <th>{{ 'branches.settings.name' | translate }}</th>
+            <th>{{ 'branches.settings.location' | translate }}</th>
+            <th>{{ 'branches.settings.fiscal_codes' | translate }}</th>
+            <th>{{ 'branches.settings.warehouse' | translate }}</th>
+            <th class="numeric">{{ 'branches.settings.restricted_users' | translate }}</th>
+            <th><span class="sr-only">{{ 'branches.settings.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (branch of visible(); track branch.id) {
+            <tr [class.b-row--inactive]="!branch.isActive">
+              <td class="b-code">{{ branch.code }}</td>
+              <td>
+                <span>{{ branch.name }}</span>
+                @if (branch.isHeadquarters) {
+                  <vx-badge tone="accent" size="sm">{{ 'branches.settings.headquarters' | translate }}</vx-badge>
+                }
+                @if (!branch.isActive) {
+                  <vx-badge tone="neutral" size="sm">{{ 'branches.settings.inactive' | translate }}</vx-badge>
+                }
+              </td>
+              <td>{{ location(branch) || '—' }}</td>
+              <td class="b-code">
+                @if (branch.fiscalEstablishmentCode || branch.emissionPointCode) {
+                  {{ branch.fiscalEstablishmentCode || '—' }}-{{ branch.emissionPointCode || '—' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ warehouseName(branch.defaultWarehouseId) || '—' }}</td>
+              <td class="numeric">{{ branch.restrictedUserCount ?? 0 }}</td>
+              <td class="b-actions" *appHasPermission="'branches:manage'">
+                <button type="button" class="link-button" (click)="openEdit(branch)">{{ 'branches.settings.edit' | translate }}</button>
+                @if (!branch.isHeadquarters) {
+                  @if (branch.isActive) {
+                    <button type="button" class="link-button" (click)="setActive(branch, false)">{{ 'branches.settings.deactivate' | translate }}</button>
+                  } @else {
+                    <button type="button" class="link-button" (click)="setActive(branch, true)">{{ 'branches.settings.activate' | translate }}</button>
+                  }
+                  <button type="button" class="link-button link-button--danger" (click)="remove(branch)">{{ 'branches.settings.delete' | translate }}</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (editing() !== undefined) {
+  <vx-dialog
+    size="lg"
+    [titleKey]="editing() ? 'branches.settings.edit_title' : 'branches.settings.new'"
+    [busy]="saving()"
+    (dismissed)="closeForm()"
+  >
+    <form id="branch-form" class="b-form" [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-field">
+        <label for="branch-code">{{ 'branches.settings.code' | translate }} *</label>
+        <input id="branch-code" formControlName="code" maxlength="20" autocomplete="off" />
+        <small class="field-hint">{{ 'branches.settings.code_hint' | translate }}</small>
+        @if (fieldInvalid('code')) {
+          <small class="field-error">{{ 'organizations.branches.code_format' | translate }}</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="branch-name">{{ 'branches.settings.name' | translate }} *</label>
+        <input id="branch-name" formControlName="name" maxlength="120" />
+      </div>
+      <div class="form-field form-field--wide">
+        <label for="branch-address">{{ 'branches.settings.address' | translate }}</label>
+        <input id="branch-address" formControlName="address" maxlength="255" autocomplete="street-address" />
+        <small class="field-hint">{{ 'branches.settings.address_hint' | translate }}</small>
+      </div>
+      <div class="form-field">
+        <label for="branch-city">{{ 'branches.settings.city' | translate }}</label>
+        <input id="branch-city" formControlName="city" maxlength="120" />
+      </div>
+      <div class="form-field">
+        <label for="branch-state">{{ 'branches.settings.state' | translate }}</label>
+        <input id="branch-state" formControlName="state" maxlength="120" />
+      </div>
+      <div class="form-field">
+        <label for="branch-postal">{{ 'branches.settings.postal_code' | translate }}</label>
+        <input id="branch-postal" formControlName="postalCode" maxlength="20" autocomplete="postal-code" />
+      </div>
+      <div class="form-field">
+        <label for="branch-phone">{{ 'branches.settings.phone' | translate }}</label>
+        <input id="branch-phone" formControlName="phone" maxlength="40" type="tel" />
+      </div>
+
+      <fieldset class="form-field--wide b-fieldset">
+        <legend>{{ 'branches.settings.fiscal_section' | translate }}</legend>
+        <p class="field-hint">{{ 'branches.settings.fiscal_hint' | translate }}</p>
+        <div class="b-pair">
+          <div class="form-field">
+            <label for="branch-establishment">{{ 'branches.settings.establishment_code' | translate }}</label>
+            <input id="branch-establishment" formControlName="fiscalEstablishmentCode" maxlength="10" inputmode="numeric" />
+          </div>
+          <div class="form-field">
+            <label for="branch-emission">{{ 'branches.settings.emission_point_code' | translate }}</label>
+            <input id="branch-emission" formControlName="emissionPointCode" maxlength="10" inputmode="numeric" />
+          </div>
+        </div>
+        @if (fieldInvalid('fiscalEstablishmentCode') || fieldInvalid('emissionPointCode')) {
+          <small class="field-error">{{ 'organizations.branches.fiscal_code_format' | translate }}</small>
+        }
+      </fieldset>
+
+      <div class="form-field form-field--wide">
+        <label for="branch-warehouse">{{ 'branches.settings.warehouse' | translate }}</label>
+        <select id="branch-warehouse" formControlName="defaultWarehouseId">
+          <option value="">{{ 'branches.settings.no_warehouse' | translate }}</option>
+          @for (warehouse of warehouses(); track warehouse.id) {
+            <option [value]="warehouse.id">{{ warehouse.code ? warehouse.code + ' · ' : '' }}{{ warehouse.name }}</option>
+          }
+        </select>
+        <small class="field-hint">{{ 'branches.settings.warehouse_hint' | translate }}</small>
+      </div>
+
+      <label class="b-check form-field--wide">
+        <input type="checkbox" formControlName="isHeadquarters" />
+        <span>{{ 'branches.settings.is_headquarters' | translate }}</span>
+      </label>
+      <small class="field-hint form-field--wide">{{ 'branches.settings.headquarters_hint' | translate }}</small>
+    </form>
+
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" [disabled]="saving()" (click)="closeForm()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button type="submit" form="branch-form" class="primary-button" [disabled]="saving()">
+        {{ (saving() ? 'common.saving' : 'common.save') | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}

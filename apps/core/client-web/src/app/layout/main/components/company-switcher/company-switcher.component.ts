@@ -188,6 +188,15 @@ export class CompanySwitcherComponent implements OnInit {
       });
   }
 
+  /**
+   * Settings › My companies — the list, or straight to adding one. Whether the new company is a
+   * subsidiary of this group or an independent one is the first thing asked there.
+   */
+  openMyCompanies(adding: boolean): void {
+    this.isOpen.set(false);
+    void this.router.navigate([], { fragment: adding ? 'settings/organizations/new' : 'settings/organizations' });
+  }
+
   onSearch(event: Event) {
     const target = event.target as HTMLInputElement;
     this.searchQuery.set(target.value);

@@ -41,24 +41,32 @@ export interface ProfitabilityReport {
  * either saw an imaginary company's figures presented as its own, and margin is the number a
  * business acts on.
  */
+/** The period, and optionally one branch; omitted, every branch the reader may see. */
+export interface ProfitabilityRange {
+  startDate: string;
+  endDate: string;
+  branchId?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProfitabilityApiService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/reports/profitability`;
 
-  byProduct(range: { startDate: string; endDate: string }): Observable<ProfitabilityReport> {
+  byProduct(range: ProfitabilityRange): Observable<ProfitabilityReport> {
     return this.http.get<ProfitabilityReport>(`${this.apiUrl}/by-product`, {
       params: this.params(range),
     });
   }
 
-  byCustomer(range: { startDate: string; endDate: string }): Observable<ProfitabilityReport> {
+  byCustomer(range: ProfitabilityRange): Observable<ProfitabilityReport> {
     return this.http.get<ProfitabilityReport>(`${this.apiUrl}/by-customer`, {
       params: this.params(range),
     });
   }
 
-  private params(range: { startDate: string; endDate: string }): HttpParams {
-    return new HttpParams().set('startDate', range.startDate).set('endDate', range.endDate);
+  private params(range: ProfitabilityRange): HttpParams {
+    const params = new HttpParams().set('startDate', range.startDate).set('endDate', range.endDate);
+    return range.branchId ? params.set('branchId', range.branchId) : params;
   }
 }

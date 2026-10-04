@@ -8,6 +8,14 @@
     <span>{{ 'purchasing.orders.new_order' | translate }}</span>
   </a>
 
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="order-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="branchFilter.set($event)"
+  />
+
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
@@ -20,6 +28,9 @@
           <th appSortHeader="orderDate">{{ 'purchasing.orders.order_date' | translate }}</th>
           <th appSortHeader="total" class="text-right">{{ 'purchasing.orders.total' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'purchasing.orders.status' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -39,6 +50,9 @@
                 {{ 'purchasing.orders.status_label.' + order.status | translate }}
               </vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="order.branchId" /></td>
+            }
           </tr>
         }
       </tbody>

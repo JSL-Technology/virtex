@@ -1,3 +1,5 @@
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,7 +31,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +54,8 @@ export class WarehousesPage implements OnInit {
   readonly draftName = signal('');
   readonly draftCode = signal('');
   readonly draftCity = signal('');
+  readonly draftBranch = signal<string | null>(null);
+  protected readonly branches = inject(BranchesService);
 
   readonly canSave = computed(() => !this.saving() && this.draftName().trim().length > 0);
 
@@ -87,6 +91,7 @@ export class WarehousesPage implements OnInit {
         name: this.draftName().trim(),
         code: this.draftCode().trim() || undefined,
         city: this.draftCity().trim() || undefined,
+        branchId: this.draftBranch() ?? undefined,
       })
       .subscribe({
         next: () => {
@@ -107,5 +112,6 @@ export class WarehousesPage implements OnInit {
     this.draftName.set('');
     this.draftCode.set('');
     this.draftCity.set('');
+    this.draftBranch.set(null);
   }
 }

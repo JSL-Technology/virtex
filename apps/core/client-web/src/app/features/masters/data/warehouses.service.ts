@@ -11,6 +11,8 @@ export interface Warehouse {
   addressLine1?: string | null;
   city?: string | null;
   countryCode?: string | null;
+  /** The branch it belongs to; null for a central warehouse or a company without branches. */
+  branchId?: string | null;
 }
 
 export interface WarehouseInput {
@@ -20,6 +22,7 @@ export interface WarehouseInput {
   addressLine1?: string;
   city?: string;
   countryCode?: string;
+  branchId?: string;
 }
 
 /**

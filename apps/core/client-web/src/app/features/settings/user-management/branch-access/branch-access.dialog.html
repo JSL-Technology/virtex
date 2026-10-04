@@ -1,0 +1,73 @@
+<vx-dialog size="md" titleKey="branches.access.title" [busy]="saving()" (dismissed)="closed.emit()">
+  @if (loading()) {
+    <vx-spinner withLabel labelKey="branches.access.loading" />
+  } @else {
+    <p class="ba-lead">{{ 'branches.access.lead' | translate: { name: userName() } }}</p>
+
+    @if (branches().length === 0) {
+      <p class="ba-empty">{{ 'branches.access.no_branches' | translate }}</p>
+    } @else {
+      <fieldset class="ba-scope">
+        <legend>{{ 'branches.access.scope' | translate }}</legend>
+        <label class="ba-option">
+          <input type="radio" name="ba-scope" [checked]="allBranches()" (change)="setAll(true)" />
+          <span>
+            <strong>{{ 'branches.access.all' | translate }}</strong>
+            <small>{{ 'branches.access.all_hint' | translate }}</small>
+          </span>
+        </label>
+        <label class="ba-option">
+          <input type="radio" name="ba-scope" [checked]="!allBranches()" (change)="setAll(false)" />
+          <span>
+            <strong>{{ 'branches.access.some' | translate }}</strong>
+            <small>{{ 'branches.access.some_hint' | translate }}</small>
+          </span>
+        </label>
+      </fieldset>
+
+      @if (!allBranches()) {
+        <ul class="ba-list" role="group" [attr.aria-label]="'branches.access.some' | translate">
+          @for (branch of branches(); track branch.id) {
+            <li>
+              <label class="ba-check" [class.ba-check--inactive]="!branch.isActive">
+                <input type="checkbox" [checked]="isSelected(branch.id)" (change)="toggle(branch.id)" />
+                <span>{{ branch.code }} · {{ branch.name }}</span>
+                @if (!branch.isActive) {
+                  <small>{{ 'branches.settings.inactive' | translate }}</small>
+                }
+              </label>
+            </li>
+          }
+        </ul>
+        @if (invalid()) {
+          <p class="ba-error" role="alert">{{ 'branches.access.choose_one' | translate }}</p>
+        }
+      }
+
+      <div class="ba-field">
+        <label for="ba-default">{{ 'branches.access.default' | translate }}</label>
+        <select id="ba-default" [value]="defaultBranchId() ?? ''" (change)="setDefault($any($event.target).value)">
+          <option value="">{{ 'branches.access.no_default' | translate }}</option>
+          @for (branch of defaultChoices(); track branch.id) {
+            <option [value]="branch.id" [selected]="branch.id === defaultBranchId()">{{ branch.code }} · {{ branch.name }}</option>
+          }
+        </select>
+        <small>{{ 'branches.access.default_hint' | translate }}</small>
+      </div>
+    }
+  }
+
+  <ng-container dialogActions>
+    <button type="button" class="secondary-button" [disabled]="saving()" (click)="closed.emit()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      type="button"
+      class="primary-button"
+      [disabled]="loading() || saving() || invalid() || branches().length === 0"
+      (click)="save()"
+    >
+      {{ (saving() ? 'common.saving' : 'common.save') | translate }}
+    </button>
+  </ng-container>
+</vx-dialog>

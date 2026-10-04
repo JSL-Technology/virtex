@@ -38,6 +38,11 @@ export interface AgingReport {
   /** `totals.total − controlAccountBalance`. Anything but zero needs investigating. */
   controlAccountDifference: number;
   /**
+   * False when the report covers only some branches. The ledger has no branch dimension, so the
+   * tie-out to the control account only applies to the whole company.
+   */
+  coversWholeCompany: boolean;
+  /**
    * Documents whose currency has no rate on file for the reporting date, and which are therefore
    * held at the rate they were booked at rather than restated to the closing rate.
    */
@@ -55,19 +60,23 @@ export interface AgingReport {
 export class AgingService {
   private readonly http = inject(HttpClient);
 
-  payables(asOfDate?: string): Observable<AgingReport> {
+  /** `branchId` narrows to one branch's documents; omitted, every branch the person may see. */
+  payables(asOfDate?: string, branchId?: string | null): Observable<AgingReport> {
     return this.http.get<AgingReport>(`${environment.apiUrl}/accounts-payable/aging`, {
-      params: this.params(asOfDate),
+      params: this.params(asOfDate, branchId),
     });
   }
 
-  receivables(asOfDate?: string): Observable<AgingReport> {
+  receivables(asOfDate?: string, branchId?: string | null): Observable<AgingReport> {
     return this.http.get<AgingReport>(`${environment.apiUrl}/customer-payments/aging`, {
-      params: this.params(asOfDate),
+      params: this.params(asOfDate, branchId),
     });
   }
 
-  private params(asOfDate?: string): HttpParams | undefined {
-    return asOfDate ? new HttpParams().set('asOfDate', asOfDate) : undefined;
+  private params(asOfDate?: string, branchId?: string | null): HttpParams {
+    let params = new HttpParams();
+    if (asOfDate) params = params.set('asOfDate', asOfDate);
+    if (branchId) params = params.set('branchId', branchId);
+    return params;
   }
 }

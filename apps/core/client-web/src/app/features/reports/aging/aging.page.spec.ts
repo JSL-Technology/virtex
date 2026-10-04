@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -45,6 +46,7 @@ describe('AgingPage', () => {
     currencyCode: 'DOP',
     controlAccountBalance: 1_750,
     controlAccountDifference: 0,
+    coversWholeCompany: true,
     unconvertedDocuments: 0,
   };
 
@@ -53,6 +55,7 @@ describe('AgingPage', () => {
     await TestBed.configureTestingModule({
       imports: [AgingPage, TranslateModule.forRoot()],
       providers: [
+        provideTestBranches(),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ActivatedRoute, useValue: { snapshot: { data: { side } } } },

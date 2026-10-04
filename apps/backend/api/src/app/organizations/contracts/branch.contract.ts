@@ -106,6 +106,22 @@ export async function resolveDocumentBranch(
   return null;
 }
 
+/**
+ * The branch of a draft being edited: unchanged unless another one is asked for, and then only one
+ * the editor may use — the same three refusals as on creation. A draft may move, an issued document
+ * may not; callers only reach this for documents still editable.
+ */
+export async function reassignDocumentBranch(
+  manager: EntityManager,
+  organizationId: string,
+  actorUserId: string | null,
+  current: string | null,
+  requested: string | null | undefined,
+): Promise<string | null> {
+  if (requested === undefined || requested === null || requested === current) return current;
+  return resolveDocumentBranch(manager, organizationId, actorUserId, requested);
+}
+
 export async function assertBranchUsable(
   manager: EntityManager,
   organizationId: string,

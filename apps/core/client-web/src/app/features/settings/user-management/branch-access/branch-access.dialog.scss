@@ -1,0 +1,56 @@
+@use 'assets/styles/design-system' as ds;
+
+.ba-lead { font-size: var(--text-sm); color: var(--content-secondary); margin-bottom: var(--space-4); }
+.ba-empty { font-size: var(--text-sm); color: var(--content-tertiary); }
+
+.ba-scope {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+
+  legend { @include ds.field-label; margin-bottom: var(--space-2); }
+}
+
+.ba-option {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  cursor: pointer;
+
+  span { display: flex; flex-direction: column; gap: 2px; font-size: var(--text-sm); }
+  small { color: var(--content-tertiary); font-size: var(--text-xs); }
+}
+
+.ba-list {
+  list-style: none;
+  margin: 0 0 var(--space-3) var(--space-6);
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.ba-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+
+  small { color: var(--content-tertiary); }
+  &--inactive span { color: var(--content-tertiary); }
+}
+
+.ba-error { color: var(--error-text); font-size: var(--text-xs); margin-bottom: var(--space-3); }
+
+.ba-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  label { @include ds.field-label; }
+  select { @include ds.input-base; }
+  small { color: var(--content-tertiary); font-size: var(--text-xs); }
+}

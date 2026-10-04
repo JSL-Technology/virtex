@@ -136,3 +136,10 @@
     }
   }
 }
+
+//  A branch slice: a statement, not a verdict — neutral rule, no colour of agreement or alarm.
+.control-tieout--partial {
+  border-left-color: var(--border-default);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}

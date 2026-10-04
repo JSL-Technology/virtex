@@ -21,8 +21,13 @@ import { AuthFacade } from './auth.facade';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { CookieService } from './services/cookie.service';
 import { Public } from '../security/decorators/public.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 import { AuthConfig } from './auth.config';
 import { RegisterCheckoutDto } from './dto/register-checkout.dto';
+import { AddCompanyCheckoutDto } from './dto/add-company-checkout.dto';
+import { CurrentUser } from '../security/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../security/principal';
+import type { BillingPeriod } from '../saas/enums/billing-period.enum';
 import { RegisterConfirmDto } from './dto/register-confirm.dto';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
 import { InvitationDetailsDto } from './dto/security-audit.dto';
@@ -32,7 +37,7 @@ import { RegistrationPaymentPort } from './ports/registration-payment.port';
 import { SaasService } from '../saas/saas.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 /**
  * Signup and checkout.
@@ -78,20 +83,7 @@ export class AuthRegistrationController {
     @Body() dto: RegisterCheckoutDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ url: string | null }> {
-    const plans = await this.saasService.getPlans();
-    const plan = plans.find((p) => p.id === dto.planId || p.slug === dto.planId);
-    if (!plan) {
-      throw new BadRequestError('auth.plan_not_found');
-    }
-    const billingPeriod = dto.billingPeriod ?? 'monthly';
-    const priceId = SaasService.priceIdFor(plan, billingPeriod);
-    if (!priceId) {
-      throw new BadRequestException(
-        billingPeriod === 'annual'
-          ? 'Este plan no admite facturación anual en este momento.'
-          : 'Este plan no está disponible para contratación en este momento.',
-      );
-    }
+    const { plan, priceId } = await this.resolvePlanPrice(dto.planId, dto.billingPeriod);
 
     // Validate everything and stash a pending registration. NO account yet.
     const pending = await this.authFacade.createPendingRegistration(dto, plan.slug);
@@ -100,13 +92,76 @@ export class AuthRegistrationController {
       return { url: null };
     }
 
+    return this.openCheckout(pending.id, dto.email, priceId, plan, dto.countryCode, res);
+  }
+
+  /**
+   * A signed-in person adds ANOTHER company: an unrelated legal entity with its own subscription.
+   *
+   * Not a subsidiary — that is `POST /organizations/subsidiaries`, a company in the same group with
+   * no subscription of its own. This one is paid for, so it goes through the same Stripe checkout
+   * and the same `register-confirm` as a signup; only the identity differs, and it comes from the
+   * session. An impersonating administrator cannot open companies in the person's name.
+   */
+  @Post('add-company-checkout')
+  @AuthenticatedOnly(
+    'Cualquier persona con sesión puede pagar una empresa NUEVA a su nombre: no actúa sobre la empresa activa ni sobre sus datos, y la identidad sale de la sesión, no del cuerpo.',
+  )
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 20, ttl: AuthConfig.THROTTLE_TTL } })
+  @ApiOperation({ summary: 'Start the checkout for an additional company of the signed-in person' })
+  async addCompanyCheckout(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AddCompanyCheckoutDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string | null }> {
+    if (user.isImpersonating) {
+      throw new ForbiddenError('auth.add_company_not_while_impersonating');
+    }
+    const { plan, priceId } = await this.resolvePlanPrice(dto.planId, dto.billingPeriod);
+    const pending = await this.authFacade.createPendingAdditionalCompany(
+      { email: user.email, firstName: user.firstName, lastName: user.lastName },
+      dto,
+      plan.slug,
+    );
+    return this.openCheckout(pending.id, user.email, priceId, plan, dto.countryCode, res);
+  }
+
+  /** The plan and the Stripe Price for the period asked for, or the reason there is none. */
+  private async resolvePlanPrice(planId: string, period: BillingPeriod | undefined) {
+    const plans = await this.saasService.getPlans();
+    const plan = plans.find((p) => p.id === planId || p.slug === planId);
+    if (!plan) {
+      throw new BadRequestError('auth.plan_not_found');
+    }
+    const billingPeriod = period ?? 'monthly';
+    const priceId = SaasService.priceIdFor(plan, billingPeriod);
+    if (!priceId) {
+      throw new BadRequestException(
+        billingPeriod === 'annual'
+          ? 'Este plan no admite facturación anual en este momento.'
+          : 'Este plan no está disponible para contratación en este momento.',
+      );
+    }
+    return { plan, priceId };
+  }
+
+  /** Opens the Stripe Checkout for a pending registration and binds it to this browser. */
+  private async openCheckout(
+    pendingId: string,
+    email: string,
+    priceId: string,
+    plan: { slug: string; trialPeriodDays?: number | null },
+    countryCode: string,
+    res: Response,
+  ): Promise<{ url: string | null }> {
     // Redirect URLs are built server-side. The {CHECKOUT_SESSION_ID} placeholder must stay
     // literal for Stripe to expand it.
     const successUrl = this.links.checkoutComplete();
     const cancelUrl = this.links.registerCancelled();
 
     const session = await this.paymentService.createRegistrationCheckoutSession({
-      email: dto.email,
+      email,
       priceId,
       planSlug: plan.slug,
       trialPeriodDays: plan.trialPeriodDays,
@@ -115,18 +170,18 @@ export class AuthRegistrationController {
       // Bill the market in its own currency and let Stripe determine the tax. Both were missing,
       // so every customer in all nineteen markets was charged in the Price's default currency with
       // no tax treatment at all.
-      currency: SaasService.currencyForCountry(dto.countryCode),
-      countryCode: dto.countryCode,
-      metadata: { pendingRegistrationId: pending.id },
+      currency: SaasService.currencyForCountry(countryCode),
+      countryCode,
+      metadata: { pendingRegistrationId: pendingId },
     });
 
-    await this.authFacade.attachSessionToPending(pending.id, session.sessionId);
+    await this.authFacade.attachSessionToPending(pendingId, session.sessionId);
 
     // Bind this pending registration to THIS browser. `register-confirm` will not issue a session
     // without it, so a leaked Stripe session id is no longer enough to take over the account.
     this.cookieService.setRegistrationTransactionCookie(
       res,
-      pending.id,
+      pendingId,
       AuthConfig.PENDING_REGISTRATION_TTL,
     );
 

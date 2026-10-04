@@ -18,6 +18,14 @@
     <span>{{ 'sales.history.new_sale' | translate }}</span>
   </a>
 
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="ticket-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="setBranch($event)"
+  />
+
   <div listEmpty class="empty-copy">
     <p class="ls__state-title">{{ 'sales.history.empty_title' | translate }}</p>
     <p class="ls__state-help">{{ 'sales.history.empty_help' | translate }}</p>
@@ -33,6 +41,9 @@
           <th appSortHeader="total" class="text-right">{{ 'sales.history.total' | translate }}</th>
           <th appSortHeader="paymentMethod">{{ 'sales.history.payment_method' | translate }}</th>
           <th appSortHeader="status">{{ 'sales.history.status' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -48,6 +59,9 @@
                 {{ 'pos.sale_status.' + sale.status | translate }}
               </vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="sale.branchId" /></td>
+            }
           </tr>
         }
       </tbody>

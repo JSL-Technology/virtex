@@ -14,6 +14,14 @@
     <span>{{ 'accounts_payable.list.new_invoice' | translate }}</span>
   </a>
 
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="bill-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="setBranch($event)"
+  />
+
   <div listEmpty class="empty-invite">
     <h2>{{ 'accounts_payable.list.no_vendor_bills' | translate }}</h2>
     <p>{{ 'accounts_payable.list.create_your_first_vendor_bill_get' | translate }}</p>
@@ -34,6 +42,9 @@
           <th appSortHeader="total" class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
           <th appSortHeader="balance" class="text-right">{{ 'accounts_payable.list.balance' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'accounts_payable.list.status' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -58,6 +69,9 @@
                 {{ statusKey(bill.status) | translate }}
               </vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="bill.branchId" /></td>
+            }
           </tr>
         }
       </tbody>

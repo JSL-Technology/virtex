@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import {
   ComponentFixture,
   TestBed,
@@ -127,6 +128,7 @@ describe('NewInvoicePage', () => {
       .configureTestingModule({
         imports: [NewInvoicePage, NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
+        provideTestBranches(),
           { provide: InvoicesService, useValue: invoicesService },
           { provide: CustomersService, useValue: customersService },
           {

@@ -92,6 +92,11 @@ export class UpdatePurchaseOrderDto {
   @IsOptional()
   supplierId?: string;
 
+  /** Move a draft to another branch the editor may use. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsDateString()
   @IsOptional()
   orderDate?: string;

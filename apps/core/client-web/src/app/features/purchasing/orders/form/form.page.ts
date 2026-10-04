@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,7 +45,7 @@ import { PercentInputDirective } from '../../../../shared/directives/percent-inp
 @Component({
   selector: 'app-purchase-order-form-page',
   standalone: true,
-  imports: [PercentInputDirective, 
+  imports: [PercentInputDirective, VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -203,6 +204,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.form = this.fb.group({
       supplierId: ['', [Validators.required]],
       currencyCode: [this.locale.currency(), [Validators.required]],
+      branchId: [null as string | null],
       orderDate: [todayIso(), [Validators.required]],
       expectedDate: [''],
       notes: [''],
@@ -317,6 +319,7 @@ export class PurchaseOrderFormPage implements OnInit {
     const body = {
       supplierId: raw.supplierId,
       currencyCode: raw.currencyCode || undefined,
+      branchId: raw.branchId || undefined,
       orderDate: raw.orderDate,
       expectedDate: raw.expectedDate || undefined,
       notes: raw.notes || undefined,
@@ -491,6 +494,7 @@ export class PurchaseOrderFormPage implements OnInit {
       {
         supplierId: order.supplierId,
         currencyCode: order.currencyCode,
+        branchId: order.branchId ?? null,
         orderDate: order.orderDate,
         expectedDate: order.expectedDate ?? '',
         notes: order.notes ?? '',

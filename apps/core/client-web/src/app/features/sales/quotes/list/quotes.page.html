@@ -25,6 +25,13 @@
         {{ 'sales.quotes.status.' + status.toLowerCase() | translate }}
       </button>
     }
+    <vx-branch-picker
+      class="quotes__branch"
+      mode="filter"
+      inputId="quote-branch"
+      [ngModel]="branchFilter()"
+      (ngModelChange)="setBranch($event)"
+    />
   </div>
 
   <div class="table-container card">
@@ -37,6 +44,9 @@
           <th appSortHeader="expiryDate">{{ 'sales.quotes.expiry_date' | translate }}</th>
           <th appSortHeader="total" class="text-right">{{ 'sales.quotes.total' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'sales.quotes.state' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -50,6 +60,9 @@
             <td class="text-center">
               <vx-badge [tone]="tone(quote)" [struck]="quote.status === 'CANCELLED'">{{ statusKey(quote) | translate }}</vx-badge>
             </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="quote.branchId" /></td>
+            }
           </tr>
         }
       </tbody>
