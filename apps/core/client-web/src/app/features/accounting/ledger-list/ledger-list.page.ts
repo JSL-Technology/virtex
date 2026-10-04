@@ -7,6 +7,7 @@ import { Ledger } from '../../../core/models/ledger.model';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Los libros contables.
@@ -25,12 +26,14 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-ledger-list-page',
   standalone: true,
-  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './ledger-list.page.html',
   styleUrls: ['./ledger-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LedgerListPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.ledgers());
   private ledgersService = inject(LedgersService);
 
   protected readonly CreateIcon = PlusCircle;

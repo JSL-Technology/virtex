@@ -215,19 +215,19 @@
           <p class="section-note">{{ 'payroll.runs.no_payslips' | translate }}</p>
         } @else {
           <div class="table-wrapper">
-            <table class="data-table">
+            <table [vxSort]="payslipsTable.sort" class="data-table">
               <thead>
                 <tr>
-                  <th>{{ 'payroll.runs.employee' | translate }}</th>
-                  <th class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
-                  <th class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
-                  <th class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
-                  <th class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
-                  <th class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
+                  <th vxSortHeader="employeeName">{{ 'payroll.runs.employee' | translate }}</th>
+                  <th vxSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
+                  <th vxSortHeader="afpEmployee" class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
+                  <th vxSortHeader="sfsEmployee" class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
+                  <th vxSortHeader="incomeTax" class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
+                  <th vxSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
-                @for (payslip of payslips(); track payslip.id) {
+                @for (payslip of payslipsTable.rows(); track payslip.id) {
                   <tr class="is-clickable" (click)="togglePayslip(payslip.id)">
                     <td>{{ payslip.employeeName }}</td>
                     <td class="numeric"><vx-amount [value]="payslip.grossEarnings" /></td>

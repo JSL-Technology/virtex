@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, UserPlus } from 'lucide-angular';
 import { forkJoin, catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -14,6 +14,8 @@ import {
 } from '../../../core/api/hcm.service';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
 /** Qué significa la situación de un empleado. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
@@ -36,12 +38,15 @@ const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.visible(), { name: (employee) => `${employee.lastName}, ${employee.firstName}`, department: (employee) => this.departmentOf(employee), status: (employee) => this.translate.instant('hcm.employees.status_label.' + employee.employmentStatus) });
   private readonly hcm = inject(HcmService);
 
   protected readonly AddIcon = UserPlus;

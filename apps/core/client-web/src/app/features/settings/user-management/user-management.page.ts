@@ -8,6 +8,8 @@ import {
   computed,
   OnDestroy,
   ViewContainerRef,
+  effect,
+  untracked,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -16,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
   LucideAngularModule,
@@ -30,9 +32,6 @@ import {
   Key,
   Search,
   Filter,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   MoreHorizontal,
   FilePenLine,
   Ban,
@@ -63,7 +62,6 @@ import {
 } from '../../../core/api/users.service';
 import { Role, RolesService } from '../../../core/api/roles.service';
 import { AuthService } from '../../../core/services/auth';
-import { TranslateModule } from '@ngx-translate/core';
 import { User as ApiUser } from '../../../shared/interfaces/user.interface';
 import { UserStatus } from '../../../shared/enums/user-status.enum';
 import { WebSocketService } from '../../../core/services/websocket.service';
@@ -76,11 +74,12 @@ import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
+import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
-  imports: [...FORMAT_PIPES, RoleNamePipe, 
+  imports: [...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -91,6 +90,8 @@ import { VX_SELECT } from '../../../shared/components/select';
   styleUrls: ['./user-management.page.scss'],
 })
 export class UserManagementPage implements OnInit, OnDestroy {
+  /** Sortable by its headers (QA B-01). */
+  readonly invitationsTable = sortable(() => this.sentInvitations(), { name: (invitation) => `${invitation.firstName} ${invitation.lastName}`, role: (invitation) => roleLabel(this.translate, invitation.roleName) });
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(DialogService);
   // Servicios
@@ -129,9 +130,6 @@ export class UserManagementPage implements OnInit, OnDestroy {
   protected readonly LogOutIcon = LogOut;
   protected readonly SearchIcon = Search;
   protected readonly FilterIcon = Filter;
-  protected readonly SortIcon = ArrowUpDown;
-  protected readonly SortUpIcon = ArrowUp;
-  protected readonly SortDownIcon = ArrowDown;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly EditIcon = FilePenLine;
   protected readonly BanIcon = Ban;
@@ -173,8 +171,31 @@ export class UserManagementPage implements OnInit, OnDestroy {
   totalUsers = signal(0);
   statusFilter = signal<string>('all');
   searchTerm = signal<string>('');
-  sortColumn = signal<string>('createdAt');
-  sortDirection = signal<'ASC' | 'DESC'>('DESC');
+  /**
+   * The order the server applies (QA B-01). The headers had their own handler, whose second click
+   * set the direction it already had, and icons bound by `[name]` to objects, so nothing showed.
+   * With no column chosen the server's default stands: newest member first.
+   */
+  readonly sort = new TableSort<unknown, 'firstName' | 'email' | 'status'>();
+  readonly sortColumn = computed(() => this.sort.state().key ?? 'createdAt');
+  readonly sortDirection = computed<'ASC' | 'DESC'>(() =>
+    this.sort.state().key ? (this.sort.state().direction === 'asc' ? 'ASC' : 'DESC') : 'DESC',
+  );
+  /** A new order is a new result set, from its first page. The initial state is `ngOnInit`'s load. */
+  private readonly reloadOnSort = (() => {
+    let initial = true;
+    return effect(() => {
+      this.sort.state();
+      if (initial) {
+        initial = false;
+        return;
+      }
+      untracked(() => {
+        this.currentPage.set(1);
+        this.loadUsers();
+      });
+    });
+  })();
 
   private searchSubject = new Subject<string>();
   private subscriptions = new Subscription();
@@ -525,14 +546,8 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.loadUsers();
   }
 
-  sortTable(column: string): void {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update((dir) => (dir === 'ASC' ? 'ASC' : 'DESC'));
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('ASC');
-    }
-    this.loadUsers();
+  sortTable(column: 'firstName' | 'email' | 'status'): void {
+    this.sort.toggle(column);
   }
 
   changePageSize(size: number): void {

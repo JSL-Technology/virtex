@@ -52,29 +52,14 @@
         </div>
 
         <div class="table-container">
-          <table class="data-table">
+          <table [vxSort]="sort" class="data-table">
             <thead>
               <tr>
                 <th style="width: 30px"><input type="checkbox" /></th>
-                <th (click)="sortTable('firstName')" tabindex="0" (keydown.enter)="sortTable('firstName')" (keydown.space)="$event.preventDefault(); sortTable('firstName')">
-                  {{ "users.table.name" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'firstName'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
-                <th (click)="sortTable('email')" tabindex="0" (keydown.enter)="sortTable('email')" (keydown.space)="$event.preventDefault(); sortTable('email')">
-                  {{ "users.table.email" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'email'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
+                <th vxSortHeader="firstName">{{ "users.table.name" | translate }}</th>
+                <th vxSortHeader="email">{{ "users.table.email" | translate }}</th>
                 <th>{{ "users.table.role" | translate }}</th>
-                <th (click)="sortTable('status')" tabindex="0" (keydown.enter)="sortTable('status')" (keydown.space)="$event.preventDefault(); sortTable('status')">
-                  {{ "users.table.status" | translate }}
-                  <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'status'"></lucide-icon>
-                  <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'ASC'"></lucide-icon>
-                  <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'DESC'"></lucide-icon>
-                </th>
+                <th vxSortHeader="status">{{ "users.table.status" | translate }}</th>
                 <th>{{ "users.table.actions" | translate }}</th>
               </tr>
             </thead>
@@ -139,18 +124,18 @@
           <p class="sent-invitations-hint">{{ 'settings.user_management.sent_invitations_hint' | translate }}</p>
         </div>
         <div class="card-body">
-          <table class="data-table">
+          <table [vxSort]="invitationsTable.sort" class="data-table">
             <thead>
               <tr>
-                <th>{{ 'users.table.name' | translate }}</th>
-                <th>{{ 'users.table.email' | translate }}</th>
-                <th>{{ 'users.table.role' | translate }}</th>
-                <th>{{ 'settings.user_management.invitation_expires' | translate }}</th>
+                <th vxSortHeader="name">{{ 'users.table.name' | translate }}</th>
+                <th vxSortHeader="email">{{ 'users.table.email' | translate }}</th>
+                <th vxSortHeader="role">{{ 'users.table.role' | translate }}</th>
+                <th vxSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
                 <th>{{ 'users.table.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (invitation of sentInvitations(); track invitation.id) {
+              @for (invitation of invitationsTable.rows(); track invitation.id) {
                 <tr>
                   <td>{{ invitation.firstName }} {{ invitation.lastName }}</td>
                   <td>{{ invitation.email }}</td>

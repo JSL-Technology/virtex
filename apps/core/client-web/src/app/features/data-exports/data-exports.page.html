@@ -58,19 +58,19 @@
   <h2 class="section-title">{{ 'data_exports.recent_exports' | translate }}</h2>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'data_exports.data_type' | translate }}</th>
-          <th>{{ 'data_exports.format_label' | translate }}</th>
-          <th>{{ 'data_exports.date' | translate }}</th>
-          <th>{{ 'data_exports.user' | translate }}</th>
-          <th class="text-right">{{ 'data_exports.rows' | translate }}</th>
-          <th class="text-center">{{ 'data_exports.status' | translate }}</th>
+          <th vxSortHeader="dataset">{{ 'data_exports.data_type' | translate }}</th>
+          <th vxSortHeader="format">{{ 'data_exports.format_label' | translate }}</th>
+          <th vxSortHeader="createdAt">{{ 'data_exports.date' | translate }}</th>
+          <th vxSortHeader="userName">{{ 'data_exports.user' | translate }}</th>
+          <th vxSortHeader="totalRows" class="text-right">{{ 'data_exports.rows' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'data_exports.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (run of history(); track run.id) {
+        @for (run of table.rows(); track run.id) {
           <tr>
             <td>{{ labelOf(run.dataset) | translate }}</td>
             <td>{{ run.format.toUpperCase() }}</td>

@@ -28,20 +28,20 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'sales.quotes.number' | translate }}</th>
-          <th>{{ 'sales.quotes.customer' | translate }}</th>
-          <th>{{ 'sales.quotes.issue_date' | translate }}</th>
-          <th>{{ 'sales.quotes.expiry_date' | translate }}</th>
-          <th class="text-right">{{ 'sales.quotes.total' | translate }}</th>
-          <th class="text-center">{{ 'sales.quotes.state' | translate }}</th>
+          <th vxSortHeader="quoteNumber">{{ 'sales.quotes.number' | translate }}</th>
+          <th vxSortHeader="customer">{{ 'sales.quotes.customer' | translate }}</th>
+          <th vxSortHeader="issueDate">{{ 'sales.quotes.issue_date' | translate }}</th>
+          <th vxSortHeader="expiryDate">{{ 'sales.quotes.expiry_date' | translate }}</th>
+          <th vxSortHeader="total" class="text-right">{{ 'sales.quotes.total' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'sales.quotes.state' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (quote of rows(); track quote.id) {
-          <tr>
+        @for (quote of table.rows(); track quote.id) {
+          <tr vxRowLink>
             <td><a [routerLink]="['/quotes', quote.id, 'edit']" class="table-link">{{ quote.quoteNumber }}</a></td>
             <td>{{ quote.customer?.companyName ?? quote.customer?.name }}</td>
             <td>{{ quote.issueDate | vxDate: 'date' : true }}</td>

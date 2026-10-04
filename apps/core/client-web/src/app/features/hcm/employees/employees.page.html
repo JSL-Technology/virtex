@@ -22,19 +22,19 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'hcm.employees.name' | translate }}</th>
-          <th>{{ 'hcm.employees.job_title' | translate }}</th>
-          <th>{{ 'hcm.employees.department' | translate }}</th>
-          <th>{{ 'hcm.employees.hire_date' | translate }}</th>
-          <th class="text-center">{{ 'hcm.employees.status' | translate }}</th>
+          <th vxSortHeader="name">{{ 'hcm.employees.name' | translate }}</th>
+          <th vxSortHeader="jobTitle">{{ 'hcm.employees.job_title' | translate }}</th>
+          <th vxSortHeader="department">{{ 'hcm.employees.department' | translate }}</th>
+          <th vxSortHeader="hireDate">{{ 'hcm.employees.hire_date' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'hcm.employees.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (employee of visible(); track employee.id) {
-          <tr>
+        @for (employee of table.rows(); track employee.id) {
+          <tr vxRowLink>
             <td>
               <a [routerLink]="['/hcm/employees', employee.id, 'edit']" class="table-link">
                 {{ employee.lastName }}, {{ employee.firstName }}

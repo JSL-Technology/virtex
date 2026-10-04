@@ -79,6 +79,13 @@ export class ChartOfAccountsPage implements OnInit {
     this.state.setSort(field);
   }
   
+  /** What a screen reader announces for the header: the column and its current order. */
+  ariaSort(field: keyof FlattenedAccount): 'ascending' | 'descending' | 'none' {
+    const sort = this.state.sort();
+    if (sort.field !== field) return 'none';
+    return sort.direction === 'asc' ? 'ascending' : 'descending';
+  }
+
   getSortIcon(field: keyof FlattenedAccount) {
     const sort = this.state.sort();
     if (sort.field !== field) {

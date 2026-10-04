@@ -16,18 +16,18 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.taxes.name' | translate }}</th>
-          <th>{{ 'masters.taxes.type' | translate }}</th>
-          <th class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
-          <th class="text-center">{{ 'masters.taxes.country' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.taxes.name' | translate }}</th>
+          <th vxSortHeader="type">{{ 'masters.taxes.type' | translate }}</th>
+          <th vxSortHeader="rate" class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
+          <th vxSortHeader="countryCode" class="text-center">{{ 'masters.taxes.country' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
       <tbody>
-        @for (tax of taxes(); track tax.id) {
+        @for (tax of table.rows(); track tax.id) {
           <tr>
             <td>{{ tax.name }}</td>
             <td>{{ taxTypeLabel(tax.type) | translate }}</td>

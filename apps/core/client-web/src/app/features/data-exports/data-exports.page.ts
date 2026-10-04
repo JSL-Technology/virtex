@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AlertCircle, CheckCircle, DownloadCloud, Loader, LucideAngularModule } from 'lucide-angular';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -16,6 +16,7 @@ import { NotificationService } from '../../core/services/notification';
 import { VxBadgeComponent } from '../../shared/components/badge';
 import { ListShellComponent } from '../../shared/components/gestures';
 import { transferStatusKey, transferStatusTone } from './transfer-status';
+import { VX_SORT, sortable } from '../../shared/components/sort';
 
 /**
  * Data export (QA A-10).
@@ -28,7 +29,7 @@ import { transferStatusKey, transferStatusTone } from './transfer-status';
 @Component({
   selector: 'app-data-exports-page',
   standalone: true,
-  imports: [
+  imports: [...VX_SORT, 
     ReactiveFormsModule,
     LucideAngularModule,
     TranslateModule,
@@ -42,6 +43,9 @@ import { transferStatusKey, transferStatusTone } from './transfer-status';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataExportsPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.history(), { dataset: (run) => this.translate.instant(this.labelOf(run.dataset)), status: (run) => this.translate.instant(this.statusKey(run.status)) });
   private readonly fb = inject(FormBuilder);
   private readonly transfer = inject(DataTransferService);
   private readonly notifications = inject(NotificationService);

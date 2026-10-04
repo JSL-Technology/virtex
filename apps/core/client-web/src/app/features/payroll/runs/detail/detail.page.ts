@@ -19,6 +19,7 @@ import {
 import { Employee, HcmService } from '../../../../core/api/hcm.service';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { refreshWhenStale } from '../../../../core/data/data-version.service';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /**
  * One payroll run, from draft to paid.
@@ -42,12 +43,14 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
 @Component({
   selector: 'app-payroll-run-detail-page',
   standalone: true,
-  imports: [CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollRunDetailPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly payslipsTable = sortable(() => this.payslips());
   private readonly payroll = inject(PayrollService);
   private readonly hcm = inject(HcmService);
   private readonly router = inject(Router);

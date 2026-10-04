@@ -58,25 +58,25 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th class="col-name">
+          <th class="col-name" [attr.aria-sort]="ariaSort('name')">
             <button type="button" class="sortable" (click)="onSort('name')">
               <span>{{ 'accounting.chart_of_accounts.account' | translate }}</span>
               <lucide-icon [img]="getSortIcon('name')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
-          <th class="col-type">
+          <th class="col-type" [attr.aria-sort]="ariaSort('type')">
             <button type="button" class="sortable" (click)="onSort('type')">
               <span>{{ 'accounting.chart_of_accounts.type' | translate }}</span>
               <lucide-icon [img]="getSortIcon('type')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
-          <th class="col-balance text-right">
+          <th class="col-balance text-right" [attr.aria-sort]="ariaSort('balance')">
             <button type="button" class="sortable" (click)="onSort('balance')">
               <span>{{ 'accounting.chart_of_accounts.balance' | translate }}</span>
               <lucide-icon [img]="getSortIcon('balance')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
-          <th class="col-status text-center">
+          <th class="col-status text-center" [attr.aria-sort]="ariaSort('isActive')">
             <button type="button" class="sortable" (click)="onSort('isActive')">
               <span>{{ 'accounting.chart_of_accounts.status' | translate }}</span>
               <lucide-icon [img]="getSortIcon('isActive')" size="14" aria-hidden="true"></lucide-icon>

@@ -42,21 +42,21 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'payroll.runs.period' | translate }}</th>
-          <th>{{ 'payroll.runs.name' | translate }}</th>
-          <th>{{ 'payroll.runs.type' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.net' | translate }}</th>
-          <th class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
-          <th class="text-center">{{ 'payroll.runs.status' | translate }}</th>
+          <th vxSortHeader="period">{{ 'payroll.runs.period' | translate }}</th>
+          <th vxSortHeader="name">{{ 'payroll.runs.name' | translate }}</th>
+          <th vxSortHeader="runType">{{ 'payroll.runs.type' | translate }}</th>
+          <th vxSortHeader="totalGross" class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
+          <th vxSortHeader="totalNet" class="text-right">{{ 'payroll.runs.net' | translate }}</th>
+          <th vxSortHeader="totalEmployerContributions" class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'payroll.runs.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (run of runs(); track run.id) {
-          <tr>
+        @for (run of table.rows(); track run.id) {
+          <tr vxRowLink>
             <td>
               <a [routerLink]="['/payroll/runs', run.id]" class="table-link">{{ periodOf(run) }}</a>
             </td>

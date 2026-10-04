@@ -5,15 +5,15 @@
   [empty]="false"
 >
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th class="text-center">{{ 'masters.payment_methods.code' | translate }}</th>
-          <th>{{ 'masters.payment_methods.name' | translate }}</th>
+          <th vxSortHeader="code" class="text-center">{{ 'masters.payment_methods.code' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.payment_methods.name' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (method of methods; track method.code) {
+        @for (method of table.rows(); track method.code) {
           <tr>
             <td class="text-center"><code>{{ method.code }}</code></td>
             <td>{{ method.labelKey | translate }}</td>

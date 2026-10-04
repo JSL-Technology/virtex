@@ -61,17 +61,17 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.currencies.currency_name' | translate }}</th>
-          <th class="text-center">{{ 'masters.currencies.code' | translate }}</th>
-          <th class="text-center">{{ 'masters.currencies.symbol' | translate }}</th>
-          <th class="text-center">{{ 'masters.currencies.base_currency' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.currencies.currency_name' | translate }}</th>
+          <th vxSortHeader="code" class="text-center">{{ 'masters.currencies.code' | translate }}</th>
+          <th vxSortHeader="symbol" class="text-center">{{ 'masters.currencies.symbol' | translate }}</th>
+          <th vxSortHeader="base" class="text-center">{{ 'masters.currencies.base_currency' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (currency of currencies(); track currency.id) {
+        @for (currency of table.rows(); track currency.id) {
           <tr>
             <td>{{ currency.name }}</td>
             <td class="text-center">{{ currency.code }}</td>

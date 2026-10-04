@@ -149,6 +149,8 @@ export class InvoicesController {
       from: query.from,
       to: query.to,
       search: query.search,
+      sort: query.sort,
+      direction: query.direction,
     });
   }
 

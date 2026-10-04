@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Pencil, Trash2 } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -14,6 +14,7 @@ import {
   PayrollService,
 } from '../../../core/api/payroll.service';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The concept catalogue: every line that can appear on a payslip.
@@ -30,12 +31,15 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-payroll-concepts-page',
   standalone: true,
-  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './concepts.page.html',
   styleUrls: ['./concepts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollConceptsPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.concepts(), { type: (concept) => this.translate.instant('payroll.concepts.type_label.' + concept.type), calculation: (concept) => this.translate.instant('payroll.concepts.calc_label.' + concept.calculation) });
   private readonly payroll = inject(PayrollService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);

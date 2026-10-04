@@ -68,7 +68,23 @@ export interface InvoiceListQuery {
   from?: string;
   to?: string;
   search?: string;
+  /** A column of the list (`INVOICE_LIST_SORT`); anything else keeps the default order. */
+  sort?: string;
+  direction?: string;
 }
+
+/**
+ * The columns the invoice list can be ordered by (QA B-01). A whitelist, because the value comes
+ * from the query string and becomes SQL: an unknown column is ignored, never interpolated.
+ */
+export const INVOICE_LIST_SORT: Readonly<Record<string, string>> = {
+  number: 'invoice.invoiceNumber',
+  customer: 'invoice.customerName',
+  issueDate: 'invoice.issueDate',
+  dueDate: 'invoice.dueDate',
+  total: 'invoice.total',
+  status: 'invoice.status',
+};
 
 /** What the invoicing screen needs to present a correct form for this tenant's market. */
 export interface InvoicingContext {
@@ -1324,9 +1340,18 @@ export class InvoicesService {
       );
     }
 
+    // The chosen column first, then the default order as the tie-break, so equal values (the
+    // same customer, the same date) keep a stable order from page to page.
+    const sortColumn = query.sort ? INVOICE_LIST_SORT[query.sort] : undefined;
+    if (sortColumn) {
+      qb.orderBy(sortColumn, query.direction?.toLowerCase() === 'desc' ? 'DESC' : 'ASC', 'NULLS LAST')
+        .addOrderBy('invoice.issueDate', 'DESC');
+    } else {
+      qb.orderBy('invoice.issueDate', 'DESC');
+    }
     const [items, total] = await qb
-      .orderBy('invoice.issueDate', 'DESC')
       .addOrderBy('invoice.createdAt', 'DESC')
+      .addOrderBy('invoice.id', 'ASC')
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();

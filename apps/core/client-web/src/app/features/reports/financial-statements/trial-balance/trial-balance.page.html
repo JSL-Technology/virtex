@@ -72,25 +72,25 @@
       <p class="report-state">{{ 'reports.common.no_posted_movements_range' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table class="trial-balance">
+        <table [vxSort]="table.sort" class="trial-balance">
           <thead>
             <tr>
-              <th rowspan="2" class="account-column">{{ 'reports.common.account' | translate }}</th>
+              <th vxSortHeader="code" rowspan="2" class="account-column">{{ 'reports.common.account' | translate }}</th>
               <th colspan="2">{{ 'reports.trial_balance.opening_balance' | translate }}</th>
               <th colspan="2">{{ 'reports.trial_balance.movements_period' | translate }}</th>
               <th colspan="2">{{ 'reports.trial_balance.closing_balance' | translate }}</th>
             </tr>
             <tr>
-              <th class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
-              <th class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
-              <th class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
-              <th class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
-              <th class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
-              <th class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
+              <th vxSortHeader="openingDebit" class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
+              <th vxSortHeader="openingCredit" class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
+              <th vxSortHeader="periodDebit" class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
+              <th vxSortHeader="periodCredit" class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
+              <th vxSortHeader="closingDebit" class="numeric">{{ 'reports.trial_balance.debit' | translate }}</th>
+              <th vxSortHeader="closingCredit" class="numeric">{{ 'reports.trial_balance.credit' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (row of data.rows; track row.accountId) {
+            @for (row of table.rows(); track row.accountId) {
               <tr>
                 <td class="account-column">
                   <span class="account-code">{{ row.code }}</span> {{ row.name | vxName }}

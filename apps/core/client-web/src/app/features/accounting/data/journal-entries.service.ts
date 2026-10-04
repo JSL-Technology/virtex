@@ -63,10 +63,13 @@ export class JournalEntriesApiService {
    * The route used to return every entry the tenant had ever posted. It is bounded now, so the
    * caller has to say which page it wants and what came back has to say whether there is more.
    */
-  list(query: { page?: number; pageSize?: number } = {}): Observable<Page<JournalEntry>> {
+  list(
+    query: { page?: number; pageSize?: number; sort?: string; direction?: 'asc' | 'desc' } = {},
+  ): Observable<Page<JournalEntry>> {
     let params = new HttpParams();
     if (query.page) params = params.set('page', String(query.page));
     if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
+    if (query.sort) params = params.set('sort', query.sort).set('direction', query.direction ?? 'asc');
     return this.http.get<Page<JournalEntry>>(this.apiUrl, { params });
   }
 

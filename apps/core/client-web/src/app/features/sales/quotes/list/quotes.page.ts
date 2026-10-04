@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { CanOpenDirective } from '../../../../core/modules/can-open.directive';
 import { NotificationService } from '../../../../core/services/notification';
 import { Quote, QuoteStatus, QuotesService } from '../data/quotes.service';
+import { RowLinkDirective } from '../../../../shared/directives/row-link.directive';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /** The colour each state carries. Expired overrides the stored state: it is what matters. */
 export const QUOTE_TONE: Record<QuoteStatus, VxTone> = {
@@ -29,12 +31,15 @@ export const QUOTE_STATUSES: QuoteStatus[] = ['DRAFT', 'SENT', 'ACCEPTED', 'REJE
 @Component({
   selector: 'app-quotes-page',
   standalone: true,
-  imports: [CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './quotes.page.html',
   styleUrls: ['./quotes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuotesPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.rows(), { customer: (quote) => quote.customer?.companyName ?? quote.customer?.name, status: (quote) => this.translate.instant(this.statusKey(quote)) });
   private readonly quotes = inject(QuotesService);
   private readonly notifications = inject(NotificationService);
 

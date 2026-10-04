@@ -2,7 +2,7 @@ import { VxDatePipe, VxMoneyPipe, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, FilePlus, Paperclip } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -13,6 +13,7 @@ import {
 } from '../../../core/api/audit-adjustments.service';
 import { FiscalYear, FiscalYearsService } from '../../../core/api/fiscal-years.service';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * How each state reads and what colour it wears. One table, so the label and the badge cannot
@@ -46,12 +47,15 @@ const STATUS: Record<AdjustmentStatus, { key: string; badge: string }> = {
 @Component({
   selector: 'app-audit-adjustments-page',
   standalone: true,
-  imports: [CanOpenDirective, CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
   templateUrl: './audit-adjustments.page.html',
   styleUrls: ['./audit-adjustments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditAdjustmentsPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.rows(), { year: (row) => this.yearLabel(row.fiscalYearId), amount: (row) => this.amountOf(row), proposer: (row) => row.proposer ? `${row.proposer.firstName} ${row.proposer.lastName}` : null, status: (row) => this.translate.instant(this.statusKey(row.status)), evidence: (row) => row.evidence?.length ?? 0 });
   private readonly adjustments = inject(AuditAdjustmentsService);
   private readonly fiscalYears = inject(FiscalYearsService);
   private readonly router = inject(Router);

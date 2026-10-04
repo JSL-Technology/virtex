@@ -10,6 +10,7 @@ import {
 import { StatementExportService } from '../../../core/export/statement-export.service';
 import { defaultPeriod } from '../financial-statements/report-period';
 import { VxDateRangeComponent } from '../../../shared/components/date';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Gross margin by product.
@@ -28,12 +29,14 @@ import { VxDateRangeComponent } from '../../../shared/components/date';
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfitabilityByProductPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.report()?.rows);
   private readonly api = inject(ProfitabilityApiService);
   private readonly exporter = inject(StatementExportService);
 

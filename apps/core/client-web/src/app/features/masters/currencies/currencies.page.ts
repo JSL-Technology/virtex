@@ -13,6 +13,7 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The currencies the tenant transacts in.
@@ -31,12 +32,14 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-currencies-page',
   standalone: true,
-  imports: [CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './currencies.page.html',
   styleUrls: ['./currencies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrenciesPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.currencies(), { base: (currency) => currency.code === this.baseCurrency() });
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly api = inject(CurrenciesService);

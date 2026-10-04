@@ -16,19 +16,19 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'customer_receipts.list.number' | translate }}</th>
-          <th>{{ 'customer_receipts.list.customer' | translate }}</th>
-          <th>{{ 'customer_receipts.list.date' | translate }}</th>
-          <th class="text-right">{{ 'customer_receipts.list.amount' | translate }}</th>
-          <th class="text-right">{{ 'customer_receipts.list.unapplied' | translate }}</th>
-          <th class="text-center">{{ 'customer_receipts.list.status' | translate }}</th>
+          <th vxSortHeader="receiptNumber">{{ 'customer_receipts.list.number' | translate }}</th>
+          <th vxSortHeader="customer">{{ 'customer_receipts.list.customer' | translate }}</th>
+          <th vxSortHeader="paymentDate">{{ 'customer_receipts.list.date' | translate }}</th>
+          <th vxSortHeader="totalAmount" class="text-right">{{ 'customer_receipts.list.amount' | translate }}</th>
+          <th vxSortHeader="unappliedAmount" class="text-right">{{ 'customer_receipts.list.unapplied' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'customer_receipts.list.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (receipt of items(); track receipt.id) {
+        @for (receipt of table.rows(); track receipt.id) {
           <tr [class.voided]="receipt.status === 'VOID'">
             <td>{{ receipt.receiptNumber ?? '—' }}</td>
             <td>{{ customerName(receipt.customerId) }}</td>

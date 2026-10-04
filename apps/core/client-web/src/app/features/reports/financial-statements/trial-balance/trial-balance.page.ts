@@ -11,6 +11,7 @@ import {
 import { defaultPeriod } from '../report-period';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateRangeComponent } from '../../../../shared/components/date';
+import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /**
  * The balanza de comprobación.
@@ -26,12 +27,14 @@ import { VxDateRangeComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-trial-balance-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './trial-balance.page.html',
   styleUrls: ['./trial-balance.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrialBalancePage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.report()?.rows);
   private readonly reports = inject(FinancialReportingService);
   private readonly exporter = inject(StatementExportService);
 

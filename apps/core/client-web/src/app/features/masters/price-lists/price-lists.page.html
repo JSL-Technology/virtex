@@ -11,21 +11,21 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.price_lists.name' | translate }}</th>
-          <th>{{ 'masters.price_lists.currency' | translate }}</th>
-          <th>{{ 'masters.price_lists.valid_from' | translate }}</th>
-          <th>{{ 'masters.price_lists.valid_until' | translate }}</th>
-          <th class="text-center">{{ 'masters.price_lists.items' | translate }}</th>
-          <th>{{ 'masters.price_lists.status' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.price_lists.name' | translate }}</th>
+          <th vxSortHeader="currency">{{ 'masters.price_lists.currency' | translate }}</th>
+          <th vxSortHeader="validFrom">{{ 'masters.price_lists.valid_from' | translate }}</th>
+          <th vxSortHeader="validTo">{{ 'masters.price_lists.valid_until' | translate }}</th>
+          <th vxSortHeader="items" class="text-center">{{ 'masters.price_lists.items' | translate }}</th>
+          <th vxSortHeader="status">{{ 'masters.price_lists.status' | translate }}</th>
           <th class="actions-column">{{ 'masters.price_lists.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (list of priceLists(); track list.id) {
-          <tr>
+        @for (list of table.rows(); track list.id) {
+          <tr vxRowLink>
             <td>
               <a [routerLink]="['/masters/price-lists', list.id, 'edit']" class="table-link">
                 {{ list.name }}

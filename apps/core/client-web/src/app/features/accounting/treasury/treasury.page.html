@@ -31,19 +31,19 @@
       <p class="report-state">{{ 'treasury.no_bank_accounts_have_registered' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table class="cash-table">
+        <table [vxSort]="accountsTable.sort" class="cash-table">
           <thead>
             <tr>
-              <th>{{ 'treasury.bank_accounts' | translate }}</th>
-              <th>{{ 'treasury.bank' | translate }}</th>
-              <th>{{ 'treasury.number' | translate }}</th>
-              <th>{{ 'treasury.currency' | translate }}</th>
-              <th class="numeric">{{ 'treasury.balance_currency' | translate }}</th>
-              <th class="numeric">{{ 'treasury.balance_books_currency' | translate }}</th>
+              <th vxSortHeader="name">{{ 'treasury.bank_accounts' | translate }}</th>
+              <th vxSortHeader="bankName">{{ 'treasury.bank' | translate }}</th>
+              <th vxSortHeader="accountNumberMasked">{{ 'treasury.number' | translate }}</th>
+              <th vxSortHeader="currencyCode">{{ 'treasury.currency' | translate }}</th>
+              <th vxSortHeader="balanceInAccountCurrency" class="numeric">{{ 'treasury.balance_currency' | translate }}</th>
+              <th vxSortHeader="balanceInBaseCurrency" class="numeric">{{ 'treasury.balance_books_currency' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (row of cash.accounts; track row.bankAccountId) {
+            @for (row of accountsTable.rows(); track row.bankAccountId) {
               <tr>
                 <td>
                   <a class="account-name table-link" [routerLink]="['bank-accounts', row.bankAccountId, 'edit']">
@@ -94,20 +94,20 @@
       <p class="report-state">{{ 'treasury.no_transfers_have_recorded' | translate }}</p>
     } @else {
       <div class="table-wrapper card">
-        <table class="cash-table">
+        <table [vxSort]="transfersTable.sort" class="cash-table">
           <thead>
             <tr>
-              <th>{{ 'accounting.reconciliation.date' | translate }}</th>
-              <th>{{ 'treasury.from' | translate }}</th>
-              <th>{{ 'treasury.to' | translate }}</th>
-              <th>{{ 'accounting.reconciliation.description' | translate }}</th>
-              <th class="numeric">{{ 'treasury.sent' | translate }}</th>
-              <th class="numeric">{{ 'treasury.received' | translate }}</th>
-              <th class="numeric">{{ 'treasury.fee' | translate }}</th>
+              <th vxSortHeader="date">{{ 'accounting.reconciliation.date' | translate }}</th>
+              <th vxSortHeader="from">{{ 'treasury.from' | translate }}</th>
+              <th vxSortHeader="to">{{ 'treasury.to' | translate }}</th>
+              <th vxSortHeader="description">{{ 'accounting.reconciliation.description' | translate }}</th>
+              <th vxSortHeader="amount" class="numeric">{{ 'treasury.sent' | translate }}</th>
+              <th vxSortHeader="amountReceived" class="numeric">{{ 'treasury.received' | translate }}</th>
+              <th vxSortHeader="fee" class="numeric">{{ 'treasury.fee' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (transfer of transfers(); track transfer.id) {
+            @for (transfer of transfersTable.rows(); track transfer.id) {
               <tr>
                 <td>{{ transfer.date | vxDate: 'date' : true }}</td>
                 <td>{{ accountName(transfer.fromBankAccountId) }}</td>

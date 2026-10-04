@@ -12,17 +12,17 @@
   </a>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'accounting.ledger_list.name' | translate }}</th>
-          <th>{{ 'accounting.ledger_list.description' | translate }}</th>
-          <th class="text-center">{{ 'accounting.ledger_list.default' | translate }}</th>
+          <th vxSortHeader="name">{{ 'accounting.ledger_list.name' | translate }}</th>
+          <th vxSortHeader="description">{{ 'accounting.ledger_list.description' | translate }}</th>
+          <th vxSortHeader="isDefault" class="text-center">{{ 'accounting.ledger_list.default' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
       </thead>
       <tbody>
-        @for (ledger of ledgers(); track ledger.id) {
+        @for (ledger of table.rows(); track ledger.id) {
           <tr>
             <td>{{ ledger.name }}</td>
             <td>{{ ledger.description }}</td>

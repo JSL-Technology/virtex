@@ -12,25 +12,25 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'purchasing.requisitions.requisition' | translate }}</th>
+          <th vxSortHeader="number">{{ 'purchasing.requisitions.requisition' | translate }}</th>
           <!--
             The "department" column is gone: the data model never had one, so it showed a value
             invented in the browser. What it shows instead is how many things were asked for, which
             is the figure an approver actually scans the list for.
           -->
-          <th class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
-          <th>{{ 'purchasing.requisitions.date' | translate }}</th>
-          <th>{{ 'purchasing.requisitions.required_date' | translate }}</th>
-          <th class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
-          <th class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
+          <th vxSortHeader="items" class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
+          <th vxSortHeader="createdAt">{{ 'purchasing.requisitions.date' | translate }}</th>
+          <th vxSortHeader="requiredDate">{{ 'purchasing.requisitions.required_date' | translate }}</th>
+          <th vxSortHeader="totalAmount" class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (req of requisitions(); track req.id) {
-          <tr>
+        @for (req of table.rows(); track req.id) {
+          <tr vxRowLink>
             <td>
               <a [routerLink]="['/purchasing/requisitions', req.id, 'edit']" class="table-link">
                 {{ req.number }}

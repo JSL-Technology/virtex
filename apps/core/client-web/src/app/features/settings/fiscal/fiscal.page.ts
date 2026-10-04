@@ -10,11 +10,12 @@ import {
 } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Dominican Republic fiscal configuration: DGII signing certificate, authorized e-NCF ranges, and
@@ -24,7 +25,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [VxFileInputComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, VxFileInputComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +37,15 @@ export class FiscalSettingsPage implements OnInit {
   private fiscalSettings = inject(FiscalSettingsService);
 
   certificates = signal<EcfCertificateView[]>([]);
+  private readonly translate = inject(TranslateService);
   sequences = signal<NcfSequenceView[]>([]);
+  /** Sortable by their headers (QA B-01). A certificate's state: expired, then inactive, then active. */
+  readonly certificatesTable = sortable(() => this.certificates(), {
+    status: (c) => (c.expired ? 2 : c.isActive ? 0 : 1),
+  });
+  readonly sequencesTable = sortable(() => this.sequences(), {
+    type: (s) => this.translate.instant(this.ncfTypeLabel(s.type)),
+  });
   uploading = signal(false);
   provisioning = signal(false);
   downloading = signal(false);
@@ -62,6 +71,11 @@ export class FiscalSettingsPage implements OnInit {
     'E46',
     'E47',
   ].map((value) => ({ value: value as NcfType, labelKey: `fiscal.do.${value}` }));
+
+  /** The name of an e-NCF type (`E31` → «Factura de crédito fiscal electrónica»); an unknown code as itself. */
+  ncfTypeLabel(type: string): string {
+    return this.ncfTypes.find((t) => t.value === type)?.labelKey ?? type;
+  }
 
   /**
    * What this product does and does not do in the tenant's market.

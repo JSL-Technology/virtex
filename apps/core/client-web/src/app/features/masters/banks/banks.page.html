@@ -17,17 +17,17 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.banks.bank_name' | translate }}</th>
-          <th>{{ 'masters.banks.swift_code' | translate }}</th>
-          <th class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
-          <th>{{ 'masters.banks.currencies' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
+          <th vxSortHeader="swiftBic">{{ 'masters.banks.swift_code' | translate }}</th>
+          <th vxSortHeader="accountCount" class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
+          <th vxSortHeader="currencies">{{ 'masters.banks.currencies' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (bank of banks(); track bank.name) {
+        @for (bank of table.rows(); track bank.name) {
           <tr>
             <td>{{ bank.name }}</td>
             <td>{{ bank.swiftBic || '—' }}</td>

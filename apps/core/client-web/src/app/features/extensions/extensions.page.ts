@@ -22,6 +22,7 @@ import {
 } from './extensions.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { NotificationService } from '../../core/services/notification';
+import { VX_SORT, sortable } from '../../shared/components/sort';
 
 /**
  * The extensions manager: install signed extensions into the tenant, grant them capabilities, run
@@ -34,7 +35,7 @@ import { NotificationService } from '../../core/services/notification';
 @Component({
   selector: 'app-extensions-page',
   standalone: true,
-  imports: [
+  imports: [...VX_SORT, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
@@ -48,6 +49,8 @@ import { NotificationService } from '../../core/services/notification';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExtensionsPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.extensions());
   /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */
   private readonly errorText = inject(NotificationService);
   private readonly fb = inject(FormBuilder);

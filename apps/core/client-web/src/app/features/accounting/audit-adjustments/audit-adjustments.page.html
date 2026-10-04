@@ -28,20 +28,20 @@
   </ng-container>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'audit_adjustments.date' | translate }}</th>
-          <th>{{ 'audit_adjustments.fiscal_year' | translate }}</th>
-          <th>{{ 'audit_adjustments.description' | translate }}</th>
-          <th class="text-right">{{ 'audit_adjustments.amount' | translate }}</th>
-          <th>{{ 'audit_adjustments.proposed' | translate }}</th>
-          <th>{{ 'audit_adjustments.state' | translate }}</th>
-          <th class="text-center">{{ 'audit_adjustments.evidence' | translate }}</th>
+          <th vxSortHeader="date">{{ 'audit_adjustments.date' | translate }}</th>
+          <th vxSortHeader="year">{{ 'audit_adjustments.fiscal_year' | translate }}</th>
+          <th vxSortHeader="description">{{ 'audit_adjustments.description' | translate }}</th>
+          <th vxSortHeader="amount" class="text-right">{{ 'audit_adjustments.amount' | translate }}</th>
+          <th vxSortHeader="proposer">{{ 'audit_adjustments.proposed' | translate }}</th>
+          <th vxSortHeader="status">{{ 'audit_adjustments.state' | translate }}</th>
+          <th vxSortHeader="evidence" class="text-center">{{ 'audit_adjustments.evidence' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (row of rows(); track row.id) {
+        @for (row of table.rows(); track row.id) {
           <tr>
             <td>{{ row.date | vxDate }}</td>
             <td>{{ yearLabel(row.fiscalYearId) }}</td>

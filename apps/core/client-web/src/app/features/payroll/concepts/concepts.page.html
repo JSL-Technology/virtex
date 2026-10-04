@@ -83,20 +83,20 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'payroll.concepts.code' | translate }}</th>
-          <th>{{ 'payroll.concepts.name' | translate }}</th>
-          <th>{{ 'payroll.concepts.type' | translate }}</th>
-          <th>{{ 'payroll.concepts.calculation' | translate }}</th>
-          <th class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
-          <th class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
+          <th vxSortHeader="code">{{ 'payroll.concepts.code' | translate }}</th>
+          <th vxSortHeader="name">{{ 'payroll.concepts.name' | translate }}</th>
+          <th vxSortHeader="type">{{ 'payroll.concepts.type' | translate }}</th>
+          <th vxSortHeader="calculation">{{ 'payroll.concepts.calculation' | translate }}</th>
+          <th vxSortHeader="rate" class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
+          <th vxSortHeader="taxable" class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (concept of concepts(); track concept.id) {
+        @for (concept of table.rows(); track concept.id) {
           <tr [class.is-inactive]="!concept.active">
             <td><code>{{ concept.code }}</code></td>
             <td>{{ concept.name }}</td>

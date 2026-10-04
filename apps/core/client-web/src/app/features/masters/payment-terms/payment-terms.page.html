@@ -13,16 +13,16 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.payment_terms.name' | translate }}</th>
-          <th class="text-center">{{ 'masters.payment_terms.net_days' | translate }}</th>
-          <th class="text-center">{{ 'masters.payment_terms.customers_on_it' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.payment_terms.name' | translate }}</th>
+          <th vxSortHeader="days" class="text-center">{{ 'masters.payment_terms.net_days' | translate }}</th>
+          <th vxSortHeader="customerCount" class="text-center">{{ 'masters.payment_terms.customers_on_it' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (term of terms(); track term.name + '|' + term.days) {
+        @for (term of table.rows(); track term.name + '|' + term.days) {
           <tr>
             <td>{{ term.name || ('masters.payment_terms.unnamed' | translate) }}</td>
             <td class="text-center">{{ term.days ?? '—' }}</td>

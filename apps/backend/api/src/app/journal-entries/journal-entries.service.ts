@@ -1,6 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, In, Repository, DataSource, QueryRunner } from 'typeorm';
+import { EntityManager, In, Repository, DataSource, QueryRunner, FindOptionsOrder } from 'typeorm';
 import {
   JournalEntry,
   JournalEntryStatus,
@@ -64,6 +64,7 @@ import { LedgerNarrativeService } from './ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 
 import { PostingContext } from './accounting-posting.port';
+import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -1263,12 +1264,25 @@ export class JournalEntriesService {
    */
   async findAll(
     organizationId: string,
-    query: { page?: number; pageSize?: number } = {},
+    query: { page?: number; pageSize?: number; sort?: JournalEntryListSort; direction?: 'asc' | 'desc' } = {},
   ): Promise<Page<JournalEntry>> {
     const paging = resolvePaging(query.page, query.pageSize);
+    // The chosen column first; the default order breaks ties, so a page boundary never splits
+    // equal values differently on the next request.
+    const direction = query.direction === 'desc' ? 'DESC' : 'ASC';
+    const fallback: Record<string, 'ASC' | 'DESC'> = { date: 'DESC', entryNumber: 'DESC', createdAt: 'DESC', id: 'ASC' };
+    const sort = query.sort && JOURNAL_ENTRY_LIST_SORT.includes(query.sort) ? query.sort : null;
+    const order = (
+      sort
+        ? {
+            [sort]: { direction, nulls: 'LAST' },
+            ...Object.fromEntries(Object.entries(fallback).filter(([column]) => column !== sort)),
+          }
+        : fallback
+    ) as FindOptionsOrder<JournalEntry>;
     const [rows, total] = await this.journalEntryRepository.findAndCount({
       where: { organizationId },
-      order: { date: 'DESC', entryNumber: 'DESC', createdAt: 'DESC' },
+      order,
       skip: paging.skip,
       take: paging.take,
     });

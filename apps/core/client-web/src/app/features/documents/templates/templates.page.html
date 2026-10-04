@@ -28,17 +28,17 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'documents.templates.name' | translate }}</th>
-          <th>{{ 'documents.templates.type_column' | translate }}</th>
-          <th>{{ 'documents.templates.last_modified' | translate }}</th>
+          <th vxSortHeader="name">{{ 'documents.templates.name' | translate }}</th>
+          <th vxSortHeader="type">{{ 'documents.templates.type_column' | translate }}</th>
+          <th vxSortHeader="updatedAt">{{ 'documents.templates.last_modified' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (template of templates(); track template.id) {
+        @for (template of table.rows(); track template.id) {
           <tr>
             <td>
               <span class="name-cell">

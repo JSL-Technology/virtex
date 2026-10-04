@@ -62,12 +62,12 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'documents.repository.name' | translate }}</th>
-          <th>{{ 'documents.repository.last_modified' | translate }}</th>
-          <th>{{ 'documents.repository.file_size' | translate }}</th>
+          <th vxSortHeader="name">{{ 'documents.repository.name' | translate }}</th>
+          <th vxSortHeader="updatedAt">{{ 'documents.repository.last_modified' | translate }}</th>
+          <th vxSortHeader="size">{{ 'documents.repository.file_size' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
@@ -82,7 +82,7 @@
             </td>
           </tr>
         }
-        @for (item of files(); track item.id) {
+        @for (item of table.rows(); track item.id) {
           <tr class="file-item-row is-clickable">
             <td (click)="open(item)">
               <span class="name-cell">

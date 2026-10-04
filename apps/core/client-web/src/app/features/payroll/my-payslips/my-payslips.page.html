@@ -7,27 +7,36 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'payroll.my_payslips.period' | translate }}</th>
-          <th class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
-          <th class="numeric">{{ 'payroll.payslip.deductions' | translate }}</th>
-          <th class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
+          <th vxSortHeader="period">{{ 'payroll.my_payslips.period' | translate }}</th>
+          <th vxSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
+          <th vxSortHeader="totalEmployeeDeductions" class="numeric">{{ 'payroll.payslip.deductions' | translate }}</th>
+          <th vxSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (payslip of payslips(); track payslip.id) {
+        @for (payslip of table.rows(); track payslip.id) {
           <tr class="is-clickable" (click)="toggle(payslip.id)">
             <td>
               <span class="name-cell">
                 <lucide-icon [img]="FileIcon" size="16" aria-hidden="true"></lucide-icon>
-                <span>{{ payslip.employeeName }}</span>
+                <span>
+                  @if (payslip.period; as period) {
+                    {{ period.start | vxDate: 'monthYear' : true }}
+                    @if (period.runType !== 'REGULAR') {
+                      <span class="muted">· {{ 'payroll.runs.type_label.' + period.runType | translate }}</span>
+                    }
+                  } @else {
+                    {{ payslip.employeeName }}
+                  }
+                </span>
               </span>
             </td>
-            <td class="numeric">{{ payslip.grossEarnings | vxMoney }}</td>
-            <td class="numeric">{{ payslip.totalEmployeeDeductions | vxMoney }}</td>
-            <td class="numeric strong">{{ payslip.netPay | vxMoney }}</td>
+            <td class="numeric">{{ payslip.grossEarnings | vxMoney: payslip.period?.currencyCode }}</td>
+            <td class="numeric">{{ payslip.totalEmployeeDeductions | vxMoney: payslip.period?.currencyCode }}</td>
+            <td class="numeric strong">{{ payslip.netPay | vxMoney: payslip.period?.currencyCode }}</td>
           </tr>
           @if (open() === payslip.id) {
             <tr class="detail-row">
@@ -36,29 +45,29 @@
                   <tbody>
                     <tr>
                       <td>{{ 'payroll.payslip.base_salary' | translate }}</td>
-                      <td class="numeric">{{ payslip.baseSalary | vxMoney }}</td>
+                      <td class="numeric">{{ payslip.baseSalary | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                     @for (line of payslip.lines ?? []; track line.id) {
                       <tr>
                         <td>{{ line.conceptName }}</td>
-                        <td class="numeric">{{ line.amount | vxMoney }}</td>
+                        <td class="numeric">{{ line.amount | vxMoney: payslip.period?.currencyCode }}</td>
                       </tr>
                     }
                     <tr>
                       <td>{{ 'payroll.payslip.afp' | translate }}</td>
-                      <td class="numeric">−{{ payslip.afpEmployee | vxMoney }}</td>
+                      <td class="numeric">−{{ payslip.afpEmployee | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                     <tr>
                       <td>{{ 'payroll.payslip.sfs' | translate }}</td>
-                      <td class="numeric">−{{ payslip.sfsEmployee | vxMoney }}</td>
+                      <td class="numeric">−{{ payslip.sfsEmployee | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                     <tr>
                       <td>{{ 'payroll.payslip.isr' | translate }}</td>
-                      <td class="numeric">−{{ payslip.incomeTax | vxMoney }}</td>
+                      <td class="numeric">−{{ payslip.incomeTax | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                     <tr class="grand">
                       <td>{{ 'payroll.payslip.net' | translate }}</td>
-                      <td class="numeric">{{ payslip.netPay | vxMoney }}</td>
+                      <td class="numeric">{{ payslip.netPay | vxMoney: payslip.period?.currencyCode }}</td>
                     </tr>
                   </tbody>
                 </table>

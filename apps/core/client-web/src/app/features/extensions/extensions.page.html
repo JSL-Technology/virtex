@@ -30,17 +30,17 @@
   </ng-container>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'extensions.fields.name' | translate }}</th>
-          <th>{{ 'extensions.fields.description' | translate }}</th>
+          <th vxSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
+          <th vxSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
           <th>{{ 'extensions.granted_capabilities' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (ext of extensions(); track ext.id) {
+        @for (ext of table.rows(); track ext.id) {
           <tr>
             <td>
               <span class="ext__name">{{ ext.name }}</span>

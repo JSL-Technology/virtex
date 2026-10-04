@@ -73,6 +73,18 @@ export interface Payslip {
   totalEmployerContributions: number;
   netPay: number;
   lines?: PayslipLine[];
+  /** Present on the employee's own payslips (`GET /payroll/me/payslips`): the run it belongs to. */
+  period?: PayslipPeriod;
+}
+
+export interface PayslipPeriod {
+  year: number;
+  month: number;
+  start: string;
+  end: string;
+  payDate: string;
+  runType: string;
+  currencyCode: string;
 }
 
 export interface PayrollConcept {

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, FileText, Upload, Download, Trash2 } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -11,6 +11,7 @@ import {
   DocumentTemplateType,
   DocumentsService,
 } from '../../../core/api/documents.service';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /** The kinds a file can be tagged as. `NONE` is not a template and is not offered here. */
 const TEMPLATE_TYPES: DocumentTemplateType[] = ['INVOICE', 'QUOTE', 'EMAIL', 'CONTRACT', 'OTHER'];
@@ -36,12 +37,15 @@ const TEMPLATE_TYPES: DocumentTemplateType[] = ['INVOICE', 'QUOTE', 'EMAIL', 'CO
 @Component({
   selector: 'app-templates-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './templates.page.html',
   styleUrls: ['./templates.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TemplatesPage {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.templates(), { type: (template) => this.translate.instant('documents.templates.type.' + template.templateType) });
   private readonly documents = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);

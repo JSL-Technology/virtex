@@ -17,17 +17,17 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.branches.name' | translate }}</th>
-          <th>{{ 'masters.branches.address' | translate }}</th>
-          <th>{{ 'masters.branches.city' | translate }}</th>
-          <th>{{ 'masters.branches.phone' | translate }}</th>
+          <th vxSortHeader="legalName">{{ 'masters.branches.name' | translate }}</th>
+          <th vxSortHeader="addressLine1">{{ 'masters.branches.address' | translate }}</th>
+          <th vxSortHeader="city">{{ 'masters.branches.city' | translate }}</th>
+          <th vxSortHeader="phone">{{ 'masters.branches.phone' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (branch of branches(); track branch.id) {
+        @for (branch of table.rows(); track branch.id) {
           <tr>
             <td>{{ branch.legalName }}</td>
             <td>{{ branch.addressLine1 || '—' }}</td>

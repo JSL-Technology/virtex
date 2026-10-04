@@ -13,6 +13,7 @@ import {
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * How many transfers the panel shows.
@@ -37,12 +38,16 @@ const TRANSFERS_SHOWN = 25;
 @Component({
   selector: 'app-treasury-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [...VX_SORT, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './treasury.page.html',
   styleUrls: ['./treasury.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TreasuryPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly transfersTable = sortable(() => this.transfers(), { from: (transfer) => this.accountName(transfer.fromBankAccountId), to: (transfer) => this.accountName(transfer.toBankAccountId) });
+  /** Sortable by its headers (QA B-01). */
+  readonly accountsTable = sortable(() => this.position()?.accounts);
   private readonly api = inject(TreasuryService);
 
   protected readonly CalendarIcon = Calendar;

@@ -8,6 +8,7 @@ import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 export type AgingSide = 'payables' | 'receivables';
 
@@ -25,12 +26,16 @@ export type AgingSide = 'payables' | 'receivables';
 @Component({
   selector: 'app-aging-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './aging.page.html',
   styleUrls: ['./aging.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgingPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.report()?.rows, {}, undefined, (row, key: string) =>
+    key.startsWith('bucket:') ? this.bucketAmount(row.buckets, key.slice(7)) : (row as unknown as Record<string, unknown>)[key],
+  );
   private readonly api = inject(AgingService);
 
   /**

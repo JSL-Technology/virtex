@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { Department, HcmService } from '../../../core/api/hcm.service';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * Departments: the company's own structure, and the cost centre each part posts to.
@@ -22,12 +23,14 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-departments-page',
   standalone: true,
-  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DepartmentsPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.departments());
   private readonly hcm = inject(HcmService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);

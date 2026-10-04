@@ -214,3 +214,11 @@
 @media print {
   .no-print { display: none !important; }
 }
+
+// Una fila que abre su registro (`tr[vxRowLink]`, QA B-02): toda la fila responde, no solo el
+// texto del enlace de la primera celda.
+.vx-row-link {
+  cursor: pointer;
+
+  &:hover > td { background: var(--surface-hover); }
+}

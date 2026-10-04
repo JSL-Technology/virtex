@@ -3743,6 +3743,16 @@
     "en": "Domain",
     "pt": "Domínio"
   },
+  "settings.sso.domain_pending": {
+    "es": "Pendiente de verificar",
+    "en": "Pending verification",
+    "pt": "Verificação pendente"
+  },
+  "settings.sso.domain_verified": {
+    "es": "Verificado",
+    "en": "Verified",
+    "pt": "Verificado"
+  },
   "settings.sso.edit": {
     "es": "Editar",
     "en": "Edit",

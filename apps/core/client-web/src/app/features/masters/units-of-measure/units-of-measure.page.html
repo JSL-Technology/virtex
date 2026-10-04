@@ -45,16 +45,16 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.units_of_measure.name' | translate }}</th>
-          <th class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
-          <th>{{ 'masters.units_of_measure.type' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.units_of_measure.name' | translate }}</th>
+          <th vxSortHeader="symbol" class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
+          <th vxSortHeader="category">{{ 'masters.units_of_measure.type' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (unit of units(); track unit.id) {
+        @for (unit of table.rows(); track unit.id) {
           <tr>
             <td>{{ unit.nameKey | translate }}</td>
             <td class="text-center">{{ unit.symbol }}</td>

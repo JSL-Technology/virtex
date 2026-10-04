@@ -16,6 +16,16 @@
 import { Injectable } from '@angular/core';
 import { Account } from '../models/account.model';
 import { FlattenedAccount } from '../models/flattened-account.model';
+import { compareCells } from '../../shared/components/sort';
+
+/** The name in the page's language, with the same fallbacks as the `vxName` pipe. */
+function readableName(name: Account['name']): string {
+  if (name == null) return '';
+  if (typeof name === 'string') return name;
+  const locale = (typeof document !== 'undefined' && document.documentElement.lang) || 'es';
+  const language = locale.split('-')[0];
+  return name[locale] ?? name[language] ?? name['es'] ?? name['en'] ?? Object.values(name).find(Boolean) ?? '';
+}
 
 @Injectable({
   providedIn: 'root'
@@ -66,25 +76,15 @@ export class TreeService {
     return rootAccounts;
   }
 
+  /**
+   * Siblings in the chosen order (QA B-01). The name is a translation map (`{ es, en }`); compared
+   * as an object every pair was «equal» and the header did nothing. It is compared as the reader
+   * sees it, and amounts arrive as decimal strings, which `compareCells` reads as numbers.
+   */
   private compareAccounts(a: Account, b: Account, sort: { field: keyof FlattenedAccount; direction: 'asc' | 'desc' }): number {
     const field = sort.field as keyof Account;
-    const valA = a[field];
-    const valB = b[field];
-
-    let comparison = 0;
-    if (valA != null && valB != null) {
-      if (valA > valB) {
-        comparison = 1;
-      } else if (valA < valB) {
-        comparison = -1;
-      }
-    } else if (valA != null) {
-      comparison = 1;
-    } else if (valB != null) {
-      comparison = -1;
-    }
-
-    return sort.direction === 'asc' ? comparison : -comparison;
+    const read = (account: Account): unknown => (field === 'name' ? readableName(account.name) : account[field]);
+    return compareCells(read(a), read(b), sort.direction) || compareCells(a.code, b.code);
   }
 
   /**

@@ -8,6 +8,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 interface Bank {
   name: string;
@@ -34,12 +35,14 @@ interface Bank {
 @Component({
   selector: 'app-banks-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, ...FORMAT_PIPES],
+  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent, ...FORMAT_PIPES],
   templateUrl: './banks.page.html',
   styleUrls: ['./banks.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BanksPage implements OnInit {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.banks(), { currencies: (bank) => bank.currencies.join(', ') });
   protected readonly PlusCircleIcon = PlusCircle;
 
   private readonly treasury = inject(TreasuryService);

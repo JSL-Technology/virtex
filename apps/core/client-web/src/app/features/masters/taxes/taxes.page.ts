@@ -6,21 +6,25 @@ import { Tax, taxTypeLabel } from '../../../core/models/tax.model';
 import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxesPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.taxes(), { type: (tax) => this.translate.instant(taxTypeLabel(tax.type)) });
   readonly taxTypeLabel = taxTypeLabel;
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;

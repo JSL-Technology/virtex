@@ -34,16 +34,16 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'hcm.departments.name' | translate }}</th>
-          <th>{{ 'hcm.departments.cost_centre' | translate }}</th>
+          <th vxSortHeader="name">{{ 'hcm.departments.name' | translate }}</th>
+          <th vxSortHeader="costCenter">{{ 'hcm.departments.cost_centre' | translate }}</th>
           <th class="text-right">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (department of departments(); track department.id) {
+        @for (department of table.rows(); track department.id) {
           @if (editing() === department.id) {
             <tr>
               <td colspan="3">

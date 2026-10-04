@@ -43,17 +43,17 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'masters.warehouses.name' | translate }}</th>
-          <th>{{ 'masters.warehouses.code' | translate }}</th>
-          <th>{{ 'masters.warehouses.location' | translate }}</th>
-          <th class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
+          <th vxSortHeader="name">{{ 'masters.warehouses.name' | translate }}</th>
+          <th vxSortHeader="code">{{ 'masters.warehouses.code' | translate }}</th>
+          <th vxSortHeader="city">{{ 'masters.warehouses.location' | translate }}</th>
+          <th vxSortHeader="isActive" class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (warehouse of warehouses(); track warehouse.id) {
+        @for (warehouse of table.rows(); track warehouse.id) {
           <tr>
             <td>{{ warehouse.name }}</td>
             <td>{{ warehouse.code || '—' }}</td>

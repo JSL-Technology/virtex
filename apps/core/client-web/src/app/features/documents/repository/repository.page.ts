@@ -23,6 +23,7 @@ import {
   DocumentsService,
 } from '../../../core/api/documents.service';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * The tenant's document repository.
@@ -38,12 +39,14 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RepositoryPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.files(), { size: (item) => (item.kind === 'FOLDER' ? null : Number(item.fileSize)) });
   private readonly documents = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);

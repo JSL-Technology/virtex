@@ -26,17 +26,17 @@
       @if (isLoading()) {
         <vx-spinner withLabel labelKey="invoices.invoice_selection_dialog.loading_documents" />
       } @else {
-        <table class="data-table">
+        <table [vxSort]="table.sort" class="data-table">
           <thead>
             <tr>
-              <th>{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
-              <th>{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
-              <th>{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
-              <th class="numeric">{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
+              <th vxSortHeader="invoiceNumber">{{ 'invoices.invoice_selection_dialog.invoice_number' | translate }}</th>
+              <th vxSortHeader="customerName">{{ 'invoices.invoice_selection_dialog.customer' | translate }}</th>
+              <th vxSortHeader="issueDate">{{ 'invoices.invoice_selection_dialog.date' | translate }}</th>
+              <th vxSortHeader="total" class="numeric">{{ 'invoices.invoice_selection_dialog.total' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (invoice of filteredInvoices(); track invoice.id) {
+            @for (invoice of table.rows(); track invoice.id) {
               <tr
                 class="selectable-row"
                 tabindex="0"

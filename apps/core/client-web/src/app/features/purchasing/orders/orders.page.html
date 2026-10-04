@@ -12,19 +12,19 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table class="data-table">
+    <table [vxSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th>{{ 'purchasing.orders.order' | translate }}</th>
-          <th>{{ 'purchasing.orders.supplier' | translate }}</th>
-          <th>{{ 'purchasing.orders.order_date' | translate }}</th>
-          <th class="text-right">{{ 'purchasing.orders.total' | translate }}</th>
-          <th class="text-center">{{ 'purchasing.orders.status' | translate }}</th>
+          <th vxSortHeader="number">{{ 'purchasing.orders.order' | translate }}</th>
+          <th vxSortHeader="supplier">{{ 'purchasing.orders.supplier' | translate }}</th>
+          <th vxSortHeader="orderDate">{{ 'purchasing.orders.order_date' | translate }}</th>
+          <th vxSortHeader="total" class="text-right">{{ 'purchasing.orders.total' | translate }}</th>
+          <th vxSortHeader="status" class="text-center">{{ 'purchasing.orders.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (order of orders(); track order.id) {
-          <tr>
+        @for (order of table.rows(); track order.id) {
+          <tr vxRowLink>
             <td>
               <a [routerLink]="['/purchasing/orders', order.id, 'edit']" class="table-link">
                 {{ order.number }}

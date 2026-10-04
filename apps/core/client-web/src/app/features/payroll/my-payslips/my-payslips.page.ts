@@ -6,6 +6,7 @@ import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Payslip, PayrollService } from '../../../core/api/payroll.service';
+import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
  * A person's own payslips.
@@ -18,12 +19,14 @@ import { Payslip, PayrollService } from '../../../core/api/payroll.service';
 @Component({
   selector: 'app-my-payslips-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './my-payslips.page.html',
   styleUrls: ['./my-payslips.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyPayslipsPage {
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.payslips(), { period: (payslip) => payslip.period?.start });
   private readonly payroll = inject(PayrollService);
 
   protected readonly FileIcon = FileText;
