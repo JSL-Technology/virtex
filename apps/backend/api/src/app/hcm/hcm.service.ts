@@ -10,6 +10,7 @@ import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { CreateCompensationDto } from './dto/create-compensation.dto';
 import {
+  BadRequestError,
   ConflictError,
   NotFoundError,
   UnprocessableEntityError,
@@ -81,13 +82,39 @@ export class HcmService {
     // ever holding the document in the clear: the transformer encrypts the value, and this HMAC of
     // it backs the unique index. It hashes the CANONICAL form, so `001-1234567-8` and `00112345678`
     // are recognised as the same person rather than saved twice.
+    const { initialCompensation, ...fields } = dto;
     const employee = this.employeeRepository.create({
-      ...dto,
+      ...fields,
       ...identity,
       organizationId,
       identityDocumentHash: blindIndex(identity.identityDocument),
     });
-    return this.saveEmployee(employee);
+    if (!initialCompensation) return this.saveEmployee(employee);
+
+    // The person and their starting pay, together: a hire saved without the salary it was agreed
+    // at is a payroll run that skips them.
+    const effectiveFrom = initialCompensation.effectiveFrom ?? dto.hireDate;
+    if (!effectiveFrom) throw new BadRequestError('hcm.initial_compensation_needs_date');
+    return this.employeeRepository.manager.transaction(async (manager) => {
+      let saved: Employee;
+      try {
+        saved = await manager.save(employee);
+      } catch (error) {
+        if ((error as { code?: string }).code === '23505') {
+          throw new ConflictError('hcm.employee_with_national_id_email_already');
+        }
+        throw error;
+      }
+      await manager.save(
+        manager.create(EmployeeCompensation, {
+          ...initialCompensation,
+          effectiveFrom,
+          employeeId: saved.id,
+          organizationId,
+        }),
+      );
+      return saved;
+    });
   }
 
   async updateEmployee(

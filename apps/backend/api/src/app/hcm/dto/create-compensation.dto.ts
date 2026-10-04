@@ -17,3 +17,22 @@ export class CreateCompensationDto {
   @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 }
+
+/** The starting salary, given with the hire. Its date defaults to the hire date. */
+export class InitialCompensationDto {
+  @IsDateString()
+  @IsOptional()
+  effectiveFrom?: string;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  baseSalary: number;
+
+  @IsEnum(PayFrequency)
+  @IsOptional()
+  payFrequency?: PayFrequency;
+
+  @IsOptional()
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
+  currencyCode?: string;
+}

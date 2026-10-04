@@ -219,6 +219,22 @@ describeWithDb('document repository', () => {
     expect(templates.rows.map((row) => row.name)).toEqual(['Membrete.docx']);
   });
 
+  /**
+   * QA M-14: uploading a template named like a repository file at the root was refused — the two
+   * libraries shared one namespace. Template uploads are filed in their own folder.
+   */
+  it('files an uploaded template apart, so it does not collide with a repository file', async () => {
+    await documents.upload(file('Factura.docx'), {}, organizationId, ACTOR);
+    const template = await documents.upload(file('Factura.docx'), { templateType: 'INVOICE' as never }, organizationId, ACTOR);
+
+    expect(template.parentId).not.toBeNull();
+    const second = await documents.upload(file('Cotización.docx'), { templateType: 'QUOTE' as never }, organizationId, ACTOR);
+    expect(second.parentId).toBe(template.parentId);
+
+    const templates = await documents.list(organizationId, { templatesOnly: true });
+    expect(templates.rows.map((row) => row.name).sort()).toEqual(['Cotización.docx', 'Factura.docx']);
+  });
+
   it('refuses to call a folder a template', async () => {
     const folder = await documents.createFolder({ name: 'Modelos' }, organizationId, ACTOR);
     await expect(

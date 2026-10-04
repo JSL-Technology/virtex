@@ -1,3 +1,4 @@
+import { AuthService } from '../../core/services/auth';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -59,6 +60,7 @@ export class ExtensionsPage {
   protected readonly RefreshIcon = RefreshCw;
   protected readonly LoaderIcon = Loader;
 
+  private readonly auth = inject(AuthService);
   readonly extensions = signal<ExtensionSummary[]>([]);
   readonly consents = signal<ExtensionConsent[]>([]);
   readonly loading = signal(false);
@@ -71,6 +73,16 @@ export class ExtensionsPage {
     for (const c of this.consents()) map.set(c.plugin, c);
     return map;
   });
+
+  /**
+   * Publishing and revoking act on the catalogue every tenant shares, and need a PLATFORM right
+   * that no tenant role grants — `'*'` does not satisfy it. The form was shown to a tenant
+   * administrator, who re-entered their password to submit it and then got 403 (QA M-13).
+   * Exact strings, matching the server's `hasPlatformPermission`.
+   */
+  private readonly platformPermissions = computed(() => new Set(this.auth.currentUser()?.permissions ?? []));
+  readonly canPublish = computed(() => this.platformPermissions().has('platform:extensions:publish'));
+  readonly canRevoke = computed(() => this.platformPermissions().has('platform:extensions:revoke'));
 
   readonly registerForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],

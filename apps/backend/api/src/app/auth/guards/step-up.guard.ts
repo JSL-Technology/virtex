@@ -8,6 +8,8 @@ import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
 import { UnauthorizedError } from '../../i18n/localized.exception';
+import { PLATFORM_PERMISSIONS_KEY } from '../../security/decorators/platform-permission.decorator';
+import { PlatformPermission, hasPlatformPermission } from '../../security/platform-permissions';
 
 type StepUpPayload = StepUpClaims;
 
@@ -53,6 +55,23 @@ export class StepUpGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request & { user?: { id?: string } }>();
+
+    // A platform route the caller has no right to act on asks for no proof: the answer is «no»
+    // whatever they prove, and asking first made a tenant administrator re-enter their password to
+    // register an extension and THEN receive 403 (QA M-13). `@RequiresPlatformPermission` always
+    // installs `PlatformPermissionsGuard`, which refuses the request; deferring to it here only
+    // changes which guard says no, never whether the route is reachable. Order-independent on
+    // purpose: decorator order decides guard order, and that is too easy to get wrong.
+    const platformRequired = this.reflector.getAllAndOverride<PlatformPermission[] | undefined>(
+      PLATFORM_PERMISSIONS_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (platformRequired?.length) {
+      const permissions = (request.user as { permissions?: string[] } | undefined)?.permissions;
+      if (platformRequired.some((permission) => !hasPlatformPermission(permissions, permission))) {
+        return true;
+      }
+    }
 
     const condition = this.reflector.getAllAndOverride<StepUpCondition | undefined>(
       STEP_UP_CONDITION_KEY,

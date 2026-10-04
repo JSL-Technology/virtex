@@ -37,15 +37,19 @@
 
   @if (newFolderOpen()) {
     <div class="new-folder card">
+      <label class="sr-only" for="new-folder-name">{{ 'documents.repository.folder_name' | translate }}</label>
       <input
-        #folderName
+        #folderInput
+        id="new-folder-name"
         type="text"
         maxlength="255"
         [placeholder]="'documents.repository.folder_name' | translate"
-        (keydown.enter)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)"
+        [value]="folderName()"
+        (input)="folderName.set($any($event.target).value)"
+        (keydown.enter)="createFolder()"
+        (keydown.escape)="newFolderOpen.set(false)"
       />
-      <button type="button" class="primary-button" [disabled]="busy()"
-        (click)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)">
+      <button type="button" class="primary-button" [disabled]="busy() || !folderName().trim()" (click)="createFolder()">
         {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="newFolderOpen.set(false)">

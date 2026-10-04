@@ -1,3 +1,5 @@
+import { hasPermission } from '@virteex/shared/util-auth';
+import { ForbiddenError } from '../i18n/localized.exception';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Body,
@@ -37,6 +39,12 @@ import { Page } from '../common/pagination';
 function changesPayoutDestination(request: { body?: unknown }): boolean {
   const body = (request.body ?? {}) as Record<string, unknown>;
   return ['bankName', 'bankAccountNumber', 'bankAccountType'].some((field) => field in body);
+}
+
+/** A hire that also sets pay — where it is paid, or how much — re-authenticates once for both. */
+function touchesPay(request: { body?: unknown }): boolean {
+  const body = (request.body ?? {}) as Record<string, unknown>;
+  return changesPayoutDestination(request) || 'initialCompensation' in body;
 }
 
 @Controller('hcm')
@@ -137,10 +145,15 @@ export class HcmController {
   }
 
   @Post('employees')
-  // Where wages are paid is set here too; that part re-authenticates, the rest of the record not.
-  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION, { when: changesPayoutDestination })
+  // Where wages are paid, and the starting salary, are set here too; that part re-authenticates
+  // (once for both), the rest of the record not.
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION, { when: touchesPay })
   @HasPermission(PERMISSIONS.HCM_MANAGE)
   async createEmployee(@Body() dto: CreateEmployeeDto, @CurrentUser() user: AuthenticatedUser) {
+    // Setting a salary is the payroll-compensation right, whichever form it is set from.
+    if (dto.initialCompensation && !hasPermission(user.permissions, [PERMISSIONS.PAYROLL_EDIT_COMPENSATION])) {
+      throw new ForbiddenError('auth.you_do_not_have_permission_perform');
+    }
     return this.redact(await this.hcmService.createEmployee(dto, user.organizationId), user);
   }
 

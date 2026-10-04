@@ -1,3 +1,4 @@
+import { AuthService } from '../../../../core/services/auth';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -63,6 +64,17 @@ export class EmployeeFormPage implements OnInit {
   private readonly payroll = inject(PayrollService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * The starting salary, on a hire (QA M-15: it had to be added afterwards, through a second form
+   * and a second re-authentication). Offered to whoever may set pay; the server re-authenticates
+   * once for it and for the bank account together.
+   */
+  readonly canSetPay = this.auth.hasPermissions(['payroll:edit_compensation']);
+  readonly initialSalary = signal<number | null>(null);
+  readonly initialFrequency = signal<'MONTHLY' | 'BIWEEKLY' | 'WEEKLY'>('MONTHLY');
+  protected readonly payFrequencies = ['MONTHLY', 'BIWEEKLY', 'WEEKLY'] as const;
   /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -265,7 +277,10 @@ export class EmployeeFormPage implements OnInit {
   documentPlaceholder(): string {
     const employee = this.current();
     if (employee) {
-      return this.revealed()?.identityDocument ?? employee.identityDocument ?? '\u2022\u2022\u2022';
+      // The masked form only. The revealed value has its own line under «Mostrar datos
+      // sensibles»; as the placeholder it showed the document in clear beneath the note «Cifrado.
+      // Déjalo en blanco para no cambiarlo.» (QA M-15).
+      return employee.identityDocument ?? '\u2022\u2022\u2022';
     }
     const selected = this.form?.get('identityDocumentType')?.value as string | undefined;
     return this.documentTypes().find((type) => type.code === selected)?.example ?? '';
@@ -310,6 +325,15 @@ export class EmployeeFormPage implements OnInit {
         delete record[key];
       }
       if (Object.keys(enrolment).length > 0) record['statutoryEnrolment'] = enrolment;
+    }
+
+    const salary = this.initialSalary();
+    if (!this.current() && this.canSetPay && salary !== null && salary > 0) {
+      if (!raw.hireDate) {
+        this.problems.set([{ message: 'hcm.employees.form.hire_date_for_salary' }]);
+        return;
+      }
+      body.initialCompensation = { baseSalary: salary, payFrequency: this.initialFrequency() };
     }
 
     this.saving.set(true);
