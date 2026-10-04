@@ -451,95 +451,1025 @@
     "en": "The email cannot be longer than 254 characters (RFC 5321).",
     "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
   },
+  "validation.fields.account_code": {
+    "es": "Código de cuenta",
+    "en": "Account code",
+    "pt": "Código da conta"
+  },
   "validation.fields.account_id": {
     "es": "cuenta",
     "en": "account",
     "pt": "conta"
+  },
+  "validation.fields.account_ids": {
+    "es": "Cuentas",
+    "en": "Accounts",
+    "pt": "Contas"
+  },
+  "validation.fields.account_number": {
+    "es": "Número de cuenta",
+    "en": "Account number",
+    "pt": "Número da conta"
+  },
+  "validation.fields.account_type": {
+    "es": "Tipo de cuenta",
+    "en": "Account type",
+    "pt": "Tipo de conta"
+  },
+  "validation.fields.accumulated_depreciation_account_id": {
+    "es": "Cuenta de depreciación acumulada",
+    "en": "Accumulated depreciation account",
+    "pt": "Conta de depreciação acumulada"
+  },
+  "validation.fields.address": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "validation.fields.address_line1": {
+    "es": "Dirección",
+    "en": "Address",
+    "pt": "Endereço"
+  },
+  "validation.fields.adjustment_reason": {
+    "es": "Motivo del ajuste",
+    "en": "Adjustment reason",
+    "pt": "Motivo do ajuste"
+  },
+  "validation.fields.adjustment_type": {
+    "es": "Tipo de ajuste",
+    "en": "Adjustment type",
+    "pt": "Tipo de ajuste"
+  },
+  "validation.fields.allocation_method": {
+    "es": "Método de distribución",
+    "en": "Allocation method",
+    "pt": "Método de rateio"
   },
   "validation.fields.amount": {
     "es": "importe",
     "en": "amount",
     "pt": "valor"
   },
+  "validation.fields.amount_column": {
+    "es": "Columna de importe",
+    "en": "Amount column",
+    "pt": "Coluna de valor"
+  },
+  "validation.fields.amount_max": {
+    "es": "Importe máximo",
+    "en": "Maximum amount",
+    "pt": "Valor máximo"
+  },
+  "validation.fields.amount_min": {
+    "es": "Importe mínimo",
+    "en": "Minimum amount",
+    "pt": "Valor mínimo"
+  },
+  "validation.fields.amount_received": {
+    "es": "Monto recibido",
+    "en": "Amount received",
+    "pt": "Valor recebido"
+  },
+  "validation.fields.as_of_date": {
+    "es": "Fecha de corte",
+    "en": "As-of date",
+    "pt": "Data de corte"
+  },
+  "validation.fields.asset_account_id": {
+    "es": "Cuenta de activo",
+    "en": "Asset account",
+    "pt": "Conta de ativo"
+  },
+  "validation.fields.assigned_to_user_id": {
+    "es": "Asignado a",
+    "en": "Assigned to",
+    "pt": "Atribuído a"
+  },
+  "validation.fields.bank_account_id": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "validation.fields.bank_account_number": {
+    "es": "Número de cuenta bancaria",
+    "en": "Bank account number",
+    "pt": "Número da conta bancária"
+  },
+  "validation.fields.bank_account_type": {
+    "es": "Tipo de cuenta bancaria",
+    "en": "Bank account type",
+    "pt": "Tipo de conta bancária"
+  },
+  "validation.fields.bank_gl_account_id": {
+    "es": "Cuenta contable del banco",
+    "en": "Bank ledger account",
+    "pt": "Conta contábil do banco"
+  },
+  "validation.fields.bank_name": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "validation.fields.base_salary": {
+    "es": "Salario base",
+    "en": "Base salary",
+    "pt": "Salário base"
+  },
+  "validation.fields.bill_of_material_id": {
+    "es": "Lista de materiales",
+    "en": "Bill of materials",
+    "pt": "Lista de materiais"
+  },
+  "validation.fields.budget": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
+  },
+  "validation.fields.capacity_per_hour": {
+    "es": "Capacidad por hora",
+    "en": "Capacity per hour",
+    "pt": "Capacidade por hora"
+  },
+  "validation.fields.cash_account_id": {
+    "es": "Cuenta de caja",
+    "en": "Cash account",
+    "pt": "Conta de caixa"
+  },
+  "validation.fields.category": {
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
+  },
+  "validation.fields.category_id": {
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
+  },
+  "validation.fields.city": {
+    "es": "Ciudad",
+    "en": "City",
+    "pt": "Cidade"
+  },
+  "validation.fields.closing_balance": {
+    "es": "Saldo final",
+    "en": "Closing balance",
+    "pt": "Saldo final"
+  },
+  "validation.fields.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "validation.fields.comment": {
+    "es": "Comentario",
+    "en": "Comment",
+    "pt": "Comentário"
+  },
+  "validation.fields.company_name": {
+    "es": "Nombre de la empresa",
+    "en": "Company name",
+    "pt": "Nome da empresa"
+  },
+  "validation.fields.component_product_id": {
+    "es": "Componente",
+    "en": "Component",
+    "pt": "Componente"
+  },
+  "validation.fields.contact_person": {
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
+  },
+  "validation.fields.contract_type": {
+    "es": "Tipo de contrato",
+    "en": "Contract type",
+    "pt": "Tipo de contrato"
+  },
+  "validation.fields.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "validation.fields.cost_center": {
+    "es": "Centro de costo",
+    "en": "Cost centre",
+    "pt": "Centro de custo"
+  },
+  "validation.fields.cost_center_id": {
+    "es": "Centro de costo",
+    "en": "Cost centre",
+    "pt": "Centro de custo"
+  },
   "validation.fields.country": {
     "es": "país",
     "en": "country",
     "pt": "país"
+  },
+  "validation.fields.country_code": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "validation.fields.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "validation.fields.credit_column": {
+    "es": "Columna de crédito",
+    "en": "Credit column",
+    "pt": "Coluna de crédito"
   },
   "validation.fields.currency": {
     "es": "moneda",
     "en": "currency",
     "pt": "moeda"
   },
+  "validation.fields.currency_code": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "validation.fields.current_password": {
+    "es": "Contraseña actual",
+    "en": "Current password",
+    "pt": "Senha atual"
+  },
   "validation.fields.customer_id": {
     "es": "cliente",
     "en": "customer",
     "pt": "cliente"
+  },
+  "validation.fields.customer_name": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
   },
   "validation.fields.date": {
     "es": "fecha",
     "en": "date",
     "pt": "data"
   },
+  "validation.fields.date_column": {
+    "es": "Columna de fecha",
+    "en": "Date column",
+    "pt": "Coluna de data"
+  },
+  "validation.fields.date_format": {
+    "es": "Formato de fecha",
+    "en": "Date format",
+    "pt": "Formato de data"
+  },
+  "validation.fields.days": {
+    "es": "Días",
+    "en": "Days",
+    "pt": "Dias"
+  },
+  "validation.fields.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "validation.fields.debit_column": {
+    "es": "Columna de débito",
+    "en": "Debit column",
+    "pt": "Coluna de débito"
+  },
+  "validation.fields.department_id": {
+    "es": "Departamento",
+    "en": "Department",
+    "pt": "Departamento"
+  },
+  "validation.fields.depreciation_account_id": {
+    "es": "Cuenta de gasto por depreciación",
+    "en": "Depreciation expense account",
+    "pt": "Conta de despesa de depreciação"
+  },
   "validation.fields.description": {
     "es": "descripción",
     "en": "description",
     "pt": "descrição"
+  },
+  "validation.fields.description_column": {
+    "es": "Columna de descripción",
+    "en": "Description column",
+    "pt": "Coluna de descrição"
+  },
+  "validation.fields.destination_account_id": {
+    "es": "Cuenta de destino",
+    "en": "Destination account",
+    "pt": "Conta de destino"
+  },
+  "validation.fields.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "validation.fields.discount_rate": {
+    "es": "Descuento (%)",
+    "en": "Discount (%)",
+    "pt": "Desconto (%)"
+  },
+  "validation.fields.disposal_date": {
+    "es": "Fecha de baja",
+    "en": "Disposal date",
+    "pt": "Data de baixa"
+  },
+  "validation.fields.disposal_reason": {
+    "es": "Motivo de la baja",
+    "en": "Disposal reason",
+    "pt": "Motivo da baixa"
+  },
+  "validation.fields.document_date": {
+    "es": "Fecha del documento",
+    "en": "Document date",
+    "pt": "Data do documento"
+  },
+  "validation.fields.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "validation.fields.due_date": {
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
+  },
+  "validation.fields.effective_from": {
+    "es": "Vigente desde",
+    "en": "Effective from",
+    "pt": "Vigente desde"
+  },
+  "validation.fields.effective_to": {
+    "es": "Vigente hasta",
+    "en": "Effective to",
+    "pt": "Vigente até"
   },
   "validation.fields.email": {
     "es": "correo electrónico",
     "en": "email address",
     "pt": "endereço de e-mail"
   },
+  "validation.fields.employee_id": {
+    "es": "Empleado",
+    "en": "Employee",
+    "pt": "Funcionário"
+  },
+  "validation.fields.employee_rate": {
+    "es": "Tasa del empleado",
+    "en": "Employee rate",
+    "pt": "Alíquota do empregado"
+  },
+  "validation.fields.employer_rate": {
+    "es": "Tasa del empleador",
+    "en": "Employer rate",
+    "pt": "Alíquota do empregador"
+  },
+  "validation.fields.employment_status": {
+    "es": "Estado laboral",
+    "en": "Employment status",
+    "pt": "Situação de emprego"
+  },
+  "validation.fields.end_date": {
+    "es": "Fecha de fin",
+    "en": "End date",
+    "pt": "Data de término"
+  },
+  "validation.fields.ending_balance": {
+    "es": "Saldo final",
+    "en": "Ending balance",
+    "pt": "Saldo final"
+  },
+  "validation.fields.entry_type": {
+    "es": "Tipo de asiento",
+    "en": "Entry type",
+    "pt": "Tipo de lançamento"
+  },
+  "validation.fields.estimated_unit_price": {
+    "es": "Precio unitario estimado",
+    "en": "Estimated unit price",
+    "pt": "Preço unitário estimado"
+  },
+  "validation.fields.exchange_rate": {
+    "es": "Tasa de cambio",
+    "en": "Exchange rate",
+    "pt": "Taxa de câmbio"
+  },
+  "validation.fields.expected_date": {
+    "es": "Fecha esperada",
+    "en": "Expected date",
+    "pt": "Data prevista"
+  },
+  "validation.fields.expense_account_id": {
+    "es": "Cuenta de gasto",
+    "en": "Expense account",
+    "pt": "Conta de despesa"
+  },
+  "validation.fields.expiry_date": {
+    "es": "Fecha de vencimiento",
+    "en": "Expiry date",
+    "pt": "Data de validade"
+  },
   "validation.fields.first_name": {
     "es": "nombre",
     "en": "first name",
     "pt": "nome"
+  },
+  "validation.fields.fiscal_document_type": {
+    "es": "Tipo de comprobante fiscal",
+    "en": "Fiscal document type",
+    "pt": "Tipo de documento fiscal"
+  },
+  "validation.fields.fiscal_year_id": {
+    "es": "Ejercicio fiscal",
+    "en": "Fiscal year",
+    "pt": "Exercício fiscal"
+  },
+  "validation.fields.from_account_id": {
+    "es": "Cuenta de origen",
+    "en": "From account",
+    "pt": "Conta de origem"
+  },
+  "validation.fields.from_bank_account_id": {
+    "es": "Cuenta bancaria de origen",
+    "en": "From bank account",
+    "pt": "Conta bancária de origem"
+  },
+  "validation.fields.from_currency": {
+    "es": "Moneda de origen",
+    "en": "From currency",
+    "pt": "Moeda de origem"
+  },
+  "validation.fields.gain_on_disposal_account_id": {
+    "es": "Cuenta de ganancia por baja",
+    "en": "Gain on disposal account",
+    "pt": "Conta de ganho na baixa"
+  },
+  "validation.fields.gl_account_id": {
+    "es": "Cuenta contable",
+    "en": "Ledger account",
+    "pt": "Conta contábil"
+  },
+  "validation.fields.hire_date": {
+    "es": "Fecha de ingreso",
+    "en": "Hire date",
+    "pt": "Data de admissão"
+  },
+  "validation.fields.hourly_rate": {
+    "es": "Tarifa por hora",
+    "en": "Hourly rate",
+    "pt": "Valor por hora"
+  },
+  "validation.fields.hours": {
+    "es": "Horas",
+    "en": "Hours",
+    "pt": "Horas"
+  },
+  "validation.fields.iban": {
+    "es": "IBAN",
+    "en": "IBAN",
+    "pt": "IBAN"
+  },
+  "validation.fields.identity_document": {
+    "es": "Documento de identidad",
+    "en": "Identity document",
+    "pt": "Documento de identidade"
+  },
+  "validation.fields.identity_document_type": {
+    "es": "Tipo de documento de identidad",
+    "en": "Identity document type",
+    "pt": "Tipo de documento de identidade"
+  },
+  "validation.fields.income_tax_withheld": {
+    "es": "ISR retenido",
+    "en": "Income tax withheld",
+    "pt": "IR retido"
+  },
+  "validation.fields.income_tax_withholding_rate": {
+    "es": "Retención de ISR (%)",
+    "en": "Income tax withholding (%)",
+    "pt": "Retenção de IR (%)"
+  },
+  "validation.fields.industry": {
+    "es": "Industria",
+    "en": "Industry",
+    "pt": "Setor"
+  },
+  "validation.fields.is_active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "validation.fields.issue_date": {
+    "es": "Fecha de emisión",
+    "en": "Issue date",
+    "pt": "Data de emissão"
+  },
+  "validation.fields.job_title": {
+    "es": "Cargo",
+    "en": "Job title",
+    "pt": "Cargo"
+  },
+  "validation.fields.journal_id": {
+    "es": "Diario",
+    "en": "Journal",
+    "pt": "Diário"
   },
   "validation.fields.last_name": {
     "es": "apellido",
     "en": "last name",
     "pt": "sobrenome"
   },
+  "validation.fields.ledger_id": {
+    "es": "Libro",
+    "en": "Ledger",
+    "pt": "Livro"
+  },
+  "validation.fields.legal_name": {
+    "es": "Razón social",
+    "en": "Legal name",
+    "pt": "Razão social"
+  },
+  "validation.fields.line_description": {
+    "es": "Descripción de la línea",
+    "en": "Line description",
+    "pt": "Descrição da linha"
+  },
+  "validation.fields.line_items": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "validation.fields.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "validation.fields.loss_on_disposal_account_id": {
+    "es": "Cuenta de pérdida por baja",
+    "en": "Loss on disposal account",
+    "pt": "Conta de perda na baixa"
+  },
+  "validation.fields.manager_id": {
+    "es": "Supervisor",
+    "en": "Manager",
+    "pt": "Gestor"
+  },
+  "validation.fields.message": {
+    "es": "Mensaje",
+    "en": "Message",
+    "pt": "Mensagem"
+  },
+  "validation.fields.min_amount": {
+    "es": "Importe mínimo",
+    "en": "Minimum amount",
+    "pt": "Valor mínimo"
+  },
+  "validation.fields.modification_reason": {
+    "es": "Motivo de la modificación",
+    "en": "Reason for the change",
+    "pt": "Motivo da alteração"
+  },
+  "validation.fields.monthly_salary": {
+    "es": "Salario mensual",
+    "en": "Monthly salary",
+    "pt": "Salário mensal"
+  },
+  "validation.fields.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "validation.fields.ncf": {
+    "es": "NCF",
+    "en": "NCF",
+    "pt": "NCF"
+  },
+  "validation.fields.ncf_modified": {
+    "es": "NCF modificado",
+    "en": "Modified NCF",
+    "pt": "NCF modificado"
+  },
+  "validation.fields.new_email": {
+    "es": "Nuevo correo",
+    "en": "New email",
+    "pt": "Novo e-mail"
+  },
+  "validation.fields.new_password": {
+    "es": "Nueva contraseña",
+    "en": "New password",
+    "pt": "Nova senha"
+  },
+  "validation.fields.note": {
+    "es": "Nota",
+    "en": "Note",
+    "pt": "Nota"
+  },
+  "validation.fields.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Notas"
+  },
   "validation.fields.opening_balance": {
     "es": "fondo de caja",
     "en": "opening float",
     "pt": "fundo de caixa"
+  },
+  "validation.fields.opening_balance_account_id": {
+    "es": "Cuenta de saldo inicial",
+    "en": "Opening balance account",
+    "pt": "Conta de saldo inicial"
+  },
+  "validation.fields.opening_date": {
+    "es": "Fecha de apertura",
+    "en": "Opening date",
+    "pt": "Data de abertura"
+  },
+  "validation.fields.order_date": {
+    "es": "Fecha de la orden",
+    "en": "Order date",
+    "pt": "Data do pedido"
+  },
+  "validation.fields.ownership": {
+    "es": "Porcentaje de propiedad",
+    "en": "Ownership percentage",
+    "pt": "Percentual de participação"
+  },
+  "validation.fields.parent_account_id": {
+    "es": "Cuenta padre",
+    "en": "Parent account",
+    "pt": "Conta pai"
+  },
+  "validation.fields.parent_id": {
+    "es": "Padre",
+    "en": "Parent",
+    "pt": "Pai"
   },
   "validation.fields.password": {
     "es": "contraseña",
     "en": "password",
     "pt": "senha"
   },
+  "validation.fields.pay_date": {
+    "es": "Fecha de pago",
+    "en": "Pay date",
+    "pt": "Data de pagamento"
+  },
+  "validation.fields.pay_frequency": {
+    "es": "Frecuencia de pago",
+    "en": "Pay frequency",
+    "pt": "Frequência de pagamento"
+  },
+  "validation.fields.payment_date": {
+    "es": "Fecha de pago",
+    "en": "Payment date",
+    "pt": "Data de pagamento"
+  },
+  "validation.fields.payment_method": {
+    "es": "Método de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
+  },
+  "validation.fields.payment_term_days": {
+    "es": "Días de crédito",
+    "en": "Payment term (days)",
+    "pt": "Prazo de pagamento (dias)"
+  },
+  "validation.fields.payment_terms": {
+    "es": "Condiciones de pago",
+    "en": "Payment terms",
+    "pt": "Condições de pagamento"
+  },
+  "validation.fields.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "validation.fields.period_id": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "validation.fields.period_month": {
+    "es": "Mes del período",
+    "en": "Period month",
+    "pt": "Mês do período"
+  },
+  "validation.fields.period_year": {
+    "es": "Año del período",
+    "en": "Period year",
+    "pt": "Ano do período"
+  },
   "validation.fields.phone": {
     "es": "teléfono",
     "en": "phone number",
     "pt": "telefone"
+  },
+  "validation.fields.phone_number": {
+    "es": "Teléfono",
+    "en": "Phone number",
+    "pt": "Telefone"
+  },
+  "validation.fields.postal_code": {
+    "es": "Código postal",
+    "en": "Postal code",
+    "pt": "CEP"
+  },
+  "validation.fields.prefix": {
+    "es": "Prefijo",
+    "en": "Prefix",
+    "pt": "Prefixo"
+  },
+  "validation.fields.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "validation.fields.priority": {
+    "es": "Prioridad",
+    "en": "Priority",
+    "pt": "Prioridade"
+  },
+  "validation.fields.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
   },
   "validation.fields.product_id": {
     "es": "producto",
     "en": "product",
     "pt": "produto"
   },
+  "validation.fields.product_name": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "validation.fields.project_id": {
+    "es": "Proyecto",
+    "en": "Project",
+    "pt": "Projeto"
+  },
+  "validation.fields.purchase_order_id": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Pedido de compra"
+  },
   "validation.fields.quantity": {
     "es": "cantidad",
     "en": "quantity",
     "pt": "quantidade"
+  },
+  "validation.fields.quantity_planned": {
+    "es": "Cantidad planificada",
+    "en": "Planned quantity",
+    "pt": "Quantidade planejada"
+  },
+  "validation.fields.quantity_produced": {
+    "es": "Cantidad producida",
+    "en": "Quantity produced",
+    "pt": "Quantidade produzida"
+  },
+  "validation.fields.rate": {
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Taxa"
+  },
+  "validation.fields.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "validation.fields.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "validation.fields.reference_column": {
+    "es": "Columna de referencia",
+    "en": "Reference column",
+    "pt": "Coluna de referência"
+  },
+  "validation.fields.rejection_reason": {
+    "es": "Motivo del rechazo",
+    "en": "Rejection reason",
+    "pt": "Motivo da rejeição"
+  },
+  "validation.fields.reorder_level": {
+    "es": "Punto de reorden",
+    "en": "Reorder level",
+    "pt": "Ponto de reposição"
+  },
+  "validation.fields.required_date": {
+    "es": "Fecha requerida",
+    "en": "Required date",
+    "pt": "Data necessária"
+  },
+  "validation.fields.reversal_date": {
+    "es": "Fecha de reversión",
+    "en": "Reversal date",
+    "pt": "Data de estorno"
+  },
+  "validation.fields.role_id": {
+    "es": "Rol",
+    "en": "Role",
+    "pt": "Função"
+  },
+  "validation.fields.sale_price": {
+    "es": "Precio de venta",
+    "en": "Sale price",
+    "pt": "Preço de venda"
+  },
+  "validation.fields.sku": {
+    "es": "SKU",
+    "en": "SKU",
+    "pt": "SKU"
+  },
+  "validation.fields.social_security_number": {
+    "es": "Número de seguridad social",
+    "en": "Social security number",
+    "pt": "Número da previdência social"
+  },
+  "validation.fields.start_date": {
+    "es": "Fecha de inicio",
+    "en": "Start date",
+    "pt": "Data de início"
+  },
+  "validation.fields.starting_balance": {
+    "es": "Saldo inicial",
+    "en": "Starting balance",
+    "pt": "Saldo inicial"
+  },
+  "validation.fields.state": {
+    "es": "Provincia o estado",
+    "en": "State or province",
+    "pt": "Estado"
+  },
+  "validation.fields.state_or_province": {
+    "es": "Provincia o estado",
+    "en": "State or province",
+    "pt": "Estado"
+  },
+  "validation.fields.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "validation.fields.stock": {
+    "es": "Existencia",
+    "en": "Stock",
+    "pt": "Estoque"
+  },
+  "validation.fields.subtotal": {
+    "es": "Subtotal",
+    "en": "Subtotal",
+    "pt": "Subtotal"
   },
   "validation.fields.supplier_id": {
     "es": "proveedor",
     "en": "supplier",
     "pt": "fornecedor"
   },
+  "validation.fields.swift_bic": {
+    "es": "SWIFT/BIC",
+    "en": "SWIFT/BIC",
+    "pt": "SWIFT/BIC"
+  },
+  "validation.fields.symbol": {
+    "es": "Símbolo",
+    "en": "Symbol",
+    "pt": "Símbolo"
+  },
+  "validation.fields.target_account_id": {
+    "es": "Cuenta de destino",
+    "en": "Target account",
+    "pt": "Conta de destino"
+  },
+  "validation.fields.task_id": {
+    "es": "Tarea",
+    "en": "Task",
+    "pt": "Tarefa"
+  },
+  "validation.fields.tax": {
+    "es": "Impuesto",
+    "en": "Tax",
+    "pt": "Imposto"
+  },
+  "validation.fields.tax_amount": {
+    "es": "Monto del impuesto",
+    "en": "Tax amount",
+    "pt": "Valor do imposto"
+  },
   "validation.fields.tax_id": {
     "es": "identificación fiscal",
     "en": "tax ID",
     "pt": "identificação fiscal"
   },
+  "validation.fields.tax_rate": {
+    "es": "Tasa de impuesto",
+    "en": "Tax rate",
+    "pt": "Alíquota do imposto"
+  },
+  "validation.fields.tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
+  },
+  "validation.fields.tax_withholding_rate": {
+    "es": "Retención (%)",
+    "en": "Withholding (%)",
+    "pt": "Retenção (%)"
+  },
+  "validation.fields.taxpayer_type": {
+    "es": "Tipo de contribuyente",
+    "en": "Taxpayer type",
+    "pt": "Tipo de contribuinte"
+  },
   "validation.fields.terminal_id": {
     "es": "terminal",
     "en": "terminal",
     "pt": "terminal"
+  },
+  "validation.fields.termination_date": {
+    "es": "Fecha de salida",
+    "en": "Termination date",
+    "pt": "Data de desligamento"
+  },
+  "validation.fields.title": {
+    "es": "Título",
+    "en": "Title",
+    "pt": "Título"
+  },
+  "validation.fields.to_account_id": {
+    "es": "Cuenta de destino",
+    "en": "To account",
+    "pt": "Conta de destino"
+  },
+  "validation.fields.to_bank_account_id": {
+    "es": "Cuenta bancaria de destino",
+    "en": "To bank account",
+    "pt": "Conta bancária de destino"
+  },
+  "validation.fields.to_currency": {
+    "es": "Moneda de destino",
+    "en": "To currency",
+    "pt": "Moeda de destino"
+  },
+  "validation.fields.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "validation.fields.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "validation.fields.unit_of_measure": {
+    "es": "Unidad de medida",
+    "en": "Unit of measure",
+    "pt": "Unidade de medida"
+  },
+  "validation.fields.unit_of_measure_id": {
+    "es": "Unidad de medida",
+    "en": "Unit of measure",
+    "pt": "Unidade de medida"
+  },
+  "validation.fields.unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "validation.fields.user_id": {
+    "es": "Usuario",
+    "en": "User",
+    "pt": "Usuário"
+  },
+  "validation.fields.valid_from": {
+    "es": "Válido desde",
+    "en": "Valid from",
+    "pt": "Válido desde"
+  },
+  "validation.fields.valid_to": {
+    "es": "Válido hasta",
+    "en": "Valid to",
+    "pt": "Válido até"
+  },
+  "validation.fields.valid_until": {
+    "es": "Válido hasta",
+    "en": "Valid until",
+    "pt": "Válido até"
+  },
+  "validation.fields.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "validation.fields.vendor_bill_id": {
+    "es": "Factura de proveedor",
+    "en": "Vendor bill",
+    "pt": "Fatura de fornecedor"
   },
   "validation.fiscal.country_not_available": {
     "es": "Ese país todavía no está disponible para registro.",

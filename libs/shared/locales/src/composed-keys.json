@@ -271,7 +271,11 @@
       "SALARY_CAPPED",
       "PAYROLL_UNCAPPED"
     ],
-    "payroll.parameters.key_label": [],
+    "payroll.parameters.key_label": [
+      "MIN_WAGE_COTIZABLE",
+      "ISR_ANNUAL_EXEMPT",
+      "BONUS_EMPLOYEE_LEVY_RATE"
+    ],
     "payroll.parameters.regime_label": [
       "AFP",
       "SFS",

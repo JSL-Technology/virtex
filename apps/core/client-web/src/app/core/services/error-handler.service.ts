@@ -1,3 +1,4 @@
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -205,8 +206,10 @@ export class ErrorHandlerService {
       const params = { ...(entry.params ?? {}) };
       // `property` carries the field's own label KEY, so it is translated before interpolation —
       // otherwise the sentence reads "validation.fields.tax_id is required".
+      // A label key when the API has one, otherwise the field already said in words: shown as it
+      // is. `instant` on a non-key returned «[[taxRate]]» (QA A-17).
       if (typeof params['property'] === 'string') {
-        params['property'] = this.translate.instant(params['property'] as string);
+        params['property'] = translateOrLiteral(this.translate, params['property'] as string);
       }
       const message = this.translate.instant(entry.key, params);
       const field = entry.property || '_';

@@ -115,4 +115,26 @@ describe('ErrorHandlerService key resolution', () => {
     expect(translate.instant(key)).not.toContain('salesTotal');
     expect(translate.instant(key)).not.toContain('QueryFailedError');
   });
+
+  /** QA A-17: a field the API names in words must not be "translated" into «[[taxRate]]». */
+  it('shows a field name the catalogue does not hold as it is, and translates one it does', () => {
+    translate.setTranslation('en', {
+      ...CATALOGUE,
+      'validation.constraints.is_number': '{{property}} must be a number.',
+      'validation.fields.amount': 'Amount',
+    });
+    const described = service.describe(
+      failure(400, {
+        statusCode: 400,
+        code: 'VALIDATION_FAILED',
+        messageKey: 'errors.validation_failed',
+        fieldErrors: [
+          { property: 'amount', key: 'validation.constraints.is_number', params: { property: 'validation.fields.amount' } },
+          { property: 'taxRate', key: 'validation.constraints.is_number', params: { property: 'tax rate' } },
+        ],
+      }),
+    );
+    expect(described.fieldErrors['amount']).toEqual(['Amount must be a number.']);
+    expect(described.fieldErrors['taxRate']).toEqual(['tax rate must be a number.']);
+  });
 });

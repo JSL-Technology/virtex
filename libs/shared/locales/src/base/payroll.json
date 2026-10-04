@@ -267,7 +267,7 @@
     "en": "Annual income-tax exemption",
     "pt": "Isenção anual de IRS"
   },
-  "payroll.parameters.key_label.minimum_contributory_wage": {
+  "payroll.parameters.key_label.min_wage_cotizable": {
     "es": "Salario mínimo cotizable",
     "en": "Minimum contributory wage",
     "pt": "Salário mínimo contributivo"

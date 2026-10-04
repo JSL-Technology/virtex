@@ -10,6 +10,9 @@ import {
   explanatoryConstraints,
   parseValidationMessage,
   translateValidationError,
+  fieldLabel,
+  fieldLabelKey,
+  humanizeProperty,
 } from './validation-messages';
 import { OpenShiftDto } from '../pos/dto/open-shift.dto';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
@@ -247,5 +250,36 @@ describe('validation messages', () => {
     }
 
     expect(offenders).toEqual([]);
+  });
+});
+
+/**
+ * A field's name never reaches the reader as an identifier (QA A-17: «[[taxRate]]»,
+ * «[[expenseAccountId]]», «[[identityDocument]]»).
+ */
+describe('field names in validation messages', () => {
+  const i18n = new I18nService();
+
+  it('labels a field inside a document line by its own name, not by its path', () => {
+    expect(fieldLabelKey('lines.0.taxRate')).toBe('validation.fields.tax_rate');
+    expect(fieldLabel(i18n, 'lines.0.taxRate', 'es')).toBe('Tasa de impuesto');
+  });
+
+  it('labels the fields the report found unresolved', () => {
+    for (const property of ['taxRate', 'product', 'expenseAccountId', 'identityDocument', 'startDate', 'dateColumn']) {
+      expect(i18n.has(fieldLabelKey(property))).toBe(true);
+    }
+  });
+
+  it('says an unlabelled field in words, never as camelCase', () => {
+    expect(humanizeProperty('someNewThingId')).toBe('some new thing');
+    expect(fieldLabel(i18n, 'items.2.someNewThing', 'es')).toBe('some new thing');
+  });
+
+  it('sends the client a key or words — never an identifier it would translate into «[[…]]»', () => {
+    const [labelled] = describeValidationError(i18n, { property: 'lines.0.taxRate', constraints: { isNumber: 'x' } } as ValidationError);
+    expect(labelled.params['property']).toBe('validation.fields.tax_rate');
+    const [unlabelled] = describeValidationError(i18n, { property: 'zzzWidget', constraints: { isNumber: 'x' } } as ValidationError);
+    expect(unlabelled.params['property']).toBe('zzz widget');
   });
 });
