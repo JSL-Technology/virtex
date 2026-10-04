@@ -328,6 +328,14 @@
       "JOURNAL_ENTRIES",
       "SUBSIDIARIES"
     ],
+    "saas.resources": [
+      "invoices",
+      "users",
+      "customers",
+      "suppliers",
+      "journal_entries",
+      "subsidiaries"
+    ],
     "sales.quotes.status": [
       "DRAFT",
       "SENT",

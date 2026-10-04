@@ -499,7 +499,19 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
             minorUnits: minorUnitFactor(currency),
           }
         : null,
-      subscription: null,
+      // The platform's own record of the subscription, until the provider says otherwise. It was
+      // left null whenever Stripe had nothing to say, so a tenant with an active plan read
+      // «Enterprise» and «Sin suscripción activa» side by side (QA M-10).
+      subscription: organization.subscriptionStatus
+        ? {
+            status: organization.subscriptionStatus,
+            currentPeriodEnd: organization.subscriptionPeriodEnd
+              ? new Date(organization.subscriptionPeriodEnd).toISOString()
+              : null,
+            cancelAtPeriodEnd: false,
+            managedBy: 'platform',
+          }
+        : null,
       paymentMethod: null,
     };
 
@@ -516,6 +528,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
           status: sub.status,
           currentPeriodEnd: periodEnd ? periodEnd.toISOString() : null,
           cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
+          managedBy: 'provider',
         };
       }
 

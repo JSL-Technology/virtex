@@ -19,6 +19,8 @@ export interface BillingSubscription {
   status: string;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** The payment provider's subscription, or the platform's own record (granted plan, trial). */
+  managedBy?: 'provider' | 'platform';
 }
 
 export interface BillingOverview {

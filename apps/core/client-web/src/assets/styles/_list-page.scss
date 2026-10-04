@@ -63,4 +63,32 @@
   .pager-button {
     @include ds.button-secondary('sm');
   }
+
+  //  Alta en línea (`listCreate`): una fila de campos con su etiqueta encima y
+  //  los botones al final. Cada página la dejaba sin estilo —almacén, unidades
+  //  de medida, monedas— y se veía como etiquetas pegadas y campos apilados a
+  //  todo el ancho (QA M-11). Envuelve en pantallas estrechas.
+  .inline-row {
+    @include ds.surface-card;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+
+    > .field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      flex: 1 1 12rem;
+      min-width: 0;
+
+      > span { @include ds.field-label; }
+      &.field--wide { flex-basis: 100%; }
+
+      input, select, textarea { @include ds.input-base; width: 100%; }
+    }
+
+  }
 }

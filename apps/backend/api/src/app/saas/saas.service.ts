@@ -1,3 +1,4 @@
+import { LIFETIME_USAGE_SOURCES, PERIOD_USAGE_SOURCES } from './usage-sources';
 import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
@@ -571,6 +572,48 @@ export class SaasService implements OnModuleInit {
     await this.setUsageRedis(organizationId, resource, QuotaPeriod.LIFETIME, actual);
   }
 
+  /**
+   * How much of a resource exists, or was used in the current quota window, counted from the rows.
+   * Null when the resource has no source to count from.
+   */
+  private async countedUsage(
+    organizationId: string,
+    org: Organization,
+    resource: string,
+    period: QuotaPeriod,
+  ): Promise<number | null> {
+    const lifetime = LIFETIME_USAGE_SOURCES.find((source) => source.resource === resource);
+    const windowed = PERIOD_USAGE_SOURCES.find((source) => source.resource === resource);
+    try {
+      if (period === QuotaPeriod.LIFETIME && lifetime) {
+        const rows = await this.dataSource.query(lifetime.sql, [organizationId]);
+        return Number(rows?.[0]?.n ?? 0);
+      }
+      if (period === QuotaPeriod.MONTHLY && windowed) {
+        const { from, to } = this.quotaWindow(org);
+        const rows = await this.dataSource.query(windowed.sql, [organizationId, from, to]);
+        return Number(rows?.[0]?.n ?? 0);
+      }
+    } catch (error) {
+      this.logger.warn(`Could not count ${resource} for ${organizationId}: ${(error as Error).message}`);
+    }
+    return null;
+  }
+
+  /**
+   * The window a monthly quota covers, matching `getPeriodKey`: the subscription's current period
+   * when there is a live one, the calendar month otherwise.
+   */
+  private quotaWindow(org: Organization, now = new Date()): { from: Date; to: Date } {
+    const key = this.getPeriodKey(QuotaPeriod.MONTHLY, org, now);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(key) && org.subscriptionPeriodStart && org.subscriptionPeriodEnd) {
+      return { from: new Date(org.subscriptionPeriodStart), to: new Date(org.subscriptionPeriodEnd) };
+    }
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    return { from, to };
+  }
+
   async getUsage(organizationId: string) {
     const org = await this.orgRepository.findOne({
         where: { id: organizationId },
@@ -613,12 +656,17 @@ export class SaasService implements OnModuleInit {
         }
 
         const metric = metricMap.get(`${limit.resource}:${periodKey}`);
+        const counted = await this.countedUsage(organizationId, org, limit.resource, limit.period);
+        // The counter is what enforcement reads; the count is what exists. Shown as the larger of
+        // the two, so the screen neither under-reports activity the counter missed nor hides a
+        // counter that is ahead of the rows (QA M-10: «0/∞» with real data).
+        const used = Math.max(metric ? metric.count : 0, counted ?? 0);
 
         usageData.push({
             resource: limit.resource,
             type: 'numeric',
             limit: limit.limit,
-            used: metric ? metric.count : 0,
+            used,
             isUnlimited: limit.isUnlimited || limit.limit === -1,
             period: limit.period
         });

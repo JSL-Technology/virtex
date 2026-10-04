@@ -45,6 +45,9 @@
                             · {{ sub.cancelAtPeriodEnd ? ('settings.billing.ends_on' | translate) : ('settings.billing.renews_on' | translate) }} {{ formatDate(sub.currentPeriodEnd) }}
                         }
                     </div>
+                    @if (sub.managedBy === 'platform') {
+                    <p class="info-card__muted">{{ 'settings.billing.managed_by_platform' | translate }}</p>
+                    }
                     } @else {
                     <div class="plan-status">{{ 'settings.billing.no_active_subscription' | translate }}</div>
                     }
@@ -109,12 +112,14 @@
                 @for (metric of usageMetrics(); track metric.resource) {
                 <div class="usage-item">
                     <div class="usage-item__row">
-                        <span class="usage-item__name">{{ metric.resource.replace('_', ' ') }}</span>
+                        <span class="usage-item__name">{{ resourceLabel(metric.resource) }}</span>
                         <span class="usage-item__value">
                             @if (metric.type === 'numeric') {
-                                {{ metric.used }}&thinsp;/&thinsp;{{ metric.isUnlimited ? '∞' : metric.limit }}
+                                {{ (metric.isUnlimited ? 'settings.billing.usage_unlimited' : 'settings.billing.usage_of_limit')
+                                   | translate: { used: (metric.used | vxNumber), limit: (metric.limit | vxNumber) } }}
+                                <small class="usage-item__period">{{ (metric.period === 'monthly' ? 'settings.billing.period_monthly' : 'settings.billing.period_lifetime') | translate }}</small>
                             } @else {
-                                {{ metric.isEnabled ? 'Activo' : 'Inactivo' }}
+                                {{ (metric.isEnabled ? 'settings.billing.feature_included' : 'settings.billing.feature_not_included') | translate }}
                             }
                         </span>
                     </div>
@@ -198,9 +203,10 @@
                         <li>
                             <lucide-icon [img]="CheckCircleIcon" size="13"></lucide-icon>
                             @if (limit.limit === -1) {
-                                <span>{{ 'billing.unlimited_resource' | translate: { resource: limit.resource } }}</span>
+                                <span>{{ 'billing.unlimited_resource' | translate: { resource: resourceLabel(limit.resource) } }}</span>
                             } @else {
-                                <span>{{ limit.limit }} {{ limit.resource.replace('_', ' ') }}/{{ limit.period === 'monthly' ? 'mes' : 'siempre' }}</span>
+                                <span>{{ (limit.period === 'monthly' ? 'settings.billing.limit_monthly' : 'settings.billing.limit_lifetime')
+                                    | translate: { count: (limit.limit | vxNumber), resource: resourceLabel(limit.resource) } }}</span>
                             }
                         </li>
                         }

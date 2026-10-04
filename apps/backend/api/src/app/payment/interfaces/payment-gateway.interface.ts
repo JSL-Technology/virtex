@@ -66,6 +66,12 @@ export interface BillingSubscription {
   status: string;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /**
+   * Who manages it: the payment provider, or the platform itself (a plan granted, a trial, a
+   * subscription recorded before the provider was connected). There is no card to change on the
+   * second, and the screen says so instead of offering the provider's portal.
+   */
+  managedBy: 'provider' | 'platform';
 }
 
 export interface BillingOverview {

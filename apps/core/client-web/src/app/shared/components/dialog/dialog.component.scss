@@ -3,8 +3,13 @@
 // =============================================================================
 //  El panel vive en el contenedor del overlay del CDK, fuera del árbol de este
 //  componente, así que sus estilos NO pueden ir encapsulados. Se declaran con
-//  `:host ::ng-deep` acotado a las clases propias, que es la forma soportada de
-//  vestir contenido proyectado a un portal.
+//  `::ng-deep` acotado a las clases propias `vx-dialog__*`.
+//
+//  Estaban escritos como `:host ::ng-deep .vx-dialog__panel`, que compila a
+//  «descendiente del host». El panel no lo es —el CDK lo cuelga del body—, así
+//  que ninguna regla aplicaba: el diálogo se veía como elementos sueltos sobre
+//  el fondo desenfocado (QA M-11). `overlay-styles.spec.ts` impide que vuelva
+//  a escribirse así en cualquier componente que pinte en un overlay.
 // =============================================================================
 @use 'assets/styles/design-system' as ds;
 
@@ -12,7 +17,7 @@
   display: none;
 }
 
-:host ::ng-deep .vx-dialog__panel {
+::ng-deep .vx-dialog__panel {
   @include ds.surface-overlay;
 
   display: flex;
@@ -35,7 +40,7 @@
   to   { opacity: 1; transform: none; }
 }
 
-:host ::ng-deep .vx-dialog__header {
+::ng-deep .vx-dialog__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -44,19 +49,19 @@
   padding: var(--space-5) var(--space-5) var(--space-3);
 }
 
-:host ::ng-deep .vx-dialog__title {
+::ng-deep .vx-dialog__title {
   @include ds.heading('lg');
 
   margin: 0;
 }
 
-:host ::ng-deep .vx-dialog__subtitle {
+::ng-deep .vx-dialog__subtitle {
   @include ds.field-hint;
 
   margin: var(--space-1) 0 0;
 }
 
-:host ::ng-deep .vx-dialog__close {
+::ng-deep .vx-dialog__close {
   @include ds.button-icon('sm');
 
   flex: 0 0 auto;
@@ -65,7 +70,7 @@
   &:hover:not(:disabled) { color: var(--content-primary); }
 }
 
-:host ::ng-deep .vx-dialog__body {
+::ng-deep .vx-dialog__body {
   @include ds.scrollbar;
 
   flex: 1 1 auto;
@@ -74,7 +79,7 @@
   padding: 0 var(--space-5) var(--space-5);
 }
 
-:host ::ng-deep .vx-dialog__footer {
+::ng-deep .vx-dialog__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;

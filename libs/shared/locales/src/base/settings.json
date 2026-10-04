@@ -214,10 +214,35 @@
     "en": "Expires {{expMonth}}/{{expYear}}",
     "pt": "Expira em {{expMonth}}/{{expYear}}"
   },
+  "settings.billing.feature_included": {
+    "es": "Incluido",
+    "en": "Included",
+    "pt": "Incluído"
+  },
+  "settings.billing.feature_not_included": {
+    "es": "No incluido",
+    "en": "Not included",
+    "pt": "Não incluído"
+  },
+  "settings.billing.limit_lifetime": {
+    "es": "Hasta {{count}} {{resource}}",
+    "en": "Up to {{count}} {{resource}}",
+    "pt": "Até {{count}} {{resource}}"
+  },
+  "settings.billing.limit_monthly": {
+    "es": "{{count}} {{resource}} al mes",
+    "en": "{{count}} {{resource}} a month",
+    "pt": "{{count}} {{resource}} por mês"
+  },
   "settings.billing.loading_plans": {
     "es": "Cargando planes...",
     "en": "Loading plans...",
     "pt": "Carregando planos..."
+  },
+  "settings.billing.managed_by_platform": {
+    "es": "Suscripción gestionada por la plataforma: no hay un método de pago asociado que cambiar.",
+    "en": "Subscription managed by the platform: there is no payment method attached to change.",
+    "pt": "Assinatura gerenciada pela plataforma: não há método de pagamento associado para alterar."
   },
   "settings.billing.mo": {
     "es": "/mes",
@@ -253,6 +278,16 @@
     "es": "Método de Pago",
     "en": "Payment Method",
     "pt": "Forma de Pagamento"
+  },
+  "settings.billing.period_lifetime": {
+    "es": "en total",
+    "en": "in total",
+    "pt": "no total"
+  },
+  "settings.billing.period_monthly": {
+    "es": "en el período",
+    "en": "this period",
+    "pt": "no período"
   },
   "settings.billing.plans_could_not_loaded_check_your": {
     "es": "No se pudieron cargar los planes. Verifica tu conexión e intenta de nuevo.",
@@ -293,6 +328,16 @@
     "es": "Reintentar",
     "en": "Try again",
     "pt": "Tentar novamente"
+  },
+  "settings.billing.usage_of_limit": {
+    "es": "{{used}} de {{limit}}",
+    "en": "{{used}} of {{limit}}",
+    "pt": "{{used}} de {{limit}}"
+  },
+  "settings.billing.usage_unlimited": {
+    "es": "{{used}} · ilimitado",
+    "en": "{{used}} · unlimited",
+    "pt": "{{used}} · ilimitado"
   },
   "settings.billing.you_do_not_have_plan_yet": {
     "es": "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.",
