@@ -414,6 +414,21 @@
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
   },
+  "page_titles.quote": {
+    "es": "Cotización",
+    "en": "Quote",
+    "pt": "Cotação"
+  },
+  "page_titles.quote_new": {
+    "es": "Nueva cotización",
+    "en": "New quote",
+    "pt": "Nova cotação"
+  },
+  "page_titles.quotes": {
+    "es": "Cotizaciones",
+    "en": "Quotes",
+    "pt": "Cotações"
+  },
   "page_titles.reports_hub": {
     "es": "Reportes",
     "en": "Reports",

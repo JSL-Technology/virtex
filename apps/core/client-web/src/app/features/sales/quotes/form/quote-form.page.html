@@ -1,0 +1,151 @@
+<vx-draft-shell
+  [title]="current() ? current()!.quoteNumber : ('sales.quotes.new' | translate)"
+  [subtitle]="'sales.quotes.title' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (current(); as quote) {
+      <div class="doc-status">
+        <vx-badge [tone]="statusTone()" [struck]="quote.status === 'CANCELLED'">{{ statusKey() | translate }}</vx-badge>
+        @if (quote.expired) {
+          <span class="doc-status__note">{{ 'sales.quotes.expired_note' | translate }}</span>
+        }
+        @if (quote.rejectionReason) {
+          <span class="doc-status__reason">{{ 'sales.quotes.reason' | translate: { reason: quote.rejectionReason } }}</span>
+        }
+        @if (invoiceLink(); as link) {
+          <a class="doc-status__link" [routerLink]="link">{{ 'sales.quotes.view_invoice' | translate }}</a>
+        }
+      </div>
+    }
+
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field" for="customerId">
+          <span>{{ 'sales.quotes.customer' | translate }} *</span>
+          <vx-select inputId="customerId" formControlName="customerId" [search]="searchCustomers" [resolveWith]="resolveCustomer"
+            [displayWith]="customerName" [valueWith]="customerId" [required]="true" />
+        </label>
+        <label class="field" for="currencyCode">
+          <span>{{ 'sales.quotes.currency' | translate }} *</span>
+          <vx-select inputId="currencyCode" formControlName="currencyCode" [options]="currencyOptions()" [displayWith]="identity" />
+        </label>
+        <label class="field" for="issueDate">
+          <span>{{ 'sales.quotes.issue_date' | translate }} *</span>
+          <vx-date-field inputId="issueDate" formControlName="issueDate" />
+        </label>
+        <label class="field" for="expiryDate">
+          <span>{{ 'sales.quotes.expiry_date' | translate }} *</span>
+          <vx-date-field inputId="expiryDate" formControlName="expiryDate" />
+        </label>
+        <label class="field field--wide" for="notes">
+          <span>{{ 'sales.quotes.notes' | translate }}</span>
+          <textarea id="notes" formControlName="notes" rows="2" maxlength="2000"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'sales.quotes.lines' | translate }}</h2>
+      <div class="table-wrapper">
+        <table class="lines-table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>{{ 'sales.quotes.product' | translate }}</th>
+              <th>{{ 'sales.quotes.description' | translate }}</th>
+              <th class="numeric">{{ 'sales.quotes.quantity' | translate }}</th>
+              <th class="numeric">{{ 'sales.quotes.unit_price' | translate }}</th>
+              <th class="numeric">{{ 'sales.quotes.discount' | translate }}</th>
+              <th class="numeric">{{ 'sales.quotes.tax' | translate }}</th>
+              <th class="numeric">{{ 'sales.quotes.line_total' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>
+                  <vx-select formControlName="productId" [search]="searchProducts" [resolveWith]="resolveProduct"
+                    [displayWith]="productName" [valueWith]="productId" [ariaLabel]="'sales.quotes.product' | translate"
+                    placeholderKey="sales.quotes.not_in_catalogue" (optionSelected)="onProductChange(i, $event)" />
+                </td>
+                <td><input type="text" formControlName="description" maxlength="500" [attr.aria-label]="'sales.quotes.description' | translate" /></td>
+                <td class="numeric"><input type="number" step="0.000001" min="0" formControlName="quantity" [attr.aria-label]="'sales.quotes.quantity' | translate" /></td>
+                <td class="numeric"><input type="number" step="0.01" min="0" formControlName="unitPrice" [attr.aria-label]="'sales.quotes.unit_price' | translate" /></td>
+                <td class="numeric"><input type="number" appPercent step="0.01" min="0" max="99.9999" formControlName="discountRate" [attr.aria-label]="'sales.quotes.discount' | translate" /></td>
+                <td class="numeric">
+                  @if (lineTax(i); as tax) { <vx-amount [value]="tax" /> } @else { — }
+                </td>
+                <td class="numeric">
+                  @if (lineSubtotal(i) !== null) { <vx-amount [value]="lineSubtotal(i)!" /> } @else { — }
+                </td>
+                <td>
+                  @if (editable()) {
+                    <button class="icon-button" type="button" (click)="removeLine(i)" [attr.aria-label]="'common.delete' | translate">
+                      <lucide-icon [img]="RemoveIcon" size="14"></lucide-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (editable()) {
+        <button class="secondary-button add-line" type="button" (click)="addLine()">
+          <lucide-icon [img]="AddIcon" size="14"></lucide-icon>
+          <span>{{ 'sales.quotes.add_line' | translate }}</span>
+        </button>
+      }
+
+      <div class="totals" [attr.aria-busy]="totalsPending()">
+        <label class="totals__line" for="documentDiscountRate">
+          <span>{{ 'sales.quotes.document_discount' | translate }}</span>
+          <input id="documentDiscountRate" class="totals__input" type="number" appPercent step="0.01" min="0" max="99.9999" formControlName="documentDiscountRate" />
+        </label>
+        @if (totals(); as t) {
+          <div class="totals__line"><span>{{ 'sales.quotes.subtotal' | translate }}</span><vx-amount class="amount" [value]="t.subtotal" /></div>
+          @if (t.discountTotal) {
+            <div class="totals__line"><span>{{ 'sales.quotes.discount_total' | translate }}</span><vx-amount class="amount" [value]="-t.discountTotal" /></div>
+          }
+          <div class="totals__line"><span>{{ 'sales.quotes.tax' | translate }}</span><vx-amount class="amount" [value]="t.tax" /></div>
+          <div class="totals__line totals__line--grand"><span>{{ 'sales.quotes.total' | translate }}</span><span class="amount">{{ t.total | vxMoney: currencyCode() }}</span></div>
+        } @else {
+          <p class="hint">{{ 'sales.quotes.totals_pending' | translate }}</p>
+        }
+      </div>
+    </section>
+
+    @if (current()) {
+      <section class="form-section doc-actions">
+        @if (canSend()) {
+          <button class="secondary-button" type="button" [disabled]="saving() || form.dirty" (click)="markSent()">{{ 'sales.quotes.mark_sent' | translate }}</button>
+        }
+        @if (canAccept()) {
+          <button class="primary-button" type="button" [disabled]="saving() || form.dirty" (click)="accept()">{{ 'sales.quotes.accept' | translate }}</button>
+        }
+        @if (canConvert()) {
+          <button class="primary-button" type="button" [disabled]="saving()" (click)="convert()">{{ 'sales.quotes.convert' | translate }}</button>
+        }
+        @if (canReject()) {
+          <button class="danger-button" type="button" [disabled]="saving()" (click)="reject()">{{ 'sales.quotes.reject' | translate }}</button>
+        }
+        @if (canCancel()) {
+          <button class="danger-button" type="button" [disabled]="saving()" (click)="cancelQuote()">{{ 'sales.quotes.cancel_quote' | translate }}</button>
+        }
+        @if (canDuplicate()) {
+          <button class="secondary-button" type="button" [disabled]="saving()" (click)="duplicate()">{{ 'sales.quotes.duplicate' | translate }}</button>
+        }
+        @if (form.dirty && editable()) {
+          <p class="hint">{{ 'sales.quotes.save_first' | translate }}</p>
+        }
+      </section>
+    }
+  </div>
+</vx-draft-shell>

@@ -328,6 +328,15 @@
       "JOURNAL_ENTRIES",
       "SUBSIDIARIES"
     ],
+    "sales.quotes.status": [
+      "DRAFT",
+      "SENT",
+      "ACCEPTED",
+      "REJECTED",
+      "INVOICED",
+      "CANCELLED",
+      "EXPIRED"
+    ],
     "settings.fiscal.capability": [
       "accounting",
       "taxDetermination",

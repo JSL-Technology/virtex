@@ -8,6 +8,7 @@ import {
 } from '../journal-entries/entities/journal-entry.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { ResultTransferService } from './result-transfer.service';
+import { ensureFiscalYearWithPeriods } from './provisioning/fiscal-calendar';
 import { YearEndCloseDto } from './dto/year-end-close.dto';
 import {
   AccountingPeriod,
@@ -398,23 +399,13 @@ export class YearEndCloseService {
     const monthSpan = monthsBetween(closedYear.startDate, closedYear.endDate) + 1;
     const nextEnd = previousDay(addMonthsIso(nextStart, monthSpan));
 
-    const existing = await manager.findOneBy(FiscalYear, {
-      organizationId,
-      startDate: nextStart as unknown as Date,
-    });
-    if (existing) {
-      this.logger.log('El siguiente año fiscal ya existe; no se crea de nuevo.');
+    // The next year together with its monthly periods: a fiscal year with no periods accepts no
+    // postings, and the close is what the accountant ran expecting to carry on in January.
+    const { periodsCreated } = await ensureFiscalYearWithPeriods(manager, organizationId, nextStart, monthSpan);
+    if (periodsCreated === 0) {
+      this.logger.log('El siguiente año fiscal ya existía con sus períodos.');
       return;
     }
-
-    await manager.save(
-      manager.create(FiscalYear, {
-        organizationId,
-        startDate: nextStart as unknown as Date,
-        endDate: nextEnd as unknown as Date,
-        status: FiscalYearStatus.OPEN,
-      }),
-    );
     this.logger.log(`Año fiscal siguiente abierto: ${nextStart} – ${nextEnd}.`);
   }
 }

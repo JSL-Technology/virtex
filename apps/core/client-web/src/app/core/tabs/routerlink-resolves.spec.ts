@@ -59,9 +59,6 @@ const KNOWN_INCOMPLETE = new Set([
   '/purchasing/orders/new',
   '/purchasing/orders/1/edit',
   '/purchasing/requisitions/new',
-  // Quotes: the API exists, the screens are being built (QA M-09). Hidden from the home page and
-  // the shortcut until then, because neither offers a route no manifest declares.
-  '/quotes/new',
 ]);
 
 /** `['/a', x.id, 'edit']` → `/a/1/edit`. Devuelve null para enlaces relativos o no-ruta. */

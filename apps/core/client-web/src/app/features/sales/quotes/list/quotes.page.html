@@ -1,0 +1,58 @@
+<vx-list-shell
+  titleKey="sales.quotes.title"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions routerLink="/quotes/new" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'sales.quotes.new' | translate }}</span>
+  </a>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'sales.quotes.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'sales.quotes.empty_help' | translate }}</p>
+  </div>
+
+  <div class="quotes__filters" role="group" [attr.aria-label]="'sales.quotes.filter' | translate">
+    <button type="button" class="chip" [class.chip--active]="filter() === null" (click)="setFilter(null)">
+      {{ 'sales.quotes.all' | translate }}
+    </button>
+    @for (status of statuses; track status) {
+      <button type="button" class="chip" [class.chip--active]="filter() === status" (click)="setFilter(status)">
+        {{ 'sales.quotes.status.' + status.toLowerCase() | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'sales.quotes.number' | translate }}</th>
+          <th>{{ 'sales.quotes.customer' | translate }}</th>
+          <th>{{ 'sales.quotes.issue_date' | translate }}</th>
+          <th>{{ 'sales.quotes.expiry_date' | translate }}</th>
+          <th class="text-right">{{ 'sales.quotes.total' | translate }}</th>
+          <th class="text-center">{{ 'sales.quotes.state' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (quote of rows(); track quote.id) {
+          <tr>
+            <td><a [routerLink]="['/quotes', quote.id, 'edit']" class="table-link">{{ quote.quoteNumber }}</a></td>
+            <td>{{ quote.customer?.companyName ?? quote.customer?.name }}</td>
+            <td>{{ quote.issueDate | vxDate: 'date' : true }}</td>
+            <td>{{ quote.expiryDate | vxDate: 'date' : true }}</td>
+            <td class="text-right">{{ quote.total | vxMoney: quote.currencyCode }}</td>
+            <td class="text-center">
+              <vx-badge [tone]="tone(quote)" [struck]="quote.status === 'CANCELLED'">{{ statusKey(quote) | translate }}</vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

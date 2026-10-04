@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
+import { ensureFiscalYearWithPeriods } from './fiscal-calendar';
 import { AccountingPeriod, PeriodStatus } from '../entities/accounting-period.entity';
 import { Journal, JournalType } from '../../journal-entries/entities/journal.entity';
 import { Ledger } from '../entities/ledger.entity';
@@ -290,34 +291,9 @@ export class TenantBookkeepingProvisioner {
     reference: Date,
     manager: EntityManager,
   ): Promise<number> {
-    const repo = manager.getRepository(AccountingPeriod);
     const year = reference.getUTCFullYear();
-
-    const existing = await repo
-      .createQueryBuilder('p')
-      .where('p.organizationId = :organizationId', { organizationId })
-      .andWhere('EXTRACT(YEAR FROM p.startDate) = :year', { year })
-      .getCount();
-    if (existing > 0) return 0;
-
-    const periods = Array.from({ length: 12 }, (_, index) => {
-      const start = new Date(Date.UTC(year, index, 1));
-      const end = new Date(Date.UTC(year, index + 1, 0));
-      return repo.create({
-        organizationId,
-        name: `${MONTHS_ES[index]} ${year}`,
-        startDate: start,
-        endDate: end,
-        status: PeriodStatus.OPEN,
-        generalLedgerStatus: PeriodStatus.OPEN,
-        accountsPayableStatus: PeriodStatus.OPEN,
-        accountsReceivableStatus: PeriodStatus.OPEN,
-        inventoryStatus: PeriodStatus.OPEN,
-      });
-    });
-
-    await repo.save(periods);
-    return periods.length;
+    const { periodsCreated } = await ensureFiscalYearWithPeriods(manager, organizationId, `${year}-01-01`, 12);
+    return periodsCreated;
   }
 
   /**
@@ -387,18 +363,3 @@ export class TenantBookkeepingProvisioner {
     return gaps;
   }
 }
-
-const MONTHS_ES = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-] as const;

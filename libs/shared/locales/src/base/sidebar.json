@@ -19,6 +19,11 @@
     "en": "Invoices",
     "pt": "Faturas"
   },
+  "sidebar.finance.ar_sub.quotes": {
+    "es": "Cotizaciones",
+    "en": "Quotes",
+    "pt": "Cotações"
+  },
   "sidebar.finance.ar_sub.receipts": {
     "es": "Recibos",
     "en": "Receipts & Collections",

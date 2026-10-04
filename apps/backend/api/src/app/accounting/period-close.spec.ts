@@ -492,6 +492,29 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     expect(after.fiscalYear.closingJournalEntryId).toBeTruthy();
   });
 
+  it('opens the next fiscal year with its periods, so January can be posted', async () => {
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+    await yearEnd.closeFiscalYear({ fiscalYearId }, organizationId, ACTOR);
+
+    // The fixture's year is two months long, so the next one is too: March and April.
+    const next = await dataSource.getRepository(FiscalYear).findOneByOrFail({
+      organizationId,
+      startDate: '2026-03-01' as unknown as Date,
+    });
+    expect(next.status).toBe(FiscalYearStatus.OPEN);
+    const periods = await dataSource.getRepository(AccountingPeriod).find({
+      where: { organizationId },
+      order: { startDate: 'ASC' },
+    });
+    expect(periods.map((p) => [String(p.startDate).slice(0, 10), p.status])).toEqual([
+      ['2026-01-01', PeriodStatus.CLOSED],
+      ['2026-02-01', PeriodStatus.CLOSED],
+      ['2026-03-01', PeriodStatus.OPEN],
+      ['2026-04-01', PeriodStatus.OPEN],
+    ]);
+  });
+
   it('still reports the closed year’s income statement after the annual close', async () => {
     await post('2026-01-10', 'Venta', [
       { accountId: account['cash'], debit: 20_000 },
