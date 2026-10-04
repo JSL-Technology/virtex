@@ -292,6 +292,26 @@ export class OrganizationSettings {
   @Column({ name: 'fiscal_archive_after_years', type: 'int', default: 5 })
   fiscalArchiveAfterYears!: number;
 
+  // ── Outgoing mail identity ────────────────────────────────────────────────
+  //
+  // Documents sent to customers (an invoice and its PDF) left from the platform's address with the
+  // platform's name and no Reply-To, so a customer answering their invoice wrote to the software
+  // vendor instead of the company that billed them. The message still leaves from the platform's
+  // authenticated domain — that is what SPF and DKIM vouch for, and what keeps it out of spam —
+  // but it carries the company's name, and replies go to the company.
+
+  /** The name the recipient sees as sender. Null: the company's commercial or legal name. */
+  @Column({ name: 'mail_sender_name', type: 'varchar', length: 100, nullable: true })
+  mailSenderName: string | null = null;
+
+  /** Where replies go. Null: the company's e-mail on file. */
+  @Column({ name: 'mail_reply_to', type: 'varchar', length: 255, nullable: true })
+  mailReplyTo: string | null = null;
+
+  /** A blind copy of every document sent, for the company's own records. Null: none. */
+  @Column({ name: 'mail_copy_to', type: 'varchar', length: 255, nullable: true })
+  mailCopyTo: string | null = null;
+
   // ── Exchange-rate controls ────────────────────────────────────────────────
   //
   // A posting in foreign currency used to take whatever rate the request carried, checked only for

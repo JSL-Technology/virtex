@@ -234,7 +234,11 @@ export class InvoicesController {
     }
     const pdf = await this.renderer.renderPdf(context);
     const number = invoice.fiscalNumber ?? invoice.invoiceNumber;
+    // The company's name as sender and its address for replies: a customer answering an invoice
+    // writes to whoever billed them, not to the software vendor.
+    const identity = await this.invoicesService.senderIdentity(user.organizationId);
     await this.mail.sendInvoiceEmail({
+      identity: { senderName: identity.senderName, replyTo: identity.replyTo, copyTo: identity.copyTo },
       to,
       language: invoice.customer?.preferredLanguage ?? null,
       invoiceNumber: number,

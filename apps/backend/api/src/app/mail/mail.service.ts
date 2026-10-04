@@ -34,6 +34,13 @@ import { MAIL_JOB_OPTIONS, MAIL_QUEUE, MailJob } from './mail.queue';
  * email — which, for a signup or a password reset, is the language the person was actually
  * reading a moment ago, and is a far better guess than a global default.
  */
+/** How a company appears on the documents it e-mails. */
+export interface MailIdentity {
+  senderName: string;
+  replyTo: string | null;
+  copyTo: string | null;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
@@ -68,6 +75,11 @@ export class MailService {
     return matchLanguage(recipient?.preferredLanguage) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
   }
 
+  /** The address every message leaves from: the platform's authenticated sending domain. */
+  get platformAddress(): string | null {
+    return this.configService.get<string>('MAIL_FROM_ADDRESS') ?? null;
+  }
+
   /** The product name, from configuration, so it is one value rather than a literal per email. */
   private get appName(): string {
     return this.configService.get<string>('APP_NAME', 'Virtex');
@@ -87,6 +99,29 @@ export class MailService {
       appUrl: this.links.home(),
       logoUrl: this.links.brandTile(),
     };
+  }
+
+  /**
+   * A test message, sent to the person configuring the company's outgoing mail, exactly as a
+   * customer would receive a document: same sender name, same Reply-To, same copy.
+   */
+  async sendMailIdentityTest(params: { to: string; name: string; language: string | null | undefined; identity: MailIdentity }): Promise<void> {
+    await this.enqueue({
+      to: params.to,
+      subjectKey: 'mail.mail_test.subject',
+      subjectParams: { company: params.identity.senderName },
+      language: matchLanguage(params.language) ?? currentLanguage() ?? DEFAULT_LANGUAGE,
+      template: 'mail-test',
+      context: {
+        ...this.baseContext(),
+        name: params.name,
+        senderName: params.identity.senderName,
+        replyTo: params.identity.replyTo,
+      },
+      fromName: params.identity.senderName,
+      replyTo: params.identity.replyTo,
+      bcc: params.identity.copyTo,
+    });
   }
 
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
@@ -164,6 +199,8 @@ export class MailService {
     dueDate: string | null;
     message?: string | null;
     pdf: Buffer;
+    /** The company's identity on the message: its name as sender, its address for replies. */
+    identity?: MailIdentity;
   }): Promise<void> {
     const language = matchLanguage(params.language) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
     await this.enqueue({
@@ -181,6 +218,9 @@ export class MailService {
         dueDate: params.dueDate,
         message: params.message ?? null,
       },
+      fromName: params.identity?.senderName ?? null,
+      replyTo: params.identity?.replyTo ?? null,
+      bcc: params.identity?.copyTo ?? null,
       attachments: [
         {
           filename: `${params.invoiceNumber}.pdf`,

@@ -362,6 +362,19 @@
       "GOVERNMENT",
       "FOREIGN"
     ],
+    "settings.security.action": [
+      "CREATE",
+      "UPDATE",
+      "DELETE",
+      "LOGIN",
+      "LOGOUT",
+      "LOGIN_FAILED",
+      "REFRESH",
+      "IMPERSONATE",
+      "READ",
+      "EXPORT"
+    ],
+    "settings.security.entity": [],
     "settings.sequences.type": [
       "CUSTOMER_INVOICE",
       "QUOTE",

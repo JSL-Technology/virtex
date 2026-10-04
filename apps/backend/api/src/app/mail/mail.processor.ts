@@ -1,6 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import { createHash } from 'crypto';
 import { I18nService } from '../i18n/i18n.service';
@@ -20,8 +21,21 @@ export class MailProcessor extends WorkerHost {
   constructor(
     private readonly mailerService: MailerService,
     private readonly i18n: I18nService,
+    private readonly config: ConfigService,
   ) {
     super();
+  }
+
+  /**
+   * The sender for a job that names one: that display name on the platform's address. A quote or
+   * angle bracket in a company name would otherwise end the display name early and let the rest
+   * read as an address.
+   */
+  private fromFor(name: string | null | undefined): string | undefined {
+    const clean = name?.replace(/["<>\\\r\n]/g, '').trim();
+    const address = this.config.get<string>('MAIL_FROM_ADDRESS');
+    if (!clean || !address) return undefined;
+    return `"${clean}" <${address}>`;
   }
 
   private recipientHash(to: string): string {
@@ -29,7 +43,8 @@ export class MailProcessor extends WorkerHost {
   }
 
   async process(job: Job<MailJob>): Promise<void> {
-    const { to, subjectKey, subjectParams, language, template, context, attachments } = job.data;
+    const { to, subjectKey, subjectParams, language, template, context, attachments, fromName, replyTo, bcc } = job.data;
+    const from = this.fromFor(fromName);
 
     // Subject and body are translated from the same `language`, at the same moment, so they
     // cannot disagree. They used to: the subject was a Spanish literal written in `MailService`
@@ -41,6 +56,9 @@ export class MailProcessor extends WorkerHost {
       await this.mailerService.sendMail({
         to,
         subject,
+        ...(from ? { from } : {}),
+        ...(replyTo ? { replyTo } : {}),
+        ...(bcc ? { bcc } : {}),
         template,
         context: { ...context, language },
         ...(attachments?.length

@@ -66,6 +66,7 @@ const CONTEXTS: Record<string, Record<string, unknown>> = {
   },
   'email-changed-notice': { name: 'Ana', newEmail: 'nueva@example.test' },
   'verification-code': { name: 'Ana', code: '482913' },
+  'mail-test': { name: 'Ana', senderName: 'Caribe Logística SRL', replyTo: 'cobros@caribe.test' },
   'user-invitation': {
     name: 'Ana',
     url: 'https://app.example.test/es/auth/set-password?token=abc',

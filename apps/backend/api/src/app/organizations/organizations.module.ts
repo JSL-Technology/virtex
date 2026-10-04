@@ -1,3 +1,5 @@
+import { MailSettingsController } from './mail-settings.controller';
+import { MailModule } from '../mail/mail.module';
 import { OrganizationSettingsController } from './organization-settings.controller';
 import { OrganizationSettingsSectionsService } from './services/organization-settings-sections.service';
 import { Module, forwardRef } from '@nestjs/common';
@@ -39,9 +41,11 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
     UserCacheModule,
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
+    // The company's outgoing-mail identity sends a test message (QA M-09).
+    MailModule,
   ],
   // Settings by section (QA M-09). Declared first: its paths are more specific than `:id`.
-  controllers: [OrganizationSettingsController, OrganizationsController],
+  controllers: [OrganizationSettingsController, MailSettingsController, OrganizationsController],
   providers: [
     OrganizationsService,
     MembershipService,

@@ -882,6 +882,141 @@
     "en": "You have not uploaded a certificate yet.",
     "pt": "Você ainda não enviou um certificado."
   },
+  "settings.integrations.data.action": {
+    "es": "Abrir importaciones",
+    "en": "Open imports",
+    "pt": "Abrir importações"
+  },
+  "settings.integrations.data.active": {
+    "es": "Disponible para tu empresa.",
+    "en": "Available to your company.",
+    "pt": "Disponível para sua empresa."
+  },
+  "settings.integrations.data.description": {
+    "es": "Carga masiva de clientes, proveedores, productos y saldos desde hojas de cálculo, y exportación de tus datos.",
+    "en": "Bulk loading of customers, suppliers, products and balances from spreadsheets, and export of your data.",
+    "pt": "Carga em massa de clientes, fornecedores, produtos e saldos a partir de planilhas, e exportação dos seus dados."
+  },
+  "settings.integrations.data.title": {
+    "es": "Importación y exportación",
+    "en": "Import and export",
+    "pt": "Importação e exportação"
+  },
+  "settings.integrations.einvoicing.action": {
+    "es": "Configuración fiscal",
+    "en": "Tax settings",
+    "pt": "Configuração fiscal"
+  },
+  "settings.integrations.einvoicing.active": {
+    "es": "Régimen configurado para tu país.",
+    "en": "Regime configured for your country.",
+    "pt": "Regime configurado para o seu país."
+  },
+  "settings.integrations.einvoicing.description": {
+    "es": "Envío de comprobantes electrónicos a la autoridad tributaria de tu país, con su certificado y sus rangos autorizados.",
+    "en": "Electronic documents sent to your country's tax authority, with its certificate and authorised ranges.",
+    "pt": "Envio de documentos eletrônicos à autoridade tributária do seu país, com seu certificado e faixas autorizadas."
+  },
+  "settings.integrations.einvoicing.inactive": {
+    "es": "Aún no está configurada para tu país.",
+    "en": "Not yet configured for your country.",
+    "pt": "Ainda não configurado para o seu país."
+  },
+  "settings.integrations.einvoicing.title": {
+    "es": "Facturación electrónica",
+    "en": "Electronic invoicing",
+    "pt": "Faturamento eletrônico"
+  },
+  "settings.integrations.extensions.action": {
+    "es": "Administrar extensiones",
+    "en": "Manage extensions",
+    "pt": "Administrar extensões"
+  },
+  "settings.integrations.extensions.active": {
+    "es": "{{enabled}} habilitada(s) en tu empresa.",
+    "en": "{{enabled}} enabled in your company.",
+    "pt": "{{enabled}} habilitada(s) na sua empresa."
+  },
+  "settings.integrations.extensions.description": {
+    "es": "Extensiones firmadas que amplían el sistema. Cada una recibe solo las capacidades que tu empresa le concede y corre aislada.",
+    "en": "Signed extensions that extend the system. Each receives only the capabilities your company grants it and runs isolated.",
+    "pt": "Extensões assinadas que ampliam o sistema. Cada uma recebe apenas as capacidades que sua empresa concede e roda isolada."
+  },
+  "settings.integrations.extensions.inactive": {
+    "es": "Ninguna extensión habilitada.",
+    "en": "No extension enabled.",
+    "pt": "Nenhuma extensão habilitada."
+  },
+  "settings.integrations.extensions.title": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
+  },
+  "settings.integrations.sso.action": {
+    "es": "Configurar SSO",
+    "en": "Set up SSO",
+    "pt": "Configurar SSO"
+  },
+  "settings.integrations.sso.active": {
+    "es": "{{enabled}} proveedor(es) habilitado(s).",
+    "en": "{{enabled}} provider(s) enabled.",
+    "pt": "{{enabled}} provedor(es) habilitado(s)."
+  },
+  "settings.integrations.sso.description": {
+    "es": "Tus usuarios entran con el proveedor de identidad de la empresa (Microsoft Entra, Google Workspace, Okta…) mediante OIDC.",
+    "en": "Your users sign in with the company's identity provider (Microsoft Entra, Google Workspace, Okta…) through OIDC.",
+    "pt": "Seus usuários entram com o provedor de identidade da empresa (Microsoft Entra, Google Workspace, Okta…) via OIDC."
+  },
+  "settings.integrations.sso.inactive": {
+    "es": "Ningún proveedor de identidad habilitado.",
+    "en": "No identity provider enabled.",
+    "pt": "Nenhum provedor de identidade habilitado."
+  },
+  "settings.integrations.sso.title": {
+    "es": "Inicio de sesión único (SSO)",
+    "en": "Single sign-on (SSO)",
+    "pt": "Login único (SSO)"
+  },
+  "settings.integrations.state.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "settings.integrations.state.inactive": {
+    "es": "Sin configurar",
+    "en": "Not set up",
+    "pt": "Não configurada"
+  },
+  "settings.integrations.state.loading": {
+    "es": "Consultando",
+    "en": "Checking",
+    "pt": "Consultando"
+  },
+  "settings.integrations.state.unknown": {
+    "es": "Sin acceso",
+    "en": "No access",
+    "pt": "Sem acesso"
+  },
+  "settings.integrations.status_loading": {
+    "es": "Consultando el estado…",
+    "en": "Checking the state…",
+    "pt": "Consultando o estado…"
+  },
+  "settings.integrations.status_unknown": {
+    "es": "No tienes permiso para ver el estado de esta integración.",
+    "en": "You are not allowed to see the state of this integration.",
+    "pt": "Você não tem permissão para ver o estado desta integração."
+  },
+  "settings.integrations.subtitle": {
+    "es": "Las conexiones de tu empresa con otros sistemas, su estado y dónde se administran.",
+    "en": "Your company's connections to other systems, their state and where they are managed.",
+    "pt": "As conexões da sua empresa com outros sistemas, seu estado e onde são administradas."
+  },
+  "settings.integrations.title": {
+    "es": "Integraciones",
+    "en": "Integrations",
+    "pt": "Integrações"
+  },
   "settings.language.choose": {
     "es": "Elegir idioma",
     "en": "Choose a language",
@@ -896,6 +1031,116 @@
     "es": "Idioma",
     "en": "Language",
     "pt": "Idioma"
+  },
+  "settings.mail.copy_to": {
+    "es": "Copia oculta a",
+    "en": "Blind copy to",
+    "pt": "Cópia oculta para"
+  },
+  "settings.mail.copy_to_hint": {
+    "es": "Opcional. Recibe una copia de cada documento enviado, para tus registros.",
+    "en": "Optional. Receives a copy of every document sent, for your records.",
+    "pt": "Opcional. Recebe uma cópia de cada documento enviado, para seus registros."
+  },
+  "settings.mail.invalid_address": {
+    "es": "Escribe una dirección de correo válida.",
+    "en": "Enter a valid e-mail address.",
+    "pt": "Informe um endereço de e-mail válido."
+  },
+  "settings.mail.load_failed": {
+    "es": "No se pudo cargar la configuración de correo saliente.",
+    "en": "The outgoing e-mail settings could not be loaded.",
+    "pt": "Não foi possível carregar a configuração de e-mail de saída."
+  },
+  "settings.mail.no_reply_address": {
+    "es": "Ni aquí ni en el perfil de la empresa hay un correo: las respuestas de tus clientes no llegarán a nadie.",
+    "en": "There is no address here or on the company profile: your customers' replies will reach nobody.",
+    "pt": "Não há endereço aqui nem no perfil da empresa: as respostas dos seus clientes não chegarão a ninguém."
+  },
+  "settings.mail.platform_note": {
+    "es": "El mensaje sale del dominio verificado de la plataforma, que es lo que lo mantiene fuera de la carpeta de spam; tu cliente ve el nombre de tu empresa y responde a tu dirección.",
+    "en": "The message leaves from the platform's verified domain, which is what keeps it out of spam; your customer sees your company's name and replies to your address.",
+    "pt": "A mensagem sai do domínio verificado da plataforma, o que a mantém fora do spam; seu cliente vê o nome da sua empresa e responde para o seu endereço."
+  },
+  "settings.mail.preview": {
+    "es": "Así lo verá tu cliente",
+    "en": "This is what your customer sees",
+    "pt": "É assim que seu cliente verá"
+  },
+  "settings.mail.preview_from": {
+    "es": "De",
+    "en": "From",
+    "pt": "De"
+  },
+  "settings.mail.preview_no_reply": {
+    "es": "(ninguna dirección)",
+    "en": "(no address)",
+    "pt": "(nenhum endereço)"
+  },
+  "settings.mail.preview_reply": {
+    "es": "Responder a",
+    "en": "Reply to",
+    "pt": "Responder para"
+  },
+  "settings.mail.reply_to": {
+    "es": "Responder a",
+    "en": "Reply to",
+    "pt": "Responder para"
+  },
+  "settings.mail.reply_to_hint": {
+    "es": "Las respuestas de tus clientes llegan aquí. Vacío: el correo de la empresa en su perfil.",
+    "en": "Your customers' replies arrive here. Empty: the company e-mail on its profile.",
+    "pt": "As respostas dos seus clientes chegam aqui. Vazio: o e-mail da empresa no perfil."
+  },
+  "settings.mail.save_before_test": {
+    "es": "Guarda los cambios para probarlos.",
+    "en": "Save your changes to test them.",
+    "pt": "Salve as alterações para testá-las."
+  },
+  "settings.mail.save_failed": {
+    "es": "No se pudo guardar la configuración de correo saliente.",
+    "en": "The outgoing e-mail settings could not be saved.",
+    "pt": "Não foi possível salvar a configuração de e-mail de saída."
+  },
+  "settings.mail.saved": {
+    "es": "Configuración de correo saliente guardada.",
+    "en": "Outgoing e-mail settings saved.",
+    "pt": "Configuração de e-mail de saída salva."
+  },
+  "settings.mail.send_test": {
+    "es": "Enviarme una prueba",
+    "en": "Send me a test",
+    "pt": "Enviar um teste para mim"
+  },
+  "settings.mail.sender_name": {
+    "es": "Nombre del remitente",
+    "en": "Sender name",
+    "pt": "Nome do remetente"
+  },
+  "settings.mail.sender_name_hint": {
+    "es": "Vacío: el nombre comercial de la empresa, o su razón social.",
+    "en": "Empty: the company's trade name, or its legal name.",
+    "pt": "Vazio: o nome fantasia da empresa, ou sua razão social."
+  },
+  "settings.mail.subtitle": {
+    "es": "Cómo aparece tu empresa en las facturas y documentos que envía por correo a sus clientes.",
+    "en": "How your company appears on the invoices and documents it e-mails to its customers.",
+    "pt": "Como sua empresa aparece nas faturas e documentos que envia por e-mail aos clientes."
+  },
+  "settings.mail.test_failed": {
+    "es": "No se pudo enviar la prueba.",
+    "en": "The test could not be sent.",
+    "pt": "Não foi possível enviar o teste."
+  },
+  "settings.mail.test_sent": {
+    "es": "Prueba enviada a {{to}}.",
+    "en": "Test sent to {{to}}.",
+    "pt": "Teste enviado para {{to}}."
+  },
+  "settings.mail.title": {
+    "es": "Correo saliente",
+    "en": "Outgoing e-mail",
+    "pt": "E-mail de saída"
   },
   "settings.modal.accounting": {
     "es": "Contabilidad",
@@ -963,9 +1208,9 @@
     "pt": "Carregando..."
   },
   "settings.modal.mail_server": {
-    "es": "Servidor de Correo",
-    "en": "Mail Server",
-    "pt": "Servidor de E-mail"
+    "es": "Correo saliente",
+    "en": "Outgoing e-mail",
+    "pt": "E-mail de saída"
   },
   "settings.modal.multi_currency": {
     "es": "Multimoneda",
@@ -1331,56 +1576,6 @@
     "en": "Your regime configuration and the numbering ranges your authority granted you.",
     "pt": "A configuração do seu regime e as faixas de numeração que a autoridade lhe concedeu."
   },
-  "settings.pages.in_development": {
-    "es": "En desarrollo",
-    "en": "In development",
-    "pt": "Em desenvolvimento"
-  },
-  "settings.pages.integrations.empty_description": {
-    "es": "Conecta {{app}} con tus herramientas empresariales, crea claves de API para desarrolladores y configura webhooks para eventos en tiempo real.",
-    "en": "Connect {{app}} to your business tools, create API keys for developers, and configure webhooks for real-time events.",
-    "pt": "Conecte o {{app}} às suas ferramentas empresariais, crie chaves de API para desenvolvedores e configure webhooks para eventos em tempo real."
-  },
-  "settings.pages.integrations.empty_title": {
-    "es": "Centro de integraciones",
-    "en": "Integration centre",
-    "pt": "Central de integrações"
-  },
-  "settings.pages.integrations.features.f1": {
-    "es": "Claves de API con permisos granulares y expiración configurable",
-    "en": "API keys with granular permissions and a configurable expiry",
-    "pt": "Chaves de API com permissões granulares e expiração configurável"
-  },
-  "settings.pages.integrations.features.f2": {
-    "es": "Webhooks para notificaciones de eventos en tiempo real",
-    "en": "Webhooks for real-time event notifications",
-    "pt": "Webhooks para notificações de eventos em tempo real"
-  },
-  "settings.pages.integrations.features.f3": {
-    "es": "Integraciones con ERP, CRM y herramientas de productividad",
-    "en": "Integrations with ERP, CRM and productivity tools",
-    "pt": "Integrações com ERP, CRM e ferramentas de produtividade"
-  },
-  "settings.pages.integrations.features.f4": {
-    "es": "Documentación interactiva de la API REST",
-    "en": "Interactive REST API documentation",
-    "pt": "Documentação interativa da API REST"
-  },
-  "settings.pages.integrations.features.f5": {
-    "es": "Registro de llamadas y monitoreo de salud de las integraciones",
-    "en": "Call logs and integration health monitoring",
-    "pt": "Registro de chamadas e monitoramento da saúde das integrações"
-  },
-  "settings.pages.integrations.manage_api_keys_webhooks_connections_external": {
-    "es": "Gestiona claves de API, webhooks y conexiones con servicios externos.",
-    "en": "Manage API keys, webhooks and connections to external services.",
-    "pt": "Gerencie chaves de API, webhooks e conexões com serviços externos."
-  },
-  "settings.pages.integrations.title": {
-    "es": "Integraciones y API",
-    "en": "Integrations and API",
-    "pt": "Integrações e API"
-  },
   "settings.pages.intercompany.subtitle": {
     "es": "Las cuentas puente que registran lo que se deben las empresas del grupo.",
     "en": "The bridge accounts that record what the group's companies owe each other.",
@@ -1401,46 +1596,6 @@
     "en": "Inventory policies",
     "pt": "Políticas de estoque"
   },
-  "settings.pages.security.empty_description": {
-    "es": "Configura las políticas de seguridad de tu organización, revisa los registros de auditoría y gestiona controles de acceso avanzados.",
-    "en": "Configure your security policies, review the audit logs, and manage advanced access controls.",
-    "pt": "Configure as políticas de segurança da sua organização, revise os registros de auditoria e gerencie controles de acesso avançados."
-  },
-  "settings.pages.security.empty_title": {
-    "es": "Centro de seguridad de la organización",
-    "en": "Organisation security centre",
-    "pt": "Central de segurança da organização"
-  },
-  "settings.pages.security.features.f1": {
-    "es": "Políticas de contraseñas: longitud, complejidad y expiración",
-    "en": "Password policies: length, complexity and expiry",
-    "pt": "Políticas de senha: comprimento, complexidade e expiração"
-  },
-  "settings.pages.security.features.f2": {
-    "es": "Registros de auditoría filtrados por usuario, acción y fecha",
-    "en": "Audit logs filtered by user, action and date",
-    "pt": "Registros de auditoria filtrados por usuário, ação e data"
-  },
-  "settings.pages.security.features.f3": {
-    "es": "Detección y alertas de accesos sospechosos",
-    "en": "Detection of and alerts for suspicious access",
-    "pt": "Detecção e alertas de acessos suspeitos"
-  },
-  "settings.pages.security.features.f4": {
-    "es": "Lista blanca de direcciones IP permitidas",
-    "en": "An allowlist of permitted IP addresses",
-    "pt": "Lista de endereços IP permitidos"
-  },
-  "settings.pages.security.features.f5": {
-    "es": "Notificaciones de seguridad automáticas",
-    "en": "Automatic security notifications",
-    "pt": "Notificações de segurança automáticas"
-  },
-  "settings.pages.security.password_policies_audit_logs_organisation_wide": {
-    "es": "Políticas de contraseñas, registros de auditoría y controles de acceso de la organización.",
-    "en": "Password policies, audit logs and organisation-wide access controls.",
-    "pt": "Políticas de senhas, registros de auditoria e controles de acesso da organização."
-  },
   "settings.pages.security.title": {
     "es": "Seguridad y auditoría",
     "en": "Security and audit",
@@ -1450,51 +1605,6 @@
     "es": "Secuencias fiscales",
     "en": "Fiscal sequences",
     "pt": "Sequências fiscais"
-  },
-  "settings.pages.smtp.configure_outgoing_mail_server_used_system": {
-    "es": "Configura el servidor de correo saliente para las notificaciones y comunicaciones del sistema.",
-    "en": "Configure the outgoing mail server used for system notifications and messages.",
-    "pt": "Configure o servidor de e-mail de saída usado nas notificações e comunicações do sistema."
-  },
-  "settings.pages.smtp.empty_description": {
-    "es": "Define el servidor SMTP de tu organización para que todas las notificaciones del sistema —facturas, alertas, invitaciones— salgan desde tu dominio corporativo.",
-    "en": "Point the system at your own SMTP server, so every notification it sends — invoices, alerts, invitations — leaves from your corporate domain.",
-    "pt": "Defina o servidor SMTP da sua organização para que todas as notificações do sistema — faturas, alertas, convites — saiam do seu domínio corporativo."
-  },
-  "settings.pages.smtp.empty_title": {
-    "es": "Configuración de correo",
-    "en": "Mail configuration",
-    "pt": "Configuração de e-mail"
-  },
-  "settings.pages.smtp.features.f1": {
-    "es": "Configuración SMTP con soporte TLS/SSL",
-    "en": "SMTP configuration with TLS/SSL support",
-    "pt": "Configuração SMTP com suporte a TLS/SSL"
-  },
-  "settings.pages.smtp.features.f2": {
-    "es": "Verificación de la conexión con un envío de prueba",
-    "en": "Connection check with a test message",
-    "pt": "Verificação da conexão com um envio de teste"
-  },
-  "settings.pages.smtp.features.f3": {
-    "es": "Remitente personalizado: nombre y dirección",
-    "en": "Custom sender: name and address",
-    "pt": "Remetente personalizado: nome e endereço"
-  },
-  "settings.pages.smtp.features.f4": {
-    "es": "Plantillas de correo personalizables por evento",
-    "en": "Mail templates you can customise per event",
-    "pt": "Modelos de e-mail personalizáveis por evento"
-  },
-  "settings.pages.smtp.features.f5": {
-    "es": "Historial de envíos y registro de errores",
-    "en": "A history of what was sent, and a log of what failed",
-    "pt": "Histórico de envios e registro de erros"
-  },
-  "settings.pages.smtp.title": {
-    "es": "Servidor de correo (SMTP)",
-    "en": "Mail server (SMTP)",
-    "pt": "Servidor de e-mail (SMTP)"
   },
   "settings.pages.tax_jurisdictions.add": {
     "es": "Agregar jurisdicción",
@@ -2691,6 +2801,61 @@
     "en": "Two-Factor Authentication (2FA)",
     "pt": "Autenticação de dois fatores (2FA)"
   },
+  "settings.security.action.create": {
+    "es": "Creación",
+    "en": "Creation",
+    "pt": "Criação"
+  },
+  "settings.security.action.delete": {
+    "es": "Eliminación",
+    "en": "Deletion",
+    "pt": "Exclusão"
+  },
+  "settings.security.action.export": {
+    "es": "Exportación",
+    "en": "Export",
+    "pt": "Exportação"
+  },
+  "settings.security.action.impersonate": {
+    "es": "Suplantación (soporte)",
+    "en": "Impersonation (support)",
+    "pt": "Personificação (suporte)"
+  },
+  "settings.security.action.login": {
+    "es": "Inicio de sesión",
+    "en": "Sign-in",
+    "pt": "Login"
+  },
+  "settings.security.action.login_failed": {
+    "es": "Inicio de sesión fallido",
+    "en": "Failed sign-in",
+    "pt": "Login com falha"
+  },
+  "settings.security.action.logout": {
+    "es": "Cierre de sesión",
+    "en": "Sign-out",
+    "pt": "Logout"
+  },
+  "settings.security.action.read": {
+    "es": "Consulta",
+    "en": "View",
+    "pt": "Consulta"
+  },
+  "settings.security.action.refresh": {
+    "es": "Renovación de sesión",
+    "en": "Session renewal",
+    "pt": "Renovação de sessão"
+  },
+  "settings.security.action.update": {
+    "es": "Modificación",
+    "en": "Change",
+    "pt": "Alteração"
+  },
+  "settings.security.after": {
+    "es": "Después",
+    "en": "After",
+    "pt": "Depois"
+  },
   "settings.security.backup_codes": {
     "es": "Códigos de Recuperación",
     "en": "Recovery codes",
@@ -2706,6 +2871,11 @@
     "en": "Keep your backup codes safe",
     "pt": "Guarde seus códigos de backup em segurança"
   },
+  "settings.security.before": {
+    "es": "Antes",
+    "en": "Before",
+    "pt": "Antes"
+  },
   "settings.security.can_scan_qr_code": {
     "es": "¿No puedes escanear el código QR?",
     "en": "Can't scan the QR code?",
@@ -2715,6 +2885,11 @@
     "es": "Revisa tu correo",
     "en": "Check your inbox",
     "pt": "Verifique seu e-mail"
+  },
+  "settings.security.clear_filters": {
+    "es": "Quitar filtros",
+    "en": "Clear filters",
+    "pt": "Limpar filtros"
   },
   "settings.security.confirm_backup_codes": {
     "es": "Por favor confirma que has guardado los códigos.",
@@ -2776,6 +2951,211 @@
     "en": "Get verification code",
     "pt": "Obter código de verificação"
   },
+  "settings.security.entity.accounting_periods": {
+    "es": "Período contable",
+    "en": "Accounting period",
+    "pt": "Período contábil"
+  },
+  "settings.security.entity.approval_requests": {
+    "es": "Solicitud de aprobación",
+    "en": "Approval request",
+    "pt": "Solicitação de aprovação"
+  },
+  "settings.security.entity.balance_sheet": {
+    "es": "Balance general",
+    "en": "Balance sheet",
+    "pt": "Balanço patrimonial"
+  },
+  "settings.security.entity.bank_accounts": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "settings.security.entity.bank_statements": {
+    "es": "Extracto bancario",
+    "en": "Bank statement",
+    "pt": "Extrato bancário"
+  },
+  "settings.security.entity.bank_transactions": {
+    "es": "Movimiento bancario",
+    "en": "Bank transaction",
+    "pt": "Movimento bancário"
+  },
+  "settings.security.entity.bank_transfers": {
+    "es": "Transferencia bancaria",
+    "en": "Bank transfer",
+    "pt": "Transferência bancária"
+  },
+  "settings.security.entity.budget_lines": {
+    "es": "Línea de presupuesto",
+    "en": "Budget line",
+    "pt": "Linha de orçamento"
+  },
+  "settings.security.entity.budgets": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
+  },
+  "settings.security.entity.cash_flow_statement": {
+    "es": "Flujo de efectivo",
+    "en": "Cash flow statement",
+    "pt": "Fluxo de caixa"
+  },
+  "settings.security.entity.customer_payments": {
+    "es": "Cobro",
+    "en": "Customer receipt",
+    "pt": "Recebimento"
+  },
+  "settings.security.entity.customers": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "settings.security.entity.dgii_report": {
+    "es": "Reporte DGII",
+    "en": "DGII report",
+    "pt": "Relatório DGII"
+  },
+  "settings.security.entity.document_sequences": {
+    "es": "Secuencia de documentos",
+    "en": "Document sequence",
+    "pt": "Sequência de documentos"
+  },
+  "settings.security.entity.employee_compensation": {
+    "es": "Compensación de empleado",
+    "en": "Employee compensation",
+    "pt": "Remuneração de funcionário"
+  },
+  "settings.security.entity.employee_pii": {
+    "es": "Datos personales de empleado",
+    "en": "Employee personal data",
+    "pt": "Dados pessoais de funcionário"
+  },
+  "settings.security.entity.fiscal_years": {
+    "es": "Ejercicio fiscal",
+    "en": "Fiscal year",
+    "pt": "Exercício fiscal"
+  },
+  "settings.security.entity.fixed_asset": {
+    "es": "Activo fijo",
+    "en": "Fixed asset",
+    "pt": "Ativo imobilizado"
+  },
+  "settings.security.entity.general_ledger": {
+    "es": "Libro mayor",
+    "en": "General ledger",
+    "pt": "Razão geral"
+  },
+  "settings.security.entity.income_statement": {
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração de resultados"
+  },
+  "settings.security.entity.invoices": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "settings.security.entity.journal_entries": {
+    "es": "Asiento contable",
+    "en": "Journal entry",
+    "pt": "Lançamento contábil"
+  },
+  "settings.security.entity.ledgers": {
+    "es": "Libro contable",
+    "en": "Ledger",
+    "pt": "Livro contábil"
+  },
+  "settings.security.entity.mx_electronic_accounting": {
+    "es": "Contabilidad electrónica (México)",
+    "en": "Electronic accounting (Mexico)",
+    "pt": "Contabilidade eletrônica (México)"
+  },
+  "settings.security.entity.organization_settings": {
+    "es": "Configuración de la empresa",
+    "en": "Company settings",
+    "pt": "Configuração da empresa"
+  },
+  "settings.security.entity.organizations": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "settings.security.entity.payment_batches": {
+    "es": "Lote de pagos",
+    "en": "Payment batch",
+    "pt": "Lote de pagamentos"
+  },
+  "settings.security.entity.payroll": {
+    "es": "Nómina",
+    "en": "Payroll",
+    "pt": "Folha de pagamento"
+  },
+  "settings.security.entity.payroll_severance": {
+    "es": "Prestaciones laborales",
+    "en": "Severance",
+    "pt": "Rescisão trabalhista"
+  },
+  "settings.security.entity.products": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "settings.security.entity.quotes": {
+    "es": "Cotización",
+    "en": "Quote",
+    "pt": "Orçamento de venda"
+  },
+  "settings.security.entity.reconciliation_rules": {
+    "es": "Regla de conciliación",
+    "en": "Reconciliation rule",
+    "pt": "Regra de conciliação"
+  },
+  "settings.security.entity.suppliers": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "settings.security.entity.trial_balance": {
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete"
+  },
+  "settings.security.entity.tss_autodeterminacion": {
+    "es": "TSS: autodeterminación",
+    "en": "TSS: self-assessment",
+    "pt": "TSS: autodeterminação"
+  },
+  "settings.security.entity.tss_novedades": {
+    "es": "TSS: novedades",
+    "en": "TSS: changes",
+    "pt": "TSS: novidades"
+  },
+  "settings.security.entity.tss_suir": {
+    "es": "TSS: archivo SUIR",
+    "en": "TSS: SUIR file",
+    "pt": "TSS: arquivo SUIR"
+  },
+  "settings.security.entity.user": {
+    "es": "Usuario",
+    "en": "User",
+    "pt": "Usuário"
+  },
+  "settings.security.entity.vendor_bills": {
+    "es": "Factura de proveedor",
+    "en": "Vendor bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "settings.security.entity.vendor_debit_note": {
+    "es": "Nota de débito de proveedor",
+    "en": "Vendor debit note",
+    "pt": "Nota de débito de fornecedor"
+  },
+  "settings.security.entity.vendor_payment": {
+    "es": "Pago a proveedor",
+    "en": "Vendor payment",
+    "pt": "Pagamento a fornecedor"
+  },
   "settings.security.errors.invalid_code": {
     "es": "Código incorrecto.",
     "en": "That code isn't right.",
@@ -2801,6 +3181,41 @@
     "en": "Two-step verification could not be turned off.",
     "pt": "Não foi possível desativar a verificação em duas etapas."
   },
+  "settings.security.field": {
+    "es": "Campo",
+    "en": "Field",
+    "pt": "Campo"
+  },
+  "settings.security.filter_action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "settings.security.filter_entity": {
+    "es": "Tipo de registro",
+    "en": "Record type",
+    "pt": "Tipo de registro"
+  },
+  "settings.security.filter_from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "settings.security.filter_to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "settings.security.filter_user": {
+    "es": "Usuario",
+    "en": "User",
+    "pt": "Usuário"
+  },
+  "settings.security.hide_detail": {
+    "es": "Ocultar cambios",
+    "en": "Hide changes",
+    "pt": "Ocultar alterações"
+  },
   "settings.security.i_have_saved_codes": {
     "es": "He guardado mis códigos de respaldo",
     "en": "I've saved my backup codes",
@@ -2810,6 +3225,111 @@
     "es": "Verificación de identidad",
     "en": "Identity verification",
     "pt": "Verificação de identidade"
+  },
+  "settings.security.ip": {
+    "es": "Dirección IP",
+    "en": "IP address",
+    "pt": "Endereço IP"
+  },
+  "settings.security.mfa_description": {
+    "es": "Exige a cada miembro un segundo factor (aplicación de autenticación) para entrar. Los miembros que aún no lo tienen lo configuran en su próximo inicio de sesión.",
+    "en": "Requires every member to use a second factor (authenticator app) to sign in. Anyone who does not have one yet will set it up at their next sign-in.",
+    "pt": "Exige de cada membro um segundo fator (aplicativo autenticador) para entrar. Quem ainda não o tiver deverá configurá-lo no próximo login."
+  },
+  "settings.security.mfa_disabled": {
+    "es": "Segundo factor obligatorio desactivado.",
+    "en": "Mandatory second factor turned off.",
+    "pt": "Segundo fator obrigatório desativado."
+  },
+  "settings.security.mfa_enable_confirm": {
+    "es": "Activar",
+    "en": "Turn on",
+    "pt": "Ativar"
+  },
+  "settings.security.mfa_enable_message": {
+    "es": "Los miembros sin segundo factor tienen que configurarlo en su próximo inicio de sesión antes de seguir trabajando. ¿Activarlo?",
+    "en": "Every member without a second factor will have to set one up before continuing, at their next sign-in. Turn it on?",
+    "pt": "Cada membro sem segundo fator terá de configurá-lo antes de continuar, no próximo login. Ativar?"
+  },
+  "settings.security.mfa_enable_title": {
+    "es": "Exigir segundo factor",
+    "en": "Require a second factor",
+    "pt": "Exigir segundo fator"
+  },
+  "settings.security.mfa_enabled": {
+    "es": "Segundo factor obligatorio activado.",
+    "en": "Mandatory second factor turned on.",
+    "pt": "Segundo fator obrigatório ativado."
+  },
+  "settings.security.mfa_load_failed": {
+    "es": "No se pudo leer el ajuste de segundo factor.",
+    "en": "The second-factor setting could not be read.",
+    "pt": "Não foi possível ler a configuração de segundo fator."
+  },
+  "settings.security.mfa_owner_only": {
+    "es": "Solo el propietario de la organización puede cambiar este ajuste.",
+    "en": "Only the organization's owner can change this setting.",
+    "pt": "Somente o proprietário da organização pode alterar esta configuração."
+  },
+  "settings.security.mfa_require": {
+    "es": "Exigir segundo factor a todos los miembros",
+    "en": "Require a second factor from every member",
+    "pt": "Exigir segundo fator de todos os membros"
+  },
+  "settings.security.mfa_save_failed": {
+    "es": "No se pudo cambiar el ajuste de segundo factor.",
+    "en": "The second-factor setting could not be changed.",
+    "pt": "Não foi possível alterar a configuração de segundo fator."
+  },
+  "settings.security.mfa_title": {
+    "es": "Segundo factor obligatorio",
+    "en": "Mandatory second factor",
+    "pt": "Segundo fator obrigatório"
+  },
+  "settings.security.own_second_factor": {
+    "es": "Configurar mi segundo factor",
+    "en": "Set up my second factor",
+    "pt": "Configurar meu segundo fator"
+  },
+  "settings.security.page_of": {
+    "es": "Página {{page}} · {{total}} registros",
+    "en": "Page {{page}} · {{total}} records",
+    "pt": "Página {{page}} · {{total}} registros"
+  },
+  "settings.security.password_description": {
+    "es": "Toda contraseña, al registrarse, restablecerla o cambiarla, debe cumplir estas reglas.",
+    "en": "Every password, when signing up, resetting or changing it, must meet these rules.",
+    "pt": "Toda senha, ao cadastrar, redefinir ou alterar, deve cumprir estas regras."
+  },
+  "settings.security.password_length": {
+    "es": "Entre {{min}} y {{max}} caracteres.",
+    "en": "Between {{min}} and {{max}} characters.",
+    "pt": "Entre {{min}} e {{max}} caracteres."
+  },
+  "settings.security.password_lockout": {
+    "es": "La cuenta se bloquea temporalmente tras varios intentos fallidos seguidos.",
+    "en": "The account is locked temporarily after several failed attempts in a row.",
+    "pt": "A conta é bloqueada temporariamente após várias tentativas falhas seguidas."
+  },
+  "settings.security.password_mix": {
+    "es": "Al menos una mayúscula, una minúscula y un número o símbolo.",
+    "en": "At least one uppercase letter, one lowercase letter and a number or symbol.",
+    "pt": "Pelo menos uma letra maiúscula, uma minúscula e um número ou símbolo."
+  },
+  "settings.security.password_title": {
+    "es": "Política de contraseñas",
+    "en": "Password policy",
+    "pt": "Política de senhas"
+  },
+  "settings.security.range_invalid": {
+    "es": "La fecha inicial es posterior a la final.",
+    "en": "The start date is after the end date.",
+    "pt": "A data inicial é posterior à final."
+  },
+  "settings.security.record": {
+    "es": "Registro",
+    "en": "Record",
+    "pt": "Registro"
   },
   "settings.security.save_backup_codes": {
     "es": "Guarda estos códigos de recuperación en un lugar seguro. Cada uno sirve una sola vez y son la única forma de entrar si pierdes tu dispositivo.",
@@ -2851,6 +3371,46 @@
     "en": "Set up authenticator app",
     "pt": "Configurar aplicativo autenticador"
   },
+  "settings.security.show_detail": {
+    "es": "Ver cambios",
+    "en": "Show changes",
+    "pt": "Ver alterações"
+  },
+  "settings.security.single_sign_on": {
+    "es": "Inicio de sesión único (SSO)",
+    "en": "Single sign-on (SSO)",
+    "pt": "Login único (SSO)"
+  },
+  "settings.security.subtitle": {
+    "es": "Segundo factor de la organización, política de contraseñas y la pista de auditoría: quién hizo qué y cuándo.",
+    "en": "The organization's second factor, the password policy and the audit trail: who did what, and when.",
+    "pt": "Segundo fator da organização, política de senhas e a trilha de auditoria: quem fez o quê e quando."
+  },
+  "settings.security.system_actor": {
+    "es": "Sistema",
+    "en": "System",
+    "pt": "Sistema"
+  },
+  "settings.security.trail_description": {
+    "es": "Cada cambio a documentos financieros, cada inicio de sesión y cada exportación queda registrado y no se puede modificar.",
+    "en": "Every change to financial documents, every sign-in and every export is recorded and cannot be altered.",
+    "pt": "Cada alteração em documentos financeiros, cada login e cada exportação fica registrado e não pode ser modificado."
+  },
+  "settings.security.trail_empty": {
+    "es": "No hay registros con estos filtros.",
+    "en": "No records match these filters.",
+    "pt": "Nenhum registro com estes filtros."
+  },
+  "settings.security.trail_load_failed": {
+    "es": "No se pudo cargar la pista de auditoría.",
+    "en": "The audit trail could not be loaded.",
+    "pt": "Não foi possível carregar a trilha de auditoria."
+  },
+  "settings.security.trail_title": {
+    "es": "Pista de auditoría",
+    "en": "Audit trail",
+    "pt": "Trilha de auditoria"
+  },
   "settings.security.turn_off": {
     "es": "Desactivar",
     "en": "Turn off",
@@ -2870,6 +3430,21 @@
     "es": "Úsalos si pierdes acceso a tu dispositivo.",
     "en": "Use these if you lose access to your device.",
     "pt": "Use-os se perder o acesso ao seu dispositivo."
+  },
+  "settings.security.what": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "settings.security.when": {
+    "es": "Fecha y hora",
+    "en": "Date and time",
+    "pt": "Data e hora"
+  },
+  "settings.security.who": {
+    "es": "Quién",
+    "en": "Who",
+    "pt": "Quem"
   },
   "settings.security.your_account_will_less_secure_you": {
     "es": "Tu cuenta será menos segura. ¿Estás seguro?",

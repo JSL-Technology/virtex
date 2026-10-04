@@ -1350,6 +1350,11 @@ export class InvoicesService {
    * Everything the printed representation needs: the document, the issuer, and the e-CF submission
    * that carries the security code and QR the norm requires on the page.
    */
+  /** How the company appears on the invoices it e-mails: sender name, reply address, copy. */
+  async senderIdentity(organizationId: string) {
+    return this.orgSettings.mailIdentity(organizationId);
+  }
+
   async renderContext(
     invoiceId: string,
     organizationId: string,

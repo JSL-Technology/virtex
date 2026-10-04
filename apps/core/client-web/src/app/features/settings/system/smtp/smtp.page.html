@@ -1,0 +1,73 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'settings.mail.title' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'settings.mail.subtitle' | translate }}</p>
+  </div>
+
+  @if (loadError(); as message) {
+    <div class="mail__error" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </div>
+  } @else if (settings(); as s) {
+    <form class="mail__form" (ngSubmit)="save()">
+      <label class="mail__field" for="mail-sender">
+        <span>{{ 'settings.mail.sender_name' | translate }}</span>
+        <input id="mail-sender" name="senderName" class="mail__input" type="text" maxlength="100"
+          [placeholder]="s.defaults.senderName"
+          [ngModel]="draft().senderName" (ngModelChange)="patch({ senderName: $event })" />
+        <small>{{ 'settings.mail.sender_name_hint' | translate }}</small>
+      </label>
+
+      <label class="mail__field" for="mail-reply">
+        <span>{{ 'settings.mail.reply_to' | translate }}</span>
+        <input id="mail-reply" name="replyTo" class="mail__input" type="email" maxlength="255" autocomplete="email"
+          [placeholder]="s.defaults.replyTo ?? ''"
+          [attr.aria-invalid]="invalid().replyTo"
+          [ngModel]="draft().replyTo" (ngModelChange)="patch({ replyTo: $event })" />
+        @if (invalid().replyTo) {
+          <small class="mail__invalid" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
+        } @else if (!replyPreview()) {
+          <small class="mail__warn">{{ 'settings.mail.no_reply_address' | translate }}</small>
+        } @else {
+          <small>{{ 'settings.mail.reply_to_hint' | translate }}</small>
+        }
+      </label>
+
+      <label class="mail__field" for="mail-copy">
+        <span>{{ 'settings.mail.copy_to' | translate }}</span>
+        <input id="mail-copy" name="copyTo" class="mail__input" type="email" maxlength="255"
+          [attr.aria-invalid]="invalid().copyTo"
+          [ngModel]="draft().copyTo" (ngModelChange)="patch({ copyTo: $event })" />
+        @if (invalid().copyTo) {
+          <small class="mail__invalid" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
+        } @else {
+          <small>{{ 'settings.mail.copy_to_hint' | translate }}</small>
+        }
+      </label>
+
+      <div class="mail__preview" aria-live="polite">
+        <h2 class="mail__preview-title">{{ 'settings.mail.preview' | translate }}</h2>
+        <dl>
+          <dt>{{ 'settings.mail.preview_from' | translate }}</dt>
+          <dd>{{ preview() }}</dd>
+          <dt>{{ 'settings.mail.preview_reply' | translate }}</dt>
+          <dd>{{ replyPreview() ?? ('settings.mail.preview_no_reply' | translate) }}</dd>
+        </dl>
+        <p class="mail__hint">{{ 'settings.mail.platform_note' | translate }}</p>
+      </div>
+
+      <div class="mail__actions">
+        <button type="button" class="secondary-button" [disabled]="testing() || dirty()" (click)="sendTest()">
+          {{ 'settings.mail.send_test' | translate }}
+        </button>
+        <button type="submit" class="primary-button" [disabled]="saving() || !dirty()">{{ 'common.save' | translate }}</button>
+      </div>
+      @if (dirty()) {
+        <p class="mail__hint">{{ 'settings.mail.save_before_test' | translate }}</p>
+      }
+    </form>
+  } @else {
+    <p class="mail__hint" role="status">{{ 'settings.sections.loading' | translate }}</p>
+  }
+</div>

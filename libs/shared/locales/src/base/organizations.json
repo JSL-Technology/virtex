@@ -24,6 +24,11 @@
     "en": "The {{label}} is required for {{name}}.",
     "pt": "O {{label}} é obrigatório para {{name}}."
   },
+  "organizations.mail_settings.no_email": {
+    "es": "Tu usuario no tiene correo electrónico al que enviar la prueba.",
+    "en": "Your user has no e-mail address to send the test to.",
+    "pt": "Seu usuário não tem e-mail para enviar o teste."
+  },
   "organizations.organization_already_registered_with_label": {
     "es": "Ya existe una organización registrada con ese {{label}}.",
     "en": "An organization is already registered with that {{label}}.",
