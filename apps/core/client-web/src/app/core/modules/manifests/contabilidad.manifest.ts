@@ -159,15 +159,27 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: (p) => `contabilidad:gl:${p['accountId']}`,
       load: () => import('../../../features/accounting/general-ledger/general-ledger.page').then((m) => m.GeneralLedgerPage),
     },
+    // The partner ledger (audit H-17): a customer's or supplier's documents with running balance.
+    // It replaces «Libros auxiliares», which had no endpoint and rendered an empty state.
+    {
+      path: 'partner-ledger',
+      kind: WindowKind.LIST,
+      permission: 'accounting:view',
+      titleKey: 'page_titles.partner_ledger',
+      icon: 'Layers',
+      entityKeyFn: () => 'contabilidad:partner-ledger',
+      menu: { group: 'analysis', labelKey: 'page_titles.partner_ledger' },
+      load: () => import('../../../features/accounting/partner-ledger/partner-ledger.page').then((m) => m.PartnerLedgerPage),
+    },
+    // The old address, kept so a saved tab or a bookmark still opens the page that replaced it.
     {
       path: 'subsidiary-ledgers',
       kind: WindowKind.LIST,
       permission: 'accounting:view',
-      titleKey: 'page_titles.subsidiary_ledgers',
+      titleKey: 'page_titles.partner_ledger',
       icon: 'Layers',
-      entityKeyFn: () => 'contabilidad:subsidiary-ledgers',
-      menu: { group: 'analysis', labelKey: 'sidebar.finance.gl_sub.book_subledgers' },
-      load: () => import('../../../features/accounting/subsidiary-ledgers/subsidiary-ledgers.page').then((m) => m.SubsidiaryLedgersPage),
+      entityKeyFn: () => 'contabilidad:partner-ledger',
+      load: () => import('../../../features/accounting/partner-ledger/partner-ledger.page').then((m) => m.PartnerLedgerPage),
     },
     {
       path: 'ledgers',

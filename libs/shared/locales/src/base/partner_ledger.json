@@ -1,0 +1,192 @@
+{
+  "partner_ledger.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "partner_ledger.charges": {
+    "es": "Cargos",
+    "en": "Charges",
+    "pt": "Débitos"
+  },
+  "partner_ledger.choose_customer": {
+    "es": "Elige un cliente",
+    "en": "Choose a customer",
+    "pt": "Escolha um cliente"
+  },
+  "partner_ledger.choose_hint": {
+    "es": "Elige un cliente o un proveedor para ver su estado de cuenta.",
+    "en": "Choose a customer or a supplier to see their statement.",
+    "pt": "Escolha um cliente ou fornecedor para ver o extrato."
+  },
+  "partner_ledger.choose_supplier": {
+    "es": "Elige un proveedor",
+    "en": "Choose a supplier",
+    "pt": "Escolha um fornecedor"
+  },
+  "partner_ledger.closing": {
+    "es": "Totales y saldo final",
+    "en": "Totals and closing balance",
+    "pt": "Totais e saldo final"
+  },
+  "partner_ledger.credits": {
+    "es": "Abonos",
+    "en": "Credits",
+    "pt": "Créditos"
+  },
+  "partner_ledger.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "partner_ledger.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "partner_ledger.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "partner_ledger.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "partner_ledger.document": {
+    "es": "Documento",
+    "en": "Document",
+    "pt": "Documento"
+  },
+  "partner_ledger.empty_help": {
+    "es": "El saldo inicial y final se muestran igual; amplía las fechas para ver documentos.",
+    "en": "The opening and closing balances still apply; widen the dates to see documents.",
+    "pt": "Os saldos inicial e final continuam válidos; amplie as datas para ver documentos."
+  },
+  "partner_ledger.empty_title": {
+    "es": "Sin movimientos en el período",
+    "en": "No movements in the period",
+    "pt": "Sem movimentos no período"
+  },
+  "partner_ledger.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "partner_ledger.kind": {
+    "es": "Tipo de tercero",
+    "en": "Partner type",
+    "pt": "Tipo de terceiro"
+  },
+  "partner_ledger.kinds.bill": {
+    "es": "Factura de proveedor",
+    "en": "Supplier bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "partner_ledger.kinds.bill_void": {
+    "es": "Factura anulada",
+    "en": "Bill voided",
+    "pt": "Fatura anulada"
+  },
+  "partner_ledger.kinds.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "partner_ledger.kinds.debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "partner_ledger.kinds.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "partner_ledger.kinds.payment": {
+    "es": "Pago",
+    "en": "Payment",
+    "pt": "Pagamento"
+  },
+  "partner_ledger.kinds.payment_void": {
+    "es": "Pago anulado",
+    "en": "Payment voided",
+    "pt": "Pagamento anulado"
+  },
+  "partner_ledger.kinds.receipt": {
+    "es": "Cobro",
+    "en": "Receipt",
+    "pt": "Recebimento"
+  },
+  "partner_ledger.kinds.receipt_void": {
+    "es": "Cobro anulado",
+    "en": "Receipt voided",
+    "pt": "Recebimento anulado"
+  },
+  "partner_ledger.kinds.vendor_debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "partner_ledger.kinds.vendor_debit_note_void": {
+    "es": "Nota de débito anulada",
+    "en": "Debit note voided",
+    "pt": "Nota de débito anulada"
+  },
+  "partner_ledger.load_failed": {
+    "es": "No se pudo cargar el estado de cuenta.",
+    "en": "Could not load the statement.",
+    "pt": "Não foi possível carregar o extrato."
+  },
+  "partner_ledger.open_statement": {
+    "es": "Estado de cuenta",
+    "en": "Statement of account",
+    "pt": "Extrato"
+  },
+  "partner_ledger.opening": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
+  "partner_ledger.owed_less": {
+    "es": "Se le debe menos",
+    "en": "Owed less",
+    "pt": "Deve-se menos"
+  },
+  "partner_ledger.owed_more": {
+    "es": "Se le debe más",
+    "en": "Owed more",
+    "pt": "Deve-se mais"
+  },
+  "partner_ledger.reference": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "partner_ledger.subtitle": {
+    "es": "El estado de cuenta de un cliente o proveedor: cada documento y el saldo después de él.",
+    "en": "A customer’s or supplier’s statement of account: every document and the balance after it.",
+    "pt": "O extrato de um cliente ou fornecedor: cada documento e o saldo depois dele."
+  },
+  "partner_ledger.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "partner_ledger.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "partner_ledger.title": {
+    "es": "Mayor de terceros",
+    "en": "Partner ledger",
+    "pt": "Razão de terceiros"
+  },
+  "partner_ledger.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  }
+}

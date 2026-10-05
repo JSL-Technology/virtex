@@ -3,6 +3,8 @@ import { VendorBillsDataTransferProvider } from './vendor-bills-data-transfer.pr
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { VendorPaymentsController } from './vendor-payments.controller';
+import { SupplierStatementsController } from './supplier-statement.controller';
+import { SupplierStatementService } from './supplier-statement.service';
 import { VendorPaymentsService } from './vendor-payments.service';
 import { AccountsPayableService } from './accounts-payable.service';
 import { AccountsPayableController } from './accounts-payable.controller';
@@ -55,13 +57,14 @@ import { AuthModule } from '../auth/auth.module';
     AccountingModule,
     AuthModule,
   ],
-  controllers: [AccountsPayableController, VendorDebitNotesController, VendorPaymentsController],
+  controllers: [AccountsPayableController, VendorDebitNotesController, VendorPaymentsController, SupplierStatementsController],
   providers: [
     PayablesInboxProvider,
     VendorBillsDataTransferProvider,
     AccountsPayableService,
     VendorDebitNotesService,
     VendorPaymentsService,
+    SupplierStatementService,
     // Posts the bill when its approval is granted, inside the approving transaction.
     VendorBillApprovalHandler,
     // Responde al checklist de cierre de Contabilidad sin que Contabilidad conozca esta tabla.

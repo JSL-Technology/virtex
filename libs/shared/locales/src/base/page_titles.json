@@ -314,6 +314,11 @@
     "en": "Notifications",
     "pt": "Notificações"
   },
+  "page_titles.partner_ledger": {
+    "es": "Mayor de terceros",
+    "en": "Partner ledger",
+    "pt": "Razão de terceiros"
+  },
   "page_titles.payment_methods": {
     "es": "Métodos de pago",
     "en": "Payment methods",
@@ -483,11 +488,6 @@
     "es": "Transferencias",
     "en": "Stock transfers",
     "pt": "Transferências"
-  },
-  "page_titles.subsidiary_ledgers": {
-    "es": "Libros auxiliares",
-    "en": "Subsidiary ledgers",
-    "pt": "Livros auxiliares"
   },
   "page_titles.supplier_edit": {
     "es": "Editar proveedor",

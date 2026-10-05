@@ -43,6 +43,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { VendorDebitNote, VendorDebitNoteStatus } from './entities/vendor-debit-note.entity';
 import { VendorPaymentsService } from './vendor-payments.service';
+import { SupplierStatementService } from './supplier-statement.service';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
 
 /**
@@ -1171,6 +1172,57 @@ describeWithDb('accounts payable', () => {
           ACTOR,
         ),
       ).rejects.toMatchObject({ messageKey: 'accounts_payable.account_not_postable' });
+    });
+  });
+
+  /**
+   * The supplier's statement of account (audit H-17): bills, payments and notes, each undoing on
+   * the day its reversal was booked, with what is owed after every line.
+   */
+  describe('statement of account', () => {
+    it('reads what was owed on any day, voids included on the day they were booked', async () => {
+      const statements = new SupplierStatementService(dataSource);
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [{ product: 'Alquiler', quantity: 1, unitPrice: 20_000, expenseAccountId: account['expense'] }],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      await payables.submitForApproval(bill.id, organizationId, ACTOR);
+      const batch = await payables.payBills(
+        { paymentDate: '2026-03-20', bankAccountId, lines: [{ vendorBillId: bill.id, amount: 8_000 }] },
+        organizationId,
+        ACTOR,
+      );
+      await debitNotes.create(
+        { vendorBillId: bill.id, reason: 'Ajuste', amount: 1_000, expenseAccountId: account['expense'], date: '2026-04-02' },
+        organizationId,
+        ACTOR,
+      );
+      await vendorPayments.voidPayment(batch.id, { reason: 'Cheque devuelto', reversalDate: '2026-04-15' }, organizationId, ACTOR);
+
+      const march = await statements.statement(organizationId, vendorId, { from: '2026-03-01', to: '2026-03-31' }, ACTOR);
+      expect(march.currencyCode).toBe('DOP');
+      expect(march.openingBalance).toBe(0);
+      expect(march.movements.map((m) => [m.kind, m.amount, m.balance])).toEqual([
+        ['bill', 20_000, 20_000],
+        ['payment', -8_000, 12_000],
+      ]);
+      expect(march.closingBalance).toBe(12_000);
+
+      const april = await statements.statement(organizationId, vendorId, { from: '2026-04-01', to: '2026-04-30' }, ACTOR);
+      expect(april.openingBalance).toBe(12_000);
+      expect(april.movements.map((m) => [m.date, m.kind, m.amount])).toEqual([
+        ['2026-04-02', 'vendor_debit_note', -1_000],
+        ['2026-04-15', 'payment_void', 8_000],
+      ]);
+      expect(april.totals).toEqual({ increases: 8_000, decreases: 1_000 });
+      expect(april.closingBalance).toBe(19_000);
+      // The bill's own balance agrees with the statement.
+      expect((await payables.findOne(bill.id, organizationId)).balance).toBe(19_000);
     });
   });
 });

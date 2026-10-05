@@ -1,0 +1,101 @@
+<vx-list-shell
+  titleKey="partner_ledger.title"
+  subtitleKey="partner_ledger.subtitle"
+  [count]="movements().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listFilters class="doc-filter" role="group" [attr.aria-label]="'partner_ledger.kind' | translate">
+    <button type="button" class="chip" [class.chip--active]="kind() === 'customer'" (click)="setKind('customer')">{{ 'partner_ledger.customers' | translate }}</button>
+    <button type="button" class="chip" [class.chip--active]="kind() === 'supplier'" (click)="setKind('supplier')">{{ 'partner_ledger.suppliers' | translate }}</button>
+  </div>
+  <div listFilters class="doc-filter doc-filter--wide">
+    <label for="pl-partner">{{ (kind() === 'customer' ? 'partner_ledger.customer' : 'partner_ledger.supplier') | translate }}</label>
+    @if (kind() === 'customer') {
+      <vx-select inputId="pl-partner" [ngModel]="partner()" (ngModelChange)="setPartner($event)" [search]="searchPartners"
+                 [resolveWith]="resolvePartner" [displayWith]="partnerName" [valueWith]="partnerValue" placeholderKey="partner_ledger.choose_customer" />
+    } @else {
+      <vx-select inputId="pl-partner" [ngModel]="partner()" (ngModelChange)="setPartner($event)" [search]="searchPartners"
+                 [resolveWith]="resolvePartner" [displayWith]="partnerName" [valueWith]="partnerValue" placeholderKey="partner_ledger.choose_supplier" />
+    }
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="pl-from">{{ 'partner_ledger.from' | translate }}</label>
+    <input id="pl-from" type="date" [ngModel]="from()" (ngModelChange)="from.set($event); load()" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="pl-to">{{ 'partner_ledger.to' | translate }}</label>
+    <input id="pl-to" type="date" [ngModel]="to()" (ngModelChange)="to.set($event); load()" />
+  </div>
+  @if (statement(); as st) {
+    @if (st.currencies.length > 1) {
+      <div listFilters class="doc-filter">
+        <label for="pl-currency">{{ 'partner_ledger.currency' | translate }}</label>
+        <select id="pl-currency" [ngModel]="st.currencyCode" (ngModelChange)="currency.set($event); load()">
+          @for (code of st.currencies; track code) {
+            <option [value]="code">{{ code }}</option>
+          }
+        </select>
+      </div>
+    }
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'partner_ledger.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'partner_ledger.empty_help' | translate }}</p>
+  </div>
+
+  @if (!statement() && !loading()) {
+    <p class="pl-hint">{{ 'partner_ledger.choose_hint' | translate }}</p>
+  }
+
+  @if (statement(); as st) {
+    <div class="table-container card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'partner_ledger.date' | translate }}</th>
+            <th>{{ 'partner_ledger.document' | translate }}</th>
+            <th>{{ 'partner_ledger.reference' | translate }}</th>
+            <th class="numeric">{{ (kind() === 'customer' ? 'partner_ledger.charges' : 'partner_ledger.owed_more') | translate }}</th>
+            <th class="numeric">{{ (kind() === 'customer' ? 'partner_ledger.credits' : 'partner_ledger.owed_less') | translate }}</th>
+            <th class="numeric">{{ 'partner_ledger.balance' | translate }} ({{ st.currencyCode }})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="pl-opening">
+            <td>{{ st.from | vxDate: 'date' : true }}</td>
+            <td colspan="4">{{ 'partner_ledger.opening' | translate }}</td>
+            <td class="numeric">{{ st.openingBalance | vxNumber: '1.2-2' }}</td>
+          </tr>
+          @for (row of movements(); track row.kind + row.documentId) {
+            <tr>
+              <td>{{ row.date | vxDate: 'date' : true }}</td>
+              <td>{{ 'partner_ledger.kinds.' + row.kind | translate }}</td>
+              <td>
+                @if (route(row.kind, row.documentId); as link) {
+                  <a [routerLink]="link">{{ row.reference ?? '—' }}</a>
+                } @else {
+                  {{ row.reference ?? '—' }}
+                }
+              </td>
+              <td class="numeric">{{ row.amount > 0 ? (row.amount | vxNumber: '1.2-2') : '' }}</td>
+              <td class="numeric">{{ row.amount < 0 ? (-row.amount | vxNumber: '1.2-2') : '' }}</td>
+              <td class="numeric">{{ row.balance | vxNumber: '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3">{{ 'partner_ledger.closing' | translate }}</th>
+            <th class="numeric">{{ st.totals.increases | vxNumber: '1.2-2' }}</th>
+            <th class="numeric">{{ st.totals.decreases | vxNumber: '1.2-2' }}</th>
+            <th class="numeric">{{ st.closingBalance | vxNumber: '1.2-2' }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</vx-list-shell>

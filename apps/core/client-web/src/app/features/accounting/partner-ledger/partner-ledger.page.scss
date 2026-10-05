@@ -1,0 +1,11 @@
+.chip {
+  border: 1px solid var(--border-default);
+  background: var(--surface-base);
+  color: var(--content-secondary);
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  &--active { background: var(--accent-surface); color: var(--accent-text); border-color: var(--accent-border); }
+}
+.pl-opening td { color: var(--content-secondary); font-style: italic; }
+.pl-hint { color: var(--content-secondary); margin: var(--space-4) 0; }

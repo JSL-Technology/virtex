@@ -36,6 +36,16 @@
             <td class="actions-column">
               <div class="action-buttons">
                 <a
+                  *appHasPermission="'accounting:view'"
+                  [routerLink]="['/accounting/partner-ledger']"
+                  [queryParams]="{ type: 'supplier', partnerId: supplier.id }"
+                  class="icon-button"
+                  [attr.aria-label]="'partner_ledger.open_statement' | translate"
+                  [title]="'partner_ledger.open_statement' | translate"
+                >
+                  <lucide-icon [img]="StatementIcon" size="18" aria-hidden="true"></lucide-icon>
+                </a>
+                <a
                   [routerLink]="['/contacts/suppliers', supplier.id, 'edit']"
                   class="icon-button"
                   [attr.aria-label]="'contacts.suppliers.edit' | translate"
