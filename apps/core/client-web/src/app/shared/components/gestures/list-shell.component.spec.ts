@@ -26,7 +26,7 @@ import { ListShellComponent } from './list-shell.component';
       (reload)="reloads = reloads + 1"
     >
       <button listActions class="new">Nuevo</button>
-      <label listFilters class="account-filter">Cuenta</label>
+      <span listFilters class="account-filter">Cuenta</span>
       <table class="rows">
         <tbody><tr><td>fila</td></tr></tbody>
       </table>
