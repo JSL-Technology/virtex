@@ -5,6 +5,7 @@ import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-own
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 @Index('IDX_warehouses_org_branch', ['organizationId', 'branchId'])
+@Index('UQ_warehouses_org_default', ['organizationId'], { unique: true, where: '"is_default" = true' })
 @Entity('warehouses')
 export class Warehouse extends BaseEntity {
   @Column()
@@ -15,6 +16,14 @@ export class Warehouse extends BaseEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  /**
+   * Where stock goes when nothing says otherwise: a document from a branch without a default
+   * warehouse, or a company that never set warehouses up. Exactly one per company; created on
+   * first need as «Almacén principal», so no movement is ever left without a place.
+   */
+  @Column({ name: 'is_default', default: false })
+  isDefault: boolean;
 
   @Column({ name: 'address_line1', nullable: true })
   addressLine1: string;

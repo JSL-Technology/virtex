@@ -1,0 +1,113 @@
+<vx-list-shell
+  titleKey="inventory.movements.title"
+  subtitleKey="inventory.movements.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listFilters class="inv-filter inv-filter--product">
+    <label for="kardex-product">{{ 'inventory.common.product' | translate }}</label>
+    <vx-select
+      inputId="kardex-product"
+      [ngModel]="productFilter()"
+      (ngModelChange)="productFilter.set($event || null); applyFilters()"
+      [search]="searchProducts"
+      [resolveWith]="resolveProduct"
+      [displayWith]="productName"
+      [valueWith]="productValue"
+      placeholderKey="inventory.movements.all_products"
+    />
+  </div>
+  <div listFilters class="inv-filter">
+    <label for="kardex-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
+    <select id="kardex-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
+      <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <option [value]="warehouse.id">{{ warehouse.name }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="inv-filter">
+    <label for="kardex-type">{{ 'inventory.movements.type_label' | translate }}</label>
+    <select id="kardex-type" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); applyFilters()">
+      <option value="">{{ 'inventory.movements.all_types' | translate }}</option>
+      @for (type of types; track type) {
+        <option [value]="type">{{ typeKey(type) | translate }}</option>
+      }
+    </select>
+  </div>
+  <vx-date-range listFilters [from]="from()" (fromChange)="onFrom($event)" [to]="to()" (toChange)="onTo($event)" />
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'inventory.movements.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'inventory.movements.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'inventory.movements.date' | translate }}</th>
+          @if (!showsBalance()) {
+            <th>{{ 'inventory.common.product' | translate }}</th>
+          }
+          <th>{{ 'inventory.common.warehouse' | translate }}</th>
+          <th>{{ 'inventory.movements.type_label' | translate }}</th>
+          <th>{{ 'inventory.movements.reference' | translate }}</th>
+          <th class="numeric">{{ 'inventory.movements.in' | translate }}</th>
+          <th class="numeric">{{ 'inventory.movements.out' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.unit_cost' | translate }}</th>
+          @if (showsBalance()) {
+            <th class="numeric">{{ 'inventory.movements.balance' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (showsBalance() && openingBalance() !== null && page() === 1) {
+          <tr class="kardex-opening">
+            <td [attr.colspan]="7">{{ 'inventory.movements.opening_balance' | translate }}</td>
+            <td class="numeric">{{ openingBalance() | vxNumber: '1.0-6' }}</td>
+          </tr>
+        }
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td>{{ row.date | vxDate: 'dateTime' }}</td>
+            @if (!showsBalance()) {
+              <td>
+                <a class="table-link" routerLink="/inventory/movements" [queryParams]="{ productId: row.productId }">{{ row.productName }}</a>
+              </td>
+            }
+            <td>{{ row.warehouseName }}</td>
+            <td>{{ typeKey(row.type) | translate }}</td>
+            <td>
+              @if (sourceLink(row); as link) {
+                <a class="table-link" [routerLink]="link">{{ row.reference }}</a>
+              } @else {
+                {{ row.reference }}
+              }
+            </td>
+            <td class="numeric">{{ row.quantity > 0 ? (row.quantity | vxNumber: '1.0-6') : '' }}</td>
+            <td class="numeric">{{ row.quantity < 0 ? (-row.quantity | vxNumber: '1.0-6') : '' }}</td>
+            <td class="numeric">{{ row.unitCost | vxNumber: '1.2-6' }}</td>
+            @if (showsBalance()) {
+              <td class="numeric kardex-balance">{{ row.balance | vxNumber: '1.0-6' }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 250]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

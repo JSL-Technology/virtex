@@ -109,7 +109,14 @@ describe('PosService', () => {
     });
 
     expect(inventory.decreaseStock).toHaveBeenCalledTimes(1);
-    expect(inventory.decreaseStock).toHaveBeenCalledWith(WIDGET, 2, manager, 'org-1');
+    // Out of the till's branch warehouse, on the kardex as this sale.
+    expect(inventory.decreaseStock).toHaveBeenCalledWith(
+      WIDGET,
+      2,
+      manager,
+      'org-1',
+      expect.objectContaining({ type: 'SALE_DISPATCH', sourceType: 'pos_sale', sourceId: sale.id }),
+    );
     expect(sale).toMatchObject({ subtotal: 70, tax: 3.6, total: 73.6, cashierId: 'cashier-1' });
     expect(sale.items[0]).toMatchObject({ productName: 'Widget', lineSubtotal: 20, lineTax: 3.6, taxRate: 0.18 });
     expect(sale.status).toBe(PosSaleStatus.PAID);

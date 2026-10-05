@@ -24,6 +24,14 @@ export class CreateWarehouseDto {
   @IsOptional()
   isActive?: boolean;
 
+  /**
+   * Make it where stock goes when nothing says otherwise. Moves the designation from the previous
+   * default; there is always exactly one, so `false` is not a way to have none.
+   */
+  @IsBoolean()
+  @IsOptional()
+  isDefault?: boolean;
+
   @IsString()
   @IsOptional()
   addressLine1?: string;

@@ -175,6 +175,11 @@ export class ReceivePurchaseOrderDto {
   @IsOptional()
   receivedAt?: string;
 
+  /** The warehouse they arrived at. Omitted: the order's branch warehouse, else the default one. */
+  @IsUUID()
+  @IsOptional()
+  warehouseId?: string;
+
   @IsString()
   @IsOptional()
   @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })

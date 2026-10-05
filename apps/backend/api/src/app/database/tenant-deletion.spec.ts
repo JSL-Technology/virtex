@@ -197,10 +197,18 @@ describeWithDb('tenant deletion', () => {
       org,
       order,
     ]);
+    const [warehouse] = (await query(
+      `INSERT INTO warehouses (organization_id, name, "isActive", is_default) VALUES ($1, 'Principal', true, true) RETURNING id`,
+      [org],
+    )) as { id: string }[];
     await query(
-      `INSERT INTO stock_movements (organization_id, product_id, type, quantity, cost, reference, source_type, source_id)
-       VALUES ($1, $2, 'PURCHASE', 5, 40, 'OC', 'purchase_order_receipt', $3)`,
-      [org, product, receipt],
+      `INSERT INTO stock_movements (organization_id, product_id, warehouse_id, type, quantity, cost, reference, source_type, source_id)
+       VALUES ($1, $2, $3, 'PURCHASE', 5, 40, 'OC', 'purchase_order_receipt', $4)`,
+      [org, product, warehouse.id, receipt],
+    );
+    await query(
+      `INSERT INTO stock_levels (organization_id, product_id, warehouse_id, quantity_on_hand) VALUES ($1, $2, $3, 5)`,
+      [org, product, warehouse.id],
     );
     await query(`INSERT INTO departments (id, organization_id, name) VALUES ($1, $2, 'Ventas')`, [department, org]);
     await query(
@@ -284,6 +292,8 @@ describeWithDb('tenant deletion', () => {
         'purchase_orders',
         'purchase_order_receipts',
         'stock_movements',
+        'stock_levels',
+        'warehouses',
         'product_categories',
         'departments',
         'employees',

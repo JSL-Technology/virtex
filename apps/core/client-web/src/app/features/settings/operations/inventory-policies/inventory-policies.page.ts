@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccountGroup, PolicyField, SettingsSectionComponent } from '../../shared/settings-section.component';
 
@@ -7,7 +6,7 @@ import { AccountGroup, PolicyField, SettingsSectionComponent } from '../../share
 @Component({
   selector: 'app-inventory-policies-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, SettingsSectionComponent],
+  imports: [TranslateModule, SettingsSectionComponent],
   template: `
     <div class="s-page">
       <div class="s-header">

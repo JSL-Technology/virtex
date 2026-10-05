@@ -714,6 +714,16 @@
     "en": "Active",
     "pt": "Ativo"
   },
+  "masters.warehouses.close": {
+    "es": "Cerrar almacén",
+    "en": "Close warehouse",
+    "pt": "Fechar depósito"
+  },
+  "masters.warehouses.closed": {
+    "es": "Almacén {{name}} cerrado.",
+    "en": "Warehouse {{name}} closed.",
+    "pt": "Depósito {{name}} fechado."
+  },
   "masters.warehouses.code": {
     "es": "Código",
     "en": "Code",
@@ -723,6 +733,16 @@
     "es": "Almacén creado.",
     "en": "Warehouse created.",
     "pt": "Armazém criado."
+  },
+  "masters.warehouses.default": {
+    "es": "Predeterminado",
+    "en": "Default",
+    "pt": "Padrão"
+  },
+  "masters.warehouses.default_set": {
+    "es": "{{name}} es ahora el almacén predeterminado.",
+    "en": "{{name}} is now the default warehouse.",
+    "pt": "{{name}} agora é o depósito padrão."
   },
   "masters.warehouses.empty_help": {
     "es": "Crea el primero para poder asignarle existencias y movimientos.",
@@ -744,6 +764,11 @@
     "en": "Location",
     "pt": "Localização"
   },
+  "masters.warehouses.make_default": {
+    "es": "Hacer predeterminado",
+    "en": "Make default",
+    "pt": "Tornar padrão"
+  },
   "masters.warehouses.name": {
     "es": "Nombre",
     "en": "Name",
@@ -754,10 +779,25 @@
     "en": "New warehouse",
     "pt": "Novo depósito"
   },
+  "masters.warehouses.reopen": {
+    "es": "Reabrir",
+    "en": "Reopen",
+    "pt": "Reabrir"
+  },
+  "masters.warehouses.reopened": {
+    "es": "Almacén {{name}} reabierto.",
+    "en": "Warehouse {{name}} reopened.",
+    "pt": "Depósito {{name}} reaberto."
+  },
   "masters.warehouses.status": {
     "es": "Estado",
     "en": "Status",
     "pt": "Situação"
+  },
+  "masters.warehouses.update_failed": {
+    "es": "No se pudo actualizar el almacén.",
+    "en": "Could not update the warehouse.",
+    "pt": "Não foi possível atualizar o depósito."
   },
   "masters.warehouses.warehouses": {
     "es": "Almacenes",

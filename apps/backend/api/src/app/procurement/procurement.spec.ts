@@ -32,6 +32,7 @@ describeWithDb('purchasing', () => {
     receiveGoods: jest.fn(async (_m: unknown, _org: string, receipt: { lines: readonly unknown[] }) => ({
       journalEntryId: null,
       stocked: receipt.lines.map(() => false),
+      warehouseId: null,
     })),
   };
 

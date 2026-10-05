@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, QueryFailedError, Repository } from 'typeorm';
@@ -163,6 +164,8 @@ export class PosService {
       }
       PosService.assertMayActOnShift(shift, cashier);
 
+      // The sale's id is chosen before its stock moves, so the kardex can point at the sale.
+      const saleId = randomUUID();
       const lines: PosSaleItem[] = [];
       for (const item of dto.items) {
         const product = await findSellableProduct(manager, organizationId, item.productId);
@@ -180,7 +183,14 @@ export class PosService {
         const lineTax = roundAmount(lineSubtotal * taxRate);
 
         if (product.stocked) {
-          await this.inventory.decreaseStock(product.id, item.quantity, manager, organizationId);
+          await this.inventory.decreaseStock(product.id, item.quantity, manager, organizationId, {
+            // The till's shift belongs to a branch; its warehouse is where the goods leave from.
+            place: { branchId: shift.branchId },
+            type: 'SALE_DISPATCH',
+            reference: `POS ${dto.terminalId}`,
+            sourceType: 'pos_sale',
+            sourceId: saleId,
+          });
         }
 
         lines.push({
@@ -210,6 +220,7 @@ export class PosService {
 
       const paymentMethod = dto.paymentMethod?.trim().toLowerCase() || null;
       const sale = manager.create(PosSale, {
+        id: saleId,
         organizationId,
         terminalId: dto.terminalId,
         shiftId: shift.id,

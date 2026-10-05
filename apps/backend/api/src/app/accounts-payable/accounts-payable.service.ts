@@ -689,6 +689,7 @@ export class AccountsPayableService {
       billId: bill.id,
       organizationId,
       journalEntryId: entry.id,
+      branchId: bill.branchId,
       lines: billLinesForInventory,
     };
     await this.afterCommit.runAfterCommit(
@@ -1378,6 +1379,7 @@ export class AccountsPayableService {
         reason,
         actorUserId,
         reversalJournalEntryId: bill.reversalJournalEntryId,
+        branchId: bill.branchId,
         lines: voidLines,
         wasPosted,
       };

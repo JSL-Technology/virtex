@@ -1,0 +1,58 @@
+<vx-list-shell
+  titleKey="inventory.transfers.title"
+  subtitleKey="inventory.transfers.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'inventory:transfer'" routerLink="/inventory/transfers/new" class="primary-button">
+    <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'inventory.transfers.new' | translate }}</span>
+  </a>
+
+  <div listFilters class="inv-filter">
+    <label for="tr-status">{{ 'inventory.common.status_label' | translate }}</label>
+    <select id="tr-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); load()">
+      <option value="">{{ 'inventory.common.all' | translate }}</option>
+      <option value="DRAFT">{{ 'inventory.common.status.draft' | translate }}</option>
+      <option value="POSTED">{{ 'inventory.common.status.posted' | translate }}</option>
+      <option value="CANCELLED">{{ 'inventory.common.status.cancelled' | translate }}</option>
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'inventory.transfers.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'inventory.transfers.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'inventory.common.number' | translate }}</th>
+          <th>{{ 'inventory.common.date' | translate }}</th>
+          <th>{{ 'inventory.transfers.from' | translate }}</th>
+          <th>{{ 'inventory.transfers.to' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.lines' | translate }}</th>
+          <th>{{ 'inventory.common.status_label' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/inventory/transfers', row.id]">{{ row.number }}</a></td>
+            <td>{{ row.date | vxDate: 'date' : true }}</td>
+            <td>{{ row.fromWarehouseName ?? '—' }}</td>
+            <td>{{ row.toWarehouseName ?? '—' }}</td>
+            <td class="numeric">{{ row.lineCount ?? 0 }}</td>
+            <td>
+              <vx-badge [tone]="tones[row.status]" [struck]="row.status === 'CANCELLED'">{{ 'inventory.common.status.' + row.status.toLowerCase() | translate }}</vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

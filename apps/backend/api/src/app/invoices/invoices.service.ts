@@ -929,6 +929,13 @@ export class InvoicesService {
         line.quantity,
         manager,
         invoice.organizationId,
+        {
+          place: { branchId: invoice.branchId },
+          type: 'SALE_DISPATCH',
+          reference: invoice.fiscalNumber ?? invoice.invoiceNumber,
+          sourceType: 'invoice',
+          sourceId: invoice.id,
+        },
       );
     }
   }
@@ -1207,6 +1214,14 @@ export class InvoicesService {
             selection.quantity,
             manager,
             organizationId,
+            {
+              // Back into the warehouse of the branch that sold them.
+              place: { branchId: original.branchId },
+              type: 'SALE_RETURN',
+              reference: issuedNote.fiscalNumber ?? issuedNote.invoiceNumber,
+              sourceType: 'credit_note',
+              sourceId: issuedNote.id,
+            },
           );
         }
       }

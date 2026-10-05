@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Warehouse } from './entities/warehouse.entity';
 import { BinLocation } from './entities/bin-location.entity';
 import { LandedCost } from './entities/landed-cost.entity';
@@ -10,7 +10,7 @@ import { CreateBinLocationDto } from './dto/create-bin-location.dto';
 import { UpdateBinLocationDto } from './dto/update-bin-location.dto';
 import { CreateLandedCostDto } from './dto/create-landed-cost.dto';
 import { UpdateLandedCostDto } from './dto/update-landed-cost.dto';
-import { NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
 import { assertBranchUsable } from '../organizations/contracts/branch.contract';
 
@@ -51,12 +51,33 @@ export class SupplyChainService {
     return warehouse;
   }
 
+  /** A company's first warehouse is its default: stock must always have somewhere to go. */
   async createWarehouse(dto: CreateWarehouseDto, organizationId: string): Promise<Warehouse> {
     if (dto.branchId) await this.assertBranch(organizationId, dto.branchId);
-    const warehouse = this.warehouseRepository.create({ ...dto, branchId: dto.branchId ?? null, organizationId });
-    return this.warehouseRepository.save(warehouse);
+    return this.warehouseRepository.manager.transaction(async (manager) => {
+      const hasDefault = await manager.exists(Warehouse, { where: { organizationId, isDefault: true } });
+      const makeDefault = dto.isDefault === true || !hasDefault;
+      if (makeDefault) await this.clearDefault(manager, organizationId);
+      return manager.save(
+        manager.create(Warehouse, {
+          ...dto,
+          branchId: dto.branchId ?? null,
+          organizationId,
+          isActive: makeDefault ? true : (dto.isActive ?? true),
+          isDefault: makeDefault,
+        }),
+      );
+    });
   }
 
+  /**
+   * Edit a warehouse.
+   *
+   * The default moves by designating another warehouse, never by un-designating this one, so there
+   * is always exactly one. A warehouse is closed only once empty and not the default: stock in a
+   * closed warehouse could be neither sold nor counted, and the default is where documents with
+   * nowhere else to go put their stock.
+   */
   async updateWarehouse(
     id: string,
     dto: UpdateWarehouseDto,
@@ -64,9 +85,38 @@ export class SupplyChainService {
   ): Promise<Warehouse> {
     const warehouse = await this.findOneWarehouse(id, organizationId);
     if (dto.branchId) await this.assertBranch(organizationId, dto.branchId);
-    return this.warehouseRepository.save(
-      this.warehouseRepository.merge(warehouse, dto),
-    );
+    if (dto.isDefault === false && warehouse.isDefault) {
+      throw new BadRequestError('supply_chain.default_warehouse_move_instead');
+    }
+    return this.warehouseRepository.manager.transaction(async (manager) => {
+      const closing = dto.isActive === false && warehouse.isActive;
+      if (closing) {
+        if (warehouse.isDefault && dto.isDefault !== true) {
+          throw new BadRequestError('supply_chain.default_warehouse_cannot_close');
+        }
+        const [{ held }] = await manager.query<{ held: string | null }[]>(
+          `SELECT SUM(ABS("quantity_on_hand")) AS "held" FROM "stock_levels" WHERE "warehouse_id" = $1`,
+          [id],
+        );
+        if (Number(held ?? 0) > 0) {
+          throw new BadRequestError('supply_chain.warehouse_holds_stock', { name: warehouse.name });
+        }
+      }
+      if (dto.isDefault === true && !warehouse.isDefault) {
+        if (dto.isActive === false || !warehouse.isActive) {
+          throw new BadRequestError('supply_chain.default_warehouse_must_be_active');
+        }
+        await this.clearDefault(manager, organizationId);
+      }
+      const { isDefault, ...changes } = dto;
+      const merged = manager.merge(Warehouse, warehouse, changes);
+      if (isDefault === true) merged.isDefault = true;
+      return manager.save(Warehouse, merged);
+    });
+  }
+
+  private async clearDefault(manager: EntityManager, organizationId: string): Promise<void> {
+    await manager.update(Warehouse, { organizationId, isDefault: true }, { isDefault: false });
   }
 
   /** A warehouse is assigned to one of this company's active branches, or to none. */
@@ -76,7 +126,8 @@ export class SupplyChainService {
 
   /** A warehouse that holds bins or stock is deactivated, not deleted: the stock is somewhere. */
   async removeWarehouse(id: string, organizationId: string): Promise<void> {
-    await this.findOneWarehouse(id, organizationId);
+    const warehouse = await this.findOneWarehouse(id, organizationId);
+    if (warehouse.isDefault) throw new BadRequestError('supply_chain.default_warehouse_cannot_delete');
     await this.warehouseRepository.manager.transaction(async (manager) => {
       await assertNotInUse(manager, 'warehouses', id, 'supply_chain.warehouse_in_use_deactivate_instead');
       await manager.delete(Warehouse, { id, organizationId });

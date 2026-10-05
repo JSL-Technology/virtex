@@ -56,12 +56,18 @@
             <th>{{ 'branches.picker.label' | translate }}</th>
           }
           <th appSortHeader="isActive" class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
+          <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
         </tr>
       </thead>
       <tbody>
         @for (warehouse of table.rows(); track warehouse.id) {
           <tr>
-            <td>{{ warehouse.name }}</td>
+            <td>
+              <a class="table-link" routerLink="/inventory/stock" [queryParams]="{ warehouseId: warehouse.id }">{{ warehouse.name }}</a>
+              @if (warehouse.isDefault) {
+                <vx-badge tone="accent" size="sm">{{ 'masters.warehouses.default' | translate }}</vx-badge>
+              }
+            </td>
             <td>{{ warehouse.code || '—' }}</td>
             <td>{{ warehouse.city || '—' }}</td>
             @if (branches.hasBranches()) {
@@ -71,6 +77,14 @@
               <vx-badge [tone]="warehouse.isActive ? 'ok' : 'neutral'">
                 {{ (warehouse.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
               </vx-badge>
+            </td>
+            <td class="row-actions" *appHasPermission="'wms:manage'">
+              @if (warehouse.isActive && !warehouse.isDefault) {
+                <button type="button" class="link-button" (click)="makeDefault(warehouse)">{{ 'masters.warehouses.make_default' | translate }}</button>
+                <button type="button" class="link-button" (click)="setActive(warehouse, false)">{{ 'masters.warehouses.close' | translate }}</button>
+              } @else if (!warehouse.isActive) {
+                <button type="button" class="link-button" (click)="setActive(warehouse, true)">{{ 'masters.warehouses.reopen' | translate }}</button>
+              }
             </td>
           </tr>
         }

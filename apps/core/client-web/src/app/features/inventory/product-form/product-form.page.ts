@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { InvoicesService } from '../../../core/services/invoices';
-import { DialogService } from '../../../core/services/dialog.service';
+import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
+import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, Save, Image } from 'lucide-angular';
+import { LucideAngularModule, Image } from 'lucide-angular';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import {
@@ -20,7 +21,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
+  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +38,11 @@ export class ProductFormPage implements OnInit {
   private notificationService = inject(NotificationService);
   private categoriesService = inject(ProductCategoriesService);
   private readonly invoices = inject(InvoicesService);
-  private readonly dialog = inject(DialogService);
+  private readonly organization = inject(ActiveOrganizationService);
+  private readonly warehousesApi = inject(WarehousesService);
+
+  /** Where the opening stock can go; the field shows only when there is a choice. */
+  readonly warehouses = signal<Warehouse[]>([]);
 
   protected readonly ImageIcon = Image;
 
@@ -73,6 +78,10 @@ export class ProductFormPage implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.warehousesApi.list().subscribe({
+      next: (rows) => this.warehouses.set(rows.filter((warehouse) => warehouse.isActive)),
+      error: () => this.warehouses.set([]),
+    });
     this.productForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
       sku: [''],
@@ -80,7 +89,9 @@ export class ProductFormPage implements OnInit {
       categoryId: [null],
       price: [0, [Validators.required, Validators.min(0)]],
       cost: [0, [Validators.min(0)]],
+      //  Lo que el artículo tiene al crearlo: su saldo inicial, en el almacén que se elija.
       stock: [0, [Validators.required, Validators.min(0)]],
+      warehouseId: [''],
       reorderLevel: [0],
       status: ['Active', Validators.required],
       //  Bien o servicio: un servicio no se cuenta ni mueve existencias.
@@ -140,11 +151,14 @@ export class ProductFormPage implements OnInit {
     this.inventoryService.getProductById(id).subscribe({
       next: (product) => {
         this.productForm.patchValue(product);
-        this.original = { stock: Number(product.stock ?? 0), cost: Number(product.cost ?? 0) };
-        //  Las existencias no se editan como un campo más (QA M-08): cambiarlas aquí contabilizaba
-        //  en silencio un ajuste de inventario —571.800 en la prueba— sin motivo ni confirmación.
-        //  Se ajustan con «Ajustar existencias», que pide ambos.
+        this.onHand.set(Number(product.stock ?? 0));
+        //  Las existencias son el saldo de los movimientos: se ven aquí y se cambian con un ajuste
+        //  de inventario, que tiene almacén, motivo, número y asiento. El costo de lo que ya se tiene
+        //  también: cambiarlo revalúa existencias, y eso es un ajuste.
         this.productForm.get('stock')?.disable({ emitEvent: false });
+        if (Number(product.stock ?? 0) !== 0 && product.kind !== 'SERVICE') {
+          this.productForm.get('cost')?.disable({ emitEvent: false });
+        }
         if (product.imageUrl) {
           this.imagePreview.set(product.imageUrl);
         }
@@ -170,62 +184,12 @@ export class ProductFormPage implements OnInit {
     void this.router.navigate(['/inventory/products']);
   }
 
-  /** Stock and cost as loaded, to tell an adjustment from an ordinary edit. */
-  private original: { stock: number; cost: number } | null = null;
+  /** Stock as loaded: it is shown, never edited here. */
+  readonly onHand = signal<number | null>(null);
 
-  /**
-   * Adjust what is on hand, deliberately.
-   *
-   * A count that disagrees with the record, breakage, a theft: each moves inventory against the
-   * adjustment account and changes the balance sheet. It asks for the new quantity and the reason,
-   * shows the value it will post, and records the reason on the entry and the stock ledger.
-   */
-  async adjustStock(): Promise<void> {
-    const productId = this.id();
-    if (!productId || !this.original) return;
-    const next = await this.dialog.prompt({
-      title: 'inventory.product_form.adjust_stock_title',
-      message: 'inventory.product_form.adjust_stock_message',
-      messageParams: { current: this.original.stock },
-      placeholder: 'inventory.product_form.adjust_stock_quantity',
-      minLength: 1,
-      tooShort: 'inventory.product_form.adjust_stock_quantity',
-    });
-    if (next === null || next === undefined || next === '') return;
-    const quantity = Number(String(next).replace(',', '.'));
-    if (!Number.isFinite(quantity) || quantity < 0) {
-      this.notificationService.showError('inventory.product_form.adjust_stock_invalid');
-      return;
-    }
-    const cost = Number(this.productForm.get('cost')?.value ?? this.original.cost);
-    const delta = Math.round((quantity - this.original.stock) * cost * 100) / 100;
-    const reason = await this.dialog.prompt({
-      title: 'inventory.product_form.adjust_stock_reason_title',
-      message: 'inventory.product_form.adjust_stock_reason_message',
-      messageParams: { from: this.original.stock, to: quantity, value: delta },
-      placeholder: 'inventory.product_form.adjust_stock_reason_placeholder',
-      minLength: 5,
-      tooShort: 'inventory.product_form.adjust_stock_reason_too_short',
-      variant: 'warning',
-    });
-    if (!reason) return;
-
-    this.isLoading.set(true);
-    this.inventoryService
-      .updateProduct(productId, { stock: quantity, adjustmentReason: reason } as UpdateProductDto)
-      .subscribe({
-        next: (product) => {
-          this.isLoading.set(false);
-          this.original = { stock: Number(product.stock ?? quantity), cost: Number(product.cost ?? cost) };
-          this.productForm.get('stock')?.setValue(this.original.stock, { emitEvent: false });
-          this.notificationService.showSuccess('inventory.product_form.stock_adjusted');
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.notificationService.showHttpError(err, 'inventory.product_form.error_updating_product');
-        },
-      });
-  }
+  /** The kardex of this product, and a new adjustment for it — where its stock is changed. */
+  protected readonly kardexLink = computed(() => this.organization.urlFor('/inventory/movements'));
+  protected readonly adjustLink = computed(() => this.organization.urlFor('/inventory/adjustments/new'));
 
   saveProduct(): void {
     if (this.productForm.invalid) {
@@ -251,14 +215,15 @@ export class ProductFormPage implements OnInit {
     const formValue = this.productForm.getRawValue();
     const productId = this.id();
 
-    //  Changing the unit cost on an existing product revalues what is on hand: ask why, and say
-    //  what it will post, instead of doing it silently (QA M-08).
-    if (productId && this.original && Number(formValue.cost) !== this.original.cost && this.original.stock !== 0) {
-      void this.confirmRevaluation(productId, formValue);
-      return;
+    //  What is held is changed by documents — adjustments, transfers, sales, receipts — never by
+    //  editing the product; neither is the cost of stock already held.
+    if (productId) {
+      delete (formValue as { stock?: unknown }).stock;
+      delete (formValue as { warehouseId?: unknown }).warehouseId;
+      if (this.productForm.get('cost')?.disabled) delete (formValue as { cost?: unknown }).cost;
+    } else if (!formValue.warehouseId) {
+      delete (formValue as { warehouseId?: unknown }).warehouseId;
     }
-    //  Stock is adjusted through its own action; an edit never carries it.
-    if (productId) delete (formValue as { stock?: unknown }).stock;
 
     this.isLoading.set(true);
 
@@ -284,34 +249,5 @@ export class ProductFormPage implements OnInit {
         this.isLoading.set(false);
       }
     });
-  }
-
-  private async confirmRevaluation(productId: string, formValue: Record<string, unknown>): Promise<void> {
-    const cost = Number(formValue['cost']);
-    const delta = Math.round(this.original!.stock * (cost - this.original!.cost) * 100) / 100;
-    const reason = await this.dialog.prompt({
-      title: 'inventory.product_form.revalue_title',
-      message: 'inventory.product_form.revalue_message',
-      messageParams: { from: this.original!.cost, to: cost, value: delta },
-      placeholder: 'inventory.product_form.adjust_stock_reason_placeholder',
-      minLength: 5,
-      tooShort: 'inventory.product_form.adjust_stock_reason_too_short',
-      variant: 'warning',
-    });
-    if (!reason) return;
-    const { stock: _stock, ...rest } = formValue as { stock?: unknown } & Record<string, unknown>;
-    this.isLoading.set(true);
-    this.inventoryService
-      .updateProduct(productId, { ...rest, adjustmentReason: reason } as UpdateProductDto)
-      .subscribe({
-        next: () => {
-          this.notificationService.showSuccess('inventory.product_form.product_updated');
-          void this.router.navigate(['/inventory/products']).then(() => this.tab?.close());
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.notificationService.showHttpError(err, 'inventory.product_form.error_updating_product');
-        },
-      });
   }
 }

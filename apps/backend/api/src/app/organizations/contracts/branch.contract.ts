@@ -21,7 +21,7 @@ import { BadRequestError, ForbiddenError } from '../../i18n/localized.exception'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function IssuedAtBranch(constraintName: string): PropertyDecorator {
-  const relation = ManyToOne(() => Branch, { nullable: true, onDelete: 'RESTRICT' });
+  const relation = ManyToOne(() => Branch, { nullable: true, onDelete: 'NO ACTION' });
   const join = JoinColumn({ name: 'branch_id', foreignKeyConstraintName: constraintName });
   return (target, propertyKey) => {
     join(target, propertyKey);
@@ -174,6 +174,24 @@ export function assertDocumentInScope(scope: BranchScope, branchId: string | nul
   if (!branchId || !scope.allowed.includes(branchId)) {
     throw new ForbiddenError('organizations.branches.outside_your_scope');
   }
+}
+
+/**
+ * The warehouse a branch's documents take stock from by default, when it has one set.
+ *
+ * Read here so inventory can place a sale or a receipt without importing identity's entities.
+ */
+export async function branchDefaultWarehouseId(
+  manager: EntityManager,
+  organizationId: string,
+  branchId: string | null | undefined,
+): Promise<string | null> {
+  if (!branchId) return null;
+  const branch = await manager.findOne(Branch, {
+    where: { id: branchId, organizationId },
+    select: { id: true, defaultWarehouseId: true },
+  });
+  return branch?.defaultWarehouseId ?? null;
 }
 
 /**

@@ -422,7 +422,7 @@ export class PurchaseOrdersService {
         }),
       );
 
-      const { journalEntryId, stocked } = await this.inventory.receiveGoods(
+      const { journalEntryId, stocked, warehouseId } = await this.inventory.receiveGoods(
         manager,
         organizationId,
         {
@@ -430,6 +430,7 @@ export class PurchaseOrdersService {
           sourceType: 'purchase_order_receipt',
           sourceId: receipt.id,
           date: receivedOn,
+          place: { warehouseId: dto.warehouseId ?? null, branchId: order.branchId },
           lines: arriving.map(({ line, quantity, unitCost }) => ({
             productId: line.productId,
             quantity,
@@ -446,6 +447,7 @@ export class PurchaseOrdersService {
       }
 
       receipt.journalEntryId = journalEntryId;
+      receipt.warehouseId = warehouseId;
       receipt.lines = arriving.map(({ line, quantity, unitCost }, index) => ({
         lineId: line.id,
         productId: line.productId,

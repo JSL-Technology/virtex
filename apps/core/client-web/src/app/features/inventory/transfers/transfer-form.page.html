@@ -1,0 +1,110 @@
+<vx-draft-shell
+  [title]="current() ? current()!.number : ('inventory.transfers.new' | translate)"
+  [subtitle]="'inventory.transfers.title' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (current(); as transfer) {
+      <div class="doc-status">
+        <vx-badge [tone]="tone()" [struck]="transfer.status === 'CANCELLED'">{{ 'inventory.common.status.' + transfer.status.toLowerCase() | translate }}</vx-badge>
+      </div>
+    }
+
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field" for="tr-date">
+          <span>{{ 'inventory.common.date' | translate }} *</span>
+          <vx-date-field inputId="tr-date" formControlName="date" />
+        </label>
+        <label class="field" for="tr-from">
+          <span>{{ 'inventory.transfers.from' | translate }} *</span>
+          <select id="tr-from" formControlName="fromWarehouseId">
+            <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
+            @for (warehouse of warehouses(); track warehouse.id) {
+              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="tr-to">
+          <span>{{ 'inventory.transfers.to' | translate }} *</span>
+          <select id="tr-to" formControlName="toWarehouseId">
+            <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
+            @for (warehouse of warehouses(); track warehouse.id) {
+              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field field--wide" for="tr-notes">
+          <span>{{ 'inventory.common.notes' | translate }}</span>
+          <textarea id="tr-notes" formControlName="notes" rows="2" maxlength="2000"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'inventory.common.lines' | translate }}</h2>
+      <div class="table-wrapper">
+        <table class="lines-table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>{{ 'inventory.common.product' | translate }}</th>
+              @if (editable()) {
+                <th class="numeric">{{ 'inventory.transfers.available' | translate }}</th>
+              }
+              <th class="numeric">{{ 'inventory.common.quantity' | translate }}</th>
+              <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>
+                  <vx-select formControlName="productId" [search]="searchProducts" [resolveWith]="resolveProduct"
+                    [displayWith]="productName" [valueWith]="productValue" [ariaLabel]="'inventory.common.product' | translate"
+                    (optionSelected)="onProductChange(i)" />
+                </td>
+                @if (editable()) {
+                  <td class="numeric" [class.negative]="short(i)" [class.muted]="!short(i)">
+                    {{ available()[i] !== null && available()[i] !== undefined ? (available()[i]! | vxNumber: '1.0-6') : '—' }}
+                  </td>
+                }
+                <td class="numeric">
+                  <input type="number" step="0.000001" min="0" formControlName="quantity" [attr.aria-label]="'inventory.common.quantity' | translate" />
+                </td>
+                <td>
+                  @if (editable()) {
+                    <button class="icon-button" type="button" (click)="removeLine(i)" [attr.aria-label]="'common.delete' | translate">
+                      <lucide-icon [img]="RemoveIcon" size="14"></lucide-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (editable()) {
+        <button class="secondary-button add-line" type="button" (click)="addLine()">
+          <lucide-icon [img]="AddIcon" size="14"></lucide-icon>
+          <span>{{ 'inventory.common.add_line' | translate }}</span>
+        </button>
+      }
+    </section>
+
+    @if (current() && status() === 'DRAFT') {
+      <section class="form-section doc-actions">
+        <button class="primary-button" type="button" [disabled]="saving() || form.dirty" (click)="post()">{{ 'inventory.transfers.post' | translate }}</button>
+        <button class="danger-button" type="button" [disabled]="saving()" (click)="cancelDocument()">{{ 'inventory.transfers.cancel_document' | translate }}</button>
+        @if (form.dirty) {
+          <p class="form-hint">{{ 'inventory.common.save_first' | translate }}</p>
+        }
+      </section>
+    }
+  </div>
+</vx-draft-shell>

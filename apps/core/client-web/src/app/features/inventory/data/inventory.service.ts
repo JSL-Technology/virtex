@@ -4,11 +4,15 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Product } from './product.model';
 
-export type CreateProductDto = Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
-export type UpdateProductDto = Partial<CreateProductDto> & {
-  /** Required by the server whenever stock or unit cost changes: it is recorded on the entry. */
-  adjustmentReason?: string;
+export type CreateProductDto = Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'> & {
+  /** Where the opening stock is. Omitted: the company's default warehouse. */
+  warehouseId?: string;
 };
+/**
+ * Editing the catalogue entry. Not what is held: the quantity on hand changes through inventory
+ * adjustments and transfers, and the cost of stock already held through a revaluing adjustment.
+ */
+export type UpdateProductDto = Partial<Omit<CreateProductDto, 'stock' | 'warehouseId'>>;
 
 /**
  * Inventory HTTP client — canonical location is `features/inventory/data/`.

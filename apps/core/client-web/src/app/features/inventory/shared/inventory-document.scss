@@ -1,0 +1,107 @@
+//  Documentos de inventario (ajustes, transferencias): cabecera, líneas y acciones.
+@use '../../../../assets/styles/design-system' as ds;
+
+.form-body { display: flex; flex-direction: column; gap: var(--space-6); }
+
+.doc-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+
+  a { color: var(--accent-text); }
+}
+
+.form-section { display: flex; flex-direction: column; gap: var(--space-4); }
+
+.form-section-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.form-hint { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+
+  &--wide { grid-column: 1 / -1; }
+
+  > span { @include ds.field-label; }
+  input, select, textarea { @include ds.input-base; }
+}
+
+.table-wrapper { overflow-x: auto; }
+
+.lines-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border-default);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--content-secondary);
+  }
+
+  td input { @include ds.input-base; min-width: 6rem; }
+  td vx-select { min-width: 16rem; display: block; }
+
+  .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+  .numeric input { text-align: right; }
+  .positive { color: var(--success-text); }
+  .negative { color: var(--error-text); }
+  .muted { color: var(--content-tertiary); }
+}
+
+.add-line { align-self: flex-start; }
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--content-secondary);
+  padding: var(--space-1);
+}
+
+.doc-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.doc-total {
+  align-self: flex-end;
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

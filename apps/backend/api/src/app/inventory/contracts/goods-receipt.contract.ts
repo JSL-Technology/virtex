@@ -20,6 +20,11 @@ export interface GoodsReceiptRequest {
   lines: ReadonlyArray<GoodsReceiptLine>;
   /** False when the caller already booked the goods itself; stock and cost still move. */
   post?: boolean;
+  /**
+   * Where the goods arrive: a warehouse the document names, or the branch it was issued at.
+   * Omitted, the company's default warehouse.
+   */
+  place?: { warehouseId?: string | null; branchId?: string | null };
 }
 
 export interface GoodsReceiptResult {
@@ -27,6 +32,8 @@ export interface GoodsReceiptResult {
   journalEntryId: string | null;
   /** Per line, whether stock moved (false for services and free-text lines). */
   stocked: boolean[];
+  /** The warehouse the goods went into; null when nothing was stocked. */
+  warehouseId: string | null;
 }
 
 /**

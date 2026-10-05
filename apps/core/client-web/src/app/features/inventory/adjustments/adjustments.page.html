@@ -1,0 +1,60 @@
+<vx-list-shell
+  titleKey="inventory.adjustments.title"
+  subtitleKey="inventory.adjustments.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'inventory:adjust'" routerLink="/inventory/adjustments/new" class="primary-button">
+    <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'inventory.adjustments.new' | translate }}</span>
+  </a>
+
+  <div listFilters class="inv-filter">
+    <label for="adj-status">{{ 'inventory.common.status_label' | translate }}</label>
+    <select id="adj-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); load()">
+      <option value="">{{ 'inventory.common.all' | translate }}</option>
+      <option value="DRAFT">{{ 'inventory.common.status.draft' | translate }}</option>
+      <option value="POSTED">{{ 'inventory.common.status.posted' | translate }}</option>
+      <option value="CANCELLED">{{ 'inventory.common.status.cancelled' | translate }}</option>
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'inventory.adjustments.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'inventory.adjustments.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'inventory.common.number' | translate }}</th>
+          <th>{{ 'inventory.common.date' | translate }}</th>
+          <th>{{ 'inventory.common.warehouse' | translate }}</th>
+          <th>{{ 'inventory.adjustments.reason' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.lines' | translate }}</th>
+          <th class="numeric">{{ 'inventory.adjustments.value_moved' | translate }}</th>
+          <th>{{ 'inventory.common.status_label' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/inventory/adjustments', row.id]">{{ row.number }}</a></td>
+            <td>{{ row.date | vxDate: 'date' : true }}</td>
+            <td>{{ row.warehouseName ?? '—' }}</td>
+            <td>{{ row.reason }}</td>
+            <td class="numeric">{{ row.lineCount ?? 0 }}</td>
+            <td class="numeric">{{ row.valueChange === null ? '—' : (row.valueChange | vxNumber: '1.2-2') }}</td>
+            <td>
+              <vx-badge [tone]="tones[row.status]" [struck]="row.status === 'CANCELLED'">{{ 'inventory.common.status.' + row.status.toLowerCase() | translate }}</vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

@@ -1,3 +1,5 @@
+import { RouterLink } from '@angular/router';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
@@ -31,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,6 +108,31 @@ export class WarehousesPage implements OnInit {
           this.notifications.showError(this.errors.keyFor(err));
         },
       });
+  }
+
+  /** Where stock goes when a document names no warehouse; the server moves the designation. */
+  makeDefault(warehouse: Warehouse): void {
+    this.api.update(warehouse.id, { isDefault: true }).subscribe({
+      next: () => {
+        this.notifications.showSuccess('masters.warehouses.default_set', { name: warehouse.name });
+        this.load();
+      },
+      error: (err: HttpErrorResponse) => this.notifications.showHttpError(err, 'masters.warehouses.update_failed'),
+    });
+  }
+
+  /**
+   * Close or reopen. The server refuses to close the default warehouse or one that still holds
+   * stock — and says which, so the reason reaches the person who asked.
+   */
+  setActive(warehouse: Warehouse, active: boolean): void {
+    this.api.update(warehouse.id, { isActive: active }).subscribe({
+      next: () => {
+        this.notifications.showSuccess(active ? 'masters.warehouses.reopened' : 'masters.warehouses.closed', { name: warehouse.name });
+        this.load();
+      },
+      error: (err: HttpErrorResponse) => this.notifications.showHttpError(err, 'masters.warehouses.update_failed'),
+    });
   }
 
   private resetDraft(): void {

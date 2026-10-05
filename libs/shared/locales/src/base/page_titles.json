@@ -189,6 +189,21 @@
     "en": "Income Statement",
     "pt": "Demonstração do Resultado"
   },
+  "page_titles.inventory_adjustment": {
+    "es": "Ajuste de inventario",
+    "en": "Inventory adjustment",
+    "pt": "Ajuste de inventário"
+  },
+  "page_titles.inventory_adjustment_new": {
+    "es": "Nuevo ajuste de inventario",
+    "en": "New inventory adjustment",
+    "pt": "Novo ajuste de inventário"
+  },
+  "page_titles.inventory_adjustments": {
+    "es": "Ajustes de inventario",
+    "en": "Inventory adjustments",
+    "pt": "Ajustes de inventário"
+  },
   "page_titles.invoice": {
     "es": "Factura",
     "en": "Invoice",
@@ -408,6 +423,31 @@
     "es": "Importar Estado de Cuenta",
     "en": "Import Statement",
     "pt": "Importar Extrato"
+  },
+  "page_titles.stock_movements": {
+    "es": "Kárdex",
+    "en": "Stock movements",
+    "pt": "Movimentações de estoque"
+  },
+  "page_titles.stock_on_hand": {
+    "es": "Existencias",
+    "en": "Stock on hand",
+    "pt": "Estoque disponível"
+  },
+  "page_titles.stock_transfer": {
+    "es": "Transferencia de inventario",
+    "en": "Stock transfer",
+    "pt": "Transferência de estoque"
+  },
+  "page_titles.stock_transfer_new": {
+    "es": "Nueva transferencia",
+    "en": "New stock transfer",
+    "pt": "Nova transferência"
+  },
+  "page_titles.stock_transfers": {
+    "es": "Transferencias",
+    "en": "Stock transfers",
+    "pt": "Transferências"
   },
   "page_titles.subsidiary_ledgers": {
     "es": "Libros auxiliares",

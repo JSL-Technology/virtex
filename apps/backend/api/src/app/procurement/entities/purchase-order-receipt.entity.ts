@@ -54,6 +54,14 @@ export class PurchaseOrderReceipt extends BaseEntity {
    * The entry the receipt posted. An id, not a relation: the ledger belongs to Accounting, and a
    * purchasing row does not hold a foreign key into it (the same rule purchase orders follow).
    */
+  /**
+   * Where the goods arrived. Null on receipts from before stock was kept per warehouse, and on a
+   * receipt of services only, which puts nothing on a shelf. Not a foreign key here: purchasing
+   * does not import the warehouse entity; the stock ledger's own rows carry the constraint.
+   */
+  @Column({ name: 'warehouse_id', type: 'uuid', nullable: true })
+  warehouseId: string | null;
+
   @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })
   journalEntryId: string | null;
 

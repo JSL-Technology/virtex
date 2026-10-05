@@ -184,6 +184,11 @@
     "en": "Intercompany (→ {{organization}}): {{description}}",
     "pt": "Intercompanhia (→ {{organization}}): {{description}}"
   },
+  "ledger.inventory.adjustment_document_entry": {
+    "es": "Ajuste de inventario {{number}}",
+    "en": "Inventory adjustment {{number}}",
+    "pt": "Ajuste de estoque {{number}}"
+  },
   "ledger.inventory.adjustment_entry": {
     "es": "Ajuste de inventario: {{product}}",
     "en": "Stock adjustment: {{product}}",

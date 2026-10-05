@@ -1,8 +1,183 @@
 {
-  "inventory.adjustment_reason_required": {
-    "es": "Indica el motivo del ajuste: cambiar existencias o costo contabiliza un ajuste de inventario.",
-    "en": "State the reason for the adjustment: changing stock or cost posts an inventory adjustment.",
-    "pt": "Informe o motivo do ajuste: alterar estoque ou custo contabiliza um ajuste de estoque."
+  "inventory.adjustment_line_count_or_change": {
+    "es": "Cada línea indica la cantidad contada o el cambio, no ambos.",
+    "en": "Each line states the counted quantity or the change, not both.",
+    "pt": "Cada linha indica a quantidade contada ou a variação, não ambas."
+  },
+  "inventory.adjustment_line_empty": {
+    "es": "Cada línea necesita una cantidad contada, un cambio o un costo nuevo.",
+    "en": "Each line needs a counted quantity, a change or a new cost.",
+    "pt": "Cada linha precisa de uma quantidade contada, uma variação ou um novo custo."
+  },
+  "inventory.adjustment_not_draft": {
+    "es": "El ajuste {{number}} ya no es un borrador.",
+    "en": "Adjustment {{number}} is no longer a draft.",
+    "pt": "O ajuste {{number}} não é mais um rascunho."
+  },
+  "inventory.adjustment_not_found": {
+    "es": "El ajuste de inventario no existe.",
+    "en": "The inventory adjustment does not exist.",
+    "pt": "O ajuste de estoque não existe."
+  },
+  "inventory.adjustment_without_lines": {
+    "es": "El ajuste no tiene líneas.",
+    "en": "The adjustment has no lines.",
+    "pt": "O ajuste não tem linhas."
+  },
+  "inventory.adjustments.average": {
+    "es": "Promedio actual",
+    "en": "Current average",
+    "pt": "Média atual"
+  },
+  "inventory.adjustments.cancel_document": {
+    "es": "Anular",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "inventory.adjustments.cancel_message": {
+    "es": "El borrador quedará anulado y no moverá existencias.",
+    "en": "The draft will be cancelled and will not move stock.",
+    "pt": "O rascunho será cancelado e não movimentará estoque."
+  },
+  "inventory.adjustments.cancel_title": {
+    "es": "Anular ajuste",
+    "en": "Cancel adjustment",
+    "pt": "Cancelar ajuste"
+  },
+  "inventory.adjustments.change": {
+    "es": "Cambio",
+    "en": "Change",
+    "pt": "Variação"
+  },
+  "inventory.adjustments.counted": {
+    "es": "Contado",
+    "en": "Counted",
+    "pt": "Contado"
+  },
+  "inventory.adjustments.empty_help": {
+    "es": "Registra un ajuste cuando un conteo físico no coincide con el sistema o cuando necesitas revaluar el costo.",
+    "en": "Record an adjustment when a physical count disagrees with the system or when you need to revalue cost.",
+    "pt": "Registre um ajuste quando uma contagem física não coincidir com o sistema ou quando precisar reavaliar o custo."
+  },
+  "inventory.adjustments.empty_title": {
+    "es": "Sin ajustes",
+    "en": "No adjustments",
+    "pt": "Sem ajustes"
+  },
+  "inventory.adjustments.held_before": {
+    "es": "Existencia antes",
+    "en": "Held before",
+    "pt": "Estoque antes"
+  },
+  "inventory.adjustments.line_count_or_change": {
+    "es": "Cada línea indica la cantidad contada o el cambio, no ambos.",
+    "en": "Each line states the counted quantity or the change, not both.",
+    "pt": "Cada linha indica a quantidade contada ou a variação, não ambas."
+  },
+  "inventory.adjustments.line_empty": {
+    "es": "Cada línea necesita una cantidad contada, un cambio o un costo nuevo.",
+    "en": "Each line needs a counted quantity, a change or a new cost.",
+    "pt": "Cada linha precisa de uma quantidade contada, uma variação ou um novo custo."
+  },
+  "inventory.adjustments.line_needs_product": {
+    "es": "Cada línea necesita un producto.",
+    "en": "Each line needs a product.",
+    "pt": "Cada linha precisa de um produto."
+  },
+  "inventory.adjustments.lines_hint": {
+    "es": "Indica la cantidad contada (el sistema calcula la diferencia) o el cambio directo. Un costo nuevo revalúa la existencia.",
+    "en": "Enter the counted quantity (the system computes the difference) or the change directly. A new cost revalues the stock.",
+    "pt": "Informe a quantidade contada (o sistema calcula a diferença) ou a variação direta. Um novo custo reavalia o estoque."
+  },
+  "inventory.adjustments.load_failed": {
+    "es": "No se pudieron cargar los ajustes.",
+    "en": "Could not load the adjustments.",
+    "pt": "Não foi possível carregar os ajustes."
+  },
+  "inventory.adjustments.new": {
+    "es": "Nuevo ajuste",
+    "en": "New adjustment",
+    "pt": "Novo ajuste"
+  },
+  "inventory.adjustments.new_unit_cost": {
+    "es": "Costo unitario nuevo",
+    "en": "New unit cost",
+    "pt": "Novo custo unitário"
+  },
+  "inventory.adjustments.on_hand": {
+    "es": "En existencia",
+    "en": "On hand",
+    "pt": "Em estoque"
+  },
+  "inventory.adjustments.post": {
+    "es": "Contabilizar",
+    "en": "Post",
+    "pt": "Contabilizar"
+  },
+  "inventory.adjustments.post_failed": {
+    "es": "No se pudo contabilizar el ajuste.",
+    "en": "Could not post the adjustment.",
+    "pt": "Não foi possível contabilizar o ajuste."
+  },
+  "inventory.adjustments.post_message": {
+    "es": "Al contabilizar {{number}}, la existencia y el costo cambiarán y se registrará el asiento. Un ajuste contabilizado no se edita.",
+    "en": "Posting {{number}} changes stock and cost and books the entry. A posted adjustment cannot be edited.",
+    "pt": "Ao contabilizar {{number}}, o estoque e o custo mudarão e o lançamento será registrado. Um ajuste contabilizado não pode ser editado."
+  },
+  "inventory.adjustments.post_title": {
+    "es": "Contabilizar ajuste",
+    "en": "Post adjustment",
+    "pt": "Contabilizar ajuste"
+  },
+  "inventory.adjustments.posted": {
+    "es": "Ajuste {{number}} contabilizado.",
+    "en": "Adjustment {{number}} posted.",
+    "pt": "Ajuste {{number}} contabilizado."
+  },
+  "inventory.adjustments.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "inventory.adjustments.reason_placeholder": {
+    "es": "Ej.: conteo físico de fin de mes",
+    "en": "E.g. month-end physical count",
+    "pt": "Ex.: contagem física de fim de mês"
+  },
+  "inventory.adjustments.save_failed": {
+    "es": "No se pudo guardar el ajuste.",
+    "en": "Could not save the adjustment.",
+    "pt": "Não foi possível salvar o ajuste."
+  },
+  "inventory.adjustments.saved": {
+    "es": "Ajuste {{number}} guardado.",
+    "en": "Adjustment {{number}} saved.",
+    "pt": "Ajuste {{number}} salvo."
+  },
+  "inventory.adjustments.subtitle": {
+    "es": "Conteos físicos, mermas y revaluaciones de costo. Cada ajuste contabilizado mueve la existencia y registra su asiento.",
+    "en": "Physical counts, shrinkage and cost revaluations. Each posted adjustment moves stock and posts its entry.",
+    "pt": "Contagens físicas, perdas e reavaliações de custo. Cada ajuste contabilizado movimenta o estoque e registra seu lançamento."
+  },
+  "inventory.adjustments.title": {
+    "es": "Ajustes de inventario",
+    "en": "Inventory adjustments",
+    "pt": "Ajustes de inventário"
+  },
+  "inventory.adjustments.unit_cost_in": {
+    "es": "Costo de entrada",
+    "en": "Inbound unit cost",
+    "pt": "Custo de entrada"
+  },
+  "inventory.adjustments.value_moved": {
+    "es": "Valor ajustado",
+    "en": "Value adjusted",
+    "pt": "Valor ajustado"
+  },
+  "inventory.adjustments.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
   },
   "inventory.cannot_delete_category_has_count_subcategory": {
     "es": "No se puede eliminar: la categoría tiene {{count}} subcategoría(s). Muévelas o elimínalas primero.",
@@ -124,10 +299,240 @@
     "en": "The category tree cannot be more than {{max}} levels deep.",
     "pt": "A árvore de categorias não pode ter mais de {{max}} níveis."
   },
+  "inventory.common.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "inventory.common.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "inventory.common.all_warehouses": {
+    "es": "Todos los almacenes",
+    "en": "All warehouses",
+    "pt": "Todos os depósitos"
+  },
+  "inventory.common.choose_warehouse": {
+    "es": "Elige un almacén",
+    "en": "Choose a warehouse",
+    "pt": "Escolha um depósito"
+  },
+  "inventory.common.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "inventory.common.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "inventory.common.lines_required": {
+    "es": "Agrega al menos una línea.",
+    "en": "Add at least one line.",
+    "pt": "Adicione pelo menos uma linha."
+  },
+  "inventory.common.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
+  },
+  "inventory.common.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "inventory.common.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "inventory.common.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "inventory.common.repeated_product": {
+    "es": "Un producto aparece en más de una línea.",
+    "en": "A product appears on more than one line.",
+    "pt": "Um produto aparece em mais de uma linha."
+  },
+  "inventory.common.save_first": {
+    "es": "Guarda el borrador antes de contabilizarlo.",
+    "en": "Save the draft before posting it.",
+    "pt": "Salve o rascunho antes de contabilizá-lo."
+  },
+  "inventory.common.sku": {
+    "es": "SKU",
+    "en": "SKU",
+    "pt": "SKU"
+  },
+  "inventory.common.status.cancelled": {
+    "es": "Anulado",
+    "en": "Cancelled",
+    "pt": "Cancelado"
+  },
+  "inventory.common.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "inventory.common.status.posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Contabilizado"
+  },
+  "inventory.common.status_label": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "inventory.common.unit_cost": {
+    "es": "Costo unitario",
+    "en": "Unit cost",
+    "pt": "Custo unitário"
+  },
+  "inventory.common.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "inventory.common.warehouse": {
+    "es": "Almacén",
+    "en": "Warehouse",
+    "pt": "Depósito"
+  },
+  "inventory.cost_changes_through_adjustments": {
+    "es": "Este artículo tiene existencias: su costo se cambia con un ajuste de inventario que revalúe, para que el asiento lo refleje.",
+    "en": "This product holds stock: its cost changes through an inventory adjustment that revalues it, so the books reflect it.",
+    "pt": "Este produto tem estoque: seu custo muda por um ajuste de estoque que o reavalia, para que os livros reflitam."
+  },
+  "inventory.document_repeats_product": {
+    "es": "Un artículo aparece en más de una línea.",
+    "en": "A product appears on more than one line.",
+    "pt": "Um produto aparece em mais de uma linha."
+  },
   "inventory.goods_receipt_accounts_not_configured": {
     "es": "Configura la cuenta de inventario y la de mercancía recibida no facturada antes de registrar recepciones.",
     "en": "Set up the inventory account and the goods-received-not-invoiced account before recording receipts.",
     "pt": "Configure a conta de estoque e a de mercadorias recebidas não faturadas antes de registrar recebimentos."
+  },
+  "inventory.movements.all_products": {
+    "es": "Todos los productos",
+    "en": "All products",
+    "pt": "Todos os produtos"
+  },
+  "inventory.movements.all_types": {
+    "es": "Todos los tipos",
+    "en": "All types",
+    "pt": "Todos os tipos"
+  },
+  "inventory.movements.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "inventory.movements.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "inventory.movements.empty_help": {
+    "es": "No hay movimientos con estos filtros. Las recepciones, ventas, ajustes y transferencias aparecen aquí al contabilizarse.",
+    "en": "No movements match these filters. Receipts, sales, adjustments and transfers appear here once posted.",
+    "pt": "Nenhuma movimentação com estes filtros. Recebimentos, vendas, ajustes e transferências aparecem aqui ao serem contabilizados."
+  },
+  "inventory.movements.empty_title": {
+    "es": "Sin movimientos",
+    "en": "No movements",
+    "pt": "Sem movimentações"
+  },
+  "inventory.movements.in": {
+    "es": "Entrada",
+    "en": "In",
+    "pt": "Entrada"
+  },
+  "inventory.movements.load_failed": {
+    "es": "No se pudieron cargar los movimientos.",
+    "en": "Could not load the movements.",
+    "pt": "Não foi possível carregar as movimentações."
+  },
+  "inventory.movements.opening_balance": {
+    "es": "Saldo anterior",
+    "en": "Opening balance",
+    "pt": "Saldo anterior"
+  },
+  "inventory.movements.out": {
+    "es": "Salida",
+    "en": "Out",
+    "pt": "Saída"
+  },
+  "inventory.movements.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "inventory.movements.subtitle": {
+    "es": "Cada entrada y salida de existencias, con el documento que la originó y el saldo resultante.",
+    "en": "Every stock receipt and issue, with the document that caused it and the resulting balance.",
+    "pt": "Cada entrada e saída de estoque, com o documento que a originou e o saldo resultante."
+  },
+  "inventory.movements.title": {
+    "es": "Kárdex de inventario",
+    "en": "Stock movements",
+    "pt": "Movimentações de estoque"
+  },
+  "inventory.movements.type.adjustment": {
+    "es": "Ajuste",
+    "en": "Adjustment",
+    "pt": "Ajuste"
+  },
+  "inventory.movements.type.opening": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
+  "inventory.movements.type.purchase_receipt": {
+    "es": "Recepción de compra",
+    "en": "Purchase receipt",
+    "pt": "Recebimento de compra"
+  },
+  "inventory.movements.type.purchase_return": {
+    "es": "Devolución a proveedor",
+    "en": "Purchase return",
+    "pt": "Devolução ao fornecedor"
+  },
+  "inventory.movements.type.sale_dispatch": {
+    "es": "Despacho de venta",
+    "en": "Sale dispatch",
+    "pt": "Expedição de venda"
+  },
+  "inventory.movements.type.sale_return": {
+    "es": "Devolución de cliente",
+    "en": "Sale return",
+    "pt": "Devolução de cliente"
+  },
+  "inventory.movements.type.transfer_in": {
+    "es": "Transferencia (entrada)",
+    "en": "Transfer in",
+    "pt": "Transferência (entrada)"
+  },
+  "inventory.movements.type.transfer_out": {
+    "es": "Transferencia (salida)",
+    "en": "Transfer out",
+    "pt": "Transferência (saída)"
+  },
+  "inventory.movements.type_label": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "inventory.not_enough_stock_in_warehouse": {
+    "es": "No hay suficiente «{{name}}» en {{warehouse}}: hay {{available}} y se necesitan {{quantity}}.",
+    "en": "Not enough «{{name}}» in {{warehouse}}: {{available}} held, {{quantity}} needed.",
+    "pt": "Não há «{{name}}» suficiente em {{warehouse}}: há {{available}} e são necessários {{quantity}}."
   },
   "inventory.not_enough_stock_name_available_available": {
     "es": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
@@ -159,46 +564,6 @@
     "en": "Adjust stock",
     "pt": "Ajustar estoque"
   },
-  "inventory.product_form.adjust_stock_invalid": {
-    "es": "La cantidad debe ser un número mayor o igual que cero.",
-    "en": "The quantity must be a number greater than or equal to zero.",
-    "pt": "A quantidade deve ser um número maior ou igual a zero."
-  },
-  "inventory.product_form.adjust_stock_message": {
-    "es": "Hay {{current}} unidades registradas. Escribe la cantidad real contada.",
-    "en": "{{current}} units are recorded. Enter the actual quantity counted.",
-    "pt": "Há {{current}} unidades registradas. Informe a quantidade real contada."
-  },
-  "inventory.product_form.adjust_stock_quantity": {
-    "es": "Cantidad contada",
-    "en": "Quantity counted",
-    "pt": "Quantidade contada"
-  },
-  "inventory.product_form.adjust_stock_reason_message": {
-    "es": "Las existencias pasarán de {{from}} a {{to}} y se contabilizará un ajuste de {{value}}. ¿Por qué?",
-    "en": "Stock will go from {{from}} to {{to}} and an adjustment of {{value}} will be posted. Why?",
-    "pt": "O estoque passará de {{from}} para {{to}} e será contabilizado um ajuste de {{value}}. Por quê?"
-  },
-  "inventory.product_form.adjust_stock_reason_placeholder": {
-    "es": "Conteo físico, merma, rotura…",
-    "en": "Physical count, shrinkage, breakage…",
-    "pt": "Contagem física, perda, quebra…"
-  },
-  "inventory.product_form.adjust_stock_reason_title": {
-    "es": "Motivo del ajuste",
-    "en": "Reason for the adjustment",
-    "pt": "Motivo do ajuste"
-  },
-  "inventory.product_form.adjust_stock_reason_too_short": {
-    "es": "Describe el motivo en al menos 5 caracteres.",
-    "en": "Describe the reason in at least 5 characters.",
-    "pt": "Descreva o motivo em pelo menos 5 caracteres."
-  },
-  "inventory.product_form.adjust_stock_title": {
-    "es": "Ajustar existencias",
-    "en": "Adjust stock",
-    "pt": "Ajustar estoque"
-  },
   "inventory.product_form.basic_information": {
     "es": "Información Básica",
     "en": "Basic Information",
@@ -213,6 +578,16 @@
     "es": "Categoría",
     "en": "Category",
     "pt": "Categoria"
+  },
+  "inventory.product_form.cost_revalued_by_adjustment": {
+    "es": "Este artículo tiene existencia: su costo se revalúa con un ajuste de inventario, que registra el asiento.",
+    "en": "This item has stock: its cost is revalued with an inventory adjustment, which posts the entry.",
+    "pt": "Este item tem estoque: seu custo é reavaliado com um ajuste de inventário, que registra o lançamento."
+  },
+  "inventory.product_form.default_warehouse": {
+    "es": "Almacén predeterminado",
+    "en": "Default warehouse",
+    "pt": "Depósito padrão"
   },
   "inventory.product_form.description": {
     "es": "Descripción",
@@ -264,6 +639,21 @@
     "en": "No category",
     "pt": "Sem categoria"
   },
+  "inventory.product_form.opening_stock": {
+    "es": "Existencia inicial",
+    "en": "Opening stock",
+    "pt": "Estoque inicial"
+  },
+  "inventory.product_form.opening_stock_hint": {
+    "es": "Se registra como un movimiento de saldo inicial. Después, la existencia cambia solo con documentos (recepciones, ventas, ajustes, transferencias).",
+    "en": "Recorded as an opening-balance movement. After that, stock changes only through documents (receipts, sales, adjustments, transfers).",
+    "pt": "Registrado como movimento de saldo inicial. Depois, o estoque muda apenas por documentos (recebimentos, vendas, ajustes, transferências)."
+  },
+  "inventory.product_form.opening_warehouse": {
+    "es": "Almacén de la existencia inicial",
+    "en": "Warehouse for the opening stock",
+    "pt": "Depósito do estoque inicial"
+  },
   "inventory.product_form.organization": {
     "es": "Organización",
     "en": "Organization",
@@ -314,16 +704,6 @@
     "en": "Reorder Level",
     "pt": "Ponto de Reposição"
   },
-  "inventory.product_form.revalue_message": {
-    "es": "El costo unitario pasará de {{from}} a {{to}}, lo que revaloriza las existencias en {{value}}. ¿Por qué?",
-    "en": "The unit cost will go from {{from}} to {{to}}, revaluing stock by {{value}}. Why?",
-    "pt": "O custo unitário passará de {{from}} para {{to}}, reavaliando o estoque em {{value}}. Por quê?"
-  },
-  "inventory.product_form.revalue_title": {
-    "es": "Revalorizar existencias",
-    "en": "Revalue stock",
-    "pt": "Reavaliar estoque"
-  },
   "inventory.product_form.sale_price": {
     "es": "Precio de Venta",
     "en": "Sale Price",
@@ -343,11 +723,6 @@
     "es": "Estado",
     "en": "Status",
     "pt": "Situação"
-  },
-  "inventory.product_form.stock_adjusted": {
-    "es": "Existencias ajustadas y ajuste contabilizado.",
-    "en": "Stock adjusted and adjustment posted.",
-    "pt": "Estoque ajustado e ajuste contabilizado."
   },
   "inventory.product_form.tax_rate": {
     "es": "Tasa de impuesto",
@@ -399,6 +774,11 @@
     "en": "Upload an image",
     "pt": "Enviar imagem"
   },
+  "inventory.product_form.view_kardex": {
+    "es": "Ver kárdex",
+    "en": "View stock card",
+    "pt": "Ver ficha de estoque"
+  },
   "inventory.product_form.what_item_cost_you_drives_cost": {
     "es": "Lo que te costó el artículo. Determina el costo de venta y la valoración del inventario.",
     "en": "What the item cost you. Drives cost of sale and inventory valuation.",
@@ -408,6 +788,11 @@
     "es": "Producto con ID \"{{id}}\" no encontrado.",
     "en": "Product \"{{id}}\" was not found.",
     "pt": "Produto \"{{id}}\" não encontrado."
+  },
+  "inventory.product_not_found_in_document": {
+    "es": "Uno de los artículos no existe en esta empresa.",
+    "en": "One of the products does not exist in this company.",
+    "pt": "Um dos produtos não existe nesta empresa."
   },
   "inventory.product_product_id_not_found_organization": {
     "es": "Producto con ID \"{{productId}}\" no encontrado en esta organización.",
@@ -503,5 +888,200 @@
     "es": "Agotado",
     "en": "Out of stock",
     "pt": "Esgotado"
+  },
+  "inventory.service_holds_no_stock": {
+    "es": "«{{name}}» es un servicio: no tiene existencias.",
+    "en": "«{{name}}» is a service: it holds no stock.",
+    "pt": "«{{name}}» é um serviço: não tem estoque."
+  },
+  "inventory.stock.below_reorder": {
+    "es": "Bajo el punto de reorden",
+    "en": "Below reorder level",
+    "pt": "Abaixo do ponto de reposição"
+  },
+  "inventory.stock.empty_help": {
+    "es": "Aún no hay existencias con estos filtros. Recibe una compra o registra un ajuste para empezar.",
+    "en": "No stock matches these filters yet. Receive a purchase or record an adjustment to start.",
+    "pt": "Ainda não há estoque com estes filtros. Receba uma compra ou registre um ajuste para começar."
+  },
+  "inventory.stock.empty_title": {
+    "es": "Sin existencias",
+    "en": "No stock",
+    "pt": "Sem estoque"
+  },
+  "inventory.stock.include_zero": {
+    "es": "Incluir sin existencia",
+    "en": "Include zero stock",
+    "pt": "Incluir sem estoque"
+  },
+  "inventory.stock.load_failed": {
+    "es": "No se pudieron cargar las existencias.",
+    "en": "Could not load stock on hand.",
+    "pt": "Não foi possível carregar o estoque."
+  },
+  "inventory.stock.on_hand": {
+    "es": "En existencia",
+    "en": "On hand",
+    "pt": "Em estoque"
+  },
+  "inventory.stock.search": {
+    "es": "Buscar por nombre o SKU",
+    "en": "Search by name or SKU",
+    "pt": "Buscar por nome ou SKU"
+  },
+  "inventory.stock.subtitle": {
+    "es": "Lo que se tiene de cada producto, en qué almacén y cuánto vale al costo promedio.",
+    "en": "What is held of each product, in which warehouse, and its value at average cost.",
+    "pt": "O que se tem de cada produto, em qual depósito e quanto vale ao custo médio."
+  },
+  "inventory.stock.title": {
+    "es": "Existencias",
+    "en": "Stock on hand",
+    "pt": "Estoque disponível"
+  },
+  "inventory.stock.total_value": {
+    "es": "Valor total",
+    "en": "Total value",
+    "pt": "Valor total"
+  },
+  "inventory.stock_changes_through_adjustments": {
+    "es": "Las existencias no se editan en el artículo: registra un ajuste de inventario (Inventario › Ajustes).",
+    "en": "Stock is not edited on the product: record an inventory adjustment (Inventory › Adjustments).",
+    "pt": "O estoque não é editado no produto: registre um ajuste de estoque (Estoque › Ajustes)."
+  },
+  "inventory.transfer_not_draft": {
+    "es": "La transferencia {{number}} ya no es un borrador.",
+    "en": "Transfer {{number}} is no longer a draft.",
+    "pt": "A transferência {{number}} não é mais um rascunho."
+  },
+  "inventory.transfer_not_found": {
+    "es": "La transferencia no existe.",
+    "en": "The transfer does not exist.",
+    "pt": "A transferência não existe."
+  },
+  "inventory.transfer_same_warehouse": {
+    "es": "El almacén de origen y el de destino deben ser distintos.",
+    "en": "The origin and destination warehouses must differ.",
+    "pt": "Os depósitos de origem e destino devem ser diferentes."
+  },
+  "inventory.transfer_without_lines": {
+    "es": "La transferencia no tiene líneas.",
+    "en": "The transfer has no lines.",
+    "pt": "A transferência não tem linhas."
+  },
+  "inventory.transfers.available": {
+    "es": "Disponible",
+    "en": "Available",
+    "pt": "Disponível"
+  },
+  "inventory.transfers.cancel_document": {
+    "es": "Anular",
+    "en": "Cancel",
+    "pt": "Cancelar"
+  },
+  "inventory.transfers.cancel_message": {
+    "es": "El borrador quedará anulado y no moverá existencias.",
+    "en": "The draft will be cancelled and will not move stock.",
+    "pt": "O rascunho será cancelado e não movimentará estoque."
+  },
+  "inventory.transfers.cancel_title": {
+    "es": "Anular transferencia",
+    "en": "Cancel transfer",
+    "pt": "Cancelar transferência"
+  },
+  "inventory.transfers.empty_help": {
+    "es": "Crea una transferencia para mover existencias de un almacén a otro.",
+    "en": "Create a transfer to move stock from one warehouse to another.",
+    "pt": "Crie uma transferência para mover estoque de um depósito para outro."
+  },
+  "inventory.transfers.empty_title": {
+    "es": "Sin transferencias",
+    "en": "No transfers",
+    "pt": "Sem transferências"
+  },
+  "inventory.transfers.from": {
+    "es": "Origen",
+    "en": "From",
+    "pt": "Origem"
+  },
+  "inventory.transfers.line_needs_quantity": {
+    "es": "Cada línea necesita un producto y una cantidad mayor que cero.",
+    "en": "Each line needs a product and a quantity greater than zero.",
+    "pt": "Cada linha precisa de um produto e uma quantidade maior que zero."
+  },
+  "inventory.transfers.load_failed": {
+    "es": "No se pudieron cargar las transferencias.",
+    "en": "Could not load the transfers.",
+    "pt": "Não foi possível carregar as transferências."
+  },
+  "inventory.transfers.new": {
+    "es": "Nueva transferencia",
+    "en": "New transfer",
+    "pt": "Nova transferência"
+  },
+  "inventory.transfers.post": {
+    "es": "Contabilizar",
+    "en": "Post",
+    "pt": "Contabilizar"
+  },
+  "inventory.transfers.post_failed": {
+    "es": "No se pudo contabilizar la transferencia.",
+    "en": "Could not post the transfer.",
+    "pt": "Não foi possível contabilizar a transferência."
+  },
+  "inventory.transfers.post_message": {
+    "es": "Las existencias saldrán de {{from}} y entrarán a {{to}}. Una transferencia contabilizada no se edita.",
+    "en": "Stock will leave {{from}} and enter {{to}}. A posted transfer cannot be edited.",
+    "pt": "O estoque sairá de {{from}} e entrará em {{to}}. Uma transferência contabilizada não pode ser editada."
+  },
+  "inventory.transfers.post_title": {
+    "es": "Contabilizar transferencia",
+    "en": "Post transfer",
+    "pt": "Contabilizar transferência"
+  },
+  "inventory.transfers.posted": {
+    "es": "Transferencia {{number}} contabilizada.",
+    "en": "Transfer {{number}} posted.",
+    "pt": "Transferência {{number}} contabilizada."
+  },
+  "inventory.transfers.same_warehouse": {
+    "es": "El origen y el destino deben ser almacenes distintos.",
+    "en": "Source and destination must be different warehouses.",
+    "pt": "Origem e destino devem ser depósitos diferentes."
+  },
+  "inventory.transfers.save_failed": {
+    "es": "No se pudo guardar la transferencia.",
+    "en": "Could not save the transfer.",
+    "pt": "Não foi possível salvar a transferência."
+  },
+  "inventory.transfers.saved": {
+    "es": "Transferencia {{number}} guardada.",
+    "en": "Transfer {{number}} saved.",
+    "pt": "Transferência {{number}} salva."
+  },
+  "inventory.transfers.subtitle": {
+    "es": "Movimiento de existencias entre almacenes. Al contabilizar, sale del origen y entra al destino al mismo costo.",
+    "en": "Stock moved between warehouses. On posting it leaves the source and enters the destination at the same cost.",
+    "pt": "Movimentação de estoque entre depósitos. Ao contabilizar, sai da origem e entra no destino ao mesmo custo."
+  },
+  "inventory.transfers.title": {
+    "es": "Transferencias de inventario",
+    "en": "Stock transfers",
+    "pt": "Transferências de estoque"
+  },
+  "inventory.transfers.to": {
+    "es": "Destino",
+    "en": "To",
+    "pt": "Destino"
+  },
+  "inventory.warehouse_inactive": {
+    "es": "El almacén «{{name}}» está cerrado.",
+    "en": "The warehouse «{{name}}» is closed.",
+    "pt": "O depósito «{{name}}» está fechado."
+  },
+  "inventory.warehouse_not_found": {
+    "es": "El almacén no existe en esta empresa.",
+    "en": "The warehouse does not exist in this company.",
+    "pt": "O depósito não existe nesta empresa."
   }
 }

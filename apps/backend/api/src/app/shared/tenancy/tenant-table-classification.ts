@@ -83,6 +83,8 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
   { table: 'reconciliation_match_lines', parent: 'reconciliation_matches', foreignKey: 'match_id', why: 'Líneas de una conciliación.' },
   { table: 'tax_rules', parent: 'taxes', foreignKey: 'tax_id', why: 'Reglas de un impuesto.' },
   { table: 'vendor_bill_line', parent: 'vendor_bills', foreignKey: '"vendorBillId"', why: 'Líneas de una factura de proveedor.' },
+  { table: 'inventory_adjustment_lines', parent: 'inventory_adjustments', foreignKey: 'adjustment_id', why: 'Líneas de un ajuste de inventario.' },
+  { table: 'stock_transfer_lines', parent: 'stock_transfers', foreignKey: 'transfer_id', why: 'Líneas de una transferencia entre almacenes.' },
 
   // ── Found by classifying the whole schema ──────────────────────────────────
   //
@@ -96,10 +98,22 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
   { table: 'datasheet_permissions', parent: 'datasheet_books', foreignKey: '"bookId"', why: 'Permisos sobre un libro de cálculo.' },
   { table: 'dimension_values_closure', parent: 'dimension_values', foreignKey: 'id_descendant', why: 'Cierre transitivo del árbol de valores de dimensión.' },
   { table: 'locations', parent: 'warehouses', foreignKey: 'warehouse_id', why: 'Ubicaciones dentro de un almacén.' },
-  { table: 'stock_items', parent: 'products', foreignKey: 'product_id', why: 'Existencias de un producto.' },
   { table: 'stock_movements', parent: 'products', foreignKey: 'product_id', why: 'Movimientos de existencias de un producto.' },
   { table: 'vendor_payment', parent: 'vendor_bills', foreignKey: 'vendor_bill_id', why: 'Pagos aplicados a una factura de proveedor.' },
 ];
+
+/**
+ * Tables an earlier migration covered and a later one dropped. Kept so the record of what was
+ * classified, and when, stays checkable against those migrations.
+ */
+export const RETIRED_TENANT_TABLES: readonly UnscopedTableRef[] = [
+  { table: 'stock_items', why: 'Nunca escrita; sustituida por stock_levels en StockByWarehouse1789009300000.' },
+];
+
+interface UnscopedTableRef {
+  readonly table: string;
+  readonly why: string;
+}
 
 /** A table with no tenant, and the reason that is correct. */
 export interface UnscopedTable {

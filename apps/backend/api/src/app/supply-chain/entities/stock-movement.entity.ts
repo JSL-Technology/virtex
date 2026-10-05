@@ -1,11 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, Index } from 'typeorm';
 import { Product } from '../../inventory/entities/product.entity';
+import { Warehouse } from './warehouse.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export type StockMovementType =
+  /** What the company held when its books were opened, or when a product was created holding it. */
+  | 'OPENING'
   | 'PURCHASE_RECEIPT'
+  /** Goods back to the supplier, or a purchase undone (a voided vendor bill). */
+  | 'PURCHASE_RETURN'
   | 'SALE_DISPATCH'
+  /** Goods back from a customer: a credit note that restocks. */
+  | 'SALE_RETURN'
   | 'ADJUSTMENT'
   | 'TRANSFER_OUT'
   | 'TRANSFER_IN';
@@ -23,6 +30,7 @@ export type StockMovementType =
  */
 @Entity({ name: 'stock_movements' })
 @Index('IDX_stock_movements_product_date', ['productId', 'date'])
+@Index('IDX_stock_movements_org_warehouse_date', ['organizationId', 'warehouseId', 'date'])
 export class StockMovement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -35,6 +43,18 @@ export class StockMovement {
 
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
+
+  /**
+   * Where the goods moved. Every movement has one: the kardex is read per warehouse, and a
+   * company-wide line could not be placed on any shelf. Rows from before warehouses were tracked
+   * were assigned to the company's default warehouse when this column was added.
+   */
+  @ManyToOne(() => Warehouse, { onDelete: 'NO ACTION' })
+  @JoinColumn({ name: 'warehouse_id', foreignKeyConstraintName: 'FK_stock_movements_warehouse' })
+  warehouse?: Warehouse;
+
+  @Column({ name: 'warehouse_id', type: 'uuid' })
+  warehouseId: string;
 
   /** The tenant, recorded directly so the ledger can be read without joining the catalogue. */
   @Column({ name: 'organization_id', type: 'uuid', nullable: true })

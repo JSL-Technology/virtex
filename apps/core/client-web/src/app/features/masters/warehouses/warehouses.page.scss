@@ -3,3 +3,16 @@
 :host {
   @include list.list-page;
 }
+
+.row-actions { white-space: nowrap; text-align: right; }
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: var(--space-3);
+  color: var(--accent-text);
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+td vx-badge { margin-left: var(--space-2); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

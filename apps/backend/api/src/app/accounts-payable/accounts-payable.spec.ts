@@ -940,6 +940,8 @@ describeWithDb('accounts payable', () => {
         4,
         expect.anything(),
         organizationId,
+        // Out of the warehouse they arrived in, recorded as a purchase return against the bill.
+        expect.objectContaining({ type: 'PURCHASE_RETURN', sourceType: 'vendor_bill_void' }),
       );
     });
 
