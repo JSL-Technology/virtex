@@ -9,8 +9,7 @@ import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
-import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
@@ -29,10 +28,10 @@ import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.e
 import { BudgetControlService } from '../budgets/budget-control.service';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
+import { resolveAccountByRole } from './payables-accounts';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
-import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import {
   BadRequestError,
   ForbiddenError,
@@ -40,10 +39,8 @@ import {
 } from '../i18n/localized.exception';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
-import {
-  AccountBalancesService,
-  toIsoDate,
-} from '../chart-of-accounts/account-balances.service';
+import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
+import { toIsoDate } from '../common/dates';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
@@ -813,16 +810,13 @@ export class AccountsPayableService {
   }
 
   /** An account by its operational role, falling back to the legacy settings column. */
-  private async resolveAccount(
+  private resolveAccount(
     manager: EntityManager,
     organizationId: string,
     role: AccountRole,
     fallbackId: string | null | undefined,
   ): Promise<string | null> {
-    const account = await manager.findOne(Account, {
-      where: { organizationId, systemRole: role },
-    });
-    return account?.id ?? fallbackId ?? null;
+    return resolveAccountByRole(manager, organizationId, role, fallbackId);
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -888,8 +882,16 @@ export class AccountsPayableService {
       const payerScope = await loadBranchScope(manager, organizationId, actorUserId ?? null);
       for (const bill of bills) assertDocumentInScope(payerScope, bill.branchId);
 
+      const paymentDate = toIsoDate(dto.paymentDate);
       const batch = await manager.save(
         manager.create(PaymentBatch, {
+          number: await allocateDocumentNumber(
+            manager,
+            organizationId,
+            DOCUMENT_SEQUENCE_SCOPE.VENDOR_PAYMENT,
+            'PAY',
+            Number(paymentDate.slice(0, 4)),
+          ),
           branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           organizationId,
           paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
@@ -994,7 +996,9 @@ export class AccountsPayableService {
             vendorBillId: bill.id,
             date: toIsoDate(dto.paymentDate) as unknown as Date,
             amount: settled,
-            amountPaid: line.amount,
+            // What left the bank, in the bank account's currency: the bill's own amount when they
+            // share a currency, its value at the day's rate when the account is in the base one.
+            amountPaid: bankAccount.currencyCode === bill.currencyCode ? line.amount : cashBase,
             taxWithheld: line.taxWithheld ?? 0,
             incomeTaxWithheld: line.incomeTaxWithheld ?? 0,
             discount,
@@ -1134,8 +1138,11 @@ export class AccountsPayableService {
 
   async listPayments(id: string, organizationId: string): Promise<VendorPayment[]> {
     await this.findOne(id, organizationId);
+    // With the payment each one belongs to, so a voided payment reads as voided rather than as
+    // money that settled the bill.
     return this.dataSource.getRepository(VendorPayment).find({
       where: { vendorBillId: id },
+      relations: ['paymentBatch'],
       order: { date: 'ASC' },
     });
   }
@@ -1325,7 +1332,14 @@ export class AccountsPayableService {
       // A bill with payments against it cannot be annulled: the payments would be left pointing at
       // a document that no longer owes anything. It used to set `balance = 0` on a partially paid
       // bill and leave the payments orphaned.
-      const payments = await manager.count(VendorPayment, { where: { vendorBillId: id } });
+      // Only payments still standing: a voided payment gave back everything it settled.
+      const payments = await manager
+        .createQueryBuilder(VendorPayment, 'payment')
+        .innerJoin('payment.paymentBatch', 'batch')
+        .where('payment.vendorBillId = :id', { id })
+        .andWhere('batch.organizationId = :organizationId', { organizationId })
+        .andWhere('batch.status <> :void', { void: PaymentBatchStatus.VOID })
+        .getCount();
       if (payments > 0) {
         throw new BadRequestError('accounts_payable.bill_with_payments_applied_cannot_voided');
       }

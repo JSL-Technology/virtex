@@ -23,7 +23,7 @@ import { Warehouse, WarehousesService } from '../../masters/data/warehouses.serv
   standalone: true,
   imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, HasPermissionDirective],
   templateUrl: './stock.page.html',
-  styleUrls: ['../shared/inventory-filters.scss'],
+  styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StockPage implements OnInit {

@@ -4,7 +4,7 @@ import { Repository, EntityManager, DataSource } from 'typeorm';
 import { CostingMethod, Product, ProductKind } from './entities/product.entity';
 import { StockMovementType } from '../supply-chain/entities/stock-movement.entity';
 import { standardSalesTaxRate } from './contracts/sellable-product.contract';
-import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult } from './contracts/goods-receipt.contract';
+import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult, GoodsReturnRequest } from './contracts/goods-receipt.contract';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
@@ -336,6 +336,67 @@ export class InventoryService implements GoodsReceiptPort {
       : null;
 
     return { journalEntryId, stocked, warehouseId };
+  }
+
+  /**
+   * Undo a receipt (see `GoodsReceiptPort.returnGoods`).
+   *
+   * For a weighted-average item the receipt's value comes back out of the average exactly as it
+   * went in: what remains is valued at (stock × cost − returned × receipt cost) / remaining stock.
+   * That keeps the inventory account and the stock it describes equal once the return entry
+   * (Dr GRNI / Cr Inventory, at the same values) is posted. If nothing remains, the cost is left as it was — there is nothing left to value.
+   */
+  async returnGoods(
+    manager: EntityManager,
+    organizationId: string,
+    request: GoodsReturnRequest,
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const returned: Array<{ description: string; amount: number }> = [];
+    for (const line of request.lines) {
+      if (line.quantity <= 0) continue;
+      const product = await this.lockProduct(line.productId, organizationId, manager);
+      if (product.kind === ProductKind.SERVICE) continue;
+      returned.push({ description: product.name, amount: Math.round(line.quantity * line.unitCost * 100) / 100 });
+      const warehouseId =
+        request.warehouseId ?? (await this.ledger.resolveWarehouse(manager, organizationId, {}));
+
+      const onHand = Number(product.stock);
+      const remaining = onHand - line.quantity;
+      if (
+        (product.costingMethod === CostingMethod.WEIGHTED_AVERAGE || !product.costingMethod) &&
+        remaining > 0
+      ) {
+        const value = onHand * Number(product.cost) - line.quantity * line.unitCost;
+        product.cost = Math.max(0, Math.round((value / remaining) * 1e6) / 1e6);
+        await manager.save(Product, product);
+      }
+
+      await this.ledger.move(manager, organizationId, {
+        productId: product.id,
+        warehouseId,
+        quantity: -line.quantity,
+        unitCost: line.unitCost,
+        type: 'PURCHASE_RETURN',
+        reference: request.reference,
+        sourceType: request.sourceType,
+        sourceId: request.sourceId,
+      });
+    }
+
+    if (!request.posted) return null;
+    return this.posting.postGoodsReturn(
+      manager,
+      organizationId,
+      {
+        reference: request.reference,
+        sourceId: request.sourceId,
+        date: request.date,
+        reason: request.reason,
+        lines: returned,
+      },
+      actorUserId,
+    );
   }
 
   private async lockProduct(

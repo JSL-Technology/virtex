@@ -38,7 +38,7 @@ const SOURCE_ROUTES: Record<string, (id: string) => string> = {
   standalone: true,
   imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './movements.page.html',
-  styleUrls: ['../shared/inventory-filters.scss', './movements.page.scss'],
+  styleUrls: ['../../../shared/styles/document-list.scss', './movements.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StockMovementsPage implements OnInit {

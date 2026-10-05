@@ -94,6 +94,11 @@
     "en": "Debit note on vendor bill {{bill}}",
     "pt": "Nota de débito sobre a fatura de fornecedor {{bill}}"
   },
+  "ledger.debit_note.vendor_tax_returned": {
+    "es": "Impuesto deducible devuelto",
+    "en": "Deductible tax given back",
+    "pt": "Imposto dedutível devolvido"
+  },
   "ledger.depreciation.accumulated": {
     "es": "Depreciación acumulada {{month}} — {{asset}}",
     "en": "Accumulated depreciation {{month}} — {{asset}}",
@@ -223,6 +228,11 @@
     "es": "Recepción de mercancía {{reference}}",
     "en": "Goods receipt {{reference}}",
     "pt": "Recebimento de mercadorias {{reference}}"
+  },
+  "ledger.inventory.goods_return_entry": {
+    "es": "Anulación de recepción {{reference}}: {{reason}}",
+    "en": "Receipt {{reference}} voided: {{reason}}",
+    "pt": "Anulação do recebimento {{reference}}: {{reason}}"
   },
   "ledger.inventory.opening_counterpart": {
     "es": "Contrapartida de saldos iniciales",

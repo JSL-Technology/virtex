@@ -14,17 +14,15 @@ import {
   UpdatePurchaseOrderDto,
 } from './dto/purchase-order.dto';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
-import { PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
+import { GoodsReceiptStatus, PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
-import {
-  JournalEntryNumberingService,
-  SEQUENCE_SCOPE,
-} from '../journal-entries/journal-entry-numbering.service';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { ProcurementService } from './procurement.service';
 import { roundAmount, toCents } from '../common/money';
-import { toIsoDate } from '../chart-of-accounts/account-balances.service';
+import { toIsoDate } from '../common/dates';
 import { canTransition } from '@virteex/shared/types';
 import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -70,7 +68,6 @@ export class PurchaseOrdersService {
     @InjectRepository(PurchaseOrder)
     private readonly orderRepository: Repository<PurchaseOrder>,
     private readonly dataSource: DataSource,
-    private readonly numbering: JournalEntryNumberingService,
     private readonly requisitions: ProcurementService,
     private readonly inventory: GoodsReceiptPort,
     // Optional only so the suites that build this service by hand for domestic orders keep
@@ -127,6 +124,11 @@ export class PurchaseOrdersService {
       .where('po.organizationId = :organizationId', { organizationId });
     if (query.status) builder.andWhere('po.status = :status', { status: query.status });
     if (query.supplierId) builder.andWhere('po.supplierId = :supplierId', { supplierId: query.supplierId });
+    if (query.receivable) {
+      builder.andWhere('po.status IN (:...receivable)', {
+        receivable: [PurchaseOrderStatus.SENT, PurchaseOrderStatus.PARTIALLY_RECEIVED],
+      });
+    }
     if (actorUserId || query.branchId) {
       const scope = await loadBranchScope(this.dataSource.manager, organizationId, actorUserId ?? null);
       applyBranchScope(builder, 'po', scope, query.branchId);
@@ -368,6 +370,19 @@ export class PurchaseOrdersService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<PurchaseOrder> {
+    return (await this.receiveDocument(id, dto, organizationId, actorUserId)).order;
+  }
+
+  /**
+   * The same delivery, answered with the receipt it created — what `POST procurement/receipts`
+   * returns, so the screen that records a delivery can open the document it just made.
+   */
+  async receiveDocument(
+    id: string,
+    dto: ReceivePurchaseOrderDto,
+    organizationId: string,
+    actorUserId: string | null = null,
+  ): Promise<{ order: PurchaseOrder; receipt: PurchaseOrderReceipt }> {
     return this.dataSource.transaction(async (manager) => {
       const order = await this.findOneWith(manager, id, organizationId);
       if (![PurchaseOrderStatus.SENT, PurchaseOrderStatus.PARTIALLY_RECEIVED].includes(order.status)) {
@@ -382,7 +397,8 @@ export class PurchaseOrdersService {
             quantity: roundQuantity(line.quantity - line.receivedQuantity),
           }));
 
-      const receivedOn = toIsoDate(dto.receivedAt ?? new Date());
+      // The day the goods arrived, as the company's books read it — not the server's UTC date.
+      const receivedOn = dto.receivedAt ? toIsoDate(dto.receivedAt) : await organizationToday(manager, organizationId);
       const rate = await this.receiptRate(manager, order, organizationId, receivedOn);
       const arriving: Array<{ line: PurchaseOrderLine; quantity: number; unitCost: number }> = [];
       for (const received of requested) {
@@ -415,7 +431,18 @@ export class PurchaseOrdersService {
           // Received where it was ordered: the order already names the branch the goods go to.
           branchId: order.branchId,
           orderId: order.id,
-          receivedAt: new Date(),
+          number: await allocateDocumentNumber(
+            manager,
+            organizationId,
+            DOCUMENT_SEQUENCE_SCOPE.GOODS_RECEIPT,
+            'GR',
+            Number(receivedOn.slice(0, 4)),
+          ),
+          status: GoodsReceiptStatus.POSTED,
+          // The instant it was recorded when that is the day it arrived; otherwise the day stated.
+          // It used to be `new Date()` whatever date was given, so a delivery recorded a day late
+          // read as arriving the day it was typed while its entry said otherwise.
+          receivedAt: dto.receivedAt ? new Date(`${receivedOn}T12:00:00.000Z`) : new Date(),
           receivedByUserId: actorUserId,
           notes: dto.notes ?? null,
           lines: [],
@@ -466,9 +493,9 @@ export class PurchaseOrdersService {
       await manager.save(fresh);
 
       this.logger.log(
-        `Orden ${fresh.number} → ${fresh.status}; recepción ${receipt.id}, asiento ${journalEntryId ?? '—'}.`,
+        `Orden ${fresh.number} → ${fresh.status}; recepción ${receipt.number}, asiento ${journalEntryId ?? '—'}.`,
       );
-      return this.findOneWith(manager, id, organizationId);
+      return { order: await this.findOneWith(manager, id, organizationId), receipt };
     });
   }
 
@@ -610,10 +637,10 @@ export class PurchaseOrdersService {
     organizationId: string,
     orderDate: string,
   ): Promise<string> {
-    return this.numbering.allocateForScope(
+    return allocateDocumentNumber(
       manager,
       organizationId,
-      SEQUENCE_SCOPE.PURCHASE_ORDER,
+      DOCUMENT_SEQUENCE_SCOPE.PURCHASE_ORDER,
       'PO',
       Number(orderDate.slice(0, 4)),
     );

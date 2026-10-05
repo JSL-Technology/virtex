@@ -18,7 +18,7 @@ import { STOCK_DOCUMENT_TONE } from '../adjustments/adjustment-form.page';
   standalone: true,
   imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './transfers.page.html',
-  styleUrls: ['../shared/inventory-filters.scss'],
+  styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StockTransfersPage implements OnInit {

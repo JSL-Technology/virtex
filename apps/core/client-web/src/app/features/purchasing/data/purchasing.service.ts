@@ -59,10 +59,16 @@ export interface PurchaseOrderLine {
   unitOfMeasure?: string;
 }
 
+export type GoodsReceiptStatus = 'POSTED' | 'VOID';
+
 export interface PurchaseOrderReceipt {
   id: string;
+  /** `GR-2026-000042`. */
+  number: string;
+  status: GoodsReceiptStatus;
   receivedAt: string;
   receivedByUserId: string | null;
+  warehouseId: string | null;
   journalEntryId: string | null;
   notes: string | null;
   lines: Array<{
@@ -73,6 +79,87 @@ export interface PurchaseOrderReceipt {
     unitCost: number;
     stocked: boolean;
   }>;
+}
+
+/** A goods receipt as the list shows it. */
+export interface GoodsReceiptRow {
+  id: string;
+  number: string;
+  receivedAt: string;
+  status: GoodsReceiptStatus;
+  orderId: string;
+  orderNumber: string;
+  supplierId: string;
+  supplierName: string | null;
+  warehouseId: string | null;
+  branchId: string | null;
+  journalEntryId: string | null;
+  lineCount: number;
+  /** In the books' currency, at the cost each line came in at. */
+  value: number;
+}
+
+/** A goods receipt as its own page shows it: with how much of each line the order has billed. */
+export interface GoodsReceipt {
+  id: string;
+  number: string;
+  status: GoodsReceiptStatus;
+  receivedAt: string;
+  receivedByUserId: string | null;
+  orderId: string;
+  orderNumber: string;
+  supplierId: string;
+  supplierName: string | null;
+  currencyCode: string;
+  warehouseId: string | null;
+  branchId: string | null;
+  notes: string | null;
+  journalEntryId: string | null;
+  reversalJournalEntryId: string | null;
+  voidReason: string | null;
+  voidedAt: string | null;
+  value: number;
+  lines: Array<{
+    lineId: string;
+    productId: string | null;
+    description: string;
+    quantity: number;
+    unitCost: number;
+    value: number;
+    stocked: boolean;
+    ordered: number | null;
+    receivedOnOrder: number | null;
+    billedOnOrder: number | null;
+  }>;
+}
+
+export interface GoodsReceiptQuery {
+  supplierId?: string | null;
+  orderId?: string | null;
+  warehouseId?: string | null;
+  branchId?: string | null;
+  status?: GoodsReceiptStatus | null;
+  from?: string | null;
+  to?: string | null;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateGoodsReceipt {
+  orderId: string;
+  lines: { lineId: string; quantity: number }[];
+  receivedAt?: string;
+  warehouseId?: string;
+  notes?: string;
+}
+
+/** The list endpoints for receipts page with `limit`; orders, older, with `pageSize`. */
+export interface ReceiptsPage<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 }
 
 export interface PurchaseOrder {
@@ -123,6 +210,7 @@ export class PurchasingService {
   private readonly http = inject(HttpClient);
   private readonly requisitionsUrl = `${environment.apiUrl}/procurement/requisitions`;
   private readonly ordersUrl = `${environment.apiUrl}/procurement/orders`;
+  private readonly receiptsUrl = `${environment.apiUrl}/procurement/receipts`;
 
   // ── Requisitions ───────────────────────────────────────────────────────────
 
@@ -173,10 +261,16 @@ export class PurchasingService {
 
   // ── Orders ─────────────────────────────────────────────────────────────────
 
-  listOrders(page = 1, pageSize = 50, branchId?: string | null): Observable<Paged<PurchaseOrder>> {
-    return this.http.get<Paged<PurchaseOrder>>(this.ordersUrl, {
-      params: BranchesService.params(branchId, new HttpParams().set('page', page).set('pageSize', pageSize)),
-    });
+  listOrders(
+    page = 1,
+    pageSize = 50,
+    branchId?: string | null,
+    filters: { receivable?: boolean; supplierId?: string | null } = {},
+  ): Observable<Paged<PurchaseOrder>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (filters.receivable) params = params.set('receivable', 'true');
+    if (filters.supplierId) params = params.set('supplierId', filters.supplierId);
+    return this.http.get<Paged<PurchaseOrder>>(this.ordersUrl, { params: BranchesService.params(branchId, params) });
   }
 
   getOrder(id: string): Observable<PurchaseOrder> {
@@ -249,6 +343,30 @@ export class PurchasingService {
   /** The deliveries recorded against an order, newest first, each with the entry it posted. */
   orderReceipts(id: string): Observable<PurchaseOrderReceipt[]> {
     return this.http.get<PurchaseOrderReceipt[]>(`${this.ordersUrl}/${id}/receipts`);
+  }
+
+  // ── Goods receipts ─────────────────────────────────────────────────────────
+
+  receipts(query: GoodsReceiptQuery = {}): Observable<ReceiptsPage<GoodsReceiptRow>> {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== undefined && value !== null && value !== '') params = params.set(key, String(value));
+    }
+    return this.http.get<ReceiptsPage<GoodsReceiptRow>>(this.receiptsUrl, { params });
+  }
+
+  receipt(id: string): Observable<GoodsReceipt> {
+    return this.http.get<GoodsReceipt>(`${this.receiptsUrl}/${id}`);
+  }
+
+  /** Record a delivery against an order; answers with the receipt it became. */
+  createReceipt(body: CreateGoodsReceipt): Observable<GoodsReceipt> {
+    return this.http.post<GoodsReceipt>(this.receiptsUrl, body);
+  }
+
+  /** Undo a receipt not yet billed: the stock goes back out and the order is owed it again. */
+  voidReceipt(id: string, reason: string, reversalDate?: string): Observable<GoodsReceipt> {
+    return this.http.post<GoodsReceipt>(`${this.receiptsUrl}/${id}/void`, { reason, reversalDate });
   }
 
   cancelOrder(id: string, reason: string): Observable<PurchaseOrder> {

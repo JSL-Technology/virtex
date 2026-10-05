@@ -176,10 +176,6 @@ export class PurchaseOrderFormPage implements OnInit {
   readonly taxTotal = signal(0);
   readonly total = signal(0);
 
-  /** What the user is entering as received, keyed by order line. */
-  readonly receiving = signal(false);
-  readonly receiptQuantities = signal<Record<string, number>>({});
-
   readonly cancelling = signal(false);
   readonly cancellationReason = signal('');
 
@@ -362,54 +358,6 @@ export class PurchaseOrderFormPage implements OnInit {
   approve(): void { this.act(this.purchasing.approveOrder(this.current()!.id)); }
   send(): void { this.act(this.purchasing.sendOrder(this.current()!.id)); }
 
-  startReceive(): void {
-    // Pre-filled with what is still outstanding, because "everything arrived" is the common case.
-    const quantities: Record<string, number> = {};
-    for (const line of this.current()?.lines ?? []) {
-      if (line.id) quantities[line.id] = this.outstanding(line as never);
-    }
-    this.receiptQuantities.set(quantities);
-    this.receiving.set(true);
-  }
-
-  setReceiptQuantity(lineId: string, value: string): void {
-    this.receiptQuantities.update((current) => ({ ...current, [lineId]: Number(value) || 0 }));
-  }
-
-  confirmReceive(): void {
-    const order = this.current();
-    if (!order) return;
-    const lines = Object.entries(this.receiptQuantities())
-      .filter(([, quantity]) => quantity > 0)
-      .map(([lineId, quantity]) => ({ lineId, quantity }));
-    if (lines.length === 0) {
-      this.notifications.showError('procurement.receipt_has_no_quantities');
-      return;
-    }
-    //  Se comprueba antes de enviar: recibir más de lo pendiente es lo único que el servidor
-    //  rechazaría, y decirlo aquí señala la línea exacta.
-    for (const { lineId, quantity } of lines) {
-      const line = order.lines.find((candidate) => candidate.id === lineId);
-      if (line && quantity - this.outstanding(line as never) > 0.000001) {
-        this.notifications.showError('purchasing.orders.form.receipt_exceeds_outstanding', {
-          description: line.description,
-        });
-        return;
-      }
-    }
-    this.saving.set(true);
-    this.purchasing.receiveOrder(order.id, lines).subscribe({
-      next: (updated) => {
-        this.saving.set(false);
-        this.receiving.set(false);
-        this.load(updated);
-        this.loadReceipts(updated.id);
-        this.notifications.showSuccess('purchasing.orders.form.receipt_recorded');
-      },
-      error: (error) => this.fail(error),
-    });
-  }
-
   /** Open a supplier invoice for what this order still has to bill. */
   createBill(): void {
     const order = this.current();
@@ -422,10 +370,6 @@ export class PurchaseOrderFormPage implements OnInit {
       next: (receipts) => this.receipts.set(receipts),
       error: () => this.receipts.set([]),
     });
-  }
-
-  cancelReceive(): void {
-    this.receiving.set(false);
   }
 
   startCancel(): void { this.cancelling.set(true); }

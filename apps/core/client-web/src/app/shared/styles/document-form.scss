@@ -1,5 +1,5 @@
-//  Documentos de inventario (ajustes, transferencias): cabecera, líneas y acciones.
-@use '../../../../assets/styles/design-system' as ds;
+//  Páginas de documento (ajustes, transferencias, recepciones, pagos, notas): cabecera, líneas y acciones.
+@use '../../../assets/styles/design-system' as ds;
 
 .form-body { display: flex; flex-direction: column; gap: var(--space-6); }
 
@@ -105,3 +105,27 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+// ── A posted document, read ─────────────────────────────────────────────────────────────────────
+.doc-view { display: flex; flex-direction: column; gap: var(--space-6); }
+
+.doc-card {
+  @include ds.surface-card;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.doc-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4) var(--space-6);
+  margin: 0;
+
+  dt { font-size: var(--text-sm); color: var(--content-secondary); margin-bottom: var(--space-1); }
+  dd { margin: 0; color: var(--content-primary); overflow-wrap: anywhere; }
+  a { color: var(--accent-text); }
+}
+
+.doc-void-banner { display: flex; flex-direction: column; gap: var(--space-1); }

@@ -10,10 +10,8 @@ import { CreatePurchaseRequisitionDto } from './dto/create-purchase-requisition.
 import { UpdatePurchaseRequisitionDto } from './dto/update-purchase-requisition.dto';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { Page, resolvePaging, toPage } from '../common/pagination';
-import {
-  JournalEntryNumberingService,
-  SEQUENCE_SCOPE,
-} from '../journal-entries/journal-entry-numbering.service';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { roundAmount, toCents } from '../common/money';
 import { canTransition } from '@virteex/shared/types';
 import { REQUISITION_LIFECYCLE } from './procurement-lifecycles';
@@ -44,7 +42,6 @@ export class ProcurementService {
     @InjectRepository(PurchaseRequisition)
     private readonly requisitionRepository: Repository<PurchaseRequisition>,
     private readonly dataSource: DataSource,
-    private readonly numbering: JournalEntryNumberingService,
     /** Who must approve, and who asked, are told (QA B-02). Optional for hand-built suites. */
     @Optional() private readonly events?: EventEmitter2,
   ) {}
@@ -329,13 +326,16 @@ export class ProcurementService {
     }
   }
 
-  private nextNumber(manager: EntityManager, organizationId: string): Promise<string> {
-    return this.numbering.allocateForScope(
+  private async nextNumber(manager: EntityManager, organizationId: string): Promise<string> {
+    // The year of the company's own today: on the evening of 31 December west of Greenwich the
+    // server's clock is already in the new year.
+    const today = await organizationToday(manager, organizationId);
+    return allocateDocumentNumber(
       manager,
       organizationId,
-      SEQUENCE_SCOPE.PURCHASE_REQUISITION,
+      DOCUMENT_SEQUENCE_SCOPE.PURCHASE_REQUISITION,
       'REQ',
-      new Date().getFullYear(),
+      Number(today.slice(0, 4)),
     );
   }
 }

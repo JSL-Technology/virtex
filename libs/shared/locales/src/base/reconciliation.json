@@ -10,19 +10,19 @@
     "pt": "O movimento bancário não existe ou não pertence a este extrato."
   },
   "reconciliation.bank_movement_id_already_matched_set": {
-    "es": "El movimiento bancario {id} ya está conciliado o apartado.",
-    "en": "Bank movement {id} is already matched or set aside.",
-    "pt": "O movimento bancário {id} já está conciliado ou apartado."
+    "es": "El movimiento bancario {{id}} ya está conciliado o apartado.",
+    "en": "Bank movement {{id}} is already matched or set aside.",
+    "pt": "O movimento bancário {{id}} já está conciliado ou apartado."
   },
   "reconciliation.bank_movements_total_bank_ledger_lines": {
-    "es": "Los movimientos del banco suman {bank} y las líneas contables {ledger}; una conciliación sólo es válida si ambos lados coinciden.",
-    "en": "The bank movements total {bank} and the ledger lines {ledger}; a match is only valid when both sides agree.",
-    "pt": "Os movimentos do banco somam {bank} e as linhas contábeis {ledger}; uma conciliação só é válida se ambos os lados coincidirem."
+    "es": "Los movimientos del banco suman {{bank}} y las líneas contables {{ledger}}; una conciliación sólo es válida si ambos lados coinciden.",
+    "en": "The bank movements total {{bank}} and the ledger lines {{ledger}}; a match is only valid when both sides agree.",
+    "pt": "Os movimentos do banco somam {{bank}} e as linhas contábeis {{ledger}}; uma conciliação só é válida se ambos os lados coincidirem."
   },
   "reconciliation.count_bank_movements_still_neither_matched": {
-    "es": "Quedan {count} movimientos del banco sin conciliar ni apartar.",
-    "en": "{count} bank movements are still neither matched nor set aside.",
-    "pt": "Restam {count} movimentos do banco sem conciliar nem apartar."
+    "es": "Quedan {{count}} movimientos del banco sin conciliar ni apartar.",
+    "en": "{{count}} bank movements are still neither matched nor set aside.",
+    "pt": "Restam {{count}} movimentos do banco sem conciliar nem apartar."
   },
   "reconciliation.csv_file_malformed_corrupt_column_mapping": {
     "es": "El formato del archivo CSV no es válido, está corrupto, o el mapeo de columnas es incorrecto.",
@@ -35,9 +35,9 @@
     "pt": "O lançamento gerado pela regra não contém a linha da conta bancária."
   },
   "reconciliation.file_has_already_imported_account_file": {
-    "es": "Este archivo ya se importó para esta cuenta ({fileName}).",
-    "en": "This file has already been imported for this account ({fileName}).",
-    "pt": "Este arquivo já foi importado para esta conta ({fileName})."
+    "es": "Este archivo ya se importó para esta cuenta ({{fileName}}).",
+    "en": "This file has already been imported for this account ({{fileName}}).",
+    "pt": "Este arquivo já foi importado para esta conta ({{fileName}})."
   },
   "reconciliation.ledger_line_appears_twice_same_match": {
     "es": "Una línea contable aparece dos veces en la misma conciliación.",
@@ -50,9 +50,9 @@
     "pt": "Alguma linha contábil não existe, não está lançada ou não pertence à conta deste extrato."
   },
   "reconciliation.ledger_line_id_already_reconciled": {
-    "es": "La línea contable {id} ya está conciliada.",
-    "en": "Ledger line {id} is already reconciled.",
-    "pt": "A linha contábil {id} já está conciliada."
+    "es": "La línea contable {{id}} ya está conciliada.",
+    "en": "Ledger line {{id}} is already reconciled.",
+    "pt": "A linha contábil {{id}} já está conciliada."
   },
   "reconciliation.line_has_no_amount_account_currency": {
     "es": "La línea no tiene importe en la moneda de la cuenta, y sin él no se puede conciliar contra el extracto.",
@@ -75,9 +75,9 @@
     "pt": "Nenhum livro contábil padrão foi configurado para a organização."
   },
   "reconciliation.reconciliation_does_not_balance_difference_remains": {
-    "es": "La conciliación no cuadra: quedan {difference} de diferencia entre el saldo contable ajustado y el del banco.",
-    "en": "The reconciliation does not balance: {difference} remains between the adjusted book and bank balances.",
-    "pt": "A conciliação não fecha: restam {difference} de diferença entre o saldo contábil ajustado e o do banco."
+    "es": "La conciliación no cuadra: quedan {{difference}} de diferencia entre el saldo contable ajustado y el del banco.",
+    "en": "The reconciliation does not balance: {{difference}} remains between the adjusted book and bank balances.",
+    "pt": "A conciliação não fecha: restam {{difference}} de diferença entre o saldo contábil ajustado e o do banco."
   },
   "reconciliation.reconciliation_journal_concil_not_found": {
     "es": "Diario de Conciliación (CONCIL) no encontrado.",
@@ -130,9 +130,9 @@
     "pt": "O extrato não foi importado corretamente e não pode ser conciliado."
   },
   "reconciliation.statement_does_not_add_up_opening": {
-    "es": "El estado de cuenta no cuadra consigo mismo: saldo inicial más movimientos difiere del saldo final en {difference}.",
-    "en": "The statement does not add up: opening balance plus movements differs from the closing balance by {difference}.",
-    "pt": "O extrato não fecha consigo mesmo: saldo inicial mais movimentos difere do saldo final em {difference}."
+    "es": "El estado de cuenta no cuadra consigo mismo: saldo inicial más movimientos difiere del saldo final en {{difference}}.",
+    "en": "The statement does not add up: opening balance plus movements differs from the closing balance by {{difference}}.",
+    "pt": "O extrato não fecha consigo mesmo: saldo inicial mais movimentos difere do saldo final em {{difference}}."
   },
   "reconciliation.statement_not_found": {
     "es": "Estado de cuenta no encontrado.",

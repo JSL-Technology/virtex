@@ -7,7 +7,7 @@
   [empty]="empty()"
   (reload)="load()"
 >
-  <div listFilters class="inv-filter inv-filter--product">
+  <div listFilters class="doc-filter doc-filter--product">
     <label for="kardex-product">{{ 'inventory.common.product' | translate }}</label>
     <vx-select
       inputId="kardex-product"
@@ -20,7 +20,7 @@
       placeholderKey="inventory.movements.all_products"
     />
   </div>
-  <div listFilters class="inv-filter">
+  <div listFilters class="doc-filter">
     <label for="kardex-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
     <select id="kardex-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
       <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
@@ -29,7 +29,7 @@
       }
     </select>
   </div>
-  <div listFilters class="inv-filter">
+  <div listFilters class="doc-filter">
     <label for="kardex-type">{{ 'inventory.movements.type_label' | translate }}</label>
     <select id="kardex-type" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); applyFilters()">
       <option value="">{{ 'inventory.movements.all_types' | translate }}</option>

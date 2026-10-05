@@ -30,9 +30,9 @@
     "pt": "A conta bancária não existe ou não pertence a esta organização."
   },
   "treasury.bank_account_name_inactive_cannot_take": {
-    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
-    "en": "Bank account “{name}” is inactive and cannot take movements.",
-    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+    "es": "La cuenta bancaria «{{name}}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{{name}}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{{name}}» está inativa e não admite movimentos."
   },
   "treasury.bank_accounts": {
     "es": "Cuentas bancarias",

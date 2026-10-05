@@ -142,3 +142,8 @@
   font-size: var(--text-sm);
   color: var(--accent-text);
 }
+
+// A voided receipt stays in the order's history, read as undone.
+.lines-table tr.voided td { color: var(--content-tertiary); text-decoration: line-through; }
+.lines-table tr.voided td a { text-decoration: line-through; }
+.muted { color: var(--content-tertiary); }

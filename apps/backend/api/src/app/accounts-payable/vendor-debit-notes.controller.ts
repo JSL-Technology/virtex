@@ -10,7 +10,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { VendorDebitNote } from './entities/vendor-debit-note.entity';
+import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 import { VoidVendorDebitNoteDto } from './dto/void-vendor-debit-note.dto';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
@@ -18,12 +24,15 @@ import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { CreateVendorDebitNoteDto } from './dto/create-vendor-debit-note.dto';
 import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 
+@ApiTags('Accounts Payable')
+@ApiBearerAuth()
 @Controller('vendor-debit-notes')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(VendorDebitNote)
 export class VendorDebitNotesController {
   constructor(
     private readonly vendorDebitNotesService: VendorDebitNotesService,
@@ -31,23 +40,27 @@ export class VendorDebitNotesController {
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_CREATE)
   @Post()
+  @Idempotent()
+  @UseGuards(PeriodLockGuard)
+  @ApiOperation({ summary: 'Emite y contabiliza una nota de débito contra una factura de proveedor.' })
   create(
     @Body() createDto: CreateVendorDebitNoteDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.vendorDebitNotesService.create(createDto, user.organizationId);
+    return this.vendorDebitNotesService.create(createDto, user.organizationId, user.id);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @Get()
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.vendorDebitNotesService.findAll(user.organizationId);
+  @ApiOperation({ summary: 'Lista las notas de débito, con su factura y proveedor.' })
+  findAll(@Query() query: VendorDebitNoteQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.vendorDebitNotesService.findAll(user.organizationId, query, user.id);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @Get(':id')
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.vendorDebitNotesService.findOne(id, user.organizationId);
+    return this.vendorDebitNotesService.findOne(id, user.organizationId, user.id);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)

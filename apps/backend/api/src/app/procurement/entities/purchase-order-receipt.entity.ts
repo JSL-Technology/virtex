@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { PurchaseOrder } from './purchase-order.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
@@ -16,6 +16,12 @@ export interface PurchaseOrderReceiptLine {
   stocked: boolean;
 }
 
+export enum GoodsReceiptStatus {
+  POSTED = 'POSTED',
+  /** Undone: the stock went back out and the entry was reversed. The row and its number stay. */
+  VOID = 'VOID',
+}
+
 /**
  * A delivery against a purchase order (QA C-07).
  *
@@ -27,7 +33,17 @@ export interface PurchaseOrderReceiptLine {
 @Index('IDX_purchase_order_receipts_org_branch', ['organizationId', 'branchId'])
 @Entity('purchase_order_receipts')
 @Index('IDX_purchase_order_receipts_order', ['orderId'])
+@Index('UQ_purchase_order_receipts_org_number', ['organizationId', 'number'], { unique: true })
+@Index('IDX_purchase_order_receipts_org_date', ['organizationId', 'receivedAt'])
+@Check('CHK_purchase_order_receipts_status', `"status" IN ('POSTED', 'VOID')`)
 export class PurchaseOrderReceipt extends BaseEntity {
+  /** `GR-2026-000042`: what the warehouse writes on the delivery note and the bill is matched to. */
+  @Column({ type: 'varchar', length: 40 })
+  number: string;
+
+  @Column({ type: 'varchar', length: 16, default: GoodsReceiptStatus.POSTED })
+  status: GoodsReceiptStatus;
+
   @Column({ name: 'order_id', type: 'uuid' })
   orderId: string;
 
@@ -67,6 +83,19 @@ export class PurchaseOrderReceipt extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  @Column({ name: 'void_reason', type: 'text', nullable: true })
+  voidReason: string | null;
+
+  @Column({ name: 'voided_at', type: 'timestamptz', nullable: true })
+  voidedAt: Date | null;
+
+  @Column({ name: 'voided_by_user_id', type: 'uuid', nullable: true })
+  voidedByUserId: string | null;
+
+  /** The return entry (Dr GRNI / Cr Inventory) that undid the receipt when it was voided. */
+  @Column({ name: 'reversal_journal_entry_id', type: 'uuid', nullable: true })
+  reversalJournalEntryId: string | null;
 
   @Column({ type: 'jsonb', default: [] })
   lines: PurchaseOrderReceiptLine[];

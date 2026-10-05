@@ -1,18 +1,28 @@
 {
+  "accounts_payable.account_not_found": {
+    "es": "La cuenta contable indicada no existe en esta empresa.",
+    "en": "The account given does not exist in this company.",
+    "pt": "A conta contábil indicada não existe nesta empresa."
+  },
+  "accounts_payable.account_not_postable": {
+    "es": "La cuenta {{code}} · {{name}} no admite movimientos: está inactiva o es una cuenta de grupo.",
+    "en": "Account {{code}} · {{name}} does not take postings: it is inactive or a group account.",
+    "pt": "A conta {{code}} · {{name}} não aceita lançamentos: está inativa ou é uma conta de grupo."
+  },
   "accounts_payable.accounts_payable_account_not_configured": {
     "es": "La cuenta de Cuentas por Pagar no está configurada.",
     "en": "The Accounts Payable account is not configured.",
     "pt": "A conta de Contas a Pagar não está configurada."
   },
   "accounts_payable.bank_account_name_inactive_cannot_take": {
-    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
-    "en": "Bank account “{name}” is inactive and cannot take movements.",
-    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+    "es": "La cuenta bancaria «{{name}}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{{name}}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{{name}}» está inativa e não admite movimentos."
   },
   "accounts_payable.bill_bill_cannot_paid_from_account": {
-    "es": "No se puede pagar una factura en {bill} desde una cuenta en {account}; usa una cuenta en {bill} o en la moneda funcional.",
-    "en": "A bill in {bill} cannot be paid from an account in {account}; use an account in {bill} or in the books’ currency.",
-    "pt": "Não é possível pagar uma fatura em {bill} a partir de uma conta em {account}; use uma conta em {bill} ou na moeda dos livros."
+    "es": "No se puede pagar una factura en {{bill}} desde una cuenta en {{account}}; usa una cuenta en {{bill}} o en la moneda funcional.",
+    "en": "A bill in {{bill}} cannot be paid from an account in {{account}}; use an account in {{bill}} or in the books’ currency.",
+    "pt": "Não é possível pagar uma fatura em {{bill}} a partir de uma conta em {{account}}; use uma conta em {{bill}} ou na moeda dos livros."
   },
   "accounts_payable.bill_exceeds_ordered_quantity": {
     "es": "Se facturaría {{billed}} de «{{description}}», pero se pidieron {{ordered}}. Revisa la cantidad o amplía la orden.",
@@ -69,15 +79,265 @@
     "en": "Debit note \"{{id}}\" was not found.",
     "pt": "Nota de débito \"{{id}}\" não encontrada."
   },
+  "accounts_payable.debit_note_ncf_invalid": {
+    "es": "El NCF del proveedor debe tener entre 11 y 19 letras mayúsculas o dígitos.",
+    "en": "The supplier’s NCF must be 11 to 19 capital letters or digits.",
+    "pt": "O NCF do fornecedor deve ter de 11 a 19 letras maiúsculas ou dígitos."
+  },
   "accounts_payable.debit_note_posted_is_immutable": {
     "es": "Una nota de débito emitida no se modifica: ya está contabilizada y ya redujo el saldo de la factura. Anúlala y emite la correcta.",
     "en": "An issued debit note cannot be changed: it is already posted and has already reduced the bill balance. Void it and issue the correct one.",
     "pt": "Uma nota de débito emitida não pode ser alterada: já foi contabilizada e já reduziu o saldo da fatura. Anule-a e emita a correta."
   },
+  "accounts_payable.debit_note_tax_exceeds_amount": {
+    "es": "El impuesto de la nota debe ser menor que su monto.",
+    "en": "The note’s tax must be less than its amount.",
+    "pt": "O imposto da nota deve ser menor que o seu valor."
+  },
+  "accounts_payable.debit_note_tax_exceeds_bill_tax": {
+    "es": "La factura solo tiene {{available}} de impuesto deducible por devolver.",
+    "en": "The bill has only {{available}} of deductible tax left to give back.",
+    "pt": "A fatura tem apenas {{available}} de imposto dedutível a devolver."
+  },
   "accounts_payable.debit_note_without_entry_reverse_manually": {
     "es": "Esta nota se emitió antes de que se registrara su asiento, así que no se puede identificar con certeza cuál revertir. Reviértelo desde el Libro Diario y registra la anulación allí.",
     "en": "This note was issued before notes recorded their entry, so which entry to reverse cannot be told for certain. Reverse it from the General Journal and record the annulment there.",
     "pt": "Esta nota foi emitida antes de as notas registrarem seu lançamento, então não é possível saber com certeza qual estornar. Estorne-o pelo Livro Diário e registre a anulação lá."
+  },
+  "accounts_payable.debit_notes.all": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "accounts_payable.debit_notes.all_suppliers": {
+    "es": "Todos los proveedores",
+    "en": "All suppliers",
+    "pt": "Todos os fornecedores"
+  },
+  "accounts_payable.debit_notes.amount": {
+    "es": "Monto (con impuesto)",
+    "en": "Amount (tax included)",
+    "pt": "Valor (com imposto)"
+  },
+  "accounts_payable.debit_notes.back": {
+    "es": "Volver a notas de débito",
+    "en": "Back to debit notes",
+    "pt": "Voltar às notas de débito"
+  },
+  "accounts_payable.debit_notes.bill": {
+    "es": "Factura",
+    "en": "Bill",
+    "pt": "Fatura"
+  },
+  "accounts_payable.debit_notes.bill_owes": {
+    "es": "La factura debe",
+    "en": "The bill owes",
+    "pt": "A fatura deve"
+  },
+  "accounts_payable.debit_notes.bill_tax_credit": {
+    "es": "crédito fiscal tomado",
+    "en": "tax credit taken",
+    "pt": "crédito fiscal tomado"
+  },
+  "accounts_payable.debit_notes.counterpart": {
+    "es": "Cuenta de contrapartida",
+    "en": "Counterpart account",
+    "pt": "Conta de contrapartida"
+  },
+  "accounts_payable.debit_notes.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "accounts_payable.debit_notes.effect": {
+    "es": "Al contabilizarla se debita Cuentas por pagar por el monto, se acredita el impuesto devuelto a la cuenta de impuesto deducible y el resto a la cuenta de contrapartida. Una nota contabilizada solo se corrige anulándola.",
+    "en": "On posting, Payables is debited for the amount, the tax given back is credited to the deductible tax account and the rest to the counterpart account. A posted note is corrected only by voiding it.",
+    "pt": "Ao contabilizar, debita-se Contas a pagar pelo valor, credita-se o imposto devolvido na conta de imposto dedutível e o restante na conta de contrapartida. Uma nota contabilizada só se corrige anulando-a."
+  },
+  "accounts_payable.debit_notes.empty_help": {
+    "es": "Registra una nota de débito cuando devuelvas mercancía o el proveedor corrija un precio.",
+    "en": "Record a debit note when you return goods or the supplier corrects a price.",
+    "pt": "Registre uma nota de débito ao devolver mercadorias ou quando o fornecedor corrigir um preço."
+  },
+  "accounts_payable.debit_notes.empty_title": {
+    "es": "Sin notas de débito",
+    "en": "No debit notes",
+    "pt": "Sem notas de débito"
+  },
+  "accounts_payable.debit_notes.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "accounts_payable.debit_notes.exceeds_balance": {
+    "es": "La nota es mayor que lo que la factura debe.",
+    "en": "The note is larger than what the bill owes.",
+    "pt": "A nota é maior do que a fatura deve."
+  },
+  "accounts_payable.debit_notes.load_failed": {
+    "es": "No se pudieron cargar las notas de débito.",
+    "en": "Could not load the debit notes.",
+    "pt": "Não foi possível carregar as notas de débito."
+  },
+  "accounts_payable.debit_notes.load_one_failed": {
+    "es": "No se pudo cargar la nota de débito.",
+    "en": "Could not load the debit note.",
+    "pt": "Não foi possível carregar a nota de débito."
+  },
+  "accounts_payable.debit_notes.ncf": {
+    "es": "NCF del proveedor",
+    "en": "Supplier’s NCF",
+    "pt": "NCF do fornecedor"
+  },
+  "accounts_payable.debit_notes.ncf_placeholder": {
+    "es": "NCF de la nota de crédito del proveedor (opcional)",
+    "en": "The supplier’s credit-note NCF (optional)",
+    "pt": "NCF da nota de crédito do fornecedor (opcional)"
+  },
+  "accounts_payable.debit_notes.new": {
+    "es": "Nueva nota de débito",
+    "en": "New debit note",
+    "pt": "Nova nota de débito"
+  },
+  "accounts_payable.debit_notes.new_subtitle": {
+    "es": "Reduce lo que se le debe al proveedor en una factura abierta.",
+    "en": "Reduce what the supplier is owed on an open bill.",
+    "pt": "Reduz o que se deve ao fornecedor em uma fatura em aberto."
+  },
+  "accounts_payable.debit_notes.no_open_bills": {
+    "es": "No hay facturas abiertas.",
+    "en": "No open bills.",
+    "pt": "Não há faturas em aberto."
+  },
+  "accounts_payable.debit_notes.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "accounts_payable.debit_notes.open_bill": {
+    "es": "Ver factura",
+    "en": "Open bill",
+    "pt": "Ver fatura"
+  },
+  "accounts_payable.debit_notes.post": {
+    "es": "Contabilizar nota",
+    "en": "Post note",
+    "pt": "Contabilizar nota"
+  },
+  "accounts_payable.debit_notes.posted": {
+    "es": "Nota de débito {{number}} contabilizada.",
+    "en": "Debit note {{number}} posted.",
+    "pt": "Nota de débito {{number}} contabilizada."
+  },
+  "accounts_payable.debit_notes.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "accounts_payable.debit_notes.reason_placeholder": {
+    "es": "Ej.: devolución de 2 unidades dañadas",
+    "en": "E.g. return of 2 damaged units",
+    "pt": "Ex.: devolução de 2 unidades danificadas"
+  },
+  "accounts_payable.debit_notes.save_failed": {
+    "es": "No se pudo contabilizar la nota de débito.",
+    "en": "Could not post the debit note.",
+    "pt": "Não foi possível contabilizar a nota de débito."
+  },
+  "accounts_payable.debit_notes.status.posted": {
+    "es": "Contabilizada",
+    "en": "Posted",
+    "pt": "Contabilizada"
+  },
+  "accounts_payable.debit_notes.status.voided": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Anulada"
+  },
+  "accounts_payable.debit_notes.status_label": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "accounts_payable.debit_notes.subtitle": {
+    "es": "Devoluciones, correcciones de precio y rebajas que reducen lo que se debe en una factura.",
+    "en": "Returns, price corrections and rebates that reduce what a bill owes.",
+    "pt": "Devoluções, correções de preço e abatimentos que reduzem o que uma fatura deve."
+  },
+  "accounts_payable.debit_notes.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "accounts_payable.debit_notes.tax_amount": {
+    "es": "Impuesto devuelto",
+    "en": "Tax given back",
+    "pt": "Imposto devolvido"
+  },
+  "accounts_payable.debit_notes.tax_exceeds_bill": {
+    "es": "Se devuelve más impuesto del que la factura tomó como crédito.",
+    "en": "More tax is given back than the bill took as a credit.",
+    "pt": "Devolve-se mais imposto do que a fatura tomou como crédito."
+  },
+  "accounts_payable.debit_notes.tax_not_below_amount": {
+    "es": "El impuesto devuelto debe ser menor que el monto de la nota.",
+    "en": "The tax given back must be less than the note’s amount.",
+    "pt": "O imposto devolvido deve ser menor que o valor da nota."
+  },
+  "accounts_payable.debit_notes.title": {
+    "es": "Notas de débito a proveedores",
+    "en": "Debit notes to suppliers",
+    "pt": "Notas de débito a fornecedores"
+  },
+  "accounts_payable.debit_notes.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
+  },
+  "accounts_payable.debit_notes.view_reversal": {
+    "es": "Ver asiento de reverso",
+    "en": "View the reversing entry",
+    "pt": "Ver lançamento de estorno"
+  },
+  "accounts_payable.debit_notes.void": {
+    "es": "Anular nota",
+    "en": "Void note",
+    "pt": "Anular nota"
+  },
+  "accounts_payable.debit_notes.void_failed": {
+    "es": "No se pudo anular la nota de débito.",
+    "en": "Could not void the debit note.",
+    "pt": "Não foi possível anular a nota de débito."
+  },
+  "accounts_payable.debit_notes.void_message": {
+    "es": "La factura volverá a deber lo que {{number}} le rebajó y su asiento se revertirá.",
+    "en": "The bill will owe again what {{number}} took off and its entry will be reversed.",
+    "pt": "A fatura voltará a dever o que {{number}} abateu e o lançamento será estornado."
+  },
+  "accounts_payable.debit_notes.void_reason": {
+    "es": "Motivo de la anulación",
+    "en": "Reason for voiding",
+    "pt": "Motivo da anulação"
+  },
+  "accounts_payable.debit_notes.void_reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo de pelo menos 3 caracteres."
+  },
+  "accounts_payable.debit_notes.void_title": {
+    "es": "Anular nota de débito",
+    "en": "Void debit note",
+    "pt": "Anular nota de débito"
+  },
+  "accounts_payable.debit_notes.voided": {
+    "es": "Nota de débito {{number}} anulada.",
+    "en": "Debit note {{number}} voided.",
+    "pt": "Nota de débito {{number}} anulada."
+  },
+  "accounts_payable.debit_notes.voided_banner": {
+    "es": "Nota de débito anulada",
+    "en": "Debit note voided",
+    "pt": "Nota de débito anulada"
   },
   "accounts_payable.debit_notes_can_only_applied_open": {
     "es": "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.",
@@ -154,6 +414,16 @@
     "en": "Date",
     "pt": "Data"
   },
+  "accounts_payable.detail.debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "accounts_payable.detail.debit_notes": {
+    "es": "Notas de débito",
+    "en": "Debit notes",
+    "pt": "Notas de débito"
+  },
   "accounts_payable.detail.discount": {
     "es": "Descuento",
     "en": "Discount",
@@ -194,6 +464,11 @@
     "en": "Item",
     "pt": "Descrição"
   },
+  "accounts_payable.detail.no_debit_notes": {
+    "es": "Esta factura no tiene notas de débito.",
+    "en": "This bill has no debit notes.",
+    "pt": "Esta fatura não tem notas de débito."
+  },
   "accounts_payable.detail.nothing_has_paid_against_bill_yet": {
     "es": "Todavía no se ha pagado nada contra esta factura.",
     "en": "Nothing has been paid against this bill yet.",
@@ -203,6 +478,11 @@
     "es": "Saldo pendiente",
     "en": "Outstanding balance",
     "pt": "Saldo em aberto"
+  },
+  "accounts_payable.detail.pay": {
+    "es": "Pagar",
+    "en": "Pay",
+    "pt": "Pagar"
   },
   "accounts_payable.detail.payments_applied": {
     "es": "Pagos aplicados",
@@ -706,10 +986,10 @@
     "en": "Payment date",
     "pt": "Data do pagamento"
   },
-  "accounts_payable.payment.payment_recorded": {
-    "es": "Pago registrado.",
-    "en": "Payment recorded.",
-    "pt": "Pagamento registrado."
+  "accounts_payable.payment.payment_recorded_number": {
+    "es": "Pago {{number}} registrado.",
+    "en": "Payment {{number}} recorded.",
+    "pt": "Pagamento {{number}} registrado."
   },
   "accounts_payable.payment.record_payment": {
     "es": "Registrar pago",
@@ -725,6 +1005,11 @@
     "es": "Retenciones",
     "en": "Withholdings",
     "pt": "Retenções"
+  },
+  "accounts_payable.payment_already_voided": {
+    "es": "El pago {{number}} ya está anulado.",
+    "en": "Payment {{number}} is already voided.",
+    "pt": "O pagamento {{number}} já está anulado."
   },
   "accounts_payable.payment_form.barter": {
     "es": "Permuta",
@@ -760,6 +1045,221 @@
     "es": "Mixto",
     "en": "Mixed",
     "pt": "Misto"
+  },
+  "accounts_payable.payment_not_found": {
+    "es": "El pago no existe.",
+    "en": "The payment does not exist.",
+    "pt": "O pagamento não existe."
+  },
+  "accounts_payable.payment_not_voidable": {
+    "es": "Un pago en estado {{status}} no se puede anular.",
+    "en": "A payment in status {{status}} cannot be voided.",
+    "pt": "Um pagamento com status {{status}} não pode ser anulado."
+  },
+  "accounts_payable.payments.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "accounts_payable.payments.all_accounts": {
+    "es": "Todas las cuentas",
+    "en": "All accounts",
+    "pt": "Todas as contas"
+  },
+  "accounts_payable.payments.all_suppliers": {
+    "es": "Todos los proveedores",
+    "en": "All suppliers",
+    "pt": "Todos os fornecedores"
+  },
+  "accounts_payable.payments.amount": {
+    "es": "Monto pagado",
+    "en": "Amount paid",
+    "pt": "Valor pago"
+  },
+  "accounts_payable.payments.back": {
+    "es": "Volver a pagos",
+    "en": "Back to payments",
+    "pt": "Voltar aos pagamentos"
+  },
+  "accounts_payable.payments.bank_account": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "accounts_payable.payments.bill": {
+    "es": "Factura",
+    "en": "Bill",
+    "pt": "Fatura"
+  },
+  "accounts_payable.payments.bills": {
+    "es": "Facturas",
+    "en": "Bills",
+    "pt": "Faturas"
+  },
+  "accounts_payable.payments.bills_settled": {
+    "es": "Facturas saldadas",
+    "en": "Bills settled",
+    "pt": "Faturas quitadas"
+  },
+  "accounts_payable.payments.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "accounts_payable.payments.date": {
+    "es": "Fecha de pago",
+    "en": "Payment date",
+    "pt": "Data do pagamento"
+  },
+  "accounts_payable.payments.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "accounts_payable.payments.empty_help": {
+    "es": "Los pagos que registres a proveedores aparecerán aquí, con su número y las facturas que saldaron.",
+    "en": "Payments you record to suppliers appear here, with their number and the bills they settled.",
+    "pt": "Os pagamentos registrados a fornecedores aparecerão aqui, com o número e as faturas que quitaram."
+  },
+  "accounts_payable.payments.empty_title": {
+    "es": "Sin pagos",
+    "en": "No payments",
+    "pt": "Sem pagamentos"
+  },
+  "accounts_payable.payments.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "accounts_payable.payments.exchange_difference": {
+    "es": "Diferencia cambiaria",
+    "en": "Exchange difference",
+    "pt": "Variação cambial"
+  },
+  "accounts_payable.payments.load_failed": {
+    "es": "No se pudieron cargar los pagos.",
+    "en": "Could not load the payments.",
+    "pt": "Não foi possível carregar os pagamentos."
+  },
+  "accounts_payable.payments.load_one_failed": {
+    "es": "No se pudo cargar el pago.",
+    "en": "Could not load the payment.",
+    "pt": "Não foi possível carregar o pagamento."
+  },
+  "accounts_payable.payments.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "accounts_payable.payments.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "accounts_payable.payments.settled": {
+    "es": "Aplicado",
+    "en": "Settled",
+    "pt": "Aplicado"
+  },
+  "accounts_payable.payments.status.paid": {
+    "es": "Pagado",
+    "en": "Paid",
+    "pt": "Pago"
+  },
+  "accounts_payable.payments.status.pending": {
+    "es": "Pendiente",
+    "en": "Pending",
+    "pt": "Pendente"
+  },
+  "accounts_payable.payments.status.processing": {
+    "es": "En proceso",
+    "en": "Processing",
+    "pt": "Processando"
+  },
+  "accounts_payable.payments.status.void": {
+    "es": "Anulado",
+    "en": "Voided",
+    "pt": "Anulado"
+  },
+  "accounts_payable.payments.status_label": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "accounts_payable.payments.subtitle": {
+    "es": "Lo que salió de cada cuenta, a quién y por cuáles facturas.",
+    "en": "What left each account, to whom and for which bills.",
+    "pt": "O que saiu de cada conta, para quem e por quais faturas."
+  },
+  "accounts_payable.payments.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "accounts_payable.payments.suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "accounts_payable.payments.title": {
+    "es": "Pagos a proveedores",
+    "en": "Payments to suppliers",
+    "pt": "Pagamentos a fornecedores"
+  },
+  "accounts_payable.payments.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
+  },
+  "accounts_payable.payments.view_reversal": {
+    "es": "Ver asiento de reverso",
+    "en": "View the reversing entry",
+    "pt": "Ver lançamento de estorno"
+  },
+  "accounts_payable.payments.void": {
+    "es": "Anular pago",
+    "en": "Void payment",
+    "pt": "Anular pagamento"
+  },
+  "accounts_payable.payments.void_failed": {
+    "es": "No se pudo anular el pago.",
+    "en": "Could not void the payment.",
+    "pt": "Não foi possível anular o pagamento."
+  },
+  "accounts_payable.payments.void_message": {
+    "es": "Cada factura que saldó {{number}} volverá a deber lo pagado y su asiento se revertirá. Si el pago ya está conciliado con el banco, primero hay que deshacer la conciliación.",
+    "en": "Every bill {{number}} settled will owe again what was paid and its entry will be reversed. If the payment is already reconciled with the bank, undo the reconciliation first.",
+    "pt": "Cada fatura quitada por {{number}} voltará a dever o valor pago e o lançamento será estornado. Se o pagamento já estiver conciliado com o banco, desfaça a conciliação primeiro."
+  },
+  "accounts_payable.payments.void_reason": {
+    "es": "Motivo: cheque devuelto, transferencia rechazada…",
+    "en": "Reason: cheque returned, transfer rejected…",
+    "pt": "Motivo: cheque devolvido, transferência rejeitada…"
+  },
+  "accounts_payable.payments.void_reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo de pelo menos 3 caracteres."
+  },
+  "accounts_payable.payments.void_title": {
+    "es": "Anular pago",
+    "en": "Void payment",
+    "pt": "Anular pagamento"
+  },
+  "accounts_payable.payments.voided": {
+    "es": "Pago {{number}} anulado.",
+    "en": "Payment {{number}} voided.",
+    "pt": "Pagamento {{number}} anulado."
+  },
+  "accounts_payable.payments.voided_banner": {
+    "es": "Pago anulado",
+    "en": "Payment voided",
+    "pt": "Pagamento anulado"
+  },
+  "accounts_payable.payments.withheld": {
+    "es": "Retenido",
+    "en": "Withheld",
+    "pt": "Retido"
   },
   "accounts_payable.payments_journal_pagos_not_found": {
     "es": "Diario de Pagos (PAGOS) no encontrado.",
@@ -905,11 +1405,6 @@
     "es": "Proveedor con ID \"{{id}}\" no encontrado.",
     "en": "Supplier \"{{id}}\" was not found.",
     "pt": "Fornecedor \"{{id}}\" não encontrado."
-  },
-  "accounts_payable.transaction_query_runner_could_not_obtained": {
-    "es": "No se pudo obtener el Query Runner de la transacción.",
-    "en": "The transaction's query runner could not be obtained.",
-    "pt": "Não foi possível obter o query runner da transação."
   },
   "accounts_payable.vendor_bill_id_not_found": {
     "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",

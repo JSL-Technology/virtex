@@ -179,6 +179,21 @@
     "en": "General ledger",
     "pt": "Livro razão"
   },
+  "page_titles.goods_receipt": {
+    "es": "Recepción de mercancía",
+    "en": "Goods receipt",
+    "pt": "Recebimento de mercadorias"
+  },
+  "page_titles.goods_receipt_new": {
+    "es": "Nueva recepción",
+    "en": "New goods receipt",
+    "pt": "Novo recebimento"
+  },
+  "page_titles.goods_receipts": {
+    "es": "Recepciones",
+    "en": "Goods receipts",
+    "pt": "Recebimentos"
+  },
   "page_titles.home": {
     "es": "Inicio",
     "en": "Home",
@@ -514,10 +529,35 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
+  "page_titles.vendor_debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "page_titles.vendor_debit_note_new": {
+    "es": "Nueva nota de débito",
+    "en": "New debit note",
+    "pt": "Nova nota de débito"
+  },
+  "page_titles.vendor_debit_notes": {
+    "es": "Notas de débito",
+    "en": "Debit notes",
+    "pt": "Notas de débito"
+  },
   "page_titles.vendor_payment": {
-    "es": "Pago a Proveedores",
-    "en": "Supplier Payment",
-    "pt": "Pagamento a Fornecedores"
+    "es": "Pago a proveedor",
+    "en": "Supplier payment",
+    "pt": "Pagamento a fornecedor"
+  },
+  "page_titles.vendor_payment_new": {
+    "es": "Nuevo pago a proveedor",
+    "en": "New supplier payment",
+    "pt": "Novo pagamento a fornecedor"
+  },
+  "page_titles.vendor_payments": {
+    "es": "Pagos a proveedores",
+    "en": "Payments to suppliers",
+    "pt": "Pagamentos a fornecedores"
   },
   "page_titles.warehouses": {
     "es": "Almacenes",

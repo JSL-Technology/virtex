@@ -20,7 +20,7 @@
     <span>{{ 'inventory.adjustments.new' | translate }}</span>
   </a>
 
-  <div listFilters class="inv-filter">
+  <div listFilters class="doc-filter">
     <label for="stock-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
     <select id="stock-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
       <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
@@ -29,7 +29,7 @@
       }
     </select>
   </div>
-  <label listFilters class="inv-check">
+  <label listFilters class="doc-check">
     <input type="checkbox" [ngModel]="includeZero()" (ngModelChange)="includeZero.set($event); applyFilters()" />
     <span>{{ 'inventory.stock.include_zero' | translate }}</span>
   </label>

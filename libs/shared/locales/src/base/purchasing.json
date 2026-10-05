@@ -29,11 +29,6 @@
     "en": "Confirm cancellation",
     "pt": "Confirmar cancelamento"
   },
-  "purchasing.orders.form.confirm_receipt": {
-    "es": "Confirmar recepción",
-    "en": "Confirm delivery",
-    "pt": "Confirmar receção"
-  },
   "purchasing.orders.form.confirm_reject": {
     "es": "Rechazar y devolver a borrador",
     "en": "Reject and return to draft",
@@ -84,11 +79,6 @@
     "en": "Notes",
     "pt": "Observações"
   },
-  "purchasing.orders.form.outstanding": {
-    "es": "Pendiente",
-    "en": "Pending",
-    "pt": "Pendente"
-  },
   "purchasing.orders.form.product": {
     "es": "Producto",
     "en": "Product",
@@ -103,16 +93,6 @@
     "es": "Fecha",
     "en": "Date",
     "pt": "Data"
-  },
-  "purchasing.orders.form.receipt_exceeds_outstanding": {
-    "es": "La cantidad recibida de «{{description}}» supera lo pendiente de la orden.",
-    "en": "The quantity received for “{{description}}” exceeds what is outstanding on the order.",
-    "pt": "A quantidade recebida de “{{description}}” excede o pendente do pedido."
-  },
-  "purchasing.orders.form.receipt_recorded": {
-    "es": "Recepción registrada: el inventario y la contabilidad ya la reflejan.",
-    "en": "Receipt recorded: stock and the books already reflect it.",
-    "pt": "Recebimento registrado: o estoque e a contabilidade já o refletem."
   },
   "purchasing.orders.form.receipt_unit_cost": {
     "es": "Costo unitario",
@@ -129,25 +109,10 @@
     "en": "Record a delivery",
     "pt": "Registar receção"
   },
-  "purchasing.orders.form.receive_effect": {
-    "es": "Lo recibido entra al inventario al costo acordado (recalcula el costo promedio) y se contabiliza contra «Mercancía recibida no facturada», que la factura del proveedor liquidará.",
-    "en": "What is received enters stock at the agreed cost (re-averaging the unit cost) and is posted against “Goods received not invoiced”, which the supplier’s bill will clear.",
-    "pt": "O recebido entra no estoque ao custo acordado (recalcula o custo médio) e é contabilizado contra “Mercadorias recebidas não faturadas”, que a fatura do fornecedor liquidará."
-  },
-  "purchasing.orders.form.receive_title": {
-    "es": "Qué llegó",
-    "en": "What arrived",
-    "pt": "O que chegou"
-  },
   "purchasing.orders.form.received": {
     "es": "Recibido",
     "en": "Received",
     "pt": "Recebido"
-  },
-  "purchasing.orders.form.receiving_now": {
-    "es": "Recibiendo ahora",
-    "en": "Receiving now",
-    "pt": "A receber agora"
   },
   "purchasing.orders.form.reject": {
     "es": "Rechazar",
@@ -269,6 +234,301 @@
   },
   "purchasing.orders.total": {
     "literal": "Total"
+  },
+  "purchasing.receipts.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "purchasing.receipts.all_suppliers": {
+    "es": "Todos los proveedores",
+    "en": "All suppliers",
+    "pt": "Todos os fornecedores"
+  },
+  "purchasing.receipts.all_warehouses": {
+    "es": "Todos los almacenes",
+    "en": "All warehouses",
+    "pt": "Todos os depósitos"
+  },
+  "purchasing.receipts.back": {
+    "es": "Volver a recepciones",
+    "en": "Back to receipts",
+    "pt": "Voltar aos recebimentos"
+  },
+  "purchasing.receipts.billed_note": {
+    "es": "Parte de esta recepción ya fue facturada: no se anula. Para devolver mercancía al proveedor registra una nota de débito.",
+    "en": "Part of this receipt has been billed: it cannot be voided. To send goods back to the supplier, record a debit note.",
+    "pt": "Parte deste recebimento já foi faturada: não pode ser anulado. Para devolver mercadorias ao fornecedor, registre uma nota de débito."
+  },
+  "purchasing.receipts.billed_on_order": {
+    "es": "Facturado / pedido",
+    "en": "Billed / ordered",
+    "pt": "Faturado / pedido"
+  },
+  "purchasing.receipts.date": {
+    "es": "Fecha de recepción",
+    "en": "Date received",
+    "pt": "Data de recebimento"
+  },
+  "purchasing.receipts.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "purchasing.receipts.effect": {
+    "es": "Al registrarla, las existencias entran al almacén al costo acordado en la orden y se contabiliza Inventario contra Mercancía recibida no facturada.",
+    "en": "On recording, stock enters the warehouse at the price agreed on the order and Inventory is posted against Goods received not invoiced.",
+    "pt": "Ao registrar, o estoque entra no depósito ao custo acordado na ordem e se contabiliza Estoque contra Mercadorias recebidas não faturadas."
+  },
+  "purchasing.receipts.empty_help": {
+    "es": "Cuando llegue mercancía de una orden enviada, regístrala aquí o desde la orden.",
+    "en": "When goods arrive against a sent order, record them here or from the order.",
+    "pt": "Quando chegarem mercadorias de uma ordem enviada, registre-as aqui ou pela ordem."
+  },
+  "purchasing.receipts.empty_title": {
+    "es": "Sin recepciones",
+    "en": "No receipts",
+    "pt": "Sem recebimentos"
+  },
+  "purchasing.receipts.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "purchasing.receipts.exceeds_outstanding": {
+    "es": "«{{description}}»: se recibe más de lo pendiente.",
+    "en": "“{{description}}”: more is being received than is outstanding.",
+    "pt": "“{{description}}”: recebe-se mais do que o pendente."
+  },
+  "purchasing.receipts.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "purchasing.receipts.load_failed": {
+    "es": "No se pudieron cargar las recepciones.",
+    "en": "Could not load the receipts.",
+    "pt": "Não foi possível carregar os recebimentos."
+  },
+  "purchasing.receipts.load_one_failed": {
+    "es": "No se pudo cargar la recepción.",
+    "en": "Could not load the receipt.",
+    "pt": "Não foi possível carregar o recebimento."
+  },
+  "purchasing.receipts.loading_order": {
+    "es": "Cargando la orden…",
+    "en": "Loading the order…",
+    "pt": "Carregando a ordem…"
+  },
+  "purchasing.receipts.new": {
+    "es": "Nueva recepción",
+    "en": "New receipt",
+    "pt": "Novo recebimento"
+  },
+  "purchasing.receipts.new_subtitle": {
+    "es": "Registra lo que llegó contra una orden de compra enviada.",
+    "en": "Record what arrived against a sent purchase order.",
+    "pt": "Registre o que chegou contra uma ordem de compra enviada."
+  },
+  "purchasing.receipts.no_quantities": {
+    "es": "Indica al menos una cantidad recibida.",
+    "en": "State at least one quantity received.",
+    "pt": "Informe pelo menos uma quantidade recebida."
+  },
+  "purchasing.receipts.no_receivable_orders": {
+    "es": "No hay órdenes enviadas pendientes de recibir.",
+    "en": "No sent orders are waiting to be received.",
+    "pt": "Não há ordens enviadas pendentes de recebimento."
+  },
+  "purchasing.receipts.not_stocked": {
+    "es": "Sin existencias (servicio o sin artículo)",
+    "en": "No stock (service or no item)",
+    "pt": "Sem estoque (serviço ou sem item)"
+  },
+  "purchasing.receipts.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
+  },
+  "purchasing.receipts.notes_placeholder": {
+    "es": "Conduce del proveedor, transportista, observaciones…",
+    "en": "Supplier delivery note, carrier, remarks…",
+    "pt": "Nota de entrega do fornecedor, transportadora, observações…"
+  },
+  "purchasing.receipts.nothing_outstanding": {
+    "es": "La orden {{number}} ya no tiene nada pendiente de recibir.",
+    "en": "Order {{number}} has nothing left to receive.",
+    "pt": "A ordem {{number}} não tem mais nada pendente de receber."
+  },
+  "purchasing.receipts.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "purchasing.receipts.order": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Ordem de compra"
+  },
+  "purchasing.receipts.order_load_failed": {
+    "es": "No se pudo cargar la orden de compra.",
+    "en": "Could not load the purchase order.",
+    "pt": "Não foi possível carregar a ordem de compra."
+  },
+  "purchasing.receipts.ordered": {
+    "es": "Pedido",
+    "en": "Ordered",
+    "pt": "Pedido"
+  },
+  "purchasing.receipts.outstanding": {
+    "es": "Pendiente",
+    "en": "Outstanding",
+    "pt": "Pendente"
+  },
+  "purchasing.receipts.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "purchasing.receipts.receive_all": {
+    "es": "Recibir todo lo pendiente",
+    "en": "Receive everything outstanding",
+    "pt": "Receber todo o pendente"
+  },
+  "purchasing.receipts.receiving_now": {
+    "es": "Recibido ahora",
+    "en": "Receiving now",
+    "pt": "Recebendo agora"
+  },
+  "purchasing.receipts.record": {
+    "es": "Registrar recepción",
+    "en": "Record receipt",
+    "pt": "Registrar recebimento"
+  },
+  "purchasing.receipts.recorded": {
+    "es": "Recepción {{number}} registrada.",
+    "en": "Receipt {{number}} recorded.",
+    "pt": "Recebimento {{number}} registrado."
+  },
+  "purchasing.receipts.save_failed": {
+    "es": "No se pudo registrar la recepción.",
+    "en": "Could not record the receipt.",
+    "pt": "Não foi possível registrar o recebimento."
+  },
+  "purchasing.receipts.status.posted": {
+    "es": "Registrada",
+    "en": "Recorded",
+    "pt": "Registrado"
+  },
+  "purchasing.receipts.status.void": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Anulado"
+  },
+  "purchasing.receipts.status_label": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "purchasing.receipts.stock": {
+    "es": "Existencias",
+    "en": "Stock",
+    "pt": "Estoque"
+  },
+  "purchasing.receipts.stocked": {
+    "es": "Entró al almacén",
+    "en": "Into stock",
+    "pt": "Entrou no estoque"
+  },
+  "purchasing.receipts.subtitle": {
+    "es": "Lo que llegó contra cada orden de compra: movió existencias y registró el asiento de mercancía recibida no facturada.",
+    "en": "What arrived against each purchase order: it moved stock and posted goods received not invoiced.",
+    "pt": "O que chegou contra cada ordem de compra: movimentou o estoque e registrou mercadorias recebidas não faturadas."
+  },
+  "purchasing.receipts.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "purchasing.receipts.title": {
+    "es": "Recepciones de mercancía",
+    "en": "Goods receipts",
+    "pt": "Recebimentos de mercadorias"
+  },
+  "purchasing.receipts.unit_cost": {
+    "es": "Costo unitario",
+    "en": "Unit cost",
+    "pt": "Custo unitário"
+  },
+  "purchasing.receipts.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "purchasing.receipts.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
+  },
+  "purchasing.receipts.view_return_entry": {
+    "es": "Ver asiento de la devolución",
+    "en": "View the return entry",
+    "pt": "Ver lançamento da devolução"
+  },
+  "purchasing.receipts.void": {
+    "es": "Anular recepción",
+    "en": "Void receipt",
+    "pt": "Anular recebimento"
+  },
+  "purchasing.receipts.void_failed": {
+    "es": "No se pudo anular la recepción.",
+    "en": "Could not void the receipt.",
+    "pt": "Não foi possível anular o recebimento."
+  },
+  "purchasing.receipts.void_message": {
+    "es": "Las existencias de {{number}} saldrán del almacén al costo con que entraron, se contabilizará la devolución y la orden volverá a esperar esa mercancía.",
+    "en": "The stock from {{number}} will leave the warehouse at the cost it came in at, the return will be posted and the order will wait for those goods again.",
+    "pt": "O estoque de {{number}} sairá do depósito ao custo com que entrou, a devolução será contabilizada e a ordem voltará a aguardar essas mercadorias."
+  },
+  "purchasing.receipts.void_reason": {
+    "es": "Motivo de la anulación",
+    "en": "Reason for voiding",
+    "pt": "Motivo da anulação"
+  },
+  "purchasing.receipts.void_reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo de pelo menos 3 caracteres."
+  },
+  "purchasing.receipts.void_title": {
+    "es": "Anular recepción",
+    "en": "Void receipt",
+    "pt": "Anular recebimento"
+  },
+  "purchasing.receipts.voided": {
+    "es": "Recepción {{number}} anulada.",
+    "en": "Receipt {{number}} voided.",
+    "pt": "Recebimento {{number}} anulado."
+  },
+  "purchasing.receipts.voided_banner": {
+    "es": "Recepción anulada",
+    "en": "Receipt voided",
+    "pt": "Recebimento anulado"
+  },
+  "purchasing.receipts.warehouse": {
+    "es": "Almacén",
+    "en": "Warehouse",
+    "pt": "Depósito"
+  },
+  "purchasing.receipts.warehouse_of_branch": {
+    "es": "El almacén de la sucursal de la orden",
+    "en": "The warehouse of the order’s branch",
+    "pt": "O depósito da filial da ordem"
+  },
+  "purchasing.receipts.what_arrived": {
+    "es": "Lo que llegó",
+    "en": "What arrived",
+    "pt": "O que chegou"
   },
   "purchasing.requisitions.date": {
     "es": "Fecha",

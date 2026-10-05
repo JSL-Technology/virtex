@@ -1,0 +1,78 @@
+<vx-draft-shell
+  [title]="'accounts_payable.debit_notes.new' | translate"
+  [subtitle]="'accounts_payable.debit_notes.new_subtitle' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  saveLabelKey="accounts_payable.debit_notes.post"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field field--wide" for="note-bill">
+          <span>{{ 'accounts_payable.debit_notes.bill' | translate }} *</span>
+          <vx-select
+            inputId="note-bill"
+            formControlName="vendorBillId"
+            [options]="bills()"
+            [displayWith]="billLabel"
+            [valueWith]="billValue"
+            [searchTextWith]="billSearchText"
+            [required]="true"
+            emptyLabelKey="accounts_payable.debit_notes.no_open_bills"
+          />
+        </label>
+        @if (bill(); as current) {
+          <p class="form-hint field--wide">
+            {{ 'accounts_payable.debit_notes.bill_owes' | translate }}
+            <vx-amount [value]="current.balance" [currency]="current.currencyCode" />
+            @if (deductibleTax() > 0) {
+              · {{ 'accounts_payable.debit_notes.bill_tax_credit' | translate }}
+              <vx-amount [value]="deductibleTax()" [currency]="current.currencyCode" />
+            }
+          </p>
+        }
+        <label class="field" for="note-date">
+          <span>{{ 'accounts_payable.debit_notes.date' | translate }} *</span>
+          <vx-date-field inputId="note-date" formControlName="date" />
+        </label>
+        <label class="field" for="note-amount">
+          <span>{{ 'accounts_payable.debit_notes.amount' | translate }} *</span>
+          <input id="note-amount" type="number" step="0.01" min="0.01" formControlName="amount" />
+        </label>
+        <label class="field" for="note-tax">
+          <span>{{ 'accounts_payable.debit_notes.tax_amount' | translate }}</span>
+          <input id="note-tax" type="number" step="0.01" min="0" formControlName="taxAmount" />
+        </label>
+        <label class="field" for="note-ncf">
+          <span>{{ 'accounts_payable.debit_notes.ncf' | translate }}</span>
+          <input id="note-ncf" type="text" maxlength="19" formControlName="ncf"
+                 [placeholder]="'accounts_payable.debit_notes.ncf_placeholder' | translate" />
+        </label>
+        <label class="field field--wide" for="note-account">
+          <span>{{ 'accounts_payable.debit_notes.counterpart' | translate }} *</span>
+          <vx-select
+            inputId="note-account"
+            formControlName="expenseAccountId"
+            [search]="searchAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountId"
+            [required]="true"
+            placeholderKey="accounts_payable.form.select_account"
+          />
+        </label>
+        <label class="field field--wide" for="note-reason">
+          <span>{{ 'accounts_payable.debit_notes.reason' | translate }} *</span>
+          <textarea id="note-reason" rows="2" maxlength="500" formControlName="reason"
+                    [placeholder]="'accounts_payable.debit_notes.reason_placeholder' | translate"></textarea>
+        </label>
+      </div>
+      <p class="form-hint">{{ 'accounts_payable.debit_notes.effect' | translate }}</p>
+    </section>
+  </div>
+</vx-draft-shell>

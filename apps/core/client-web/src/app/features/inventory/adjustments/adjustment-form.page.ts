@@ -52,7 +52,7 @@ const todayIso = (): string => new Date().toISOString().slice(0, 10);
     VxDateFieldComponent,
   ],
   templateUrl: './adjustment-form.page.html',
-  styleUrls: ['../shared/inventory-document.scss'],
+  styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryAdjustmentFormPage implements OnInit {

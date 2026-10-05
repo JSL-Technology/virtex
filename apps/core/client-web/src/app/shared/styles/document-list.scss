@@ -1,7 +1,7 @@
-//  Filtros de las listas de inventario: en la barra del armazón, junto a la búsqueda.
-@use '../../../../assets/styles/design-system' as ds;
+//  Listas de documentos (inventario, compras, cuentas por pagar): filtros en la barra del armazón.
+@use '../../../assets/styles/design-system' as ds;
 
-.inv-filter {
+.doc-filter {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -19,7 +19,7 @@
   }
 }
 
-.inv-check {
+.doc-check {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -30,3 +30,6 @@
 .numeric { text-align: right; font-variant-numeric: tabular-nums; }
 .muted { color: var(--content-tertiary); }
 .below-reorder { color: var(--warning-text); font-weight: var(--font-semibold); }
+
+//  A filter that searches (supplier, customer) needs room for what it finds.
+.doc-filter--wide vx-select { min-width: 16rem; display: block; }

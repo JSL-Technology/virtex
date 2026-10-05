@@ -42,6 +42,8 @@ import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.serv
 import { I18nService } from '../i18n/i18n.service';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { VendorDebitNote, VendorDebitNoteStatus } from './entities/vendor-debit-note.entity';
+import { VendorPaymentsService } from './vendor-payments.service';
+import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
 
 /**
  * Supplier invoices, from recording to settlement.
@@ -71,6 +73,7 @@ describeWithDb('accounts payable', () => {
   let dataSource: DataSource;
   let payables: AccountsPayableService;
   let debitNotes: VendorDebitNotesService;
+  let vendorPayments: VendorPaymentsService;
   let balances: AccountBalancesService;
 
   let organizationId: string;
@@ -207,6 +210,8 @@ describeWithDb('accounts payable', () => {
       } as never,
       new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
     );
+
+    vendorPayments = new VendorPaymentsService(dataSource.getRepository(PaymentBatch), dataSource, entries);
   });
 
   afterAll(async () => {
@@ -983,6 +988,189 @@ describeWithDb('accounts payable', () => {
         .getRepository(JournalEntry)
         .findOneByOrFail({ id: voided.reversalJournalEntryId as string });
       expect(String(reversal.date).slice(0, 10)).toBe('2026-03-31');
+    });
+  });
+
+  /**
+   * Payments as documents (audit H-14): a number, a list, and a void that gives every bill back
+   * what the payment settled and reverses its entry.
+   */
+  describe('payments as documents', () => {
+    const LATER = '2026-12-31';
+    const billFor = async (amount: number) => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [{ product: 'Servicio', quantity: 1, unitPrice: amount, expenseAccountId: account['expense'] }],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      return payables.submitForApproval(bill.id, organizationId, ACTOR);
+    };
+
+    it('is numbered and listed with what left the bank, for whom', async () => {
+      const first = await billFor(20_000);
+      const second = await billFor(5_000);
+      const batch = await payables.payBills(
+        {
+          paymentDate: '2026-03-20',
+          bankAccountId,
+          lines: [
+            { vendorBillId: first.id, amount: 8_000 },
+            { vendorBillId: second.id, amount: 5_000 },
+          ],
+        },
+        organizationId,
+        ACTOR,
+      );
+      expect(batch.number).toBe('PAY-2026-000001');
+
+      const page = await vendorPayments.findAll(organizationId);
+      expect(page.total).toBe(1);
+      expect(page.items[0]).toMatchObject({
+        number: 'PAY-2026-000001',
+        paymentDate: '2026-03-20',
+        status: PaymentBatchStatus.PAID,
+        totalPaid: 13_000,
+        billCount: 2,
+        suppliers: 'Suplidora del Caribe',
+        currencyCode: 'DOP',
+      });
+      expect((await vendorPayments.findAll(organizationId, { status: PaymentBatchStatus.VOID })).total).toBe(0);
+    });
+
+    it('voids: every bill owes again what it settled, and the entry is reversed', async () => {
+      const bill = await billFor(20_000);
+      const batch = await payables.payBills(
+        { paymentDate: '2026-03-20', bankAccountId, lines: [{ vendorBillId: bill.id, amount: 20_000 }] },
+        organizationId,
+        ACTOR,
+      );
+      expect((await payables.findOne(bill.id, organizationId)).status).toBe(VendorBillStatus.PAID);
+
+      const voided = await vendorPayments.voidPayment(batch.id, { reason: 'Cheque devuelto' }, organizationId, ACTOR);
+
+      expect(voided.status).toBe(PaymentBatchStatus.VOID);
+      expect(voided.reversalJournalEntryId).toEqual(expect.any(String));
+      expect(voided.voidedByUserId).toBe(ACTOR);
+      const restored = await payables.findOne(bill.id, organizationId);
+      expect(restored.balance).toBe(20_000);
+      expect(restored.status).toBe(VendorBillStatus.OPEN);
+      expect(restored.paidAt).toBeNull();
+      expect(await signedBalance('bank', LATER)).toBe(0);
+      expect(await signedBalance('payable', LATER)).toBe(-20_000);
+
+      await expect(
+        vendorPayments.voidPayment(batch.id, { reason: 'Otra vez' }, organizationId, ACTOR),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.payment_already_voided' });
+    });
+
+    it('no longer blocks annulling the bill once the payment against it is voided', async () => {
+      const bill = await billFor(3_000);
+      const batch = await payables.payBills(
+        { paymentDate: '2026-03-20', bankAccountId, lines: [{ vendorBillId: bill.id, amount: 1_000 }] },
+        organizationId,
+        ACTOR,
+      );
+      await expect(payables.voidBill(bill.id, organizationId, { reason: 'Duplicada' }, ACTOR)).rejects.toMatchObject({
+        messageKey: 'accounts_payable.bill_with_payments_applied_cannot_voided',
+      });
+
+      await vendorPayments.voidPayment(batch.id, { reason: 'Pagada por error' }, organizationId, ACTOR);
+
+      const voided = await payables.voidBill(bill.id, organizationId, { reason: 'Duplicada' }, ACTOR);
+      expect(voided.status).toBe(VendorBillStatus.VOID);
+    });
+  });
+
+  /** Debit notes carry what an issued document carries: number, date, supplier NCF, tax part. */
+  describe('debit notes as documents', () => {
+    const LATER = '2026-12-31';
+    const taxedBill = async () => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-05',
+          dueDate: '2026-04-04',
+          lines: [{ product: 'Mercancía', quantity: 4, unitPrice: 2_500, total: 10_000, expenseAccountId: account['expense'] }],
+          taxAmount: 1_800,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      return payables.submitForApproval(bill.id, organizationId, ACTOR);
+    };
+
+    it('is numbered, dated as stated, and gives back the tax part to the tax account', async () => {
+      const bill = await taxedBill();
+      expect(await signedBalance('taxReceivable', LATER)).toBe(1_800);
+
+      const note = await debitNotes.create(
+        {
+          vendorBillId: bill.id,
+          reason: 'Devolución de dos unidades',
+          amount: 5_900,
+          taxAmount: 900,
+          expenseAccountId: account['expense'],
+          date: '2026-04-02',
+          ncf: 'b0400000001',
+        },
+        organizationId,
+        ACTOR,
+      );
+
+      expect(note.number).toBe('ND-2026-000001');
+      expect(note.date).toBe('2026-04-02');
+      expect(note.ncf).toBe('B0400000001');
+      expect(note.createdByUserId).toBe(ACTOR);
+      expect(await signedBalance('taxReceivable', LATER)).toBe(900);
+      expect(await signedBalance('expense', LATER)).toBe(5_000);
+      expect(await signedBalance('payable', LATER)).toBe(-5_900);
+
+      const page = await debitNotes.findAll(organizationId, { supplierId: vendorId });
+      expect(page.items[0]).toMatchObject({ number: 'ND-2026-000001', amount: 5_900, taxAmount: 900, supplierName: 'Suplidora del Caribe' });
+    });
+
+    it('gives back no more tax than the bill claimed', async () => {
+      const bill = await taxedBill();
+      await expect(
+        debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Exceso', amount: 5_000, taxAmount: 2_000, expenseAccountId: account['expense'] },
+          organizationId,
+          ACTOR,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.debit_note_tax_exceeds_bill_tax' });
+      await expect(
+        debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Todo impuesto', amount: 500, taxAmount: 500, expenseAccountId: account['expense'] },
+          organizationId,
+          ACTOR,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.debit_note_tax_exceeds_amount' });
+    });
+
+    it('refuses a counterpart account that does not take postings', async () => {
+      const bill = await taxedBill();
+      const group = await dataSource.getRepository(Account).save(
+        dataSource.getRepository(Account).create({
+          organizationId,
+          code: '5100',
+          name: { es: 'Gastos' },
+          type: AccountType.EXPENSE,
+          category: AccountCategory.OPERATING_EXPENSE,
+          nature: AccountNature.DEBIT,
+          isPostable: false,
+          isActive: true,
+        }),
+      );
+      await expect(
+        debitNotes.create(
+          { vendorBillId: bill.id, reason: 'Cuenta de grupo', amount: 100, expenseAccountId: group.id },
+          organizationId,
+          ACTOR,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.account_not_postable' });
     });
   });
 });

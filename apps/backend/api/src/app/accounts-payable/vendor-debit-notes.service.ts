@@ -12,7 +12,6 @@ import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
-  InternalServerError,
   NotFoundError,
 } from '../i18n/localized.exception';
 import { VoidVendorDebitNoteDto } from './dto/void-vendor-debit-note.dto';
@@ -20,6 +19,41 @@ import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.serv
 import { LedgerLookupService } from '../accounting/services/ledger-lookup.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { roundAmount, toCents } from '../common/money';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope } from '../organizations/contracts/branch.contract';
+import { assertPostableAccount, resolvePurchaseTaxAccount } from './payables-accounts';
+import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
+import { billPayable } from './vendor-bill-balance';
+
+/** One page of a list. */
+export interface Paged<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+/** A debit note as the list shows it: with the bill and supplier it belongs to. */
+export interface VendorDebitNoteRow {
+  id: string;
+  number: string;
+  date: string;
+  reason: string;
+  ncf: string | null;
+  amount: number;
+  taxAmount: number;
+  status: VendorDebitNoteStatus;
+  branchId: string | null;
+  journalEntryId: string | null;
+  vendorBillId: string;
+  billNcf: string | null;
+  currencyCode: string;
+  supplierId: string | null;
+  supplierName: string | null;
+}
 
 @Injectable()
 export class VendorDebitNotesService {
@@ -37,124 +71,217 @@ export class VendorDebitNotesService {
     private readonly orgSettings: OrgSettingsService,
   ) {}
 
+  /**
+   * Issue a note against one bill and post it.
+   *
+   * Dr Payables for the whole amount; Cr input tax for the tax part (the credit the bill took is
+   * given back) and Cr the account the bill charged for the rest. In the bill's currency at the
+   * bill's own rate, so the payable is relieved at exactly the value it was booked at and no
+   * exchange difference appears where no cash moved.
+   */
   async create(
     dto: CreateVendorDebitNoteDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<VendorDebitNote> {
     return this.dataSource.transaction(async (manager) => {
-      const { vendorBillId, amount, reason, expenseAccountId } = dto;
+      const { vendorBillId, reason } = dto;
+      const amount = roundAmount(dto.amount);
+      const taxAmount = roundAmount(dto.taxAmount ?? 0);
 
       // Locked: two notes against the same bill must not both read the old balance.
       await this.lockBill(manager, vendorBillId, organizationId);
-      const vendorBill = await manager.findOne(VendorBill, { where: { id: vendorBillId, organizationId } });
+      const vendorBill = await manager.findOne(VendorBill, {
+        where: { id: vendorBillId, organizationId },
+        relations: ['vendor'],
+      });
       if (!vendorBill) {
         throw new NotFoundError('accounts_payable.vendor_bill_not_found');
       }
+      // A restricted person raises notes only on the bills of branches they can open.
+      assertDocumentInScope(await loadBranchScope(manager, organizationId, actorUserId), vendorBill.branchId);
       if (vendorBill.status !== VendorBillStatus.OPEN && vendorBill.status !== VendorBillStatus.PARTIALLY_PAID) {
-          throw new BadRequestError('accounts_payable.debit_notes_can_only_applied_open');
+        throw new BadRequestError('accounts_payable.debit_notes_can_only_applied_open');
       }
-      if (vendorBill.balance < amount) {
+      if (toCents(amount) > toCents(vendorBill.balance)) {
         throw new BadRequestError('accounts_payable.debit_note_cannot_larger_than_invoice');
       }
+      if (toCents(taxAmount) >= toCents(amount)) {
+        throw new BadRequestError('accounts_payable.debit_note_tax_exceeds_amount');
+      }
+      if (toCents(taxAmount) > 0) {
+        // No more tax can be given back than the bill claimed as a credit, net of earlier notes.
+        const deductible = roundAmount(vendorBill.taxAmount - vendorBill.taxToCost - vendorBill.taxProportional);
+        const [{ returned }] = await manager.query<{ returned: string | null }[]>(
+          `SELECT COALESCE(SUM("tax_amount"), 0) AS returned FROM "vendor_debit_note"
+            WHERE "organization_id" = $1 AND "vendor_bill_id" = $2 AND "status" = $3`,
+          [organizationId, vendorBillId, VendorDebitNoteStatus.POSTED],
+        );
+        const available = roundAmount(deductible - Number(returned ?? 0));
+        if (toCents(taxAmount) > toCents(available)) {
+          throw new BadRequestError('accounts_payable.debit_note_tax_exceeds_bill_tax', { available });
+        }
+      }
+      await assertPostableAccount(manager, organizationId, dto.expenseAccountId);
 
       const settings = await this.orgSettings.getForOrg(organizationId, manager);
       if (!settings || !settings.defaultAccountsPayableId) {
         throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
       }
-
-      const defaultLedger = await this.ledgerLookup.requireDefault(organizationId, manager);
-
-      const journal = await this.journalLookup.requireByCode(organizationId, 'COMPRAS', manager);
-
-      const debitNote = manager.create(VendorDebitNote, {
-        vendorBillId,
-        reason,
-        amount,
-        organizationId,
-        date: new Date(),
-        status: VendorDebitNoteStatus.POSTED,
-      });
-      const savedDebitNote = await manager.save(debitNote);
-
-      vendorBill.balance = Math.round((Number(vendorBill.balance) - amount) * 100) / 100;
-      // A note that takes the balance to zero settles the bill. It used to stay OPEN at zero, so
-      // it kept appearing among the bills to pay and in the ageing, owing nothing.
-      if (vendorBill.balance <= 0) vendorBill.status = VendorBillStatus.PAID;
-      await manager.save(vendorBill);
-
-      if (!manager.queryRunner) {
-        throw new InternalServerError('accounts_payable.transaction_query_runner_could_not_obtained');
+      const taxAccountId =
+        toCents(taxAmount) > 0
+          ? await resolvePurchaseTaxAccount(manager, organizationId, settings.defaultPurchaseTaxId)
+          : null;
+      if (toCents(taxAmount) > 0 && !taxAccountId) {
+        throw new BadRequestError('accounts_payable.no_purchase_tax_account_configured_bill');
       }
 
+      const defaultLedger = await this.ledgerLookup.requireDefault(organizationId, manager);
+      const journal = await this.journalLookup.requireByCode(organizationId, 'COMPRAS', manager);
+
+      const date = dto.date ? dto.date.slice(0, 10) : await organizationToday(manager, organizationId);
+      const number = await allocateDocumentNumber(
+        manager,
+        organizationId,
+        DOCUMENT_SEQUENCE_SCOPE.VENDOR_DEBIT_NOTE,
+        'ND',
+        Number(date.slice(0, 4)),
+      );
+
+      const savedDebitNote = await manager.save(
+        manager.create(VendorDebitNote, {
+          organizationId,
+          number,
+          vendorBillId,
+          branchId: vendorBill.branchId ?? null,
+          reason,
+          ncf: dto.ncf ? dto.ncf.toUpperCase() : null,
+          amount,
+          taxAmount,
+          expenseAccountId: dto.expenseAccountId,
+          date,
+          createdByUserId: actorUserId,
+          status: VendorDebitNoteStatus.POSTED,
+        }),
+      );
+
+      vendorBill.balance = roundAmount(Number(vendorBill.balance) - amount);
+      // A note that takes the balance to zero settles the bill. It used to stay OPEN at zero, so
+      // it kept appearing among the bills to pay and in the ageing, owing nothing.
+      if (toCents(vendorBill.balance) <= 0) vendorBill.status = VendorBillStatus.PAID;
+      await manager.save(vendorBill);
+
       const words = await this.narrative.describeAll(manager, organizationId, {
-        header: { key: 'ledger.debit_note.vendor_entry', params: { reason } },
+        header: { key: 'ledger.debit_note.vendor_entry', params: { reason: `${number} · ${reason}` } },
         payable: {
           key: 'ledger.debit_note.vendor_payable',
           params: { bill: vendorBill.ncf || vendorBill.id.substring(0, 8) },
         },
         counterpart: { key: 'ledger.debit_note.vendor_counterpart', params: { reason } },
+        tax: { key: 'ledger.debit_note.vendor_tax_returned' },
       });
 
-      const entryDto: CreateJournalEntryDto = {
-          date: new Date().toISOString(),
+      const line = (accountId: string, debit: number, credit: number, description: string) => ({
+        accountId,
+        debit,
+        credit,
+        description,
+        valuations: [{ ledgerId: defaultLedger.id, debit, credit }],
+      });
+      const lines = [line(settings.defaultAccountsPayableId, amount, 0, words.payable)];
+      if (taxAccountId && toCents(taxAmount) > 0) lines.push(line(taxAccountId, 0, taxAmount, words.tax));
+      lines.push(line(dto.expenseAccountId, 0, roundAmount(amount - taxAmount), words.counterpart));
+
+      const entry = await this.journalEntriesService.createWithManager(
+        manager,
+        {
+          date,
           description: words.header,
           journalId: journal.id,
-          lines: [
-            {
-              accountId: settings.defaultAccountsPayableId,
-              debit: amount,
-              credit: 0,
-              description: words.payable,
-              valuations: [{
-                ledgerId: defaultLedger.id,
-                debit: amount,
-                credit: 0
-              }]
-            },
-            {
-              accountId: expenseAccountId,
-              debit: 0,
-              credit: amount,
-              description: words.counterpart,
-              valuations: [{
-                ledgerId: defaultLedger.id,
-                debit: 0,
-                credit: amount
-              }]
-            },
-          ],
-      };
-
-      const entry = await this.journalEntriesService.createWithQueryRunner(
-        manager.queryRunner,
-        entryDto,
+          lines,
+          currencyCode: vendorBill.currencyCode,
+          exchangeRate: vendorBill.exchangeRate,
+        } as CreateJournalEntryDto,
         organizationId,
+        { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-debit-note' },
       );
       // Recorded so the note can be voided by reversing exactly what it posted.
       savedDebitNote.journalEntryId = entry.id;
       await manager.update(VendorDebitNote, { id: savedDebitNote.id }, { journalEntryId: entry.id });
 
-      this.logger.log(`Nota de débito ${savedDebitNote.id} creada exitosamente.`);
+      this.logger.log(`Nota de débito ${number} sobre ${vendorBill.id} contabilizada en ${entry.id}.`);
       return savedDebitNote;
     });
   }
 
-  findAll(organizationId: string): Promise<VendorDebitNote[]> {
-    return this.vendorDebitNoteRepository.find({
-      where: { organizationId },
-      order: { date: 'DESC' },
-    });
+  async findAll(
+    organizationId: string,
+    query: VendorDebitNoteQueryDto = {},
+    actorUserId?: string,
+  ): Promise<Paged<VendorDebitNoteRow>> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 50;
+    const qb = this.vendorDebitNoteRepository
+      .createQueryBuilder('note')
+      .innerJoin('note.vendorBill', 'bill')
+      .leftJoin('bill.vendor', 'vendor')
+      .select([
+        'note.id AS "id"',
+        'note.number AS "number"',
+        'note.reason AS "reason"',
+        'note.ncf AS "ncf"',
+        'note.amount AS "amount"',
+        'note.taxAmount AS "taxAmount"',
+        'note.status AS "status"',
+        'note.branchId AS "branchId"',
+        'note.journalEntryId AS "journalEntryId"',
+        'bill.id AS "vendorBillId"',
+        'bill.ncf AS "billNcf"',
+        'bill.currencyCode AS "currencyCode"',
+        'vendor.id AS "supplierId"',
+        'vendor.name AS "supplierName"',
+      ])
+      // As text: a raw `date` comes back from the driver as a local-time Date.
+      .addSelect(`TO_CHAR(note.date, 'YYYY-MM-DD')`, 'date')
+      .where('note.organizationId = :organizationId', { organizationId });
+    if (query.supplierId) qb.andWhere('bill.vendorId = :supplierId', { supplierId: query.supplierId });
+    if (query.vendorBillId) qb.andWhere('note.vendorBillId = :vendorBillId', { vendorBillId: query.vendorBillId });
+    if (query.status) qb.andWhere('note.status = :status', { status: query.status });
+    if (query.from) qb.andWhere('note.date >= :from', { from: query.from.slice(0, 10) });
+    if (query.to) qb.andWhere('note.date <= :to', { to: query.to.slice(0, 10) });
+    if (actorUserId || query.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, actorUserId ?? null);
+      applyBranchScope(qb, 'note', scope, query.branchId);
+    }
+    const total = await qb.getCount();
+    const rows = await qb
+      .orderBy('note.date', 'DESC')
+      .addOrderBy('note.number', 'DESC')
+      .offset((page - 1) * limit)
+      .limit(limit)
+      .getRawMany<VendorDebitNoteRow>();
+    const items = rows.map((row) => ({
+      ...row,
+      amount: Number(row.amount),
+      taxAmount: Number(row.taxAmount),
+    }));
+    return { items, total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) };
   }
 
   async findOne(
     id: string,
     organizationId: string,
+    actorUserId?: string,
   ): Promise<VendorDebitNote> {
     const debitNote = await this.vendorDebitNoteRepository.findOne({
       where: { id, organizationId },
+      relations: ['vendorBill', 'vendorBill.vendor'],
     });
     if (!debitNote) {
       throw new NotFoundError('accounts_payable.debit_note_id_not_found', { id });
+    }
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), debitNote.branchId);
     }
     return debitNote;
   }
@@ -235,11 +362,14 @@ export class VendorDebitNotesService {
         { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-debit-note-void' },
       );
 
-      bill.balance = Math.round((Number(bill.balance) + Number(note.amount)) * 100) / 100;
-      if (bill.balance > 0) {
-        // Owing again: in full if nothing else has reduced it, in part if a payment has.
+      bill.balance = roundAmount(Number(bill.balance) + Number(note.amount));
+      if (toCents(bill.balance) > 0) {
+        // Owing again: in full if nothing else has reduced it, in part if a payment has. «In full»
+        // is what the bill made payable — its total less what was withheld from the supplier — not
+        // its total, or a bill with withholding never returns to OPEN.
         bill.status =
-          bill.balance >= Number(bill.total) ? VendorBillStatus.OPEN : VendorBillStatus.PARTIALLY_PAID;
+          toCents(bill.balance) >= toCents(billPayable(bill)) ? VendorBillStatus.OPEN : VendorBillStatus.PARTIALLY_PAID;
+        bill.paidAt = null;
       }
       await manager.save(bill);
 

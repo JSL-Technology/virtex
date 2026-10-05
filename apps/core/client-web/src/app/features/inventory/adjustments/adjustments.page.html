@@ -12,7 +12,7 @@
     <span>{{ 'inventory.adjustments.new' | translate }}</span>
   </a>
 
-  <div listFilters class="inv-filter">
+  <div listFilters class="doc-filter">
     <label for="adj-status">{{ 'inventory.common.status_label' | translate }}</label>
     <select id="adj-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); load()">
       <option value="">{{ 'inventory.common.all' | translate }}</option>

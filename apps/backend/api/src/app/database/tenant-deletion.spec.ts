@@ -129,8 +129,8 @@ describeWithDb('tenant deletion', () => {
       [payment, org, customer, bankA],
     );
     await query(
-      `INSERT INTO payment_batches (id, organization_id, bank_account_id, payment_date)
-       VALUES ($1, $2, $3, '2026-01-16')`,
+      `INSERT INTO payment_batches (id, organization_id, number, bank_account_id, payment_date)
+       VALUES ($1, $2, 'PAY-2026-000001', $3, '2026-01-16')`,
       [batch, org, bankA],
     );
 
@@ -192,7 +192,7 @@ describeWithDb('tenant deletion', () => {
        VALUES ($1, $2, $3, $4, 'Producto', 5, 5)`,
       [orderLine, org, order, product],
     );
-    await query(`INSERT INTO purchase_order_receipts (id, organization_id, order_id) VALUES ($1, $2, $3)`, [
+    await query(`INSERT INTO purchase_order_receipts (id, organization_id, number, order_id) VALUES ($1, $2, 'GR-2026-000001', $3)`, [
       receipt,
       org,
       order,

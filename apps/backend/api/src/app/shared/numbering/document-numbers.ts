@@ -50,4 +50,10 @@ export const DOCUMENT_SEQUENCE_SCOPE = {
   INVENTORY_ADJUSTMENT: '00000000-0000-4000-8000-000000000004',
   /** Transfers between warehouses: `TR-2026-000042`. */
   STOCK_TRANSFER: '00000000-0000-4000-8000-000000000005',
+  /** Goods received against a purchase order: `GR-2026-000042`. */
+  GOODS_RECEIPT: '00000000-0000-4000-8000-000000000006',
+  /** Payments to suppliers: `PAY-2026-000042`. */
+  VENDOR_PAYMENT: '00000000-0000-4000-8000-000000000007',
+  /** Debit notes raised against a supplier's bill: `ND-2026-000042`. */
+  VENDOR_DEBIT_NOTE: '00000000-0000-4000-8000-000000000008',
 } as const;

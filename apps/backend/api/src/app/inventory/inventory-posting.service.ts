@@ -329,6 +329,67 @@ export class InventoryPostingService {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
+  /**
+   * Goods going back out because their receipt is voided: Dr Goods received not invoiced /
+   * Cr Inventory, at the value they came in at — the mirror of `postGoodsReceipt`, posted on the
+   * day of the void. A return is its own valuation entry, as Odoo values a return move and SAP a
+   * MIGO 102: the receipt's entry stays as it was, and the two read together in the books.
+   */
+  async postGoodsReturn(
+    manager: EntityManager,
+    organizationId: string,
+    receipt: {
+      reference: string;
+      sourceId: string;
+      date: string;
+      reason: string;
+      lines: ReadonlyArray<{ description: string; amount: number }>;
+    },
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const lines = receipt.lines.filter((line) => toCents(line.amount) > 0);
+    if (lines.length === 0) return null;
+
+    const { settings, journal } = await this.context(manager, organizationId, 'COMPRAS');
+    const inventoryId = settings.defaultInventoryId;
+    const grniId = settings.defaultGoodsReceivedNotInvoicedAccountId;
+    if (!inventoryId || !grniId) {
+      throw new BadRequestError('inventory.goods_receipt_accounts_not_configured');
+    }
+
+    const total = roundAmount(lines.reduce((sum, line) => sum + line.amount, 0));
+    const words = await this.words(manager, organizationId, {
+      entry: { key: 'ledger.inventory.goods_return_entry', params: { reference: receipt.reference, reason: receipt.reason } },
+      counterpart: { key: 'ledger.inventory.goods_receipt_counterpart', params: { reference: receipt.reference } },
+    });
+
+    return this.post(
+      manager,
+      organizationId,
+      {
+        date: receipt.date,
+        description: words.entry,
+        journalId: journal.id,
+        currencyCode: settings.baseCurrency ?? undefined,
+        exchangeRate: 1,
+        lines: [
+          { accountId: grniId, debit: total, credit: 0, description: words.counterpart },
+          ...lines.map((line) => ({
+            accountId: inventoryId,
+            debit: 0,
+            credit: roundAmount(line.amount),
+            description: line.description,
+          })),
+        ],
+      },
+      {
+        actorUserId,
+        systemReason: 'goods-receipt-void',
+        idempotencyKey: `po-receipt-void:${receipt.sourceId}`,
+      },
+    );
+  }
+
   private async post(
     manager: EntityManager,
     organizationId: string,

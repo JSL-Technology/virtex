@@ -1,0 +1,107 @@
+<vx-list-shell
+  titleKey="accounts_payable.payments.title"
+  subtitleKey="accounts_payable.payments.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'accounts_payable:pay'" routerLink="/accounts-payable/payments/new" class="primary-button">
+    <lucide-icon [img]="PayIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'accounts_payable.payment.record_payment' | translate }}</span>
+  </a>
+
+  <div listFilters class="doc-filter doc-filter--wide">
+    <label for="payment-supplier">{{ 'accounts_payable.payments.supplier' | translate }}</label>
+    <vx-select
+      inputId="payment-supplier"
+      [ngModel]="supplierFilter()"
+      (ngModelChange)="supplierFilter.set($event); applyFilters()"
+      [search]="searchSuppliers"
+      [resolveWith]="resolveSupplier"
+      [displayWith]="supplierName"
+      [valueWith]="supplierId"
+      placeholderKey="accounts_payable.payments.all_suppliers"
+    />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="payment-bank">{{ 'accounts_payable.payments.bank_account' | translate }}</label>
+    <select id="payment-bank" [ngModel]="bankAccountFilter()" (ngModelChange)="bankAccountFilter.set($event); applyFilters()">
+      <option value="">{{ 'accounts_payable.payments.all_accounts' | translate }}</option>
+      @for (account of bankAccounts(); track account.id) {
+        <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="payment-status">{{ 'accounts_payable.payments.status_label' | translate }}</label>
+    <select id="payment-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
+      <option value="">{{ 'accounts_payable.payments.all' | translate }}</option>
+      <option value="PAID">{{ 'accounts_payable.payments.status.paid' | translate }}</option>
+      <option value="VOID">{{ 'accounts_payable.payments.status.void' | translate }}</option>
+    </select>
+  </div>
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="payment-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="branchFilter.set($event); applyFilters()"
+  />
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'accounts_payable.payments.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'accounts_payable.payments.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'accounts_payable.payments.number' | translate }}</th>
+          <th>{{ 'accounts_payable.payments.date' | translate }}</th>
+          <th>{{ 'accounts_payable.payments.suppliers' | translate }}</th>
+          <th>{{ 'accounts_payable.payments.bank_account' | translate }}</th>
+          <th>{{ 'accounts_payable.payments.reference' | translate }}</th>
+          <th class="numeric">{{ 'accounts_payable.payments.bills' | translate }}</th>
+          <th class="numeric">{{ 'accounts_payable.payments.amount' | translate }}</th>
+          <th>{{ 'accounts_payable.payments.status_label' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounts-payable/payments', row.id]">{{ row.number }}</a></td>
+            <td>{{ row.paymentDate | vxDate: 'date' : true }}</td>
+            <td>{{ row.suppliers ?? '—' }}</td>
+            <td>{{ row.bankAccountName }}</td>
+            <td>{{ row.reference ?? '—' }}</td>
+            <td class="numeric">{{ row.billCount }}</td>
+            <td class="numeric"><vx-amount [value]="row.totalPaid" [currency]="row.currencyCode" /></td>
+            <td>
+              <vx-badge [tone]="tones[row.status]" [struck]="row.status === 'VOID'">{{ 'accounts_payable.payments.status.' + row.status.toLowerCase() | translate }}</vx-badge>
+            </td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="row.branchId" /></td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 200]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

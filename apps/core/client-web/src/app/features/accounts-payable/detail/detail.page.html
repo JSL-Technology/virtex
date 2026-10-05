@@ -20,6 +20,16 @@
         <span>{{ 'accounts_payable.detail.submit_approval' | translate }}</span>
       </button>
     }
+    @if (isPayable()) {
+      <a *appHasPermission="'accounts_payable:pay'" [routerLink]="['/accounts-payable/payments/new']" [queryParams]="{ billId: billData.id }" class="primary-button">
+        <lucide-icon [img]="PayIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'accounts_payable.detail.pay' | translate }}</span>
+      </a>
+      <a *appHasPermission="'accounts_payable:create'" [routerLink]="['/accounts-payable/debit-notes/new']" [queryParams]="{ billId: billData.id }" class="secondary-button">
+        <lucide-icon [img]="DebitNoteIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'accounts_payable.detail.debit_note' | translate }}</span>
+      </a>
+    }
     @if (canVoid()) {
       <button type="button" (click)="voidBill()" class="danger-button">
         <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -157,6 +167,7 @@
               <table>
                 <thead>
                   <tr>
+                    <th>{{ 'accounts_payable.payments.number' | translate }}</th>
                     <th>{{ 'accounts_payable.detail.date' | translate }}</th>
                     <th class="text-right">{{ 'accounts_payable.detail.cash' | translate }}</th>
                     <th class="text-right">{{ 'accounts_payable.form.withholdings' | translate }}</th>
@@ -166,7 +177,17 @@
                 </thead>
                 <tbody>
                   @for (payment of payments(); track payment.id) {
-                    <tr>
+                    <tr [class.voided]="payment.paymentBatch?.status === 'VOID'">
+                      <td>
+                        @if (payment.paymentBatch; as batch) {
+                          <a [routerLink]="['/accounts-payable/payments', batch.id]">{{ batch.number }}</a>
+                          @if (batch.status === 'VOID') {
+                            <span class="text-muted"> · {{ 'accounts_payable.payments.status.void' | translate }}</span>
+                          }
+                        } @else {
+                          —
+                        }
+                      </td>
                       <td>{{ payment.date | vxDate: 'date' }}</td>
                       <td class="text-right">{{ payment.amountPaid | vxNumber:'1.2-2' }}</td>
                       <td class="text-right">
@@ -174,6 +195,40 @@
                       </td>
                       <td class="text-right">{{ payment.discount | vxNumber:'1.2-2' }}</td>
                       <td class="text-right text-bold">{{ payment.amount | vxNumber:'1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ 'accounts_payable.detail.debit_notes' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          @if (debitNotes().length === 0) {
+            <p class="text-muted">{{ 'accounts_payable.detail.no_debit_notes' | translate }}</p>
+          } @else {
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'accounts_payable.debit_notes.number' | translate }}</th>
+                    <th>{{ 'accounts_payable.debit_notes.date' | translate }}</th>
+                    <th>{{ 'accounts_payable.debit_notes.reason' | translate }}</th>
+                    <th class="text-right">{{ 'accounts_payable.debit_notes.amount' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (note of debitNotes(); track note.id) {
+                    <tr [class.voided]="note.status === 'VOIDED'">
+                      <td><a [routerLink]="['/accounts-payable/debit-notes', note.id]">{{ note.number }}</a></td>
+                      <td>{{ note.date | vxDate: 'date' : true }}</td>
+                      <td>{{ note.reason }}</td>
+                      <td class="text-right">{{ note.amount | vxNumber:'1.2-2' }}</td>
                     </tr>
                   }
                 </tbody>

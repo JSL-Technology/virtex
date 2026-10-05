@@ -49,6 +49,16 @@
     "en": "Nothing can be received against an order in {{status}}; send it to the supplier first.",
     "pt": "Não é possível receber contra uma ordem em {{status}}; envie-a ao fornecedor primeiro."
   },
+  "procurement.receipt_already_billed": {
+    "es": "La recepción {{number}} no se puede anular: «{{description}}» ya fue facturado. Registra una nota de débito al proveedor por la devolución.",
+    "en": "Receipt {{number}} cannot be voided: “{{description}}” has already been billed. Record a debit note to the supplier for the return.",
+    "pt": "O recebimento {{number}} não pode ser anulado: “{{description}}” já foi faturado. Registre uma nota de débito ao fornecedor pela devolução."
+  },
+  "procurement.receipt_already_voided": {
+    "es": "La recepción {{number}} ya está anulada.",
+    "en": "Receipt {{number}} is already voided.",
+    "pt": "O recebimento {{number}} já está anulado."
+  },
   "procurement.receipt_exceeds_ordered": {
     "es": "Se recibieron {{received}} de «{{description}}» y solo se ordenaron {{ordered}}.",
     "en": "{{received}} of “{{description}}” were received but only {{ordered}} were ordered.",
@@ -58,6 +68,11 @@
     "es": "Indica al menos una línea con cantidad recibida mayor que cero.",
     "en": "Enter at least one line with a received quantity greater than zero.",
     "pt": "Informe pelo menos uma linha com quantidade recebida maior que zero."
+  },
+  "procurement.receipt_not_found": {
+    "es": "La recepción no existe.",
+    "en": "The receipt does not exist.",
+    "pt": "O recebimento não existe."
   },
   "procurement.rejection_reason_required": {
     "es": "Indica el motivo del rechazo.",

@@ -24,9 +24,14 @@ export enum PaymentBatchStatus {
 @Index('IDX_payment_batches_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'payment_batches' })
 @Index('IDX_payment_batches_org_date', ['organizationId', 'paymentDate'])
+@Index('UQ_payment_batches_org_number', ['organizationId', 'number'], { unique: true })
 export class PaymentBatch {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  /** `PAY-2026-000042`: what the supplier is told and the bank statement is matched against. */
+  @Column({ type: 'varchar', length: 40 })
+  number: string;
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
@@ -80,6 +85,19 @@ export class PaymentBatch {
 
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })
   createdByUserId: string | null;
+
+  /** Why it was voided: a returned cheque, a transfer that bounced, a payment keyed in error. */
+  @Column({ name: 'void_reason', type: 'text', nullable: true })
+  voidReason: string | null;
+
+  @Column({ name: 'voided_at', type: 'timestamptz', nullable: true })
+  voidedAt: Date | null;
+
+  @Column({ name: 'voided_by_user_id', type: 'uuid', nullable: true })
+  voidedByUserId: string | null;
+
+  @Column({ name: 'reversal_journal_entry_id', type: 'uuid', nullable: true })
+  reversalJournalEntryId: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

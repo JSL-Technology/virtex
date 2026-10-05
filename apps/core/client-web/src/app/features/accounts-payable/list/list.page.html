@@ -6,7 +6,7 @@
   [empty]="vendorBills().length === 0"
   (reload)="loadVendorBills()"
 >
-  <a listActions routerLink="/accounts-payable/payments" class="secondary-button">
+  <a listActions routerLink="/accounts-payable/payments/new" class="secondary-button">
     <span>{{ 'accounts_payable.payment.record_payment' | translate }}</span>
   </a>
   <a listActions routerLink="/accounts-payable/new" class="primary-button">

@@ -1,7 +1,8 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -136,6 +137,12 @@ export class PurchaseOrderQueryDto {
   @IsUUID()
   @IsOptional()
   supplierId?: string;
+
+  /** Only orders goods can still arrive against: sent, or partly received. */
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  receivable?: boolean;
 
   @Type(() => Number)
   @IsInt()

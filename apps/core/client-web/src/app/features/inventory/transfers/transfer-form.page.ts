@@ -51,7 +51,7 @@ function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
     VxDateFieldComponent,
   ],
   templateUrl: './transfer-form.page.html',
-  styleUrls: ['../shared/inventory-document.scss'],
+  styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StockTransferFormPage implements OnInit {

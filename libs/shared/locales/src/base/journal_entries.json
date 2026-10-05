@@ -65,9 +65,9 @@
     "pt": "Um lançamento com linhas conciliadas não pode ser estornado."
   },
   "journal_entries.entry_does_not_balance_ledger_ledger": {
-    "es": "El asiento no balancea en el libro {ledgerId}: diferencia de {difference}. Revisa las reglas de mapeo entre libros.",
-    "en": "The entry does not balance in ledger {ledgerId}: difference of {difference}. Review the ledger mapping rules.",
-    "pt": "O lançamento não fecha no livro {ledgerId}: diferença de {difference}. Revise as regras de mapeamento entre livros."
+    "es": "El asiento no balancea en el libro {{ledgerId}}: diferencia de {{difference}}. Revisa las reglas de mapeo entre libros.",
+    "en": "The entry does not balance in ledger {{ledgerId}}: difference of {{difference}}. Review the ledger mapping rules.",
+    "pt": "O lançamento não fecha no livro {{ledgerId}}: diferença de {{difference}}. Revise as regras de mapeamento entre livros."
   },
   "journal_entries.entry_exceeds_budget_detail": {
     "es": "El asiento excede el presupuesto: {{detail}}",
