@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -6,7 +6,6 @@ import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
-import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
 import { PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { GoodsReceiptsService } from './goods-receipts.service';
@@ -30,7 +29,9 @@ export class GoodsReceiptsController {
 
   @Post()
   @Idempotent()
-  @UseGuards(PeriodLockGuard)
+  // No PeriodLockGuard here, as on `orders/:id/receive`: the receipt's entry is posted through the
+  // ledger's own posting service, which enforces the period and account locks inside the
+  // transaction. The guard would also make Purchasing depend on Accounting's period module.
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   @ApiOperation({ summary: 'Registra una recepción contra una orden de compra: existencias y asiento.' })
   create(@Body() dto: CreateGoodsReceiptDto, @CurrentUser() user: AuthenticatedUser) {
