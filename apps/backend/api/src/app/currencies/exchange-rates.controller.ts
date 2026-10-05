@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -9,8 +9,11 @@ import { PLATFORM_PERMISSIONS } from '../security/platform-permissions';
 import { AuthenticatedUser } from '../security/principal';
 import { PERMISSIONS } from '../shared/permissions';
 import { ExchangeRatesService } from './exchange-rates.service';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import {
   BackfillRatesDto,
+  ImportRatesDto,
+  RateHistoryQueryDto,
   RecordRateDto,
   RateLookupDto,
 } from './dto/exchange-rate.dto';
@@ -78,6 +81,29 @@ export class ExchangeRatesController {
   record(@Body() dto: RecordRateDto, @CurrentUser() user: AuthenticatedUser) {
     // The tenant's OWN rate: only this tenant's documents convert with it.
     return this.exchangeRatesService.record(dto, user.id, user.organizationId);
+  }
+
+  @Post('import')
+  @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Registra muchas tasas a la vez; todo o nada.' })
+  importRates(@Body() dto: ImportRatesDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.exchangeRatesService.importRates(dto, user.id, user.organizationId);
+  }
+
+  @Get('history')
+  @HasPermission(PERMISSIONS.CURRENCIES_VIEW)
+  @ApiOperation({ summary: 'Las tasas de la empresa y las compartidas, más recientes primero.' })
+  history(@Query() query: RateHistoryQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.exchangeRatesService.history(user.organizationId, query);
+  }
+
+  @Delete(':id')
+  @HasPermission(PERMISSIONS.EXCHANGE_RATES_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Elimina una tasa registrada por la empresa.' })
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.exchangeRatesService.remove(id, user.organizationId);
   }
 
   @Get()

@@ -490,4 +490,68 @@ describeWithDb('budget control', () => {
       ),
     ).rejects.toThrow();
   });
+
+  // ── Budgets as documents (audit H-16) ──────────────────────────────────────────────────────
+
+  describe('as documents', () => {
+    const lines = () => [{ accountId: account['expense'], amount: 1_000 }];
+
+    it('says a month is already budgeted, instead of failing on the unique key', async () => {
+      await budgets.create({ name: 'Marzo', period: '2026-03', lines: lines() }, organizationId);
+      await expect(budgets.create({ name: 'Otra', period: '2026-03', lines: lines() }, organizationId)).rejects.toMatchObject({
+        messageKey: 'budgets.period_already_budgeted',
+      });
+    });
+
+    it('refuses an account of another company and the same account twice', async () => {
+      await expect(
+        budgets.create({ name: 'X', period: '2026-04', lines: [{ accountId: '00000000-0000-4000-8000-0000000000aa', amount: 1 }] }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'budgets.account_not_found' });
+      await expect(
+        budgets.create({ name: 'X', period: '2026-04', lines: [...lines(), ...lines()] }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'budgets.duplicate_line' });
+    });
+
+    it('replaces its lines as many times as it is saved', async () => {
+      const budget = await budgets.create({ name: 'Marzo', period: '2026-03', lines: lines() }, organizationId);
+      await budgets.update(budget.id, { lines: [{ accountId: account['expense'], amount: 2_000 }] }, organizationId);
+      const twice = await budgets.update(budget.id, { name: 'Marzo revisado', lines: [{ accountId: account['expense'], amount: 3_000 }] }, organizationId);
+      expect(twice.name).toBe('Marzo revisado');
+      expect(twice.lines.map((line) => Number(line.amount))).toEqual([3_000]);
+    });
+
+    it('is laid down over other months, scaled, and lists what it adds up to', async () => {
+      const budget = await budgets.create({ name: 'Base', period: '2026-03', lines: lines() }, organizationId);
+      const copies = await budgets.copy(budget.id, { periods: ['2026-04', '2026-05'], factor: 1.1 }, organizationId);
+      expect(copies.map((row) => [row.period, row.total])).toEqual([
+        ['2026-05', 1_100],
+        ['2026-04', 1_100],
+      ]);
+      await expect(budgets.copy(budget.id, { periods: ['2026-04'] }, organizationId)).rejects.toMatchObject({
+        messageKey: 'budgets.period_already_budgeted',
+      });
+      expect((await budgets.findAll(organizationId)).map((row) => row.period)).toEqual(['2026-05', '2026-04', '2026-03']);
+    });
+
+    it('compares a run of months against what was spent in them', async () => {
+      const march = await budgets.create({ name: 'Q', period: '2026-03', lines: lines() }, organizationId);
+      await budgets.copy(march.id, { periods: ['2026-04'] }, organizationId);
+      await spend('2026-03-05', 400);
+      await spend('2026-04-10', 900);
+      await spend('2026-05-01', 5_000);
+
+      const report = await budgets.variance(organizationId, { fromPeriod: '2026-03', toPeriod: '2026-04' });
+
+      expect(report.period).toMatchObject({ startDate: '2026-03-01', endDate: '2026-04-30' });
+      expect(report.lines).toHaveLength(1);
+      expect(report.lines[0]).toMatchObject({
+        budgetedAmount: 2_000,
+        actualAmount: 1_300,
+        difference: 700,
+        consumedRatio: 0.65,
+        months: { '2026-03': 1_000, '2026-04': 1_000 },
+      });
+      expect(report.totals).toEqual({ budgeted: 2_000, actual: 1_300, difference: 700 });
+    });
+  });
 });

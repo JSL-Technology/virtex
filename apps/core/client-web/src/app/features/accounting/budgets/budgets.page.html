@@ -1,0 +1,49 @@
+<vx-list-shell
+  titleKey="budgets.page.title"
+  subtitleKey="budgets.page.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions routerLink="/accounting/variance-analysis" class="secondary-button">{{ 'budgets.page.variance' | translate }}</a>
+  <a listActions *appHasPermission="'budgets:manage'" routerLink="/accounting/budgets/new" class="primary-button">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'budgets.page.new' | translate }}</span>
+  </a>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'budgets.page.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'budgets.page.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'budgets.page.period' | translate }}</th>
+          <th>{{ 'budgets.page.name' | translate }}</th>
+          <th class="numeric">{{ 'budgets.page.lines' | translate }}</th>
+          <th class="numeric">{{ 'budgets.page.total' | translate }}</th>
+          <th><span class="sr-only">{{ 'budgets.page.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounting/budgets', row.id]">{{ row.period }}</a></td>
+            <td>{{ row.name }}</td>
+            <td class="numeric">{{ row.lineCount }}</td>
+            <td class="numeric">{{ row.total | vxNumber: '1.2-2' }}</td>
+            <td>
+              <button *appHasPermission="'budgets:manage'" type="button" class="icon-button" (click)="remove(row)" [attr.aria-label]="'budgets.page.delete' | translate">
+                <lucide-icon [img]="DeleteIcon" size="16" aria-hidden="true"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

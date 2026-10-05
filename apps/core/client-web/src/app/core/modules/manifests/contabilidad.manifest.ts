@@ -220,6 +220,35 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       menu: { group: 'configuration', labelKey: 'sidebar.finance.gl_sub.periods' },
       load: () => import('../../../features/accounting/periods/periods.page').then((m) => m.PeriodsPage),
     },
+    // Budgets (audit H-16): the monthly targets the budget control and the variance report use.
+    {
+      path: 'budgets',
+      kind: WindowKind.LIST,
+      permission: 'budgets:view',
+      titleKey: 'page_titles.budgets',
+      icon: 'Scale',
+      entityKeyFn: () => 'contabilidad:budgets',
+      menu: { group: 'documents', labelKey: 'page_titles.budgets' },
+      load: () => import('../../../features/accounting/budgets/budgets.page').then((m) => m.BudgetsPage),
+    },
+    {
+      path: 'budgets/new',
+      kind: WindowKind.DRAFT,
+      permission: 'budgets:manage',
+      titleKey: 'page_titles.budget_new',
+      icon: 'Scale',
+      entityKeyFn: () => 'contabilidad:budget:new',
+      load: () => import('../../../features/accounting/budgets/budget-form.page').then((m) => m.BudgetFormPage),
+    },
+    {
+      path: 'budgets/:id',
+      kind: WindowKind.DRAFT,
+      permission: 'budgets:view',
+      titleKey: 'page_titles.budget',
+      icon: 'Scale',
+      entityKeyFn: (p) => `contabilidad:budget:${p['id']}`,
+      load: () => import('../../../features/accounting/budgets/budget-form.page').then((m) => m.BudgetFormPage),
+    },
     {
       path: 'variance-analysis',
       kind: WindowKind.OVERVIEW,
@@ -384,6 +413,17 @@ export const CONTABILIDAD_MASTERS_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:currencies',
       menu: { group: 'configuration', labelKey: 'sidebar.master_data.currencies' },
       load: () => import('../../../features/masters/currencies/currencies.page').then((m) => m.CurrenciesPage),
+    },
+    // The rates documents convert at (audit H-09): the history, the company's own, a lookup.
+    {
+      path: 'currencies/exchange-rates',
+      kind: WindowKind.LIST,
+      permission: 'currencies:view',
+      titleKey: 'page_titles.exchange_rates',
+      icon: 'Coins',
+      entityKeyFn: () => 'contabilidad:exchange-rates',
+      menu: { group: 'configuration', labelKey: 'page_titles.exchange_rates' },
+      load: () => import('../../../features/masters/exchange-rates/exchange-rates.page').then((m) => m.ExchangeRatesPage),
     },
     {
       path: 'payment-terms',

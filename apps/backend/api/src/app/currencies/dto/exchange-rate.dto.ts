@@ -1,5 +1,9 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  ValidateNested,
   IsDateString,
   IsEnum,
   IsInt,
@@ -83,4 +87,58 @@ export class RateLookupDto {
   @IsEnum(ExchangeRateType)
   @IsOptional()
   rateType?: ExchangeRateType;
+}
+
+/** Which rates the history shows: the company's own, the shared market table, or both. */
+export enum RateScope {
+  TENANT = 'TENANT',
+  SHARED = 'SHARED',
+  ALL = 'ALL',
+}
+
+export class RateHistoryQueryDto {
+  /** Rates involving this currency, on either side. */
+  @IsString()
+  @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
+  @IsOptional()
+  currency?: string;
+
+  @IsEnum(ExchangeRateType)
+  @IsOptional()
+  rateType?: ExchangeRateType;
+
+  @IsEnum(RateScope)
+  @IsOptional()
+  scope?: RateScope;
+
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsOptional()
+  from?: string;
+
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  @IsOptional()
+  to?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @IsOptional()
+  page?: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1, { message: 'validation.constraints.min|{"min":1}' })
+  @Max(500, { message: 'validation.constraints.max|{"max":500}' })
+  @IsOptional()
+  limit?: number;
+}
+
+/** Many rates at once — a month of the authority's published table pasted from a spreadsheet. */
+export class ImportRatesDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(2000)
+  @ValidateNested({ each: true })
+  @Type(() => RecordRateDto)
+  rates: RecordRateDto[];
 }

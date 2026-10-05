@@ -4,6 +4,16 @@
     "en": "The account and/or its dimensions are not budgeted.",
     "pt": "A conta e/ou suas dimensões não estão orçadas."
   },
+  "budgets.account_not_found": {
+    "es": "Una de las cuentas no existe en esta empresa.",
+    "en": "One of the accounts does not exist in this company.",
+    "pt": "Uma das contas não existe nesta empresa."
+  },
+  "budgets.account_not_postable": {
+    "es": "La cuenta {{code}} no admite movimientos: está inactiva o es una cuenta de grupo.",
+    "en": "Account {{code}} does not take postings: it is inactive or a group account.",
+    "pt": "A conta {{code}} não aceita lançamentos: está inativa ou é uma conta de grupo."
+  },
   "budgets.amount_exceeds_budget": {
     "es": "El monto propuesto de {{amount}} excede el presupuesto de {{budgeted}} para la cuenta {{account}}. Gasto actual: {{actual}}.",
     "en": "The proposed amount of {{amount}} exceeds the {{budgeted}} budget for account {{account}}. Spent so far: {{actual}}.",
@@ -14,6 +24,166 @@
     "en": "Budget \"{{id}}\" was not found.",
     "pt": "Orçamento \"{{id}}\" não encontrado."
   },
+  "budgets.copy_needs_other_periods": {
+    "es": "Indica al menos un mes distinto al del presupuesto.",
+    "en": "Give at least one month other than the budget’s.",
+    "pt": "Informe pelo menos um mês diferente do orçamento."
+  },
+  "budgets.duplicate_line": {
+    "es": "Una cuenta aparece dos veces con las mismas dimensiones.",
+    "en": "An account appears twice with the same dimensions.",
+    "pt": "Uma conta aparece duas vezes com as mesmas dimensões."
+  },
+  "budgets.form.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "budgets.form.actual": {
+    "es": "Real",
+    "en": "Actual",
+    "pt": "Realizado"
+  },
+  "budgets.form.add_line": {
+    "es": "Agregar cuenta",
+    "en": "Add account",
+    "pt": "Adicionar conta"
+  },
+  "budgets.form.against_actuals": {
+    "es": "Contra lo real del mes",
+    "en": "Against the month’s actuals",
+    "pt": "Contra o realizado do mês"
+  },
+  "budgets.form.amount": {
+    "es": "Monto",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "budgets.form.budgeted": {
+    "es": "Presupuestado",
+    "en": "Budgeted",
+    "pt": "Orçado"
+  },
+  "budgets.form.consumed": {
+    "es": "Consumido",
+    "en": "Consumed",
+    "pt": "Consumido"
+  },
+  "budgets.form.copied": {
+    "es": "Se crearon {{count}} presupuestos.",
+    "en": "{{count}} budgets created.",
+    "pt": "{{count}} orçamentos criados."
+  },
+  "budgets.form.copy": {
+    "es": "Copiar a otros meses",
+    "en": "Copy to other months",
+    "pt": "Copiar para outros meses"
+  },
+  "budgets.form.copy_confirm": {
+    "es": "Copiar a {{count}} meses",
+    "en": "Copy to {{count}} months",
+    "pt": "Copiar para {{count}} meses"
+  },
+  "budgets.form.copy_factor": {
+    "es": "Factor",
+    "en": "Factor",
+    "pt": "Fator"
+  },
+  "budgets.form.copy_failed": {
+    "es": "No se pudo copiar el presupuesto.",
+    "en": "Could not copy the budget.",
+    "pt": "Não foi possível copiar o orçamento."
+  },
+  "budgets.form.copy_hint": {
+    "es": "Crea el mismo presupuesto en los meses elegidos. Un factor de 1,05 los crea un 5 % por encima.",
+    "en": "Creates the same budget in the chosen months. A factor of 1.05 creates them 5 % higher.",
+    "pt": "Cria o mesmo orçamento nos meses escolhidos. Um fator de 1,05 os cria 5 % acima."
+  },
+  "budgets.form.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "budgets.form.line_incomplete": {
+    "es": "Cada línea necesita una cuenta y un monto.",
+    "en": "Each line needs an account and an amount.",
+    "pt": "Cada linha precisa de uma conta e um valor."
+  },
+  "budgets.form.lines": {
+    "es": "Cuentas presupuestadas",
+    "en": "Budgeted accounts",
+    "pt": "Contas orçadas"
+  },
+  "budgets.form.lines_hint": {
+    "es": "Un monto por cuenta: lo que se espera gastar en una cuenta de gasto, o ingresar en una de ingreso.",
+    "en": "One amount per account: what is expected to be spent on an expense account, or earned on an income one.",
+    "pt": "Um valor por conta: o que se espera gastar numa conta de despesa, ou receber numa de receita."
+  },
+  "budgets.form.lines_required": {
+    "es": "Agrega al menos una cuenta.",
+    "en": "Add at least one account.",
+    "pt": "Adicione pelo menos uma conta."
+  },
+  "budgets.form.load_failed": {
+    "es": "No se pudo cargar el presupuesto.",
+    "en": "Could not load the budget.",
+    "pt": "Não foi possível carregar o orçamento."
+  },
+  "budgets.form.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "budgets.form.name_placeholder": {
+    "es": "Ej.: Presupuesto operativo 2026",
+    "en": "E.g. 2026 operating budget",
+    "pt": "Ex.: Orçamento operacional 2026"
+  },
+  "budgets.form.new": {
+    "es": "Nuevo presupuesto",
+    "en": "New budget",
+    "pt": "Novo orçamento"
+  },
+  "budgets.form.open_variance": {
+    "es": "Abrir en análisis de variaciones",
+    "en": "Open in variance analysis",
+    "pt": "Abrir na análise de variações"
+  },
+  "budgets.form.period": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "budgets.form.remove_line": {
+    "es": "Quitar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "budgets.form.repeated_account": {
+    "es": "Una cuenta aparece en más de una línea.",
+    "en": "An account appears on more than one line.",
+    "pt": "Uma conta aparece em mais de uma linha."
+  },
+  "budgets.form.save_failed": {
+    "es": "No se pudo guardar el presupuesto.",
+    "en": "Could not save the budget.",
+    "pt": "Não foi possível salvar o orçamento."
+  },
+  "budgets.form.saved": {
+    "es": "Presupuesto de {{period}} guardado.",
+    "en": "Budget for {{period}} saved.",
+    "pt": "Orçamento de {{period}} salvo."
+  },
+  "budgets.form.subtitle": {
+    "es": "El objetivo del mes por cuenta. El control presupuestario lo aplica a cada asiento.",
+    "en": "The month’s target per account. The budget control applies it to every entry.",
+    "pt": "A meta do mês por conta. O controle orçamentário a aplica a cada lançamento."
+  },
+  "budgets.form.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
   "budgets.invalid_date_range_start_date_later": {
     "es": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}.",
     "en": "Invalid date range: {{startDate}} is later than {{endDate}}.",
@@ -23,6 +193,181 @@
     "es": "No se encontró un presupuesto activo para el período actual.",
     "en": "No active budget was found for the current period.",
     "pt": "Nenhum orçamento ativo foi encontrado para o período atual."
+  },
+  "budgets.page.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "budgets.page.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "budgets.page.delete_failed": {
+    "es": "No se pudo eliminar el presupuesto.",
+    "en": "Could not delete the budget.",
+    "pt": "Não foi possível excluir o orçamento."
+  },
+  "budgets.page.delete_message": {
+    "es": "Se eliminará «{{name}}» de {{period}}. Los asientos de ese mes dejarán de controlarse contra él.",
+    "en": "“{{name}}” for {{period}} will be deleted. Entries in that month will no longer be checked against it.",
+    "pt": "“{{name}}” de {{period}} será excluído. Os lançamentos desse mês deixarão de ser controlados por ele."
+  },
+  "budgets.page.delete_title": {
+    "es": "Eliminar presupuesto",
+    "en": "Delete budget",
+    "pt": "Excluir orçamento"
+  },
+  "budgets.page.deleted": {
+    "es": "Presupuesto eliminado.",
+    "en": "Budget deleted.",
+    "pt": "Orçamento excluído."
+  },
+  "budgets.page.empty_help": {
+    "es": "Crea el presupuesto de un mes y cópialo al resto del año.",
+    "en": "Create one month’s budget and copy it to the rest of the year.",
+    "pt": "Crie o orçamento de um mês e copie-o para o resto do ano."
+  },
+  "budgets.page.empty_title": {
+    "es": "Sin presupuestos",
+    "en": "No budgets",
+    "pt": "Sem orçamentos"
+  },
+  "budgets.page.lines": {
+    "es": "Cuentas",
+    "en": "Accounts",
+    "pt": "Contas"
+  },
+  "budgets.page.load_failed": {
+    "es": "No se pudieron cargar los presupuestos.",
+    "en": "Could not load the budgets.",
+    "pt": "Não foi possível carregar os orçamentos."
+  },
+  "budgets.page.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "budgets.page.new": {
+    "es": "Nuevo presupuesto",
+    "en": "New budget",
+    "pt": "Novo orçamento"
+  },
+  "budgets.page.period": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "budgets.page.subtitle": {
+    "es": "Un presupuesto por mes: el objetivo por cuenta que el control presupuestario aplica y contra el que se mide la variación.",
+    "en": "One budget per month: the per-account target the budget control applies and variance is measured against.",
+    "pt": "Um orçamento por mês: a meta por conta que o controle orçamentário aplica e contra a qual a variação é medida."
+  },
+  "budgets.page.title": {
+    "es": "Presupuestos",
+    "en": "Budgets",
+    "pt": "Orçamentos"
+  },
+  "budgets.page.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "budgets.page.variance": {
+    "es": "Análisis de variaciones",
+    "en": "Variance analysis",
+    "pt": "Análise de variações"
+  },
+  "budgets.period_already_budgeted": {
+    "es": "Ya hay un presupuesto para {{period}}.",
+    "en": "There is already a budget for {{period}}.",
+    "pt": "Já existe um orçamento para {{period}}."
+  },
+  "budgets.period_format": {
+    "es": "El período debe tener la forma AAAA-MM.",
+    "en": "The period must have the form YYYY-MM.",
+    "pt": "O período deve ter a forma AAAA-MM."
+  },
+  "budgets.variance.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "budgets.variance.actual": {
+    "es": "Real",
+    "en": "Actual",
+    "pt": "Realizado"
+  },
+  "budgets.variance.budgeted": {
+    "es": "Presupuestado",
+    "en": "Budgeted",
+    "pt": "Orçado"
+  },
+  "budgets.variance.budgets": {
+    "es": "Presupuestos",
+    "en": "Budgets",
+    "pt": "Orçamentos"
+  },
+  "budgets.variance.consumed": {
+    "es": "Consumido",
+    "en": "Consumed",
+    "pt": "Consumido"
+  },
+  "budgets.variance.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "budgets.variance.empty_help": {
+    "es": "Crea un presupuesto para comparar lo real contra él.",
+    "en": "Create a budget to compare actuals against.",
+    "pt": "Crie um orçamento para comparar o realizado com ele."
+  },
+  "budgets.variance.empty_title": {
+    "es": "Sin presupuesto en estos meses",
+    "en": "No budget in these months",
+    "pt": "Sem orçamento nestes meses"
+  },
+  "budgets.variance.favourable": {
+    "es": "Favorable",
+    "en": "Favourable",
+    "pt": "Favorável"
+  },
+  "budgets.variance.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "budgets.variance.load_failed": {
+    "es": "No se pudo calcular la variación.",
+    "en": "Could not compute the variance.",
+    "pt": "Não foi possível calcular a variação."
+  },
+  "budgets.variance.subtitle": {
+    "es": "Lo presupuestado contra lo contabilizado, por cuenta, en los meses elegidos.",
+    "en": "What was budgeted against what was posted, per account, over the chosen months.",
+    "pt": "O orçado contra o contabilizado, por conta, nos meses escolhidos."
+  },
+  "budgets.variance.title": {
+    "es": "Análisis de variaciones",
+    "en": "Variance analysis",
+    "pt": "Análise de variações"
+  },
+  "budgets.variance.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "budgets.variance.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "budgets.variance.unfavourable": {
+    "es": "Desfavorable",
+    "en": "Unfavourable",
+    "pt": "Desfavorável"
   },
   "budgets.within_budget": {
     "es": "Dentro del presupuesto.",

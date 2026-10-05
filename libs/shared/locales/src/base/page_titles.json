@@ -59,6 +59,21 @@
     "en": "Bank Account",
     "pt": "Conta Bancária"
   },
+  "page_titles.budget": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
+  },
+  "page_titles.budget_new": {
+    "es": "Nuevo presupuesto",
+    "en": "New budget",
+    "pt": "Novo orçamento"
+  },
+  "page_titles.budgets": {
+    "es": "Presupuestos",
+    "en": "Budgets",
+    "pt": "Orçamentos"
+  },
   "page_titles.cash_flow": {
     "es": "Flujo de Efectivo",
     "en": "Cash Flow",
@@ -163,6 +178,11 @@
     "es": "Empleados",
     "en": "Employees",
     "pt": "Funcionários"
+  },
+  "page_titles.exchange_rates": {
+    "es": "Tipos de cambio",
+    "en": "Exchange rates",
+    "pt": "Taxas de câmbio"
   },
   "page_titles.extensions": {
     "es": "Extensiones",

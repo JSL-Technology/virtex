@@ -1,32 +1,5 @@
-@use "../../../../assets/styles/view-styles" as views;
-// Las vistas de maestros dejaron de exponer sus estilos por herencia entre hojas; el marco de
-// tabla de lista (`.data-table`, `.table-container`, `.text-right`) vive ahora en este parcial.
-@use "../../../../assets/styles/list-page" as list;
-
-:host {
-  @include list.list-page;
-}
-
 .variance-table {
-  td {
-    font-family: "Source Code Pro", monospace;
-    font-weight: var(--font-medium);
-  }
-
-  .positive {
-    color: var(--success-text); // Verde
-  }
-
-  .negative {
-    color: var(--error-text); // Rojo
-  }
-
-  .variance-percent-cell {
-    div {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: var(--space-1);
-    }
-  }
+  .positive { color: var(--success-text); }
+  .negative { color: var(--error-text); }
+  td.numeric lucide-icon { vertical-align: middle; margin-right: var(--space-1); }
 }

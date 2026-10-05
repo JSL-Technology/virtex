@@ -7,9 +7,9 @@ import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRateResolver, ResolvedRate } from './exchange-rate-resolver.service';
-import { BackfillRatesDto, RecordRateDto } from './dto/exchange-rate.dto';
+import { BackfillRatesDto, ImportRatesDto, RateHistoryQueryDto, RateScope, RecordRateDto } from './dto/exchange-rate.dto';
 import { LocalizedResult } from '../i18n/localized-message';
-import { BadRequestError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { addDaysIso, daysBetween, toIsoDate, todayIso } from '../common/dates';
 import { roundAmount } from '../common/money';
@@ -25,6 +25,39 @@ import { XeRatesProvider } from './xe-rates.provider';
  * Republic accumulated DOP pairs it would never use and had no COP pair at all.
  */
 const PIVOT = 'USD';
+
+/** A rate as the history shows it, and whose it is. */
+export interface RateHistoryRow {
+  id: string;
+  scope: 'TENANT' | 'SHARED';
+  fromCurrency: string;
+  toCurrency: string;
+  rate: number;
+  date: string;
+  rateType: ExchangeRateType;
+  source: string;
+  recordedByUserId: string | null;
+}
+
+/** A rate ready to store in the company's table. */
+interface NormalisedRate {
+  organizationId: string;
+  fromCurrency: string;
+  toCurrency: string;
+  rate: number;
+  date: string;
+  rateType: ExchangeRateType;
+  source: string;
+  recordedByUserId: string | null;
+}
+
+export interface RateHistoryPage {
+  items: RateHistoryRow[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
 
 /** How many upstream calls a single backfill may make. One request per day, one bill per request. */
 const MAX_BACKFILL_DAYS = 370;
@@ -205,50 +238,161 @@ export class ExchangeRatesService {
     actorUserId: string | undefined,
     organizationId: string,
   ): Promise<LocalizedResult<{ rate: TenantExchangeRate }>> {
+    const row = await this.normalise(dto, actorUserId, organizationId);
+    // Into the TENANT's own table. Writing the shared one let one customer's typed rate convert
+    // every other customer's documents; the resolver prefers this row for this tenant only.
+    await this.tenantRateRepository.upsert([row], ['organizationId', 'fromCurrency', 'toCurrency', 'date', 'rateType']);
+    const stored = await this.tenantRateRepository.findOneByOrFail({
+      organizationId,
+      fromCurrency: row.fromCurrency,
+      toCurrency: row.toCurrency,
+      date: row.date,
+      rateType: row.rateType,
+    });
+    return { messageKey: 'currencies.exchange_rate_recorded_successfully', rate: stored };
+  }
+
+  /**
+   * Record many rates at once — the authority's table for a month, pasted from a spreadsheet.
+   *
+   * All or nothing: a file with one bad row is refused whole, with the row named, because half a
+   * month of rates is a month in which some documents convert and others cannot, for no reason a
+   * person can see.
+   */
+  async importRates(
+    dto: ImportRatesDto,
+    actorUserId: string | undefined,
+    organizationId: string,
+  ): Promise<LocalizedResult<{ imported: number }>> {
+    const rows: NormalisedRate[] = [];
+    const seen = new Set<string>();
+    for (const [index, line] of dto.rates.entries()) {
+      try {
+        const row = await this.normalise(line, actorUserId, organizationId);
+        const key = `${row.fromCurrency}|${row.toCurrency}|${row.date}|${row.rateType}`;
+        if (seen.has(key)) {
+          throw new BadRequestError('currencies.import_duplicate_rate', { pair: `${row.fromCurrency}/${row.toCurrency}`, date: row.date });
+        }
+        seen.add(key);
+        rows.push(row);
+      } catch (error) {
+        if (error instanceof BadRequestError) {
+          throw new BadRequestError('currencies.import_row_invalid', { row: index + 1, reason: error.messageKey });
+        }
+        throw error;
+      }
+    }
+    await this.tenantRateRepository.manager.transaction(async (manager) => {
+      for (let start = 0; start < rows.length; start += 500) {
+        await manager.upsert(TenantExchangeRate, rows.slice(start, start + 500), [
+          'organizationId',
+          'fromCurrency',
+          'toCurrency',
+          'date',
+          'rateType',
+        ]);
+      }
+    });
+    return { messageKey: 'currencies.exchange_rates_imported', imported: rows.length };
+  }
+
+  /**
+   * The rates a company has to look at: its own, and the shared market table it falls back to —
+   * newest first. The shared table is filtered to the pairs this list is about; without a currency
+   * it is every pair the provider quotes, which is what an auditor asks to see.
+   */
+  async history(organizationId: string, query: RateHistoryQueryDto): Promise<RateHistoryPage> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 100;
+    const scope = query.scope ?? RateScope.ALL;
+    const params: unknown[] = [organizationId];
+    const where = (fromCol: string, toCol: string): string => {
+      const clauses: string[] = [];
+      if (query.currency) {
+        params.push(query.currency.toUpperCase());
+        clauses.push(`(${fromCol} = $${params.length} OR ${toCol} = $${params.length})`);
+      }
+      if (query.rateType) {
+        params.push(query.rateType);
+        clauses.push(`rate_type = $${params.length}`);
+      }
+      if (query.from) {
+        params.push(toIsoDate(query.from));
+        clauses.push(`date >= $${params.length}`);
+      }
+      if (query.to) {
+        params.push(toIsoDate(query.to));
+        clauses.push(`date <= $${params.length}`);
+      }
+      return clauses.length ? ` AND ${clauses.join(' AND ')}` : '';
+    };
+    const parts: string[] = [];
+    if (scope !== RateScope.SHARED) {
+      parts.push(`
+        SELECT id, 'TENANT' AS scope, from_currency AS "fromCurrency", to_currency AS "toCurrency", rate,
+               TO_CHAR(date, 'YYYY-MM-DD') AS date, rate_type AS "rateType", source,
+               recorded_by_user_id AS "recordedByUserId"
+          FROM tenant_exchange_rates
+         WHERE organization_id = $1${where('from_currency', 'to_currency')}`);
+    }
+    if (scope !== RateScope.TENANT) {
+      // tenant-scope-guard-allow: the shared table holds market facts, not tenant data.
+      parts.push(`
+        SELECT id, 'SHARED' AS scope, "fromCurrency", "toCurrency", rate,
+               TO_CHAR(date, 'YYYY-MM-DD') AS date, rate_type AS "rateType", source,
+               recorded_by_user_id AS "recordedByUserId"
+          FROM exchange_rate
+         WHERE $1::uuid IS NOT NULL${where('"fromCurrency"', '"toCurrency"')}`);
+    }
+    const union = parts.join(' UNION ALL ');
+    const [{ total }] = await this.tenantRateRepository.query(`SELECT COUNT(*)::int AS total FROM (${union}) r`, params);
+    const rows = await this.tenantRateRepository.query(
+      `SELECT * FROM (${union}) r ORDER BY date DESC, "fromCurrency", "toCurrency", scope DESC
+        LIMIT ${limit} OFFSET ${(page - 1) * limit}`,
+      params,
+    );
+    return {
+      items: rows.map((row: RateHistoryRow) => ({ ...row, rate: Number(row.rate) })),
+      total,
+      page,
+      limit,
+      pages: Math.max(1, Math.ceil(total / limit)),
+    };
+  }
+
+  /** Remove a rate the company recorded. The shared table is not the company's to edit. */
+  async remove(id: string, organizationId: string): Promise<void> {
+    const row = await this.tenantRateRepository.findOneBy({ id, organizationId });
+    if (!row) throw new NotFoundError('currencies.exchange_rate_not_found');
+    await this.tenantRateRepository.delete({ id, organizationId });
+  }
+
+  /** One rate, validated and in the shape both `record` and `importRates` store. */
+  private async normalise(
+    dto: RecordRateDto,
+    actorUserId: string | undefined,
+    organizationId: string,
+  ): Promise<NormalisedRate> {
     const fromCurrency = dto.fromCurrency.toUpperCase();
     const toCurrency = dto.toCurrency.toUpperCase();
-
     if (fromCurrency === toCurrency) {
       throw new BadRequestError('currencies.currency_pair_cannot_have_same_currency', { currency: fromCurrency });
     }
-
     await this.requireKnownCurrencies([fromCurrency, toCurrency]);
-
-    const date = toIsoDate(dto.date);
-    const rateType = dto.rateType ?? ExchangeRateType.OFFICIAL;
     const rate = roundAmount(dto.rate, 6);
-
     if (!(rate > 0)) {
       throw new BadRequestError('currencies.exchange_rate_must_greater_than_zero', { rate: dto.rate });
     }
-
-    // Into the TENANT's own table. Writing the shared one let one customer's typed rate convert
-    // every other customer's documents; the resolver prefers this row for this tenant only.
-    await this.tenantRateRepository.upsert(
-      [
-        {
-          organizationId,
-          fromCurrency,
-          toCurrency,
-          rate,
-          date,
-          rateType,
-          source: dto.source?.toUpperCase() ?? 'MANUAL',
-          recordedByUserId: actorUserId ?? null,
-        },
-      ],
-      ['organizationId', 'fromCurrency', 'toCurrency', 'date', 'rateType'],
-    );
-
-    const stored = await this.tenantRateRepository.findOneByOrFail({
+    return {
       organizationId,
       fromCurrency,
       toCurrency,
-      date,
-      rateType,
-    });
-
-    return { messageKey: 'currencies.exchange_rate_recorded_successfully', rate: stored };
+      rate,
+      date: toIsoDate(dto.date),
+      rateType: dto.rateType ?? ExchangeRateType.OFFICIAL,
+      source: dto.source?.toUpperCase() ?? 'MANUAL',
+      recordedByUserId: actorUserId ?? null,
+    };
   }
 
   /**

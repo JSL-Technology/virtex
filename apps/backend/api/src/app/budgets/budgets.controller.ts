@@ -11,7 +11,8 @@ import {
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { BudgetsService } from './budgets.service';
-import { CreateBudgetDto } from './dto/create-budget.dto';
+import { CopyBudgetDto, CreateBudgetDto } from './dto/create-budget.dto';
+import { BudgetVarianceQueryDto } from './dto/budget-variance.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { BudgetVsActualQueryDto } from './dto/budget-vs-actual.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -35,6 +36,24 @@ export class BudgetsController {
   findAll(@CurrentUser() user: AuthenticatedUser) {
 
     return this.budgetsService.findAll(user.organizationId);
+  }
+
+  /** Budget against actuals over a run of months, across every budget in it (audit H-16). */
+  @HasPermission(PERMISSIONS.BUDGETS_VIEW)
+  @Get('variance')
+  variance(@Query() query: BudgetVarianceQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.budgetsService.variance(user.organizationId, query);
+  }
+
+  /** Lay a budget down over other months, optionally scaled. */
+  @HasPermission(PERMISSIONS.BUDGETS_MANAGE)
+  @Post(':id/copy')
+  copy(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: CopyBudgetDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.budgetsService.copy(id, dto, user.organizationId);
   }
 
   /**
