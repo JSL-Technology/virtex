@@ -27,6 +27,23 @@ import { WebSocketService } from './websocket.service';
 import { DialogService } from './dialog.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+
+/** The company half of a signup and its plan; see `addCompanyCheckout`. */
+export interface AddCompanyPayload {
+  organizationName: string;
+  countryCode: string;
+  taxpayerKind: string;
+  taxId: string;
+  fiscalProfile?: Record<string, string>;
+  industry?: string;
+  companySize?: string;
+  address: string;
+  city: string;
+  state: string;
+  postalCode?: string;
+  planId: string;
+  billingPeriod?: string;
+}
 import { readCsrfCookie } from '../auth/csrf-token';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { TranslateService } from '@ngx-translate/core';
@@ -365,6 +382,17 @@ export class AuthService {
     return this.http.post<{ url: string | null }>(`${this.apiUrl}/register-checkout`, payload, {
       withCredentials: true,
       context: new HttpContext().set(IS_PUBLIC_API, true),
+    });
+  }
+
+  /**
+   * Someone already signed in adds another company: the company fields and the plan only — the
+   * identity is the session's. Answers with the Stripe Checkout URL; the company exists once the
+   * payment is confirmed, through the same `register-confirm` as a signup.
+   */
+  addCompanyCheckout(payload: AddCompanyPayload): Observable<{ url: string | null }> {
+    return this.http.post<{ url: string | null }>(`${this.apiUrl}/add-company-checkout`, payload, {
+      withCredentials: true,
     });
   }
 

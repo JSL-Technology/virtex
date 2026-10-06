@@ -509,86 +509,6 @@
     "en": "View the closing entry",
     "pt": "Ver o lançamento de encerramento"
   },
-  "accounting.bulk_operations.account_code": {
-    "es": "Código de Cuenta",
-    "en": "Account Code",
-    "pt": "Código da Conta"
-  },
-  "accounting.bulk_operations.accounts_created_updated": {
-    "es": "Cuentas Creadas/Actualizadas",
-    "en": "Accounts Created/Updated",
-    "pt": "Contas Criadas/Atualizadas"
-  },
-  "accounting.bulk_operations.back_chart_accounts": {
-    "es": "Volver al Plan de Cuentas",
-    "en": "Back to the Chart of Accounts",
-    "pt": "Voltar ao Plano de Contas"
-  },
-  "accounting.bulk_operations.bulk_operations": {
-    "es": "Operaciones Masivas",
-    "en": "Bulk Operations",
-    "pt": "Operações em Massa"
-  },
-  "accounting.bulk_operations.download_sample_template_csv": {
-    "es": "Descargar plantilla de ejemplo (CSV)",
-    "en": "Download the sample template (CSV)",
-    "pt": "Baixar o modelo de exemplo (CSV)"
-  },
-  "accounting.bulk_operations.error_details": {
-    "es": "Detalle de Errores:",
-    "en": "Error details:",
-    "pt": "Detalhes dos erros:"
-  },
-  "accounting.bulk_operations.error_message": {
-    "es": "Mensaje de Error",
-    "en": "Error Message",
-    "pt": "Mensagem de Erro"
-  },
-  "accounting.bulk_operations.export_chart_accounts": {
-    "es": "Exportar Plan de Cuentas",
-    "en": "Export Chart of Accounts",
-    "pt": "Exportar Plano de Contas"
-  },
-  "accounting.bulk_operations.import_chart_accounts": {
-    "es": "Importar Plan de Cuentas",
-    "en": "Import Chart of Accounts",
-    "pt": "Importar Plano de Contas"
-  },
-  "accounting.bulk_operations.import_results": {
-    "es": "Resultados de la Importación",
-    "en": "Import Results",
-    "pt": "Resultados da Importação"
-  },
-  "accounting.bulk_operations.process_file": {
-    "es": "Procesar Archivo",
-    "en": "Process File",
-    "pt": "Processar Arquivo"
-  },
-  "accounting.bulk_operations.processing": {
-    "es": "Procesando...",
-    "en": "Processing...",
-    "pt": "Processando..."
-  },
-  "accounting.bulk_operations.records_with_errors": {
-    "es": "Registros con Errores",
-    "en": "Records with Errors",
-    "pt": "Registros com Erros"
-  },
-  "accounting.bulk_operations.row": {
-    "es": "Fila",
-    "en": "Row",
-    "pt": "Linha"
-  },
-  "accounting.bulk_operations.select_a_file": {
-    "es": "Seleccionar un archivo…",
-    "en": "Select a file…",
-    "pt": "Selecionar um ficheiro…"
-  },
-  "accounting.bulk_operations.upload_csv_xlsx_file_create_update": {
-    "es": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
-    "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
-    "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
-  },
   "accounting.cash_flow_category.financing": {
     "es": "Financiamiento",
     "en": "Financing",
@@ -725,6 +645,11 @@
     "en": "Export",
     "pt": "Exportar"
   },
+  "accounting.chart_of_accounts.import": {
+    "es": "Importar",
+    "en": "Import",
+    "pt": "Importar"
+  },
   "accounting.chart_of_accounts.inactive": {
     "es": "Inactiva",
     "en": "Inactive",
@@ -764,11 +689,6 @@
     "es": "Nombre de la lista",
     "en": "Checklist name",
     "pt": "Nome da lista"
-  },
-  "accounting.checklist.closing_process_checklists": {
-    "es": "Listas de verificación del cierre",
-    "en": "Closing Checklists",
-    "pt": "Listas de Verificação do Fechamento"
   },
   "accounting.checklist.items.currency_revaluation": {
     "es": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
@@ -859,6 +779,11 @@
     "es": "Todavía no se ha creado ninguna lista de verificación.",
     "en": "No checklist has been created yet.",
     "pt": "Nenhuma lista de verificação foi criada ainda."
+  },
+  "accounting.checklist.period_close": {
+    "es": "Cierre de período",
+    "en": "Period close",
+    "pt": "Fechamento de período"
   },
   "accounting.checklist.provider_unavailable": {
     "es": "El módulo no respondió. La comprobación queda sin resolver, no aprobada.",
@@ -1800,165 +1725,155 @@
     "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
     "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
   },
-  "accounting.merge_tool.account_merge_tool": {
-    "es": "Herramienta de Fusión de Cuentas",
-    "en": "Account Merge Tool",
-    "pt": "Ferramenta de Fusão de Contas"
+  "accounting.merge_tool.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
   },
-  "accounting.merge_tool.analyse": {
+  "accounting.merge_tool.account_merge_tool": {
+    "es": "Fusionar cuentas",
+    "en": "Merge accounts",
+    "pt": "Mesclar contas"
+  },
+  "accounting.merge_tool.after_merge": {
+    "es": "Después de fusionar",
+    "en": "After the merge",
+    "pt": "Após a mesclagem"
+  },
+  "accounting.merge_tool.analysis_failed": {
+    "es": "No se pudo analizar la fusión.",
+    "en": "The merge could not be analyzed.",
+    "pt": "Não foi possível analisar a mesclagem."
+  },
+  "accounting.merge_tool.analysis_title": {
+    "es": "Qué va a pasar",
+    "en": "What will happen",
+    "pt": "O que vai acontecer"
+  },
+  "accounting.merge_tool.analyze": {
     "es": "Analizar",
-    "en": "Analyse",
+    "en": "Analyze",
     "pt": "Analisar"
   },
-  "accounting.merge_tool.analysis_reported_problems_correct_your_selection": {
-    "es": "El análisis reportó problemas. Corrige la selección.",
-    "en": "The analysis reported problems. Correct your selection.",
-    "pt": "A análise reportou problemas. Corrija a seleção."
-  },
-  "accounting.merge_tool.back": {
-    "es": "Volver",
-    "en": "Back",
-    "pt": "Voltar"
+  "accounting.merge_tool.analyzing": {
+    "es": "Analizando…",
+    "en": "Analyzing…",
+    "pt": "Analisando…"
   },
   "accounting.merge_tool.back_chart_accounts": {
     "es": "Volver al Plan de Cuentas",
     "en": "Back to the Chart of Accounts",
     "pt": "Voltar ao Plano de Contas"
   },
-  "accounting.merge_tool.clear": {
-    "es": "Limpiar",
-    "en": "Clear",
-    "pt": "Limpar"
+  "accounting.merge_tool.children_to_move": {
+    "es": "{{count}} subcuentas pasan a colgar de la cuenta de destino.",
+    "en": "{{count}} sub-accounts move under the destination account.",
+    "pt": "{{count}} subcontas passam a ficar sob a conta de destino."
   },
-  "accounting.merge_tool.confirm_merge": {
-    "es": "Confirmar Fusión",
-    "en": "Confirm Merge",
-    "pt": "Confirmar Fusão"
+  "accounting.merge_tool.confirm_message": {
+    "es": "Los {{lines}} movimientos de {{source}} pasarán a {{destination}} y {{source}} quedará inactiva. No se puede deshacer desde aquí.",
+    "en": "The {{lines}} movements of {{source}} will move to {{destination}} and {{source}} will be deactivated. This cannot be undone from here.",
+    "pt": "Os {{lines}} movimentos de {{source}} passarão para {{destination}} e {{source}} ficará inativa. Não é possível desfazer aqui."
   },
-  "accounting.merge_tool.confirm_question": {
-    "es": "Confirma que deseas fusionar la cuenta {{source}} en {{target}}.",
-    "en": "Confirm that you want to merge account {{source}} into {{target}}.",
-    "pt": "Confirme que deseja fundir a conta {{source}} em {{target}}."
-  },
-  "accounting.merge_tool.continue": {
-    "es": "Continuar",
-    "en": "Continue",
-    "pt": "Continuar"
+  "accounting.merge_tool.confirm_title": {
+    "es": "¿Fusionar las cuentas?",
+    "en": "Merge the accounts?",
+    "pt": "Mesclar as contas?"
   },
   "accounting.merge_tool.destination": {
-    "es": "Destino:",
-    "en": "Destination:",
-    "pt": "Destino:"
+    "es": "Destino",
+    "en": "Destination",
+    "pt": "Destino"
   },
-  "accounting.merge_tool.destination_account_receives_merge": {
-    "es": "Cuenta Destino (recibe la fusión)",
-    "en": "Destination Account (receives the merge)",
-    "pt": "Conta de Destino (recebe a fusão)"
+  "accounting.merge_tool.destination_account": {
+    "es": "Cuenta de destino",
+    "en": "Destination account",
+    "pt": "Conta de destino"
   },
-  "accounting.merge_tool.destination_balance": {
-    "es": "Saldo en destino:",
-    "en": "Destination balance:",
-    "pt": "Saldo no destino:"
+  "accounting.merge_tool.destination_help": {
+    "es": "Conserva su código y recibe los movimientos.",
+    "en": "Keeps its code and receives the movements.",
+    "pt": "Mantém o seu código e recebe os movimentos."
   },
-  "accounting.merge_tool.dry_run_summary_shown_before_merge": {
-    "es": "Se muestra un resumen del *dry-run* antes de ejecutar la fusión.",
-    "en": "A dry-run summary is shown before the merge is executed.",
-    "pt": "Um resumo do dry-run é exibido antes de executar a fusão."
+  "accounting.merge_tool.lines_in_closed_periods": {
+    "es": "{{count}} en períodos cerrados",
+    "en": "{{count}} in closed periods",
+    "pt": "{{count}} em períodos fechados"
   },
-  "accounting.merge_tool.error": {
-    "es": "Error:",
-    "en": "Error:",
-    "pt": "Erro:"
+  "accounting.merge_tool.lines_to_move": {
+    "es": "{{count}} líneas de asiento pasan a la cuenta de destino.",
+    "en": "{{count}} journal lines move to the destination account.",
+    "pt": "{{count}} linhas de lançamento passam para a conta de destino."
   },
-  "accounting.merge_tool.merge_another_pair": {
-    "es": "Realizar otra fusión",
-    "en": "Merge another pair",
-    "pt": "Realizar outra fusão"
+  "accounting.merge_tool.merge_accounts": {
+    "es": "Fusionar",
+    "en": "Merge",
+    "pt": "Mesclar"
   },
-  "accounting.merge_tool.merge_complete": {
-    "es": "¡Fusión completada!",
-    "en": "Merge complete.",
-    "pt": "Fusão concluída."
+  "accounting.merge_tool.merge_another": {
+    "es": "Fusionar otras cuentas",
+    "en": "Merge other accounts",
+    "pt": "Mesclar outras contas"
   },
-  "accounting.merge_tool.merge_did_not_complete": {
-    "es": "La fusión no se completó.",
-    "en": "The merge did not complete.",
-    "pt": "A fusão não foi concluída."
+  "accounting.merge_tool.merge_failed": {
+    "es": "No se pudo iniciar la fusión.",
+    "en": "The merge could not be started.",
+    "pt": "Não foi possível iniciar a mesclagem."
   },
-  "accounting.merge_tool.merge_done": {
-    "es": "La cuenta {{source}} fue fusionada en {{target}}.",
-    "en": "Account {{source}} was merged into {{target}}.",
-    "pt": "A conta {{source}} foi fundida em {{target}}."
+  "accounting.merge_tool.merging": {
+    "es": "Fusionando…",
+    "en": "Merging…",
+    "pt": "Mesclando…"
   },
-  "accounting.merge_tool.result": {
-    "es": "Resultado",
-    "en": "Result",
-    "pt": "Resultado"
+  "accounting.merge_tool.posted_balance": {
+    "es": "Saldo contabilizado",
+    "en": "Posted balance",
+    "pt": "Saldo contabilizado"
+  },
+  "accounting.merge_tool.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "accounting.merge_tool.reason_help": {
+    "es": "Queda en la pista de auditoría de la cuenta.",
+    "en": "Recorded in the account's audit trail.",
+    "pt": "Fica registrado na trilha de auditoria da conta."
   },
   "accounting.merge_tool.search_code_name": {
-    "es": "Buscar por código o nombre...",
-    "en": "Search by code or name...",
-    "pt": "Buscar por código ou nome..."
-  },
-  "accounting.merge_tool.selected_account": {
-    "es": "Cuenta Seleccionada:",
-    "en": "Selected account:",
-    "pt": "Conta selecionada:"
+    "es": "Buscar por código o nombre",
+    "en": "Search by code or name",
+    "pt": "Pesquisar por código ou nome"
   },
   "accounting.merge_tool.source": {
-    "es": "Origen:",
-    "en": "Source:",
-    "pt": "Origem:"
+    "es": "Origen",
+    "en": "Source",
+    "pt": "Origem"
   },
   "accounting.merge_tool.source_account_merge": {
-    "es": "Cuenta Origen (a fusionar)",
-    "en": "Source Account (to merge)",
-    "pt": "Conta de Origem (a fundir)"
+    "es": "Cuenta de origen",
+    "en": "Source account",
+    "pt": "Conta de origem"
   },
-  "accounting.merge_tool.source_balance": {
-    "es": "Saldo en origen:",
-    "en": "Source balance:",
-    "pt": "Saldo na origem:"
+  "accounting.merge_tool.source_deactivated": {
+    "es": "La cuenta de origen queda inactiva y conserva una nota de la fusión.",
+    "en": "The source account is deactivated and keeps a note of the merge.",
+    "pt": "A conta de origem fica inativa e mantém uma nota da mesclagem."
   },
-  "accounting.merge_tool.step_1_help": {
-    "es": "Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y el saldo).",
-    "en": "Choose a <strong>source account</strong> (the one being merged) and a <strong>destination account</strong> (the one that keeps the movements and the balance).",
-    "pt": "Escolha uma <strong>conta de origem</strong> (a que será fundida) e uma <strong>conta de destino</strong> (a que manterá os lançamentos e o saldo)."
-  },
-  "accounting.merge_tool.step_confirmation": {
-    "es": "Paso 3: Confirmación",
-    "en": "Step 3: Confirmation",
-    "pt": "Etapa 3: Confirmação"
-  },
-  "accounting.merge_tool.step_impact_analysis": {
-    "es": "Paso 2: Análisis de Impacto",
-    "en": "Step 2: Impact analysis",
-    "pt": "Etapa 2: Análise de impacto"
+  "accounting.merge_tool.source_help": {
+    "es": "Desaparece del plan: sus movimientos pasan a la de destino.",
+    "en": "Leaves the chart: its movements move to the destination.",
+    "pt": "Sai do plano: os seus movimentos passam para a de destino."
   },
   "accounting.merge_tool.step_select_accounts": {
-    "es": "Paso 1: Seleccionar Cuentas",
-    "en": "Step 1: Select the accounts",
-    "pt": "Etapa 1: Selecionar as contas"
+    "es": "Cuentas a fusionar",
+    "en": "Accounts to merge",
+    "pt": "Contas a mesclar"
   },
-  "accounting.merge_tool.transactions_move": {
-    "es": "Transacciones a mover:",
-    "en": "Transactions to move:",
-    "pt": "Transações a mover:"
-  },
-  "accounting.merge_tool.type_type": {
-    "es": "Tipo: {{type}}",
-    "en": "Type: {{type}}",
-    "pt": "Tipo: {{type}}"
-  },
-  "accounting.merge_tool.unexpected_error": {
-    "es": "Ocurrió un error inesperado.",
-    "en": "An unexpected error occurred.",
-    "pt": "Ocorreu um erro inesperado."
-  },
-  "accounting.merge_tool.warnings": {
-    "es": "Advertencias:",
-    "en": "Warnings:",
-    "pt": "Avisos:"
+  "accounting.merge_tool.subtitle": {
+    "es": "Mueve todos los movimientos y subcuentas de una cuenta a otra, y desactiva la de origen.",
+    "en": "Moves every movement and sub-account of one account into another, and deactivates the source.",
+    "pt": "Move todos os movimentos e subcontas de uma conta para outra e desativa a de origem."
   },
   "accounting.module_cannot_reopened_while_general_accounting": {
     "es": "No se puede reabrir un módulo si el período contable general está cerrado.",
@@ -1979,46 +1894,6 @@
     "es": "El módulo {{module}} para el período \"{{name}}\" ha sido reabierto.",
     "en": "Module {{module}} for period \"{{name}}\" has been reopened.",
     "pt": "O módulo {{module}} do período \"{{name}}\" foi reaberto."
-  },
-  "accounting.month_end_close.empty": {
-    "es": "No queda nada pendiente para cerrar este período.",
-    "en": "Nothing is left before this period can be closed.",
-    "pt": "Não resta nada pendente para encerrar este período."
-  },
-  "accounting.month_end_close.go_task": {
-    "es": "Ir a la tarea",
-    "en": "Go to the task",
-    "pt": "Ir para a tarefa"
-  },
-  "accounting.month_end_close.load_failed": {
-    "es": "No se pudo cargar el checklist de cierre.",
-    "en": "The closing checklist could not be loaded.",
-    "pt": "Não foi possível carregar a lista de verificação do fechamento."
-  },
-  "accounting.month_end_close.loading": {
-    "es": "Cargando el checklist de cierre…",
-    "en": "Loading the closing checklist…",
-    "pt": "Carregando a lista de verificação do fechamento…"
-  },
-  "accounting.month_end_close.no_open_period": {
-    "es": "No hay ningún período contable abierto.",
-    "en": "There is no open accounting period.",
-    "pt": "Não há nenhum período contábil aberto."
-  },
-  "accounting.month_end_close.progress": {
-    "es": "{{percent}} completado",
-    "en": "{{percent}} complete",
-    "pt": "{{percent}} concluído"
-  },
-  "accounting.month_end_close.title": {
-    "es": "Cierre mensual — {{period}}",
-    "en": "Month-End Close — {{period}}",
-    "pt": "Fechamento Mensal — {{period}}"
-  },
-  "accounting.month_end_close.title_no_period": {
-    "es": "Cierre mensual",
-    "en": "Month-End Close",
-    "pt": "Fechamento Mensal"
   },
   "accounting.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
@@ -2575,91 +2450,6 @@
     "en": "The start date cannot be later than the end date.",
     "pt": "A data inicial não pode ser posterior à final."
   },
-  "accounting.subsidiary_ledgers.auxiliary": {
-    "es": "Auxiliar:",
-    "en": "Auxiliary:",
-    "pt": "Auxiliar:"
-  },
-  "accounting.subsidiary_ledgers.auxiliary_third_party": {
-    "es": "Auxiliar (Tercero)",
-    "en": "Auxiliary (Third Party)",
-    "pt": "Auxiliar (Terceiro)"
-  },
-  "accounting.subsidiary_ledgers.balance": {
-    "es": "Saldo",
-    "en": "Balance",
-    "pt": "Saldo"
-  },
-  "accounting.subsidiary_ledgers.control_account": {
-    "es": "Cuenta de Control",
-    "en": "Control Account",
-    "pt": "Conta de Controle"
-  },
-  "accounting.subsidiary_ledgers.credit": {
-    "es": "Crédito",
-    "en": "Credit",
-    "pt": "Crédito"
-  },
-  "accounting.subsidiary_ledgers.date": {
-    "es": "Fecha",
-    "en": "Date",
-    "pt": "Data"
-  },
-  "accounting.subsidiary_ledgers.debit": {
-    "es": "Débito",
-    "en": "Debit",
-    "pt": "Débito"
-  },
-  "accounting.subsidiary_ledgers.description": {
-    "es": "Descripción",
-    "en": "Description",
-    "pt": "Descrição"
-  },
-  "accounting.subsidiary_ledgers.export": {
-    "es": "Exportar",
-    "en": "Export",
-    "pt": "Exportar"
-  },
-  "accounting.subsidiary_ledgers.final_balance": {
-    "es": "Saldo Final",
-    "en": "Ending Balance",
-    "pt": "Saldo Final"
-  },
-  "accounting.subsidiary_ledgers.no_movements_found_for_this_auxiliary": {
-    "es": "No se encontraron movimientos para este auxiliar en el período seleccionado.",
-    "en": "No movements were found for this auxiliary in the selected period.",
-    "pt": "Nenhum lançamento encontrado para este auxiliar no período selecionado."
-  },
-  "accounting.subsidiary_ledgers.opening_balance": {
-    "es": "Saldo Inicial",
-    "en": "Opening Balance",
-    "pt": "Saldo Inicial"
-  },
-  "accounting.subsidiary_ledgers.opening_balance_opening_balance": {
-    "es": "Saldo de apertura",
-    "en": "Opening balance",
-    "pt": "Saldo de abertura"
-  },
-  "accounting.subsidiary_ledgers.reference": {
-    "es": "N.º de Referencia",
-    "en": "Reference no.",
-    "pt": "N.º de Referência"
-  },
-  "accounting.subsidiary_ledgers.select_account": {
-    "es": "Selecciona una cuenta de control",
-    "en": "Select a control account",
-    "pt": "Selecione uma conta de controle"
-  },
-  "accounting.subsidiary_ledgers.select_auxiliary": {
-    "es": "Selecciona un auxiliar",
-    "en": "Select an auxiliary",
-    "pt": "Selecione um auxiliar"
-  },
-  "accounting.subsidiary_ledgers.subsidiary_ledgers": {
-    "es": "Libros Auxiliares",
-    "en": "Subsidiary Ledgers",
-    "pt": "Livros Auxiliares"
-  },
   "accounting.transaction_date_falls_accounting_period_name": {
     "es": "La fecha de la transacción está dentro de un período contable ({{name}}) que ya ha sido cerrado.",
     "en": "The transaction date falls in an accounting period ({{name}}) that is already closed.",
@@ -2669,50 +2459,5 @@
     "es": "La fecha de la transacción {{p1}} no pertenece a ningún período contable definido.",
     "en": "The transaction date {{p1}} does not fall in any defined accounting period.",
     "pt": "A data da transação {{p1}} não pertence a nenhum período contábil definido."
-  },
-  "accounting.variance_analysis.account": {
-    "es": "Cuenta",
-    "en": "Account",
-    "pt": "Conta"
-  },
-  "accounting.variance_analysis.actual": {
-    "es": "Real",
-    "en": "Actual",
-    "pt": "Real"
-  },
-  "accounting.variance_analysis.budget": {
-    "es": "Presupuesto",
-    "en": "Budgeting",
-    "pt": "Orçamento"
-  },
-  "accounting.variance_analysis.export": {
-    "es": "Exportar",
-    "en": "Export",
-    "pt": "Exportar"
-  },
-  "accounting.variance_analysis.no_data_available_for_variance_analysis": {
-    "es": "No hay datos disponibles para el análisis de variaciones.",
-    "en": "There is no data available for the variance analysis.",
-    "pt": "Não há dados disponíveis para a análise de variações."
-  },
-  "accounting.variance_analysis.period": {
-    "es": "Período",
-    "en": "Period",
-    "pt": "Período"
-  },
-  "accounting.variance_analysis.variance_amount": {
-    "es": "Variación",
-    "en": "Variance",
-    "pt": "Variação"
-  },
-  "accounting.variance_analysis.variance_analysis_actual_vs_budget": {
-    "es": "Análisis de Variaciones (Real vs. Presupuesto)",
-    "en": "Variance Analysis (Actual vs. Budget)",
-    "pt": "Análise de Variações (Real vs. Orçado)"
-  },
-  "accounting.variance_analysis.variance_percent": {
-    "es": "Variación (%)",
-    "en": "Variance (%)",
-    "pt": "Variação (%)"
   }
 }

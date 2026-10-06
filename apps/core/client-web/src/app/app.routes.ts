@@ -124,6 +124,8 @@ export const APP_ROUTES: Routes = [
             {
                 path: 'checkout-complete',
                 title: 'auth.titles.confirming_payment',
+                // Also reached signed in: a person adding another company returns here from Stripe.
+                data: { allowSignedIn: true },
                 loadComponent: () =>
                 import('./features/auth/checkout-complete/checkout-complete.page').then(
                     (m) => m.CheckoutCompletePage
@@ -231,10 +233,11 @@ export const APP_ROUTES: Routes = [
     component: MainLayout,
     canActivate: [authGuard, organizationRouteGuard],
     children: [
-      ...buildModuleRoutes().map((route) => ({
-        ...route,
-        canActivate: [permissionsGuard],
-      })),
+      //  A redirect carries no guard (Angular refuses `redirectTo` with `canActivate`): the page it
+      //  lands on is guarded on arrival.
+      ...buildModuleRoutes().map((route) =>
+        route.redirectTo ? route : { ...route, canActivate: [permissionsGuard] },
+      ),
       // Direct navigation to /settings/* is intercepted and reopened in the modal outlet.
       {
         path: 'settings',

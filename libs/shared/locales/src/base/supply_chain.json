@@ -4,6 +4,31 @@
     "en": "The location cannot be deleted because it is in use ({{summary}}).",
     "pt": "A localização não pode ser excluída porque está em uso ({{summary}})."
   },
+  "supply_chain.default_warehouse_cannot_close": {
+    "es": "El almacén predeterminado no se puede cerrar: designa otro primero.",
+    "en": "The default warehouse cannot be closed: designate another first.",
+    "pt": "O depósito padrão não pode ser fechado: designe outro primeiro."
+  },
+  "supply_chain.default_warehouse_cannot_delete": {
+    "es": "El almacén predeterminado no se puede eliminar.",
+    "en": "The default warehouse cannot be deleted.",
+    "pt": "O depósito padrão não pode ser excluído."
+  },
+  "supply_chain.default_warehouse_move_instead": {
+    "es": "Siempre hay un almacén predeterminado: marca otro como predeterminado.",
+    "en": "There is always a default warehouse: mark another one as default.",
+    "pt": "Há sempre um depósito padrão: marque outro como padrão."
+  },
+  "supply_chain.default_warehouse_must_be_active": {
+    "es": "Un almacén cerrado no puede ser el predeterminado.",
+    "en": "A closed warehouse cannot be the default.",
+    "pt": "Um depósito fechado não pode ser o padrão."
+  },
+  "supply_chain.warehouse_holds_stock": {
+    "es": "«{{name}}» todavía tiene existencias: transfiérelas o ajústalas antes de cerrarlo.",
+    "en": "«{{name}}» still holds stock: transfer or adjust it before closing.",
+    "pt": "«{{name}}» ainda tem estoque: transfira ou ajuste antes de fechar."
+  },
   "supply_chain.warehouse_in_use_deactivate_instead": {
     "es": "No se puede eliminar el almacén porque tiene ubicaciones o existencias ({{summary}}). Desactívalo para dejar de usarlo.",
     "en": "The warehouse cannot be deleted because it holds locations or stock ({{summary}}). Deactivate it to stop using it.",

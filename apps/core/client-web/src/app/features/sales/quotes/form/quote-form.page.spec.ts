@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../../core/tenancy/branches.service.testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,6 +37,7 @@ describe('QuoteFormPage', () => {
     TestBed.configureTestingModule({
       imports: [QuoteFormPage, TranslateModule.forRoot()],
       providers: [
+        provideTestBranches(),
         provideRouter([]),
         { provide: QuotesService, useValue: api },
         { provide: DialogService, useValue: dialog },

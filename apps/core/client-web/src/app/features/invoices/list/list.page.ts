@@ -1,3 +1,5 @@
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -45,7 +47,7 @@ type InvoiceSortKey = 'number' | 'customer' | 'issueDate' | 'dueDate' | 'total' 
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +60,8 @@ export class InvoicesListPage implements OnInit {
   private notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  /** The branch column and filter appear only for a company that uses branches. */
+  protected readonly branches = inject(BranchesService);
 
   invoices = signal<Invoice[]>([]);
   /** The server orders the rows; this holds which column and which way (QA B-01). */
@@ -68,6 +72,8 @@ export class InvoicesListPage implements OnInit {
 
   searchTerm = signal('');
   statusFilter = signal<InvoiceStatus | 'All'>('All');
+  /** Empty: every branch the person may see. */
+  branchFilter = signal<string | null>(null);
   page = signal(1);
   limit = signal(50);
   total = signal(0);
@@ -141,6 +147,7 @@ export class InvoicesListPage implements OnInit {
       limit: this.limit(),
       search: this.searchTerm() || undefined,
       status: this.statusFilter() === 'All' ? undefined : (this.statusFilter() as InvoiceStatus),
+      branchId: this.branchFilter() ?? undefined,
       sort: this.sort.state().key ?? undefined,
       direction: this.sort.state().key ? this.sort.state().direction : undefined,
     };
@@ -238,6 +245,7 @@ export class InvoicesListPage implements OnInit {
         limit: 200,
         search: this.searchTerm() || undefined,
         status: this.statusFilter() === 'All' ? undefined : (this.statusFilter() as InvoiceStatus),
+        branchId: this.branchFilter() ?? undefined,
       })
       .subscribe({
         next: (result) => {
@@ -259,6 +267,7 @@ export class InvoicesListPage implements OnInit {
             'invoices.export.balance',
             'invoices.export.currency',
             'invoices.export.status',
+            'branches.picker.label',
           ].map((key) => this.translate.instant(key) as string);
 
           const rows: CsvValue[][] = [
@@ -280,6 +289,7 @@ export class InvoicesListPage implements OnInit {
               invoice.balance,
               invoice.currencyCode,
               invoice.status,
+              this.branches.label(invoice.branchId) ?? '',
             ]),
           ];
 

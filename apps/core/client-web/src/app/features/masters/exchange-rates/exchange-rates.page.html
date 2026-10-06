@@ -1,0 +1,233 @@
+<vx-list-shell
+  titleKey="currencies.rates.title"
+  subtitleKey="currencies.rates.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <button listActions *appHasPermission="'exchange_rates:manage'" type="button" class="secondary-button" (click)="importing.set(!importing()); recording.set(false)">
+    <lucide-icon [img]="ImportIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'currencies.rates.import' | translate }}</span>
+  </button>
+  <button listActions *appHasPermission="'exchange_rates:manage'" type="button" class="primary-button" (click)="recording.set(!recording()); importing.set(false)">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'currencies.rates.record' | translate }}</span>
+  </button>
+
+  <div listFilters class="doc-filter">
+    <label for="rate-currency">{{ 'currencies.rates.currency' | translate }}</label>
+    <select id="rate-currency" [ngModel]="currencyFilter()" (ngModelChange)="currencyFilter.set($event); applyFilters()">
+      <option value="">{{ 'currencies.rates.all_currencies' | translate }}</option>
+      @for (currency of currencies(); track currency.code) {
+        <option [value]="currency.code">{{ currency.code }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="rate-type">{{ 'currencies.rates.type' | translate }}</label>
+    <select id="rate-type" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); applyFilters()">
+      <option value="">{{ 'currencies.rates.all_types' | translate }}</option>
+      @for (type of rateTypes; track type) {
+        <option [value]="type">{{ 'currencies.rates.types.' + type.toLowerCase() | translate }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="rate-scope">{{ 'currencies.rates.scope' | translate }}</label>
+    <select id="rate-scope" [ngModel]="scopeFilter()" (ngModelChange)="scopeFilter.set($event); applyFilters()">
+      <option value="ALL">{{ 'currencies.rates.scopes.all' | translate }}</option>
+      <option value="TENANT">{{ 'currencies.rates.scopes.tenant' | translate }}</option>
+      <option value="SHARED">{{ 'currencies.rates.scopes.shared' | translate }}</option>
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="rate-from">{{ 'currencies.rates.from_date' | translate }}</label>
+    <input id="rate-from" type="date" [ngModel]="fromFilter()" (ngModelChange)="fromFilter.set($event); applyFilters()" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="rate-to">{{ 'currencies.rates.to_date' | translate }}</label>
+    <input id="rate-to" type="date" [ngModel]="toFilter()" (ngModelChange)="toFilter.set($event); applyFilters()" />
+  </div>
+
+  @if (recording()) {
+    <section class="doc-card rate-panel" [formGroup]="form">
+      <h2 class="form-section-title">{{ 'currencies.rates.record_title' | translate }}</h2>
+      <p class="form-hint">{{ 'currencies.rates.record_hint' | translate }}</p>
+      <div class="form-grid">
+        <label class="field" for="rf-from">
+          <span>{{ 'currencies.rates.from_currency' | translate }} *</span>
+          <select id="rf-from" formControlName="fromCurrency">
+            @for (currency of currencies(); track currency.code) {
+              <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="rf-to">
+          <span>{{ 'currencies.rates.to_currency' | translate }} *</span>
+          <select id="rf-to" formControlName="toCurrency">
+            @for (currency of currencies(); track currency.code) {
+              <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="rf-date">
+          <span>{{ 'currencies.rates.date' | translate }} *</span>
+          <vx-date-field inputId="rf-date" formControlName="date" />
+        </label>
+        <label class="field" for="rf-rate">
+          <span>{{ 'currencies.rates.rate' | translate }} *</span>
+          <input id="rf-rate" type="number" step="0.000001" min="0.000001" formControlName="rate" />
+        </label>
+        <label class="field" for="rf-type">
+          <span>{{ 'currencies.rates.type' | translate }} *</span>
+          <select id="rf-type" formControlName="rateType">
+            @for (type of rateTypes; track type) {
+              <option [value]="type">{{ 'currencies.rates.types.' + type.toLowerCase() | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="rf-source">
+          <span>{{ 'currencies.rates.source' | translate }}</span>
+          <input id="rf-source" type="text" maxlength="32" formControlName="source" [placeholder]="'currencies.rates.source_placeholder' | translate" />
+        </label>
+      </div>
+      <p class="form-hint">
+        {{ 'currencies.rates.reads_as' | translate: { from: form.value.fromCurrency, to: form.value.toCurrency, rate: form.value.rate ?? '—' } }}
+      </p>
+      <div class="doc-actions">
+        <button type="button" class="primary-button" [disabled]="saving()" (click)="save()">{{ 'currencies.rates.save' | translate }}</button>
+        <button type="button" class="secondary-button" (click)="recording.set(false)">{{ 'common.cancel' | translate }}</button>
+      </div>
+    </section>
+  }
+
+  @if (importing()) {
+    <section class="doc-card rate-panel">
+      <h2 class="form-section-title">{{ 'currencies.rates.import_title' | translate }}</h2>
+      <p class="form-hint">{{ 'currencies.rates.import_hint' | translate }}</p>
+      <label class="field" for="rate-file">
+        <span>{{ 'currencies.rates.import_file' | translate }}</span>
+        <input id="rate-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" (change)="onFile($event)" />
+      </label>
+      <label class="field" for="rate-paste">
+        <span>{{ 'currencies.rates.import_paste' | translate }}</span>
+        <textarea id="rate-paste" rows="6" [ngModel]="importText()" (ngModelChange)="importText.set($event)"></textarea>
+      </label>
+      @if (importText().trim()) {
+        <p class="form-hint">
+          {{ 'currencies.rates.import_preview' | translate: { count: importPreview().rates.length } }}
+          @if (importPreview().invalidLines.length) {
+            <span class="negative">{{ 'currencies.rates.import_invalid_lines' | translate: { lines: importPreview().invalidLines.join(', ') } }}</span>
+          }
+        </p>
+      }
+      <div class="doc-actions">
+        <button type="button" class="primary-button" [disabled]="saving() || importPreview().rates.length === 0" (click)="confirmImport()">{{ 'currencies.rates.import_confirm' | translate }}</button>
+        <button type="button" class="secondary-button" (click)="importing.set(false)">{{ 'common.cancel' | translate }}</button>
+      </div>
+    </section>
+  }
+
+  <section class="doc-card rate-panel" [formGroup]="lookup">
+    <h2 class="form-section-title">{{ 'currencies.rates.lookup_title' | translate }}</h2>
+    <div class="form-grid">
+      <label class="field" for="lk-from">
+        <span>{{ 'currencies.rates.from_currency' | translate }}</span>
+        <select id="lk-from" formControlName="from">
+          @for (currency of currencies(); track currency.code) {
+            <option [value]="currency.code">{{ currency.code }}</option>
+          }
+        </select>
+      </label>
+      <label class="field" for="lk-to">
+        <span>{{ 'currencies.rates.to_currency' | translate }}</span>
+        <select id="lk-to" formControlName="to">
+          @for (currency of currencies(); track currency.code) {
+            <option [value]="currency.code">{{ currency.code }}</option>
+          }
+        </select>
+      </label>
+      <label class="field" for="lk-date">
+        <span>{{ 'currencies.rates.date' | translate }}</span>
+        <vx-date-field inputId="lk-date" formControlName="date" />
+      </label>
+      <label class="field" for="lk-type">
+        <span>{{ 'currencies.rates.type' | translate }}</span>
+        <select id="lk-type" formControlName="rateType">
+          <option value="">{{ 'currencies.rates.company_type' | translate }}</option>
+          @for (type of rateTypes; track type) {
+            <option [value]="type">{{ 'currencies.rates.types.' + type.toLowerCase() | translate }}</option>
+          }
+        </select>
+      </label>
+    </div>
+    <div class="doc-actions">
+      <button type="button" class="secondary-button" (click)="resolve()">{{ 'currencies.rates.lookup' | translate }}</button>
+      @if (resolved(); as result) {
+        <span class="lookup-result">
+          1 {{ result.from }} = {{ result.rate | vxNumber: '1.2-6' }} {{ result.to }}
+          · {{ 'currencies.rates.methods.' + result.method.toLowerCase() | translate: { via: result.via ?? '' } }}
+          · {{ 'currencies.rates.quoted_on' | translate: { date: result.quotedOn, source: result.source } }}
+        </span>
+      }
+      @if (resolveError(); as message) {
+        <span class="negative">{{ message }}</span>
+      }
+    </div>
+  </section>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'currencies.rates.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'currencies.rates.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'currencies.rates.date' | translate }}</th>
+          <th>{{ 'currencies.rates.pair' | translate }}</th>
+          <th class="numeric">{{ 'currencies.rates.rate' | translate }}</th>
+          <th>{{ 'currencies.rates.type' | translate }}</th>
+          <th>{{ 'currencies.rates.source' | translate }}</th>
+          <th>{{ 'currencies.rates.scope' | translate }}</th>
+          <th><span class="sr-only">{{ 'currencies.rates.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.scope + row.id) {
+          <tr>
+            <td>{{ row.date | vxDate: 'date' : true }}</td>
+            <td>{{ row.fromCurrency }} → {{ row.toCurrency }}</td>
+            <td class="numeric">{{ row.rate | vxNumber: '1.2-6' }}</td>
+            <td>{{ 'currencies.rates.types.' + row.rateType.toLowerCase() | translate }}</td>
+            <td>{{ row.source }}</td>
+            <td>
+              <vx-badge [tone]="row.scope === 'TENANT' ? 'accent' : 'neutral'">{{ 'currencies.rates.scopes.' + row.scope.toLowerCase() | translate }}</vx-badge>
+            </td>
+            <td>
+              @if (row.scope === 'TENANT') {
+                <button *appHasPermission="'exchange_rates:manage'" type="button" class="icon-button" (click)="remove(row)" [attr.aria-label]="'currencies.rates.delete' | translate">
+                  <lucide-icon [img]="DeleteIcon" size="16" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 250]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

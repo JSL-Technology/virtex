@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule, CheckCircle, AlertTriangle, Loader } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth';
+import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +25,7 @@ export class CheckoutCompletePage implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private readonly tenancy = inject(ActiveOrganizationService);
 
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly AlertTriangleIcon = AlertTriangle;
@@ -53,8 +55,12 @@ export class CheckoutCompletePage implements OnInit {
     this.attempts++;
 
     this.authService.confirmRegistration(this.sessionId).subscribe({
-      next: () => {
+      next: (user) => {
         this.state.set('success');
+        // Into the company just paid for. For someone adding a company it is not the one they
+        // were last in, and `/overview` alone would have taken them back there.
+        const slug = user?.organization?.slug;
+        if (slug) this.tenancy.remember(slug);
         // Brief beat so the user sees the confirmation, then enter the app.
         setTimeout(() => this.router.navigate(['/overview']), 1500);
       },

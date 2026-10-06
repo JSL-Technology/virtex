@@ -1,82 +1,53 @@
-import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { Bank, TreasuryService } from '../../../core/api/treasury.service';
+import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
+import { CanOpenDirective } from '../../../core/modules/can-open.directive';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
-interface Bank {
-  name: string;
-  swiftBic: string | null;
-  accountCount: number;
-  currencies: string[];
-}
-
 /**
- * The banks the tenant actually holds accounts with.
+ * The tenant's bank catalogue: the institutions it deals with.
  *
- * ## What this replaces
+ * ## What this was
  *
- * Four invented banks — Banco Popular Dominicano, Banreservas, Scotiabank, Bank of America, with
- * their real SWIFT codes, which is what made the fiction convincing — held in a signal, fetched
- * from nothing, with a "New bank" button wired to nothing. There is no `banks` table and no
- * endpoint: the screen was inventing a catalogue the product does not keep.
+ * First, four invented banks with their real SWIFT codes held in a signal. Then a list deduced
+ * from the bank accounts — one row per distinct name typed into them — because the product kept no
+ * banks at all: the same bank typed two ways was two banks, and a bank the company pays into
+ * without holding an account there could not be recorded.
  *
- * What the product does keep is bank ACCOUNTS, each carrying the bank's name and BIC. So this
- * answers the question the screen was pretending to answer — which banks do we deal with — from the
- * accounts that actually exist, and sends adding one to Treasury, where a bank account is opened
- * against a ledger account. A bank with no account is not a fact this product has.
+ * It is a catalogue now (`/treasury/banks`), as a bank directory is in SAP and Odoo: name, BIC,
+ * country and local clearing code, kept once. Bank accounts pick their institution from it, and a
+ * renamed bank is renamed on every account held there.
  */
 @Component({
   selector: 'app-banks-page',
   standalone: true,
-  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent, ...FORMAT_PIPES],
+  imports: [...VX_SORT, RouterLink, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent, ...FORMAT_PIPES],
   templateUrl: './banks.page.html',
   styleUrls: ['./banks.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BanksPage implements OnInit {
-  /** Sortable by its headers (QA B-01). */
-  readonly table = sortable(() => this.banks(), { currencies: (bank) => bank.currencies.join(', ') });
-  protected readonly PlusCircleIcon = PlusCircle;
-
   private readonly treasury = inject(TreasuryService);
-  private readonly errors = inject(ErrorHandlerService);
-  private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
 
-  readonly accounts = signal<BankAccount[]>([]);
+  protected readonly PlusCircleIcon = PlusCircle;
+  protected readonly DeleteIcon = Trash2;
+
+  readonly banks = signal<Bank[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly busy = signal(false);
 
-  /** One row per bank, with what the tenant holds there. */
-  readonly banks = computed<Bank[]>(() => {
-    const byName = new Map<string, Bank>();
-    for (const account of this.accounts()) {
-      const name = (account.bankName ?? '').trim();
-      if (!name) continue;
-      const existing = byName.get(name);
-      if (existing) {
-        existing.accountCount += 1;
-        existing.swiftBic ??= account.swiftBic;
-        if (!existing.currencies.includes(account.currencyCode)) {
-          existing.currencies.push(account.currencyCode);
-        }
-        continue;
-      }
-      byName.set(name, {
-        name,
-        swiftBic: account.swiftBic,
-        accountCount: 1,
-        currencies: [account.currencyCode],
-      });
-    }
-    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
-  });
+  /** Sortable by its headers (QA B-01). */
+  readonly table = sortable(() => this.banks());
 
   ngOnInit(): void {
     this.load();
@@ -85,20 +56,39 @@ export class BanksPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.treasury.listBankAccounts().subscribe({
-      next: (list) => {
-        this.accounts.set(list ?? []);
+    this.treasury.listBanks().subscribe({
+      next: (banks) => {
+        this.banks.set(banks);
         this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.error.set(this.errors.keyFor(err));
+      error: (error: unknown) => {
+        this.error.set(this.notifications.httpErrorMessage(error, 'masters.banks.load_failed'));
         this.loading.set(false);
       },
     });
   }
 
-  /** A bank enters the product by opening an account with it. */
-  openTreasury(): void {
-    void this.router.navigate(['/accounting/treasury/bank-accounts/new']);
+  /** Refused by the server while an account is held there — the message says to deactivate. */
+  async remove(bank: Bank): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'masters.banks.delete_title',
+      message: 'masters.banks.delete_message',
+      messageParams: { name: bank.name },
+      confirmText: 'common.delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.busy.set(true);
+    this.treasury.removeBank(bank.id).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.notifications.showSuccess('masters.banks.deleted', { name: bank.name });
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.busy.set(false);
+        this.notifications.showHttpError(error, 'masters.banks.delete_failed');
+      },
+    });
   }
 }

@@ -24,6 +24,9 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
 import { PeriodLockModule } from '../accounting/period-lock.module';
 import { LocalizationProvisioningModule } from '../localization/localization-provisioning.module';
 
+import { CustomerStatementsController } from './customer-statement.controller';
+import { CustomerStatementService } from './customer-statement.service';
+
 @Module({
   imports: [
     CurrenciesModule,
@@ -47,11 +50,13 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
     // Invoice and OrganizationSettings are read via DataSource.manager in CustomerPaymentsService.
   ],
   controllers: [
+    CustomerStatementsController,
     CustomersController,
     CustomerPaymentsController,
     CustomerGroupsController,
   ],
   providers: [
+    CustomerStatementService,
     CustomersService,
     CustomersDataTransferProvider,
     CustomerPaymentsService,

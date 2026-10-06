@@ -1,5 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, In, LessThan, Repository } from 'typeorm';
 import { AuditLog, ActionType } from '../audit/entities/audit-log.entity';
@@ -14,7 +13,6 @@ import { hasPermission } from '@virteex/shared/util-auth';
 import { PERMISSIONS } from '../shared/permissions';
 import {
   ActivityItemDto,
-  NewsItemDto,
   OverviewEventDto,
 } from './dto/overview.dto';
 
@@ -106,14 +104,14 @@ const ACTIVITY_ACTIONS = [ActionType.CREATE, ActionType.UPDATE, ActionType.DELET
  * them not to trust the screen.
  *
  * Everything here comes from a table: activity from the audit trail, obligations from the
- * documents that carry a due date and the periods that are still open. Product news has no source
- * inside the product, so it is served from a feed the operator configures — and when none is
- * configured the section is empty rather than invented.
+ * documents that carry a due date and the periods that are still open.
+ *
+ * A third section, product news from an operator-configured feed, was removed: vendor marketing has
+ * no place on the screen a tenant opens to see their own business, and no reference ERP puts it
+ * there.
  */
 @Injectable()
 export class OverviewService {
-  private readonly logger = new Logger(OverviewService.name);
-
   constructor(
     @InjectRepository(AuditLog) private readonly auditLogs: Repository<AuditLog>,
     @InjectRepository(User) private readonly users: Repository<User>,
@@ -121,7 +119,6 @@ export class OverviewService {
     @InjectRepository(VendorBill) private readonly bills: Repository<VendorBill>,
     @InjectRepository(AccountingPeriod)
     private readonly periods: Repository<AccountingPeriod>,
-    private readonly config: ConfigService,
   ) {}
 
   /**
@@ -272,44 +269,6 @@ export class OverviewService {
     }
 
     return events.sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
-  }
-
-  /**
-   * Product news, from a feed the operator configures.
-   *
-   * There is no news inside an ERP, so there is nothing here to derive. `OVERVIEW_NEWS_URL` names
-   * a JSON document of `{ id, title, summary, tag?, date, url? }`; with none set the section is
-   * empty and the page hides it. An unreachable or malformed feed is also empty — a home page does
-   * not fail because a marketing endpoint is down.
-   */
-  async news(): Promise<NewsItemDto[]> {
-    const url = this.config.get<string>('OVERVIEW_NEWS_URL');
-    if (!url) return [];
-
-    try {
-      const response = await fetch(url, {
-        headers: { accept: 'application/json' },
-        signal: AbortSignal.timeout(3_000),
-      });
-      if (!response.ok) return [];
-      const body: unknown = await response.json();
-      if (!Array.isArray(body)) return [];
-
-      return body
-        .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-        .map((item, index) => ({
-          id: String(item['id'] ?? index),
-          title: String(item['title'] ?? ''),
-          summary: String(item['summary'] ?? ''),
-          tag: item['tag'] != null ? String(item['tag']) : null,
-          date: String(item['date'] ?? new Date().toISOString()),
-          url: item['url'] != null ? String(item['url']) : null,
-        }))
-        .filter((item) => item.title.length > 0);
-    } catch (error) {
-      this.logger.warn(`No se pudo leer el feed de novedades (${url}): ${(error as Error).message}`);
-      return [];
-    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

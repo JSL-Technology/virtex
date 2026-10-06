@@ -13,6 +13,7 @@ import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
+import { Bank } from './bank.entity';
 
 export enum BankAccountType {
   CHECKING = 'CHECKING',
@@ -62,6 +63,18 @@ export class BankAccount {
   @Column({ length: 120 })
   name: string;
 
+  /**
+   * The institution, from the tenant's bank catalogue. Null for an account entered before the
+   * catalogue existed and never linked, and for petty cash, which is held at no bank.
+   */
+  @Column({ name: 'bank_id', type: 'uuid', nullable: true })
+  bankId: string | null;
+
+  @ManyToOne(() => Bank, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'bank_id', foreignKeyConstraintName: 'FK_bank_accounts_bank' })
+  bank: Bank | null;
+
+  /** Copied from the catalogue when linked, so statement matching does not depend on a join. */
   @Column({ name: 'bank_name', type: 'varchar', length: 120, nullable: true })
   bankName: string | null;
 

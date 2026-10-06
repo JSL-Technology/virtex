@@ -49,6 +49,11 @@ class CreateVendorBillLineDto {
 }
 
 export class CreateVendorBillDto {
+  /** The branch that received the bill. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsUUID()
   @IsNotEmpty()
   vendorId: string;

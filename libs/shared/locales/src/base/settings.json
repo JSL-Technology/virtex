@@ -1222,10 +1222,20 @@
     "en": "Company Structure",
     "pt": "Estrutura Empresarial"
   },
+  "settings.modal.einvoicing_regime": {
+    "es": "Régimen de facturación electrónica",
+    "en": "E-invoicing regime",
+    "pt": "Regime de faturação eletrônica"
+  },
   "settings.modal.electronic_invoicing": {
     "es": "Facturación Electrónica",
     "en": "Electronic Invoicing",
     "pt": "Faturamento Eletrônico"
+  },
+  "settings.modal.extensions": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
   },
   "settings.modal.finance": {
     "es": "Finanzas",
@@ -1266,6 +1276,11 @@
     "es": "Mi Cuenta",
     "en": "My Account",
     "pt": "Minha Conta"
+  },
+  "settings.modal.my_companies": {
+    "es": "Mis empresas",
+    "en": "My companies",
+    "pt": "Minhas empresas"
   },
   "settings.modal.my_profile": {
     "es": "Mi Perfil",
@@ -1312,6 +1327,11 @@
     "en": "System Settings",
     "pt": "Sistema"
   },
+  "settings.modal.tax_jurisdictions": {
+    "es": "Jurisdicciones fiscales",
+    "en": "Tax jurisdictions",
+    "pt": "Jurisdições fiscais"
+  },
   "settings.modal.taxes": {
     "es": "Impuestos",
     "en": "Taxes",
@@ -1321,6 +1341,111 @@
     "es": "Usuarios",
     "en": "Users",
     "pt": "Usuários"
+  },
+  "settings.modal.withholding_regimes": {
+    "es": "Retenciones",
+    "en": "Withholding",
+    "pt": "Retenções"
+  },
+  "settings.my_companies.add": {
+    "es": "Añadir empresa",
+    "en": "Add a company",
+    "pt": "Adicionar empresa"
+  },
+  "settings.my_companies.back": {
+    "es": "Atrás",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "settings.my_companies.checkout_failed": {
+    "es": "No se pudo iniciar el pago de la nueva empresa.",
+    "en": "The new company's checkout could not be started.",
+    "pt": "Não foi possível iniciar o pagamento da nova empresa."
+  },
+  "settings.my_companies.choice_independent": {
+    "es": "Una empresa independiente",
+    "en": "An independent company",
+    "pt": "Uma empresa independente"
+  },
+  "settings.my_companies.choice_independent_help": {
+    "es": "Sin relación con esta: otro cliente si eres contador, otro negocio tuyo. Tiene su propia suscripción y se abre al confirmar el pago.",
+    "en": "Unrelated to this one: another client if you are an accountant, another business of yours. It has its own subscription and opens once payment is confirmed.",
+    "pt": "Sem relação com esta: outro cliente, se você é contador, outro negócio seu. Tem sua própria assinatura e abre ao confirmar o pagamento."
+  },
+  "settings.my_companies.choice_subsidiary": {
+    "es": "Una empresa del grupo de {{company}}",
+    "en": "A company in {{company}}'s group",
+    "pt": "Uma empresa do grupo de {{company}}"
+  },
+  "settings.my_companies.choice_subsidiary_help": {
+    "es": "Una subsidiaria: otra persona jurídica que esta empresa controla. Sus propios libros, se consolida con el grupo y opera entre compañías. Sin suscripción aparte.",
+    "en": "A subsidiary: another legal entity this company controls. Its own books, consolidated with the group, trades intercompany. No separate subscription.",
+    "pt": "Uma subsidiária: outra pessoa jurídica que esta empresa controla. Livros próprios, consolidada com o grupo e opera entre companhias. Sem assinatura separada."
+  },
+  "settings.my_companies.country_not_loaded": {
+    "es": "No se pudieron cargar las reglas fiscales del país. Vuelve a elegirlo.",
+    "en": "The country's fiscal rules could not be loaded. Choose it again.",
+    "pt": "Não foi possível carregar as regras fiscais do país. Escolha-o novamente."
+  },
+  "settings.my_companies.current": {
+    "es": "Actual",
+    "en": "Current",
+    "pt": "Atual"
+  },
+  "settings.my_companies.go_to_payment": {
+    "es": "Ir al pago",
+    "en": "Go to payment",
+    "pt": "Ir para o pagamento"
+  },
+  "settings.my_companies.next": {
+    "es": "Siguiente",
+    "en": "Next",
+    "pt": "Próximo"
+  },
+  "settings.my_companies.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "settings.my_companies.opening_checkout": {
+    "es": "Abriendo el pago…",
+    "en": "Opening checkout…",
+    "pt": "Abrindo o pagamento…"
+  },
+  "settings.my_companies.plan_note": {
+    "es": "La nueva empresa tiene su propia suscripción. Tu cuenta, tu contraseña y tus otras empresas no cambian.",
+    "en": "The new company has its own subscription. Your account, your password and your other companies do not change.",
+    "pt": "A nova empresa tem sua própria assinatura. Sua conta, sua senha e suas outras empresas não mudam."
+  },
+  "settings.my_companies.step_business": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "settings.my_companies.step_configuration": {
+    "es": "Datos fiscales",
+    "en": "Fiscal details",
+    "pt": "Dados fiscais"
+  },
+  "settings.my_companies.step_plan": {
+    "es": "Plan y pago",
+    "en": "Plan and payment",
+    "pt": "Plano e pagamento"
+  },
+  "settings.my_companies.steps": {
+    "es": "Pasos",
+    "en": "Steps",
+    "pt": "Etapas"
+  },
+  "settings.my_companies.subtitle": {
+    "es": "Las empresas en las que trabajas. Cada una tiene sus propios libros, usuarios y configuración.",
+    "en": "The companies you work in. Each has its own books, users and settings.",
+    "pt": "As empresas em que você trabalha. Cada uma tem seus próprios livros, usuários e configurações."
+  },
+  "settings.my_companies.title": {
+    "es": "Mis empresas",
+    "en": "My companies",
+    "pt": "Minhas empresas"
   },
   "settings.my_profile.avatar": {
     "literal": "Avatar"
@@ -3371,6 +3496,21 @@
     "en": "Page {{page}} · {{total}} records",
     "pt": "Página {{page}} · {{total}} registros"
   },
+  "settings.security.passkey_add": {
+    "es": "Agregar llave de acceso",
+    "en": "Add passkey",
+    "pt": "Adicionar chave de acesso"
+  },
+  "settings.security.passkey_description": {
+    "es": "Inicia sesión con la huella, el rostro o el PIN de tu dispositivo, sin contraseña.",
+    "en": "Sign in with your device's fingerprint, face or PIN, without a password.",
+    "pt": "Entre com a impressão digital, o rosto ou o PIN do seu dispositivo, sem senha."
+  },
+  "settings.security.passkey_title": {
+    "es": "Llaves de acceso",
+    "en": "Passkeys",
+    "pt": "Chaves de acesso"
+  },
   "settings.security.password_description": {
     "es": "Toda contraseña, al registrarse, restablecerla o cambiarla, debe cumplir estas reglas.",
     "en": "Every password, when signing up, resetting or changing it, must meet these rules.",
@@ -3861,6 +4001,26 @@
     "en": "You must verify at least one domain before enabling a provider.",
     "pt": "Você precisa verificar ao menos um domínio antes de ativar um provedor."
   },
+  "settings.subsidiaries.acquisition_cost": {
+    "es": "Costo de adquisición",
+    "en": "Acquisition cost",
+    "pt": "Custo de aquisição"
+  },
+  "settings.subsidiaries.acquisition_date": {
+    "es": "Fecha de adquisición del control",
+    "en": "Date control was acquired",
+    "pt": "Data de aquisição do controle"
+  },
+  "settings.subsidiaries.acquisition_hint": {
+    "es": "Con ellos la consolidación separa el patrimonio previo a la adquisición y calcula la plusvalía.",
+    "en": "With these, consolidation separates pre-acquisition equity and computes goodwill.",
+    "pt": "Com eles, a consolidação separa o patrimônio pré-aquisição e calcula o ágio."
+  },
+  "settings.subsidiaries.acquisition_missing": {
+    "es": "Falta fecha de adquisición",
+    "en": "Acquisition date missing",
+    "pt": "Falta data de aquisição"
+  },
   "settings.subsidiaries.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -3870,6 +4030,21 @@
     "es": "Estructura Empresarial",
     "en": "Company Structure",
     "pt": "Estrutura Empresarial"
+  },
+  "settings.subsidiaries.control_ended": {
+    "es": "Fin del control",
+    "en": "Control ended on",
+    "pt": "Fim do controle"
+  },
+  "settings.subsidiaries.control_ended_hint": {
+    "es": "Si la vendiste o dejaste de controlarla. Desde esa fecha no se consolida ni admite operaciones entre compañías.",
+    "en": "If you sold it or lost control. From that date it is not consolidated and takes no intercompany transactions.",
+    "pt": "Se você a vendeu ou deixou de controlá-la. A partir dessa data não é consolidada nem admite operações entre companhias."
+  },
+  "settings.subsidiaries.control_ended_on": {
+    "es": "Control terminado el {{date}}",
+    "en": "Control ended on {{date}}",
+    "pt": "Controle encerrado em {{date}}"
   },
   "settings.subsidiaries.country": {
     "es": "País:",
@@ -3901,15 +4076,40 @@
     "en": "Subsidiary created.",
     "pt": "Subsidiária criada."
   },
+  "settings.subsidiaries.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "settings.subsidiaries.edit_title": {
+    "es": "Datos de consolidación",
+    "en": "Consolidation details",
+    "pt": "Dados de consolidação"
+  },
   "settings.subsidiaries.ej_virteex_latam": {
     "es": "Ej. Virtex Latam S.A.",
     "en": "e.g. Virtex Latam Inc.",
     "pt": "Ex.: Virtex Latam Ltda."
   },
+  "settings.subsidiaries.empty_description": {
+    "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar. Para tiendas u oficinas de esta misma empresa, usa Sucursales.",
+    "en": "Add a company you control to record intercompany transactions and consolidate. For stores or offices of this same company, use Branches.",
+    "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar. Para lojas ou escritórios desta mesma empresa, use Filiais."
+  },
   "settings.subsidiaries.id_fiscal": {
     "es": "ID Fiscal:",
     "en": "Tax ID:",
     "pt": "Identificação fiscal:"
+  },
+  "settings.subsidiaries.investment_account": {
+    "es": "Cuenta de inversión (en los libros de esta empresa)",
+    "en": "Investment account (in this company's books)",
+    "pt": "Conta de investimento (nos livros desta empresa)"
+  },
+  "settings.subsidiaries.investment_account_hint": {
+    "es": "La cuenta de activo donde esta empresa registra su inversión en la subsidiaria; se elimina al consolidar.",
+    "en": "The asset account where this company records its investment in the subsidiary; it is eliminated on consolidation.",
+    "pt": "A conta de ativo onde esta empresa registra seu investimento na subsidiária; é eliminada na consolidação."
   },
   "settings.subsidiaries.legal_name": {
     "es": "Nombre Legal",
@@ -3925,11 +4125,6 @@
     "es": "Cargando subsidiarias...",
     "en": "Loading subsidiaries...",
     "pt": "Carregando subsidiárias..."
-  },
-  "settings.subsidiaries.manage_your_organization_subsidiaries_branches": {
-    "es": "Gestiona las subsidiarias y sucursales de tu organización.",
-    "en": "Manage your organization's subsidiaries and branches.",
-    "pt": "Gerencie as subsidiárias e filiais da sua organização."
   },
   "settings.subsidiaries.new_subsidiary": {
     "es": "Nueva Subsidiaria",
@@ -3956,15 +4151,25 @@
     "en": "Choose the country",
     "pt": "Escolha o país"
   },
-  "settings.subsidiaries.start_adding_subsidiary_branch_expand_your": {
-    "es": "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.",
-    "en": "Start by adding a subsidiary or branch to expand your structure.",
-    "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
+  "settings.subsidiaries.subtitle": {
+    "es": "Las otras empresas que controla la tuya: cada una con su propia identificación fiscal y sus propios libros. Operan entre compañías y se consolidan en los estados del grupo. Las tiendas u oficinas de esta misma empresa son sucursales.",
+    "en": "The other companies yours controls: each with its own tax id and its own books. They trade intercompany and consolidate into the group's statements. Stores or offices of this same company are branches.",
+    "pt": "As outras empresas que a sua controla: cada uma com seu próprio CNPJ e seus próprios livros. Operam entre companhias e consolidam-se nas demonstrações do grupo. Lojas ou escritórios desta mesma empresa são filiais."
   },
   "settings.subsidiaries.tax_id": {
     "en": "Tax ID",
     "es": "Identificación fiscal",
     "pt": "Identificação fiscal"
+  },
+  "settings.subsidiaries.update_failed": {
+    "es": "No se pudo actualizar la subsidiaria.",
+    "en": "The subsidiary could not be updated.",
+    "pt": "Não foi possível atualizar a subsidiária."
+  },
+  "settings.subsidiaries.updated": {
+    "es": "Subsidiaria actualizada.",
+    "en": "Subsidiary updated.",
+    "pt": "Subsidiária atualizada."
   },
   "settings.user_management.action_cannot_undone": {
     "es": "Esta acción no se puede deshacer.",

@@ -14,10 +14,20 @@
     "en": "The exchange rate must be greater than zero; received {{rate}}.",
     "pt": "A taxa de câmbio deve ser maior que zero; recebeu-se {{rate}}."
   },
+  "currencies.exchange_rate_not_found": {
+    "es": "La tasa no existe o no es de esta empresa.",
+    "en": "The rate does not exist or does not belong to this company.",
+    "pt": "A taxa não existe ou não pertence a esta empresa."
+  },
   "currencies.exchange_rate_recorded_successfully": {
     "es": "Tasa de cambio registrada correctamente.",
     "en": "Exchange rate recorded successfully.",
     "pt": "Taxa de câmbio registrada com sucesso."
+  },
+  "currencies.exchange_rates_imported": {
+    "es": "Se importaron {{imported}} tasas.",
+    "en": "{{imported}} rates imported.",
+    "pt": "{{imported}} taxas importadas."
   },
   "currencies.exchange_rates_updated": {
     "es": "Tasas de cambio actualizadas exitosamente.",
@@ -25,9 +35,9 @@
     "pt": "Taxas de câmbio atualizadas."
   },
   "currencies.from_quote_from_quoted_age_days": {
-    "es": "La cotización de {from} a {to} es del {quotedOn} ({ageDays} días de antigüedad) y el máximo permitido es {maxAgeDays}. Actualiza las tasas antes de contabilizar en {date}.",
-    "en": "The {from}→{to} quote is from {quotedOn} ({ageDays} days old) and the maximum allowed is {maxAgeDays}. Refresh the rates before posting on {date}.",
-    "pt": "A cotação de {from} para {to} é de {quotedOn} ({ageDays} dias) e o máximo permitido é {maxAgeDays}. Atualize as taxas antes de lançar em {date}."
+    "es": "La cotización de {{from}} a {{to}} es del {{quotedOn}} ({{ageDays}} días de antigüedad) y el máximo permitido es {{maxAgeDays}}. Actualiza las tasas antes de contabilizar en {{date}}.",
+    "en": "The {{from}}→{{to}} quote is from {{quotedOn}} ({{ageDays}} days old) and the maximum allowed is {{maxAgeDays}}. Refresh the rates before posting on {{date}}.",
+    "pt": "A cotação de {{from}} para {{to}} é de {{quotedOn}} ({{ageDays}} dias) e o máximo permitido é {{maxAgeDays}}. Atualize as taxas antes de lançar em {{date}}."
   },
   "currencies.future_rates_cannot_requested_end_date": {
     "es": "No se pueden consultar tasas futuras: {{endDate}} es posterior a hoy ({{today}}).",
@@ -38,6 +48,16 @@
     "es": "Relleno histórico completado: {{days}} días procesados, {{updated}} tasas almacenadas, {{failed}} días sin datos.",
     "en": "Historical backfill complete: {{days}} days processed, {{updated}} rates stored, {{failed}} days without data.",
     "pt": "Preenchimento histórico concluído: {{days}} dias processados, {{updated}} taxas armazenadas, {{failed}} dias sem dados."
+  },
+  "currencies.import_duplicate_rate": {
+    "es": "La tasa {{pair}} del {{date}} aparece dos veces.",
+    "en": "The {{pair}} rate for {{date}} appears twice.",
+    "pt": "A taxa {{pair}} de {{date}} aparece duas vezes."
+  },
+  "currencies.import_row_invalid": {
+    "es": "Fila {{row}}: {{reason}} No se importó ninguna tasa.",
+    "en": "Row {{row}}: {{reason}} No rate was imported.",
+    "pt": "Linha {{row}}: {{reason}} Nenhuma taxa foi importada."
   },
   "currencies.invalid_date_range_start_date_later": {
     "es": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}.",
@@ -60,19 +80,319 @@
     "pt": "Não há um provedor de taxas de câmbio configurado. Registre as taxas manualmente ou configure as credenciais do provedor."
   },
   "currencies.provider_account_plan_plan_which_returns": {
-    "es": "La cuenta de {provider} está en el plan «{plan}», que devuelve tasas simuladas. No se almacenará ninguna tasa: contrata un plan con datos reales o registra las tasas oficiales manualmente.",
-    "en": "The {provider} account is on the “{plan}” plan, which returns mock rates. No rate will be stored: subscribe to a plan with real data, or record official rates manually.",
-    "pt": "A conta de {provider} está no plano “{plan}”, que devolve taxas simuladas. Nenhuma taxa será armazenada: contrate um plano com dados reais ou registre as taxas oficiais manualmente."
+    "es": "La cuenta de {{provider}} está en el plan «{{plan}}», que devuelve tasas simuladas. No se almacenará ninguna tasa: contrata un plan con datos reales o registra las tasas oficiales manualmente.",
+    "en": "The {{provider}} account is on the “{{plan}}” plan, which returns mock rates. No rate will be stored: subscribe to a plan with real data, or record official rates manually.",
+    "pt": "A conta de {{provider}} está no plano “{{plan}}”, que devolve taxas simuladas. Nenhuma taxa será armazenada: contrate um plano com dados reais ou registre as taxas oficiais manualmente."
   },
   "currencies.provider_responded_with_status_status_detail": {
-    "es": "{provider} respondió con el estado {status}: {detail}.",
-    "en": "{provider} responded with status {status}: {detail}.",
-    "pt": "{provider} respondeu com o status {status}: {detail}."
+    "es": "{{provider}} respondió con el estado {{status}}: {{detail}}.",
+    "en": "{{provider}} responded with status {{status}}: {{detail}}.",
+    "pt": "{{provider}} respondeu com o status {{status}}: {{detail}}."
   },
   "currencies.provider_response_contains_no_rates_date": {
     "es": "La respuesta del proveedor no contiene tasas para el {{date}}.",
     "en": "The provider response contains no rates for {{date}}.",
     "pt": "A resposta do provedor não contém taxas para {{date}}."
+  },
+  "currencies.rates.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "currencies.rates.all_currencies": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "currencies.rates.all_types": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "currencies.rates.company_type": {
+    "es": "El tipo de la empresa",
+    "en": "The company’s type",
+    "pt": "O tipo da empresa"
+  },
+  "currencies.rates.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "currencies.rates.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "currencies.rates.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "currencies.rates.delete_failed": {
+    "es": "No se pudo eliminar la tasa.",
+    "en": "Could not delete the rate.",
+    "pt": "Não foi possível excluir a taxa."
+  },
+  "currencies.rates.delete_message": {
+    "es": "Se eliminará la tasa {{pair}} del {{date}}. Los documentos ya registrados conservan la tasa con que se convirtieron.",
+    "en": "The {{pair}} rate for {{date}} will be deleted. Documents already recorded keep the rate they converted at.",
+    "pt": "A taxa {{pair}} de {{date}} será excluída. Os documentos já registrados mantêm a taxa com que foram convertidos."
+  },
+  "currencies.rates.delete_title": {
+    "es": "Eliminar tasa",
+    "en": "Delete rate",
+    "pt": "Excluir taxa"
+  },
+  "currencies.rates.deleted": {
+    "es": "Tasa eliminada.",
+    "en": "Rate deleted.",
+    "pt": "Taxa excluída."
+  },
+  "currencies.rates.empty_help": {
+    "es": "Registra o importa las tasas de la empresa, o actualiza las compartidas desde el proveedor configurado.",
+    "en": "Record or import the company’s rates, or refresh the shared ones from the configured provider.",
+    "pt": "Registre ou importe as taxas da empresa, ou atualize as compartilhadas a partir do provedor configurado."
+  },
+  "currencies.rates.empty_title": {
+    "es": "Sin tasas",
+    "en": "No rates",
+    "pt": "Sem taxas"
+  },
+  "currencies.rates.form_invalid": {
+    "es": "Indica dos monedas distintas, la fecha y una tasa mayor que cero.",
+    "en": "Give two different currencies, the date and a rate above zero.",
+    "pt": "Informe duas moedas diferentes, a data e uma taxa maior que zero."
+  },
+  "currencies.rates.from_currency": {
+    "es": "De",
+    "en": "From",
+    "pt": "De"
+  },
+  "currencies.rates.from_date": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "De"
+  },
+  "currencies.rates.import": {
+    "es": "Importar",
+    "en": "Import",
+    "pt": "Importar"
+  },
+  "currencies.rates.import_confirm": {
+    "es": "Importar tasas",
+    "en": "Import rates",
+    "pt": "Importar taxas"
+  },
+  "currencies.rates.import_failed": {
+    "es": "No se pudieron importar las tasas.",
+    "en": "Could not import the rates.",
+    "pt": "Não foi possível importar as taxas."
+  },
+  "currencies.rates.import_file": {
+    "es": "Archivo CSV",
+    "en": "CSV file",
+    "pt": "Arquivo CSV"
+  },
+  "currencies.rates.import_has_invalid_lines": {
+    "es": "Corrige las líneas {{lines}} antes de importar.",
+    "en": "Fix lines {{lines}} before importing.",
+    "pt": "Corrija as linhas {{lines}} antes de importar."
+  },
+  "currencies.rates.import_hint": {
+    "es": "Una tasa por línea: fecha (AAAA-MM-DD), moneda de origen, moneda destino, tasa y, opcionalmente, tipo (OFFICIAL, MARKET, BUY, SELL) y fuente. Separadas por coma, punto y coma o tabulador; una fila de encabezado se ignora. Se importan todas o ninguna.",
+    "en": "One rate per line: date (YYYY-MM-DD), from currency, to currency, rate and, optionally, type (OFFICIAL, MARKET, BUY, SELL) and source. Separated by comma, semicolon or tab; a header row is ignored. All are imported or none.",
+    "pt": "Uma taxa por linha: data (AAAA-MM-DD), moeda de origem, moeda de destino, taxa e, opcionalmente, tipo (OFFICIAL, MARKET, BUY, SELL) e fonte. Separadas por vírgula, ponto e vírgula ou tabulação; uma linha de cabeçalho é ignorada. Importam-se todas ou nenhuma."
+  },
+  "currencies.rates.import_invalid_lines": {
+    "es": "Líneas que no se pudieron leer: {{lines}}.",
+    "en": "Lines that could not be read: {{lines}}.",
+    "pt": "Linhas que não puderam ser lidas: {{lines}}."
+  },
+  "currencies.rates.import_paste": {
+    "es": "O pega las filas aquí",
+    "en": "Or paste the rows here",
+    "pt": "Ou cole as linhas aqui"
+  },
+  "currencies.rates.import_preview": {
+    "es": "{{count}} tasas listas para importar.",
+    "en": "{{count}} rates ready to import.",
+    "pt": "{{count}} taxas prontas para importar."
+  },
+  "currencies.rates.import_title": {
+    "es": "Importar tasas",
+    "en": "Import rates",
+    "pt": "Importar taxas"
+  },
+  "currencies.rates.imported": {
+    "es": "Se importaron {{count}} tasas.",
+    "en": "{{count}} rates imported.",
+    "pt": "{{count}} taxas importadas."
+  },
+  "currencies.rates.load_failed": {
+    "es": "No se pudieron cargar las tasas.",
+    "en": "Could not load the rates.",
+    "pt": "Não foi possível carregar as taxas."
+  },
+  "currencies.rates.lookup": {
+    "es": "Consultar",
+    "en": "Look up",
+    "pt": "Consultar"
+  },
+  "currencies.rates.lookup_title": {
+    "es": "¿A qué tasa se convertiría un documento?",
+    "en": "Which rate would a document convert at?",
+    "pt": "A que taxa um documento seria convertido?"
+  },
+  "currencies.rates.methods.direct": {
+    "es": "cotización directa",
+    "en": "direct quote",
+    "pt": "cotação direta"
+  },
+  "currencies.rates.methods.identity": {
+    "es": "misma moneda",
+    "en": "same currency",
+    "pt": "mesma moeda"
+  },
+  "currencies.rates.methods.inverse": {
+    "es": "inversa de la cotización",
+    "en": "inverse of the quote",
+    "pt": "inversa da cotação"
+  },
+  "currencies.rates.methods.triangulated": {
+    "es": "cruzada vía {{via}}",
+    "en": "crossed via {{via}}",
+    "pt": "cruzada via {{via}}"
+  },
+  "currencies.rates.no_rate": {
+    "es": "No hay tasa para ese par en esa fecha.",
+    "en": "There is no rate for that pair on that date.",
+    "pt": "Não há taxa para esse par nessa data."
+  },
+  "currencies.rates.pair": {
+    "es": "Par",
+    "en": "Pair",
+    "pt": "Par"
+  },
+  "currencies.rates.quoted_on": {
+    "es": "cotizada el {{date}} ({{source}})",
+    "en": "quoted on {{date}} ({{source}})",
+    "pt": "cotada em {{date}} ({{source}})"
+  },
+  "currencies.rates.rate": {
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Taxa"
+  },
+  "currencies.rates.reads_as": {
+    "es": "Se lee: 1 {{from}} = {{rate}} {{to}}.",
+    "en": "Reads: 1 {{from}} = {{rate}} {{to}}.",
+    "pt": "Lê-se: 1 {{from}} = {{rate}} {{to}}."
+  },
+  "currencies.rates.record": {
+    "es": "Registrar tasa",
+    "en": "Record rate",
+    "pt": "Registrar taxa"
+  },
+  "currencies.rates.record_hint": {
+    "es": "Una tasa registrada por la empresa tiene prioridad sobre la compartida para la misma fecha y tipo. Registrar de nuevo el mismo par, fecha y tipo la corrige.",
+    "en": "A rate the company records takes precedence over the shared one for the same date and type. Recording the same pair, date and type again corrects it.",
+    "pt": "Uma taxa registrada pela empresa tem prioridade sobre a compartilhada para a mesma data e tipo. Registrar novamente o mesmo par, data e tipo a corrige."
+  },
+  "currencies.rates.record_title": {
+    "es": "Registrar una tasa",
+    "en": "Record a rate",
+    "pt": "Registrar uma taxa"
+  },
+  "currencies.rates.recorded": {
+    "es": "Tasa registrada.",
+    "en": "Rate recorded.",
+    "pt": "Taxa registrada."
+  },
+  "currencies.rates.save": {
+    "es": "Guardar tasa",
+    "en": "Save rate",
+    "pt": "Salvar taxa"
+  },
+  "currencies.rates.save_failed": {
+    "es": "No se pudo registrar la tasa.",
+    "en": "Could not record the rate.",
+    "pt": "Não foi possível registrar a taxa."
+  },
+  "currencies.rates.scope": {
+    "es": "Origen",
+    "en": "Origin",
+    "pt": "Origem"
+  },
+  "currencies.rates.scopes.all": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "currencies.rates.scopes.shared": {
+    "es": "Compartida",
+    "en": "Shared",
+    "pt": "Compartilhada"
+  },
+  "currencies.rates.scopes.tenant": {
+    "es": "De la empresa",
+    "en": "Company",
+    "pt": "Da empresa"
+  },
+  "currencies.rates.source": {
+    "es": "Fuente",
+    "en": "Source",
+    "pt": "Fonte"
+  },
+  "currencies.rates.source_placeholder": {
+    "es": "Ej.: BCRD, DGII, banco",
+    "en": "E.g. central bank, tax authority, bank",
+    "pt": "Ex.: banco central, receita, banco"
+  },
+  "currencies.rates.subtitle": {
+    "es": "Las tasas a las que se convierten los documentos: las de la empresa, que tienen prioridad, y las compartidas del mercado.",
+    "en": "The rates documents convert at: the company’s own, which take precedence, and the shared market rates.",
+    "pt": "As taxas em que os documentos são convertidos: as da empresa, que têm prioridade, e as compartilhadas do mercado."
+  },
+  "currencies.rates.title": {
+    "es": "Tipos de cambio",
+    "en": "Exchange rates",
+    "pt": "Taxas de câmbio"
+  },
+  "currencies.rates.to_currency": {
+    "es": "A",
+    "en": "To",
+    "pt": "Para"
+  },
+  "currencies.rates.to_date": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "currencies.rates.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "currencies.rates.types.buy": {
+    "es": "Compra",
+    "en": "Buy",
+    "pt": "Compra"
+  },
+  "currencies.rates.types.market": {
+    "es": "Mercado",
+    "en": "Market",
+    "pt": "Mercado"
+  },
+  "currencies.rates.types.official": {
+    "es": "Oficial",
+    "en": "Official",
+    "pt": "Oficial"
+  },
+  "currencies.rates.types.sell": {
+    "es": "Venta",
+    "en": "Sell",
+    "pt": "Venda"
   },
   "currencies.requested_range_spans_days_days_maximum": {
     "es": "El rango solicitado abarca {{days}} días y el máximo permitido es {{limit}}.",
@@ -80,8 +400,8 @@
     "pt": "O intervalo solicitado abrange {{days}} dias e o máximo permitido é {{limit}}."
   },
   "currencies.stated_rate_requested_deviates_too_far": {
-    "es": "La tasa indicada ({requested}) se aparta demasiado de la registrada ({resolved}, {source}, {quotedOn}). La tolerancia configurada es {tolerance}.",
-    "en": "The stated rate ({requested}) deviates too far from the one on file ({resolved}, {source}, {quotedOn}). The configured tolerance is {tolerance}.",
-    "pt": "A taxa informada ({requested}) afasta-se demais da registrada ({resolved}, {source}, {quotedOn}). A tolerância configurada é {tolerance}."
+    "es": "La tasa indicada ({{requested}}) se aparta demasiado de la registrada ({{resolved}}, {{source}}, {{quotedOn}}). La tolerancia configurada es {{tolerance}}.",
+    "en": "The stated rate ({{requested}}) deviates too far from the one on file ({{resolved}}, {{source}}, {{quotedOn}}). The configured tolerance is {{tolerance}}.",
+    "pt": "A taxa informada ({{requested}}) afasta-se demais da registrada ({{resolved}}, {{source}}, {{quotedOn}}). A tolerância configurada é {{tolerance}}."
   }
 }

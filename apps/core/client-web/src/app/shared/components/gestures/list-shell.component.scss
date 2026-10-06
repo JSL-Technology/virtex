@@ -76,6 +76,12 @@
   flex-wrap: wrap;
 }
 
+//  Sin buscador, la barra existe solo si algo visible se proyectó en ella: un filtro que se oculta
+//  a sí mismo (el de sucursal, en una empresa sin sucursales) no debe dejar un hueco.
+.ls__toolbar--bare:not(:has(> :not(.ls__filters), .ls__filters > :not([hidden]))) {
+  display: none;
+}
+
 .ls__search {
   position: relative;
   display: flex;

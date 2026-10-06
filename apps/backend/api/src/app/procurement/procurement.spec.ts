@@ -3,9 +3,10 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { PurchaseRequisition, PurchaseRequisitionStatus } from './entities/purchase-requisition.entity';
 import { PurchaseOrder, PurchaseOrderStatus } from './entities/purchase-order.entity';
-import { JournalEntryNumberingService } from '../journal-entries/journal-entry-numbering.service';
 import { ProcurementService } from './procurement.service';
 import { PurchaseOrdersService } from './purchase-orders.service';
+import { GoodsReceiptsService } from './goods-receipts.service';
+import { GoodsReceiptStatus } from './entities/purchase-order-receipt.entity';
 
 /**
  * Purchasing.
@@ -32,7 +33,9 @@ describeWithDb('purchasing', () => {
     receiveGoods: jest.fn(async (_m: unknown, _org: string, receipt: { lines: readonly unknown[] }) => ({
       journalEntryId: null,
       stocked: receipt.lines.map(() => false),
+      warehouseId: null,
     })),
+    returnGoods: jest.fn(async () => null),
   };
 
   let organizationId: string;
@@ -55,16 +58,13 @@ describeWithDb('purchasing', () => {
     });
     await dataSource.initialize();
 
-    const numbering = new JournalEntryNumberingService();
     requisitions = new ProcurementService(
       dataSource.getRepository(PurchaseRequisition),
       dataSource,
-      numbering,
     );
     orders = new PurchaseOrdersService(
       dataSource.getRepository(PurchaseOrder),
       dataSource,
-      numbering,
       requisitions,
       goodsReceipts,
     );
@@ -280,7 +280,6 @@ describeWithDb('purchasing', () => {
       const fx = new PurchaseOrdersService(
         dataSource.getRepository(PurchaseOrder),
         dataSource,
-        new JournalEntryNumberingService(),
         requisitions,
         goodsReceipts,
         exchangeRates as never,
@@ -339,6 +338,33 @@ describeWithDb('purchasing', () => {
       expect(complete.status).toBe(PurchaseOrderStatus.RECEIVED);
     });
 
+    it('is ordered from the headquarters, and received where it was ordered', async () => {
+      //  A company that has set up branches: the document says where it happened.
+      const [hq] = await dataSource.query(
+        `INSERT INTO "branches" ("organization_id", "code", "name", "is_headquarters")
+         VALUES ($1, 'MATRIZ', 'Casa matriz', true) RETURNING "id"`,
+        [organizationId],
+      );
+      const order = await newOrder();
+      expect(order.branchId).toBe(hq.id);
+
+      await orders.submit(order.id, organizationId);
+      await orders.approve(order.id, organizationId, APPROVER);
+      const sent = await orders.send(order.id, organizationId);
+      await orders.receive(order.id, { lines: [{ lineId: sent.lines[0].id, quantity: 1 }] }, organizationId);
+
+      const [receipt] = await dataSource.query(
+        `SELECT "branch_id" FROM "purchase_order_receipts" WHERE "order_id" = $1`,
+        [order.id],
+      );
+      expect(receipt.branch_id).toBe(hq.id);
+    });
+
+    it('is issued from no branch at all in a company that has none', async () => {
+      const order = await newOrder();
+      expect(order.branchId).toBeNull();
+    });
+
     it('refuses a delivery larger than what was ordered', async () => {
       const order = await newOrder();
       await orders.submit(order.id, organizationId);
@@ -384,6 +410,97 @@ describeWithDb('purchasing', () => {
       await expect(
         orders.createFromRequisition(requisition.id, supplierId, organizationId, REQUESTER),
       ).rejects.toThrow();
+    });
+  });
+
+  /**
+   * A receipt is a document (audit H-03): it has a number and a list of its own, it can be opened
+   * by itself, and it can be voided — but not once any of it has been billed.
+   */
+  describe('goods receipts', () => {
+    let receipts: GoodsReceiptsService;
+    beforeAll(() => {
+      receipts = new GoodsReceiptsService(dataSource, orders, goodsReceipts as never);
+    });
+
+    const sentOrder = async () => {
+      const order = await orders.create(
+        {
+          supplierId,
+          lines: [
+            { description: 'Resma de papel A4', quantity: 10, unitPrice: 230 },
+            { description: 'Tóner negro', quantity: 2, unitPrice: 3_400 },
+          ],
+        },
+        organizationId,
+        REQUESTER,
+      );
+      await orders.submit(order.id, organizationId);
+      await orders.approve(order.id, organizationId, APPROVER);
+      return orders.send(order.id, organizationId);
+    };
+
+    it('is numbered, dated the day stated, and listed with its order and supplier', async () => {
+      const order = await sentOrder();
+      const receipt = await receipts.create(
+        { orderId: order.id, receivedAt: '2026-03-02', lines: [{ lineId: order.lines[0].id, quantity: 4 }] },
+        organizationId,
+        REQUESTER,
+      );
+
+      expect(receipt.number).toMatch(/^GR-2026-\d{6}$/);
+      expect(receipt.status).toBe(GoodsReceiptStatus.POSTED);
+      expect(receipt.receivedAt.slice(0, 10)).toBe('2026-03-02');
+      expect(receipt.orderNumber).toBe(order.number);
+      expect(receipt.lines).toEqual([
+        expect.objectContaining({ description: 'Resma de papel A4', quantity: 4, ordered: 10, receivedOnOrder: 4 }),
+      ]);
+
+      const page = await receipts.findAll(organizationId, { orderId: order.id });
+      expect(page.total).toBe(1);
+      expect(page.items[0]).toMatchObject({ number: receipt.number, orderNumber: order.number, lineCount: 1, value: 920 });
+    });
+
+    it('voids: the order is owed the goods again and the stock goes back out', async () => {
+      const order = await sentOrder();
+      goodsReceipts.receiveGoods.mockResolvedValueOnce({ journalEntryId: null, stocked: [true, true], warehouseId: null });
+      const receipt = await receipts.create({ orderId: order.id }, organizationId, REQUESTER);
+      expect((await orders.findOne(order.id, organizationId)).status).toBe(PurchaseOrderStatus.RECEIVED);
+
+      const voided = await receipts.voidReceipt(receipt.id, { reason: 'Llegó a otra empresa' }, organizationId, REQUESTER);
+
+      expect(voided.status).toBe(GoodsReceiptStatus.VOID);
+      expect(voided.voidReason).toBe('Llegó a otra empresa');
+      const reopened = await orders.findOne(order.id, organizationId);
+      expect(reopened.status).toBe(PurchaseOrderStatus.SENT);
+      expect(reopened.lines.every((line) => Number(line.receivedQuantity) === 0)).toBe(true);
+      // Lines without a catalogue product moved no stock, so there is nothing to give back.
+      expect(goodsReceipts.returnGoods).toHaveBeenLastCalledWith(
+        expect.anything(),
+        organizationId,
+        expect.objectContaining({ reference: receipt.number, lines: [], posted: false }),
+        REQUESTER,
+      );
+
+      await expect(
+        receipts.voidReceipt(receipt.id, { reason: 'Otra vez' }, organizationId, REQUESTER),
+      ).rejects.toMatchObject({ messageKey: 'procurement.receipt_already_voided' });
+    });
+
+    it('refuses once any of it has been billed', async () => {
+      const order = await sentOrder();
+      const receipt = await receipts.create(
+        { orderId: order.id, lines: [{ lineId: order.lines[0].id, quantity: 4 }] },
+        organizationId,
+        REQUESTER,
+      );
+      // The bill matched against the order cleared «received not invoiced» for three of them.
+      await dataSource.query(`UPDATE "purchase_order_lines" SET "billed_quantity" = 3 WHERE "id" = $1`, [order.lines[0].id]);
+
+      await expect(
+        receipts.voidReceipt(receipt.id, { reason: 'Error' }, organizationId, REQUESTER),
+      ).rejects.toMatchObject({ messageKey: 'procurement.receipt_already_billed' });
+      expect((await receipts.findOne(receipt.id, organizationId)).status).toBe(GoodsReceiptStatus.POSTED);
     });
   });
 });

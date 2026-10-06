@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { Invoice } from './entities/invoice.entity';
 import {
   Controller,
   Get,
@@ -11,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { InvoicesService, InvoiceListQuery } from './invoices.service';
@@ -45,6 +48,8 @@ import { BadRequestError } from '../i18n/localized.exception';
  * period be modified.
  */
 @Controller('invoices')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(Invoice)
 export class InvoicesController {
   constructor(
     private readonly invoicesService: InvoicesService,
@@ -57,7 +62,7 @@ export class InvoicesController {
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   @CheckPlanLimit(SaasResource.INVOICES, 1)
   create(@Body() dto: CreateInvoiceDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.invoicesService.create(dto, user.organizationId);
+    return this.invoicesService.create(dto, user.organizationId, user.id);
   }
 
   /**
@@ -125,7 +130,7 @@ export class InvoicesController {
     @Body() dto: CreateInvoiceDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.invoicesService.updateDraft(id, dto, user.organizationId);
+    return this.invoicesService.updateDraft(id, dto, user.organizationId, user.id);
   }
 
   @Delete(':id')
@@ -140,12 +145,19 @@ export class InvoicesController {
 
   @Get()
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
-  findAll(@Query() query: InvoiceListQuery, @CurrentUser() user: AuthenticatedUser) {
+  findAll(
+    @Query() query: InvoiceListQuery,
+    @CurrentUser() user: AuthenticatedUser,
+    // The rest of the query is an untyped shape; a branch id reaches SQL, so it is checked here.
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
     return this.invoicesService.findAll(user.organizationId, {
       page: query.page ? Number(query.page) : undefined,
       limit: query.limit ? Number(query.limit) : undefined,
       status: query.status as InvoiceStatus | undefined,
       customerId: query.customerId,
+      branchId,
+      actorUserId: user.id,
       from: query.from,
       to: query.to,
       search: query.search,
@@ -167,7 +179,7 @@ export class InvoicesController {
   @Get(':id')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.invoicesService.findOne(id, user.organizationId);
+    return this.invoicesService.findOne(id, user.organizationId, user.id);
   }
 
   @Post(':id/credit-note')

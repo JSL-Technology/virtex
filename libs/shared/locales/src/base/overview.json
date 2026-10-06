@@ -234,20 +234,10 @@
     "en": "New invoice",
     "pt": "Nova fatura"
   },
-  "overview.hero.open_dashboard": {
-    "es": "Ver dashboard financiero",
-    "en": "Open financial dashboard",
-    "pt": "Abrir o painel financeiro"
-  },
-  "overview.news.empty": {
-    "es": "No hay novedades por ahora.",
-    "en": "No news right now.",
-    "pt": "Nenhuma novidade por enquanto."
-  },
-  "overview.news.title": {
-    "es": "Novedades de Virtex",
-    "en": "Virtex news",
-    "pt": "Novidades do Virtex"
+  "overview.indicators.title": {
+    "es": "Indicadores del negocio",
+    "en": "Business indicators",
+    "pt": "Indicadores do negócio"
   },
   "overview.quick.invoices": {
     "es": "Ver facturas",

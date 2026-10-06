@@ -117,7 +117,7 @@ describe('ActiveModuleService', () => {
   it('los grupos del panel salen en su orden fijo', () => {
     const svc = make('/invoices', todos());
 
-    const orden = ['inbox', 'documents', 'masters', 'analysis'];
+    const orden = ['inbox', 'documents', 'masters', 'analysis', 'configuration'];
     const grupos = svc.panel().map((s) => s.group);
     expect(grupos).toEqual(orden.filter((g) => grupos.includes(g as (typeof grupos)[number])));
   });

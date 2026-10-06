@@ -68,6 +68,8 @@
           </select>
         </label>
 
+        <vx-branch-picker class="field" inputId="branchId" formControlName="branchId" />
+
         <label class="field" for="orderDate">
           <span>{{ 'purchasing.orders.order_date' | translate }}</span>
           <vx-date-field inputId="orderDate" formControlName="orderDate" />
@@ -189,9 +191,9 @@
           </button>
         }
         @if (canReceive()) {
-          <button class="primary-button" type="button" [disabled]="saving()" (click)="startReceive()">
+          <a class="primary-button" [routerLink]="['/purchasing/receipts/new']" [queryParams]="{ orderId: current()!.id }">
             {{ 'purchasing.orders.form.receive' | translate }}
-          </button>
+          </a>
         }
         @if (canBill()) {
           <button class="secondary-button" type="button" [disabled]="saving()" (click)="createBill()">
@@ -204,51 +206,13 @@
           </button>
         }
 
-        @if (receiving()) {
-          <div class="action-box">
-            <h3 class="action-box__title">{{ 'purchasing.orders.form.receive_title' | translate }}</h3>
-            <!-- Lo que hará la recepción, dicho antes de confirmarla: no es solo un contador. -->
-            <p class="hint">{{ 'purchasing.orders.form.receive_effect' | translate }}</p>
-            <!-- Pre-filled with what is still outstanding: "everything arrived" is the common case. -->
-            <table class="lines-table">
-              <thead>
-                <tr>
-                  <th>{{ 'purchasing.orders.form.description' | translate }}</th>
-                  <th class="numeric">{{ 'purchasing.orders.form.outstanding' | translate }}</th>
-                  <th class="numeric">{{ 'purchasing.orders.form.receiving_now' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (line of current()!.lines; track line.id) {
-                  <tr>
-                    <td>{{ line.description }}</td>
-                    <td class="numeric">{{ outstanding($any(line)) | vxNumber: '1.0-6' }}</td>
-                    <td class="numeric">
-                      <input type="number" step="0.000001" min="0" [max]="outstanding($any(line))"
-                        [value]="receiptQuantities()[line.id!] ?? 0"
-                        (input)="setReceiptQuantity(line.id!, $any($event.target).value)" />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-            <div class="action-box__actions">
-              <button class="primary-button" type="button" (click)="confirmReceive()">
-                {{ 'purchasing.orders.form.confirm_receipt' | translate }}
-              </button>
-              <button class="secondary-button" type="button" (click)="cancelReceive()">
-                {{ 'common.cancel' | translate }}
-              </button>
-            </div>
-          </div>
-        }
-
         @if (receipts().length) {
           <div class="action-box">
             <h3 class="action-box__title">{{ 'purchasing.orders.form.receipts_title' | translate }}</h3>
             <table class="lines-table">
               <thead>
                 <tr>
+                  <th>{{ 'purchasing.receipts.number' | translate }}</th>
                   <th>{{ 'purchasing.orders.form.receipt_date' | translate }}</th>
                   <th>{{ 'purchasing.orders.form.description' | translate }}</th>
                   <th class="numeric">{{ 'purchasing.orders.form.quantity' | translate }}</th>
@@ -258,8 +222,16 @@
               <tbody>
                 @for (receipt of receipts(); track receipt.id) {
                   @for (line of receipt.lines; track line.lineId; let first = $first) {
-                    <tr>
-                      <td>{{ first ? (receipt.receivedAt | vxDate: 'dateTime') : '' }}</td>
+                    <tr [class.voided]="receipt.status === 'VOID'">
+                      <td>
+                        @if (first) {
+                          <a [routerLink]="['/purchasing/receipts', receipt.id]">{{ receipt.number }}</a>
+                          @if (receipt.status === 'VOID') {
+                            <span class="muted"> · {{ 'purchasing.receipts.status.void' | translate }}</span>
+                          }
+                        }
+                      </td>
+                      <td>{{ first ? (receipt.receivedAt | vxDate: 'date') : '' }}</td>
                       <td>{{ line.description }}</td>
                       <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
                       <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>

@@ -101,13 +101,6 @@ export class OverviewService {
 
   // ── Novedades del producto ─────────────────────────────────────────────────
 
-  /**
-   * Product news, from whatever feed the operator configured. Empty when none is — which is what
-   * the page shows rather than three announcements nobody published.
-   */
-  getNews(): Observable<NewsItem[]> {
-    return this.http.get<NewsItem[]>(`${this.apiUrl}/news`);
-  }
 }
 
 // ── Traducción de los hechos del servidor a lo que la página pinta ────────────
@@ -127,7 +120,7 @@ const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: stri
   vendor_payments:   { kind: 'payment', icon: Banknote,   key: 'VENDOR_PAYMENTS',   route: '/accounts-payable/payments' },
   journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries', record: (id) => `/accounting/journal-entries/${id}/edit` },
   customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts/customers',        record: (id) => `/contacts/customers/${id}/edit` },
-  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers',        record: (id) => `/masters/suppliers/${id}/edit` },
+  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers',        record: (id) => `/contacts/suppliers/${id}/edit` },
   products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory/products',        record: (id) => `/inventory/products/${id}/edit` },
 };
 
@@ -251,16 +244,6 @@ export interface ActivityItem {
   route?: string;
   /** ISO 8601. */
   timestamp: string;
-}
-
-export interface NewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  tag: string | null;
-  /** ISO 8601. */
-  date: string;
-  url: string | null;
 }
 
 export interface EventItem {

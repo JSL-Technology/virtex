@@ -17,7 +17,7 @@ import { InboxShellComponent, InboxSection } from './inbox-shell.component';
   imports: [InboxShellComponent],
   template: `
     <vx-inbox-shell
-      titleKey="my_work.my_work"
+      titleKey="approvals.approvals_centre"
       [sections]="sections()"
       [loading]="loading()"
       [error]="error()"
@@ -116,7 +116,7 @@ describe('InboxShellComponent', () => {
 
   it('un error no se confunde con una bandeja vacía', () => {
     // La afirmación más cara que esta pantalla puede hacer es «no tienes nada pendiente».
-    host.error.set('my_work.load_failed');
+    host.error.set('approvals.load_failed');
     fixture.detectChanges();
 
     expect(el.querySelector('[role="alert"]')).not.toBeNull();

@@ -1,6 +1,6 @@
 <div class="closing-container">
   <div class="closing-header">
-    <h3>{{ 'accounting.checklist.closing_process_checklists' | translate }}</h3>
+    <h3>{{ 'accounting.checklist.period_close' | translate }}</h3>
     <div class="header-actions">
       @if (periods().length > 0) {
         <label class="field">
@@ -21,6 +21,12 @@
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
         <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
+      @if (canClose() && closable()) {
+        <button class="primary-button" type="button" [disabled]="closing()" (click)="closePeriod()">
+          <lucide-icon [img]="CloseIcon" size="16"></lucide-icon>
+          <span>{{ 'accounting.periods.close_confirm_action' | translate }}</span>
+        </button>
+      }
     </div>
   </div>
 

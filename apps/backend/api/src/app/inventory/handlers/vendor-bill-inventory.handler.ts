@@ -18,6 +18,8 @@ export interface VendorBillPostedEvent {
   billId: string;
   organizationId: string;
   journalEntryId: string;
+  /** The receiving branch: its warehouse is where the goods arrive. */
+  branchId?: string | null;
   /** Lines that carry inventory items. Only lines with a productId affect stock. */
   lines: VendorBillLine[];
 }
@@ -29,6 +31,8 @@ export interface VendorBillVoidedEvent {
   reason: string;
   actorUserId: string;
   reversalJournalEntryId: string | null | undefined;
+  /** The bill's branch: the goods leave the warehouse they arrived in. */
+  branchId?: string | null;
   /** Lines from the original bill. Only lines with a productId have stock to return. */
   lines: VendorBillLine[];
   /** True when the bill had reached OPEN or PARTIALLY_PAID before being voided. */
@@ -86,6 +90,7 @@ export class VendorBillInventoryHandler {
             sourceId: payload.billId,
             date: new Date().toISOString().slice(0, 10),
             post: false,
+            place: { branchId: payload.branchId ?? null },
             lines: productLines.map((line) => ({
               productId: line.productId as string,
               quantity: line.quantity,
@@ -119,16 +124,14 @@ export class VendorBillInventoryHandler {
             line.quantity,
             manager,
             payload.organizationId,
+            {
+              place: { branchId: payload.branchId ?? null },
+              type: 'PURCHASE_RETURN',
+              reference: line.reference ?? payload.billId.slice(0, 8),
+              sourceType: 'vendor_bill_void',
+              sourceId: payload.billId,
+            },
           );
-          await this.inventory.recordMovement(manager, payload.organizationId, {
-            productId: line.productId as string,
-            quantity: -line.quantity,
-            unitCost: 0,
-            type: 'ADJUSTMENT',
-            reference: payload.billId.slice(0, 8),
-            sourceType: 'vendor_bill_void',
-            sourceId: payload.billId,
-          });
         }
       })
       .catch((error) => {

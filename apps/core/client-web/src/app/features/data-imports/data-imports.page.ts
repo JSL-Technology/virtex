@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
@@ -60,6 +60,20 @@ export class DataImportsPage implements OnInit {
   readonly selectedDataset = computed(
     () => this.importable().find((dataset) => dataset.id === this.selectedDatasetId()) ?? null,
   );
+
+  /**
+   * The dataset to start on, from `?dataset=` — so «Importar» on a list opens this one engine
+   * already pointed at that list's data instead of each list keeping an importer of its own.
+   * Applied once the datasets arrive, and only if the user may import it.
+   */
+  readonly dataset = input<string | null>(null);
+  private readonly preselect = effect(() => {
+    const requested = this.dataset();
+    if (!requested || this.selectedDatasetId()) return;
+    if (this.importable().some((dataset) => dataset.id === requested)) {
+      this.selectedDatasetId.set(requested);
+    }
+  });
 
   ngOnInit(): void {
     this.transfer

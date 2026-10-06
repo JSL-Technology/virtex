@@ -28,6 +28,7 @@ describe('AccountReconciliationPage', () => {
   const bankAccount: BankAccount = {
     id: 'b1',
     name: 'Popular corriente',
+    bankId: null,
     bankName: 'Banco Popular',
     accountNumber: '7901234567',
     iban: null,

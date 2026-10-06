@@ -52,6 +52,34 @@ export interface ConfigureAccountSegmentsDto {
   segments: AccountSegmentDefinition[];
 }
 
+export interface MergePreviewAccount {
+  id: string;
+  code: string;
+  name: Record<string, string>;
+  type: string;
+  /** Posted debit − credit, base currency. */
+  postedBalance: number;
+}
+
+/** What merging one account into another would move, from the tenant's own ledger. */
+export interface MergePreview {
+  source: MergePreviewAccount;
+  destination: MergePreviewAccount;
+  linesToMove: number;
+  linesInClosedPeriods: number;
+  childAccountsToMove: number;
+  /** Translation keys of every reason the server would refuse the merge. */
+  blockers: string[];
+  /** Translation keys of consequences to accept knowingly. */
+  warnings: string[];
+}
+
+export interface MergeStarted {
+  jobId: string;
+  messageKey: string;
+  messageParams: Record<string, string>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChartOfAccountsApiService {
   private http = inject(HttpClient);
@@ -74,6 +102,18 @@ export class ChartOfAccountsApiService {
     return this.http.get<Account[]>(this.apiUrl, { params });
   }
   
+  previewMerge(sourceAccountId: string, destinationAccountId: string): Observable<MergePreview> {
+    const params = new HttpParams()
+      .set('sourceAccountId', sourceAccountId)
+      .set('destinationAccountId', destinationAccountId);
+    return this.http.get<MergePreview>(`${this.apiUrl}/merge/preview`, { params });
+  }
+
+  /** Queues the merge; it runs as a background job that reports through the jobs panel. */
+  merge(sourceAccountId: string, destinationAccountId: string, reason: string): Observable<MergeStarted> {
+    return this.http.post<MergeStarted>(`${this.apiUrl}/merge`, { sourceAccountId, destinationAccountId, reason });
+  }
+
   getAccountTree(): Observable<Account[]> {
     return this.http.get<Account[]>(`${this.apiUrl}/tree`);
   }

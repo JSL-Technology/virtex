@@ -67,7 +67,13 @@ export const TESORERIA_MODULE: ModuleManifest = {
   ],
 };
 
-/** Banks, payment methods and payment terms: treasury parameters that kept their old addresses. */
+/**
+ * Treasury's configuration under `/masters/*`: the bank catalogue and the payment methods.
+ *
+ * «Bancos» used to be a list deduced from the bank accounts, with no entity behind it; it is the
+ * bank catalogue now (`/treasury/banks`). Payment terms moved to Accounting's configuration, where
+ * sales and purchasing both read them.
+ */
 export const TESORERIA_MASTERS_MODULE: ModuleManifest = {
   id: 'tesoreria-masters',
   titleKey: 'modules.treasury',
@@ -80,11 +86,29 @@ export const TESORERIA_MASTERS_MODULE: ModuleManifest = {
       path: 'banks',
       kind: WindowKind.LIST,
       permission: 'treasury:view',
-      titleKey: 'page_titles.banks',
+      titleKey: 'masters.banks.banks',
       icon: 'Landmark',
       entityKeyFn: () => 'tesoreria:banks',
-      menu: { group: 'masters', labelKey: 'sidebar.master_data.banks' },
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.banks' },
       load: () => import('../../../features/masters/banks/banks.page').then((m) => m.BanksPage),
+    },
+    {
+      path: 'banks/new',
+      kind: WindowKind.DRAFT,
+      permission: 'treasury:manage_accounts',
+      titleKey: 'masters.banks.new_bank',
+      icon: 'Landmark',
+      entityKeyFn: () => 'tesoreria:bank:new',
+      load: () => import('../../../features/masters/banks/bank-form/bank-form.page').then((m) => m.BankFormPage),
+    },
+    {
+      path: 'banks/:id/edit',
+      kind: WindowKind.DRAFT,
+      permission: 'treasury:manage_accounts',
+      titleKey: 'masters.banks.edit_bank',
+      icon: 'Landmark',
+      entityKeyFn: (p) => `tesoreria:bank:${p['id']}`,
+      load: () => import('../../../features/masters/banks/bank-form/bank-form.page').then((m) => m.BankFormPage),
     },
     {
       path: 'payment-methods',
@@ -93,18 +117,8 @@ export const TESORERIA_MASTERS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.payment_methods',
       icon: 'CreditCard',
       entityKeyFn: () => 'tesoreria:payment-methods',
-      menu: { group: 'masters', labelKey: 'sidebar.master_data.payment_methods' },
+      menu: { group: 'configuration', labelKey: 'sidebar.master_data.payment_methods' },
       load: () => import('../../../features/masters/payment-methods/payment-methods.page').then((m) => m.PaymentMethodsPage),
-    },
-    {
-      path: 'payment-terms',
-      kind: WindowKind.LIST,
-      permission: 'treasury:view',
-      titleKey: 'page_titles.payment_terms',
-      icon: 'Clock',
-      entityKeyFn: () => 'tesoreria:payment-terms',
-      menu: { group: 'masters', labelKey: 'sidebar.master_data.payment_terms' },
-      load: () => import('../../../features/masters/payment-terms/payment-terms.page').then((m) => m.PaymentTermsPage),
     },
   ],
 };

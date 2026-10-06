@@ -36,6 +36,8 @@ export interface CustomerReceipt {
   reference: string | null;
   journalEntryId: string | null;
   voidReason: string | null;
+  /** The collecting branch; null for a company without branches. */
+  branchId?: string | null;
 }
 
 /** What a customer has paid ahead and not yet spent, in one currency. */
@@ -70,6 +72,8 @@ export interface CreateCustomerReceipt {
   currencyCode?: string;
   paymentMethod?: PaymentMethod;
   reference?: string;
+  /** The collecting branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   lines?: CustomerReceiptLine[];
 }
 
@@ -88,8 +92,10 @@ export class CustomerReceiptsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/customer-payments`;
 
-  list(customerId?: string): Observable<CustomerReceipt[]> {
-    const params = customerId ? new HttpParams().set('customerId', customerId) : undefined;
+  list(customerId?: string, branchId?: string | null): Observable<CustomerReceipt[]> {
+    let params = new HttpParams();
+    if (customerId) params = params.set('customerId', customerId);
+    if (branchId) params = params.set('branchId', branchId);
     return this.http.get<CustomerReceipt[]>(this.apiUrl, { params });
   }
 

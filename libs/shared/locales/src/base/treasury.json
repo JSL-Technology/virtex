@@ -30,14 +30,34 @@
     "pt": "A conta bancária não existe ou não pertence a esta organização."
   },
   "treasury.bank_account_name_inactive_cannot_take": {
-    "es": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
-    "en": "Bank account “{name}” is inactive and cannot take movements.",
-    "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
+    "es": "La cuenta bancaria «{{name}}» está inactiva y no admite movimientos.",
+    "en": "Bank account “{{name}}” is inactive and cannot take movements.",
+    "pt": "A conta bancária «{{name}}» está inativa e não admite movimentos."
   },
   "treasury.bank_accounts": {
     "es": "Cuentas bancarias",
     "en": "Bank Accounts",
     "pt": "Contas bancárias"
+  },
+  "treasury.bank_in_use": {
+    "es": "No se puede eliminar: {{count}} cuentas bancarias están en este banco. Desactívalo en su lugar.",
+    "en": "It cannot be deleted: {{count}} bank accounts are held at this bank. Deactivate it instead.",
+    "pt": "Não é possível excluir: {{count}} contas bancárias estão neste banco. Desative-o em vez disso."
+  },
+  "treasury.bank_inactive": {
+    "es": "El banco está inactivo. Actívalo antes de abrir cuentas en él.",
+    "en": "The bank is inactive. Activate it before opening accounts there.",
+    "pt": "O banco está inativo. Ative-o antes de abrir contas nele."
+  },
+  "treasury.bank_name_taken": {
+    "es": "Ya hay un banco llamado «{{name}}» en el catálogo.",
+    "en": "There is already a bank called “{{name}}” in the catalogue.",
+    "pt": "Já existe um banco chamado «{{name}}» no catálogo."
+  },
+  "treasury.bank_not_found": {
+    "es": "El banco no existe en el catálogo.",
+    "en": "The bank is not in the catalogue.",
+    "pt": "O banco não existe no catálogo."
   },
   "treasury.banks_journal_bancos_not_found": {
     "es": "Diario de Bancos (BANCOS) no encontrado.",
@@ -113,6 +133,21 @@
     "es": "Cuenta bancaria actualizada.",
     "en": "Bank account updated.",
     "pt": "Conta bancária atualizada."
+  },
+  "treasury.form.bank_from_catalogue": {
+    "es": "Banco del catálogo",
+    "en": "Bank from the catalogue",
+    "pt": "Banco do catálogo"
+  },
+  "treasury.form.bank_name_from_catalogue": {
+    "es": "Tomado del catálogo de bancos.",
+    "en": "Taken from the bank catalogue.",
+    "pt": "Obtido do catálogo de bancos."
+  },
+  "treasury.form.bank_not_catalogued": {
+    "es": "— No está en el catálogo —",
+    "en": "— Not in the catalogue —",
+    "pt": "— Não está no catálogo —"
   },
   "treasury.form.cannot_changed_movements_already_posted_measured": {
     "es": "No se puede cambiar: los movimientos ya contabilizados se midieron con este valor.",

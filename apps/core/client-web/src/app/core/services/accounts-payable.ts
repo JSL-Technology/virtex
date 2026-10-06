@@ -1,5 +1,6 @@
+import { BranchesService } from '../tenancy/branches.service';
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -49,6 +50,8 @@ export interface VendorBillLine {
 export interface VendorBill {
   id: string;
   vendorId: string;
+  /** The branch that received it; null for a company without branches. */
+  branchId?: string | null;
   vendor?: { id: string; name: string; taxId?: string | null };
   /** Comprobante fiscal number. Optional: not every jurisdiction has one. */
   ncf?: string | null;
@@ -102,6 +105,8 @@ export interface CreateVendorBillDto {
   vendorId: string;
   /** The purchase order the bill was raised against, when there is one. */
   purchaseOrderId?: string;
+  /** The receiving branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   date: string;
   dueDate: string;
   lines: CreateVendorBillLineDto[];
@@ -174,38 +179,164 @@ export interface PayVendorBillsDto {
   /** The bank account the funds leave. A bank account, not a chart-of-accounts row. */
   bankAccountId: string;
   reference?: string;
+  /** The paying branch. Omitted: the person's default branch, else the headquarters. */
+  branchId?: string;
   lines: VendorBillPaymentLine[];
 }
 
+export type PaymentBatchStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'VOID';
+
+/** One payment to suppliers: the run that settled one or more bills from one bank account. */
 export interface PaymentBatch {
   id: string;
+  /** `PAY-2026-000042`. */
+  number: string;
   paymentDate: string;
   bankAccountId: string;
   reference: string | null;
-  status: string;
+  status: PaymentBatchStatus;
+  branchId?: string | null;
   journalEntryId?: string | null;
+  reversalJournalEntryId?: string | null;
+  voidReason?: string | null;
+  voidedAt?: string | null;
+  createdAt?: string;
+  bankAccount?: { id: string; name: string; currencyCode: string; accountNumber?: string | null };
+  payments?: Array<VendorPayment & { vendorBill?: VendorBill }>;
 }
 
 export interface VendorPayment {
   id: string;
   vendorBillId: string;
+  paymentBatchId?: string;
   date: string;
+  /** Settled against the bill, in the bill's currency: cash + withheld + discount. */
   amount: number;
+  /** What left the bank, in the bank account's currency. */
   amountPaid: number;
   taxWithheld: number;
   incomeTaxWithheld: number;
   discount: number;
   exchangeDifference: number;
   exchangeRate: number;
+  /** The payment it belongs to: a voided one gave back everything it settled. */
+  paymentBatch?: Pick<PaymentBatch, 'id' | 'number' | 'status' | 'paymentDate'>;
+}
+
+/** A payment as the list shows it. */
+export interface VendorPaymentRow {
+  id: string;
+  number: string;
+  paymentDate: string;
+  status: PaymentBatchStatus;
+  reference: string | null;
+  branchId: string | null;
+  journalEntryId: string | null;
+  bankAccountId: string;
+  bankAccountName: string;
+  currencyCode: string;
+  totalPaid: number;
+  billCount: number;
+  suppliers: string | null;
+}
+
+export interface VendorPaymentQuery {
+  supplierId?: string | null;
+  bankAccountId?: string | null;
+  branchId?: string | null;
+  status?: PaymentBatchStatus | null;
+  from?: string | null;
+  to?: string | null;
+  page?: number;
+  limit?: number;
+}
+
+export type VendorDebitNoteStatus = 'POSTED' | 'VOIDED';
+
+export interface VendorDebitNote {
+  id: string;
+  number: string;
+  date: string;
+  vendorBillId: string;
+  branchId: string | null;
+  reason: string;
+  ncf: string | null;
+  amount: number;
+  taxAmount: number;
+  expenseAccountId: string | null;
+  status: VendorDebitNoteStatus;
+  journalEntryId: string | null;
+  reversalJournalEntryId: string | null;
+  voidReason: string | null;
+  voidedAt: string | null;
+  createdAt?: string;
+  vendorBill?: VendorBill;
+}
+
+export interface VendorDebitNoteRow {
+  id: string;
+  number: string;
+  date: string;
+  reason: string;
+  ncf: string | null;
+  amount: number;
+  taxAmount: number;
+  status: VendorDebitNoteStatus;
+  branchId: string | null;
+  journalEntryId: string | null;
+  vendorBillId: string;
+  billNcf: string | null;
+  currencyCode: string;
+  supplierId: string | null;
+  supplierName: string | null;
+}
+
+export interface VendorDebitNoteQuery {
+  supplierId?: string | null;
+  vendorBillId?: string | null;
+  branchId?: string | null;
+  status?: VendorDebitNoteStatus | null;
+  from?: string | null;
+  to?: string | null;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateVendorDebitNoteDto {
+  vendorBillId: string;
+  reason: string;
+  amount: number;
+  taxAmount?: number;
+  expenseAccountId: string;
+  date?: string;
+  ncf?: string;
+}
+
+export interface Paged<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+function queryParams(query: object): HttpParams {
+  let params = new HttpParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== null && value !== '') params = params.set(key, String(value));
+  }
+  return params;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AccountsPayableService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/accounts-payable`;
+  private paymentsUrl = `${environment.apiUrl}/vendor-payments`;
+  private debitNotesUrl = `${environment.apiUrl}/vendor-debit-notes`;
 
-  getVendorBills(): Observable<VendorBill[]> {
-    return this.http.get<VendorBill[]>(this.apiUrl);
+  getVendorBills(branchId?: string | null): Observable<VendorBill[]> {
+    return this.http.get<VendorBill[]>(this.apiUrl, { params: BranchesService.params(branchId) });
   }
 
   getVendorBillById(id: string): Observable<VendorBill> {
@@ -235,17 +366,41 @@ export class AccountsPayableService {
     return this.http.get<VendorPayment[]>(`${this.apiUrl}/${billId}/payments`);
   }
 
+  /** Payments made, newest first: what left which account, for how many bills, to whom. */
+  payments(query: VendorPaymentQuery = {}): Observable<Paged<VendorPaymentRow>> {
+    return this.http.get<Paged<VendorPaymentRow>>(this.paymentsUrl, { params: queryParams(query) });
+  }
+
+  payment(id: string): Observable<PaymentBatch> {
+    return this.http.get<PaymentBatch>(`${this.paymentsUrl}/${id}`);
+  }
+
+  /** Undo a payment: every bill owes again what it settled, and its entry is reversed. */
+  voidPayment(id: string, reason: string, reversalDate?: string): Observable<PaymentBatch> {
+    return this.http.post<PaymentBatch>(`${this.paymentsUrl}/${id}/void`, { reason, reversalDate });
+  }
+
+  debitNotes(query: VendorDebitNoteQuery = {}): Observable<Paged<VendorDebitNoteRow>> {
+    return this.http.get<Paged<VendorDebitNoteRow>>(this.debitNotesUrl, { params: queryParams(query) });
+  }
+
+  debitNote(id: string): Observable<VendorDebitNote> {
+    return this.http.get<VendorDebitNote>(`${this.debitNotesUrl}/${id}`);
+  }
+
+  createDebitNote(dto: CreateVendorDebitNoteDto): Observable<VendorDebitNote> {
+    return this.http.post<VendorDebitNote>(this.debitNotesUrl, dto);
+  }
+
+  voidDebitNote(id: string, reason: string, reversalDate?: string): Observable<VendorDebitNote> {
+    return this.http.post<VendorDebitNote>(`${this.debitNotesUrl}/${id}/void`, { reason, reversalDate });
+  }
+
   voidBill(id: string, reason: string, reversalDate?: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/void`, { reason, reversalDate });
   }
 
   submitForApproval(id: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/submit-for-approval`, {});
-  }
-
-  aging(asOfDate?: string): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/aging`, {
-      params: asOfDate ? { asOfDate } : {},
-    });
   }
 }

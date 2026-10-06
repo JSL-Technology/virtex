@@ -59,12 +59,17 @@ import { currentLanguage } from '../i18n/request-locale';
 import { isLocalizedError } from '../i18n/localized.exception';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface InvoiceListQuery {
   page?: number;
   limit?: number;
   status?: InvoiceStatus;
   customerId?: string;
+  /** One branch. Refused if it is outside the caller's branches. */
+  branchId?: string;
+  /** Who is asking; when given, the list never shows documents outside their branches. */
+  actorUserId?: string;
   from?: string;
   to?: string;
   search?: string;
@@ -168,11 +173,14 @@ export class InvoicesService {
    * The e-CF transmission is triggered AFTER the transaction commits: a slow or unreachable DGII
    * must never roll back a sale that is already recorded.
    */
-  async create(dto: CreateInvoiceDto, organizationId: string): Promise<Invoice> {
+  async create(dto: CreateInvoiceDto, organizationId: string, actorUserId: string | null = null): Promise<Invoice> {
     const issue = dto.issue !== false;
 
     const created = await this.dataSource.transaction(async (manager) => {
       const invoice = await this.buildDocument(dto, organizationId, manager);
+      // Where it was issued: the branch asked for if the person may use it, else theirs, else the
+      // headquarters; none for a company without branches. See `resolveDocumentBranch`.
+      invoice.branchId = await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId);
       const saved = await manager.save(invoice);
       if (!issue) {
         this.logger.log(`Borrador ${saved.invoiceNumber} creado.`);
@@ -921,6 +929,13 @@ export class InvoicesService {
         line.quantity,
         manager,
         invoice.organizationId,
+        {
+          place: { branchId: invoice.branchId },
+          type: 'SALE_DISPATCH',
+          reference: invoice.fiscalNumber ?? invoice.invoiceNumber,
+          sourceType: 'invoice',
+          sourceId: invoice.id,
+        },
       );
     }
   }
@@ -932,6 +947,7 @@ export class InvoicesService {
     invoiceId: string,
     dto: CreateInvoiceDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<Invoice> {
     return this.dataSource.transaction(async (manager) => {
       const repo = manager.getRepository(Invoice);
@@ -976,6 +992,7 @@ export class InvoicesService {
         exchangeRate: rebuilt.exchangeRate,
         totalInBaseCurrency: rebuilt.totalInBaseCurrency,
         costOfSale: rebuilt.costOfSale,
+        branchId: await reassignDocumentBranch(manager, organizationId, actorUserId, existing.branchId, dto.branchId),
       });
 
       return manager.save(existing);
@@ -1149,6 +1166,8 @@ export class InvoicesService {
           (isFullCredit ? ModificationCode.ANNULMENT : ModificationCode.AMOUNT_CORRECTION),
         status: InvoiceStatus.DRAFT,
         type: InvoiceType.CREDIT_NOTE,
+        // Issued where the invoice it corrects was issued.
+        branchId: original.branchId,
         customerId: original.customerId,
         customerName: original.customerName,
         customerAddress: original.customerAddress,
@@ -1195,6 +1214,14 @@ export class InvoicesService {
             selection.quantity,
             manager,
             organizationId,
+            {
+              // Back into the warehouse of the branch that sold them.
+              place: { branchId: original.branchId },
+              type: 'SALE_RETURN',
+              reference: issuedNote.fiscalNumber ?? issuedNote.invoiceNumber,
+              sourceType: 'credit_note',
+              sourceId: issuedNote.id,
+            },
           );
         }
       }
@@ -1331,6 +1358,10 @@ export class InvoicesService {
 
     if (query.status) qb.andWhere('invoice.status = :status', { status: query.status });
     if (query.customerId) qb.andWhere('invoice.customerId = :customerId', { customerId: query.customerId });
+    if (query.actorUserId || query.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, query.actorUserId ?? null);
+      applyBranchScope(qb, 'invoice', scope, query.branchId);
+    }
     if (query.from) qb.andWhere('invoice.issueDate >= :from', { from: query.from });
     if (query.to) qb.andWhere('invoice.issueDate <= :to', { to: query.to });
     if (query.search) {
@@ -1359,13 +1390,16 @@ export class InvoicesService {
     return { items, total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) };
   }
 
-  async findOne(id: string, organizationId: string): Promise<Invoice> {
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<Invoice> {
     const invoice = await this.invoicesRepository.findOne({
       where: { id, organizationId },
-      relations: ['lineItems', 'lineItems.product', 'customer'],
+      relations: ['lineItems', 'lineItems.product', 'customer', 'branch'],
     });
     if (!invoice) {
       throw new NotFoundError('invoices.invoice_id_not_found', { id });
+    }
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), invoice.branchId);
     }
     invoice.lineItems?.sort((a, b) => a.sortOrder - b.sortOrder);
     return invoice;

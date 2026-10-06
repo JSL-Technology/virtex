@@ -52,6 +52,11 @@ export class CustomerPaymentLineDto {
 }
 
 export class CreateCustomerPaymentDto {
+  /** The branch that collected it. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsUUID()
   @IsNotEmpty()
   customerId: string;

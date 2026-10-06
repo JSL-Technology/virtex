@@ -1,4 +1,84 @@
 {
+  "organizations.branches.branch_required": {
+    "es": "Indica la sucursal: trabajas en varias y no tienes una predeterminada.",
+    "en": "Choose the branch: you work at several and have no default.",
+    "pt": "Indique a filial: você trabalha em várias e não tem uma predefinida."
+  },
+  "organizations.branches.code_format": {
+    "es": "El código lleva letras, números y guiones, y empieza por letra o número.",
+    "en": "The code uses letters, digits and dashes, and starts with a letter or digit.",
+    "pt": "O código usa letras, números e hífens e começa por letra ou número."
+  },
+  "organizations.branches.code_taken": {
+    "es": "Ya existe una sucursal con el código {{code}}.",
+    "en": "A branch with code {{code}} already exists.",
+    "pt": "Já existe uma filial com o código {{code}}."
+  },
+  "organizations.branches.default_outside_access": {
+    "es": "La sucursal predeterminada tiene que estar entre las sucursales permitidas.",
+    "en": "The default branch must be one of the allowed branches.",
+    "pt": "A filial predefinida precisa estar entre as filiais permitidas."
+  },
+  "organizations.branches.fiscal_code_format": {
+    "es": "El código fiscal lleva solo letras y números.",
+    "en": "The fiscal code uses letters and digits only.",
+    "pt": "O código fiscal usa apenas letras e números."
+  },
+  "organizations.branches.headquarters_cannot_deactivate": {
+    "es": "La casa matriz no se puede desactivar. Marca otra sucursal como casa matriz primero.",
+    "en": "The headquarters cannot be deactivated. Mark another branch as the headquarters first.",
+    "pt": "A sede não pode ser desativada. Marque outra filial como sede primeiro."
+  },
+  "organizations.branches.headquarters_cannot_delete": {
+    "es": "La casa matriz no se puede eliminar.",
+    "en": "The headquarters cannot be deleted.",
+    "pt": "A sede não pode ser excluída."
+  },
+  "organizations.branches.headquarters_move_instead": {
+    "es": "Para cambiar la casa matriz, marca otra sucursal como casa matriz.",
+    "en": "To change the headquarters, mark another branch as the headquarters.",
+    "pt": "Para mudar a sede, marque outra filial como sede."
+  },
+  "organizations.branches.headquarters_must_be_active": {
+    "es": "La casa matriz tiene que estar activa.",
+    "en": "The headquarters must be active.",
+    "pt": "A sede precisa estar ativa."
+  },
+  "organizations.branches.in_use": {
+    "es": "La sucursal tiene documentos emitidos, así que no se puede eliminar. Desactívala en su lugar.",
+    "en": "The branch has documents issued from it, so it cannot be deleted. Deactivate it instead.",
+    "pt": "A filial tem documentos emitidos e não pode ser excluída. Desative-a em vez disso."
+  },
+  "organizations.branches.inactive": {
+    "es": "La sucursal está inactiva.",
+    "en": "The branch is inactive.",
+    "pt": "A filial está inativa."
+  },
+  "organizations.branches.not_found": {
+    "es": "La sucursal no existe en esta empresa.",
+    "en": "The branch does not exist in this company.",
+    "pt": "A filial não existe nesta empresa."
+  },
+  "organizations.branches.outside_your_scope": {
+    "es": "No tienes acceso a esa sucursal.",
+    "en": "You do not have access to that branch.",
+    "pt": "Você não tem acesso a essa filial."
+  },
+  "organizations.branches.user_not_member": {
+    "es": "Esa persona no pertenece a esta empresa.",
+    "en": "That person does not belong to this company.",
+    "pt": "Essa pessoa não pertence a esta empresa."
+  },
+  "organizations.branches.warehouse_not_found": {
+    "es": "El almacén no existe en esta empresa.",
+    "en": "The warehouse does not exist in this company.",
+    "pt": "O armazém não existe nesta empresa."
+  },
+  "organizations.branches.warehouse_of_other_branch": {
+    "es": "El almacén predeterminado tiene que ser de esta sucursal.",
+    "en": "The default warehouse must belong to this branch.",
+    "pt": "O armazém predefinido precisa pertencer a esta filial."
+  },
   "organizations.country_cannot_change_after_provisioning": {
     "es": "El país de una empresa ya aprovisionada no se puede cambiar aquí: su región fiscal, su plan de cuentas y sus secuencias de comprobantes se crearon para {{current}}. Contacta a soporte si necesitas migrar la jurisdicción.",
     "en": "The country of an already-provisioned company cannot be changed here: its fiscal region, chart of accounts and document sequences were created for {{current}}. Contact support to migrate the jurisdiction.",
@@ -94,10 +174,30 @@
     "en": "That settings section does not exist.",
     "pt": "Essa seção da configuração não existe."
   },
+  "organizations.subsidiary_control_ends_before_acquisition": {
+    "es": "El fin del control no puede ser anterior a la adquisición.",
+    "en": "Control cannot end before the acquisition.",
+    "pt": "O fim do controle não pode ser anterior à aquisição."
+  },
   "organizations.subsidiary_country_code": {
     "es": "Indica el país de la subsidiaria con su código ISO de dos letras (por ejemplo, DO).",
     "en": "Give the subsidiary's country as its two-letter ISO code (for example, DO).",
     "pt": "Informe o país da subsidiária com o código ISO de duas letras (por exemplo, DO)."
+  },
+  "organizations.subsidiary_investment_account_not_parent": {
+    "es": "La cuenta de inversión tiene que ser del plan de cuentas de la matriz.",
+    "en": "The investment account must be in the parent's chart of accounts.",
+    "pt": "A conta de investimento precisa pertencer ao plano de contas da controladora."
+  },
+  "organizations.subsidiary_investment_account_not_postable": {
+    "es": "La cuenta de inversión tiene que admitir movimientos.",
+    "en": "The investment account must accept postings.",
+    "pt": "A conta de investimento precisa aceitar lançamentos."
+  },
+  "organizations.subsidiary_not_found": {
+    "es": "Esa empresa no es subsidiaria de la tuya.",
+    "en": "That company is not a subsidiary of yours.",
+    "pt": "Essa empresa não é subsidiária da sua."
   },
   "organizations.tax_configuration_country_not_available_right": {
     "es": "La configuración fiscal de ese país no está disponible en este momento.",

@@ -74,14 +74,3 @@ export interface OverviewEventDto {
   /** Where the reader goes to act on it. */
   route: string;
 }
-
-/** One item of product news, from a configured feed. */
-export interface NewsItemDto {
-  id: string;
-  title: string;
-  summary: string;
-  tag: string | null;
-  /** ISO 8601. */
-  date: string;
-  url: string | null;
-}

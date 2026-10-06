@@ -93,7 +93,8 @@ export interface ConsolidationWarning {
     | 'NO_EXCHANGE_RATE'
     | 'NO_ACQUISITION_DATE'
     | 'INTRAGROUP_MISMATCH'
-    | 'ENTITY_OUT_OF_BALANCE';
+    | 'ENTITY_OUT_OF_BALANCE'
+    | 'CONTROL_ENDED_IN_PERIOD';
   organizationId: string;
   detail: string;
 }
@@ -229,7 +230,13 @@ export class ConsolidationService {
     if (!parentOrg) {
       throw new NotFoundError('consolidation.parent_organization_not_found');
     }
-    if (!parentOrg.subsidiaries || parentOrg.subsidiaries.length === 0) {
+    // A subsidiary whose control ended before the period began is not part of this group's
+    // statements for the period (NIIF 10.25). One that ended inside it is still consolidated, and
+    // flagged below: the period's result should only include it up to that date.
+    const controlled = (parentOrg.subsidiaries ?? []).filter(
+      (relation) => !relation.controlEndedOn || toIsoDate(relation.controlEndedOn) > startDate,
+    );
+    if (controlled.length === 0) {
       throw new BadRequestError(
         'consolidation.organization_has_no_subsidiaries_configured_consolidate',
       );
@@ -261,7 +268,7 @@ export class ConsolidationService {
         investmentAccountId: null as string | null,
         acquisitionCost: null as number | null,
       },
-      ...parentOrg.subsidiaries.map((relation) => ({
+      ...controlled.map((relation) => ({
         organizationId: relation.subsidiary.id,
         legalName: relation.subsidiary.legalName,
         role: 'SUBSIDIARY' as const,
@@ -271,6 +278,19 @@ export class ConsolidationService {
         acquisitionCost: relation.acquisitionCost,
       })),
     ];
+
+    for (const relation of controlled) {
+      if (relation.controlEndedOn && toIsoDate(relation.controlEndedOn) <= asOfDate) {
+        warnings.push({
+          code: 'CONTROL_ENDED_IN_PERIOD',
+          organizationId: relation.subsidiary.id,
+          detail: this.say('consolidation.warning.control_ended_in_period', {
+            member: relation.subsidiary.legalName,
+            date: toIsoDate(relation.controlEndedOn),
+          }),
+        });
+      }
+    }
 
     const entities: ConsolidatedEntity[] = [];
     const assetLines = new Map<string, ConsolidatedLine>();

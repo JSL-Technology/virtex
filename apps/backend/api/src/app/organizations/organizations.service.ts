@@ -1,3 +1,4 @@
+import { provisionTenantRoles } from '../roles/tenant-roles.provisioning';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
@@ -6,7 +7,7 @@ import type { OrganizationCreatedEvent } from '../accounting/handlers/organizati
 import { Organization } from './entities/organization.entity';
 import { OrganizationSubsidiary } from './entities/organization-subsidiary.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
+import { CreateSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { AccountSegmentsService } from '../chart-of-accounts/account-segments.service';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
@@ -137,6 +138,48 @@ export class OrganizationsService {
   }
 
   /**
+   * Records what consolidation needs about a subsidiary: ownership, acquisition date and cost, the
+   * parent's investment account, and the date control ended.
+   *
+   * None of it could be set after creation, so every consolidation warned that pre-acquisition
+   * equity could not be separated and no goodwill could be computed. The investment account must
+   * be one of the PARENT's postable accounts, because consolidation eliminates it from the parent's
+   * books; and control cannot end before it began.
+   */
+  async updateSubsidiary(
+    parentOrganizationId: string,
+    subsidiaryOrganizationId: string,
+    dto: UpdateSubsidiaryDto,
+  ): Promise<OrganizationSubsidiary> {
+    const link = await this.subsidiaryRepository.findOne({
+      where: { parentOrganizationId, subsidiaryOrganizationId },
+      relations: ['subsidiary'],
+    });
+    if (!link) throw new NotFoundError('organizations.subsidiary_not_found');
+
+    if (dto.investmentAccountId) {
+      // Raw, because the chart of accounts belongs to accounting; its column is camel-cased.
+      const rows: { isPostable: boolean }[] = await this.subsidiaryRepository.manager.query(
+        `SELECT "isPostable" FROM "accounts" WHERE "id" = $1 AND "organization_id" = $2`,
+        [dto.investmentAccountId, parentOrganizationId],
+      );
+      if (!rows.length) throw new BadRequestError('organizations.subsidiary_investment_account_not_parent');
+      if (!rows[0].isPostable) throw new BadRequestError('organizations.subsidiary_investment_account_not_postable');
+    }
+
+    if (dto.ownership !== undefined) link.ownership = dto.ownership;
+    if (dto.acquisitionDate !== undefined) link.acquisitionDate = dto.acquisitionDate;
+    if (dto.acquisitionCost !== undefined) link.acquisitionCost = dto.acquisitionCost;
+    if (dto.investmentAccountId !== undefined) link.investmentAccountId = dto.investmentAccountId;
+    if (dto.controlEndedOn !== undefined) link.controlEndedOn = dto.controlEndedOn;
+
+    if (link.acquisitionDate && link.controlEndedOn && link.controlEndedOn < link.acquisitionDate) {
+      throw new BadRequestError('organizations.subsidiary_control_ends_before_acquisition');
+    }
+    return this.subsidiaryRepository.save(link);
+  }
+
+  /**
    * Create a subsidiary that is a usable tenant from the moment it exists.
    *
    * It previously created an `Organization` carrying a legal name, a tax id and a country and
@@ -150,7 +193,9 @@ export class OrganizationsService {
    *   - it receives the country's chart of accounts and taxes in the same transaction,
    *   - it inherits the parent's plan and subscription — it is not billed separately, and
    *     inheriting is what stops `SubscriptionActiveGuard` from refusing every request,
-   *   - the person who created it becomes a member, so they can actually switch to it.
+   *   - the person who created it becomes a member, so they can actually switch to it,
+   *   - it receives the default roles and its creator is its first administrator, so once switched
+   *     in they can actually work in it.
    */
   async createSubsidiary(
     parentOrganizationId: string,
@@ -223,6 +268,11 @@ export class OrganizationsService {
       // Without this the creator cannot switch into the tenant they just created:
       // `resolveOrganizationContext` validates the target against `user_organizations`.
       await this.membershipService.grant(createdByUserId, savedOrg.id, manager);
+
+      // And without roles, switching in is all they could do: a subsidiary used to be created with
+      // none, so its owner held no permission inside it. The same default roles a signup gets, and
+      // its creator — the parent's owner, past a step-up — as the first administrator.
+      await provisionTenantRoles(manager, savedOrg.id, createdByUserId);
 
       const subsidiary = manager.create(OrganizationSubsidiary, {
         parentOrganizationId: parentOrganizationId,

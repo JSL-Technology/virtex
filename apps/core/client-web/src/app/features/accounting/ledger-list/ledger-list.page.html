@@ -6,7 +6,7 @@
   [empty]="ledgers().length === 0"
   (reload)="load()"
 >
-  <a listActions [routerLink]="['/accounting/general-ledger/new']" class="primary-button">
+  <a listActions [routerLink]="['/accounting/ledgers/new']" class="primary-button">
     <lucide-icon [img]="CreateIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.ledger_list.create_ledger' | translate }}</span>
   </a>
@@ -32,7 +32,7 @@
               }
             </td>
             <td class="actions-column">
-              <a [routerLink]="['/accounting/general-ledger', ledger.id, 'edit']" class="secondary-button">
+              <a [routerLink]="['/accounting/ledgers', ledger.id, 'edit']" class="secondary-button">
                 {{ 'accounting.ledger_list.edit' | translate }}
               </a>
             </td>

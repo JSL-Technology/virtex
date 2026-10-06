@@ -5,7 +5,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
-import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, FileDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
+import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, FileDown, FileUp, GitMerge, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,6 +38,8 @@ export class ChartOfAccountsPage implements OnInit {
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash;
   protected readonly ExportIcon = FileDown;
+  protected readonly ImportIcon = FileUp;
+  protected readonly MergeIcon = GitMerge;
   protected readonly ArrowUpDownIcon = ArrowUpDown;
   protected readonly ArrowUpIcon = ArrowUp;
   protected readonly ArrowDownIcon = ArrowDown;
@@ -107,6 +109,15 @@ export class ChartOfAccountsPage implements OnInit {
    * complete at `chart-of-accounts/new`, tabs for mappings, rules and dimensions included. Creating
    * an account from the interface was impossible for as long as that string was wrong.
    */
+  /** The one import engine, already pointed at the chart (`data-imports` reads `?dataset=`). */
+  importAccounts(): void {
+    this.router.navigate(['/data-imports'], { queryParams: { dataset: 'chart_of_accounts' } });
+  }
+
+  openMerge(): void {
+    this.router.navigate(['/accounting/chart-of-accounts/merge']);
+  }
+
   goToAccountForm(id?: string): void {
     const route = id
       ? ['/accounting/chart-of-accounts', id, 'edit']

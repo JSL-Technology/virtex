@@ -4,6 +4,8 @@ import { TreasuryService } from './treasury.service';
 import { TreasuryController } from './treasury.controller';
 import { BankTransfer } from './entities/bank-transfer.entity';
 import { BankAccount } from './entities/bank-account.entity';
+import { Bank } from './entities/bank.entity';
+import { BanksService } from './banks.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
@@ -13,7 +15,7 @@ import { AccountingModule } from '../accounting/accounting.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BankTransfer, BankAccount]),
+    TypeOrmModule.forFeature([BankTransfer, BankAccount, Bank]),
     JournalEntriesModule,
     ChartOfAccountsModule,
     CurrenciesModule,
@@ -22,7 +24,7 @@ import { AccountingModule } from '../accounting/accounting.module';
     AccountingModule,
   ],
   controllers: [TreasuryController],
-  providers: [TreasuryService],
-  exports: [TreasuryService],
+  providers: [TreasuryService, BanksService],
+  exports: [TreasuryService, BanksService],
 })
 export class TreasuryModule {}

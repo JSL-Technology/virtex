@@ -1,0 +1,77 @@
+<vx-document-shell
+  [title]="note()?.number ?? ('page_titles.vendor_debit_note' | translate)"
+  [subtitle]="note()?.vendorBill?.vendor?.name ?? null"
+  [statusKey]="note() ? 'accounts_payable.debit_notes.status.' + note()!.status.toLowerCase() : null"
+  [statusTone]="tone()"
+  [loading]="loading()"
+  [error]="error()"
+  backLabelKey="accounts_payable.debit_notes.back"
+  (back)="goToList()"
+  (reload)="load()"
+>
+  <ng-container documentActions>
+    @if (canVoid()) {
+      <button *appHasPermission="'accounts_payable:void'" type="button" class="danger-button" [disabled]="busy()" (click)="voidNote()">
+        <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'accounts_payable.debit_notes.void' | translate }}</span>
+      </button>
+    }
+  </ng-container>
+
+  @if (note(); as doc) {
+    <div class="doc-view">
+      @if (doc.status === 'VOIDED') {
+        <div class="banner-error doc-void-banner" role="status">
+          <strong>{{ 'accounts_payable.debit_notes.voided_banner' | translate }}</strong>
+          @if (doc.voidReason) {
+            <span>{{ doc.voidReason }}</span>
+          }
+          @if (entryLink(doc.reversalJournalEntryId); as link) {
+            <a [routerLink]="link">{{ 'accounts_payable.debit_notes.view_reversal' | translate }}</a>
+          }
+        </div>
+      }
+
+      <section class="doc-card">
+        <dl class="doc-facts">
+          <div>
+            <dt>{{ 'accounts_payable.debit_notes.date' | translate }}</dt>
+            <dd>{{ doc.date | vxDate: 'date' : true }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'accounts_payable.debit_notes.bill' | translate }}</dt>
+            <dd><a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ doc.vendorBill?.ncf || ('accounts_payable.debit_notes.open_bill' | translate) }}</a></dd>
+          </div>
+          <div>
+            <dt>{{ 'accounts_payable.debit_notes.amount' | translate }}</dt>
+            <dd><vx-amount [value]="doc.amount" [currency]="doc.vendorBill?.currencyCode ?? null" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'accounts_payable.debit_notes.tax_amount' | translate }}</dt>
+            <dd><vx-amount [value]="doc.taxAmount" [currency]="doc.vendorBill?.currencyCode ?? null" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'accounts_payable.debit_notes.ncf' | translate }}</dt>
+            <dd>{{ doc.ncf ?? '—' }}</dd>
+          </div>
+          @if (branches.hasBranches()) {
+            <div>
+              <dt>{{ 'branches.picker.label' | translate }}</dt>
+              <dd><vx-branch-label [branchId]="doc.branchId" /></dd>
+            </div>
+          }
+          @if (entryLink(doc.journalEntryId); as link) {
+            <div>
+              <dt>{{ 'accounts_payable.debit_notes.entry' | translate }}</dt>
+              <dd><a [routerLink]="link">{{ 'accounts_payable.debit_notes.view_entry' | translate }}</a></dd>
+            </div>
+          }
+          <div class="field--wide">
+            <dt>{{ 'accounts_payable.debit_notes.reason' | translate }}</dt>
+            <dd>{{ doc.reason }}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  }
+</vx-document-shell>

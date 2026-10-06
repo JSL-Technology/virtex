@@ -13,7 +13,7 @@ describe('InventoryService — búsqueda de productos', () => {
     const spy = queryBuilderSpy();
     return {
       ...spy,
-      service: new InventoryService(spy.repository as never, {} as never, {} as never, {} as never),
+      service: new InventoryService(spy.repository as never, {} as never, {} as never, {} as never, {} as never),
     };
   };
 

@@ -3,9 +3,15 @@ import { ModuleManifest, WindowKind } from '../module-manifest';
 /**
  * The workspace itself: what belongs to no single domain.
  *
- * Home, the user's queue, approvals, notifications, search and the import/export ledger. They are
- * grouped here rather than scattered because none of them is owned by Sales or Accounting — they
- * are the shell the modules live in.
+ * Home (with the business indicators on it), the approvals inbox, search, the document repository
+ * and the import/export ledger. They are grouped here rather than scattered because none of them is
+ * owned by Sales or Accounting — they are the shell the modules live in.
+ *
+ * There used to be five ways in: Home, Dashboard, «Mi trabajo», Approvals and Notifications.
+ * «Mi trabajo» returned the approvals the user could decide, under another name; Dashboard was a
+ * second home. No reference ERP splits it that way — NetSuite has one Home with portlets, SAP one
+ * launchpad and one «My Inbox» — so there is one home, one inbox, and the notifications page is
+ * what the bell's «Ver todas» opens.
  */
 export const WORKSPACE_MODULE: ModuleManifest = {
   id: 'workspace',
@@ -29,16 +35,6 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/overview/overview.page').then((m) => m.OverviewPage),
     },
     {
-      path: 'my-work',
-      kind: WindowKind.INBOX,
-      permission: 'authenticated',
-      titleKey: 'page_titles.my_work',
-      icon: 'ClipboardList',
-      entityKeyFn: () => 'workspace:my-work',
-      menu: { group: 'inbox', labelKey: 'sidebar.general.my_work' },
-      load: () => import('../../../features/my-work/my-work.page').then((m) => m.MyWorkPage),
-    },
-    {
       path: 'approvals',
       kind: WindowKind.INBOX,
       permission: 'workflows:decide',
@@ -49,23 +45,14 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/approvals/approvals.page').then((m) => m.ApprovalsPage),
     },
     {
-      path: 'dashboard',
-      kind: WindowKind.OVERVIEW,
-      permission: 'dashboard:view',
-      titleKey: 'page_titles.dashboard',
-      icon: 'LayoutDashboard',
-      entityKeyFn: () => 'workspace:dashboard',
-      menu: { group: 'analysis', labelKey: 'sidebar.general.dashboard' },
-      load: () => import('../../../features/dashboard/dashboard.page').then((m) => m.DashboardPage),
-    },
-    {
+      //  The bell in the top bar is where notifications are read; this is its «Ver todas». A menu
+      //  entry made it a third inbox beside approvals.
       path: 'notifications',
       kind: WindowKind.LIST,
       permission: 'authenticated',
       titleKey: 'page_titles.notifications',
       icon: 'Bell',
       entityKeyFn: () => 'workspace:notifications',
-      menu: { group: 'inbox', labelKey: 'sidebar.general.notifications' },
       load: () => import('../../../features/notifications/notifications.page').then((m) => m.NotificationsPage),
     },
     {
@@ -112,14 +99,18 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/documents/repository/repository.page').then((m) => m.RepositoryPage),
     },
     {
-      path: 'documents/templates',
-      kind: WindowKind.LIST,
-      permission: 'documents:view',
-      titleKey: 'page_titles.document_templates',
-      icon: 'FileText',
-      entityKeyFn: () => 'workspace:document-templates',
-      menu: { group: 'documents', labelKey: 'sidebar.general.documents_sub.templates' },
-      load: () => import('../../../features/documents/templates/templates.page').then((m) => m.TemplatesPage),
+      // The client-side extension runtime: where enabled UI extensions actually render, each in
+      // its own sandboxed iframe host.
+      path: 'extensions/run',
+      kind: WindowKind.CANVAS,
+      permission: 'extensions:view',
+      titleKey: 'page_titles.extensions_runtime',
+      icon: 'Puzzle',
+      entityKeyFn: () => 'workspace:extensions-runtime',
+      load: () =>
+        import('../../../features/extensions/extensions-runtime.page').then(
+          (m) => m.ExtensionsRuntimePage,
+        ),
     },
     {
       path: 'unauthorized',

@@ -1,0 +1,123 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+  padding: var(--space-6);
+  max-width: 64rem;
+}
+
+.merge-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.merge-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  &__subtitle {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+}
+
+.merge-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  @include ds.surface-card;
+
+  &__title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  &--done {
+    align-items: flex-start;
+  }
+}
+
+.merge-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+
+  &__arrow {
+    color: var(--content-tertiary);
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: minmax(0, 1fr);
+
+    &__arrow { transform: rotate(90deg); justify-self: center; }
+  }
+}
+
+.merge-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+
+  small { color: var(--content-tertiary); }
+
+  textarea { width: 100%; resize: vertical; }
+}
+
+.merge-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.merge-table {
+  width: 100%;
+
+  th[scope='row'] {
+    text-align: left;
+    font-weight: var(--font-medium);
+    color: var(--content-secondary);
+  }
+
+  &__total td,
+  &__total th {
+    font-weight: var(--font-semibold);
+    border-top: 1px solid var(--border-default);
+  }
+}
+
+.merge-facts {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.merge-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+
+  &--error { color: var(--error-text); }
+  &--warning { color: var(--warning-text); }
+}

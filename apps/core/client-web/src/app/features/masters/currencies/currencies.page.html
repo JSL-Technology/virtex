@@ -6,6 +6,8 @@
   [empty]="!loading() && !error() && currencies().length === 0"
   (reload)="load()"
 >
+  <!-- Everyone who sees currencies sees the rates they convert at; managing currencies is not needed. -->
+  <a listActions routerLink="/masters/currencies/exchange-rates" class="secondary-button">{{ 'currencies.rates.title' | translate }}</a>
   @if (canManage()) {
     <button listActions type="button" class="primary-button" appRequires="currencies:manage" (click)="toggleCreate()">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>

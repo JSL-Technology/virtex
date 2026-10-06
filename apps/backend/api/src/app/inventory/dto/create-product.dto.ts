@@ -48,9 +48,20 @@ export class CreateProductDto {
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   cost?: number;
 
+  /**
+   * What the product is created holding — its opening stock, booked against opening-balance
+   * equity. Afterwards the quantity changes only through documents (sales, receipts, adjustments,
+   * transfers); see `InventoryService.update`.
+   */
   @IsNumber()
+  @IsOptional()
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
-  stock: number;
+  stock?: number;
+
+  /** Where the opening stock is. Omitted: the company's default warehouse. */
+  @IsUUID()
+  @IsOptional()
+  warehouseId?: string;
 
   @IsNumber()
   @IsOptional()

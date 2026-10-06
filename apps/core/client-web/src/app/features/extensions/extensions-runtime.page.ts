@@ -34,7 +34,7 @@ import { ExtensionHostComponent } from './extension-host.component';
       } @else if (extensions().length === 0) {
         <div class="run__empty">
           <p>{{ 'extensions.none_enabled' | translate }}</p>
-          <a routerLink="/masters/extensions">{{ 'extensions.go_to_manager' | translate }}</a>
+          <a [routerLink]="[]" fragment="settings/extensions">{{ 'extensions.go_to_manager' | translate }}</a>
         </div>
       } @else {
         <div class="run__grid">

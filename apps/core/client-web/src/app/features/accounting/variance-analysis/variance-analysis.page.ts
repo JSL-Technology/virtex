@@ -1,67 +1,85 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Filter, FileDown, ArrowUp, ArrowDown } from 'lucide-angular';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { LucideAngularModule, ArrowUp, ArrowDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { NotificationService } from '../../../core/services/notification';
+import { BudgetsService, VarianceLine, VarianceReport, isFavourable } from '../data/budgets.service';
 
-export interface VarianceItem {
-  accountCode: string;
-  accountName: string;
-  actual: number;
-  budget: number;
-  varianceAmount: number;
-  variancePercent: number;
-  /** `REVENUE` inverts the sign convention: over budget is good on income, bad on expense. */
-  accountType: 'REVENUE' | 'EXPENSE';
-  currencyCode?: string;
-}
+const pad = (n: number) => String(n).padStart(2, '0');
 
 /**
- * Actual against budget, per account, for a period.
+ * Actual against budget, per account, over a run of months (audit H-16).
  *
- * ## Why this page shows nothing
+ * This page used to render nothing and say why: no endpoint returned the actuals, and before that
+ * it showed five invented rows. It now reads `GET /budgets/variance`, which adds up every monthly
+ * budget in the range and the posted amounts of the same accounts in the same days, from the
+ * tenant's default book.
  *
- * It used to show five rows of invented figures — "Sales Revenue, actual 250,000, budget
- * 240,000" — hardcoded into the component. In an accounting product a reader has no way to tell
- * an invented number from their own, and a variance report is read to make decisions. Displaying
- * a plausible fabrication is worse than displaying nothing, so it now displays nothing and says
- * why.
- *
- * The report needs an endpoint that aggregates posted amounts per account over a period and
- * joins them to the budget lines. `GET /budgets` returns the budgets; nothing returns the
- * actuals. Until that exists the table renders its empty state; when it does, `variances` takes
- * the response and no part of the presentation changes.
- *
- * ## Two things this page already gets right, and must keep
- *
- * The sign convention is data, not vocabulary: it used to be decided by searching the account's
- * ENGLISH name for "revenue" or "sales", which silently inverted the arrow for every tenant
- * whose chart of accounts is in Spanish or Portuguese — which is all of them. It reads
- * `accountType` instead.
- *
- * The amount column is money, so it carries a currency. The header used to read "Variance ($)".
+ * Two rules kept from before: whether a difference is good news comes from the account's TYPE
+ * (over budget on income is good, on expense it is bad) — never from its name — and amounts are
+ * money in the ledger's currency.
  */
 @Component({
   selector: 'app-variance-analysis-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [...VX_SORT, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './variance-analysis.page.html',
-  styleUrls: ['./variance-analysis.page.scss'],
+  styleUrls: ['../../../shared/styles/document-list.scss', './variance-analysis.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VarianceAnalysisPage {
-  /** Sortable by its headers (QA B-01). */
-  readonly table = sortable(() => this.variances());
-  protected readonly FilterIcon = Filter;
-  protected readonly ExportIcon = FileDown;
-  protected readonly PositiveIcon = ArrowDown;
-  protected readonly NegativeIcon = ArrowUp;
+export class VarianceAnalysisPage implements OnInit {
+  private readonly budgets = inject(BudgetsService);
+  private readonly notifications = inject(NotificationService);
 
-  readonly variances = signal<VarianceItem[]>([]);
-  readonly isEmpty = computed(() => this.variances().length === 0);
+  /** `?from=YYYY-MM&to=YYYY-MM` — from a budget's own page. */
+  readonly from = input<string>();
+  readonly to = input<string>();
 
-  isVariancePositive(item: VarianceItem): boolean {
-    return item.accountType === 'REVENUE' ? item.varianceAmount >= 0 : item.varianceAmount <= 0;
+  protected readonly FavourableIcon = ArrowDown;
+  protected readonly UnfavourableIcon = ArrowUp;
+  protected readonly favourable = isFavourable;
+
+  readonly report = signal<VarianceReport | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly fromPeriod = signal('');
+  readonly toPeriod = signal('');
+
+  readonly lines = computed(() => this.report()?.lines ?? []);
+  readonly table = sortable(() => this.lines(), {
+    account: (line) => line.accountCode ?? '',
+  });
+  readonly empty = computed(() => !this.loading() && !this.error() && this.lines().length === 0);
+  readonly currency = computed(() => this.report()?.ledger?.currency ?? null);
+
+  ngOnInit(): void {
+    const now = new Date();
+    this.fromPeriod.set(this.from() ?? `${now.getFullYear()}-01`);
+    this.toPeriod.set(this.to() ?? `${now.getFullYear()}-${pad(now.getMonth() + 1)}`);
+    this.load();
+  }
+
+  load(): void {
+    if (!this.fromPeriod() || !this.toPeriod()) return;
+    this.loading.set(true);
+    this.error.set(null);
+    this.budgets.variance(this.fromPeriod(), this.toPeriod()).subscribe({
+      next: (report) => {
+        this.report.set(report);
+        this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        this.error.set(this.notifications.httpErrorMessage(error, 'budgets.variance.load_failed'));
+        this.loading.set(false);
+      },
+    });
+  }
+
+  protected name(line: VarianceLine): string {
+    return accountNameOf(line.accountName as Parameters<typeof accountNameOf>[0]);
   }
 }

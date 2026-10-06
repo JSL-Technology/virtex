@@ -1,4 +1,9 @@
 {
+  "pos.branch": {
+    "es": "Sucursal",
+    "en": "Branch",
+    "pt": "Filial"
+  },
   "pos.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -13,6 +18,11 @@
     "es": "Procesando…",
     "en": "Processing…",
     "pt": "A processar…"
+  },
+  "pos.choose_branch": {
+    "es": "Elige la sucursal",
+    "en": "Choose the branch",
+    "pt": "Escolha a filial"
   },
   "pos.close_shift": {
     "es": "Cerrar turno",

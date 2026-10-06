@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { VendorBill } from './entities/vendor-bill.entity';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Controller,
@@ -11,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
@@ -29,6 +32,8 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
 @Controller('accounts-payable')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(VendorBill)
 export class AccountsPayableController {
   constructor(private readonly accountsPayableService: AccountsPayableService) {}
 
@@ -40,14 +45,18 @@ export class AccountsPayableController {
     @Body() createVendorBillDto: CreateVendorBillDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.accountsPayableService.create(createVendorBillDto, user.organizationId);
+    return this.accountsPayableService.create(createVendorBillDto, user.organizationId, user.id);
   }
 
   @Get()
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @ApiOperation({ summary: 'Lista las facturas de proveedor.' })
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.accountsPayableService.findAll(user.organizationId);
+  @ApiQuery({ name: 'branchId', required: false, type: String })
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
+    return this.accountsPayableService.findAll(user.organizationId, { branchId, actorUserId: user.id });
   }
 
   /**
@@ -60,11 +69,15 @@ export class AccountsPayableController {
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @ApiOperation({ summary: 'Antigüedad de saldos por proveedor.' })
   @ApiQuery({ name: 'asOfDate', required: false, type: String })
-  aging(@CurrentUser() user: AuthenticatedUser, @Query('asOfDate') asOfDate?: string) {
-    return this.accountsPayableService.aging(
-      user.organizationId,
-      asOfDate ?? new Date(),
-    );
+  aging(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('asOfDate') asOfDate?: string,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
+    return this.accountsPayableService.aging(user.organizationId, asOfDate ?? new Date(), {
+      branchId,
+      actorUserId: user.id,
+    });
   }
 
   @Get(':id')
@@ -73,7 +86,7 @@ export class AccountsPayableController {
     @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.accountsPayableService.findOne(id, user.organizationId);
+    return this.accountsPayableService.findOne(id, user.organizationId, user.id);
   }
 
   @Get(':id/payments')
@@ -97,6 +110,7 @@ export class AccountsPayableController {
       id,
       updateVendorBillDto,
       user.organizationId,
+      user.id,
     );
   }
 

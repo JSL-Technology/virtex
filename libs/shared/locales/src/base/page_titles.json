@@ -59,15 +59,20 @@
     "en": "Bank Account",
     "pt": "Conta Bancária"
   },
-  "page_titles.banks": {
-    "es": "Bancos",
-    "en": "Banks",
-    "pt": "Bancos"
+  "page_titles.budget": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
   },
-  "page_titles.branches": {
-    "es": "Sucursales",
-    "en": "Branches",
-    "pt": "Filiais"
+  "page_titles.budget_new": {
+    "es": "Nuevo presupuesto",
+    "en": "New budget",
+    "pt": "Novo orçamento"
+  },
+  "page_titles.budgets": {
+    "es": "Presupuestos",
+    "en": "Budgets",
+    "pt": "Orçamentos"
   },
   "page_titles.cash_flow": {
     "es": "Flujo de Efectivo",
@@ -83,11 +88,6 @@
     "es": "Catálogo de cuentas",
     "en": "Chart of accounts",
     "pt": "Plano de contas"
-  },
-  "page_titles.close_month": {
-    "es": "Cierre mensual",
-    "en": "Month-End Close",
-    "pt": "Fechamento Mensal"
   },
   "page_titles.close_year": {
     "es": "Cierre anual",
@@ -134,11 +134,6 @@
     "en": "Daily journal",
     "pt": "Livro diário"
   },
-  "page_titles.dashboard": {
-    "es": "Panel",
-    "en": "Dashboard",
-    "pt": "Painel"
-  },
   "page_titles.data_exports": {
     "es": "Exportaciones de datos",
     "en": "Data exports",
@@ -169,11 +164,6 @@
     "en": "Document repository",
     "pt": "Repositório de documentos"
   },
-  "page_titles.document_templates": {
-    "es": "Plantillas de documento",
-    "en": "Document templates",
-    "pt": "Modelos de documento"
-  },
   "page_titles.employee_edit": {
     "es": "Empleado",
     "en": "Employee",
@@ -188,6 +178,11 @@
     "es": "Empleados",
     "en": "Employees",
     "pt": "Funcionários"
+  },
+  "page_titles.exchange_rates": {
+    "es": "Tipos de cambio",
+    "en": "Exchange rates",
+    "pt": "Taxas de câmbio"
   },
   "page_titles.extensions": {
     "es": "Extensiones",
@@ -204,6 +199,21 @@
     "en": "General ledger",
     "pt": "Livro razão"
   },
+  "page_titles.goods_receipt": {
+    "es": "Recepción de mercancía",
+    "en": "Goods receipt",
+    "pt": "Recebimento de mercadorias"
+  },
+  "page_titles.goods_receipt_new": {
+    "es": "Nueva recepción",
+    "en": "New goods receipt",
+    "pt": "Novo recebimento"
+  },
+  "page_titles.goods_receipts": {
+    "es": "Recepciones",
+    "en": "Goods receipts",
+    "pt": "Recebimentos"
+  },
   "page_titles.home": {
     "es": "Inicio",
     "en": "Home",
@@ -213,6 +223,21 @@
     "es": "Estado de Resultados",
     "en": "Income Statement",
     "pt": "Demonstração do Resultado"
+  },
+  "page_titles.inventory_adjustment": {
+    "es": "Ajuste de inventario",
+    "en": "Inventory adjustment",
+    "pt": "Ajuste de inventário"
+  },
+  "page_titles.inventory_adjustment_new": {
+    "es": "Nuevo ajuste de inventario",
+    "en": "New inventory adjustment",
+    "pt": "Novo ajuste de inventário"
+  },
+  "page_titles.inventory_adjustments": {
+    "es": "Ajustes de inventario",
+    "en": "Inventory adjustments",
+    "pt": "Ajustes de inventário"
   },
   "page_titles.invoice": {
     "es": "Factura",
@@ -279,25 +304,20 @@
     "en": "Ledgers",
     "pt": "Livros contábeis"
   },
-  "page_titles.manufacturing": {
-    "es": "Manufactura (MRP)",
-    "en": "Manufacturing (MRP)",
-    "pt": "Manufatura (MRP)"
-  },
   "page_titles.my_payslips": {
     "es": "Mis volantes de pago",
     "en": "My payslips",
     "pt": "Os meus recibos"
   },
-  "page_titles.my_work": {
-    "es": "Mi trabajo",
-    "en": "My Work",
-    "pt": "Meu trabalho"
-  },
   "page_titles.notifications": {
     "es": "Notificaciones",
     "en": "Notifications",
     "pt": "Notificações"
+  },
+  "page_titles.partner_ledger": {
+    "es": "Mayor de terceros",
+    "en": "Partner ledger",
+    "pt": "Razão de terceiros"
   },
   "page_titles.payment_methods": {
     "es": "Métodos de pago",
@@ -334,6 +354,11 @@
     "en": "Point of sale",
     "pt": "Ponto de venda"
   },
+  "page_titles.pos_tickets": {
+    "es": "Tickets de punto de venta",
+    "en": "Point-of-sale tickets",
+    "pt": "Tíquetes do ponto de venda"
+  },
   "page_titles.price_list_edit": {
     "es": "Editar lista de precios",
     "en": "Edit price list",
@@ -348,11 +373,6 @@
     "es": "Listas de precios",
     "en": "Price lists",
     "pt": "Tabelas de preços"
-  },
-  "page_titles.procurement": {
-    "es": "Abastecimiento y proveedores",
-    "en": "Procurement and suppliers",
-    "pt": "Suprimentos e fornecedores"
   },
   "page_titles.product_edit": {
     "es": "Editar producto",
@@ -378,11 +398,6 @@
     "es": "Rentabilidad por producto",
     "en": "Profitability by product",
     "pt": "Rentabilidade por produto"
-  },
-  "page_titles.projects": {
-    "es": "Proyectos (PSA)",
-    "en": "Projects (PSA)",
-    "pt": "Projetos (PSA)"
   },
   "page_titles.purchase_order_edit": {
     "es": "Orden de compra",
@@ -434,11 +449,6 @@
     "en": "Reports",
     "pt": "Relatórios"
   },
-  "page_titles.sales_history": {
-    "es": "Historial de ventas",
-    "en": "Sales history",
-    "pt": "Histórico de vendas"
-  },
   "page_titles.search": {
     "es": "Búsqueda",
     "en": "Search",
@@ -454,10 +464,30 @@
     "en": "Import Statement",
     "pt": "Importar Extrato"
   },
-  "page_titles.subsidiary_ledgers": {
-    "es": "Libros auxiliares",
-    "en": "Subsidiary ledgers",
-    "pt": "Livros auxiliares"
+  "page_titles.stock_movements": {
+    "es": "Kárdex",
+    "en": "Stock movements",
+    "pt": "Movimentações de estoque"
+  },
+  "page_titles.stock_on_hand": {
+    "es": "Existencias",
+    "en": "Stock on hand",
+    "pt": "Estoque disponível"
+  },
+  "page_titles.stock_transfer": {
+    "es": "Transferencia de inventario",
+    "en": "Stock transfer",
+    "pt": "Transferência de estoque"
+  },
+  "page_titles.stock_transfer_new": {
+    "es": "Nueva transferencia",
+    "en": "New stock transfer",
+    "pt": "Nova transferência"
+  },
+  "page_titles.stock_transfers": {
+    "es": "Transferencias",
+    "en": "Stock transfers",
+    "pt": "Transferências"
   },
   "page_titles.supplier_edit": {
     "es": "Editar proveedor",
@@ -519,15 +549,35 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
-  "page_titles.vendor_payment": {
-    "es": "Pago a Proveedores",
-    "en": "Supplier Payment",
-    "pt": "Pagamento a Fornecedores"
+  "page_titles.vendor_debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
   },
-  "page_titles.warehouse_management": {
-    "es": "Gestión de almacenes (WMS)",
-    "en": "Warehouse management (WMS)",
-    "pt": "Gestão de armazéns (WMS)"
+  "page_titles.vendor_debit_note_new": {
+    "es": "Nueva nota de débito",
+    "en": "New debit note",
+    "pt": "Nova nota de débito"
+  },
+  "page_titles.vendor_debit_notes": {
+    "es": "Notas de débito",
+    "en": "Debit notes",
+    "pt": "Notas de débito"
+  },
+  "page_titles.vendor_payment": {
+    "es": "Pago a proveedor",
+    "en": "Supplier payment",
+    "pt": "Pagamento a fornecedor"
+  },
+  "page_titles.vendor_payment_new": {
+    "es": "Nuevo pago a proveedor",
+    "en": "New supplier payment",
+    "pt": "Novo pagamento a fornecedor"
+  },
+  "page_titles.vendor_payments": {
+    "es": "Pagos a proveedores",
+    "en": "Payments to suppliers",
+    "pt": "Pagamentos a fornecedores"
   },
   "page_titles.warehouses": {
     "es": "Almacenes",

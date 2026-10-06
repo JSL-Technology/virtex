@@ -5,10 +5,14 @@ import { VENTAS_MODULE } from './manifests/ventas.manifest';
 import { COMPRAS_MODULE } from './manifests/compras.manifest';
 import { INVENTARIO_MODULE, INVENTARIO_MASTERS_MODULE } from './manifests/inventario.manifest';
 import { TESORERIA_MODULE, TESORERIA_MASTERS_MODULE } from './manifests/tesoreria.manifest';
-import { CONTABILIDAD_MODULE } from './manifests/contabilidad.manifest';
+import {
+  CONTABILIDAD_MODULE,
+  CONTABILIDAD_MASTERS_MODULE,
+  CONTABILIDAD_REPORTS_MODULE,
+} from './manifests/contabilidad.manifest';
 import { ANALISIS_MODULE, DATASHEETS_MODULE } from './manifests/analisis.manifest';
-import { ADMINISTRACION_MODULE, ROADMAP_MODULE } from './manifests/administracion.manifest';
 import { RRHH_MODULE } from './manifests/rrhh.manifest';
+import { MOVED_ROUTES } from './moved-routes';
 
 /**
  * Every module the ERP has. The one list.
@@ -25,11 +29,11 @@ export const MODULES: ModuleManifest[] = [
   TESORERIA_MODULE,
   TESORERIA_MASTERS_MODULE,
   CONTABILIDAD_MODULE,
+  CONTABILIDAD_REPORTS_MODULE,
+  CONTABILIDAD_MASTERS_MODULE,
   RRHH_MODULE,
   ANALISIS_MODULE,
   DATASHEETS_MODULE,
-  ADMINISTRACION_MODULE,
-  ROADMAP_MODULE,
 ].sort((a, b) => a.order - b.order);
 
 export interface RegisteredRoute {
@@ -63,8 +67,46 @@ export interface ResolvedRoute {
   params: Record<string, string>;
 }
 
-/** The route that owns this URL, or null. There is no fallback: an unmatched URL is a 404. */
+/**
+ * The route that owns this URL, or null. There is no fallback: an unmatched URL is a 404.
+ *
+ * A URL a screen USED to live at resolves to the screen's current home (see `MOVED_ROUTES`), so a
+ * bookmark, an e-mailed link or a window restored from a saved workspace still opens the page it
+ * named. The router performs the same redirect; this is the window host's half of it.
+ */
 export function resolveRoute(url: string): ResolvedRoute | null {
+  const direct = matchDeclared(url);
+  if (direct) return direct;
+  const moved = movedTarget(url);
+  return moved ? matchDeclared(moved) : null;
+}
+
+/** Where a moved URL lives now, with its parameters carried over, or null. */
+export function movedTarget(url: string): string | null {
+  const path = url.split('?')[0].split('#')[0];
+  const segments = path.split('/').filter(Boolean);
+
+  for (const moved of MOVED_ROUTES) {
+    const from = moved.from.split('/').filter(Boolean);
+    if (from.length !== segments.length) continue;
+    const params: Record<string, string> = {};
+    const matched = from.every((part, i) => {
+      if (part.startsWith(':')) {
+        params[part.slice(1)] = segments[i];
+        return true;
+      }
+      return part === segments[i];
+    });
+    if (!matched) continue;
+    return moved.to
+      .split('/')
+      .map((part) => (part.startsWith(':') ? params[part.slice(1)] : part))
+      .join('/');
+  }
+  return null;
+}
+
+function matchDeclared(url: string): ResolvedRoute | null {
   const path = url.split('?')[0].split('#')[0];
   const segments = path.split('/').filter(Boolean);
 
@@ -94,7 +136,14 @@ export function resolveRoute(url: string): ResolvedRoute | null {
  * against roughly ninety routes, for as long as both lists were maintained separately.
  */
 export function buildModuleRoutes(): Routes {
-  return ROUTE_INDEX.map(({ route, path }) => ({
+  //  Relative on purpose: these routes are children of `e/:org`, and a relative `redirectTo`
+  //  replaces only the segments it matched, so the company prefix is kept.
+  const redirects: Routes = MOVED_ROUTES.map((moved) => ({
+    path: moved.from.slice(1),
+    pathMatch: 'full' as const,
+    redirectTo: moved.to.slice(1),
+  }));
+  const pages: Routes = ROUTE_INDEX.map(({ route, path }) => ({
     path: path.slice(1),
     loadComponent: route.load,
     title: route.titleKey,
@@ -106,6 +155,7 @@ export function buildModuleRoutes(): Routes {
       windowKind: route.kind,
     },
   }));
+  return [...pages, ...redirects];
 }
 
 export interface MenuEntry {
@@ -124,11 +174,11 @@ export interface MenuSection {
  * The module panel, derived from the routes.
  *
  * A menu entry that points nowhere stops being expressible: there is no list of links to keep in
- * step with a list of pages, because the links ARE the pages. The four groups always appear in the
+ * step with a list of pages, because the links ARE the pages. The groups always appear in the
  * same order, in every module — that fixed shape is what makes the second module cost nothing to
  * learn.
  */
-const GROUP_ORDER: MenuGroup[] = ['inbox', 'documents', 'masters', 'analysis'];
+const GROUP_ORDER: MenuGroup[] = ['inbox', 'documents', 'masters', 'analysis', 'configuration'];
 
 export function buildMenu(module: ModuleManifest): MenuSection[] {
   const sections = new Map<MenuGroup, MenuEntry[]>();

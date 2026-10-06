@@ -7,6 +7,7 @@ import {
   GLOBAL_TABLES,
   INHERITED_TENANT_TABLES,
   MATERIALIZED_VIEWS,
+  RETIRED_TENANT_TABLES,
 } from './tenant-table-classification';
 
 /**
@@ -81,7 +82,8 @@ describe('la clasificación de tablas por inquilino', () => {
 
     expect(declaredInMigration.length).toBeGreaterThan(0);
 
-    for (const table of declaredInMigration) {
+    const retired = new Set(RETIRED_TENANT_TABLES.map((entry) => entry.table));
+    for (const table of declaredInMigration.filter((name) => !retired.has(name))) {
       expect(CLASSIFIED_TABLE_NAMES.has(table)).toBe(true);
       const entry = INHERITED_TENANT_TABLES.find((t) => t.table === table);
       expect(entry).toBeDefined();

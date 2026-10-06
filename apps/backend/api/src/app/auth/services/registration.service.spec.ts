@@ -312,4 +312,58 @@ describe('RegistrationService', () => {
     });
   });
 
+
+  /**
+   * A signed-in person adding another company. The identity is the session's, never the body's;
+   * the company goes through the same fiscal validation and duplicate check as a signup; and the
+   * stored password hash can never be signed into, because the existing account keeps its own.
+   */
+  describe('createPendingAdditionalCompany', () => {
+    const identity = { email: 'ana@example.com', firstName: 'Ana', lastName: 'Pérez' };
+    const company = {
+      organizationName: 'Segunda Empresa SRL',
+      countryCode: 'do',
+      taxpayerKind: 'company',
+      taxId: '131000001',
+      address: 'Av. 27 de Febrero 1',
+      city: 'Santo Domingo',
+      state: 'DN',
+    } as never;
+
+    beforeEach(() => {
+      (mockLocalizationService as Record<string, unknown>)['findRegionByCountryCode'] = jest
+        .fn()
+        .mockResolvedValue({ id: 'region-do' });
+      mockPendingRepo.create.mockImplementation((row: unknown) => row);
+      mockPendingRepo.save.mockImplementation(async (row: unknown) => ({ id: 'pending-2', ...(row as object) }));
+    });
+
+    it('builds the pending company from the session identity, with an unusable password', async () => {
+      mockOrganizationRepo.findOne.mockResolvedValue(null);
+
+      const pending = await service.createPendingAdditionalCompany(identity, company, 'pro');
+
+      expect(mockStrategy.validate).toHaveBeenCalled();
+      expect(pending).toMatchObject({
+        email: 'ana@example.com',
+        firstName: 'Ana',
+        lastName: 'Pérez',
+        organizationName: 'Segunda Empresa SRL',
+        countryCode: 'DO',
+        fiscalRegionId: 'region-do',
+        planSlug: 'pro',
+      });
+      expect((pending as unknown as { passwordHash: string }).passwordHash).toBe('!unusable');
+    });
+
+    it('refuses a company whose tax id is already on the platform, before any payment', async () => {
+      mockOrganizationRepo.findOne.mockResolvedValue({ id: 'taken' });
+      jest.spyOn(service as unknown as { simulateDelay: () => Promise<void> }, 'simulateDelay').mockResolvedValue();
+
+      await expect(service.createPendingAdditionalCompany(identity, company, 'pro')).rejects.toMatchObject({
+        messageKey: 'auth.organization_tax_id_already_registered',
+      });
+      expect(mockPendingRepo.save).not.toHaveBeenCalled();
+    });
+  });
 });

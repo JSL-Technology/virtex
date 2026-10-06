@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { PurchaseOrder } from './entities/purchase-order.entity';
 import {
   Body,
   Controller,
@@ -39,6 +41,8 @@ import {
 @ApiTags('Procurement')
 @ApiBearerAuth()
 @Controller('procurement/orders')
+// Every `:id` here is one of these documents: acting on it needs access to its branch.
+@BranchScoped(PurchaseOrder)
 export class PurchaseOrdersController {
   constructor(private readonly orders: PurchaseOrdersService) {}
 
@@ -46,13 +50,13 @@ export class PurchaseOrdersController {
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
   @ApiOperation({ summary: 'Lista las órdenes de compra del inquilino.' })
   findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PurchaseOrderQueryDto) {
-    return this.orders.findAll(user.organizationId, query);
+    return this.orders.findAll(user.organizationId, query, user.id);
   }
 
   @Get(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.orders.findOne(id, user.organizationId);
+    return this.orders.findOne(id, user.organizationId, user.id);
   }
 
   @Post()
@@ -87,7 +91,7 @@ export class PurchaseOrdersController {
     @Body() dto: UpdatePurchaseOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.orders.update(id, dto, user.organizationId);
+    return this.orders.update(id, dto, user.organizationId, user.id);
   }
 
   @Post(':id/submit')

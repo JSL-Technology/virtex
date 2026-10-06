@@ -196,7 +196,7 @@ export class AuthSocialController {
 
     // Login successful
     this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: user.id });
-    return res.redirect(this.links.dashboard());
+    return res.redirect(this.links.workspaceHome());
   }
 
   @Public()
@@ -307,7 +307,7 @@ export class AuthSocialController {
         return this.redirectToSecondFactor(ssoUser, res, ip, userAgent);
       }
       this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: ssoUser?.id });
-      return res.redirect(this.links.dashboard());
+      return res.redirect(this.links.workspaceHome());
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
       return res.redirect(this.links.login(this.mapSocialErrorToCode(err)));

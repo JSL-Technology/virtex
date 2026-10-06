@@ -45,11 +45,14 @@ import {
 } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { environment } from '../../../../environments/environment';
+import { CountryService } from '../../../core/services/country.service';
 import {
-  CountryService,
-  type FiscalFieldSpec,
-  type TaxpayerKind,
-} from '../../../core/services/country.service';
+  applyCountryConfig,
+  buildConfigurationGroup,
+  buildPlanGroup,
+  companyPayload,
+  onTaxpayerKindChanged,
+} from './company-form';
 import { GeoMismatchModalComponent } from '../../../shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
@@ -214,38 +217,7 @@ export class RegisterPage implements OnInit {
     effect(() => {
       const config = this.currentCountryConfig();
       if (!config || !this.registerForm) return;
-
-      // The pattern follows the taxpayer kind, because several countries issue a different
-      // document to a natural person: an EIN pattern applied to an SSN rejects a valid value.
-      this.syncTaxIdValidator(config);
-
-      // The postal code is required only where the country requires it — United States sales tax
-      // is destination-based and cannot be computed without a ZIP, whereas most of Latin America
-      // does not use postal codes on fiscal documents at all.
-      const postalCodeControl = this.registerForm.get('configuration.postalCode');
-      const postalValidators = config.address.postalCodeRequired ? [Validators.required] : [];
-      if (config.address.postalCodePattern) {
-        postalValidators.push(Validators.pattern(config.address.postalCodePattern));
-      }
-      postalCodeControl?.setValidators(postalValidators);
-      postalCodeControl?.updateValueAndValidity({ emitEvent: false });
-
-      // Switching country invalidates a division code from the previous country's catalogue.
-      const stateControl = this.registerForm.get('configuration.state');
-      if (config.address.divisions && stateControl?.value) {
-        const stillValid = config.address.divisions.some((d) => d.code === stateControl.value);
-        if (!stillValid) stateControl.setValue('', { emitEvent: false });
-      }
-
-      this.syncFiscalFields(config);
-
-      this.registerForm.get('configuration.currency')?.setValue(config.currency, { emitEvent: false });
-      this.registerForm
-        .get('configuration.fiscalRegionId')
-        ?.setValue(config.fiscalRegionId ?? null, { emitEvent: false });
-      this.registerForm
-        .get('configuration.country')
-        ?.setValue(config.countryCode, { emitEvent: false });
+      applyCountryConfig(this.registerForm.get('configuration') as FormGroup, config, this.fb);
     });
   }
 
@@ -286,28 +258,7 @@ export class RegisterPage implements OnInit {
           { validators: passwordMatchValidator },
         ),
       }),
-      configuration: this.fb.group({
-        country: ['DO', [Validators.required]],
-        // Company or natural person. Nine of the nineteen markets issue a different fiscal
-        // identifier to each, or encode the distinction inside one, and it also selects which
-        // régimen fiscal options the SAT catalogue offers — so it has to be answered before the
-        // tax id can be validated at all.
-        taxpayerKind: ['company', [Validators.required]],
-        taxId: ['', [Validators.required]],
-        fiscalRegionId: [null],
-        currency: ['DOP', [Validators.required]],
-        // Country-specific fiscal answers, added and removed by the effect below as the country
-        // or the taxpayer kind changes. Declared as an empty group rather than a fixed set,
-        // because which controls exist is a property of the country.
-        fiscalProfile: this.fb.group({}),
-        // The fiscal address. Structured, and collected here rather than as one free-text line on
-        // the next step: every electronic-invoicing regime in these markets stamps these fields
-        // individually, so a single line would have to be re-collected before invoicing can work.
-        address: ['', [Validators.required]],
-        city: ['', [Validators.required]],
-        state: ['', [Validators.required]],
-        postalCode: [''],
-      }),
+      configuration: buildConfigurationGroup(this.fb),
       business: this.fb.group({
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
@@ -318,13 +269,7 @@ export class RegisterPage implements OnInit {
         // honeypot; the server's entire spam branch was unreachable from the product.
         fax: [''],
       }),
-      plan: this.fb.group({
-        selectedPlanId: ['starter', [Validators.required]],
-        // Monthly unless the customer picks otherwise, and only offered when every plan has an
-        // annual Stripe Price behind it — the server refuses a period it cannot charge.
-        billingPeriod: ['monthly', [Validators.required]],
-        agreeToTerms: [false, [Validators.requiredTrue]],
-      }),
+      plan: buildPlanGroup(this.fb),
     });
 
     this.activatedRoute.queryParams.subscribe((params) => {
@@ -352,101 +297,9 @@ export class RegisterPage implements OnInit {
     });
   }
 
-  /**
-   * Rebuild the country's extra fiscal controls.
-   *
-   * Which fields exist depends on the country AND on whether the taxpayer is a company or a
-   * natural person — a Mexican persona moral picks from a different `RegimenFiscal` list than a
-   * persona física. Rather than hardcode a branch per country, the server publishes the specs and
-   * this rebuilds the group from them, so opening a market changes one list on the backend.
-   *
-   * Existing answers are carried over when the field survives the change, so switching taxpayer
-   * kind does not silently wipe an address the user already typed.
-   */
-  private syncFiscalFields(config: { fiscalFields?: FiscalFieldSpec[] } | null): void {
-    const group = this.registerForm.get('configuration.fiscalProfile') as FormGroup | null;
-    if (!group) return;
-
-    const kind = this.registerForm.get('configuration.taxpayerKind')?.value as
-      | TaxpayerKind
-      | undefined;
-    const specs = (config?.fiscalFields ?? []).filter(
-      (field) => !field.appliesTo || !kind || field.appliesTo.includes(kind),
-    );
-    const wanted = new Set(specs.map((field) => field.key));
-
-    for (const existing of Object.keys(group.controls)) {
-      if (!wanted.has(existing)) group.removeControl(existing, { emitEvent: false });
-    }
-
-    for (const field of specs) {
-      const validators = field.required ? [Validators.required] : [];
-      if (field.type === 'text' && field.pattern) {
-        validators.push(Validators.pattern(field.pattern));
-      }
-      const current = group.get(field.key);
-      if (current) {
-        // A select whose option list no longer contains the chosen code must not keep it.
-        if (field.type === 'select' && current.value) {
-          const allowed = (field.options ?? []).filter(
-            (option) => !option.appliesTo || !kind || option.appliesTo.includes(kind),
-          );
-          if (field.multiple) {
-            // Drop only the entries that are no longer offered, keeping the rest of the choice.
-            const kept = (current.value as string[]).filter((code) =>
-              allowed.some((option) => option.code === code),
-            );
-            if (kept.length !== (current.value as string[]).length) {
-              current.setValue(kept, { emitEvent: false });
-            }
-          } else if (!allowed.some((option) => option.code === current.value)) {
-            current.setValue('', { emitEvent: false });
-          }
-        }
-        current.setValidators(validators);
-        current.updateValueAndValidity({ emitEvent: false });
-      } else {
-        // A multi-valued field holds an array from the start: initialising it with `''` and
-        // letting the template push strings in produces a control whose emptiness check
-        // (`Validators.required`) passes for `['']`.
-        group.addControl(
-          field.key,
-          this.fb.control(field.multiple ? [] : '', validators),
-          { emitEvent: false },
-        );
-      }
-    }
-  }
-
-  /**
-   * The client-side shape for the tax id, for the country AND the taxpayer kind.
-   *
-   * A country that issues a separate document to natural persons publishes it as
-   * `individualDocument`. Validating a sole proprietor's SSN against the EIN pattern rejected a
-   * value the server accepts, which is the worst kind of validation error: the user is told they
-   * are wrong about their own identifier.
-   */
-  private syncTaxIdValidator(config: { taxIdPattern: string; individualDocument?: { pattern: string } | null }): void {
-    const kind = this.registerForm.get('configuration.taxpayerKind')?.value as TaxpayerKind | undefined;
-    const pattern =
-      kind === 'individual' && config.individualDocument
-        ? config.individualDocument.pattern
-        : config.taxIdPattern;
-
-    const control = this.registerForm.get('configuration.taxId');
-    control?.setValidators([Validators.required, Validators.pattern(pattern)]);
-    control?.updateValueAndValidity({ emitEvent: false });
-  }
-
   /** Rebuild the fiscal fields when the taxpayer kind changes, not only when the country does. */
   onTaxpayerKindChange(): void {
-    const config = this.currentCountryConfig();
-    this.syncFiscalFields(config);
-    // The identifier scheme changes with the kind, so the pattern has to change with it.
-    if (config) this.syncTaxIdValidator(config);
-    // The tax id was validated against the other scheme; re-checking it now tells the user
-    // immediately rather than after they reach the plan step.
-    this.registerForm.get('configuration.taxId')?.updateValueAndValidity();
+    onTaxpayerKindChanged(this.registerForm.get('configuration') as FormGroup, this.currentCountryConfig(), this.fb);
   }
 
   private handleEmailMagicLink(token: string) {
@@ -636,26 +489,11 @@ export class RegisterPage implements OnInit {
           phone: formValue.accountInfo.phone || undefined,
           phoneVerificationCode: formValue.accountInfo.phoneCode || undefined,
           password: formValue.accountInfo.passwordGroup.password,
-          organizationName: formValue.business.companyName,
-          // The country is now the authoritative fiscal field. The server resolves the region from
-          // it and ignores any region id the client supplies, so a payload cannot be validated
-          // under one country's rules and provisioned under another's.
-          countryCode: formValue.configuration.country,
-          taxpayerKind: formValue.configuration.taxpayerKind,
-          taxId: formValue.configuration.taxId,
-          fiscalProfile: formValue.configuration.fiscalProfile ?? {},
+          ...companyPayload(formValue),
           recaptchaToken,
-          industry: formValue.business.industry,
-          companySize: formValue.business.companySize || undefined,
           // Sent only when a bot filled it. The server answers a honeypot hit with a believable
           // success and no session, so the payload has to carry the field for that to ever run.
           fax: formValue.business.fax || undefined,
-          address: formValue.configuration.address,
-          city: formValue.configuration.city,
-          state: formValue.configuration.state,
-          postalCode: formValue.configuration.postalCode || undefined,
-          planId: formValue.plan.selectedPlanId,
-          billingPeriod: formValue.plan.billingPeriod,
         };
 
         // Payment-first: the backend validates and returns a Stripe Checkout URL.

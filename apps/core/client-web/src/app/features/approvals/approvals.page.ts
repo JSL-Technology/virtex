@@ -7,9 +7,21 @@ import { NotificationService } from '../../core/services/notification';
 import { DialogService } from '../../core/services/dialog.service';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
 import { ApprovalsInboxService, PendingDecision } from './data/approvals-inbox.service';
+import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
+import { MODULES } from '../../core/modules/module-registry';
 
 /**
- * Every document waiting on a decision (QA A-11).
+ * The inbox: every document waiting on a decision, then the work each module has blocked.
+ *
+ * ## One inbox
+ *
+ * «Mi trabajo» was a second page showing the approvals this user could decide — the same rows as
+ * here, under another name — plus each module's blocked work. That made two inboxes, and an inbox
+ * exists to answer one question: «have I finished?». SAP's single «My Inbox» is the model. The
+ * module sections moved here; `/my-work` redirects.
+ *
+ * ## Decisions (QA A-11)
+ *
  *
  * It read only the workflow engine, so purchase orders and requisitions «por aprobar» never showed
  * and the page said there was nothing pending. It now reads the approvals inbox — every source the
@@ -32,6 +44,7 @@ export class ApprovalsPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly format = inject(FormatService);
   private readonly tenancy = inject(ActiveOrganizationService);
+  private readonly moduleInbox = inject(ModuleInboxService);
 
   protected readonly ApproveIcon = Check;
   protected readonly RejectIcon = X;
@@ -43,7 +56,14 @@ export class ApprovalsPage implements OnInit {
 
   private readonly byKey = computed(() => new Map(this.pending().map((d) => [keyOf(d), d])));
 
-  readonly sections = computed<InboxSection[]>(() => {
+  /**
+   * Decisions first — they block another person — then one section per module with blocked work.
+   * Each module sends its items already ordered by how long they have waited, and the server orders
+   * the modules the same way, so the inbox reads top to bottom without comparing anything.
+   */
+  readonly sections = computed<InboxSection[]>(() => [...this.decisionSections(), ...this.moduleSections()]);
+
+  private readonly decisionSections = computed<InboxSection[]>(() => {
     const byType = new Map<string, InboxItem[]>();
     for (const decision of this.pending()) {
       const items = byType.get(decision.documentTypeKey) ?? [];
@@ -54,6 +74,20 @@ export class ApprovalsPage implements OnInit {
     return [...byType.entries()].map(([labelKey, items]) => ({ labelKey, items }));
   });
 
+  private readonly moduleSections = computed<InboxSection[]>(() =>
+    this.moduleInbox.modules().map((module) => ({
+      labelKey: MODULES.find((m) => m.id === module.moduleId)?.titleKey ?? module.moduleId,
+      //  The inbox shell takes composed text, not keys: the module sends the key and its parameters
+      //  and the sentence is resolved here, once, in the reader's language.
+      items: module.items.map((item) => ({
+        id: `${module.moduleId}:${item.id}`,
+        title: this.translate.instant(item.titleKey, item.titleParams),
+        when: this.translate.instant('inbox.blocked_since', { date: item.blockedSince.slice(0, 10) }),
+        link: this.tenancy.urlFor(item.route),
+      })),
+    })),
+  );
+
   ngOnInit(): void {
     this.load();
   }
@@ -61,6 +95,9 @@ export class ApprovalsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
+    // Asked for here rather than by the shell: whoever opens the inbox wants the count of now, and
+    // the module rail updates from the same answer because both read the same service.
+    void this.moduleInbox.refresh();
     this.inbox.pending().subscribe({
       next: (decisions) => {
         this.pending.set(decisions);

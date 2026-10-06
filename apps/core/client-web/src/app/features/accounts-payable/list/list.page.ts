@@ -1,3 +1,6 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
@@ -15,7 +18,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +33,9 @@ export class VendorBillsListPage implements OnInit {
   private notificationService = inject(NotificationService);
 
   vendorBills = signal<VendorBill[]>([]);
+  /** Empty: every branch the person may see. */
+  readonly branchFilter = signal<string | null>(null);
+  protected readonly branches = inject(BranchesService);
   isLoading = signal(true);
   error = signal<string | null>(null);
 
@@ -37,10 +43,15 @@ export class VendorBillsListPage implements OnInit {
     this.loadVendorBills();
   }
 
+  setBranch(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.loadVendorBills();
+  }
+
   loadVendorBills(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.accountsPayableService.getVendorBills().subscribe({
+    this.accountsPayableService.getVendorBills(this.branchFilter()).subscribe({
       next: (data) => {
         this.vendorBills.set(data);
         this.isLoading.set(false);

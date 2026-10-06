@@ -129,8 +129,8 @@ describeWithDb('tenant deletion', () => {
       [payment, org, customer, bankA],
     );
     await query(
-      `INSERT INTO payment_batches (id, organization_id, bank_account_id, payment_date)
-       VALUES ($1, $2, $3, '2026-01-16')`,
+      `INSERT INTO payment_batches (id, organization_id, number, bank_account_id, payment_date)
+       VALUES ($1, $2, 'PAY-2026-000001', $3, '2026-01-16')`,
       [batch, org, bankA],
     );
 
@@ -192,15 +192,23 @@ describeWithDb('tenant deletion', () => {
        VALUES ($1, $2, $3, $4, 'Producto', 5, 5)`,
       [orderLine, org, order, product],
     );
-    await query(`INSERT INTO purchase_order_receipts (id, organization_id, order_id) VALUES ($1, $2, $3)`, [
+    await query(`INSERT INTO purchase_order_receipts (id, organization_id, number, order_id) VALUES ($1, $2, 'GR-2026-000001', $3)`, [
       receipt,
       org,
       order,
     ]);
+    const [warehouse] = (await query(
+      `INSERT INTO warehouses (organization_id, name, "isActive", is_default) VALUES ($1, 'Principal', true, true) RETURNING id`,
+      [org],
+    )) as { id: string }[];
     await query(
-      `INSERT INTO stock_movements (organization_id, product_id, type, quantity, cost, reference, source_type, source_id)
-       VALUES ($1, $2, 'PURCHASE', 5, 40, 'OC', 'purchase_order_receipt', $3)`,
-      [org, product, receipt],
+      `INSERT INTO stock_movements (organization_id, product_id, warehouse_id, type, quantity, cost, reference, source_type, source_id)
+       VALUES ($1, $2, $3, 'PURCHASE', 5, 40, 'OC', 'purchase_order_receipt', $4)`,
+      [org, product, warehouse.id, receipt],
+    );
+    await query(
+      `INSERT INTO stock_levels (organization_id, product_id, warehouse_id, quantity_on_hand) VALUES ($1, $2, $3, 5)`,
+      [org, product, warehouse.id],
     );
     await query(`INSERT INTO departments (id, organization_id, name) VALUES ($1, $2, 'Ventas')`, [department, org]);
     await query(
@@ -284,6 +292,8 @@ describeWithDb('tenant deletion', () => {
         'purchase_orders',
         'purchase_order_receipts',
         'stock_movements',
+        'stock_levels',
+        'warehouses',
         'product_categories',
         'departments',
         'employees',

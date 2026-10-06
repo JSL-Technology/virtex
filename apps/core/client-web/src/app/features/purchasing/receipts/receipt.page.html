@@ -1,0 +1,113 @@
+<vx-document-shell
+  [title]="receipt()?.number ?? ('page_titles.goods_receipt' | translate)"
+  [subtitle]="receipt()?.supplierName ?? null"
+  [statusKey]="receipt() ? 'purchasing.receipts.status.' + receipt()!.status.toLowerCase() : null"
+  [statusTone]="tone()"
+  [loading]="loading()"
+  [error]="error()"
+  backLabelKey="purchasing.receipts.back"
+  (back)="goToList()"
+  (reload)="load()"
+>
+  <ng-container documentActions>
+    @if (canVoid()) {
+      <button *appHasPermission="'procurement:manage'" type="button" class="danger-button" [disabled]="busy()" (click)="voidReceipt()">
+        <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'purchasing.receipts.void' | translate }}</span>
+      </button>
+    }
+  </ng-container>
+
+  @if (receipt(); as doc) {
+    <div class="doc-view">
+      @if (doc.status === 'VOID') {
+        <div class="banner-error doc-void-banner" role="status">
+          <strong>{{ 'purchasing.receipts.voided_banner' | translate }}</strong>
+          @if (doc.voidReason) {
+            <span>{{ doc.voidReason }}</span>
+          }
+          @if (entryLink(doc.reversalJournalEntryId); as link) {
+            <a [routerLink]="link">{{ 'purchasing.receipts.view_return_entry' | translate }}</a>
+          }
+        </div>
+      } @else if (billed()) {
+        <div class="banner-info" role="note">{{ 'purchasing.receipts.billed_note' | translate }}</div>
+      }
+
+      <section class="doc-card">
+        <dl class="doc-facts">
+          <div>
+            <dt>{{ 'purchasing.receipts.date' | translate }}</dt>
+            <dd>{{ doc.receivedAt | vxDate: 'date' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'purchasing.receipts.order' | translate }}</dt>
+            <dd><a [routerLink]="['/purchasing/orders', doc.orderId, 'edit']">{{ doc.orderNumber }}</a></dd>
+          </div>
+          <div>
+            <dt>{{ 'purchasing.receipts.supplier' | translate }}</dt>
+            <dd>{{ doc.supplierName ?? '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'purchasing.receipts.warehouse' | translate }}</dt>
+            <dd>{{ warehouseName() ?? '—' }}</dd>
+          </div>
+          @if (branches.hasBranches()) {
+            <div>
+              <dt>{{ 'branches.picker.label' | translate }}</dt>
+              <dd><vx-branch-label [branchId]="doc.branchId" /></dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'purchasing.receipts.value' | translate }}</dt>
+            <dd>{{ doc.value | vxNumber: '1.2-2' }}</dd>
+          </div>
+          @if (entryLink(doc.journalEntryId); as link) {
+            <div>
+              <dt>{{ 'purchasing.receipts.entry' | translate }}</dt>
+              <dd><a [routerLink]="link">{{ 'purchasing.receipts.view_entry' | translate }}</a></dd>
+            </div>
+          }
+          @if (doc.notes) {
+            <div class="field--wide">
+              <dt>{{ 'purchasing.receipts.notes' | translate }}</dt>
+              <dd>{{ doc.notes }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      <section class="doc-card">
+        <h2 class="form-section-title">{{ 'purchasing.receipts.lines' | translate }}</h2>
+        <div class="table-wrapper">
+          <table class="lines-table">
+            <thead>
+              <tr>
+                <th>{{ 'purchasing.receipts.description' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.receipts.quantity' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.receipts.unit_cost' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.receipts.value' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.receipts.billed_on_order' | translate }}</th>
+                <th>{{ 'purchasing.receipts.stock' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of doc.lines; track line.lineId) {
+                <tr>
+                  <td>{{ line.description }}</td>
+                  <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>
+                  <td class="numeric">{{ line.value | vxNumber: '1.2-2' }}</td>
+                  <td class="numeric muted">
+                    {{ line.billedOnOrder === null ? '—' : (line.billedOnOrder | vxNumber: '1.0-6') }} / {{ line.ordered === null ? '—' : (line.ordered | vxNumber: '1.0-6') }}
+                  </td>
+                  <td>{{ (line.stocked ? 'purchasing.receipts.stocked' : 'purchasing.receipts.not_stocked') | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  }
+</vx-document-shell>

@@ -16,3 +16,6 @@
 .text-bold {
   font-weight: var(--font-semibold);
 }
+
+// A voided payment or note stays on the bill's history, read as undone.
+tr.voided td { color: var(--content-tertiary); text-decoration: line-through; }

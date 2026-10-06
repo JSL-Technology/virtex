@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { catchError, of } from 'rxjs';
+import { catchError, of, startWith, switchMap } from 'rxjs';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import {
@@ -41,7 +44,7 @@ const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,9 +57,23 @@ export class OrdersPage {
 
   protected readonly PlusCircleIcon = PlusCircle;
 
-  /** Null while loading, so an empty list and a pending request look different to the reader. */
+  protected readonly branches = inject(BranchesService);
+  /** Empty: every branch the person may see. */
+  readonly branchFilter = signal<string | null>(null);
+
+  /**
+   * Undefined while loading and null on failure, so an empty list and a pending request look
+   * different to the reader. Asked again whenever the branch filter changes.
+   */
   private readonly page = toSignal(
-    this.purchasing.listOrders().pipe(catchError(() => of(null))),
+    toObservable(this.branchFilter).pipe(
+      switchMap((branchId) =>
+        this.purchasing.listOrders(1, 50, branchId).pipe(
+          catchError(() => of(null)),
+          startWith(undefined),
+        ),
+      ),
+    ),
     { initialValue: undefined },
   );
 

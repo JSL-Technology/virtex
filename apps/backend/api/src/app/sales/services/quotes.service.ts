@@ -14,6 +14,7 @@ import { ComputedDocument } from '../../invoices/sales-tax.engine';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../../organizations/contracts/branch.contract';
 
 /** A quote as read: the row plus whether its validity has run out. */
 export type QuoteView = Quote & { expired: boolean };
@@ -68,8 +69,10 @@ export class QuotesService {
       // invoice numbers for documents that may never be invoiced.
       const quoteNumber = await this.documentSequencesService.getNextNumber(organizationId, DocumentType.QUOTE, manager);
 
+      const branchId = await resolveDocumentBranch(manager, organizationId, owner.id, dto.branchId);
       const quote = manager.create(Quote, {
         organizationId,
+        branchId,
         owner: { id: owner.id },
         customer,
         opportunity: dto.opportunityId ? { id: dto.opportunityId } : undefined,
@@ -85,7 +88,7 @@ export class QuotesService {
     });
   }
 
-  async update(id: string, dto: UpdateQuoteDto, organizationId: string): Promise<Quote> {
+  async update(id: string, dto: UpdateQuoteDto, organizationId: string, actorUserId: string | null = null): Promise<Quote> {
     this.assertDates(dto);
     const computed = await this.invoicesService.preview(this.asInvoice(dto), organizationId);
     return this.dataSource.transaction(async (manager) => {
@@ -105,25 +108,43 @@ export class QuotesService {
         expiryDate: dto.expiryDate,
         currencyCode,
         exchangeRate,
+        branchId: await reassignDocumentBranch(manager, organizationId, actorUserId, quote.branchId, dto.branchId),
       });
       this.applyComputation(quote, dto, computed, exchangeRate);
       return manager.save(quote);
     });
   }
 
-  async findAll(organizationId: string, filters: { status?: string } = {}): Promise<QuoteView[]> {
+  async findAll(
+    organizationId: string,
+    filters: { status?: string; branchId?: string } = {},
+    actorUserId?: string,
+  ): Promise<QuoteView[]> {
     const statuses = Object.values(QuoteStatus) as string[];
-    const where: Record<string, unknown> = { organizationId };
-    if (filters.status && statuses.includes(filters.status)) where['status'] = filters.status;
-    const quotes = await this.quoteRepository.find({
-      where,
-      order: { issueDate: 'DESC', quoteNumber: 'DESC' },
-    });
+    const query = this.quoteRepository
+      .createQueryBuilder('quote')
+      .leftJoinAndSelect('quote.customer', 'customer')
+      .leftJoinAndSelect('quote.lines', 'lines')
+      // The relations `find` loaded eagerly, so the payload is the one the client already reads.
+      .leftJoinAndSelect('quote.owner', 'owner')
+      .where('quote.organizationId = :organizationId', { organizationId });
+    if (filters.status && statuses.includes(filters.status)) {
+      query.andWhere('quote.status = :status', { status: filters.status });
+    }
+    if (actorUserId || filters.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, actorUserId ?? null);
+      applyBranchScope(query, 'quote', scope, filters.branchId);
+    }
+    const quotes = await query.orderBy('quote.issueDate', 'DESC').addOrderBy('quote.quoteNumber', 'DESC').getMany();
     return quotes.map((quote) => this.view(quote));
   }
 
-  async findOne(id: string, organizationId: string): Promise<QuoteView> {
-    return this.view(await this.load(id, organizationId, this.dataSource.manager, true));
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<QuoteView> {
+    const quote = await this.load(id, organizationId, this.dataSource.manager, true);
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), quote.branchId);
+    }
+    return this.view(quote);
   }
 
   /** The customer has it. Nothing is e-mailed from here; this records that it went out. */
@@ -239,6 +260,8 @@ export class QuotesService {
       const invoice = await this.invoicesService.create(
         {
           customerId: quote.customer.id,
+          // Invoiced from the branch that quoted it.
+          branchId: quote.branchId ?? undefined,
           issueDate,
           dueDate,
           currencyCode: quote.currencyCode,

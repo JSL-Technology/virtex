@@ -1,0 +1,91 @@
+<vx-list-shell
+  titleKey="inventory.stock.title"
+  subtitleKey="inventory.stock.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  [searchable]="true"
+  [search]="search()"
+  (searchChange)="onSearch($event)"
+  searchPlaceholderKey="inventory.stock.search"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'inventory:transfer'" routerLink="/inventory/transfers/new" class="secondary-button">
+    <lucide-icon [img]="TransferIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'inventory.transfers.new' | translate }}</span>
+  </a>
+  <a listActions *appHasPermission="'inventory:adjust'" routerLink="/inventory/adjustments/new" class="primary-button">
+    <lucide-icon [img]="AdjustIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'inventory.adjustments.new' | translate }}</span>
+  </a>
+
+  <div listFilters class="doc-filter">
+    <label for="stock-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
+    <select id="stock-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
+      <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <option [value]="warehouse.id">{{ warehouse.name }}</option>
+      }
+    </select>
+  </div>
+  <label listFilters class="doc-check">
+    <input type="checkbox" [ngModel]="includeZero()" (ngModelChange)="includeZero.set($event); applyFilters()" />
+    <span>{{ 'inventory.stock.include_zero' | translate }}</span>
+  </label>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'inventory.stock.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'inventory.stock.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'inventory.common.product' | translate }}</th>
+          <th>{{ 'inventory.common.sku' | translate }}</th>
+          <th>{{ 'inventory.common.warehouse' | translate }}</th>
+          <th class="numeric">{{ 'inventory.stock.on_hand' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.unit_cost' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.value' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.productId + row.warehouseId) {
+          <tr>
+            <td>
+              <a class="table-link" routerLink="/inventory/movements"
+                 [queryParams]="{ productId: row.productId, warehouseId: row.warehouseId }">{{ row.name }}</a>
+            </td>
+            <td>{{ row.sku || '—' }}</td>
+            <td>{{ row.warehouseName }}</td>
+            <td class="numeric" [class.below-reorder]="belowReorder(row)"
+                [attr.title]="belowReorder(row) ? ('inventory.stock.below_reorder' | translate: { level: row.reorderLevel }) : null">
+              {{ row.quantityOnHand | vxNumber: '1.0-6' }}
+            </td>
+            <td class="numeric">{{ row.unitCost | vxNumber: '1.2-6' }}</td>
+            <td class="numeric">{{ row.value | vxNumber: '1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="5">{{ 'inventory.stock.total_value' | translate }}</th>
+          <th class="numeric">{{ totalValue() | vxNumber: '1.2-2' }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 250]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

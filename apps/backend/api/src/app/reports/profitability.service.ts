@@ -6,6 +6,7 @@ import { Invoice, InvoiceStatus, InvoiceType } from '../invoices/entities/invoic
 import { BadRequestError } from '../i18n/localized.exception';
 import { daysBetween, IsoDate, toIsoDate } from '../common/dates';
 import { roundAmount, sumAmounts } from '../common/money';
+import { applyBranchScope, loadBranchScope } from '../organizations/contracts/branch.contract';
 
 /** One product or one customer, with what it sold and what it cost. */
 export interface ProfitabilityRow {
@@ -82,22 +83,25 @@ export class ProfitabilityService {
 
   byProduct(
     organizationId: string,
-    range: { startDate: string; endDate: string },
+    range: { startDate: string; endDate: string; branchId?: string },
+    actorUserId?: string,
   ): Promise<ProfitabilityReport> {
-    return this.build(organizationId, range, 'product');
+    return this.build(organizationId, range, 'product', actorUserId);
   }
 
   byCustomer(
     organizationId: string,
-    range: { startDate: string; endDate: string },
+    range: { startDate: string; endDate: string; branchId?: string },
+    actorUserId?: string,
   ): Promise<ProfitabilityReport> {
-    return this.build(organizationId, range, 'customer');
+    return this.build(organizationId, range, 'customer', actorUserId);
   }
 
   private async build(
     organizationId: string,
-    range: { startDate: string; endDate: string },
+    range: { startDate: string; endDate: string; branchId?: string },
     dimension: 'product' | 'customer',
+    actorUserId?: string,
   ): Promise<ProfitabilityReport> {
     const startDate = toIsoDate(range.startDate);
     const endDate = toIsoDate(range.endDate);
@@ -120,6 +124,10 @@ export class ProfitabilityService {
       .andWhere('invoice.status NOT IN (:...excluded)', {
         excluded: [InvoiceStatus.DRAFT, InvoiceStatus.VOID],
       });
+    if (actorUserId || range.branchId) {
+      const scope = await loadBranchScope(this.lineRepository.manager, organizationId, actorUserId ?? null);
+      applyBranchScope(query, 'invoice', scope, range.branchId);
+    }
 
     if (dimension === 'product') {
       query

@@ -9,6 +9,7 @@ import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RegisterUserDto } from '../dto/register-user.dto';
+import type { AdditionalCompanyFields } from '../dto/add-company-checkout.dto';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
 import { MfaOrchestratorService } from './mfa-orchestrator.service';
 import { VerificationType } from '../entities/verification-code.entity';
@@ -16,12 +17,10 @@ import { LocalizationService } from '../../localization/services/localization.se
 import { replaceRolesInOrganization } from '../../users/persistence/identity-writes';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { Role } from '../../roles/entities/role.entity';
 import { MailService } from '../../mail/mail.service';
 import { OrganizationsService } from '../../organizations/organizations.service';
 import { UserRegisteredEvent } from '../events/user-registered.event';
-import { RoleEnum } from '../../roles/enums/role.enum';
-import { DEFAULT_ROLES } from '../../config/roles.config';
+import { createDefaultTenantRoles } from '../../roles/tenant-roles.provisioning';
 import { AuthConfig } from '../auth.config';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { PasswordService } from './password.service';
@@ -50,6 +49,12 @@ export interface CompletedSubscriptionInfo {
  * cannot be signed in.
  */
 const PENDING_REGISTRATION_TTL_MS = AuthConfig.PENDING_REGISTRATION_TTL;
+
+/**
+ * A password hash no password produces: not a valid argon2 encoding, so verification fails closed.
+ * Stored for a company added by an existing identity, whose own password is never replaced.
+ */
+const UNUSABLE_PASSWORD_HASH = '!unusable';
 
 interface MaterializeAccountData {
   email: string;
@@ -264,14 +269,8 @@ export class RegistrationService {
     organization.taxIdVerifiedAt = taxId ? new Date() : null;
     await manager.save(Organization, organization);
 
-    const defaultRoles = this.getDefaultRolesForOrganization(organization.id);
-    const roleEntities = defaultRoles.map((role) => manager.create(Role, { ...role }));
-    await manager.save(roleEntities);
-
-    const adminRole = roleEntities.find((r) => r.name === RoleEnum.ADMINISTRATOR);
-    if (!adminRole) {
-      throw new InternalServerError('auth.default_administrator_role_could_not_found');
-    }
+    // The same provisioning a subsidiary gets, so no path can create a tenant without its roles.
+    const { administrator: adminRole } = await createDefaultTenantRoles(manager, organization.id);
 
     let user: User;
 
@@ -578,39 +577,7 @@ export class RegistrationService {
      * customer registering an additional company, which is now supported (see
      * `materializeAccount`).
      */
-    const canonicalTaxId = canonicalizeTaxId(dto.countryCode, dto.taxId);
-    const duplicateOrg = await this.organizationRepository.findOne({
-      where: { taxId: canonicalTaxId, fiscalRegionId },
-    });
-    if (duplicateOrg) {
-      // Why telling the caller "this tax id is already registered" is NOT an enumeration oracle
-      // here: `validateRegistration` above has already verified an emailed code against
-      // `dto.email`, so the only party that ever sees this message is one that has PROVEN control
-      // of the mailbox it registered with — not an anonymous scraper mapping which companies use
-      // the platform. That gate, plus reCAPTCHA, the honeypot, the per-IP throttle and the
-      // constant-time `simulateDelay`, is what makes the helpful message safe to return. The
-      // message is genuinely needed: a fiscal identifier is one company, so a real employee whose
-      // company is already on the platform must be told to ask for an invitation rather than being
-      // left to pay for a duplicate tenant that materialisation would then reject.
-      //
-      // Repeated hits are still worth seeing — a verified email probing many tax ids is the abuse
-      // shape the gate cannot prevent — so the attempt is logged (address hashed; it is PII).
-      const emailHash = createHash('sha256')
-        .update(dto.email.toLowerCase().trim())
-        .digest('hex')
-        .slice(0, 12);
-      this.logger.warn(
-        {
-          event: 'duplicate_taxid_registration_attempt',
-          emailHash,
-          countryCode: dto.countryCode,
-          fiscalRegionId,
-        },
-        '[SECURITY] Registration attempted with an already-registered fiscal identifier',
-      );
-      await this.simulateDelay();
-      throw new ConflictError('auth.organization_tax_id_already_registered');
-    }
+    await this.assertTaxIdFree(dto.countryCode, dto.taxId, fiscalRegionId, dto.email);
 
     await this.passwordService.assertNotBreached(dto.password);
     const passwordHash = await this.passwordService.hash(dto.password);
@@ -646,6 +613,111 @@ export class RegistrationService {
       expiresAt: new Date(Date.now() + PENDING_REGISTRATION_TTL_MS),
     });
 
+    return this.pendingRegistrationRepository.save(pending);
+  }
+
+  /**
+   * Refuses a fiscal identity already on the platform, BEFORE anybody is sent to pay.
+   *
+   * See the note in `createPendingRegistration` for why the specific message is safe to return:
+   * every caller has proven who they are first — an emailed code for a new signup, a session for
+   * someone adding a company.
+   */
+  private async assertTaxIdFree(
+    countryCode: string,
+    taxId: string,
+    fiscalRegionId: string,
+    email: string,
+  ): Promise<void> {
+    const canonicalTaxId = canonicalizeTaxId(countryCode, taxId);
+    const duplicateOrg = await this.organizationRepository.findOne({
+      where: { taxId: canonicalTaxId, fiscalRegionId },
+    });
+    if (duplicateOrg) {
+      // Why telling the caller "this tax id is already registered" is NOT an enumeration oracle
+      // here: every caller has proven its identity first — `validateRegistration` verified an
+      // emailed code for a new signup, and a signed-in session for an added company — so the only party that ever sees this message is one that has PROVEN control
+      // of the mailbox it registered with — not an anonymous scraper mapping which companies use
+      // the platform. That gate, plus reCAPTCHA, the honeypot, the per-IP throttle and the
+      // constant-time `simulateDelay`, is what makes the helpful message safe to return. The
+      // message is genuinely needed: a fiscal identifier is one company, so a real employee whose
+      // company is already on the platform must be told to ask for an invitation rather than being
+      // left to pay for a duplicate tenant that materialisation would then reject.
+      //
+      // Repeated hits are still worth seeing — a verified email probing many tax ids is the abuse
+      // shape the gate cannot prevent — so the attempt is logged (address hashed; it is PII).
+      const emailHash = createHash('sha256')
+        .update(email.toLowerCase().trim())
+        .digest('hex')
+        .slice(0, 12);
+      this.logger.warn(
+        {
+          event: 'duplicate_taxid_registration_attempt',
+          emailHash,
+          countryCode,
+          fiscalRegionId,
+        },
+        '[SECURITY] Registration attempted with an already-registered fiscal identifier',
+      );
+      await this.simulateDelay();
+      throw new ConflictError('auth.organization_tax_id_already_registered');
+    }
+  }
+
+  /**
+   * Somebody already signed in adds ANOTHER company — an unrelated legal entity with its own
+   * subscription, not a subsidiary of the one they are in.
+   *
+   * The public signup already supported an existing identity (see `materializeAccount`), but only
+   * through the public form: a signed-in person was bounced off it, and had they reached it they
+   * would have been asked to verify a mailbox their session already proves and to choose a password
+   * the existing account then ignores. This is the same pending registration, built from the
+   * SESSION's identity rather than from the request body, so nobody can open a company in someone
+   * else's name; the company fields go through exactly the same fiscal validation and duplicate
+   * check, and nothing exists until Stripe confirms the payment.
+   *
+   * The stored password hash is unusable on purpose: materialisation reuses the existing account
+   * and never reads it. Were the account deleted before payment completed, the identity created in
+   * its place could not be signed into with a password nobody chose — only recovered by email.
+   */
+  async createPendingAdditionalCompany(
+    identity: { email: string; firstName: string; lastName: string },
+    dto: AdditionalCompanyFields,
+    planSlug: string,
+  ): Promise<PendingRegistration> {
+    const strategy = this.registrationStrategyFactory.getStrategy(dto.countryCode);
+    await strategy.validate(dto as RegisterUserDto);
+
+    const fiscalRegionId = await this.resolveFiscalRegionId(dto.countryCode);
+    await this.assertTaxIdFree(dto.countryCode, dto.taxId, fiscalRegionId, identity.email);
+
+    const pending = this.pendingRegistrationRepository.create({
+      email: identity.email,
+      firstName: identity.firstName,
+      lastName: identity.lastName,
+      phone: null,
+      phoneVerified: false,
+      passwordHash: UNUSABLE_PASSWORD_HASH,
+      organizationName: dto.organizationName,
+      taxId: dto.taxId ?? null,
+      taxpayerKind: dto.taxpayerKind ?? null,
+      fiscalProfile: normalizeFiscalFields(
+        dto.countryCode,
+        dto.taxpayerKind as 'company' | 'individual' | undefined,
+        dto.fiscalProfile ?? {},
+      ),
+      fiscalRegionId,
+      industry: dto.industry ?? null,
+      companySize: dto.companySize ?? null,
+      address: dto.address ?? null,
+      city: dto.city ?? null,
+      state: dto.state ?? null,
+      postalCode: dto.postalCode ?? null,
+      countryCode: dto.countryCode.toUpperCase(),
+      planSlug,
+      status: PendingRegistrationStatus.PENDING,
+      expiresAt: new Date(Date.now() + PENDING_REGISTRATION_TTL_MS),
+    });
     return this.pendingRegistrationRepository.save(pending);
   }
 
@@ -825,6 +897,11 @@ export class RegistrationService {
         },
         `Materialized ${isNewIdentity ? 'a new account' : 'an additional organization'} (org ${organization.id}, plan ${pending.planSlug}).`,
       );
+      // Report the tenant THIS signup created, as the idempotent path above does: for someone
+      // adding a company it is not their home organization, and it is where they should land.
+      // Not saved — the person's home organization is left exactly as it was.
+      user.organization = organization;
+      user.organizationId = organization.id;
       return user;
     });
   }
@@ -852,13 +929,6 @@ export class RegistrationService {
 
   private isPreVerifiedToken(code: string): boolean {
     return code.split('.').length === 3;
-  }
-
-  private getDefaultRolesForOrganization(organizationId: string) {
-    return DEFAULT_ROLES.map(role => ({
-        ...role,
-        organizationId
-    }));
   }
 
   private async simulateDelay() {

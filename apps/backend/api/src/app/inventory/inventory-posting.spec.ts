@@ -28,6 +28,8 @@ import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.servi
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { Product, ProductKind } from './entities/product.entity';
 import { InventoryService } from './inventory.service';
+import { StockLedgerService } from './stock-ledger.service';
+import { InventoryAdjustmentsService } from './inventory-adjustments.service';
 import { InventoryPostingService } from './inventory-posting.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { ProductCategory } from './entities/product-category.entity';
@@ -46,9 +48,10 @@ const describeWithDb = DB_AVAILABLE ? describe : describe.skip;
 
 describeWithDb('inventory posting', () => {
   jest.setTimeout(120_000);
-
-  let dataSource: DataSource;
   let inventory: InventoryService;
+  let adjustments: InventoryAdjustmentsService;
+  const ledger = new StockLedgerService();
+  let dataSource: DataSource;
   let entries: JournalEntriesService;
   /** The real narrative service: the entries assert the sentences the ledger will carry. */
   const narrative = new LedgerNarrativeService(new I18nService());
@@ -102,6 +105,18 @@ describeWithDb('inventory posting', () => {
       new ProductCategoriesService(
         dataSource.getRepository(ProductCategory),
         dataSource.getRepository(Product),
+      ),
+      ledger,
+    );
+    // Stock counts and revaluations are documents now, not edits of the product.
+    adjustments = new InventoryAdjustmentsService(
+      dataSource,
+      ledger,
+      new InventoryPostingService(
+        entries,
+        narrative,
+        new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
+        new JournalLookupService(dataSource.getRepository(Journal)),
       ),
     );
   });
@@ -250,6 +265,7 @@ describeWithDb('inventory posting', () => {
           dataSource.getRepository(ProductCategory),
           dataSource.getRepository(Product),
         ),
+        ledger,
       );
 
     /** The most recent entry's narrative — the one the test just caused. */
@@ -294,53 +310,73 @@ describeWithDb('inventory posting', () => {
     expect(await signedBalance('inventory')).toBe(0);
   });
 
-  it('recognises a shortfall found by a stock count', async () => {
+  /** The warehouse a product created with stock put it in: the company's default. */
+  const defaultWarehouse = () => dataSource.manager.transaction((manager) => ledger.defaultWarehouse(manager, organizationId));
+
+  it('recognises a shortfall found by a stock count, as a posted adjustment', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
-    await inventory.update(
-      product.id,
-      { stock: 48, adjustmentReason: 'Conteo físico de fin de mes' } as never,
+    const warehouse = await defaultWarehouse();
+    const draft = await adjustments.create(
+      {
+        date: new Date().toISOString().slice(0, 10),
+        warehouseId: warehouse.id,
+        reason: 'Conteo físico de fin de mes',
+        lines: [{ productId: product.id, countedQuantity: 48 }],
+      },
       organizationId,
       ACTOR,
     );
+    expect(draft.lines[0].onHand).toBe(50);
+    const posted = await adjustments.post(draft.id, organizationId, ACTOR);
 
     // Two units at 400 gone. Against the adjustment account, never cost of goods sold: a shrinkage
     // is not a cost of what was sold.
+    expect(posted.status).toBe('POSTED');
+    expect(posted.lines[0]).toMatchObject({ quantityBefore: 50, quantityChange: -2, valueChange: -800 });
     expect(await signedBalance('inventory')).toBe(19_200);
     expect(await signedBalance('adjustment')).toBe(800);
+    expect(await ledger.balance(dataSource.manager, product.id, warehouse.id)).toBe(48);
+    expect(Number((await dataSource.getRepository(Product).findOneByOrFail({ id: product.id })).stock)).toBe(48);
   });
 
-  it('refuses to move stock or value without saying why (QA C-08)', async () => {
+  it('refuses to change stock or the cost of held stock from the product', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
 
-    // A stock or cost change posts to the ledger; an entry with no stated reason is one nobody
-    // can audit. The form asks for it, and so does the server.
+    // What is held changes through documents with a warehouse, a reason and an entry.
     await expect(
       inventory.update(product.id, { stock: 48 } as never, organizationId, ACTOR),
-    ).rejects.toMatchObject({ messageKey: 'inventory.adjustment_reason_required' });
+    ).rejects.toMatchObject({ messageKey: 'inventory.stock_changes_through_adjustments' });
+    await expect(
+      inventory.update(product.id, { cost: 420 } as never, organizationId, ACTOR),
+    ).rejects.toMatchObject({ messageKey: 'inventory.cost_changes_through_adjustments' });
     expect(await signedBalance('adjustment')).toBe(0);
   });
 
-  it('recognises a change in unit cost as a revaluation of everything held', async () => {
+  it('recognises a new unit cost as a revaluation of everything held', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
-    await inventory.update(
-      product.id,
-      { cost: 420, adjustmentReason: 'Nuevo costo del proveedor' } as never,
+    const warehouse = await defaultWarehouse();
+    const draft = await adjustments.create(
+      {
+        date: new Date().toISOString().slice(0, 10),
+        warehouseId: warehouse.id,
+        reason: 'Nuevo costo del proveedor',
+        lines: [{ productId: product.id, newUnitCost: 420 }],
+      },
       organizationId,
       ACTOR,
     );
+    await adjustments.post(draft.id, organizationId, ACTOR);
 
     expect(await signedBalance('inventory')).toBe(21_000);
     expect(await signedBalance('adjustment')).toBe(-1_000);
   });
 
-  it('writes off what a deleted product was still holding', async () => {
+  it('keeps a product with stock history: it is deactivated, not deleted', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
-    await inventory.remove(product.id, organizationId, ACTOR);
-
-    // Removing the row alone left the value sitting in the inventory account with nothing in the
-    // catalogue to account for it.
-    expect(await signedBalance('inventory')).toBe(0);
-    expect(await signedBalance('adjustment')).toBe(20_000);
+    await expect(inventory.remove(product.id, organizationId, ACTOR)).rejects.toMatchObject({
+      messageKey: 'inventory.product_delete_blocked',
+    });
+    expect(await signedBalance('inventory')).toBe(20_000);
   });
 
   it('posts the opening entry exactly once, however often the same creation is retried', async () => {
@@ -366,5 +402,121 @@ describeWithDb('inventory posting', () => {
     );
 
     expect(await signedBalance('inventory')).toBe(20_000);
+  });
+
+  /**
+   * A receipt undone (audit H-03): the goods go back out at the cost they came in at, the average
+   * gives that value back, and Dr GRNI / Cr Inventory books it — or the void is refused because the
+   * warehouse no longer holds what was received.
+   */
+  describe('a goods receipt undone', () => {
+    beforeEach(async () => {
+      await dataSource.getRepository(Journal).save({ organizationId, code: 'COMPRAS', name: 'Compras', type: 'PURCHASES' as const });
+      const grni = await dataSource.getRepository(Account).save(
+        dataSource.getRepository(Account).create({
+          organizationId,
+          code: '2150',
+          name: { es: '2150' },
+          type: AccountType.LIABILITY,
+          category: AccountCategory.CURRENT_LIABILITY,
+          nature: AccountNature.CREDIT,
+          systemRole: AccountRole.GOODS_RECEIVED_NOT_INVOICED,
+          isPostable: true,
+          isActive: true,
+        }),
+      );
+      account['grni'] = grni.id;
+      await dataSource
+        .getRepository(OrganizationSettings)
+        .update({ organizationId }, { defaultGoodsReceivedNotInvoicedAccountId: grni.id });
+    });
+
+    const today = () => new Date().toISOString().slice(0, 10);
+    const receive = (productId: string, quantity: number, unitCost: number, sourceId: string) =>
+      dataSource.transaction((manager) =>
+        inventory.receiveGoods(
+          manager,
+          organizationId,
+          {
+            reference: 'GR-TEST',
+            sourceType: 'purchase_order_receipt',
+            sourceId,
+            date: today(),
+            lines: [{ productId, quantity, unitCost, description: 'x' }],
+          },
+          ACTOR,
+        ),
+      );
+    const giveBack = (productId: string, quantity: number, unitCost: number, sourceId: string, warehouseId: string | null) =>
+      dataSource.transaction((manager) =>
+        inventory.returnGoods(
+          manager,
+          organizationId,
+          {
+            reference: 'GR-TEST',
+            sourceType: 'purchase_order_receipt',
+            sourceId,
+            date: today(),
+            reason: 'Recibido por error',
+            warehouseId,
+            posted: true,
+            lines: [{ productId, quantity, unitCost }],
+          },
+          ACTOR,
+        ),
+      );
+
+    it('takes the goods back out at their receipt cost and books Dr GRNI / Cr Inventory', async () => {
+      const product = await inventory.create(newProduct({ stock: 0, cost: 0 }) as never, organizationId, ACTOR);
+      const sourceId = '55555555-5555-4555-8555-555555555555';
+      const received = await receive(product.id, 10, 50, sourceId);
+      expect(await signedBalance('inventory')).toBe(500);
+      expect(await signedBalance('grni')).toBe(-500);
+
+      const entryId = await giveBack(product.id, 4, 50, sourceId, received.warehouseId);
+
+      expect(entryId).toEqual(expect.any(String));
+      expect(await signedBalance('inventory')).toBe(300);
+      expect(await signedBalance('grni')).toBe(-300);
+      const after = await dataSource.getRepository(Product).findOneByOrFail({ id: product.id });
+      expect(Number(after.stock)).toBe(6);
+      expect(Number(after.cost)).toBe(50);
+    });
+
+    it('gives the receipt its value back out of the average cost', async () => {
+      const product = await inventory.create(newProduct({ stock: 10, cost: 40 }) as never, organizationId, ACTOR);
+      const sourceId = '66666666-6666-4666-8666-666666666666';
+      const received = await receive(product.id, 10, 60, sourceId);
+      expect(Number((await dataSource.getRepository(Product).findOneByOrFail({ id: product.id })).cost)).toBe(50);
+
+      await giveBack(product.id, 10, 60, sourceId, received.warehouseId);
+
+      const after = await dataSource.getRepository(Product).findOneByOrFail({ id: product.id });
+      expect(Number(after.stock)).toBe(10);
+      expect(Number(after.cost)).toBe(40);
+      // Opening 400 + receipt 600 − return 600: what is held, at what it cost.
+      expect(await signedBalance('inventory')).toBe(400);
+    });
+
+    it('refuses to un-receive goods that have already left the warehouse', async () => {
+      const product = await inventory.create(newProduct({ stock: 0, cost: 0 }) as never, organizationId, ACTOR);
+      const sourceId = '77777777-7777-4777-8777-777777777777';
+      const received = await receive(product.id, 5, 20, sourceId);
+      await dataSource.transaction((manager) =>
+        inventory.decreaseStock(product.id, 5, manager, organizationId, {
+          reference: 'F-1',
+          sourceType: 'invoice',
+          sourceId: '88888888-8888-4888-8888-888888888888',
+          place: { warehouseId: received.warehouseId },
+        }),
+      );
+
+      await expect(giveBack(product.id, 5, 20, sourceId, received.warehouseId)).rejects.toMatchObject({
+        messageKey: 'inventory.not_enough_stock_in_warehouse',
+      });
+      // Nothing moved: the refusal rolled the whole void back.
+      expect(Number((await dataSource.getRepository(Product).findOneByOrFail({ id: product.id })).stock)).toBe(0);
+      expect(await signedBalance('grni')).toBe(-100);
+    });
   });
 });

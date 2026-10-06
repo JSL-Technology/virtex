@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,6 +45,7 @@ import { Observable } from 'rxjs';
   selector: 'app-customer-receipt-form-page',
   standalone: true,
   imports: [
+    VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -132,6 +134,7 @@ export class CustomerReceiptFormPage implements OnInit {
       currencyCode: ['', [Validators.required]],
       paymentMethod: ['BANK_TRANSFER'],
       reference: [''],
+      branchId: [null as string | null],
       lines: this.fb.array([]),
     });
 
@@ -316,6 +319,7 @@ export class CustomerReceiptFormPage implements OnInit {
         currencyCode: raw.currencyCode,
         paymentMethod: raw.paymentMethod,
         reference: raw.reference || undefined,
+        branchId: raw.branchId || undefined,
         lines: (raw.lines as Record<string, number | string>[]).map((line) => ({
           invoiceId: String(line['invoiceId']),
           amount: Number(line['amount']),

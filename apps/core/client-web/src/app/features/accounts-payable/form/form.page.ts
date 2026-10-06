@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -87,6 +88,7 @@ interface BillTotals {
   selector: 'app-vendor-bill-form-page',
   standalone: true,
   imports: [
+    VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -197,6 +199,7 @@ export class VendorBillFormPage implements OnInit {
       //  and is a different fact: this tenant's locale says USD while its books are kept in DOP,
       //  so that source preselected the wrong currency on every purchase invoice.
       currencyCode: [''],
+      branchId: [null as string | null],
       purchaseCategory: ['06'],
       paymentForm: ['01'],
       isrRetentionType: [''],
@@ -397,6 +400,7 @@ export class VendorBillFormPage implements OnInit {
             date: isoOf(bill.date),
             dueDate: isoOf(bill.dueDate),
             currencyCode: bill.currencyCode,
+            branchId: bill.branchId ?? null,
             purchaseCategory: bill.purchaseCategory ?? '06',
             paymentForm: bill.paymentForm ?? '01',
             isrRetentionType: bill.isrRetentionType ?? '',
@@ -497,6 +501,7 @@ export class VendorBillFormPage implements OnInit {
       total: this.totals().total,
       ncf: value.ncf || undefined,
       currencyCode: value.currencyCode || undefined,
+      branchId: value.branchId || undefined,
       purchaseCategory: value.purchaseCategory || undefined,
       paymentForm: value.paymentForm || undefined,
       isrRetentionType: value.isrRetentionType || undefined,

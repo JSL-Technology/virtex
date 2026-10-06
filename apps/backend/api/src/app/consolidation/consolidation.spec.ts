@@ -447,6 +447,30 @@ describeWithDb('group consolidation', () => {
     expect(result.warnings.some((w) => w.code === 'NO_ACQUISITION_DATE')).toBe(true);
   });
 
+  it('leaves out a subsidiary whose control ended before the period', async () => {
+    await tradeBothCompanies();
+    await dataSource
+      .getRepository(OrganizationSubsidiary)
+      .update({ parentOrganizationId: parentId, subsidiaryOrganizationId: subsidiaryId }, {
+        controlEndedOn: '2025-06-30',
+      });
+
+    //  The only subsidiary was sold before 2026: there is no group left to consolidate.
+    await expect(run()).rejects.toThrow();
+  });
+
+  it('flags a subsidiary whose control ended inside the period', async () => {
+    await tradeBothCompanies();
+    await dataSource
+      .getRepository(OrganizationSubsidiary)
+      .update({ parentOrganizationId: parentId, subsidiaryOrganizationId: subsidiaryId }, {
+        controlEndedOn: '2026-09-30',
+      });
+
+    const result = await run();
+    expect(result.warnings.some((w) => w.code === 'CONTROL_ENDED_IN_PERIOD')).toBe(true);
+  });
+
   it('refuses a period that runs backwards', async () => {
     await expect(
       consolidation.runConsolidation(parentId, '2026-01-01', '2026-12-31'),

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In, EntityManager } from 'typeorm';
+import { Repository, DataSource, In, EntityManager, FindOperator } from 'typeorm';
 import {
   CustomerPayment,
   CustomerPaymentStatus,
@@ -45,6 +45,7 @@ import {
   AgingRow,
 } from '../accounts-payable/accounts-payable.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
   { label: '1-30', from: 1, to: 30 },
@@ -256,9 +257,14 @@ export class CustomerPaymentsService {
           })
         : [];
       const invoicesById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+      // Any branch may collect for another (a customer pays at the nearest store), but only
+      // invoices the collector could open: a restricted person cannot settle a branch they cannot see.
+      const collectorScope = await loadBranchScope(manager, organizationId, actorUserId);
+      for (const invoice of invoices) assertDocumentInScope(collectorScope, invoice.branchId);
 
       const payment = await manager.save(
         manager.create(CustomerPayment, {
+          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           organizationId,
           customerId: dto.customerId,
           paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
@@ -625,29 +631,59 @@ export class CustomerPaymentsService {
   // Reads
   // ───────────────────────────────────────────────────────────────────────────
 
-  findAll(organizationId: string, customerId?: string): Promise<CustomerPayment[]> {
-    return this.paymentRepository.find({
-      where: { organizationId, ...(customerId ? { customerId } : {}) },
-      relations: ['customer'],
-      order: { paymentDate: 'DESC', createdAt: 'DESC' },
-    });
+  async findAll(
+    organizationId: string,
+    customerId?: string,
+    options: { branchId?: string; actorUserId?: string } = {},
+  ): Promise<CustomerPayment[]> {
+    const query = this.paymentRepository
+      .createQueryBuilder('payment')
+      .leftJoinAndSelect('payment.customer', 'customer')
+      .where('payment.organizationId = :organizationId', { organizationId });
+    if (customerId) query.andWhere('payment.customerId = :customerId', { customerId });
+    if (options.actorUserId || options.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+      applyBranchScope(query, 'payment', scope, options.branchId);
+    }
+    return query.orderBy('payment.paymentDate', 'DESC').addOrderBy('payment.createdAt', 'DESC').getMany();
   }
 
-  async findOne(id: string, organizationId: string): Promise<CustomerPayment> {
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<CustomerPayment> {
     const payment = await this.paymentRepository.findOne({
       where: { id, organizationId },
       relations: ['lines', 'lines.invoice', 'customer'],
     });
     if (!payment) throw new NotFoundError('customers.receipt_not_found');
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), payment.branchId);
+    }
     return payment;
+  }
+
+  /** The branches an ageing report covers: one asked for, the reader's own, or all (`{}`). */
+  private async agingBranchFilter(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string },
+  ): Promise<{ branchId?: string | FindOperator<string> }> {
+    if (!options.actorUserId && !options.branchId) return {};
+    const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+    if (options.branchId) {
+      assertDocumentInScope(scope, options.branchId);
+      return { branchId: options.branchId };
+    }
+    return scope.allowed ? { branchId: In(scope.allowed) } : {};
   }
 
   /** What customers owe, by customer and by how overdue it is. */
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
+    options: { branchId?: string; actorUserId?: string } = {},
   ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    // A slice by branch is a view of the same report; the whole-company figure is still the one
+    // that ties to the control account. A person limited to some branches only ever sees theirs.
+    const branchFilter = await this.agingBranchFilter(organizationId, options);
     const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, {
       organizationId,
     });
@@ -657,6 +693,7 @@ export class CustomerPaymentsService {
       where: {
         organizationId,
         status: In([InvoiceStatus.PENDING, InvoiceStatus.PARTIALLY_PAID]),
+        ...branchFilter,
       },
       relations: ['customer'],
     });
@@ -742,6 +779,7 @@ export class CustomerPaymentsService {
       controlAccountBalance,
       // Signed: positive means the subledger claims more is collectible than the ledger records.
       controlAccountDifference: roundAmount(total - controlAccountBalance),
+      coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
       totals: {

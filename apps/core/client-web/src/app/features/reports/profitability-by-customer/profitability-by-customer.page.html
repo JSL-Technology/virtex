@@ -2,6 +2,12 @@
   <div class="subview-header">
     <h3>{{ 'reports.profitability_by_customer.profitability_by_customer' | translate }}</h3>
     <div class="header-actions">
+      <vx-branch-picker
+        mode="filter"
+        inputId="profitability-customer-branch"
+        [ngModel]="branchFilter()"
+        (ngModelChange)="onBranchChange($event)"
+      />
       <!--
         Ninguno de los dos extremos acotaba al otro y nadie comprobaba el orden: un rango invertido
         devolvía un informe vacío y ningún mensaje.

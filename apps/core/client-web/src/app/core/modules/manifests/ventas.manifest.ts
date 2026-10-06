@@ -153,12 +153,16 @@ export const VENTAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/masters/price-lists/price-lists-form/price-list-form.page').then((m) => m.PriceListFormPage),
     },
     {
+      //  The tickets rung up at the till (`GET /pos/sales`). It was titled «Historial de ventas»
+      //  and had no menu entry, which read as the history of every sale — invoices included — and
+      //  could be found by no one. Odoo files the same list as «Punto de venta › Pedidos».
       path: 'sales/history',
       kind: WindowKind.LIST,
       permission: 'invoices:view',
-      titleKey: 'page_titles.sales_history',
+      titleKey: 'page_titles.pos_tickets',
       icon: 'History',
       entityKeyFn: () => 'ventas:history',
+      menu: { group: 'documents', labelKey: 'page_titles.pos_tickets' },
       load: () => import('../../../features/sales/history/history.page').then((m) => m.HistoryPage),
     },
     {
@@ -171,6 +175,7 @@ export const VENTAS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.point_of_sale',
       icon: 'Store',
       entityKeyFn: () => 'ventas:pos',
+      menu: { group: 'documents', labelKey: 'page_titles.point_of_sale' },
       load: () => import('../../../features/sales/pos/pos.page').then((m) => m.PosPage),
     },
     {

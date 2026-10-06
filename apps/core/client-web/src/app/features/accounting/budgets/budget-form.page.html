@@ -1,0 +1,147 @@
+<vx-draft-shell
+  [title]="current() ? (current()!.name + ' · ' + current()!.period) : ('budgets.form.new' | translate)"
+  [subtitle]="'budgets.form.subtitle' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field" for="budget-name">
+          <span>{{ 'budgets.form.name' | translate }} *</span>
+          <input id="budget-name" type="text" maxlength="120" formControlName="name" [placeholder]="'budgets.form.name_placeholder' | translate" />
+        </label>
+        <label class="field" for="budget-period">
+          <span>{{ 'budgets.form.period' | translate }} *</span>
+          <input id="budget-period" type="month" formControlName="period" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'budgets.form.lines' | translate }}</h2>
+      <p class="form-hint">{{ 'budgets.form.lines_hint' | translate }}</p>
+      <div class="table-wrapper">
+        <table class="lines-table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>{{ 'budgets.form.account' | translate }}</th>
+              <th class="numeric">{{ 'budgets.form.amount' | translate }}</th>
+              <th><span class="sr-only">{{ 'budgets.form.remove_line' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>
+                  <vx-select
+                    formControlName="accountId"
+                    [search]="searchAccounts"
+                    [resolveWith]="resolveAccount"
+                    [displayWith]="accountLabel"
+                    [valueWith]="accountId"
+                    [ariaLabel]="'budgets.form.account' | translate"
+                    placeholderKey="accounts_payable.form.select_account"
+                  />
+                </td>
+                <td class="numeric">
+                  <input type="number" step="0.01" min="0" formControlName="amount" [attr.aria-label]="'budgets.form.amount' | translate" />
+                </td>
+                <td>
+                  <button type="button" class="icon-button" (click)="removeLine(i)" [attr.aria-label]="'budgets.form.remove_line' | translate">
+                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>{{ 'budgets.form.total' | translate }}</th>
+              <th class="numeric">{{ total() | vxNumber: '1.2-2' }}</th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button type="button" class="secondary-button add-line" (click)="addLine()">
+        <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'budgets.form.add_line' | translate }}</span>
+      </button>
+    </section>
+
+    @if (current(); as budget) {
+      <section class="form-section">
+        <div class="doc-actions">
+          <h2 class="form-section-title">{{ 'budgets.form.against_actuals' | translate }}</h2>
+          <a [routerLink]="['/accounting/variance-analysis']" [queryParams]="{ from: budget.period, to: budget.period }">{{ 'budgets.form.open_variance' | translate }}</a>
+        </div>
+        @if (report(); as r) {
+          <div class="table-wrapper">
+            <table class="lines-table">
+              <thead>
+                <tr>
+                  <th>{{ 'budgets.form.account' | translate }}</th>
+                  <th class="numeric">{{ 'budgets.form.budgeted' | translate }}</th>
+                  <th class="numeric">{{ 'budgets.form.actual' | translate }}</th>
+                  <th class="numeric">{{ 'budgets.form.difference' | translate }}</th>
+                  <th class="numeric">{{ 'budgets.form.consumed' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of r.lines; track line.accountId) {
+                  <tr>
+                    <td>{{ line.accountCode }} — {{ accountName(line.accountName) }}</td>
+                    <td class="numeric">{{ line.budgetedAmount | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric">{{ line.actualAmount | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric" [class.positive]="favourable(line)" [class.negative]="!favourable(line)">{{ line.difference | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric">{{ line.consumedRatio === null ? '—' : (line.consumedRatio | vxPercent) }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>{{ 'budgets.form.total' | translate }}</th>
+                  <th class="numeric">{{ r.totals.budgeted | vxNumber: '1.2-2' }}</th>
+                  <th class="numeric">{{ r.totals.actual | vxNumber: '1.2-2' }}</th>
+                  <th class="numeric">{{ r.totals.difference | vxNumber: '1.2-2' }}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </section>
+
+      <section class="form-section" *appHasPermission="'budgets:manage'">
+        <button type="button" class="secondary-button add-line" (click)="copying.set(!copying())">
+          <lucide-icon [img]="CopyIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'budgets.form.copy' | translate }}</span>
+        </button>
+        @if (copying()) {
+          <p class="form-hint">{{ 'budgets.form.copy_hint' | translate }}</p>
+          <div class="copy-months">
+            @for (period of copyOptions(); track period) {
+              <label class="doc-check">
+                <input type="checkbox" [checked]="copyPeriods().includes(period)" (change)="toggleCopyPeriod(period, $any($event.target).checked)" />
+                <span>{{ period }}</span>
+              </label>
+            }
+          </div>
+          <label class="field" for="copy-factor">
+            <span>{{ 'budgets.form.copy_factor' | translate }}</span>
+            <input id="copy-factor" type="number" step="0.01" min="0" [value]="copyFactor()" (input)="copyFactor.set($any($event.target).valueAsNumber)" />
+          </label>
+          <div class="doc-actions">
+            <button type="button" class="primary-button" [disabled]="copyPeriods().length === 0" (click)="copy()">{{ 'budgets.form.copy_confirm' | translate: { count: copyPeriods().length } }}</button>
+          </div>
+        }
+      </section>
+    }
+  </div>
+</vx-draft-shell>

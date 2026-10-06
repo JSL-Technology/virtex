@@ -1,8 +1,8 @@
 {
   "saas.feature_disabled": {
-    "es": "La función {featureKey} no está incluida en tu plan.",
-    "en": "Feature {featureKey} is not included in your plan.",
-    "pt": "A função {featureKey} não está incluída no seu plano."
+    "es": "La función {{featureKey}} no está incluida en tu plan.",
+    "en": "Feature {{featureKey}} is not included in your plan.",
+    "pt": "A função {{featureKey}} não está incluída no seu plano."
   },
   "saas.limit_reached.body": {
     "es": "Tu plan permite {{limit}} {{resource}}. Amplía el plan en Configuración → Facturación para seguir trabajando.",
@@ -105,8 +105,8 @@
     "pt": "Esta ação requer uma assinatura ativa."
   },
   "saas.subscription_suspended": {
-    "es": "La suscripción está en estado {status} y no permite esta acción. Regulariza el pago para continuar.",
-    "en": "The subscription is {status} and does not allow this action. Settle the payment to continue.",
-    "pt": "A assinatura está em estado {status} e não permite esta ação. Regularize o pagamento para continuar."
+    "es": "La suscripción está en estado {{status}} y no permite esta acción. Regulariza el pago para continuar.",
+    "en": "The subscription is {{status}} and does not allow this action. Settle the payment to continue.",
+    "pt": "A assinatura está em estado {{status}} e não permite esta ação. Regularize o pagamento para continuar."
   }
 }

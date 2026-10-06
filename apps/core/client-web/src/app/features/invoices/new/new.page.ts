@@ -1,3 +1,4 @@
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import {
   Component,
   DestroyRef,
@@ -70,6 +71,7 @@ import { PercentInputDirective } from '../../../shared/directives/percent-input.
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    VxBranchPickerComponent,
     ...VX_SELECT,
     CustomerQuickCreateComponent,
     ...VX_FORM_A11Y, VxAmountComponent, VxTabsComponent, VxDateFieldComponent],
@@ -171,6 +173,8 @@ export class NewInvoicePage implements OnInit {
       dueDate: [today(), Validators.required],
       // Filled from the tenant's context once it loads; never assumed.
       currencyCode: ['', Validators.required],
+      // Proposed by the picker (the person's default branch); absent for a company without branches.
+      branchId: [null as string | null],
       fiscalDocumentType: [''],
       paymentMethod: ['CASH'],
       documentDiscountRate: [0, [Validators.min(0), Validators.max(0.99)]],
@@ -624,6 +628,7 @@ export class NewInvoicePage implements OnInit {
       // `currencyCode: ''` (antes de que el contexto del tenant cargue la moneda) devolvía 400
       // en cada preview. Vacío ⇒ undefined, y el backend resuelve la moneda por defecto.
       currencyCode: value.currencyCode || undefined,
+      branchId: value.branchId || undefined,
       notes: value.notes || undefined,
       paymentMethod: value.paymentMethod || undefined,
       fiscalDocumentType: value.fiscalDocumentType || undefined,

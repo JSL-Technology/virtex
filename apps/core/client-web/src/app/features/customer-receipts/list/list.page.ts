@@ -1,3 +1,6 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
@@ -28,7 +31,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-customer-receipts-list-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +47,9 @@ export class CustomerReceiptsListPage implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   readonly items = signal<CustomerReceipt[]>([]);
+  /** Empty: every branch the person may see. */
+  readonly branchFilter = signal<string | null>(null);
+  protected readonly branches = inject(BranchesService);
   readonly customerList = signal<Customer[]>([]);
   readonly isLoading = signal(true);
 
@@ -55,9 +61,14 @@ export class CustomerReceiptsListPage implements OnInit {
     this.load();
   }
 
+  setBranch(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
+  }
+
   load(): void {
     this.isLoading.set(true);
-    this.receipts.list().subscribe({
+    this.receipts.list(undefined, this.branchFilter()).subscribe({
       next: (data) => {
         this.items.set(data);
         this.isLoading.set(false);

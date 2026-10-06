@@ -4,8 +4,15 @@ import { catchError, of } from 'rxjs';
 import { CountryService, SupportedCountry } from '../../../../core/services/country.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Building, Plus, X } from 'lucide-angular';
-import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidiaries.service';
+import { LucideAngularModule, Building, Plus, X, Pencil } from 'lucide-angular';
+import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryDto } from './subsidiaries.service';
+import { Observable, map } from 'rxjs';
+import { accountNameOf, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { Account, AccountType } from '../../../../core/models/account.model';
+import { ChartOfAccountsApiService } from '../../../accounting/data/chart-of-accounts.service';
+import { VX_SELECT } from '../../../../shared/components/select';
+import { VxDateFieldComponent } from '../../../../shared/components/date';
+import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -15,7 +22,7 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not
@@ -27,6 +34,7 @@ export class SubsidiariesPage implements OnInit {
   protected readonly BuildingIcon = Building;
   protected readonly PlusIcon = Plus;
   protected readonly XIcon = X;
+  protected readonly EditIcon = Pencil;
 
   readonly subsidiaries = signal<Subsidiary[]>([]);
   readonly loading = signal(true);
@@ -36,6 +44,11 @@ export class SubsidiariesPage implements OnInit {
   /** The countries the product supports: the country decides the subsidiary's fiscal rules. */
   readonly countries = signal<SupportedCountry[]>([]);
   createForm: FormGroup;
+  /** The subsidiary whose consolidation facts are being edited, while that dialog is open. */
+  readonly editing = signal<Subsidiary | null>(null);
+  readonly savingEdit = signal(false);
+  readonly editForm: FormGroup;
+  private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
 
   private subsidiariesService = inject(SubsidiariesService);
@@ -97,7 +110,23 @@ export class SubsidiariesPage implements OnInit {
 
 
 
+  /** The parent's own postable asset accounts: the investment sits in the PARENT's books. */
+  protected readonly searchInvestmentAccounts = (query: string, limit: number): Observable<Account[]> =>
+    this.accounts
+      .searchAccounts(query, Math.max(limit * 3, 50))
+      .pipe(map((rows) => rows.filter((a) => a.isPostable && a.type === AccountType.ASSET).slice(0, limit)));
+  protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountId = (account: Account): string => account.id;
+
   constructor() {
+    this.editForm = this.fb.group({
+      ownership: [100, [Validators.required, Validators.min(0), Validators.max(100)]],
+      acquisitionDate: [''],
+      acquisitionCost: [null as number | null, [Validators.min(0)]],
+      investmentAccountId: [''],
+      controlEndedOn: [''],
+    });
     this.createForm = this.fb.group({
       legalName: ['', [Validators.required]],
       taxId: ['', [Validators.required]],
@@ -114,7 +143,7 @@ export class SubsidiariesPage implements OnInit {
 
   ngOnInit() {
     this.loadSubsidiaries();
-    // `#settings/subsidiaries/new` (from «Nueva sucursal»): open the form straight away, and leave
+    // `#settings/subsidiaries/new` («Nueva subsidiaria», from the company switcher): open the form straight away, and leave
     // the fragment at the section so closing the form or reloading does not reopen it.
     if (this.router.url.split('#')[1] === 'settings/subsidiaries/new') {
       this.openCreateModal();
@@ -149,6 +178,68 @@ export class SubsidiariesPage implements OnInit {
 
   closeModal() {
     this.showModal.set(false);
+  }
+
+  openEdit(link: Subsidiary): void {
+    this.editForm.reset({
+      ownership: Number(link.ownership),
+      acquisitionDate: link.acquisitionDate ?? '',
+      acquisitionCost: link.acquisitionCost,
+      investmentAccountId: link.investmentAccountId ?? '',
+      controlEndedOn: link.controlEndedOn ?? '',
+    });
+    this.editing.set(link);
+  }
+
+  closeEdit(): void {
+    this.editing.set(null);
+  }
+
+  /** Control cannot end before it began; the server says so too, this says it before the trip. */
+  protected controlEndsTooEarly(): boolean {
+    const { acquisitionDate, controlEndedOn } = this.editForm.value as { acquisitionDate: string; controlEndedOn: string };
+    return Boolean(acquisitionDate && controlEndedOn && controlEndedOn < acquisitionDate);
+  }
+
+  saveEdit(): void {
+    const link = this.editing();
+    if (!link) return;
+    if (this.editForm.invalid || this.controlEndsTooEarly()) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+    const value = this.editForm.getRawValue() as {
+      ownership: number;
+      acquisitionDate: string;
+      acquisitionCost: number | null;
+      investmentAccountId: string;
+      controlEndedOn: string;
+    };
+    // Empty fields are sent as null: clearing a date is a change, not an omission.
+    const body: UpdateSubsidiaryDto = {
+      ownership: Number(value.ownership),
+      acquisitionDate: value.acquisitionDate || null,
+      acquisitionCost: value.acquisitionCost === null || (value.acquisitionCost as unknown) === '' ? null : Number(value.acquisitionCost),
+      investmentAccountId: value.investmentAccountId || null,
+      controlEndedOn: value.controlEndedOn || null,
+    };
+    this.savingEdit.set(true);
+    this.subsidiariesService.updateSubsidiary(link.subsidiaryOrganizationId, body).subscribe({
+      next: (saved) => {
+        this.subsidiaries.update((list) =>
+          list.map((row) =>
+            row.subsidiaryOrganizationId === saved.subsidiaryOrganizationId ? { ...row, ...saved, subsidiary: row.subsidiary } : row,
+          ),
+        );
+        this.savingEdit.set(false);
+        this.notifications.showSuccess('settings.subsidiaries.updated');
+        this.closeEdit();
+      },
+      error: (error: unknown) => {
+        this.savingEdit.set(false);
+        this.notifications.showHttpError(error, 'settings.subsidiaries.update_failed');
+      },
+    });
   }
 
   onSubmit() {

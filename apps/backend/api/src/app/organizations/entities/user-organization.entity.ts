@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { Branch } from './branch.entity';
 
 /**
  * A person's membership of a tenant.
@@ -53,6 +54,17 @@ export class UserOrganization {
    */
   @Column({ name: 'suspended_at', type: 'timestamptz', nullable: true })
   suspendedAt: Date | null;
+
+  /**
+   * The branch this person's new documents are issued from unless they choose another. Null when
+   * the company has no branches, or when it should fall back to the headquarters.
+   */
+  @Column({ name: 'default_branch_id', type: 'uuid', nullable: true })
+  defaultBranchId: string | null;
+
+  @ManyToOne(() => Branch, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'default_branch_id', foreignKeyConstraintName: 'FK_user_organizations_default_branch' })
+  defaultBranch?: Branch | null;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', foreignKeyConstraintName: 'FK_user_organizations_user' })

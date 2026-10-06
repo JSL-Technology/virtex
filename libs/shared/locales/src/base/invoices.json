@@ -1,13 +1,13 @@
 {
   "invoices.account_description_not_configured": {
-    "es": "Falta la cuenta contable para «{description}».",
-    "en": "The account for “{description}” is not configured.",
-    "pt": "Falta a conta contábil para “{description}”."
+    "es": "Falta la cuenta contable para «{{description}}».",
+    "en": "The account for “{{description}}” is not configured.",
+    "pt": "Falta a conta contábil para “{{description}}”."
   },
   "invoices.amount_credit_amount_exceeds_creditable_balance": {
-    "es": "El importe a acreditar ({amount}) excede el saldo acreditable de la factura {invoiceNumber} ({remaining}).",
-    "en": "The amount to credit ({amount}) exceeds the creditable balance of invoice {invoiceNumber} ({remaining}).",
-    "pt": "O valor a creditar ({amount}) excede o saldo creditável da fatura {invoiceNumber} ({remaining})."
+    "es": "El importe a acreditar ({{amount}}) excede el saldo acreditable de la factura {{invoiceNumber}} ({{remaining}}).",
+    "en": "The amount to credit ({{amount}}) exceeds the creditable balance of invoice {{invoiceNumber}} ({{remaining}}).",
+    "pt": "O valor a creditar ({{amount}}) excede o saldo creditável da fatura {{invoiceNumber}} ({{remaining}})."
   },
   "invoices.credit_exceeds_remaining": {
     "es": "No se puede acreditar {{quantity}} de «{{description}}»: quedan {{available}} por acreditar de {{invoiced}} facturadas.",
@@ -449,9 +449,9 @@
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
   "invoices.document_type_type_does_not_exist": {
-    "es": "El tipo de comprobante {type} no existe en el régimen de {country}.",
-    "en": "Document type {type} does not exist in the {country} regime.",
-    "pt": "O tipo de comprovante {type} não existe no regime de {country}."
+    "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
+    "en": "Document type {{type}} does not exist in the {{country}} regime.",
+    "pt": "O tipo de comprovante {{type}} não existe no regime de {{country}}."
   },
   "invoices.document_type_type_not_sales_document": {
     "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
@@ -494,9 +494,9 @@
     "pt": "Movimentos de existências"
   },
   "invoices.entry_document_invoice_number_does_not": {
-    "es": "El asiento del documento {invoiceNumber} no cuadra: débitos {debit} frente a créditos {credit}.",
-    "en": "The entry for document {invoiceNumber} does not balance: debits {debit} against credits {credit}.",
-    "pt": "O lançamento do documento {invoiceNumber} não fecha: débitos {debit} contra créditos {credit}."
+    "es": "El asiento del documento {{invoiceNumber}} no cuadra: débitos {{debit}} frente a créditos {{credit}}.",
+    "en": "The entry for document {{invoiceNumber}} does not balance: debits {{debit}} against credits {{credit}}.",
+    "pt": "O lançamento do documento {{invoiceNumber}} não fecha: débitos {{debit}} contra créditos {{credit}}."
   },
   "invoices.exchange_rate_configured_currency_code_not": {
     "es": "La tasa de cambio configurada para {{currencyCode}} no es válida.",
@@ -1490,8 +1490,8 @@
     "pt": "A retenção informada ({{stated}}) não corresponde ao regime aplicável ({{resolved}}, regimes: {{regimes}}). Se a exceção estiver correta, informe o motivo em «withholdingOverrideReason»."
   },
   "invoices.you_asked_type_requested_document_type": {
-    "es": "Pediste el tipo {requested} y este documento corresponde al tipo {resolved}. El tipo lo determina el documento, no la solicitud.",
-    "en": "You asked for type {requested} and this document is type {resolved}. The document determines the type, not the request.",
-    "pt": "Você pediu o tipo {requested} e este documento corresponde ao tipo {resolved}. O tipo é determinado pelo documento, não pela solicitação."
+    "es": "Pediste el tipo {{requested}} y este documento corresponde al tipo {{resolved}}. El tipo lo determina el documento, no la solicitud.",
+    "en": "You asked for type {{requested}} and this document is type {{resolved}}. The document determines the type, not the request.",
+    "pt": "Você pediu o tipo {{requested}} e este documento corresponde ao tipo {{resolved}}. O tipo é determinado pelo documento, não pela solicitação."
   }
 }

@@ -1,5 +1,6 @@
+import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
@@ -7,6 +8,8 @@ export interface PosShift {
   id: string;
   terminalId: string;
   status: 'OPEN' | 'CLOSED';
+  /** The branch the till stands in; every sale on the shift belongs to it. */
+  branchId?: string | null;
   openingBalance: number;
   salesTotal: number;
   salesCount: number;
@@ -41,6 +44,8 @@ export interface PosSale {
   invoiceId: string | null;
   status: string;
   createdAt: string;
+  /** The branch of the till; null for a company without branches. */
+  branchId?: string | null;
 }
 
 /**
@@ -58,8 +63,13 @@ export class PosService {
     });
   }
 
-  openShift(terminalId: string, openingBalance: number): Observable<PosShift> {
-    return this.http.post<PosShift>(`${this.apiUrl}/shifts`, { terminalId, openingBalance });
+  /** `branchId` omitted: the cashier's default branch, else the headquarters. */
+  openShift(terminalId: string, openingBalance: number, branchId?: string | null): Observable<PosShift> {
+    return this.http.post<PosShift>(`${this.apiUrl}/shifts`, {
+      terminalId,
+      openingBalance,
+      ...(branchId ? { branchId } : {}),
+    });
   }
 
   closeShift(shiftId: string, closingBalance: number): Observable<PosShift> {
@@ -71,9 +81,8 @@ export class PosService {
   }
 
   /** Till sales, newest first. `shiftId` narrows to one drawer session. */
-  listSales(shiftId?: string): Observable<PosSale[]> {
-    return this.http.get<PosSale[]>(`${this.apiUrl}/sales`, {
-      params: shiftId ? { shiftId } : {},
-    });
+  listSales(shiftId?: string, branchId?: string | null): Observable<PosSale[]> {
+    const params = BranchesService.params(branchId, shiftId ? new HttpParams().set('shiftId', shiftId) : undefined);
+    return this.http.get<PosSale[]>(`${this.apiUrl}/sales`, { params });
   }
 }

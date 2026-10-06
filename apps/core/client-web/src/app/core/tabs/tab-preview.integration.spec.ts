@@ -48,11 +48,11 @@ describe('Vista previa — rutas reales por módulo', () => {
   const cases: Array<{ module: string; a: string; b: string; shouldPreview: boolean }> = [
     { module: 'Facturas (/invoices/:id)', a: '/invoices/88', b: '/invoices/89', shouldPreview: true },
     { module: 'Cuentas por pagar (/accounts-payable/:id)', a: '/accounts-payable/5', b: '/accounts-payable/6', shouldPreview: true },
-    { module: 'Proveedores (/masters/suppliers/:id/edit)', a: '/masters/suppliers/5/edit', b: '/masters/suppliers/6/edit', shouldPreview: true },
+    { module: 'Proveedores (/contacts/suppliers/:id/edit)', a: '/contacts/suppliers/5/edit', b: '/contacts/suppliers/6/edit', shouldPreview: true },
     { module: 'Listas de precios (/masters/price-lists/:id/edit)', a: '/masters/price-lists/5/edit', b: '/masters/price-lists/6/edit', shouldPreview: true },
     { module: 'Clientes (/contacts/customers/:id/edit)', a: '/contacts/customers/5/edit', b: '/contacts/customers/6/edit', shouldPreview: true },
     // Rutas de edición de contabilidad añadidas al manifest (antes caían en «en construcción»):
-    { module: 'Libros mayores (/accounting/general-ledger/:id/edit)', a: '/accounting/general-ledger/5/edit', b: '/accounting/general-ledger/6/edit', shouldPreview: true },
+    { module: 'Libros contables (/accounting/ledgers/:id/edit)', a: '/accounting/ledgers/5/edit', b: '/accounting/ledgers/6/edit', shouldPreview: true },
     { module: 'Diarios (/accounting/journals/:id/edit)', a: '/accounting/journals/5/edit', b: '/accounting/journals/6/edit', shouldPreview: true },
   ];
 

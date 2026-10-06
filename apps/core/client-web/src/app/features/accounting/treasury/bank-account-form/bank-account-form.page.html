@@ -18,8 +18,21 @@
       </label>
 
       <label class="field">
+        <span>{{ 'treasury.form.bank_from_catalogue' | translate }}</span>
+        <select formControlName="bankId">
+          <option value="">{{ 'treasury.form.bank_not_catalogued' | translate }}</option>
+          @for (bank of banks(); track bank.id) {
+            <option [value]="bank.id">{{ bank.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
         <span>{{ 'treasury.bank' | translate }}</span>
         <input type="text" formControlName="bankName" maxlength="120" />
+        @if (linkedToCatalogue()) {
+          <small class="hint-message">{{ 'treasury.form.bank_name_from_catalogue' | translate }}</small>
+        }
       </label>
 
       <label class="field">

@@ -1,10 +1,13 @@
 import { AUTHENTICATED_ONLY, ModuleManifest, WindowKind } from '../module-manifest';
 
 /**
- * Analysis: the four financial statements, profitability, and the datasheet workbooks.
+ * Analysis: management reporting — profitability, the datasheet workbooks, and the hub that lists
+ * every report the user may open.
  *
- * Every page here computes from a real endpoint and none of them reached a user, for the same
- * reason as Accounting: absent from the window catalogue.
+ * The financial statements used to live here. They are the accountant's reports, and every ERP
+ * this product is measured against files them under Accounting (Odoo «Contabilidad › Informes»,
+ * NetSuite «Reports › Financial»), so they moved to Accounting's panel. Their addresses did not
+ * change, and the hub still lists them: it reads every module's `analysis` group.
  */
 export const ANALISIS_MODULE: ModuleManifest = {
   id: 'analisis',
@@ -22,46 +25,6 @@ export const ANALISIS_MODULE: ModuleManifest = {
       icon: 'BarChart2',
       entityKeyFn: () => 'analisis:reports',
       load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
-    },
-    {
-      path: 'financial-statements/balance-sheet',
-      kind: WindowKind.OVERVIEW,
-      permission: 'reports:view_financial',
-      titleKey: 'page_titles.balance_sheet',
-      icon: 'Scale',
-      entityKeyFn: () => 'analisis:balance-sheet',
-      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.balance_sheet' },
-      load: () => import('../../../features/reports/financial-statements/balance-sheet/balance-sheet.page').then((m) => m.BalanceSheetPage),
-    },
-    {
-      path: 'financial-statements/income-statement',
-      kind: WindowKind.OVERVIEW,
-      permission: 'reports:view_financial',
-      titleKey: 'page_titles.income_statement',
-      icon: 'TrendingUp',
-      entityKeyFn: () => 'analisis:income-statement',
-      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.income_statement' },
-      load: () => import('../../../features/reports/financial-statements/income-statement/income-statement.page').then((m) => m.IncomeStatementPage),
-    },
-    {
-      path: 'financial-statements/trial-balance',
-      kind: WindowKind.OVERVIEW,
-      permission: 'reports:view_financial',
-      titleKey: 'page_titles.trial_balance',
-      icon: 'Scale',
-      entityKeyFn: () => 'analisis:trial-balance',
-      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.trial_balance' },
-      load: () => import('../../../features/reports/financial-statements/trial-balance/trial-balance.page').then((m) => m.TrialBalancePage),
-    },
-    {
-      path: 'financial-statements/cash-flow',
-      kind: WindowKind.OVERVIEW,
-      permission: 'reports:view_financial',
-      titleKey: 'page_titles.cash_flow',
-      icon: 'Waves',
-      entityKeyFn: () => 'analisis:cash-flow',
-      menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.cash_flow' },
-      load: () => import('../../../features/reports/financial-statements/cash-flow/cash-flow.page').then((m) => m.CashFlowPage),
     },
     {
       path: 'profitability-by-product',

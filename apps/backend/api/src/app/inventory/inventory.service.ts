@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
 import { CostingMethod, Product, ProductKind } from './entities/product.entity';
-import { StockMovement, StockMovementType } from '../supply-chain/entities/stock-movement.entity';
+import { StockMovementType } from '../supply-chain/entities/stock-movement.entity';
 import { standardSalesTaxRate } from './contracts/sellable-product.contract';
-import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult } from './contracts/goods-receipt.contract';
+import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult, GoodsReturnRequest } from './contracts/goods-receipt.contract';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { InventoryPostingService } from './inventory-posting.service';
+import { StockLedgerService, StockPlace } from './stock-ledger.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
@@ -22,9 +23,22 @@ const PRODUCT_DEPENDENTS: readonly DependentReference[] = [
   { table: 'quote_lines', column: 'product_id', label: 'common.dependents.quote_lines' },
   { table: 'vendor_bill_line', column: 'product_id', label: 'common.dependents.vendor_bill_lines' },
   { table: 'stock_movements', column: 'product_id', label: 'common.dependents.stock_movements' },
+  { table: 'inventory_adjustment_lines', column: 'product_id', label: 'common.dependents.stock_movements' },
+  { table: 'stock_transfer_lines', column: 'product_id', label: 'common.dependents.stock_movements' },
   { table: 'bill_of_materials', column: 'product_id', label: 'common.dependents.boms' },
   { table: 'production_orders', column: 'product_id', label: 'common.dependents.production_orders' },
 ];
+
+/** Where and why stock moves, from the document that moves it. */
+export interface StockMovementContext {
+  /** The document's branch or named warehouse; see `StockLedgerService.resolveWarehouse`. */
+  place?: StockPlace;
+  /** Defaults: a sale for stock out, a sale return for stock in. */
+  type?: StockMovementType;
+  reference: string;
+  sourceType: string;
+  sourceId: string | null;
+}
 
 @Injectable()
 export class InventoryService implements GoodsReceiptPort {
@@ -39,6 +53,8 @@ export class InventoryService implements GoodsReceiptPort {
     private readonly posting: InventoryPostingService,
     /** The category on a product must be one of this tenant's, and one still being offered. */
     private readonly categories: ProductCategoriesService,
+    /** The only writer of what is held, per warehouse. */
+    private readonly ledger: StockLedgerService,
   ) {}
 
   /**
@@ -63,9 +79,23 @@ export class InventoryService implements GoodsReceiptPort {
             ? createProductDto.taxRate
             : await standardSalesTaxRate(manager, organizationId)
           : 0;
-      const product = await manager.save(
-        manager.create(Product, { ...createProductDto, taxTreatment: treatment, taxRate, organizationId }),
+      const { stock: openingStock = 0, warehouseId, ...fields } = createProductDto;
+      let product = await manager.save(
+        manager.create(Product, { ...fields, stock: 0, taxTreatment: treatment, taxRate, organizationId }),
       );
+      // The opening stock is a movement like any other: it lands in a warehouse and on the kardex.
+      if (openingStock > 0 && product.kind !== ProductKind.SERVICE) {
+        ({ product } = await this.ledger.move(manager, organizationId, {
+          productId: product.id,
+          warehouseId: await this.ledger.resolveWarehouse(manager, organizationId, { warehouseId }),
+          quantity: openingStock,
+          unitCost: Number(product.cost),
+          type: 'OPENING',
+          reference: product.sku || product.name,
+          sourceType: 'product_opening',
+          sourceId: product.id,
+        }));
+      }
       await this.posting.postOpeningStock(manager, product, actorUserId);
       return product;
     });
@@ -135,35 +165,29 @@ export class InventoryService implements GoodsReceiptPort {
       if (!product) {
         throw new NotFoundError('inventory.product_id_not_found', { id });
       }
-      const before = { quantity: product.stock, unitCost: product.cost };
-      const { adjustmentReason, ...changes } = updateProductDto;
-
-      // Changing what is on hand, or what it is worth, posts an adjustment. It needs a reason
-      // (QA M-08): the product form used to change stock 46 → 999 and post 571,800 to the books
-      // with nobody asked why.
-      const stockChanges =
-        changes.stock !== undefined && Number(changes.stock) !== Number(product.stock);
-      const costChanges =
-        changes.cost !== undefined && Number(changes.cost) !== Number(product.cost) && Number(product.stock) !== 0;
-      if ((stockChanges || costChanges) && product.kind !== ProductKind.SERVICE && !adjustmentReason?.trim()) {
-        throw new BadRequestError('inventory.adjustment_reason_required');
+      const changes = { ...updateProductDto };
+      // What is held changes through documents, not through the catalogue: an adjustment has a
+      // warehouse, a reason, a number and its own entry, and the kardex shows it.
+      if (changes.stock !== undefined && Number(changes.stock) !== Number(product.stock)) {
+        throw new BadRequestError('inventory.stock_changes_through_adjustments');
+      }
+      delete changes.stock;
+      // Revaluing stock that exists is an adjustment too. A cost on a product holding nothing
+      // moves no value, so it is just the catalogue's figure.
+      if (
+        changes.cost !== undefined &&
+        Number(changes.cost) !== Number(product.cost) &&
+        Number(product.stock) !== 0 &&
+        product.kind !== ProductKind.SERVICE
+      ) {
+        throw new BadRequestError('inventory.cost_changes_through_adjustments');
+      }
+      if (changes.kind === ProductKind.SERVICE && product.kind !== ProductKind.SERVICE && Number(product.stock) !== 0) {
+        throw new BadRequestError('inventory.service_holds_no_stock', { name: product.name });
       }
       if (changes.taxTreatment && changes.taxTreatment !== 'TAXED') changes.taxRate = 0;
 
-      const updated = await manager.save(manager.merge(Product, product, changes));
-      await this.posting.postValuationChange(manager, updated, before, actorUserId, adjustmentReason?.trim());
-      if (stockChanges) {
-        await this.recordMovement(manager, organizationId, {
-          productId: updated.id,
-          quantity: Number(updated.stock) - Number(before.quantity),
-          unitCost: Number(updated.cost),
-          type: 'ADJUSTMENT',
-          reference: (adjustmentReason ?? '').trim().slice(0, 255),
-          sourceType: 'product_adjustment',
-          sourceId: updated.id,
-        });
-      }
-      return updated;
+      return manager.save(manager.merge(Product, product, changes));
     });
   }
 
@@ -194,43 +218,47 @@ export class InventoryService implements GoodsReceiptPort {
   }
 
   /**
-   * Move stock out, under a row lock and scoped to the tenant.
+   * Goods leaving for a customer, or going back to a supplier: out of the document's warehouse,
+   * under the ledger's locks, and onto the kardex.
    *
-   * Two defects fixed together. It read the product with `findOneBy`, checked the balance and saved
-   * — a read-modify-write with no lock, so two concurrent sales of the last unit both saw stock and
-   * both succeeded, overselling it. And it did not filter by organization, so the caller's tenant
-   * scoping was the only thing standing between a product id and another tenant's inventory.
-   *
-   * `SELECT … FOR UPDATE` serialises the two transactions; the second waits and then sees the
-   * decremented balance.
+   * The lock and the tenant filter that made this safe against two sales of the last unit live in
+   * `StockLedgerService.move` now, which is also where the quantity is checked — per warehouse.
    */
   async decreaseStock(
     productId: string,
     quantity: number,
     manager: EntityManager,
     organizationId: string,
+    movement: StockMovementContext,
   ): Promise<void> {
-    const product = await this.lockProduct(productId, organizationId, manager);
-
-    const available = Number(product.stock);
-    if (available < quantity) {
-      throw new BadRequestError('inventory.not_enough_stock_name_available_available', { name: product.name, available, quantity });
-    }
-
-    product.stock = available - quantity;
-    await manager.save(Product, product);
+    await this.ledger.move(manager, organizationId, {
+      productId,
+      warehouseId: await this.ledger.resolveWarehouse(manager, organizationId, movement.place),
+      quantity: -Math.abs(quantity),
+      type: movement.type ?? 'SALE_DISPATCH',
+      reference: movement.reference,
+      sourceType: movement.sourceType,
+      sourceId: movement.sourceId,
+    });
   }
 
-  /** Move stock back in — a return, a credit note that restocks — under the same lock. */
+  /** Goods coming back — a credit note that restocks — into the document's warehouse. */
   async increaseStock(
     productId: string,
     quantity: number,
     manager: EntityManager,
     organizationId: string,
+    movement: StockMovementContext,
   ): Promise<void> {
-    const product = await this.lockProduct(productId, organizationId, manager);
-    product.stock = Number(product.stock) + quantity;
-    await manager.save(Product, product);
+    await this.ledger.move(manager, organizationId, {
+      productId,
+      warehouseId: await this.ledger.resolveWarehouse(manager, organizationId, movement.place),
+      quantity: Math.abs(quantity),
+      type: movement.type ?? 'SALE_RETURN',
+      reference: movement.reference,
+      sourceType: movement.sourceType,
+      sourceId: movement.sourceId,
+    });
   }
 
   /**
@@ -242,8 +270,9 @@ export class InventoryService implements GoodsReceiptPort {
    * there is nothing to count.
    *
    * The unit cost is re-averaged for weighted-average items — the default and the only method the
-   * product values stock with today. Negative stock (oversold before the goods arrived) is treated
-   * as zero on the old side of the average, so an oversell cannot drag the new cost through zero.
+   * product values stock with today — over the company's whole stock, because the cost is one per
+   * product. Negative stock (oversold before the goods arrived) is treated as zero on the old side
+   * of the average, so an oversell cannot drag the new cost through zero.
    */
   async receiveGoods(
     manager: EntityManager,
@@ -253,6 +282,7 @@ export class InventoryService implements GoodsReceiptPort {
   ): Promise<GoodsReceiptResult> {
     const stocked: boolean[] = [];
     const posted: Array<{ description: string; amount: number }> = [];
+    let warehouseId: string | null = null;
 
     for (const line of receipt.lines) {
       if (!line.productId || line.quantity <= 0) {
@@ -274,22 +304,20 @@ export class InventoryService implements GoodsReceiptPort {
           denominator > 0
             ? Math.round(((averagingBase * previousCost + line.quantity * line.unitCost) / denominator) * 1e6) / 1e6
             : line.unitCost;
+        await manager.save(Product, product);
       }
-      product.stock = onHand + line.quantity;
-      await manager.save(Product, product);
 
-      await manager.save(
-        manager.create(StockMovement, {
-          productId: product.id,
-          organizationId,
-          quantity: line.quantity,
-          cost: line.unitCost,
-          type: 'PURCHASE_RECEIPT',
-          reference: receipt.reference,
-          sourceType: receipt.sourceType,
-          sourceId: receipt.sourceId,
-        }),
-      );
+      warehouseId ??= await this.ledger.resolveWarehouse(manager, organizationId, receipt.place);
+      await this.ledger.move(manager, organizationId, {
+        productId: product.id,
+        warehouseId,
+        quantity: line.quantity,
+        unitCost: line.unitCost,
+        type: 'PURCHASE_RECEIPT',
+        reference: receipt.reference,
+        sourceType: receipt.sourceType,
+        sourceId: receipt.sourceId,
+      });
 
       stocked.push(true);
       posted.push({
@@ -307,37 +335,67 @@ export class InventoryService implements GoodsReceiptPort {
         }, actorUserId)
       : null;
 
-    return { journalEntryId, stocked };
+    return { journalEntryId, stocked, warehouseId };
   }
 
   /**
-   * Record a movement in the stock ledger without touching the balance — for callers that already
-   * moved the balance themselves (a vendor bill receiving goods, a sale dispatching them).
+   * Undo a receipt (see `GoodsReceiptPort.returnGoods`).
+   *
+   * For a weighted-average item the receipt's value comes back out of the average exactly as it
+   * went in: what remains is valued at (stock × cost − returned × receipt cost) / remaining stock.
+   * That keeps the inventory account and the stock it describes equal once the return entry
+   * (Dr GRNI / Cr Inventory, at the same values) is posted. If nothing remains, the cost is left as it was — there is nothing left to value.
    */
-  async recordMovement(
+  async returnGoods(
     manager: EntityManager,
     organizationId: string,
-    movement: {
-      productId: string;
-      quantity: number;
-      unitCost: number;
-      type: StockMovementType;
-      reference: string;
-      sourceType: string;
-      sourceId: string;
-    },
-  ): Promise<void> {
-    await manager.save(
-      manager.create(StockMovement, {
-        productId: movement.productId,
-        organizationId,
-        quantity: movement.quantity,
-        cost: movement.unitCost,
-        type: movement.type,
-        reference: movement.reference,
-        sourceType: movement.sourceType,
-        sourceId: movement.sourceId,
-      }),
+    request: GoodsReturnRequest,
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const returned: Array<{ description: string; amount: number }> = [];
+    for (const line of request.lines) {
+      if (line.quantity <= 0) continue;
+      const product = await this.lockProduct(line.productId, organizationId, manager);
+      if (product.kind === ProductKind.SERVICE) continue;
+      returned.push({ description: product.name, amount: Math.round(line.quantity * line.unitCost * 100) / 100 });
+      const warehouseId =
+        request.warehouseId ?? (await this.ledger.resolveWarehouse(manager, organizationId, {}));
+
+      const onHand = Number(product.stock);
+      const remaining = onHand - line.quantity;
+      if (
+        (product.costingMethod === CostingMethod.WEIGHTED_AVERAGE || !product.costingMethod) &&
+        remaining > 0
+      ) {
+        const value = onHand * Number(product.cost) - line.quantity * line.unitCost;
+        product.cost = Math.max(0, Math.round((value / remaining) * 1e6) / 1e6);
+        await manager.save(Product, product);
+      }
+
+      await this.ledger.move(manager, organizationId, {
+        productId: product.id,
+        warehouseId,
+        quantity: -line.quantity,
+        unitCost: line.unitCost,
+        type: 'PURCHASE_RETURN',
+        reference: request.reference,
+        sourceType: request.sourceType,
+        sourceId: request.sourceId,
+      });
+    }
+
+    if (!request.posted) return null;
+    return this.posting.postGoodsReturn(
+      manager,
+      organizationId,
+      {
+        reference: request.reference,
+        sourceId: request.sourceId,
+        date: request.date,
+        reason: request.reason,
+        lines: returned,
+      },
+      actorUserId,
     );
   }
 

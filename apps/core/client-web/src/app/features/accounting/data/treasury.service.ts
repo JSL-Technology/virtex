@@ -10,6 +10,8 @@ export type BankAccountType = 'CHECKING' | 'SAVINGS' | 'CASH' | 'CREDIT_CARD';
 export interface BankAccount {
   id: string;
   name: string;
+  /** The catalogue bank, when linked. `bankName` and `swiftBic` are copied from it. */
+  bankId: string | null;
   bankName: string | null;
   /**
    * The full number, returned only by the bank-account endpoints, which a reconciliation needs in
@@ -68,8 +70,30 @@ export interface BankTransfer {
   journalEntryId: string | null;
 }
 
+/** An institution in the tenant's bank catalogue. */
+export interface Bank {
+  id: string;
+  name: string;
+  swiftBic: string | null;
+  countryCode: string | null;
+  localCode: string | null;
+  isActive: boolean;
+  /** How many of the tenant's bank accounts are held there; present on the list. */
+  accountCount?: number;
+}
+
+export interface SaveBank {
+  name?: string;
+  swiftBic?: string | null;
+  countryCode?: string | null;
+  localCode?: string | null;
+  isActive?: boolean;
+}
+
 export interface CreateBankAccount {
   name: string;
+  /** Links the account to a catalogue bank; its name and BIC are then the bank's. */
+  bankId?: string | null;
   bankName?: string | null;
   accountNumber?: string | null;
   iban?: string | null;
@@ -109,6 +133,28 @@ export interface CreateBankTransfer {
 export class TreasuryService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/treasury`;
+
+  listBanks(): Observable<Bank[]> {
+    return this.http.get<Bank[]>(`${this.apiUrl}/banks`);
+  }
+
+  findBank(id: string): Observable<Bank> {
+    return this.http.get<Bank>(`${this.apiUrl}/banks/${id}`);
+  }
+
+  createBank(body: SaveBank & { name: string }): Observable<Bank> {
+    return this.http.post<Bank>(`${this.apiUrl}/banks`, body);
+  }
+
+  /** A changed name or BIC is carried by the server onto every account held at the bank. */
+  updateBank(id: string, body: SaveBank): Observable<Bank> {
+    return this.http.patch<Bank>(`${this.apiUrl}/banks/${id}`, body);
+  }
+
+  /** Refused while an account is held at the bank; deactivating is the alternative. */
+  removeBank(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/banks/${id}`);
+  }
 
   listBankAccounts(): Observable<BankAccount[]> {
     return this.http.get<BankAccount[]>(`${this.apiUrl}/bank-accounts`);

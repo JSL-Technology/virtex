@@ -5,6 +5,7 @@ import { testExchangeRateResolver } from './exchange-rate-resolver.testing';
 import { XeRatesProvider } from './xe-rates.provider';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
+import { RateScope } from './dto/exchange-rate.dto';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { TenantExchangeRate } from './entities/tenant-exchange-rate.entity';
 import { runInTenantContext } from '../shared/tenancy/tenant-context';
@@ -356,6 +357,58 @@ describeWithDb('exchange rates', () => {
     await expect(
       service.backfill({ startDate: '2099-01-01', endDate: '2099-01-05' }),
     ).rejects.toThrow();
+  });
+
+  // ── The history, a month at once, and removing a typo ───────────────────────────────────────
+
+  it('lists the company\'s own rates beside the shared ones, newest first, and never another company\'s', async () => {
+    await publish('USD', 'PYG', 58.8, '2026-03-14');
+    await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: DAY }, ACTOR, tenantA.id);
+    await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 1, date: DAY }, ACTOR, tenantB.id);
+
+    const page = await service.history(tenantA.id, { currency: 'pyg' });
+    expect(page.items.map((row) => [row.scope, row.rate, row.date])).toEqual([
+      ['TENANT', 59, DAY],
+      ['SHARED', 58.8, '2026-03-14'],
+    ]);
+    const own = await service.history(tenantA.id, { currency: 'PYG', scope: RateScope.TENANT });
+    expect(own.total).toBe(1);
+  });
+
+  it('imports a table of rates all or nothing, naming the row that is wrong', async () => {
+    await expect(
+      service.importRates(
+        {
+          rates: [
+            { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-01' },
+            { fromCurrency: 'USD', toCurrency: 'PYG', rate: 0, date: '2026-03-02' },
+          ],
+        },
+        ACTOR,
+        tenantA.id,
+      ),
+    ).rejects.toMatchObject({ messageKey: 'currencies.import_row_invalid', params: { row: 2 } });
+    expect((await service.history(tenantA.id, { currency: 'PYG', scope: RateScope.TENANT })).total).toBe(0);
+
+    const result = await service.importRates(
+      {
+        rates: [
+          { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: '2026-03-01' },
+          { fromCurrency: 'USD', toCurrency: 'PYG', rate: 59.5, date: '2026-03-02' },
+        ],
+      },
+      ACTOR,
+      tenantA.id,
+    );
+    expect(result.imported).toBe(2);
+    expect((await service.history(tenantA.id, { currency: 'PYG', scope: RateScope.TENANT })).total).toBe(2);
+  });
+
+  it('removes a rate the company recorded, and only its own', async () => {
+    const { rate } = await service.record({ fromCurrency: 'USD', toCurrency: 'PYG', rate: 59, date: DAY }, ACTOR, tenantA.id);
+    await expect(service.remove(rate.id, tenantB.id)).rejects.toMatchObject({ messageKey: 'currencies.exchange_rate_not_found' });
+    await service.remove(rate.id, tenantA.id);
+    expect((await service.history(tenantA.id, { currency: 'PYG', scope: RateScope.TENANT })).total).toBe(0);
   });
 
   it('explains a rate through the route the controller serves', async () => {

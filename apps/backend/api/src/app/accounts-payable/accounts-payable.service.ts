@@ -3,14 +3,13 @@ import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
 import { VendorBillLine } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, DataSource, EntityManager } from 'typeorm';
+import { Repository, In, DataSource, EntityManager, FindOperator } from 'typeorm';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
-import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
-import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
@@ -29,10 +28,10 @@ import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.e
 import { BudgetControlService } from '../budgets/budget-control.service';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { Account } from '../chart-of-accounts/entities/account.entity';
+import { resolveAccountByRole } from './payables-accounts';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
-import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import {
   BadRequestError,
   ForbiddenError,
@@ -40,11 +39,10 @@ import {
 } from '../i18n/localized.exception';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
-import {
-  AccountBalancesService,
-  toIsoDate,
-} from '../chart-of-accounts/account-balances.service';
+import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
+import { toIsoDate } from '../common/dates';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
+import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
   label: string;
@@ -87,6 +85,13 @@ export interface AgingReport {
   controlAccountBalance: number;
   /** `total − controlAccountBalance`. Anything but zero is a subledger that needs investigating. */
   controlAccountDifference: number;
+  /**
+   * False when the report covers only some branches — a branch was asked for, or the reader is
+   * limited to some. The general ledger has no branch dimension, so the control-account tie-out
+   * only means something for the whole company; a partial report must not present the gap between
+   * one store's documents and the company's ledger as a difference to investigate.
+   */
+  coversWholeCompany: boolean;
   /** Documents whose currency has no rate on file for the reporting date, and are therefore held at the booked rate. */
   unconvertedDocuments: number;
 }
@@ -198,6 +203,7 @@ export class AccountsPayableService {
   async create(
     dto: CreateVendorBillDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<VendorBill> {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
@@ -299,6 +305,7 @@ export class AccountsPayableService {
       );
 
       const bill = manager.create(VendorBill, {
+        branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
         ...dto,
         organizationId,
         lines,
@@ -358,6 +365,7 @@ export class AccountsPayableService {
     id: string,
     dto: UpdateVendorBillDto,
     organizationId: string,
+    actorUserId: string | null = null,
   ): Promise<VendorBill> {
     const bill = await this.findOne(id, organizationId);
     if (bill.status !== VendorBillStatus.DRAFT) {
@@ -368,7 +376,17 @@ export class AccountsPayableService {
         'accounts_payable.lines_existing_invoice_must_changed_through',
       );
     }
-    return this.vendorBillRepository.save(this.vendorBillRepository.merge(bill, dto));
+    // The branch is not merged as sent: a new one must be a branch the editor may use.
+    const { branchId, ...changes } = dto;
+    const merged = this.vendorBillRepository.merge(bill, changes);
+    merged.branchId = await reassignDocumentBranch(
+      this.dataSource.manager,
+      organizationId,
+      actorUserId,
+      bill.branchId,
+      branchId,
+    );
+    return this.vendorBillRepository.save(merged);
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -668,6 +686,7 @@ export class AccountsPayableService {
       billId: bill.id,
       organizationId,
       journalEntryId: entry.id,
+      branchId: bill.branchId,
       lines: billLinesForInventory,
     };
     await this.afterCommit.runAfterCommit(
@@ -791,16 +810,13 @@ export class AccountsPayableService {
   }
 
   /** An account by its operational role, falling back to the legacy settings column. */
-  private async resolveAccount(
+  private resolveAccount(
     manager: EntityManager,
     organizationId: string,
     role: AccountRole,
     fallbackId: string | null | undefined,
   ): Promise<string | null> {
-    const account = await manager.findOne(Account, {
-      where: { organizationId, systemRole: role },
-    });
-    return account?.id ?? fallbackId ?? null;
+    return resolveAccountByRole(manager, organizationId, role, fallbackId);
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -861,9 +877,22 @@ export class AccountsPayableService {
         where: { id: In(billIds), organizationId },
       });
       const billsById = new Map(bills.map((bill) => [bill.id, bill]));
+      // One branch may pay for another (a head office paying every store's suppliers), but only
+      // bills the payer could open: a restricted person cannot settle a branch they cannot see.
+      const payerScope = await loadBranchScope(manager, organizationId, actorUserId ?? null);
+      for (const bill of bills) assertDocumentInScope(payerScope, bill.branchId);
 
+      const paymentDate = toIsoDate(dto.paymentDate);
       const batch = await manager.save(
         manager.create(PaymentBatch, {
+          number: await allocateDocumentNumber(
+            manager,
+            organizationId,
+            DOCUMENT_SEQUENCE_SCOPE.VENDOR_PAYMENT,
+            'PAY',
+            Number(paymentDate.slice(0, 4)),
+          ),
+          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
           organizationId,
           paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
           bankAccountId: dto.bankAccountId,
@@ -967,7 +996,9 @@ export class AccountsPayableService {
             vendorBillId: bill.id,
             date: toIsoDate(dto.paymentDate) as unknown as Date,
             amount: settled,
-            amountPaid: line.amount,
+            // What left the bank, in the bank account's currency: the bill's own amount when they
+            // share a currency, its value at the day's rate when the account is in the base one.
+            amountPaid: bankAccount.currencyCode === bill.currencyCode ? line.amount : cashBase,
             taxWithheld: line.taxWithheld ?? 0,
             incomeTaxWithheld: line.incomeTaxWithheld ?? 0,
             discount,
@@ -1076,15 +1107,22 @@ export class AccountsPayableService {
   // Reads
   // ───────────────────────────────────────────────────────────────────────────
 
-  findAll(organizationId: string): Promise<VendorBill[]> {
-    return this.vendorBillRepository.find({
-      where: { organizationId },
-      order: { date: 'DESC' },
-      relations: ['vendor'],
-    });
+  async findAll(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string } = {},
+  ): Promise<VendorBill[]> {
+    const query = this.vendorBillRepository
+      .createQueryBuilder('bill')
+      .leftJoinAndSelect('bill.vendor', 'vendor')
+      .where('bill.organizationId = :organizationId', { organizationId });
+    if (options.actorUserId || options.branchId) {
+      const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+      applyBranchScope(query, 'bill', scope, options.branchId);
+    }
+    return query.orderBy('bill.date', 'DESC').getMany();
   }
 
-  async findOne(id: string, organizationId: string): Promise<VendorBill> {
+  async findOne(id: string, organizationId: string, actorUserId?: string): Promise<VendorBill> {
     const bill = await this.vendorBillRepository.findOne({
       where: { id, organizationId },
       relations: ['lines', 'vendor'],
@@ -1092,15 +1130,35 @@ export class AccountsPayableService {
     if (!bill) {
       throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id });
     }
+    if (actorUserId) {
+      assertDocumentInScope(await loadBranchScope(this.dataSource.manager, organizationId, actorUserId), bill.branchId);
+    }
     return bill;
   }
 
   async listPayments(id: string, organizationId: string): Promise<VendorPayment[]> {
     await this.findOne(id, organizationId);
+    // With the payment each one belongs to, so a voided payment reads as voided rather than as
+    // money that settled the bill.
     return this.dataSource.getRepository(VendorPayment).find({
       where: { vendorBillId: id },
+      relations: ['paymentBatch'],
       order: { date: 'ASC' },
     });
+  }
+
+  /** The branches an ageing report covers: one asked for, the reader's own, or all (`{}`). */
+  private async agingBranchFilter(
+    organizationId: string,
+    options: { branchId?: string; actorUserId?: string },
+  ): Promise<{ branchId?: string | FindOperator<string> }> {
+    if (!options.actorUserId && !options.branchId) return {};
+    const scope = await loadBranchScope(this.dataSource.manager, organizationId, options.actorUserId ?? null);
+    if (options.branchId) {
+      assertDocumentInScope(scope, options.branchId);
+      return { branchId: options.branchId };
+    }
+    return scope.allowed ? { branchId: In(scope.allowed) } : {};
   }
 
   /**
@@ -1112,8 +1170,12 @@ export class AccountsPayableService {
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
+    options: { branchId?: string; actorUserId?: string } = {},
   ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    // A slice by branch is a view of the same report; the whole-company figure is still the one
+    // that ties to the control account. A person limited to some branches only ever sees theirs.
+    const branchFilter = await this.agingBranchFilter(organizationId, options);
     const settings = await this.orgSettings.getForOrg(organizationId);
     const baseCurrency = settings?.baseCurrency ?? 'USD';
 
@@ -1121,6 +1183,7 @@ export class AccountsPayableService {
       where: {
         organizationId,
         status: In([VendorBillStatus.OPEN, VendorBillStatus.PARTIALLY_PAID]),
+        ...branchFilter,
       },
       relations: ['vendor'],
     });
@@ -1210,6 +1273,7 @@ export class AccountsPayableService {
       controlAccountBalance,
       // Signed: positive means the subledger claims more is owed than the ledger records.
       controlAccountDifference: roundAmount(total - controlAccountBalance),
+      coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
       totals: {
@@ -1268,7 +1332,14 @@ export class AccountsPayableService {
       // A bill with payments against it cannot be annulled: the payments would be left pointing at
       // a document that no longer owes anything. It used to set `balance = 0` on a partially paid
       // bill and leave the payments orphaned.
-      const payments = await manager.count(VendorPayment, { where: { vendorBillId: id } });
+      // Only payments still standing: a voided payment gave back everything it settled.
+      const payments = await manager
+        .createQueryBuilder(VendorPayment, 'payment')
+        .innerJoin('payment.paymentBatch', 'batch')
+        .where('payment.vendorBillId = :id', { id })
+        .andWhere('batch.organizationId = :organizationId', { organizationId })
+        .andWhere('batch.status <> :void', { void: PaymentBatchStatus.VOID })
+        .getCount();
       if (payments > 0) {
         throw new BadRequestError('accounts_payable.bill_with_payments_applied_cannot_voided');
       }
@@ -1322,6 +1393,7 @@ export class AccountsPayableService {
         reason,
         actorUserId,
         reversalJournalEntryId: bill.reversalJournalEntryId,
+        branchId: bill.branchId,
         lines: voidLines,
         wasPosted,
       };

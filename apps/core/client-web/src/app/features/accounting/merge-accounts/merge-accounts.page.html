@@ -1,0 +1,148 @@
+<div class="merge-page">
+  <header class="merge-header">
+    <div>
+      <h1 class="merge-header__title">
+        <lucide-icon [img]="MergeIcon" size="20" aria-hidden="true"></lucide-icon>
+        {{ 'accounting.merge_tool.account_merge_tool' | translate }}
+      </h1>
+      <p class="merge-header__subtitle">{{ 'accounting.merge_tool.subtitle' | translate }}</p>
+    </div>
+    <a routerLink="/accounting/chart-of-accounts" class="secondary-button">
+      {{ 'accounting.merge_tool.back_chart_accounts' | translate }}
+    </a>
+  </header>
+
+  @if (started(); as done) {
+    <section class="merge-card merge-card--done" role="status">
+      <p>{{ done.messageKey | translate: done.messageParams }}</p>
+      <button type="button" class="secondary-button" (click)="reset()">
+        {{ 'accounting.merge_tool.merge_another' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="merge-card">
+      <h2 class="merge-card__title">{{ 'accounting.merge_tool.step_select_accounts' | translate }}</h2>
+      <div class="merge-pair">
+        <label class="merge-field" for="mergeSource">
+          <span>{{ 'accounting.merge_tool.source_account_merge' | translate }}</span>
+          <vx-select
+            inputId="mergeSource"
+            [ngModel]="sourceId()"
+            (ngModelChange)="selectSource($event)"
+            [search]="searchAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountValue"
+            placeholderKey="accounting.merge_tool.search_code_name"
+          />
+          <small>{{ 'accounting.merge_tool.source_help' | translate }}</small>
+        </label>
+
+        <lucide-icon class="merge-pair__arrow" [img]="ArrowIcon" size="20" aria-hidden="true"></lucide-icon>
+
+        <label class="merge-field" for="mergeDestination">
+          <span>{{ 'accounting.merge_tool.destination_account' | translate }}</span>
+          <vx-select
+            inputId="mergeDestination"
+            [ngModel]="destinationId()"
+            (ngModelChange)="selectDestination($event)"
+            [search]="searchAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountValue"
+            placeholderKey="accounting.merge_tool.search_code_name"
+          />
+          <small>{{ 'accounting.merge_tool.destination_help' | translate }}</small>
+        </label>
+      </div>
+
+      @if (sourceId() && sourceId() === destinationId()) {
+        <p class="merge-note merge-note--error" role="alert">
+          {{ 'chart_of_accounts.source_destination_accounts_cannot_same' | translate }}
+        </p>
+      }
+
+      <div class="merge-actions">
+        <button type="button" class="primary-button" [disabled]="!canAnalyze()" (click)="analyze()">
+          {{ (analyzing() ? 'accounting.merge_tool.analyzing' : 'accounting.merge_tool.analyze') | translate }}
+        </button>
+      </div>
+    </section>
+
+    @if (preview(); as p) {
+      <section class="merge-card" aria-live="polite">
+        <h2 class="merge-card__title">{{ 'accounting.merge_tool.analysis_title' | translate }}</h2>
+
+        <table class="data-table merge-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'accounting.merge_tool.account' | translate }}</th>
+              <th class="text-right">{{ 'accounting.merge_tool.posted_balance' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">{{ 'accounting.merge_tool.source' | translate }}</th>
+              <td>{{ p.source.code }} — {{ nameOf(p.source.name) }}</td>
+              <td class="text-right"><vx-amount [value]="p.source.postedBalance" /></td>
+            </tr>
+            <tr>
+              <th scope="row">{{ 'accounting.merge_tool.destination' | translate }}</th>
+              <td>{{ p.destination.code }} — {{ nameOf(p.destination.name) }}</td>
+              <td class="text-right"><vx-amount [value]="p.destination.postedBalance" /></td>
+            </tr>
+            <tr class="merge-table__total">
+              <th scope="row">{{ 'accounting.merge_tool.after_merge' | translate }}</th>
+              <td>{{ p.destination.code }}</td>
+              <td class="text-right"><vx-amount [value]="p.source.postedBalance + p.destination.postedBalance" /></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ul class="merge-facts">
+          <li>{{ 'accounting.merge_tool.lines_to_move' | translate: { count: p.linesToMove } }}</li>
+          <li>{{ 'accounting.merge_tool.children_to_move' | translate: { count: p.childAccountsToMove } }}</li>
+          <li>{{ 'accounting.merge_tool.source_deactivated' | translate }}</li>
+        </ul>
+
+        @for (blocker of p.blockers; track blocker) {
+          <p class="merge-note merge-note--error" role="alert">
+            <lucide-icon [img]="BlockedIcon" size="16" aria-hidden="true"></lucide-icon>
+            {{ blocker | translate }}
+          </p>
+        }
+        @for (warning of p.warnings; track warning) {
+          <p class="merge-note merge-note--warning">
+            <lucide-icon [img]="WarningIcon" size="16" aria-hidden="true"></lucide-icon>
+            {{ warning | translate }}
+            @if (p.linesInClosedPeriods > 0) {
+              ({{ 'accounting.merge_tool.lines_in_closed_periods' | translate: { count: p.linesInClosedPeriods } }})
+            }
+          </p>
+        }
+
+        @if (p.blockers.length === 0) {
+          <label class="merge-field merge-field--reason" for="mergeReason">
+            <span>{{ 'accounting.merge_tool.reason' | translate }}</span>
+            <textarea
+              id="mergeReason"
+              rows="3"
+              maxlength="500"
+              required
+              [ngModel]="reason()"
+              (ngModelChange)="reason.set($event)"
+            ></textarea>
+            <small>{{ 'accounting.merge_tool.reason_help' | translate }}</small>
+          </label>
+
+          <div class="merge-actions">
+            <button type="button" class="danger-button" [disabled]="!canMerge()" (click)="merge()">
+              {{ (merging() ? 'accounting.merge_tool.merging' : 'accounting.merge_tool.merge_accounts') | translate }}
+            </button>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

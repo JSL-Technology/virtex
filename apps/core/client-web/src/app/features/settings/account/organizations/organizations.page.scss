@@ -1,0 +1,85 @@
+@use 'assets/styles/design-system' as ds;
+
+.s-page { padding: var(--space-8); max-width: 1000px; }
+
+.s-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: var(--space-4);
+
+  &__title { @include ds.heading('xl'); margin-bottom: var(--space-1); }
+  &__subtitle { font-size: var(--text-sm); color: var(--content-secondary); }
+}
+
+.o-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.o-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+
+  &:last-child { border-bottom: none; }
+  &--current { background: var(--surface-sunken); }
+}
+
+.o-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--content-secondary);
+  flex-shrink: 0;
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.o-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.o-name { font-weight: var(--font-semibold); }
+.o-meta { font-size: var(--text-xs); color: var(--content-tertiary); }
+
+.o-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.o-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  text-align: left;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised, transparent);
+  color: var(--content-primary);
+  cursor: pointer;
+
+  span { font-size: var(--text-sm); color: var(--content-secondary); }
+
+  &:hover, &:focus-visible { border-color: var(--accent-border); }
+}

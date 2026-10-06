@@ -18,6 +18,10 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
 import { OrgSettingsModule } from './org-settings.module';
+import { Branch } from './entities/branch.entity';
+import { UserBranchAccess } from './entities/user-branch-access.entity';
+import { BranchesService } from './services/branches.service';
+import { BranchesController } from './branches.controller';
 import { OrgSettingsService } from './services/org-settings.service';
 import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.ports';
 
@@ -28,6 +32,8 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
       OrganizationSettings,
       OrganizationSubsidiary,
       UserOrganization,
+      Branch,
+      UserBranchAccess,
     ]),
     OrgSettingsModule,
     ChartOfAccountsModule,
@@ -45,16 +51,17 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
     MailModule,
   ],
   // Settings by section (QA M-09). Declared first: its paths are more specific than `:id`.
-  controllers: [OrganizationSettingsController, MailSettingsController, OrganizationsController],
+  controllers: [OrganizationSettingsController, MailSettingsController, BranchesController, OrganizationsController],
   providers: [
     OrganizationsService,
     MembershipService,
+    BranchesService,
     OrganizationSettingsSectionsService,
     // El guard que resuelve la empresa activa vive en plataforma y no puede importar este módulo
     // por dentro. `useExisting` en vez de `useClass` para que sea LA misma instancia y no una
     // segunda con su propio repositorio.
     { provide: OrganizationLookupPort, useExisting: OrganizationsService },
   ],
-  exports: [OrganizationsService, MembershipService, OrgSettingsModule, OrganizationLookupPort]
+  exports: [OrganizationsService, MembershipService, BranchesService, OrgSettingsModule, OrganizationLookupPort]
 })
 export class OrganizationsModule {}

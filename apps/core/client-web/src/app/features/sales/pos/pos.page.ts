@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -30,7 +32,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +54,11 @@ export class PosPage {
 
   /** The open shift this screen is ringing sales into, if any. */
   readonly activeShiftId = signal<string | null>(null);
+  /**
+   * The branch the till's shift belongs to — every sale on it is that branch's. Chosen before the
+   * shift opens (the cashier's default is proposed); fixed once it is open.
+   */
+  readonly shiftBranchId = signal<string | null>(null);
   readonly saving = signal(false);
 
   /**
@@ -287,11 +294,13 @@ export class PosPage {
       next: (shift) => {
         if (shift) {
           this.activeShiftId.set(shift.id);
+          this.shiftBranchId.set(shift.branchId ?? null);
           return;
         }
-        this.posService.openShift(this.terminalId, 0).subscribe({
+        this.posService.openShift(this.terminalId, 0, this.shiftBranchId()).subscribe({
           next: (opened) => {
             this.activeShiftId.set(opened.id);
+            this.shiftBranchId.set(opened.branchId ?? null);
             this.shiftError.set(null);
           },
           error: (err: HttpErrorResponse) => this.failShift(err),

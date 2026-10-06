@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, ChevronLeft, Edit, Send, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Banknote, ChevronLeft, Edit, FileMinus, Send, Trash2 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EMPTY, forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -15,6 +15,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 import {
   AccountsPayableService,
   VendorBill,
+  VendorDebitNoteRow,
   VendorPayment,
 } from '../../../core/services/accounts-payable';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -22,6 +23,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 
 /**
@@ -41,7 +43,7 @@ import { refreshWhenStale } from '../../../core/data/data-version.service';
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +53,8 @@ export class VendorBillDetailPage implements OnInit {
   protected readonly EditIcon = Edit;
   protected readonly SubmitIcon = Send;
   protected readonly VoidIcon = Trash2;
+  protected readonly PayIcon = Banknote;
+  protected readonly DebitNoteIcon = FileMinus;
 
   private readonly dialog = inject(DialogService);
   private readonly route = inject(ActivatedRoute);
@@ -63,6 +67,14 @@ export class VendorBillDetailPage implements OnInit {
 
   readonly bill = signal<VendorBill | null>(null);
   readonly payments = signal<VendorPayment[]>([]);
+  readonly debitNotes = signal<VendorDebitNoteRow[]>([]);
+  /** Payments still standing: a voided one gave back everything it settled. */
+  readonly livePayments = computed(() => this.payments().filter((payment) => payment.paymentBatch?.status !== 'VOID'));
+  /** What the bill still owes can be paid, or reduced by a note. */
+  readonly isPayable = computed(() => {
+    const bill = this.bill();
+    return !!bill && (bill.status === 'OPEN' || bill.status === 'PARTIALLY_PAID') && bill.balance > 0;
+  });
   readonly isLoading = signal(true);
   readonly errorKey = signal<string | null>(null);
 
@@ -71,7 +83,7 @@ export class VendorBillDetailPage implements OnInit {
   readonly canSubmit = computed(() => this.bill()?.status === 'DRAFT');
   readonly canVoid = computed(() => {
     const status = this.bill()?.status;
-    return status !== undefined && status !== 'VOID' && this.payments().length === 0;
+    return status !== undefined && status !== 'VOID' && this.livePayments().length === 0;
   });
 
   readonly withheldTotal = computed(() => {
@@ -119,6 +131,9 @@ export class VendorBillDetailPage implements OnInit {
             payments: this.accountsPayable
               .listPayments(id)
               .pipe(catchError(() => of([] as VendorPayment[]))),
+            debitNotes: this.accountsPayable
+              .debitNotes({ vendorBillId: id, limit: 200 })
+              .pipe(catchError(() => of({ items: [] as VendorDebitNoteRow[] }))),
           });
         }),
         catchError(() => {
@@ -126,7 +141,8 @@ export class VendorBillDetailPage implements OnInit {
           return EMPTY;
         }),
       )
-      .subscribe(({ bill, payments }) => {
+      .subscribe(({ bill, payments, debitNotes }) => {
+        this.debitNotes.set(debitNotes.items);
         this.bill.set(bill);
         //  Ya se conoce el NCF: la pestaña deja de llamarse por el UUID de la ruta.
         this.tab?.setTitle(this.documentTitle(bill));

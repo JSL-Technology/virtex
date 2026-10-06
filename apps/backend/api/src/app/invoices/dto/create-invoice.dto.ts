@@ -88,6 +88,11 @@ export class CreateInvoiceDto {
   @IsUUID()
   customerId: string;
 
+  /** The branch it is issued from. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsDateString()
   issueDate: string;
 

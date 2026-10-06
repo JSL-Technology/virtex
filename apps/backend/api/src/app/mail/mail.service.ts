@@ -432,7 +432,7 @@ export class MailService {
         ...this.baseContext(),
         name: user.firstName,
         organizationName,
-        dashboardUrl: this.links.dashboard(),
+        dashboardUrl: this.links.workspaceHome(),
       },
     });
   }

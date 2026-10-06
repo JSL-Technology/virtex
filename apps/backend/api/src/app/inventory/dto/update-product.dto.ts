@@ -1,16 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { CreateProductDto } from './create-product.dto';
 
-export class UpdateProductDto extends PartialType(CreateProductDto) {
-  /**
-   * Why stock or unit cost changed. Required when either does (QA M-08): changing them posts an
-   * inventory adjustment, and an adjustment nobody can explain is the one an auditor asks about.
-   * Recorded on the entry and on the stock-ledger line.
-   */
-  @IsString()
-  @IsOptional()
-  @MinLength(5, { message: 'validation.constraints.min_length|{"min":5}' })
-  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
-  adjustmentReason?: string;
-}
+/**
+ * Editing the catalogue entry — never what is held.
+ *
+ * `stock` stays accepted only so an old client gets a clear refusal rather than a schema error:
+ * changing the quantity on hand is an inventory adjustment, a document with a warehouse, a reason
+ * and its own entry (`POST /inventory/adjustments`). The unit cost likewise, once there is stock
+ * to revalue. See `InventoryService.update`.
+ */
+export class UpdateProductDto extends PartialType(OmitType(CreateProductDto, ['warehouseId'] as const)) {}

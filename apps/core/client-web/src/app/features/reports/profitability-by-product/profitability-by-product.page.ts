@@ -1,3 +1,5 @@
+import { FormsModule } from '@angular/forms';
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
@@ -29,7 +31,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, VxBranchPickerComponent],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +49,8 @@ export class ProfitabilityByProductPage {
 
   readonly startDate = signal(defaultPeriod().startDate);
   readonly endDate = signal(defaultPeriod().endDate);
+  /** Empty: every branch the reader may see. */
+  readonly branchFilter = signal<string | null>(null);
   readonly report = signal<ProfitabilityReport | null>(null);
   readonly loading = signal(true);
   readonly failed = signal(false);
@@ -61,7 +65,7 @@ export class ProfitabilityByProductPage {
     this.loading.set(true);
     this.failed.set(false);
     this.api
-      .byProduct({ startDate: this.startDate(), endDate: this.endDate() })
+      .byProduct({ startDate: this.startDate(), endDate: this.endDate(), branchId: this.branchFilter() })
       .subscribe({
         next: (report) => {
           this.report.set(report);
@@ -72,6 +76,11 @@ export class ProfitabilityByProductPage {
           this.loading.set(false);
         },
       });
+  }
+
+  onBranchChange(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.load();
   }
 
   onStartDateChange(value: string): void {

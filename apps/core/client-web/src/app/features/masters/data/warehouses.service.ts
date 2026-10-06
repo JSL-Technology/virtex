@@ -8,18 +8,24 @@ export interface Warehouse {
   name: string;
   code?: string | null;
   isActive: boolean;
+  /** Where stock goes when a document names no warehouse. Exactly one per company. */
+  isDefault?: boolean;
   addressLine1?: string | null;
   city?: string | null;
   countryCode?: string | null;
+  /** The branch it belongs to; null for a central warehouse or a company without branches. */
+  branchId?: string | null;
 }
 
 export interface WarehouseInput {
   name: string;
   code?: string;
   isActive?: boolean;
+  isDefault?: boolean;
   addressLine1?: string;
   city?: string;
   countryCode?: string;
+  branchId?: string;
 }
 
 /**

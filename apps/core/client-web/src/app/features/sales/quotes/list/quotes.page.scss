@@ -3,3 +3,8 @@
 .chip--active { color: var(--text-primary); border-color: var(--text-primary); font-weight: 600; }
 .text-right { text-align: right; }
 .text-center { text-align: center; }
+
+// A branch filter, for companies that have branches, at the end of the status chips.
+.quotes__branch {
+  margin-left: auto;
+}

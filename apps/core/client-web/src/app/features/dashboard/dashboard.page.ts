@@ -30,6 +30,13 @@ import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
+/**
+ * The business indicators: configurable widgets over the tenant's own figures.
+ *
+ * It was a second home page («Dashboard») with its own menu entry beside «Inicio». It is now a
+ * section of the one home page — the portlets on NetSuite's Home — so its heading is an `h2` and
+ * `/dashboard` redirects to `/overview`.
+ */
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
@@ -48,7 +55,6 @@ export class DashboardPage implements OnInit {
   protected readonly TrashIcon = Trash;
   protected readonly DragIcon = GripVertical;
 
-  readonly today = new Date();
 
 
   //  private dashboardService = inject(DashboardService);

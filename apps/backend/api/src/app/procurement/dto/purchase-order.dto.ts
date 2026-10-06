@@ -1,7 +1,8 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -52,6 +53,11 @@ export class PurchaseOrderLineDto {
 }
 
 export class CreatePurchaseOrderDto {
+  /** The branch ordering, where the goods are expected. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsUUID()
   @IsNotEmpty()
   supplierId: string;
@@ -87,6 +93,11 @@ export class UpdatePurchaseOrderDto {
   @IsOptional()
   supplierId?: string;
 
+  /** Move a draft to another branch the editor may use. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsDateString()
   @IsOptional()
   orderDate?: string;
@@ -114,6 +125,11 @@ export class UpdatePurchaseOrderDto {
 }
 
 export class PurchaseOrderQueryDto {
+  /** Only this branch's orders. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsEnum(PurchaseOrderStatus)
   @IsOptional()
   status?: PurchaseOrderStatus;
@@ -121,6 +137,12 @@ export class PurchaseOrderQueryDto {
   @IsUUID()
   @IsOptional()
   supplierId?: string;
+
+  /** Only orders goods can still arrive against: sent, or partly received. */
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  receivable?: boolean;
 
   @Type(() => Number)
   @IsInt()
@@ -159,6 +181,11 @@ export class ReceivePurchaseOrderDto {
   @IsDateString()
   @IsOptional()
   receivedAt?: string;
+
+  /** The warehouse they arrived at. Omitted: the order's branch warehouse, else the default one. */
+  @IsUUID()
+  @IsOptional()
+  warehouseId?: string;
 
   @IsString()
   @IsOptional()

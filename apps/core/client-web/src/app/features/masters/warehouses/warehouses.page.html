@@ -28,6 +28,9 @@
         <input id="warehouse-city" type="text" maxlength="120"
           [ngModel]="draftCity()" (ngModelChange)="draftCity.set($event)" />
       </label>
+      <!-- A store's own stock room, or none: a central warehouse serves every branch. -->
+      <vx-branch-picker class="field" inputId="warehouse-branch" [optional]="true"
+        [ngModel]="draftBranch()" (ngModelChange)="draftBranch.set($event)" />
       <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
         {{ 'common.save' | translate }}
       </button>
@@ -49,19 +52,39 @@
           <th appSortHeader="name">{{ 'masters.warehouses.name' | translate }}</th>
           <th appSortHeader="code">{{ 'masters.warehouses.code' | translate }}</th>
           <th appSortHeader="city">{{ 'masters.warehouses.location' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
           <th appSortHeader="isActive" class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
+          <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
         </tr>
       </thead>
       <tbody>
         @for (warehouse of table.rows(); track warehouse.id) {
           <tr>
-            <td>{{ warehouse.name }}</td>
+            <td>
+              <a class="table-link" routerLink="/inventory/stock" [queryParams]="{ warehouseId: warehouse.id }">{{ warehouse.name }}</a>
+              @if (warehouse.isDefault) {
+                <vx-badge tone="accent" size="sm">{{ 'masters.warehouses.default' | translate }}</vx-badge>
+              }
+            </td>
             <td>{{ warehouse.code || '—' }}</td>
             <td>{{ warehouse.city || '—' }}</td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="warehouse.branchId" /></td>
+            }
             <td class="text-center">
               <vx-badge [tone]="warehouse.isActive ? 'ok' : 'neutral'">
                 {{ (warehouse.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
               </vx-badge>
+            </td>
+            <td class="row-actions" *appHasPermission="'wms:manage'">
+              @if (warehouse.isActive && !warehouse.isDefault) {
+                <button type="button" class="link-button" (click)="makeDefault(warehouse)">{{ 'masters.warehouses.make_default' | translate }}</button>
+                <button type="button" class="link-button" (click)="setActive(warehouse, false)">{{ 'masters.warehouses.close' | translate }}</button>
+              } @else if (!warehouse.isActive) {
+                <button type="button" class="link-button" (click)="setActive(warehouse, true)">{{ 'masters.warehouses.reopen' | translate }}</button>
+              }
             </td>
           </tr>
         }

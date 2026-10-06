@@ -1,7 +1,7 @@
 <div class="page-header">
   <div>
     <h2 class="page-title">{{ 'settings.subsidiaries.company_structure' | translate }}</h2>
-    <p class="page-subtitle">{{ 'settings.subsidiaries.manage_your_organization_subsidiaries_branches' | translate }}</p>
+    <p class="page-subtitle">{{ 'settings.subsidiaries.subtitle' | translate }}</p>
   </div>
   <button class="primary-button" (click)="openCreateModal()">
     <lucide-icon [img]="PlusIcon" size="18"></lucide-icon>
@@ -24,7 +24,7 @@
     <vx-empty-state
       [icon]="BuildingIcon"
       titleKey="settings.subsidiaries.no_subsidiaries_record"
-      descriptionKey="settings.subsidiaries.start_adding_subsidiary_branch_expand_your"
+      descriptionKey="settings.subsidiaries.empty_description"
     >
       <button action type="button" class="primary-button" (click)="openCreateModal()">
         {{ 'settings.subsidiaries.create_first_subsidiary' | translate }}
@@ -52,6 +52,16 @@
       </div>
       <div class="item-ownership">
         <span class="ownership-badge">{{ 'settings.subsidiaries.ownership_ownership' | translate: { ownership: sub.ownership } }}</span>
+        @if (sub.controlEndedOn) {
+          <vx-badge tone="neutral" size="sm">{{ 'settings.subsidiaries.control_ended_on' | translate: { date: (sub.controlEndedOn | vxDate: 'date' : true) } }}</vx-badge>
+        } @else if (!sub.acquisitionDate) {
+          <!-- Consolidation cannot separate pre-acquisition equity without it: say so where it is fixed. -->
+          <vx-badge tone="warning" size="sm">{{ 'settings.subsidiaries.acquisition_missing' | translate }}</vx-badge>
+        }
+        <button type="button" class="secondary-button" (click)="openEdit(sub)">
+          <lucide-icon [img]="EditIcon" size="14" aria-hidden="true"></lucide-icon>
+          <span>{{ 'settings.subsidiaries.edit' | translate }}</span>
+        </button>
       </div>
     </div>
     }
@@ -124,6 +134,68 @@
         [disabled]="submitting()"
       >
         {{ (submitting() ? 'common.saving' : 'settings.subsidiaries.create_subsidiary') | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}
+
+<!--
+  What consolidation needs and could not be recorded after creation: every consolidation warned that
+  pre-acquisition equity could not be separated and no goodwill could be computed.
+-->
+@if (editing(); as link) {
+  <vx-dialog size="md" titleKey="settings.subsidiaries.edit_title" [busy]="savingEdit()" (dismissed)="closeEdit()">
+    <form id="subsidiary-edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()">
+      <div class="modal-body">
+        <p class="edit-lead">{{ link.subsidiary.legalName }}</p>
+
+        <div class="form-field">
+          <label for="edit-ownership">{{ 'settings.subsidiaries.ownership_percentage' | translate }} *</label>
+          <input id="edit-ownership" type="number" formControlName="ownership" min="0" max="100" step="0.01">
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="edit-acquired">{{ 'settings.subsidiaries.acquisition_date' | translate }}</label>
+            <vx-date-field inputId="edit-acquired" formControlName="acquisitionDate" />
+          </div>
+          <div class="form-field">
+            <label for="edit-cost">{{ 'settings.subsidiaries.acquisition_cost' | translate }}</label>
+            <input id="edit-cost" type="number" formControlName="acquisitionCost" min="0" step="0.01">
+          </div>
+        </div>
+        <small class="field-hint">{{ 'settings.subsidiaries.acquisition_hint' | translate }}</small>
+
+        <div class="form-field">
+          <label for="edit-investment">{{ 'settings.subsidiaries.investment_account' | translate }}</label>
+          <vx-select
+            inputId="edit-investment"
+            formControlName="investmentAccountId"
+            [search]="searchInvestmentAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountId"
+          />
+          <small class="field-hint">{{ 'settings.subsidiaries.investment_account_hint' | translate }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="edit-ended">{{ 'settings.subsidiaries.control_ended' | translate }}</label>
+          <vx-date-field inputId="edit-ended" formControlName="controlEndedOn" />
+          <small class="field-hint">{{ 'settings.subsidiaries.control_ended_hint' | translate }}</small>
+          @if (controlEndsTooEarly()) {
+            <small class="field-error" role="alert">{{ 'organizations.subsidiary_control_ends_before_acquisition' | translate }}</small>
+          }
+        </div>
+      </div>
+    </form>
+
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" [disabled]="savingEdit()" (click)="closeEdit()">
+        {{ 'settings.subsidiaries.cancel' | translate }}
+      </button>
+      <button type="submit" form="subsidiary-edit-form" class="primary-button" [disabled]="savingEdit()">
+        {{ (savingEdit() ? 'common.saving' : 'common.save') | translate }}
       </button>
     </ng-container>
   </vx-dialog>

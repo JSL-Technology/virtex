@@ -8,8 +8,7 @@ import {
   JoinColumn,
   VersionColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+  UpdateDateColumn, Index } from 'typeorm';
 import { VendorBillLine } from './vendor-bill-line.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
@@ -17,6 +16,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { PurchaseOrder } from '../../procurement/entities/purchase-order.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 /**
  * DGII 606 "Tipo de Bienes y Servicios Comprados". A purchase must be classified for the return;
@@ -58,6 +58,7 @@ export enum VendorBillStatus {
   REJECTED = 'REJECTED',
 }
 
+@Index('IDX_vendor_bills_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'vendor_bills' })
 export class VendorBill {
   @PrimaryGeneratedColumn('uuid')
@@ -65,6 +66,13 @@ export class VendorBill {
 
   @Column({ name: 'organization_id' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_vendor_bills_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })

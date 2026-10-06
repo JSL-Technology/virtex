@@ -1,7 +1,8 @@
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogService } from '../../../core/services/dialog.service';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, ScrollText } from 'lucide-angular';
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -13,7 +14,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 
 @Component({
   selector: 'app-customers-page',
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,6 +25,7 @@ export class CustomersPage implements OnInit {
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly EditIcon = Edit;
+  protected readonly StatementIcon = ScrollText;
   protected readonly TrashIcon = Trash2;
 
   private customersService = inject(CustomersService);

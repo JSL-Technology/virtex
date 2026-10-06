@@ -1,0 +1,66 @@
+<div class="s-page">
+  <div class="s-header">
+    <div>
+      <h1 class="s-header__title">{{ 'settings.my_companies.title' | translate }}</h1>
+      <p class="s-header__subtitle">{{ 'settings.my_companies.subtitle' | translate }}</p>
+    </div>
+    @if (mode() === 'list') {
+      <button type="button" class="primary-button" (click)="mode.set('choose')">
+        <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'settings.my_companies.add' | translate }}</span>
+      </button>
+    }
+  </div>
+
+  @switch (mode()) {
+    @case ('list') {
+      <ul class="o-list">
+        @for (org of organizations(); track org.id) {
+          <li class="o-item" [class.o-item--current]="org.id === current()?.id">
+            <div class="o-icon">
+              @if (org.logoUrl) {
+                <img [src]="org.logoUrl" alt="" />
+              } @else {
+                <lucide-icon [img]="BuildingIcon" size="18" aria-hidden="true"></lucide-icon>
+              }
+            </div>
+            <div class="o-text">
+              <span class="o-name">{{ org.legalName }}</span>
+              <span class="o-meta">
+                @if (org.taxId) { {{ org.taxId }} }
+                @if (org.countryCode) { · {{ org.countryCode }} }
+              </span>
+            </div>
+            @if (org.id === current()?.id) {
+              <vx-badge tone="accent" size="sm">{{ 'settings.my_companies.current' | translate }}</vx-badge>
+            } @else {
+              <button type="button" class="secondary-button" (click)="open(org)">
+                {{ 'settings.my_companies.open' | translate }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+
+    @case ('choose') {
+      <div class="o-choices" role="group" [attr.aria-label]="'settings.my_companies.add' | translate">
+        <button type="button" class="o-choice" *appHasPermission="'settings:edit_company'" (click)="addSubsidiary()">
+          <lucide-icon [img]="GroupIcon" size="22" aria-hidden="true"></lucide-icon>
+          <strong>{{ 'settings.my_companies.choice_subsidiary' | translate: { company: current()?.legalName } }}</strong>
+          <span>{{ 'settings.my_companies.choice_subsidiary_help' | translate }}</span>
+        </button>
+        <button type="button" class="o-choice" (click)="mode.set('independent')">
+          <lucide-icon [img]="BuildingIcon" size="22" aria-hidden="true"></lucide-icon>
+          <strong>{{ 'settings.my_companies.choice_independent' | translate }}</strong>
+          <span>{{ 'settings.my_companies.choice_independent_help' | translate }}</span>
+        </button>
+      </div>
+      <button type="button" class="secondary-button" (click)="mode.set('list')">{{ 'common.cancel' | translate }}</button>
+    }
+
+    @case ('independent') {
+      <app-add-company (cancelled)="mode.set('choose')" />
+    }
+  }
+</div>

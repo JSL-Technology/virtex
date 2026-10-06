@@ -49,6 +49,11 @@ export class CreateQuoteDto {
   @IsUUID()
   customerId: string;
 
+  /** The branch quoting. Omitted: the person's default branch, else the headquarters. */
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
+
   @IsUUID()
   @IsOptional()
   opportunityId?: string;
@@ -105,4 +110,8 @@ export class ListQuotesQueryDto {
   @IsOptional()
   @MaxLength(16)
   status?: string;
+
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
 }

@@ -6,7 +6,7 @@
   [empty]="suppliers().length === 0"
   (reload)="loadSuppliers()"
 >
-  <a listActions routerLink="/masters/suppliers/new" class="primary-button">
+  <a listActions routerLink="/contacts/suppliers/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'contacts.suppliers.new_supplier' | translate }}</span>
   </a>
@@ -26,7 +26,7 @@
         @for (supplier of table.rows(); track supplier.id) {
           <tr appRowLink>
             <td>
-              <a [routerLink]="['/masters/suppliers', supplier.id, 'edit']" class="table-link">
+              <a [routerLink]="['/contacts/suppliers', supplier.id, 'edit']" class="table-link">
                 {{ supplier.companyName }}
               </a>
             </td>
@@ -36,7 +36,17 @@
             <td class="actions-column">
               <div class="action-buttons">
                 <a
-                  [routerLink]="['/masters/suppliers', supplier.id, 'edit']"
+                  *appHasPermission="'accounting:view'"
+                  [routerLink]="['/accounting/partner-ledger']"
+                  [queryParams]="{ type: 'supplier', partnerId: supplier.id }"
+                  class="icon-button"
+                  [attr.aria-label]="'partner_ledger.open_statement' | translate"
+                  [title]="'partner_ledger.open_statement' | translate"
+                >
+                  <lucide-icon [img]="StatementIcon" size="18" aria-hidden="true"></lucide-icon>
+                </a>
+                <a
+                  [routerLink]="['/contacts/suppliers', supplier.id, 'edit']"
                   class="icon-button"
                   [attr.aria-label]="'contacts.suppliers.edit' | translate"
                 >

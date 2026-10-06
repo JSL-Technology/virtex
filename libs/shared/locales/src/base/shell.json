@@ -29,6 +29,11 @@
     "en": "Analytics",
     "pt": "Análise"
   },
+  "shell.group_configuration": {
+    "es": "Configuración",
+    "en": "Configuration",
+    "pt": "Configuração"
+  },
   "shell.group_documents": {
     "es": "Documentos",
     "en": "Documents",

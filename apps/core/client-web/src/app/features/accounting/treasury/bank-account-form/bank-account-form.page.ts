@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TreasuryService } from '../../../../core/api/treasury.service';
+import { Bank, TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -75,12 +75,18 @@ export class BankAccountFormPage implements OnInit {
       (account) => account.type === 'EQUITY' && account.isPostable && account.isActive !== false,
     ),
   );
+  /** The bank catalogue's active institutions, for the bank picker. */
+  readonly banks = signal<Bank[]>([]);
+  /** A linked bank names the institution; the free-text name is then the bank's, read-only. */
+  readonly linkedToCatalogue = signal(false);
+
   /** Whether the form is declaring a balance at all — the extra fields only matter then. */
   readonly declaresOpeningBalance = signal(false);
 
   ngOnInit(): void {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(120)]],
+      bankId: [''],
       bankName: ['', [Validators.maxLength(120)]],
       accountNumber: ['', [Validators.maxLength(60)]],
       iban: ['', [Validators.maxLength(34), ibanValidator]],
@@ -96,6 +102,16 @@ export class BankAccountFormPage implements OnInit {
       openingBalanceAccountId: [''],
       notes: [''],
       isActive: [true],
+    });
+
+    // Choosing a catalogue bank fills the institution's name and BIC, as the server will.
+    this.form.get('bankId')?.valueChanges.subscribe((bankId: string) => this.applyBank(bankId));
+    this.treasury.listBanks().subscribe({
+      next: (all) => {
+        this.banks.set(all.filter((bank) => bank.isActive || bank.id === this.form.get('bankId')?.value));
+        this.applyBank(this.form.get('bankId')?.value);
+      },
+      error: () => this.banks.set([]),
     });
 
     this.form.get('openingBalance')?.valueChanges.subscribe((value) => {
@@ -159,7 +175,7 @@ export class BankAccountFormPage implements OnInit {
       this.bankAccountId.set(id);
       this.treasury.findBankAccount(id).subscribe({
         next: (account) => {
-          this.form.patchValue(account);
+          this.form.patchValue({ ...account, bankId: account.bankId ?? '' });
           // Both were measured against every movement already posted, so neither can move.
           this.form.get('currencyCode')?.disable();
           this.form.get('glAccountId')?.disable();
@@ -167,6 +183,20 @@ export class BankAccountFormPage implements OnInit {
         error: () => this.notifications.showError('treasury.form.bank_account_could_not_loaded'),
       });
     }
+  }
+
+  private applyBank(bankId: string | null | undefined): void {
+    const bank = bankId ? this.banks().find((candidate) => candidate.id === bankId) : undefined;
+    const bankName = this.form.get('bankName');
+    this.linkedToCatalogue.set(!!bank);
+    if (!bank) {
+      bankName?.enable({ emitEvent: false });
+      return;
+    }
+    bankName?.setValue(bank.name, { emitEvent: false });
+    bankName?.disable({ emitEvent: false });
+    const bic = this.form.get('swiftBic');
+    if (bic && !bic.value && bank.swiftBic) bic.setValue(bank.swiftBic);
   }
 
   /** Qué falta antes de guardar. Los campos no llevan `id`; el armazón los localiza por control. */
@@ -225,6 +255,7 @@ export class BankAccountFormPage implements OnInit {
       this.treasury
         .updateBankAccount(id, {
           name: raw.name,
+          bankId: raw.bankId || null,
           bankName: raw.bankName || null,
           accountNumber: raw.accountNumber || null,
           iban: raw.iban || null,
@@ -240,6 +271,7 @@ export class BankAccountFormPage implements OnInit {
     this.treasury
       .createBankAccount({
         name: raw.name,
+        bankId: raw.bankId || null,
         bankName: raw.bankName || null,
         accountNumber: raw.accountNumber || null,
         iban: raw.iban || null,

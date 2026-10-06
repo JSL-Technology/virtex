@@ -41,3 +41,25 @@
     outline-offset: 2px;
   }
 }
+
+//  Existencias de un artículo ya creado: un dato, no un campo.
+.field-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+.readonly-value {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  font-variant-numeric: tabular-nums;
+  padding: var(--space-1) 0;
+}
+
+.field-links {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+
+  a { color: var(--accent-text); }
+}

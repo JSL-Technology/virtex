@@ -4,20 +4,10 @@
     "en": "A folder cannot be moved into itself.",
     "pt": "Uma pasta não pode ser movida para dentro de si mesma."
   },
-  "documents.documents": {
-    "es": "Documentos",
-    "en": "Documents",
-    "pt": "Documentos"
-  },
   "documents.file_required": {
     "es": "No se recibió ningún archivo.",
     "en": "No file was received.",
     "pt": "Nenhum ficheiro foi recebido."
-  },
-  "documents.file_size": {
-    "es": "Tamaño",
-    "en": "Size",
-    "pt": "Tamanho"
   },
   "documents.folder_cannot_moved_into_one_own": {
     "es": "Una carpeta no se puede mover dentro de una de sus subcarpetas: quedaría inalcanzable.",
@@ -39,21 +29,6 @@
     "en": "Folder {{id}} was not found.",
     "pt": "A pasta {{id}} não foi encontrada."
   },
-  "documents.last_modified": {
-    "es": "Última modificación",
-    "en": "Last modified",
-    "pt": "Última modificação"
-  },
-  "documents.manage_and_organize_all_your_business": {
-    "es": "Administra y organiza los archivos y adjuntos de tu empresa.",
-    "en": "Manage and organize your company's files and attachments.",
-    "pt": "Gerencie e organize os arquivos e anexos da sua empresa."
-  },
-  "documents.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
-  },
   "documents.name_already_exists_folder": {
     "es": "Ya existe «{{name}}» en esta carpeta.",
     "en": "“{{name}}” already exists in this folder.",
@@ -69,11 +44,6 @@
     "en": "The file needs a name.",
     "pt": "O ficheiro precisa de um nome."
   },
-  "documents.new_folder": {
-    "es": "Nueva carpeta",
-    "en": "New folder",
-    "pt": "Nova pasta"
-  },
   "documents.not_found": {
     "es": "No se encontró el documento {{id}}.",
     "en": "Document {{id}} was not found.",
@@ -88,6 +58,11 @@
     "es": "No se pudo completar la operación.",
     "en": "The operation could not be completed.",
     "pt": "Não foi possível concluir a operação."
+  },
+  "documents.repository.all_kinds": {
+    "es": "Todos los tipos",
+    "en": "All kinds",
+    "pt": "Todos os tipos"
   },
   "documents.repository.download": {
     "es": "Descargar",
@@ -134,6 +109,11 @@
     "en": "New folder",
     "pt": "Nova pasta"
   },
+  "documents.repository.not_a_template": {
+    "es": "No es plantilla",
+    "en": "Not a template",
+    "pt": "Não é modelo"
+  },
   "documents.repository.rename": {
     "es": "Renombrar",
     "en": "Rename",
@@ -149,27 +129,17 @@
     "en": "Upload a file",
     "pt": "Enviar arquivo"
   },
-  "documents.search_in_this_folder": {
-    "es": "Buscar en esta carpeta...",
-    "en": "Search in this folder...",
-    "pt": "Buscar nesta pasta..."
+  "documents.repository.view": {
+    "es": "Vista del repositorio",
+    "en": "Repository view",
+    "pt": "Visualização do repositório"
   },
-  "documents.templates.last_modified": {
-    "es": "Última modificación",
-    "en": "Last modified",
-    "pt": "Última modificação"
+  "documents.repository.view_files": {
+    "es": "Archivos",
+    "en": "Files",
+    "pt": "Arquivos"
   },
-  "documents.templates.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
-  },
-  "documents.templates.template_model_file_you_keep_here": {
-    "es": "Una plantilla es un archivo modelo que guardas aquí para reutilizarlo: el membrete de tus facturas, el contrato que adaptas por cliente, el texto que pegas en un recordatorio. Virtex todavía no las rellena por ti.",
-    "en": "A template is a model file you keep here to reuse: the letterhead your invoices are printed on, the contract you adapt per client, the wording you paste into a reminder. Virtex does not fill them in for you yet.",
-    "pt": "Um modelo é um ficheiro que guarda aqui para reutilizar: o timbre das suas faturas, o contrato que adapta por cliente, o texto que cola num lembrete. O Virtex ainda não os preenche por si."
-  },
-  "documents.templates.title": {
+  "documents.repository.view_templates": {
     "es": "Plantillas",
     "en": "Templates",
     "pt": "Modelos"
@@ -207,24 +177,9 @@
     "en": "Type",
     "pt": "Tipo"
   },
-  "documents.templates.upload": {
-    "es": "Subir plantilla",
-    "en": "Upload a template",
-    "pt": "Carregar modelo"
-  },
   "documents.templates.upload_as": {
     "es": "Subir como",
     "en": "Upload as",
     "pt": "Carregar como"
-  },
-  "documents.this_folder_empty": {
-    "es": "Esta carpeta está vacía.",
-    "en": "This folder is empty.",
-    "pt": "Esta pasta está vazia."
-  },
-  "documents.upload_file": {
-    "es": "Subir archivo",
-    "en": "Upload a file",
-    "pt": "Enviar arquivo"
   }
 }

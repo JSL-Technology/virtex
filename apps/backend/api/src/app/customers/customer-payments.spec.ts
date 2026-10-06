@@ -28,6 +28,8 @@ import { AccountBalancesService } from '../chart-of-accounts/account-balances.se
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { CustomerPaymentsService } from './customer-payments.service';
+import { CustomerStatementService } from './customer-statement.service';
+import { randomUUID } from 'crypto';
 import {
   CustomerPayment,
   CustomerPaymentStatus,
@@ -520,6 +522,37 @@ describeWithDb('customer collections', () => {
     expect(await signedBalance('receivable')).toBe(0);
   });
 
+  /**
+   * The customer's statement of account (audit H-17): issued invoices, receipts and each
+   * receipt's reversal on the day it was booked, with the balance after every line. A draft — no
+   * entry — is not on it.
+   */
+  it('states what the customer owed on each day, a bounced cheque included', async () => {
+    const statements = new CustomerStatementService(dataSource);
+    const invoice = await openInvoice(10_000);
+    await dataSource.getRepository(Invoice).update({ id: invoice.id }, { journalEntryId: randomUUID() } as never);
+    await openInvoice(4_000); // a draft never posted: not on the statement
+    const receipt = await receipts.create(
+      { customerId, paymentDate: '2026-05-15', bankAccountId, amountReceived: 10_000, lines: [{ invoiceId: invoice.id, amount: 10_000 }] },
+      organizationId,
+      ACTOR,
+    );
+    await receipts.voidPayment(receipt.id, { reason: 'Cheque devuelto', reversalDate: '2026-05-25' }, organizationId, ACTOR);
+
+    const may = await statements.statement(organizationId, customerId, { from: '2026-05-01', to: '2026-05-31' }, ACTOR);
+
+    expect(may.movements.map((m) => [m.date, m.kind, m.amount, m.balance])).toEqual([
+      ['2026-05-01', 'invoice', 10_000, 10_000],
+      ['2026-05-15', 'receipt', -10_000, 0],
+      ['2026-05-25', 'receipt_void', 10_000, 10_000],
+    ]);
+    expect(may.closingBalance).toBe(10_000);
+    expect(may.partnerName).toBeTruthy();
+    const mid = await statements.statement(organizationId, customerId, { from: '2026-05-16', to: '2026-05-20' }, ACTOR);
+    expect(mid.openingBalance).toBe(0);
+    expect(mid.movements).toEqual([]);
+  });
+
   it('refuses to apply more than an invoice owes', async () => {
     const invoice = await openInvoice(1_000);
     await expect(
@@ -608,6 +641,25 @@ describeWithDb('customer collections', () => {
     expect(aging.totals.total).toBe(4_000);
     expect(aging.controlAccountBalance).toBe(3_000);
     expect(aging.controlAccountDifference).toBe(1_000);
+  });
+
+  it('says when it covers only some branches, since the ledger cannot be tied out per branch', async () => {
+    await openInvoice(4_000, { dueDate: '2026-06-30' });
+    await recogniseInLedger('2026-05-01', 4_000);
+    // By entity name: this module does not import the organizations module's entities.
+    const branch = await dataSource
+      .getRepository('Branch')
+      .save({ organizationId, code: 'STI', name: 'Santiago', isHeadquarters: true, isActive: true });
+
+    const whole = await receipts.aging(organizationId, '2026-05-25');
+    const oneBranch = await receipts.aging(organizationId, '2026-05-25', { branchId: branch.id });
+
+    expect(whole.coversWholeCompany).toBe(true);
+    expect(whole.controlAccountDifference).toBe(0);
+    // The invoice predates branches, so the branch slice is empty — and must not read as a
+    // 4,000 discrepancy against the company's ledger.
+    expect(oneBranch.coversWholeCompany).toBe(false);
+    expect(oneBranch.totals.total).toBe(0);
   });
 
   it('ages a foreign-currency invoice at the closing rate, not the rate it was booked at', async () => {

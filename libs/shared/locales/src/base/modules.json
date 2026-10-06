@@ -4,11 +4,6 @@
     "en": "Accounting",
     "pt": "Contabilidade"
   },
-  "modules.administration": {
-    "es": "Administración",
-    "en": "Administration",
-    "pt": "Administração"
-  },
   "modules.analysis": {
     "es": "Análisis",
     "en": "Analytics",
@@ -33,11 +28,6 @@
     "es": "Compras",
     "en": "Purchasing",
     "pt": "Compras"
-  },
-  "modules.roadmap": {
-    "es": "En preparación",
-    "en": "In preparation",
-    "pt": "Em preparação"
   },
   "modules.sales": {
     "es": "Ventas",

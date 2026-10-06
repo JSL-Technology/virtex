@@ -59,6 +59,11 @@
     "en": "Over 90 days",
     "pt": "Mais de 90 dias"
   },
+  "reports.aging.partial_no_tieout": {
+    "es": "Este informe cubre solo algunas sucursales. La conciliación con la cuenta control del mayor se hace sobre la empresa completa.",
+    "en": "This report covers only some branches. The tie-out to the ledger's control account applies to the whole company.",
+    "pt": "Este relatório cobre apenas algumas filiais. A conciliação com a conta de controle do razão se aplica à empresa inteira."
+  },
   "reports.aging.reconciliation_control_account": {
     "es": "Conciliación con la cuenta de control",
     "en": "Reconciliation to the control account",
@@ -742,9 +747,9 @@
     "pt": "Unidades vendidas"
   },
   "reports.report_type_kind_does_not_exist": {
-    "es": "El tipo de reporte {kind} no existe.",
-    "en": "Report type {kind} does not exist.",
-    "pt": "O tipo de relatório {kind} não existe."
+    "es": "El tipo de reporte {{kind}} no existe.",
+    "en": "Report type {{kind}} does not exist.",
+    "pt": "O tipo de relatório {{kind}} não existe."
   },
   "reports.requested_range_spans_days_days_maximum": {
     "es": "El rango solicitado abarca {{days}} días y el máximo por informe es {{max}}.",

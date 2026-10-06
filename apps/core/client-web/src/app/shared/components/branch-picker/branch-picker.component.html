@@ -1,0 +1,27 @@
+@if (visible()) {
+  <label class="vx-branch-picker__label" [attr.for]="inputId()">{{ labelKey() | translate }}</label>
+  @if (fixed() && mode() === 'field') {
+    <!-- One allowed branch: shown, not offered. The value is already set to it. -->
+    <output class="vx-branch-picker__fixed" [id]="inputId()">{{ label(options()[0]) }}</output>
+  } @else {
+    <select
+      class="vx-branch-picker__select"
+      [id]="inputId()"
+      [disabled]="disabled()"
+      [value]="value() ?? ''"
+      (change)="select($any($event.target).value)"
+      (blur)="touched()"
+    >
+      @if (mode() === 'filter') {
+        <option value="">{{ 'branches.picker.all' | translate }}</option>
+      } @else if (optional()) {
+        <option value="">{{ 'branches.picker.none' | translate }}</option>
+      } @else if (!value()) {
+        <option value="" disabled>{{ 'branches.picker.choose' | translate }}</option>
+      }
+      @for (branch of options(); track branch.id) {
+        <option [value]="branch.id" [selected]="branch.id === value()">{{ label(branch) }}</option>
+      }
+    </select>
+  }
+}

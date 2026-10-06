@@ -56,7 +56,7 @@ export class ReportsController {
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: ProfitabilityQueryDto,
   ) {
-    return this.profitabilityService.byProduct(user.organizationId, query);
+    return this.profitabilityService.byProduct(user.organizationId, query, user.id);
   }
 
   @Get('profitability/by-customer')
@@ -66,7 +66,7 @@ export class ReportsController {
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: ProfitabilityQueryDto,
   ) {
-    return this.profitabilityService.byCustomer(user.organizationId, query);
+    return this.profitabilityService.byCustomer(user.organizationId, query, user.id);
   }
 
   @Post('generate')

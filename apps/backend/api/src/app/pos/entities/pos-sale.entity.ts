@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
 export enum PosSaleStatus {
   PAID = 'PAID',
@@ -37,6 +38,7 @@ export interface PosSaleItem {
  * line-by-line afterwards, so the relational overhead buys nothing. `invoiceId` links to a fiscal
  * invoice when one is issued for the sale, and is null for a plain till receipt.
  */
+@Index('IDX_pos_sales_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'pos_sales' })
 @Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
 @Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
@@ -48,6 +50,13 @@ export class PosSale {
   @Index('IDX_pos_sales_org')
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /** The branch this was issued from — see `IssuedAtBranch`. Null for a company without branches, and for documents that predate them. */
+  @Column({ name: 'branch_id', type: 'uuid', nullable: true })
+  branchId: string | null;
+
+  @IssuedAtBranch('FK_pos_sales_branch')
+  branch?: BranchRef | null;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({

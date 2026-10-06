@@ -1,7 +1,7 @@
 import { MenuGroup } from './module-manifest';
 
 /**
- * The four group headings, named once.
+ * The group headings, named once.
  *
  * `Record<MenuGroup, string>` and not a partial map: adding a fifth group to `MenuGroup` stops
  * compiling here until somebody decides what it is called in three languages. The vertical panel
@@ -13,4 +13,5 @@ export const GROUP_LABEL: Record<MenuGroup, string> = {
   documents: 'shell.group_documents',
   masters: 'shell.group_masters',
   analysis: 'shell.group_analysis',
+  configuration: 'shell.group_configuration',
 };

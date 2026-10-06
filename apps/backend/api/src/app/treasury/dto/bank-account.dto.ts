@@ -10,6 +10,7 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BankAccountType } from '../entities/bank-account.entity';
@@ -17,6 +18,14 @@ import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 import { IsBic, IsIban } from '../../common/validators/bank-identifiers.validator';
 
 export class CreateBankAccountDto {
+  /**
+   * The institution, from the bank catalogue. When given, its name and BIC are copied onto the
+   * account; `bankName` and `swiftBic` remain for accounts at a bank not catalogued.
+   */
+  @IsUUID()
+  @IsOptional()
+  bankId?: string;
+
   @IsString()
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
@@ -100,6 +109,12 @@ export class CreateBankAccountDto {
 }
 
 export class UpdateBankAccountDto {
+  /** Links the account to a catalogue bank, or unlinks it with `null`. */
+  @ValidateIf((_, value) => value !== null)
+  @IsUUID()
+  @IsOptional()
+  bankId?: string | null;
+
   @IsString()
   @IsOptional()
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })

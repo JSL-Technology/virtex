@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
@@ -32,8 +33,8 @@ export class SupplyChainController {
 
   @Get('warehouses')
   @HasPermission(PERMISSIONS.WMS_VIEW)
-  findAllWarehouses(@CurrentUser() user: AuthenticatedUser) {
-    return this.supplyChainService.findAllWarehouses(user.organizationId);
+  findAllWarehouses(@CurrentUser() user: AuthenticatedUser, @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string) {
+    return this.supplyChainService.findAllWarehouses(user.organizationId, branchId || undefined);
   }
 
   @Get('warehouses/:id')

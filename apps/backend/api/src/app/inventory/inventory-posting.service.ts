@@ -255,7 +255,140 @@ export class InventoryPostingService {
     );
   }
 
+  /**
+   * An inventory adjustment document: one entry for all its lines, inventory against
+   * `AccountRole.INVENTORY_ADJUSTMENT`, a line per product so the entry reads like the document.
+   *
+   * Each line's amount is signed — positive a surplus or an upward revaluation, negative a loss.
+   * Idempotent per adjustment: posting the same document twice cannot book it twice.
+   */
+  async postAdjustment(
+    manager: EntityManager,
+    organizationId: string,
+    adjustment: {
+      id: string;
+      number: string;
+      date: string;
+      reason: string;
+      lines: ReadonlyArray<{ description: string; amount: number }>;
+    },
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const lines = adjustment.lines.filter((line) => toCents(line.amount) !== 0);
+    if (lines.length === 0) return null;
+
+    const { settings, journal } = await this.context(manager, organizationId);
+    const inventoryId = settings.defaultInventoryId;
+    const adjustmentId = settings.defaultInventoryAdjustmentAccountId;
+    if (!inventoryId || !adjustmentId) {
+      throw new BadRequestError('inventory.organization_has_no_inventory_inventory_adjustment');
+    }
+
+    const net = roundAmount(lines.reduce((sum, line) => sum + line.amount, 0));
+    const words = await this.words(manager, organizationId, {
+      entry: { key: 'ledger.inventory.adjustment_document_entry', params: { number: adjustment.number } },
+      surplus: { key: 'ledger.inventory.adjustment_surplus' },
+      shortfall: { key: 'ledger.inventory.adjustment_shortfall' },
+    });
+
+    return this.post(
+      manager,
+      organizationId,
+      {
+        date: adjustment.date,
+        description: `${words.entry} — ${adjustment.reason}`,
+        journalId: journal.id,
+        currencyCode: settings.baseCurrency ?? 'USD',
+        exchangeRate: 1,
+        lines: [
+          ...lines.map((line) => ({
+            accountId: inventoryId,
+            debit: line.amount > 0 ? roundAmount(line.amount) : 0,
+            credit: line.amount < 0 ? roundAmount(-line.amount) : 0,
+            description: line.description,
+          })),
+          ...(toCents(net) === 0
+            ? []
+            : [
+                {
+                  accountId: adjustmentId,
+                  debit: net < 0 ? roundAmount(-net) : 0,
+                  credit: net > 0 ? roundAmount(net) : 0,
+                  description: net > 0 ? words.surplus : words.shortfall,
+                },
+              ]),
+        ],
+      },
+      {
+        actorUserId,
+        systemReason: 'inventory-adjustment',
+        idempotencyKey: `inventory-adjustment:${adjustment.id}`,
+      },
+    );
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  /**
+   * Goods going back out because their receipt is voided: Dr Goods received not invoiced /
+   * Cr Inventory, at the value they came in at — the mirror of `postGoodsReceipt`, posted on the
+   * day of the void. A return is its own valuation entry, as Odoo values a return move and SAP a
+   * MIGO 102: the receipt's entry stays as it was, and the two read together in the books.
+   */
+  async postGoodsReturn(
+    manager: EntityManager,
+    organizationId: string,
+    receipt: {
+      reference: string;
+      sourceId: string;
+      date: string;
+      reason: string;
+      lines: ReadonlyArray<{ description: string; amount: number }>;
+    },
+    actorUserId: string | null,
+  ): Promise<string | null> {
+    const lines = receipt.lines.filter((line) => toCents(line.amount) > 0);
+    if (lines.length === 0) return null;
+
+    const { settings, journal } = await this.context(manager, organizationId, 'COMPRAS');
+    const inventoryId = settings.defaultInventoryId;
+    const grniId = settings.defaultGoodsReceivedNotInvoicedAccountId;
+    if (!inventoryId || !grniId) {
+      throw new BadRequestError('inventory.goods_receipt_accounts_not_configured');
+    }
+
+    const total = roundAmount(lines.reduce((sum, line) => sum + line.amount, 0));
+    const words = await this.words(manager, organizationId, {
+      entry: { key: 'ledger.inventory.goods_return_entry', params: { reference: receipt.reference, reason: receipt.reason } },
+      counterpart: { key: 'ledger.inventory.goods_receipt_counterpart', params: { reference: receipt.reference } },
+    });
+
+    return this.post(
+      manager,
+      organizationId,
+      {
+        date: receipt.date,
+        description: words.entry,
+        journalId: journal.id,
+        currencyCode: settings.baseCurrency ?? undefined,
+        exchangeRate: 1,
+        lines: [
+          { accountId: grniId, debit: total, credit: 0, description: words.counterpart },
+          ...lines.map((line) => ({
+            accountId: inventoryId,
+            debit: 0,
+            credit: roundAmount(line.amount),
+            description: line.description,
+          })),
+        ],
+      },
+      {
+        actorUserId,
+        systemReason: 'goods-receipt-void',
+        idempotencyKey: `po-receipt-void:${receipt.sourceId}`,
+      },
+    );
+  }
 
   private async post(
     manager: EntityManager,

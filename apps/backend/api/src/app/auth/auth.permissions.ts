@@ -22,4 +22,16 @@ export const IAM_PERMISSIONS = {
   ROLES_CREATE: 'roles:create',
   ROLES_EDIT: 'roles:edit',
   ROLES_DELETE: 'roles:delete',
+
+  /**
+   * The company's branches — the places it operates from — and who may work in which.
+   *
+   * `VIEW` reads the full list with addresses and fiscal codes, for administration. Choosing a
+   * branch on a document does not need it: `GET /organizations/branches/mine` returns the branches
+   * the caller may use to anyone signed in. `MANAGE` creates, edits and deactivates branches and
+   * sets each person's branches; restricting someone to a branch is an access decision, so it sits
+   * with the people who manage access.
+   */
+  BRANCHES_VIEW: 'branches:view',
+  BRANCHES_MANAGE: 'branches:manage',
 } as const;

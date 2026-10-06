@@ -1,55 +1,65 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'accounting.variance_analysis.variance_analysis_actual_vs_budget' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button" type="button" disabled>
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'accounting.variance_analysis.period' | translate }}</span>
-            </button>
-            <button class="primary-button" type="button" [disabled]="isEmpty()">
-                <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>{{ 'accounting.variance_analysis.export' | translate }}</span>
-            </button>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table [appSort]="table.sort" class="data-table variance-table">
-            <thead>
-                <tr>
-                    <th appSortHeader="accountCode">{{ 'accounting.variance_analysis.account' | translate }}</th>
-                    <th appSortHeader="actual" class="text-right">{{ 'accounting.variance_analysis.actual' | translate }}</th>
-                    <th appSortHeader="budget" class="text-right">{{ 'accounting.variance_analysis.budget' | translate }}</th>
-                    <th appSortHeader="varianceAmount" class="text-right">{{ 'accounting.variance_analysis.variance_amount' | translate }}</th>
-                    <th appSortHeader="variancePercent" class="text-right">{{ 'accounting.variance_analysis.variance_percent' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (item of table.rows(); track item.accountCode) {
-                <tr>
-                    <td>{{ item.accountCode }} - {{ item.accountName }}</td>
-                    <td class="text-right">{{ item.actual | vxMoney: item.currencyCode }}</td>
-                    <td class="text-right">{{ item.budget | vxMoney: item.currencyCode }}</td>
-                    <td class="text-right" [class.positive]="isVariancePositive(item)"
-                        [class.negative]="!isVariancePositive(item)">
-                        {{ item.varianceAmount | vxMoney: item.currencyCode }}
-                    </td>
-                    <td class="text-right variance-percent-cell" [class.positive]="isVariancePositive(item)"
-                        [class.negative]="!isVariancePositive(item)">
-                        <div>
-                            @if(item.varianceAmount !== 0) {
-                            <lucide-icon [img]="isVariancePositive(item) ? PositiveIcon : NegativeIcon"
-                                size="14"></lucide-icon>
-                            }
-                            <span>{{ item.variancePercent / 100 | vxPercent: '1.1-1' }}</span>
-                        </div>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="5" class="empty-state">{{ 'accounting.variance_analysis.no_data_available_for_variance_analysis' | translate }}</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="budgets.variance.title"
+  subtitleKey="budgets.variance.subtitle"
+  [count]="lines().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions routerLink="/accounting/budgets" class="secondary-button">{{ 'budgets.variance.budgets' | translate }}</a>
+
+  <div listFilters class="doc-filter">
+    <label for="var-from">{{ 'budgets.variance.from' | translate }}</label>
+    <input id="var-from" type="month" [ngModel]="fromPeriod()" (ngModelChange)="fromPeriod.set($event); load()" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="var-to">{{ 'budgets.variance.to' | translate }}</label>
+    <input id="var-to" type="month" [ngModel]="toPeriod()" (ngModelChange)="toPeriod.set($event); load()" />
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'budgets.variance.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'budgets.variance.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table [appSort]="table.sort" class="data-table variance-table">
+      <thead>
+        <tr>
+          <th appSortHeader="account">{{ 'budgets.variance.account' | translate }}</th>
+          <th appSortHeader="budgetedAmount" class="numeric">{{ 'budgets.variance.budgeted' | translate }}</th>
+          <th appSortHeader="actualAmount" class="numeric">{{ 'budgets.variance.actual' | translate }}</th>
+          <th appSortHeader="difference" class="numeric">{{ 'budgets.variance.difference' | translate }}</th>
+          <th appSortHeader="consumedRatio" class="numeric">{{ 'budgets.variance.consumed' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of table.rows(); track $index) {
+          <tr>
+            <td>{{ line.accountCode }} — {{ name(line) }}</td>
+            <td class="numeric">{{ line.budgetedAmount | vxNumber: '1.2-2' }}</td>
+            <td class="numeric">{{ line.actualAmount | vxNumber: '1.2-2' }}</td>
+            <td class="numeric" [class.positive]="favourable(line)" [class.negative]="!favourable(line)">
+              <lucide-icon [img]="favourable(line) ? FavourableIcon : UnfavourableIcon" size="14" aria-hidden="true"></lucide-icon>
+              {{ line.difference | vxNumber: '1.2-2' }}
+              <span class="sr-only">{{ (favourable(line) ? 'budgets.variance.favourable' : 'budgets.variance.unfavourable') | translate }}</span>
+            </td>
+            <td class="numeric">{{ line.consumedRatio === null ? '—' : (line.consumedRatio | vxPercent) }}</td>
+          </tr>
+        }
+      </tbody>
+      @if (report(); as r) {
+        <tfoot>
+          <tr>
+            <th>{{ 'budgets.variance.total' | translate }} @if (currency()) { ({{ currency() }}) }</th>
+            <th class="numeric">{{ r.totals.budgeted | vxNumber: '1.2-2' }}</th>
+            <th class="numeric">{{ r.totals.actual | vxNumber: '1.2-2' }}</th>
+            <th class="numeric">{{ r.totals.difference | vxNumber: '1.2-2' }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      }
+    </table>
+  </div>
+</vx-list-shell>

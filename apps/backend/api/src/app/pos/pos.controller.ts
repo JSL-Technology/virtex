@@ -1,3 +1,5 @@
+import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
+import { PosShift } from './entities/pos-shift.entity';
 import {
   Body,
   Controller,
@@ -5,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -39,6 +42,7 @@ export class PosController {
 
   @Post('shifts/:id/close')
   @HasPermission(PERMISSIONS.POS_OPERATE)
+  @BranchScoped(PosShift)
   closeShift(
     @Param('id', UuidParamPipe) id: string,
     @Body() dto: CloseShiftDto,
@@ -60,7 +64,11 @@ export class PosController {
 
   @Get('sales')
   @HasPermission(PERMISSIONS.POS_VIEW)
-  listSales(@Query('shiftId') shiftId: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.pos.listSales(user.organizationId, shiftId || undefined);
+  listSales(
+    @Query('shiftId') shiftId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
+  ) {
+    return this.pos.listSales(user.organizationId, shiftId || undefined, { branchId, actorUserId: user.id });
   }
 }

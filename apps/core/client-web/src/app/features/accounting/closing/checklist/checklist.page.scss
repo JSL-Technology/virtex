@@ -1,10 +1,77 @@
 @use '../../../../../assets/styles/view-styles' as views;
 @use '../../../../../assets/styles/forms' as mixins;
 
-// Reutiliza los estilos base de las vistas de cierre y maestros
-@use '../month-end-close/month-end-close.page.scss';
-// @use '../../../masters/suppliers/suppliers.page.scss';
 @use '../../../../../assets/styles/page-classic' as classic;
+
+// Estilos base del cierre (eran los de «Cierre de mes», que se fusionó en esta lista).
+.closing-header {
+  margin-bottom: var(--space-8);
+  h3 { font-size: var(--text-xl); font-weight: var(--font-semibold); margin-bottom: var(--space-4); }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-color);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  .progress {
+    height: 100%;
+    background-color: var(--accent-primary);
+    border-radius: var(--border-radius-full);
+    transition: width 0.5s ease;
+  }
+}
+
+.tasks-list {
+  @include views.card;
+  padding: 0;
+}
+
+.task-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-6);
+  padding: 1.25rem 1.5rem;
+  &:not(:last-child) { border-bottom: 1px solid var(--border-color); }
+
+  &.completed {
+    .task-status-icon { color: var(--success-text); }
+    .task-name { text-decoration: line-through; color: var(--text-secondary); }
+  }
+  &.in-progress .task-status-icon { color: var(--accent-primary); }
+  &.error .task-status-icon { color: var(--error-text); }
+  &.pending .task-status-icon { color: var(--text-tertiary); }
+}
+
+.task-details {
+  .task-name { font-weight: var(--font-semibold); color: var(--text-primary); }
+  .task-responsible { font-size: var(--text-md); color: var(--text-secondary); }
+}
+
+.task-action .secondary-button {
+  @include mixins.submit-button;
+  background-color: var(--bg-layer-1);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  font-size: var(--text-md);
+  &:hover { background-color: var(--bg-hover); }
+}
+
+.spinner { animation: vx-spin 1.5s linear infinite; }
+.progress-caption {
+  margin: 6px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.task-note {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
 
 .name-cell {
     display: flex;

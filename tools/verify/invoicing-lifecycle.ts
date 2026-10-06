@@ -29,6 +29,7 @@ import { ComplianceService } from '../../apps/backend/api/src/app/compliance/com
 import { CustomersService } from '../../apps/backend/api/src/app/customers/customers.service';
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { OrganizationsService } from '../../apps/backend/api/src/app/organizations/organizations.service';
+import { StockLedgerService } from '../../apps/backend/api/src/app/inventory/stock-ledger.service';
 import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/entities/product.entity';
 import { NcfType } from '../../apps/backend/api/src/app/compliance/entities/ncf-sequence.entity';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
@@ -60,6 +61,7 @@ async function main(): Promise<void> {
   const customers = app.get(CustomersService, { strict: false });
   const localization = app.get(LocalizationService, { strict: false });
   const organizations = app.get(OrganizationsService, { strict: false });
+  const ledger = app.get(StockLedgerService, { strict: false });
 
   const stamp = Date.now();
   const region = await localization.findRegionByCountryCode('DO');
@@ -131,9 +133,24 @@ async function main(): Promise<void> {
   const productRepo = ds.getRepository(Product);
   const good = await productRepo.save(
     productRepo.create({
-      name: `Mercancía ${stamp}`, price: 1000, cost: 600, stock: 100, organizationId: orgId,
+      name: `Mercancía ${stamp}`, price: 1000, cost: 600, stock: 0, organizationId: orgId,
       kind: ProductKind.GOOD, taxTreatment: TaxTreatment.TAXED, taxRate: 0.18, unitOfMeasure: 'UND',
     } as Partial<Product>),
+  );
+  // Stock is held somewhere: an opening movement into the company's default warehouse, through the
+  // one writer of the stock register, exactly as a product created with opening stock gets it.
+  // Writing `products.stock` directly put 100 units in no warehouse, and the sale found none.
+  await ds.transaction(async (manager) =>
+    ledger.move(manager, orgId, {
+      productId: good.id,
+      warehouseId: await ledger.resolveWarehouse(manager, orgId, {}),
+      quantity: 100,
+      unitCost: 600,
+      type: 'OPENING',
+      reference: 'Saldo inicial',
+      sourceType: 'verify_seed',
+      sourceId: null,
+    }),
   );
   const service = await productRepo.save(
     productRepo.create({

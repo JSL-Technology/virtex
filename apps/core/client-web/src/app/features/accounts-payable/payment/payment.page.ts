@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -34,6 +36,7 @@ import { VX_SELECT } from '../../../shared/components/select';
   selector: 'app-vendor-payment-page',
   standalone: true,
   imports: [
+    VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -46,6 +49,10 @@ import { VX_SELECT } from '../../../shared/components/select';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorPaymentPage implements OnInit {
+  /** `?billId=` — from a bill's «Pay»: the bill is on the payment, from an account that can pay it. */
+  readonly billId = input<string>();
+  private preselected = false;
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -128,6 +135,7 @@ export class VendorPaymentPage implements OnInit {
       paymentDate: [todayIso(), [Validators.required]],
       bankAccountId: ['', [Validators.required]],
       reference: [''],
+      branchId: [null as string | null],
       lines: this.fb.array([]),
     });
 
@@ -139,11 +147,15 @@ export class VendorPaymentPage implements OnInit {
           this.form.patchValue({ bankAccountId: first.id });
           this.selectedBankAccountId.set(first.id);
         }
+        this.preselectBill();
       },
       error: () => this.bankAccounts.set([]),
     });
     this.payables.getVendorBills().subscribe({
-      next: (bills) => this.bills.set(bills),
+      next: (bills) => {
+        this.bills.set(bills);
+        this.preselectBill();
+      },
       error: () => this.bills.set([]),
     });
     this.treasury.cashPosition().subscribe({
@@ -247,7 +259,28 @@ export class VendorPaymentPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   cancel(): void {
-    void this.router.navigate(['/accounts-payable']);
+    void this.router.navigate(['/accounts-payable/payments']);
+  }
+
+  /**
+   * Once both the accounts and the bills are known, put the bill the page was opened for on the
+   * payment — from an account that can pay it: one in the bill's currency, else one in the books'.
+   */
+  private preselectBill(): void {
+    const billId = this.billId();
+    if (this.preselected || !billId || this.bankAccounts().length === 0 || this.bills().length === 0) return;
+    const bill = this.bills().find((candidate) => candidate.id === billId);
+    if (!bill || bill.balance <= 0 || (bill.status !== 'OPEN' && bill.status !== 'PARTIALLY_PAID')) return;
+    const active = this.activeBankAccounts();
+    const account =
+      active.find((candidate) => candidate.currencyCode === bill.currencyCode) ??
+      active.find((candidate) => candidate.currencyCode === this.baseCurrency()) ??
+      null;
+    if (!account) return;
+    this.preselected = true;
+    this.form.patchValue({ bankAccountId: account.id });
+    this.selectedBankAccountId.set(account.id);
+    this.addBill(bill);
   }
 
   async save(): Promise<void> {
@@ -296,6 +329,7 @@ export class VendorPaymentPage implements OnInit {
         paymentDate: raw.paymentDate,
         bankAccountId: raw.bankAccountId,
         reference: raw.reference || undefined,
+        branchId: raw.branchId || undefined,
         lines: (raw.lines as Record<string, string | number>[]).map((line) => ({
           vendorBillId: String(line['vendorBillId']),
           amount: Number(line['amount']),
@@ -305,9 +339,15 @@ export class VendorPaymentPage implements OnInit {
         })),
       })
       .subscribe({
-        next: () => {
-          this.notifications.showSuccess('accounts_payable.payment.payment_recorded');
-          this.router.navigate(['/accounts-payable']);
+        next: (batch) => {
+          this.saving.set(false);
+          this.form.markAsPristine();
+          this.tab?.markClean();
+          this.notifications.showSuccess('accounts_payable.payment.payment_recorded_number', { number: batch.number });
+          // The payment just made, as a document: its number, what it settled, and its void.
+          const route = `/accounts-payable/payments/${batch.id}`;
+          if (this.tab) this.tab.replaceRoute(route, { title: batch.number });
+          else void this.router.navigate([route]);
         },
         error: (error: unknown) => {
           this.saving.set(false);

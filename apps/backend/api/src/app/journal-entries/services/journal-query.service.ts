@@ -38,6 +38,13 @@ export interface JournalReportLineRow {
 }
 
 /** Aggregated count by accountId — used by chart-of-accounts to check for movements before allowing changes. */
+export interface AccountMovementSummary {
+  lines: number;
+  /** Posted debit − credit, base currency. */
+  postedBalance: number;
+  linesInClosedPeriods: number;
+}
+
 export interface AccountMovementCount {
   accountId: string;
   count: number;
@@ -342,6 +349,45 @@ export class JournalQueryService {
       .getRawMany<{ accountId: string; count: string }>();
 
     return rows.map((row) => ({ accountId: row.accountId, count: parseInt(row.count, 10) }));
+  }
+
+  /**
+   * What merging this account into another would move: how many lines, the posted balance they
+   * carry, and how many of them sit in a closed period.
+   *
+   * The balance is posted lines only (debit − credit, base currency), the same figure the ledger
+   * shows. The closed-period count is what makes a merge consequential: those lines belong to
+   * statements that may already have been filed, and after the merge they report under the
+   * destination account.
+   */
+  async summarizeAccountMovements(accountId: string, organizationId: string): Promise<AccountMovementSummary> {
+    const row = await this.dataSource.manager
+      .getRepository(JournalEntryLine)
+      .createQueryBuilder('line')
+      .innerJoin('line.journalEntry', 'entry')
+      .select('COUNT(line.id)', 'lines')
+      .addSelect(
+        `COALESCE(SUM(CASE WHEN entry.status = :posted THEN line.debit - line.credit ELSE 0 END), 0)`,
+        'balance',
+      )
+      .addSelect(
+        `COUNT(line.id) FILTER (WHERE EXISTS (
+          SELECT 1 FROM accounting_periods period
+          WHERE period.organization_id = entry.organization_id
+            AND period.status = 'CLOSED'
+            AND entry.date BETWEEN period.start_date AND period.end_date))`,
+        'closedLines',
+      )
+      .where('line.accountId = :accountId', { accountId })
+      .andWhere('entry.organizationId = :organizationId', { organizationId })
+      .setParameter('posted', JournalEntryStatus.POSTED)
+      .getRawOne<{ lines: string; balance: string; closedLines: string }>();
+
+    return {
+      lines: Number(row?.lines ?? 0),
+      postedBalance: Number(row?.balance ?? 0),
+      linesInClosedPeriods: Number(row?.closedLines ?? 0),
+    };
   }
 
   // ── Closing checklist ─────────────────────────────────────────────────────────────────────────

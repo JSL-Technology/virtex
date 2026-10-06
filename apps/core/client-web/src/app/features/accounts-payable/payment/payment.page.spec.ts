@@ -1,3 +1,4 @@
+import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -22,6 +23,7 @@ describe('VendorPaymentPage', () => {
   const account = (id: string, currencyCode: string) => ({
     id,
     name: `Cuenta ${currencyCode}`,
+    bankId: null,
     bankName: null,
     accountNumber: null,
     iban: null,
@@ -91,7 +93,8 @@ describe('VendorPaymentPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VendorPaymentPage, TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [
+        provideTestBranches(),provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VendorPaymentPage);
