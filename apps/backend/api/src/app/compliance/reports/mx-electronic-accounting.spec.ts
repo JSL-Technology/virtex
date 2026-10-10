@@ -336,7 +336,7 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['revenue'], credit: 1_000 },
       ]);
 
-      // `NumOrden` belongs to an audit or a certification; `NumTramite` to a refund or an offset.
+      // `NumOrden` belongs to the audits (AF, FC); `NumTramite` to a refund (DE) or an offset (CO).
       // Writing the wrong one, or both, is a rejected upload.
       const audit = await accounting.polizas(
         { organizationId, ...period },
@@ -351,6 +351,22 @@ describeWithDb('Mexican electronic accounting', () => {
       );
       expect(refund).toContain('NumTramite="TR-2026-9"');
       expect(refund).not.toContain('NumOrden');
+
+      // A fiscalización compulsa is an audit: it answers an order, not a procedure.
+      const compulsa = await accounting.polizas(
+        { organizationId, ...period },
+        { tipoSolicitud: 'FC', numOrden: 'ABC1234567/26', numTramite: 'IGNORADO' },
+      );
+      expect(compulsa).toContain('NumOrden="ABC1234567/26"');
+      expect(compulsa).not.toContain('NumTramite');
+
+      // A compensación is a procedure the taxpayer started: it answers its procedure number.
+      const offset = await accounting.polizas(
+        { organizationId, ...period },
+        { tipoSolicitud: 'CO', numTramite: 'CO123456789012', numOrden: 'IGNORADO' },
+      );
+      expect(offset).toContain('NumTramite="CO123456789012"');
+      expect(offset).not.toContain('NumOrden');
     });
   });
 });

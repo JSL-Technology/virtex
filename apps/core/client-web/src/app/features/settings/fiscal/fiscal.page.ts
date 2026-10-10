@@ -18,8 +18,8 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
- * Dominican Republic fiscal configuration: DGII signing certificate, authorized e-NCF ranges, and
- * the 606/607 report downloads. This is what makes electronic invoicing usable — without a
+ * Dominican Republic fiscal configuration: DGII signing certificate and authorized e-NCF ranges.
+ * The periodic returns live in Accounting › Reports › Fiscal returns. This is what makes electronic invoicing usable — without a
  * certificate and at least one active e-NCF range no e-CF can be issued.
  */
 @Component({
@@ -48,7 +48,6 @@ export class FiscalSettingsPage implements OnInit {
   });
   uploading = signal(false);
   provisioning = signal(false);
-  downloading = signal(false);
   selectedFile = signal<File | null>(null);
 
   /**
@@ -116,12 +115,6 @@ export class FiscalSettingsPage implements OnInit {
     prefix: ['E31', [Validators.required, Validators.pattern(/^[BE]\d{2}$/)]],
     startsAt: [1, [Validators.required, Validators.min(1)]],
     endsAt: [1000, [Validators.required, Validators.min(1)]],
-  });
-
-  reportForm = this.fb.group({
-    kind: ['607' as '606' | '607', Validators.required],
-    year: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
-    month: [new Date().getMonth() + 1, [Validators.required, Validators.min(1), Validators.max(12)]],
   });
 
   ngOnInit(): void {
@@ -229,33 +222,5 @@ export class FiscalSettingsPage implements OnInit {
           this.provisioning.set(false);
         },
       });
-  }
-
-  downloadReport(): void {
-    if (this.reportForm.invalid) {
-      this.reportForm.markAllAsTouched();
-      return;
-    }
-    const { kind, year, month } = this.reportForm.getRawValue();
-    this.downloading.set(true);
-    this.einvoicing.downloadReport(kind!, year!, month!).subscribe({
-      next: (blob) => {
-        this.triggerDownload(blob, `DGII_${kind}_${year}${String(month).padStart(2, '0')}.txt`);
-        this.downloading.set(false);
-      },
-      error: (err) => {
-        this.notifications.showHttpError(err, 'errors.generate_report');
-        this.downloading.set(false);
-      },
-    });
-  }
-
-  private triggerDownload(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }

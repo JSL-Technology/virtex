@@ -194,6 +194,11 @@
     "en": "Extensions runtime",
     "pt": "Execução de extensões"
   },
+  "page_titles.fiscal_returns": {
+    "es": "Declaraciones fiscales",
+    "en": "Fiscal returns",
+    "pt": "Declarações fiscais"
+  },
   "page_titles.general_ledger": {
     "es": "Libro mayor",
     "en": "General ledger",

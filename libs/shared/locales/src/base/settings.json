@@ -742,15 +742,15 @@
     "en": "DGII certificate 2025",
     "pt": "Certificado DGII 2025"
   },
-  "settings.fiscal.do.dgii_reports_description": {
-    "es": "Genera los formatos de envío de compras (606) y ventas (607) para un período.",
-    "en": "Generate the purchase (606) and sales (607) filing formats for a period.",
-    "pt": "Gere os formatos de envio de compras (606) e vendas (607) para um período."
-  },
   "settings.fiscal.do.dgii_reports_heading": {
     "es": "Reportes DGII (606 / 607)",
     "en": "DGII reports (606 / 607)",
     "pt": "Relatórios DGII (606 / 607)"
+  },
+  "settings.fiscal.do.dgii_reports_moved": {
+    "es": "Los formatos 606, 607, 608 y 609 se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de NCF.",
+    "en": "Formats 606, 607, 608 and 609 are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the NCF ranges.",
+    "pt": "Os formatos 606, 607, 608 e 609 são gerados em Contabilidade › Relatórios › Declarações fiscais, onde cada mês mostra se foi gerado e entregue. Aqui se configura o que eles precisam: o certificado e as faixas de NCF."
   },
   "settings.fiscal.do.ncf_range_registered": {
     "es": "Rango de e-NCF registrado.",
@@ -782,16 +782,6 @@
     "en": "Electronic invoicing (DR · DGII)",
     "pt": "Faturamento eletrônico (RD · DGII)"
   },
-  "settings.fiscal.do.report_606_purchases": {
-    "es": "606 · Compras",
-    "en": "606 · Purchases",
-    "pt": "606 · Compras"
-  },
-  "settings.fiscal.do.report_607_sales": {
-    "es": "607 · Ventas",
-    "en": "607 · Sales",
-    "pt": "607 · Vendas"
-  },
   "settings.fiscal.ending_number_cannot_lower_than_starting": {
     "es": "El número final no puede ser menor que el inicial.",
     "en": "The ending number cannot be lower than the starting one.",
@@ -811,11 +801,6 @@
     "es": "Desde",
     "en": "From",
     "pt": "De"
-  },
-  "settings.fiscal.generating": {
-    "es": "Generando…",
-    "en": "Generating…",
-    "pt": "A gerar…"
   },
   "settings.fiscal.holder": {
     "es": "Titular",
@@ -837,11 +822,6 @@
     "en": "Not implemented",
     "pt": "Não implementado"
   },
-  "settings.fiscal.month": {
-    "es": "Mes",
-    "en": "Month",
-    "pt": "Mês"
-  },
   "settings.fiscal.prefix": {
     "es": "Prefijo",
     "en": "Prefix",
@@ -856,11 +836,6 @@
     "es": "Registrando…",
     "en": "Registering…",
     "pt": "A registar…"
-  },
-  "settings.fiscal.report": {
-    "es": "Reporte",
-    "en": "Report",
-    "pt": "Relatório"
   },
   "settings.fiscal.requires": {
     "es": "Necesita",
@@ -916,11 +891,6 @@
     "es": "Qué cubre este producto en {{country}}",
     "en": "What this product covers in {{country}}",
     "pt": "O que este produto cobre em {{country}}"
-  },
-  "settings.fiscal.year": {
-    "es": "Año",
-    "en": "Year",
-    "pt": "Ano"
   },
   "settings.fiscal.you_have_not_uploaded_certificate_yet": {
     "es": "Aún no has cargado un certificado.",

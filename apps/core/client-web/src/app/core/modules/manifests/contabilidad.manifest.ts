@@ -376,6 +376,19 @@ export const CONTABILIDAD_REPORTS_MODULE: ModuleManifest = {
       menu: { group: 'analysis', labelKey: 'sidebar.finance.statements_sub.cash_flow' },
       load: () => import('../../../features/reports/financial-statements/cash-flow/cash-flow.page').then((m) => m.CashFlowPage),
     },
+    // The periodic fiscal returns and their filing calendar (audit H-08): DGII 606/607/608/609,
+    // SAT electronic accounting. They were a download form in Settings › Fiscal, and the 608, 609
+    // and the SAT files had no screen at all.
+    {
+      path: 'fiscal-returns',
+      kind: WindowKind.LIST,
+      permission: 'reports:view_financial',
+      titleKey: 'page_titles.fiscal_returns',
+      icon: 'CalendarCheck',
+      entityKeyFn: () => 'contabilidad:fiscal-returns',
+      menu: { group: 'analysis', labelKey: 'page_titles.fiscal_returns' },
+      load: () => import('../../../features/accounting/fiscal-returns/fiscal-returns.page').then((m) => m.FiscalReturnsPage),
+    },
   ],
 };
 

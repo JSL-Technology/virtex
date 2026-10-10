@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, from, map, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { readBlobError } from '../http/read-blob-error';
 
 export type DataTransferFormat = 'csv' | 'xlsx';
 export type DataTransferStatus = 'COMPLETED' | 'VALIDATED' | 'FAILED' | 'PARTIAL';
@@ -91,35 +92,6 @@ export class DataTransferService {
     const params = new HttpParams().set('dataset', dataset).set('mode', mode);
     return this.http.post<ImportReport>(`${this.apiUrl}/imports`, body, { params });
   }
-}
-
-/**
- * A refused download answers with JSON, but a `responseType: 'blob'` request receives it as a Blob,
- * and `{code, messageKey}` would be invisible to the error handler: the reader would get a generic
- * failure instead of «no tienes permiso» or «demasiadas filas». The body is read back into JSON.
- */
-function readBlobError(error: unknown): Observable<never> {
-  if (!(error instanceof HttpErrorResponse) || !(error.error instanceof Blob)) return throwError(() => error);
-  return from(error.error.text()).pipe(
-    switchMap((text) => {
-      let body: unknown = text;
-      try {
-        body = JSON.parse(text);
-      } catch {
-        // Not JSON: keep the text; the handler falls back to the status.
-      }
-      return throwError(
-        () =>
-          new HttpErrorResponse({
-            error: body,
-            headers: error.headers,
-            status: error.status,
-            statusText: error.statusText,
-            url: error.url ?? undefined,
-          }),
-      );
-    }),
-  );
 }
 
 function toFile(response: HttpResponse<Blob>, fallback: string): DownloadedFile {

@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ClosingBlockerRegistry } from './closing-blockers/closing-blocker.registry';
 import { DataTransferRegistry } from './data-transfer/data-transfer.registry';
 import { ApprovalSourceRegistry } from './approvals/approval-source.registry';
+import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-records.registry';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -19,7 +20,7 @@ import { ApprovalSourceRegistry } from './approvals/approval-source.registry';
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry],
 })
 export class ContractsModule {}

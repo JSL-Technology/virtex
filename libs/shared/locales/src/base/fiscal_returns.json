@@ -1,0 +1,347 @@
+{
+  "fiscal_returns.changed_alert": {
+    "es": "{{count}} declaración(es) presentada(s) cambiaron después de presentarse. Revisa si corresponde una rectificativa.",
+    "en": "{{count}} filed return(s) changed after filing. Check whether a rectifying return is due.",
+    "pt": "{{count}} declaração(ões) entregue(s) mudaram depois da entrega. Verifique se cabe uma retificadora."
+  },
+  "fiscal_returns.changed_detail": {
+    "es": "Los datos del período cambiaron después de presentarse: el último archivo generado no es el que se presentó. Presenta una declaración rectificativa y regístrala.",
+    "en": "The period's data changed after filing: the last file generated is not the one that was filed. File a rectifying return and record it.",
+    "pt": "Os dados do período mudaram depois da entrega: o último arquivo gerado não é o entregue. Entregue uma declaração retificadora e registre-a."
+  },
+  "fiscal_returns.check": {
+    "es": "Comprobar",
+    "en": "Check",
+    "pt": "Verificar"
+  },
+  "fiscal_returns.check_changed": {
+    "es": "Generado: {{count}} registros. Difiere de lo presentado.",
+    "en": "Generated: {{count}} records. It differs from what was filed.",
+    "pt": "Gerado: {{count}} registros. Difere do entregue."
+  },
+  "fiscal_returns.check_done": {
+    "es": "Generado: {{count}} registros.",
+    "en": "Generated: {{count}} records.",
+    "pt": "Gerado: {{count}} registros."
+  },
+  "fiscal_returns.check_failed": {
+    "es": "No se pudo comprobar la declaración.",
+    "en": "The return could not be checked.",
+    "pt": "Não foi possível verificar a declaração."
+  },
+  "fiscal_returns.checking": {
+    "es": "Comprobando…",
+    "en": "Checking…",
+    "pt": "Verificando…"
+  },
+  "fiscal_returns.clear": {
+    "es": "Deshacer presentación",
+    "en": "Undo filing",
+    "pt": "Desfazer entrega"
+  },
+  "fiscal_returns.clear_confirm": {
+    "es": "Deshacer",
+    "en": "Undo",
+    "pt": "Desfazer"
+  },
+  "fiscal_returns.clear_failed": {
+    "es": "No se pudo deshacer la presentación.",
+    "en": "The filing could not be undone.",
+    "pt": "Não foi possível desfazer a entrega."
+  },
+  "fiscal_returns.clear_message": {
+    "es": "{{kind}} de {{period}} volverá a figurar como no presentada. Úsalo solo si se registró por error.",
+    "en": "{{kind}} of {{period}} will show as not filed again. Use it only if it was recorded by mistake.",
+    "pt": "{{kind}} de {{period}} voltará a constar como não entregue. Use apenas se foi registrada por engano."
+  },
+  "fiscal_returns.clear_title": {
+    "es": "Deshacer presentación",
+    "en": "Undo filing",
+    "pt": "Desfazer entrega"
+  },
+  "fiscal_returns.cleared": {
+    "es": "La presentación se deshizo.",
+    "en": "The filing was undone.",
+    "pt": "A entrega foi desfeita."
+  },
+  "fiscal_returns.complementary": {
+    "es": "Balanza complementaria",
+    "en": "Complementary trial balance",
+    "pt": "Balancete complementar"
+  },
+  "fiscal_returns.detail": {
+    "es": "Detalle de la declaración",
+    "en": "Return detail",
+    "pt": "Detalhe da declaração"
+  },
+  "fiscal_returns.do_hint": {
+    "es": "Formatos de envío de la DGII. Vencen el día 15 del mes siguiente al período. Elige una celda para generar el archivo, comprobarlo o declararlo presentado.",
+    "en": "DGII filing formats. They are due on the 15th of the month after the period. Choose a cell to generate the file, check it or declare it filed.",
+    "pt": "Formatos de envio da DGII. Vencem no dia 15 do mês seguinte ao período. Escolha uma célula para gerar o arquivo, verificá-lo ou declará-lo entregue."
+  },
+  "fiscal_returns.download": {
+    "es": "Descargar",
+    "en": "Download",
+    "pt": "Baixar"
+  },
+  "fiscal_returns.download_failed": {
+    "es": "No se pudo generar el archivo.",
+    "en": "The file could not be generated.",
+    "pt": "Não foi possível gerar o arquivo."
+  },
+  "fiscal_returns.due": {
+    "es": "Vence",
+    "en": "Due",
+    "pt": "Vencimento"
+  },
+  "fiscal_returns.future_year_title": {
+    "es": "Ese año aún no ha comenzado",
+    "en": "That year has not started yet",
+    "pt": "Esse ano ainda não começou"
+  },
+  "fiscal_returns.generating": {
+    "es": "Generando…",
+    "en": "Generating…",
+    "pt": "Gerando…"
+  },
+  "fiscal_returns.hash": {
+    "es": "Huella del archivo (SHA-256)",
+    "en": "File fingerprint (SHA-256)",
+    "pt": "Impressão do arquivo (SHA-256)"
+  },
+  "fiscal_returns.kinds.606": {
+    "es": "606 · Compras",
+    "en": "606 · Purchases",
+    "pt": "606 · Compras"
+  },
+  "fiscal_returns.kinds.607": {
+    "es": "607 · Ventas",
+    "en": "607 · Sales",
+    "pt": "607 · Vendas"
+  },
+  "fiscal_returns.kinds.608": {
+    "es": "608 · Anulados",
+    "en": "608 · Voided",
+    "pt": "608 · Anulados"
+  },
+  "fiscal_returns.kinds.609": {
+    "es": "609 · Pagos al exterior",
+    "en": "609 · Payments abroad",
+    "pt": "609 · Pagamentos ao exterior"
+  },
+  "fiscal_returns.kinds.balanza": {
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete"
+  },
+  "fiscal_returns.kinds.catalogo": {
+    "es": "Catálogo de cuentas",
+    "en": "Chart of accounts",
+    "pt": "Plano de contas"
+  },
+  "fiscal_returns.last_generated": {
+    "es": "Última generación",
+    "en": "Last generated",
+    "pt": "Última geração"
+  },
+  "fiscal_returns.load_failed": {
+    "es": "No se pudo cargar el calendario de declaraciones.",
+    "en": "The filing calendar could not be loaded.",
+    "pt": "Não foi possível carregar o calendário de declarações."
+  },
+  "fiscal_returns.mark_submitted": {
+    "es": "Declarar presentada",
+    "en": "Declare filed",
+    "pt": "Declarar entregue"
+  },
+  "fiscal_returns.modified_on": {
+    "es": "Fecha de modificación",
+    "en": "Modification date",
+    "pt": "Data de modificação"
+  },
+  "fiscal_returns.modified_on_required": {
+    "es": "Indica la fecha en que se modificó la balanza.",
+    "en": "Enter the date the trial balance was modified.",
+    "pt": "Informe a data em que o balancete foi modificado."
+  },
+  "fiscal_returns.mx_hint": {
+    "es": "Contabilidad electrónica del SAT (Anexo 24). Los archivos se entregan sin sellar: se firman con la e.firma y se envían por el Buzón Tributario.",
+    "en": "SAT electronic accounting (Annex 24). The files are delivered unsealed: they are signed with the e.firma and sent through the Buzón Tributario.",
+    "pt": "Contabilidade eletrônica do SAT (Anexo 24). Os arquivos são entregues sem selo: são assinados com a e.firma e enviados pelo Buzón Tributario."
+  },
+  "fiscal_returns.never_generated": {
+    "es": "Este período no se ha generado todavía.",
+    "en": "This period has not been generated yet.",
+    "pt": "Este período ainda não foi gerado."
+  },
+  "fiscal_returns.order_number": {
+    "es": "Número de orden",
+    "en": "Order number",
+    "pt": "Número da ordem"
+  },
+  "fiscal_returns.other_market_help": {
+    "es": "El producto genera los formatos de la DGII (República Dominicana) y la contabilidad electrónica del SAT (México). Para otros países, los libros e informes contables siguen disponibles en Contabilidad.",
+    "en": "The product generates the DGII formats (Dominican Republic) and the SAT electronic accounting (Mexico). For other countries, the books and accounting reports remain available in Accounting.",
+    "pt": "O produto gera os formatos da DGII (República Dominicana) e a contabilidade eletrônica do SAT (México). Para outros países, os livros e relatórios contábeis continuam disponíveis em Contabilidade."
+  },
+  "fiscal_returns.other_market_title": {
+    "es": "No hay declaraciones periódicas para tu país",
+    "en": "No periodic returns for your country",
+    "pt": "Não há declarações periódicas para o seu país"
+  },
+  "fiscal_returns.period": {
+    "es": "Período",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "fiscal_returns.polizas_help": {
+    "es": "El SAT pide las pólizas para una auditoría, una devolución, una compensación o una certificación. Se generan cuando se piden, con el número de orden o de trámite que corresponda.",
+    "en": "The SAT requests the journal entries for an audit, a refund, an offset or a certification. They are generated when requested, with the corresponding order or procedure number.",
+    "pt": "O SAT solicita as pólizas para uma auditoria, uma restituição, uma compensação ou uma certificação. Elas são geradas quando solicitadas, com o número de ordem ou de trâmite correspondente."
+  },
+  "fiscal_returns.polizas_reference_required": {
+    "es": "Indica el número de orden o de trámite de la solicitud.",
+    "en": "Enter the request's order or procedure number.",
+    "pt": "Informe o número da ordem ou do trâmite da solicitação."
+  },
+  "fiscal_returns.polizas_request": {
+    "es": "Tipo de solicitud",
+    "en": "Request type",
+    "pt": "Tipo de solicitação"
+  },
+  "fiscal_returns.polizas_requests.af": {
+    "es": "AF · Acto de fiscalización",
+    "en": "AF · Audit",
+    "pt": "AF · Fiscalização"
+  },
+  "fiscal_returns.polizas_requests.co": {
+    "es": "CO · Compensación",
+    "en": "CO · Offset",
+    "pt": "CO · Compensação"
+  },
+  "fiscal_returns.polizas_requests.de": {
+    "es": "DE · Devolución",
+    "en": "DE · Refund",
+    "pt": "DE · Restituição"
+  },
+  "fiscal_returns.polizas_requests.fc": {
+    "es": "FC · Fiscalización compulsa",
+    "en": "FC · Cross-check audit",
+    "pt": "FC · Fiscalização compulsória"
+  },
+  "fiscal_returns.polizas_title": {
+    "es": "Pólizas del período (a solicitud del SAT)",
+    "en": "Period journal entries (on SAT request)",
+    "pt": "Pólizas do período (a pedido do SAT)"
+  },
+  "fiscal_returns.procedure_number": {
+    "es": "Número de trámite",
+    "en": "Procedure number",
+    "pt": "Número do trâmite"
+  },
+  "fiscal_returns.record_count": {
+    "es": "Registros",
+    "en": "Records",
+    "pt": "Registros"
+  },
+  "fiscal_returns.records": {
+    "es": "{{count}} registros",
+    "en": "{{count}} records",
+    "pt": "{{count}} registros"
+  },
+  "fiscal_returns.reference": {
+    "es": "Acuse",
+    "en": "Acknowledgement",
+    "pt": "Protocolo"
+  },
+  "fiscal_returns.reference_required": {
+    "es": "Indica el número de acuse.",
+    "en": "Enter the acknowledgement number.",
+    "pt": "Informe o número do protocolo."
+  },
+  "fiscal_returns.resubmit": {
+    "es": "Registrar rectificativa",
+    "en": "Record rectifying return",
+    "pt": "Registrar retificadora"
+  },
+  "fiscal_returns.states.changed": {
+    "es": "Cambió tras presentarse",
+    "en": "Changed after filing",
+    "pt": "Mudou após entrega"
+  },
+  "fiscal_returns.states.generated": {
+    "es": "Generada",
+    "en": "Generated",
+    "pt": "Gerada"
+  },
+  "fiscal_returns.states.missing": {
+    "es": "Sin generar",
+    "en": "Not generated",
+    "pt": "Não gerado"
+  },
+  "fiscal_returns.states.overdue": {
+    "es": "Vencida",
+    "en": "Overdue",
+    "pt": "Vencida"
+  },
+  "fiscal_returns.states.submitted": {
+    "es": "Presentada",
+    "en": "Filed",
+    "pt": "Entregue"
+  },
+  "fiscal_returns.submit_confirm": {
+    "es": "Registrar",
+    "en": "Record",
+    "pt": "Registrar"
+  },
+  "fiscal_returns.submit_failed": {
+    "es": "No se pudo registrar la presentación.",
+    "en": "The filing could not be recorded.",
+    "pt": "Não foi possível registrar a entrega."
+  },
+  "fiscal_returns.submit_message": {
+    "es": "Registra el acuse que devolvió la autoridad para {{kind}} de {{period}}. Se guarda junto con la huella del último archivo generado.",
+    "en": "Record the acknowledgement the authority returned for {{kind}} of {{period}}. It is stored with the fingerprint of the last file generated.",
+    "pt": "Registre o protocolo que a autoridade devolveu para {{kind}} de {{period}}. Ele é guardado com a impressão do último arquivo gerado."
+  },
+  "fiscal_returns.submit_placeholder": {
+    "es": "Número de acuse o trámite",
+    "en": "Acknowledgement or procedure number",
+    "pt": "Número do protocolo"
+  },
+  "fiscal_returns.submit_title": {
+    "es": "Declarar presentada",
+    "en": "Declare filed",
+    "pt": "Declarar entregue"
+  },
+  "fiscal_returns.submitted": {
+    "es": "Declaración registrada como presentada.",
+    "en": "Return recorded as filed.",
+    "pt": "Declaração registrada como entregue."
+  },
+  "fiscal_returns.submitted_at": {
+    "es": "Presentada",
+    "en": "Filed",
+    "pt": "Entregue"
+  },
+  "fiscal_returns.submitted_records": {
+    "es": "Registros presentados",
+    "en": "Records filed",
+    "pt": "Registros entregues"
+  },
+  "fiscal_returns.subtitle": {
+    "es": "Los formatos que recibe la autoridad tributaria, mes a mes: si se generaron, si se presentaron y si cambiaron después.",
+    "en": "The files the tax authority receives, month by month: whether they were generated, filed, and changed afterwards.",
+    "pt": "Os arquivos que a autoridade tributária recebe, mês a mês: se foram gerados, entregues e alterados depois."
+  },
+  "fiscal_returns.title": {
+    "es": "Declaraciones fiscales",
+    "en": "Fiscal returns",
+    "pt": "Declarações fiscais"
+  },
+  "fiscal_returns.year": {
+    "es": "Año",
+    "en": "Year",
+    "pt": "Ano"
+  }
+}

@@ -41,17 +41,17 @@ export class MexicanAccountingQueryDto {
   @IsOptional()
   fechaModBal?: string;
 
-  /** `AF` audit, `FC` offset, `DE` refund, `CO` certification. */
+  /** `AF` acto de fiscalización, `FC` fiscalización compulsa, `DE` devolución, `CO` compensación. */
   @IsIn(['AF', 'FC', 'DE', 'CO'])
   @IsOptional()
   tipoSolicitud?: 'AF' | 'FC' | 'DE' | 'CO';
 
-  /** The audit order the file answers. Only for `AF` and `CO`. */
+  /** The audit order the file answers. Only for `AF` and `FC`. */
   @IsString()
   @IsOptional()
   numOrden?: string;
 
-  /** The refund or offset procedure the file answers. Only for `DE` and `FC`. */
+  /** The refund or offset procedure the file answers. Only for `DE` and `CO`. */
   @IsString()
   @IsOptional()
   numTramite?: string;

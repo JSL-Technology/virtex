@@ -145,30 +145,13 @@
     <ng-template #noSeq><p class="empty">{{ 'settings.fiscal.do.no_ncf_ranges_yet' | translate }}</p></ng-template>
   </section>
 
-  <!-- Reportes DGII -->
+  <!--
+    The DGII returns moved to Accounting › Reports › Fiscal returns (audit H-08), where each month
+    shows whether its file was generated and filed. This page keeps what the returns depend on: the
+    certificate and the authorised ranges.
+  -->
   <section class="card">
     <h2>{{ 'settings.fiscal.do.dgii_reports_heading' | translate }}</h2>
-    <p class="hint">{{ 'settings.fiscal.do.dgii_reports_description' | translate }}</p>
-
-    <form [formGroup]="reportForm" (ngSubmit)="downloadReport()" class="form-grid">
-      <label>
-        <span>{{ 'settings.fiscal.report' | translate }}</span>
-        <select formControlName="kind">
-          <option value="607">{{ 'settings.fiscal.do.report_607_sales' | translate }}</option>
-          <option value="606">{{ 'settings.fiscal.do.report_606_purchases' | translate }}</option>
-        </select>
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.year' | translate }}</span>
-        <input type="number" formControlName="year" min="2000" />
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.month' | translate }}</span>
-        <input type="number" formControlName="month" min="1" max="12" />
-      </label>
-      <button type="submit" [disabled]="downloading()">
-        {{ downloading() ? ('settings.fiscal.generating' | translate) : 'Descargar' }}
-      </button>
-    </form>
+    <p class="hint">{{ 'settings.fiscal.do.dgii_reports_moved' | translate }}</p>
   </section>
 </div>
