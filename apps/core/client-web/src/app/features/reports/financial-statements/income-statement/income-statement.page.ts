@@ -10,6 +10,7 @@ import {
 } from '../../../../core/api/financial-reporting.service';
 import { defaultPeriod } from '../report-period';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDimensionFilterComponent } from '../../../accounting/dimensions/dimension-filter.component';
 import { VxDateRangeComponent } from '../../../../shared/components/date';
 
 /**
@@ -26,7 +27,7 @@ import { VxDateRangeComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-income-statement-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDimensionFilterComponent, VxDateRangeComponent],
   templateUrl: './income-statement.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +44,8 @@ export class IncomeStatementPage {
   readonly endDate = signal(defaultPeriod().endDate);
   readonly report = signal<IncomeStatementReport | null>(null);
   readonly loading = signal(true);
+  /** The analytic filter, `{}` for the whole company. */
+  readonly dimensions = signal<Record<string, string>>({});
   readonly failed = signal(false);
 
   /** Null rather than zero when there is no revenue: a margin on nothing is not 0 %, it is absent. */
@@ -56,10 +59,15 @@ export class IncomeStatementPage {
     this.load();
   }
 
+  onDimensionFilter(filter: Record<string, string>): void {
+    this.dimensions.set(filter);
+    this.load();
+  }
+
   load(): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.reports.incomeStatement(this.startDate(), this.endDate()).subscribe({
+    this.reports.incomeStatement(this.startDate(), this.endDate(), { dimensions: this.dimensions() }).subscribe({
       next: (report) => {
         this.report.set(report);
         this.loading.set(false);

@@ -2,6 +2,7 @@
   <div class="subview-header">
     <h3>{{ 'reports.balance_sheet.balance_general' | translate }}</h3>
     <div class="header-actions">
+      <vx-dimension-filter (filterChange)="onDimensionFilter($event)" />
       <label class="date-picker" for="balanceSheetAsOf">
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
         <vx-date-field inputId="balanceSheetAsOf" [value]="asOfDate()" (valueChange)="onDateChange(($event ?? ''))" [attr.aria-label]="'reports.balance_sheet.as_of' | translate" />

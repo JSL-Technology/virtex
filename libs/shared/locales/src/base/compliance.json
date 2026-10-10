@@ -34,6 +34,16 @@
     "en": "The ending number cannot be lower than the starting one.",
     "pt": "O número final não pode ser menor que o inicial."
   },
+  "compliance.fiscal_report_kind_not_tracked": {
+    "es": "El reporte «{{kind}}» no tiene seguimiento mensual de presentación. Disponibles: 606, 607, 608, 609, catalogo, balanza.",
+    "en": "The «{{kind}}» report has no monthly filing tracking. Available: 606, 607, 608, 609, catalogo, balanza.",
+    "pt": "O relatório «{{kind}}» não tem acompanhamento mensal de entrega. Disponíveis: 606, 607, 608, 609, catalogo, balanza."
+  },
+  "compliance.fiscal_report_not_generated": {
+    "es": "El reporte {{kind}} de {{period}} no se ha generado todavía. Genéralo antes de declararlo como presentado.",
+    "en": "The {{kind}} report for {{period}} has not been generated yet. Generate it before declaring it filed.",
+    "pt": "O relatório {{kind}} de {{period}} ainda não foi gerado. Gere-o antes de declará-lo como entregue."
+  },
   "compliance.format_kind_not_recognised_available_formats": {
     "es": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
     "en": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
@@ -93,6 +103,16 @@
     "es": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
     "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
     "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
+  },
+  "compliance.purchase_records_unavailable": {
+    "es": "Las compras no están disponibles en esta instalación, así que no se puede generar este reporte.",
+    "en": "Purchasing is not available in this installation, so this report cannot be generated.",
+    "pt": "As compras não estão disponíveis nesta instalação, então este relatório não pode ser gerado."
+  },
+  "compliance.report_606_credit_note_without_modified_ncf": {
+    "es": "El 606 no se generó: {{count}} nota(s) de crédito de proveedor con NCF modifican una factura sin NCF ({{notes}}). Registra el NCF de la factura de proveedor y vuelve a generarlo.",
+    "en": "The 606 was not generated: {{count}} supplier credit note(s) with an NCF modify a bill without an NCF ({{notes}}). Record the vendor bill's NCF and generate it again.",
+    "pt": "O 606 não foi gerado: {{count}} nota(s) de crédito de fornecedor com NCF modificam uma fatura sem NCF ({{notes}}). Registre o NCF da fatura do fornecedor e gere novamente."
   },
   "compliance.report_606_supplier_tax_id_missing": {
     "es": "El 606 no se generó: {{count}} factura(s) de proveedor con NCF no tienen un RNC o cédula válido del proveedor ({{bills}}). Corrige el RNC en la ficha del proveedor y vuelve a generarlo.",

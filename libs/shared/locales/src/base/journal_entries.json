@@ -189,6 +189,16 @@
     "en": "The import was confirmed and processed.",
     "pt": "A importação foi confirmada e processada."
   },
+  "journal_entries.inactive_dimension": {
+    "es": "La dimensión «{{dimension}}» está inactiva y no se puede usar en nuevos asientos.",
+    "en": "Dimension «{{dimension}}» is inactive and cannot be used on new entries.",
+    "pt": "A dimensão «{{dimension}}» está inativa e não pode ser usada em novos lançamentos."
+  },
+  "journal_entries.inactive_dimension_value": {
+    "es": "El valor «{{value}}» de «{{dimension}}» está retirado y no se puede usar en nuevos asientos.",
+    "en": "Value «{{value}}» of «{{dimension}}» is retired and cannot be used on new entries.",
+    "pt": "O valor «{{value}}» de «{{dimension}}» está desativado e não pode ser usado em novos lançamentos."
+  },
   "journal_entries.journal_code_fixed_once_used": {
     "es": "El diario ya tiene {{count}} asiento(s) numerados con su código: el código no puede cambiar.",
     "en": "The journal already has {{count}} entry(ies) numbered with its code: the code cannot change.",
@@ -294,6 +304,11 @@
     "en": "A positive exchange rate is required for foreign-currency transactions.",
     "pt": "É necessária uma taxa de câmbio positiva para transações em moeda estrangeira."
   },
+  "journal_entries.recurring_end_before_start": {
+    "es": "La fecha de fin no puede ser anterior a la de inicio.",
+    "en": "The end date cannot be earlier than the start date.",
+    "pt": "A data de término não pode ser anterior à de início."
+  },
   "journal_entries.recurring_journal_entry_template_id_not": {
     "es": "Plantilla de asiento recurrente con ID \"{{id}}\" no encontrada.",
     "en": "Recurring journal entry template \"{{id}}\" was not found.",
@@ -324,15 +339,60 @@
     "en": "The specified ledger does not exist in this company.",
     "pt": "O livro indicado não existe nesta empresa."
   },
+  "journal_entries.stored_line_account_not_found": {
+    "es": "Línea {{line}}: la cuenta no existe en esta empresa.",
+    "en": "Line {{line}}: the account does not exist in this company.",
+    "pt": "Linha {{line}}: a conta não existe nesta empresa."
+  },
+  "journal_entries.stored_line_account_not_postable": {
+    "es": "Línea {{line}}: la cuenta {{code}} está inactiva, bloqueada o es de agrupación.",
+    "en": "Line {{line}}: account {{code}} is inactive, blocked or a header account.",
+    "pt": "Linha {{line}}: a conta {{code}} está inativa, bloqueada ou é sintética."
+  },
+  "journal_entries.stored_line_one_side": {
+    "es": "Línea {{line}}: indica un importe en el débito o en el crédito, no en ambos ni en ninguno.",
+    "en": "Line {{line}}: give an amount as a debit or a credit, not both and not neither.",
+    "pt": "Linha {{line}}: informe um valor no débito ou no crédito, nem ambos nem nenhum."
+  },
+  "journal_entries.stored_lines_at_least_two": {
+    "es": "Un asiento necesita al menos dos líneas.",
+    "en": "An entry needs at least two lines.",
+    "pt": "Um lançamento precisa de pelo menos duas linhas."
+  },
   "journal_entries.system_journal_cannot_be_deleted": {
     "es": "El diario {{code}} lo usa el propio sistema para contabilizar y no se puede eliminar.",
     "en": "The journal {{code}} is used by the system itself to post and cannot be deleted.",
     "pt": "O diário {{code}} é usado pelo próprio sistema para contabilizar e não pode ser excluído."
   },
+  "journal_entries.template_needs_both_sides": {
+    "es": "La plantilla necesita al menos una línea al débito y una al crédito.",
+    "en": "The template needs at least one debit line and one credit line.",
+    "pt": "O modelo precisa de pelo menos uma linha a débito e uma a crédito."
+  },
+  "journal_entries.template_percentages_all_or_none": {
+    "es": "En el lado {{side}}, indica el porcentaje en todas las líneas o en ninguna.",
+    "en": "On the {{side}} side, give a percentage on every line or on none.",
+    "pt": "No lado {{side}}, informe a porcentagem em todas as linhas ou em nenhuma."
+  },
+  "journal_entries.template_percentages_must_total_100": {
+    "es": "Los porcentajes del lado {{side}} suman {{total}} %: deben sumar 100 %.",
+    "en": "The {{side}} percentages add up to {{total}} %: they must add up to 100 %.",
+    "pt": "As porcentagens do lado {{side}} somam {{total}} %: devem somar 100 %."
+  },
   "journal_entries.transaction_query_runner_could_not_obtained": {
     "es": "No se pudo obtener el Query Runner de la transacción.",
     "en": "The transaction's query runner could not be obtained.",
     "pt": "Não foi possível obter o query runner da transação."
+  },
+  "journal_entries.unknown_dimension": {
+    "es": "La dimensión «{{dimension}}» no existe en esta empresa.",
+    "en": "Dimension «{{dimension}}» does not exist in this company.",
+    "pt": "A dimensão «{{dimension}}» não existe nesta empresa."
+  },
+  "journal_entries.unknown_dimension_value": {
+    "es": "«{{value}}» no es un valor de la dimensión «{{dimension}}».",
+    "en": "«{{value}}» is not a value of the «{{dimension}}» dimension.",
+    "pt": "«{{value}}» não é um valor da dimensão «{{dimension}}»."
   },
   "journal_entries.unsupported_file_type_mimetype": {
     "es": "Tipo de archivo no soportado: {{mimetype}}",

@@ -5,6 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IncomeStatementPage } from './income-statement.page';
 import { IncomeStatementReport } from '../../../../core/api/financial-reporting.service';
 import { environment } from '../../../../../environments/environment';
+import { of } from 'rxjs';
+import { DimensionsService } from '../../../accounting/data/dimensions.service';
 
 describe('IncomeStatementPage', () => {
   let fixture: ComponentFixture<IncomeStatementPage>;
@@ -44,7 +46,12 @@ describe('IncomeStatementPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [IncomeStatementPage, TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        // The analytic filter is context, not the statement: no dimensions, no filter, no request.
+        { provide: DimensionsService, useValue: { forTagging: () => of([]) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(IncomeStatementPage);

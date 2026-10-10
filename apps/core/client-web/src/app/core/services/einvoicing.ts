@@ -61,7 +61,7 @@ export interface ProvisionNcfSequenceInput {
 
 /**
  * Client for the Dominican Republic electronic-invoicing (e-CF) API: certificate management, e-NCF
- * range provisioning, per-invoice e-CF status, and the DGII 606/607 report downloads.
+ * range provisioning and per-invoice e-CF status. The DGII returns are `FiscalReturnsService`'s.
  */
 @Injectable({ providedIn: 'root' })
 export class EinvoicingService {
@@ -114,13 +114,5 @@ export class EinvoicingService {
 
   provisionSequence(input: ProvisionNcfSequenceInput): Observable<NcfSequenceView> {
     return this.http.post<NcfSequenceView>(`${this.complianceUrl}/ncf-sequences`, input);
-  }
-
-  // ── DGII reports (606/607) ────────────────────────────────────────────────
-  downloadReport(kind: '606' | '607', year: number, month: number): Observable<Blob> {
-    return this.http.get(`${this.complianceUrl}/reports/${kind}`, {
-      params: { year, month },
-      responseType: 'blob',
-    });
   }
 }

@@ -1,0 +1,242 @@
+{
+  "entry_templates.form.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "entry_templates.form.add_credit": {
+    "es": "Añadir crédito",
+    "en": "Add credit",
+    "pt": "Adicionar crédito"
+  },
+  "entry_templates.form.add_debit": {
+    "es": "Añadir débito",
+    "en": "Add debit",
+    "pt": "Adicionar débito"
+  },
+  "entry_templates.form.choose_account": {
+    "es": "Elige una cuenta",
+    "en": "Choose an account",
+    "pt": "Escolha uma conta"
+  },
+  "entry_templates.form.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "entry_templates.form.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "entry_templates.form.delete": {
+    "es": "Eliminar plantilla",
+    "en": "Delete template",
+    "pt": "Excluir modelo"
+  },
+  "entry_templates.form.delete_failed": {
+    "es": "No se pudo eliminar la plantilla.",
+    "en": "The template could not be deleted.",
+    "pt": "Não foi possível excluir o modelo."
+  },
+  "entry_templates.form.delete_message": {
+    "es": "Se eliminará la plantilla «{{name}}». Los asientos creados con ella se conservan.",
+    "en": "Template «{{name}}» will be deleted. The entries created from it are kept.",
+    "pt": "O modelo «{{name}}» será excluído. Os lançamentos criados com ele são mantidos."
+  },
+  "entry_templates.form.delete_title": {
+    "es": "Eliminar plantilla",
+    "en": "Delete template",
+    "pt": "Excluir modelo"
+  },
+  "entry_templates.form.deleted": {
+    "es": "Plantilla eliminada.",
+    "en": "Template deleted.",
+    "pt": "Modelo excluído."
+  },
+  "entry_templates.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "entry_templates.form.equal_share": {
+    "es": "Parte igual",
+    "en": "Equal share",
+    "pt": "Parte igual"
+  },
+  "entry_templates.form.line_account_required": {
+    "es": "Línea {{line}}: elige la cuenta.",
+    "en": "Line {{line}}: choose the account.",
+    "pt": "Linha {{line}}: escolha a conta."
+  },
+  "entry_templates.form.line_description": {
+    "es": "Concepto",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "entry_templates.form.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "entry_templates.form.lines_hint": {
+    "es": "Cada lado reparte el importe entre sus líneas según el porcentaje, o a partes iguales si no se indica; la última línea de cada lado ajusta el redondeo, así el asiento siempre cuadra.",
+    "en": "Each side splits the amount among its lines by percentage, or equally when none is given; the last line of each side takes the rounding, so the entry always balances.",
+    "pt": "Cada lado divide o valor entre suas linhas pela porcentagem, ou igualmente quando não informada; a última linha de cada lado ajusta o arredondamento, então o lançamento sempre fecha."
+  },
+  "entry_templates.form.load_failed": {
+    "es": "No se pudo cargar la plantilla.",
+    "en": "The template could not be loaded.",
+    "pt": "Não foi possível carregar o modelo."
+  },
+  "entry_templates.form.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "entry_templates.form.name_placeholder": {
+    "es": "Provisión de nómina, reparto de alquiler…",
+    "en": "Payroll accrual, rent allocation…",
+    "pt": "Provisão da folha, rateio do aluguel…"
+  },
+  "entry_templates.form.new": {
+    "es": "Nueva plantilla de asiento",
+    "en": "New entry template",
+    "pt": "Novo modelo de lançamento"
+  },
+  "entry_templates.form.percentage": {
+    "es": "% del lado",
+    "en": "% of side",
+    "pt": "% do lado"
+  },
+  "entry_templates.form.remove_line": {
+    "es": "Quitar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "entry_templates.form.save_failed": {
+    "es": "No se pudo guardar la plantilla.",
+    "en": "The template could not be saved.",
+    "pt": "Não foi possível salvar o modelo."
+  },
+  "entry_templates.form.saved": {
+    "es": "Plantilla «{{name}}» guardada.",
+    "en": "Template «{{name}}» saved.",
+    "pt": "Modelo «{{name}}» salvo."
+  },
+  "entry_templates.form.side": {
+    "es": "Lado",
+    "en": "Side",
+    "pt": "Lado"
+  },
+  "entry_templates.form.subtitle": {
+    "es": "La forma de un asiento que se repite: registrar uno es indicar la fecha y el importe.",
+    "en": "The shape of an entry that repeats: posting one is giving the date and the amount.",
+    "pt": "A forma de um lançamento que se repete: registrar um é informar a data e o valor."
+  },
+  "entry_templates.page.credit_lines": {
+    "es": "Líneas de crédito",
+    "en": "Credit lines",
+    "pt": "Linhas de crédito"
+  },
+  "entry_templates.page.debit_lines": {
+    "es": "Líneas de débito",
+    "en": "Debit lines",
+    "pt": "Linhas de débito"
+  },
+  "entry_templates.page.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "entry_templates.page.empty_help": {
+    "es": "Crea plantillas para los asientos que registras a menudo con importes distintos.",
+    "en": "Create templates for entries you post often with different amounts.",
+    "pt": "Crie modelos para os lançamentos que registra com frequência com valores diferentes."
+  },
+  "entry_templates.page.empty_title": {
+    "es": "No hay plantillas de asiento",
+    "en": "No entry templates",
+    "pt": "Não há modelos de lançamento"
+  },
+  "entry_templates.page.load_failed": {
+    "es": "No se pudieron cargar las plantillas.",
+    "en": "Templates could not be loaded.",
+    "pt": "Não foi possível carregar os modelos."
+  },
+  "entry_templates.page.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "entry_templates.page.new": {
+    "es": "Nueva plantilla",
+    "en": "New template",
+    "pt": "Novo modelo"
+  },
+  "entry_templates.page.subtitle": {
+    "es": "Asientos que se repiten con importes distintos.",
+    "en": "Entries that repeat with different amounts.",
+    "pt": "Lançamentos que se repetem com valores diferentes."
+  },
+  "entry_templates.page.title": {
+    "es": "Plantillas de asiento",
+    "en": "Entry templates",
+    "pt": "Modelos de lançamento"
+  },
+  "entry_templates.use.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "entry_templates.use.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "entry_templates.use.description": {
+    "es": "Descripción del asiento",
+    "en": "Entry description",
+    "pt": "Descrição do lançamento"
+  },
+  "entry_templates.use.failed": {
+    "es": "No se pudo registrar el asiento.",
+    "en": "The entry could not be posted.",
+    "pt": "Não foi possível registrar o lançamento."
+  },
+  "entry_templates.use.incomplete": {
+    "es": "Indica la fecha, el importe y el diario.",
+    "en": "Give the date, the amount and the journal.",
+    "pt": "Informe a data, o valor e o diário."
+  },
+  "entry_templates.use.journal": {
+    "es": "Diario",
+    "en": "Journal",
+    "pt": "Diário"
+  },
+  "entry_templates.use.post": {
+    "es": "Registrar asiento",
+    "en": "Post entry",
+    "pt": "Registrar lançamento"
+  },
+  "entry_templates.use.posted": {
+    "es": "Asiento registrado con la plantilla.",
+    "en": "Entry posted from the template.",
+    "pt": "Lançamento registrado com o modelo."
+  },
+  "entry_templates.use.posting": {
+    "es": "Registrando…",
+    "en": "Posting…",
+    "pt": "Registrando…"
+  },
+  "entry_templates.use.title": {
+    "es": "Registrar un asiento con esta plantilla",
+    "en": "Post an entry from this template",
+    "pt": "Registrar um lançamento com este modelo"
+  },
+  "entry_templates.use.view_entry": {
+    "es": "Ver asiento {{number}}",
+    "en": "View entry {{number}}",
+    "pt": "Ver lançamento {{number}}"
+  }
+}

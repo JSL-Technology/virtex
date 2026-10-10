@@ -349,11 +349,6 @@
     "en": "Chart of Accounts",
     "pt": "Plano de contas"
   },
-  "permissions.groups.cost_accounting": {
-    "es": "Contabilidad de costos",
-    "en": "Cost accounting",
-    "pt": "Contabilidade de custos"
-  },
   "permissions.groups.crm": {
     "es": "Oportunidades de venta",
     "en": "Sales pipeline",

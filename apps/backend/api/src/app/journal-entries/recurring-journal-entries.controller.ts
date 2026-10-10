@@ -8,6 +8,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -48,6 +50,13 @@ export class RecurringJournalEntriesController {
     return this.recurringService.findOne(id, user.organizationId);
   }
 
+  /** The entries it has posted, newest first. */
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
+  @Get(':id/entries')
+  postedEntries(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.recurringService.postedEntries(id, user.organizationId);
+  }
+
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Patch(':id')
   update(
@@ -60,6 +69,7 @@ export class RecurringJournalEntriesController {
 
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.remove(id, user.organizationId);
   }

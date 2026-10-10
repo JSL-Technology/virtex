@@ -1,73 +1,92 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FixedAssetsService } from './fixed-assets.service';
-import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
-import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
+import { DepreciationService } from './depreciation.service';
+import {
+  CreateFixedAssetDto,
+  DepreciationRunDto,
+  DisposeAssetDto,
+  FixedAssetsQueryDto,
+  UpdateFixedAssetDto,
+} from './dto/fixed-asset.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
-import { DisposeAssetDto } from './dto/dispose-asset.dto';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../security/principal';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
-@Controller('fixed-assets')
 /**
- * The fixed-asset register.
+ * The fixed-asset register and its depreciation.
  *
- * This controller declared no permission on any route. Acquiring an asset, changing its cost or
- * useful life, and disposing of it all post to the general ledger, and every one of them was open
- * to any authenticated member of the tenant.
+ * Every route declares its permission: acquiring, editing and disposing of an asset, and running
+ * depreciation, all reach the general ledger. They were once open to any member of the tenant.
  */
+@Controller('fixed-assets')
 export class FixedAssetsController {
-  constructor(private readonly fixedAssetsService: FixedAssetsService) {}
+  constructor(
+    private readonly fixedAssetsService: FixedAssetsService,
+    private readonly depreciation: DepreciationService,
+  ) {}
+
+  // Declared before `:id`, so `depreciation-runs` is never read as an asset id.
+
+  /** What a run for the month would charge, asset by asset, without posting. */
+  @Get('depreciation-runs/preview')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  previewDepreciation(@Query() query: DepreciationRunDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.depreciation.preview(user.organizationId, `${query.period}-01`);
+  }
+
+  /**
+   * Charge every asset everything it is due through the month. Idempotent by construction: a month
+   * already charged is not charged again, whoever ran it.
+   */
+  @Post('depreciation-runs')
+  @Idempotent()
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
+  runDepreciation(@Body() dto: DepreciationRunDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.depreciation.runMonthlyDepreciation(user.organizationId, `${dto.period}-01`);
+  }
 
   @Post()
+  @Idempotent()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
-  create(@Body() createFixedAssetDto: CreateFixedAssetDto, @CurrentUser() user: AuthenticatedUser) {
-
-    return this.fixedAssetsService.create(createFixedAssetDto, user.organizationId);
+  create(@Body() dto: CreateFixedAssetDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.fixedAssetsService.create(dto, user.organizationId, user.id);
   }
 
   @Get()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: FixedAssetsQueryDto) {
     return this.fixedAssetsService.findAll(user.organizationId, query);
   }
 
   @Get(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-
     return this.fixedAssetsService.findOne(id, user.organizationId);
+  }
+
+  /** The depreciation board: months charged, and the projection of the rest. */
+  @Get(':id/schedule')
+  @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
+  schedule(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.fixedAssetsService.schedule(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
   update(
     @Param('id', UuidParamPipe) id: string,
-    @Body() updateFixedAssetDto: UpdateFixedAssetDto,
+    @Body() dto: UpdateFixedAssetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-
-    return this.fixedAssetsService.update(id, updateFixedAssetDto, user.organizationId);
+    return this.fixedAssetsService.update(id, dto, user.organizationId);
   }
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.FIXED_ASSETS_MANAGE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-
     return this.fixedAssetsService.remove(id, user.organizationId);
   }
 
@@ -76,9 +95,9 @@ export class FixedAssetsController {
   @HasPermission(PERMISSIONS.FIXED_ASSETS_DISPOSE)
   dispose(
     @Param('id', UuidParamPipe) id: string,
-    @Body() disposeDto: DisposeAssetDto,
+    @Body() dto: DisposeAssetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.fixedAssetsService.dispose(id, disposeDto, user.organizationId);
+    return this.fixedAssetsService.dispose(id, dto, user.organizationId, user.id);
   }
 }

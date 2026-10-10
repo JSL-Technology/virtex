@@ -1,8 +1,26 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseInterceptors, ParseIntPipe, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseInterceptors,
+  ParseIntPipe,
+  Res,
+} from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
+import { FiscalReportFilingsQueryDto, MarkFiscalReportSubmittedDto } from './dto/fiscal-report-filing.dto';
+import {
+  FilingPeriod,
+  FiscalReportFilingsService,
+  isTrackedFiscalReport,
+} from './fiscal-report-filings.service';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -21,7 +39,10 @@ type ReportKind = '606' | '607' | '608' | '609';
 @Controller('compliance')
 @UseInterceptors(AuditAccessInterceptor)
 export class ComplianceController {
-  constructor(private readonly complianceService: ComplianceService) {}
+  constructor(
+    private readonly complianceService: ComplianceService,
+    private readonly filings: FiscalReportFilingsService,
+  ) {}
 
   @Post('ncf-sequences')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
@@ -75,6 +96,11 @@ export class ComplianceController {
     this.assertPeriod(year, month);
 
     const body = await this.generate(report, user.organizationId, year, month);
+    await this.filings.recordGeneration(
+      { organizationId: user.organizationId, kind: report, year, month },
+      body,
+      user.id,
+    );
     const fileName = `DGII_${report}_${year}${String(month).padStart(2, '0')}.txt`;
     res
       .header('Content-Type', 'text/plain; charset=utf-8')
@@ -115,11 +141,85 @@ export class ComplianceController {
     this.assertPeriod(query.year, query.month);
 
     const xml = await this.generateMexican(document, period, query);
+    if (isTrackedFiscalReport(document)) {
+      await this.filings.recordGeneration({ ...period, kind: document }, xml, user.id);
+    }
     const stamp = `${query.year}${String(query.month).padStart(2, '0')}`;
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="SAT_${document}_${stamp}.xml"`)
       .send(xml);
+  }
+
+  // ── Filing calendar ────────────────────────────────────────────────────────
+
+  /**
+   * The year's tracked returns: which months were generated, which were filed and with what
+   * acknowledgement, and which changed after filing.
+   */
+  @Get('filings')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  listFilings(@Query() query: FiscalReportFilingsQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.filings.list(user.organizationId, query.year);
+  }
+
+  /**
+   * Generate the period's file without downloading it, to learn its record count and whether it
+   * still matches what was filed. Recorded like a download: it is a generation.
+   */
+  @Post('filings/:kind/:year/:month/check')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  async checkFiling(
+    @Param('kind') kind: string,
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const period = this.filingPeriod(kind, year, month, user);
+    const body =
+      period.kind === 'catalogo' || period.kind === 'balanza'
+        ? await this.generateMexican(period.kind, period, { year, month })
+        : await this.generate(period.kind, user.organizationId, year, month);
+    return this.filings.recordGeneration(period, body, user.id);
+  }
+
+  /**
+   * Declare the period's last generated file as filed with the authority.
+   *
+   * Filing a return is part of closing the month, and declaring one that was not filed hides the
+   * omission from whoever closes it next — so it takes the period-close permission, not the one
+   * that lets a user read the reports.
+   */
+  @Post('filings/:kind/:year/:month/submission')
+  @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_PERIOD)
+  markSubmitted(
+    @Param('kind') kind: string,
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+    @Body() dto: MarkFiscalReportSubmittedDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.filings.markSubmitted(this.filingPeriod(kind, year, month, user), dto.reference, user.id);
+  }
+
+  /** Undo a filing declared by mistake. */
+  @Delete('filings/:kind/:year/:month/submission')
+  @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_PERIOD)
+  clearSubmission(
+    @Param('kind') kind: string,
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.filings.clearSubmission(this.filingPeriod(kind, year, month, user));
+  }
+
+  private filingPeriod(kind: string, year: number, month: number, user: AuthenticatedUser): FilingPeriod {
+    if (!isTrackedFiscalReport(kind)) {
+      throw new BadRequestError('compliance.fiscal_report_kind_not_tracked', { kind });
+    }
+    this.assertPeriod(year, month);
+    return { organizationId: user.organizationId, kind, year, month };
   }
 
   private generateMexican(

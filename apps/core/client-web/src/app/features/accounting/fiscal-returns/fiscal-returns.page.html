@@ -1,0 +1,196 @@
+<vx-list-shell
+  titleKey="fiscal_returns.title"
+  subtitleKey="fiscal_returns.subtitle"
+  [count]="months().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  @if (market() !== 'OTHER') {
+    <div listFilters class="doc-filter">
+      <label for="fr-year">{{ 'fiscal_returns.year' | translate }}</label>
+      <select id="fr-year" [ngModel]="year()" (ngModelChange)="setYear($event)">
+        @for (option of years(); track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <div listEmpty class="empty-copy">
+    @if (market() === 'OTHER') {
+      <p class="ls__state-title">{{ 'fiscal_returns.other_market_title' | translate }}</p>
+      <p class="ls__state-help">{{ 'fiscal_returns.other_market_help' | translate }}</p>
+    } @else {
+      <p class="ls__state-title">{{ 'fiscal_returns.future_year_title' | translate }}</p>
+    }
+  </div>
+
+  @if (market() === 'DO' || market() === 'MX') {
+    <p class="fr-hint">
+      {{ (market() === 'DO' ? 'fiscal_returns.do_hint' : 'fiscal_returns.mx_hint') | translate }}
+    </p>
+    @if (changedCount() > 0) {
+      <p class="fr-alert" role="status">{{ 'fiscal_returns.changed_alert' | translate: { count: changedCount() } }}</p>
+    }
+
+    <div class="table-container card">
+      <table class="data-table fr-calendar">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'fiscal_returns.period' | translate }}</th>
+            @for (kind of kinds(); track kind) {
+              <th scope="col">{{ 'fiscal_returns.kinds.' + kind | translate }}</th>
+            }
+            @if (market() === 'DO') {
+              <th scope="col">{{ 'fiscal_returns.due' | translate }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (month of months(); track month) {
+            <tr>
+              <th scope="row">{{ monthDate(month) | vxDate: 'monthYear' : true }}</th>
+              @for (kind of kinds(); track kind) {
+                <td>
+                  <button
+                    type="button"
+                    class="fr-cell"
+                    [class.fr-cell--selected]="isSelected(kind, month)"
+                    [attr.aria-pressed]="isSelected(kind, month)"
+                    (click)="select(kind, month)"
+                  >
+                    <vx-badge [tone]="tone(kind, month)">{{ 'fiscal_returns.states.' + state(kind, month) | translate }}</vx-badge>
+                    @if (filingOf(kind, month); as filing) {
+                      <span class="fr-cell__count">{{ 'fiscal_returns.records' | translate: { count: filing.recordCount } }}</span>
+                    }
+                  </button>
+                </td>
+              }
+              @if (market() === 'DO') {
+                <td>{{ dueDate(month) | vxDate: 'date' : true }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (selected(); as cell) {
+      <section class="card fr-detail" [attr.aria-label]="'fiscal_returns.detail' | translate">
+        <header class="fr-detail__header">
+          <h2>{{ 'fiscal_returns.kinds.' + cell.kind | translate }} · {{ monthDate(cell.month) | vxDate: 'monthYear' : true }}</h2>
+          <vx-badge [tone]="tone(cell.kind, cell.month)">{{ 'fiscal_returns.states.' + state(cell.kind, cell.month) | translate }}</vx-badge>
+        </header>
+
+        @if (selectedFiling(); as filing) {
+          <dl class="fr-facts">
+            <div>
+              <dt>{{ 'fiscal_returns.last_generated' | translate }}</dt>
+              <dd>{{ filing.lastGeneratedAt | vxDate: 'dateTime' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'fiscal_returns.record_count' | translate }}</dt>
+              <dd>{{ filing.recordCount }}</dd>
+            </div>
+            @if (filing.status === 'SUBMITTED') {
+              <div>
+                <dt>{{ 'fiscal_returns.submitted_at' | translate }}</dt>
+                <dd>{{ filing.submittedAt | vxDate: 'dateTime' }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'fiscal_returns.reference' | translate }}</dt>
+                <dd>{{ filing.submissionReference }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'fiscal_returns.submitted_records' | translate }}</dt>
+                <dd>{{ filing.submittedRecordCount }}</dd>
+              </div>
+            }
+            <div class="fr-facts__hash">
+              <dt>{{ 'fiscal_returns.hash' | translate }}</dt>
+              <dd><code>{{ filing.lastHash }}</code></dd>
+            </div>
+          </dl>
+          @if (filing.changedSinceSubmission) {
+            <p class="fr-alert">{{ 'fiscal_returns.changed_detail' | translate }}</p>
+          }
+        } @else {
+          <p class="fr-hint">{{ 'fiscal_returns.never_generated' | translate }}</p>
+        }
+
+        @if (cell.kind === 'balanza') {
+          <div class="fr-options">
+            <label class="doc-check">
+              <input type="checkbox" [ngModel]="complementary()" (ngModelChange)="complementary.set($event)" />
+              {{ 'fiscal_returns.complementary' | translate }}
+            </label>
+            @if (complementary()) {
+              <label class="doc-filter">
+                <span>{{ 'fiscal_returns.modified_on' | translate }}</span>
+                <input type="date" [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
+              </label>
+            }
+          </div>
+        }
+
+        <div class="fr-actions">
+          <button type="button" class="primary-button" [disabled]="busy() !== null" (click)="download(cell.kind, cell.month)">
+            {{ (isBusy(cell.kind, cell.month, 'download') ? 'fiscal_returns.generating' : 'fiscal_returns.download') | translate }}
+          </button>
+          <button type="button" class="secondary-button" [disabled]="busy() !== null" (click)="check(cell.kind, cell.month)">
+            {{ (isBusy(cell.kind, cell.month, 'check') ? 'fiscal_returns.checking' : 'fiscal_returns.check') | translate }}
+          </button>
+          @if (canFile() && selectedFiling(); as filing) {
+            <button type="button" class="secondary-button" [disabled]="busy() !== null" (click)="markSubmitted(cell.kind, cell.month)">
+              {{ (filing.status === 'SUBMITTED' ? 'fiscal_returns.resubmit' : 'fiscal_returns.mark_submitted') | translate }}
+            </button>
+            @if (filing.status === 'SUBMITTED') {
+              <button type="button" class="danger-button" [disabled]="busy() !== null" (click)="clearSubmission(cell.kind, cell.month)">
+                {{ 'fiscal_returns.clear' | translate }}
+              </button>
+            }
+          }
+        </div>
+      </section>
+    }
+
+    @if (market() === 'MX') {
+      <section class="card fr-detail" [attr.aria-label]="'fiscal_returns.polizas_title' | translate">
+        <header class="fr-detail__header">
+          <h2>{{ 'fiscal_returns.polizas_title' | translate }}</h2>
+        </header>
+        <p class="fr-hint">{{ 'fiscal_returns.polizas_help' | translate }}</p>
+        <div class="fr-options">
+          <label class="doc-filter">
+            <span>{{ 'fiscal_returns.period' | translate }}</span>
+            <select [ngModel]="polizasMonth()" (ngModelChange)="polizasMonth.set($event)">
+              @for (month of months(); track month) {
+                <option [ngValue]="month">{{ monthDate(month) | vxDate: 'monthYear' : true }}</option>
+              }
+            </select>
+          </label>
+          <label class="doc-filter">
+            <span>{{ 'fiscal_returns.polizas_request' | translate }}</span>
+            <select [ngModel]="polizasRequest()" (ngModelChange)="polizasRequest.set($event)">
+              <option value="AF">{{ 'fiscal_returns.polizas_requests.af' | translate }}</option>
+              <option value="FC">{{ 'fiscal_returns.polizas_requests.fc' | translate }}</option>
+              <option value="DE">{{ 'fiscal_returns.polizas_requests.de' | translate }}</option>
+              <option value="CO">{{ 'fiscal_returns.polizas_requests.co' | translate }}</option>
+            </select>
+          </label>
+          <label class="doc-filter">
+            <span>{{ (polizasRequest() === 'AF' || polizasRequest() === 'FC' ? 'fiscal_returns.order_number' : 'fiscal_returns.procedure_number') | translate }}</span>
+            <input type="text" maxlength="40" [ngModel]="polizasReference()" (ngModelChange)="polizasReference.set($event)" />
+          </label>
+        </div>
+        <div class="fr-actions">
+          <button type="button" class="primary-button" [disabled]="busy() !== null" (click)="downloadPolizas()">
+            {{ (isBusy('polizas', polizasMonth(), 'download') ? 'fiscal_returns.generating' : 'fiscal_returns.download') | translate }}
+          </button>
+        </div>
+      </section>
+    }
+  }
+</vx-list-shell>

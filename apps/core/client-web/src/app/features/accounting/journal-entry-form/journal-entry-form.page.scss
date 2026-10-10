@@ -47,3 +47,15 @@
     font-size: var(--text-sm);
   }
 }
+
+.line-tags td { padding-top: 0; border-top: 0; }
+.line-tags__grid { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); padding-inline-start: var(--space-2); }
+.line-tags__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  select { min-width: 12rem; }
+}
+.line-tags__missing { border-color: var(--error-border); }

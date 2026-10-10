@@ -1,6 +1,28 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { ArrayMaxSize, IsArray, IsOptional, IsString, IsUUID, Matches } from 'class-validator';
 import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
+
+/**
+ * A dimension filter: the dimension's name (the characters a dimension name may carry), `=`, and
+ * the value's code. Lines are tagged `{name: code}`, so this is matched exactly.
+ *
+ * It replaces `costCenterId` and `projectId`: two uuids that matched nothing, because no line was
+ * ever tagged with an id — the analytic model tags by name and code.
+ */
+const DIMENSION_FILTER = /^[a-zA-Z0-9_ ]+=.+$/;
+
+/** `["Centro de Costo=VENTAS"]` → `{ "Centro de Costo": "VENTAS" }`. */
+export function parseDimensionFilters(filters: readonly string[] | undefined): Record<string, string> {
+  const parsed: Record<string, string> = {};
+  for (const filter of filters ?? []) {
+    const separator = filter.indexOf('=');
+    const name = filter.slice(0, separator).trim();
+    const value = filter.slice(separator + 1).trim();
+    if (name && value) parsed[name] = value;
+  }
+  return parsed;
+}
 
 /**
  * Query parameters for the four financial statements.
@@ -31,15 +53,17 @@ export class BalanceSheetQueryDto {
   @IsOptional()
   ledgerId?: string;
 
-  @ApiPropertyOptional({ description: 'Filtrar por centro de costo.' })
-  @IsUUID()
+  @ApiPropertyOptional({
+    description: 'Filtrar por dimensión analítica: `Nombre=VALOR`, repetible (`?dimension=Centro de Costo=VENTAS`).',
+    type: [String],
+  })
+  @Transform(({ value }) => (value === undefined ? undefined : Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  @Matches(DIMENSION_FILTER, { each: true })
   @IsOptional()
-  costCenterId?: string;
-
-  @ApiPropertyOptional({ description: 'Filtrar por proyecto.' })
-  @IsUUID()
-  @IsOptional()
-  projectId?: string;
+  dimension?: string[];
 }
 
 /** A period, both ends optional and both ends inclusive. */
@@ -62,13 +86,15 @@ export class PeriodQueryDto {
 
 /** A period that can also be narrowed by analytical dimension. */
 export class DimensionalPeriodQueryDto extends PeriodQueryDto {
-  @ApiPropertyOptional({ description: 'Filtrar por centro de costo.' })
-  @IsUUID()
+  @ApiPropertyOptional({
+    description: 'Filtrar por dimensión analítica: `Nombre=VALOR`, repetible (`?dimension=Centro de Costo=VENTAS`).',
+    type: [String],
+  })
+  @Transform(({ value }) => (value === undefined ? undefined : Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  @Matches(DIMENSION_FILTER, { each: true })
   @IsOptional()
-  costCenterId?: string;
-
-  @ApiPropertyOptional({ description: 'Filtrar por proyecto.' })
-  @IsUUID()
-  @IsOptional()
-  projectId?: string;
+  dimension?: string[];
 }

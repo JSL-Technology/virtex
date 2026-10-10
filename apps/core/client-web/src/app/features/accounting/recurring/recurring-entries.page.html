@@ -1,0 +1,55 @@
+<vx-list-shell
+  titleKey="recurring_entries.page.title"
+  subtitleKey="recurring_entries.page.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'journal_entries:create'" routerLink="/accounting/recurring-entries/new" class="primary-button">
+    <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'recurring_entries.page.new' | translate }}</span>
+  </a>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'recurring_entries.page.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'recurring_entries.page.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'recurring_entries.page.description' | translate }}</th>
+          <th>{{ 'recurring_entries.page.frequency' | translate }}</th>
+          <th class="numeric">{{ 'recurring_entries.page.amount' | translate }}</th>
+          <th>{{ 'recurring_entries.page.next_run' | translate }}</th>
+          <th>{{ 'recurring_entries.page.last_run' | translate }}</th>
+          <th>{{ 'recurring_entries.page.status' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounting/recurring-entries', row.id]">{{ row.description }}</a></td>
+            <td>{{ frequencyKey(row.frequency) | translate }}</td>
+            <td class="numeric"><vx-amount [value]="row.amount" /></td>
+            <td>
+              {{ row.nextRunDate ? (row.nextRunDate | vxDate: 'date' : true) : '—' }}
+              @if (row.pendingOccurrences > 0) {
+                <vx-badge tone="warning">{{ 'recurring_entries.page.pending' | translate: { count: row.pendingOccurrences } }}</vx-badge>
+              }
+            </td>
+            <td>{{ row.lastRunDate ? (row.lastRunDate | vxDate: 'date' : true) : '—' }}</td>
+            <td>
+              <vx-badge [tone]="row.isActive ? (row.nextRunDate ? 'ok' : 'neutral') : 'draft'">
+                {{ (row.isActive ? (row.nextRunDate ? 'recurring_entries.status.active' : 'recurring_entries.status.ended') : 'recurring_entries.status.paused') | translate }}
+              </vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

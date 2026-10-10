@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { DimensionsService } from './dimensions.service';
 import { Dimension } from './entities/dimension.entity';
 import { DimensionRule } from './entities/dimension-rule.entity';
+import { normaliseDimensionTags } from './dimension-tags';
 import {
   createTestOrganization,
   describeWithDb,
@@ -89,5 +90,68 @@ describeWithDb('dimension lifecycle', () => {
     await expect(
       dimensions.update(dimension.id, { values: [{ id: ventas?.id, value: 'Comercial' }] } as never, organizationId),
     ).rejects.toMatchObject({ messageKey: 'dimensions.dimension_value_in_use' });
+  });
+
+  it('retires a used value instead of deleting it, and keeps the tree its parents describe', async () => {
+    const dimensions = new DimensionsService(
+      dataSource.getRepository(Dimension),
+      dataSource.getRepository(DimensionRule),
+      dataSource,
+    );
+    const created = await dimensions.create(
+      {
+        name: `Region ${Date.now()}`,
+        description: 'Zonas de venta',
+        values: [
+          { value: 'NORTE', name: 'Region norte' },
+          { value: 'SANTIAGO', name: 'Santiago', parent: 'NORTE' },
+          { value: 'SUR' },
+        ],
+      },
+      organizationId,
+    );
+    expect(created.values.find((value) => value.value === 'SANTIAGO')?.parent).toBe('NORTE');
+    expect(created.inUse).toBe(false);
+
+    const retired = await dimensions.update(
+      created.id,
+      {
+        values: [
+          { value: 'NORTE', name: 'Region norte' },
+          { value: 'SANTIAGO', name: 'Santiago', parent: 'NORTE' },
+          { value: 'SUR', isActive: false },
+        ],
+      },
+      organizationId,
+    );
+    expect(retired.values.find((value) => value.value === 'SUR')?.isActive).toBe(false);
+
+    await expect(
+      dimensions.update(
+        created.id,
+        { values: [{ value: 'NORTE', parent: 'SANTIAGO' }, { value: 'SANTIAGO', parent: 'NORTE' }] },
+        organizationId,
+      ),
+    ).rejects.toMatchObject({ messageKey: 'dimensions.value_cycle' });
+    await expect(
+      dimensions.create({ name: created.name, values: [] }, organizationId),
+    ).rejects.toMatchObject({ messageKey: 'dimensions.dimension_name_taken' });
+
+    // Posting checks the tags against the list: unknown and retired values are refused.
+    await expect(
+      normaliseDimensionTags(dataSource.manager, organizationId, [{ dimensions: { [created.name]: 'NORTE ' } }]),
+    ).resolves.toEqual([{ [created.name]: 'NORTE' }]);
+    await expect(
+      normaliseDimensionTags(dataSource.manager, organizationId, [{ dimensions: { [created.name]: 'ESTE' } }]),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.unknown_dimension_value' });
+    await expect(
+      normaliseDimensionTags(dataSource.manager, organizationId, [{ dimensions: { [created.name]: 'SUR' } }]),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.inactive_dimension_value' });
+    await expect(
+      normaliseDimensionTags(dataSource.manager, organizationId, [{ dimensions: { Inexistente: 'X' } }]),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.unknown_dimension' });
+    await expect(
+      normaliseDimensionTags(dataSource.manager, organizationId, [{ dimensions: { [created.name]: '  ' } }, {}]),
+    ).resolves.toEqual([undefined, undefined]);
   });
 });

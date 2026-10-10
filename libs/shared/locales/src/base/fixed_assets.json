@@ -1,8 +1,18 @@
 {
-  "fixed_assets.asset_has_disposed": {
-    "es": "El activo ha sido dado de baja exitosamente.",
-    "en": "The asset has been disposed of.",
-    "pt": "O ativo foi baixado."
+  "fixed_assets.account_not_found": {
+    "es": "La cuenta indicada no existe en esta empresa.",
+    "en": "The account named does not exist in this company.",
+    "pt": "A conta indicada não existe nesta empresa."
+  },
+  "fixed_assets.account_not_postable": {
+    "es": "La cuenta {{code}} — {{name}} no admite movimientos: está inactiva o es una cuenta de agrupación.",
+    "en": "Account {{code}} — {{name}} takes no postings: it is inactive or a header account.",
+    "pt": "A conta {{code}} — {{name}} não aceita lançamentos: está inativa ou é uma conta sintética."
+  },
+  "fixed_assets.accounts_required": {
+    "es": "Indica la cuenta del activo y la de depreciación acumulada.",
+    "en": "Name the asset account and the accumulated depreciation account.",
+    "pt": "Indique a conta do ativo e a de depreciação acumulada."
   },
   "fixed_assets.asset_in_books_dispose_instead": {
     "es": "«{{name}}» ya está en los libros (tiene depreciación contabilizada o fue dado de baja), así que no se elimina: el mayor conserva su costo y su depreciación acumulada. Regístralo como baja o venta para retirarlo.",
@@ -14,10 +24,260 @@
     "en": "The asset was not found, or has already been disposed of.",
     "pt": "O ativo não foi encontrado ou já foi baixado."
   },
+  "fixed_assets.asset_retired_cannot_edit": {
+    "es": "El activo {{number}} ya se dio de baja y no se puede modificar.",
+    "en": "Asset {{number}} has been retired and cannot be changed.",
+    "pt": "O ativo {{number}} já foi baixado e não pode ser alterado."
+  },
+  "fixed_assets.branch_not_found": {
+    "es": "La sucursal indicada no existe o está inactiva.",
+    "en": "The branch named does not exist or is inactive.",
+    "pt": "A filial indicada não existe ou está inativa."
+  },
   "fixed_assets.depreciation_journal_deprec_not_found_create": {
     "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
     "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
     "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
+  },
+  "fixed_assets.disposal_before_acquisition": {
+    "es": "La baja no puede ser anterior a la adquisición ({{date}}).",
+    "en": "The disposal cannot be earlier than the acquisition ({{date}}).",
+    "pt": "A baixa não pode ser anterior à aquisição ({{date}})."
+  },
+  "fixed_assets.disposal_before_last_depreciation": {
+    "es": "El activo {{number}} ya se depreció hasta el {{through}}: la baja debe ser posterior a ese mes, o anula antes esa depreciación.",
+    "en": "Asset {{number}} has been depreciated through {{through}}: the disposal must fall after that month, or that depreciation must be reversed first.",
+    "pt": "O ativo {{number}} já foi depreciado até {{through}}: a baixa deve ser posterior a esse mês, ou essa depreciação deve ser estornada antes."
+  },
+  "fixed_assets.dispose.before_acquisition": {
+    "es": "La baja no puede ser anterior a la adquisición.",
+    "en": "The disposal cannot be earlier than the acquisition.",
+    "pt": "A baixa não pode ser anterior à aquisição."
+  },
+  "fixed_assets.dispose.carrying": {
+    "es": "Valor en libros a la fecha",
+    "en": "Carrying amount on the day",
+    "pt": "Valor contábil na data"
+  },
+  "fixed_assets.dispose.catch_up": {
+    "es": "Depreciación pendiente",
+    "en": "Depreciation still due",
+    "pt": "Depreciação pendente"
+  },
+  "fixed_assets.dispose.catch_up_months": {
+    "es": "Se registrarán primero {{count}} mes(es) de depreciación hasta el mes anterior a la baja.",
+    "en": "{{count}} month(s) of depreciation up to the month before the disposal will be posted first.",
+    "pt": "Serão lançados primeiro {{count}} mês(es) de depreciação até o mês anterior à baixa."
+  },
+  "fixed_assets.dispose.date": {
+    "es": "Fecha de baja",
+    "en": "Disposal date",
+    "pt": "Data da baixa"
+  },
+  "fixed_assets.dispose.done": {
+    "es": "Activo {{number}} dado de baja.",
+    "en": "Asset {{number}} retired.",
+    "pt": "Ativo {{number}} baixado."
+  },
+  "fixed_assets.dispose.entry": {
+    "es": "Asiento que se registrará",
+    "en": "Entry to be posted",
+    "pt": "Lançamento a ser registrado"
+  },
+  "fixed_assets.dispose.failed": {
+    "es": "No se pudo dar de baja el activo.",
+    "en": "The asset could not be retired.",
+    "pt": "Não foi possível baixar o ativo."
+  },
+  "fixed_assets.dispose.gain": {
+    "es": "Ganancia",
+    "en": "Gain",
+    "pt": "Ganho"
+  },
+  "fixed_assets.dispose.gain_account": {
+    "es": "Cuenta de ganancia",
+    "en": "Gain account",
+    "pt": "Conta de ganho"
+  },
+  "fixed_assets.dispose.loss": {
+    "es": "Pérdida",
+    "en": "Loss",
+    "pt": "Perda"
+  },
+  "fixed_assets.dispose.loss_account": {
+    "es": "Cuenta de pérdida",
+    "en": "Loss account",
+    "pt": "Conta de perda"
+  },
+  "fixed_assets.dispose.post": {
+    "es": "Registrar baja",
+    "en": "Post disposal",
+    "pt": "Registrar baixa"
+  },
+  "fixed_assets.dispose.price": {
+    "es": "Precio de venta",
+    "en": "Sale price",
+    "pt": "Preço de venda"
+  },
+  "fixed_assets.dispose.price_hint": {
+    "es": "Cero si se desecha, se pierde o se dona.",
+    "en": "Zero if it is scrapped, lost or donated.",
+    "pt": "Zero se for descartado, perdido ou doado."
+  },
+  "fixed_assets.dispose.proceeds_account": {
+    "es": "Cuenta donde entra el cobro",
+    "en": "Account the proceeds go to",
+    "pt": "Conta onde entra o valor recebido"
+  },
+  "fixed_assets.dispose.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "fixed_assets.dispose.reason_placeholder": {
+    "es": "Venta, robo, obsolescencia…",
+    "en": "Sale, theft, obsolescence…",
+    "pt": "Venda, roubo, obsolescência…"
+  },
+  "fixed_assets.dispose.title": {
+    "es": "Dar de baja",
+    "en": "Retire asset",
+    "pt": "Baixar ativo"
+  },
+  "fixed_assets.document.back": {
+    "es": "Volver a activos fijos",
+    "en": "Back to fixed assets",
+    "pt": "Voltar aos ativos imobilizados"
+  },
+  "fixed_assets.document.bill": {
+    "es": "Factura de compra",
+    "en": "Purchase bill",
+    "pt": "Fatura de compra"
+  },
+  "fixed_assets.document.charge": {
+    "es": "Cargo",
+    "en": "Charge",
+    "pt": "Encargo"
+  },
+  "fixed_assets.document.delete": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Excluir"
+  },
+  "fixed_assets.document.delete_failed": {
+    "es": "No se pudo eliminar el activo.",
+    "en": "The asset could not be deleted.",
+    "pt": "Não foi possível excluir o ativo."
+  },
+  "fixed_assets.document.delete_message": {
+    "es": "Se eliminará {{number}} · {{name}}. Solo procede si se registró por error: no tiene depreciación registrada.",
+    "en": "{{number}} · {{name}} will be deleted. Only for an asset registered by mistake: it has no depreciation posted.",
+    "pt": "{{number}} · {{name}} será excluído. Apenas para um ativo registrado por engano: não tem depreciação lançada."
+  },
+  "fixed_assets.document.delete_title": {
+    "es": "Eliminar activo",
+    "en": "Delete asset",
+    "pt": "Excluir ativo"
+  },
+  "fixed_assets.document.deleted": {
+    "es": "Activo {{number}} eliminado.",
+    "en": "Asset {{number}} deleted.",
+    "pt": "Ativo {{number}} excluído."
+  },
+  "fixed_assets.document.dispose": {
+    "es": "Dar de baja",
+    "en": "Retire",
+    "pt": "Baixar"
+  },
+  "fixed_assets.document.disposed_banner": {
+    "es": "Dado de baja el {{date}}",
+    "en": "Retired on {{date}}",
+    "pt": "Baixado em {{date}}"
+  },
+  "fixed_assets.document.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "fixed_assets.document.entry": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "fixed_assets.document.hide_projection": {
+    "es": "Ocultar proyección",
+    "en": "Hide projection",
+    "pt": "Ocultar projeção"
+  },
+  "fixed_assets.document.load_failed": {
+    "es": "No se pudo cargar el activo.",
+    "en": "The asset could not be loaded.",
+    "pt": "Não foi possível carregar o ativo."
+  },
+  "fixed_assets.document.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "fixed_assets.document.months": {
+    "es": "{{count}} meses",
+    "en": "{{count}} months",
+    "pt": "{{count}} meses"
+  },
+  "fixed_assets.document.nothing_charged": {
+    "es": "Aún no se ha registrado depreciación de este activo.",
+    "en": "No depreciation has been posted for this asset yet.",
+    "pt": "Ainda não foi lançada depreciação deste ativo."
+  },
+  "fixed_assets.document.open_bill": {
+    "es": "Ver factura",
+    "en": "Open bill",
+    "pt": "Ver fatura"
+  },
+  "fixed_assets.document.proceeds": {
+    "es": "Precio de venta",
+    "en": "Sale price",
+    "pt": "Preço de venda"
+  },
+  "fixed_assets.document.projected": {
+    "es": "Proyectado",
+    "en": "Projected",
+    "pt": "Projetado"
+  },
+  "fixed_assets.document.remaining": {
+    "es": "Quedan {{months}} meses por depreciar; termina en {{end}}.",
+    "en": "{{months}} months left to depreciate; it ends in {{end}}.",
+    "pt": "Restam {{months}} meses para depreciar; termina em {{end}}."
+  },
+  "fixed_assets.document.schedule": {
+    "es": "Tabla de depreciación",
+    "en": "Depreciation schedule",
+    "pt": "Tabela de depreciação"
+  },
+  "fixed_assets.document.schedule_failed": {
+    "es": "No se pudo cargar la tabla de depreciación.",
+    "en": "The depreciation schedule could not be loaded.",
+    "pt": "Não foi possível carregar a tabela de depreciação."
+  },
+  "fixed_assets.document.show_projection": {
+    "es": "Ver los {{count}} meses proyectados",
+    "en": "Show the {{count}} projected months",
+    "pt": "Ver os {{count}} meses projetados"
+  },
+  "fixed_assets.document.sold_banner": {
+    "es": "Vendido el {{date}}",
+    "en": "Sold on {{date}}",
+    "pt": "Vendido em {{date}}"
+  },
+  "fixed_assets.document.view_disposal_entry": {
+    "es": "Ver asiento de baja",
+    "en": "View disposal entry",
+    "pt": "Ver lançamento de baixa"
+  },
+  "fixed_assets.document.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
   },
   "fixed_assets.fixed_asset_id_not_found": {
     "es": "Activo fijo con ID \"{{id}}\" no encontrado.",
@@ -29,14 +289,449 @@
     "en": "The Fixed Assets journal (ACT-FIJOS) was not found.",
     "pt": "O diário de Ativo Imobilizado (ACT-FIJOS) não foi encontrado."
   },
+  "fixed_assets.form.accounts": {
+    "es": "Cuentas",
+    "en": "Accounts",
+    "pt": "Contas"
+  },
+  "fixed_assets.form.accumulated_account": {
+    "es": "Cuenta de depreciación acumulada",
+    "en": "Accumulated depreciation account",
+    "pt": "Conta de depreciação acumulada"
+  },
+  "fixed_assets.form.acquisition_date": {
+    "es": "Fecha de adquisición",
+    "en": "Acquisition date",
+    "pt": "Data de aquisição"
+  },
+  "fixed_assets.form.asset_account": {
+    "es": "Cuenta del activo",
+    "en": "Asset account",
+    "pt": "Conta do ativo"
+  },
+  "fixed_assets.form.company_default": {
+    "es": "La predeterminada de la empresa",
+    "en": "The company's default",
+    "pt": "A padrão da empresa"
+  },
+  "fixed_assets.form.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "fixed_assets.form.created": {
+    "es": "Activo {{number}} registrado.",
+    "en": "Asset {{number}} registered.",
+    "pt": "Ativo {{number}} registrado."
+  },
+  "fixed_assets.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "fixed_assets.form.description_placeholder": {
+    "es": "Marca, modelo, serie, ubicación…",
+    "en": "Make, model, serial, location…",
+    "pt": "Marca, modelo, série, localização…"
+  },
+  "fixed_assets.form.edit_subtitle": {
+    "es": "Lo que valoró el activo queda fijo tras la primera depreciación; las estimaciones se pueden ajustar.",
+    "en": "What valued the asset is fixed after the first depreciation; the estimates can still be adjusted.",
+    "pt": "O que valorou o ativo fica fixo após a primeira depreciação; as estimativas podem ser ajustadas."
+  },
+  "fixed_assets.form.expense_account": {
+    "es": "Cuenta de gasto por depreciación",
+    "en": "Depreciation expense account",
+    "pt": "Conta de despesa de depreciação"
+  },
+  "fixed_assets.form.identification": {
+    "es": "Identificación",
+    "en": "Identification",
+    "pt": "Identificação"
+  },
+  "fixed_assets.form.in_service_date": {
+    "es": "Puesta en servicio",
+    "en": "In service from",
+    "pt": "Entrada em serviço"
+  },
+  "fixed_assets.form.load_failed": {
+    "es": "No se pudo cargar el activo.",
+    "en": "The asset could not be loaded.",
+    "pt": "Não foi possível carregar o ativo."
+  },
+  "fixed_assets.form.locked_hint": {
+    "es": "Este activo ya tiene depreciación registrada: costo, fechas y cuentas del activo quedan fijos. Vida útil, valor residual y método se aplican a lo que queda por depreciar.",
+    "en": "This asset already has depreciation posted: cost, dates and asset accounts are fixed. Useful life, residual value and method apply to what remains to depreciate.",
+    "pt": "Este ativo já tem depreciação lançada: custo, datas e contas do ativo ficam fixos. Vida útil, valor residual e método se aplicam ao que resta depreciar."
+  },
+  "fixed_assets.form.method": {
+    "es": "Método",
+    "en": "Method",
+    "pt": "Método"
+  },
+  "fixed_assets.form.migrated": {
+    "es": "Viene de otro sistema con depreciación ya registrada",
+    "en": "Brought over from another system with depreciation already charged",
+    "pt": "Vem de outro sistema com depreciação já lançada"
+  },
+  "fixed_assets.form.migrated_hint": {
+    "es": "La depreciación acumulada inicial llegó a los libros con los saldos de apertura; aquí solo se registra para continuar desde el mes siguiente.",
+    "en": "The opening accumulated depreciation reached the books with the opening balances; it is recorded here only to continue from the following month.",
+    "pt": "A depreciação acumulada inicial chegou aos livros com os saldos de abertura; aqui é registrada apenas para continuar a partir do mês seguinte."
+  },
+  "fixed_assets.form.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "fixed_assets.form.name_placeholder": {
+    "es": "Camioneta de reparto, servidor, local…",
+    "en": "Delivery van, server, premises…",
+    "pt": "Caminhonete de entrega, servidor, imóvel…"
+  },
+  "fixed_assets.form.new": {
+    "es": "Nuevo activo fijo",
+    "en": "New fixed asset",
+    "pt": "Novo ativo imobilizado"
+  },
+  "fixed_assets.form.new_subtitle": {
+    "es": "Registrarlo no genera asiento: el costo entró a los libros con la factura que lo compró.",
+    "en": "Registering it posts nothing: the cost reached the books with the bill that bought it.",
+    "pt": "Registrá-lo não gera lançamento: o custo entrou nos livros com a fatura que o comprou."
+  },
+  "fixed_assets.form.opening_accumulated": {
+    "es": "Depreciación acumulada inicial",
+    "en": "Opening accumulated depreciation",
+    "pt": "Depreciação acumulada inicial"
+  },
+  "fixed_assets.form.opening_through": {
+    "es": "Depreciado hasta",
+    "en": "Depreciated through",
+    "pt": "Depreciado até"
+  },
+  "fixed_assets.form.opening_too_high": {
+    "es": "La depreciación acumulada inicial supera el importe depreciable.",
+    "en": "The opening accumulated depreciation exceeds the depreciable amount.",
+    "pt": "A depreciação acumulada inicial supera o valor depreciável."
+  },
+  "fixed_assets.form.residual_value": {
+    "es": "Valor residual",
+    "en": "Residual value",
+    "pt": "Valor residual"
+  },
+  "fixed_assets.form.save_failed": {
+    "es": "No se pudo guardar el activo.",
+    "en": "The asset could not be saved.",
+    "pt": "Não foi possível salvar o ativo."
+  },
+  "fixed_assets.form.select_account": {
+    "es": "Elige una cuenta",
+    "en": "Choose an account",
+    "pt": "Escolha uma conta"
+  },
+  "fixed_assets.form.updated": {
+    "es": "Activo {{number}} actualizado.",
+    "en": "Asset {{number}} updated.",
+    "pt": "Ativo {{number}} atualizado."
+  },
+  "fixed_assets.form.useful_life": {
+    "es": "Vida útil (meses)",
+    "en": "Useful life (months)",
+    "pt": "Vida útil (meses)"
+  },
+  "fixed_assets.form.useful_life_years": {
+    "es": "{{years}} años",
+    "en": "{{years}} years",
+    "pt": "{{years}} anos"
+  },
+  "fixed_assets.form.valuation": {
+    "es": "Valoración y depreciación",
+    "en": "Valuation and depreciation",
+    "pt": "Avaliação e depreciação"
+  },
+  "fixed_assets.form.valuation_hint": {
+    "es": "La depreciación empieza en el mes de puesta en servicio y nunca baja del valor residual.",
+    "en": "Depreciation starts in the month the asset enters service and never goes below the residual value.",
+    "pt": "A depreciação começa no mês de entrada em serviço e nunca fica abaixo do valor residual."
+  },
+  "fixed_assets.gain_account_required": {
+    "es": "La venta supera el valor en libros: indica la cuenta de ganancia.",
+    "en": "The sale exceeds the carrying amount: name the gain account.",
+    "pt": "A venda supera o valor contábil: indique a conta de ganho."
+  },
+  "fixed_assets.in_service_before_acquisition": {
+    "es": "La fecha de puesta en servicio no puede ser anterior a la de adquisición.",
+    "en": "The in-service date cannot be earlier than the acquisition date.",
+    "pt": "A data de entrada em serviço não pode ser anterior à de aquisição."
+  },
+  "fixed_assets.loss_account_required": {
+    "es": "La venta queda por debajo del valor en libros: indica la cuenta de pérdida.",
+    "en": "The sale falls short of the carrying amount: name the loss account.",
+    "pt": "A venda fica abaixo do valor contábil: indique a conta de perda."
+  },
+  "fixed_assets.methods.double_declining_balance": {
+    "es": "Saldo decreciente doble",
+    "en": "Double declining balance",
+    "pt": "Saldo decrescente duplo"
+  },
+  "fixed_assets.methods.straight_line": {
+    "es": "Línea recta",
+    "en": "Straight line",
+    "pt": "Linha reta"
+  },
+  "fixed_assets.methods.sum_of_years_digits": {
+    "es": "Suma de los dígitos de los años",
+    "en": "Sum of the years' digits",
+    "pt": "Soma dos dígitos dos anos"
+  },
   "fixed_assets.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
     "en": "No default ledger has been configured for the organization.",
     "pt": "Nenhum livro contábil padrão foi configurado para a organização."
   },
-  "fixed_assets.transaction_query_runner_could_not_obtained": {
-    "es": "No se pudo obtener el QueryRunner de la transacción.",
-    "en": "The transaction's query runner could not be obtained.",
-    "pt": "Não foi possível obter o query runner da transação."
+  "fixed_assets.opening_above_depreciable": {
+    "es": "La depreciación acumulada inicial no puede superar el importe depreciable ({{maximum}}).",
+    "en": "The opening accumulated depreciation cannot exceed the depreciable amount ({{maximum}}).",
+    "pt": "A depreciação acumulada inicial não pode superar o valor depreciável ({{maximum}})."
+  },
+  "fixed_assets.opening_through_before_service": {
+    "es": "El mes hasta el que se depreció no puede ser anterior a la puesta en servicio.",
+    "en": "The month depreciated through cannot be earlier than the in-service date.",
+    "pt": "O mês até o qual foi depreciado não pode ser anterior à entrada em serviço."
+  },
+  "fixed_assets.opening_through_required": {
+    "es": "Indica hasta qué mes cubre la depreciación acumulada inicial.",
+    "en": "Say which month the opening accumulated depreciation runs through.",
+    "pt": "Indique até que mês cobre a depreciação acumulada inicial."
+  },
+  "fixed_assets.page.accumulated": {
+    "es": "Depreciación acumulada",
+    "en": "Accumulated depreciation",
+    "pt": "Depreciação acumulada"
+  },
+  "fixed_assets.page.acquired": {
+    "es": "Adquirido",
+    "en": "Acquired",
+    "pt": "Adquirido"
+  },
+  "fixed_assets.page.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "fixed_assets.page.book_value": {
+    "es": "Valor en libros",
+    "en": "Book value",
+    "pt": "Valor contábil"
+  },
+  "fixed_assets.page.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "fixed_assets.page.depreciated_through": {
+    "es": "Depreciado hasta",
+    "en": "Depreciated through",
+    "pt": "Depreciado até"
+  },
+  "fixed_assets.page.empty_help": {
+    "es": "Registra los bienes que la empresa usa por más de un año: vehículos, equipos, mobiliario, edificios.",
+    "en": "Register what the company uses for more than a year: vehicles, equipment, furniture, buildings.",
+    "pt": "Registre os bens que a empresa usa por mais de um ano: veículos, equipamentos, mobiliário, edifícios."
+  },
+  "fixed_assets.page.empty_title": {
+    "es": "No hay activos fijos con estos filtros",
+    "en": "No fixed assets match these filters",
+    "pt": "Não há ativos imobilizados com estes filtros"
+  },
+  "fixed_assets.page.load_failed": {
+    "es": "No se pudieron cargar los activos fijos.",
+    "en": "Fixed assets could not be loaded.",
+    "pt": "Não foi possível carregar os ativos imobilizados."
+  },
+  "fixed_assets.page.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "fixed_assets.page.new": {
+    "es": "Nuevo activo",
+    "en": "New asset",
+    "pt": "Novo ativo"
+  },
+  "fixed_assets.page.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "fixed_assets.page.page_totals": {
+    "es": "Totales de la página",
+    "en": "Page totals",
+    "pt": "Totais da página"
+  },
+  "fixed_assets.page.run_depreciation": {
+    "es": "Ejecutar depreciación",
+    "en": "Run depreciation",
+    "pt": "Executar depreciação"
+  },
+  "fixed_assets.page.search": {
+    "es": "Buscar",
+    "en": "Search",
+    "pt": "Pesquisar"
+  },
+  "fixed_assets.page.search_placeholder": {
+    "es": "Número o nombre",
+    "en": "Number or name",
+    "pt": "Número ou nome"
+  },
+  "fixed_assets.page.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "fixed_assets.page.subtitle": {
+    "es": "Lo que la empresa posee, lo que costó, lo depreciado y lo que vale hoy.",
+    "en": "What the company owns, what it cost, what has been depreciated and what it is worth today.",
+    "pt": "O que a empresa possui, quanto custou, o que foi depreciado e quanto vale hoje."
+  },
+  "fixed_assets.page.title": {
+    "es": "Activos fijos",
+    "en": "Fixed assets",
+    "pt": "Ativos imobilizados"
+  },
+  "fixed_assets.proceeds_account_required": {
+    "es": "Indica la cuenta donde entra el importe de la venta.",
+    "en": "Name the account the sale proceeds go to.",
+    "pt": "Indique a conta onde entra o valor da venda."
+  },
+  "fixed_assets.residual_above_cost": {
+    "es": "El valor residual no puede superar el costo.",
+    "en": "The residual value cannot exceed the cost.",
+    "pt": "O valor residual não pode superar o custo."
+  },
+  "fixed_assets.residual_below_charged": {
+    "es": "Con ese valor residual, el activo {{number}} quedaría depreciado de más: como máximo puede ser {{maximum}}.",
+    "en": "With that residual value, asset {{number}} would be over-depreciated: it can be at most {{maximum}}.",
+    "pt": "Com esse valor residual, o ativo {{number}} ficaria depreciado em excesso: no máximo pode ser {{maximum}}."
+  },
+  "fixed_assets.run.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "fixed_assets.run.confirm_message": {
+    "es": "Se registrará un asiento de depreciación de {{total}} para {{count}} activo(s), hasta {{period}}.",
+    "en": "A depreciation entry of {{total}} for {{count}} asset(s), through {{period}}, will be posted.",
+    "pt": "Será lançado um lançamento de depreciação de {{total}} para {{count}} ativo(s), até {{period}}."
+  },
+  "fixed_assets.run.confirm_title": {
+    "es": "Registrar depreciación",
+    "en": "Post depreciation",
+    "pt": "Lançar depreciação"
+  },
+  "fixed_assets.run.failed": {
+    "es": "No se pudo registrar la depreciación.",
+    "en": "Depreciation could not be posted.",
+    "pt": "Não foi possível lançar a depreciação."
+  },
+  "fixed_assets.run.load_failed": {
+    "es": "No se pudo calcular la depreciación del mes.",
+    "en": "The month's depreciation could not be calculated.",
+    "pt": "Não foi possível calcular a depreciação do mês."
+  },
+  "fixed_assets.run.months": {
+    "es": "Meses",
+    "en": "Months",
+    "pt": "Meses"
+  },
+  "fixed_assets.run.nothing_due_help": {
+    "es": "Todos los activos están depreciados hasta ese mes, o aún no han entrado en servicio.",
+    "en": "Every asset is depreciated through that month, or has not entered service yet.",
+    "pt": "Todos os ativos estão depreciados até esse mês, ou ainda não entraram em serviço."
+  },
+  "fixed_assets.run.nothing_due_title": {
+    "es": "Nada pendiente de depreciar",
+    "en": "Nothing due",
+    "pt": "Nada pendente de depreciar"
+  },
+  "fixed_assets.run.period": {
+    "es": "Hasta el mes",
+    "en": "Through month",
+    "pt": "Até o mês"
+  },
+  "fixed_assets.run.post": {
+    "es": "Registrar depreciación",
+    "en": "Post depreciation",
+    "pt": "Lançar depreciação"
+  },
+  "fixed_assets.run.posted": {
+    "es": "Depreciación registrada para {{count}} activo(s).",
+    "en": "Depreciation posted for {{count}} asset(s).",
+    "pt": "Depreciação lançada para {{count}} ativo(s)."
+  },
+  "fixed_assets.run.posted_summary": {
+    "es": "Se registró la depreciación de {{count}} activo(s).",
+    "en": "Depreciation was posted for {{count}} asset(s).",
+    "pt": "Foi lançada a depreciação de {{count}} ativo(s)."
+  },
+  "fixed_assets.run.posting": {
+    "es": "Registrando…",
+    "en": "Posting…",
+    "pt": "Lançando…"
+  },
+  "fixed_assets.run.skipped_missing_accounts": {
+    "es": "sin cuentas de depreciación; indícalas en el activo o en la configuración de la empresa.",
+    "en": "no depreciation accounts; set them on the asset or in the company settings.",
+    "pt": "sem contas de depreciação; indique-as no ativo ou na configuração da empresa."
+  },
+  "fixed_assets.run.skipped_title": {
+    "es": "Estos activos no se pueden depreciar todavía:",
+    "en": "These assets cannot be depreciated yet:",
+    "pt": "Estes ativos ainda não podem ser depreciados:"
+  },
+  "fixed_assets.run.subtitle": {
+    "es": "Cada activo se deprecia todos los meses que tenga pendientes hasta el mes elegido, en un solo asiento. Ejecutarla dos veces no duplica nada.",
+    "en": "Each asset is charged every month it is due through the chosen month, in one entry. Running it twice charges nothing twice.",
+    "pt": "Cada ativo é depreciado todos os meses pendentes até o mês escolhido, em um único lançamento. Executar duas vezes não duplica nada."
+  },
+  "fixed_assets.run.title": {
+    "es": "Ejecutar depreciación",
+    "en": "Run depreciation",
+    "pt": "Executar depreciação"
+  },
+  "fixed_assets.run.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "fixed_assets.run.view_entry": {
+    "es": "Ver asiento",
+    "en": "View entry",
+    "pt": "Ver lançamento"
+  },
+  "fixed_assets.status.disposed": {
+    "es": "Dado de baja",
+    "en": "Retired",
+    "pt": "Baixado"
+  },
+  "fixed_assets.status.in_use": {
+    "es": "En uso",
+    "en": "In use",
+    "pt": "Em uso"
+  },
+  "fixed_assets.status.sold": {
+    "es": "Vendido",
+    "en": "Sold",
+    "pt": "Vendido"
+  },
+  "fixed_assets.valuation_locked_after_depreciation": {
+    "es": "El activo {{number}} ya tiene depreciación registrada: no se pueden cambiar {{fields}}. Para corregir el costo registra una mejora o un deterioro.",
+    "en": "Asset {{number}} already has depreciation posted: {{fields}} cannot change. To correct the cost, record an improvement or an impairment.",
+    "pt": "O ativo {{number}} já tem depreciação registrada: não é possível alterar {{fields}}. Para corrigir o custo, registre uma melhoria ou uma perda por redução."
+  },
+  "fixed_assets.vendor_bill_not_found": {
+    "es": "La factura de proveedor indicada no existe en esta empresa.",
+    "en": "The vendor bill named does not exist in this company.",
+    "pt": "A fatura de fornecedor indicada não existe nesta empresa."
   }
 }

@@ -151,8 +151,8 @@ export interface CashFlowStatementReport {
 
 export interface ReportFilters {
   ledgerId?: string;
-  costCenterId?: string;
-  projectId?: string;
+  /** Analytic filters, `{"Centro de Costo": "VENTAS"}`: only lines tagged with every one. */
+  dimensions?: Record<string, string>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -162,7 +162,7 @@ export class FinancialReportingService {
 
   balanceSheet(asOfDate: string, filters: ReportFilters = {}): Observable<BalanceSheetReport> {
     return this.http.get<BalanceSheetReport>(`${this.apiUrl}/balance-sheet`, {
-      params: this.toParams({ asOfDate, ...filters }),
+      params: this.withDimensions(this.toParams({ asOfDate, ledgerId: filters.ledgerId }), filters.dimensions),
     });
   }
 
@@ -172,7 +172,7 @@ export class FinancialReportingService {
     filters: ReportFilters = {},
   ): Observable<IncomeStatementReport> {
     return this.http.get<IncomeStatementReport>(`${this.apiUrl}/income-statement`, {
-      params: this.toParams({ startDate, endDate, ...filters }),
+      params: this.withDimensions(this.toParams({ startDate, endDate, ledgerId: filters.ledgerId }), filters.dimensions),
     });
   }
 
@@ -194,6 +194,15 @@ export class FinancialReportingService {
     return this.http.get<CashFlowStatementReport>(`${this.apiUrl}/cash-flow-statement`, {
       params: this.toParams({ startDate, endDate, ledgerId }),
     });
+  }
+
+  /** Each analytic filter as one `dimension=Name=VALUE` parameter, the shape the API reads. */
+  private withDimensions(params: HttpParams, dimensions: Record<string, string> | undefined): HttpParams {
+    let result = params;
+    for (const [name, value] of Object.entries(dimensions ?? {})) {
+      if (name && value) result = result.append('dimension', `${name}=${value}`);
+    }
+    return result;
   }
 
   private toParams(values: Record<string, string | undefined>): HttpParams {

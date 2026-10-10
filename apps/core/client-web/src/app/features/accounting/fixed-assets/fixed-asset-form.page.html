@@ -1,0 +1,113 @@
+<vx-draft-shell
+  [title]="current() ? (current()!.number + ' · ' + current()!.name) : ('fixed_assets.form.new' | translate)"
+  [subtitle]="(current() ? 'fixed_assets.form.edit_subtitle' : 'fixed_assets.form.new_subtitle') | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (locked()) {
+      <p class="form-hint" role="status">{{ 'fixed_assets.form.locked_hint' | translate }}</p>
+    }
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.form.identification' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field field--wide" for="fa-name">
+          <span>{{ 'fixed_assets.form.name' | translate }} *</span>
+          <input id="fa-name" type="text" maxlength="200" formControlName="name" [placeholder]="'fixed_assets.form.name_placeholder' | translate" />
+        </label>
+        <vx-branch-picker class="field" inputId="fa-branch" formControlName="branchId" [optional]="true" />
+        <label class="field field--wide" for="fa-description">
+          <span>{{ 'fixed_assets.form.description' | translate }}</span>
+          <textarea id="fa-description" rows="2" maxlength="2000" formControlName="description"
+                    [placeholder]="'fixed_assets.form.description_placeholder' | translate"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.form.valuation' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field" for="fa-acquired">
+          <span>{{ 'fixed_assets.form.acquisition_date' | translate }} *</span>
+          <vx-date-field inputId="fa-acquired" formControlName="acquisitionDate" />
+        </label>
+        <label class="field" for="fa-in-service">
+          <span>{{ 'fixed_assets.form.in_service_date' | translate }} *</span>
+          <vx-date-field inputId="fa-in-service" formControlName="inServiceDate" />
+        </label>
+        <label class="field" for="fa-cost">
+          <span>{{ 'fixed_assets.form.cost' | translate }} *</span>
+          <input id="fa-cost" type="number" step="0.01" min="0.01" formControlName="cost" />
+        </label>
+        <label class="field" for="fa-residual">
+          <span>{{ 'fixed_assets.form.residual_value' | translate }}</span>
+          <input id="fa-residual" type="number" step="0.01" min="0" formControlName="residualValue" />
+        </label>
+        <label class="field" for="fa-life">
+          <span>{{ 'fixed_assets.form.useful_life' | translate }} *</span>
+          <input id="fa-life" type="number" step="1" min="1" max="1200" formControlName="usefulLifeMonths" />
+          <small class="form-hint">{{ 'fixed_assets.form.useful_life_years' | translate: { years: lifeInYears() } }}</small>
+        </label>
+        <label class="field" for="fa-method">
+          <span>{{ 'fixed_assets.form.method' | translate }} *</span>
+          <select id="fa-method" formControlName="depreciationMethod">
+            @for (method of methods; track method) {
+              <option [value]="method">{{ 'fixed_assets.methods.' + method | translate }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <p class="form-hint">{{ 'fixed_assets.form.valuation_hint' | translate }}</p>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'fixed_assets.form.accounts' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field field--wide" for="fa-asset-account">
+          <span>{{ 'fixed_assets.form.asset_account' | translate }} *</span>
+          <vx-select inputId="fa-asset-account" formControlName="assetAccountId" [search]="searchCostAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId" [required]="true"
+                     placeholderKey="fixed_assets.form.select_account" />
+        </label>
+        <label class="field field--wide" for="fa-accumulated-account">
+          <span>{{ 'fixed_assets.form.accumulated_account' | translate }} *</span>
+          <vx-select inputId="fa-accumulated-account" formControlName="accumulatedDepreciationAccountId" [search]="searchAccumulatedAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId" [required]="true"
+                     placeholderKey="fixed_assets.form.select_account" />
+        </label>
+        <label class="field field--wide" for="fa-expense-account">
+          <span>{{ 'fixed_assets.form.expense_account' | translate }}</span>
+          <vx-select inputId="fa-expense-account" formControlName="depreciationExpenseAccountId" [search]="searchExpenseAccounts"
+                     [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="fixed_assets.form.company_default" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <label class="doc-check">
+        <input type="checkbox" formControlName="migrated" />
+        {{ 'fixed_assets.form.migrated' | translate }}
+      </label>
+      @if (showOpening()) {
+        <div class="form-grid">
+          <label class="field" for="fa-opening">
+            <span>{{ 'fixed_assets.form.opening_accumulated' | translate }}</span>
+            <input id="fa-opening" type="number" step="0.01" min="0" formControlName="openingAccumulatedDepreciation" />
+          </label>
+          <label class="field" for="fa-opening-through">
+            <span>{{ 'fixed_assets.form.opening_through' | translate }}</span>
+            <input id="fa-opening-through" type="month" formControlName="openingDepreciatedThrough" />
+          </label>
+        </div>
+        <p class="form-hint">{{ 'fixed_assets.form.migrated_hint' | translate }}</p>
+      }
+    </section>
+  </div>
+</vx-draft-shell>

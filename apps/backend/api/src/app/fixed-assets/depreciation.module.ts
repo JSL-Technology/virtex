@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FixedAsset } from './entities/fixed-asset.entity';
+import { FixedAssetDepreciation } from './entities/fixed-asset-depreciation.entity';
 import { DepreciationService } from './depreciation.service';
 import { DepreciationPort } from './depreciation.port';
 import { AssetPostingService } from './asset-posting.service';
@@ -22,7 +23,7 @@ import { AuthModule } from '../auth/auth.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FixedAsset]),
+    TypeOrmModule.forFeature([FixedAsset, FixedAssetDepreciation]),
     forwardRef(() => JournalEntriesModule),
     forwardRef(() => AuthModule),
   ],

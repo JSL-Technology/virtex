@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { NcfSequence } from './entities/ncf-sequence.entity';
 import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
-import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
+import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purchase-fiscal-records.registry';
+import { monthBounds } from '../common/dates';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { DominicanRepublicReports } from './reports/dr-reports';
@@ -52,8 +53,6 @@ export class ComplianceService {
   constructor(
     @InjectRepository(NcfSequence)
     private readonly ncfSequenceRepository: Repository<NcfSequence>,
-    @InjectRepository(VendorBill)
-    private readonly vendorBillRepository: Repository<VendorBill>,
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
     @InjectRepository(Organization)
@@ -63,6 +62,8 @@ export class ComplianceService {
     private readonly dataSource: DataSource,
     /** The ledger's own figures, so the Mexican filings and the statements cannot disagree. */
     private readonly balances: AccountBalancesService,
+    /** Purchasing's answer for the purchases returns, without importing its tables. */
+    private readonly purchaseRecords: PurchaseFiscalRecordsRegistry,
   ) {}
 
   // ── Mexico: contabilidad electrónica (Anexo 24, versión 1.3) ───────────────
@@ -366,11 +367,13 @@ export class ComplianceService {
 
   async generate606Report(organizationId: string, year: number, month: number): Promise<string> {
     await this.assertDominicanRepublic(organizationId, '606');
+    const documents = await this.purchaseRecords
+      .source()
+      .fiscalDocuments({ organizationId, ...monthBounds(year, month) });
     return DominicanRepublicReports.generate606Report(
-      organizationId,
       year,
       month,
-      this.vendorBillRepository,
+      documents,
       await this.requireOrganization(organizationId),
     );
   }
@@ -388,11 +391,13 @@ export class ComplianceService {
 
   async generate609Report(organizationId: string, year: number, month: number): Promise<string> {
     await this.assertDominicanRepublic(organizationId, '609');
+    const documents = await this.purchaseRecords
+      .source()
+      .foreignPurchases({ organizationId, ...monthBounds(year, month) }, 'DO');
     return DominicanRepublicReports.generate609Report(
-      organizationId,
       year,
       month,
-      this.vendorBillRepository,
+      documents,
       await this.requireOrganization(organizationId),
     );
   }

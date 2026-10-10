@@ -24,14 +24,309 @@
     "en": "The dimension “{{name}}” is used on {{count}} posted journal line(s). It cannot be renamed or deleted: the history would lose its classification. Create a new dimension if you need another.",
     "pt": "A dimensão “{{name}}” está em {{count}} linha(s) de lançamentos contabilizados. Não pode ser renomeada nem excluída: o histórico perderia sua classificação. Crie uma nova dimensão se precisar de outra."
   },
+  "dimensions.dimension_name_taken": {
+    "es": "Ya existe una dimensión llamada «{{name}}».",
+    "en": "A dimension named «{{name}}» already exists.",
+    "pt": "Já existe uma dimensão chamada «{{name}}»."
+  },
   "dimensions.dimension_value_in_use": {
     "es": "El valor «{{value}}» de «{{name}}» está en {{count}} línea(s) de asientos contabilizados, así que no se puede renombrar ni quitar. Agrega un valor nuevo en su lugar.",
     "en": "The value “{{value}}” of “{{name}}” is used on {{count}} posted journal line(s), so it cannot be renamed or removed. Add a new value instead.",
     "pt": "O valor “{{value}}” de “{{name}}” está em {{count}} linha(s) de lançamentos contabilizados, então não pode ser renomeado nem removido. Adicione um novo valor."
   },
+  "dimensions.filter.all": {
+    "es": "Toda la empresa",
+    "en": "Whole company",
+    "pt": "Toda a empresa"
+  },
+  "dimensions.filter.choose_value": {
+    "es": "Elige un valor",
+    "en": "Choose a value",
+    "pt": "Escolha um valor"
+  },
+  "dimensions.filter.dimension": {
+    "es": "Dimensión",
+    "en": "Dimension",
+    "pt": "Dimensão"
+  },
+  "dimensions.filter.label": {
+    "es": "Filtrar por dimensión analítica",
+    "en": "Filter by analytic dimension",
+    "pt": "Filtrar por dimensão analítica"
+  },
+  "dimensions.filter.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "dimensions.page.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
+  "dimensions.page.add_value": {
+    "es": "Añadir valor",
+    "en": "Add value",
+    "pt": "Adicionar valor"
+  },
+  "dimensions.page.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "dimensions.page.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "dimensions.page.code_duplicated": {
+    "es": "Hay códigos repetidos.",
+    "en": "Some codes appear twice.",
+    "pt": "Há códigos repetidos."
+  },
+  "dimensions.page.code_invalid": {
+    "es": "Un código solo puede llevar letras, números, espacios y . _ -, y empezar por letra o número.",
+    "en": "A code may only carry letters, digits, spaces and . _ -, and must start with a letter or digit.",
+    "pt": "Um código só pode ter letras, números, espaços e . _ -, e começar por letra ou número."
+  },
+  "dimensions.page.code_required": {
+    "es": "Cada valor necesita un código.",
+    "en": "Every value needs a code.",
+    "pt": "Cada valor precisa de um código."
+  },
+  "dimensions.page.delete": {
+    "es": "Eliminar dimensión",
+    "en": "Delete dimension",
+    "pt": "Excluir dimensão"
+  },
+  "dimensions.page.delete_failed": {
+    "es": "No se pudo eliminar la dimensión.",
+    "en": "The dimension could not be deleted.",
+    "pt": "Não foi possível excluir a dimensão."
+  },
+  "dimensions.page.delete_message": {
+    "es": "Se eliminará «{{name}}» con sus valores y reglas. Ningún asiento la usa.",
+    "en": "«{{name}}» will be deleted with its values and rules. No entry uses it.",
+    "pt": "«{{name}}» será excluída com seus valores e regras. Nenhum lançamento a usa."
+  },
+  "dimensions.page.delete_title": {
+    "es": "Eliminar dimensión",
+    "en": "Delete dimension",
+    "pt": "Excluir dimensão"
+  },
+  "dimensions.page.deleted": {
+    "es": "Dimensión «{{name}}» eliminada.",
+    "en": "Dimension «{{name}}» deleted.",
+    "pt": "Dimensão «{{name}}» excluída."
+  },
+  "dimensions.page.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "dimensions.page.editor": {
+    "es": "Editar dimensión",
+    "en": "Edit dimension",
+    "pt": "Editar dimensão"
+  },
+  "dimensions.page.empty_help": {
+    "es": "Crea las dimensiones por las que analizas los resultados: centro de costo, proyecto, región…",
+    "en": "Create the dimensions you analyse results by: cost centre, project, region…",
+    "pt": "Crie as dimensões pelas quais analisa os resultados: centro de custo, projeto, região…"
+  },
+  "dimensions.page.empty_title": {
+    "es": "Aún no hay dimensiones analíticas",
+    "en": "No analytic dimensions yet",
+    "pt": "Ainda não há dimensões analíticas"
+  },
+  "dimensions.page.label": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "dimensions.page.load_failed": {
+    "es": "No se pudieron cargar las dimensiones.",
+    "en": "Dimensions could not be loaded.",
+    "pt": "Não foi possível carregar as dimensões."
+  },
+  "dimensions.page.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "dimensions.page.name_locked": {
+    "es": "Hay asientos con esta dimensión: su nombre ya no se puede cambiar.",
+    "en": "Entries carry this dimension: its name can no longer change.",
+    "pt": "Há lançamentos com esta dimensão: o nome não pode mais ser alterado."
+  },
+  "dimensions.page.name_placeholder": {
+    "es": "Centro de Costo, Proyecto, Region…",
+    "en": "Cost Centre, Project, Region…",
+    "pt": "Centro de Custo, Projeto, Regiao…"
+  },
+  "dimensions.page.name_required": {
+    "es": "La dimensión necesita un nombre.",
+    "en": "The dimension needs a name.",
+    "pt": "A dimensão precisa de um nome."
+  },
+  "dimensions.page.new": {
+    "es": "Nueva dimensión",
+    "en": "New dimension",
+    "pt": "Nova dimensão"
+  },
+  "dimensions.page.no_parent": {
+    "es": "— Ninguno —",
+    "en": "— None —",
+    "pt": "— Nenhum —"
+  },
+  "dimensions.page.parent": {
+    "es": "Agrupa en",
+    "en": "Rolls up into",
+    "pt": "Agrupa em"
+  },
+  "dimensions.page.remove": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "dimensions.page.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "dimensions.page.save_failed": {
+    "es": "No se pudo guardar la dimensión.",
+    "en": "The dimension could not be saved.",
+    "pt": "Não foi possível salvar a dimensão."
+  },
+  "dimensions.page.saved": {
+    "es": "Dimensión «{{name}}» guardada.",
+    "en": "Dimension «{{name}}» saved.",
+    "pt": "Dimensão «{{name}}» salva."
+  },
+  "dimensions.page.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "dimensions.page.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "dimensions.page.subtitle": {
+    "es": "Centros de costo, proyectos y cualquier otro eje por el que se analizan los asientos, con sus valores y las cuentas que los exigen.",
+    "en": "Cost centres, projects and any other axis entries are analysed by, with their values and the accounts that require them.",
+    "pt": "Centros de custo, projetos e qualquer outro eixo pelo qual os lançamentos são analisados, com seus valores e as contas que os exigem."
+  },
+  "dimensions.page.title": {
+    "es": "Dimensiones analíticas",
+    "en": "Analytic dimensions",
+    "pt": "Dimensões analíticas"
+  },
+  "dimensions.page.values": {
+    "es": "Valores",
+    "en": "Values",
+    "pt": "Valores"
+  },
+  "dimensions.page.values_hint": {
+    "es": "El código es lo que lleva cada línea del asiento: no se puede cambiar ni quitar si ya se usó; desmárcalo como activo para retirarlo.",
+    "en": "The code is what each entry line carries: once used it cannot change or be removed; untick it as active to retire it.",
+    "pt": "O código é o que cada linha do lançamento leva: depois de usado não pode ser alterado nem removido; desmarque-o como ativo para desativá-lo."
+  },
+  "dimensions.parent_value_not_found": {
+    "es": "«{{value}}» depende de «{{parent}}», que no está en la lista.",
+    "en": "«{{value}}» rolls up into «{{parent}}», which is not in the list.",
+    "pt": "«{{value}}» depende de «{{parent}}», que não está na lista."
+  },
+  "dimensions.rule_account_not_postable": {
+    "es": "La cuenta {{code}} es de agrupación y no recibe movimientos: la regla va en sus cuentas de detalle.",
+    "en": "Account {{code}} is a header account and takes no postings: the rule belongs on its detail accounts.",
+    "pt": "A conta {{code}} é sintética e não recebe lançamentos: a regra vai nas contas analíticas."
+  },
+  "dimensions.rule_already_exists": {
+    "es": "La cuenta {{code}} ya exige la dimensión «{{dimension}}».",
+    "en": "Account {{code}} already requires the «{{dimension}}» dimension.",
+    "pt": "A conta {{code}} já exige a dimensão «{{dimension}}»."
+  },
+  "dimensions.rules.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "dimensions.rules.add": {
+    "es": "Exigir",
+    "en": "Require",
+    "pt": "Exigir"
+  },
+  "dimensions.rules.add_failed": {
+    "es": "No se pudo añadir la regla.",
+    "en": "The rule could not be added.",
+    "pt": "Não foi possível adicionar a regra."
+  },
+  "dimensions.rules.added": {
+    "es": "Regla añadida.",
+    "en": "Rule added.",
+    "pt": "Regra adicionada."
+  },
+  "dimensions.rules.choose_account": {
+    "es": "Elige una cuenta",
+    "en": "Choose an account",
+    "pt": "Escolha uma conta"
+  },
+  "dimensions.rules.choose_dimension": {
+    "es": "Elige una dimensión",
+    "en": "Choose a dimension",
+    "pt": "Escolha uma dimensão"
+  },
+  "dimensions.rules.dimension": {
+    "es": "Dimensión",
+    "en": "Dimension",
+    "pt": "Dimensão"
+  },
+  "dimensions.rules.hint": {
+    "es": "Un asiento que mueva una de estas cuentas debe indicar la dimensión en esa línea.",
+    "en": "An entry that moves one of these accounts must give the dimension on that line.",
+    "pt": "Um lançamento que movimente uma destas contas deve indicar a dimensão nessa linha."
+  },
+  "dimensions.rules.none": {
+    "es": "Ninguna cuenta exige dimensiones.",
+    "en": "No account requires a dimension.",
+    "pt": "Nenhuma conta exige dimensões."
+  },
+  "dimensions.rules.remove_failed": {
+    "es": "No se pudo quitar la regla.",
+    "en": "The rule could not be removed.",
+    "pt": "Não foi possível remover a regra."
+  },
+  "dimensions.rules.title": {
+    "es": "Cuentas que exigen dimensión",
+    "en": "Accounts that require a dimension",
+    "pt": "Contas que exigem dimensão"
+  },
   "dimensions.specified_dimension_rule_not_found": {
     "es": "La regla de dimensión especificada no fue encontrada.",
     "en": "The specified dimension rule was not found.",
     "pt": "A regra de dimensão informada não foi encontrada."
+  },
+  "dimensions.tags.label": {
+    "es": "Dimensiones de la línea {{line}}",
+    "en": "Dimensions of line {{line}}",
+    "pt": "Dimensões da linha {{line}}"
+  },
+  "dimensions.value_cycle": {
+    "es": "«{{value}}» no puede depender de sí mismo, directa ni indirectamente.",
+    "en": "«{{value}}» cannot roll up into itself, directly or indirectly.",
+    "pt": "«{{value}}» não pode depender de si mesmo, direta ou indiretamente."
+  },
+  "dimensions.value_duplicated": {
+    "es": "El código «{{value}}» está repetido.",
+    "en": "Code «{{value}}» appears twice.",
+    "pt": "O código «{{value}}» está repetido."
+  },
+  "dimensions.value_not_found": {
+    "es": "El valor «{{value}}» no pertenece a esta dimensión.",
+    "en": "Value «{{value}}» does not belong to this dimension.",
+    "pt": "O valor «{{value}}» não pertence a esta dimensão."
   }
 }

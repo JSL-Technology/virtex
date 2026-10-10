@@ -159,6 +159,16 @@
     "en": "Departments",
     "pt": "Departamentos"
   },
+  "page_titles.depreciation_run": {
+    "es": "Ejecutar depreciación",
+    "en": "Run depreciation",
+    "pt": "Executar depreciação"
+  },
+  "page_titles.dimensions": {
+    "es": "Dimensiones analíticas",
+    "en": "Analytic dimensions",
+    "pt": "Dimensões analíticas"
+  },
   "page_titles.document_repository": {
     "es": "Repositorio de documentos",
     "en": "Document repository",
@@ -179,6 +189,21 @@
     "en": "Employees",
     "pt": "Funcionários"
   },
+  "page_titles.entry_template": {
+    "es": "Plantilla de asiento",
+    "en": "Entry template",
+    "pt": "Modelo de lançamento"
+  },
+  "page_titles.entry_template_new": {
+    "es": "Nueva plantilla de asiento",
+    "en": "New entry template",
+    "pt": "Novo modelo de lançamento"
+  },
+  "page_titles.entry_templates": {
+    "es": "Plantillas de asiento",
+    "en": "Entry templates",
+    "pt": "Modelos de lançamento"
+  },
   "page_titles.exchange_rates": {
     "es": "Tipos de cambio",
     "en": "Exchange rates",
@@ -193,6 +218,36 @@
     "es": "Ejecución de extensiones",
     "en": "Extensions runtime",
     "pt": "Execução de extensões"
+  },
+  "page_titles.fiscal_returns": {
+    "es": "Declaraciones fiscales",
+    "en": "Fiscal returns",
+    "pt": "Declarações fiscais"
+  },
+  "page_titles.fixed_asset": {
+    "es": "Activo fijo",
+    "en": "Fixed asset",
+    "pt": "Ativo imobilizado"
+  },
+  "page_titles.fixed_asset_dispose": {
+    "es": "Baja de activo fijo",
+    "en": "Fixed asset disposal",
+    "pt": "Baixa de ativo imobilizado"
+  },
+  "page_titles.fixed_asset_edit": {
+    "es": "Editar activo fijo",
+    "en": "Edit fixed asset",
+    "pt": "Editar ativo imobilizado"
+  },
+  "page_titles.fixed_asset_new": {
+    "es": "Nuevo activo fijo",
+    "en": "New fixed asset",
+    "pt": "Novo ativo imobilizado"
+  },
+  "page_titles.fixed_assets": {
+    "es": "Activos fijos",
+    "en": "Fixed assets",
+    "pt": "Ativos imobilizados"
   },
   "page_titles.general_ledger": {
     "es": "Libro mayor",
@@ -443,6 +498,21 @@
     "es": "Cotizaciones",
     "en": "Quotes",
     "pt": "Cotações"
+  },
+  "page_titles.recurring_entries": {
+    "es": "Asientos recurrentes",
+    "en": "Recurring entries",
+    "pt": "Lançamentos recorrentes"
+  },
+  "page_titles.recurring_entry": {
+    "es": "Asiento recurrente",
+    "en": "Recurring entry",
+    "pt": "Lançamento recorrente"
+  },
+  "page_titles.recurring_entry_new": {
+    "es": "Nuevo asiento recurrente",
+    "en": "New recurring entry",
+    "pt": "Novo lançamento recorrente"
   },
   "page_titles.reports_hub": {
     "es": "Reportes",

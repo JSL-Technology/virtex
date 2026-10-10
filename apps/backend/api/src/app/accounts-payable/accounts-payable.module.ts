@@ -25,6 +25,7 @@ import { PeriodLockModule } from '../accounting/period-lock.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { VendorBillApprovalHandler } from './vendor-bill-approval.handler';
 import { VendorBillClosingBlockersProvider } from './vendor-bill-closing-blockers.provider';
+import { PurchaseFiscalRecordsProvider } from './purchase-fiscal-records.provider';
 // The ageing report ties itself to the payables control account in the general ledger.
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 // What is withheld from a supplier follows from who they are, resolved by the same service the
@@ -69,6 +70,8 @@ import { AuthModule } from '../auth/auth.module';
     VendorBillApprovalHandler,
     // Responde al checklist de cierre de Contabilidad sin que Contabilidad conozca esta tabla.
     VendorBillClosingBlockersProvider,
+    // Answers the DGII purchases returns (606, 609) without Compliance knowing these tables.
+    PurchaseFiscalRecordsProvider,
   ],
 })
 export class AccountsPayableModule {}

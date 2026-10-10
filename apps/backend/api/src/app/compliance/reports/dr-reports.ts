@@ -1,6 +1,6 @@
 import { Repository, Between, Not, IsNull, In } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
-import { VendorBill, VendorBillStatus } from '../../accounts-payable/entities/vendor-bill.entity';
+import { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-fiscal-records.contract';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { roundAmount } from '../../common/money';
 import { UnprocessableEntityError } from '../../i18n/localized.exception';
@@ -111,69 +111,79 @@ export class DominicanRepublicReports {
 
   // ── 606: Compras de bienes y servicios ─────────────────────────────────────
 
-  static async generate606Report(
-    organizationId: string,
+  /**
+   * Purchases. One record per supplier comprobante received in the period — the bills, and the
+   * credit notes the supplier issued against them — as Purchasing reports them through
+   * `PurchaseFiscalRecordsSource`.
+   *
+   * The credit notes were missing: a supplier's NCF B04 / e-CF 34 reduces the ITBIS the buyer may
+   * deduct, and leaving it out of the 606 overstated the tax credit for the month. It is reported
+   * as its own record, with the bill's NCF as «NCF modificado» and form of payment 06 (nota de
+   * crédito), which is how the DGII pairs the two.
+   */
+  static generate606Report(
     year: number,
     month: number,
-    vendorBillRepository: Repository<VendorBill>,
+    documents: readonly PurchaseFiscalDocument[],
     organization: Organization,
-  ): Promise<string> {
-    const { from, to } = monthBoundsAsIsoDates(year, month);
-
-    const purchases = await vendorBillRepository.find({
-      relations: ['vendor'],
-      where: {
-        organizationId,
-        date: Between(from, to),
-        ncf: Not(IsNull()),
-        status: Not(In([VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED])),
-      },
-      order: { date: 'ASC' },
-    });
-
+  ): string {
     // Every line of the 606 identifies the supplier by RNC or cédula, and the DGII rejects the
     // whole file over one that does not (QA B-02: a bill without one was reported anyway). The
-    // file is not produced; the bills to correct are named instead. Bills posted from now on
+    // file is not produced; the documents to correct are named instead. Bills posted from now on
     // cannot reach this point — accounts payable refuses an NCF without a valid supplier id —
     // but bills recorded before that rule still can.
-    const unidentified = purchases.filter((bill) => !isValidDominicanTaxId(bill.vendor?.taxId ?? ''));
+    const unidentified = documents.filter((document) => !isValidDominicanTaxId(document.supplierTaxId ?? ''));
     if (unidentified.length > 0) {
       throw new UnprocessableEntityError('compliance.report_606_supplier_tax_id_missing', {
         count: unidentified.length,
         bills: unidentified
           .slice(0, 10)
-          .map((bill) => `${bill.ncf} (${bill.vendor?.name ?? '—'})`)
+          .map((document) => `${document.fiscalNumber} (${document.supplierName ?? '—'})`)
           .join(', '),
       });
     }
 
-    const rows = purchases.map((bill) => {
-      const taxId = digitsOnly(bill.vendor?.taxId);
+    // A credit note modifies a comprobante; without the bill's NCF the record has nothing to
+    // point at and the DGII rejects it. Named, like the unidentified suppliers above.
+    const unpaired = documents.filter((document) => document.kind === 'credit_note' && !document.modifiedFiscalNumber);
+    if (unpaired.length > 0) {
+      throw new UnprocessableEntityError('compliance.report_606_credit_note_without_modified_ncf', {
+        count: unpaired.length,
+        notes: unpaired
+          .slice(0, 10)
+          .map((document) => `${document.reference} (${document.fiscalNumber})`)
+          .join(', '),
+      });
+    }
+
+    const rows = documents.map((document) => {
+      const taxId = digitsOnly(document.supplierTaxId);
       return [
         taxId,
         identificationType(taxId),
-        bill.purchaseCategory || '06',
-        bill.ncf ?? '',
-        bill.ncfModified ?? '',
-        compactDate(bill.date),
-        bill.paidAt ? compactDate(bill.paidAt) : '',
-        money(bill.servicesAmount),
-        money(bill.goodsAmount),
-        money(bill.servicesAmount + bill.goodsAmount),
-        money(bill.taxAmount),
-        money(bill.taxWithheld),
-        money(bill.taxProportional),
-        money(bill.taxToCost),
+        document.purchaseCategory || '06',
+        document.fiscalNumber ?? '',
+        document.modifiedFiscalNumber ?? '',
+        compactDate(document.date),
+        document.paidOn ? compactDate(document.paidOn) : '',
+        money(document.servicesAmount),
+        money(document.goodsAmount),
+        money(document.servicesAmount + document.goodsAmount),
+        money(document.taxAmount),
+        money(document.taxWithheld),
+        money(document.taxProportional),
+        money(document.taxToCost),
         // ITBIS por adelantar: what remains deductible after proportionality and cost allocation.
-        money(Math.max(0, bill.taxAmount - bill.taxProportional - bill.taxToCost)),
+        // On a credit note, the ITBIS it gives back: the credit the buyer no longer carries.
+        money(Math.max(0, document.taxAmount - document.taxProportional - document.taxToCost)),
         money(0),
-        bill.isrRetentionType ?? '',
-        money(bill.incomeTaxWithheld),
+        document.isrRetentionType ?? '',
+        money(document.incomeTaxWithheld),
         money(0),
-        money(bill.exciseAmount),
-        money(bill.otherTaxes),
-        money(bill.serviceCharge),
-        bill.paymentForm || '01',
+        money(document.exciseAmount),
+        money(document.otherTaxes),
+        money(document.serviceCharge),
+        document.paymentForm || '01',
       ].join('|');
     });
 
@@ -233,39 +243,24 @@ export class DominicanRepublicReports {
   // ── 609: Pagos al exterior ─────────────────────────────────────────────────
 
   /**
-   * Payments to non-resident suppliers, with the income tax withheld at source. Identified by a
-   * supplier whose country is not the Dominican Republic.
+   * Payments to non-resident suppliers, with the income tax withheld at source: the bills of
+   * suppliers established outside the Dominican Republic, as Purchasing reports them.
    */
-  static async generate609Report(
-    organizationId: string,
+  static generate609Report(
     year: number,
     month: number,
-    vendorBillRepository: Repository<VendorBill>,
+    documents: readonly PurchaseFiscalDocument[],
     organization: Organization,
-  ): Promise<string> {
-    const { from, to } = monthBoundsAsIsoDates(year, month);
-
-    const bills = await vendorBillRepository
-      .createQueryBuilder('bill')
-      .innerJoinAndSelect('bill.vendor', 'vendor')
-      .where('bill.organizationId = :organizationId', { organizationId })
-      .andWhere('bill.date BETWEEN :fromDate AND :toDate', { fromDate: from, toDate: to })
-      .andWhere('bill.status NOT IN (:...excluded)', {
-        excluded: [VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED],
-      })
-      .andWhere("COALESCE(vendor.country, 'DO') <> 'DO'")
-      .orderBy('bill.date', 'ASC')
-      .getMany();
-
-    const rows = bills.map((bill) =>
+  ): string {
+    const rows = documents.map((document) =>
       [
-        (bill.vendor?.name ?? '').trim(),
+        (document.supplierName ?? '').trim(),
         // Tipo de renta: fees for services is the ordinary case for a cross-border payment; where
         // the bill declares an ISR retention type, that classification wins.
-        bill.isrRetentionType || '02',
-        compactDate(bill.date),
-        money(bill.servicesAmount + bill.goodsAmount || bill.total),
-        money(bill.incomeTaxWithheld),
+        document.isrRetentionType || '02',
+        compactDate(document.date),
+        money(document.servicesAmount + document.goodsAmount || document.total),
+        money(document.incomeTaxWithheld),
       ].join('|'),
     );
 
@@ -422,20 +417,5 @@ function monthBoundsAsDates(year: number, month: number): { fromDate: Date; toDa
   return {
     fromDate: new Date(Date.UTC(year, month - 1, 1)),
     toDate: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)),
-  };
-}
-
-/**
- * The same month, as the calendar dates a `date` column is compared against.
- *
- * `vendor_bills.date` is a document date, so its bounds are dates too. Comparing it against a
- * `Date` at 23:59:59.999 asks the database to cast an instant, which is both a wider net than
- * intended and the shape that made these columns drift to `timestamp` in the first place.
- */
-function monthBoundsAsIsoDates(year: number, month: number): { from: string; to: string } {
-  const iso = (d: Date) => d.toISOString().slice(0, 10);
-  return {
-    from: iso(new Date(Date.UTC(year, month - 1, 1))),
-    to: iso(new Date(Date.UTC(year, month, 0))),
   };
 }

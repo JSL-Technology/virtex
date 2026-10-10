@@ -31,6 +31,7 @@ import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.e
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Readable } from 'stream';
 import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
+import { normaliseDimensionTags } from '../dimensions/dimension-tags';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { JournalEntryLineValuation } from './entities/journal-entry-line-valuation.entity';
 import { LedgerMappingRule } from '../accounting/entities/ledger-mapping-rule.entity';
@@ -253,6 +254,7 @@ export class JournalEntriesService {
     createDto: CreateJournalEntryDto,
     organizationId: string,
     context: PostingContext,
+    options: { reversal?: boolean } = {},
   ): Promise<{ entry: JournalEntry; totalDebit: number }> {
     const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, ...entryData } =
       createDto;
@@ -425,7 +427,15 @@ export class JournalEntriesService {
       });
     }
 
-    await this.validateDimensionRules(manager, normalizedLines, accountMap);
+    // Dimension tags name an active dimension and one of its active values. A reversal carries
+    // the original's tags as they were — a value retired since must not stop a void.
+    if (!options.reversal) {
+      const tags = await normaliseDimensionTags(manager, organizationId, normalizedLines);
+      normalizedLines.forEach((line, index) => {
+        line.dimensions = tags[index];
+      });
+      await this.validateDimensionRules(manager, normalizedLines, accountMap);
+    }
 
     await this.enforceBudget(manager, organizationId, toIsoDate(entryDate), normalizedLines, accountMap, {
       ...context,
@@ -1118,10 +1128,13 @@ export class JournalEntriesService {
       })),
     };
 
-    const prepared = await this.prepare(manager, reversalDto, organizationId, {
-      ...context,
-      systemReason: context.systemReason ?? 'reversal',
-    });
+    const prepared = await this.prepare(
+      manager,
+      reversalDto,
+      organizationId,
+      { ...context, systemReason: context.systemReason ?? 'reversal' },
+      { reversal: true },
+    );
     prepared.entry.reversesEntryId = original.id;
     const reversal = await this.markPosted(
       manager,

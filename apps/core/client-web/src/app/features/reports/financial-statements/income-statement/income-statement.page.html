@@ -2,6 +2,7 @@
   <div class="subview-header">
     <h3>{{ 'reports.income_statement.income_statement' | translate }}</h3>
     <div class="header-actions">
+      <vx-dimension-filter (filterChange)="onDimensionFilter($event)" />
       <!--
         Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
         comprobaba el orden, así que un rango invertido devolvía un informe VACÍO y ningún

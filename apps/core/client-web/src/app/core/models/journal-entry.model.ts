@@ -18,6 +18,8 @@ export interface JournalEntryLine {
     debit: number;
     credit: number;
     description?: string;
+    /** Analytic tags: `{"Centro de Costo": "VENTAS"}`. */
+    dimensions?: Record<string, string> | null;
 }
 
 export enum JournalEntryStatus {

@@ -1,0 +1,105 @@
+<vx-list-shell
+  titleKey="fixed_assets.page.title"
+  subtitleKey="fixed_assets.page.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'fixed_assets:manage'" routerLink="/accounting/fixed-assets/depreciation" class="secondary-button">
+    <lucide-icon [img]="RunIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'fixed_assets.page.run_depreciation' | translate }}</span>
+  </a>
+  <a listActions *appHasPermission="'fixed_assets:manage'" routerLink="/accounting/fixed-assets/new" class="primary-button">
+    <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'fixed_assets.page.new' | translate }}</span>
+  </a>
+
+  <div listFilters class="doc-filter doc-filter--wide">
+    <label for="fa-search">{{ 'fixed_assets.page.search' | translate }}</label>
+    <input id="fa-search" type="search" maxlength="100" [ngModel]="search()" (ngModelChange)="search.set($event)"
+           (keyup.enter)="applyFilters()" (search)="applyFilters()"
+           [placeholder]="'fixed_assets.page.search_placeholder' | translate" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="fa-status">{{ 'fixed_assets.page.status' | translate }}</label>
+    <select id="fa-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
+      <option value="">{{ 'fixed_assets.page.all' | translate }}</option>
+      <option value="IN_USE">{{ 'fixed_assets.status.in_use' | translate }}</option>
+      <option value="SOLD">{{ 'fixed_assets.status.sold' | translate }}</option>
+      <option value="DISPOSED">{{ 'fixed_assets.status.disposed' | translate }}</option>
+    </select>
+  </div>
+  <vx-branch-picker
+    listFilters
+    mode="filter"
+    inputId="fa-branch"
+    [ngModel]="branchFilter()"
+    (ngModelChange)="branchFilter.set($event); applyFilters()"
+  />
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'fixed_assets.page.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'fixed_assets.page.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'fixed_assets.page.number' | translate }}</th>
+          <th>{{ 'fixed_assets.page.name' | translate }}</th>
+          <th>{{ 'fixed_assets.page.acquired' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.page.cost' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.page.accumulated' | translate }}</th>
+          <th class="numeric">{{ 'fixed_assets.page.book_value' | translate }}</th>
+          <th>{{ 'fixed_assets.page.depreciated_through' | translate }}</th>
+          <th>{{ 'fixed_assets.page.status' | translate }}</th>
+          @if (branches.hasBranches()) {
+            <th>{{ 'branches.picker.label' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', row.id]">{{ row.number }}</a></td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.acquisitionDate | vxDate: 'date' : true }}</td>
+            <td class="numeric"><vx-amount [value]="row.cost" /></td>
+            <td class="numeric"><vx-amount [value]="row.accumulatedDepreciation" /></td>
+            <td class="numeric"><vx-amount [value]="row.status === 'IN_USE' ? row.cost - row.accumulatedDepreciation : 0" /></td>
+            <td>{{ row.depreciatedThrough ? (row.depreciatedThrough | vxDate: 'monthYear' : true) : '—' }}</td>
+            <td><vx-badge [tone]="tones[row.status]">{{ statusKey(row.status) | translate }}</vx-badge></td>
+            @if (branches.hasBranches()) {
+              <td><vx-branch-label [branchId]="row.branchId" /></td>
+            }
+          </tr>
+        }
+      </tbody>
+      @if (rows().length > 1) {
+        <tfoot>
+          <tr>
+            <th colspan="3">{{ 'fixed_assets.page.page_totals' | translate }}</th>
+            <th class="numeric"><vx-amount [value]="totals().cost" /></th>
+            <th class="numeric"><vx-amount [value]="totals().accumulated" /></th>
+            <th class="numeric"><vx-amount [value]="totals().book" /></th>
+            <th [attr.colspan]="branches.hasBranches() ? 3 : 2"></th>
+          </tr>
+        </tfoot>
+      }
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [total]="total()"
+    [pageSizes]="[50, 100, 200]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

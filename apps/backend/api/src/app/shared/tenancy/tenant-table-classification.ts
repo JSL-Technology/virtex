@@ -157,11 +157,6 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'typeorm_metadata', why: 'Metadatos de vistas de TypeORM.' },
   { table: 'scheduled_job_runs', why: 'Cerrojo de trabajos programados del proceso; no lleva datos de negocio.' },
   { table: 'payment_webhook_events', why: 'Idempotencia de webhooks de Stripe: solo un id y su fecha.' },
-
-  // Restos del esquema base a los que no apunta ninguna entidad. Se declaran para que la
-  // clasificación sea completa y para que su ausencia de dueño quede escrita en algún sitio.
-  { table: 'project', why: 'Tabla huérfana del esquema base; la vigente es `projects`.' },
-  { table: 'cost_center', why: 'Tabla huérfana del esquema base; la vigente es `cost_centers`.' },
 ];
 
 /**

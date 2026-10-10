@@ -1,0 +1,165 @@
+<vx-draft-shell
+  [title]="current()?.description ?? ('recurring_entries.form.new' | translate)"
+  [subtitle]="'recurring_entries.form.subtitle' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (current(); as entry) {
+      @if (entry.pendingOccurrences > 0) {
+        <p class="form-hint re-pending" role="status">
+          {{ 'recurring_entries.form.pending_hint' | translate: { count: entry.pendingOccurrences } }}
+        </p>
+      }
+    }
+
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field field--wide" for="re-description">
+          <span>{{ 'recurring_entries.form.description' | translate }} *</span>
+          <input id="re-description" type="text" maxlength="500" formControlName="description"
+                 [placeholder]="'recurring_entries.form.description_placeholder' | translate" />
+        </label>
+        <label class="field" for="re-journal">
+          <span>{{ 'recurring_entries.form.journal' | translate }} *</span>
+          <select id="re-journal" formControlName="journalId">
+            <option value="">{{ 'recurring_entries.form.choose_journal' | translate }}</option>
+            @for (journal of journals(); track journal.id) {
+              <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="re-frequency">
+          <span>{{ 'recurring_entries.form.frequency' | translate }} *</span>
+          <select id="re-frequency" formControlName="frequency">
+            @for (frequency of frequencies; track frequency) {
+              <option [value]="frequency">{{ frequencyKey(frequency) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="re-start">
+          <span>{{ 'recurring_entries.form.start_date' | translate }} *</span>
+          <vx-date-field inputId="re-start" formControlName="startDate" />
+        </label>
+        <label class="field" for="re-end">
+          <span>{{ 'recurring_entries.form.end_date' | translate }}</span>
+          <vx-date-field inputId="re-end" formControlName="endDate" />
+        </label>
+        <label class="doc-check">
+          <input type="checkbox" formControlName="isActive" />
+          {{ 'recurring_entries.form.active' | translate }}
+        </label>
+      </div>
+      <p class="form-hint">{{ 'recurring_entries.form.schedule_hint' | translate }}</p>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'recurring_entries.form.lines' | translate }}</h2>
+      <div class="table-wrapper">
+        <table class="lines-table">
+          <thead>
+            <tr>
+              <th>{{ 'recurring_entries.form.account' | translate }} *</th>
+              <th>{{ 'recurring_entries.form.line_description' | translate }}</th>
+              <th class="numeric">{{ 'recurring_entries.form.debit' | translate }}</th>
+              <th class="numeric">{{ 'recurring_entries.form.credit' | translate }}</th>
+              <th><span class="sr-only">{{ 'recurring_entries.form.remove_line' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines(); track $index) {
+              @let index = $index;
+              <tr>
+                <td>
+                  <vx-select [ngModel]="line.accountId || null" [ngModelOptions]="{ standalone: true }"
+                             (ngModelChange)="patchLine(index, { accountId: $event ?? '' })"
+                             [search]="searchAccounts" [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                             [ariaLabel]="'recurring_entries.form.account' | translate" placeholderKey="recurring_entries.form.choose_account" />
+                </td>
+                <td>
+                  <input type="text" maxlength="500" [attr.aria-label]="'recurring_entries.form.line_description' | translate"
+                         [ngModel]="line.description" [ngModelOptions]="{ standalone: true }"
+                         (ngModelChange)="patchLine(index, { description: $event })" />
+                </td>
+                <td class="numeric">
+                  <input type="number" step="0.01" min="0" [attr.aria-label]="'recurring_entries.form.debit' | translate"
+                         [ngModel]="line.debit" [ngModelOptions]="{ standalone: true }" (ngModelChange)="patchLine(index, { debit: $event })" />
+                </td>
+                <td class="numeric">
+                  <input type="number" step="0.01" min="0" [attr.aria-label]="'recurring_entries.form.credit' | translate"
+                         [ngModel]="line.credit" [ngModelOptions]="{ standalone: true }" (ngModelChange)="patchLine(index, { credit: $event })" />
+                </td>
+                <td>
+                  <button type="button" class="icon-button" [disabled]="lines().length <= 2" (click)="removeLine(index)"
+                          [attr.aria-label]="'recurring_entries.form.remove_line' | translate">
+                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+              <tr class="re-tags">
+                <td colspan="5">
+                  <vx-dimension-tags [tags]="line.dimensions ?? {}" [labelParams]="{ line: index + 1 }"
+                                     (tagsChange)="patchLine(index, { dimensions: $event })" />
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">
+                <button type="button" class="secondary-button add-line" (click)="addLine()">
+                  <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+                  <span>{{ 'recurring_entries.form.add_line' | translate }}</span>
+                </button>
+              </td>
+              <td class="numeric"><strong><vx-amount [value]="totals().debit" /></strong></td>
+              <td class="numeric"><strong><vx-amount [value]="totals().credit" /></strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      @if (!totals().balanced && form.touched) {
+        <p class="banner-error" role="alert">{{ 'journal_entries.journal_entry_does_not_balance' | translate }}</p>
+      }
+    </section>
+
+    @if (current(); as entry) {
+      <section class="form-section">
+        <h2 class="form-section-title">{{ 'recurring_entries.form.posted' | translate }}</h2>
+        @if (posted().length) {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'recurring_entries.form.posted_date' | translate }}</th>
+                <th>{{ 'recurring_entries.form.posted_number' | translate }}</th>
+                <th class="numeric">{{ 'recurring_entries.page.amount' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of posted(); track row.id) {
+                <tr>
+                  <td>{{ row.date | vxDate: 'date' : true }}</td>
+                  <td><a [routerLink]="entryLink(row.id)">{{ row.entryNumber ?? row.id.slice(0, 8) }}</a></td>
+                  <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="muted">{{ 'recurring_entries.form.nothing_posted' | translate }}</p>
+        }
+        <div class="re-actions">
+          <button *appHasPermission="'journal_entries:edit'" type="button" class="danger-button" (click)="remove()">
+            {{ 'recurring_entries.form.delete' | translate }}
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+</vx-draft-shell>

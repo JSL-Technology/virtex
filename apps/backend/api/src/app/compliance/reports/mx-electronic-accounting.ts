@@ -56,7 +56,10 @@ export interface MexicanAccountingPeriod {
   ledgerId?: string;
 }
 
-/** `TipoSolicitud` on the Pólizas file: which procedure the authority is running. */
+/**
+ * `TipoSolicitud` on the Pólizas file: which procedure the authority is running — `AF` acto de
+ * fiscalización, `FC` fiscalización compulsa, `DE` devolución, `CO` compensación (Anexo 24).
+ */
 export type PolizasRequestType = 'AF' | 'FC' | 'DE' | 'CO';
 
 export class MexicanElectronicAccounting {
@@ -242,12 +245,14 @@ export class MexicanElectronicAccounting {
       .att('Anio', String(period.year))
       .att('TipoSolicitud', tipoSolicitud);
 
-    // `NumOrden` belongs to an audit (AF) or a certification (CO); `NumTramite` to a refund (DE)
-    // or an offset (FC). Writing the wrong one, or both, is a rejected upload.
-    if (options.numOrden && (tipoSolicitud === 'AF' || tipoSolicitud === 'CO')) {
+    // `NumOrden` belongs to the audits — an acto de fiscalización (AF) or a fiscalización
+    // compulsa (FC); `NumTramite` to the procedures the taxpayer started — a refund (DE) or an
+    // offset (CO). The XSD requires each for exactly those types, and writing the wrong one, or
+    // both, is a rejected upload. CO used to be read as «certification» and given the order number.
+    if (options.numOrden && (tipoSolicitud === 'AF' || tipoSolicitud === 'FC')) {
       root.att('NumOrden', options.numOrden);
     }
-    if (options.numTramite && (tipoSolicitud === 'DE' || tipoSolicitud === 'FC')) {
+    if (options.numTramite && (tipoSolicitud === 'DE' || tipoSolicitud === 'CO')) {
       root.att('NumTramite', options.numTramite);
     }
 

@@ -39,7 +39,7 @@ import { CurrencyRevaluationService } from './services/currency-revaluation.serv
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
-import { FixedAsset, FixedAssetStatus } from '../fixed-assets/entities/fixed-asset.entity';
+import { DepreciationMethod, FixedAsset, FixedAssetStatus } from '../fixed-assets/entities/fixed-asset.entity';
 
 /**
  * The period close, end to end, with the real pre-closing services.
@@ -291,19 +291,22 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       ctx,
     );
 
+  // In service from the first of January: the January close is responsible for exactly one month.
   const addAsset = () =>
     dataSource.getRepository(FixedAsset).save(
       dataSource.getRepository(FixedAsset).create({
         organizationId,
+        number: `AF-2026-${Math.random().toString(36).slice(2, 8)}`,
         name: 'Servidor',
         description: 'Servidor de aplicaciones',
         cost: 120_000,
         residualValue: 0,
         accumulatedDepreciation: 0,
         bookValue: 120_000,
-        usefulLife: 60,
-        depreciationMethod: 'STRAIGHT_LINE',
-        purchaseDate: '2025-12-01' as unknown as Date,
+        usefulLifeMonths: 60,
+        depreciationMethod: DepreciationMethod.STRAIGHT_LINE,
+        acquisitionDate: '2026-01-01',
+        inServiceDate: '2026-01-01',
         status: FixedAssetStatus.IN_USE,
         assetAccountId: account['equipment'],
         accumulatedDepreciationAccountId: account['accumulated'],

@@ -13,9 +13,15 @@ import {
 
 export class JournalEntryTemplateLine {
   accountId: string;
-  description: string;
+  description?: string;
 
   type: 'DEBIT' | 'CREDIT';
+
+  /** Share of the amount on its side, in percent; absent on every line of a side, split equally. */
+  percentage?: number;
+
+  /** Analytic tags carried into the entry: `{"Centro de Costo": "VENTAS"}`. */
+  dimensions?: Record<string, string> | null;
 }
 
 @Entity({ name: 'journal_entry_templates' })

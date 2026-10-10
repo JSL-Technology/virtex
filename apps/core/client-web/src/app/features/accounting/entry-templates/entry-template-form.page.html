@@ -1,0 +1,161 @@
+<vx-draft-shell
+  [title]="current()?.name ?? ('entry_templates.form.new' | translate)"
+  [subtitle]="'entry_templates.form.subtitle' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field" for="et-name">
+          <span>{{ 'entry_templates.form.name' | translate }} *</span>
+          <input id="et-name" type="text" maxlength="120" formControlName="name" [placeholder]="'entry_templates.form.name_placeholder' | translate" />
+        </label>
+        <label class="field field--wide" for="et-description">
+          <span>{{ 'entry_templates.form.description' | translate }} *</span>
+          <input id="et-description" type="text" maxlength="500" formControlName="description" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'entry_templates.form.lines' | translate }}</h2>
+      <p class="form-hint">{{ 'entry_templates.form.lines_hint' | translate }}</p>
+      <div class="table-wrapper">
+        <table class="lines-table">
+          <thead>
+            <tr>
+              <th>{{ 'entry_templates.form.account' | translate }} *</th>
+              <th>{{ 'entry_templates.form.side' | translate }}</th>
+              <th class="numeric">{{ 'entry_templates.form.percentage' | translate }}</th>
+              <th>{{ 'entry_templates.form.line_description' | translate }}</th>
+              <th><span class="sr-only">{{ 'entry_templates.form.remove_line' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines(); track $index) {
+              @let index = $index;
+              <tr>
+                <td>
+                  <vx-select [ngModel]="line.accountId || null" [ngModelOptions]="{ standalone: true }"
+                             (ngModelChange)="patchLine(index, { accountId: $event ?? '' })"
+                             [search]="searchAccounts" [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                             [ariaLabel]="'entry_templates.form.account' | translate" placeholderKey="entry_templates.form.choose_account" />
+                </td>
+                <td>
+                  <select [attr.aria-label]="'entry_templates.form.side' | translate" [ngModel]="line.type" [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="patchLine(index, { type: $event })">
+                    <option value="DEBIT">{{ 'entry_templates.form.debit' | translate }}</option>
+                    <option value="CREDIT">{{ 'entry_templates.form.credit' | translate }}</option>
+                  </select>
+                </td>
+                <td class="numeric">
+                  <input type="number" step="0.01" min="0" max="100" [attr.aria-label]="'entry_templates.form.percentage' | translate"
+                         [ngModel]="line.percentage ?? ''" [ngModelOptions]="{ standalone: true }" (ngModelChange)="setPercentage(index, $event)"
+                         [placeholder]="'entry_templates.form.equal_share' | translate" />
+                </td>
+                <td>
+                  <input type="text" maxlength="500" [attr.aria-label]="'entry_templates.form.line_description' | translate"
+                         [ngModel]="line.description" [ngModelOptions]="{ standalone: true }" (ngModelChange)="patchLine(index, { description: $event })" />
+                </td>
+                <td>
+                  <button type="button" class="icon-button" [disabled]="lines().length <= 2" (click)="removeLine(index)"
+                          [attr.aria-label]="'entry_templates.form.remove_line' | translate">
+                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+              <tr class="re-tags">
+                <td colspan="5">
+                  <vx-dimension-tags [tags]="line.dimensions ?? {}" [labelParams]="{ line: index + 1 }"
+                                     (tagsChange)="patchLine(index, { dimensions: $event })" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="re-actions">
+        <button type="button" class="secondary-button add-line" (click)="addLine('DEBIT')">
+          <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'entry_templates.form.add_debit' | translate }}</span>
+        </button>
+        <button type="button" class="secondary-button add-line" (click)="addLine('CREDIT')">
+          <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'entry_templates.form.add_credit' | translate }}</span>
+        </button>
+      </div>
+    </section>
+
+    @if (current(); as template) {
+      <section class="form-section" *appHasPermission="'journal_entries:create'">
+        <h2 class="form-section-title">{{ 'entry_templates.use.title' | translate }}</h2>
+        <div class="form-grid">
+          <label class="field" for="et-use-date">
+            <span>{{ 'entry_templates.use.date' | translate }} *</span>
+            <vx-date-field inputId="et-use-date" [value]="useDate()" (valueChange)="useDate.set($event ?? '')" />
+          </label>
+          <label class="field" for="et-use-amount">
+            <span>{{ 'entry_templates.use.amount' | translate }} *</span>
+            <input id="et-use-amount" type="number" step="0.01" min="0.01" [ngModel]="useAmount()" [ngModelOptions]="{ standalone: true }"
+                   (ngModelChange)="useAmount.set($event)" />
+          </label>
+          <label class="field" for="et-use-journal">
+            <span>{{ 'entry_templates.use.journal' | translate }} *</span>
+            <select id="et-use-journal" [ngModel]="useJournal()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="useJournal.set($event)">
+              @for (journal of journals(); track journal.id) {
+                <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+              }
+            </select>
+          </label>
+          <label class="field field--wide" for="et-use-description">
+            <span>{{ 'entry_templates.use.description' | translate }}</span>
+            <input id="et-use-description" type="text" maxlength="500" [ngModel]="useDescription()" [ngModelOptions]="{ standalone: true }"
+                   (ngModelChange)="useDescription.set($event)" [placeholder]="template.description" />
+          </label>
+        </div>
+
+        @if (preview().length) {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'entry_templates.form.line_description' | translate }}</th>
+                <th class="numeric">{{ 'entry_templates.form.debit' | translate }}</th>
+                <th class="numeric">{{ 'entry_templates.form.credit' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of preview(); track $index) {
+                <tr>
+                  <td>{{ row.line.description || template.description }}</td>
+                  <td class="numeric">@if (row.line.type === 'DEBIT') { <vx-amount [value]="row.amount" /> }</td>
+                  <td class="numeric">@if (row.line.type === 'CREDIT') { <vx-amount [value]="row.amount" /> }</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        <div class="re-actions">
+          <button type="button" class="primary-button" [disabled]="posting() || !useAmount()" (click)="post()">
+            {{ (posting() ? 'entry_templates.use.posting' : 'entry_templates.use.post') | translate }}
+          </button>
+          @if (lastPosted(); as entry) {
+            <a [routerLink]="entryLink(entry.id)">{{ 'entry_templates.use.view_entry' | translate: { number: entry.entryNumber ?? '' } }}</a>
+          }
+        </div>
+      </section>
+
+      <div class="re-actions">
+        <button *appHasPermission="'journal_entries:edit'" type="button" class="danger-button" (click)="remove()">
+          {{ 'entry_templates.form.delete' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+</vx-draft-shell>

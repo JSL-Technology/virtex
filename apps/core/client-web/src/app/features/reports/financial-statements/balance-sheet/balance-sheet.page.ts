@@ -11,6 +11,7 @@ import {
 } from '../../../../core/api/financial-reporting.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../../shared/components/amount';
+import { VxDimensionFilterComponent } from '../../../accounting/dimensions/dimension-filter.component';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**
@@ -33,7 +34,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDateFieldComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDimensionFilterComponent, VxDateFieldComponent],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +51,8 @@ export class BalanceSheetPage {
   readonly asOfDate = signal(todayIso());
   readonly report = signal<BalanceSheetReport | null>(null);
   readonly loading = signal(true);
+  /** The analytic filter, `{}` for the whole company. */
+  readonly dimensions = signal<Record<string, string>>({});
   readonly failed = signal(false);
 
   readonly isEmpty = computed(() => {
@@ -66,10 +69,15 @@ export class BalanceSheetPage {
     this.load();
   }
 
+  onDimensionFilter(filter: Record<string, string>): void {
+    this.dimensions.set(filter);
+    this.load();
+  }
+
   load(): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.reports.balanceSheet(this.asOfDate()).subscribe({
+    this.reports.balanceSheet(this.asOfDate(), { dimensions: this.dimensions() }).subscribe({
       next: (report) => {
         this.report.set(report);
         this.loading.set(false);
