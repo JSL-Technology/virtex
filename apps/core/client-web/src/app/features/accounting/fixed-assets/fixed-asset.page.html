@@ -1,0 +1,171 @@
+<vx-document-shell
+  [title]="asset() ? asset()!.number + ' · ' + asset()!.name : ('page_titles.fixed_asset' | translate)"
+  [subtitle]="asset()?.description ?? null"
+  [statusKey]="asset() ? statusKey(asset()!.status) : null"
+  [statusTone]="tone()"
+  [loading]="loading()"
+  [error]="error()"
+  backLabelKey="fixed_assets.document.back"
+  (back)="goToList()"
+  (reload)="load()"
+>
+  <ng-container documentActions>
+    @if (asset(); as doc) {
+      @if (inUse()) {
+        <a *appHasPermission="'fixed_assets:manage'" class="secondary-button" [routerLink]="['/accounting/fixed-assets', doc.id, 'edit']">
+          <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'fixed_assets.document.edit' | translate }}</span>
+        </a>
+        <a *appHasPermission="'fixed_assets:dispose'" class="danger-button" [routerLink]="['/accounting/fixed-assets', doc.id, 'dispose']">
+          <lucide-icon [img]="DisposeIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'fixed_assets.document.dispose' | translate }}</span>
+        </a>
+      }
+      @if (deletable()) {
+        <button *appHasPermission="'fixed_assets:manage'" type="button" class="danger-button" [disabled]="busy()" (click)="remove()">
+          <lucide-icon [img]="DeleteIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'fixed_assets.document.delete' | translate }}</span>
+        </button>
+      }
+    }
+  </ng-container>
+
+  @if (asset(); as doc) {
+    <div class="doc-view">
+      @if (!inUse()) {
+        <div class="banner-error doc-void-banner" role="status">
+          <strong>{{ (doc.status === 'SOLD' ? 'fixed_assets.document.sold_banner' : 'fixed_assets.document.disposed_banner') | translate: { date: (doc.disposalDate | vxDate: 'date' : true) } }}</strong>
+          @if (doc.disposalReason) {
+            <span>{{ doc.disposalReason }}</span>
+          }
+          @if (entryLink(doc.disposalJournalEntryId); as link) {
+            <a [routerLink]="link">{{ 'fixed_assets.document.view_disposal_entry' | translate }}</a>
+          }
+        </div>
+      }
+
+      <section class="doc-card">
+        <dl class="doc-facts">
+          <div>
+            <dt>{{ 'fixed_assets.form.cost' | translate }}</dt>
+            <dd><vx-amount [value]="doc.cost" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.page.accumulated' | translate }}</dt>
+            <dd><vx-amount [value]="doc.accumulatedDepreciation" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.page.book_value' | translate }}</dt>
+            <dd><vx-amount [value]="carrying()" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.form.residual_value' | translate }}</dt>
+            <dd><vx-amount [value]="doc.residualValue" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.form.acquisition_date' | translate }}</dt>
+            <dd>{{ doc.acquisitionDate | vxDate: 'date' : true }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.form.in_service_date' | translate }}</dt>
+            <dd>{{ doc.inServiceDate | vxDate: 'date' : true }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.form.useful_life' | translate }}</dt>
+            <dd>{{ 'fixed_assets.document.months' | translate: { count: doc.usefulLifeMonths } }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.form.method' | translate }}</dt>
+            <dd>{{ 'fixed_assets.methods.' + doc.depreciationMethod | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.page.depreciated_through' | translate }}</dt>
+            <dd>{{ doc.depreciatedThrough ? (doc.depreciatedThrough | vxDate: 'monthYear' : true) : '—' }}</dd>
+          </div>
+          @if (doc.openingAccumulatedDepreciation > 0) {
+            <div>
+              <dt>{{ 'fixed_assets.form.opening_accumulated' | translate }}</dt>
+              <dd><vx-amount [value]="doc.openingAccumulatedDepreciation" /></dd>
+            </div>
+          }
+          @if (doc.status === 'SOLD') {
+            <div>
+              <dt>{{ 'fixed_assets.document.proceeds' | translate }}</dt>
+              <dd><vx-amount [value]="doc.disposalProceeds" /></dd>
+            </div>
+          }
+          @if (branches.hasBranches()) {
+            <div>
+              <dt>{{ 'branches.picker.label' | translate }}</dt>
+              <dd><vx-branch-label [branchId]="doc.branchId" /></dd>
+            </div>
+          }
+          @if (doc.vendorBillId) {
+            <div>
+              <dt>{{ 'fixed_assets.document.bill' | translate }}</dt>
+              <dd><a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ 'fixed_assets.document.open_bill' | translate }}</a></dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      <section class="doc-card">
+        <h2 class="form-section-title">{{ 'fixed_assets.document.schedule' | translate }}</h2>
+        @if (schedule(); as board) {
+          @if (inUse() && remaining().months > 0) {
+            <p class="form-hint">
+              {{ 'fixed_assets.document.remaining' | translate: { months: remaining().months, end: (remaining().endsOn | vxDate: 'monthYear' : true) } }}
+            </p>
+          }
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'fixed_assets.document.month' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.document.charge' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.page.accumulated' | translate }}</th>
+                  <th class="numeric">{{ 'fixed_assets.page.book_value' | translate }}</th>
+                  <th>{{ 'fixed_assets.document.entry' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of board.posted; track row.periodEnd) {
+                  <tr>
+                    <td>{{ row.periodEnd | vxDate: 'monthYear' : true }}</td>
+                    <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                    <td class="numeric"><vx-amount [value]="row.accumulatedAfter" /></td>
+                    <td class="numeric"><vx-amount [value]="row.bookValueAfter" /></td>
+                    <td>
+                      @if (entryLink(row.journalEntryId); as link) {
+                        <a [routerLink]="link">{{ 'fixed_assets.document.view_entry' | translate }}</a>
+                      }
+                    </td>
+                  </tr>
+                }
+                @if (showProjection()) {
+                  @for (row of board.projected; track row.periodEnd) {
+                    <tr class="muted">
+                      <td>{{ row.periodEnd | vxDate: 'monthYear' : true }}</td>
+                      <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                      <td class="numeric"><vx-amount [value]="row.accumulatedAfter" /></td>
+                      <td class="numeric"><vx-amount [value]="row.bookValueAfter" /></td>
+                      <td>{{ 'fixed_assets.document.projected' | translate }}</td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (board.posted.length === 0 && !showProjection()) {
+            <p class="form-hint">{{ 'fixed_assets.document.nothing_charged' | translate }}</p>
+          }
+          @if (board.projected.length > 0) {
+            <button type="button" class="secondary-button" (click)="showProjection.set(!showProjection())" [attr.aria-expanded]="showProjection()">
+              {{ (showProjection() ? 'fixed_assets.document.hide_projection' : 'fixed_assets.document.show_projection') | translate: { count: board.projected.length } }}
+            </button>
+          }
+        }
+      </section>
+    </div>
+  }
+</vx-document-shell>

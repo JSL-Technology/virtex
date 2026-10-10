@@ -159,6 +159,11 @@
     "en": "Departments",
     "pt": "Departamentos"
   },
+  "page_titles.depreciation_run": {
+    "es": "Ejecutar depreciación",
+    "en": "Run depreciation",
+    "pt": "Executar depreciação"
+  },
   "page_titles.document_repository": {
     "es": "Repositorio de documentos",
     "en": "Document repository",
@@ -198,6 +203,31 @@
     "es": "Declaraciones fiscales",
     "en": "Fiscal returns",
     "pt": "Declarações fiscais"
+  },
+  "page_titles.fixed_asset": {
+    "es": "Activo fijo",
+    "en": "Fixed asset",
+    "pt": "Ativo imobilizado"
+  },
+  "page_titles.fixed_asset_dispose": {
+    "es": "Baja de activo fijo",
+    "en": "Fixed asset disposal",
+    "pt": "Baixa de ativo imobilizado"
+  },
+  "page_titles.fixed_asset_edit": {
+    "es": "Editar activo fijo",
+    "en": "Edit fixed asset",
+    "pt": "Editar ativo imobilizado"
+  },
+  "page_titles.fixed_asset_new": {
+    "es": "Nuevo activo fijo",
+    "en": "New fixed asset",
+    "pt": "Novo ativo imobilizado"
+  },
+  "page_titles.fixed_assets": {
+    "es": "Activos fijos",
+    "en": "Fixed assets",
+    "pt": "Ativos imobilizados"
   },
   "page_titles.general_ledger": {
     "es": "Libro mayor",

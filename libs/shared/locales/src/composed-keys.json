@@ -510,6 +510,16 @@
       "submitted",
       "changed"
     ],
+    "fixed_assets.methods": [
+      "STRAIGHT_LINE",
+      "DOUBLE_DECLINING_BALANCE",
+      "SUM_OF_YEARS_DIGITS"
+    ],
+    "fixed_assets.status": [
+      "IN_USE",
+      "SOLD",
+      "DISPOSED"
+    ],
     "partner_ledger.kinds": [
       "invoice",
       "credit_note",

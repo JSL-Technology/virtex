@@ -56,4 +56,6 @@ export const DOCUMENT_SEQUENCE_SCOPE = {
   VENDOR_PAYMENT: '00000000-0000-4000-8000-000000000007',
   /** Debit notes raised against a supplier's bill: `ND-2026-000042`. */
   VENDOR_DEBIT_NOTE: '00000000-0000-4000-8000-000000000008',
+  /** The fixed-asset register: `AF-2026-000042`, by year of acquisition. */
+  FIXED_ASSET: '00000000-0000-4000-8000-000000000009',
 } as const;

@@ -1,0 +1,83 @@
+<vx-draft-shell
+  [title]="('fixed_assets.dispose.title' | translate) + (asset() ? ' · ' + asset()!.number : '')"
+  [subtitle]="asset()?.name ?? null"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  saveLabelKey="fixed_assets.dispose.post"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field" for="fd-date">
+          <span>{{ 'fixed_assets.dispose.date' | translate }} *</span>
+          <vx-date-field inputId="fd-date" formControlName="disposalDate" />
+        </label>
+        <label class="field" for="fd-price">
+          <span>{{ 'fixed_assets.dispose.price' | translate }} *</span>
+          <input id="fd-price" type="number" step="0.01" min="0" formControlName="salePrice" />
+          <small class="form-hint">{{ 'fixed_assets.dispose.price_hint' | translate }}</small>
+        </label>
+        <label class="field field--wide" for="fd-reason">
+          <span>{{ 'fixed_assets.dispose.reason' | translate }} *</span>
+          <textarea id="fd-reason" rows="2" maxlength="500" formControlName="disposalReason"
+                    [placeholder]="'fixed_assets.dispose.reason_placeholder' | translate"></textarea>
+        </label>
+      </div>
+    </section>
+
+    @if (outcome(); as result) {
+      <section class="form-section">
+        <h2 class="form-section-title">{{ 'fixed_assets.dispose.entry' | translate }}</h2>
+        <dl class="doc-facts">
+          @if (result.catchUp > 0) {
+            <div class="field--wide">
+              <dt>{{ 'fixed_assets.dispose.catch_up' | translate }}</dt>
+              <dd>{{ 'fixed_assets.dispose.catch_up_months' | translate: { count: result.catchUp } }}</dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'fixed_assets.dispose.carrying' | translate }}</dt>
+            <dd><vx-amount [value]="result.carrying" /></dd>
+          </div>
+          <div>
+            <dt>{{ 'fixed_assets.dispose.price' | translate }}</dt>
+            <dd><vx-amount [value]="result.price" /></dd>
+          </div>
+          <div>
+            <dt>{{ (result.result >= 0 ? 'fixed_assets.dispose.gain' : 'fixed_assets.dispose.loss') | translate }}</dt>
+            <dd><vx-amount [value]="result.result >= 0 ? result.result : -result.result" /></dd>
+          </div>
+        </dl>
+
+        <div class="form-grid">
+          @if (result.price > 0) {
+            <label class="field field--wide" for="fd-cash">
+              <span>{{ 'fixed_assets.dispose.proceeds_account' | translate }} *</span>
+              <vx-select inputId="fd-cash" formControlName="cashAccountId" [search]="searchProceeds" [resolveWith]="resolveAccount"
+                         [displayWith]="accountLabel" [valueWith]="accountId" placeholderKey="fixed_assets.form.select_account" />
+            </label>
+          }
+          @if (result.result > 0) {
+            <label class="field field--wide" for="fd-gain">
+              <span>{{ 'fixed_assets.dispose.gain_account' | translate }} *</span>
+              <vx-select inputId="fd-gain" formControlName="gainOnDisposalAccountId" [search]="searchGain" [resolveWith]="resolveAccount"
+                         [displayWith]="accountLabel" [valueWith]="accountId" placeholderKey="fixed_assets.form.select_account" />
+            </label>
+          }
+          @if (result.result < 0) {
+            <label class="field field--wide" for="fd-loss">
+              <span>{{ 'fixed_assets.dispose.loss_account' | translate }} *</span>
+              <vx-select inputId="fd-loss" formControlName="lossOnDisposalAccountId" [search]="searchLoss" [resolveWith]="resolveAccount"
+                         [displayWith]="accountLabel" [valueWith]="accountId" placeholderKey="fixed_assets.form.select_account" />
+            </label>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</vx-draft-shell>

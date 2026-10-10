@@ -134,3 +134,56 @@ export function moneyLedgerAccounts(accounts: readonly Account[]): Account[] {
   return money.length ? [...money, ...siblings] : bankLedgerAccounts(accounts);
 }
 
+
+/** Postable, active and not blocked: an account that can carry a line at all. */
+function postable(account: Account): boolean {
+  return account.isPostable && !account.isBlockedForPosting && account.isActive;
+}
+
+/**
+ * Where a fixed asset's cost sits: a non-current asset carried on the debit side, and not one of
+ * the accounts a process owns.
+ */
+export function fixedAssetCostAccounts(accounts: readonly Account[]): Account[] {
+  return accounts.filter(
+    (account) =>
+      isChargeable(account) &&
+      account.type === 'ASSET' &&
+      account.category === 'NON_CURRENT_ASSET' &&
+      account.nature === 'DEBIT',
+  );
+}
+
+/**
+ * The contra account a fixed asset's depreciation accumulates in: the one the chart marks for it,
+ * or an asset account of credit nature in a chart that predates the role.
+ */
+export function accumulatedDepreciationAccounts(accounts: readonly Account[]): Account[] {
+  return accounts.filter(
+    (account) =>
+      postable(account) &&
+      account.type === 'ASSET' &&
+      (account.systemRole === 'ACCUMULATED_DEPRECIATION' || (!account.systemRole && account.nature === 'CREDIT')),
+  );
+}
+
+/** Where each month's depreciation is charged: an expense account. */
+export function depreciationExpenseAccounts(accounts: readonly Account[]): Account[] {
+  return accounts.filter(
+    (account) =>
+      postable(account) &&
+      account.type === 'EXPENSE' &&
+      (!account.systemRole || account.systemRole === 'DEPRECIATION_EXPENSE'),
+  );
+}
+
+/** Where the proceeds of selling an asset go: money, or a receivable when it was sold on credit. */
+export function disposalProceedsAccounts(accounts: readonly Account[]): Account[] {
+  const receivables = accounts.filter((account) => postable(account) && account.systemRole === 'ACCOUNTS_RECEIVABLE');
+  return [...moneyLedgerAccounts(accounts), ...receivables];
+}
+
+/** A gain on a disposal is income; a loss is an expense. Neither is an account a process owns. */
+export function disposalResultAccounts(accounts: readonly Account[], side: 'gain' | 'loss'): Account[] {
+  return accounts.filter((account) => isChargeable(account) && account.type === (side === 'gain' ? 'REVENUE' : 'EXPENSE'));
+}
