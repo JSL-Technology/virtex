@@ -472,6 +472,7 @@
   "sidebar.finance.gl_sub.journal": "Asientos",
   "sidebar.finance.gl_sub.journals": "Diarios",
   "sidebar.finance.gl_sub.multi_ledger": "Multilibros",
+  "sidebar.finance.gl_sub.period_close": "Cierre de período",
   "sidebar.finance.gl_sub.periods": "Periodos contables",
   "sidebar.finance.gl_sub.variance_analysis": "Análisis de variaciones",
   "sidebar.finance.statements_sub.balance_sheet": "Balance General",

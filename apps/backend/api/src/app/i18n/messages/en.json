@@ -5884,6 +5884,7 @@
   "sidebar.finance.gl_sub.journal": "Journal Entries",
   "sidebar.finance.gl_sub.journals": "Journals",
   "sidebar.finance.gl_sub.multi_ledger": "Multi-ledger",
+  "sidebar.finance.gl_sub.period_close": "Period Close",
   "sidebar.finance.gl_sub.periods": "Period Management",
   "sidebar.finance.gl_sub.variance_analysis": "Variance analysis",
   "sidebar.finance.statements_sub.balance_sheet": "Balance Sheet",

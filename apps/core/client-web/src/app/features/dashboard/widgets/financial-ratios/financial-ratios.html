@@ -6,9 +6,9 @@
         @for(ratio of ratios(); track ratio.key) {
         <div class="ratio-card">
             <div class="ratio-header">
-                <span class="ratio-name">{{ 'dashboard.financial_ratios.' + ratio.key + '.NAME' | translate }}</span>
+                <span class="ratio-name">{{ ratio.nameKey | translate }}</span>
                 <lucide-icon [img]="InfoIcon" size="14" class="info-icon"
-                    [title]="'dashboard.financial_ratios.' + ratio.key + '.TOOLTIP' | translate"></lucide-icon>
+                    [title]="ratio.tooltipKey | translate"></lucide-icon>
             </div>
             <div class="ratio-value" [ngClass]="ratio.status">{{ ratio.value }}</div>
         </div>

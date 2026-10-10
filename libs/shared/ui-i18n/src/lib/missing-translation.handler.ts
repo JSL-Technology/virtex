@@ -36,6 +36,14 @@ export class VirtexMissingTranslationHandler implements MissingTranslationHandle
   handle(params: MissingTranslationHandlerParams): string {
     const key = params.key;
 
+    // Not a key at all: an already-localized sentence handed straight to the pipe. Several callers
+    // accept either an i18n key or a resolved message and lean on the pipe to pass prose through —
+    // the list shell's `error` input (a key, or a server/`httpErrorMessage` sentence) is the common
+    // one. A catalogue key is dotted lower_snake and never contains whitespace, so a value that
+    // does is prose: return it verbatim and log nothing. There is no entry to miss, and wrapping it
+    // in `[[…]]` or humanising it to its last word would corrupt a message that was already correct.
+    if (/\s/.test(key)) return key;
+
     // A key composed from an API value: `status_label.DRAFT`, `user.role.ADMINISTRATOR`. The
     // catalogue's keys are lower_snake, the enums the API sends are not, and every template that
     // forgot `.toLowerCase()` showed the English identifier — «Draft», «ADMINISTRATOR» — in a

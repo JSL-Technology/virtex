@@ -7,9 +7,18 @@ import { catchError, combineLatest, map, of } from 'rxjs';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { FormatService } from '@virteex/shared/ui-i18n';
 
-/** One ratio, ready to render: a label key, a formatted value and how it reads. */
+/** One ratio, ready to render: its label and tooltip keys, a formatted value and how it reads. */
 interface FinancialRatio {
   key: string;
+  /**
+   * The catalogue holds lower_snake keys with a sentence-derived tooltip slug
+   * (`dashboard.financial_ratios.roe.profit_generated_shareholders_investment`), so each key is
+   * carried explicitly rather than composed in the template from `key + '.NAME'` / `'.TOOLTIP'` —
+   * that spelling had no catalogue entry and surfaced the raw identifier through the missing
+   * translation handler.
+   */
+  nameKey: string;
+  tooltipKey: string;
   value: string;
   status: 'good' | 'warning' | 'danger' | 'neutral';
 }
@@ -67,26 +76,36 @@ export class FinancialRatios {
         // formatter takes a ratio. Passing the figure straight through reported a 4.41 % return
         // as 441 %.
         key: 'ROE',
+        nameKey: 'dashboard.financial_ratios.roe.name',
+        tooltipKey: 'dashboard.financial_ratios.roe.profit_generated_shareholders_investment',
         value: this.percent(ratioOf(figures.roe?.roe)),
         status: band(figures.roe?.roe, 10, 0),
       },
       {
         key: 'ROA',
+        nameKey: 'dashboard.financial_ratios.roa.name',
+        tooltipKey: 'dashboard.financial_ratios.roa.how_efficiently_company_turns_assets_into',
         value: this.percent(ratioOf(figures.roa?.roa)),
         status: band(figures.roa?.roa, 5, 0),
       },
       {
         key: 'CURRENT_RATIO',
+        nameKey: 'dashboard.financial_ratios.current_ratio.name',
+        tooltipKey: 'dashboard.financial_ratios.current_ratio.ability_cover_short_term_debt_ideally',
         value: this.ratio(figures.currentRatio?.currentRatio),
         status: band(figures.currentRatio?.currentRatio, 1.5, 1),
       },
       {
         key: 'QUICK_RATIO',
+        nameKey: 'dashboard.financial_ratios.quick_ratio.name',
+        tooltipKey: 'dashboard.financial_ratios.quick_ratio.ability_cover_short_term_debt_without',
         value: this.ratio(figures.quickRatio?.quickRatio),
         status: band(figures.quickRatio?.quickRatio, 1, 0.8),
       },
       {
         key: 'WORKING_CAPITAL',
+        nameKey: 'dashboard.financial_ratios.working_capital.name',
+        tooltipKey: 'dashboard.financial_ratios.working_capital.what_available_run_business_day_day',
         value: this.money(figures.workingCapital?.workingCapital),
         status: band(figures.workingCapital?.workingCapital, 0.01, 0),
       },

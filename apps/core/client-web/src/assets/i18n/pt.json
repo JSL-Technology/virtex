@@ -5723,6 +5723,7 @@
   "sidebar.finance.gl_sub.journal": "Lançamentos",
   "sidebar.finance.gl_sub.journals": "Diários",
   "sidebar.finance.gl_sub.multi_ledger": "Multilivros",
+  "sidebar.finance.gl_sub.period_close": "Fechamento de período",
   "sidebar.finance.gl_sub.periods": "Períodos contábeis",
   "sidebar.finance.gl_sub.variance_analysis": "Análise de variações",
   "sidebar.finance.statements_sub.balance_sheet": "Balanço Patrimonial",
