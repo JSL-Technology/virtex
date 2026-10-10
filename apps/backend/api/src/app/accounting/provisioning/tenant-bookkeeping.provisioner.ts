@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
 import { ensureFiscalYearWithPeriods } from './fiscal-calendar';
 import { AccountingPeriod, PeriodStatus } from '../entities/accounting-period.entity';
+import { FiscalYear } from '../entities/fiscal-year.entity';
+import { Warehouse } from '../../supply-chain/entities/warehouse.entity';
+import { toIsoDate } from '../../common/dates';
 import { Journal, JournalType } from '../../journal-entries/entities/journal.entity';
 import { Ledger } from '../entities/ledger.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -113,8 +116,42 @@ export class TenantBookkeepingProvisioner {
     await this.provisionJournals(organizationId, language, manager);
     await this.provisionDocumentSequences(organizationId, manager);
     await this.provisionAccountingPeriods(organizationId, new Date(), manager);
+    await this.provisionDefaultWarehouse(organizationId, language, manager);
 
     this.logger.log(`Contabilidad operativa provisionada para la organización ${organizationId}.`);
+  }
+
+  // ── Default warehouse ────────────────────────────────────────────────────────
+
+  /**
+   * The warehouse stock moves through when nothing says otherwise.
+   *
+   * A branch is optional — a Dominican company numbers its e-NCF per taxpayer and may never declare
+   * one — but a stock movement always needs a place, and `StockByWarehouse` made `is_default` the
+   * fallback every product kind, receipt and adjustment resolves to. The `StockByWarehouse`
+   * migration gave every *existing* tenant that fallback; provisioning it here extends the same
+   * invariant to every tenant created afterwards, so the first goods receipt a new company records
+   * never dead-ends for want of a warehouse. Idempotent: a tenant that already has one is left as
+   * it is, and the partial unique index on `is_default` is the backstop against a second.
+   */
+  private async provisionDefaultWarehouse(
+    organizationId: string,
+    language: LanguageCode,
+    manager: EntityManager,
+  ): Promise<void> {
+    const exists = await manager.exists(Warehouse, { where: { organizationId } });
+    if (exists) return;
+
+    await manager.save(
+      manager.create(Warehouse, {
+        organizationId,
+        name: this.i18n.translate('ledger.provisioning.warehouse.main', language),
+        code: 'PRINCIPAL',
+        isActive: true,
+        isDefault: true,
+        branchId: null,
+      }),
+    );
   }
 
   // ── Settings ───────────────────────────────────────────────────────────────
@@ -359,6 +396,27 @@ export class TenantBookkeepingProvisioner {
       .getRepository(DocumentSequence)
       .count({ where: { organizationId, type: DocumentType.CUSTOMER_INVOICE } });
     if (sequences === 0) gaps.push('invoices.gaps.invoice_sequence');
+
+    // A configured chart still cannot post an invoice without a fiscal year and an open period for
+    // the invoice date — the "no pertenece a ningún período" dead end. The posting path now opens a
+    // missing year on demand, but naming these here puts them on the onboarding checklist instead
+    // of letting them surface at the till. `today` is the date a self-service invoice defaults to.
+    const today = toIsoDate(new Date());
+
+    const fiscalYears = await manager
+      .getRepository(FiscalYear)
+      .count({ where: { organizationId } });
+    if (fiscalYears === 0) gaps.push('invoices.gaps.fiscal_year');
+
+    const openPeriodToday = await manager.getRepository(AccountingPeriod).count({
+      where: {
+        organizationId,
+        status: PeriodStatus.OPEN,
+        startDate: LessThanOrEqual(today as unknown as Date),
+        endDate: MoreThanOrEqual(today as unknown as Date),
+      },
+    });
+    if (openPeriodToday === 0) gaps.push('invoices.gaps.open_period');
 
     return gaps;
   }
