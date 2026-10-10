@@ -29,6 +29,10 @@ import { JournalEntryNumberingService } from './journal-entry-numbering.service'
 import { RecurringEntriesProcessor } from './recurring-entries.processor';
 import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
+import { RecurringJournalEntriesService } from './recurring-journal-entries.service';
+import { JournalEntryTemplatesService } from './journal-entry-templates.service';
+import { JournalEntryTemplate } from './entities/journal-entry-template.entity';
+import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 
 /**
  * A recurring template posts its occurrence once, however many times the job is delivered.
@@ -48,6 +52,8 @@ describeWithDb('recurring journal entries', () => {
 
   let dataSource: DataSource;
   let processor: RecurringEntriesProcessor;
+  let recurring: RecurringJournalEntriesService;
+  let templates: JournalEntryTemplatesService;
 
   let organizationId: string;
   let journalId: string;
@@ -80,6 +86,12 @@ describeWithDb('recurring journal entries', () => {
       testExchangeRateResolver(dataSource),
     );
     processor = new RecurringEntriesProcessor(dataSource, entries);
+    recurring = new RecurringJournalEntriesService(
+      new SchedulerLockService(dataSource),
+      dataSource.getRepository(RecurringJournalEntry),
+      { add: jest.fn() } as never,
+    );
+    templates = new JournalEntryTemplatesService(dataSource.getRepository(JournalEntryTemplate), entries, dataSource);
   });
 
   afterAll(async () => {
@@ -238,5 +250,100 @@ describeWithDb('recurring journal entries', () => {
     await run(entry.id, '2026-03-01');
 
     expect(await postedCount()).toBe(1);
+  });
+
+  it('posts the occurrences a catch-up queued in any order, each once', async () => {
+    const entry = await template();
+    // The April job finishing before the March one: March must not look done.
+    await run(entry.id, '2026-04-01');
+    await run(entry.id, '2026-03-01');
+    await run(entry.id, '2026-03-01');
+
+    expect(await postedCount()).toBe(2);
+    const reloaded = await dataSource.getRepository(RecurringJournalEntry).findOneByOrFail({ id: entry.id });
+    expect(reloaded.lastRunDate).toBe('2026-04-01');
+    expect(recurring.dueDates(reloaded, '2026-05-15')).toEqual(['2026-05-01']);
+  });
+
+  it('skips an occurrence queued before the entry was paused', async () => {
+    const entry = await template();
+    await dataSource.getRepository(RecurringJournalEntry).update({ id: entry.id }, { isActive: false });
+    await run(entry.id, '2026-03-01');
+    expect(await postedCount()).toBe(0);
+  });
+
+  it('refuses a recurring entry that could never post, when it is saved', async () => {
+    const base = {
+      description: 'Seguro',
+      journalId,
+      frequency: Frequency.MONTHLY,
+      startDate: '2026-03-15',
+      lines: [
+        { accountId: account['expense'], debit: 1_000, credit: 0 },
+        { accountId: account['payable'], debit: 0, credit: 1_000 },
+      ],
+    };
+    await expect(
+      recurring.create({ ...base, lines: [base.lines[0], { ...base.lines[1], credit: 900 }] } as never, organizationId),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.journal_entry_does_not_balance' });
+    await expect(
+      recurring.create({ ...base, lines: [base.lines[0], { ...base.lines[1], accountId: '00000000-0000-4000-8000-0000000000ff' }] } as never, organizationId),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.stored_line_account_not_found' });
+    await expect(recurring.create({ ...base, endDate: '2026-01-01' } as never, organizationId)).rejects.toMatchObject({
+      messageKey: 'journal_entries.recurring_end_before_start',
+    });
+
+    const saved = await recurring.create(base as never, organizationId);
+    expect(saved.amount).toBe(1_000);
+    expect(saved.nextRunDate).toBe('2026-03-15');
+
+    const paused = await recurring.update(saved.id, { isActive: false } as never, organizationId);
+    expect(paused.isActive).toBe(false);
+    expect(paused.pendingOccurrences).toBe(0);
+  });
+
+  it('splits a template by its percentages so the entry balances', async () => {
+    const rent = await templates.create(
+      {
+        name: 'Alquiler',
+        description: 'Alquiler del local',
+        lines: [
+          { accountId: account['expense'], type: 'DEBIT', percentage: 60 },
+          { accountId: account['expense'], type: 'DEBIT', percentage: 40 },
+          { accountId: account['payable'], type: 'CREDIT' },
+        ],
+      },
+      organizationId,
+    );
+    const posted = await templates.createEntryFromTemplate(
+      rent.id,
+      { date: '2026-03-10', description: 'Alquiler de marzo', amount: 1_000.01, journalId },
+      organizationId,
+      '11111111-1111-4111-8111-111111111111',
+    );
+    const lines = await dataSource.query<{ debit: string; credit: string }[]>(
+      `SELECT debit, credit FROM journal_entry_lines WHERE journal_entry_id = $1 ORDER BY debit DESC, credit DESC`,
+      [posted.id],
+    );
+    expect(lines.map((line) => [Number(line.debit), Number(line.credit)])).toEqual([
+      [600.01, 0],
+      [400, 0],
+      [0, 1_000.01],
+    ]);
+
+    await expect(
+      templates.create(
+        {
+          name: 'Mal',
+          description: 'No suma 100',
+          lines: [
+            { accountId: account['expense'], type: 'DEBIT', percentage: 60 },
+            { accountId: account['expense'], type: 'DEBIT', percentage: 30 },
+            { accountId: account['payable'], type: 'CREDIT' },
+          ],
+        },
+        organizationId,
+      ),
+    ).rejects.toMatchObject({ messageKey: 'journal_entries.template_percentages_must_total_100' });
   });
 });

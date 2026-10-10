@@ -1,0 +1,267 @@
+{
+  "recurring_entries.form.account": {
+    "es": "Cuenta",
+    "en": "Account",
+    "pt": "Conta"
+  },
+  "recurring_entries.form.active": {
+    "es": "Activo (desmárcalo para pausarlo)",
+    "en": "Active (untick to pause it)",
+    "pt": "Ativo (desmarque para pausá-lo)"
+  },
+  "recurring_entries.form.add_line": {
+    "es": "Añadir línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "recurring_entries.form.choose_account": {
+    "es": "Elige una cuenta",
+    "en": "Choose an account",
+    "pt": "Escolha uma conta"
+  },
+  "recurring_entries.form.choose_journal": {
+    "es": "Elige un diario",
+    "en": "Choose a journal",
+    "pt": "Escolha um diário"
+  },
+  "recurring_entries.form.credit": {
+    "es": "Crédito",
+    "en": "Credit",
+    "pt": "Crédito"
+  },
+  "recurring_entries.form.debit": {
+    "es": "Débito",
+    "en": "Debit",
+    "pt": "Débito"
+  },
+  "recurring_entries.form.delete": {
+    "es": "Eliminar asiento recurrente",
+    "en": "Delete recurring entry",
+    "pt": "Excluir lançamento recorrente"
+  },
+  "recurring_entries.form.delete_failed": {
+    "es": "No se pudo eliminar el asiento recurrente.",
+    "en": "The recurring entry could not be deleted.",
+    "pt": "Não foi possível excluir o lançamento recorrente."
+  },
+  "recurring_entries.form.delete_message": {
+    "es": "Se eliminará «{{description}}». Los asientos que ya registró se conservan.",
+    "en": "«{{description}}» will be deleted. The entries it already posted are kept.",
+    "pt": "«{{description}}» será excluído. Os lançamentos já registrados são mantidos."
+  },
+  "recurring_entries.form.delete_title": {
+    "es": "Eliminar asiento recurrente",
+    "en": "Delete recurring entry",
+    "pt": "Excluir lançamento recorrente"
+  },
+  "recurring_entries.form.deleted": {
+    "es": "Asiento recurrente eliminado.",
+    "en": "Recurring entry deleted.",
+    "pt": "Lançamento recorrente excluído."
+  },
+  "recurring_entries.form.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "recurring_entries.form.description_placeholder": {
+    "es": "Alquiler del local, amortización del seguro…",
+    "en": "Office rent, insurance amortisation…",
+    "pt": "Aluguel do imóvel, amortização do seguro…"
+  },
+  "recurring_entries.form.end_date": {
+    "es": "Fecha de fin",
+    "en": "End date",
+    "pt": "Data de término"
+  },
+  "recurring_entries.form.frequency": {
+    "es": "Frecuencia",
+    "en": "Frequency",
+    "pt": "Frequência"
+  },
+  "recurring_entries.form.journal": {
+    "es": "Diario",
+    "en": "Journal",
+    "pt": "Diário"
+  },
+  "recurring_entries.form.line_account_required": {
+    "es": "Línea {{line}}: elige la cuenta.",
+    "en": "Line {{line}}: choose the account.",
+    "pt": "Linha {{line}}: escolha a conta."
+  },
+  "recurring_entries.form.line_description": {
+    "es": "Concepto de la línea",
+    "en": "Line description",
+    "pt": "Descrição da linha"
+  },
+  "recurring_entries.form.lines": {
+    "es": "Líneas del asiento",
+    "en": "Entry lines",
+    "pt": "Linhas do lançamento"
+  },
+  "recurring_entries.form.load_failed": {
+    "es": "No se pudo cargar el asiento recurrente.",
+    "en": "The recurring entry could not be loaded.",
+    "pt": "Não foi possível carregar o lançamento recorrente."
+  },
+  "recurring_entries.form.new": {
+    "es": "Nuevo asiento recurrente",
+    "en": "New recurring entry",
+    "pt": "Novo lançamento recorrente"
+  },
+  "recurring_entries.form.nothing_posted": {
+    "es": "Aún no ha registrado ningún asiento.",
+    "en": "It has not posted any entry yet.",
+    "pt": "Ainda não registrou nenhum lançamento."
+  },
+  "recurring_entries.form.pending_hint": {
+    "es": "Hay {{count}} fecha(s) vencidas sin registrar: la próxima ejecución las registrará. Para omitirlas, mueve la fecha de inicio.",
+    "en": "{{count}} date(s) are due and not yet posted: the next run will post them. To skip them, move the start date.",
+    "pt": "Há {{count}} data(s) vencida(s) sem registro: a próxima execução as registrará. Para pulá-las, mova a data de início."
+  },
+  "recurring_entries.form.posted": {
+    "es": "Asientos registrados",
+    "en": "Entries posted",
+    "pt": "Lançamentos registrados"
+  },
+  "recurring_entries.form.posted_date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "recurring_entries.form.posted_number": {
+    "es": "Asiento",
+    "en": "Entry",
+    "pt": "Lançamento"
+  },
+  "recurring_entries.form.remove_line": {
+    "es": "Quitar línea",
+    "en": "Remove line",
+    "pt": "Remover linha"
+  },
+  "recurring_entries.form.save_failed": {
+    "es": "No se pudo guardar el asiento recurrente.",
+    "en": "The recurring entry could not be saved.",
+    "pt": "Não foi possível salvar o lançamento recorrente."
+  },
+  "recurring_entries.form.saved": {
+    "es": "«{{description}}» guardado.",
+    "en": "«{{description}}» saved.",
+    "pt": "«{{description}}» salvo."
+  },
+  "recurring_entries.form.schedule_hint": {
+    "es": "Se registra cada noche en las fechas que tocan; si un día no se ejecutó, la siguiente ejecución registra las fechas pendientes. Un día 29, 30 o 31 cae en el último día de los meses más cortos.",
+    "en": "It posts each night on the dates due; a day it did not run is posted by the next run. A 29th, 30th or 31st falls on the last day of shorter months.",
+    "pt": "É registrado toda noite nas datas devidas; um dia em que não rodou é registrado na execução seguinte. Um dia 29, 30 ou 31 cai no último dia dos meses mais curtos."
+  },
+  "recurring_entries.form.start_date": {
+    "es": "Fecha de inicio",
+    "en": "Start date",
+    "pt": "Data de início"
+  },
+  "recurring_entries.form.subtitle": {
+    "es": "Un asiento que se registra solo según un calendario: alquiler, seguros, devengos.",
+    "en": "An entry that posts itself on a schedule: rent, insurance, accruals.",
+    "pt": "Um lançamento que se registra sozinho num calendário: aluguel, seguros, provisões."
+  },
+  "recurring_entries.frequency.annually": {
+    "es": "Anual",
+    "en": "Annual",
+    "pt": "Anual"
+  },
+  "recurring_entries.frequency.daily": {
+    "es": "Diaria",
+    "en": "Daily",
+    "pt": "Diária"
+  },
+  "recurring_entries.frequency.monthly": {
+    "es": "Mensual",
+    "en": "Monthly",
+    "pt": "Mensal"
+  },
+  "recurring_entries.frequency.weekly": {
+    "es": "Semanal",
+    "en": "Weekly",
+    "pt": "Semanal"
+  },
+  "recurring_entries.page.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "recurring_entries.page.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "recurring_entries.page.empty_help": {
+    "es": "Crea los asientos que se repiten —alquiler, seguros, devengos— y se registrarán solos.",
+    "en": "Create the entries that repeat — rent, insurance, accruals — and they will post themselves.",
+    "pt": "Crie os lançamentos que se repetem — aluguel, seguros, provisões — e eles se registrarão sozinhos."
+  },
+  "recurring_entries.page.empty_title": {
+    "es": "No hay asientos recurrentes",
+    "en": "No recurring entries",
+    "pt": "Não há lançamentos recorrentes"
+  },
+  "recurring_entries.page.frequency": {
+    "es": "Frecuencia",
+    "en": "Frequency",
+    "pt": "Frequência"
+  },
+  "recurring_entries.page.last_run": {
+    "es": "Último registro",
+    "en": "Last posted",
+    "pt": "Último registro"
+  },
+  "recurring_entries.page.load_failed": {
+    "es": "No se pudieron cargar los asientos recurrentes.",
+    "en": "Recurring entries could not be loaded.",
+    "pt": "Não foi possível carregar os lançamentos recorrentes."
+  },
+  "recurring_entries.page.new": {
+    "es": "Nuevo asiento recurrente",
+    "en": "New recurring entry",
+    "pt": "Novo lançamento recorrente"
+  },
+  "recurring_entries.page.next_run": {
+    "es": "Próximo",
+    "en": "Next",
+    "pt": "Próximo"
+  },
+  "recurring_entries.page.pending": {
+    "es": "{{count}} pendiente(s)",
+    "en": "{{count}} pending",
+    "pt": "{{count}} pendente(s)"
+  },
+  "recurring_entries.page.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "recurring_entries.page.subtitle": {
+    "es": "Asientos que se registran solos según un calendario.",
+    "en": "Entries that post themselves on a schedule.",
+    "pt": "Lançamentos que se registram sozinhos num calendário."
+  },
+  "recurring_entries.page.title": {
+    "es": "Asientos recurrentes",
+    "en": "Recurring entries",
+    "pt": "Lançamentos recorrentes"
+  },
+  "recurring_entries.status.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "recurring_entries.status.ended": {
+    "es": "Terminado",
+    "en": "Ended",
+    "pt": "Encerrado"
+  },
+  "recurring_entries.status.paused": {
+    "es": "En pausa",
+    "en": "Paused",
+    "pt": "Pausado"
+  }
+}

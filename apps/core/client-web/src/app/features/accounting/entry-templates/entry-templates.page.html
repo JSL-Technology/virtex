@@ -1,0 +1,42 @@
+<vx-list-shell
+  titleKey="entry_templates.page.title"
+  subtitleKey="entry_templates.page.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <a listActions *appHasPermission="'journal_entries:create'" routerLink="/accounting/entry-templates/new" class="primary-button">
+    <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'entry_templates.page.new' | translate }}</span>
+  </a>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'entry_templates.page.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'entry_templates.page.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'entry_templates.page.name' | translate }}</th>
+          <th>{{ 'entry_templates.page.description' | translate }}</th>
+          <th class="numeric">{{ 'entry_templates.page.debit_lines' | translate }}</th>
+          <th class="numeric">{{ 'entry_templates.page.credit_lines' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr appRowLink>
+            <td><a class="table-link" [routerLink]="['/accounting/entry-templates', row.id]">{{ row.name }}</a></td>
+            <td>{{ row.description }}</td>
+            <td class="numeric">{{ sideCount(row, 'DEBIT') }}</td>
+            <td class="numeric">{{ sideCount(row, 'CREDIT') }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

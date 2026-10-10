@@ -4,6 +4,7 @@ import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { RecurringJournalEntry } from './entities/recurring-journal-entry.entity';
+import { JournalEntry } from './entities/journal-entry.entity';
 import { JournalEntriesService } from './journal-entries.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -34,8 +35,9 @@ interface RecurringJobData {
  *
  * Two guards now, on purpose:
  *
- * 1. `lastRunDate` is re-read inside the transaction, with the row locked, and a date already
- *    posted returns without doing anything. That handles the ordinary redelivery.
+ * 1. The template is locked and the occurrence's entry looked up by its key inside the
+ *    transaction; one already posted returns without doing anything. That handles the ordinary
+ *    redelivery.
  * 2. The posting carries `recurring:{templateId}:{date}` as its idempotency key, which the unique
  *    index on `journal_entries` enforces. That handles the case the first guard cannot: two
  *    workers processing the same redelivered job at the same instant, where both read the row
@@ -83,13 +85,23 @@ export class RecurringEntriesProcessor extends WorkerHost {
                 throw new NotFoundError('journal_entries.recurring_template_recurring_entry_id_not', { recurringEntryId });
             }
 
+            // Paused after the occurrence was queued: the pause wins.
+            if (!entry.isActive) {
+                this.logger.log(`La plantilla ${entry.id} está en pausa; se omite ${postingDate}.`);
+                return;
+            }
+
             // Already posted for this date. A redelivered job is not a second occurrence of the
-            // rent; it is the same occurrence arriving twice.
-            if (entry.lastRunDate && entry.lastRunDate >= postingDate) {
-                this.logger.log(
-                    `La plantilla ${entry.id} ya se contabilizó hasta ${entry.lastRunDate}; ` +
-                        `se omite ${postingDate}.`,
-                );
+            // rent; it is the same occurrence arriving twice. Asked by the occurrence's own key,
+            // not by «posted up to»: a catch-up queues several dates at once, and a later one
+            // finishing first must not make the earlier ones look done.
+            const idempotencyKey = `recurring:${entry.id}:${postingDate}`;
+            const alreadyPosted = await manager.findOne(JournalEntry, {
+                where: { organizationId: entry.organizationId, idempotencyKey },
+                select: { id: true },
+            });
+            if (alreadyPosted) {
+                this.logger.log(`La plantilla ${entry.id} ya se contabilizó para ${postingDate}; se omite.`);
                 return;
             }
 
@@ -133,12 +145,15 @@ export class RecurringEntriesProcessor extends WorkerHost {
                     // The structural guard. The unique index on (organization, idempotency_key)
                     // makes a second posting of the same occurrence impossible rather than merely
                     // unlikely, which is what the re-read above can only be.
-                    idempotencyKey: `recurring:${entry.id}:${postingDate}`,
+                    idempotencyKey,
                 },
             );
 
-            entry.lastRunDate = postingDate;
-            await manager.save(entry);
+            // The latest occurrence posted, whatever order the catch-up ran in.
+            if (!entry.lastRunDate || toIsoDate(entry.lastRunDate) < postingDate) {
+                entry.lastRunDate = postingDate;
+                await manager.save(entry);
+            }
 
             this.logger.log(`Asiento para plantilla ${entry.id} creado exitosamente.`);
         });

@@ -189,6 +189,21 @@
     "en": "Employees",
     "pt": "Funcionários"
   },
+  "page_titles.entry_template": {
+    "es": "Plantilla de asiento",
+    "en": "Entry template",
+    "pt": "Modelo de lançamento"
+  },
+  "page_titles.entry_template_new": {
+    "es": "Nueva plantilla de asiento",
+    "en": "New entry template",
+    "pt": "Novo modelo de lançamento"
+  },
+  "page_titles.entry_templates": {
+    "es": "Plantillas de asiento",
+    "en": "Entry templates",
+    "pt": "Modelos de lançamento"
+  },
   "page_titles.exchange_rates": {
     "es": "Tipos de cambio",
     "en": "Exchange rates",
@@ -483,6 +498,21 @@
     "es": "Cotizaciones",
     "en": "Quotes",
     "pt": "Cotações"
+  },
+  "page_titles.recurring_entries": {
+    "es": "Asientos recurrentes",
+    "en": "Recurring entries",
+    "pt": "Lançamentos recorrentes"
+  },
+  "page_titles.recurring_entry": {
+    "es": "Asiento recurrente",
+    "en": "Recurring entry",
+    "pt": "Lançamento recorrente"
+  },
+  "page_titles.recurring_entry_new": {
+    "es": "Nuevo asiento recurrente",
+    "en": "New recurring entry",
+    "pt": "Novo lançamento recorrente"
   },
   "page_titles.reports_hub": {
     "es": "Reportes",

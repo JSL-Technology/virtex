@@ -309,6 +309,11 @@
     "en": "The specified dimension rule was not found.",
     "pt": "A regra de dimensão informada não foi encontrada."
   },
+  "dimensions.tags.label": {
+    "es": "Dimensiones de la línea {{line}}",
+    "en": "Dimensions of line {{line}}",
+    "pt": "Dimensões da linha {{line}}"
+  },
   "dimensions.value_cycle": {
     "es": "«{{value}}» no puede depender de sí mismo, directa ni indirectamente.",
     "en": "«{{value}}» cannot roll up into itself, directly or indirectly.",
