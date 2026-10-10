@@ -190,7 +190,7 @@
     "form-data": "^4.0.5",
     "geoip-lite": "^2.0.3",
     "google-libphonenumber": "^3.2.43",
-    "handlebars": "^4.7.8",
+    "handlebars": "^4.7.10",
     "handsontable": "^17.1.0",
     "helmet": "^8.1.0",
     "highcharts": "^12.4.0",
@@ -265,6 +265,16 @@
     "nx": {
       "brace-expansion": "5.0.12",
       "smol-toml": "^1.7.1"
+    },
+    "moment": "2.31.0",
+    "piscina": "^5.3.2",
+    "shell-quote": "^1.11.0",
+    "source-map-js": "^1.2.2",
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "axios": "$axios",
+    "nodemailer": "$nodemailer",
+    "@nestjs/swagger": {
+      "js-yaml": "5.4.1"
     }
   }
 }
