@@ -5,7 +5,6 @@ import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
 import { ensureFiscalYearWithPeriods } from './fiscal-calendar';
 import { AccountingPeriod, PeriodStatus } from '../entities/accounting-period.entity';
 import { FiscalYear } from '../entities/fiscal-year.entity';
-import { Warehouse } from '../../supply-chain/entities/warehouse.entity';
 import { toIsoDate } from '../../common/dates';
 import { Journal, JournalType } from '../../journal-entries/entities/journal.entity';
 import { Ledger } from '../entities/ledger.entity';
@@ -139,11 +138,16 @@ export class TenantBookkeepingProvisioner {
     language: LanguageCode,
     manager: EntityManager,
   ): Promise<void> {
-    const exists = await manager.exists(Warehouse, { where: { organizationId } });
+    // Addressed by the registered entity name rather than the `Warehouse` class: importing
+    // supply-chain's entity here makes accounting depend on inventory and closes an
+    // accounting↔inventory module cycle (inventory already depends on accounting). The seed is a
+    // flat row, so the name keeps provisioning self-contained. See module-boundaries.config.mjs.
+    const warehouse = 'Warehouse';
+    const exists = await manager.exists(warehouse, { where: { organizationId } });
     if (exists) return;
 
     await manager.save(
-      manager.create(Warehouse, {
+      manager.create(warehouse, {
         organizationId,
         name: this.i18n.translate('ledger.provisioning.warehouse.main', language),
         code: 'PRINCIPAL',
