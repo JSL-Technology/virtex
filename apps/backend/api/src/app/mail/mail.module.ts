@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerModule, type MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
@@ -38,11 +38,16 @@ import { MAIL_QUEUE } from './mail.queue';
               }
             : undefined,
         },
+        // `defaults` carries message-level defaults (here, the From header). @nestjs-modules/mailer
+        // types it as nodemailer's transport `Options`, resolved through the `nodemailer/lib/*`
+        // subpaths it imports — paths nodemailer 10 moved to `dist/{cjs,esm}`, so the resolved type
+        // no longer admits a message `from`. The runtime (`createTransport`) is unchanged; this cast
+        // bridges the upstream type lag until @nestjs-modules/mailer ships nodemailer 10 types.
         defaults: {
           from: `"${config.get<string>('MAIL_FROM_NAME', 'Virtex')}" <${config.get<string>(
             'MAIL_FROM_ADDRESS',
           )}>`,
-        },
+        } as MailerOptions['defaults'],
         template: {
           dir: templatesDir,
           // One template per email, in every language: the copy lives in the catalogue and the
