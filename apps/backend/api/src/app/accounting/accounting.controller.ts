@@ -25,6 +25,11 @@ import { AuthenticatedUser } from '../security/principal';
 import { ListPeriodsQueryDto } from './dto/list-periods-query.dto';
 import { ClosingChecklistService } from './closing-checklist.service';
 import { ListFiscalYearsQueryDto } from './dto/list-fiscal-years-query.dto';
+import { DataSource } from 'typeorm';
+import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
+import { Organization } from '../organizations/entities/organization.entity';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { findCountryProfile } from '../localization/fiscal/country-profiles';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
@@ -33,7 +38,42 @@ export class AccountingController {
   constructor(
     private readonly periodClosingService: PeriodClosingService,
     private readonly closingChecklistService: ClosingChecklistService,
+    private readonly dataSource: DataSource,
+    private readonly provisioner: TenantBookkeepingProvisioner,
   ) {}
+
+  /**
+   * Re-run the operational bookkeeping provisioning for the active organization, idempotently.
+   *
+   * The event that provisions a tenant runs once, after the organization is committed and outside
+   * any request; when it fails — a transient database error, a half-applied schema — the tenant is
+   * left able to log in but unable to post, and the handler's own log tells the operator to
+   * "reprovisionar desde Configuración". This is the route that sentence promised and never had.
+   *
+   * Every step the provisioner runs is idempotent, so a healthy tenant is unchanged and a tenant
+   * missing a journal, a sequence, the fiscal calendar or the default warehouse has it created. It
+   * returns the remaining invoicing gaps so the caller can show precisely what is still missing —
+   * notably a chart of accounts, which is applied by the country's fiscal package rather than here,
+   * and so is reported, not silently left.
+   */
+  @Post('reprovision')
+  @HasPermission(PERMISSIONS.ACCOUNTING_MANAGE_LEDGERS)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reprovisiona la contabilidad operativa de la organización (idempotente).' })
+  @ApiResponse({ status: 200, description: 'Huecos de facturación restantes tras reprovisionar.' })
+  async reprovision(@CurrentUser() user: AuthenticatedUser): Promise<{ gaps: string[] }> {
+    return this.dataSource.transaction(async (manager) => {
+      const org = await manager.findOneByOrFail(Organization, { id: user.organizationId });
+      const settings = await manager.findOne(OrganizationSettings, {
+        where: { organizationId: org.id },
+      });
+      const baseCurrency =
+        settings?.baseCurrency ?? findCountryProfile(org.country ?? '')?.currency ?? 'USD';
+      await this.provisioner.provision(org, baseCurrency, manager);
+      const gaps = await this.provisioner.invoicingGaps(org.id, manager);
+      return { gaps };
+    });
+  }
 
   @Get('periods')
   @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)

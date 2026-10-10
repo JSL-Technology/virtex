@@ -363,6 +363,10 @@ export class JournalEntriesService {
         allowClosedPeriod:
           entryData.entryType === JournalEntryType.AUDIT_ADJUSTMENT ||
           context.allowClosedPeriod === true,
+        // A posting into a year nobody has opened yet (next year's first entry, a backlog from a
+        // prior one) opens that year instead of dead-ending. An audit adjustment is exempt: it
+        // targets a closed year whose periods already exist, so there is nothing to create.
+        createIfMissing: entryData.entryType !== JournalEntryType.AUDIT_ADJUSTMENT,
       },
     );
 
@@ -663,6 +667,7 @@ export class JournalEntriesService {
         allowClosedPeriod:
           entry.entryType === JournalEntryType.AUDIT_ADJUSTMENT ||
           context.allowClosedPeriod === true,
+        createIfMissing: entry.entryType !== JournalEntryType.AUDIT_ADJUSTMENT,
       },
     );
 

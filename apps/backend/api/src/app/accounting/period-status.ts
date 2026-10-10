@@ -4,6 +4,8 @@ import {
   ModuleSlug,
   PeriodStatus,
 } from './entities/accounting-period.entity';
+import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
+import { ensureFiscalYearWithPeriods } from './provisioning/fiscal-calendar';
 import { ForbiddenError } from '../i18n/localized.exception';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 
@@ -46,17 +48,28 @@ export async function resolvePostingPeriod(
      * is visible in the ledger rather than being a hole in the period control.
      */
     allowClosedPeriod?: boolean;
+    /**
+     * Open the fiscal year the date belongs to, on demand, when no period covers it yet.
+     *
+     * The calendar of a year nobody has opened used to be a wall: provisioning creates the current
+     * year, the year-end close opens the next, and anything else — a transaction dated into the
+     * following year, a backlog imported from a prior one — hit "la fecha no pertenece a ningún
+     * período" with no way forward from the product. With this set, the year is materialised the
+     * first time a posting needs it, idempotently and in the same calendar-month shape provisioning
+     * uses. The posting paths pass it; the read-only reports that merely ask "is this date open?"
+     * do not. Never materialises a year that is closed or locked (a sealed book), and never one so
+     * far from the present that the date can only be a typo — see {@link materialisePeriodForDate}.
+     */
+    createIfMissing?: boolean;
   } = {},
 ): Promise<AccountingPeriod> {
   const isoDate = toIsoDate(date);
 
-  const period = await manager.findOne(AccountingPeriod, {
-    where: {
-      organizationId,
-      startDate: LessThanOrEqual(isoDate as unknown as Date),
-      endDate: MoreThanOrEqual(isoDate as unknown as Date),
-    },
-  });
+  let period = await findPeriodCovering(manager, organizationId, isoDate);
+
+  if (!period && options.createIfMissing) {
+    period = await materialisePeriodForDate(manager, organizationId, isoDate);
+  }
 
   if (!period) {
     throw new ForbiddenError(
@@ -108,4 +121,68 @@ export function moduleStatusOf(
   module: ModuleSlug,
 ): PeriodStatus {
   return period[moduleStatusColumn(module)] as PeriodStatus;
+}
+
+/** The open/closed period whose window contains `isoDate`, or null. */
+function findPeriodCovering(
+  manager: EntityManager,
+  organizationId: string,
+  isoDate: string,
+): Promise<AccountingPeriod | null> {
+  return manager.findOne(AccountingPeriod, {
+    where: {
+      organizationId,
+      startDate: LessThanOrEqual(isoDate as unknown as Date),
+      endDate: MoreThanOrEqual(isoDate as unknown as Date),
+    },
+  });
+}
+
+/**
+ * How far from the present a posting date may reach and still open its own fiscal year.
+ *
+ * Generous enough for a backlog imported from prior years and for planning a couple ahead; tight
+ * enough that a mistyped year — `2206` for `2026` — is refused instead of conjuring a calendar two
+ * centuries out and twelve periods nobody asked for. A date outside the window still posts if its
+ * period was created deliberately; it simply will not create one by itself.
+ */
+const AUTO_OPEN_YEARS_BACK = 15;
+const AUTO_OPEN_YEARS_AHEAD = 5;
+
+/**
+ * Open, on demand, the fiscal year the date belongs to, and return the period that now covers it.
+ *
+ * Returns null — so the caller raises the ordinary "no period" refusal — when the date is outside
+ * the {@link AUTO_OPEN_YEARS_BACK}/{@link AUTO_OPEN_YEARS_AHEAD} window, or when a fiscal year that
+ * already covers the date is closed or locked. A sealed book is never reopened by a stray posting;
+ * the one entry that may land in a closed period, the audit adjustment, targets a period that
+ * already exists and so never reaches here.
+ */
+async function materialisePeriodForDate(
+  manager: EntityManager,
+  organizationId: string,
+  isoDate: string,
+): Promise<AccountingPeriod | null> {
+  const year = Number(isoDate.slice(0, 4));
+  const thisYear = new Date().getUTCFullYear();
+  if (year < thisYear - AUTO_OPEN_YEARS_BACK || year > thisYear + AUTO_OPEN_YEARS_AHEAD) {
+    return null;
+  }
+
+  const existingYear = await manager.findOne(FiscalYear, {
+    where: {
+      organizationId,
+      startDate: LessThanOrEqual(isoDate as unknown as Date),
+      endDate: MoreThanOrEqual(isoDate as unknown as Date),
+    },
+  });
+  if (existingYear && existingYear.status !== FiscalYearStatus.OPEN) {
+    return null;
+  }
+
+  // The same calendar-month shape provisioning creates, built idempotently: a concurrent posting
+  // on another date in the same year converges on the same fiscal year and twelve periods.
+  await ensureFiscalYearWithPeriods(manager, organizationId, `${year}-01-01`, 12);
+
+  return findPeriodCovering(manager, organizationId, isoDate);
 }

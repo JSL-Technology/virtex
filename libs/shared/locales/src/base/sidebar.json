@@ -64,6 +64,11 @@
     "en": "Multi-ledger",
     "pt": "Multilivros"
   },
+  "sidebar.finance.gl_sub.period_close": {
+    "es": "Cierre de período",
+    "en": "Period Close",
+    "pt": "Fechamento de período"
+  },
   "sidebar.finance.gl_sub.periods": {
     "es": "Periodos contables",
     "en": "Period Management",

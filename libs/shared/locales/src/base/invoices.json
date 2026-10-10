@@ -601,10 +601,20 @@
     "en": "an active fiscal document range (Settings › Electronic invoicing)",
     "pt": "um intervalo de comprovativos fiscais ativo (Definições › Faturação eletrónica)"
   },
+  "invoices.gaps.fiscal_year": {
+    "es": "un año fiscal con sus períodos contables",
+    "en": "a fiscal year with its accounting periods",
+    "pt": "um ano fiscal com os seus períodos contábeis"
+  },
   "invoices.gaps.invoice_sequence": {
     "es": "la secuencia de numeración de facturas",
     "en": "the invoice numbering sequence",
     "pt": "a sequência de numeração de faturas"
+  },
+  "invoices.gaps.open_period": {
+    "es": "un período contable abierto que cubra la fecha de hoy",
+    "en": "an open accounting period covering today's date",
+    "pt": "um período contábil aberto que cubra a data de hoje"
   },
   "invoices.gaps.receivables_account": {
     "es": "la cuenta de Cuentas por Cobrar",

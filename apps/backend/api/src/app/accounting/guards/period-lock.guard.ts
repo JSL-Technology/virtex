@@ -67,11 +67,16 @@ export class PeriodLockGuard implements CanActivate {
     //
     // Every posting reaches the general ledger, so checking GL here is a real early rejection and
     // not a weaker one — it simply is not the whole check, and was never meant to be.
+    // `createIfMissing` so the guard and the service agree: the service opens the fiscal year a
+    // posting needs, and a guard that rejected the very date the service would accept would be a
+    // false wall. This guard only fronts state-changing posting routes, so opening the calendar
+    // here is the same idempotent write the service would do a moment later, just earlier.
     const period = await resolvePostingPeriod(
       this.periodRepo.manager,
       organizationId,
       transactionDate,
       ModuleSlug.GL,
+      { createIfMissing: true },
     );
 
     const accountIds = ((body?.lines ?? []) as Array<{ accountId?: string }>)

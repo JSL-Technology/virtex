@@ -389,6 +389,11 @@
     "en": "Sales Journal",
     "pt": "Diário de Vendas"
   },
+  "ledger.provisioning.warehouse.main": {
+    "es": "Almacén principal",
+    "en": "Main warehouse",
+    "pt": "Armazém principal"
+  },
   "ledger.purchase.bill": {
     "es": "Factura de proveedor {{number}}",
     "en": "Vendor bill {{number}}",
