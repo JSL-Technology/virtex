@@ -181,6 +181,18 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:partner-ledger',
       load: () => import('../../../features/accounting/partner-ledger/partner-ledger.page').then((m) => m.PartnerLedgerPage),
     },
+    // Analytic dimensions (audit H-21): cost centres, projects… their values, and the accounts that
+    // require one. The cost-centre register they replace had no screen and no use.
+    {
+      path: 'dimensions',
+      kind: WindowKind.LIST,
+      permission: 'dimensions:view',
+      titleKey: 'page_titles.dimensions',
+      icon: 'Network',
+      entityKeyFn: () => 'contabilidad:dimensions',
+      menu: { group: 'configuration', labelKey: 'page_titles.dimensions' },
+      load: () => import('../../../features/accounting/dimensions/dimensions.page').then((m) => m.DimensionsPage),
+    },
     {
       path: 'ledgers',
       kind: WindowKind.LIST,

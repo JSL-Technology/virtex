@@ -24,10 +24,6 @@ export const ACCOUNTING_PERMISSIONS = {
   AUDIT_PROPOSE_ADJUSTMENT: 'audit:propose_adjustment',
   AUDIT_APPROVE_ADJUSTMENT: 'audit:approve_adjustment',
 
-  /** Read the cost/profit-centre register that classifies analytical postings. */
-  COST_ACCOUNTING_VIEW: 'cost_accounting:view',
-  COST_ACCOUNTING_MANAGE: 'cost_accounting:manage',
-
   /**
    * Analytical dimensions and the rules that map them onto accounts. Editing a rule changes how
    * every future posting is classified, so it is a reporting-integrity control, not a preference.

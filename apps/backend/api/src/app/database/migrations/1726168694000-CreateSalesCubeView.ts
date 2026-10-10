@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { Dimension } from '../../dimensions/entities/dimension.entity';
 
 export class RefactorAnalyticalViewForDynamicDimensions1726168695000 implements MigrationInterface {
     name = 'RefactorAnalyticalViewForDynamicDimensions1726168695000'
@@ -10,7 +9,10 @@ export class RefactorAnalyticalViewForDynamicDimensions1726168695000 implements 
         await queryRunner.query(`DROP VIEW IF EXISTS "sales_cube_view"`);
 
 
-        const dimensions = await queryRunner.manager.find(Dimension);
+        // Raw SQL, not the entity: a migration runs against the schema of ITS moment, and the entity
+        // describes today's. Reading `Dimension` failed the whole chain the day the entity gained a
+        // column this migration predates.
+        const dimensions: Array<{ name: string }> = await queryRunner.query(`SELECT "name" FROM "dimensions"`);
         let dynamicDimensionColumns = '';
         if (dimensions.length > 0) {
             dynamicDimensionColumns = dimensions

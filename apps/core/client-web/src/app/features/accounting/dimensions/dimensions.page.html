@@ -1,0 +1,199 @@
+<vx-list-shell
+  titleKey="dimensions.page.title"
+  subtitleKey="dimensions.page.subtitle"
+  [count]="list().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <button listActions *appHasPermission="'dimensions:manage'" type="button" class="primary-button" (click)="startNew()">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'dimensions.page.new' | translate }}</span>
+  </button>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'dimensions.page.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'dimensions.page.empty_help' | translate }}</p>
+  </div>
+
+  <div class="dm-layout">
+    <div class="table-container card dm-list">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'dimensions.page.name' | translate }}</th>
+            <th class="numeric">{{ 'dimensions.page.values' | translate }}</th>
+            <th>{{ 'dimensions.page.status' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (dimension of list(); track dimension.id) {
+            <tr [class.dm-selected]="draft()?.id === dimension.id">
+              <td><button type="button" class="table-link dm-link" (click)="select(dimension)">{{ dimension.name }}</button></td>
+              <td class="numeric">{{ activeCount(dimension) }} / {{ dimension.values.length }}</td>
+              <td>
+                <vx-badge [tone]="dimension.isActive ? 'ok' : 'neutral'">
+                  {{ (dimension.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+                </vx-badge>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (draft(); as edit) {
+      <section class="card dm-editor" [attr.aria-label]="'dimensions.page.editor' | translate">
+        <div class="form-grid">
+          <label class="field" for="dm-name">
+            <span>{{ 'dimensions.page.name' | translate }} *</span>
+            <input id="dm-name" type="text" maxlength="64" [ngModel]="edit.name" (ngModelChange)="patch({ name: $event })"
+                   [disabled]="edit.inUse || !canManage()" [placeholder]="'dimensions.page.name_placeholder' | translate" />
+            @if (edit.inUse) {
+              <small class="form-hint">{{ 'dimensions.page.name_locked' | translate }}</small>
+            }
+          </label>
+          <label class="doc-check">
+            <input type="checkbox" [ngModel]="edit.isActive" (ngModelChange)="patch({ isActive: $event })" [disabled]="!canManage()" />
+            {{ 'dimensions.page.active' | translate }}
+          </label>
+          <label class="field field--wide" for="dm-description">
+            <span>{{ 'dimensions.page.description' | translate }}</span>
+            <textarea id="dm-description" rows="2" maxlength="2000" [ngModel]="edit.description"
+                      (ngModelChange)="patch({ description: $event })" [disabled]="!canManage()"></textarea>
+          </label>
+        </div>
+
+        <h2 class="form-section-title">{{ 'dimensions.page.values' | translate }}</h2>
+        <p class="form-hint">{{ 'dimensions.page.values_hint' | translate }}</p>
+        <div class="table-wrapper">
+          <table class="data-table dm-values">
+            <thead>
+              <tr>
+                <th>{{ 'dimensions.page.code' | translate }} *</th>
+                <th>{{ 'dimensions.page.label' | translate }}</th>
+                <th>{{ 'dimensions.page.parent' | translate }}</th>
+                <th>{{ 'dimensions.page.active' | translate }}</th>
+                <th><span class="sr-only">{{ 'dimensions.page.remove' | translate }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of tree(); track $index) {
+                @let index = indexOf(row.value);
+                <tr>
+                  <td>
+                    <input type="text" maxlength="64" class="dm-code" [style.margin-inline-start.rem]="row.depth * 1.25"
+                           [attr.aria-label]="'dimensions.page.code' | translate" [ngModel]="row.value.value"
+                           (ngModelChange)="patchValue(index, { value: $event })" [disabled]="!!row.value.inUse || !canManage()" />
+                  </td>
+                  <td>
+                    <input type="text" maxlength="200" [attr.aria-label]="'dimensions.page.label' | translate" [ngModel]="row.value.name ?? ''"
+                           (ngModelChange)="patchValue(index, { name: $event })" [disabled]="!canManage()" />
+                  </td>
+                  <td>
+                    <select [attr.aria-label]="'dimensions.page.parent' | translate" [ngModel]="row.value.parent ?? ''"
+                            (ngModelChange)="patchValue(index, { parent: $event || null })" [disabled]="!canManage()">
+                      <option value="">{{ 'dimensions.page.no_parent' | translate }}</option>
+                      @for (option of parentOptions(row.value); track option.value) {
+                        <option [value]="option.value">{{ option.value }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <input type="checkbox" [attr.aria-label]="'dimensions.page.active' | translate" [ngModel]="row.value.isActive"
+                           (ngModelChange)="patchValue(index, { isActive: $event })" [disabled]="!canManage()" />
+                  </td>
+                  <td>
+                    @if (!row.value.inUse && canManage()) {
+                      <button type="button" class="icon-button" (click)="removeValue(index)" [attr.aria-label]="'dimensions.page.remove' | translate">
+                        <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (canManage()) {
+          <button type="button" class="secondary-button add-line" (click)="addValue()">
+            <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+            <span>{{ 'dimensions.page.add_value' | translate }}</span>
+          </button>
+        }
+
+        @if (problem(); as key) {
+          <p class="banner-error" role="alert">{{ key | translate }}</p>
+        }
+
+        <div class="dm-actions">
+          @if (canManage()) {
+            <button type="button" class="primary-button" [disabled]="saving()" (click)="save()">
+              {{ (saving() ? 'dimensions.page.saving' : 'dimensions.page.save') | translate }}
+            </button>
+            @if (edit.id && !edit.inUse) {
+              <button type="button" class="danger-button" (click)="remove()">{{ 'dimensions.page.delete' | translate }}</button>
+            }
+          }
+          <button type="button" class="secondary-button" (click)="closeEditor()">{{ 'dimensions.page.close' | translate }}</button>
+        </div>
+      </section>
+    }
+  </div>
+
+  <section class="card dm-rules" [attr.aria-label]="'dimensions.rules.title' | translate">
+    <h2 class="form-section-title">{{ 'dimensions.rules.title' | translate }}</h2>
+    <p class="form-hint">{{ 'dimensions.rules.hint' | translate }}</p>
+    @if (canManage()) {
+      <div class="dm-rule-form">
+        <div class="doc-filter doc-filter--wide">
+          <label for="dm-rule-account">{{ 'dimensions.rules.account' | translate }}</label>
+          <vx-select inputId="dm-rule-account" [ngModel]="ruleAccount()" (ngModelChange)="ruleAccount.set($event)"
+                     [search]="searchAccounts" [resolveWith]="resolveAccount" [displayWith]="accountLabel" [valueWith]="accountId"
+                     placeholderKey="dimensions.rules.choose_account" />
+        </div>
+        <div class="doc-filter">
+          <label for="dm-rule-dimension">{{ 'dimensions.rules.dimension' | translate }}</label>
+          <select id="dm-rule-dimension" [ngModel]="ruleDimension()" (ngModelChange)="ruleDimension.set($event)">
+            <option value="">{{ 'dimensions.rules.choose_dimension' | translate }}</option>
+            @for (dimension of list(); track dimension.id) {
+              <option [value]="dimension.id">{{ dimension.name }}</option>
+            }
+          </select>
+        </div>
+        <button type="button" class="secondary-button" [disabled]="!ruleAccount() || !ruleDimension()" (click)="addRule()">
+          {{ 'dimensions.rules.add' | translate }}
+        </button>
+      </div>
+    }
+    @if (rules().length) {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'dimensions.rules.account' | translate }}</th>
+            <th>{{ 'dimensions.rules.dimension' | translate }}</th>
+            <th><span class="sr-only">{{ 'dimensions.page.remove' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track rule.accountId + rule.dimensionId) {
+            <tr>
+              <td>{{ rule.accountCode }} — {{ accountName(rule.accountName) }}</td>
+              <td>{{ rule.dimensionName }}</td>
+              <td>
+                @if (canManage()) {
+                  <button type="button" class="icon-button" (click)="removeRule(rule)" [attr.aria-label]="'dimensions.page.remove' | translate">
+                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted">{{ 'dimensions.rules.none' | translate }}</p>
+    }
+  </section>
+</vx-list-shell>

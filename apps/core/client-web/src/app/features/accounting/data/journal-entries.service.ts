@@ -25,6 +25,8 @@ export interface JournalEntryLine {
   debit: number | string;
   credit: number | string;
   description?: string;
+  /** Analytic tags: `{"Centro de Costo": "VENTAS"}`. */
+  dimensions?: Record<string, string> | null;
 }
 
 export interface JournalEntry {

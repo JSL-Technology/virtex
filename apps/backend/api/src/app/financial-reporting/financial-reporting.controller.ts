@@ -11,6 +11,7 @@ import {
   BalanceSheetQueryDto,
   DimensionalPeriodQueryDto,
   PeriodQueryDto,
+  parseDimensionFilters,
 } from './dto/financial-report-query.dto';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { AuditAccess } from '../audit/audit-access.decorator';
@@ -126,10 +127,7 @@ export class FinancialReportingController {
   }
 
   /** Only the dimensions the caller actually named; an absent filter is not a filter on `undefined`. */
-  private dimensionsOf(query: { costCenterId?: string; projectId?: string }): DimensionFilters {
-    const filters: DimensionFilters = {};
-    if (query.costCenterId) filters['costCenterId'] = query.costCenterId;
-    if (query.projectId) filters['projectId'] = query.projectId;
-    return filters;
+  private dimensionsOf(query: { dimension?: string[] }): DimensionFilters {
+    return parseDimensionFilters(query.dimension);
   }
 }

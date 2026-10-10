@@ -164,6 +164,11 @@
     "en": "Run depreciation",
     "pt": "Executar depreciação"
   },
+  "page_titles.dimensions": {
+    "es": "Dimensiones analíticas",
+    "en": "Analytic dimensions",
+    "pt": "Dimensões analíticas"
+  },
   "page_titles.document_repository": {
     "es": "Repositorio de documentos",
     "en": "Document repository",

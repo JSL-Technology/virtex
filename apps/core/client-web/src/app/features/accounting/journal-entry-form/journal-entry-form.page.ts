@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
@@ -19,6 +19,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
 import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
+import { Dimension, DimensionValue, DimensionsService, valueLabel, valueTree } from '../data/dimensions.service';
 import { Observable } from 'rxjs';
 
 // Validador personalizado para el asiento contable
@@ -88,6 +89,7 @@ export class JournalEntryFormPage implements OnInit {
   private chartOfAccountsService = inject(ChartOfAccountsApiService);
   private ledgersService = inject(LedgersService);
   private journalsService = inject(JournalsService);
+  private dimensionsService = inject(DimensionsService);
   /** Optional: the page is also reachable through the router outlet, where there is no tab. */
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -117,6 +119,19 @@ export class JournalEntryFormPage implements OnInit {
   journals = signal<Journal[]>([]);
   totalDebit = signal(0);
   totalCredit = signal(0);
+
+  /**
+   * The dimensions a line can be tagged with (audit H-21): the active ones, each with its active
+   * values in tree order. A line of an entry being modified keeps a value retired since, so it
+   * still shows what the line carries.
+   */
+  readonly tagDimensions = signal<Dimension[]>([]);
+  /** Which dimensions each account requires, from the rules — the server checks them again. */
+  readonly requiredByAccount = signal<Map<string, string[]>>(new Map());
+  /** Whether the tagging row under each line is open. Opens itself when there is something to say. */
+  readonly showDimensions = signal(false);
+  readonly hasDimensions = computed(() => this.tagDimensions().length > 0);
+  protected readonly valueLabel = valueLabel;
 
   ngOnInit(): void {
     const today = new Date().toISOString().split('T')[0];
@@ -190,12 +205,14 @@ export class JournalEntryFormPage implements OnInit {
             description: line.description ?? '',
             debit: Number(line.debit) || 0,
             credit: Number(line.credit) || 0,
+            dimensions: { ...(line.dimensions ?? {}) },
           });
           this.lines.push(group);
         }
         //  Un asiento siempre tiene al menos dos líneas, pero un asiento roto no puede dejar el
         //  formulario sin ninguna: sin filas no hay dónde escribir la corrección.
         while (this.lines.length < 2) this.addLine();
+        this.revealTagsWhenUsed();
 
         this.entryForm.markAsPristine();
       },
@@ -240,6 +257,31 @@ export class JournalEntryFormPage implements OnInit {
       },
       error: () => this.notificationService.showError('accounting.journal_entry_form.ledgers_load_failed')
     });
+    // Tagging is optional context: an entry must still be writable when dimensions cannot load,
+    // or the user cannot read them. The server validates the tags either way.
+    this.dimensionsService.forTagging().subscribe({
+      next: (list) => {
+        this.tagDimensions.set(
+          list
+            .filter((dimension) => dimension.isActive)
+            .map((dimension) => ({ ...dimension, values: dimension.values.filter((value) => value.isActive) })),
+        );
+        this.revealTagsWhenUsed();
+      },
+      error: () => this.tagDimensions.set([]),
+    });
+    this.dimensionsService.rules().subscribe({
+      next: (rules) => {
+        const byAccount = new Map<string, string[]>();
+        for (const rule of rules) {
+          if (!rule.isRequired) continue;
+          byAccount.set(rule.accountId, [...(byAccount.get(rule.accountId) ?? []), rule.dimensionName]);
+        }
+        this.requiredByAccount.set(byAccount);
+        this.revealTagsWhenUsed();
+      },
+      error: () => this.requiredByAccount.set(new Map()),
+    });
     this.journalsService.getJournals().subscribe({
       next: data => this.journals.set(data),
       error: () => this.notificationService.showError('accounting.journal_entry_form.journals_load_failed')
@@ -256,7 +298,62 @@ export class JournalEntryFormPage implements OnInit {
       description: [''],
       debit: [0, [Validators.required, Validators.min(0)]],
       credit: [0, [Validators.required, Validators.min(0)]],
+      dimensions: [{} as Record<string, string>],
     });
+  }
+
+  /** The line's value for a dimension, or empty. */
+  lineTag(index: number, dimension: string): string {
+    const tags = (this.lines.at(index)?.get('dimensions')?.value ?? {}) as Record<string, string>;
+    return tags[dimension] ?? '';
+  }
+
+  setLineTag(index: number, dimension: string, value: string): void {
+    const control = this.lines.at(index)?.get('dimensions');
+    if (!control) return;
+    const tags = { ...((control.value ?? {}) as Record<string, string>) };
+    if (value) tags[dimension] = value;
+    else delete tags[dimension];
+    control.setValue(tags);
+    control.markAsDirty();
+  }
+
+  /** The dimensions the account on this line requires. */
+  requiredFor(index: number): string[] {
+    const accountId = this.lines.at(index)?.get('accountId')?.value as string | undefined;
+    return accountId ? (this.requiredByAccount().get(accountId) ?? []) : [];
+  }
+
+  /** The values to offer for a dimension on a line: the active ones, plus the one it already carries. */
+  tagOptions(index: number, dimension: Dimension): Array<{ value: DimensionValue; depth: number }> {
+    const current = this.lineTag(index, dimension.name);
+    const values =
+      current && !dimension.values.some((value) => value.value === current)
+        ? [...dimension.values, { value: current, name: null, isActive: false, parent: null }]
+        : dimension.values;
+    return valueTree(values);
+  }
+
+  /** `  ` per level, so a child reads under its parent in a native select. */
+  indent(depth: number): string {
+    return '\u00a0\u00a0'.repeat(depth);
+  }
+
+  /** Lines missing a dimension their account requires: line number and dimension. */
+  missingTags(): Array<{ line: number; dimension: string }> {
+    const missing: Array<{ line: number; dimension: string }> = [];
+    this.lines.controls.forEach((_, index) => {
+      for (const dimension of this.requiredFor(index)) {
+        if (!this.lineTag(index, dimension)) missing.push({ line: index + 1, dimension });
+      }
+    });
+    return missing;
+  }
+
+  private revealTagsWhenUsed(): void {
+    if (!this.hasDimensions()) return;
+    const tagged = this.lines?.controls.some((line) => Object.keys(line.get('dimensions')?.value ?? {}).length > 0);
+    if (tagged || this.requiredByAccount().size > 0) this.showDimensions.set(true);
   }
 
   addLine(): void {
@@ -297,6 +394,19 @@ export class JournalEntryFormPage implements OnInit {
           debit: 'accounting.journal_entry_form.debit_column',
           credit: 'accounting.journal_entry_form.credit_column',
         }).filter((problem) => problem.fieldId !== 'lines'),
+      );
+      return;
+    }
+
+    // A dimension the account requires, said per line before the round trip.
+    const missing = this.missingTags();
+    if (missing.length) {
+      this.showDimensions.set(true);
+      this.problems.set(
+        missing.map((gap) => ({
+          message: 'accounting.journal_entry_form.dimension_required',
+          params: gap,
+        })),
       );
       return;
     }

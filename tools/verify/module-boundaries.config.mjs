@@ -57,7 +57,6 @@ export const MODULE_OF_FOLDER = {
   consolidation: 'contabilidad',
   intercompany: 'contabilidad',
   'fixed-assets': 'contabilidad',
-  'cost-accounting': 'contabilidad',
   dimensions: 'contabilidad',
   'batch-processes': 'contabilidad',
 

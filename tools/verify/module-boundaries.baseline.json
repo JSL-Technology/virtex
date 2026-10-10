@@ -1,10 +1,10 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1240,
+  "total": 1237,
   "byRule": {
-    "private-import": 500,
+    "private-import": 498,
     "private-import:spec": 233,
-    "forbidden-dependency": 241,
+    "forbidden-dependency": 240,
     "forbidden-dependency:spec": 91,
     "module-cycle": 14,
     "foreign-entity-registration": 29,
@@ -12,7 +12,7 @@
     "forward-ref": 30
   },
   "counts": {
-    "private-import|contabilidad|identidad": 58,
+    "private-import|contabilidad|identidad": 57,
     "private-import|contabilidad|configuracion": 25,
     "private-import:spec|contabilidad|identidad": 25,
     "private-import:spec|contabilidad|configuracion": 20,
@@ -63,7 +63,7 @@
     "private-import:spec|ventas|contabilidad": 23,
     "private-import:spec|ventas|configuracion": 7,
     "private-import|plataforma|identidad": 13,
-    "forbidden-dependency|plataforma|contabilidad": 3,
+    "forbidden-dependency|plataforma|contabilidad": 2,
     "private-import|ventas|finanzas": 2,
     "forbidden-dependency|ventas|compras": 1,
     "private-import|ventas|compras": 1,
@@ -80,7 +80,6 @@
     "private-import|reportes|identidad": 17,
     "forbidden-dependency|reportes|inventario": 5,
     "private-import|reportes|inventario": 4,
-    "private-import|plataforma|contabilidad": 2,
     "forbidden-dependency|plataforma|inventario": 4,
     "private-import|plataforma|inventario": 3,
     "forbidden-dependency|reportes|compras": 5,
@@ -117,6 +116,7 @@
     "private-import|rrhh|identidad": 2,
     "forbidden-dependency|plataforma|ventas": 5,
     "private-import|plataforma|ventas": 3,
+    "private-import|plataforma|contabilidad": 1,
     "forbidden-dependency|plataforma|finanzas": 1,
     "private-import|plataforma|finanzas": 1,
     "forbidden-dependency|plataforma|rrhh": 1,

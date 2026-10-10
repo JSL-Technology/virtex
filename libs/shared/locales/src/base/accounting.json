@@ -1305,6 +1305,11 @@
     "en": "Description",
     "pt": "Descrição"
   },
+  "accounting.journal_entry_form.dimension_required": {
+    "es": "Línea {{line}}: la cuenta exige la dimensión «{{dimension}}».",
+    "en": "Line {{line}}: the account requires the «{{dimension}}» dimension.",
+    "pt": "Linha {{line}}: a conta exige a dimensão «{{dimension}}»."
+  },
   "accounting.journal_entry_form.edit_title": {
     "es": "Editar Asiento Contable",
     "en": "Edit Journal Entry",
@@ -1330,6 +1335,11 @@
     "en": "The entry could not be loaded.",
     "pt": "Não foi possível carregar o lançamento."
   },
+  "accounting.journal_entry_form.hide_dimensions": {
+    "es": "Ocultar dimensiones",
+    "en": "Hide dimensions",
+    "pt": "Ocultar dimensões"
+  },
   "accounting.journal_entry_form.journal_label": {
     "es": "Diario",
     "en": "Journal",
@@ -1354,6 +1364,11 @@
     "es": "Cada línea lleva un débito o un crédito, no ambos. Revisa la(s) línea(s) {{lines}}.",
     "en": "Each line carries a debit or a credit, not both. Check line(s) {{lines}}.",
     "pt": "Cada linha leva um débito ou um crédito, não ambos. Verifique a(s) linha(s) {{lines}}."
+  },
+  "accounting.journal_entry_form.line_dimensions": {
+    "es": "Dimensiones de la línea {{line}}",
+    "en": "Dimensions of line {{line}}",
+    "pt": "Dimensões da linha {{line}}"
   },
   "accounting.journal_entry_form.modification_reason_label": {
     "es": "Razón de la modificación",
@@ -1389,6 +1404,11 @@
     "es": "Selecciona un libro mayor",
     "en": "Select a ledger",
     "pt": "Selecione um livro razão"
+  },
+  "accounting.journal_entry_form.show_dimensions": {
+    "es": "Dimensiones",
+    "en": "Dimensions",
+    "pt": "Dimensões"
   },
   "accounting.journal_entry_form.title": {
     "es": "Nuevo Asiento Contable",

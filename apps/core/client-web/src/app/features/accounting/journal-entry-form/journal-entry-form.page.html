@@ -127,6 +127,37 @@
                 </button>
               </td>
             </tr>
+            <!--
+              Las dimensiones analíticas de la línea (auditoría H-21): centro de costo, proyecto…
+              No existía forma de ponerlas desde la pantalla, así que ningún asiento manual llegaba
+              al análisis por dimensión ni al control presupuestario por centro de costo.
+            -->
+            @if (showDimensions() && hasDimensions()) {
+              @let lineIndex = $index;
+              @let required = requiredFor(lineIndex);
+              <tr class="line-tags">
+                <td colspan="5">
+                  <div class="line-tags__grid" role="group"
+                       [attr.aria-label]="'accounting.journal_entry_form.line_dimensions' | translate: { line: lineIndex + 1 }">
+                    @for (dimension of tagDimensions(); track dimension.id) {
+                      <label class="line-tags__field">
+                        <span>{{ dimension.name }}@if (required.includes(dimension.name)) { * }</span>
+                        <select [value]="lineTag(lineIndex, dimension.name)"
+                                [class.line-tags__missing]="required.includes(dimension.name) && !lineTag(lineIndex, dimension.name) && entryForm.touched"
+                                (change)="setLineTag(lineIndex, dimension.name, $any($event.target).value)">
+                          <option value="">—</option>
+                          @for (option of tagOptions(lineIndex, dimension); track option.value.value) {
+                            <option [value]="option.value.value" [selected]="option.value.value === lineTag(lineIndex, dimension.name)">
+                              {{ indent(option.depth) }}{{ valueLabel(option.value) }}
+                            </option>
+                          }
+                        </select>
+                      </label>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
           }
         </tbody>
         <tfoot>
@@ -136,6 +167,11 @@
                 <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
                 {{ 'accounting.journal_entry_form.add_line' | translate }}
               </button>
+              @if (hasDimensions()) {
+                <button type="button" class="secondary-button" (click)="showDimensions.set(!showDimensions())" [attr.aria-pressed]="showDimensions()">
+                  {{ (showDimensions() ? 'accounting.journal_entry_form.hide_dimensions' : 'accounting.journal_entry_form.show_dimensions') | translate }}
+                </button>
+              }
             </td>
             <td class="text-right"><strong>{{ 'accounting.journal_entry_form.totals' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
             <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>

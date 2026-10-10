@@ -189,6 +189,16 @@
     "en": "The import was confirmed and processed.",
     "pt": "A importação foi confirmada e processada."
   },
+  "journal_entries.inactive_dimension": {
+    "es": "La dimensión «{{dimension}}» está inactiva y no se puede usar en nuevos asientos.",
+    "en": "Dimension «{{dimension}}» is inactive and cannot be used on new entries.",
+    "pt": "A dimensão «{{dimension}}» está inativa e não pode ser usada em novos lançamentos."
+  },
+  "journal_entries.inactive_dimension_value": {
+    "es": "El valor «{{value}}» de «{{dimension}}» está retirado y no se puede usar en nuevos asientos.",
+    "en": "Value «{{value}}» of «{{dimension}}» is retired and cannot be used on new entries.",
+    "pt": "O valor «{{value}}» de «{{dimension}}» está desativado e não pode ser usado em novos lançamentos."
+  },
   "journal_entries.journal_code_fixed_once_used": {
     "es": "El diario ya tiene {{count}} asiento(s) numerados con su código: el código no puede cambiar.",
     "en": "The journal already has {{count}} entry(ies) numbered with its code: the code cannot change.",
@@ -333,6 +343,16 @@
     "es": "No se pudo obtener el Query Runner de la transacción.",
     "en": "The transaction's query runner could not be obtained.",
     "pt": "Não foi possível obter o query runner da transação."
+  },
+  "journal_entries.unknown_dimension": {
+    "es": "La dimensión «{{dimension}}» no existe en esta empresa.",
+    "en": "Dimension «{{dimension}}» does not exist in this company.",
+    "pt": "A dimensão «{{dimension}}» não existe nesta empresa."
+  },
+  "journal_entries.unknown_dimension_value": {
+    "es": "«{{value}}» no es un valor de la dimensión «{{dimension}}».",
+    "en": "«{{value}}» is not a value of the «{{dimension}}» dimension.",
+    "pt": "«{{value}}» não é um valor da dimensão «{{dimension}}»."
   },
   "journal_entries.unsupported_file_type_mimetype": {
     "es": "Tipo de archivo no soportado: {{mimetype}}",

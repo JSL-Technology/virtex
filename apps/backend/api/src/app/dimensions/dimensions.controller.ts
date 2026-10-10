@@ -3,7 +3,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { DimensionsService } from './dimensions.service';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { CreateDimensionDto, UpdateDimensionDto } from './dto/dimension.dto';
 import { CreateDimensionRuleDto } from './dto/dimension-rule.dto';
 import { AuthenticatedUser } from '../security/principal';
@@ -26,6 +25,13 @@ export class DimensionsController {
     return this.dimensionsService.findAll(user.organizationId);
   }
 
+  /** Every account that requires a dimension. Declared before `:id`, which would swallow it. */
+  @Get('rules')
+  @HasPermission(PERMISSIONS.DIMENSIONS_VIEW)
+  listRules(@CurrentUser() user: AuthenticatedUser) {
+    return this.dimensionsService.listRules(user.organizationId);
+  }
+
   @Get(':id')
   @HasPermission(PERMISSIONS.DIMENSIONS_VIEW)
   findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -44,6 +50,7 @@ export class DimensionsController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.DIMENSIONS_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.remove(id, user.organizationId);
   }
