@@ -197,7 +197,7 @@
 //  que la navegación cambie según una preferencia visual de la organización.
 :host {
   grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
-  grid-template-rows: auto 64px 1fr auto;
+  grid-template-rows: auto 56px 1fr auto;
   grid-template-areas:
     'banner  banner  banner'
     'topbar  topbar  topbar'
@@ -320,7 +320,7 @@
 .main-topbar {
   display: flex;
   align-items: center;
-  height: 64px;
+  height: 56px;
   padding: 0 var(--space-8);
   position: relative;
   z-index: 100;
@@ -353,7 +353,7 @@
   align-items: center;
   gap: var(--space-1);
   flex: 0 0 auto;
-  margin-right: var(--space-4);
+  margin-right: var(--space-2);
 }
 
 .main-topbar .icon-button {
@@ -395,7 +395,7 @@
   //  controles de Windows caen sobre ella, no sobre un banner. Los avisos
   //  (suplantación, pago pendiente) pasan justo debajo, con la misma anchura y
   //  sin perder prominencia.
-  grid-template-rows: 64px auto 1fr auto;
+  grid-template-rows: 56px auto 1fr auto;
   grid-template-areas:
     'topbar  topbar  topbar'
     'banner  banner  banner'
@@ -431,10 +431,10 @@
 }
 
 //  macOS: los controles de ventana son los semáforos del sistema, arriba a la
-//  izquierda. `main.js` los centra en la barra de 64 px (`trafficLightPosition`)
+//  izquierda. `main.js` los centra en la barra de 56 px (`trafficLightPosition`)
 //  y aquí se reserva su hueco para que la marca no quede debajo de ellos.
 :host.platform-mac {
-  --titlebar-mac-inset: 80px;
+  --titlebar-mac-inset: 128px;
 
   .main-topbar {
     padding-left: var(--titlebar-mac-inset);
@@ -530,6 +530,7 @@
 .header-center {
   flex-grow: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 

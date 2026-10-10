@@ -57,3 +57,7 @@ tmp-*.cjs
 
 # Redis snapshot written into the working tree by a local redis-server
 dump.rdb
+
+# Tenant-uploaded files are runtime artifacts, not source. The API writes them under
+# public/uploads at request time; they must never be committed into the repository.
+apps/backend/api/public/uploads/
