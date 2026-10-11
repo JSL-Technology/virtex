@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserWorkspace } from './user-workspace.entity';
+import { returnedRows } from '../../shared/database/returned-rows';
 
 /** Lo que el cliente manda al guardar. */
 export interface WorkspaceWrite {
@@ -24,22 +25,6 @@ export interface WorkspaceRead {
 export interface WorkspaceConflict {
   conflict: true;
   current: WorkspaceRead;
-}
-
-/**
- * Las filas que devolvió un `RETURNING`, sea cual sea la forma en que `query()` las entregue.
- *
- * Para un UPDATE devuelve `[filas, contador]`; para un INSERT, las filas directamente. Esa
- * diferencia costó dos defectos que solo aparecieron al ejecutar: primero leer el contador como si
- * fuera una fila —un 500 al formatear una fecha inexistente—, y después contar un INSERT sin
- * `RETURNING`, que devuelve una lista vacía aunque haya insertado, de modo que la primera
- * escritura se reportaba como conflicto. Con `RETURNING` en las dos sentencias y esta
- * normalización, «cuántas filas escribí» tiene una sola respuesta.
- */
-function returnedRows<T>(result: unknown): T[] {
-  if (Array.isArray(result) && Array.isArray(result[0])) return result[0] as T[];
-  if (Array.isArray(result)) return result as T[];
-  return [];
 }
 
 @Injectable()

@@ -27,6 +27,8 @@
       (ngModelChange)="statusFilter.set($event); applyFilters()"
     >
       <option value="All">{{ 'invoices.list.all' | translate }}</option>
+      <!-- Drafts were reachable only by scrolling the full list: there was no way to ask for them. -->
+      <option value="Draft">{{ 'invoices.list.draft' | translate }}</option>
       <option value="Paid">{{ 'invoices.list.paid' | translate }}</option>
       <option value="Pending">{{ 'invoices.list.pending' | translate }}</option>
       <option value="Partially Paid">{{ 'invoices.list.partial' | translate }}</option>
@@ -46,6 +48,9 @@
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'invoices.list.invoice_number' | translate }}</th>
+          <!-- The fiscal number is how the tax authority, the customer and the accountant name the
+               document; a list that only shows the internal number cannot be searched by eye. -->
+          <th appSortHeader="fiscalNumber">{{ 'invoices.list.fiscal_number' | translate }}</th>
           <th appSortHeader="customer">{{ 'invoices.list.customer' | translate }}</th>
           <th appSortHeader="issueDate">{{ 'invoices.list.created' | translate }}</th>
           <th appSortHeader="dueDate">{{ 'invoices.list.due' | translate }}</th>
@@ -68,6 +73,7 @@
                 {{ invoice.invoiceNumber }}
               </a>
             </td>
+            <td class="mono">{{ invoice.fiscalNumber || '—' }}</td>
             <td>{{ invoice.customerName }}</td>
             <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
             <td>

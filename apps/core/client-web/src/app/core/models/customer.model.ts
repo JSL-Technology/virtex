@@ -2,6 +2,8 @@
 export interface Customer {
   id: string;
   companyName: string;
+  /** The company's «Consumidor final»: seeded with the company, never deleted. */
+  isFinalConsumer?: boolean;
   contactPerson?: string;
   email: string;
   phone: string;

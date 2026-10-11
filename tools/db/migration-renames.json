@@ -1,0 +1,15 @@
+{
+  "$comment": "Migrations whose identity changed after they had been applied somewhere. Each entry rewrites the row TypeORM recorded for the old identity, so the renamed file is recognised as already applied instead of being run a second time. Append only; never edit or remove an entry that has shipped.",
+  "renames": [
+    {
+      "from": { "timestamp": 1788500000000, "name": "InvoicingOverhaul1788500000000" },
+      "to": { "timestamp": 1788500000001, "name": "InvoicingOverhaul1788500000001" },
+      "reason": "Shared its timestamp with LocalizedNotifications1788500000000; TypeORM's order between equal timestamps is not deterministic."
+    },
+    {
+      "from": { "timestamp": 1789009500000, "name": "FiscalCalendarRealign1789009500000" },
+      "to": { "timestamp": 1789009500001, "name": "FiscalCalendarRealign1789009500001" },
+      "reason": "Shared its timestamp with FiscalReportFilings1789009500000; TypeORM's order between equal timestamps is not deterministic."
+    }
+  ]
+}

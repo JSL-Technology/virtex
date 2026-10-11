@@ -66,6 +66,7 @@ import { I18nService } from '../i18n/i18n.service';
 
 import { PostingContext } from './accounting-posting.port';
 import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
+import { describeEntryOrigin } from './entry-origin';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -1233,6 +1234,13 @@ export class JournalEntriesService {
           'journal_entries.only_posted_entries_can_modified',
         );
       }
+      // The accounting of a document is corrected from the document (see `entry-origin.ts`).
+      const origin = describeEntryOrigin(original);
+      if (origin.locked) {
+        throw new ForbiddenError('journal_entries.generated_entry_correct_from_source', {
+          reason: origin.reason,
+        });
+      }
       if (original.lines.some((line) => line.isReconciled)) {
         throw new ForbiddenError(
           'journal_entries.entry_containing_reconciled_lines_cannot_modified',
@@ -1336,7 +1344,9 @@ export class JournalEntriesService {
         id,
       });
     }
-    return entry;
+    // Where it came from travels with it, so the screen can open it read-only and link to the
+    // document instead of offering an edit the server will refuse.
+    return Object.assign(entry, { origin: describeEntryOrigin(entry) });
   }
 
   // ───────────────────────────────────────────────────────────────────────────

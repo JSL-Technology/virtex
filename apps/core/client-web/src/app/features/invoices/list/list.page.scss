@@ -28,4 +28,10 @@
   //  Un vencimiento pasado en una factura por cobrar se lee antes que la fecha.
   .text-danger { color: var(--error-text); font-weight: var(--font-semibold); }
   .font-semibold { font-weight: var(--font-semibold); }
+
+  //  The fiscal number lines up digit for digit, so a series reads at a glance.
+  .mono {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
 }

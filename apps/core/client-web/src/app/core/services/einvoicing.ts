@@ -57,6 +57,10 @@ export interface ProvisionNcfSequenceInput {
   prefix: string;
   startsAt: number;
   endsAt: number;
+  /** Last day the DGII authorizes the range, `YYYY-MM-DD`. */
+  expiresAt?: string;
+  /** The authorization reference the DGII issued, for audit and support. */
+  authorizationCode?: string;
 }
 
 /**

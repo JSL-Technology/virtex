@@ -4,7 +4,9 @@
       <lucide-icon [img]="PhoneIcon" size="28"></lucide-icon>
     </div>
     <h3 class="verify-title">{{ 'auth.step_phone_verify.confirm_your_mobile_number' | translate }}</h3>
-    <p class="verify-subtitle" *ngIf="hasPhone && !isSending()">
+    <!-- Only once the code has really gone out: it used to claim "we sent an SMS" above the very
+         error that said it could not be sent. -->
+    <p class="verify-subtitle" *ngIf="hasPhone && !isSending() && codeSent() && !sendError()">
       {{ 'auth.step_phone_verify.we_sent_sms_with_code' | translate }}
       <strong>{{ phone }}</strong>
     </p>
@@ -20,7 +22,9 @@
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
     {{ sendError()! | translate }}
-    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_phone_verify.try_again' | translate }}</button>
+    <!-- A channel that is down will not come back by pressing a button; retry is offered only for
+         failures a retry can fix. -->
+    <button *ngIf="!channelDown()" type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_phone_verify.try_again' | translate }}</button>
   </div>
 
   <p *ngIf="channelDown()" class="verify-subtitle">

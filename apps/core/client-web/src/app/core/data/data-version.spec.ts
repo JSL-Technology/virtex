@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ViewContainerRef, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -83,5 +83,32 @@ describe('data freshness', () => {
     activeTabId.set('tab-a');
     fixture.detectChanges();
     expect(reloads).toBe(0);
+  });
+
+  it('reloads on return even though a hidden tab has its change detection detached', () => {
+    // Mounted the way TabWrapperComponent mounts a tab: created into a container, then detached
+    // while the tab is off screen.
+    @Component({ standalone: true, template: '' })
+    class Host {
+      readonly vcr = inject(ViewContainerRef);
+    }
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const screen = fixture.componentInstance.vcr.createComponent(Screen);
+    fixture.detectChanges();
+    const data = TestBed.inject(DataVersionService);
+
+    activeTabId.set('tab-b');
+    screen.changeDetectorRef.detach();
+    fixture.detectChanges();
+    data.changed(); // the customer saved from the «New customer» tab
+    fixture.detectChanges();
+    expect(reloads).toBe(0);
+
+    activeTabId.set('tab-a');
+    fixture.detectChanges();
+    screen.changeDetectorRef.reattach();
+    fixture.detectChanges();
+    expect(reloads).toBe(1);
   });
 });

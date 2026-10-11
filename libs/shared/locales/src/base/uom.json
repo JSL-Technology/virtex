@@ -1,0 +1,132 @@
+{
+  "uom.box": {
+    "es": "Caja",
+    "en": "Box",
+    "pt": "Caixa"
+  },
+  "uom.centimetre": {
+    "es": "Centímetro",
+    "en": "Centimetre",
+    "pt": "Centímetro"
+  },
+  "uom.cubic_metre": {
+    "es": "Metro cúbico",
+    "en": "Cubic metre",
+    "pt": "Metro cúbico"
+  },
+  "uom.day": {
+    "es": "Día",
+    "en": "Day",
+    "pt": "Dia"
+  },
+  "uom.dozen": {
+    "es": "Docena",
+    "en": "Dozen",
+    "pt": "Dúzia"
+  },
+  "uom.foot": {
+    "es": "Pie",
+    "en": "Foot",
+    "pt": "Pé"
+  },
+  "uom.gallon": {
+    "es": "Galón",
+    "en": "Gallon",
+    "pt": "Galão"
+  },
+  "uom.gram": {
+    "es": "Gramo",
+    "en": "Gram",
+    "pt": "Grama"
+  },
+  "uom.hour": {
+    "es": "Hora",
+    "en": "Hour",
+    "pt": "Hora"
+  },
+  "uom.hundredweight": {
+    "es": "Quintal",
+    "en": "Hundredweight",
+    "pt": "Quintal"
+  },
+  "uom.inch": {
+    "es": "Pulgada",
+    "en": "Inch",
+    "pt": "Polegada"
+  },
+  "uom.kilogram": {
+    "es": "Kilogramo",
+    "en": "Kilogram",
+    "pt": "Quilograma"
+  },
+  "uom.litre": {
+    "es": "Litro",
+    "en": "Litre",
+    "pt": "Litro"
+  },
+  "uom.metre": {
+    "es": "Metro",
+    "en": "Metre",
+    "pt": "Metro"
+  },
+  "uom.millilitre": {
+    "es": "Mililitro",
+    "en": "Millilitre",
+    "pt": "Mililitro"
+  },
+  "uom.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "uom.ounce": {
+    "es": "Onza",
+    "en": "Ounce",
+    "pt": "Onça"
+  },
+  "uom.pack": {
+    "es": "Paquete",
+    "en": "Pack",
+    "pt": "Pacote"
+  },
+  "uom.pair": {
+    "es": "Par",
+    "en": "Pair",
+    "pt": "Par"
+  },
+  "uom.pound": {
+    "es": "Libra",
+    "en": "Pound",
+    "pt": "Libra"
+  },
+  "uom.service": {
+    "es": "Servicio",
+    "en": "Service",
+    "pt": "Serviço"
+  },
+  "uom.set": {
+    "es": "Juego",
+    "en": "Set",
+    "pt": "Conjunto"
+  },
+  "uom.square_foot": {
+    "es": "Pie cuadrado",
+    "en": "Square foot",
+    "pt": "Pé quadrado"
+  },
+  "uom.square_metre": {
+    "es": "Metro cuadrado",
+    "en": "Square metre",
+    "pt": "Metro quadrado"
+  },
+  "uom.tonne": {
+    "es": "Tonelada",
+    "en": "Tonne",
+    "pt": "Tonelada"
+  },
+  "uom.unit": {
+    "es": "Unidad",
+    "en": "Unit",
+    "pt": "Unidade"
+  }
+}

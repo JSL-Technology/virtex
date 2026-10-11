@@ -1,3 +1,4 @@
+import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
@@ -58,6 +59,7 @@ export class RecurringJournalEntriesService {
     @InjectRepository(RecurringJournalEntry)
     private recurringRepository: Repository<RecurringJournalEntry>,
     @InjectQueue('recurring-entries-processor') private recurringQueue: Queue<RecurringJobData>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(dto: CreateRecurringJournalEntryDto, organizationId: string): Promise<RecurringJournalEntryView> {
@@ -159,23 +161,19 @@ export class RecurringJournalEntriesService {
   async handleCron(): Promise<void> {
     this.logger.log('Iniciando job para encolar asientos recurrentes...');
 
-    // Scoped per tenant below via the claim key. The query itself spans tenants because the
-    // scheduler is a single process acting for all of them.
-    const recurringEntries = await this.recurringRepository.find({ where: { isActive: true } });
-    this.logger.log(`Se encontraron ${recurringEntries.length} plantillas activas para evaluar.`);
-
-    const todayByTenant = new Map<string, IsoDate>();
-    for (const entry of recurringEntries) {
+    // One tenant at a time, inside its own context. Read across tenants with no context, as it
+    // used to be, the row-level policies return no recurring entry at all: nothing was ever queued.
+    await forEachTenant(this.dataSource, async (organizationId) => {
+      const recurringEntries = await this.recurringRepository.find({ where: { organizationId, isActive: true } });
+      if (recurringEntries.length === 0) return;
       // Each company's own today: a rent due on the 1st is due on the 1st where the company is.
-      let today = todayByTenant.get(entry.organizationId);
-      if (!today) {
-        today = await organizationToday(this.recurringRepository.manager, entry.organizationId).catch(() => todayIso());
-        todayByTenant.set(entry.organizationId, today);
+      const today = await organizationToday(this.recurringRepository.manager, organizationId).catch(() => todayIso());
+      for (const entry of recurringEntries) {
+        for (const date of this.dueDates(entry, today)) {
+          await this.enqueue(entry, date);
+        }
       }
-      for (const date of this.dueDates(entry, today)) {
-        await this.enqueue(entry, date);
-      }
-    }
+    });
     this.logger.log('Job de encolado de asientos recurrentes finalizado.');
   }
 

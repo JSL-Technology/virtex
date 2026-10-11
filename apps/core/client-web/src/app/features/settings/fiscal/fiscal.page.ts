@@ -15,6 +15,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { VxDateFieldComponent } from '../../../shared/components/date/date-field.component';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
 /**
@@ -25,7 +26,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [...VX_SORT, VxFileInputComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, VxFileInputComponent, VxDateFieldComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -115,7 +116,35 @@ export class FiscalSettingsPage implements OnInit {
     prefix: ['E31', [Validators.required, Validators.pattern(/^[BE]\d{2}$/)]],
     startsAt: [1, [Validators.required, Validators.min(1)]],
     endsAt: [1000, [Validators.required, Validators.min(1)]],
+    // Every range the DGII authorizes carries an end date, and a document numbered from an expired
+    // range is rejected. The form did not ask for it, so no range could ever expire on schedule.
+    // The DGII's usual horizon — 31 December of the following year — is proposed, not imposed.
+    expiresAt: [`${new Date().getFullYear() + 1}-12-31`, Validators.required],
+    authorizationCode: [''],
   });
+
+  /** Ranges at or below this share of their numbers left, or this close to expiry, are flagged. */
+  private static readonly LOW_RANGE_SHARE = 0.1;
+  private static readonly EXPIRY_WARNING_DAYS = 30;
+
+  /** Numbers still available in a range. */
+  remaining(s: NcfSequenceView): number {
+    const used = Math.max(s.currentSequence, s.startsAt - 1);
+    return Math.max(0, s.endsAt - used);
+  }
+
+  /** What the status column warns about, if anything. */
+  rangeWarningKey(s: NcfSequenceView): string | null {
+    if (!s.isActive) return null;
+    if (s.expiresAt) {
+      const days = (Date.parse(s.expiresAt.slice(0, 10)) - Date.now()) / 86_400_000;
+      if (days < 0) return 'settings.fiscal.range_expired';
+      if (days <= FiscalSettingsPage.EXPIRY_WARNING_DAYS) return 'settings.fiscal.range_expiring';
+    }
+    const size = s.endsAt - s.startsAt + 1;
+    if (size > 0 && this.remaining(s) / size <= FiscalSettingsPage.LOW_RANGE_SHARE) return 'settings.fiscal.range_running_low';
+    return null;
+  }
 
   ngOnInit(): void {
     this.loadCertificates();
@@ -210,6 +239,8 @@ export class FiscalSettingsPage implements OnInit {
         prefix: value.prefix!,
         startsAt: value.startsAt!,
         endsAt: value.endsAt!,
+        expiresAt: value.expiresAt || undefined,
+        authorizationCode: value.authorizationCode?.trim() || undefined,
       })
       .subscribe({
         next: () => {

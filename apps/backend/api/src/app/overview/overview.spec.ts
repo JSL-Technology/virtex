@@ -232,6 +232,19 @@ describeWithDb('overview', () => {
       );
     });
 
+    it('marks a period still open after its last day as an overdue close', async () => {
+      await dataSource.getRepository(AccountingPeriod).save({
+        organizationId,
+        name: 'Mes vencido',
+        startDate: inDays(-40) as unknown as Date,
+        endDate: inDays(-10) as unknown as Date,
+        status: PeriodStatus.OPEN,
+      });
+
+      const events = await overview.events(organizationId, ALL);
+      expect(events.find((e) => e.reference === 'Mes vencido')?.kind).toBe('PERIOD_CLOSE_OVERDUE');
+    });
+
     it('shows a seat only the obligations of the modules it may read', async () => {
       await openInvoice(1_000, inDays(5), 'FAC-0005');
       const supplier = await dataSource.getRepository(Supplier).save(

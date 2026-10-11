@@ -169,6 +169,11 @@
     "en": "Period “{{reference}}” closes",
     "pt": "Fecho do período «{{reference}}»"
   },
+  "overview.events.item.period_close_overdue": {
+    "es": "El período «{{reference}}» sigue abierto",
+    "en": "Period “{{reference}}” is still open",
+    "pt": "O período «{{reference}}» continua aberto"
+  },
   "overview.events.item.receivable_due": {
     "es": "Vence la factura {{reference}}",
     "en": "Invoice {{reference}} falls due",
@@ -193,6 +198,11 @@
     "es": "Cierre contable",
     "en": "Period close",
     "pt": "Fecho contabilístico"
+  },
+  "overview.events.kind.period_close_overdue": {
+    "es": "Cierre atrasado",
+    "en": "Close overdue",
+    "pt": "Fecho atrasado"
   },
   "overview.events.kind.receivable_due": {
     "es": "Por cobrar",

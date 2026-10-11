@@ -440,28 +440,24 @@ export class SaasService implements OnModuleInit {
         allowOverage
     );
 
-    // Sync Redis with the Source of Truth (DB)
-    try {
-        await this.setUsageRedis(organizationId, resource, periodKey, result.count);
-    } catch (e) {
-        this.logger.warn(`Redis update failed after DB increment: ${(e as Error).message}`);
-        // We do not throw here, because DB is committed.
-        // The Cron Job will reconcile any drift eventually.
-    }
-
-    // 10/10 OPTIMIZATION: Write-Through Cache
-    // Instead of deleting, we update the cache with the new status.
-    // This prevents a cache miss on the next Read (Guard check).
     const cacheKey = await this.getCacheKey(organizationId, resource);
-    const canProceed = isUnlimited || allowOverage || (result.count <= limitDef.limit);
 
-    // Update cache with new status
-    await this.cacheManager.set(cacheKey, canProceed, canProceed ? 60000 : 300000);
-
-    if (!isUnlimited && limitDef.limit > 0) {
-        const percentage = result.count / limitDef.limit;
-        if (percentage >= 0.8 && percentage < 1.0) {
-            this.emitLimitWarningEvent(organizationId, resource, result.count, limitDef.limit, percentage);
+    // Invalidate, never write, from inside the caller's transaction. The issue preview runs this in
+    // a transaction it always rolls back, and a decision written here outlived it: with the count
+    // misread, a preview cached «limit reached» and refused the real issue that followed. A miss is
+    // always right — the guard re-reads the committed count. (The Redis usage counter is not
+    // written here for the same reason; nothing reads it, and the reconciliation job keeps it.)
+    if (!result.limitReached) {
+        try {
+            await this.cacheManager.del(cacheKey);
+        } catch (e) {
+            this.logger.warn(`Could not invalidate the limit cache: ${(e as Error).message}`);
+        }
+        if (!isUnlimited && limitDef.limit > 0) {
+            const percentage = result.count / limitDef.limit;
+            if (percentage >= 0.8 && percentage < 1.0) {
+                this.emitLimitWarningEvent(organizationId, resource, result.count, limitDef.limit, percentage);
+            }
         }
     }
 

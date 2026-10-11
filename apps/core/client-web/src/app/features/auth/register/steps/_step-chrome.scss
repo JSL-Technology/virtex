@@ -90,7 +90,6 @@
     @include ds.glass-field;
     appearance: none;
     -webkit-appearance: none;
-    padding-left: 2.625rem;
     padding-right: 2.5rem;
     cursor: pointer;
 
@@ -100,6 +99,12 @@
       background-color: var(--surface-overlay);
       color: var(--content-primary);
     }
+  }
+
+  //  Room for the icon only where there is one. Every select reserved it, so the ones without an
+  //  icon — taxpayer type, province, income type — started their text after an empty gap.
+  .custom-select-wrapper:has(> .select-icon) .custom-select {
+    padding-left: 2.625rem;
   }
 
   .custom-select-wrapper:focus-within .select-icon {

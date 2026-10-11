@@ -1,3 +1,5 @@
+import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
+
 
 export interface CreateCheckoutSessionDto {
   organizationId: string;
@@ -101,6 +103,12 @@ export interface BillingInvoice {
 }
 
 export interface PaymentGateway {
+  /**
+   * The processor's price identifier for a plan and billing period, or null when the plan cannot
+   * be bought in that period. Asked of the gateway rather than read from the plan row, because the
+   * identifier belongs to whichever processor is configured.
+   */
+  priceIdFor(plan: { slug: string; monthlyPriceId?: string | null; annualPriceId?: string | null }, period: BillingPeriod): string | null;
   createCheckoutSession(dto: CreateCheckoutSessionDto): Promise<CheckoutSessionResult>;
   createRegistrationCheckoutSession(dto: CreateRegistrationCheckoutDto): Promise<CheckoutSessionResult>;
   getCheckoutSession(sessionId: string): Promise<CheckoutSessionInfo>;

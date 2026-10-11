@@ -8,6 +8,7 @@ import {
   PeriodStatus,
 } from '../accounting/entities/accounting-period.entity';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
@@ -46,24 +47,29 @@ export class AutoReversalService {
       lastOfPreviousMonth.getUTCMonth() + 1,
     ).padStart(2, '0')}`;
 
-    const periods = await this.dataSource.getRepository(AccountingPeriod).find({
-      where: {
-        endDate: toIsoDate(lastOfPreviousMonth) as unknown as Date,
-        status: PeriodStatus.OPEN,
-      },
-    });
+    // Tenant by tenant, each in its own context: the periods live behind the row-level policies,
+    // and a query with no tenant set returns none of them, so this job used to find nothing.
+    await forEachTenant(this.dataSource, async (organizationId) => {
+      const periods = await this.dataSource.getRepository(AccountingPeriod).find({
+        where: {
+          organizationId,
+          endDate: toIsoDate(lastOfPreviousMonth) as unknown as Date,
+          status: PeriodStatus.OPEN,
+        },
+      });
 
-    for (const period of periods) {
-      await this.schedulerLock
-        .runOnce('auto-reversals', `${period.organizationId}:${periodLabel}`, () =>
-          this.reverseAccrualsFor(period.organizationId, firstOfThisMonth),
-        )
-        .catch((error) => {
-          this.logger.error(
-            `Reversiones automáticas fallidas para ${period.organizationId}: ${(error as Error).message}`,
-          );
-        });
-    }
+      for (const period of periods) {
+        await this.schedulerLock
+          .runOnce('auto-reversals', `${period.organizationId}:${periodLabel}`, () =>
+            this.reverseAccrualsFor(period.organizationId, firstOfThisMonth),
+          )
+          .catch((error) => {
+            this.logger.error(
+              `Automatic reversals failed for ${period.organizationId}: ${(error as Error).message}`,
+            );
+          });
+      }
+    });
   }
 
   private async reverseAccrualsFor(

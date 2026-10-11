@@ -83,6 +83,10 @@
         <h3>{{ 'invoices.detail.bill' | translate }}</h3>
         <p>
           <strong>{{ inv.customerName }}</strong><br />
+          <!-- The buyer's tax id: a credit-tax invoice (E31) without it is not a valid one (QA A5). -->
+          @if (inv.customerTaxId || inv.customer?.taxId; as buyerTaxId) {
+            {{ 'invoices.detail.issuer_tax_id' | translate: { taxId: buyerTaxId } }}<br />
+          }
           {{ inv.customerAddress }}
         </p>
       </div>
@@ -168,7 +172,8 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'invoices.detail.contact_person' | translate }}</span>
-                <p>{{ inv.customerName }}</p>
+                <!-- The customer's contact, not the company's name repeated. -->
+                <p>{{ inv.customer?.contactPerson || ('common.not_recorded' | translate) }}</p>
             </div>
         </div>
     </div>
@@ -186,6 +191,11 @@
         <div class="detail-grid">
             <div class="detail-item">
                 <span class="detail-label">{{ 'invoices.detail.payment_terms' | translate }}</span>
+                <p>{{ termsKey(inv) | translate: { days: creditDays(inv) } }}</p>
+            </div>
+            <div class="detail-item">
+                <!-- The method was printed under «Payment terms», so a 30-day invoice read «Cash». -->
+                <span class="detail-label">{{ 'invoices.detail.payment_method' | translate }}</span>
                 <p>{{ paymentMethodKey(inv.paymentMethod) | translate }}</p>
             </div>
             <div class="detail-item">

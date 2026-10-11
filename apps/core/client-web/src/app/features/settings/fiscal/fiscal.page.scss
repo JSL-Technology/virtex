@@ -45,6 +45,19 @@
     }
   }
 
+  // Same column as a wrapping label, for a control the label cannot wrap (`vx-date-field`).
+  .range-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 160px;
+
+    label {
+      min-width: 0;
+      color: var(--content-secondary);
+    }
+  }
+
   button {
     padding: 0.55rem 1.1rem;
     border: none;

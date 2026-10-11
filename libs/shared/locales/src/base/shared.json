@@ -184,6 +184,11 @@
     "en": "Create “{{query}}”",
     "pt": "Criar “{{query}}”"
   },
+  "shared.select.create_blank": {
+    "es": "Crear uno nuevo",
+    "en": "Create a new one",
+    "pt": "Criar um novo"
+  },
   "shared.select.empty": {
     "es": "No hay resultados para «{{query}}».",
     "en": "No results for “{{query}}”.",

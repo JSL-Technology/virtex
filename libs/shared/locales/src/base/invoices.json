@@ -124,6 +124,11 @@
     "en": "Currency",
     "pt": "Moeda"
   },
+  "invoices.detail.customer_tax_id": {
+    "es": "Identificación fiscal del cliente",
+    "en": "Customer tax id",
+    "pt": "Identificação fiscal do cliente"
+  },
   "invoices.detail.date": {
     "es": "Fecha",
     "en": "Date",
@@ -208,6 +213,11 @@
     "es": "Enviar",
     "en": "Send",
     "pt": "Enviar"
+  },
+  "invoices.detail.email_sending": {
+    "es": "Preparando el PDF y enviando el correo…",
+    "en": "Preparing the PDF and sending the e-mail…",
+    "pt": "A preparar o PDF e a enviar o e-mail…"
   },
   "invoices.detail.email_title": {
     "es": "Enviar por correo",
@@ -312,6 +322,11 @@
     "en": "Outstanding balance:",
     "pt": "Saldo em aberto:"
   },
+  "invoices.detail.payment_method": {
+    "es": "Método de pago",
+    "en": "Payment method",
+    "pt": "Método de pagamento"
+  },
   "invoices.detail.payment_terms": {
     "es": "Condición de Pago:",
     "en": "Payment terms:",
@@ -400,6 +415,16 @@
     "en": "Taxes:",
     "pt": "Impostos:"
   },
+  "invoices.detail.terms_credit_days": {
+    "es": "Crédito a {{days}} días",
+    "en": "Credit, {{days}} days",
+    "pt": "Crédito a {{days}} dias"
+  },
+  "invoices.detail.terms_on_receipt": {
+    "es": "Al contado",
+    "en": "Due on receipt",
+    "pt": "À vista"
+  },
   "invoices.detail.total": {
     "es": "Total",
     "en": "Total",
@@ -432,6 +457,11 @@
     "es": "Documento Word generado con éxito.",
     "en": "Word document generated.",
     "pt": "Documento Word gerado."
+  },
+  "invoices.detail.word_export_failed": {
+    "es": "No se pudo generar el documento Word. Vuelve a intentarlo.",
+    "en": "The Word document could not be generated. Try again.",
+    "pt": "Não foi possível gerar o documento Word. Tente novamente."
   },
   "invoices.document_discount_must_between_100_exclusive": {
     "es": "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).",
@@ -645,6 +675,11 @@
     "es": "la cuenta de Propina Legal por Pagar",
     "en": "the Service Charge Payable account",
     "pt": "a conta de Taxa de Serviço a Pagar"
+  },
+  "invoices.gaps.signing_certificate": {
+    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Facturación electrónica)",
+    "en": "a valid digital certificate to sign electronic documents (Settings › Electronic invoicing)",
+    "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
   },
   "invoices.gaps.tax_withheld_account": {
     "es": "la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)",
@@ -884,10 +919,20 @@
     "en": "Customer",
     "pt": "Cliente"
   },
+  "invoices.list.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
   "invoices.list.due": {
     "es": "Vencimiento",
     "en": "Due",
     "pt": "Vencimento"
+  },
+  "invoices.list.fiscal_number": {
+    "es": "e-NCF / NCF",
+    "en": "Fiscal no.",
+    "pt": "N.º fiscal"
   },
   "invoices.list.full_invoicing_management_document_tracking": {
     "es": "Gestión completa de facturación y seguimiento de documentos.",
@@ -1041,6 +1086,11 @@
     "es": "Crear el cliente «{{query}}»",
     "en": "Create the customer “{{query}}”",
     "pt": "Criar o cliente “{{query}}”"
+  },
+  "invoices.new.customer_create_blank": {
+    "es": "Crear un cliente nuevo",
+    "en": "Create a new customer",
+    "pt": "Criar um novo cliente"
   },
   "invoices.new.customer_empty": {
     "es": "Ningún cliente coincide con «{{query}}».",

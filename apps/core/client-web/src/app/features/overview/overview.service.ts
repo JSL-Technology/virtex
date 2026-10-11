@@ -130,6 +130,7 @@ const EVENT_VIEW: Record<string, { icon: unknown; overdue: boolean }> = {
   PAYABLE_DUE:         { icon: Truck,         overdue: false },
   PAYABLE_OVERDUE:     { icon: AlertTriangle, overdue: true  },
   PERIOD_CLOSE:        { icon: CalendarCheck, overdue: false },
+  PERIOD_CLOSE_OVERDUE: { icon: AlertTriangle, overdue: true  },
 };
 
 function toActivityItem(row: ActivityDto): ActivityItem {
@@ -174,7 +175,7 @@ function toEventItem(row: EventDto, format: FormatService): EventItem {
      * the month is rendered from that instead and the stored string is not shown at all.
      */
     reference:
-      row.kind === 'PERIOD_CLOSE'
+      row.kind === 'PERIOD_CLOSE' || row.kind === 'PERIOD_CLOSE_OVERDUE'
         ? format.date(row.date, 'monthYear', { dateOnly: true })
         : row.reference,
     counterparty: row.counterparty,

@@ -1335,6 +1335,11 @@
     "en": "The entry could not be loaded.",
     "pt": "Não foi possível carregar o lançamento."
   },
+  "accounting.journal_entry_form.generated_from_document": {
+    "es": "Este asiento lo generó un documento y se corrige desde él (nota de crédito, anulación o ajuste), no aquí.",
+    "en": "A document posted this entry, so it is corrected from that document (a credit note, a void or an adjustment), not here.",
+    "pt": "Este lançamento foi gerado por um documento e corrige-se a partir dele (nota de crédito, anulação ou ajuste), não aqui."
+  },
   "accounting.journal_entry_form.hide_dimensions": {
     "es": "Ocultar dimensiones",
     "en": "Hide dimensions",
@@ -1384,6 +1389,11 @@
     "es": "Solo se puede modificar un asiento contabilizado. Este todavía no lo está.",
     "en": "Only a posted entry can be modified. This one is not posted yet.",
     "pt": "Só é possível modificar um lançamento contabilizado. Este ainda não está."
+  },
+  "accounting.journal_entry_form.open_source_document": {
+    "es": "Abrir el documento",
+    "en": "Open the document",
+    "pt": "Abrir o documento"
   },
   "accounting.journal_entry_form.save": {
     "es": "Guardar asiento",

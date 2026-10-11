@@ -13,6 +13,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { UsersService } from '../../users/users.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { returnedRows } from '../../shared/database/returned-rows';
 
 @Injectable()
 export class SecurityAnalysisService {
@@ -217,7 +218,7 @@ export class SecurityAnalysisService {
     const maxAttempts = AuthConfig.MAX_FAILED_ATTEMPTS;
     const lockoutMs = AuthConfig.LOCKOUT_DURATION;
 
-    const [updated] = await this.userSecurityRepository.query(
+    const [updated] = returnedRows<{ failed_login_attempts: number; lockout_until: string | null }>(await this.userSecurityRepository.query(
       `
       UPDATE "user_security"
          SET "failed_login_attempts" = "failed_login_attempts" + 1,
@@ -229,7 +230,7 @@ export class SecurityAnalysisService {
        RETURNING "failed_login_attempts", "lockout_until"
       `,
       [user.security.id, maxAttempts, String(lockoutMs)],
-    );
+    ));
 
     // Keep the in-memory copy consistent with what the row now holds, so a caller that inspects
     // it after this call (the login path reports lockout state) does not see a stale value.

@@ -119,6 +119,11 @@
     "en": "The General journal (GENERAL) was not found, and the import needs it.",
     "pt": "O diário Geral (GENERAL) não foi encontrado, e a importação precisa dele."
   },
+  "journal_entries.generated_entry_correct_from_source": {
+    "es": "Este asiento lo generó un documento ({{reason}}). Corrígelo desde el documento: nota de crédito, anulación o ajuste.",
+    "en": "This entry was posted by a document ({{reason}}). Correct it from the document: a credit note, a void or an adjustment.",
+    "pt": "Este lançamento foi gerado por um documento ({{reason}}). Corrija-o a partir do documento: nota de crédito, anulação ou ajuste."
+  },
   "journal_entries.import.account_code_grouping_account_cannot_take": {
     "es": "La cuenta «{{code}}» es de agrupación y no admite movimientos.",
     "en": "Account “{{code}}” is a grouping account and cannot take movements.",

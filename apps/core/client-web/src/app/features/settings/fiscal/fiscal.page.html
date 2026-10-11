@@ -118,6 +118,15 @@
         <span>{{ 'settings.fiscal.to' | translate }}</span>
         <input type="number" formControlName="endsAt" min="1" />
       </label>
+      <!-- A custom control cannot be wrapped by a label: the label names its inner input by id. -->
+      <div class="range-field">
+        <label for="range-expires-at">{{ 'settings.fiscal.expires_on' | translate }} *</label>
+        <vx-date-field inputId="range-expires-at" formControlName="expiresAt" />
+      </div>
+      <label>
+        <span>{{ 'settings.fiscal.authorization_code' | translate }}</span>
+        <input type="text" formControlName="authorizationCode" maxlength="64" />
+      </label>
       <button type="submit" [disabled]="provisioning()">
         {{ provisioning() ? ('settings.fiscal.registering' | translate) : ('settings.fiscal.register_range' | translate) }}
       </button>
@@ -125,7 +134,7 @@
 
     <table [appSort]="sequencesTable.sort" class="data-table" *ngIf="sequences().length; else noSeq">
       <thead>
-        <tr><th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th appSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th appSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th appSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th appSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
+        <tr><th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th appSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th appSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th appSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th appSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th>{{ 'settings.fiscal.remaining' | translate }}</th><th appSortHeader="expiresAt">{{ 'settings.fiscal.expires_on' | translate }}</th><th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of sequencesTable.rows()">
@@ -134,10 +143,16 @@
           <td>{{ s.startsAt }}</td>
           <td>{{ s.endsAt }}</td>
           <td>{{ s.currentSequence }}</td>
+          <td>{{ remaining(s) }}</td>
+          <td>{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
           <td>
-            <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
-              {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-            </vx-badge>
+            @if (rangeWarningKey(s); as warning) {
+              <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
+            } @else {
+              <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
+                {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+              </vx-badge>
+            }
           </td>
         </tr>
       </tbody>

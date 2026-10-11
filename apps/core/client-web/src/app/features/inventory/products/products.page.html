@@ -47,18 +47,10 @@
             <td>{{ product.category?.name || '—' }}</td>
             <td class="text-right"><vx-amount [value]="product.price" /></td>
             <td class="text-right"><vx-amount [value]="product.cost" /></td>
-            <td class="text-right">{{ product.stock }}</td>
+            <!-- A service is not stocked: it has no quantity on hand and is never "out of stock". -->
+            <td class="text-right">{{ product.kind === 'SERVICE' ? '—' : product.stock }}</td>
             <td>
-              <vx-badge [tone]="stockTone(product)">
-                {{
-                  (product.status === 'Active'
-                    ? product.stock > 0
-                      ? 'inventory.products.stock_in'
-                      : 'inventory.products.stock_out'
-                    : 'inventory.products.status_inactive'
-                  ) | translate
-                }}
-              </vx-badge>
+              <vx-badge [tone]="stockTone(product)">{{ stockLabel(product) | translate }}</vx-badge>
             </td>
             <td class="actions-column">
               <div class="action-buttons">

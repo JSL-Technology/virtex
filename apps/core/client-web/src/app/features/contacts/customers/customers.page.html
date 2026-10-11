@@ -29,6 +29,11 @@
               <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
                 {{ customer.companyName }}
               </a>
+              @if (customer.isFinalConsumer) {
+                <vx-badge tone="info" size="sm" [title]="'contacts.customers.final_consumer_hint' | translate">
+                  {{ 'contacts.customers.final_consumer_badge' | translate }}
+                </vx-badge>
+              }
             </td>
             <td>{{ customer.contactPerson }}</td>
             <td>{{ customer.email }}</td>
@@ -52,14 +57,16 @@
                 >
                   <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
                 </a>
-                <button
-                  type="button"
-                  class="icon-button delete"
-                  [attr.aria-label]="'contacts.customers.delete' | translate"
-                  (click)="deleteCustomer(customer.id)"
-                >
-                  <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
-                </button>
+                @if (!customer.isFinalConsumer) {
+                  <button
+                    type="button"
+                    class="icon-button delete"
+                    [attr.aria-label]="'contacts.customers.delete' | translate"
+                    (click)="deleteCustomer(customer.id)"
+                  >
+                    <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+                  </button>
+                }
               </div>
             </td>
           </tr>

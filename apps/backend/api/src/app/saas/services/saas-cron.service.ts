@@ -12,6 +12,7 @@ import { SaasCacheKeyFactory } from '../utils/saas-cache-key.factory';
 import { DataSource } from 'typeorm';
 import { SaasResource } from '../enums/saas-resource.enum';
 import { QuotaPeriod } from '../enums/quota-period.enum';
+import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.service';
 
 @Injectable()
 export class SaasCronService {
@@ -24,7 +25,8 @@ export class SaasCronService {
     private readonly orgRepository: Repository<Organization>,
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly schedulerLock: SchedulerLockService,
   ) {}
 
   /**
@@ -36,26 +38,15 @@ export class SaasCronService {
    */
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async reconcileUsageCounters() {
-    // 10/10 Improvement: Distributed Locking
-    // Prevent multiple instances (pods) from running the same heavy Cron job simultaneously.
-    const lockKey = 'saas:cron:reconcile_lock';
-    const lockTtl = 30 * 60 * 1000; // 30 minutes lock
-    const lockValue = new Date().toISOString();
-
-    const acquired = await this.acquireLock(lockKey, lockValue, lockTtl);
-    if (!acquired) {
-        this.logger.log('SaaS Reconciliation skipped (Lock held by another instance).');
-        return;
-    }
-
-    try {
-        // Order matters: recount the lifetime quotas from the rows that actually exist FIRST,
-        // then push the corrected numbers out to the cache.
-        await this.recountLifetimeQuotas();
-        await this.performReconciliation();
-    } finally {
-        await this.releaseLock(lockKey, lockValue);
-    }
+    // One run per day across every instance, through the platform's scheduler lock. The previous
+    // hand-rolled Redis lock read `cacheManager.store.client`, which the current cache-manager does
+    // not expose: it threw before doing anything, so the nightly reconciliation never ran at all.
+    await this.schedulerLock.runOnce('saas-reconcile-usage', new Date().toISOString().slice(0, 10), async () => {
+      // Order matters: recount the lifetime quotas from the rows that actually exist FIRST,
+      // then push the corrected numbers out to the cache.
+      await this.recountLifetimeQuotas();
+      await this.performReconciliation();
+    });
   }
 
   /**
@@ -179,41 +170,4 @@ export class SaasCronService {
     this.logger.log(`SaaS Reconciliation Complete. Reconciled ${reconciledCount} counters.`);
   }
 
-  // Helper to acquire distributed lock using Redis SET NX PX
-  private async acquireLock(key: string, value: string, ttlMs: number): Promise<boolean> {
-      const store = (this.cacheManager as any).store;
-      // If store exposes a native redis client (ioredis or node-redis)
-      if (store.client) {
-          try {
-             // ioredis syntax: set(key, value, 'PX', ttl, 'NX')
-             // node-redis v4 syntax: set(key, value, { PX: ttl, NX: true })
-             // We'll try common patterns. ioredis is in package.json.
-             const client = store.client;
-             if (client.set) {
-                 const result = await client.set(key, value, 'PX', ttlMs, 'NX');
-                 return result === 'OK';
-             }
-          } catch (e) {
-              this.logger.error(`Failed to acquire lock via Redis: ${(e as Error).message}`);
-          }
-      }
-      return true; // Fallback: if no redis client, assume single instance (dev)
-  }
-
-  private async releaseLock(key: string, value: string): Promise<void> {
-      const store = (this.cacheManager as any).store;
-      if (store.client) {
-           try {
-               // Simple release. For strict safety we should use Lua script to check value match,
-               // but for a daily cron this is acceptable 99.9%
-               const client = store.client;
-               const currentVal = await client.get(key);
-               if (currentVal === value) {
-                   await client.del(key);
-               }
-           } catch (e) {
-               this.logger.error(`Failed to release lock: ${(e as Error).message}`);
-           }
-      }
-  }
 }

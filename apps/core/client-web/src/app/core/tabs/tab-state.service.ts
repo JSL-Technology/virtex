@@ -58,6 +58,14 @@ export class TabStateService {
   private closeHandlers = new Map<string, TabSaveHandler>();
 
   constructor() {
+    // A tab titled from the catalogue follows the language. Its title was translated once, when it
+    // opened, so switching to Spanish left «Customers» and «Inventory adjustments» in English.
+    this.translate.onLangChange.subscribe(() => {
+      for (const tab of this.tabsSignal()) {
+        if (tab.titleKey) this.patch(tab.id, { title: this.translate.instant(tab.titleKey) });
+      }
+    });
+
     // §9: al eliminarse un registro en otra pestaña, cerrar su pestaña RECORD.
     this.bus.on(TabEvent.RECORD_DELETED).subscribe((e) => {
       if (!e.id) return;
@@ -122,10 +130,10 @@ export class TabStateService {
     // traducirla o la pestaña muestra la clave en crudo. `config.title` y `titleFn(...)` ya vienen
     // resueltos (p. ej. «Factura n.º 123»), así que no se tocan. Si i18n aún no cargó, `instant`
     // devuelve la clave y el pipe `translate` de la cabecera la resuelve al terminar de cargar.
+    const titleKey = config.title || definition.titleFn ? undefined : (definition.title ?? 'tabs.new_tab');
     const title = config.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)
-      ?? (definition.title ? this.translate.instant(definition.title) : undefined)
-      ?? this.translate.instant('tabs.new_tab');
+      ?? this.translate.instant(titleKey as string);
     const icon = config.icon || definition.icon || 'File';
     const routeParams = { ...params, ...(config.routeParams ?? {}) };
 
@@ -138,6 +146,7 @@ export class TabStateService {
         this.reusePreview(preview.id, {
           type: definition.tabType,
           title,
+          titleKey,
           icon,
           route: this.canonicalRoute(config.route),
           routeParams,
@@ -157,6 +166,7 @@ export class TabStateService {
       id: this.newId(),
       type: definition.tabType,
       title,
+      titleKey,
       icon,
       route: this.canonicalRoute(config.route),
       routeParams,
@@ -214,6 +224,7 @@ export class TabStateService {
     next: {
       type: TabType;
       title: string;
+      titleKey?: string;
       icon: string;
       route: string;
       routeParams: Record<string, string>;
@@ -351,7 +362,8 @@ export class TabStateService {
   }
 
   updateTitle(tabId: string, title: string): void {
-    this.patch(tabId, { title });
+    // A title set by the page is data (the document's own number), not a catalogue entry.
+    this.patch(tabId, { title, titleKey: undefined });
   }
 
   /**
@@ -393,10 +405,11 @@ export class TabStateService {
       return;
     }
 
+    const titleKey = options.title || definition.titleFn ? undefined : definition.title;
     const title =
       options.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)
-      ?? (definition.title ? this.translate.instant(definition.title) : tab.title);
+      ?? (titleKey ? this.translate.instant(titleKey) : tab.title);
 
     this.patch(tabId, {
       route: this.canonicalRoute(route),
@@ -404,6 +417,7 @@ export class TabStateService {
       queryParams: tab.queryParams,
       entityKey,
       title,
+      titleKey: titleKey ?? (options.title ? undefined : tab.titleKey),
       type: definition.tabType,
       icon: definition.icon ?? tab.icon,
       //  Se acaba de guardar: no hay nada pendiente.

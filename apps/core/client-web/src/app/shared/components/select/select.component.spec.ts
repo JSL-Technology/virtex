@@ -322,6 +322,21 @@ describe('VxSelectComponent', () => {
       flush();
     }));
 
+    it('con nada tecleado, la fila de crear no cita una búsqueda vacía (QA B10)', fakeAsync(() => {
+      const fixture = build();
+      inputOf(fixture).focus();
+      press(fixture, 'ArrowDown');
+      settle(fixture);
+
+      const label = () => (document.querySelector('.vx-select__create') as HTMLElement).textContent?.trim();
+      expect(label()).toBe('shared.select.create_blank');
+
+      type(fixture, 'Bloques');
+      settle(fixture);
+      expect(label()).toBe('shared.select.create');
+      flush();
+    }));
+
     it('crea sin sacar al usuario del formulario, y le devuelve el foco', fakeAsync(() => {
       const fixture = build();
       inputOf(fixture).focus();

@@ -166,6 +166,32 @@ async function main() {
       check(`${identity.country}: taxes deferred by design`, taxes === 0, `${taxes} taxes`);
     }
 
+    // The working defaults (database/seeds/tenant-defaults.ts): a company can sell, file a
+    // product and — in the Dominican Republic — run payroll without building these first.
+    const finalConsumers = Number(
+      (
+        await ds.query(
+          `SELECT COUNT(*)::int AS n FROM customers WHERE organization_id = $1 AND is_final_consumer`,
+          [orgId],
+        )
+      )[0].n,
+    );
+    check(`${identity.country}: final consumer seeded`, finalConsumers === 1, `${finalConsumers} rows`);
+    check(`${identity.country}: default product category`, (await countOf('product_categories')) >= 1);
+    const tills = Number(
+      (
+        await ds.query(
+          `SELECT COUNT(*)::int AS n FROM bank_accounts WHERE organization_id = $1 AND account_type = 'CASH'`,
+          [orgId],
+        )
+      )[0].n,
+    );
+    check(`${identity.country}: cash account on the chart's cash account`, tills === 1, `${tills} accounts`);
+    if (identity.country === 'DO') {
+      const concepts = await countOf('payroll_concepts');
+      check(`${identity.country}: payroll concepts seeded`, concepts >= 10, `${concepts} concepts`);
+    }
+
     // Idempotency: the Stripe webhook and the browser redirect race each other, and both call
     // this. A second call must return the same account, not a second one.
     const again = await registration.completePendingRegistration(pending.id, {
@@ -178,6 +204,10 @@ async function main() {
     check(
       `${identity.country}: no duplicate chart of accounts`,
       (await countOf('accounts')) === accounts,
+    );
+    check(
+      `${identity.country}: no duplicate final consumer`,
+      Number((await ds.query(`SELECT COUNT(*)::int AS n FROM customers WHERE organization_id = $1`, [orgId]))[0].n) === 1,
     );
   }
 

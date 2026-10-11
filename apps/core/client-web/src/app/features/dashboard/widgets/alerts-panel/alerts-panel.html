@@ -14,9 +14,13 @@
         <li class="alert-item" [ngClass]="alert.severity">
             <lucide-icon [img]="alert.severity === 'critical' ? CriticalIcon : WarningIcon" size="20"
                 class="alert-icon"></lucide-icon>
+            <!-- One sentence per alert, the key the server sends. The template appended `.TITLE` and
+                 `.BODY`, which no catalogue defines, so every alert showed its own key. -->
             <div class="alert-details">
-                <h4 class="alert-title">{{ alert.messageKey + '.TITLE' | translate: alert.params }}</h4>
-                <p class="alert-description">{{ alert.messageKey + '.BODY' | translate: alert.params }}</p>
+                <p class="alert-title">{{ alert.messageKey | translate: alert.params }}</p>
+                @if (alert.route) {
+                <a class="alert-action" [routerLink]="alert.route">{{ 'dashboard.alerts_panel.review' | translate }}</a>
+                }
             </div>
         </li>
         }

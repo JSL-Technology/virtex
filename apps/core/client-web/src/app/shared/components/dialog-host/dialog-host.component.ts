@@ -21,6 +21,8 @@ import { VxDialogComponent } from '../dialog';
  * topmost overlay rather than to the document. Everything below is what this host actually has to
  * decide — which buttons a `confirm`, a `close` and a `prompt` carry, and what each resolves to.
  */
+let nextDialogHostId = 0;
+
 @Component({
   selector: 'app-dialog-host',
   standalone: true,
@@ -43,14 +45,16 @@ import { VxDialogComponent } from '../dialog';
             <lucide-icon [img]="iconFor(d.variant)" size="24"></lucide-icon>
           </div>
 
-          <p class="dialog-message">{{ d.message }}</p>
+          <p class="dialog-message" [id]="messageId">{{ d.message }}</p>
 
           @if (d.kind === 'prompt') {
-            <label class="dialog-field">
-              <span class="sr-only">{{ d.message }}</span>
+            <!-- The question labels the field by reference. A hidden copy of it inside the label made
+                 every screen reader — and every text extraction — read the paragraph twice. -->
+            <div class="dialog-field">
               <input
                 #promptInput
                 cdkFocusInitial
+                [attr.aria-labelledby]="messageId"
                 class="dialog-input"
                 type="text"
                 autocomplete="off"
@@ -60,7 +64,7 @@ import { VxDialogComponent } from '../dialog';
                 (input)="draft.set(promptInput.value)"
                 (keydown.enter)="submitPrompt()"
               />
-            </label>
+            </div>
             @if (promptError()) {
               <p class="dialog-error" role="alert">{{ d.tooShort }}</p>
             }
@@ -122,6 +126,8 @@ export class DialogHostComponent {
 
   /** What the reader has typed into a `prompt` dialog. */
   protected readonly draft = signal('');
+  /** Labels the prompt's field; unique per host so two hosts on a page never collide. */
+  protected readonly messageId = `vx-dialog-message-${nextDialogHostId++}`;
   protected readonly promptError = signal(false);
 
   constructor() {
@@ -144,7 +150,11 @@ export class DialogHostComponent {
     const dialog = this.dialog();
     if (!dialog) return;
     const value = this.draft().trim();
-    if (value.length < Math.max(1, dialog.minLength)) {
+    // Exactly the minimum the caller asked for. It used to be at least one character whatever the
+    // caller said, so a prompt whose answer is optional — "leave blank to use the customer's
+    // address" — refused the blank answer, and with no message configured for that case the
+    // button simply did nothing.
+    if (value.length < dialog.minLength) {
       this.promptError.set(true);
       return;
     }

@@ -15,10 +15,6 @@
  * part a CI run cannot exercise.
  */
 import 'reflect-metadata';
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { SignedXml } from 'xml-crypto';
 
@@ -38,33 +34,12 @@ import {
 import { PaymentMethod } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
 import { EcfLifecycleXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/services/ecf-lifecycle-xml.builder';
 import { dgiiTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
+import { makeTestCertificate } from './support/test-certificate';
 
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
   console.log(`${ok ? '✓' : '✗'} ${label}${detail ? ` — ${detail}` : ''}`);
   if (!ok) failures.push(`${label}${detail ? ` — ${detail}` : ''}`);
-}
-
-/** A throwaway PKCS#12, so the signature path is exercised for real rather than stubbed. */
-function makeCertificate(dir: string): { pfx: Buffer; password: string; certPem: string } {
-  const password = 'sonda-ecf';
-  const key = join(dir, 'key.pem');
-  const cert = join(dir, 'cert.pem');
-  const p12 = join(dir, 'test.p12');
-  execFileSync('openssl', [
-    'req', '-x509', '-newkey', 'rsa:2048', '-keyout', key, '-out', cert,
-    '-days', '30', '-nodes', '-subj', '/CN=SONDA e-CF',
-  ], { stdio: 'ignore' });
-  try {
-    execFileSync('openssl', [
-      'pkcs12', '-export', '-out', p12, '-inkey', key, '-in', cert, '-passout', `pass:${password}`, '-legacy',
-    ], { stdio: 'ignore' });
-  } catch {
-    execFileSync('openssl', [
-      'pkcs12', '-export', '-out', p12, '-inkey', key, '-in', cert, '-passout', `pass:${password}`,
-    ], { stdio: 'ignore' });
-  }
-  return { pfx: readFileSync(p12), password, certPem: readFileSync(cert, 'utf8') };
 }
 
 function baseContext(): EcfBuildContext {
@@ -194,9 +169,8 @@ function main(): void {
     builder.build(foreign).includes('<TipoMoneda>USD</TipoMoneda>'));
 
   // ── Signature ───────────────────────────────────────────────────────────────
-  const dir = mkdtempSync(join(tmpdir(), 'ecf-'));
-  try {
-    const { pfx, password, certPem } = makeCertificate(dir);
+  {
+    const { pfx, password, certPem } = makeTestCertificate();
     const vault = new CertificateVaultService({
       get: (key: string) => (key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-prueba-para-certificados' : undefined),
     } as never);
@@ -272,8 +246,6 @@ function main(): void {
       dgiiTimestamp(zone, lateEvening) === '31-08-2026 20:30:00', dgiiTimestamp(zone, lateEvening));
     check('una venta de la noche del último día del mes no salta de período',
       fiscalDate(zone, lateEvening) === '2026-08-31', fiscalDate(zone, lateEvening));
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
   }
 
   console.log(

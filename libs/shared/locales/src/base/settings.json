@@ -662,6 +662,11 @@
     "en": "Alias",
     "pt": "Apelido"
   },
+  "settings.fiscal.authorization_code": {
+    "es": "Código de autorización",
+    "en": "Authorization code",
+    "pt": "Código de autorização"
+  },
   "settings.fiscal.capability.accounting": {
     "es": "Contabilidad",
     "en": "Bookkeeping",
@@ -792,6 +797,11 @@
     "en": "Expires",
     "pt": "Vence"
   },
+  "settings.fiscal.expires_on": {
+    "es": "Vence el",
+    "en": "Expires on",
+    "pt": "Vence em"
+  },
   "settings.fiscal.file_p12_pfx": {
     "es": "Archivo (.p12 / .pfx)",
     "en": "File (.p12 / .pfx)",
@@ -827,6 +837,21 @@
     "en": "Prefix",
     "pt": "Prefixo"
   },
+  "settings.fiscal.range_expired": {
+    "es": "Vencido",
+    "en": "Expired",
+    "pt": "Vencido"
+  },
+  "settings.fiscal.range_expiring": {
+    "es": "Vence pronto",
+    "en": "Expiring soon",
+    "pt": "Vence em breve"
+  },
+  "settings.fiscal.range_running_low": {
+    "es": "Quedan pocos",
+    "en": "Running low",
+    "pt": "Restam poucos"
+  },
   "settings.fiscal.register_range": {
     "es": "Registrar rango",
     "en": "Register range",
@@ -836,6 +861,11 @@
     "es": "Registrando…",
     "en": "Registering…",
     "pt": "A registar…"
+  },
+  "settings.fiscal.remaining": {
+    "es": "Disponibles",
+    "en": "Remaining",
+    "pt": "Disponíveis"
   },
   "settings.fiscal.requires": {
     "es": "Necesita",

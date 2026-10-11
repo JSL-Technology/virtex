@@ -257,7 +257,8 @@ export class OverviewService {
       for (const period of closing) {
         events.push({
           id: `period:${period.id}`,
-          kind: 'PERIOD_CLOSE',
+          // Still open after its last day: the close is late, and is shown like any overdue item.
+          kind: isoDate(period.endDate) < isoDate(today) ? 'PERIOD_CLOSE_OVERDUE' : 'PERIOD_CLOSE',
           date: isoDate(period.endDate),
           reference: period.name,
           counterparty: null,

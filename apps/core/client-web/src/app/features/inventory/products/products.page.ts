@@ -79,8 +79,16 @@ export class ProductsPage implements OnInit {
 
 
   /** Sin existencias es un problema, por debajo del punto de pedido es un aviso. */
+  /** What the status column says. A service is available while active; it has no stock to run out of. */
+  stockLabel(product: Product): string {
+    if (product.status !== 'Active') return 'inventory.products.status_inactive';
+    if (product.kind === 'SERVICE') return 'inventory.products.service_available';
+    return product.stock > 0 ? 'inventory.products.stock_in' : 'inventory.products.stock_out';
+  }
+
   stockTone(product: Product): VxTone {
     if (product.status === 'Inactive') return 'neutral';
+    if (product.kind === 'SERVICE') return 'ok';
     if (product.stock === 0) return 'danger';
     if (product.reorderLevel && product.stock <= product.reorderLevel) return 'warning';
     return 'ok';

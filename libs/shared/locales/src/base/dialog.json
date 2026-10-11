@@ -194,6 +194,11 @@
     "en": "Workbook saved.",
     "pt": "Pasta de trabalho salva."
   },
+  "dialog.prompt.required": {
+    "es": "Escribe una respuesta para continuar.",
+    "en": "Type an answer to continue.",
+    "pt": "Escreva uma resposta para continuar."
+  },
   "dialog.reopen_period.reason_reopening": {
     "es": "Motivo de la reapertura",
     "en": "Reason for reopening",

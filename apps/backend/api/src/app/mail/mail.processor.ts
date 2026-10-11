@@ -6,6 +6,7 @@ import { Job } from 'bullmq';
 import { createHash } from 'crypto';
 import { I18nService } from '../i18n/i18n.service';
 import { MAIL_QUEUE, MailJob } from './mail.queue';
+import { devOutboxDir, devOutboxEnabled, saveToDevOutbox } from './dev-outbox';
 
 /**
  * The only place an email is actually handed to SMTP.
@@ -53,7 +54,7 @@ export class MailProcessor extends WorkerHost {
     const subject = this.i18n.translate(subjectKey, language, subjectParams ?? {});
 
     try {
-      await this.mailerService.sendMail({
+      const info = await this.mailerService.sendMail({
         to,
         subject,
         ...(from ? { from } : {}),
@@ -71,6 +72,14 @@ export class MailProcessor extends WorkerHost {
             }
           : {}),
       });
+      if (devOutboxEnabled(this.config)) {
+        const file = saveToDevOutbox(info, devOutboxDir(this.config));
+        this.logger.log(
+          { event: 'mail_saved_to_dev_outbox', template, file },
+          `No SMTP server configured: "${subject}" was saved to ${file}`,
+        );
+        return;
+      }
       this.logger.log(
         { event: 'mail_sent', template, recipientHash: this.recipientHash(to) },
         'Transactional email delivered.',

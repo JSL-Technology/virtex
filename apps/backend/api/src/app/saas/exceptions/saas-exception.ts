@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { SaasResource } from '../enums/saas-resource.enum';
+import { LOCALIZED_ERROR } from '../../i18n/localized.exception';
 
 export enum SaasErrorCode {
   LIMIT_REACHED = 'SAAS_LIMIT_REACHED',
@@ -8,7 +9,23 @@ export enum SaasErrorCode {
   PLAN_NOT_FOUND = 'SAAS_PLAN_NOT_FOUND',
 }
 
+/**
+ * What each refusal says to the reader. These exceptions carried English text the exception filter
+ * could not translate, so a plan limit reached the screen as the generic «You do not have
+ * permission to perform this action» — the wrong reason, and no way forward.
+ */
+const MESSAGE_KEYS: Readonly<Record<SaasErrorCode, string>> = {
+  [SaasErrorCode.LIMIT_REACHED]: 'saas.plan_limit_reached',
+  [SaasErrorCode.FEATURE_NOT_ENABLED]: 'saas.plan_feature_not_enabled',
+  [SaasErrorCode.ORGANIZATION_NOT_FOUND]: 'saas.no_active_plan',
+  [SaasErrorCode.PLAN_NOT_FOUND]: 'saas.no_active_plan',
+};
+
 export class SaasException extends HttpException {
+  declare readonly [LOCALIZED_ERROR]: true;
+  declare readonly messageKey: string;
+  declare readonly params: Record<string, unknown>;
+
   constructor(
     public readonly code: SaasErrorCode,
     public readonly resource?: SaasResource | string,
@@ -24,6 +41,15 @@ export class SaasException extends HttpException {
       },
       status
     );
+    // Localized, keeping the SaaS code as the error code: the transition remedies match on it
+    // (`SAAS_LIMIT_REACHED` → «Review plan»).
+    Object.assign(this, {
+      [LOCALIZED_ERROR]: true as const,
+      messageKey: MESSAGE_KEYS[code],
+      params: {
+        resource: code === SaasErrorCode.LIMIT_REACHED && resource ? `saas.resources.${resource}` : (resource ?? ''),
+      },
+    });
   }
 }
 
@@ -62,7 +88,7 @@ export class SaasNoPlanException extends SaasException {
     super(
       SaasErrorCode.PLAN_NOT_FOUND,
       organizationId,
-      'Esta organización no tiene un plan activo. Contacta a soporte para completar la activación.',
+      'The organization has no active plan.',
       HttpStatus.PAYMENT_REQUIRED,
     );
   }

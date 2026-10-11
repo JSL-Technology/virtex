@@ -59,7 +59,9 @@ export type OverviewEventKind =
   | 'RECEIVABLE_OVERDUE'
   | 'PAYABLE_DUE'
   | 'PAYABLE_OVERDUE'
-  | 'PERIOD_CLOSE';
+  | 'PERIOD_CLOSE'
+  /** An accounting period still open after its last day: the close is late, not coming. */
+  | 'PERIOD_CLOSE_OVERDUE';
 
 /** A dated obligation this tenant's own data says is coming. */
 export interface OverviewEventDto {
