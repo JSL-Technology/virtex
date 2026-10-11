@@ -85,6 +85,7 @@ export interface InvoiceListQuery {
  */
 export const INVOICE_LIST_SORT: Readonly<Record<string, string>> = {
   number: 'invoice.invoiceNumber',
+  fiscalNumber: 'invoice.fiscalNumber',
   customer: 'invoice.customerName',
   issueDate: 'invoice.issueDate',
   dueDate: 'invoice.dueDate',

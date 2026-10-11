@@ -28,7 +28,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { TableSort, VX_SORT } from '../../../shared/components/sort';
 
-type InvoiceSortKey = 'number' | 'customer' | 'issueDate' | 'dueDate' | 'total' | 'status';
+type InvoiceSortKey = 'number' | 'fiscalNumber' | 'customer' | 'issueDate' | 'dueDate' | 'total' | 'status';
 
 /**
  * The invoice list.

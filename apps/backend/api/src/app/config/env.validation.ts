@@ -352,6 +352,8 @@ export const envValidation = Joi.object({
   MAIL_FROM_NAME: devDefault('Virtex'),
   /** Implicit TLS (port 465). Port 587 upgrades with STARTTLS and must leave this false. */
   MAIL_SECURE: Joi.boolean().default(false),
+  // Development only: where messages go when no SMTP server is configured (see mail/dev-outbox.ts).
+  MAIL_OUTBOX_DIR: Joi.string().optional(),
 
   // H-04 FIX: reCAPTCHA controlled by explicit flag, not NODE_ENV.
   // (crypto secrets are already validated above — do not redeclare them here)

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { TabStateService } from './tab-state.service';
 import { TabRegistryService } from './tab-registry.service';
 import { TabPreferencesService } from './tab-preferences.service';
@@ -46,9 +46,12 @@ function resolve(route: string) {
 describe('TabStateService — vista previa al abrir', () => {
   let tabs: TabStateService;
   const enablePreview = signal(true);
+  const langChange = new Subject<void>();
+  let lang = 'en';
 
   beforeEach(() => {
     enablePreview.set(true);
+    lang = 'en';
     TestBed.configureTestingModule({
       providers: [
         TabStateService,
@@ -57,7 +60,7 @@ describe('TabStateService — vista previa al abrir', () => {
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },
         { provide: TabEventBusService, useValue: { on: () => of(), emit: jest.fn() } },
-        { provide: TranslateService, useValue: { instant: (k: string) => k } },
+        { provide: TranslateService, useValue: { instant: (k: string) => `${lang}:${k}`, onLangChange: langChange } },
       ],
     });
     tabs = TestBed.inject(TabStateService);
@@ -95,5 +98,19 @@ describe('TabStateService — vista previa al abrir', () => {
     tabs.openTab({ route: '/invoices/89' });
     expect(tabs.tabs().length).toBe(2);
     expect(tabs.tabs().every((t) => !t.isPreview)).toBe(true);
+  });
+
+  it('a tab titled from the catalogue follows a language change; a document title does not', () => {
+    tabs.openTab({ route: '/invoices', preview: false });
+    tabs.openTab({ route: '/invoices/88', preview: false });
+    const [list, record] = tabs.tabs();
+    tabs.updateTitle(record.id, 'Invoice E310000000001');
+    expect(tabs.tabs().find((t) => t.id === list.id)?.title).toBe('en:Invoices');
+
+    lang = 'es';
+    langChange.next();
+
+    expect(tabs.tabs().find((t) => t.id === list.id)?.title).toBe('es:Invoices');
+    expect(tabs.tabs().find((t) => t.id === record.id)?.title).toBe('Invoice E310000000001');
   });
 });

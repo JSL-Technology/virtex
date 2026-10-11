@@ -864,6 +864,11 @@
     "en": "Search by name, SKU or category...",
     "pt": "Buscar por nome, SKU ou categoria..."
   },
+  "inventory.products.service_available": {
+    "es": "Disponible",
+    "en": "Available",
+    "pt": "Disponível"
+  },
   "inventory.products.status": {
     "es": "Estado",
     "en": "Status",

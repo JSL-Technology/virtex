@@ -129,6 +129,18 @@ export class InvoiceDetailPage implements OnInit {
     return `${this.translate.instant(key)} #${invoice.invoiceNumber}`;
   }
 
+  /** Days of credit the document gives: the gap between its issue and due dates. */
+  creditDays(invoice: Invoice): number {
+    if (!invoice.issueDate || !invoice.dueDate) return 0;
+    const issued = Date.parse(String(invoice.issueDate).slice(0, 10));
+    const due = Date.parse(String(invoice.dueDate).slice(0, 10));
+    return Math.max(0, Math.round((due - issued) / 86_400_000));
+  }
+
+  termsKey(invoice: Invoice): string {
+    return this.creditDays(invoice) > 0 ? 'invoices.detail.terms_credit_days' : 'invoices.detail.terms_on_receipt';
+  }
+
   paymentMethodKey(method: PaymentMethod | null | undefined): string {
     return method ? `invoices.payment_method.${method}` : 'common.not_recorded';
   }
@@ -428,9 +440,25 @@ export class InvoiceDetailPage implements OnInit {
     if (!invoice) return;
     const { Workbook } = await import('exceljs');
     const workbook = new Workbook();
-    const sheet = workbook.addWorksheet(invoice.fiscalNumber ?? invoice.invoiceNumber);
+    const sheet = workbook.addWorksheet(exportBaseName(invoice).slice(0, 31));
     const t = (key: string) => this.translate.instant(key);
-    sheet.addRow([t('invoices.detail.description'), t('invoices.detail.qty'), t('invoices.detail.price'), t('invoices.detail.tax'), t('invoices.detail.total')]);
+    // Who, what and when first: a sheet of bare lines could not be filed, matched to a payment or
+    // handed to an accountant without the document it came from.
+    const header: Array<[string, string | number]> = [
+      [t('invoices.detail.ncf'), invoice.fiscalNumber ?? '—'],
+      [t('invoices.list.invoice_number'), invoice.invoiceNumber],
+      [t('invoices.detail.bill'), invoice.customerName],
+      [t('invoices.detail.customer_tax_id'), invoice.customerTaxId ?? '—'],
+      [t('invoices.detail.date'), String(invoice.issueDate).slice(0, 10)],
+      [t('invoices.detail.due'), String(invoice.dueDate).slice(0, 10)],
+      [t('invoices.detail.currency'), invoice.currencyCode],
+    ];
+    for (const [label, value] of header) {
+      sheet.addRow([label, value]).getCell(1).font = { bold: true };
+    }
+    sheet.addRow([]);
+    const columns = sheet.addRow([t('invoices.detail.description'), t('invoices.detail.qty'), t('invoices.detail.price'), t('invoices.detail.tax'), t('invoices.detail.total')]);
+    columns.font = { bold: true };
     for (const line of invoice.lineItems ?? []) {
       sheet.addRow([
         line.description,
@@ -443,23 +471,23 @@ export class InvoiceDetailPage implements OnInit {
     sheet.addRow([]);
     sheet.addRow([t('invoices.detail.subtotal'), '', '', '', Number(invoice.subtotal)]);
     sheet.addRow([t('invoices.detail.tax'), '', '', '', Number(invoice.tax)]);
-    sheet.addRow([t('invoices.detail.total'), '', '', '', Number(invoice.total)]);
-    sheet.getRow(1).font = { bold: true };
+    sheet.addRow([t('invoices.detail.total'), '', '', '', Number(invoice.total)]).font = { bold: true };
     sheet.columns.forEach((column, index) => (column.width = index === 0 ? 48 : 16));
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(
       new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      `${invoice.fiscalNumber ?? invoice.invoiceNumber}.xlsx`,
+      `${exportBaseName(invoice)}.xlsx`,
     );
   }
 
   downloadPdf(): void {
+    const invoice = this.invoice();
     this.invoicesService.downloadInvoicePdf(this.id()).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `factura-${this.invoice()?.invoiceNumber}.pdf`;
+        a.download = `${invoice ? exportBaseName(invoice) : 'invoice'}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -471,33 +499,24 @@ export class InvoiceDetailPage implements OnInit {
     });
   }
 
-  async downloadWord(): Promise<void> {
-    const element = document.querySelector('.invoice-document');
-    if (element) {
-        const html = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <title>Factura</title>
-              <style>
-                body { font-family: sans-serif; }
-                .invoice-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-                .line-items-table { width: 100%; border-collapse: collapse; }
-                .line-items-table th, .line-items-table td { border-bottom: 1px solid #ddd; padding: 8px; } /* Hoja de impresión: tinta sobre papel, independiente del tema */
-                .text-right { text-align: right; }
-                .summary-totals { margin-top: 20px; float: right; width: 250px; }
-              </style>
-            </head>
-            <body>
-              ${element.innerHTML}
-            </body>
-          </html>
-        `;
+  /**
+   * The same fiscal representation the PDF carries, as a Word document.
+   *
+   * It used to copy the on-screen preview out of the page: no issuer or buyer tax id, the screen's
+   * own layout, and a `<title>` hard-coded in Spanish. The server renders the official document for
+   * the PDF and the print view; Word now gets that one too.
+   */
+  downloadWord(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    this.invoicesService.printableHtml(invoice.id).subscribe({
+      next: async (html) => {
         const blob = await asBlob(html);
-        saveAs(blob as Blob, `factura-${this.invoice()?.invoiceNumber}.docx`);
+        saveAs(blob as Blob, `${exportBaseName(invoice)}.docx`);
         this.notificationService.showSuccess('invoices.detail.word_document_generated');
-    }
+      },
+      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.word_export_failed'),
+    });
   }
 
   /** "Copiar de" only makes sense on a draft: it pulls another document's lines into this one. */
@@ -702,4 +721,14 @@ export class InvoiceDetailPage implements OnInit {
       },
     });
   }
+}
+
+/**
+ * One file name for every export of a document: its fiscal number once it has one, its internal
+ * number before. The PDF and the Word file were named `factura-FAC-…` in Spanish whatever the
+ * reader's language, and the spreadsheet by the fiscal number, so three exports of one invoice
+ * sorted apart in a folder.
+ */
+export function exportBaseName(invoice: { fiscalNumber?: string | null; invoiceNumber: string }): string {
+  return (invoice.fiscalNumber || invoice.invoiceNumber).replace(/[^A-Za-z0-9._-]+/g, '-');
 }

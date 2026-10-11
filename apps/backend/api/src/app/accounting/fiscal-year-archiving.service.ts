@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, LessThan, Repository } from 'typeorm';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { Organization } from '../organizations/entities/organization.entity';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { addMonthsIso, toIsoMonth, todayIso } from '../common/dates';
 
 @Injectable()
@@ -26,28 +26,23 @@ export class FiscalYearArchivingService {
   @Cron('0 4 1 * *')
   async handleCron() {
     this.logger.log('Iniciando job de archivado de años fiscales...');
-    // tenant-scope-guard-allow: a cross-tenant maintenance cron that iterates every organization;
-    // `organizations` is the tenant table itself, not tenant-scoped data.
-    const organizations = await this.dataSource.manager.find(Organization);
-    
     const month = toIsoMonth(new Date());
-    for (const org of organizations) {
+    // Each tenant in its own context: fiscal years and settings are behind the row-level policies.
+    await forEachTenant(this.dataSource, async (organizationId) => {
       // Archiving marks years as archived, so a second replica running the same month would find
       // nothing to do — but the claim keeps the log honest and the work single-writer.
       await this.schedulerLock
-        .runOnce('fiscal-year-archiving', `${org.id}:${month}`, () =>
-          this.archiveForOrganization(org.id),
+        .runOnce('fiscal-year-archiving', `${organizationId}:${month}`, () =>
+          this.archiveForOrganization(organizationId),
         )
         .catch((error) => {
-          this.logger.error(
-            `Archivado fallido para ${org.id}: ${(error as Error).message}`,
-          );
+          this.logger.error(`Fiscal-year archiving failed for ${organizationId}: ${(error as Error).message}`);
         });
-    }
+    });
   }
 
   private async archiveForOrganization(organizationId: string): Promise<void> {
-    const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, { organizationId });
+    const settings = await this.dataSource.getRepository(OrganizationSettings).findOneBy({ organizationId });
     if (!settings) return;
 
     const archiveYears = settings.fiscalArchiveAfterYears;

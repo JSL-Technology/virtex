@@ -25,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
  * client can know.
  */
 const catalogue = [
-  { id: 'p-1', name: 'Servicio', price: 500, stock: 0, taxTreatment: 'TAXED', taxRate: 0.18 },
+  { id: 'p-1', name: 'Servicio', price: 500, stock: 0, taxTreatment: 'TAXED', taxRate: 0.18, kind: 'SERVICE' },
   { id: 'p-2', name: 'Mercancía', price: 100, stock: 3, taxTreatment: 'TAXED', taxRate: 0.18 },
 ];
 
@@ -187,6 +187,22 @@ describe('NewInvoicePage', () => {
       expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-03-02');
     });
 
+    it('marca la venta como a crédito cuando vence después de emitirse', () => {
+      // QA A4: the method opened on «Cash» and stayed there for a 30-day invoice.
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05', customerId: 'c-30' });
+      expect(component.invoiceForm.get('paymentMethod')?.value).toBe('CREDIT');
+      component.invoiceForm.patchValue({ customerId: 'c-0' });
+      expect(component.invoiceForm.get('paymentMethod')?.value).toBe('CASH');
+    });
+
+    it('respeta el método que el usuario eligió', () => {
+      const method = component.invoiceForm.get('paymentMethod');
+      method?.setValue('BANK_TRANSFER');
+      method?.markAsDirty();
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05', customerId: 'c-30' });
+      expect(method?.value).toBe('BANK_TRANSFER');
+    });
+
     it('no pisa una fecha que el usuario escribió', () => {
       component.invoiceForm.patchValue({ issueDate: '2026-03-05' });
       component.invoiceForm.get('dueDate')!.setValue('2026-12-31');
@@ -314,6 +330,13 @@ describe('NewInvoicePage', () => {
     component.lineItems.at(0).patchValue({ productId: 'p-2', quantity: 5 });
     expect(component.stockShortfall(0)).toBe(2);
     expect(component.hasStockShortfall()).toBe(true);
+  });
+
+  it('never reports a service as short of stock: it is not stocked', () => {
+    // QA M1: billing one delivery warned "1 units short of the stock on hand" and blocked issuing.
+    component.lineItems.at(0).patchValue({ productId: 'p-1', quantity: 1 });
+    expect(component.stockShortfall(0)).toBe(0);
+    expect(component.hasStockShortfall()).toBe(false);
   });
 
   it('refuses to issue while a line exceeds the stock', () => {

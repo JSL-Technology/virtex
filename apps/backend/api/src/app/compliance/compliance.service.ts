@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { NcfSequence } from './entities/ncf-sequence.entity';
 import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
+import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purchase-fiscal-records.registry';
 import { monthBounds } from '../common/dates';
 import { Invoice } from '../invoices/entities/invoice.entity';
@@ -214,12 +215,6 @@ export class ComplianceService {
     if (prefix.toUpperCase() !== type) {
       throw new BadRequestError('compliance.prefix_prefix_does_not_match_document', { prefix, type });
     }
-    if (input.expiresAt) {
-      const today = new Date().toISOString().split('T')[0];
-      if (input.expiresAt < today) {
-        throw new BadRequestError('compliance.authorization_expiry_date_has_passed_range');
-      }
-    }
 
     // The requested code must be one the tenant's OWN authority publishes. This is the check that
     // replaced `@IsEnum(NcfType)` at the HTTP boundary (C-03): the border no longer refuses a
@@ -233,6 +228,18 @@ export class ComplianceService {
       });
       if (!known) {
         throw new BadRequestError('compliance.document_type_type_not_authorised_region', { type });
+      }
+      // The authority dates every range of this type; a range registered without its end date
+      // would never stop being used, and documents numbered after it lapses are rejected.
+      if (known.expirationRequired && !input.expiresAt) {
+        throw new BadRequestError('compliance.range_expiry_date_required', { type });
+      }
+    }
+    if (input.expiresAt) {
+      // Compared with the tenant's own today: at 21:00 in Santo Domingo the UTC date is already
+      // tomorrow, which refused a range that expires today.
+      if (input.expiresAt < fiscalDate(organizationTimeZone(organization))) {
+        throw new BadRequestError('compliance.authorization_expiry_date_has_passed_range');
       }
     }
 

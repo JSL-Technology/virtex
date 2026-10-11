@@ -16,6 +16,12 @@ export interface TabModel {
 
   // Presentación
   title: string;                 // "Factura #00123"
+  /**
+   * The catalogue key the title was translated from, when it came from one (`page_titles.invoices`).
+   * Kept so a language change can retitle the tab; a title that is data — a document number — has
+   * none and is left as it is.
+   */
+  titleKey?: string;
   icon: string;                  // nombre de icono lucide ("Receipt")
   badge?: number;                // Notificaciones dentro de la pestaña
 

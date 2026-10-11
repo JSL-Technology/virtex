@@ -1,3 +1,4 @@
+import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { DepreciationPort } from './depreciation.port';
@@ -7,7 +8,6 @@ import { AssetPostingService } from './asset-posting.service';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
 import { Cron } from '@nestjs/schedule';
-import { Organization } from '../organizations/entities/organization.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import {
   CreateJournalEntryDto,
@@ -100,16 +100,17 @@ export class DepreciationService extends DepreciationPort {
     );
 
     await this.schedulerLock.runOnce('monthly-depreciation', toIsoMonth(target), async () => {
-      const organizations = await this.dataSource.getRepository(Organization).find({
-        select: { id: true },
-      });
-      for (const org of organizations) {
-        await this.runMonthlyDepreciation(org.id, target).catch((error) => {
-          this.logger.error(
-            `Depreciación fallida para la organización ${org.id}: ${(error as Error).message}`,
-          );
-        });
-      }
+      // Each tenant in its own context: the assets are behind the row-level policies, and a run
+      // with no tenant set found none and depreciated nothing.
+      await forEachTenant(
+        this.dataSource,
+        async (organizationId) => {
+          await this.runMonthlyDepreciation(organizationId, target);
+        },
+        undefined,
+        (organizationId, error) =>
+          this.logger.error(`Depreciation failed for organization ${organizationId}: ${(error as Error).message}`),
+      );
     });
   }
 

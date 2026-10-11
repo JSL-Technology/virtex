@@ -90,6 +90,7 @@ describeWithDb('recurring journal entries', () => {
       new SchedulerLockService(dataSource),
       dataSource.getRepository(RecurringJournalEntry),
       { add: jest.fn() } as never,
+      dataSource,
     );
     templates = new JournalEntryTemplatesService(dataSource.getRepository(JournalEntryTemplate), entries, dataSource);
   });

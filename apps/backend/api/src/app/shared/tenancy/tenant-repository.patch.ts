@@ -1,4 +1,4 @@
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, QueryRunner, Repository } from 'typeorm';
 import { currentTenantStore } from './tenant-context';
 
 /**
@@ -25,6 +25,13 @@ import { currentTenantStore } from './tenant-context';
  *    `createQueryBuilder` alike.
  *  - `DataSource.transaction` — 96 call sites open transactions this way. Left alone, each would
  *    take a fresh connection from the pool, without the tenant setting, and see nothing.
+ *  - `DataSource.createQueryRunner` — every OTHER way to reach the database opens a runner through
+ *    it: `dataSource.manager.find(...)`, `dataSource.query(...)` and a runner a service opens to
+ *    control its own transaction (the issue preview does). 146 call sites. A runner created inside
+ *    a tenant context now carries that tenant from the moment it connects, and gives the
+ *    connection back to the pool with the setting reset. Before, all of them read from a clean
+ *    connection: for the unprivileged role that is zero rows, so those screens were empty in
+ *    production and only there.
  *
  * Patching a library prototype is not a thing to do lightly, and it is done here because the
  * alternative is worse: an invariant that holds only where somebody remembered to apply it. The
@@ -71,4 +78,54 @@ export function patchDataAccessForTenancy(): void {
     }
     return (store.manager.transaction as (...a: unknown[]) => unknown).apply(store.manager, args);
   } as typeof DataSource.prototype.transaction;
+
+  // ── DataSource.createQueryRunner ───────────────────────────────────────────
+  const originalCreateQueryRunner = DataSource.prototype.createQueryRunner;
+
+  DataSource.prototype.createQueryRunner = function patchedCreateQueryRunner(
+    this: DataSource,
+    ...args: Parameters<DataSource['createQueryRunner']>
+  ) {
+    const runner = originalCreateQueryRunner.apply(this, args);
+    const store = currentTenantStore();
+    if (!store) return runner;
+    bindRunnerToTenant(runner, store.organizationId);
+    return runner;
+  } as typeof DataSource.prototype.createQueryRunner;
+}
+
+/**
+ * Stamps the tenant on a runner's connection when it connects, and resets it on release.
+ *
+ * Session-level (`set_config(..., false)`) because the runner may run many statements, inside and
+ * outside transactions. RESET on release, never left behind: the connection returns to a shared
+ * pool, and whoever borrows it next must not inherit this tenant. The flag is set BEFORE the
+ * stamping query, because `query()` itself calls `connect()` and would otherwise recurse.
+ */
+function bindRunnerToTenant(runner: QueryRunner, organizationId: string): void {
+  const connect = runner.connect.bind(runner);
+  const release = runner.release.bind(runner);
+  let stamped = false;
+
+  runner.connect = async () => {
+    const connection = await connect();
+    if (!stamped) {
+      stamped = true;
+      try {
+        await runner.query(`SELECT set_config('app.current_organization', $1, false)`, [organizationId]);
+      } catch (error) {
+        stamped = false;
+        throw error;
+      }
+    }
+    return connection;
+  };
+
+  runner.release = async () => {
+    if (stamped && !runner.isReleased) {
+      stamped = false;
+      await runner.query(`RESET app.current_organization`).catch(() => undefined);
+    }
+    return release();
+  };
 }

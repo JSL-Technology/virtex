@@ -24,7 +24,12 @@
     "en": "The entry does not balance. Review it before continuing.",
     "pt": "O lançamento não fecha. Reveja antes de continuar."
   },
-  "transition.lines": {
+  "transition.line_count.one": {
+    "es": "{{count}} línea",
+    "en": "{{count}} line",
+    "pt": "{{count}} linha"
+  },
+  "transition.line_count.other": {
     "es": "{{count}} líneas",
     "en": "{{count}} lines",
     "pt": "{{count}} linhas"

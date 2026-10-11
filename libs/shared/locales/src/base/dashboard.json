@@ -29,6 +29,11 @@
     "en": "Nothing needs attention right now.",
     "pt": "Nada requer atenção neste momento."
   },
+  "dashboard.alerts_panel.review": {
+    "es": "Revisar",
+    "en": "Review",
+    "pt": "Rever"
+  },
   "dashboard.ar_aging_chart.accounts_receivable_ageing": {
     "es": "Envejecimiento de Cuentas por Cobrar",
     "en": "Accounts Receivable Ageing",

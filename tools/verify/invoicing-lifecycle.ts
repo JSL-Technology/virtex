@@ -121,6 +121,7 @@ async function main(): Promise<void> {
   try {
     await compliance.provisionNcfSequence(orgId, {
       type: NcfType.E31, prefix: 'E31', startsAt: 50, endsAt: 150,
+      expiresAt: `${new Date().getFullYear() + 1}-12-31`,
     });
   } catch {
     overlapRejected = true;

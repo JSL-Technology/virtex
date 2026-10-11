@@ -10,6 +10,7 @@ import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { FrontendUrlService } from './frontend-url.service';
 import { MAIL_QUEUE } from './mail.queue';
+import { devOutboxEnabled } from './dev-outbox';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { MAIL_QUEUE } from './mail.queue';
         registerMailPartials(templatesDir);
 
         return {
-        transport: {
+        // Development with no SMTP server: render every message and keep it in a local mailbox
+        // instead of failing to connect (see `dev-outbox.ts`).
+        transport: devOutboxEnabled(config) ? { jsonTransport: true } : {
           host: config.get<string>('MAIL_HOST'),
           // Read as a number. Nodemailer treats a string port as a hostname-ish value and the
           // connection fails with a message that names neither the port nor the cause.

@@ -7,6 +7,7 @@ import { NotificationService } from '../services/notification';
 import { TabEventBusService } from './tab-event-bus.service';
 import { AuthService } from '../services/auth';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 /**
  * ¿La vista previa funciona con las RUTAS REALES de cada módulo?
@@ -29,7 +30,7 @@ describe('Vista previa — rutas reales por módulo', () => {
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },
         { provide: TabEventBusService, useValue: { on: () => ({ subscribe: () => ({ unsubscribe: jest.fn() }) }), emit: jest.fn() } },
-        { provide: TranslateService, useValue: { instant: (k: string) => k } },
+        { provide: TranslateService, useValue: { instant: (k: string) => k, onLangChange: of() } },
       ],
     });
     return TestBed.inject(TabStateService);

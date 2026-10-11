@@ -2,8 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
 import { EcfSubmissionService } from './ecf-submission.service';
-import { allOrganizationIds } from '../../organizations/contracts/tenant-directory.contract';
-import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
+import { forEachTenant } from '../../shared/tenancy/tenant-job';
 import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.service';
 
 /**
@@ -65,12 +64,10 @@ export class EcfReconcilerService {
   }
 
   /** Runs `work` once per tenant, each inside that tenant's own context. */
-  private async forEachTenant(work: (organizationId: string) => Promise<void>): Promise<void> {
-    for (const id of await allOrganizationIds(this.dataSource.manager)) {
-      await runAsTenantJob(this.dataSource, id, () => work(id)).catch((error) =>
-        this.logger.error(`e-CF reconciliation failed for organization ${id}: ${(error as Error).message}`),
-      );
-    }
+  private forEachTenant(work: (organizationId: string) => Promise<void>): Promise<void> {
+    return forEachTenant(this.dataSource, work, undefined, (id, error) =>
+      this.logger.error(`e-CF reconciliation failed for organization ${id}: ${(error as Error).message}`),
+    );
   }
 }
 

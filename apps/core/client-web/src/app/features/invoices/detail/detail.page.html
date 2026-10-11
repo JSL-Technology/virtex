@@ -168,7 +168,8 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'invoices.detail.contact_person' | translate }}</span>
-                <p>{{ inv.customerName }}</p>
+                <!-- The customer's contact, not the company's name repeated. -->
+                <p>{{ inv.customer?.contactPerson || ('common.not_recorded' | translate) }}</p>
             </div>
         </div>
     </div>
@@ -186,6 +187,11 @@
         <div class="detail-grid">
             <div class="detail-item">
                 <span class="detail-label">{{ 'invoices.detail.payment_terms' | translate }}</span>
+                <p>{{ termsKey(inv) | translate: { days: creditDays(inv) } }}</p>
+            </div>
+            <div class="detail-item">
+                <!-- The method was printed under «Payment terms», so a 30-day invoice read «Cash». -->
+                <span class="detail-label">{{ 'invoices.detail.payment_method' | translate }}</span>
                 <p>{{ paymentMethodKey(inv.paymentMethod) | translate }}</p>
             </div>
             <div class="detail-item">

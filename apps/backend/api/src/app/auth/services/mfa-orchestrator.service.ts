@@ -20,7 +20,7 @@ import { TwoFactorAuthService } from './two-factor-auth.service';
 import { FrontendUrlService } from '../../mail/frontend-url.service';
 import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 import { AuthConfig } from '../auth.config';
-import { BadRequestError, InternalServerError, UnauthorizedError } from '../../i18n/localized.exception';
+import { BadRequestError, InternalServerError, ServiceUnavailableError, UnauthorizedError, isLocalizedError } from '../../i18n/localized.exception';
 
 /** A stable, non-identifying handle for a verification destination, for logs. */
 function hashTarget(target: string): string {
@@ -289,7 +289,12 @@ export class MfaOrchestratorService {
           { event: 'verification_sms_failed', targetHash: hashTarget(target) },
           `Failed to send verification SMS: ${(err as Error).message}`,
         );
-        throw new InternalServerError('auth.verification_sms_could_not_sent_try');
+        // The provider's own reason is kept when it gave one (no SMS service configured, a number
+        // outside the allowed markets). Anything else is the channel being unavailable — a 503 the
+        // signup screen treats as "continue with the number unverified" — not a server fault: it
+        // was a 500, which is neither true nor something the screen could act on.
+        if (isLocalizedError(err)) throw err;
+        throw new ServiceUnavailableError('auth.verification_sms_could_not_sent_try');
       }
     }
   }

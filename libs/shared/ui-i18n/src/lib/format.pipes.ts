@@ -141,6 +141,26 @@ export class VxListPipe extends LocaleAwarePipe implements PipeTransform {
 }
 
 /**
+ * The catalogue key for a count, by the language's own plural rules.
+ *
+ * `{{ 'transition.line_count' | vxPluralKey: n | translate: { count: n } }}` reads
+ * `transition.line_count.one` for 1 and `transition.line_count.other` otherwise — in English; the
+ * category comes from CLDR, so Portuguese's `one` for 1.5 is right without anyone remembering it.
+ * One translated word for every count printed «1 lines». Only `one` and `other` are used: they are
+ * the two forms the product's languages distinguish in running text, and a family declared in
+ * `composed-keys.json` is checked for both in every language.
+ */
+@Pipe({ name: 'vxPluralKey', standalone: true, pure: false })
+export class VxPluralKeyPipe extends LocaleAwarePipe implements PipeTransform {
+  transform(family: string, count: number | null | undefined): string {
+    const n = Number(count ?? 0);
+    return this.memo(`p|${family}|${n}`, () =>
+      `${family}.${this.format.pluralCategory(n) === 'one' ? 'one' : 'other'}`,
+    );
+  }
+}
+
+/**
  * Everything a template needs in order to format, as one import.
  *
  * Grouped so a component adds `FORMAT_PIPES` rather than remembering which seven symbols it
@@ -155,4 +175,5 @@ export const FORMAT_PIPES = [
   VxRelativeTimePipe,
   VxListPipe,
   VxLocalizedNamePipe,
+  VxPluralKeyPipe,
 ] as const;

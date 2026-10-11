@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
+import { mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
 import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
+import { isDevLikeEnvironment } from '../../config/environment';
 
 /**
  * Tidy an E.164 number for the provider, without guessing a country.
@@ -33,6 +36,15 @@ function maskPhone(e164: string): string {
   return `+${digits.slice(0, 3)}…${digest}`;
 }
 
+/** Development mailbox for SMS. `SMS_OUTBOX_DIR` overrides the default `tmp/sms-outbox`. */
+function saveSmsToDevOutbox(to: string, body: string, now = new Date()): string {
+  const dir = process.env['SMS_OUTBOX_DIR'] || join(process.cwd(), 'tmp', 'sms-outbox');
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, `${now.toISOString().replace(/[:.]/g, '-')}.txt`);
+  writeFileSync(file, `To: ${to}\n\n${body}\n`);
+  return file;
+}
+
 @Injectable()
 export class TwilioSmsProvider implements AbstractSmsProvider {
   private readonly client!: Twilio;
@@ -48,6 +60,16 @@ export class TwilioSmsProvider implements AbstractSmsProvider {
 
   async send(to: string, body: string): Promise<void> {
     if (!this.client) {
+        // Development with no SMS provider: keep the message where the developer can read it, the
+        // same way e-mail is kept when there is no SMTP server. Never in a deployment.
+        if (isDevLikeEnvironment()) {
+          const file = saveSmsToDevOutbox(to, body);
+          this.logger.warn(
+            { event: 'sms_saved_to_dev_outbox', file },
+            `No SMS provider configured: the message was saved to ${file}`,
+          );
+          return;
+        }
         // Returning quietly here told the caller the code had been sent. The user then waited for
         // an SMS that was never going to arrive, with no error anywhere to explain it. A missing
         // credential is a configuration fault and has to surface as one.
