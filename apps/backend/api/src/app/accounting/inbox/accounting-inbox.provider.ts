@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import {
   INBOX_ITEM_LIMIT,
@@ -11,6 +11,7 @@ import {
 import { ModuleInboxRegistry } from '../../shared/inbox/module-inbox.registry';
 import { JournalEntry, JournalEntryStatus } from '../../journal-entries/entities/journal-entry.entity';
 import { AccountingPeriod, PeriodStatus } from '../entities/accounting-period.entity';
+import { periodCloseDueSql } from '../../shared/database/period-close-due';
 
 /**
  * Lo que tiene bloqueado Contabilidad.
@@ -46,12 +47,17 @@ export class AccountingInboxProvider extends ModuleInboxPort implements OnModule
       take: INBOX_ITEM_LIMIT,
     });
 
-    // Un periodo vencido y abierto: su fecha de fin ya pasó y nadie lo cerró.
-    const [overdue, overdueCount] = await this.periods.findAndCount({
-      where: { organizationId, status: PeriodStatus.OPEN, endDate: LessThan(new Date()) },
-      order: { endDate: 'ASC' },
-      take: INBOX_ITEM_LIMIT,
-    });
+    // Un periodo vencido y abierto: su fecha de fin ya pasó y nadie lo cerró — y es de la empresa:
+    // terminó después de que empezara a llevar sus libros aquí, o tiene asientos (QA U24).
+    const [overdue, overdueCount] = await this.periods
+      .createQueryBuilder('p')
+      .where('p.organizationId = :organizationId', { organizationId })
+      .andWhere('p.status = :open', { open: PeriodStatus.OPEN })
+      .andWhere('p.endDate < CURRENT_DATE')
+      .andWhere(periodCloseDueSql('p', ':organizationId'))
+      .orderBy('p.endDate', 'ASC')
+      .take(INBOX_ITEM_LIMIT)
+      .getManyAndCount();
 
     const items: InboxItem[] = [
       ...overdue.map((period) => ({

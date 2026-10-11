@@ -508,6 +508,86 @@
     "en": "The due date cannot be earlier than the issue date.",
     "pt": "A data de vencimento não pode ser anterior à data de emissão."
   },
+  "invoices.ecf_status.accepted": {
+    "es": "Aceptado por la DGII",
+    "en": "Accepted by the DGII",
+    "pt": "Aceito pela DGII"
+  },
+  "invoices.ecf_status.accepted_hint": {
+    "es": "Comprobante válido. No hace falta hacer nada más.",
+    "en": "Valid document. Nothing else to do.",
+    "pt": "Comprovante válido. Nada mais a fazer."
+  },
+  "invoices.ecf_status.accepted_with_observations": {
+    "es": "Aceptado con observaciones",
+    "en": "Accepted with observations",
+    "pt": "Aceito com observações"
+  },
+  "invoices.ecf_status.accepted_with_observations_hint": {
+    "es": "Es válido, pero la DGII dejó observaciones: revísalas abajo para corregirlas en los próximos.",
+    "en": "It is valid, but the DGII left observations: review them below to correct future documents.",
+    "pt": "É válido, mas a DGII deixou observações: revise-as abaixo para corrigir os próximos."
+  },
+  "invoices.ecf_status.contingency": {
+    "es": "En contingencia",
+    "en": "In contingency",
+    "pt": "Em contingência"
+  },
+  "invoices.ecf_status.contingency_hint": {
+    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto vuelva.",
+    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is back.",
+    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que ela voltar."
+  },
+  "invoices.ecf_status.error": {
+    "es": "Error al enviar",
+    "en": "Sending failed",
+    "pt": "Erro no envio"
+  },
+  "invoices.ecf_status.error_hint": {
+    "es": "No se pudo enviar. Revisa el mensaje abajo y pulsa «Reenviar a la DGII».",
+    "en": "It could not be sent. Check the message below and press «Resend to DGII».",
+    "pt": "Não foi possível enviar. Verifique a mensagem abaixo e clique em «Reenviar à DGII»."
+  },
+  "invoices.ecf_status.pending": {
+    "es": "Pendiente de firma",
+    "en": "Awaiting signature",
+    "pt": "Aguardando assinatura"
+  },
+  "invoices.ecf_status.pending_hint": {
+    "es": "El comprobante se firmará y enviará a la DGII en unos instantes.",
+    "en": "The document will be signed and sent to the DGII in a moment.",
+    "pt": "O comprovante será assinado e enviado à DGII em instantes."
+  },
+  "invoices.ecf_status.rejected": {
+    "es": "Rechazado por la DGII",
+    "en": "Rejected by the DGII",
+    "pt": "Rejeitado pela DGII"
+  },
+  "invoices.ecf_status.rejected_hint": {
+    "es": "No es válido. Lee el motivo abajo, corrige y emite una nota de crédito o un comprobante nuevo.",
+    "en": "It is not valid. Read the reason below, correct it and issue a credit note or a new document.",
+    "pt": "Não é válido. Leia o motivo abaixo, corrija e emita uma nota de crédito ou um novo comprovante."
+  },
+  "invoices.ecf_status.sent": {
+    "es": "Enviado, en revisión",
+    "en": "Sent, under review",
+    "pt": "Enviado, em revisão"
+  },
+  "invoices.ecf_status.sent_hint": {
+    "es": "La DGII lo recibió y está validándolo. El resultado aparece aquí solo.",
+    "en": "The DGII received it and is validating it. The result appears here on its own.",
+    "pt": "A DGII o recebeu e está validando. O resultado aparece aqui automaticamente."
+  },
+  "invoices.ecf_status.signed": {
+    "es": "Firmado, sin enviar",
+    "en": "Signed, not sent",
+    "pt": "Assinado, não enviado"
+  },
+  "invoices.ecf_status.signed_hint": {
+    "es": "Está firmado pero aún no llegó a la DGII. Se reintenta solo; si no cambia, revisa la conexión con la DGII o pulsa «Reenviar a la DGII».",
+    "en": "It is signed but has not reached the DGII yet. It is retried automatically; if it does not change, check the DGII connection or press «Resend to DGII».",
+    "pt": "Está assinado, mas ainda não chegou à DGII. É reenviado automaticamente; se não mudar, verifique a conexão com a DGII ou clique em «Reenviar à DGII»."
+  },
   "invoices.effect.cost_entry": {
     "es": "Asiento de costo de venta",
     "en": "Cost of sale entry",
@@ -1550,9 +1630,9 @@
     "pt": "Paga parcialmente"
   },
   "invoices.status.pending": {
-    "es": "Pendiente",
-    "en": "Pending",
-    "pt": "Pendente"
+    "es": "Por cobrar",
+    "en": "Unpaid",
+    "pt": "A receber"
   },
   "invoices.status.void": {
     "es": "Anulada",

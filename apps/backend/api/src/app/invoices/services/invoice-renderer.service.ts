@@ -23,6 +23,8 @@ import {
   findIdentityDocumentSpec,
 } from '../../localization/fiscal/identity-document-catalogue';
 import { languageOfCountry } from '../../localization/fiscal/country-language';
+import { isElectronicNcfType } from '../../compliance/entities/ncf-sequence.entity';
+import { divisionName } from '../../localization/contracts/administrative-divisions.contract';
 
 /** Everything the template needs, resolved before rendering. */
 export interface InvoiceRenderContext {
@@ -195,6 +197,9 @@ export class InvoiceRendererService implements OnModuleDestroy {
      * them — only the WORDS follow the reader.
      */
     const { language, locale, issuerCountry } = this.readerOf(context);
+    // A Dominican e-CF (serie E) — the same rule as `Invoice.isElectronicFiscalDocument`, read from
+    // the number so a plain record renders the same as an entity.
+    const electronic = issuerCountry === 'DO' && isElectronicNcfType((invoice.fiscalNumber ?? '').toUpperCase());
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
@@ -216,6 +221,9 @@ export class InvoiceRendererService implements OnModuleDestroy {
 
     return template({
       organization,
+      // The province's name, not the code the address stores (QA D01).
+      organizationState:
+        divisionName(organization.country, organization.state) ?? organization.state ?? null,
       invoice,
       lines: (invoice.lineItems ?? [])
         .slice()
@@ -271,11 +279,8 @@ export class InvoiceRendererService implements OnModuleDestroy {
         // A Dominican e-CF carries the DGII verification (QR, security code) and says it is
         // electronic; a traditional NCF (serie B) is neither, and printing «FACTURA ELECTRÓNICA»
         // and an empty «Verificación DGII» box on it misstated what the document is.
-        electronic: invoice.isElectronicFiscalDocument,
-        traditionalNcf:
-          Boolean(invoice.fiscalNumber) &&
-          !invoice.isElectronicFiscalDocument &&
-          (context.organization.country ?? '').toUpperCase() === 'DO',
+        electronic: electronic,
+        traditionalNcf: Boolean(invoice.fiscalNumber) && !electronic && issuerCountry === 'DO',
       },
     });
   }

@@ -19,6 +19,11 @@
     "en": "If the button does not work, copy and paste this URL into your browser:",
     "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
   },
+  "mail.common.reply_notice": {
+    "es": "¿Tienes preguntas sobre este documento? Responde a este correo y le llegará a {{company}}.",
+    "en": "Questions about this document? Reply to this e-mail and it will reach {{company}}.",
+    "pt": "Dúvidas sobre este documento? Responda a este e-mail e ele chegará a {{company}}."
+  },
   "mail.common.transactional_notice": {
     "es": "Este es un correo transaccional automático; no respondas a este mensaje.",
     "en": "This is an automatic transactional email; please do not reply to it.",

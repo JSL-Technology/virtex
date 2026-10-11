@@ -233,3 +233,11 @@
   font-weight: 700;
   color: var(--text-primary);
 }
+
+// What an e-CF state means for the reader, under its badge (QA U72).
+.detail-hint {
+  margin: var(--space-1) 0 0;
+  max-width: 40ch;
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}

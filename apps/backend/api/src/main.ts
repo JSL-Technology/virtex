@@ -1,3 +1,4 @@
+import { createServer } from 'node:net';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
@@ -302,6 +303,15 @@ async function bootstrap() {
   app.useWebSocketAdapter(new ConfiguredIoAdapter(app, { http: corsOrigins, websocket: wsOrigins }));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  // The port is checked before anything starts. `app.init()` runs every module's start-up — cron
+  // schedules, queue consumers, seeders — and Nest logs «successfully started» when it ends, so a
+  // second API launched against a busy port announced success, started a second set of background
+  // workers, and only then failed to listen (QA A8). Asking first makes that boot fail at once, with
+  // the reason, before it has done anything.
+  const port = configService.get<number>('PORT', 3000);
+  await assertPortAvailable(port, '0.0.0.0');
+
   await app.init();
 
   // Development convenience: seed a ready-to-use administrator so a login exists on a fresh
@@ -330,9 +340,20 @@ async function bootstrap() {
     }
   }
 
-  const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Application is running on: ${await app.getUrl()}/${apiPrefix}`);
+}
+
+/** Fails with `EADDRINUSE` (or whatever the OS says) when the port cannot be bound right now. */
+function assertPortAvailable(port: number, host: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.once('error', (error: NodeJS.ErrnoException) =>
+      reject(new Error(`Port ${port} is not available (${error.code ?? error.message}). Is another API running?`)),
+    );
+    probe.once('listening', () => probe.close(() => resolve()));
+    probe.listen(port, host);
+  });
 }
 
 /**

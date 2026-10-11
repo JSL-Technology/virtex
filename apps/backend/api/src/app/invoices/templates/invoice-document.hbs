@@ -77,7 +77,7 @@
       <p>{{taxIdLabel}}: <strong>{{organization.taxId}}</strong></p>
       {{#if organization.address}}<p>{{organization.address}}</p>{{/if}}
       <p>
-        {{#if organization.city}}{{organization.city}}{{/if}}{{#if organization.state}}, {{organization.state}}{{/if}}
+        {{#if organization.city}}{{organization.city}}{{/if}}{{#if organizationState}}, {{organizationState}}{{/if}}
       </p>
       {{#if organization.phone}}<p>{{t 'invoice.pdf.tel_phone' phone=organization.phone}}</p>{{/if}}
       {{#if organization.email}}<p>{{organization.email}}</p>{{/if}}

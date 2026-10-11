@@ -33,6 +33,21 @@ import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 import { finalize } from 'rxjs';
 
+/** Each e-CF state's name and what it means for the person reading it. */
+const ECF_STATUS: Record<string, { label: string; hint: string }> = {
+  PENDING: { label: 'invoices.ecf_status.pending', hint: 'invoices.ecf_status.pending_hint' },
+  SIGNED: { label: 'invoices.ecf_status.signed', hint: 'invoices.ecf_status.signed_hint' },
+  SENT: { label: 'invoices.ecf_status.sent', hint: 'invoices.ecf_status.sent_hint' },
+  ACCEPTED: { label: 'invoices.ecf_status.accepted', hint: 'invoices.ecf_status.accepted_hint' },
+  ACCEPTED_WITH_OBSERVATIONS: {
+    label: 'invoices.ecf_status.accepted_with_observations',
+    hint: 'invoices.ecf_status.accepted_with_observations_hint',
+  },
+  REJECTED: { label: 'invoices.ecf_status.rejected', hint: 'invoices.ecf_status.rejected_hint' },
+  CONTINGENCY: { label: 'invoices.ecf_status.contingency', hint: 'invoices.ecf_status.contingency_hint' },
+  ERROR: { label: 'invoices.ecf_status.error', hint: 'invoices.ecf_status.error_hint' },
+};
+
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
@@ -300,18 +315,17 @@ export class InvoiceDetailPage implements OnInit {
     }
   }
 
+  /**
+   * The e-CF state, worded by the catalogue — it was a record of Spanish literals in this file.
+   * Each state also says what happens next (QA U72: «Firmado» next to «PENDIENTE» said neither
+   * what was pending nor whether anyone had to act).
+   */
   ecfStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-        PENDING: 'Pendiente',
-        SIGNED: 'Firmado',
-        SENT: 'Enviado (en proceso)',
-        ACCEPTED: 'Aceptado',
-        ACCEPTED_WITH_OBSERVATIONS: 'Aceptado condicional',
-        REJECTED: 'Rechazado',
-        CONTINGENCY: 'En contingencia',
-        ERROR: 'Error',
-    };
-    return labels[status] || status;
+    return ECF_STATUS[status]?.label ?? status;
+  }
+
+  ecfStatusHint(status: string): string | null {
+    return ECF_STATUS[status]?.hint ?? null;
   }
 
   /**
