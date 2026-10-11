@@ -205,6 +205,14 @@ export class DraftShellComponent {
   /** Error de servidor al guardar, ya localizado. */
   readonly error = input<string | null>(null);
 
+  /**
+   * The record is shown but cannot be changed — an entry a document generated, one already
+   * reversed. There is then nothing to save and no draft state to report: the save button and the
+   * status are not drawn, and the page disables its form. Without this, such a page kept an active
+   * «Save» that did nothing when pressed (QA M5).
+   */
+  readonly readOnly = input(false);
+
   readonly saveLabelKey = input('common.save');
   readonly cancelLabelKey = input('common.cancel');
 

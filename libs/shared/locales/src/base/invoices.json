@@ -1167,6 +1167,11 @@
     "en": "Fiscal document",
     "pt": "Documento fiscal"
   },
+  "invoices.new.fiscal_type_without_range": {
+    "es": "{{label}} (sin rango vigente)",
+    "en": "{{label}} (no active range)",
+    "pt": "{{label}} (sem faixa vigente)"
+  },
   "invoices.new.free_text_line": {
     "es": "— Concepto libre —",
     "en": "— Free-text line —",
@@ -1217,6 +1222,16 @@
     "en": "Item",
     "pt": "Item"
   },
+  "invoices.new.item_and_description": {
+    "es": "Artículo y descripción",
+    "en": "Item and description",
+    "pt": "Item e descrição"
+  },
+  "invoices.new.line_amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
   "invoices.new.market_has_no_electronic_invoicing_regime": {
     "es": "Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El\n                documento se numera internamente y se contabiliza, pero no se sella ante ninguna\n                autoridad.",
     "en": "This market has no electronic invoicing regime implemented yet. The document is numbered internally and posted, but it is not stamped by any authority.",
@@ -1226,16 +1241,6 @@
     "es": "Neto a cobrar",
     "en": "Net receivable",
     "pt": "Líquido a receber"
-  },
-  "invoices.new.not_ready_action": {
-    "es": "Configurar",
-    "en": "Set up",
-    "pt": "Configurar"
-  },
-  "invoices.new.not_ready_missing": {
-    "es": "Todavía no puedes facturar. Falta: {{missing}}.",
-    "en": "You cannot invoice yet. Missing: {{missing}}.",
-    "pt": "Ainda não podes faturar. Falta: {{missing}}."
   },
   "invoices.new.notes": {
     "es": "Notas",
@@ -1360,9 +1365,9 @@
     "pt": "Retenções"
   },
   "invoices.new.you_cannot_issue_fiscal_documents_yet": {
-    "es": "Todavía no puedes emitir comprobantes.",
-    "en": "You cannot issue fiscal documents yet.",
-    "pt": "Você ainda não pode emitir documentos fiscais."
+    "es": "Para emitir comprobantes todavía falta:",
+    "en": "Before you can issue fiscal documents, you need:",
+    "pt": "Para emitir documentos fiscais ainda falta:"
   },
   "invoices.new.zero_rated": {
     "es": "Tasa cero",

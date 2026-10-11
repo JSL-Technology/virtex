@@ -134,12 +134,21 @@
     border-bottom: 1px solid var(--color-border);
   }
 
-  .col-product { width: 40%; }
-  .col-qty { width: 10%; }
-  .col-price { width: 15%; }
-  .col-tax { width: 15%; }
-  .col-total { width: 15%; }
-  .col-actions { width: 5%; }
+  // Fixed layout so the widths below are what each column gets, whatever a cell contains: under
+  // `auto` the longest description decided the grid. The article column carries the picker AND the
+  // description one above the other (QA U58).
+  table-layout: fixed;
+
+  .col-product { width: 34%; }
+  .col-qty { width: 9%; }
+  .col-price { width: 12%; }
+  .col-disc { width: 8%; }
+  .col-treatment { width: 12%; }
+  .col-tax { width: 9%; }
+  .col-amount { width: 12%; }
+  .col-actions { width: 4%; }
+
+  th.text-right { text-align: right; }
 
   // QA A-09: in a narrow window the auto-layout table gave the article picker whatever width was
   // left over, which could be zero — the combobox was in the DOM but could not be clicked. The
@@ -148,7 +157,118 @@
 
   vx-select {
     display: block;
-    min-width: 14rem;
+  }
+
+  .line-description {
+    margin-top: var(--space-2);
+  }
+
+  // The line's own figure, aligned with the inputs' text rather than the top of the cell.
+  .line-amount {
+    text-align: right;
+    padding-top: calc(var(--space-3) + (var(--control-height-md) - 1lh) / 2);
+    font-weight: var(--font-medium);
+    white-space: nowrap;
+  }
+
+  .line-amount--stale {
+    opacity: 0.55;
+  }
+}
+
+// ── Under the lines: «add a line» on the left, the document's figures on the right ──────────────
+.lines-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-block: var(--space-4) var(--space-6);
+}
+
+.lines-totals {
+  // Only while the summary column is stacked away (see the container query below).
+  display: none;
+  min-width: 16rem;
+}
+
+.issue-blockers {
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block: 0 var(--space-4);
+
+  &__title {
+    margin: 0;
+    font-weight: var(--font-semibold);
+  }
+
+  &__list {
+    margin: 0;
+    padding-inline-start: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  &__action {
+    color: inherit;
+    font-weight: var(--font-semibold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+// ── The summary: one definition list, in the side column or under the lines ──────────────────────
+.summary-totals {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: var(--space-6);
+  row-gap: var(--space-2);
+  margin: 0;
+
+  dt {
+    color: var(--color-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .grand {
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
+  }
+}
+
+// ── Fiscal y cobro: three cards side by side, fields at a readable width (QA U56) ───────────────
+.finance-layout {
+  &.hidden {
+    display: none;
+  }
+
+  .main-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .card {
+    margin-bottom: 0;
+  }
+
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .hint {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
   }
 }
 
@@ -157,14 +277,26 @@
 .font-semibold { font-weight: var(--font-semibold); }
 
 .btn-add-line {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-md);
+  padding-inline: var(--space-4);
   background: transparent;
   border: 1px dashed var(--color-border);
-  width: 100%;
-  justify-content: center;
-  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: var(--font-medium);
+  cursor: pointer;
+
   &:hover {
     background: rgba(var(--accent-solid-rgb), 0.05);
     border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
   }
 }
 
@@ -223,48 +355,16 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  // Under the lines the summary would leave the screen while they are being typed — the total is
-  // what the reader is checking (QA M3). Stacked, it becomes one strip held to the bottom edge.
+  // Stacked, the summary column would land under the notes, out of sight while the lines are
+  // typed (QA M3). It was then held to the bottom edge of the window — and covered the line just
+  // added and the «add a line» button (QA R01). Now the figures sit right under the lines, where
+  // they move with them and cover nothing; the separate panel is not repeated below.
   .summary-panel {
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
-
-    .card {
-      box-shadow: var(--shadow-lg);
-    }
-
-    .card-body {
-      padding-block: var(--space-3);
-    }
-
-    h3 {
-      display: none;
-    }
+    display: none;
   }
 
-  .summary-totals {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: auto auto;
-    justify-content: end;
-    column-gap: var(--space-8);
-    row-gap: var(--space-1);
-    margin: 0;
-
-    dt {
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-    }
-
-    dd {
-      margin: 0;
-    }
-  }
-  .sidebar-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
+  .lines-totals {
+    display: block;
   }
 }
 

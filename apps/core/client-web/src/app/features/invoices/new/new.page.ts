@@ -147,7 +147,11 @@ export class NewInvoicePage implements OnInit {
    * this file — which is why no other market could present a type even after its adapter existed.
    * The server names each type with a translation key and the catalogue holds the wording.
    */
-  fiscalTypes = computed(() => this.context()?.fiscalDocumentTypes ?? []);
+  fiscalTypes = computed(() => {
+    // The ones the tenant can number come first; the rest follow, disabled (QA U57).
+    const types = this.context()?.fiscalDocumentTypes ?? [];
+    return [...types.filter((t) => t.available !== false), ...types.filter((t) => t.available === false)];
+  });
 
   /** Tax rates the market levies, for the per-line selector. */
   taxRates = computed(() => this.context()?.taxRates ?? []);
@@ -274,28 +278,10 @@ export class NewInvoicePage implements OnInit {
         this.lineItems.controls.forEach((control) =>
           control.patchValue({ taxRate: context.taxRates[0] ?? 0 }, { emitEvent: false }),
         );
-        if (!context.ready) {
-          // The catalogue words this, not a template literal in Spanish: the sentence a tenant
-          // reads when the product tells them what to go and fix is the last place to hard-code
-          // one language. Each gap is translated where it is a key and printed where the server
-          // sent prose.
-          //
-          // The message names the place to fix this ("Settings › Electronic invoicing"); the action
-          // takes the reader straight there rather than leaving them to find it. `fragment` opens
-          // the settings overlay on top of this page, so closing it returns them to the invoice
-          // they were trying to raise.
-          this.notificationService.showError(
-            'invoices.new.not_ready_missing',
-            {
-              missing: context.missing
-                .map((gap) => translateOrLiteral(this.translate, gap))
-                .join('; '),
-            },
-            {
-              labelKey: 'invoices.new.not_ready_action',
-              fragment: 'settings/fiscal',
-            },
-          );
+        // A tenant that cannot issue yet is told so by the banner at the top of the form, which
+        // lists each gap and links to where it is fixed. It used to be told twice: the same
+        // sentence also came up as a red «Error» toast that covered the title (QA U52). Nothing
+        // failed — it is the company's state — so the page states it once, where it stays.
         }
       },
       error: () =>

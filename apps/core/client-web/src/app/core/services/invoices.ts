@@ -43,6 +43,11 @@ export interface FiscalDocumentTypeOption {
   labelKey: string;
   /** Whether the buyer's tax identifier is mandatory for this type. */
   requiresBuyerTaxId: boolean;
+  /**
+   * Whether the tenant holds a live range (active, numbers left, not expired) for this type.
+   * Absent where the market numbers nothing; only an explicit `false` means «cannot issue it».
+   */
+  available?: boolean;
 }
 
 export interface InvoiceLineItem {

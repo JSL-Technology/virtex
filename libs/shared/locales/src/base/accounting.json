@@ -1311,9 +1311,9 @@
     "pt": "Linha {{line}}: a conta exige a dimensão «{{dimension}}»."
   },
   "accounting.journal_entry_form.edit_title": {
-    "es": "Editar Asiento Contable",
-    "en": "Edit Journal Entry",
-    "pt": "Editar Lançamento Contábil"
+    "es": "Modificar asiento contable",
+    "en": "Modify journal entry",
+    "pt": "Modificar lançamento contábil"
   },
   "accounting.journal_entry_form.enter_description_entry": {
     "es": "Introduce una descripción para el asiento",
@@ -1421,14 +1421,19 @@
     "pt": "Dimensões"
   },
   "accounting.journal_entry_form.title": {
-    "es": "Nuevo Asiento Contable",
-    "en": "New Journal Entry",
-    "pt": "Novo Lançamento Contábil"
+    "es": "Nuevo asiento contable",
+    "en": "New journal entry",
+    "pt": "Novo lançamento contábil"
   },
   "accounting.journal_entry_form.totals": {
     "es": "Totales",
     "en": "Totals",
     "pt": "Totais"
+  },
+  "accounting.journal_entry_form.view_title": {
+    "es": "Asiento contable",
+    "en": "Journal entry",
+    "pt": "Lançamento contábil"
   },
   "accounting.journal_entry_form.why_original_entry_stopped_being_correct": {
     "es": "Por qué deja de ser correcto el asiento original",

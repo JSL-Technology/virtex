@@ -101,7 +101,8 @@ export interface InvoicingContext {
   baseCurrency: string;
   taxRates: number[];
   taxRequiresConfiguration: boolean;
-  fiscalDocumentTypes: FiscalDocumentTypeOption[];
+  /** `available`: the tenant holds a live range for it, so a document of this type can be issued. */
+  fiscalDocumentTypes: Array<FiscalDocumentTypeOption & { available: boolean }>;
   serviceChargeRate: number;
   /**
    * The tenant's default credit period in days, for a customer with no terms of their own.
@@ -1490,15 +1491,24 @@ export class InvoicesService {
      */
     const salesTypes = adapter.availableSalesTypes().map((option) => option.code);
     const gaps = [...missing];
+    const today = await this.fiscalToday(organizationId);
+    // The types this tenant can number TODAY: an active range with numbers left that has not
+    // expired. The form offered every type the market defines — B01 to E46 — to a company holding
+    // only E31 and E32 ranges, so choosing any other one failed only when pressing «Issue» (QA U57).
+    const numberedTypes = new Set<string>();
     if (salesTypes.length > 0) {
-      const activeSequence = await this.dataSource
+      const rows: Array<{ type: string }> = await this.dataSource
         .getRepository(NcfSequence)
         .createQueryBuilder('seq')
+        .select('DISTINCT seq.type', 'type')
         .where('seq.organizationId = :organizationId', { organizationId })
         .andWhere('seq.isActive = true')
         .andWhere('seq.type IN (:...salesTypes)', { salesTypes })
-        .getCount();
-      if (activeSequence === 0) gaps.push('invoices.gaps.fiscal_sequence');
+        .andWhere('seq.currentSequence < seq.endsAt')
+        .andWhere('(seq.expiresAt IS NULL OR seq.expiresAt >= :today)', { today })
+        .getRawMany();
+      rows.forEach((row) => numberedTypes.add(row.type));
+      if (numberedTypes.size === 0) gaps.push('invoices.gaps.fiscal_sequence');
     }
 
     // An electronic document also has to be signed. Asked here so the screen says so before the
@@ -1516,7 +1526,9 @@ export class InvoicesService {
       /** Rates the market levies, as fractions, highest first: the standard rate leads. */
       taxRates: (scheme?.taxes ?? []).map((t) => t.rate / 100).sort((a, b) => b - a),
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
-      fiscalDocumentTypes: [...adapter.availableSalesTypes()],
+      fiscalDocumentTypes: adapter
+        .availableSalesTypes()
+        .map((option) => ({ ...option, available: numberedTypes.has(option.code) })),
       /** The legal service charge the market applies, as a fraction. Zero where none applies. */
       serviceChargeRate: serviceChargeRateFor(countryCode),
       /**
@@ -1524,7 +1536,7 @@ export class InvoicesService {
        * something. It used to open due on the day it was issued, whatever the tenant sells on.
        */
       defaultPaymentTermDays: settings?.defaultPaymentTermDays ?? 0,
-      today: await this.fiscalToday(organizationId),
+      today,
     };
   }
 
