@@ -312,9 +312,16 @@
 
   //  Importes: monoespaciado tabular y alineación a la derecha. En contabilidad
   //  esto no es estética, es cómo se comparan cifras de un vistazo.
+  //  `text-right` and `num` too: the pages wrote those, and the `th, td { text-align: left }` above,
+  //  scoped with the table, outranked a page's own `.text-right` — so every amount column in the
+  //  product sat flush left with its header (QA U42).
   .is-numeric,
   td.numeric,
-  th.numeric {
+  th.numeric,
+  td.text-right,
+  th.text-right,
+  td.num,
+  th.num {
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-feature-settings: var(--font-numeric);

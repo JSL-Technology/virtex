@@ -148,7 +148,7 @@
   <div class="footer-grid">
     {{#if fiscal.electronic}}
     <div class="verification">
-      <div class="label">{{t 'invoice.pdf.dgii_verification'}}</div>
+      <div class="label">{{t 'invoice.pdf.authority_verification' authority=fiscal.authority}}</div>
       {{#if fiscal.qrDataUri}}
         <img src="{{fiscal.qrDataUri}}" alt="{{t 'invoice.pdf.qr_code_verify_document'}}">
       {{/if}}
@@ -181,9 +181,9 @@
 
   <div class="legal">
     {{#if fiscal.electronic}}
-      {{t 'invoice.pdf.legal_issued'}}
-    {{else if fiscal.traditionalNcf}}
-      {{t 'invoice.pdf.legal_issued_traditional'}}
+      {{t 'invoice.pdf.legal_issued' authority=fiscal.authority}}
+    {{else if fiscal.traditional}}
+      {{t 'invoice.pdf.legal_issued_traditional' authority=fiscal.authority}}
     {{else if fiscal.isDraft}}
       {{t 'invoice.pdf.legal_draft'}}
     {{/if}}

@@ -20,7 +20,7 @@ describe('DominicanRepublicFiscalAdapter', () => {
   const manager = {} as EntityManager;
 
   const invoiceFor = (taxId: string | null) => ({ customerTaxId: taxId, customer: null }) as unknown as Invoice;
-  const assign = (taxId: string | null, extra: { series?: 'B' | 'E'; requestedType?: string } = {}) =>
+  const assign = (taxId: string | null, extra: { emissionKind?: 'ELECTRONIC' | 'TRADITIONAL'; requestedType?: string } = {}) =>
     adapter.assignSalesNumber({ invoice: invoiceFor(taxId), organizationId: 'org', manager, ...extra });
 
   beforeEach(() => getNextNcf.mockClear());
@@ -30,13 +30,13 @@ describe('DominicanRepublicFiscalAdapter', () => {
     expect((await assign(null)).documentType).toBe('E32');
   });
 
-  it('issues traditional NCF when the series is B: B01 to a taxpayer, B02 to a consumer', async () => {
-    expect((await assign('130456781', { series: 'B' })).documentType).toBe('B01');
-    expect((await assign(null, { series: 'B' })).documentType).toBe('B02');
+  it('issues traditional NCF when the kind is traditional: B01 to a taxpayer, B02 to a consumer', async () => {
+    expect((await assign('130456781', { emissionKind: 'TRADITIONAL' })).documentType).toBe('B01');
+    expect((await assign(null, { emissionKind: 'TRADITIONAL' })).documentType).toBe('B02');
   });
 
-  it('honours an explicitly requested type over the series', async () => {
-    expect((await assign(null, { series: 'E', requestedType: 'B02' })).documentType).toBe('B02');
+  it('honours an explicitly requested type over the kind', async () => {
+    expect((await assign(null, { emissionKind: 'ELECTRONIC', requestedType: 'B02' })).documentType).toBe('B02');
   });
 
   it('refuses a B01 without a valid RNC, as it always refused an E31', async () => {

@@ -47,6 +47,20 @@ export interface CapabilityCoverage {
   requires?: string;
 }
 
+/** A comprobante type the tenant's tax authority publishes (`GET localization/fiscal-document-types`). */
+export interface FiscalDocumentTypeView {
+  code: string;
+  labelKey: string | null;
+  /** The authority's own name, the label when the catalogue has no translation for it. */
+  name: string;
+  sequenceFormat: string | null;
+  expirationRequired: boolean;
+  isElectronic: boolean;
+  side: 'sales' | 'purchase' | 'either';
+  isCreditNote: boolean;
+  requiresBuyerTaxId: boolean;
+}
+
 export interface MarketCoverage {
   countryCode: string;
   capabilities: CapabilityCoverage[];
@@ -125,6 +139,11 @@ export class FiscalSettingsService {
 
   coverage(): Observable<MarketCoverage> {
     return this.http.get<MarketCoverage>(`${this.base}/fiscal-coverage`);
+  }
+
+  /** The comprobante types of the tenant's market, for the range forms to offer. */
+  documentTypes(): Observable<FiscalDocumentTypeView[]> {
+    return this.http.get<FiscalDocumentTypeView[]>(`${this.base}/fiscal-document-types`);
   }
 
   jurisdictions(): Observable<TaxJurisdiction[]> {

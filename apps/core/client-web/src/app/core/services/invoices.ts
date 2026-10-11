@@ -43,11 +43,11 @@ export interface FiscalDocumentTypeOption {
   labelKey: string;
   /** Whether the buyer's tax identifier is mandatory for this type. */
   requiresBuyerTaxId: boolean;
-  /** Signed and sent to the authority (Dominican e-CF, serie E); false for a traditional NCF. */
+  /** Signed and sent to the authority; false for a traditional document numbered and printed. */
   electronic?: boolean;
   /** The tenant holds a live range (active, numbers left, not expired) for this type. */
   available?: boolean;
-  /** Available and nothing else missing (an e-CF also needs a certificate): it can be issued now. */
+  /** Available and nothing else missing (an electronic type also needs a certificate): issuable now. */
   issuable?: boolean;
   /** Catalogue key naming what stands in the way, or null. */
   blockedBy?: string | null;
@@ -82,7 +82,13 @@ export interface Invoice {
   customerAddress?: string | null;
   customerTaxId?: string | null;
   /** The customer record, when the server joins it (the document page does). */
-  customer?: { contactPerson?: string | null; email?: string | null; taxId?: string | null } | null;
+  customer?: {
+    contactPerson?: string | null;
+    email?: string | null;
+    taxId?: string | null;
+    /** The catalogue document the customer's identifier is (`RNC`, `CEDULA`, `RFC`, `NIT`…). */
+    identityDocumentTypeCode?: string | null;
+  } | null;
   issueDate: string;
   dueDate: string;
   issuedAt?: string | null;
@@ -214,6 +220,9 @@ export interface PaginatedInvoices {
 /** See `OrganizationSettings.fiscalEmissionMode` on the server. */
 export type FiscalEmissionMode = 'BOTH' | 'ELECTRONIC' | 'TRADITIONAL';
 
+/** Signed and transmitted to the authority, or numbered from an authorised range and printed. */
+export type EmissionKind = 'ELECTRONIC' | 'TRADITIONAL';
+
 /**
  * What the invoicing screen needs before it can present a correct form.
  *
@@ -231,10 +240,18 @@ export interface InvoicingContext {
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
-  /** Which comprobantes the company issues: traditional NCF, electronic e-CF, or both. */
+  /** Which documents the company issues: traditional, electronic, or both. */
   emissionMode?: FiscalEmissionMode;
-  /** The series an invoice with no type chosen is drawn from (`B` or `E`), or null. */
-  automaticSeries?: 'B' | 'E' | null;
+  /** The kind an invoice with no type chosen is issued as, in a market with both; otherwise null. */
+  automaticKind?: EmissionKind | null;
+  /** The market has traditional and electronic types, so the emission mode applies to it. */
+  emissionModeApplies?: boolean;
+  /** The market's electronic documents are signed with a certificate the company uploads. */
+  certificateRequired?: boolean;
+  /** The market's tax authority as it calls itself (`DGII`, `SAT`, `DIAN`), or null. */
+  fiscalAuthority?: string | null;
+  /** The name of the company's fiscal identifier in its market (`RNC`, `RFC`, `NIT`…). */
+  taxIdLabel?: string;
   serviceChargeRate: number;
   /**
    * The tenant's default credit period in days, for a customer with no terms of their own.

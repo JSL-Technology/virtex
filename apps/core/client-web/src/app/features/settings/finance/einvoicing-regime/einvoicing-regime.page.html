@@ -11,6 +11,13 @@
     -->
     <p class="e-empty">{{ 'settings.pages.einvoicing.no_regime' | translate }}</p>
   } @else {
+    <!-- How the company issues and what it can issue today: the same card in every market. -->
+    <vx-emission-mode-card
+      [context]="invoicing()"
+      (modeChange)="emissionMode.set($event)"
+      (changed)="loadInvoicingState()"
+    />
+
     <section class="card e-settings">
       <h2>{{ 'settings.pages.einvoicing.settings_title' | translate }}</h2>
       <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
@@ -106,7 +113,12 @@
           <div class="e-grid">
             <label class="form-field">
               <span>{{ 'settings.pages.einvoicing.document_type' | translate }}</span>
-              <input formControlName="documentType" maxlength="8" />
+              <select formControlName="documentType">
+                <option value="" disabled>{{ 'settings.pages.einvoicing.choose_document_type' | translate }}</option>
+                @for (type of rangeDocumentTypes(); track type.code) {
+                  <option [value]="type.code">{{ type.code }} · {{ (type.labelKey ?? type.name) | translate }}</option>
+                }
+              </select>
             </label>
             <label class="form-field">
               <span>{{ 'settings.pages.einvoicing.series' | translate }}</span>
@@ -178,7 +190,7 @@
             <tbody>
               @for (range of table.rows(); track range.id) {
                 <tr [class.e-inactive]="!range.isActive">
-                  <td>{{ range.documentType }}</td>
+                  <td>{{ range.documentType }} · {{ documentTypeLabel(range.documentType) | translate }}</td>
                   <td>{{ range.series || '—' }}</td>
                   <td>{{ range.startsAt }}–{{ range.endsAt }}</td>
                   <td [class.e-warning]="runningOut(range)">
@@ -223,5 +235,8 @@
         </div>
       }
     </section>
+
+    <!-- The certificate that signs this market's documents, filed under its regime. -->
+    <vx-signing-certificate-card [context]="invoicing()" (changed)="loadInvoicingState()" />
   }
 </div>

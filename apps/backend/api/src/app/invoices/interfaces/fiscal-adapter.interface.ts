@@ -36,8 +36,9 @@ export interface FiscalDocumentTypeOption {
    */
   requiresBuyerTaxId: boolean;
   /**
-   * Signed and transmitted to the authority (an e-CF), as opposed to a traditional numbered
-   * document. Absent in a market where the distinction does not exist.
+   * Signed and transmitted to the authority, as opposed to a traditional document numbered from an
+   * authorised range and printed. From the market's document-type catalogue
+   * (`FiscalDocumentTypeSpec.isElectronic`); an adapter that leaves it out has it filled from there.
    */
   electronic?: boolean;
 }
@@ -55,16 +56,17 @@ export interface FiscalAssignmentContext {
    */
   requestedType?: string | null;
   /**
-   * The series to draw from when no type is requested, in a market with more than one — the
-   * Dominican traditional NCF (`B`) and electronic e-CF (`E`). Chosen by the caller from the
-   * company's emission mode, its live ranges and whether it can sign (see
-   * `InvoicesService.automaticSeries`). Absent: the adapter's own default.
+   * Which kind of document to issue when no type is requested, in a market that has both — the
+   * Dominican traditional NCF (serie B) and e-CF (serie E), and any other market whose catalogue
+   * declares traditional types beside electronic ones. Chosen by the caller from the company's
+   * emission mode, its live ranges and whether it can sign (`InvoicesService.issuableTypes`).
+   * Absent: the adapter's own default.
    */
-  series?: FiscalSeries | null;
+  emissionKind?: EmissionKind | null;
 }
 
-/** A Dominican numbering series: traditional NCF (`B`) or electronic e-CF (`E`). */
-export type FiscalSeries = 'B' | 'E';
+/** Signed and transmitted to the authority, or numbered from an authorised range and printed. */
+export type EmissionKind = 'ELECTRONIC' | 'TRADITIONAL';
 
 /**
  * Assigns a document its fiscal identity for one market.
@@ -85,4 +87,27 @@ export interface FiscalAdapter {
 
   /** The types this market lets a tenant issue on a sales document, for the UI to offer. */
   availableSalesTypes(): readonly FiscalDocumentTypeOption[];
+
+  /**
+   * Of these types, the ones the company can draw a number for today: an active authorised range
+   * with numbers left and not expired. A market whose numbers are not drawn from a stored range
+   * (Mexico: the PAC's UUID; Argentina: AFIP's own counter) answers every type.
+   */
+  liveTypes(context: LiveTypesContext): Promise<ReadonlySet<string>>;
+
+  /**
+   * The types the adapter picks by itself, for an invoice with no type requested, in each kind.
+   * Absent: any type of that kind. The Dominican adapter picks crédito fiscal or consumo — B01/B02
+   * or E31/E32 — and never an export or a government document unasked.
+   */
+  automaticTypes?(kind: EmissionKind): readonly string[];
+}
+
+export interface LiveTypesContext {
+  organizationId: string;
+  /** The candidate codes, as the adapter's `availableSalesTypes` names them. */
+  codes: readonly string[];
+  /** The tenant's fiscal date, `YYYY-MM-DD`. */
+  today: string;
+  manager: EntityManager;
 }

@@ -1,3 +1,4 @@
+import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
 import { XmlSignatureService } from '../xml-signature.service';
@@ -44,7 +45,7 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
     private readonly signatures: XmlSignatureService,
     private readonly transport: RegimeTransportService,
   ) {
-    super({ regime: 'SRI' }, vault);
+    super({ regime: certificateRegimeFor('EC') }, vault);
   }
 
   async build(context: FiscalRegimeContext): Promise<SealedFiscalDocument> {

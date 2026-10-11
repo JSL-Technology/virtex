@@ -1,6 +1,7 @@
+import { visitorRegion } from '../i18n/visitor-region';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, shareReplay, tap } from 'rxjs';
+import { Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { GeoLocationService } from './geo-location.service';
 
@@ -129,8 +130,12 @@ export class CountryService {
   /** True when the last attempt to load a country configuration failed. */
   readonly loadFailed = signal(false);
 
+  /**
+   * The country in force, lower-case for URLs; until one is loaded, the visitor's likely one from
+   * their browser (`visitorRegion`). It used to be the Dominican Republic for everybody.
+   */
   readonly currentCountryCode = computed(
-    () => this.currentCountry()?.countryCode.toLowerCase() ?? 'do',
+    () => this.currentCountry()?.countryCode.toLowerCase() ?? (visitorRegion() ?? '').toLowerCase(),
   );
 
   readonly currencySymbol = computed(() => {
@@ -155,11 +160,26 @@ export class CountryService {
     return this.supportedCountries$;
   }
 
-  /** Detect the visitor's country by IP and load its configuration; falls back to DO. */
+  /**
+   * Detect the visitor's country by IP and load its configuration.
+   *
+   * Without an answer, the country their browser's language suggests when the product serves it,
+   * and otherwise the first market the product serves — never a market assumed for everybody.
+   */
   detectAndSetCountry(): void {
+    const load = (code: string) => this.getCountryConfig(code).subscribe({ error: () => undefined });
+    const fallback = () =>
+      this.getSupportedCountries().subscribe({
+        next: (countries) => {
+          const browser = visitorRegion();
+          const code = countries.find((c) => c.countryCode === browser)?.countryCode ?? countries[0]?.countryCode;
+          if (code) load(code);
+        },
+        error: () => undefined,
+      });
     this.geoLocation.getGeoLocation().subscribe({
-      next: (res) => this.getCountryConfig(res?.country || 'DO').subscribe({ error: () => undefined }),
-      error: () => this.getCountryConfig('DO').subscribe({ error: () => undefined }),
+      next: (res) => (res?.country ? load(res.country) : fallback()),
+      error: () => fallback(),
     });
   }
 
@@ -175,7 +195,10 @@ export class CountryService {
     const normalized = (code ?? '').trim().toUpperCase();
     if (!/^[A-Z]{2}$/.test(normalized)) {
       const cached = this.currentCountry();
-      return cached ? of(cached) : this.getCountryConfig('DO');
+      if (cached) return of(cached);
+      // Not a country code: the visitor's likely one, if it is one at all.
+      const visitor = visitorRegion();
+      return visitor ? this.getCountryConfig(visitor) : throwError(() => new Error(`Not a country code: "${code}"`));
     }
 
     const current = this.currentCountry();

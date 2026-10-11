@@ -5,5 +5,11 @@
  * module offers, so a purchase can check its supplier's RNC without depending on how localization
  * organises its insides.
  */
-export { isValidDominicanTaxId } from '../fiscal/tax-id-validators';
-export { validateTaxId } from '../fiscal/identity-document-catalogue';
+export { isValidDominicanTaxId, TaxpayerKind } from '../fiscal/tax-id-validators';
+export {
+  validateTaxId,
+  canonicalizeTaxId,
+  fiscalIdentifierFor,
+  fiscalIdentifierLabel,
+  identityDocumentLabel,
+} from '../fiscal/identity-document-catalogue';

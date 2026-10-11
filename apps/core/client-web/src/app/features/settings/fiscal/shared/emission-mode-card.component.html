@@ -1,0 +1,56 @@
+@if (hasTypes()) {
+  <section class="card" aria-labelledby="emission-mode-title">
+    <div class="card__head">
+      @if (applies()) {
+        <h2 id="emission-mode-title" class="card__title">{{ 'settings.fiscal.mode.title' | translate }}</h2>
+        <p class="card__subtitle">{{ 'settings.fiscal.mode.subtitle' | translate }}</p>
+      } @else {
+        <h2 id="emission-mode-title" class="card__title">{{ 'settings.fiscal.status_title' | translate }}</h2>
+        <p class="card__subtitle">{{ 'settings.fiscal.status_subtitle' | translate }}</p>
+      }
+    </div>
+    <div class="card__body">
+      @if (applies()) {
+        <div class="mode-choices" role="radiogroup" aria-labelledby="emission-mode-title">
+          @for (choice of choices; track choice.value) {
+            <label class="mode-choice" [class.mode-choice--selected]="mode() === choice.value">
+              <input
+                type="radio"
+                name="fiscal-emission-mode"
+                [value]="choice.value"
+                [checked]="mode() === choice.value"
+                [disabled]="saving()"
+                (change)="select(choice.value)"
+              />
+              <span class="mode-choice__text">
+                <span class="mode-choice__title">{{ choice.titleKey | translate }}</span>
+                <span class="mode-choice__description">{{ choice.descriptionKey | translate: { authority: authority() } }}</span>
+              </span>
+            </label>
+          }
+        </div>
+      }
+
+      <!-- What the invoice form will let the company issue right now, as the server sees it. -->
+      @if (context(); as state) {
+        <div class="issue-state" aria-live="polite">
+          @if (issuableNow().length) {
+            <p class="issue-state__lead">{{ 'settings.fiscal.mode.can_issue_now' | translate }}</p>
+            <ul class="issue-state__types">
+              @for (type of issuableNow(); track type.code) {
+                <li><vx-badge tone="ok" size="sm">{{ type.labelKey | translate }}</vx-badge></li>
+              }
+            </ul>
+          } @else {
+            <p class="issue-state__lead issue-state__lead--blocked">{{ 'settings.fiscal.mode.cannot_issue_yet' | translate }}</p>
+            <ul class="issue-state__missing">
+              @for (gap of state.missing; track gap) {
+                <li>{{ gap | translate }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

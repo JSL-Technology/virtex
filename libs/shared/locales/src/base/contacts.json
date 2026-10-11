@@ -256,9 +256,9 @@
     "pt": "E-mail"
   },
   "contacts.customers.final_consumer_badge": {
-    "es": "Consumidor final",
-    "en": "Final consumer",
-    "pt": "Consumidor final"
+    "es": "Predeterminado",
+    "en": "Default",
+    "pt": "Padrão"
   },
   "contacts.customers.final_consumer_hint": {
     "es": "Cliente de las ventas que no identifican al comprador. No se puede eliminar.",

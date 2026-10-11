@@ -72,8 +72,30 @@ describe('EinvoicingRegimePage', () => {
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-coverage`).flush(coverageFor(countryCode));
     httpMock.expectOne((r) => r.url === `${regime}/settings` && r.method === 'GET').flush(settings);
     httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
+    httpMock.expectOne((r) => r.url === `${localization}/fiscal-document-types`).flush(documentTypes);
+    // A market with one kind of document and no certificate on this screen's tests: the shared
+    // cards (emission mode, certificate) have nothing further to ask for.
+    httpMock.expectOne((r) => r.url === `${environment.apiUrl}/invoices/context`).flush({
+      ready: true,
+      missing: [],
+      countryCode,
+      baseCurrency: 'USD',
+      taxRates: [],
+      taxRequiresConfiguration: false,
+      fiscalDocumentTypes: [],
+      emissionModeApplies: false,
+      certificateRequired: false,
+      serviceChargeRate: 0,
+      defaultPaymentTermDays: 0,
+      today: '2026-10-11',
+    });
     fixture.detectChanges();
   };
+
+  const documentTypes = [
+    { code: '33', labelKey: 'fiscal.cl.33', name: 'Factura Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false },
+    { code: '61', labelKey: 'fiscal.cl.61', name: 'Nota de Crédito Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false },
+  ];
 
   it('asks an Ecuadorean tenant for their emission point and nothing Brazilian', () => {
     flush('EC');
@@ -141,6 +163,8 @@ describe('EinvoicingRegimePage', () => {
     created.flush(range());
 
     httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush([range()]);
+    // A new range can make a type issuable: what the company can issue is read again.
+    httpMock.expectOne((r) => r.url === `${environment.apiUrl}/invoices/context`);
   });
 
   it('refuses a range whose upper bound is below its lower one', () => {

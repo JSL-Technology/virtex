@@ -730,6 +730,19 @@ export function fiscalIdentifierLabel(countryCode: string): string {
 }
 
 /**
+ * The name of the document that identifies a taxpayer of this kind in this country, as the
+ * authority writes it: `RNC` / `Cédula`, `RFC` / `RFC`, `NIT` / `Cédula de ciudadanía`. For a label
+ * beside an identifier whose kind is known — the holder of a signing certificate, say.
+ */
+export function identityDocumentLabel(countryCode: string, kind: TaxpayerKind): string {
+  const country = upperCountry(countryCode);
+  if (kind === TaxpayerKind.COMPANY) return fiscalIdentifierLabel(country);
+  const docs = registrationDocsFor(country).filter((doc) => documentServesKind(doc.appliesTo, kind));
+  const spec = docs.find((doc) => doc.isDefault) ?? docs[0] ?? invoicingDocumentForKind(country, kind);
+  return spec?.labelVerbatim ?? spec?.code ?? 'ID';
+}
+
+/**
  * Whether the signup form must ask company-versus-natural-person for this country.
  *
  * True when the country issues DISTINCT registration documents to each kind (a Dominican RNC and

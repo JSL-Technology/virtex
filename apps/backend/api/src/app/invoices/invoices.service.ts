@@ -33,13 +33,18 @@ import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { serviceChargeRateFor } from '../localization/fiscal/country-profiles';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
-import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
-import { FiscalDocumentTypeOption, FiscalSeries } from './interfaces/fiscal-adapter.interface';
+import { EmissionKind, FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
+import { certificatePolicyFor } from '../einvoicing/contracts/certificate-policy';
+import { findCountryProfile } from '../localization/contracts/country-profile.contract';
+import { fiscalDocumentTypesFor } from '../localization/contracts/fiscal-document-types.contract';
+import { fiscalIdentifierLabel } from '../localization/contracts/tax-id.contract';
 import type { FiscalEmissionMode } from '../organizations/contracts/fiscal-emission-mode.contract';
 
 /** One type the invoice form may offer, with what stands in its way (see `issuableTypes`). */
 export interface IssuableTypeOption extends FiscalDocumentTypeOption {
+  /** Always stated here: from the adapter, or from the market's catalogue. */
+  electronic: boolean;
   /** The company holds a live range for it. */
   available: boolean;
   /** Available, and nothing else is missing: it can be issued now. */
@@ -52,7 +57,15 @@ export interface IssuableTypes {
   mode: FiscalEmissionMode;
   options: IssuableTypeOption[];
   certificateReady: boolean;
-  automaticSeries: FiscalSeries | null;
+  /**
+   * The kind an invoice with no type chosen is issued as, in a market that has both kinds; null
+   * where there is no choice to make.
+   */
+  automaticKind: EmissionKind | null;
+  /** The market has traditional and electronic types: the emission mode means something there. */
+  bothKinds: boolean;
+  /** The market's electronic documents are signed with a certificate the company uploads. */
+  certificateRequired: boolean;
 }
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
@@ -121,10 +134,18 @@ export interface InvoicingContext {
   taxRequiresConfiguration: boolean;
   /** The types the company may offer on an invoice, each with what stands in its way. */
   fiscalDocumentTypes: IssuableTypeOption[];
-  /** Traditional NCF, electronic e-CF, or both (`OrganizationSettings.fiscalEmissionMode`). */
+  /** Traditional, electronic, or both (`OrganizationSettings.fiscalEmissionMode`). */
   emissionMode: FiscalEmissionMode;
-  /** The series an invoice with no type chosen is drawn from, or null where there is no choice. */
-  automaticSeries: FiscalSeries | null;
+  /** The kind an invoice with no type chosen is issued as, or null where there is no choice. */
+  automaticKind: EmissionKind | null;
+  /** The market has both kinds of document, so the emission mode applies to it. */
+  emissionModeApplies: boolean;
+  /** The market's electronic documents need a signing certificate the company uploads. */
+  certificateRequired: boolean;
+  /** The market's tax authority, as it calls itself (`DGII`, `SAT`, `DIAN`), or null. */
+  fiscalAuthority: string | null;
+  /** The name of the company's fiscal identifier in its market (`RNC`, `RFC`, `NIT`…). */
+  taxIdLabel: string;
   serviceChargeRate: number;
   /**
    * The tenant's default credit period in days, for a customer with no terms of their own.
@@ -416,16 +437,17 @@ export class InvoicesService {
 
     const adapter = await this.fiscalAdapterFactory.getAdapter(organizationId, manager);
 
-    // Which series an invoice is drawn from when nobody chose a type, and whether a chosen type is
+    // Which kind an invoice is issued as when nobody chose a type, and whether a chosen type is
     // one the company issues at all. A credit note follows the document it modifies instead.
-    let series: FiscalSeries | null = null;
+    const organization = await manager
+      .getRepository(Organization)
+      .findOne({ where: { id: organizationId }, select: ['id', 'country'] });
+    const countryCode = organization?.country ?? null;
+    let emissionKind: EmissionKind | null = null;
     if (invoice.type !== InvoiceType.CREDIT_NOTE) {
-      const organization = await manager
-        .getRepository(Organization)
-        .findOne({ where: { id: organizationId }, select: ['id', 'country'] });
       const issuable = await this.issuableTypes(
         organizationId,
-        organization?.country ?? null,
+        countryCode,
         await this.fiscalToday(organizationId, manager),
         manager,
       );
@@ -434,7 +456,7 @@ export class InvoicesService {
           type: requestedType,
         });
       }
-      series = requestedType ? null : issuable.automaticSeries;
+      emissionKind = requestedType ? null : issuable.automaticKind;
     }
 
     const assignment =
@@ -446,16 +468,17 @@ export class InvoicesService {
             requestedType,
             originalInvoice: await this.requireOriginal(invoice, organizationId, manager),
           })
-        : await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType, series });
+        : await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType, emissionKind });
 
     invoice.fiscalNumber = assignment.ncf;
     invoice.fiscalDocumentType = assignment.documentType;
     invoice.fiscalNumberExpiresAt = assignment.expiresAt;
 
     // An electronic document that cannot be signed must not be issued: its number would be
-    // consumed and the DGII would never receive it. Checked before anything is written, so the
-    // issue preview shows it as the blocking condition, with the way to fix it.
-    if (invoice.isElectronicFiscalDocument) {
+    // consumed and the authority would never receive it. Checked before anything is written, so
+    // the issue preview shows it as the blocking condition, with the way to fix it. In every market
+    // whose regime signs with the company's certificate, not only the Dominican one.
+    if (this.needsSignature(countryCode, assignment.documentType)) {
       await this.ecfSubmissionService.assertReadyToSign(organizationId, manager);
     }
 
@@ -1503,10 +1526,12 @@ export class InvoicesService {
    * What this company can issue today, type by type — the one answer the form, the issue preview
    * and the issue itself all use.
    *
-   * A type is `available` when the company holds a live range for it (active, numbers left, not
-   * expired) and `issuable` when, besides, nothing else stands in the way: an electronic Dominican
-   * type also needs a certificate that can sign. Traditional NCF (serie B) need no certificate:
-   * they are numbered and printed, and nothing is transmitted when they are issued.
+   * A type is `available` when the company can draw a number for it today (`FiscalAdapter.liveTypes`:
+   * a live authorised range, or no range at all in a market whose numbers are not drawn from one)
+   * and `issuable` when, besides, nothing else stands in the way: an electronic type, in a market
+   * whose regime signs with the company's certificate, also needs that certificate. Traditional
+   * documents (the Dominican serie B, or any market's printed types) need none: they are numbered
+   * and printed, and nothing is transmitted when they are issued.
    *
    * It used to be one yes/no for the whole company, computed from every type the MARKET defines:
    * a Dominican company with only B ranges and no certificate was told it could not invoice.
@@ -1520,39 +1545,39 @@ export class InvoicesService {
     // Read outside the caller's transaction: a setting, not part of what the document writes.
     const settings = await this.orgSettings.getForOrg(organizationId);
     const mode: FiscalEmissionMode = settings?.fiscalEmissionMode ?? 'BOTH';
-    const dominican = countryCode?.toUpperCase() === 'DO';
     const adapter = this.fiscalAdapterFactory.forCountry(countryCode);
+    const certificateRequired = certificatePolicyFor(countryCode) !== null;
 
-    // The mode only narrows a market that has both kinds.
-    const offered = adapter
-      .availableSalesTypes()
-      .filter(
-        (option) =>
-          !dominican ||
-          mode === 'BOTH' ||
-          (mode === 'ELECTRONIC') === Boolean(option.electronic),
-      );
-    if (!offered.length) return { mode, options: [], certificateReady: true, automaticSeries: null };
+    // Every type says whether it is electronic, from the market's catalogue when the adapter
+    // does not: the same rule in every country.
+    const all = adapter.availableSalesTypes().map((option) => ({
+      ...option,
+      electronic: option.electronic ?? this.isElectronicType(countryCode, option.code),
+    }));
+    // The mode only narrows a market that has both kinds; in one that has only electronic types
+    // (or only traditional ones) there is nothing to choose, and the mode cannot empty the list.
+    const bothKinds = all.some((option) => option.electronic) && all.some((option) => !option.electronic);
+    const offered = all.filter(
+      (option) => !bothKinds || mode === 'BOTH' || (mode === 'ELECTRONIC') === option.electronic,
+    );
+    if (!offered.length) {
+      return { mode, options: [], certificateReady: true, automaticKind: null, bothKinds, certificateRequired };
+    }
 
-    const rows: Array<{ type: string }> = await manager
-      .getRepository(NcfSequence)
-      .createQueryBuilder('seq')
-      .select('DISTINCT seq.type', 'type')
-      .where('seq.organizationId = :organizationId', { organizationId })
-      .andWhere('seq.isActive = true')
-      .andWhere('seq.type IN (:...codes)', { codes: offered.map((option) => option.code) })
-      .andWhere('seq.currentSequence < seq.endsAt')
-      .andWhere('(seq.expiresAt IS NULL OR seq.expiresAt >= :today)', { today })
-      .getRawMany();
-    const numbered = new Set(rows.map((row) => row.type));
+    const live = await adapter.liveTypes({
+      organizationId,
+      codes: offered.map((option) => option.code),
+      today,
+      manager,
+    });
 
-    const needsCertificate = (option: FiscalDocumentTypeOption) => dominican && Boolean(option.electronic);
+    const needsCertificate = (option: { electronic: boolean }) => certificateRequired && option.electronic;
     const certificateReady = offered.some(needsCertificate)
       ? await this.ecfSubmissionService.isReadyToSign(organizationId, manager)
       : true;
 
     const options: IssuableTypeOption[] = offered.map((option) => {
-      const available = numbered.has(option.code);
+      const available = live.has(option.code);
       const signable = !needsCertificate(option) || certificateReady;
       return {
         ...option,
@@ -1566,21 +1591,44 @@ export class InvoicesService {
       };
     });
 
-    // The series an invoice with no type chosen comes from: the first the mode allows in which
-    // the company can issue an invoice to a taxpayer or a consumer. Electronic first, because it is
-    // where the law is going; traditional when that is all the company can issue today.
-    let automaticSeries: FiscalSeries | null = null;
-    if (dominican) {
-      const candidates: FiscalSeries[] =
-        mode === 'ELECTRONIC' ? ['E'] : mode === 'TRADITIONAL' ? ['B'] : ['E', 'B'];
-      const ordinary = (series: FiscalSeries) => [`${series}01`, `${series}02`, `${series}31`, `${series}32`];
-      automaticSeries =
-        candidates.find((series) =>
-          options.some((option) => option.issuable && ordinary(series).includes(option.code)),
-        ) ?? candidates[0];
+    // The kind an invoice with no type chosen is issued as: the first the mode allows in which the
+    // company can issue one of the types the adapter picks by itself. Electronic first, because it
+    // is where the law is going; traditional when that is all the company can issue today.
+    let automaticKind: EmissionKind | null = null;
+    if (bothKinds) {
+      const candidates: EmissionKind[] =
+        mode === 'ELECTRONIC' ? ['ELECTRONIC'] : mode === 'TRADITIONAL' ? ['TRADITIONAL'] : ['ELECTRONIC', 'TRADITIONAL'];
+      const automatic = (kind: EmissionKind, option: IssuableTypeOption) =>
+        option.electronic === (kind === 'ELECTRONIC') &&
+        (adapter.automaticTypes?.(kind) ?? [option.code]).includes(option.code);
+      automaticKind =
+        candidates.find((kind) => options.some((option) => option.issuable && automatic(kind, option))) ??
+        candidates[0];
     }
 
-    return { mode, options, certificateReady, automaticSeries };
+    return { mode, options, certificateReady, automaticKind, bothKinds, certificateRequired };
+  }
+
+  /**
+   * Whether a document type of this market is signed and transmitted, from the market's catalogue.
+   *
+   * Codes are compared as the authority writes them and without leading zeros, because an adapter
+   * may offer AFIP's `01` where the catalogue lists `1`. A code the catalogue does not list is
+   * electronic exactly when the market has a regime that signs.
+   */
+  private isElectronicType(countryCode: string | null, code: string | null | undefined): boolean {
+    if (!code) return false;
+    const wanted = code.toUpperCase();
+    const bare = wanted.replace(/^0+(?=\d)/, '');
+    const spec = fiscalDocumentTypesFor(countryCode ?? '').find(
+      (entry) => entry.code === wanted || entry.code.replace(/^0+(?=\d)/, '') === bare,
+    );
+    return spec ? spec.isElectronic : certificatePolicyFor(countryCode) !== null;
+  }
+
+  /** The document must be signed with the company's certificate before it may be issued. */
+  private needsSignature(countryCode: string | null, documentType: string | null | undefined): boolean {
+    return Boolean(documentType) && certificatePolicyFor(countryCode) !== null && this.isElectronicType(countryCode, documentType);
   }
 
   /**
@@ -1645,7 +1693,11 @@ export class InvoicesService {
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       fiscalDocumentTypes: issuable.options,
       emissionMode: issuable.mode,
-      automaticSeries: issuable.automaticSeries,
+      automaticKind: issuable.automaticKind,
+      emissionModeApplies: issuable.bothKinds,
+      certificateRequired: issuable.certificateRequired,
+      fiscalAuthority: countryCode ? findCountryProfile(countryCode)?.fiscalAuthority ?? null : null,
+      taxIdLabel: fiscalIdentifierLabel(countryCode ?? ''),
       /** The legal service charge the market applies, as a fraction. Zero where none applies. */
       serviceChargeRate: serviceChargeRateFor(countryCode),
       /**

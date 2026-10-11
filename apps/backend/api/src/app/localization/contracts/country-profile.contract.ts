@@ -1,0 +1,8 @@
+/**
+ * A market's fiscal profile, as other modules may read it: its tax authority, its electronic
+ * invoicing regime, its calling code.
+ *
+ * Electronic invoicing names the authority in its messages and on the printed document; reading it
+ * from here keeps every market's wording in the one catalogue that defines the market.
+ */
+export { findCountryProfile, type CountryFiscalProfile } from '../fiscal/country-profiles';
