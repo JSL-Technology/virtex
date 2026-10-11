@@ -1,3 +1,4 @@
+import { FitWordDirective } from './fit-word.directive';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,7 +45,7 @@ interface RailItem extends ReachableModule {
 @Component({
   selector: 'app-module-rail',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule, FitWordDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './module-rail.component.html',
   styleUrls: ['./module-rail.component.scss'],

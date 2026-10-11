@@ -187,7 +187,8 @@
           (mouseenter)="activeIndex.set(createIndex())"
         >
           <lucide-icon [img]="PlusIcon" class="vx-select__icon" aria-hidden="true"></lucide-icon>
-          <span>{{ createLabelKey() | translate: { query: query() } }}</span>
+          <!-- With nothing typed there is nothing to quote: «Create the customer “”» read as a bug. -->
+          <span>{{ query().trim() ? (createLabelKey() | translate: { query: query().trim() }) : (createBlankLabelKey() | translate) }}</span>
         </div>
       }
     </div>

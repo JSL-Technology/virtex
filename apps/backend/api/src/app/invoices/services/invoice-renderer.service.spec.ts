@@ -86,4 +86,22 @@ describe('InvoiceRendererService', () => {
     // Nothing left unresolved: the e-mail template's `{{number}}` was the symptom.
     expect(html).not.toMatch(/\{\{[^}]*\}\}/);
   });
+
+  it('states the e-mail total and due date in the language and format of the document (QA M4)', () => {
+    const renderer = new InvoiceRendererService({} as never);
+    // A Dominican customer with no stated language: Spanish, Dominican figures — not «DOP 7080.00»
+    // and «2026-11-09» in the sender's English.
+    const dominican = renderer.emailSummary({ invoice, organization });
+    expect(dominican.language).toBe('es');
+    expect(dominican.total.replace(/\s/g, ' ')).toBe('DOP 7,080.00');
+    expect(dominican.dueDate).toBe('9 de noviembre de 2026');
+
+    // A customer who asked for English reads English words, still in the issuer's figures.
+    const english = renderer.emailSummary({
+      invoice: { ...invoice, customer: { ...invoice.customer, preferredLanguage: 'en' } } as Invoice,
+      organization,
+    });
+    expect(english.language).toBe('en');
+    expect(english.dueDate).toMatch(/November 9, 2026|9 November 2026/);
+  });
 });

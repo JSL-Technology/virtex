@@ -64,7 +64,7 @@
           -->
           <select id="currencyCode" formControlName="currencyCode">
             @for (currency of currencies(); track currency.code) {
-              <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
+              <option [value]="currency.code">{{ currency.code }} · {{ currency.code | vxCurrencyName: currency.name }}</option>
             }
           </select>
         </div>

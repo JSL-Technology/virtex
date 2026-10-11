@@ -118,10 +118,11 @@
         <span>{{ 'settings.fiscal.to' | translate }}</span>
         <input type="number" formControlName="endsAt" min="1" />
       </label>
-      <label>
-        <span>{{ 'settings.fiscal.expires_on' | translate }} *</span>
-        <vx-date-field formControlName="expiresAt" />
-      </label>
+      <!-- A custom control cannot be wrapped by a label: the label names its inner input by id. -->
+      <div class="range-field">
+        <label for="range-expires-at">{{ 'settings.fiscal.expires_on' | translate }} *</label>
+        <vx-date-field inputId="range-expires-at" formControlName="expiresAt" />
+      </div>
       <label>
         <span>{{ 'settings.fiscal.authorization_code' | translate }}</span>
         <input type="text" formControlName="authorizationCode" maxlength="64" />

@@ -214,6 +214,11 @@
     "en": "Send",
     "pt": "Enviar"
   },
+  "invoices.detail.email_sending": {
+    "es": "Preparando el PDF y enviando el correo…",
+    "en": "Preparing the PDF and sending the e-mail…",
+    "pt": "A preparar o PDF e a enviar o e-mail…"
+  },
   "invoices.detail.email_title": {
     "es": "Enviar por correo",
     "en": "Send by e-mail",
@@ -1081,6 +1086,11 @@
     "es": "Crear el cliente «{{query}}»",
     "en": "Create the customer “{{query}}”",
     "pt": "Criar o cliente “{{query}}”"
+  },
+  "invoices.new.customer_create_blank": {
+    "es": "Crear un cliente nuevo",
+    "en": "Create a new customer",
+    "pt": "Criar um novo cliente"
   },
   "invoices.new.customer_empty": {
     "es": "Ningún cliente coincide con «{{query}}».",

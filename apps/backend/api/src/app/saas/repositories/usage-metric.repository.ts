@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { SaasResource } from '../enums/saas-resource.enum';
 import { UsageMetric } from '../entities/usage-metric.entity';
+import { returnedRows } from '../../shared/database/returned-rows';
 
 @Injectable()
 export class UsageMetricRepository {
@@ -48,10 +49,10 @@ export class UsageMetricRepository {
     updateQuery += ` RETURNING count`;
 
     // 2. Try Update (Optimistic Locking / Row Locking)
-    const updateResult = await manager.query(updateQuery, params);
+    const [updated] = returnedRows<{ count: string | number }>(await manager.query(updateQuery, params));
 
-    if (updateResult[0]) {
-        return { count: updateResult[0].count, limitReached: false };
+    if (updated) {
+        return { count: Number(updated.count), limitReached: false };
     }
 
     // 3. If Update failed...
@@ -69,26 +70,27 @@ export class UsageMetricRepository {
         `;
         const insertParams = [organizationId, resource, periodKey, increment];
 
-        const insertResult = await manager.query(insertQuery, insertParams);
+        const [inserted] = returnedRows<{ count: string | number }>(await manager.query(insertQuery, insertParams));
+        const insertedCount = Number(inserted?.count ?? increment);
 
         // Check immediate limit violation on insert (e.g. if increment > limit)
-        if (!allowOverage && limit !== -1 && insertResult[0].count > limit) {
+        if (!allowOverage && limit !== -1 && insertedCount > limit) {
              // This effectively rolls back because we throw in Service,
              // but here we just return state. The caller will likely throw.
-             return { count: insertResult[0].count, limitReached: true };
+             return { count: insertedCount, limitReached: true };
         }
 
-        return { count: insertResult[0].count, limitReached: false };
+        return { count: insertedCount, limitReached: false };
 
     } catch (err: any) {
         // 4. Handle Race Condition (Unique Violation 23505)
         // If two threads reach here, one inserted, the other failed.
         // The failure means the row NOW exists. So we retry the Update.
         if (err.code === '23505') {
-            const retryResult = await manager.query(updateQuery, params);
+            const [retried] = returnedRows<{ count: string | number }>(await manager.query(updateQuery, params));
 
-            if (retryResult[0]) {
-                return { count: retryResult[0].count, limitReached: false };
+            if (retried) {
+                return { count: Number(retried.count), limitReached: false };
             }
 
             // If retry fails and we don't allow overage, it strongly suggests limit is reached.
@@ -99,7 +101,7 @@ export class UsageMetricRepository {
                     `SELECT count FROM saas_usage_metrics WHERE organization_id = $1 AND resource = $2 AND period = $3`,
                     [organizationId, resource, periodKey]
                 );
-                const currentCount = current[0]?.count ?? 0;
+                const currentCount = Number(current[0]?.count ?? 0);
                 return { count: currentCount, limitReached: true };
             }
         }
@@ -126,14 +128,14 @@ export class UsageMetricRepository {
     periodKey: string,
     decrement = 1,
   ): Promise<number> {
-    const result = await manager.query(
+    const [row] = returnedRows<{ count: string | number }>(await manager.query(
       `UPDATE saas_usage_metrics
           SET count = GREATEST(count - $1, 0), updated_at = NOW()
         WHERE organization_id = $2 AND resource = $3 AND period = $4
         RETURNING count`,
       [decrement, organizationId, resource, periodKey],
-    );
-    return result[0]?.count ?? 0;
+    ));
+    return Number(row?.count ?? 0);
   }
 
   /**

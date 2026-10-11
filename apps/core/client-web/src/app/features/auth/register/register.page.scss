@@ -149,8 +149,11 @@
   flex-direction: column;
 }
 
+//  Each step is as tall as its fields. A 19rem floor held the buttons still between short steps,
+//  but the steps differ far more than that (the tax step is twice as tall), so all it did was
+//  leave a blank band under the two selects of «Company», which read as a missing field.
 .step-viewport {
-  min-height: 19rem;
+  min-height: 0;
 }
 
 .step-content {
@@ -207,7 +210,6 @@
 
   .stepper { margin-bottom: var(--space-4); }
 
-  .step-viewport { min-height: 0; }
 
   .step-actions {
     flex-direction: column-reverse;

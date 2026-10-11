@@ -59,9 +59,17 @@
   color: var(--color-text-primary);
 }
 
+// The form decides its layout by ITS width, not the window's: beside the rail and the module panel
+// a 1440px window leaves it about 1070px, and a viewport query at 1100px kept two columns there.
+.form-body {
+  container: invoice-form / inline-size;
+}
+
 .grid-layout {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  // `minmax(0, …)`: a bare `1fr` cannot shrink below its content, and the 960px line table pushed
+  // the summary — the total being invoiced — out of the window (QA M3).
+  grid-template-columns: minmax(0, 1fr) 350px;
   gap: var(--space-6);
   align-items: start;
 
@@ -97,6 +105,13 @@
 .table-container {
   overflow-x: auto;
   margin-bottom: var(--space-4);
+}
+
+.line-items-scroll {
+  overflow-x: auto;
+  // Room for a focus ring on the first and last inputs, which `overflow` would otherwise clip.
+  padding: 2px;
+  margin: -2px;
 }
 
 .line-items-table {
@@ -203,9 +218,48 @@
   display: inline-block;
 }
 
-@media (max-width: 1100px) {
+@container invoice-form (max-width: 1180px) {
   .grid-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // Under the lines the summary would leave the screen while they are being typed — the total is
+  // what the reader is checking (QA M3). Stacked, it becomes one strip held to the bottom edge.
+  .summary-panel {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+
+    .card {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-body {
+      padding-block: var(--space-3);
+    }
+
+    h3 {
+      display: none;
+    }
+  }
+
+  .summary-totals {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: auto auto;
+    justify-content: end;
+    column-gap: var(--space-8);
+    row-gap: var(--space-1);
+    margin: 0;
+
+    dt {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+    }
+
+    dd {
+      margin: 0;
+    }
   }
   .sidebar-content {
     display: grid;
@@ -363,6 +417,14 @@
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   transition: var(--transition);
+}
+
+//  The base layer gives inputs and selects their height; vertical padding on top of it left 13px
+//  for 17px of text, and a native select clips what does not fit — «Taxed», «18 %» and the
+//  currency were cut along the bottom (QA M3). Only the textarea, which grows, keeps it.
+input.form-control,
+select.form-control {
+  padding-block: 0;
 }
 
 .form-control:focus {

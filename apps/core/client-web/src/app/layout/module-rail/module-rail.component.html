@@ -15,7 +15,7 @@
       (click)="open(item)"
     >
       <lucide-icon [img]="item.icon" size="18" class="rail__icon" aria-hidden="true"></lucide-icon>
-      <span class="rail__label">{{ item.module.titleKey | translate }}</span>
+      <span class="rail__label" appFitWord>{{ item.module.titleKey | translate }}</span>
       @if (!item.allowed) {
         <lucide-icon [img]="LockIcon" size="10" class="rail__lock" aria-hidden="true"></lucide-icon>
       }

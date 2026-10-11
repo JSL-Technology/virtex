@@ -14,12 +14,12 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore, VxCurrencyNamePipe } from '@virteex/shared/ui-i18n';
 import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent, VxCurrencyNamePipe],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

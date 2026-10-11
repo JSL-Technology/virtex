@@ -624,6 +624,18 @@
   }
 }
 
+//  Superficie de un menú o popover que se abre desde el armazón de cristal.
+//
+//  Un `backdrop-filter` dentro de otro solo desenfoca lo que pinta su antepasado —el antepasado es
+//  la «raíz del fondo»—, no la página de debajo. Los menús de la barra superior heredaban así un
+//  cristal al 82 % sin desenfoque: el texto del documento de detrás se leía a través del menú del
+//  usuario. Un menú se lee encima de cualquier cosa; por eso va en `--surface-overlay`, que es la
+//  superficie que el tema reserva para modales, popovers y menús.
+@mixin popover-surface {
+  background-color: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+}
+
 //  Tarjeta de cristal completa: la unidad de composición de las pantallas de
 //  acceso y de los paneles flotantes.
 @mixin glass-card($radius: var(--radius-2xl)) {

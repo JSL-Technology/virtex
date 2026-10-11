@@ -74,7 +74,7 @@ export interface Invoice {
   customerAddress?: string | null;
   customerTaxId?: string | null;
   /** The customer record, when the server joins it (the document page does). */
-  customer?: { contactPerson?: string | null; email?: string | null } | null;
+  customer?: { contactPerson?: string | null; email?: string | null; taxId?: string | null } | null;
   issueDate: string;
   dueDate: string;
   issuedAt?: string | null;

@@ -31,6 +31,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-detail-page',
@@ -375,10 +376,13 @@ export class InvoiceDetailPage implements OnInit {
     });
   }
 
+  /** True while a send is in flight; a second request waits for the first. */
+  readonly sendingEmail = signal(false);
+
   /** Send the document to the customer, with its PDF attached. */
   async emailInvoice(): Promise<void> {
     const invoice = this.invoice();
-    if (!invoice) return;
+    if (!invoice || this.sendingEmail()) return;
     if (invoice.status === 'Draft') {
       this.notificationService.showError('invoices.draft_cannot_be_sent');
       return;
@@ -397,10 +401,18 @@ export class InvoiceDetailPage implements OnInit {
       this.notificationService.showError('invoices.detail.email_invalid');
       return;
     }
-    this.invoicesService.sendInvoice(invoice.id, { to: address || undefined }).subscribe({
-      next: (result) => this.notificationService.showSuccess('invoices.detail.email_queued', { to: result.to }),
-      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.email_failed'),
-    });
+    // The PDF is rendered before the message is queued, which can take several seconds. With
+    // nothing on screen meanwhile, the confirmation arrived after the reader had moved on and the
+    // send looked like it had done nothing (QA M6) — and a second click sent it twice.
+    this.sendingEmail.set(true);
+    this.notificationService.showInfo('invoices.detail.email_sending');
+    this.invoicesService
+      .sendInvoice(invoice.id, { to: address || undefined })
+      .pipe(finalize(() => this.sendingEmail.set(false)))
+      .subscribe({
+        next: (result) => this.notificationService.showSuccess('invoices.detail.email_queued', { to: result.to }),
+        error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.email_failed'),
+      });
   }
 
   /** The search box over the lines — what the toolbar's magnifier means on a document. */

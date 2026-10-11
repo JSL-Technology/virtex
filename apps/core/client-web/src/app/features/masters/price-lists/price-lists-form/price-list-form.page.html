@@ -33,7 +33,7 @@
                 <label for="currency">{{ 'masters.price_lists_form.currency' | translate }}</label>
                 <select id="currency" formControlName="currency">
                     @for (currency of currencyOptions(); track currency.code) {
-                        <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+                        <option [value]="currency.code">{{ currency.code }} — {{ currency.code | vxCurrencyName: currency.name }}</option>
                     }
                 </select>
             </div>

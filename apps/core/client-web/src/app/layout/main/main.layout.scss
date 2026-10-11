@@ -22,7 +22,7 @@
   //  Las dos medidas del armazón, en un solo sitio: el riel y el panel las
   //  necesitan, la rejilla las necesita y el modo compacto las cambia. Tres
   //  copias de un número es como empiezan los desajustes de un píxel.
-  --rail-width: 64px;
+  --rail-width: 72px;
   --panel-width: 240px;
 
   display: grid;
@@ -574,7 +574,7 @@
   width: 280px;
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  @include ds.glass-surface('strong');
+  @include ds.popover-surface;
   z-index: var(--z-dropdown);
   overflow: hidden;
   display: flex;
@@ -685,7 +685,7 @@
   width: 380px;
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  @include ds.glass-surface('strong');
+  @include ds.popover-surface;
   z-index: var(--z-dropdown);
   overflow: hidden;
   display: flex;
@@ -892,15 +892,10 @@
   width: 268px;
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  //  Cristal de verdad: el desenfoque FUERTE y el filo superior iluminado
-  //  (`glass-edge`) son lo que separa una lámina de vidrio de un rectángulo
-  //  semitransparente. El header y el footer ya no pintan un fondo opaco encima
-  //  —eso tapaba el desenfoque y dejaba el efecto a medias—, así que toda la
-  //  tarjeta se lee como una sola pieza de cristal.
-  //  Blur reforzado (48px, por encima del `--glass-blur-strong` del sistema):
-  //  el menú se veía demasiado claro/transparente y así queda un cristal más
-  //  esmerilado que separa mejor del contenido de debajo.
-  @include ds.glass-surface('strong', 48px);
+  //  Opaco, no cristal: desde dentro de la barra superior el desenfoque no alcanza la página, y el
+  //  documento de detrás se leía a través del menú (ver `popover-surface`). El filo iluminado se
+  //  conserva: es lo que lo emparenta con el resto del armazón.
+  @include ds.popover-surface;
   @include ds.glass-edge();
   z-index: var(--z-dropdown);
   //  `visible` y no `hidden`: el submenú de Feedback se despliega FUERA de la
@@ -1029,7 +1024,7 @@
     padding: var(--space-2);
     border-radius: var(--radius-lg);
     box-shadow: var(--glass-shadow);
-    @include ds.glass-surface('strong', 48px);
+    @include ds.popover-surface;
     @include ds.glass-edge();
     z-index: 1;
 

@@ -100,6 +100,64 @@ export class InvoiceRendererService implements OnModuleDestroy {
 
   constructor(private readonly i18n: I18nService) {}
 
+  /**
+   * The language a document is written in and the locale its figures follow.
+   *
+   * The recipient's language — the customer's own, else their country's, else the issuer's books —
+   * and the issuer's number and date formats (see `renderHtml`). One answer for the PDF and for the
+   * e-mail that carries it: the e-mail used to be written in the language of whoever pressed
+   * «Send», with `DOP 7080.00` and `2026-11-10` in it, next to a PDF in Spanish.
+   */
+  readerOf(context: Pick<InvoiceRenderContext, 'invoice' | 'organization' | 'language' | 'locale'>): {
+    language: LanguageCode;
+    locale: string;
+    issuerCountry: string;
+  } {
+    const { invoice, organization } = context;
+    const language =
+      context.language ??
+      matchLanguage(invoice.customer?.preferredLanguage) ??
+      languageOfCountry(invoice.customer?.country) ??
+      matchLanguage(organization.booksLanguage) ??
+      DEFAULT_LANGUAGE;
+
+    // No `?? 'DO'`: a document rotated to Dominican labels for an organization whose country was
+    // never set was a silent wrong answer (A-08). An unset country resolves to neutral labels below.
+    const issuerCountry = (organization.country ?? '').toUpperCase();
+    const locale = context.locale ?? resolveLocale(language, issuerCountry);
+    return { language, locale, issuerCountry };
+  }
+
+  /** The total and the due date as the e-mail states them, in the document's own language and format. */
+  emailSummary(context: Pick<InvoiceRenderContext, 'invoice' | 'organization' | 'language' | 'locale'>): {
+    language: LanguageCode;
+    total: string;
+    dueDate: string | null;
+  } {
+    const { language, locale } = this.readerOf(context);
+    const { invoice } = context;
+    const decimals = minorUnitsFor(invoice.currencyCode);
+    const amount = Number(invoice.total ?? 0);
+    let total: string;
+    try {
+      total = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: (invoice.currencyCode ?? '').toUpperCase(),
+        currencyDisplay: 'code',
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }).format(amount);
+    } catch {
+      // An unrecognised currency code must not blank the figure the customer is asked to pay.
+      total = `${invoice.currencyCode ?? ''} ${amount.toFixed(decimals)}`.trim();
+    }
+    return {
+      language,
+      total,
+      dueDate: invoice.dueDate ? formatLongDate(invoice.dueDate, locale) : null,
+    };
+  }
+
   async renderPdf(context: InvoiceRenderContext): Promise<Buffer> {
     const html = await this.renderHtml(context);
     return this.withSlot(async () => {
@@ -136,17 +194,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
      * issuer's country, because the amounts are in the issuer's books and the tax authority reads
      * them — only the WORDS follow the reader.
      */
-    const language =
-      context.language ??
-      matchLanguage(invoice.customer?.preferredLanguage) ??
-      languageOfCountry(invoice.customer?.country) ??
-      matchLanguage(organization.booksLanguage) ??
-      DEFAULT_LANGUAGE;
-
-    // No `?? 'DO'`: a document rotated to Dominican labels for an organization whose country was
-    // never set was a silent wrong answer (A-08). An unset country resolves to neutral labels below.
-    const issuerCountry = (organization.country ?? '').toUpperCase();
-    const locale = context.locale ?? resolveLocale(language, issuerCountry);
+    const { language, locale, issuerCountry } = this.readerOf(context);
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
@@ -344,6 +392,12 @@ function formatDate(value: string | Date, locale: string): string {
     day: '2-digit',
     timeZone: 'UTC',
   }).format(date);
+}
+
+/** «10 de noviembre de 2026»: a date in running text, where `10/11/2026` reads both ways. */
+function formatLongDate(value: string | Date, locale: string): string {
+  const date = value instanceof Date ? value : new Date(`${String(value).split('T')[0]}T12:00:00Z`);
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(date);
 }
 
 function formatDateTime(value: Date, locale: string): string {

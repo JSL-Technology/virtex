@@ -31,6 +31,10 @@
 //  Para alinearla en la misma fila que los proveedores externos: misma altura y
 //  aspecto que ellos, con el icono centrado y sin la caja de acento ni el texto.
 .passkey-card--icon {
+  //  La tarjeta de dos líneas se mide por su contenido (`height: auto`, arriba); el icono solo no
+  //  tiene contenido que medir y quedaba en 18 px, aplastado junto a los otros tres botones.
+  //  Recupera la altura de control que esos tres tienen.
+  height: var(--control-height-lg);
   justify-content: center;
   gap: 0;
   padding: 0 var(--space-2);

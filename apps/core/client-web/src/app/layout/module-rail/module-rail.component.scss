@@ -7,7 +7,7 @@
 }
 
 // ── Riel ──────────────────────────────────────────────────────────
-//  64px de contexto permanente: en qué parte del negocio estás. Lleva cristal
+//  72px de contexto permanente: en qué parte del negocio estás. Lleva cristal
 //  como el resto del armazón —barra superior, panel, diálogos— porque enmarca
 //  el trabajo; el contenido de la derecha sigue siendo opaco.
 .rail {
@@ -41,7 +41,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-2) 2px;
+  padding: var(--space-2) 0;
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
@@ -96,12 +96,16 @@
   line-height: 1.1;
   font-weight: var(--font-medium);
   text-align: center;
-  max-width: 100%;
+  width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  //  Partir donde la lengua lo permite, con guion («Purchas-ing», «Contabi-lidad»), y solo si no
+  //  cabe. `anywhere` cortaba por cualquier letra y dejaba una «g» sola en la segunda línea.
+  //  `<html lang>` sigue el idioma de la interfaz, que es lo que elige el diccionario.
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 .rail__lock {

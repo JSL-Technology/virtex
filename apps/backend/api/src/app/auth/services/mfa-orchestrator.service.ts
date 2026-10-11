@@ -21,6 +21,9 @@ import { FrontendUrlService } from '../../mail/frontend-url.service';
 import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 import { AuthConfig } from '../auth.config';
 import { BadRequestError, InternalServerError, ServiceUnavailableError, UnauthorizedError, isLocalizedError } from '../../i18n/localized.exception';
+import { I18nService } from '../../i18n/i18n.service';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
+import { currentLanguage } from '../../i18n/request-locale';
 
 /** A stable, non-identifying handle for a verification destination, for logs. */
 function hashTarget(target: string): string {
@@ -58,7 +61,8 @@ export class MfaOrchestratorService {
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly mailService: MailService,
     private readonly links: FrontendUrlService,
-    private readonly smsAbuseGuard: SmsAbuseGuardService
+    private readonly smsAbuseGuard: SmsAbuseGuardService,
+    private readonly i18n: I18nService,
   ) {}
 
   async sendEmailOtp(userId: string, email: string) {
@@ -139,7 +143,21 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.save(verificationCode);
 
-    await this.smsProvider.send(phoneNumber, `Your verification code is: ${code}`);
+    await this.smsProvider.send(phoneNumber, this.verificationSms(code, currentLanguage()));
+  }
+
+  /**
+   * The text of a verification SMS, in the reader's language.
+   *
+   * It was the English literal `Your verification code is: …` whatever language the person was
+   * signing up in. The code leads, so it shows in a lock-screen preview, and the expiry follows.
+   */
+  private verificationSms(code: string, language: string | null | undefined): string {
+    return this.i18n.translate('auth.sms.verification_code', matchLanguage(language) ?? DEFAULT_LANGUAGE, {
+      code,
+      app: this.configService.get<string>('APP_NAME', 'Virtex'),
+      minutes: Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000),
+    });
   }
 
   async verifyPhoneOtp(userId: string, code: string, phoneNumber: string) {
@@ -283,7 +301,7 @@ export class MfaOrchestratorService {
       // product does not sell to, and capping what one campaign can cost, does.
       await this.smsAbuseGuard.assertMaySend(target);
       try {
-        await this.smsProvider.send(target, `Your verification code is: ${code}`);
+        await this.smsProvider.send(target, this.verificationSms(code, recipient.language ?? currentLanguage()));
       } catch (err) {
         this.logger.error(
           { event: 'verification_sms_failed', targetHash: hashTarget(target) },

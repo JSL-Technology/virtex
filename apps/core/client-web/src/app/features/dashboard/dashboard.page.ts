@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, effect, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, effect, HostListener, ElementRef, DestroyRef, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GridsterModule, GridsterConfig, GridType, CompactType, DisplayGrid } from 'angular-gridster2';
 import { DashboardService, DashboardWidget } from '../../core/services/dashboard';
@@ -80,6 +80,25 @@ export class DashboardPage implements OnInit {
     effect(() => {
       this.updateGridOptions(this.isEditMode());
     });
+
+    // The grid measures its width once, when it is created, and again only on a window resize.
+    // Home is often built in a tab that is not on screen yet, where the width is 0 — so the grid
+    // concluded it was on a phone, stacked every widget at no height, and stayed that way after the
+    // tab was shown. Measuring whenever its own box changes size is what keeps it right.
+    const host = inject(ElementRef<HTMLElement>).nativeElement as HTMLElement;
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      if (typeof ResizeObserver !== 'function') return;
+      let lastWidth = -1;
+      const observer = new ResizeObserver(([entry]) => {
+        const width = Math.round(entry.contentRect.width);
+        if (width === lastWidth || width === 0) return;
+        lastWidth = width;
+        this.gridOptions.api?.resize?.();
+      });
+      observer.observe(host);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   ngOnInit(): void {
@@ -131,7 +150,12 @@ export class DashboardPage implements OnInit {
       outerMarginBottom: 24,
       outerMarginLeft: 0,
       mobileBreakpoint: 768,
+      // Stacked on a narrow screen, each widget keeps its height: their content fills the item, so
+      // an item sized by its content has no height at all.
+      keepFixedHeightInMobile: true,
       fixedRowHeight: 50,
+      // As tall as its rows: the grid sits in the Home page's own scroll, not in one of its own.
+      setGridSize: true,
       minCols: 4,
       maxCols: 4,
       minRows: 1,
