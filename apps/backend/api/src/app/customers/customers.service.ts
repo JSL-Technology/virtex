@@ -241,6 +241,11 @@ export class CustomersService {
    */
   async remove(id: string, organizationId: string): Promise<void> {
     const customer = await this.findOne(id, organizationId);
+    // The company's «Consumidor final» is what an unnamed sale is made to; without it the point of
+    // sale and the consumer invoice have no buyer. It can be renamed, never deleted.
+    if (customer.isFinalConsumer) {
+      throw new UnprocessableEntityError('customers.final_consumer_cannot_be_deleted');
+    }
     await this.dataSource.transaction(async (manager) => {
       // A customer with documents is deactivated, never deleted (QA C-03). Deleting used to
       // cascade into its invoices — issued e-NCF included — and its receipts, orphaning their

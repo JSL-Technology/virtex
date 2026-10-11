@@ -255,6 +255,16 @@
     "en": "Email",
     "pt": "E-mail"
   },
+  "contacts.customers.final_consumer_badge": {
+    "es": "Consumidor final",
+    "en": "Final consumer",
+    "pt": "Consumidor final"
+  },
+  "contacts.customers.final_consumer_hint": {
+    "es": "Cliente de las ventas que no identifican al comprador. No se puede eliminar.",
+    "en": "Customer of sales that do not identify the buyer. It cannot be deleted.",
+    "pt": "Cliente das vendas que não identificam o comprador. Não pode ser eliminado."
+  },
   "contacts.customers.manage_your_customer_database_history": {
     "es": "Administra tu base de datos de clientes y su historial.",
     "en": "Manage your customer database and its history.",

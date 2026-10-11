@@ -59,6 +59,11 @@
     "en": "{{drawn}} was drawn from the advance but {{unapplied}} remains unapplied. Apply the advance to invoices or reduce it.",
     "pt": "Foram usados {{drawn}} do adiantamento, mas restam {{unapplied}} sem aplicar. Aplique o adiantamento a faturas ou reduza-o."
   },
+  "customers.final_consumer_cannot_be_deleted": {
+    "es": "El consumidor final no se puede eliminar: es el cliente de las ventas que no identifican al comprador. Puedes cambiarle el nombre.",
+    "en": "The final consumer cannot be deleted: it is the customer of sales that do not identify the buyer. You can rename it.",
+    "pt": "O consumidor final não pode ser eliminado: é o cliente das vendas que não identificam o comprador. Pode mudar-lhe o nome."
+  },
   "customers.invoice_invoice_number_status_cannot_take": {
     "es": "La factura {{invoiceNumber}} está en estado {{status}} y no admite cobros.",
     "en": "Invoice {{invoiceNumber}} is {{status}} and cannot take a collection.",

@@ -769,6 +769,11 @@
     "en": "Unit Cost",
     "pt": "Custo Unitário"
   },
+  "inventory.product_form.unit_of_measure": {
+    "es": "Unidad de medida",
+    "en": "Unit of measure",
+    "pt": "Unidade de medida"
+  },
   "inventory.product_form.upload_image": {
     "es": "Subir imagen",
     "en": "Upload an image",

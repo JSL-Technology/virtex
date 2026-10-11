@@ -134,6 +134,15 @@
               </select>
             </div>
             <div class="form-field">
+              <label for="unitOfMeasure">{{ 'inventory.product_form.unit_of_measure' | translate }}</label>
+              <!-- The unit a document quantifies this item in; the e-CF maps it to the authority's code. -->
+              <select id="unitOfMeasure" formControlName="unitOfMeasure">
+                @for (unit of unitOptions(); track unit.symbol) {
+                  <option [value]="unit.symbol">{{ unit.symbol }} · {{ unit.nameKey | translate }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-field">
               <label for="taxTreatment">{{ 'inventory.product_form.tax_treatment' | translate }}</label>
               <select id="taxTreatment" formControlName="taxTreatment">
                 <option value="TAXED">{{ 'inventory.product_form.tax_treatment_taxed' | translate }}</option>

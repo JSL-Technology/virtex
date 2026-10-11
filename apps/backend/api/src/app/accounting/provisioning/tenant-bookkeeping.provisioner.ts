@@ -17,6 +17,7 @@ import {
 import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
+import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -110,12 +111,24 @@ export class TenantBookkeepingProvisioner {
     // The statutory language of these books, which is what their ledger and journals are named in.
     const language = organization.booksLanguage ?? DEFAULT_LANGUAGE;
 
-    await this.provisionSettings(organizationId, baseCurrency, manager);
+    const settings = await this.provisionSettings(organizationId, baseCurrency, manager);
     await this.provisionLedger(organizationId, baseCurrency, language, manager);
     await this.provisionJournals(organizationId, language, manager);
     await this.provisionDocumentSequences(organizationId, manager);
     await this.provisionAccountingPeriods(organizationId, new Date(), manager);
     await this.provisionDefaultWarehouse(organizationId, language, manager);
+    // The customer, category, till and payroll lines a company works with from day one.
+    await seedTenantDefaults(
+      manager,
+      {
+        organizationId,
+        country: organization.country ?? null,
+        booksLanguage: language,
+        baseCurrency: settings.baseCurrency ?? baseCurrency,
+        cashAccountId: settings.defaultCashId ?? null,
+      },
+      (key, lang) => this.i18n.translate(key, lang),
+    );
 
     this.logger.log(`Contabilidad operativa provisionada para la organización ${organizationId}.`);
   }
