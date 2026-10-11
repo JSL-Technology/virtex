@@ -71,7 +71,8 @@ export class AddCompanyComponent {
   constructor() {
     // Start from the country of the company the person is in: the likeliest market for the next.
     const home = this.tenancy.organization()?.countryCode;
-    this.countries.getCountryConfig(home || 'DO').subscribe({ error: () => undefined });
+    if (home) this.countries.getCountryConfig(home).subscribe({ error: () => undefined });
+    else this.countries.detectAndSetCountry();
 
     effect(() => {
       const config = this.countries.currentCountry();

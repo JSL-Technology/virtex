@@ -13,7 +13,9 @@ import { CountryConfig, FiscalFieldSpec, TaxpayerKind } from '../../../core/serv
 
 export function buildConfigurationGroup(fb: FormBuilder): FormGroup {
   return fb.group({
-    country: ['DO', [Validators.required]],
+    // Empty until a country is loaded (the route's, the detected one, the company's): the country's
+    // configuration fills it, and its currency, so nothing assumes one market meanwhile.
+    country: ['', [Validators.required]],
     // Company or natural person. Nine of the nineteen markets issue a different fiscal identifier
     // to each, or encode the distinction inside one, and it also selects which régimen fiscal
     // options the SAT catalogue offers — so it has to be answered before the tax id can be
@@ -21,7 +23,7 @@ export function buildConfigurationGroup(fb: FormBuilder): FormGroup {
     taxpayerKind: ['company', [Validators.required]],
     taxId: ['', [Validators.required]],
     fiscalRegionId: [null],
-    currency: ['DOP', [Validators.required]],
+    currency: ['', [Validators.required]],
     // Country-specific fiscal answers, added and removed as the country or the taxpayer kind
     // changes. Declared as an empty group rather than a fixed set, because which controls exist is
     // a property of the country.

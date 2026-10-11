@@ -102,6 +102,34 @@ export class LocalizationController {
     }));
   }
 
+  /**
+   * The comprobante types the tenant's tax authority publishes, from the catalogue table.
+   *
+   * What the range forms offer, in every market: the Dominican B and E series, a Chilean 33 or 61,
+   * a Peruvian 01 or 03. The forms used to carry their own list — the Dominican one a hardcoded
+   * array, the others a free-text box — so a type added to the catalogue never reached them.
+   */
+  @Get('fiscal-document-types')
+  @AuthenticatedOnly(
+    'Reference data the fiscal settings read: the comprobante types the tenant\'s own tax authority\n' +
+      'publishes. Nothing tenant-specific and nothing secret.',
+  )
+  async getTenantFiscalDocumentTypes(@CurrentUser() user: AuthenticatedUser) {
+    const country = await this.tenantCountry.resolve(user.organizationId);
+    const rows = await this.localizationService.findFiscalDocumentTypes(country);
+    return rows.map((row) => ({
+      code: row.code,
+      labelKey: row.labelKey,
+      name: row.name,
+      sequenceFormat: row.sequenceFormat ?? null,
+      expirationRequired: row.expirationRequired,
+      isElectronic: row.isElectronic,
+      side: row.side,
+      isCreditNote: row.isCreditNote,
+      requiresBuyerTaxId: row.requiresBuyerTaxId,
+    }));
+  }
+
   /** The list of supported countries. Static, cheap, and needed to render the signup form. */
   @Get('fiscal-regions')
   @Public()

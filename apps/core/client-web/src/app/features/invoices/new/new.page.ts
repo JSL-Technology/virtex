@@ -172,12 +172,12 @@ export class NewInvoicePage implements OnInit {
     ].filter((group) => group.types.length > 0);
   });
 
-  /** What «automatic» will issue, in words: the series the server will draw from. */
+  /** What «automatic» will issue, in words: the kind the server will issue it as. */
   automaticTypeLabelKey = computed(() => {
-    switch (this.context()?.automaticSeries) {
-      case 'B':
+    switch (this.context()?.automaticKind) {
+      case 'TRADITIONAL':
         return 'invoices.new.automatic_traditional';
-      case 'E':
+      case 'ELECTRONIC':
         return 'invoices.new.automatic_electronic';
       default:
         return 'invoices.new.automatic_according_buyer';
@@ -789,7 +789,7 @@ const EMPTY_TOTALS: InvoicePreview = {
 /** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
 const INVOICE_FIELD_LABELS: Record<string, string> = {
   customerId: 'invoices.list.customer',
-  issueDate: 'invoices.list.created',
+  issueDate: 'invoices.new.issue_date',
   dueDate: 'invoices.list.due',
   currencyCode: 'treasury.currency',
   fiscalDocumentTypeId: 'invoices.detail.ncf',

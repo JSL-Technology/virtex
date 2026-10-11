@@ -32,10 +32,16 @@ export interface EcfCertificateView {
   serialNumber?: string;
   notBefore?: string;
   notAfter?: string;
-  /** RNC or cédula the certificate was issued to, digits only. */
+  /** The regime it signs for (`DGII`, `CFDI`, `DIAN`…): one active certificate per regime. */
+  regime?: string;
+  /** The identifier the certificate was issued to, without separators. */
   holderTaxId?: string | null;
-  /** `company`: issued to the company's RNC. `person`: to an authorised person's cédula. */
+  /** `company`: issued to the company's identifier. `person`: to a natural person's. */
   holderKind?: 'company' | 'person' | null;
+  /** The name of that identifier in the regime's market: `RNC`, `Cédula`, `RFC`, `NIT`… */
+  holderIdLabel?: string | null;
+  /** The tax authority the certificate signs for: `DGII`, `SAT`, `DIAN`… */
+  authority?: string | null;
   issuerCommonName?: string | null;
   /** Self-signed test certificate, accepted only in development. */
   isTest?: boolean;

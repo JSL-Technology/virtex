@@ -12,11 +12,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  FiscalDocumentTypeView,
   FiscalRange,
   FiscalRegimeSettings,
   FiscalSettingsService,
   MarketCoverage,
 } from '../../../../core/api/fiscal-settings.service';
+import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../../core/services/invoices';
+import { EmissionModeCardComponent, SigningCertificateCardComponent } from '../../fiscal/shared';
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -69,7 +72,17 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
 @Component({
   selector: 'app-einvoicing-regime-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [
+    ...VX_SORT,
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    ...FORMAT_PIPES,
+    ...VX_FORM_A11Y,
+    VxDateFieldComponent,
+    EmissionModeCardComponent,
+    SigningCertificateCardComponent,
+  ],
   templateUrl: './einvoicing-regime.page.html',
   styleUrls: ['./einvoicing-regime.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +91,7 @@ export class EinvoicingRegimePage implements OnInit {
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.ranges());
   private readonly api = inject(FiscalSettingsService);
+  private readonly invoices = inject(InvoicesService);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -88,6 +102,28 @@ export class EinvoicingRegimePage implements OnInit {
   readonly savingSettings = signal(false);
   readonly savingRange = signal(false);
   readonly showRangeForm = signal(false);
+
+  /**
+   * What the invoice form will offer and what stands in the way, as the server computes it — the
+   * same answer for this market as for the Dominican one: the emission-mode card and the
+   * certificate card read it.
+   */
+  readonly invoicing = signal<InvoicingContext | null>(null);
+  readonly emissionMode = signal<FiscalEmissionMode>('BOTH');
+
+  /**
+   * The market's comprobante types, from the catalogue: what a range can be registered for. It was
+   * a free-text box, so a tenant had to know that a Chilean factura afecta is `33`.
+   */
+  readonly documentTypes = signal<FiscalDocumentTypeView[]>([]);
+  /** The types the current mode allows a range for, where the market has both kinds. */
+  readonly rangeDocumentTypes = computed(() => {
+    const both = this.invoicing()?.emissionModeApplies === true;
+    const mode = this.emissionMode();
+    return this.documentTypes().filter(
+      (type) => !both || mode === 'BOTH' || (mode === 'ELECTRONIC') === type.isElectronic,
+    );
+  });
 
   protected readonly environments = [
     { value: 'CERTIFICATION', labelKey: 'settings.pages.einvoicing.env_certification' },
@@ -138,8 +174,34 @@ export class EinvoicingRegimePage implements OnInit {
         error: () => this.coverage.set(null),
       });
 
+    this.api
+      .documentTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => this.documentTypes.set(types),
+        error: () => this.notifications.showError('settings.fiscal.document_types_load_failed'),
+      });
+
     this.loadSettings();
     this.loadRanges();
+    this.loadInvoicingState();
+  }
+
+  /** Something the issue readiness depends on changed — a range, the certificate, the mode. */
+  loadInvoicingState(): void {
+    this.invoices
+      .context()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (context) => this.invoicing.set(context),
+        error: () => this.invoicing.set(null),
+      });
+  }
+
+  /** The label of a document type: its catalogue key, or the authority's own name. */
+  documentTypeLabel(code: string): string {
+    const type = this.documentTypes().find((t) => t.code === code);
+    return type?.labelKey ?? type?.name ?? code;
   }
 
   needs(field: string): boolean {
@@ -260,6 +322,7 @@ export class EinvoicingRegimePage implements OnInit {
           this.showRangeForm.set(false);
           this.rangeForm.reset({ startsAt: 1, endsAt: 1 });
           this.loadRanges();
+          this.loadInvoicingState();
         },
         error: (error) => {
           this.savingRange.set(false);
@@ -273,7 +336,10 @@ export class EinvoicingRegimePage implements OnInit {
       .deactivateRange(range.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.loadRanges(),
+        next: () => {
+          this.loadRanges();
+          this.loadInvoicingState();
+        },
         error: () => this.notifications.showError('settings.pages.einvoicing.delete_failed'),
       });
   }

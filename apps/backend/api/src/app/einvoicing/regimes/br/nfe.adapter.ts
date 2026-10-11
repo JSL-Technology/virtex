@@ -1,3 +1,4 @@
+import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
 import { XmlSignatureService } from '../xml-signature.service';
@@ -49,7 +50,7 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
     private readonly transport: RegimeTransportService,
     private readonly ranges: FiscalRangeService,
   ) {
-    super({ regime: 'NFE' }, vault);
+    super({ regime: certificateRegimeFor('BR') }, vault);
   }
 
   async build(context: FiscalRegimeContext): Promise<SealedFiscalDocument> {

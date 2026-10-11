@@ -143,6 +143,30 @@ export class FiscalRangeService {
   }
 
   /**
+   * Of these document types, the ones the company can draw a number for today: an active range of
+   * the market with numbers left whose authorisation has not expired. What the invoicing screen
+   * offers, so it never offers a type `drawNext` would then refuse.
+   */
+  async liveDocumentTypes(
+    manager: EntityManager,
+    criteria: { organizationId: string; countryCode: string; documentTypes: readonly string[]; today: string },
+  ): Promise<Set<string>> {
+    if (!criteria.documentTypes.length) return new Set();
+    const rows: Array<{ type: string }> = await manager
+      .getRepository(FiscalDocumentRange)
+      .createQueryBuilder('range')
+      .select('DISTINCT range.documentType', 'type')
+      .where('range.organizationId = :organizationId', { organizationId: criteria.organizationId })
+      .andWhere('range.countryCode = :countryCode', { countryCode: criteria.countryCode.toUpperCase() })
+      .andWhere('range.isActive = true')
+      .andWhere('range.documentType IN (:...types)', { types: [...criteria.documentTypes] })
+      .andWhere('range.currentSequence < range.endsAt')
+      .andWhere('(range.validUntil IS NULL OR range.validUntil >= :today)', { today: criteria.today })
+      .getRawMany();
+    return new Set(rows.map((row) => row.type));
+  }
+
+  /**
    * The range a number already issued came from, without drawing anything.
    *
    * Needed because building the document happens after the number was assigned, and two regimes

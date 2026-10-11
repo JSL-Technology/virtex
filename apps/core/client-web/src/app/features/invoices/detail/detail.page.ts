@@ -34,6 +34,8 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 import { finalize } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 
 /** Each e-CF state's name and what it means for the person reading it. */
 const ECF_STATUS: Record<string, { label: string; hint: string }> = {
@@ -125,13 +127,35 @@ export class InvoiceDetailPage implements OnInit {
       : this.translate.instant('invoices.detail.tax_id_generic');
   });
 
-  /** The buyer's: in the Dominican Republic nine digits are an RNC and eleven a cédula. */
-  buyerTaxIdLabel(taxId: string): string {
-    const market = this.localeStore.tenantContext()?.countryCode?.toUpperCase();
-    const digits = taxId.replace(/\D/g, '');
-    if (market === 'DO' && digits.length === 9) return 'RNC';
-    if (market === 'DO' && digits.length === 11) return this.translate.instant('invoices.detail.cedula');
-    return this.issuerTaxIdLabel();
+  /** The tax authority of the company's market (`DGII`, `SAT`, `DIAN`…), for the e-invoicing block. */
+  readonly fiscalAuthority = computed(() => this.countries.currentCountry()?.fiscalAuthority ?? '—');
+
+  /** The documents that identify a party on an invoice in this market, from the catalogue. */
+  private readonly identityDocuments = inject(IdentityDocumentsService);
+  private readonly invoicingDocuments = toSignal(this.identityDocuments.list({ usedFor: 'invoicing' }), {
+    initialValue: [],
+  });
+
+  /**
+   * The buyer's identifier, named by its own document: the one the customer record states, or the
+   * one of the company's market whose shape the number has — an RNC or a cédula, an RFC, a NIT, a
+   * DNI. It used to be a Dominican rule (nine digits RNC, eleven cédula) and the issuer's label
+   * everywhere else.
+   */
+  buyerTaxIdLabel(taxId: string, documentCode?: string | null): string {
+    const documents = this.invoicingDocuments();
+    const translate = (key: string) => this.translate.instant(key);
+    const byCode = documentCode ? documents.find((doc) => doc.code === documentCode) : undefined;
+    if (byCode) return this.identityDocuments.label(byCode, translate);
+    const raw = taxId.trim();
+    const byShape = documents.find((doc) => {
+      try {
+        return new RegExp(doc.pattern).test(raw);
+      } catch {
+        return false;
+      }
+    });
+    return byShape ? this.identityDocuments.label(byShape, translate) : this.issuerTaxIdLabel();
   }
 
   /**

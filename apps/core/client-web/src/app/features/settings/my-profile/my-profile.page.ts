@@ -1,3 +1,4 @@
+import { visitorRegion } from '../../../core/i18n/visitor-region';
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
 import { LanguageService } from '../../../core/services/language';
 import {
@@ -257,7 +258,7 @@ export class MyProfilePage implements OnInit {
       //  Sin `email`: el servidor no lo admite en este endpoint (se cambia con su flujo de
       //  confirmación) y enviarlo hacía que TODA edición de perfil respondiera 400 (QA A-04). El
       //  teléfono va en E.164, que es lo que exige la API; en blanco se envía `null` para borrarlo.
-      const region = this.locale.tenantContext()?.countryCode ?? 'DO';
+      const region = this.locale.tenantContext()?.countryCode ?? visitorRegion() ?? '';
       const trimmedPhone = (phone ?? '').trim();
       const e164 = trimmedPhone ? toE164(trimmedPhone, region) : null;
       if (trimmedPhone && !e164) {

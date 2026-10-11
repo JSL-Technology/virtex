@@ -1,3 +1,4 @@
+import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable, Logger } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
 import { RegimeTransportService } from '../regime-transport.service';
@@ -53,7 +54,7 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
     vault: CertificateVaultService,
     private readonly transport: RegimeTransportService,
   ) {
-    super({ regime: 'AFIP' }, vault);
+    super({ regime: certificateRegimeFor('AR') }, vault);
   }
 
   async build(context: FiscalRegimeContext): Promise<SealedFiscalDocument> {

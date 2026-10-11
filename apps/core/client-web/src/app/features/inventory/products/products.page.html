@@ -48,7 +48,14 @@
             <td class="text-right"><vx-amount [value]="product.price" /></td>
             <td class="text-right"><vx-amount [value]="product.cost" /></td>
             <!-- A service is not stocked: it has no quantity on hand and is never "out of stock". -->
-            <td class="text-right">{{ product.kind === 'SERVICE' ? '—' : product.stock }}</td>
+            <!-- With its unit: «80» of what — units, kilos, cajas? (QA U44) -->
+            <td class="text-right">
+              @if (product.kind === 'SERVICE') {
+                —
+              } @else {
+                {{ product.stock | vxNumber: '1.0-2' }} <span class="unit">{{ product.unitOfMeasure || 'UND' }}</span>
+              }
+            </td>
             <td>
               <vx-badge [tone]="stockTone(product)">{{ stockLabel(product) | translate }}</vx-badge>
             </td>

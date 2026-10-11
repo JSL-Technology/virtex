@@ -85,7 +85,7 @@
           <strong>{{ inv.customerName }}</strong><br />
           <!-- The buyer's tax id: a credit-tax invoice (E31) without it is not a valid one (QA A5). -->
           @if (inv.customerTaxId || inv.customer?.taxId; as buyerTaxId) {
-            {{ 'invoices.detail.tax_id_labelled' | translate: { label: buyerTaxIdLabel(buyerTaxId), taxId: buyerTaxId } }}<br />
+            {{ 'invoices.detail.tax_id_labelled' | translate: { label: buyerTaxIdLabel(buyerTaxId, inv.customer?.identityDocumentTypeCode), taxId: buyerTaxId } }}<br />
           }
           {{ inv.customerAddress }}
         </p>
@@ -286,7 +286,7 @@
     </div>
   }
 
-  <!-- Facturación electrónica (e-CF / DGII) -->
+  <!-- Electronic invoicing: the authority's verdict on this document -->
   <div class="invoice-document card" *ngIf="ecf() as e">
     <div class="card-body">
       <h3>{{ 'invoices.detail.electronic_fiscal_document_cf' | translate }}</h3>
@@ -296,7 +296,7 @@
           <p><strong>{{ e.ncf }}</strong></p>
         </div>
         <div class="detail-item">
-          <span class="detail-label">{{ 'invoices.detail.dgii_status' | translate }}</span>
+          <span class="detail-label">{{ 'invoices.detail.authority_status' | translate: { authority: fiscalAuthority() } }}</span>
           <vx-badge [tone]="ecfStatusTone(e.status)">{{ ecfStatusLabel(e.status) | translate }}</vx-badge>
           @if (ecfStatusHint(e.status); as hint) {
             <p class="detail-hint">{{ hint | translate }}</p>
@@ -313,14 +313,14 @@
       </div>
 
       <div class="ecf-messages" *ngIf="e.messages?.length">
-        <span class="detail-label">{{ 'invoices.detail.messages_from_dgii' | translate }}</span>
+        <span class="detail-label">{{ 'invoices.detail.messages_from_authority' | translate: { authority: fiscalAuthority() } }}</span>
         <ul>
           <li *ngFor="let m of e.messages">{{ dgiiMessage(m) }}</li>
         </ul>
       </div>
 
       <div class="ecf-qr" *ngIf="e.qrUrl">
-        <span class="detail-label">{{ 'invoices.detail.dgii_verification' | translate }}</span>
+        <span class="detail-label">{{ 'invoices.detail.authority_verification' | translate: { authority: fiscalAuthority() } }}</span>
         <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
         <qrcode [qrdata]="e.qrUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
         <a [href]="e.qrUrl" target="_blank" rel="noopener">{{ 'invoices.detail.open_stamp_lookup' | translate }}</a>
@@ -330,7 +330,7 @@
         <button type="button" (click)="downloadEcfXml()">{{ 'invoices.detail.download_signed_xml' | translate }}</button>
         <button type="button" [disabled]="ecfBusy()" (click)="resubmitEcf()">
           {{
-            (ecfBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_dgii') | translate
+            (ecfBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_to_authority') | translate: { authority: fiscalAuthority() }
           }}
         </button>
       </div>

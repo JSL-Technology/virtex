@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   IncomeTaxBracket,
@@ -53,7 +53,9 @@ export class PayrollParametersPage {
 
   protected readonly SaveIcon = Save;
 
-  readonly country = signal('DO');
+  /** The company's market: its statutory tables, not one country's for everybody. */
+  private readonly locale = inject(LocaleStore);
+  readonly country = signal((this.locale.tenantContext()?.countryCode ?? '').toUpperCase());
   readonly contributions = signal<StatutoryContribution[]>([]);
   readonly references = signal<StatutoryReference[]>([]);
   readonly brackets = signal<IncomeTaxBracket[]>([]);

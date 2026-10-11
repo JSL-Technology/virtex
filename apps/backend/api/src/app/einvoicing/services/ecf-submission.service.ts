@@ -8,6 +8,10 @@ import { TaxTreatment } from '../../invoices/entities/invoice-line-item.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { CertificateVaultService } from './certificate-vault.service';
+import { assertStoredCertificateUsable } from './certificate-inspector';
+import { certificatePolicyFor } from '../contracts/certificate-policy';
+import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
+import { fiscalIdentifierLabel } from '../../localization/contracts/tax-id.contract';
 import { EcfSignerService } from './ecf-signer.service';
 import {
   EcfXmlBuilderService,
@@ -88,41 +92,30 @@ export class EcfSubmissionService {
    * saved. It used to be checked only when the e-CF was built, AFTER the sale had committed: the
    * invoice kept an e-NCF the DGII would never receive, and nothing on screen said so. Raised here,
    * the same condition blocks the issue preview with a link to the screen that fixes it.
+   *
+   * The same rule in every market with a regime: the company has an identifier, holds an active
+   * certificate of its market's regime, and that certificate may still sign for it
+   * (`assertStoredCertificateUsable`). Which regime, and whose certificate may sign, is
+   * `certificatePolicyFor` — not a Dominican assumption.
    */
   async assertReadyToSign(organizationId: string, manager?: EntityManager): Promise<void> {
-    const orgs = manager ? manager.getRepository(Organization) : this.orgRepo;
-    const org = await orgs.findOne({ where: { id: organizationId }, select: ['id', 'taxId'] });
-    if (!org?.taxId) {
-      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
+    const identity = await organizationFiscalIdentity(manager ?? this.orgRepo.manager, organizationId);
+    const policy = certificatePolicyFor(identity?.country);
+    if (!identity || !policy) {
+      throw new BadRequestError('einvoicing.certificate.no_regime', { country: identity?.country ?? '—' });
     }
-    const cert = await this.activeCertificate(organizationId, manager);
+    if (!identity.taxId) {
+      throw new BadRequestError('einvoicing.certificate.organization_has_no_tax_id', {
+        label: fiscalIdentifierLabel(policy.country),
+      });
+    }
+    const cert = await this.activeCertificate(organizationId, manager, policy.regime);
     if (!cert) {
-      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
+      throw new BadRequestError('einvoicing.certificate.none_active', { authority: policy.authority });
     }
-    if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestError('einvoicing.do.certificate_expired', {
-        expiredOn: cert.notAfter.toISOString().split('T')[0],
-      });
-    }
-    // A self-signed test certificate signs only where tests are allowed — never because its row
-    // was carried into another environment.
-    if (cert.isTest && !this.vault.testCertificatesAllowed()) {
-      throw new BadRequestError('einvoicing.do.certificate_self_signed');
-    }
-    // Issued to the company's RNC, and the company's RNC has since changed.
-    if (cert.holderKind === 'company' && cert.holderTaxId && cert.holderTaxId !== org.taxId.replace(/\D/g, '')) {
-      throw new BadRequestError('einvoicing.do.certificate_belongs_to_other_rnc', {
-        holder: cert.subjectCommonName ?? '—',
-        rnc: cert.holderTaxId,
-        company: org.taxId,
-      });
-    }
-  }
-
-  /** The company's RNC (or cédula), as recorded; null when it has none. */
-  async organizationTaxId(organizationId: string): Promise<string | null> {
-    const org = await this.orgRepo.findOne({ where: { id: organizationId }, select: ['id', 'taxId'] });
-    return org?.taxId ?? null;
+    assertStoredCertificateUsable(cert, { country: policy.country, taxId: identity.taxId }, policy, {
+      allowTestCertificates: this.vault.testCertificatesAllowed(),
+    });
   }
 
   /** `assertReadyToSign` as a yes/no, for readiness screens that list what is missing. */
@@ -164,11 +157,15 @@ export class EcfSubmissionService {
     );
   }
 
-  /** The certificate that signs DGII documents for this tenant, newest first. */
-  private activeCertificate(organizationId: string, manager?: EntityManager): Promise<EcfCertificate | null> {
+  /** The certificate that signs this regime's documents for the tenant (DGII by default), newest first. */
+  private activeCertificate(
+    organizationId: string,
+    manager?: EntityManager,
+    regime: string = DGII_CERTIFICATE_REGIME,
+  ): Promise<EcfCertificate | null> {
     const repo = manager ? manager.getRepository(EcfCertificate) : this.certRepo;
     return repo.findOne({
-      where: { organizationId, isActive: true, regime: DGII_CERTIFICATE_REGIME },
+      where: { organizationId, isActive: true, regime },
       order: { createdAt: 'DESC' },
     });
   }
@@ -220,15 +217,15 @@ export class EcfSubmissionService {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
     if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
     if (!org.taxId) {
-      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
+      throw new BadRequestError('einvoicing.certificate.organization_has_no_tax_id', { label: 'RNC' });
     }
 
     const cert = await this.activeCertificate(organizationId);
     if (!cert) {
-      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
+      throw new BadRequestError('einvoicing.certificate.none_active', { authority: 'DGII' });
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestError('einvoicing.do.certificate_expired', {
+      throw new BadRequestError('einvoicing.certificate.expired', {
         expiredOn: cert.notAfter.toISOString().split('T')[0],
       });
     }

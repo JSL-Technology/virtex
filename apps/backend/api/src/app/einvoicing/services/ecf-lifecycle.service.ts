@@ -7,7 +7,7 @@ import {
   CommercialApprovalVerdict,
 } from '../entities/ecf-lifecycle-message.entity';
 import { EcfStatus } from '../entities/ecf-submission.entity';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   NcfSequence,
@@ -277,21 +277,23 @@ export class EcfLifecycleService {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
     if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
     if (!org.taxId) {
-      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
+      throw new BadRequestError('einvoicing.certificate.organization_has_no_tax_id', { label: 'RNC' });
     }
     return org;
   }
 
   private async credentials(organizationId: string, org: Organization) {
+    // The DGII's certificate: a tenant that also operates in another market holds that market's
+    // certificate too, and signing a DGII message with it would be rejected.
     const cert = await this.certRepo.findOne({
-      where: { organizationId, isActive: true },
+      where: { organizationId, isActive: true, regime: DGII_CERTIFICATE_REGIME },
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_with');
+      throw new BadRequestError('einvoicing.certificate.none_active', { authority: 'DGII' });
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestError('einvoicing.do.certificate_expired', {
+      throw new BadRequestError('einvoicing.certificate.expired', {
         expiredOn: cert.notAfter.toISOString().split('T')[0],
       });
     }

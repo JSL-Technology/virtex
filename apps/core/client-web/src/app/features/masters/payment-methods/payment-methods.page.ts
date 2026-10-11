@@ -38,5 +38,5 @@ export class PaymentMethodsPage {
   private readonly locale = inject(LocaleStore);
 
   readonly methods = PAYMENT_FORMS;
-  readonly countryCode = this.locale.tenantContext()?.countryCode ?? 'DO';
+  readonly countryCode = this.locale.tenantContext()?.countryCode ?? '';
 }

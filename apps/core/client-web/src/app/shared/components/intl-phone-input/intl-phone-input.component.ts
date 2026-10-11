@@ -1,3 +1,5 @@
+import { visitorRegion } from '../../../core/i18n/visitor-region';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -58,6 +60,7 @@ export class IntlPhoneInputComponent implements ControlValueAccessor, Validator,
   @Input() inputId = `phone-${Math.random().toString(36).slice(2, 9)}`;
 
   private readonly countryService = inject(CountryService);
+  private readonly localeStore = inject(LocaleStore);
 
   /** The markets the product serves, each with its ISO code and calling code. */
   readonly countries = toSignal(this.countryService.getSupportedCountries(), {
@@ -65,7 +68,7 @@ export class IntlPhoneInputComponent implements ControlValueAccessor, Validator,
   });
 
   /** The selected ISO region (`DO`, `MX`, …) and the national number the user is typing. */
-  readonly region = signal<string>('DO');
+  readonly region = signal<string>('');
   readonly national = signal<string>('');
   readonly disabled = signal(false);
   readonly touched = signal(false);
@@ -86,9 +89,11 @@ export class IntlPhoneInputComponent implements ControlValueAccessor, Validator,
   private onValidatorChange: () => void = () => undefined;
 
   ngOnInit(): void {
-    // Default to the country detected for this visitor, so most users never touch the selector.
-    const detected = (this.countryService.currentCountryCode() || 'do').toUpperCase();
-    this.region.set(detected);
+    // Default to the company's country, else the one detected for this visitor, else the one their
+    // browser's language suggests — so most users never touch the selector, wherever they are.
+    const tenant = this.localeStore.tenantContext()?.countryCode;
+    const detected = tenant || this.countryService.currentCountryCode() || visitorRegion() || '';
+    if (!this.region()) this.region.set(detected.toUpperCase());
   }
 
   // -- ControlValueAccessor ------------------------------------------------------------------

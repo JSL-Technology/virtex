@@ -1,17 +1,15 @@
-import { VxFileInputComponent } from '../../../shared/components/file-input/file-input.component';
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  EinvoicingService,
-  EcfCertificateView,
-  NcfSequenceView,
-  NcfType,
-} from '../../../core/services/einvoicing';
+import { EinvoicingService, NcfSequenceView, NcfType } from '../../../core/services/einvoicing';
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
-import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
-import { OrganizationSettingsService } from '../data/organization-settings.service';
+import {
+  FiscalDocumentTypeView,
+  FiscalSettingsService,
+  MarketCoverage,
+} from '../../../core/api/fiscal-settings.service';
+import { EmissionModeCardComponent, SigningCertificateCardComponent } from './shared';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
@@ -20,16 +18,9 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date/date-field.component';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
-/** One choice of the emission mode, as the page presents it. */
-interface EmissionModeChoice {
-  value: FiscalEmissionMode;
-  titleKey: string;
-  descriptionKey: string;
-}
-
-/** A range type the form offers, with the kind it belongs to. */
+/** A range type the form offers. */
 interface RangeTypeChoice {
-  value: NcfType;
+  value: string;
   labelKey: string;
 }
 
@@ -47,7 +38,18 @@ interface RangeTypeChoice {
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [...VX_SORT, VxFileInputComponent, VxDateFieldComponent, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [
+    ...VX_SORT,
+    VxDateFieldComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    ...FORMAT_PIPES,
+    ...VX_FORM_A11Y,
+    VxBadgeComponent,
+    EmissionModeCardComponent,
+    SigningCertificateCardComponent,
+  ],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,73 +60,47 @@ export class FiscalSettingsPage implements OnInit {
   private invoices = inject(InvoicesService);
   private notifications = inject(NotificationService);
   private fiscalSettings = inject(FiscalSettingsService);
-  private organizationSettings = inject(OrganizationSettingsService);
   private readonly translate = inject(TranslateService);
 
-  certificates = signal<EcfCertificateView[]>([]);
   sequences = signal<NcfSequenceView[]>([]);
-  /** Sortable by their headers (QA B-01). A certificate's state: expired, then inactive, then active. */
-  readonly certificatesTable = sortable(() => this.certificates(), {
-    status: (c) => (c.expired ? 2 : c.isActive ? 0 : 1),
-  });
+  /** Sortable by their headers (QA B-01). */
   readonly sequencesTable = sortable(() => this.sequences(), {
     type: (s) => this.translate.instant(this.ncfTypeLabel(s.type)),
     // Every column sorts, the numbers left included (QA U34).
     remaining: (s) => this.remaining(s),
   });
-  uploading = signal(false);
   provisioning = signal(false);
-  selectedFile = signal<File | null>(null);
 
-  // ── How the company issues ──────────────────────────────────────────────────
+  // ── How the company issues (`vx-emission-mode-card` reads and saves it) ──────────
   readonly emissionMode = signal<FiscalEmissionMode>('BOTH');
-  readonly savingMode = signal(false);
-  readonly modeChoices: EmissionModeChoice[] = [
-    {
-      value: 'BOTH',
-      titleKey: 'settings.fiscal.mode.both_title',
-      descriptionKey: 'settings.fiscal.mode.both_description',
-    },
-    {
-      value: 'ELECTRONIC',
-      titleKey: 'settings.fiscal.mode.electronic_title',
-      descriptionKey: 'settings.fiscal.mode.electronic_description',
-    },
-    {
-      value: 'TRADITIONAL',
-      titleKey: 'settings.fiscal.mode.traditional_title',
-      descriptionKey: 'settings.fiscal.mode.traditional_description',
-    },
-  ];
 
   /** What the invoice form will offer, as the server computes it: the page's live summary. */
   readonly invoicing = signal<InvoicingContext | null>(null);
-  readonly issuableNow = computed(() =>
-    (this.invoicing()?.fiscalDocumentTypes ?? []).filter((t) => t.issuable),
-  );
-  /** The certificate matters only when the company may issue electronic comprobantes. */
-  readonly certificateRelevant = computed(() => this.emissionMode() !== 'TRADITIONAL');
 
   /**
-   * The range types, by kind. Notes and buyer-issued comprobantes are here too: a range is
-   * authorised for them as for any other, even though they are not issued from the invoice form.
+   * The range types, by kind, from the market's catalogue (`GET localization/fiscal-document-types`).
+   * Notes and buyer-issued comprobantes are here too: a range is authorised for them as for any
+   * other, even though they are not issued from the invoice form. The page used to carry its own
+   * list of codes, so a type added to the catalogue never reached it.
    */
-  readonly rangeTypeGroups: { labelKey: string; electronic: boolean; types: RangeTypeChoice[] }[] = [
-    {
-      labelKey: 'settings.fiscal.range_group_electronic',
-      electronic: true,
-      types: (['E31', 'E32', 'E33', 'E34', 'E41', 'E43', 'E44', 'E45', 'E46', 'E47'] as NcfType[]).map(choice),
-    },
-    {
-      labelKey: 'settings.fiscal.range_group_traditional',
-      electronic: false,
-      types: (['B01', 'B02', 'B03', 'B04', 'B11', 'B13', 'B14', 'B15', 'B16', 'B17'] as NcfType[]).map(choice),
-    },
-  ];
+  readonly documentTypes = signal<FiscalDocumentTypeView[]>([]);
+  readonly rangeTypeGroups = computed(() =>
+    [
+      { labelKey: 'settings.fiscal.range_group_electronic', electronic: true },
+      { labelKey: 'settings.fiscal.range_group_traditional', electronic: false },
+    ]
+      .map((group) => ({
+        ...group,
+        types: this.documentTypes()
+          .filter((type) => type.isElectronic === group.electronic)
+          .map((type): RangeTypeChoice => ({ value: type.code, labelKey: type.labelKey ?? type.name })),
+      }))
+      .filter((group) => group.types.length > 0),
+  );
 
   /** The groups the current mode allows a range for. */
   readonly visibleRangeTypeGroups = computed(() =>
-    this.rangeTypeGroups.filter(
+    this.rangeTypeGroups().filter(
       (group) =>
         this.emissionMode() === 'BOTH' || (this.emissionMode() === 'ELECTRONIC') === group.electronic,
     ),
@@ -170,16 +146,11 @@ export class FiscalSettingsPage implements OnInit {
     return composeKey('settings.fiscal.capability', capability);
   }
 
-  certForm = this.fb.group({
-    alias: ['', Validators.required],
-    password: ['', Validators.required],
-  });
-
   private readonly defaultExpiry = (): string => `${new Date().getFullYear() + 1}-12-31`;
 
   sequenceForm = this.fb.group({
-    type: ['E31' as NcfType, Validators.required],
-    prefix: ['E31', [Validators.required, Validators.pattern(/^[BE]\d{2}$/)]],
+    type: ['', Validators.required],
+    prefix: ['', [Validators.required, Validators.maxLength(3)]],
     startsAt: [1, [Validators.required, Validators.min(1)]],
     endsAt: [1000, [Validators.required, Validators.min(1)]],
     // Every range the DGII authorizes carries an end date, and a document numbered from an expired
@@ -213,19 +184,15 @@ export class FiscalSettingsPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCertificates();
     this.loadSequences();
     this.loadInvoicingState();
 
-    this.organizationSettings.get('fiscal').subscribe({
-      next: (view) => {
-        const mode = view.fields['fiscalEmissionMode'];
-        if (mode === 'BOTH' || mode === 'ELECTRONIC' || mode === 'TRADITIONAL') {
-          this.emissionMode.set(mode);
-          this.keepRangeTypeInMode();
-        }
+    this.fiscalSettings.documentTypes().subscribe({
+      next: (types) => {
+        this.documentTypes.set(types);
+        this.keepRangeTypeInMode();
       },
-      error: () => this.notifications.showError('settings.fiscal.mode.load_failed'),
+      error: () => this.notifications.showError('settings.fiscal.document_types_load_failed'),
     });
 
     this.fiscalSettings.coverage().subscribe({
@@ -243,33 +210,24 @@ export class FiscalSettingsPage implements OnInit {
     });
   }
 
-  /** Change how the company issues. Saved at once: it is one choice, not a form. */
-  setEmissionMode(mode: FiscalEmissionMode): void {
-    if (mode === this.emissionMode() || this.savingMode()) return;
-    const previous = this.emissionMode();
+  /** The emission-mode card read or changed the mode: the range form follows it. */
+  onModeChange(mode: FiscalEmissionMode): void {
     this.emissionMode.set(mode);
-    this.savingMode.set(true);
-    this.organizationSettings.update('fiscal', { fields: { fiscalEmissionMode: mode } }).subscribe({
-      next: () => {
-        this.savingMode.set(false);
-        this.keepRangeTypeInMode();
-        this.loadInvoicingState();
-        this.notifications.showSuccess('settings.fiscal.mode.saved');
-      },
-      error: (err) => {
-        this.emissionMode.set(previous);
-        this.savingMode.set(false);
-        this.notifications.showHttpError(err, 'settings.fiscal.mode.save_failed');
-      },
-    });
+    this.keepRangeTypeInMode();
   }
 
-  /** The range form proposes a type of a kind the company issues. */
+  /** Something the issue readiness depends on changed: read it again. */
+  refreshInvoicingState(): void {
+    this.loadInvoicingState();
+  }
+
+  /** The range form proposes a type of a kind the company issues: its first ordinary invoice type. */
   private keepRangeTypeInMode(): void {
     const current = this.sequenceForm.get('type')?.value;
     const allowed = this.visibleRangeTypeGroups().flatMap((group) => group.types.map((t) => t.value));
-    if (current && !allowed.includes(current)) {
-      const first = allowed.find((t) => t.endsWith('01') || t.endsWith('31')) ?? allowed[0];
+    if (!current || !allowed.includes(current)) {
+      const sales = this.documentTypes().filter((t) => allowed.includes(t.code) && t.side === 'sales' && !t.isCreditNote);
+      const first = sales[0]?.code ?? allowed[0];
       if (first) this.sequenceForm.patchValue({ type: first, prefix: first });
     }
   }
@@ -282,61 +240,10 @@ export class FiscalSettingsPage implements OnInit {
     });
   }
 
-  private loadCertificates(): void {
-    this.einvoicing.listCertificates().subscribe({
-      next: (c) => this.certificates.set(c),
-      error: () => this.notifications.showError('settings.fiscal.certificates_could_not_loaded'),
-    });
-  }
-
   private loadSequences(): void {
     this.einvoicing.listSequences().subscribe({
       next: (s) => this.sequences.set(s),
       error: () => this.notifications.showError('settings.fiscal.do.ncf_sequences_load_failed'),
-    });
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.selectedFile.set(input.files?.[0] ?? null);
-  }
-
-  uploadCertificate(): void {
-    const file = this.selectedFile();
-    if (!file) {
-      this.notifications.showError('settings.fiscal.select_certificate_file_p12_pfx');
-      return;
-    }
-    if (this.certForm.invalid) {
-      this.certForm.markAllAsTouched();
-      return;
-    }
-    this.uploading.set(true);
-    const { alias, password } = this.certForm.getRawValue();
-    this.einvoicing.uploadCertificate(file, password ?? '', alias ?? '').subscribe({
-      next: () => {
-        this.notifications.showSuccess('settings.fiscal.certificate_uploaded_validated_successfully');
-        this.certForm.reset();
-        this.selectedFile.set(null);
-        this.uploading.set(false);
-        this.loadCertificates();
-        this.loadInvoicingState();
-      },
-      error: (err) => {
-        this.notifications.showHttpError(err, 'errors.load_certificate');
-        this.uploading.set(false);
-      },
-    });
-  }
-
-  deactivateCertificate(id: string): void {
-    this.einvoicing.deactivateCertificate(id).subscribe({
-      next: () => {
-        this.notifications.showInfo('settings.fiscal.certificate_deactivated');
-        this.loadCertificates();
-        this.loadInvoicingState();
-      },
-      error: () => this.notifications.showError('settings.fiscal.certificate_could_not_deactivated'),
     });
   }
 
@@ -385,8 +292,4 @@ export class FiscalSettingsPage implements OnInit {
         },
       });
   }
-}
-
-function choice(value: NcfType): RangeTypeChoice {
-  return { value, labelKey: `fiscal.do.${value.toLowerCase()}` };
 }

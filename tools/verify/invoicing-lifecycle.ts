@@ -52,6 +52,16 @@ function dominicanRnc(prefix: string): string {
   return `${base}${digit}`;
 }
 
+/** A Colombian NIT with its DIAN check digit (módulo 11 with the DIAN's prime weights). */
+function colombianNit(base: string): string {
+  const weights = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+  const digits = base.split('').reverse();
+  const sum = digits.reduce((acc, d, i) => acc + Number(d) * weights[i], 0);
+  const remainder = sum % 11;
+  const dv = remainder > 1 ? 11 - remainder : remainder;
+  return `${base}-${dv}`;
+}
+
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
   console.log(`${ok ? '✓' : '✗'} ${label}${detail ? ` — ${detail}` : ''}`);
@@ -209,7 +219,7 @@ async function main(): Promise<void> {
   // Without a certificate the preview blocks, names the reason and points at the screen that fixes it.
   const blocked = await invoices.previewIssue(draft.id, orgId);
   const certificateCondition = blocked.preconditions.find(
-    (p) => p.code === 'einvoicing.do.no_active_digital_certificate_sign_cf',
+    (p) => p.code === 'einvoicing.certificate.none_active',
   );
   check('sin certificado, la emisión se bloquea', !blocked.canExecute && Boolean(certificateCondition));
   check(
@@ -236,8 +246,8 @@ async function main(): Promise<void> {
   const traditionalReady = await invoices.invoicingContext(orgId);
   check(
     'con un rango B y sin certificado, el inquilino puede facturar',
-    traditionalReady.ready && traditionalReady.automaticSeries === 'B',
-    `${traditionalReady.missing.join('; ')} · serie ${traditionalReady.automaticSeries}`,
+    traditionalReady.ready && traditionalReady.automaticKind === 'TRADITIONAL',
+    `${traditionalReady.missing.join('; ')} · tipo ${traditionalReady.automaticKind}`,
   );
   const e31Option = traditionalReady.fiscalDocumentTypes.find((t) => t.code === 'E31');
   check(
@@ -497,6 +507,56 @@ async function main(): Promise<void> {
     [orgId],
   );
   check('no existen comprobantes con e-NCF duplicado', dupes.n === 0, `${dupes.n} duplicado(s)`);
+
+  // ── Another market: the same rules, its own regime ─────────────────────────────
+  // Nothing above is Dominican by construction: a Colombian company uploads its certificate to the
+  // DIAN regime, is told it needs one before an electronic document, and has no emission mode to
+  // pick because every Colombian type is electronic.
+  const coRegion = await localization.findRegionByCountryCode('CO');
+  if (coRegion) {
+    const nitBase = String(900000000 + (stamp % 99_000_000));
+    const coOrg = await organizations.create({
+      planId: plan?.id,
+      subscriptionStatus: 'active',
+      subscriptionPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000),
+      legalName: `Sonda Facturación Colombia ${stamp}`,
+      taxId: colombianNit(nitBase),
+      country: 'CO',
+      fiscalRegionId: coRegion.id,
+      address: 'Carrera 7 # 71-21',
+      city: 'Bogotá',
+      phone: '6015550100',
+      email: `sonda-co${stamp}@example.com`,
+    });
+    await localization.applyFiscalPackage(coOrg, ds.manager);
+    const coContext = await invoices.invoicingContext(coOrg.id);
+    check('en Colombia, los comprobantes electrónicos piden certificado', coContext.certificateRequired === true);
+    check('en Colombia no hay modalidad que elegir: todo es electrónico', coContext.emissionModeApplies === false);
+    check(
+      'en Colombia, cada tipo ofrecido se marca como electrónico desde el catálogo',
+      coContext.fiscalDocumentTypes.length > 0 && coContext.fiscalDocumentTypes.every((t) => t.electronic === true),
+      coContext.fiscalDocumentTypes.map((t) => `${t.code}:${t.electronic}`).join(', '),
+    );
+
+    let dominicanRefused = false;
+    try {
+      await runAsTenantJob(ds, coOrg.id, () =>
+        certificates.upload(coOrg.id, { pfx: certificate.pfx, password: certificate.password, alias: 'RD' }),
+      );
+    } catch {
+      dominicanRefused = true;
+    }
+    check('un certificado de una empresa dominicana se rechaza para la colombiana', dominicanRefused);
+
+    const coCertificate = makeTestCertificate('SONDA COLOMBIA', 30, nitBase);
+    const stored = await runAsTenantJob(ds, coOrg.id, () =>
+      certificates.upload(coOrg.id, { pfx: coCertificate.pfx, password: coCertificate.password, alias: 'Sonda CO' }),
+    );
+    check('el certificado colombiano se guarda para el régimen de la DIAN', stored.regime === 'DIAN', stored.regime);
+    check('y queda ligado al NIT de la empresa', stored.holderKind === 'company', `${stored.holderTaxId}`);
+  } else {
+    check('la región fiscal de Colombia existe', false);
+  }
 
   console.log(
     failures.length

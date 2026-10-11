@@ -1,3 +1,4 @@
+import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -136,7 +137,7 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
     manager: FiscalRegimeContext['manager'],
   ): Promise<LoadedCertificate & { serialNumber?: string }> {
     const stored = await manager.findOne(EcfCertificate, {
-      where: { organizationId, regime: 'CFDI', isActive: true },
+      where: { organizationId, regime: certificateRegimeFor('MX'), isActive: true },
       order: { createdAt: 'DESC' },
     });
     if (!stored) {

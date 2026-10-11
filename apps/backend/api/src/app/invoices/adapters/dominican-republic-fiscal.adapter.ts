@@ -4,15 +4,16 @@ import {
   FiscalAssignmentContext,
   FiscalDocumentTypeOption,
   FiscalNumberAssignment,
-  FiscalSeries,
+  EmissionKind,
+  LiveTypesContext,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
 import { ComplianceService } from '../../compliance/compliance.service';
 import {
   CREDIT_NOTE_NCF_TYPES,
+  NcfSequence,
   NcfType,
   SALES_NCF_TYPES,
-  isElectronicNcfType,
 } from '../../compliance/entities/ncf-sequence.entity';
 import { validateTaxId } from '../../localization/contracts/tax-id.contract';
 import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
@@ -42,7 +43,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
  *
  * The rule now: honour an explicitly requested type when the tenant holds a range for it; otherwise
  * issue crédito fiscal when the buyer carries a VALID Dominican taxpayer identifier, and consumo
- * when they do not — in the series the caller chose: traditional (B01/B02) or electronic
+ * when they do not — in the kind the caller chose: traditional (B01/B02) or electronic
  * (E31/E32). It used to be electronic always, so a company issuing traditional NCF had to pick the
  * type by hand on every invoice.
  */
@@ -57,15 +58,36 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
       // From the catalogue: crédito fiscal, gubernamental and regímenes especiales, in either
       // series. It used to be `code === E31`, so a B01 without an RNC was issued and rejected later.
       requiresBuyerTaxId: DOMINICAN_TYPES.get(code)?.requiresBuyerTaxId ?? false,
-      electronic: isElectronicNcfType(code),
+      electronic: DOMINICAN_TYPES.get(code)?.isElectronic ?? false,
     }));
+  }
+
+  /** The types with a live DGII range: active, numbers left, not expired. */
+  async liveTypes({ organizationId, codes, today, manager }: LiveTypesContext): Promise<ReadonlySet<string>> {
+    if (!codes.length) return new Set();
+    const rows: Array<{ type: string }> = await manager
+      .getRepository(NcfSequence)
+      .createQueryBuilder('seq')
+      .select('DISTINCT seq.type', 'type')
+      .where('seq.organizationId = :organizationId', { organizationId })
+      .andWhere('seq.isActive = true')
+      .andWhere('seq.type IN (:...codes)', { codes: [...codes] })
+      .andWhere('seq.currentSequence < seq.endsAt')
+      .andWhere('(seq.expiresAt IS NULL OR seq.expiresAt >= :today)', { today })
+      .getRawMany();
+    return new Set(rows.map((row) => row.type));
+  }
+
+  /** Crédito fiscal or consumo, in the kind asked for: what `inferSalesType` picks from. */
+  automaticTypes(kind: EmissionKind): readonly string[] {
+    return kind === 'TRADITIONAL' ? [NcfType.B01, NcfType.B02] : [NcfType.E31, NcfType.E32];
   }
 
   async assignSalesNumber(context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {
     const { invoice, organizationId, manager } = context;
 
     const requestedType = this.asNcfType(context.requestedType);
-    const type = requestedType ?? this.inferSalesType(invoice, context.series ?? 'E');
+    const type = requestedType ?? this.inferSalesType(invoice, context.emissionKind ?? 'ELECTRONIC');
     if (!SALES_NCF_TYPES.includes(type)) {
       throw new BadRequestError('invoices.document_type_type_not_sales_document', { type });
     }
@@ -120,10 +142,10 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     return code as NcfType;
   }
 
-  /** Crédito fiscal for a verified taxpayer, consumo otherwise — in the series asked for. */
-  private inferSalesType(invoice: Invoice, series: FiscalSeries): NcfType {
+  /** Crédito fiscal for a verified taxpayer, consumo otherwise — in the kind asked for. */
+  private inferSalesType(invoice: Invoice, kind: EmissionKind): NcfType {
     const taxpayer = this.hasValidDominicanTaxId(invoice);
-    if (series === 'B') return taxpayer ? NcfType.B01 : NcfType.B02;
+    if (kind === 'TRADITIONAL') return taxpayer ? NcfType.B01 : NcfType.B02;
     return taxpayer ? NcfType.E31 : NcfType.E32;
   }
 
