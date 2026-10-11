@@ -4,13 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
 import { isDevLikeEnvironment } from '../config/environment';
 
-/** The two node-redis calls this service needs, named so no wider client is implied. */
+/** The node-redis calls this service needs, named so no wider client is implied. */
 interface AtomicRedisClient {
   set(
     key: string,
     value: string,
     options: { NX: true; PX: number },
   ): Promise<string | null>;
+  get(key: string): Promise<string | null>;
   incr(key: string): Promise<number>;
   pExpire(key: string, ms: number): Promise<boolean | number>;
 }
@@ -88,6 +89,22 @@ export class AtomicCacheService implements OnApplicationBootstrap {
     if (await this.cacheManager.get(key)) return false;
     await this.cacheManager.set(key, 1, ttlMs);
     return true;
+  }
+
+  /**
+   * Whether `claimOnce` has already claimed this key — a NON-destructive read.
+   *
+   * `claimOnce` is the only way to SPEND a single-use key, but a read-only check is needed too:
+   * `/auth/step-up/status` has to tell the client whether a single-use proof is still usable
+   * WITHOUT burning it, and a proof whose jti is already claimed is spent even though its JWT has
+   * not yet expired. Answering that question with `claimOnce` would consume the very token the
+   * question is about.
+   */
+  async isClaimed(key: string): Promise<boolean> {
+    if (this.client) {
+      return (await this.client.get(key)) !== null;
+    }
+    return (await this.cacheManager.get(key)) != null;
   }
 
   /**

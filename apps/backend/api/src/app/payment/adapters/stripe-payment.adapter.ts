@@ -521,8 +521,13 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     }
 
     try {
+      // The card can live in either of two places after Checkout. Hold the subscription's default
+      // so it can stand in when the customer-level one is absent.
+      let subscriptionDefaultPm: Stripe.PaymentMethod | null = null;
       if (organization.externalSubscriptionId) {
-        const sub = await this.stripe.subscriptions.retrieve(organization.externalSubscriptionId);
+        const sub = await this.stripe.subscriptions.retrieve(organization.externalSubscriptionId, {
+          expand: ['default_payment_method'],
+        });
         const periodEnd = this.periodEndOf(sub);
         overview.subscription = {
           status: sub.status,
@@ -530,23 +535,34 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
           cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
           managedBy: 'provider',
         };
+        subscriptionDefaultPm =
+          sub.default_payment_method && typeof sub.default_payment_method !== 'string'
+            ? (sub.default_payment_method as Stripe.PaymentMethod)
+            : null;
       }
 
       const customer = await this.stripe.customers.retrieve(organization.externalCustomerId, {
         expand: ['invoice_settings.default_payment_method'],
       });
 
-      if (customer && !(customer as Stripe.DeletedCustomer).deleted) {
-        const pm = (customer as Stripe.Customer).invoice_settings
-          ?.default_payment_method as Stripe.PaymentMethod | null;
-        if (pm?.card) {
-          overview.paymentMethod = {
-            brand: pm.card.brand,
-            last4: pm.card.last4,
-            expMonth: pm.card.exp_month,
-            expYear: pm.card.exp_year,
-          };
-        }
+      const customerDefaultPm =
+        customer && !(customer as Stripe.DeletedCustomer).deleted
+          ? ((customer as Stripe.Customer).invoice_settings
+              ?.default_payment_method as Stripe.PaymentMethod | null)
+          : null;
+
+      // Prefer the customer's default, but fall back to the subscription's: Checkout in
+      // subscription mode reliably sets the latter and only sometimes the former, so reading the
+      // customer alone left a freshly-entered card invisible until a webhook copied it across —
+      // which, in local development, never arrives.
+      const pm = customerDefaultPm?.card ? customerDefaultPm : subscriptionDefaultPm;
+      if (pm?.card) {
+        overview.paymentMethod = {
+          brand: pm.card.brand,
+          last4: pm.card.last4,
+          expMonth: pm.card.exp_month,
+          expYear: pm.card.exp_year,
+        };
       }
     } catch (e) {
       // A Stripe hiccup must not break the billing page — log and return what we have.

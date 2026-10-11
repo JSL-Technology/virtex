@@ -235,6 +235,17 @@ export class TokenService {
       rememberMe: facts.rememberMe,
     });
 
+    // Parse the agent at creation, not only on the first rotation. These columns were written
+    // exclusively by the refresh path, so a session that had not rotated yet — every freshly
+    // signed-in device — carried a raw `user_agent` but null `browser`/`os`/`device_type`, and
+    // "Sesiones activas" rendered the current device as «Unknown browser on Unknown OS».
+    if (userAgent) {
+      const ua = this.securityAnalysisService.parseUserAgent(userAgent);
+      refreshTokenRecord.browser = ua.browser;
+      refreshTokenRecord.os = ua.os;
+      refreshTokenRecord.deviceType = ua.deviceType;
+    }
+
     if (ipAddress) {
        const location = this.geoService.getLocation(ipAddress);
        if (location) {

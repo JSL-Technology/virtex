@@ -19,6 +19,7 @@
  *
  * Optional:
  *   VAPID_PUBLIC_KEY         Web-push public key. Push notifications are disabled when absent.
+ *   GOOGLE_MAPS_API_KEY      Maps Embed API key. The session-location map is hidden when absent.
  */
 
 import { writeFileSync } from 'node:fs';
@@ -62,6 +63,7 @@ if (parsed.protocol !== 'https:' && parsed.hostname !== 'localhost' && parsed.ho
 
 const siteKey = process.env.RECAPTCHA_V3_SITE_KEY.trim();
 const vapidKey = (process.env.VAPID_PUBLIC_KEY ?? '').trim();
+const mapsKey = (process.env.GOOGLE_MAPS_API_KEY ?? '').trim();
 
 /** Escape for embedding inside a single-quoted TypeScript string literal. */
 const lit = (value) => `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
@@ -79,6 +81,7 @@ export const environment = {
   recaptcha: {
     siteKey: ${lit(siteKey)},
   },
+  googleMapsApiKey: ${lit(mapsKey)},
 };
 `;
 

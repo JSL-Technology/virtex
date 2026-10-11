@@ -520,6 +520,12 @@ export class SessionService extends SessionInvalidatorPort {
         isCurrent: currentSessionId ? family === currentSessionId : false,
         country: session.country,
         city: session.city,
+        region: session.region,
+        // Coordinates feed the map on "Sesiones activas". Null for a session opened from an
+        // address the geolocation database cannot place (every localhost/private IP), which the
+        // client renders as "ubicación desconocida" rather than a fabricated point.
+        latitude: session.latitude ?? null,
+        longitude: session.longitude ?? null,
       }))
       .sort((a, b) => b.lastActiveAt.getTime() - a.lastActiveAt.getTime());
   }

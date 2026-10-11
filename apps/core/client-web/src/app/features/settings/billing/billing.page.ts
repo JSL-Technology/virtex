@@ -66,13 +66,41 @@ export class BillingPage implements OnInit {
   ngOnInit(): void {
     // Returning from a successful Stripe Checkout adds ?session_id=...
     const params = new URLSearchParams(window.location.search);
-    if (params.has('session_id')) {
-      this.successMessage.set('¡Pago completado! Tu suscripción se está activando. Puede tardar unos segundos en reflejarse.');
-      // Clean the URL so a refresh doesn't re-show the banner.
+    const sessionId = params.get('session_id');
+    if (sessionId) {
+      // Clean the URL so a refresh doesn't re-run the confirmation or re-show the banner.
       window.history.replaceState({}, '', window.location.pathname);
+      this.confirmCheckout(sessionId);
+      return;
     }
 
     this.refreshBillingData();
+  }
+
+  /**
+   * Reconcile a just-completed Checkout instead of waiting for Stripe's webhook.
+   *
+   * The webhook is the source of truth in production, but in local development it never reaches
+   * the backend (no public URL / no `stripe listen`), so the subscription status and the card on
+   * file would otherwise never appear — the card entered at Checkout (e.g. 4242…) is charged but
+   * the account still shows no payment method. `confirmCheckout` retrieves the paid session from
+   * Stripe server-side and syncs the plan, subscription and default payment method, returning the
+   * refreshed overview.
+   */
+  private confirmCheckout(sessionId: string): void {
+    this.successMessage.set('¡Pago completado! Estamos activando tu suscripción…');
+    this.overviewLoading.set(true);
+    this.billingService.confirmCheckout(sessionId).subscribe(overview => {
+      if (overview) {
+        this.overview.set(overview);
+        this.overviewLoading.set(false);
+        this.successMessage.set('¡Pago completado! Tu suscripción está activa.');
+        this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
+      } else {
+        // Confirmation failed (Stripe unreachable, etc.) — fall back to whatever the API reports.
+        this.refreshBillingData();
+      }
+    });
   }
 
   refreshBillingData(): void {

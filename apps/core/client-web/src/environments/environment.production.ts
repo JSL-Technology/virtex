@@ -17,4 +17,5 @@ export const environment = {
   recaptcha: {
     siteKey: '__RECAPTCHA_V3_SITE_KEY__',
   },
+  googleMapsApiKey: '__GOOGLE_MAPS_API_KEY__',
 };

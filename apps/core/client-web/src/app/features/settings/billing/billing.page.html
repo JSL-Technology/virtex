@@ -199,7 +199,7 @@
 
                     @if (plan.limits && plan.limits.length > 0) {
                     <ul class="plan-card__limits">
-                        @for (limit of plan.limits; track limit.id) {
+                        @for (limit of plan.limits; track limit.resource + '-' + limit.period) {
                         <li>
                             <lucide-icon [img]="CheckCircleIcon" size="13"></lucide-icon>
                             @if (limit.limit === -1) {

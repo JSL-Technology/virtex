@@ -29,7 +29,7 @@ import { SafeUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
 import { AuthException } from './exceptions/auth.exception';
 import { LoginResultDto } from './dto/login-response.dto';
-import { StepUpClaims, StepUpScope, carriedGrants, stepUpCovers } from './enums/step-up-scope.enum';
+import { SINGLE_USE_SCOPES, StepUpClaims, StepUpScope, carriedGrants, stepUpCovers } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
@@ -704,16 +704,28 @@ export class AuthService extends SessionSwitchPort {
    * Deliberately does NOT consume a single-use token: `StepUpGuard` burns the jti on the guarded
    * route, and burning it here would spend the proof on the question rather than the action.
    */
-  verifyStepUpToken(
+  async verifyStepUpToken(
       token: string | undefined,
       userId: string,
       scope: StepUpScope,
-  ): { valid: boolean; expiresInMs: number } {
+  ): Promise<{ valid: boolean; expiresInMs: number }> {
       const claims = this.readStepUpClaims(token, userId);
       const nowSec = Math.floor(Date.now() / 1000);
       if (!claims || !stepUpCovers(claims, scope, nowSec)) {
           return { valid: false, expiresInMs: 0 };
       }
+
+      // A single-use proof spent by `StepUpGuard` is still a structurally valid, unexpired JWT, so
+      // the checks above pass for the ten minutes the cookie lives. Reporting it as held sent the
+      // client straight to the guarded call with no prompt, where the guard answers 401
+      // `step_up_token_already_used` — and since the status still said "held", the retry did the
+      // same, so the action (open the billing portal, approve payroll…) could not be performed at
+      // all until the cookie expired. A consumed jti is reported as not held, so the client
+      // prompts for a fresh proof. Non-destructive: the question must not spend the token.
+      if (SINGLE_USE_SCOPES.has(scope) && await this.atomicCache.isClaimed(`stepup_jti:${claims.jti}`)) {
+          return { valid: false, expiresInMs: 0 };
+      }
+
       const expSec = claims.scope === scope ? claims.exp : (claims.grants?.[scope] ?? claims.exp);
       return { valid: true, expiresInMs: Math.max((expSec ?? 0) * 1000 - Date.now(), 0) };
   }

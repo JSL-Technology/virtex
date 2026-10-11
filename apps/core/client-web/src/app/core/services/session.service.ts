@@ -16,6 +16,10 @@ export interface UserSession {
     isCurrent: boolean;
     country?: string;
     city?: string;
+    region?: string;
+    /** IP-derived coordinates (city-level), or null when the address cannot be placed. */
+    latitude?: number | null;
+    longitude?: number | null;
 }
 
 @Injectable({

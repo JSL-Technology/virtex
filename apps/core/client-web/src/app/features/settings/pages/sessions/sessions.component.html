@@ -54,7 +54,9 @@
             <div class="sess-item__meta">
               <span>
                 <lucide-icon [img]="MapPinIcon" size="12"></lucide-icon>
-                @if (session.city || session.country) {
+                @if (session.isCurrent && preciseCoords()) {
+                  {{ 'settings.sessions.precise_location' | translate }}
+                } @else if (session.city || session.country) {
                   {{ session.city }}{{ session.city && session.country ? ', ' : '' }}{{ session.country }}
                 } @else {
                   {{ 'settings.sessions.location_unknown' | translate }}
@@ -68,6 +70,36 @@
               <span class="sess-item__sep">·</span>
               <span class="sess-item__ip">IP {{ session.ipAddress || '—' }}</span>
             </div>
+
+            <!-- Precise location is the device's own GPS fix, asked for on demand and only for the
+                 current device; a remote session cannot be located precisely and is not the user's
+                 to reveal. -->
+            @if (session.isCurrent && mapsEnabled) {
+              <button class="sess-locate" type="button" (click)="locatePrecisely()" [disabled]="locating()">
+                @if (locating()) {
+                  <vx-spinner size="sm" />
+                } @else {
+                  <lucide-icon [img]="LocateIcon" size="14"></lucide-icon>
+                }
+                {{ (locating() ? 'settings.sessions.locating' : 'settings.sessions.show_precise_location') | translate }}
+              </button>
+              @if (locateError()) {
+                <p class="sess-locate__error">{{ locateError()! | translate }}</p>
+              }
+            }
+
+            @if (mapUrls().get(session.id); as mapSrc) {
+              <div class="sess-item__map">
+                <iframe
+                  [src]="mapSrc"
+                  [title]="'settings.sessions.precise_location' | translate"
+                  width="100%"
+                  height="180"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  allowfullscreen></iframe>
+              </div>
+            }
           </div>
 
           @if (!session.isCurrent) {

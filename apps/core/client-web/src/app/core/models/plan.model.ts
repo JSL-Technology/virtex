@@ -1,5 +1,7 @@
 export interface PlanLimit {
-  id: string;
+  // No `id`: the catalogue endpoint (`PlanLimitResponseDto`) exposes only resource/limit/period,
+  // so a limit has no identity of its own on the wire. Tracking a `@for` by it yielded empty keys
+  // for every row (NG0955); the stable identity within a plan is resource + period.
   resource: string;
   limit: number;
   period: 'monthly' | 'lifetime';

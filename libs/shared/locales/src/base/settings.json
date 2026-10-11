@@ -3796,6 +3796,31 @@
     "en": "Unknown OS",
     "pt": "SO desconhecido"
   },
+  "settings.sessions.geolocation_denied": {
+    "es": "No se pudo obtener la ubicación. Revisa los permisos del navegador.",
+    "en": "Could not get your location. Check your browser permissions.",
+    "pt": "Não foi possível obter a localização. Verifique as permissões do navegador."
+  },
+  "settings.sessions.geolocation_unsupported": {
+    "es": "Este navegador no admite geolocalización.",
+    "en": "This browser does not support geolocation.",
+    "pt": "Este navegador não oferece suporte à geolocalização."
+  },
+  "settings.sessions.locating": {
+    "es": "Localizando…",
+    "en": "Locating…",
+    "pt": "Localizando…"
+  },
+  "settings.sessions.precise_location": {
+    "es": "Ubicación precisa de este dispositivo",
+    "en": "Precise location of this device",
+    "pt": "Localização precisa deste dispositivo"
+  },
+  "settings.sessions.show_precise_location": {
+    "es": "Mostrar ubicación precisa",
+    "en": "Show precise location",
+    "pt": "Mostrar localização precisa"
+  },
   "settings.sso.acme_com": {
     "literal": "acme.com"
   },
