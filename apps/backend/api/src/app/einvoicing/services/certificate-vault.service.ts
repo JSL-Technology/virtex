@@ -4,6 +4,8 @@ import * as crypto from 'crypto';
 import * as forge from 'node-forge';
 import { EcfCertificate } from '../entities/ecf-certificate.entity';
 import { BadRequestError, InternalServerError } from '../../i18n/localized.exception';
+import { isDevLikeEnvironment } from '../../config/environment';
+import { CertificateFacts, inspectCertificate } from './certificate-inspector';
 
 export interface LoadedCertificate {
   privateKeyPem: string;
@@ -13,6 +15,9 @@ export interface LoadedCertificate {
   notBefore?: Date;
   notAfter?: Date;
 }
+
+/** A parsed certificate with who it was issued to and by whom (see `certificate-inspector`). */
+export type InspectedCertificate = LoadedCertificate & { facts: CertificateFacts };
 
 /**
  * Encrypts DGII signing certificates at rest and materializes their private key / X.509 in memory
@@ -63,7 +68,7 @@ export class CertificateVaultService {
    * material plus certificate metadata. Throws a `BadRequestException` (not 500) on a bad password
    * or malformed file, because that is user-correctable input.
    */
-  parsePkcs12(pfx: Buffer, password: string): LoadedCertificate {
+  parsePkcs12(pfx: Buffer, password: string): InspectedCertificate {
     let p12: forge.pkcs12.Pkcs12Pfx;
     try {
       const asn1 = forge.asn1.fromDer(forge.util.createBuffer(pfx.toString('binary')));
@@ -90,7 +95,17 @@ export class CertificateVaultService {
       serialNumber: cert.serialNumber,
       notBefore: cert.validity?.notBefore,
       notAfter: cert.validity?.notAfter,
+      facts: inspectCertificate(cert),
     };
+  }
+
+  /**
+   * Whether a self-signed certificate may be used: only in a development or test process that
+   * opted in with `ECF_ALLOW_TEST_CERTIFICATES=true`. Configuration validation already refuses the
+   * flag anywhere else; this checks the environment again so a forgotten flag can never be enough.
+   */
+  testCertificatesAllowed(): boolean {
+    return isDevLikeEnvironment() && String(this.config.get('ECF_ALLOW_TEST_CERTIFICATES')) === 'true';
   }
 
   /** Decrypts a stored certificate and returns its usable PEM material for signing. */

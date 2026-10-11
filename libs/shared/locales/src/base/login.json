@@ -5,7 +5,7 @@
     "pt": "Acesse sua área de trabalho para continuar."
   },
   "login.email_label": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -96,7 +96,7 @@
   },
   "login.passkey_button_short": {
     "es": "Continuar con llave de acceso",
-    "en": "Continue with Passkey",
+    "en": "Continue with passkey",
     "pt": "Continuar com chave de acesso"
   },
   "login.password_label": {
@@ -163,8 +163,8 @@
     "pt": "Digite o código de 6 dígitos enviado ao seu dispositivo."
   },
   "login.two_factor.title": {
-    "es": "Verificación de 2 Pasos",
-    "en": "2-Step Verification",
-    "pt": "Verificação em Duas Etapas"
+    "es": "Verificación de 2 pasos",
+    "en": "2-Step verification",
+    "pt": "Verificação em duas etapas"
   }
 }

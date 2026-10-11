@@ -202,6 +202,8 @@ describeWithDb('dashboard charts', () => {
     });
 
     it('reports a period that ended and was never closed', async () => {
+      // A period the company owes: it was keeping its books here before the period began.
+      await dataSource.query(`UPDATE organizations SET created_at = now() - interval '1 year' WHERE id = $1`, [organizationId]);
       const ended = new Date();
       ended.setMonth(ended.getMonth() - 1);
       await dataSource.getRepository(AccountingPeriod).save({
@@ -214,6 +216,23 @@ describeWithDb('dashboard charts', () => {
 
       const alerts = await charts.alerts(organizationId);
       expect(alerts.some((alert) => alert.id === 'period-unclosed')).toBe(true);
+    });
+
+    // QA U24: a company created this month was told every earlier month of the year was overdue.
+    it('does not report the months before the company started keeping its books here', async () => {
+      await dataSource.query(`UPDATE organizations SET created_at = now() WHERE id = $1`, [organizationId]);
+      const ended = new Date();
+      ended.setMonth(ended.getMonth() - 1);
+      await dataSource.getRepository(AccountingPeriod).save({
+        organizationId,
+        name: 'Antes del alta',
+        startDate: isoMonthsAgo(2) as unknown as Date,
+        endDate: ended.toISOString().slice(0, 10) as unknown as Date,
+        status: PeriodStatus.OPEN,
+      });
+
+      const alerts = await charts.alerts(organizationId);
+      expect(alerts.some((alert) => alert.id === 'period-unclosed')).toBe(false);
     });
   });
 });

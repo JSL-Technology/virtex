@@ -27,10 +27,10 @@
     "literal": "91 · Nota Crédito"
   },
   "fiscal.do.b01": {
-    "literal": "B01 · Crédito Fiscal (preimpreso)"
+    "literal": "B01 · Factura de Crédito Fiscal"
   },
   "fiscal.do.b02": {
-    "literal": "B02 · Consumo (preimpreso)"
+    "literal": "B02 · Factura de Consumo"
   },
   "fiscal.do.b03": {
     "es": "B03 · Nota de Débito",
@@ -38,13 +38,25 @@
     "pt": "B03 · Nota de Débito (nota de débito)"
   },
   "fiscal.do.b04": {
-    "literal": "B04 · Nota de Crédito (preimpreso)"
+    "literal": "B04 · Nota de Crédito"
   },
   "fiscal.do.b11": {
-    "literal": "B11 · Proveedor Informal"
+    "literal": "B11 · Comprobante de Compras"
+  },
+  "fiscal.do.b13": {
+    "literal": "B13 · Gastos Menores"
+  },
+  "fiscal.do.b14": {
+    "literal": "B14 · Regímenes Especiales"
   },
   "fiscal.do.b15": {
-    "literal": "B15 · Gubernamental (preimpreso)"
+    "literal": "B15 · Gubernamental"
+  },
+  "fiscal.do.b16": {
+    "literal": "B16 · Exportaciones"
+  },
+  "fiscal.do.b17": {
+    "literal": "B17 · Pagos al Exterior"
   },
   "fiscal.do.e31": {
     "literal": "E31 · Factura de Crédito Fiscal Electrónica"

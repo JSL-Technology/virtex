@@ -30,9 +30,14 @@
     "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
   },
   "invoices.detail.bill": {
-    "es": "FACTURADO A:",
-    "en": "BILL TO:",
-    "pt": "FATURADO PARA:"
+    "es": "FACTURADO A",
+    "en": "BILL TO",
+    "pt": "FATURADO PARA"
+  },
+  "invoices.detail.cedula": {
+    "es": "Cédula",
+    "en": "Cédula",
+    "pt": "Cédula"
   },
   "invoices.detail.cf_resubmitted_dgii": {
     "es": "e-CF reenviado a la DGII.",
@@ -40,9 +45,9 @@
     "pt": "e-CF reenviado à DGII."
   },
   "invoices.detail.contact_person": {
-    "es": "Persona de Contacto:",
-    "en": "Contact person:",
-    "pt": "Pessoa de contato:"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "invoices.detail.content": {
     "es": "Contenido",
@@ -145,9 +150,9 @@
     "pt": "Descrição"
   },
   "invoices.detail.dgii_status": {
-    "es": "Estado DGII:",
-    "en": "DGII status:",
-    "pt": "Status na DGII:"
+    "es": "Estado DGII",
+    "en": "DGII status",
+    "pt": "Status na DGII"
   },
   "invoices.detail.dgii_verification": {
     "es": "Verificación DGII",
@@ -180,9 +185,9 @@
     "pt": "Vencimento"
   },
   "invoices.detail.electronic_fiscal_document_cf": {
-    "es": "Comprobante Fiscal Electrónico (e-CF)",
-    "en": "Electronic Fiscal Document (e-CF)",
-    "pt": "Comprovante Fiscal Eletrônico (e-CF)"
+    "es": "Comprobante fiscal electrónico (e-CF)",
+    "en": "Electronic fiscal document (e-CF)",
+    "pt": "Comprovante fiscal eletrônico (e-CF)"
   },
   "invoices.detail.email_failed": {
     "es": "No se pudo enviar la factura.",
@@ -230,9 +235,9 @@
     "pt": "Finanças"
   },
   "invoices.detail.financial_information": {
-    "es": "Información Financiera",
-    "en": "Financial Information",
-    "pt": "Informações Financeiras"
+    "es": "Información financiera",
+    "en": "Financial information",
+    "pt": "Informações financeiras"
   },
   "invoices.detail.grand_total_label": {
     "literal": "TOTAL:"
@@ -267,11 +272,6 @@
     "en": "Issue document",
     "pt": "Emitir documento"
   },
-  "invoices.detail.issuer_tax_id": {
-    "es": "Identificación fiscal: {{taxId}}",
-    "en": "Tax ID: {{taxId}}",
-    "pt": "Identificação fiscal: {{taxId}}"
-  },
   "invoices.detail.issuing": {
     "es": "Emitiendo…",
     "en": "Issuing…",
@@ -283,19 +283,19 @@
     "pt": "Logística"
   },
   "invoices.detail.logistics_delivery": {
-    "es": "Logística y Entrega",
-    "en": "Logistics and Delivery",
-    "pt": "Logística e Entrega"
+    "es": "Logística y entrega",
+    "en": "Logistics and delivery",
+    "pt": "Logística e entrega"
   },
   "invoices.detail.messages_from_dgii": {
-    "es": "Mensajes de la DGII:",
-    "en": "Messages from the DGII:",
-    "pt": "Mensagens da DGII:"
+    "es": "Mensajes de la DGII",
+    "en": "Messages from the DGII",
+    "pt": "Mensagens da DGII"
   },
   "invoices.detail.ncf": {
-    "en": "Fiscal document no.:",
-    "es": "N.º de comprobante fiscal:",
-    "pt": "N.º do documento fiscal:"
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
@@ -308,9 +308,9 @@
     "pt": "Não atribuído"
   },
   "invoices.detail.notes": {
-    "es": "Notas:",
-    "en": "Notes:",
-    "pt": "Observações:"
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
   },
   "invoices.detail.open_stamp_lookup": {
     "es": "Abrir la consulta del timbre",
@@ -318,9 +318,9 @@
     "pt": "Abrir a consulta do selo"
   },
   "invoices.detail.outstanding_balance": {
-    "es": "Saldo pendiente:",
-    "en": "Outstanding balance:",
-    "pt": "Saldo em aberto:"
+    "es": "Saldo pendiente",
+    "en": "Outstanding balance",
+    "pt": "Saldo em aberto"
   },
   "invoices.detail.payment_method": {
     "es": "Método de pago",
@@ -328,9 +328,9 @@
     "pt": "Método de pagamento"
   },
   "invoices.detail.payment_terms": {
-    "es": "Condición de Pago:",
-    "en": "Payment terms:",
-    "pt": "Condição de pagamento:"
+    "es": "Condición de pago",
+    "en": "Payment terms",
+    "pt": "Condição de pagamento"
   },
   "invoices.detail.popup_blocked_pdf": {
     "es": "El navegador bloqueó la ventana de impresión; se descarga el PDF, que es el mismo documento.",
@@ -373,19 +373,19 @@
     "pt": "Buscar nas linhas..."
   },
   "invoices.detail.security_code": {
-    "es": "Código de seguridad:",
-    "en": "Security code:",
-    "pt": "Código de segurança:"
+    "es": "Código de seguridad",
+    "en": "Security code",
+    "pt": "Código de segurança"
   },
   "invoices.detail.shipping_address": {
-    "es": "Dirección de Envío:",
-    "en": "Shipping address:",
-    "pt": "Endereço de entrega:"
+    "es": "Dirección de envío",
+    "en": "Shipping address",
+    "pt": "Endereço de entrega"
   },
   "invoices.detail.shipping_method": {
-    "es": "Método de Envío:",
-    "en": "Shipping method:",
-    "pt": "Método de envio:"
+    "es": "Método de envío",
+    "en": "Shipping method",
+    "pt": "Método de envio"
   },
   "invoices.detail.subtotal": {
     "literal": "Subtotal:"
@@ -400,10 +400,15 @@
     "es": "Identificación fiscal",
     "pt": "Identificação fiscal"
   },
+  "invoices.detail.tax_id_labelled": {
+    "es": "{{label}}: {{taxId}}",
+    "en": "{{label}}: {{taxId}}",
+    "pt": "{{label}}: {{taxId}}"
+  },
   "invoices.detail.tax_indicator": {
-    "es": "Indicador de Impuestos:",
-    "en": "Tax indicator:",
-    "pt": "Indicador de impostos:"
+    "es": "Indicador de impuestos",
+    "en": "Tax indicator",
+    "pt": "Indicador de impostos"
   },
   "invoices.detail.tax_rate_applied": {
     "es": "{{rate}} sobre el monto gravado",
@@ -411,9 +416,9 @@
     "pt": "{{rate}} sobre o valor tributado"
   },
   "invoices.detail.taxes": {
-    "es": "Impuestos:",
-    "en": "Taxes:",
-    "pt": "Impostos:"
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
   },
   "invoices.detail.terms_credit_days": {
     "es": "Crédito a {{days}} días",
@@ -434,9 +439,9 @@
     "literal": "Total"
   },
   "invoices.detail.trackid": {
-    "en": "Tracking ID:",
-    "es": "Id. de seguimiento:",
-    "pt": "ID de rastreio:"
+    "en": "Tracking ID",
+    "es": "Id. de seguimiento",
+    "pt": "ID de rastreio"
   },
   "invoices.detail.void_invoice": {
     "es": "Anular",
@@ -478,6 +483,11 @@
     "en": "The document type may contain only letters and digits.",
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
+  "invoices.document_type_not_allowed_by_emission_mode": {
+    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Facturación electrónica.",
+    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Electronic invoicing.",
+    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Faturamento eletrônico."
+  },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
     "en": "Document type {{type}} does not exist in the {{country}} regime.",
@@ -502,6 +512,86 @@
     "es": "La fecha de vencimiento no puede ser anterior a la fecha de emisión.",
     "en": "The due date cannot be earlier than the issue date.",
     "pt": "A data de vencimento não pode ser anterior à data de emissão."
+  },
+  "invoices.ecf_status.accepted": {
+    "es": "Aceptado por la DGII",
+    "en": "Accepted by the DGII",
+    "pt": "Aceito pela DGII"
+  },
+  "invoices.ecf_status.accepted_hint": {
+    "es": "Comprobante válido. No hace falta hacer nada más.",
+    "en": "Valid document. Nothing else to do.",
+    "pt": "Comprovante válido. Nada mais a fazer."
+  },
+  "invoices.ecf_status.accepted_with_observations": {
+    "es": "Aceptado con observaciones",
+    "en": "Accepted with observations",
+    "pt": "Aceito com observações"
+  },
+  "invoices.ecf_status.accepted_with_observations_hint": {
+    "es": "Es válido, pero la DGII dejó observaciones: revísalas abajo para corregirlas en los próximos.",
+    "en": "It is valid, but the DGII left observations: review them below to correct future documents.",
+    "pt": "É válido, mas a DGII deixou observações: revise-as abaixo para corrigir os próximos."
+  },
+  "invoices.ecf_status.contingency": {
+    "es": "En contingencia",
+    "en": "In contingency",
+    "pt": "Em contingência"
+  },
+  "invoices.ecf_status.contingency_hint": {
+    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto esté disponible.",
+    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is available.",
+    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que estiver disponível."
+  },
+  "invoices.ecf_status.error": {
+    "es": "Error al enviar",
+    "en": "Sending failed",
+    "pt": "Erro no envio"
+  },
+  "invoices.ecf_status.error_hint": {
+    "es": "No se pudo enviar. Revisa el mensaje abajo y pulsa «Reenviar a la DGII».",
+    "en": "It could not be sent. Check the message below and press «Resend to DGII».",
+    "pt": "Não foi possível enviar. Verifique a mensagem abaixo e clique em «Reenviar à DGII»."
+  },
+  "invoices.ecf_status.pending": {
+    "es": "Pendiente de firma",
+    "en": "Awaiting signature",
+    "pt": "Aguardando assinatura"
+  },
+  "invoices.ecf_status.pending_hint": {
+    "es": "El comprobante se firmará y enviará a la DGII en unos instantes.",
+    "en": "The document will be signed and sent to the DGII in a moment.",
+    "pt": "O comprovante será assinado e enviado à DGII em instantes."
+  },
+  "invoices.ecf_status.rejected": {
+    "es": "Rechazado por la DGII",
+    "en": "Rejected by the DGII",
+    "pt": "Rejeitado pela DGII"
+  },
+  "invoices.ecf_status.rejected_hint": {
+    "es": "No es válido. Lee el motivo abajo, corrige y emite una nota de crédito o un comprobante nuevo.",
+    "en": "It is not valid. Read the reason below, correct it and issue a credit note or a new document.",
+    "pt": "Não é válido. Leia o motivo abaixo, corrija e emita uma nota de crédito ou um novo comprovante."
+  },
+  "invoices.ecf_status.sent": {
+    "es": "Enviado, en revisión",
+    "en": "Sent, under review",
+    "pt": "Enviado, em revisão"
+  },
+  "invoices.ecf_status.sent_hint": {
+    "es": "La DGII lo recibió y está validándolo. El resultado aparece aquí solo.",
+    "en": "The DGII received it and is validating it. The result appears here on its own.",
+    "pt": "A DGII o recebeu e está validando. O resultado aparece aqui automaticamente."
+  },
+  "invoices.ecf_status.signed": {
+    "es": "Firmado, sin enviar",
+    "en": "Signed, not sent",
+    "pt": "Assinado, não enviado"
+  },
+  "invoices.ecf_status.signed_hint": {
+    "es": "Está firmado pero aún no llegó a la DGII. Se reintenta solo; si no cambia, revisa la conexión con la DGII o pulsa «Reenviar a la DGII».",
+    "en": "It is signed but has not reached the DGII yet. It is retried automatically; if it does not change, check the DGII connection or press «Resend to DGII».",
+    "pt": "Está assinado, mas ainda não chegou à DGII. É reenviado automaticamente; se não mudar, verifique a conexão com a DGII ou clique em «Reenviar à DGII»."
   },
   "invoices.effect.cost_entry": {
     "es": "Asiento de costo de venta",
@@ -627,9 +717,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes fiscales activo (Ajustes › Facturación electrónica)",
-    "en": "an active fiscal document range (Settings › Electronic invoicing)",
-    "pt": "um intervalo de comprovativos fiscais ativo (Definições › Faturação eletrónica)"
+    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Facturación electrónica)",
+    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Faturamento eletrônico)"
+  },
+  "invoices.gaps.fiscal_sequence_electronic": {
+    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Facturación electrónica)",
+    "en": "a current electronic document range (E series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Faturamento eletrônico)"
+  },
+  "invoices.gaps.fiscal_sequence_traditional": {
+    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Facturación electrónica)",
+    "en": "a current traditional document range (B series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Faturamento eletrônico)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -647,14 +747,14 @@
     "pt": "um período contábil aberto que cubra a data de hoje"
   },
   "invoices.gaps.receivables_account": {
-    "es": "la cuenta de Cuentas por Cobrar",
-    "en": "the Accounts Receivable account",
-    "pt": "a conta de Contas a Receber"
+    "es": "la cuenta de cuentas por cobrar",
+    "en": "the accounts receivable account",
+    "pt": "a conta de contas a receber"
   },
   "invoices.gaps.sales_discounts_account": {
-    "es": "la cuenta de Descuentos sobre Ventas",
-    "en": "the Sales Discounts account",
-    "pt": "a conta de Descontos sobre Vendas"
+    "es": "la cuenta de descuentos sobre ventas",
+    "en": "the sales discounts account",
+    "pt": "a conta de descontos sobre vendas"
   },
   "invoices.gaps.sales_journal": {
     "es": "el diario de ventas (VENTAS)",
@@ -662,19 +762,19 @@
     "pt": "o diário de vendas (VENTAS)"
   },
   "invoices.gaps.sales_revenue_account": {
-    "es": "la cuenta de Ingresos por Ventas",
-    "en": "the Sales Revenue account",
-    "pt": "a conta de Receita de Vendas"
+    "es": "la cuenta de ingresos por ventas",
+    "en": "the sales revenue account",
+    "pt": "a conta de receita de vendas"
   },
   "invoices.gaps.sales_tax_account": {
-    "es": "la cuenta de Impuesto sobre Ventas por Pagar",
-    "en": "the Sales Tax Payable account",
-    "pt": "a conta de Imposto sobre Vendas a Pagar"
+    "es": "la cuenta de impuesto sobre ventas por pagar",
+    "en": "the sales tax payable account",
+    "pt": "a conta de imposto sobre vendas a pagar"
   },
   "invoices.gaps.service_charge_account": {
-    "es": "la cuenta de Propina Legal por Pagar",
-    "en": "the Service Charge Payable account",
-    "pt": "a conta de Taxa de Serviço a Pagar"
+    "es": "la cuenta de propina legal por pagar",
+    "en": "the service charge payable account",
+    "pt": "a conta de taxa de serviço a pagar"
   },
   "invoices.gaps.signing_certificate": {
     "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Facturación electrónica)",
@@ -682,9 +782,9 @@
     "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
   },
   "invoices.gaps.tax_withheld_account": {
-    "es": "la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)",
-    "en": "the Tax Withheld by Customers account",
-    "pt": "a conta de Retenções Recebidas (imposto retido pelo cliente)"
+    "es": "la cuenta de retenciones recibidas (impuesto retenido por el cliente)",
+    "en": "the tax withheld by customers account",
+    "pt": "a conta de retenções recebidas (imposto retido pelo cliente)"
   },
   "invoices.invoice_has_already_credited_full": {
     "es": "La factura ya fue acreditada en su totalidad.",
@@ -752,9 +852,9 @@
     "pt": "Buscar por número ou cliente..."
   },
   "invoices.invoice_selection_dialog.select_source_document_copy_from": {
-    "es": "Seleccionar Documento Base (Copiar de...)",
-    "en": "Select a Source Document (Copy from...)",
-    "pt": "Selecionar Documento de Origem (Copiar de...)"
+    "es": "Seleccionar documento base (copiar de...)",
+    "en": "Select a source document (copy from...)",
+    "pt": "Selecionar documento de origem (copiar de...)"
   },
   "invoices.invoice_selection_dialog.total": {
     "literal": "Total"
@@ -1013,7 +1113,7 @@
     "pt": "Cancelada"
   },
   "invoices.new.add_line_button": {
-    "es": "+ Añadir línea",
+    "es": "+ Agregar línea",
     "en": "+ Add line",
     "pt": "+ Adicionar linha"
   },
@@ -1021,6 +1121,16 @@
     "es": "Automático según el comprador",
     "en": "Automatic, according to the buyer",
     "pt": "Automático conforme o comprador"
+  },
+  "invoices.new.automatic_electronic": {
+    "es": "Automático: E31 o E32 según el comprador",
+    "en": "Automatic: E31 or E32 depending on the buyer",
+    "pt": "Automático: E31 ou E32 conforme o comprador"
+  },
+  "invoices.new.automatic_traditional": {
+    "es": "Automático: B01 o B02 según el comprador",
+    "en": "Automatic: B01 or B02 depending on the buyer",
+    "pt": "Automático: B01 ou B02 conforme o comprador"
   },
   "invoices.new.bank_transfer": {
     "es": "Transferencia",
@@ -1167,6 +1277,16 @@
     "en": "Fiscal document",
     "pt": "Documento fiscal"
   },
+  "invoices.new.fiscal_group_electronic": {
+    "es": "Electrónicos (e-CF, serie E)",
+    "en": "Electronic (e-CF, E series)",
+    "pt": "Eletrônicos (e-CF, série E)"
+  },
+  "invoices.new.fiscal_group_traditional": {
+    "es": "Tradicionales (NCF, serie B)",
+    "en": "Traditional (NCF, B series)",
+    "pt": "Tradicionais (NCF, série B)"
+  },
   "invoices.new.free_text_line": {
     "es": "— Concepto libre —",
     "en": "— Free-text line —",
@@ -1217,6 +1337,16 @@
     "en": "Item",
     "pt": "Item"
   },
+  "invoices.new.item_and_description": {
+    "es": "Artículo y descripción",
+    "en": "Item and description",
+    "pt": "Item e descrição"
+  },
+  "invoices.new.line_amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
   "invoices.new.market_has_no_electronic_invoicing_regime": {
     "es": "Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El\n                documento se numera internamente y se contabiliza, pero no se sella ante ninguna\n                autoridad.",
     "en": "This market has no electronic invoicing regime implemented yet. The document is numbered internally and posted, but it is not stamped by any authority.",
@@ -1226,16 +1356,6 @@
     "es": "Neto a cobrar",
     "en": "Net receivable",
     "pt": "Líquido a receber"
-  },
-  "invoices.new.not_ready_action": {
-    "es": "Configurar",
-    "en": "Set up",
-    "pt": "Configurar"
-  },
-  "invoices.new.not_ready_missing": {
-    "es": "Todavía no puedes facturar. Falta: {{missing}}.",
-    "en": "You cannot invoice yet. Missing: {{missing}}.",
-    "pt": "Ainda não podes faturar. Falta: {{missing}}."
   },
   "invoices.new.notes": {
     "es": "Notas",
@@ -1360,9 +1480,9 @@
     "pt": "Retenções"
   },
   "invoices.new.you_cannot_issue_fiscal_documents_yet": {
-    "es": "Todavía no puedes emitir comprobantes.",
-    "en": "You cannot issue fiscal documents yet.",
-    "pt": "Você ainda não pode emitir documentos fiscais."
+    "es": "Para emitir comprobantes todavía falta:",
+    "en": "Before you can issue fiscal documents, you need:",
+    "pt": "Para emitir documentos fiscais ainda falta:"
   },
   "invoices.new.zero_rated": {
     "es": "Tasa cero",
@@ -1515,9 +1635,9 @@
     "pt": "Paga parcialmente"
   },
   "invoices.status.pending": {
-    "es": "Pendiente",
-    "en": "Pending",
-    "pt": "Pendente"
+    "es": "Por cobrar",
+    "en": "Unpaid",
+    "pt": "A receber"
   },
   "invoices.status.void": {
     "es": "Anulada",
@@ -1538,6 +1658,16 @@
     "es": "La tasa de impuesto {{rate}} no es válida para {{countryCode}}. Tasas permitidas: {{allowed}}.",
     "en": "The tax rate {{rate}} is not valid for {{countryCode}}. Permitted rates: {{allowed}}.",
     "pt": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}."
+  },
+  "invoices.type_blocked.no_certificate": {
+    "es": "falta el certificado digital",
+    "en": "digital certificate missing",
+    "pt": "falta o certificado digital"
+  },
+  "invoices.type_blocked.no_range": {
+    "es": "sin rango vigente",
+    "en": "no current range",
+    "pt": "sem faixa vigente"
   },
   "invoices.type_type_not_valid_credit_note": {
     "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",

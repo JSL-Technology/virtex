@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
-export type SettingsSectionId = 'accounting' | 'currencies' | 'taxes' | 'closing' | 'intercompany' | 'inventory';
+export type SettingsSectionId = 'accounting' | 'currencies' | 'taxes' | 'fiscal' | 'closing' | 'intercompany' | 'inventory';
 
 export interface SettingsAccountRef {
   id: string;

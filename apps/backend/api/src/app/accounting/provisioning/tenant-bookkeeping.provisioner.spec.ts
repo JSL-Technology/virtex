@@ -75,10 +75,10 @@ describeWithDb('tenant bookkeeping provisioning', () => {
   it('names the ledger and the journals in the language the books are kept in', async () => {
     const english = await provision('en');
 
-    expect(english.ledger?.name).toBe('Main Ledger');
-    expect(nameOf(english.journals, 'VENTAS')).toBe('Sales Journal');
-    expect(nameOf(english.journals, 'COMPRAS')).toBe('Purchases Journal');
-    expect(nameOf(english.journals, 'NOMINA')).toBe('Payroll Journal');
+    expect(english.ledger?.name).toBe('Main ledger');
+    expect(nameOf(english.journals, 'VENTAS')).toBe('Sales journal');
+    expect(nameOf(english.journals, 'COMPRAS')).toBe('Purchases journal');
+    expect(nameOf(english.journals, 'NOMINA')).toBe('Payroll journal');
   });
 
   it('keeps the codes the posting services look up unchanged', async () => {
@@ -105,15 +105,15 @@ describeWithDb('tenant bookkeeping provisioning', () => {
   it('still provisions Spanish books in Spanish', async () => {
     const spanish = await provision('es');
 
-    expect(spanish.ledger?.name).toBe('Libro Principal');
-    expect(nameOf(spanish.journals, 'VENTAS')).toBe('Diario de Ventas');
+    expect(spanish.ledger?.name).toBe('Libro principal');
+    expect(nameOf(spanish.journals, 'VENTAS')).toBe('Diario de ventas');
   });
 
   it('provisions Portuguese books in Portuguese', async () => {
     const portuguese = await provision('pt');
 
-    expect(portuguese.ledger?.name).toBe('Livro Principal');
-    expect(nameOf(portuguese.journals, 'COBROS')).toBe('Diário de Cobranças');
+    expect(portuguese.ledger?.name).toBe('Livro principal');
+    expect(nameOf(portuguese.journals, 'COBROS')).toBe('Diário de cobranças');
   });
   /**
    * The periods came alone: twelve months and no fiscal year, so the year-end close had nothing

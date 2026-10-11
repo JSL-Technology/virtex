@@ -69,16 +69,25 @@ export interface FiscalDocumentTypeSpec {
 /**
  * Dominican Republic — DGII.
  *
- * `B*` are the legacy pre-printed comprobantes, still valid for contingency. `E*` are the e-CF
- * series, whose two trailing digits are the DGII's document-type code.
+ * `B*` are the traditional comprobantes (NCF): numbered from a range the DGII authorises and
+ * printed by the issuer, with nothing transmitted at issue. `E*` are the e-CF series — signed with
+ * a digital certificate and sent to the DGII — whose two trailing digits are its document-type
+ * code. A company may issue either, or both while it moves from one to the other.
+ *
+ * B11, B13 and B17 are issued by the company as the BUYER (to an informal supplier, for minor
+ * expenses, for payments abroad), like their electronic E41, E43 and E47: purchase side.
  */
 const DOMINICAN_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = [
   { countryCode: 'DO', code: 'B01', labelKey: 'fiscal.do.B01', name: 'Factura de Crédito Fiscal', sequenceFormat: 'B01########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: true, sortOrder: 10 },
   { countryCode: 'DO', code: 'B02', labelKey: 'fiscal.do.B02', name: 'Factura de Consumo', sequenceFormat: 'B02########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 20 },
   { countryCode: 'DO', code: 'B03', labelKey: 'fiscal.do.B03', name: 'Nota de Débito', sequenceFormat: 'B03########', expirationRequired: true, isElectronic: false, side: 'either', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 30 },
   { countryCode: 'DO', code: 'B04', labelKey: 'fiscal.do.B04', name: 'Nota de Crédito', sequenceFormat: 'B04########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: true, requiresBuyerTaxId: false, sortOrder: 40 },
-  { countryCode: 'DO', code: 'B11', labelKey: 'fiscal.do.B11', name: 'Comprobante de Compras', sequenceFormat: 'B11########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 50 },
+  { countryCode: 'DO', code: 'B11', labelKey: 'fiscal.do.B11', name: 'Comprobante de Compras', sequenceFormat: 'B11########', expirationRequired: true, isElectronic: false, side: 'purchase', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 50 },
+  { countryCode: 'DO', code: 'B13', labelKey: 'fiscal.do.B13', name: 'Comprobante para Gastos Menores', sequenceFormat: 'B13########', expirationRequired: true, isElectronic: false, side: 'purchase', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 52 },
+  { countryCode: 'DO', code: 'B14', labelKey: 'fiscal.do.B14', name: 'Comprobante para Regímenes Especiales', sequenceFormat: 'B14########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: true, sortOrder: 54 },
   { countryCode: 'DO', code: 'B15', labelKey: 'fiscal.do.B15', name: 'Comprobante Gubernamental', sequenceFormat: 'B15########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: true, sortOrder: 60 },
+  { countryCode: 'DO', code: 'B16', labelKey: 'fiscal.do.B16', name: 'Comprobante para Exportaciones', sequenceFormat: 'B16########', expirationRequired: true, isElectronic: false, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 62 },
+  { countryCode: 'DO', code: 'B17', labelKey: 'fiscal.do.B17', name: 'Comprobante para Pagos al Exterior', sequenceFormat: 'B17########', expirationRequired: true, isElectronic: false, side: 'purchase', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 64 },
 
   { countryCode: 'DO', code: 'E31', labelKey: 'fiscal.do.E31', name: 'Factura de Crédito Fiscal Electrónica', sequenceFormat: 'E31##########', expirationRequired: true, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: true, sortOrder: 110 },
   { countryCode: 'DO', code: 'E32', labelKey: 'fiscal.do.E32', name: 'Factura de Consumo Electrónica', sequenceFormat: 'E32##########', expirationRequired: true, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 120 },

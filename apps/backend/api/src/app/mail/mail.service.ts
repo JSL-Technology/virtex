@@ -217,6 +217,8 @@ export class MailService {
         total: params.total,
         dueDate: params.dueDate,
         message: params.message ?? null,
+        // The footer then invites a reply instead of forbidding one (see `partials/shell.hbs`).
+        replyTo: params.identity?.replyTo ?? null,
       },
       fromName: params.identity?.senderName ?? null,
       replyTo: params.identity?.replyTo ?? null,

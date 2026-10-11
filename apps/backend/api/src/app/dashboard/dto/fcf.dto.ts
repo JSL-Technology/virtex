@@ -1,6 +1,7 @@
-
-
 export class FcfDto {
-    freeCashFlow: number;
-    date: Date;
-  }
+  /** Cash from operations and investment, year to date (see `DashboardService.getFreeCashFlow`). */
+  freeCashFlow: number;
+  /** First day of the period the figure covers, `YYYY-MM-DD`. */
+  periodStart?: string;
+  date: Date;
+}

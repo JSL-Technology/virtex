@@ -104,6 +104,25 @@ export class EcfSubmissionService {
         expiredOn: cert.notAfter.toISOString().split('T')[0],
       });
     }
+    // A self-signed test certificate signs only where tests are allowed — never because its row
+    // was carried into another environment.
+    if (cert.isTest && !this.vault.testCertificatesAllowed()) {
+      throw new BadRequestError('einvoicing.do.certificate_self_signed');
+    }
+    // Issued to the company's RNC, and the company's RNC has since changed.
+    if (cert.holderKind === 'company' && cert.holderTaxId && cert.holderTaxId !== org.taxId.replace(/\D/g, '')) {
+      throw new BadRequestError('einvoicing.do.certificate_belongs_to_other_rnc', {
+        holder: cert.subjectCommonName ?? '—',
+        rnc: cert.holderTaxId,
+        company: org.taxId,
+      });
+    }
+  }
+
+  /** The company's RNC (or cédula), as recorded; null when it has none. */
+  async organizationTaxId(organizationId: string): Promise<string | null> {
+    const org = await this.orgRepo.findOne({ where: { id: organizationId }, select: ['id', 'taxId'] });
+    return org?.taxId ?? null;
   }
 
   /** `assertReadyToSign` as a yes/no, for readiness screens that list what is missing. */

@@ -8,7 +8,7 @@
 .table-container { overflow-x: auto; }
 .seq__table { width: 100%; border-collapse: collapse; }
 .seq__table th, .seq__table td { padding: var(--space-2) var(--space-3); text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
-.seq__table th { font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; }
+.seq__table th { font-size: var(--text-xs); color: var(--text-secondary); }
 .seq__input { @include ds.input-base; max-width: 12rem; }
 .seq__input--number { max-width: 9rem; }
 .seq__error { display: block; margin-top: var(--space-1); font-size: var(--text-sm); color: var(--error-text); }

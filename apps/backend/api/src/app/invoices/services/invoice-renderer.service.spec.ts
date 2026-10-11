@@ -87,6 +87,38 @@ describe('InvoiceRendererService', () => {
     expect(html).not.toMatch(/\{\{[^}]*\}\}/);
   });
 
+  it('prints the province by name, not by the code the address stores (QA D01)', async () => {
+    const renderer = new InvoiceRendererService(new I18nService());
+    const html = await renderer.renderHtml({
+      invoice,
+      organization: { ...organization, city: 'Santo Domingo Este', state: '32' } as InvoiceRenderContext['organization'],
+      language: 'es',
+      locale: 'es-DO',
+    });
+    expect(html).toContain('Santo Domingo Este, Santo Domingo');
+    expect(html).not.toContain(', 32');
+  });
+
+  it('presents an e-CF as electronic, with its DGII verification', async () => {
+    const renderer = new InvoiceRendererService(new I18nService());
+    const html = await renderer.renderHtml({ invoice, organization, language: 'es', locale: 'es-DO' });
+    expect(html).toContain('ELECTRÓNICA');
+    expect(html).toContain('Comprobante Fiscal Electrónico');
+  });
+
+  // A traditional NCF is numbered and printed; nothing is signed or sent. It printed as
+  // «FACTURA ELECTRÓNICA» with an empty «Verificación DGII» box and the e-CF legend.
+  it('presents a traditional NCF (serie B) as what it is', async () => {
+    const renderer = new InvoiceRendererService(new I18nService());
+    const traditional = { ...invoice, fiscalNumber: 'B0100000001', fiscalDocumentType: 'B01' } as unknown as Invoice;
+    const html = await renderer.renderHtml({ invoice: traditional, organization, language: 'es', locale: 'es-DO' });
+    expect(html).toContain('B0100000001');
+    expect(html).not.toContain('ELECTRÓNICA');
+    expect(html).not.toContain('Comprobante Fiscal Electrónico');
+    expect(html).not.toContain('class="verification"');
+    expect(html).toContain('rango autorizado por la DGII');
+  });
+
   it('states the e-mail total and due date in the language and format of the document (QA M4)', () => {
     const renderer = new InvoiceRendererService({} as never);
     // A Dominican customer with no stated language: Spanish, Dominican figures — not «DOP 7080.00»

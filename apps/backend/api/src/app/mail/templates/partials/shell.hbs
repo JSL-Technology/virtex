@@ -110,7 +110,7 @@
                 {{t 'mail.common.current_year_app_name_all_rights' currentYear=currentYear appName=appName}}
               </p>
               <p class="ink3" style="margin:4px 0 0; font:400 12px/1.7 {{brand 'font'}}; color:{{brand 'ink3'}};">
-                {{t 'mail.common.transactional_notice'}}
+                {{#if replyTo}}{{t 'mail.common.reply_notice' company=companyName}}{{else}}{{t 'mail.common.transactional_notice'}}{{/if}}
               </p>
             </td>
           </tr>

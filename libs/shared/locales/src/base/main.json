@@ -80,14 +80,14 @@
     "pt": "Nenhum resultado encontrado"
   },
   "main.resolve_now": {
-    "es": "Resolver Ahora",
-    "en": "Resolve Now",
-    "pt": "Resolver Agora"
+    "es": "Resolver ahora",
+    "en": "Resolve now",
+    "pt": "Resolver agora"
   },
   "main.search_results": {
-    "es": "Resultados de la Búsqueda",
-    "en": "Search Results",
-    "pt": "Resultados da Busca"
+    "es": "Resultados de la búsqueda",
+    "en": "Search results",
+    "pt": "Resultados da busca"
   },
   "main.searching": {
     "es": "Buscando…",

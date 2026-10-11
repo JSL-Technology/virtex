@@ -1,38 +1,38 @@
 {
   "dash.actions.remove_widget": {
-    "es": "Eliminar Widget",
-    "en": "Remove Widget",
-    "pt": "Remover Widget"
+    "es": "Quitar tarjeta",
+    "en": "Remove widget",
+    "pt": "Remover widget"
   },
   "dash.add_panel.description": {
-    "es": "Añade nuevos widgets a tu dashboard.",
+    "es": "Agrega tarjetas a tu panel.",
     "en": "Add new widgets to your dashboard.",
     "pt": "Adicione novos widgets ao seu painel."
   },
   "dash.add_panel.empty": {
-    "es": "¡Todos los widgets ya están en tu dashboard!",
+    "es": "¡Todas las tarjetas ya están en tu panel!",
     "en": "All widgets are already on your dashboard!",
     "pt": "Todos os widgets já estão no seu painel."
   },
   "dash.add_panel.title": {
-    "es": "Librería de Widgets",
-    "en": "Widget Library",
-    "pt": "Biblioteca de Widgets"
+    "es": "Librería de widgets",
+    "en": "Widget library",
+    "pt": "Biblioteca de widgets"
   },
   "dash.header.add_widget": {
-    "es": "Añadir Widget",
-    "en": "Add Widget",
-    "pt": "Adicionar Widget"
+    "es": "Agregar tarjeta",
+    "en": "Add widget",
+    "pt": "Adicionar widget"
   },
   "dash.header.edit_done": {
-    "es": "Finalizar Edición",
-    "en": "Done Editing",
-    "pt": "Concluir Edição"
+    "es": "Finalizar edición",
+    "en": "Done editing",
+    "pt": "Concluir edição"
   },
   "dash.header.edit_layout": {
-    "es": "Editar Layout",
-    "en": "Edit Layout",
-    "pt": "Editar Layout"
+    "es": "Editar diseño",
+    "en": "Edit layout",
+    "pt": "Editar layout"
   },
   "dash.header.restore": {
     "es": "Restaurar",
@@ -45,49 +45,49 @@
     "pt": "Um resumo da atividade do seu negócio. Arraste e ajuste os widgets como preferir."
   },
   "dash.widget.active_clients.name": {
-    "es": "Clientes Activos",
-    "en": "Active Customers",
-    "pt": "Clientes Ativos"
+    "es": "Clientes activos",
+    "en": "Active customers",
+    "pt": "Clientes ativos"
   },
   "dash.widget.active_clients.title": {
-    "es": "Clientes Activos",
-    "en": "Active Customers",
-    "pt": "Clientes Ativos"
+    "es": "Clientes activos",
+    "en": "Active customers",
+    "pt": "Clientes ativos"
   },
   "dash.widget.alerts.name": {
-    "es": "Panel de Alertas",
-    "en": "Alerts Panel",
-    "pt": "Painel de Alertas"
+    "es": "Panel de alertas",
+    "en": "Alerts panel",
+    "pt": "Painel de alertas"
   },
   "dash.widget.ar_aging_bar.name": {
-    "es": "Antigüedad de Cuentas por Cobrar",
-    "en": "Accounts Receivable Aging",
-    "pt": "Aging de Contas a Receber"
+    "es": "Antigüedad de cuentas por cobrar",
+    "en": "Accounts receivable aging",
+    "pt": "Aging de contas a receber"
   },
   "dash.widget.cash_flow_kpi.name": {
-    "es": "KPI: Flujo de Caja Libre",
-    "en": "KPI: Free Cash Flow",
-    "pt": "KPI: Fluxo de Caixa Livre"
+    "es": "KPI: flujo de caja libre",
+    "en": "KPI: free cash flow",
+    "pt": "KPI: fluxo de caixa livre"
   },
   "dash.widget.cash_flow_kpi.title": {
-    "es": "Flujo de Caja Libre",
-    "en": "Free Cash Flow",
-    "pt": "Fluxo de Caixa Livre"
+    "es": "Flujo de caja libre",
+    "en": "Free cash flow",
+    "pt": "Fluxo de caixa livre"
   },
   "dash.widget.cash_flow_kpi.vs_budget": {
-    "es": "vs Presupuesto",
-    "en": "vs Budget",
-    "pt": "vs Orçamento"
+    "es": "vs presupuesto",
+    "en": "vs budget",
+    "pt": "vs orçamento"
   },
   "dash.widget.cashflow_waterfall.name": {
-    "es": "Flujo de Efectivo (Waterfall)",
-    "en": "Cash Flow (Waterfall)",
-    "pt": "Fluxo de Caixa (Waterfall)"
+    "es": "Flujo de efectivo (cascada)",
+    "en": "Cash flow (waterfall)",
+    "pt": "Fluxo de caixa (waterfall)"
   },
   "dash.widget.debt_equity.name": {
-    "es": "KPI: Endeudamiento",
-    "en": "KPI: Leverage",
-    "pt": "KPI: Endividamento"
+    "es": "KPI: endeudamiento",
+    "en": "KPI: leverage",
+    "pt": "KPI: endividamento"
   },
   "dash.widget.debt_equity.title": {
     "es": "Endeudamiento (D/E)",
@@ -106,39 +106,39 @@
     "literal": "EBITDA"
   },
   "dash.widget.ebitda.vs_budget": {
-    "es": "vs Presupuesto",
-    "en": "vs Budget",
-    "pt": "vs Orçamento"
+    "es": "vs presupuesto",
+    "en": "vs budget",
+    "pt": "vs orçamento"
   },
   "dash.widget.expenses_pie.name": {
-    "es": "Desglose de Gastos",
-    "en": "Expense Breakdown",
-    "pt": "Composição das Despesas"
+    "es": "Desglose de gastos",
+    "en": "Expense breakdown",
+    "pt": "Composição das despesas"
   },
   "dash.widget.financial_ratios.name": {
-    "es": "KPIs: Ratios Financieros",
-    "en": "KPIs: Financial Ratios",
-    "pt": "KPIs: Índices Financeiros"
+    "es": "KPIs: ratios financieros",
+    "en": "KPIs: financial ratios",
+    "pt": "KPIs: índices financeiros"
   },
   "dash.widget.invoice_status.name": {
-    "es": "Estado de Facturas",
-    "en": "Invoice Status",
-    "pt": "Situação das Faturas"
+    "es": "Estado de facturas",
+    "en": "Invoice status",
+    "pt": "Situação das faturas"
   },
   "dash.widget.kpi_current_ratio.name": {
-    "es": "KPI: Liquidez Corriente",
-    "en": "KPI: Current Ratio",
-    "pt": "KPI: Liquidez Corrente"
+    "es": "KPI: liquidez corriente",
+    "en": "KPI: current ratio",
+    "pt": "KPI: liquidez corrente"
   },
   "dash.widget.kpi_current_ratio.title": {
-    "es": "Liquidez Corriente",
-    "en": "Current Ratio",
-    "pt": "Liquidez Corrente"
+    "es": "Liquidez corriente",
+    "en": "Current ratio",
+    "pt": "Liquidez corrente"
   },
   "dash.widget.kpi_current_ratio.vs_prior_month": {
-    "es": "vs Mes Anterior",
-    "en": "vs Prior Month",
-    "pt": "vs Mês Anterior"
+    "es": "vs mes anterior",
+    "en": "vs prior month",
+    "pt": "vs mês anterior"
   },
   "dash.widget.kpi_ebitda.name": {
     "literal": "KPI: EBITDA"
@@ -147,29 +147,29 @@
     "literal": "EBITDA"
   },
   "dash.widget.kpi_ebitda.vs_budget": {
-    "es": "vs Presupuesto",
-    "en": "vs Budget",
-    "pt": "vs Orçamento"
+    "es": "vs presupuesto",
+    "en": "vs budget",
+    "pt": "vs orçamento"
   },
   "dash.widget.kpi_fcf.name": {
-    "es": "KPI: Flujo de Caja Libre",
-    "en": "KPI: Free Cash Flow",
-    "pt": "KPI: Fluxo de Caixa Livre"
+    "es": "KPI: flujo de caja libre",
+    "en": "KPI: free cash flow",
+    "pt": "KPI: fluxo de caixa livre"
   },
   "dash.widget.kpi_fcf.title": {
-    "es": "Flujo de Caja Libre",
-    "en": "Free Cash Flow",
-    "pt": "Fluxo de Caixa Livre"
+    "es": "Flujo de caja libre",
+    "en": "Free cash flow",
+    "pt": "Fluxo de caixa livre"
   },
   "dash.widget.kpi_fcf.vs_budget": {
-    "es": "vs Presupuesto",
-    "en": "vs Budget",
-    "pt": "vs Orçamento"
+    "es": "vs presupuesto",
+    "en": "vs budget",
+    "pt": "vs orçamento"
   },
   "dash.widget.kpi_leverage.name": {
-    "es": "KPI: Apalancamiento",
-    "en": "KPI: Leverage",
-    "pt": "KPI: Alavancagem"
+    "es": "KPI: apalancamiento",
+    "en": "KPI: leverage",
+    "pt": "KPI: alavancagem"
   },
   "dash.widget.kpi_leverage.title": {
     "es": "Apalancamiento (D/E)",
@@ -177,65 +177,65 @@
     "pt": "Alavancagem (D/E)"
   },
   "dash.widget.kpi_leverage.vs_prior_quarter": {
-    "es": "vs Trimestre Anterior",
-    "en": "vs Prior Quarter",
-    "pt": "vs Trimestre Anterior"
+    "es": "vs trimestre anterior",
+    "en": "vs prior quarter",
+    "pt": "vs trimestre anterior"
   },
   "dash.widget.kpi_net_margin.name": {
-    "es": "KPI: Margen Neto",
-    "en": "KPI: Net Margin",
-    "pt": "KPI: Margem Líquida"
+    "es": "KPI: margen neto",
+    "en": "KPI: net margin",
+    "pt": "KPI: margem líquida"
   },
   "dash.widget.kpi_net_margin.title": {
-    "es": "Margen Neto",
-    "en": "Net Margin",
-    "pt": "Margem Líquida"
+    "es": "Margen neto",
+    "en": "Net margin",
+    "pt": "Margem líquida"
   },
   "dash.widget.kpi_net_margin.vs_prior_year": {
-    "es": "vs Año Anterior",
-    "en": "vs Prior Year",
-    "pt": "vs Ano Anterior"
+    "es": "vs año anterior",
+    "en": "vs prior year",
+    "pt": "vs ano anterior"
   },
   "dash.widget.kpi_quick_ratio.name": {
-    "es": "KPI: Prueba Ácida",
-    "en": "KPI: Quick Ratio",
-    "pt": "KPI: Liquidez Seca"
+    "es": "KPI: prueba ácida",
+    "en": "KPI: quick ratio",
+    "pt": "KPI: liquidez seca"
   },
   "dash.widget.kpi_quick_ratio.title": {
-    "es": "Prueba Ácida",
-    "en": "Quick Ratio",
-    "pt": "Liquidez Seca"
+    "es": "Prueba ácida",
+    "en": "Quick ratio",
+    "pt": "Liquidez seca"
   },
   "dash.widget.kpi_quick_ratio.vs_prior_month": {
-    "es": "vs Mes Anterior",
-    "en": "vs Prior Month",
-    "pt": "vs Mês Anterior"
+    "es": "vs mes anterior",
+    "en": "vs prior month",
+    "pt": "vs mês anterior"
   },
   "dash.widget.kpi_roa.name": {
     "literal": "KPI: ROA"
   },
   "dash.widget.kpi_roa.title": {
-    "es": "ROA (Retorno sobre Activos)",
-    "en": "ROA (Return on Assets)",
-    "pt": "ROA (Retorno sobre os Ativos)"
+    "es": "ROA (retorno sobre activos)",
+    "en": "ROA (return on assets)",
+    "pt": "ROA (retorno sobre os ativos)"
   },
   "dash.widget.kpi_roa.vs_prior_year": {
-    "es": "vs Año Anterior",
-    "en": "vs Prior Year",
-    "pt": "vs Ano Anterior"
+    "es": "vs año anterior",
+    "en": "vs prior year",
+    "pt": "vs ano anterior"
   },
   "dash.widget.kpi_roe.name": {
     "literal": "KPI: ROE"
   },
   "dash.widget.kpi_roe.title": {
-    "es": "ROE (Retorno sobre Patrimonio)",
-    "en": "ROE (Return on Equity)",
-    "pt": "ROE (Retorno sobre o Patrimônio)"
+    "es": "ROE (retorno sobre patrimonio)",
+    "en": "ROE (return on equity)",
+    "pt": "ROE (retorno sobre o patrimônio)"
   },
   "dash.widget.kpi_roe.vs_prior_year": {
-    "es": "vs Año Anterior",
-    "en": "vs Prior Year",
-    "pt": "vs Ano Anterior"
+    "es": "vs año anterior",
+    "en": "vs prior year",
+    "pt": "vs ano anterior"
   },
   "dash.widget.kpi_working_capital.current": {
     "es": "Actual",
@@ -243,54 +243,54 @@
     "pt": "Atual"
   },
   "dash.widget.kpi_working_capital.name": {
-    "es": "KPI: Capital de Trabajo",
-    "en": "KPI: Working Capital",
-    "pt": "KPI: Capital de Giro"
+    "es": "KPI: capital de trabajo",
+    "en": "KPI: working capital",
+    "pt": "KPI: capital de giro"
   },
   "dash.widget.kpi_working_capital.title": {
-    "es": "Capital de Trabajo",
-    "en": "Working Capital",
-    "pt": "Capital de Giro"
+    "es": "Capital de trabajo",
+    "en": "Working capital",
+    "pt": "Capital de giro"
   },
   "dash.widget.low_stock_items.name": {
-    "es": "Productos con Bajo Stock",
-    "en": "Low Stock Items",
-    "pt": "Produtos com Estoque Baixo"
+    "es": "Productos con pocas existencias",
+    "en": "Low stock items",
+    "pt": "Produtos com estoque baixo"
   },
   "dash.widget.low_stock_items.title": {
-    "es": "Productos con Bajo Stock",
-    "en": "Low Stock Items",
-    "pt": "Produtos com Estoque Baixo"
+    "es": "Productos con pocas existencias",
+    "en": "Low stock items",
+    "pt": "Produtos com estoque baixo"
   },
   "dash.widget.low_stock_table.name": {
-    "es": "Tabla de Bajo Stock",
-    "en": "Low Stock Table",
-    "pt": "Tabela de Estoque Baixo"
+    "es": "Tabla de existencias bajas",
+    "en": "Low stock table",
+    "pt": "Tabela de estoque baixo"
   },
   "dash.widget.net_margin.name": {
-    "es": "KPI: Margen Neto",
-    "en": "KPI: Net Margin",
-    "pt": "KPI: Margem Líquida"
+    "es": "KPI: margen neto",
+    "en": "KPI: net margin",
+    "pt": "KPI: margem líquida"
   },
   "dash.widget.net_margin.title": {
-    "es": "Margen Neto",
-    "en": "Net Margin",
-    "pt": "Margem Líquida"
+    "es": "Margen neto",
+    "en": "Net margin",
+    "pt": "Margem líquida"
   },
   "dash.widget.net_margin.vs_prior_year": {
-    "es": "vs Año Anterior",
-    "en": "vs Prior Year",
-    "pt": "vs Ano Anterior"
+    "es": "vs año anterior",
+    "en": "vs prior year",
+    "pt": "vs ano anterior"
   },
   "dash.widget.pending_invoices.name": {
-    "es": "Facturas Pendientes",
-    "en": "Pending Invoices",
-    "pt": "Faturas em Aberto"
+    "es": "Facturas pendientes",
+    "en": "Pending invoices",
+    "pt": "Faturas em aberto"
   },
   "dash.widget.pending_invoices.title": {
-    "es": "Facturas Pendientes",
-    "en": "Pending Invoices",
-    "pt": "Faturas em Aberto"
+    "es": "Facturas pendientes",
+    "en": "Pending invoices",
+    "pt": "Faturas em aberto"
   },
   "dash.widget.real_vs_budget.name": {
     "es": "Real vs Presupuesto",
@@ -298,28 +298,28 @@
     "pt": "Real vs Orçado"
   },
   "dash.widget.recent_activity.name": {
-    "es": "Actividad Reciente",
-    "en": "Recent Activity",
-    "pt": "Atividade Recente"
+    "es": "Actividad reciente",
+    "en": "Recent activity",
+    "pt": "Atividade recente"
   },
   "dash.widget.sales_chart.name": {
-    "es": "Gráfico de Ingresos",
-    "en": "Revenue Chart",
-    "pt": "Gráfico de Receita"
+    "es": "Gráfico de ingresos",
+    "en": "Revenue chart",
+    "pt": "Gráfico de receita"
   },
   "dash.widget.sales_today.name": {
-    "es": "Ventas de Hoy",
+    "es": "Ventas de hoy",
     "en": "Today's Sales",
-    "pt": "Vendas de Hoje"
+    "pt": "Vendas de hoje"
   },
   "dash.widget.sales_today.title": {
-    "es": "Ventas de Hoy",
+    "es": "Ventas de hoy",
     "en": "Today's Sales",
-    "pt": "Vendas de Hoje"
+    "pt": "Vendas de hoje"
   },
   "dash.widget.top_products.name": {
-    "es": "Productos Más Vendidos",
-    "en": "Top-Selling Products",
-    "pt": "Produtos Mais Vendidos"
+    "es": "Productos más vendidos",
+    "en": "Top-selling products",
+    "pt": "Produtos mais vendidos"
   }
 }

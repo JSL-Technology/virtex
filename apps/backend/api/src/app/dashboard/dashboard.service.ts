@@ -25,7 +25,7 @@ import {
 import { roundAmount } from '../common/money';
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
 import { CashFlowWaterfallDto } from './dto/cash-flow-waterfall.dto';
-import { startOfYear, endOfDay } from 'date-fns';
+import { startOfYear, endOfDay, format } from 'date-fns';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
@@ -203,6 +203,17 @@ export class DashboardService {
     return result;
   }
 
+  /**
+   * Free cash flow for the year to date: the cash that came in and went out through operations and
+   * investment, read from the cash and bank accounts themselves (the direct method).
+   *
+   * It was `net income − working capital`, a level subtracted from a flow. A company created that
+   * day with RD$28,800 of opening stock showed −RD$28,800 of free cash flow: the stock is working
+   * capital, but no cash ever left for it (QA D02). Now an entry counts only when it moves a cash or
+   * bank account, and not when it is financing — its other side is equity (capital, opening
+   * balances, dividends) or long-term debt. Opening stock moves no cash; a sale on credit moves none
+   * until it is collected; a machine bought in cash is investment and counts.
+   */
   async getFreeCashFlow(organizationId: string): Promise<FcfDto> {
     const cacheKey = `fcf:${organizationId}`;
     const cachedData = await this.cacheManager.get<FcfDto>(cacheKey);
@@ -211,15 +222,43 @@ export class DashboardService {
       return cachedData;
     }
 
+    const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
+    if (!defaultLedger) {
+      throw new BadRequestError('dashboard.no_default_ledger_has_configured_organization');
+    }
 
-
-
-    const { netIncome, workingCapital } = await this.getFinancialMetrics(organizationId);
-    const freeCashFlow = netIncome - workingCapital;
+    const today = new Date();
+    const periodStart = startOfYear(today);
+    const [row]: Array<{ fcf: string | null }> = await this.dataSource.query(
+      `WITH cash AS (
+         SELECT gl_account_id AS id FROM bank_accounts WHERE organization_id = $1
+         UNION
+         SELECT default_cash_id FROM organization_settings WHERE organization_id = $1 AND default_cash_id IS NOT NULL
+         UNION
+         SELECT default_bank_id FROM organization_settings WHERE organization_id = $1 AND default_bank_id IS NOT NULL
+       ),
+       entries AS (
+         SELECT je.id,
+                SUM(CASE WHEN l.account_id IN (SELECT id FROM cash) THEN v.debit - v.credit ELSE 0 END) AS cash_delta,
+                BOOL_OR(a.type = 'EQUITY' OR a.category = 'NON_CURRENT_LIABILITY') AS financing
+           FROM journal_entries je
+           JOIN journal_entry_lines l ON l.journal_entry_id = je.id
+           JOIN journal_entry_line_valuations v ON v.journal_entry_line_id = l.id AND v.ledger_id = $2
+           JOIN accounts a ON a.id = l.account_id
+          WHERE je.organization_id = $1
+            AND je.status = 'Posted'
+            AND je.date BETWEEN $3 AND $4
+          GROUP BY je.id
+       )
+       SELECT SUM(cash_delta) FILTER (WHERE NOT financing) AS fcf FROM entries`,
+      [organizationId, defaultLedger.id, format(periodStart, 'yyyy-MM-dd'), format(today, 'yyyy-MM-dd')],
+    );
+    const freeCashFlow = Number(row?.fcf ?? 0);
 
     const result = {
       freeCashFlow: parseFloat(freeCashFlow.toFixed(2)),
-      date: new Date(),
+      periodStart: format(periodStart, 'yyyy-MM-dd'),
+      date: today,
     };
 
     await this.cacheManager.set(cacheKey, result, 3600);

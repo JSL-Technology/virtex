@@ -1,3 +1,5 @@
+import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
+import { LanguageService } from '../../../core/services/language';
 import {
   Component,
   OnInit,
@@ -79,6 +81,7 @@ interface ProfileForm {
     TranslateModule,
     PhoneVerificationModalComponent,
     PasswordStrengthComponent,
+    RoleNamePipe,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
@@ -88,6 +91,11 @@ interface ProfileForm {
 export class MyProfilePage implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  /**
+   * Every language the product renders, each named in its own language. The selector listed two
+   * of the three: Portuguese existed and could not be chosen (QA U78).
+   */
+  protected readonly languages = inject(LanguageService).availableLanguages;
   private usersService = inject(UsersService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);

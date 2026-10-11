@@ -16,7 +16,7 @@
     <div class="p-banner-info">
       <h1 class="p-banner-name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</h1>
       <p class="p-banner-email">{{ currentUser()?.email }}</p>
-      <span class="p-banner-role">{{ currentUser()?.roles?.[0]?.name || 'Usuario' }}</span>
+      <span class="p-banner-role">{{ currentUser()?.roles?.[0] | vxRoleName }}</span>
     </div>
   </div>
 
@@ -112,8 +112,9 @@
           <div class="pf-field">
             <label class="pf-label" for="preferredlanguage">{{ 'settings.my_profile.preferred_language' | translate }}</label>
             <select id="preferredlanguage" formControlName="preferredLanguage">
-              <option value="es">{{ 'settings.my_profile.language_spanish' | translate }}</option>
-              <option value="en">{{ 'settings.my_profile.english' | translate }}</option>
+              @for (language of languages; track language.code) {
+                <option [value]="language.code" [attr.lang]="language.code">{{ language.label }}</option>
+              }
             </select>
           </div>
 

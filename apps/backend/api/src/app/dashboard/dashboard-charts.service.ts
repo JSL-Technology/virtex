@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { AccountType } from '../chart-of-accounts/enums/account-enums';
 import { InvoiceStatus } from '../invoices/entities/invoice.entity';
 import { roundAmount } from '../common/money';
+import { periodCloseDueSql } from '../shared/database/period-close-due';
 
 /** The headline figures of the dashboard, each against a comparable previous period. */
 export interface DashboardSummaryDto {
@@ -376,6 +377,7 @@ export class DashboardChartsService {
         WHERE p."organization_id" = $1
           AND p."status" = 'OPEN'
           AND p."end_date" < CURRENT_DATE
+          AND ${periodCloseDueSql('p', '$1')}
         ORDER BY p."end_date" ASC
         LIMIT 1`,
       [organizationId],

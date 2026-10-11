@@ -19,6 +19,10 @@
  * It runs in CI.
  */
 import 'reflect-metadata';
+
+// The probe signs with a self-signed certificate it makes on the spot; the API accepts one only in
+// a development or test process that opts in (see `CertificateVaultService.testCertificatesAllowed`).
+process.env['ECF_ALLOW_TEST_CERTIFICATES'] = 'true';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DataSource } from 'typeorm';
@@ -94,14 +98,16 @@ async function main(): Promise<void> {
   // and readiness says so (`invoices.gaps.fiscal_sequence`) instead of answering `ready` and
   // letting the first POST fail. So a fresh tenant must be missing that and nothing else.
   const readiness = await invoices.invoicingContext(orgId);
+  // Only the range: until the company holds one, nothing says whether it will issue traditional
+  // NCF (no certificate needed) or e-CF, so asking for a certificate as well would be premature.
   check(
-    'un inquilino recién creado solo espera su rango de e-NCF y su certificado de firma para facturar',
+    'un inquilino recién creado solo espera un rango de comprobantes para facturar',
     !readiness.ready &&
-      readiness.missing.length === 2 &&
-      readiness.missing.includes('invoices.gaps.fiscal_sequence') &&
-      readiness.missing.includes('invoices.gaps.signing_certificate'),
+      readiness.missing.length === 1 &&
+      readiness.missing[0] === 'invoices.gaps.fiscal_sequence',
     readiness.missing.join('; '),
   );
+  check('un inquilino nuevo emite ambas series', readiness.emissionMode === 'BOTH');
 
   // ── Fiscal numbering, with its authorization window ─────────────────────────
   await compliance.provisionNcfSequence(orgId, {
@@ -214,7 +220,66 @@ async function main(): Promise<void> {
   const afterBlocked = await invoices.findOne(draft.id, orgId);
   check('un intento bloqueado no consume numeración', !afterBlocked.fiscalNumber);
 
-  const certificate = makeTestCertificate('SONDA FACTURACION');
+  // ── Traditional NCF (serie B): numbered and printed, no certificate, nothing transmitted ────
+  //
+  // A company that issues serie B was told it could not invoice until it loaded a signing
+  // certificate it does not need. With a live B range it is ready, and an invoice with no type
+  // chosen is drawn from it.
+  await compliance.provisionNcfSequence(orgId, {
+    type: NcfType.B01, prefix: 'B01', startsAt: 1, endsAt: 100,
+    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
+  });
+  await compliance.provisionNcfSequence(orgId, {
+    type: NcfType.B02, prefix: 'B02', startsAt: 1, endsAt: 100,
+    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
+  });
+  const traditionalReady = await invoices.invoicingContext(orgId);
+  check(
+    'con un rango B y sin certificado, el inquilino puede facturar',
+    traditionalReady.ready && traditionalReady.automaticSeries === 'B',
+    `${traditionalReady.missing.join('; ')} · serie ${traditionalReady.automaticSeries}`,
+  );
+  const e31Option = traditionalReady.fiscalDocumentTypes.find((t) => t.code === 'E31');
+  check(
+    'el E31 se ofrece, pero bloqueado por el certificado',
+    e31Option?.available === true && e31Option.issuable === false && e31Option.blockedBy === 'invoices.type_blocked.no_certificate',
+  );
+  const traditional = await invoices.create(
+    {
+      customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
+      lineItems: [{ productId: service.id, quantity: 1 }],
+    } as never,
+    orgId,
+  );
+  check('sin elegir tipo, sale un B01 al contribuyente', Boolean(traditional.fiscalNumber?.startsWith('B01')), traditional.fiscalNumber ?? 'sin NCF');
+  const [traditionalSubmission] = await ds.query(
+    `SELECT count(*)::int AS n FROM ecf_submissions WHERE invoice_id = $1`, [traditional.id],
+  );
+  check('un NCF tradicional no se transmite a la DGII', traditionalSubmission.n === 0);
+  check('un NCF tradicional se contabiliza igual', Boolean(traditional.journalEntryId));
+
+  // A company that issues only electronic comprobantes cannot be handed a B by mistake.
+  await ds.query(
+    `UPDATE organization_settings SET fiscal_emission_mode = 'ELECTRONIC' WHERE organization_id = $1`, [orgId],
+  );
+  let traditionalRefused = false;
+  try {
+    await invoices.create(
+      {
+        customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
+        fiscalDocumentType: 'B02', lineItems: [{ productId: service.id, quantity: 1 }],
+      } as never,
+      orgId,
+    );
+  } catch {
+    traditionalRefused = true;
+  }
+  check('en modalidad electrónica, un B02 se rechaza', traditionalRefused);
+  await ds.query(
+    `UPDATE organization_settings SET fiscal_emission_mode = 'BOTH' WHERE organization_id = $1`, [orgId],
+  );
+
+  const certificate = makeTestCertificate('SONDA FACTURACION', 30, org.taxId as string);
   await runAsTenantJob(ds, orgId, () =>
     certificates.upload(orgId, { pfx: certificate.pfx, password: certificate.password, alias: 'Sonda' }),
   );

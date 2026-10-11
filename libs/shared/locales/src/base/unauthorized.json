@@ -3,14 +3,14 @@
     "literal": "403 Forbidden"
   },
   "unauthorized.access_denied": {
-    "es": "Acceso Denegado",
-    "en": "Access Denied",
-    "pt": "Acesso Negado"
+    "es": "Acceso denegado",
+    "en": "Access denied",
+    "pt": "Acesso negado"
   },
   "unauthorized.back_dashboard": {
-    "es": "Volver al Dashboard",
-    "en": "Back to the Dashboard",
-    "pt": "Voltar ao Painel"
+    "es": "Volver al panel",
+    "en": "Back to the dashboard",
+    "pt": "Voltar ao painel"
   },
   "unauthorized.error": {
     "es": "Error:",
@@ -33,9 +33,9 @@
     "pt": "Não foi possível enviar a solicitação."
   },
   "unauthorized.request_permission": {
-    "es": "Solicitar Permiso",
-    "en": "Request Permission",
-    "pt": "Solicitar Permissão"
+    "es": "Solicitar permiso",
+    "en": "Request permission",
+    "pt": "Solicitar permissão"
   },
   "unauthorized.request_reason_message": {
     "es": "Tus administradores recibirán una notificación con la pantalla que intentaste abrir. Si quieres, explica para qué la necesitas.",

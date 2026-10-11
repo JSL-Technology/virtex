@@ -265,7 +265,8 @@ describe('NewInvoicePage', () => {
   it('warns instead of pretending the tenant can issue', async () => {
     await build(context({ ready: false, missing: ['la cuenta de Cuentas por Cobrar'] }));
     expect(component.blockers()).toEqual(['la cuenta de Cuentas por Cobrar']);
-    expect(notifications.showError).toHaveBeenCalled();
+    // Said once, by the banner the form keeps on screen — not again as an error toast (QA U52).
+    expect(notifications.showError).not.toHaveBeenCalled();
   });
 
   it('fills a line from the catalogue, including its tax treatment', () => {

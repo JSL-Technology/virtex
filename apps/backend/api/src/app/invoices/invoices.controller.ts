@@ -251,14 +251,20 @@ export class InvoicesController {
     // The company's name as sender and its address for replies: a customer answering an invoice
     // writes to whoever billed them, not to the software vendor.
     const identity = await this.invoicesService.senderIdentity(user.organizationId);
+    // Replies always reach a person: the company's configured or public address, else whoever is
+    // sending the invoice. The e-mail used to say «do not reply» and carry no Reply-To at all for a
+    // company with no address on file, so a customer had no way to answer their supplier (QA U68).
+    const replyTo = identity.replyTo ?? user.email ?? null;
     // The language and formats of the PDF it carries (QA M4): the customer's, not the sender's.
     const summary = this.renderer.emailSummary(context);
     await this.mail.sendInvoiceEmail({
-      identity: { senderName: identity.senderName, replyTo: identity.replyTo, copyTo: identity.copyTo },
+      identity: { senderName: identity.senderName, replyTo, copyTo: identity.copyTo },
       to,
       language: summary.language,
       invoiceNumber: number,
-      customerName: invoice.customer?.companyName ?? '',
+      // A person is greeted by name: the customer's contact when there is one, the company when not
+      // (QA U67 — «¡Hola, Distribuidora Hermanos Peña SRL!» for an invoice addressed to Carlos Peña).
+      customerName: invoice.customer?.contactPerson?.trim() || invoice.customer?.companyName || '',
       companyName: context.organization.legalName,
       total: summary.total,
       dueDate: summary.dueDate,

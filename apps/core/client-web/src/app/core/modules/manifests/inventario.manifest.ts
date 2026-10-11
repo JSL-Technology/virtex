@@ -65,6 +65,16 @@ export const INVENTARIO_MODULE: ModuleManifest = {
       menu: { group: 'analysis', labelKey: 'page_titles.stock_movements' },
       load: () => import('../../../features/inventory/movements/movements.page').then((m) => m.StockMovementsPage),
     },
+    // The name people know it by, as an address of its own: the same window as «movements».
+    {
+      path: 'kardex',
+      kind: WindowKind.LIST,
+      permission: 'inventory:view_stock',
+      titleKey: 'page_titles.stock_movements',
+      icon: 'History',
+      entityKeyFn: () => 'inventario:movements',
+      load: () => import('../../../features/inventory/movements/movements.page').then((m) => m.StockMovementsPage),
+    },
     {
       path: 'adjustments',
       kind: WindowKind.LIST,

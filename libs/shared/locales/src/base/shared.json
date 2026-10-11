@@ -25,9 +25,9 @@
     "pt": ",\n        mas você está tentando acessar a versão de"
   },
   "shared.geo_mismatch_modal.location_detected": {
-    "es": "Ubicación Detectada",
-    "en": "Location Detected",
-    "pt": "Localização Detectada"
+    "es": "Ubicación detectada",
+    "en": "Location detected",
+    "pt": "Localização detectada"
   },
   "shared.geo_mismatch_modal.we_detected_you": {
     "es": "Hemos detectado que estás en",
@@ -50,7 +50,7 @@
     "pt": "Cancelar"
   },
   "shared.live_preview.dashboard": {
-    "es": "Dashboard",
+    "es": "Panel",
     "en": "Dashboard",
     "pt": "Painel"
   },
@@ -60,9 +60,9 @@
     "pt": "OK"
   },
   "shared.live_preview.sample_card": {
-    "es": "Ejemplo de Tarjeta",
-    "en": "Sample Card",
-    "pt": "Cartão de Exemplo"
+    "es": "Ejemplo de tarjeta",
+    "en": "Sample card",
+    "pt": "Cartão de exemplo"
   },
   "shared.live_preview.sample_field": {
     "es": "Campo de ejemplo",
@@ -75,9 +75,9 @@
     "pt": "Este é um texto de exemplo para ver a tipografia."
   },
   "shared.live_preview.tu_logo": {
-    "es": "Tu Logo",
-    "en": "Your Logo",
-    "pt": "Seu Logotipo"
+    "es": "Tu logo",
+    "en": "Your logo",
+    "pt": "Seu logotipo"
   },
   "shared.live_preview.type_here": {
     "es": "Escribe aquí...",
@@ -105,7 +105,7 @@
     "pt": "Para proteger a sua conta, enviámos um código de verificação para o seu e-mail registado."
   },
   "shared.otp.never_share_code_our_team_will": {
-    "es": "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.",
+    "es": "Nunca compartas este código. Nuestro equipo jamás te lo pedirá.",
     "en": "Never share this code. Our team will never ask you for it.",
     "pt": "Nunca compartilhe este código. Nossa equipe jamais o pedirá."
   },

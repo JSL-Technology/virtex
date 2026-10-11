@@ -10,7 +10,7 @@
     "pt": "O link de confirmação expirou. Solicite um novo."
   },
   "users.email_already_use_another_user": {
-    "es": "El email ya está en uso por otro usuario.",
+    "es": "Ese correo ya lo usa otro usuario.",
     "en": "That email is already in use by another user.",
     "pt": "Esse e-mail já está em uso por outro usuário."
   },
@@ -20,7 +20,7 @@
     "pt": "Não foi possível concluir a alteração de e-mail."
   },
   "users.email_updated_user_session_has_invalidated": {
-    "es": "Email actualizado. La sesión del usuario ha sido invalidada.",
+    "es": "Correo actualizado. Se cerró la sesión del usuario.",
     "en": "Email updated. The user's session has been invalidated.",
     "pt": "E-mail atualizado. A sessão do usuário foi invalidada."
   },
@@ -55,7 +55,7 @@
     "pt": "Token de confirmação inválido."
   },
   "users.invalid_email_format": {
-    "es": "Formato de email inválido.",
+    "es": "El formato del correo no es válido.",
     "en": "Invalid email format.",
     "pt": "Formato de e-mail inválido."
   },
@@ -135,7 +135,7 @@
     "pt": "Ações"
   },
   "users.table.email": {
-    "es": "Email",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },

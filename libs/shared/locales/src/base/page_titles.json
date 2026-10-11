@@ -16,23 +16,23 @@
   },
   "page_titles.account_reconciliation": {
     "es": "Conciliación de cuentas",
-    "en": "Account Reconciliation",
-    "pt": "Conciliação de Contas"
+    "en": "Account reconciliation",
+    "pt": "Conciliação de contas"
   },
   "page_titles.accounting_periods": {
     "es": "Periodos contables",
-    "en": "Period Management",
+    "en": "Period management",
     "pt": "Períodos contábeis"
   },
   "page_titles.accounts_payable_aging": {
-    "es": "Antigüedad de Cuentas por Pagar",
-    "en": "Accounts Payable Ageing",
-    "pt": "Idade das Contas a Pagar"
+    "es": "Antigüedad de cuentas por pagar",
+    "en": "Accounts payable ageing",
+    "pt": "Idade das contas a pagar"
   },
   "page_titles.accounts_receivable_aging": {
-    "es": "Antigüedad de Cuentas por Cobrar",
-    "en": "Accounts Receivable Aging",
-    "pt": "Aging de Contas a Receber"
+    "es": "Antigüedad de cuentas por cobrar",
+    "en": "Accounts receivable aging",
+    "pt": "Aging de contas a receber"
   },
   "page_titles.approvals": {
     "es": "Aprobaciones",
@@ -55,9 +55,9 @@
     "pt": "Balanço patrimonial"
   },
   "page_titles.bank_account": {
-    "es": "Cuenta Bancaria",
-    "en": "Bank Account",
-    "pt": "Conta Bancária"
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
   },
   "page_titles.budget": {
     "es": "Presupuesto",
@@ -75,9 +75,9 @@
     "pt": "Orçamentos"
   },
   "page_titles.cash_flow": {
-    "es": "Flujo de Efectivo",
-    "en": "Cash Flow",
-    "pt": "Fluxo de Caixa"
+    "es": "Flujo de efectivo",
+    "en": "Cash flow",
+    "pt": "Fluxo de caixa"
   },
   "page_titles.categories": {
     "es": "Categorías",
@@ -91,8 +91,8 @@
   },
   "page_titles.close_year": {
     "es": "Cierre anual",
-    "en": "Year-End Close",
-    "pt": "Encerramento Anual"
+    "en": "Year-end close",
+    "pt": "Encerramento anual"
   },
   "page_titles.closing_checklists": {
     "es": "Listas de cierre",
@@ -275,9 +275,9 @@
     "pt": "Início"
   },
   "page_titles.income_statement": {
-    "es": "Estado de Resultados",
-    "en": "Income Statement",
-    "pt": "Demonstração do Resultado"
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração do resultado"
   },
   "page_titles.inventory_adjustment": {
     "es": "Ajuste de inventario",
@@ -441,7 +441,7 @@
   },
   "page_titles.products": {
     "es": "Productos",
-    "en": "Products & Services",
+    "en": "Products & services",
     "pt": "Produtos"
   },
   "page_titles.profitability_customer": {
@@ -466,7 +466,7 @@
   },
   "page_titles.purchase_orders": {
     "es": "Órdenes de compra",
-    "en": "Purchase Orders",
+    "en": "Purchase orders",
     "pt": "Pedidos de compra"
   },
   "page_titles.purchase_requisition_edit": {
@@ -530,9 +530,9 @@
     "pt": "Configuração de segmentos"
   },
   "page_titles.statement_import": {
-    "es": "Importar Estado de Cuenta",
-    "en": "Import Statement",
-    "pt": "Importar Extrato"
+    "es": "Importar estado de cuenta",
+    "en": "Import statement",
+    "pt": "Importar extrato"
   },
   "page_titles.stock_movements": {
     "es": "Kárdex",
@@ -585,9 +585,9 @@
     "pt": "Tesouraria"
   },
   "page_titles.trial_balance": {
-    "es": "Balanza de Comprobación",
-    "en": "Trial Balance",
-    "pt": "Balancete de Verificação"
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete de verificação"
   },
   "page_titles.units_of_measure": {
     "es": "Unidades de medida",

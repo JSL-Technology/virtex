@@ -30,19 +30,19 @@
     "pt": "Exportar"
   },
   "sales.history.id_venta": {
-    "es": "ID Venta",
+    "es": "ID venta",
     "en": "Sale ID",
-    "pt": "ID da Venda"
+    "pt": "ID da venda"
   },
   "sales.history.new_sale": {
-    "es": "Nueva Venta",
-    "en": "New Sale",
-    "pt": "Nova Venda"
+    "es": "Nueva venta",
+    "en": "New sale",
+    "pt": "Nova venda"
   },
   "sales.history.payment_method": {
-    "es": "Método de Pago",
-    "en": "Payment Method",
-    "pt": "Forma de Pagamento"
+    "es": "Método de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
   },
   "sales.history.review_filter_manage_every_recorded_transaction": {
     "es": "Consulta, filtra y gestiona todas las transacciones registradas.",
@@ -73,14 +73,14 @@
     "pt": "Somente orçamentos aceitos podem ser faturados."
   },
   "sales.pos.add_products_start_sale": {
-    "es": "Añade productos para comenzar una venta.",
+    "es": "Agrega productos para comenzar una venta.",
     "en": "Add products to start a sale.",
     "pt": "Adicione produtos para iniciar uma venda."
   },
   "sales.pos.amount_due": {
-    "es": "Total a Pagar",
-    "en": "Amount Due",
-    "pt": "Total a Pagar"
+    "es": "Total a pagar",
+    "en": "Amount due",
+    "pt": "Total a pagar"
   },
   "sales.pos.charge": {
     "es": "Cobrar",
@@ -88,9 +88,9 @@
     "pt": "Cobrar"
   },
   "sales.pos.current_order": {
-    "es": "Orden Actual",
-    "en": "Current Order",
-    "pt": "Pedido Atual"
+    "es": "Orden actual",
+    "en": "Current order",
+    "pt": "Pedido atual"
   },
   "sales.pos.customer": {
     "es": "Cliente:",

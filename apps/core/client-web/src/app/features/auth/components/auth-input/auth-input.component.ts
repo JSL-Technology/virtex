@@ -1,3 +1,4 @@
+import { TranslateModule } from '@ngx-translate/core';
 import { Component, Input, forwardRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -6,7 +7,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-auth-input',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -24,6 +25,7 @@ export class AuthInputComponent implements ControlValueAccessor, OnInit {
   @Input() placeholder = '';
   @Input() required = false;
   @Input() hasIcon = false;
+  /** A catalogue key (`register.errors.required`) or an already translated sentence. */
   @Input() errorMessage = '';
   @Input() autocomplete = '';
   @Input() showForgotPassword = false; // Added property to support logic if needed, though currently controlled externally

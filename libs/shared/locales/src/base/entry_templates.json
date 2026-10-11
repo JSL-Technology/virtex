@@ -5,12 +5,12 @@
     "pt": "Conta"
   },
   "entry_templates.form.add_credit": {
-    "es": "Añadir crédito",
+    "es": "Agregar crédito",
     "en": "Add credit",
     "pt": "Adicionar crédito"
   },
   "entry_templates.form.add_debit": {
-    "es": "Añadir débito",
+    "es": "Agregar débito",
     "en": "Add debit",
     "pt": "Adicionar débito"
   },

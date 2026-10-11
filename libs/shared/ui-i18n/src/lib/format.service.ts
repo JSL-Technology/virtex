@@ -141,7 +141,17 @@ export class FormatService {
     const parsed = this.toDate(value, dateOnly);
     if (!parsed) return '';
     const timeZone = dateOnly ? 'UTC' : this.store.timezone();
-    return this.dateFormatter(preset, timeZone).format(parsed);
+    const formatter = this.dateFormatter(preset, timeZone);
+    if (preset === 'dayMonth') {
+      // A day and a month as prose writes them — «30 sept.», «Sep 30» — whatever joiner the
+      // locale's numeric pattern uses: CLDR gives es-DO «d-MMM», which printed «30-sept» on the
+      // home page (QA U20).
+      return formatter
+        .formatToParts(parsed)
+        .map((part) => (part.type === 'literal' && part.value.trim() === '-' ? ' ' : part.value))
+        .join('');
+    }
+    return formatter.format(parsed);
   }
 
   /**
@@ -353,7 +363,8 @@ const DATE_PRESETS: Readonly<Record<DatePreset, Intl.DateTimeFormatOptions>> = {
   time: { hour: '2-digit', minute: '2-digit' },
   monthYear: { year: 'numeric', month: 'long' },
   dayMonth: { day: '2-digit', month: 'short' },
-  weekday: { weekday: 'long', day: '2-digit', month: 'short' },
+  // «domingo, 11 de octubre»: the day spelled out reads as a sentence; «Domingo, 11 Oct» did not.
+  weekday: { weekday: 'long', day: 'numeric', month: 'long' },
 };
 
 /** Re-exported so callers can type a locale without importing the contract twice. */

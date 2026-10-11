@@ -1,17 +1,20 @@
 <vx-draft-shell
   [title]="
-    (isEditMode()
-      ? 'accounting.journal_entry_form.edit_title'
-      : 'accounting.journal_entry_form.title'
+    (readOnly()
+      ? 'accounting.journal_entry_form.view_title'
+      : isEditMode()
+        ? 'accounting.journal_entry_form.edit_title'
+        : 'accounting.journal_entry_form.title'
     ) | translate
   "
+  [readOnly]="readOnly()"
   [dirty]="entryForm.dirty"
   [saving]="isSaving()"
   [invalid]="entryForm.invalid"
   [problems]="problems()"
   [form]="entryForm"
   saveLabelKey="accounting.journal_entry_form.save"
-  cancelLabelKey="accounting.journal_entry_form.cancel"
+  [cancelLabelKey]="readOnly() ? 'common.close' : 'accounting.journal_entry_form.cancel'"
   (save)="saveEntry()"
   (cancelled)="cancel()"
 >
@@ -46,7 +49,18 @@
       </div>
     </div>
 
-      @if (isEditMode()) {
+      @if (editBlockedKey(); as blocked) {
+        <!--
+          Not an error: the entry is fine, it is just not edited here. The page is a reading of it,
+          with the way to the document that owns it.
+        -->
+        <div class="banner-info entry-locked" role="status">
+          <p>{{ blocked | translate }}</p>
+          @if (sourceRoute(); as route) {
+            <a class="entry-locked__link" [routerLink]="route">{{ 'accounting.journal_entry_form.open_source_document' | translate }}</a>
+          }
+        </div>
+      } @else if (isEditMode()) {
         <!--
           Modificar es reversar y reponer. Decirlo aquí, antes de escribir, es lo que evita que
           alguien crea que está corrigiendo una cifra en el sitio: el asiento original se queda,
@@ -55,15 +69,6 @@
         <p class="entry-note">
           {{ 'accounting.journal_entry_form.modifying_posted_entry_does_not_rewrite' | translate }}
         </p>
-
-        @if (editBlockedKey(); as blocked) {
-          <p class="entry-alert" role="alert">
-            {{ blocked | translate }}
-            @if (sourceRoute(); as route) {
-              <a [routerLink]="route">{{ 'accounting.journal_entry_form.open_source_document' | translate }}</a>
-            }
-          </p>
-        }
 
         <div class="form-field description-field">
           <label for="modificationReason">
@@ -89,7 +94,9 @@
             <th>{{ 'accounting.journal_entry_form.description_column' | translate }}</th>
             <th class="text-right">{{ 'accounting.journal_entry_form.debit_column' | translate }}</th>
             <th class="text-right">{{ 'accounting.journal_entry_form.credit_column' | translate }}</th>
-            <th></th>
+            @if (!readOnly()) {
+              <th><span class="sr-only">{{ 'common.delete' | translate }}</span></th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -120,6 +127,7 @@
               <td>
                 <input type="number" formControlName="credit" class="text-right">
               </td>
+              @if (!readOnly()) {
               <td>
                 <button
                   type="button"
@@ -131,6 +139,7 @@
                   <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
                 </button>
               </td>
+              }
             </tr>
             <!--
               Las dimensiones analíticas de la línea (auditoría H-21): centro de costo, proyecto…
@@ -141,13 +150,13 @@
               @let lineIndex = $index;
               @let required = requiredFor(lineIndex);
               <tr class="line-tags">
-                <td colspan="5">
+                <td [attr.colspan]="readOnly() ? 4 : 5">
                   <div class="line-tags__grid" role="group"
                        [attr.aria-label]="'accounting.journal_entry_form.line_dimensions' | translate: { line: lineIndex + 1 }">
                     @for (dimension of tagDimensions(); track dimension.id) {
                       <label class="line-tags__field">
                         <span>{{ dimension.name }}@if (required.includes(dimension.name)) { * }</span>
-                        <select [value]="lineTag(lineIndex, dimension.name)"
+                        <select [value]="lineTag(lineIndex, dimension.name)" [disabled]="readOnly()"
                                 [class.line-tags__missing]="required.includes(dimension.name) && !lineTag(lineIndex, dimension.name) && entryForm.touched"
                                 (change)="setLineTag(lineIndex, dimension.name, $any($event.target).value)">
                           <option value="">—</option>
@@ -168,10 +177,12 @@
         <tfoot>
           <tr>
             <td colspan="2">
+              @if (!readOnly()) {
               <button type="button" (click)="addLine()" class="secondary-button">
                 <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
                 {{ 'accounting.journal_entry_form.add_line' | translate }}
               </button>
+              }
               @if (hasDimensions()) {
                 <button type="button" class="secondary-button" (click)="showDimensions.set(!showDimensions())" [attr.aria-pressed]="showDimensions()">
                   {{ (showDimensions() ? 'accounting.journal_entry_form.hide_dimensions' : 'accounting.journal_entry_form.show_dimensions') | translate }}
@@ -180,7 +191,9 @@
             </td>
             <td class="text-right"><strong>{{ 'accounting.journal_entry_form.totals' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
             <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
-            <td></td>
+            @if (!readOnly()) {
+              <td></td>
+            }
           </tr>
         </tfoot>
       </table>

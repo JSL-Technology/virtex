@@ -5,9 +5,9 @@
     "pt": "Ajuda"
   },
   "user.my_profile": {
-    "es": "Mi Perfil",
-    "en": "My Profile",
-    "pt": "Meu Perfil"
+    "es": "Mi perfil",
+    "en": "My profile",
+    "pt": "Meu perfil"
   },
   "user.role.accountant": {
     "es": "Contador",
@@ -25,9 +25,9 @@
     "pt": "Membro"
   },
   "user.role.no_role": {
-    "es": "Sin Rol Asignado",
-    "en": "No Role Assigned",
-    "pt": "Sem Perfil Atribuído"
+    "es": "Sin rol asignado",
+    "en": "No role assigned",
+    "pt": "Sem perfil atribuído"
   },
   "user.role.seller": {
     "es": "Vendedor",

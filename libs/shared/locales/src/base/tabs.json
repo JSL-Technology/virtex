@@ -39,6 +39,11 @@
     "en": "Move to a floating window",
     "pt": "Levar para uma janela flutuante"
   },
+  "tabs.go_home": {
+    "es": "Ir al inicio",
+    "en": "Go home",
+    "pt": "Ir para o início"
+  },
   "tabs.keep_open": {
     "es": "Mantener abierta",
     "en": "Keep open",
@@ -48,11 +53,6 @@
     "es": "Maximizar",
     "en": "Maximise",
     "pt": "Maximizar"
-  },
-  "tabs.module": {
-    "es": "Módulo",
-    "en": "Module",
-    "pt": "Módulo"
   },
   "tabs.mount_failed": {
     "es": "No se pudo abrir esta ventana.",
@@ -89,6 +89,16 @@
     "en": "Switch open tab",
     "pt": "Alternar aba aberta"
   },
+  "tabs.page_not_found": {
+    "es": "Página no encontrada",
+    "en": "Page not found",
+    "pt": "Página não encontrada"
+  },
+  "tabs.page_not_found_hint": {
+    "es": "Esta dirección no corresponde a ninguna pantalla de Virtex. Revisa la dirección o vuelve al inicio y búscala en el menú.",
+    "en": "This address does not match any Virtex screen. Check the address, or go back home and find it in the menu.",
+    "pt": "Este endereço não corresponde a nenhuma tela do Virtex. Verifique o endereço ou volte ao início e procure no menu."
+  },
   "tabs.pin": {
     "es": "Fijar",
     "en": "Pin",
@@ -123,11 +133,6 @@
     "es": "Dividir a la derecha",
     "en": "Split right",
     "pt": "Dividir à direita"
-  },
-  "tabs.under_construction": {
-    "es": "Este módulo está en construcción. La ruta ya está registrada y la pestaña funciona; la vista detallada estará disponible pronto.",
-    "en": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon.",
-    "pt": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
   },
   "tabs.unpin": {
     "es": "Desfijar",
