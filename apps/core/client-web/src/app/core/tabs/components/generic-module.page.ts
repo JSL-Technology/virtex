@@ -1,29 +1,36 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, Construction } from 'lucide-angular';
+import { LucideAngularModule, SearchX } from 'lucide-angular';
+import { RouterLink } from '@angular/router';
 import { TAB_CONTEXT } from '../tab-context';
 
 /**
- * Página de relleno usada cuando una ruta del sidebar todavía no tiene una
- * página real implementada. Garantiza que NINGÚN clic del sidebar quede muerto
- * (TAB_ARCHITECTURE §5.3 / §12 P0-1): siempre se abre una pestaña con un estado
- * "en construcción" claro y elegante, coherente con el tema claro/oscuro.
+ * What a tab shows for an address no module declares.
+ *
+ * Every menu entry is declared in a module manifest with its page, so the only way here is an
+ * address that does not exist — typed, mistyped, or kept from an older version. It used to say
+ * «este módulo está en construcción», which told someone who typed `/inventory/kardex` that the
+ * Kárdex was unfinished when it exists at another address (QA K01). It now says the page does not
+ * exist and offers the way back.
  */
 @Component({
   selector: 'app-generic-module-page',
   standalone: true,
-  imports: [TranslateModule, CommonModule, LucideAngularModule],
+  imports: [TranslateModule, CommonModule, LucideAngularModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="generic-page">
       <div class="generic-card">
         <div class="generic-icon">
-          <lucide-icon [img]="ConstructionIcon" size="34"></lucide-icon>
+          <lucide-icon [img]="NotFoundIcon" size="34" aria-hidden="true"></lucide-icon>
         </div>
-        <h1 class="generic-title">{{ title() }}</h1>
-        <p class="generic-subtitle">{{ 'tabs.under_construction' | translate }}</p>
+        <h1 class="generic-title">{{ 'tabs.page_not_found' | translate }}</h1>
+        <p class="generic-subtitle">{{ 'tabs.page_not_found_hint' | translate }}</p>
         <code class="generic-route">{{ route() }}</code>
+        <div class="generic-actions">
+          <a class="primary-button" routerLink="/">{{ 'tabs.go_home' | translate }}</a>
+        </div>
       </div>
     </section>
   `,
@@ -78,6 +85,10 @@ import { TAB_CONTEXT } from '../tab-context';
       color: var(--text-secondary);
     }
 
+    .generic-actions {
+      margin-top: 1.5rem;
+    }
+
     .generic-route {
       display: inline-block;
       padding: 0.4rem 0.75rem;
@@ -97,7 +108,7 @@ export class GenericModulePage {
   readonly title = computed(() => this.ctx?.title || this.prettify(this.ctx?.route));
   readonly route = computed(() => this.ctx?.route || '/');
 
-  protected readonly ConstructionIcon = Construction;
+  protected readonly NotFoundIcon = SearchX;
 
   private prettify(route?: string): string {
     const last = route?.split('/').filter(Boolean).pop();

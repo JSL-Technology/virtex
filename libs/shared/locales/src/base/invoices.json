@@ -534,9 +534,9 @@
     "pt": "Em contingência"
   },
   "invoices.ecf_status.contingency_hint": {
-    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto vuelva.",
-    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is back.",
-    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que ela voltar."
+    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto esté disponible.",
+    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is available.",
+    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que estiver disponível."
   },
   "invoices.ecf_status.error": {
     "es": "Error al enviar",
