@@ -17,4 +17,11 @@ export const REPORTS_PERMISSIONS = {
 
   /** Aggregated sales intelligence. */
   BI_VIEW: 'bi:view',
+
+  /**
+   * The document relationship map — SAP's «Mapa de relaciones»: the whole chain a document belongs
+   * to, across modules. A view permission because it is read-only and crosses domains; held here,
+   * with the other cross-module reads, because the map is a `reportes` concern.
+   */
+  RELATIONSHIP_MAP_VIEW: 'relationship_map:view',
 } as const;

@@ -24,6 +24,11 @@
     "en": "Notifications",
     "pt": "Notificações"
   },
+  "nav.resize_sidebar": {
+    "es": "Cambiar el ancho de la navegación",
+    "en": "Resize navigation",
+    "pt": "Redimensionar a navegação"
+  },
   "nav.settings": {
     "es": "Configuración",
     "en": "Settings",

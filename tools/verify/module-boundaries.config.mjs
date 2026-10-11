@@ -99,6 +99,9 @@ export const MODULE_OF_FOLDER = {
   overview: 'reportes',
   datasheets: 'reportes',
   'my-work': 'reportes',
+  // SAP's «Mapa de relaciones»: a cross-module read of the document chain. Owns no tables and
+  // imports no domain — reaches document links through the global DataSource and TypeORM metadata.
+  'relationship-map': 'reportes',
 
   // ── Configuración / Administración ────────────────────────────────────────────────────────────
   localization: 'configuracion',

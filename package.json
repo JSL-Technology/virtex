@@ -139,6 +139,8 @@
     "@fastify/helmet": "^13.0.2",
     "@fastify/multipart": "^9.3.0",
     "@fastify/static": "^10.1.5",
+    "@foblex/2d": "^1.2.2",
+    "@foblex/flow": "^19.3.0",
     "@handsontable/angular-wrapper": "^17.1.0",
     "@keyv/redis": "^4.6.0",
     "@nestjs-modules/mailer": "^2.0.2",

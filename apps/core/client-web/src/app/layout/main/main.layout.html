@@ -46,12 +46,29 @@
 -->
 <app-module-rail></app-module-rail>
 
-<aside class="main-sidebar">
+<aside class="main-sidebar" #sidebarEl>
   <div class="logo-container">
     <app-company-switcher></app-company-switcher>
   </div>
 
   <app-sidebar />
+
+  <!--
+    Borde arrastrable para cambiar el ancho de la navegación, como en VS Code. Doble clic restaura
+    el ancho por defecto. Se oculta en modo cajón (pantallas estrechas), donde el ancho lo fija el
+    propio cajón y no la rejilla.
+  -->
+  <vx-resize-handle
+    class="sidebar-resizer"
+    [target]="sidebarEl"
+    [min]="SIDEBAR_MIN"
+    [max]="SIDEBAR_MAX"
+    [ariaLabel]="'nav.resize_sidebar' | translate"
+    (resizeStart)="onSidebarResizeStart()"
+    (sizeChange)="onSidebarResize($event)"
+    (resizeEnd)="onSidebarResizeEnd()"
+    (resetSize)="sidebarResize.reset()"
+  />
 </aside>
 
 <header class="main-topbar" (dblclick)="onTitlebarDoubleClick($event)">

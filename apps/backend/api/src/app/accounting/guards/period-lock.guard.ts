@@ -1,10 +1,11 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { AccountingPeriod, ModuleSlug } from '../entities/accounting-period.entity';
 import { AccountPeriodLock } from '../entities/account-period-lock.entity';
 import { ForbiddenError } from '../../i18n/localized.exception';
 import { resolvePostingPeriod } from '../period-status';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /**
  * Refuses a request whose document date falls in a closed period or touches a locked account.
@@ -35,6 +36,7 @@ export class PeriodLockGuard implements CanActivate {
     private readonly periodRepo: Repository<AccountingPeriod>,
     @InjectRepository(AccountPeriodLock)
     private readonly lockRepo: Repository<AccountPeriodLock>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -71,38 +73,51 @@ export class PeriodLockGuard implements CanActivate {
     // posting needs, and a guard that rejected the very date the service would accept would be a
     // false wall. This guard only fronts state-changing posting routes, so opening the calendar
     // here is the same idempotent write the service would do a moment later, just earlier.
-    const period = await resolvePostingPeriod(
-      this.periodRepo.manager,
-      organizationId,
-      transactionDate,
-      ModuleSlug.GL,
-      { createIfMissing: true },
-    );
+    // Under its own tenant connection, because a guard has none.
+    //
+    // `TenantConnectionInterceptor` is an `APP_INTERCEPTOR`, and in Nest every interceptor runs
+    // AFTER every guard — so `app.current_organization` is not set on any pooled connection yet
+    // when this runs. Left to the default manager, the period read returned nothing (the row-level
+    // policies hide every row without a tenant), the guard then took `createIfMissing` to be true
+    // and tried to open a fiscal year the tenant already had, and the INSERT was refused with «new
+    // row violates row-level security policy for table "fiscal_years"» — a 500 on the first invoice
+    // of a perfectly provisioned company. The same shape a background job faces, solved the same
+    // way (see `extension-scope.guard.ts`): establish the tenant on a dedicated connection for the
+    // span of this check.
+    return runAsTenantJob(this.dataSource, organizationId, async () => {
+      const period = await resolvePostingPeriod(
+        this.periodRepo.manager,
+        organizationId,
+        transactionDate,
+        ModuleSlug.GL,
+        { createIfMissing: true },
+      );
 
-    const accountIds = ((body?.lines ?? []) as Array<{ accountId?: string }>)
-      .map((line) => line.accountId)
-      .filter((id): id is string => Boolean(id));
+      const accountIds = ((body?.lines ?? []) as Array<{ accountId?: string }>)
+        .map((line) => line.accountId)
+        .filter((id): id is string => Boolean(id));
 
-    if (accountIds.length === 0) return true;
+      if (accountIds.length === 0) return true;
 
-    // `innerJoinAndSelect`, so `lock.account` is actually populated and the message below can name
-    // the account instead of dereferencing undefined.
-    const lockedAccount = await this.lockRepo
-      .createQueryBuilder('lock')
-      .innerJoinAndSelect('lock.account', 'account')
-      .where('lock.periodId = :periodId', { periodId: period.id })
-      .andWhere('lock.organizationId = :organizationId', { organizationId })
-      .andWhere('lock.accountId IN (:...accountIds)', { accountIds })
-      .andWhere('lock.isLocked = true')
-      .getOne();
+      // `innerJoinAndSelect`, so `lock.account` is actually populated and the message below can name
+      // the account instead of dereferencing undefined.
+      const lockedAccount = await this.lockRepo
+        .createQueryBuilder('lock')
+        .innerJoinAndSelect('lock.account', 'account')
+        .where('lock.periodId = :periodId', { periodId: period.id })
+        .andWhere('lock.organizationId = :organizationId', { organizationId })
+        .andWhere('lock.accountId IN (:...accountIds)', { accountIds })
+        .andWhere('lock.isLocked = true')
+        .getOne();
 
-    if (lockedAccount) {
-      throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
-        code: lockedAccount.account?.code ?? lockedAccount.accountId,
-        name: period.name,
-      });
-    }
+      if (lockedAccount) {
+        throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
+          code: lockedAccount.account?.code ?? lockedAccount.accountId,
+          name: period.name,
+        });
+      }
 
-    return true;
+      return true;
+    });
   }
 }

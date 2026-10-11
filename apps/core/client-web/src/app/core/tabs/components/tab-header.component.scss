@@ -11,9 +11,9 @@
   gap: var(--space-2);
   width: 100%;
   height: 100%;
-  padding: 0 0.5rem 0 0.875rem;
+  padding: 0 0.4rem 0 0.75rem;
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--content-secondary);
   cursor: pointer;
   user-select: none;
 }
@@ -22,8 +22,8 @@
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  color: var(--text-tertiary);
-  transition: color 0.15s ease;
+  color: var(--content-tertiary);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 .tab-title {
@@ -34,12 +34,26 @@
   white-space: nowrap;
   font-weight: var(--font-medium);
   letter-spacing: -0.005em;
+  color: var(--content-secondary);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
-/* Énfasis de la pestaña activa: título más marcado e icono con acento. */
+/* Hover de una pestaña inactiva: el título se aviva. Es la señal de que la
+   pestaña responde, antes de llegar a pulsarla. */
+.tab-header:hover .tab-title {
+  color: var(--content-primary);
+}
+
+/* Activa (la pestaña visible del grupo, marcada por Dockview): título más
+   marcado e icono con el acento de marca. */
 :host-context(.dv-active-tab) {
-  .tab-title { color: var(--text-primary); font-weight: var(--font-semibold); }
-  .tab-icon { color: var(--accent-primary); }
+  .tab-title {
+    color: var(--content-primary);
+    font-weight: var(--font-semibold);
+  }
+  .tab-icon {
+    color: var(--accent-text);
+  }
 }
 
 .tab-badge {
@@ -54,7 +68,7 @@
   font-weight: var(--font-bold);
   line-height: 1;
   color: var(--content-inverse);
-  background: var(--accent-primary);
+  background: var(--accent-solid);
   border-radius: var(--radius-full);
 }
 
@@ -62,8 +76,8 @@
   flex-shrink: 0;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  background: var(--accent-primary);
+  border-radius: var(--radius-full);
+  background: var(--accent-solid);
 }
 
 .tab-close {
@@ -71,30 +85,47 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  margin-left: 0.1rem;
+  width: 20px;
+  height: 20px;
+  margin-left: 0.05rem;
   padding: 0;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-tertiary);
+  color: var(--content-tertiary);
   cursor: pointer;
-  opacity: 0.65;
-  transition: all 0.15s ease;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 
   &:hover {
-    opacity: 1;
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    background: var(--surface-sunken);
+    color: var(--content-primary);
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 }
 
-/* La pestaña dirty oculta su botón de cierre y muestra el punto; al pasar el
-   ratón, el punto cede su lugar al botón de cierre. */
-.tab-header.is-dirty {
-  &:hover .tab-dirty-dot { display: none; }
-  &:not(:hover) .tab-close { display: none; }
+/* El botón de cierre se revela al pasar el ratón o en la pestaña activa; en el
+   resto permanece oculto, para no llenar la franja de «×» y dejar respirar los
+   títulos. */
+.tab-header:hover .tab-close,
+:host-context(.dv-active-tab) .tab-close {
+  opacity: 1;
+}
+
+/* Cambios sin guardar: un punto en reposo que cede su sitio al botón de cierre
+   al pasar el ratón (igual que VS Code), sea la pestaña activa o no. */
+.tab-header.is-dirty:not(:hover) .tab-close {
+  opacity: 0;
+}
+.tab-header.is-dirty:hover .tab-dirty-dot {
+  display: none;
 }
 
 /* Vista previa (efímera, estilo VS Code): título en cursiva. Doble clic en la

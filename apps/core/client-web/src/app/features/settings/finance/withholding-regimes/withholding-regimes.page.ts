@@ -185,8 +185,6 @@ export class WithholdingRegimesPage implements OnInit {
   }
 
   capabilityKey(capability: string): string {
-    return `SETTINGS.PAGES.WITHHOLDING.CAPABILITY_${capability
-      .replace(/([A-Z])/g, '_$1')
-      .toUpperCase()}`;
+    return composeKey('settings.pages.withholding.capability', capability);
   }
 }

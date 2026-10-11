@@ -1,6 +1,7 @@
 import { EnvironmentProviders, inject, provideEnvironmentInitializer } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LanguageService } from '../services/language';
 
 /**
  * Highcharts in the reader's language.
@@ -69,9 +70,14 @@ export function provideChartLanguage(): EnvironmentProviders {
   return provideEnvironmentInitializer(() => {
     const translate = inject(TranslateService);
     const locale = inject(LocaleStore);
+    const language = inject(LanguageService);
     const run = () => void apply(translate, locale.locale()).catch(() => undefined);
     translate.onLangChange.subscribe(run);
     translate.onTranslationChange.subscribe(run);
-    if (translate.currentLang) run();
+    // Apply immediately only once a catalogue is actually loaded. Reading it through `instant()`
+    // before the lazy loader resolves sets every Highcharts label to its raw key and logs a
+    // missing-translation warning for each (QA: the `charts.*` noise at startup). On a cold start
+    // `ready()` is false and the `onLangChange` from `preload()` re-applies with the real strings.
+    if (language.ready()) run();
   });
 }

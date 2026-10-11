@@ -219,6 +219,16 @@
   }
 }
 
+//  Durante el arrastre del borde de la navegación: la rejilla sigue al puntero
+//  al instante (sin la transición que suaviza los cambios de modo), y toda la
+//  ventana muestra el cursor de redimensionar sin seleccionar texto por el
+//  camino.
+:host.is-resizing {
+  transition: none;
+  cursor: col-resize;
+  user-select: none;
+}
+
 // --- BARRA LATERAL (SIDEBAR) ---
 .main-sidebar {
   flex-direction: column;
@@ -1505,6 +1515,12 @@ app-status-bar {
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1200;
     box-shadow: var(--shadow-lg);
+  }
+
+  //  En modo cajón el ancho lo fija el propio cajón, no la rejilla: el tirador
+  //  de redimensionar no aplica y se oculta.
+  .sidebar-resizer {
+    display: none;
   }
 
   :host.sidebar-open .main-sidebar {

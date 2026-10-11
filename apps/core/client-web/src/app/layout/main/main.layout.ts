@@ -101,7 +101,9 @@ import { DesktopWindowService } from '../../core/windows/desktop-window.service'
 import { VxSpinnerComponent } from '../../shared/components/feedback';
 import { VxKbdComponent } from '../../shared/components/kbd';
 import { ShortcutsDialogComponent } from '../../shared/components/shortcuts-dialog';
+import { VxResizeHandleComponent } from '../../shared/components/resize-handle';
 import { ShortcutsService } from '../../core/keyboard/shortcuts.service';
+import { SidebarResizeService } from '../../core/services/sidebar-resize.service';
 
 import { CanOpenDirective } from '../../core/modules/can-open.directive';
 import { requiredPermissionsFor } from '../../core/modules/module-manifest';
@@ -126,7 +128,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
     StatusBarComponent,
     ModuleRailComponent,
     CanOpenDirective,
-    ...FORMAT_PIPES, VxSpinnerComponent, VxKbdComponent, ShortcutsDialogComponent], // ✅ Directiva añadida a los imports
+    ...FORMAT_PIPES, VxSpinnerComponent, VxKbdComponent, ShortcutsDialogComponent, VxResizeHandleComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -301,7 +303,37 @@ export class MainLayout implements OnInit {
     if (this.desktop.isDesktop()) classes.push('desktop');
     if (this.desktop.isMac()) classes.push('platform-mac');
     if (this.desktop.isWindows()) classes.push('platform-windows');
+    // While dragging the sidebar edge, the grid-template-columns transition is suspended so the
+    // column tracks the pointer instead of easing toward each new width (which would feel laggy).
+    if (this.isResizing()) classes.push('is-resizing');
     return classes.join(' ');
+  }
+
+  /**
+   * The chosen sidebar width, written to the grid's `--panel-width`. `null` while the reader has
+   * not resized, so the responsive CSS defaults keep deciding (see SidebarResizeService).
+   */
+  @HostBinding('style.--panel-width')
+  get panelWidth(): string | null {
+    return this.sidebarResize.widthStyle();
+  }
+
+  // ── Sidebar resize ──────────────────────────────────────────────────────────
+  protected readonly sidebarResize = inject(SidebarResizeService);
+  protected readonly SIDEBAR_MIN = SidebarResizeService.MIN;
+  protected readonly SIDEBAR_MAX = SidebarResizeService.MAX;
+  protected readonly isResizing = signal(false);
+
+  onSidebarResizeStart(): void {
+    this.isResizing.set(true);
+  }
+
+  onSidebarResize(width: number): void {
+    this.sidebarResize.setWidth(width);
+  }
+
+  onSidebarResizeEnd(): void {
+    this.isResizing.set(false);
   }
 
   stopImpersonation(): void {

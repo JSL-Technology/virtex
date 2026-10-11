@@ -1,0 +1,58 @@
+// =============================================================================
+//  VX-RESIZE-HANDLE
+// =============================================================================
+//  A thin, invisible grip over a panel's edge. It shows a 2px accent line only
+//  while hovered, focused or dragging — the rest of the time the edge stays
+//  clean, exactly like VS Code. The host positions it (the parent must be
+//  `position: relative`); the grip only decides how it looks and behaves.
+// =============================================================================
+
+:host {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  z-index: 110;
+  cursor: col-resize;
+  //  Un arrastre táctil sobre la asa redimensiona; no desplaza la página.
+  touch-action: none;
+  //  El propio tirador no se selecciona ni resalta como texto al arrastrar.
+  user-select: none;
+}
+
+:host(.vx-resize-handle--end) {
+  right: -3px;
+}
+
+:host(.vx-resize-handle--start) {
+  left: -3px;
+}
+
+//  La línea de acento. Centrada en el tirador, aparece con una leve demora al
+//  pasar el ratón —para no parpadear cuando el cursor solo cruza por encima— y
+//  al instante cuando se arrastra o se enfoca con el teclado.
+:host::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background-color: var(--accent-solid);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+  transition-delay: 0.15s;
+  pointer-events: none;
+}
+
+:host(:hover)::before,
+:host(.is-active)::before,
+:host(:focus-visible)::before {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+:host(:focus-visible) {
+  outline: none;
+}

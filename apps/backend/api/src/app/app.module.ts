@@ -75,6 +75,7 @@ import { SearchModule } from './search/search.module';
 import { MyWorkModule } from './my-work/my-work.module';
 import { OverviewModule } from './overview/overview.module';
 import { DocumentsModule } from './documents/documents.module';
+import { RelationshipMapModule } from './relationship-map/relationship-map.module';
 import { LocalizationModule } from './localization/localization.module';
 import { UnitsOfMeasureModule } from './units-of-measure/units-of-measure.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -358,7 +359,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     IdempotencyModule,
     TenancyModule,
     ExtensionsModule,
-    PosModule
+    PosModule,
+    RelationshipMapModule
   ],
   providers: [
     {

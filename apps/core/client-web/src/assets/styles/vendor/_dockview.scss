@@ -122,14 +122,32 @@
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     overflow: hidden;
 
-    transition: background-color var(--duration-fast) var(--ease-standard),
-                border-color var(--duration-fast) var(--ease-standard);
+    transition: background-color var(--duration-fast) var(--ease-standard);
 
-    //  Divisor entre pestañas. Sin él, dos pestañas inactivas contiguas se leen
-    //  como una sola franja. Es una línea corta y centrada —no un borde de altura
-    //  completa— para convivir con las esquinas redondeadas y con el borde de la
-    //  pestaña activa. Se dibuja en el borde derecho de cada pestaña salvo la
-    //  última.
+    //  Barra de acento de la pestaña activa. Vive en TODAS las pestañas pero
+    //  contraída e invisible; al activarse se despliega con un pequeño rebote, de
+    //  modo que el acento «entra» deslizándose al cambiar de pestaña en vez de
+    //  aparecer de golpe. Un detalle de movimiento, no una línea estática.
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10px;
+      right: 10px;
+      height: 2px;
+      background-color: var(--accent-solid);
+      border-radius: 0 0 var(--radius-full) var(--radius-full);
+      opacity: 0;
+      transform: scaleX(0.35);
+      transition:
+        opacity var(--duration-fast) var(--ease-standard),
+        transform var(--duration-normal) var(--ease-spring);
+      pointer-events: none;
+    }
+
+    //  Divisor entre pestañas, al estilo de Chrome: una línea CORTA y TENUE —no un
+    //  borde de altura completa— que separa dos pestañas inactivas sin ensuciar la
+    //  franja. Se dibuja al borde derecho de cada pestaña salvo la última.
     &:not(:last-child)::after {
       content: '';
       position: absolute;
@@ -137,8 +155,8 @@
       right: 0;
       transform: translateY(-50%);
       width: 1px;
-      height: 20px;
-      background-color: var(--border-default);
+      height: 14px;
+      background-color: var(--border-subtle);
       transition: opacity var(--duration-fast) var(--ease-standard);
     }
 
@@ -153,9 +171,9 @@
   }
 
   //  El divisor se retira donde ya hay otra señal de separación: junto a la
-  //  pestaña activa (que lleva borde propio) y al pasar el ratón (que pinta
-  //  fondo). Dos separadores a la vez se ven sucios. `:has()` cubre también la
-  //  pestaña que precede a la activa o a la señalada por el ratón.
+  //  pestaña activa (que tiene su propia superficie) y al pasar el ratón (que
+  //  pinta fondo). Dos separadores a la vez se ven sucios. `:has()` cubre también
+  //  la pestaña que precede a la activa o a la señalada por el ratón.
   .dv-tabs-container > .dv-tab:hover::after,
   .dv-tabs-container > .dv-tab.dv-active-tab::after,
   .dv-tabs-container > .dv-tab:has(+ .dv-tab:hover)::after,
@@ -163,12 +181,20 @@
     opacity: 0;
   }
 
-  //  Pestaña activa: adopta la superficie del contenido y se une visualmente al
-  //  panel; la barra de acento superior indica cuál está en primer plano.
+  //  Pestaña activa: adopta la superficie del panel —sin borde, al estilo de un
+  //  editor moderno— de modo que su contraste con la franja la eleva como una
+  //  tarjeta, y el acento superior (arriba) se despliega para señalarla.
   .dv-tab.dv-active-tab {
     background-color: var(--surface-base);
-    border-color: var(--border-subtle);
-    box-shadow: inset 0 2px 0 0 var(--accent-solid);
+
+    &::before {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    &:hover {
+      background-color: var(--surface-base);
+    }
   }
 }
 
