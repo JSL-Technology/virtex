@@ -54,7 +54,6 @@
   .verification img { width: 34mm; height: 34mm; }
   .verification .code { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; letter-spacing: .12em; }
   .verification .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: .08em; color: #555; }
-  .verification .url { font-size: 7.5px; word-break: break-all; color: #444; }
 
   table.totals { min-width: 68mm; border-collapse: collapse; }
   table.totals td { padding: 3px 6px; }
@@ -91,7 +90,7 @@
       </div>
     {{else}}
       <div class="fiscal-box">
-        <div class="doc-title">{{t 'invoice.pdf.electronic_title' title=title}}</div>
+        <div class="doc-title">{{#if fiscal.electronic}}{{t 'invoice.pdf.electronic_title' title=title}}{{else}}{{title}}{{/if}}</div>
         <div class="ncf">{{fiscal.ncf}}</div>
         <div class="meta">
           {{#if fiscal.validUntil}}{{t 'invoice.pdf.valid_until' date=fiscal.validUntil}}<br>{{/if}}
@@ -147,7 +146,7 @@
   </table>
 
   <div class="footer-grid">
-    {{#unless fiscal.isDraft}}
+    {{#if fiscal.electronic}}
     <div class="verification">
       <div class="label">{{t 'invoice.pdf.dgii_verification'}}</div>
       {{#if fiscal.qrDataUri}}
@@ -157,9 +156,8 @@
         <div class="label" style="margin-top:4px">{{t 'invoice.pdf.security_code'}}</div>
         <div class="code">{{fiscal.securityCode}}</div>
       {{/if}}
-      {{#if fiscal.qrUrl}}<div class="url">{{fiscal.qrUrl}}</div>{{/if}}
     </div>
-    {{/unless}}
+    {{/if}}
 
     <div style="margin-left:auto">
       <table class="totals">
@@ -182,11 +180,13 @@
   {{/if}}
 
   <div class="legal">
-    {{#unless fiscal.isDraft}}
+    {{#if fiscal.electronic}}
       {{t 'invoice.pdf.legal_issued'}}
-    {{else}}
+    {{else if fiscal.traditionalNcf}}
+      {{t 'invoice.pdf.legal_issued_traditional'}}
+    {{else if fiscal.isDraft}}
       {{t 'invoice.pdf.legal_draft'}}
-    {{/unless}}
+    {{/if}}
   </div>
 
 </div>

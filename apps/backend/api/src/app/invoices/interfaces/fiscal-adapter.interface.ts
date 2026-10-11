@@ -35,6 +35,11 @@ export interface FiscalDocumentTypeOption {
    * require it; a consumo document does not. The UI needs to know before the server refuses.
    */
   requiresBuyerTaxId: boolean;
+  /**
+   * Signed and transmitted to the authority (an e-CF), as opposed to a traditional numbered
+   * document. Absent in a market where the distinction does not exist.
+   */
+  electronic?: boolean;
 }
 
 export interface FiscalAssignmentContext {
@@ -49,7 +54,17 @@ export interface FiscalAssignmentContext {
    * tenant chooses between an afecta (33) and an exenta (34).
    */
   requestedType?: string | null;
+  /**
+   * The series to draw from when no type is requested, in a market with more than one — the
+   * Dominican traditional NCF (`B`) and electronic e-CF (`E`). Chosen by the caller from the
+   * company's emission mode, its live ranges and whether it can sign (see
+   * `InvoicesService.automaticSeries`). Absent: the adapter's own default.
+   */
+  series?: FiscalSeries | null;
 }
+
+/** A Dominican numbering series: traditional NCF (`B`) or electronic e-CF (`E`). */
+export type FiscalSeries = 'B' | 'E';
 
 /**
  * Assigns a document its fiscal identity for one market.

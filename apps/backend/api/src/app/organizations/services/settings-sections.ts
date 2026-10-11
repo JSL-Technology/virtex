@@ -1,5 +1,6 @@
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
+import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 
 /**
  * The organization's settings, by the section of «Configuración» that edits them (QA M-09).
@@ -93,6 +94,11 @@ export const SETTINGS_SECTIONS = {
         true,
       ),
     },
+  },
+  // How the company issues its comprobantes: traditional NCF, electronic e-CF, or both.
+  fiscal: {
+    accounts: {},
+    fields: { fiscalEmissionMode: enumField(FISCAL_EMISSION_MODES) },
   },
   closing: {
     accounts: { defaultRetainedEarningsAccountId: 'EQUITY' },

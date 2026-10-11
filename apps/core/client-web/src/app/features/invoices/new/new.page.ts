@@ -147,11 +147,47 @@ export class NewInvoicePage implements OnInit {
    * this file — which is why no other market could present a type even after its adapter existed.
    * The server names each type with a translation key and the catalogue holds the wording.
    */
-  fiscalTypes = computed(() => {
-    // The ones the tenant can number come first; the rest follow, disabled (QA U57).
-    const types = this.context()?.fiscalDocumentTypes ?? [];
-    return [...types.filter((t) => t.available !== false), ...types.filter((t) => t.available === false)];
+  fiscalTypes = computed(() => this.context()?.fiscalDocumentTypes ?? []);
+
+  /**
+   * The types, grouped where the market has two kinds — electronic (e-CF) and traditional (NCF) —
+   * and within each group the ones the company can issue now first. The rest stay visible but
+   * disabled, each saying what it lacks («sin rango vigente», «falta el certificado»), because a
+   * missing option explains nothing and an enabled one that fails on «Issue» explains it too late
+   * (QA U57).
+   */
+  fiscalTypeGroups = computed(() => {
+    const types = this.fiscalTypes();
+    const ordered = (list: typeof types) => [
+      ...list.filter((t) => t.issuable !== false && t.available !== false),
+      ...list.filter((t) => t.issuable === false || t.available === false),
+    ];
+    const electronic = types.filter((t) => t.electronic === true);
+    const traditional = types.filter((t) => t.electronic === false);
+    const unclassified = types.filter((t) => t.electronic === undefined);
+    return [
+      { labelKey: 'invoices.new.fiscal_group_electronic', types: ordered(electronic) },
+      { labelKey: 'invoices.new.fiscal_group_traditional', types: ordered(traditional) },
+      { labelKey: null, types: ordered(unclassified) },
+    ].filter((group) => group.types.length > 0);
   });
+
+  /** What «automatic» will issue, in words: the series the server will draw from. */
+  automaticTypeLabelKey = computed(() => {
+    switch (this.context()?.automaticSeries) {
+      case 'B':
+        return 'invoices.new.automatic_traditional';
+      case 'E':
+        return 'invoices.new.automatic_electronic';
+      default:
+        return 'invoices.new.automatic_according_buyer';
+    }
+  });
+
+  /** A type that cannot be issued now, and why — the reason is a catalogue key from the server. */
+  fiscalTypeBlocked(type: { issuable?: boolean; available?: boolean }): boolean {
+    return type.issuable === false || type.available === false;
+  }
 
   /** Tax rates the market levies, for the per-line selector. */
   taxRates = computed(() => this.context()?.taxRates ?? []);

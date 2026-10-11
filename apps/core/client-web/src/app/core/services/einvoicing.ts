@@ -32,13 +32,20 @@ export interface EcfCertificateView {
   serialNumber?: string;
   notBefore?: string;
   notAfter?: string;
+  /** RNC or cédula the certificate was issued to, digits only. */
+  holderTaxId?: string | null;
+  /** `company`: issued to the company's RNC. `person`: to an authorised person's cédula. */
+  holderKind?: 'company' | 'person' | null;
+  issuerCommonName?: string | null;
+  /** Self-signed test certificate, accepted only in development. */
+  isTest?: boolean;
   isActive: boolean;
   expired: boolean;
   createdAt: string;
 }
 
 export type NcfType =
-  | 'B01' | 'B02' | 'B03' | 'B04' | 'B11' | 'B15'
+  | 'B01' | 'B02' | 'B03' | 'B04' | 'B11' | 'B13' | 'B14' | 'B15' | 'B16' | 'B17'
   | 'E31' | 'E32' | 'E33' | 'E34' | 'E41' | 'E43' | 'E44' | 'E45' | 'E46' | 'E47';
 
 export interface NcfSequenceView {

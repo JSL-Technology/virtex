@@ -1,130 +1,333 @@
+// Comprobantes fiscales: how the company issues, its ranges, its certificate.
+// Built on the design tokens directly so it reads like every other settings page: a padded page
+// with its header aligned to the cards (QA U30), states as badges (QA U31), one field grid in which
+// every control has the same height and label (QA U34).
+
 .fiscal-page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 960px;
+  gap: var(--space-6);
+  max-width: 1040px;
+  padding: var(--space-8);
+
+  @media (max-width: 640px) {
+    padding: var(--space-4);
+  }
 }
 
 .page-header {
-  h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
-  p { margin: 0; color: var(--content-secondary); }
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-default);
+
+  &__title {
+    margin: 0 0 var(--space-1);
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--content-primary);
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 70ch;
+    color: var(--content-secondary);
+    font-size: var(--text-md);
+  }
 }
 
 .card {
   background: var(--surface-raised);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 
-  h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
-  .hint { margin: 0 0 1rem; color: var(--content-secondary); font-size: 0.9rem; }
+  &__head {
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  &__subtitle {
+    margin: var(--space-1) 0 0;
+    max-width: 75ch;
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+
+  &__body {
+    padding: var(--space-5) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
 }
 
-.form-grid {
+// ── Emission mode: three cards, one chosen ─────────────────────────────────────
+.mode-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+.mode-choice {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+
+  &--selected {
+    border-color: var(--accent-solid);
+    background: var(--accent-surface);
+  }
+
+  &:focus-within {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  input {
+    margin-top: 3px;
+    accent-color: var(--accent-solid);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  &__title {
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  &__description {
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+}
+
+.issue-state {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+
+  &__lead {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--content-secondary);
+
+    &--blocked {
+      color: var(--warning-text);
+    }
+  }
+
+  &__types {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  &__missing {
+    margin: 0;
+    padding-inline-start: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--content-primary);
+  }
+}
+
+// ── Forms: one grid, every control the same height, the label above it ───────────
+.range-form,
+.certificate-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+
+  &--wide {
+    grid-column: span 2;
+
+    @media (max-width: 640px) {
+      grid-column: auto;
+    }
+  }
+
+  label,
+  &__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--content-secondary);
+  }
+
+  input,
+  select {
+    width: 100%;
+  }
+}
+
+.range-form__actions,
+.certificate-form__actions {
+  display: flex;
   align-items: flex-end;
-  margin-bottom: 1rem;
+}
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    font-size: 0.85rem;
-    min-width: 160px;
-
-    span { color: var(--content-secondary); }
-
-    input, select {
-      padding: 0.5rem 0.6rem;
-      border: 1px solid var(--border-default);
-      border-radius: 8px;
-      background: var(--surface-base);
-      color: inherit;
-    }
-  }
-
-  // Same column as a wrapping label, for a control the label cannot wrap (`vx-date-field`).
-  .range-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    min-width: 160px;
-
-    label {
-      min-width: 0;
-      color: var(--content-secondary);
-    }
-  }
-
-  button {
-    padding: 0.55rem 1.1rem;
-    border: none;
-    border-radius: 8px;
-    background: var(--accent-solid);
-    color: var(--accent-on-solid);
-    cursor: pointer;
-    &:disabled { opacity: 0.6; cursor: default; }
-  }
+// ── Tables ─────────────────────────────────────────────────────────────────────
+.table-scroll {
+  overflow-x: auto;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 
-  th, td {
+  th,
+  td {
     text-align: left;
-    padding: 0.5rem 0.6rem;
+    padding: var(--space-2) var(--space-3);
     border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
   }
-  th { color: var(--content-secondary); font-weight: 600; }
 
-  td.expired { color: var(--error-text); }
+  th {
+    color: var(--content-secondary);
+    font-weight: var(--font-semibold);
+    white-space: nowrap;
+  }
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  td.expired {
+    color: var(--error-text);
+  }
+
+  .actions {
+    text-align: right;
+  }
+}
+
+.holder {
+  display: block;
+  color: var(--content-primary);
+
+  &__id,
+  &__note {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--content-secondary);
+  }
+}
+
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
 
 .link-danger {
   background: none;
   border: none;
-  color: var(--error-text);
-  cursor: pointer;
   padding: 0;
+  color: var(--error-text);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .empty {
+  margin: 0;
   color: var(--content-secondary);
-  font-style: italic;
 }
 
-/*
-  What the product covers in this tenant's market, per capability.
-
-  Colour carries the level and the text always states it too: a reader who cannot distinguish the
-  border colours must still be able to tell "implemented" from "not implemented".
-*/
+// ── Coverage: reference material, folded away ────────────────────────────────────
 .coverage {
-  &__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+  &__summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: '▸';
+      color: var(--content-tertiary);
+    }
+  }
+
+  &[open] &__summary::before {
+    content: '▾';
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+  }
 
   &__row {
     display: grid;
-    grid-template-columns: minmax(10rem, auto) minmax(9rem, auto) 1fr;
-    gap: .5rem 1rem;
-    padding: .5rem .75rem;
-    border-left: 3px solid var(--border-color);
-    font-size: .8125rem;
-    color: var(--text-secondary);
+    grid-template-columns: minmax(10rem, 1fr) auto;
+    align-items: center;
+    gap: var(--space-1) var(--space-4);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--text-sm);
 
-    &--implemented { border-left-color: var(--success-text, var(--text-primary)); }
-    &--needs-credentials { border-left-color: var(--warning-text, var(--text-secondary)); }
-    &--not-implemented { border-left-color: var(--error-text); }
+    &:last-child {
+      border-bottom: 0;
+    }
   }
 
-  &__capability { font-weight: 600; color: var(--text-primary); }
-  &__level { font-weight: 600; }
-  &__detail, &__requires { grid-column: 1 / -1; }
-  &__requires { font-style: italic; }
+  &__capability {
+    font-weight: var(--font-medium);
+    color: var(--content-primary);
+  }
 
-  /* A tenant who is not Dominican has landed on the wrong page; say so before the forms. */
-  &__elsewhere { margin-bottom: .75rem; font-weight: 600; }
+  &__detail {
+    grid-column: 1 / -1;
+    color: var(--content-secondary);
+  }
+}
+
+.footnote {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
 }

@@ -1,172 +1,273 @@
 <div class="fiscal-page">
   <header class="page-header">
-    <h1>{{ 'settings.fiscal.do.page_title' | translate }}</h1>
-    <p>{{ 'settings.fiscal.do.page_description' | translate }}</p>
+    <h1 class="page-header__title">{{ 'settings.fiscal.do.page_title' | translate }}</h1>
+    <p class="page-header__subtitle">{{ 'settings.fiscal.do.page_description' | translate }}</p>
   </header>
 
-  <!--
-    What the product covers in the tenant's market, per capability.
+  @if (!isDominican()) {
+    <!-- A tenant in another market has landed on the Dominican page: say so before the forms. -->
+    <div class="banner-info" role="status">
+      {{ 'settings.fiscal.screen_configures_dominican_regime_your_market' | translate }}
+    </div>
+  }
 
-    This page configures the Dominican regime. A tenant in another market who reaches it needs to
-    be told that before reading a form that does not apply to them, and pointed at the page that
-    does — which is what the notice below does.
-  -->
-  @if (coverage(); as market) {
-    <section class="card coverage">
-      <h2>{{ 'settings.fiscal.what_product_covers_country' | translate: { country: market.countryCode } }}</h2>
-      @if (!isDominican()) {
-        <p class="hint coverage__elsewhere">
-          {{ 'settings.fiscal.screen_configures_dominican_regime_your_market' | translate }}
-        </p>
-      }
-      <ul class="coverage__list">
-        @for (capability of market.capabilities; track capability.capability) {
-          <li [class]="'coverage__row coverage__row--' + capability.level">
-            <span class="coverage__capability">
-              {{ capabilityKey(capability.capability) | translate }}
+  <!-- ── 1. How the company issues ─────────────────────────────────────────────── -->
+  <section class="card" aria-labelledby="mode-title">
+    <div class="card__head">
+      <h2 id="mode-title" class="card__title">{{ 'settings.fiscal.mode.title' | translate }}</h2>
+      <p class="card__subtitle">{{ 'settings.fiscal.mode.subtitle' | translate }}</p>
+    </div>
+    <div class="card__body">
+      <div class="mode-choices" role="radiogroup" aria-labelledby="mode-title">
+        @for (mode of modeChoices; track mode.value) {
+          <label class="mode-choice" [class.mode-choice--selected]="emissionMode() === mode.value">
+            <input
+              type="radio"
+              name="fiscal-emission-mode"
+              [value]="mode.value"
+              [checked]="emissionMode() === mode.value"
+              [disabled]="savingMode()"
+              (change)="setEmissionMode(mode.value)"
+            />
+            <span class="mode-choice__text">
+              <span class="mode-choice__title">{{ mode.titleKey | translate }}</span>
+              <span class="mode-choice__description">{{ mode.descriptionKey | translate }}</span>
             </span>
-            <span class="coverage__level">
-              {{ levelKey(capability.level) | translate }}
-            </span>
-            @if (capability.detail) {
-              <span class="coverage__detail">{{ capability.detail }}</span>
-            }
-            @if (capability.requires) {
-              <span class="coverage__requires">
-                {{ 'settings.fiscal.requires' | translate }}: {{ capability.requires }}
-              </span>
-            }
-          </li>
+          </label>
         }
-      </ul>
+      </div>
+
+      <!-- What the invoice form will let the company issue right now, as the server sees it. -->
+      @if (invoicing(); as state) {
+        <div class="issue-state" aria-live="polite">
+          @if (issuableNow().length) {
+            <p class="issue-state__lead">{{ 'settings.fiscal.mode.can_issue_now' | translate }}</p>
+            <ul class="issue-state__types">
+              @for (type of issuableNow(); track type.code) {
+                <li><vx-badge tone="ok" size="sm">{{ type.labelKey | translate }}</vx-badge></li>
+              }
+            </ul>
+          } @else {
+            <p class="issue-state__lead issue-state__lead--blocked">{{ 'settings.fiscal.mode.cannot_issue_yet' | translate }}</p>
+            <ul class="issue-state__missing">
+              @for (gap of state.missing; track gap) {
+                <li>{{ gap | translate }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ── 2. Authorised ranges (both series) ──────────────────────────────────────── -->
+  <section class="card" aria-labelledby="ranges-title">
+    <div class="card__head">
+      <h2 id="ranges-title" class="card__title">{{ 'settings.fiscal.do.authorized_ncf_ranges' | translate }}</h2>
+      <p class="card__subtitle">{{ 'settings.fiscal.do.ncf_ranges_description' | translate }}</p>
+    </div>
+    <div class="card__body">
+      <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="range-form">
+        <div class="field field--wide">
+          <label for="range-type">{{ 'settings.fiscal.type' | translate }} *</label>
+          <select id="range-type" formControlName="type">
+            @for (group of visibleRangeTypeGroups(); track group.labelKey) {
+              <optgroup [label]="group.labelKey | translate">
+                @for (t of group.types; track t.value) {
+                  <option [value]="t.value">{{ t.labelKey | translate }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="range-prefix">{{ 'settings.fiscal.prefix' | translate }} *</label>
+          <input id="range-prefix" type="text" formControlName="prefix" maxlength="3" />
+        </div>
+        <div class="field">
+          <label for="range-from">{{ 'settings.fiscal.from' | translate }} *</label>
+          <input id="range-from" type="number" formControlName="startsAt" min="1" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="range-to">{{ 'settings.fiscal.to' | translate }} *</label>
+          <input id="range-to" type="number" formControlName="endsAt" min="1" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="range-expires-at">{{ 'settings.fiscal.expires_on' | translate }} *</label>
+          <vx-date-field inputId="range-expires-at" formControlName="expiresAt" />
+        </div>
+        <div class="field">
+          <label for="range-authorization">{{ 'settings.fiscal.authorization_code' | translate }}</label>
+          <input id="range-authorization" type="text" formControlName="authorizationCode" maxlength="64" />
+        </div>
+        <div class="range-form__actions">
+          <button type="submit" class="primary-button" [disabled]="provisioning()">
+            {{ provisioning() ? ('settings.fiscal.registering' | translate) : ('settings.fiscal.register_range' | translate) }}
+          </button>
+        </div>
+      </form>
+
+      @if (sequences().length) {
+        <div class="table-scroll">
+          <table [appSort]="sequencesTable.sort" class="data-table">
+            <thead>
+              <tr>
+                <th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th>
+                <th appSortHeader="startsAt" class="num">{{ 'settings.fiscal.from' | translate }}</th>
+                <th appSortHeader="endsAt" class="num">{{ 'settings.fiscal.to' | translate }}</th>
+                <th appSortHeader="currentSequence" class="num">{{ 'settings.fiscal.current' | translate }}</th>
+                <th appSortHeader="remaining" class="num">{{ 'settings.fiscal.remaining' | translate }}</th>
+                <th appSortHeader="expiresAt" class="nowrap">{{ 'settings.fiscal.expires_on' | translate }}</th>
+                <th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of sequencesTable.rows(); track s.id) {
+                <tr>
+                  <td>{{ ncfTypeLabel(s.type) | translate }}</td>
+                  <td class="num">{{ s.startsAt | vxNumber: '1.0-0' }}</td>
+                  <td class="num">{{ s.endsAt | vxNumber: '1.0-0' }}</td>
+                  <td class="num">{{ s.currentSequence | vxNumber: '1.0-0' }}</td>
+                  <td class="num">{{ remaining(s) | vxNumber: '1.0-0' }}</td>
+                  <td class="nowrap">{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
+                  <td>
+                    @if (rangeWarningKey(s); as warning) {
+                      <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
+                    } @else {
+                      <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
+                        {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+                      </vx-badge>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="empty">{{ 'settings.fiscal.do.no_ncf_ranges_yet' | translate }}</p>
+      }
+    </div>
+  </section>
+
+  <!-- ── 3. Signing certificate (electronic only) ───────────────────────────────── -->
+  <section class="card" aria-labelledby="certificate-title">
+    <div class="card__head">
+      <h2 id="certificate-title" class="card__title">{{ 'settings.fiscal.digital_certificate' | translate }}</h2>
+      <p class="card__subtitle">{{ 'settings.fiscal.do.certificate_description' | translate }}</p>
+    </div>
+    <div class="card__body">
+      @if (!certificateRelevant()) {
+        <p class="empty">{{ 'settings.fiscal.mode.certificate_not_needed' | translate }}</p>
+      } @else {
+        <form [formGroup]="certForm" (ngSubmit)="uploadCertificate()" class="certificate-form">
+          <div class="field">
+            <label for="cert-alias">{{ 'settings.fiscal.alias' | translate }} *</label>
+            <input id="cert-alias" type="text" formControlName="alias" [placeholder]="'settings.fiscal.do.certificate_example_name' | translate" />
+          </div>
+          <div class="field">
+            <label for="cert-password">{{ 'settings.fiscal.certificate_password' | translate }} *</label>
+            <input id="cert-password" type="password" formControlName="password" autocomplete="off" />
+          </div>
+          <div class="field field--wide" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
+            <span class="field__label">{{ 'settings.fiscal.file_p12_pfx' | translate }} *</span>
+            <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
+          </div>
+          <div class="certificate-form__actions">
+            <button type="submit" class="primary-button" [disabled]="uploading()">
+              {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (certificates().length) {
+        <div class="table-scroll">
+          <table [appSort]="certificatesTable.sort" class="data-table">
+            <thead>
+              <tr>
+                <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
+                <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
+                <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
+                <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
+                <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of certificatesTable.rows(); track c.id) {
+                <tr>
+                  <td>{{ c.alias }}</td>
+                  <td>
+                    <span class="holder">{{ c.subjectCommonName || '—' }}</span>
+                    @if (c.holderTaxId) {
+                      <span class="holder__id">
+                        {{ (c.holderKind === 'person' ? 'settings.fiscal.holder_cedula' : 'settings.fiscal.holder_rnc') | translate: { id: c.holderTaxId } }}
+                      </span>
+                    }
+                    @if (c.holderKind === 'person') {
+                      <span class="holder__note">{{ 'settings.fiscal.holder_person_note' | translate }}</span>
+                    }
+                  </td>
+                  <td class="nowrap" [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
+                  <td>
+                    <span class="badges">
+                      <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
+                        {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+                      </vx-badge>
+                      @if (c.isTest) {
+                        <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">
+                          {{ 'settings.fiscal.test_certificate' | translate }}
+                        </vx-badge>
+                      }
+                    </span>
+                  </td>
+                  <td class="actions">
+                    @if (c.isActive) {
+                      <button type="button" class="link-danger" (click)="deactivateCertificate(c.id)">
+                        {{ 'settings.fiscal.turn_off' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (certificateRelevant()) {
+        <p class="empty">{{ 'settings.fiscal.you_have_not_uploaded_certificate_yet' | translate }}</p>
+      }
+    </div>
+  </section>
+
+  <!-- ── 4. What the product covers in this market ─────────────────────────────── -->
+  @if (coverage(); as market) {
+    <section class="card" aria-labelledby="coverage-title">
+      <details class="coverage">
+        <summary class="card__head coverage__summary">
+          <h2 id="coverage-title" class="card__title">
+            {{ 'settings.fiscal.what_product_covers_country' | translate: { country: market.countryCode } }}
+          </h2>
+        </summary>
+        <ul class="coverage__list card__body">
+          @for (capability of market.capabilities; track capability.capability) {
+            <li class="coverage__row">
+              <span class="coverage__capability">{{ capabilityKey(capability.capability) | translate }}</span>
+              <vx-badge [tone]="levelTone(capability.level)" size="sm">{{ levelKey(capability.level) | translate }}</vx-badge>
+              @if (capability.detail) {
+                <span class="coverage__detail">{{ capability.detail }}</span>
+              }
+              @if (capability.requires) {
+                <span class="coverage__detail">{{ 'settings.fiscal.requires' | translate }}: {{ capability.requires }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </details>
     </section>
   }
 
-  <!-- Certificado digital -->
-  <section class="card">
-    <h2>{{ 'settings.fiscal.digital_certificate' | translate }}</h2>
-    <p class="hint">
-      {{ 'settings.fiscal.do.certificate_description' | translate }}
-    </p>
-
-    <form [formGroup]="certForm" (ngSubmit)="uploadCertificate()" class="form-grid">
-      <label>
-        <span>{{ 'settings.fiscal.alias' | translate }}</span>
-        <input type="text" formControlName="alias" [placeholder]="'settings.fiscal.do.certificate_example_name' | translate" />
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.certificate_password' | translate }}</span>
-        <input type="password" formControlName="password" autocomplete="off" />
-      </label>
-      <div class="field" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
-        <span>{{ 'settings.fiscal.file_p12_pfx' | translate }}</span>
-        <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
-      </div>
-      <button type="submit" [disabled]="uploading()">
-        {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
-      </button>
-    </form>
-
-    <table [appSort]="certificatesTable.sort" class="data-table" *ngIf="certificates().length; else noCerts">
-      <thead>
-        <tr><th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th><th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th><th appSortHeader="notAfter">{{ 'settings.fiscal.expires' | translate }}</th><th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th><th></th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of certificatesTable.rows()">
-          <td>{{ c.alias }}</td>
-          <td>{{ c.subjectCommonName || '—' }}</td>
-          <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
-          <td>
-            <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
-              {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-            </vx-badge>
-          </td>
-          <td>
-            <button type="button" class="link-danger" *ngIf="c.isActive" (click)="deactivateCertificate(c.id)">
-              {{ 'settings.fiscal.turn_off' | translate }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #noCerts><p class="empty">{{ 'settings.fiscal.you_have_not_uploaded_certificate_yet' | translate }}</p></ng-template>
-  </section>
-
-  <!-- Secuencias e-NCF -->
-  <section class="card">
-    <h2>{{ 'settings.fiscal.do.authorized_ncf_ranges' | translate }}</h2>
-    <p class="hint">
-      {{ 'settings.fiscal.do.ncf_ranges_description' | translate }}
-    </p>
-
-    <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="form-grid">
-      <label>
-        <span>{{ 'settings.fiscal.type' | translate }}</span>
-        <select formControlName="type">
-          <option *ngFor="let t of ncfTypes" [value]="t.value">{{ t.labelKey | translate }}</option>
-        </select>
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.prefix' | translate }}</span>
-        <input type="text" formControlName="prefix" />
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.from' | translate }}</span>
-        <input type="number" formControlName="startsAt" min="1" />
-      </label>
-      <label>
-        <span>{{ 'settings.fiscal.to' | translate }}</span>
-        <input type="number" formControlName="endsAt" min="1" />
-      </label>
-      <!-- A custom control cannot be wrapped by a label: the label names its inner input by id. -->
-      <div class="range-field">
-        <label for="range-expires-at">{{ 'settings.fiscal.expires_on' | translate }} *</label>
-        <vx-date-field inputId="range-expires-at" formControlName="expiresAt" />
-      </div>
-      <label>
-        <span>{{ 'settings.fiscal.authorization_code' | translate }}</span>
-        <input type="text" formControlName="authorizationCode" maxlength="64" />
-      </label>
-      <button type="submit" [disabled]="provisioning()">
-        {{ provisioning() ? ('settings.fiscal.registering' | translate) : ('settings.fiscal.register_range' | translate) }}
-      </button>
-    </form>
-
-    <table [appSort]="sequencesTable.sort" class="data-table" *ngIf="sequences().length; else noSeq">
-      <thead>
-        <tr><th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th><th appSortHeader="prefix">{{ 'settings.fiscal.prefix' | translate }}</th><th appSortHeader="startsAt">{{ 'settings.fiscal.from' | translate }}</th><th appSortHeader="endsAt">{{ 'settings.fiscal.to' | translate }}</th><th appSortHeader="currentSequence">{{ 'settings.fiscal.current' | translate }}</th><th>{{ 'settings.fiscal.remaining' | translate }}</th><th appSortHeader="expiresAt">{{ 'settings.fiscal.expires_on' | translate }}</th><th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let s of sequencesTable.rows()">
-          <td>{{ ncfTypeLabel(s.type) | translate }}</td>
-          <td>{{ s.prefix }}</td>
-          <td>{{ s.startsAt }}</td>
-          <td>{{ s.endsAt }}</td>
-          <td>{{ s.currentSequence }}</td>
-          <td>{{ remaining(s) }}</td>
-          <td>{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
-          <td>
-            @if (rangeWarningKey(s); as warning) {
-              <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
-            } @else {
-              <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
-                {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-              </vx-badge>
-            }
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #noSeq><p class="empty">{{ 'settings.fiscal.do.no_ncf_ranges_yet' | translate }}</p></ng-template>
-  </section>
-
   <!--
-    The DGII returns moved to Accounting › Reports › Fiscal returns (audit H-08), where each month
-    shows whether its file was generated and filed. This page keeps what the returns depend on: the
-    certificate and the authorised ranges.
+    The DGII returns moved to Accounting › Reports › Fiscal returns (audit H-08).
   -->
-  <section class="card">
-    <h2>{{ 'settings.fiscal.do.dgii_reports_heading' | translate }}</h2>
-    <p class="hint">{{ 'settings.fiscal.do.dgii_reports_moved' | translate }}</p>
-  </section>
+  <p class="footnote">{{ 'settings.fiscal.do.dgii_reports_moved' | translate }}</p>
 </div>

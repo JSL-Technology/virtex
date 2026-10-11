@@ -43,11 +43,14 @@ export interface FiscalDocumentTypeOption {
   labelKey: string;
   /** Whether the buyer's tax identifier is mandatory for this type. */
   requiresBuyerTaxId: boolean;
-  /**
-   * Whether the tenant holds a live range (active, numbers left, not expired) for this type.
-   * Absent where the market numbers nothing; only an explicit `false` means «cannot issue it».
-   */
+  /** Signed and sent to the authority (Dominican e-CF, serie E); false for a traditional NCF. */
+  electronic?: boolean;
+  /** The tenant holds a live range (active, numbers left, not expired) for this type. */
   available?: boolean;
+  /** Available and nothing else missing (an e-CF also needs a certificate): it can be issued now. */
+  issuable?: boolean;
+  /** Catalogue key naming what stands in the way, or null. */
+  blockedBy?: string | null;
 }
 
 export interface InvoiceLineItem {
@@ -208,6 +211,9 @@ export interface PaginatedInvoices {
   pages: number;
 }
 
+/** See `OrganizationSettings.fiscalEmissionMode` on the server. */
+export type FiscalEmissionMode = 'BOTH' | 'ELECTRONIC' | 'TRADITIONAL';
+
 /**
  * What the invoicing screen needs before it can present a correct form.
  *
@@ -225,6 +231,10 @@ export interface InvoicingContext {
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
+  /** Which comprobantes the company issues: traditional NCF, electronic e-CF, or both. */
+  emissionMode?: FiscalEmissionMode;
+  /** The series an invoice with no type chosen is drawn from (`B` or `E`), or null. */
+  automaticSeries?: 'B' | 'E' | null;
   serviceChargeRate: number;
   /**
    * The tenant's default credit period in days, for a customer with no terms of their own.

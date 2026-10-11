@@ -268,6 +268,14 @@ export class InvoiceRendererService implements OnModuleDestroy {
         qrDataUri,
         qrUrl: submission?.qrUrl ?? null,
         isDraft: !invoice.fiscalNumber,
+        // A Dominican e-CF carries the DGII verification (QR, security code) and says it is
+        // electronic; a traditional NCF (serie B) is neither, and printing «FACTURA ELECTRÓNICA»
+        // and an empty «Verificación DGII» box on it misstated what the document is.
+        electronic: invoice.isElectronicFiscalDocument,
+        traditionalNcf:
+          Boolean(invoice.fiscalNumber) &&
+          !invoice.isElectronicFiscalDocument &&
+          (context.organization.country ?? '').toUpperCase() === 'DO',
       },
     });
   }

@@ -478,6 +478,11 @@
     "en": "The document type may contain only letters and digits.",
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
+  "invoices.document_type_not_allowed_by_emission_mode": {
+    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Facturación electrónica.",
+    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Electronic invoicing.",
+    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Faturamento eletrônico."
+  },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
     "en": "Document type {{type}} does not exist in the {{country}} regime.",
@@ -627,9 +632,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes fiscales activo (Ajustes › Facturación electrónica)",
-    "en": "an active fiscal document range (Settings › Electronic invoicing)",
-    "pt": "um intervalo de comprovativos fiscais ativo (Definições › Faturação eletrónica)"
+    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Facturación electrónica)",
+    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Faturamento eletrônico)"
+  },
+  "invoices.gaps.fiscal_sequence_electronic": {
+    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Facturación electrónica)",
+    "en": "a current electronic document range (E series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Faturamento eletrônico)"
+  },
+  "invoices.gaps.fiscal_sequence_traditional": {
+    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Facturación electrónica)",
+    "en": "a current traditional document range (B series) (Settings › Electronic invoicing)",
+    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Faturamento eletrônico)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -1022,6 +1037,16 @@
     "en": "Automatic, according to the buyer",
     "pt": "Automático conforme o comprador"
   },
+  "invoices.new.automatic_electronic": {
+    "es": "Automático: E31 o E32 según el comprador",
+    "en": "Automatic: E31 or E32 depending on the buyer",
+    "pt": "Automático: E31 ou E32 conforme o comprador"
+  },
+  "invoices.new.automatic_traditional": {
+    "es": "Automático: B01 o B02 según el comprador",
+    "en": "Automatic: B01 or B02 depending on the buyer",
+    "pt": "Automático: B01 ou B02 conforme o comprador"
+  },
   "invoices.new.bank_transfer": {
     "es": "Transferencia",
     "en": "Bank transfer",
@@ -1167,10 +1192,15 @@
     "en": "Fiscal document",
     "pt": "Documento fiscal"
   },
-  "invoices.new.fiscal_type_without_range": {
-    "es": "{{label}} (sin rango vigente)",
-    "en": "{{label}} (no active range)",
-    "pt": "{{label}} (sem faixa vigente)"
+  "invoices.new.fiscal_group_electronic": {
+    "es": "Electrónicos (e-CF, serie E)",
+    "en": "Electronic (e-CF, E series)",
+    "pt": "Eletrônicos (e-CF, série E)"
+  },
+  "invoices.new.fiscal_group_traditional": {
+    "es": "Tradicionales (NCF, serie B)",
+    "en": "Traditional (NCF, B series)",
+    "pt": "Tradicionais (NCF, série B)"
   },
   "invoices.new.free_text_line": {
     "es": "— Concepto libre —",
@@ -1543,6 +1573,16 @@
     "es": "La tasa de impuesto {{rate}} no es válida para {{countryCode}}. Tasas permitidas: {{allowed}}.",
     "en": "The tax rate {{rate}} is not valid for {{countryCode}}. Permitted rates: {{allowed}}.",
     "pt": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}."
+  },
+  "invoices.type_blocked.no_certificate": {
+    "es": "falta el certificado digital",
+    "en": "digital certificate missing",
+    "pt": "falta o certificado digital"
+  },
+  "invoices.type_blocked.no_range": {
+    "es": "sin rango vigente",
+    "en": "no current range",
+    "pt": "sem faixa vigente"
   },
   "invoices.type_type_not_valid_credit_note": {
     "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",

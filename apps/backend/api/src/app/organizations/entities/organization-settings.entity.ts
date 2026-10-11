@@ -1,5 +1,6 @@
 
 import {
+  Check,
   Entity,
   PrimaryGeneratedColumn,
   Column,
@@ -13,10 +14,13 @@ import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
 
 @Index('ux_organization_settings_organization_id', ['organizationId'], { unique: true })
+// Declared here as well as in the migration, so the schema-drift check sees it.
+@Check('CK_organization_settings_fiscal_emission_mode', `"fiscal_emission_mode" IN ('BOTH', 'ELECTRONIC', 'TRADITIONAL')`)
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -53,6 +57,19 @@ export class OrganizationSettings {
    */
   @Column({ name: 'default_payment_term_days', type: 'int', default: 0 })
   defaultPaymentTermDays!: number;
+
+  /**
+   * Which comprobantes the company issues where the market has two kinds — in the Dominican
+   * Republic, traditional NCF (serie B, numbered from an authorised range and printed) and e-CF
+   * (serie E, signed with a certificate and sent to the DGII).
+   *
+   * `BOTH` is the default because it asks nothing of the company: it issues whatever it holds a
+   * live range for, electronic first when it can sign. `ELECTRONIC` and `TRADITIONAL` restrict it,
+   * for a company that must not issue the other kind. Before this the product required a signing
+   * certificate of every Dominican company, even one with only B ranges.
+   */
+  @Column({ name: 'fiscal_emission_mode', type: 'varchar', length: 16, default: 'BOTH' })
+  fiscalEmissionMode!: FiscalEmissionMode;
 
   /**
    * Which published rate this tenant keeps its books at.

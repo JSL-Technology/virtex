@@ -303,19 +303,28 @@
                     tax id, so exports, government sales and special regimes could not be issued at
                     all. Left empty, the market's adapter still chooses.
                   -->
-                  <option value="">{{ 'invoices.new.automatic_according_buyer' | translate }}</option>
+                  <option value="">{{ automaticTypeLabelKey() | translate }}</option>
                   <!--
-                    A type with no live range is shown but cannot be chosen: it used to be offered like
-                    any other, and the refusal came only on «Issue» (QA U57).
+                    Grouped by kind where the market has two (e-CF and traditional NCF). A type that
+                    cannot be issued now is shown disabled with what it lacks, not hidden: a missing
+                    option explains nothing (QA U57).
                   -->
-                  @for (type of fiscalTypes(); track type.code) {
-                    <option [value]="type.code" [disabled]="type.available === false">
-                      @if (type.available === false) {
-                        {{ 'invoices.new.fiscal_type_without_range' | translate: { label: (type.labelKey | translate) } }}
-                      } @else {
-                        {{ type.labelKey | translate }}
+                  @for (group of fiscalTypeGroups(); track group.labelKey) {
+                    @if (group.labelKey) {
+                      <optgroup [label]="group.labelKey | translate">
+                        @for (type of group.types; track type.code) {
+                          <option [value]="type.code" [disabled]="fiscalTypeBlocked(type)">
+                            {{ type.labelKey | translate }}@if (fiscalTypeBlocked(type) && type.blockedBy) { — {{ type.blockedBy | translate }}}
+                          </option>
+                        }
+                      </optgroup>
+                    } @else {
+                      @for (type of group.types; track type.code) {
+                        <option [value]="type.code" [disabled]="fiscalTypeBlocked(type)">
+                          {{ type.labelKey | translate }}@if (fiscalTypeBlocked(type) && type.blockedBy) { — {{ type.blockedBy | translate }}}
+                        </option>
                       }
-                    </option>
+                    }
                   }
                 </select>
               </div>

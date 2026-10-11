@@ -1,5 +1,5 @@
 import { VxFileInputComponent } from '../../../shared/components/file-input/file-input.component';
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -8,8 +8,10 @@ import {
   NcfSequenceView,
   NcfType,
 } from '../../../core/services/einvoicing';
+import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
+import { OrganizationSettingsService } from '../data/organization-settings.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
@@ -18,10 +20,29 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date/date-field.component';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+/** One choice of the emission mode, as the page presents it. */
+interface EmissionModeChoice {
+  value: FiscalEmissionMode;
+  titleKey: string;
+  descriptionKey: string;
+}
+
+/** A range type the form offers, with the kind it belongs to. */
+interface RangeTypeChoice {
+  value: NcfType;
+  labelKey: string;
+}
+
 /**
- * Dominican Republic fiscal configuration: DGII signing certificate and authorized e-NCF ranges.
- * The periodic returns live in Accounting › Reports › Fiscal returns. This is what makes electronic invoicing usable — without a
- * certificate and at least one active e-NCF range no e-CF can be issued.
+ * Dominican comprobantes: how the company issues them, the ranges the DGII authorised, and the
+ * certificate that signs the electronic ones.
+ *
+ * A company may issue traditional NCF (serie B: numbered from an authorised range and printed,
+ * nothing transmitted), electronic e-CF (serie E: signed with a certificate and sent to the DGII),
+ * or both while it moves from one to the other. This page used to configure e-CF only — its range
+ * types were E-only and it presented the certificate as mandatory — so a company issuing serie B
+ * could not register its ranges, and was told it could not invoice without a certificate it does
+ * not need.
  */
 @Component({
   selector: 'app-fiscal-settings-page',
@@ -34,11 +55,13 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 export class FiscalSettingsPage implements OnInit {
   private fb = inject(FormBuilder);
   private einvoicing = inject(EinvoicingService);
+  private invoices = inject(InvoicesService);
   private notifications = inject(NotificationService);
   private fiscalSettings = inject(FiscalSettingsService);
+  private organizationSettings = inject(OrganizationSettingsService);
+  private readonly translate = inject(TranslateService);
 
   certificates = signal<EcfCertificateView[]>([]);
-  private readonly translate = inject(TranslateService);
   sequences = signal<NcfSequenceView[]>([]);
   /** Sortable by their headers (QA B-01). A certificate's state: expired, then inactive, then active. */
   readonly certificatesTable = sortable(() => this.certificates(), {
@@ -46,59 +69,100 @@ export class FiscalSettingsPage implements OnInit {
   });
   readonly sequencesTable = sortable(() => this.sequences(), {
     type: (s) => this.translate.instant(this.ncfTypeLabel(s.type)),
+    // Every column sorts, the numbers left included (QA U34).
+    remaining: (s) => this.remaining(s),
   });
   uploading = signal(false);
   provisioning = signal(false);
   selectedFile = signal<File | null>(null);
 
-  /**
-   * The e-NCF types a range can be authorised for.
-   *
-   * The labels were a second copy of the DGII's own comprobante names, in Spanish, in this file —
-   * the same twelve strings the invoice screen carried until they moved into the catalogue as
-   * `FISCAL.DO.*`. One statement in one place, or the two drift and a tenant reads a different
-   * name for the same comprobante on two screens.
-   */
-  readonly ncfTypes: { value: NcfType; labelKey: string }[] = [
-    'E31',
-    'E32',
-    'E33',
-    'E34',
-    'E41',
-    'E43',
-    'E44',
-    'E45',
-    'E46',
-    'E47',
-  ].map((value) => ({ value: value as NcfType, labelKey: `fiscal.do.${value}` }));
+  // ── How the company issues ──────────────────────────────────────────────────
+  readonly emissionMode = signal<FiscalEmissionMode>('BOTH');
+  readonly savingMode = signal(false);
+  readonly modeChoices: EmissionModeChoice[] = [
+    {
+      value: 'BOTH',
+      titleKey: 'settings.fiscal.mode.both_title',
+      descriptionKey: 'settings.fiscal.mode.both_description',
+    },
+    {
+      value: 'ELECTRONIC',
+      titleKey: 'settings.fiscal.mode.electronic_title',
+      descriptionKey: 'settings.fiscal.mode.electronic_description',
+    },
+    {
+      value: 'TRADITIONAL',
+      titleKey: 'settings.fiscal.mode.traditional_title',
+      descriptionKey: 'settings.fiscal.mode.traditional_description',
+    },
+  ];
 
-  /** The name of an e-NCF type (`E31` → «Factura de crédito fiscal electrónica»); an unknown code as itself. */
+  /** What the invoice form will offer, as the server computes it: the page's live summary. */
+  readonly invoicing = signal<InvoicingContext | null>(null);
+  readonly issuableNow = computed(() =>
+    (this.invoicing()?.fiscalDocumentTypes ?? []).filter((t) => t.issuable),
+  );
+  /** The certificate matters only when the company may issue electronic comprobantes. */
+  readonly certificateRelevant = computed(() => this.emissionMode() !== 'TRADITIONAL');
+
+  /**
+   * The range types, by kind. Notes and buyer-issued comprobantes are here too: a range is
+   * authorised for them as for any other, even though they are not issued from the invoice form.
+   */
+  readonly rangeTypeGroups: { labelKey: string; electronic: boolean; types: RangeTypeChoice[] }[] = [
+    {
+      labelKey: 'settings.fiscal.range_group_electronic',
+      electronic: true,
+      types: (['E31', 'E32', 'E33', 'E34', 'E41', 'E43', 'E44', 'E45', 'E46', 'E47'] as NcfType[]).map(choice),
+    },
+    {
+      labelKey: 'settings.fiscal.range_group_traditional',
+      electronic: false,
+      types: (['B01', 'B02', 'B03', 'B04', 'B11', 'B13', 'B14', 'B15', 'B16', 'B17'] as NcfType[]).map(choice),
+    },
+  ];
+
+  /** The groups the current mode allows a range for. */
+  readonly visibleRangeTypeGroups = computed(() =>
+    this.rangeTypeGroups.filter(
+      (group) =>
+        this.emissionMode() === 'BOTH' || (this.emissionMode() === 'ELECTRONIC') === group.electronic,
+    ),
+  );
+
+  /** The name of a comprobante type (`E31` → «E31 · Factura de Crédito Fiscal Electrónica»). */
   ncfTypeLabel(type: string): string {
-    return this.ncfTypes.find((t) => t.value === type)?.labelKey ?? type;
+    return `fiscal.do.${type.toLowerCase()}`;
   }
 
   /**
-   * What this product does and does not do in the tenant's market.
+   * What the product does and does not do in the tenant's market.
    *
-   * This page is the Dominican one — certificate, e-NCF ranges, 606/607 — and a tenant in any
-   * other market who lands here needs to know that before reading a form that does not apply to
-   * them. The coverage table says it per capability, and it is the same table the signup
-   * disclosure and the withholding screen read.
+   * This page is the Dominican one, and a tenant in any other market who lands here needs to know
+   * that before reading a form that does not apply to them.
    */
   readonly coverage = signal<MarketCoverage | null>(null);
 
   /** Whether the tenant's own market is the Dominican one this page configures. */
   readonly isDominican = signal(true);
 
-  /**
-   * `needs-credentials` → `settings.fiscal.level_needs_credentials`.
-   *
-   * The coverage levels are kebab-case in the API, and the translation-coverage sweep only
-   * recognises keys without hyphens — deliberately, since that grammar is what lets it find keys
-   * statically rather than guessing. Mapping here keeps the guard's teeth.
-   */
+  /** `needs-credentials` → `settings.fiscal.level_needs_credentials`. */
   levelKey(level: string): string {
     return composeKey('settings.fiscal.level', level);
+  }
+
+  /** The badge tone of a coverage level: a state, not a sentence (QA U31). */
+  levelTone(level: string): 'ok' | 'warning' | 'danger' | 'neutral' {
+    switch (level) {
+      case 'implemented':
+        return 'ok';
+      case 'needs-credentials':
+        return 'warning';
+      case 'not-implemented':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
   }
 
   /** `taxDetermination` → `settings.fiscal.tax_determination`. */
@@ -111,15 +175,17 @@ export class FiscalSettingsPage implements OnInit {
     password: ['', Validators.required],
   });
 
+  private readonly defaultExpiry = (): string => `${new Date().getFullYear() + 1}-12-31`;
+
   sequenceForm = this.fb.group({
     type: ['E31' as NcfType, Validators.required],
     prefix: ['E31', [Validators.required, Validators.pattern(/^[BE]\d{2}$/)]],
     startsAt: [1, [Validators.required, Validators.min(1)]],
     endsAt: [1000, [Validators.required, Validators.min(1)]],
     // Every range the DGII authorizes carries an end date, and a document numbered from an expired
-    // range is rejected. The form did not ask for it, so no range could ever expire on schedule.
-    // The DGII's usual horizon — 31 December of the following year — is proposed, not imposed.
-    expiresAt: [`${new Date().getFullYear() + 1}-12-31`, Validators.required],
+    // range is rejected. The DGII's usual horizon — 31 December of the following year — is
+    // proposed, not imposed.
+    expiresAt: [this.defaultExpiry(), Validators.required],
     authorizationCode: [''],
   });
 
@@ -149,20 +215,70 @@ export class FiscalSettingsPage implements OnInit {
   ngOnInit(): void {
     this.loadCertificates();
     this.loadSequences();
+    this.loadInvoicingState();
+
+    this.organizationSettings.get('fiscal').subscribe({
+      next: (view) => {
+        const mode = view.fields['fiscalEmissionMode'];
+        if (mode === 'BOTH' || mode === 'ELECTRONIC' || mode === 'TRADITIONAL') {
+          this.emissionMode.set(mode);
+          this.keepRangeTypeInMode();
+        }
+      },
+      error: () => this.notifications.showError('settings.fiscal.mode.load_failed'),
+    });
 
     this.fiscalSettings.coverage().subscribe({
       next: (market) => {
         this.coverage.set(market);
         this.isDominican.set(market.countryCode === 'DO');
       },
-      // Context, not the point of the page: a tenant configuring their DGII certificate must not
-      // be stopped because the coverage statement failed to load.
+      // Context, not the point of the page.
       error: () => this.coverage.set(null),
     });
 
     // Keep the prefix in step with the selected type by default.
-    this.sequenceForm.get('type')!.valueChanges.subscribe((t) => {
+    this.sequenceForm.get('type')?.valueChanges.subscribe((t) => {
       if (t) this.sequenceForm.patchValue({ prefix: t }, { emitEvent: false });
+    });
+  }
+
+  /** Change how the company issues. Saved at once: it is one choice, not a form. */
+  setEmissionMode(mode: FiscalEmissionMode): void {
+    if (mode === this.emissionMode() || this.savingMode()) return;
+    const previous = this.emissionMode();
+    this.emissionMode.set(mode);
+    this.savingMode.set(true);
+    this.organizationSettings.update('fiscal', { fields: { fiscalEmissionMode: mode } }).subscribe({
+      next: () => {
+        this.savingMode.set(false);
+        this.keepRangeTypeInMode();
+        this.loadInvoicingState();
+        this.notifications.showSuccess('settings.fiscal.mode.saved');
+      },
+      error: (err) => {
+        this.emissionMode.set(previous);
+        this.savingMode.set(false);
+        this.notifications.showHttpError(err, 'settings.fiscal.mode.save_failed');
+      },
+    });
+  }
+
+  /** The range form proposes a type of a kind the company issues. */
+  private keepRangeTypeInMode(): void {
+    const current = this.sequenceForm.get('type')?.value;
+    const allowed = this.visibleRangeTypeGroups().flatMap((group) => group.types.map((t) => t.value));
+    if (current && !allowed.includes(current)) {
+      const first = allowed.find((t) => t.endsWith('01') || t.endsWith('31')) ?? allowed[0];
+      if (first) this.sequenceForm.patchValue({ type: first, prefix: first });
+    }
+  }
+
+  private loadInvoicingState(): void {
+    this.invoices.context().subscribe({
+      next: (context) => this.invoicing.set(context),
+      // A summary, not the point of the page.
+      error: () => this.invoicing.set(null),
     });
   }
 
@@ -197,13 +313,14 @@ export class FiscalSettingsPage implements OnInit {
     }
     this.uploading.set(true);
     const { alias, password } = this.certForm.getRawValue();
-    this.einvoicing.uploadCertificate(file, password!, alias!).subscribe({
+    this.einvoicing.uploadCertificate(file, password ?? '', alias ?? '').subscribe({
       next: () => {
         this.notifications.showSuccess('settings.fiscal.certificate_uploaded_validated_successfully');
         this.certForm.reset();
         this.selectedFile.set(null);
         this.uploading.set(false);
         this.loadCertificates();
+        this.loadInvoicingState();
       },
       error: (err) => {
         this.notifications.showHttpError(err, 'errors.load_certificate');
@@ -217,6 +334,7 @@ export class FiscalSettingsPage implements OnInit {
       next: () => {
         this.notifications.showInfo('settings.fiscal.certificate_deactivated');
         this.loadCertificates();
+        this.loadInvoicingState();
       },
       error: () => this.notifications.showError('settings.fiscal.certificate_could_not_deactivated'),
     });
@@ -228,17 +346,19 @@ export class FiscalSettingsPage implements OnInit {
       return;
     }
     const value = this.sequenceForm.getRawValue();
-    if (value.endsAt! < value.startsAt!) {
+    const startsAt = Number(value.startsAt);
+    const endsAt = Number(value.endsAt);
+    if (endsAt < startsAt) {
       this.notifications.showError('settings.fiscal.ending_number_cannot_lower_than_starting');
       return;
     }
     this.provisioning.set(true);
     this.einvoicing
       .provisionSequence({
-        type: value.type!,
-        prefix: value.prefix!,
-        startsAt: value.startsAt!,
-        endsAt: value.endsAt!,
+        type: value.type as NcfType,
+        prefix: value.prefix ?? '',
+        startsAt,
+        endsAt,
         expiresAt: value.expiresAt || undefined,
         authorizationCode: value.authorizationCode?.trim() || undefined,
       })
@@ -246,7 +366,18 @@ export class FiscalSettingsPage implements OnInit {
         next: () => {
           this.notifications.showSuccess('settings.fiscal.do.ncf_range_registered');
           this.provisioning.set(false);
+          // The range is registered: the form is emptied for the next one. It used to keep the
+          // values, so a second click tried to register the same range again (QA U35).
+          this.sequenceForm.reset({
+            type: value.type,
+            prefix: value.type,
+            startsAt: 1,
+            endsAt: 1000,
+            expiresAt: this.defaultExpiry(),
+            authorizationCode: '',
+          });
           this.loadSequences();
+          this.loadInvoicingState();
         },
         error: (err) => {
           this.notifications.showHttpError(err, 'errors.register_range');
@@ -254,4 +385,8 @@ export class FiscalSettingsPage implements OnInit {
         },
       });
   }
+}
+
+function choice(value: NcfType): RangeTypeChoice {
+  return { value, labelKey: `fiscal.do.${value.toLowerCase()}` };
 }

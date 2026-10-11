@@ -7,8 +7,12 @@ export enum NcfType {
   B02 = 'B02',
   B03 = 'B03',
   B04 = 'B04',
-  B11 = 'B11',
-  B15 = 'B15',
+  B11 = 'B11', // Comprobante de Compras (emitido por el comprador)
+  B13 = 'B13', // Gastos Menores
+  B14 = 'B14', // Regímenes Especiales
+  B15 = 'B15', // Gubernamental
+  B16 = 'B16', // Exportaciones
+  B17 = 'B17', // Pagos al Exterior
   // Electronic fiscal receipts (e-CF / e-NCF). The two trailing digits are the DGII document type.
   E31 = 'E31', // Factura de Crédito Fiscal Electrónica
   E32 = 'E32', // Factura de Consumo Electrónica
@@ -42,15 +46,22 @@ export function dgiiDocumentCode(type: string): string {
  * to Accounts Payable; offering them on a sales document would produce a comprobante the DGII
  * rejects.
  */
+/**
+ * The types a sales invoice can be issued as, traditional (`B`) and electronic (`E`).
+ *
+ * Credit and debit notes are not here — a note modifies an invoice and has its own path
+ * (`CREDIT_NOTE_NCF_TYPES`) — and neither are the comprobantes a company issues as the BUYER
+ * (B11/E41 compras, B13/E43 gastos menores, B17/E47 pagos al exterior). Offering either on an
+ * invoice produced a document the DGII rejects.
+ */
 export const SALES_NCF_TYPES: readonly NcfType[] = Object.freeze([
   NcfType.B01,
   NcfType.B02,
-  NcfType.B04,
-  NcfType.B11,
+  NcfType.B14,
   NcfType.B15,
+  NcfType.B16,
   NcfType.E31,
   NcfType.E32,
-  NcfType.E34,
   NcfType.E44,
   NcfType.E45,
   NcfType.E46,
