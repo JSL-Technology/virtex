@@ -41,6 +41,21 @@
   text-decoration: none;
 }
 
+//  A link drawn as a button stays a button on hover. `a:hover` (one element and one pseudo-class)
+//  outranks a single class, so «Nuevo producto» — an `<a class="primary-button">` — underlined
+//  itself under the pointer (QA U41).
+a.primary-button,
+a.secondary-button,
+a.danger-button,
+a.ghost-button,
+a.link-button,
+a.icon-button {
+  &:hover,
+  &:focus-visible {
+    text-decoration: none;
+  }
+}
+
 //  Cuadrado, sin rótulo. Su nombre accesible viene siempre de `aria-label`: un
 //  botón que solo dibuja un icono es invisible para un lector de pantalla.
 .icon-button {

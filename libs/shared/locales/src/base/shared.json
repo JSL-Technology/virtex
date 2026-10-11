@@ -174,6 +174,11 @@
     "en": "Verify",
     "pt": "Verificar"
   },
+  "shared.payment_card.valid_thru": {
+    "es": "Válida hasta",
+    "en": "Valid thru",
+    "pt": "Válido até"
+  },
   "shared.select.clear": {
     "es": "Quitar la selección",
     "en": "Clear the selection",

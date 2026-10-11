@@ -284,19 +284,19 @@ export class PayrollService {
 
   // ── Statutory parameters ───────────────────────────────────────────────────
 
-  listContributions(country = 'DO'): Observable<StatutoryContribution[]> {
+  listContributions(country: string): Observable<StatutoryContribution[]> {
     return this.http.get<StatutoryContribution[]>(`${this.apiUrl}/parameters/contributions`, {
       params: new HttpParams().set('country', country),
     });
   }
 
-  listReferences(country = 'DO'): Observable<StatutoryReference[]> {
+  listReferences(country: string): Observable<StatutoryReference[]> {
     return this.http.get<StatutoryReference[]>(`${this.apiUrl}/parameters/references`, {
       params: new HttpParams().set('country', country),
     });
   }
 
-  listBrackets(country = 'DO'): Observable<IncomeTaxBracket[]> {
+  listBrackets(country: string): Observable<IncomeTaxBracket[]> {
     return this.http.get<IncomeTaxBracket[]>(`${this.apiUrl}/parameters/tax-brackets`, {
       params: new HttpParams().set('country', country),
     });

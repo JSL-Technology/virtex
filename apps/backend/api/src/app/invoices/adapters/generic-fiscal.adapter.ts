@@ -4,6 +4,7 @@ import {
   FiscalAssignmentContext,
   FiscalDocumentTypeOption,
   FiscalNumberAssignment,
+  LiveTypesContext,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
 
@@ -19,6 +20,10 @@ import { Invoice } from '../entities/invoice.entity';
 export class GenericFiscalAdapter implements FiscalAdapter {
   availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [];
+  }
+
+  async liveTypes(_context: LiveTypesContext): Promise<ReadonlySet<string>> {
+    return new Set();
   }
 
   async assignSalesNumber(_context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {

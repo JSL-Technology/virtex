@@ -5,6 +5,7 @@ import {
   FiscalAssignmentContext,
   FiscalDocumentTypeOption,
   FiscalNumberAssignment,
+  LiveTypesContext,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice, InvoiceType } from '../entities/invoice.entity';
 import { FiscalRangeService } from '../../einvoicing/services/fiscal-range.service';
@@ -58,6 +59,16 @@ abstract class RegimeNumberingAdapter implements FiscalAdapter {
   ) {}
 
   abstract availableSalesTypes(): readonly FiscalDocumentTypeOption[];
+
+  /** The types with a live range of this market (`FiscalRangeService.liveDocumentTypes`). */
+  liveTypes({ organizationId, codes, today, manager }: LiveTypesContext): Promise<ReadonlySet<string>> {
+    return this.ranges.liveDocumentTypes(manager, {
+      organizationId,
+      countryCode: this.countryCode,
+      documentTypes: codes,
+      today,
+    });
+  }
 
   /** The type this invoice is, per the regime's own rule. */
   protected abstract typeOf(context: FiscalAssignmentContext, settings: FiscalRegimeSettings | null): string;
@@ -403,6 +414,11 @@ export class MexicoNumberingAdapter implements FiscalAdapter {
     ];
   }
 
+  /** No range to hold: the PAC's UUID is the fiscal identity, so every type can be issued. */
+  async liveTypes({ codes }: LiveTypesContext): Promise<ReadonlySet<string>> {
+    return new Set(codes);
+  }
+
   async assignSalesNumber(context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {
     return {
       ncf: null,
@@ -444,6 +460,11 @@ export class ArgentinaNumberingAdapter implements FiscalAdapter {
       { code: '06', labelKey: 'fiscal.ar.06', requiresBuyerTaxId: false },
       { code: '11', labelKey: 'fiscal.ar.11', requiresBuyerTaxId: false },
     ];
+  }
+
+  /** No range to hold: AFIP's own counter numbers the document, so every type can be issued. */
+  async liveTypes({ codes }: LiveTypesContext): Promise<ReadonlySet<string>> {
+    return new Set(codes);
   }
 
   async assignSalesNumber(context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {

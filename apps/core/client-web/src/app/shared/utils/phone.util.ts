@@ -56,6 +56,17 @@ export function formatNational(input: string | null | undefined, region: string)
   }
 }
 
+/** A number with its international prefix, grouped as its own country writes it (`+52 55 1234 5678`). */
+export function formatInternational(input: string | null | undefined): string {
+  const raw = (input ?? '').trim();
+  if (!raw) return '';
+  try {
+    return phoneUtil.format(phoneUtil.parse(raw), PhoneNumberFormat.INTERNATIONAL);
+  } catch {
+    return raw;
+  }
+}
+
 /** The ISO region a valid E.164 number belongs to (`+1809…` → `DO`), or `null` if undeterminable. */
 export function regionForE164(e164: string | null | undefined): string | null {
   const raw = (e164 ?? '').trim();

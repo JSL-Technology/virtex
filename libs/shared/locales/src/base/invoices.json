@@ -29,15 +29,20 @@
     "en": "The customer has no e-mail on file. Enter the address to send it to.",
     "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
   },
+  "invoices.detail.authority_status": {
+    "es": "Estado ante {{authority}}",
+    "en": "{{authority}} status",
+    "pt": "Status na {{authority}}"
+  },
+  "invoices.detail.authority_verification": {
+    "es": "Verificación {{authority}}",
+    "en": "{{authority}} verification",
+    "pt": "Verificação {{authority}}"
+  },
   "invoices.detail.bill": {
     "es": "FACTURADO A",
     "en": "BILL TO",
     "pt": "FATURADO PARA"
-  },
-  "invoices.detail.cedula": {
-    "es": "Cédula",
-    "en": "Cédula",
-    "pt": "Cédula"
   },
   "invoices.detail.cf_resubmitted_dgii": {
     "es": "e-CF reenviado a la DGII.",
@@ -149,16 +154,6 @@
     "en": "Description",
     "pt": "Descrição"
   },
-  "invoices.detail.dgii_status": {
-    "es": "Estado DGII",
-    "en": "DGII status",
-    "pt": "Status na DGII"
-  },
-  "invoices.detail.dgii_verification": {
-    "es": "Verificación DGII",
-    "en": "DGII verification",
-    "pt": "Verificação DGII"
-  },
   "invoices.detail.document_draft": {
     "es": "Este documento es un borrador.",
     "en": "This document is a draft.",
@@ -185,9 +180,9 @@
     "pt": "Vencimento"
   },
   "invoices.detail.electronic_fiscal_document_cf": {
-    "es": "Comprobante fiscal electrónico (e-CF)",
-    "en": "Electronic fiscal document (e-CF)",
-    "pt": "Comprovante fiscal eletrônico (e-CF)"
+    "es": "Comprobante fiscal electrónico",
+    "en": "Electronic fiscal document",
+    "pt": "Comprovante fiscal eletrônico"
   },
   "invoices.detail.email_failed": {
     "es": "No se pudo enviar la factura.",
@@ -287,10 +282,10 @@
     "en": "Logistics and delivery",
     "pt": "Logística e entrega"
   },
-  "invoices.detail.messages_from_dgii": {
-    "es": "Mensajes de la DGII",
-    "en": "Messages from the DGII",
-    "pt": "Mensagens da DGII"
+  "invoices.detail.messages_from_authority": {
+    "es": "Mensajes de {{authority}}",
+    "en": "Messages from {{authority}}",
+    "pt": "Mensagens de {{authority}}"
   },
   "invoices.detail.ncf": {
     "en": "Fiscal document no.",
@@ -352,10 +347,10 @@
     "en": "Qty",
     "pt": "Qtd."
   },
-  "invoices.detail.resend_dgii": {
-    "es": "Reenviar a la DGII",
-    "en": "Resend to the DGII",
-    "pt": "Reenviar à DGII"
+  "invoices.detail.resend_to_authority": {
+    "es": "Reenviar a {{authority}}",
+    "en": "Resend to {{authority}}",
+    "pt": "Reenviar a {{authority}}"
   },
   "invoices.detail.resending": {
     "es": "Reenviando…",
@@ -1009,11 +1004,6 @@
     "en": "All",
     "pt": "Todos"
   },
-  "invoices.list.created": {
-    "es": "Creación",
-    "en": "Created",
-    "pt": "Criação"
-  },
   "invoices.list.customer": {
     "es": "Cliente",
     "en": "Customer",
@@ -1048,6 +1038,11 @@
     "es": "Facturas",
     "en": "Invoices",
     "pt": "Faturas"
+  },
+  "invoices.list.issue_date": {
+    "es": "Emisión",
+    "en": "Issued",
+    "pt": "Emissão"
   },
   "invoices.list.list_could_not_exported": {
     "es": "No se pudo exportar el listado.",
@@ -1123,14 +1118,14 @@
     "pt": "Automático conforme o comprador"
   },
   "invoices.new.automatic_electronic": {
-    "es": "Automático: E31 o E32 según el comprador",
-    "en": "Automatic: E31 or E32 depending on the buyer",
-    "pt": "Automático: E31 ou E32 conforme o comprador"
+    "es": "Automático: comprobante electrónico según el comprador",
+    "en": "Automatic: electronic document depending on the buyer",
+    "pt": "Automático: comprovante eletrônico conforme o comprador"
   },
   "invoices.new.automatic_traditional": {
-    "es": "Automático: B01 o B02 según el comprador",
-    "en": "Automatic: B01 or B02 depending on the buyer",
-    "pt": "Automático: B01 ou B02 conforme o comprador"
+    "es": "Automático: comprobante tradicional según el comprador",
+    "en": "Automatic: traditional document depending on the buyer",
+    "pt": "Automático: comprovante tradicional conforme o comprador"
   },
   "invoices.new.bank_transfer": {
     "es": "Transferencia",

@@ -1,3 +1,4 @@
+import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -15,7 +16,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -26,18 +26,27 @@
         @for (customer of table.rows(); track customer.id) {
           <tr appRowLink>
             <td>
-              <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
-                {{ customer.companyName }}
-              </a>
-              @if (customer.isFinalConsumer) {
-                <vx-badge tone="info" size="sm" [title]="'contacts.customers.final_consumer_hint' | translate">
-                  {{ 'contacts.customers.final_consumer_badge' | translate }}
-                </vx-badge>
+              <span class="customer-name">
+                <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
+                  {{ customer.companyName }}
+                </a>
+                <!-- What it is, not its name again: «Consumidor final» next to «Consumidor final»
+                     said nothing (QA U45). -->
+                @if (customer.isFinalConsumer) {
+                  <vx-badge tone="info" size="sm" [title]="'contacts.customers.final_consumer_hint' | translate">
+                    {{ 'contacts.customers.final_consumer_badge' | translate }}
+                  </vx-badge>
+                }
+              </span>
+              <!-- The tax id under the name, as the SKU under a product's: it is how a customer is
+                   told apart from another of the same name (QA U47). -->
+              @if (customer.taxId) {
+                <span class="customer-tax-id">{{ customer.taxId }}</span>
               }
             </td>
-            <td>{{ customer.contactPerson }}</td>
-            <td>{{ customer.email }}</td>
-            <td>{{ customer.phone }}</td>
+            <td>{{ customer.contactPerson || '—' }}</td>
+            <td>{{ customer.email || '—' }}</td>
+            <td class="nowrap">{{ (customer.phone | vxPhone) || '—' }}</td>
             <td class="actions-column">
               <div class="action-buttons">
                 <a

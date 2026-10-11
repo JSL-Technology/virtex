@@ -732,16 +732,6 @@
     "en": "Authorised document ranges",
     "pt": "Faixas de comprovantes autorizadas"
   },
-  "settings.fiscal.do.certificate_description": {
-    "es": "Solo para comprobantes electrónicos (e-CF). Sube el certificado (.p12 / .pfx) que te emitió una entidad autorizada por la DGII, a nombre del RNC de tu empresa o de la persona que autorizaste. Se guarda cifrado y solo se usa para firmar.",
-    "en": "Only for electronic documents (e-CF). Upload the certificate (.p12 / .pfx) a DGII-authorised entity issued to your company's RNC or to the person you authorised. It is stored encrypted and used only to sign.",
-    "pt": "Somente para comprovantes eletrônicos (e-CF). Envie o certificado (.p12 / .pfx) emitido por uma entidade autorizada pela DGII, em nome do RNC da sua empresa ou da pessoa autorizada. É guardado criptografado e usado apenas para assinar."
-  },
-  "settings.fiscal.do.certificate_example_name": {
-    "es": "Certificado DGII 2025",
-    "en": "DGII certificate 2025",
-    "pt": "Certificado DGII 2025"
-  },
   "settings.fiscal.do.dgii_reports_moved": {
     "es": "Los formatos 606, 607, 608 y 609 se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de NCF.",
     "en": "Formats 606, 607, 608 and 609 are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the NCF ranges.",
@@ -4399,9 +4389,9 @@
     "pt": "Como você emite seus comprovantes"
   },
   "settings.fiscal.mode.subtitle": {
-    "es": "Puedes emitir comprobantes tradicionales (NCF, serie B), electrónicos (e-CF, serie E) o ambos mientras haces la transición.",
-    "en": "You can issue traditional documents (NCF, B series), electronic ones (e-CF, E series), or both while you make the transition.",
-    "pt": "Você pode emitir comprovantes tradicionais (NCF, série B), eletrônicos (e-CF, série E) ou ambos durante a transição."
+    "es": "Puedes emitir comprobantes tradicionales (numerados de un rango autorizado e impresos), electrónicos (firmados y enviados a la autoridad fiscal) o ambos mientras haces la transición.",
+    "en": "You can issue traditional documents (numbered from an authorised range and printed), electronic ones (signed and sent to the tax authority), or both while you make the transition.",
+    "pt": "Você pode emitir comprovantes tradicionais (numerados de uma faixa autorizada e impressos), eletrônicos (assinados e enviados à autoridade fiscal) ou ambos durante a transição."
   },
   "settings.fiscal.mode.both_title": {
     "es": "Ambos",
@@ -4409,29 +4399,29 @@
     "pt": "Ambos"
   },
   "settings.fiscal.mode.both_description": {
-    "es": "Emite e-CF cuando tengas certificado y rango E; si no, NCF tradicional. En cada factura puedes elegir el tipo.",
-    "en": "Issues e-CF when you have a certificate and an E range, traditional NCF otherwise. You can choose the type on each invoice.",
-    "pt": "Emite e-CF quando houver certificado e faixa E; caso contrário, NCF tradicional. Em cada fatura você pode escolher o tipo."
+    "es": "Emite electrónicos cuando tengas certificado y rango para ellos; si no, tradicionales. En cada factura puedes elegir el tipo.",
+    "en": "Issues electronic documents when you have a certificate and a range for them, traditional ones otherwise. You can choose the type on each invoice.",
+    "pt": "Emite eletrônicos quando houver certificado e faixa para eles; caso contrário, tradicionais. Em cada fatura você pode escolher o tipo."
   },
   "settings.fiscal.mode.electronic_title": {
-    "es": "Solo electrónicos (e-CF)",
-    "en": "Electronic only (e-CF)",
-    "pt": "Somente eletrônicos (e-CF)"
+    "es": "Solo electrónicos",
+    "en": "Electronic only",
+    "pt": "Somente eletrônicos"
   },
   "settings.fiscal.mode.electronic_description": {
-    "es": "Firmados con tu certificado y enviados a la DGII. Necesitas certificado digital y rangos de la serie E.",
-    "en": "Signed with your certificate and sent to the DGII. You need a digital certificate and E-series ranges.",
-    "pt": "Assinados com seu certificado e enviados à DGII. Você precisa de certificado digital e faixas da série E."
+    "es": "Firmados con tu certificado y enviados a la autoridad fiscal ({{authority}}). Necesitas certificado digital y rangos de comprobantes electrónicos.",
+    "en": "Signed with your certificate and sent to the tax authority ({{authority}}). You need a digital certificate and ranges of electronic documents.",
+    "pt": "Assinados com seu certificado e enviados à autoridade fiscal ({{authority}}). Você precisa de certificado digital e faixas de comprovantes eletrônicos."
   },
   "settings.fiscal.mode.traditional_title": {
-    "es": "Solo tradicionales (NCF)",
-    "en": "Traditional only (NCF)",
-    "pt": "Somente tradicionais (NCF)"
+    "es": "Solo tradicionales",
+    "en": "Traditional only",
+    "pt": "Somente tradicionais"
   },
   "settings.fiscal.mode.traditional_description": {
-    "es": "Numerados con tus rangos de la serie B e impresos. No necesitas certificado digital.",
-    "en": "Numbered from your B-series ranges and printed. You do not need a digital certificate.",
-    "pt": "Numerados com suas faixas da série B e impressos. Você não precisa de certificado digital."
+    "es": "Numerados con tus rangos autorizados e impresos. No necesitas certificado digital.",
+    "en": "Numbered from your authorised ranges and printed. You do not need a digital certificate.",
+    "pt": "Numerados com suas faixas autorizadas e impressos. Você não precisa de certificado digital."
   },
   "settings.fiscal.mode.can_issue_now": {
     "es": "Ahora mismo puedes emitir:",
@@ -4473,20 +4463,10 @@
     "en": "Traditional (NCF, B series)",
     "pt": "Tradicionais (NCF, série B)"
   },
-  "settings.fiscal.holder_rnc": {
-    "es": "RNC {{id}}",
-    "en": "RNC {{id}}",
-    "pt": "RNC {{id}}"
-  },
-  "settings.fiscal.holder_cedula": {
-    "es": "Cédula {{id}}",
-    "en": "Cédula {{id}}",
-    "pt": "Cédula {{id}}"
-  },
   "settings.fiscal.holder_person_note": {
-    "es": "Persona autorizada: debe constar en tu Oficina Virtual de la DGII.",
-    "en": "Authorised person: must be registered in your DGII Virtual Office.",
-    "pt": "Pessoa autorizada: deve constar no seu Escritório Virtual da DGII."
+    "es": "Persona autorizada: debe constar como representante de tu empresa ante la autoridad fiscal ({{authority}}).",
+    "en": "Authorised person: must be registered as your company's representative with the tax authority ({{authority}}).",
+    "pt": "Pessoa autorizada: deve constar como representante da sua empresa perante a autoridade fiscal ({{authority}})."
   },
   "settings.fiscal.test_certificate": {
     "es": "Prueba",
@@ -4494,8 +4474,43 @@
     "pt": "Teste"
   },
   "settings.fiscal.test_certificate_hint": {
-    "es": "Certificado autofirmado de pruebas: solo funciona en desarrollo y la DGII no lo acepta.",
-    "en": "Self-signed test certificate: works only in development and the DGII does not accept it.",
-    "pt": "Certificado autoassinado de teste: funciona apenas em desenvolvimento e a DGII não o aceita."
+    "es": "Certificado autofirmado de pruebas: solo funciona en desarrollo y ninguna autoridad fiscal lo acepta.",
+    "en": "Self-signed test certificate: works only in development and no tax authority accepts it.",
+    "pt": "Certificado autoassinado de teste: funciona apenas em desenvolvimento e nenhuma autoridade fiscal o aceita."
+  },
+  "settings.fiscal.status_title": {
+    "es": "Qué puedes emitir hoy",
+    "en": "What you can issue today",
+    "pt": "O que você pode emitir hoje"
+  },
+  "settings.fiscal.status_subtitle": {
+    "es": "Lo que el formulario de facturas te dejará emitir con tu configuración actual.",
+    "en": "What the invoice form will let you issue with your current setup.",
+    "pt": "O que o formulário de faturas permitirá emitir com sua configuração atual."
+  },
+  "settings.fiscal.certificate_description": {
+    "es": "Solo para comprobantes electrónicos. Sube el certificado (.p12 / .pfx) que te emitió una entidad certificadora reconocida por la autoridad fiscal ({{authority}}), a nombre del {{label}} de tu empresa o, donde la ley lo permite, de la persona que la representa. Se guarda cifrado y solo se usa para firmar.",
+    "en": "Only for electronic documents. Upload the certificate (.p12 / .pfx) issued by a certification authority the tax authority ({{authority}}) recognises, to your company's {{label}} or, where the law allows it, to the person who represents it. It is stored encrypted and used only to sign.",
+    "pt": "Somente para comprovantes eletrônicos. Envie o certificado (.p12 / .pfx) emitido por uma autoridade certificadora reconhecida pela autoridade fiscal ({{authority}}), em nome do {{label}} da sua empresa ou, onde a lei permite, da pessoa que a representa. É guardado criptografado e usado apenas para assinar."
+  },
+  "settings.fiscal.certificate_example_name": {
+    "es": "Certificado {{authority}} {{year}}",
+    "en": "{{authority}} certificate {{year}}",
+    "pt": "Certificado {{authority}} {{year}}"
+  },
+  "settings.fiscal.signs_for": {
+    "es": "Firma para",
+    "en": "Signs for",
+    "pt": "Assina para"
+  },
+  "settings.fiscal.document_types_load_failed": {
+    "es": "No se pudieron cargar los tipos de comprobante de tu país.",
+    "en": "Your country's document types could not be loaded.",
+    "pt": "Não foi possível carregar os tipos de comprovante do seu país."
+  },
+  "settings.pages.einvoicing.choose_document_type": {
+    "es": "Elige el tipo",
+    "en": "Choose the type",
+    "pt": "Escolha o tipo"
   }
 }

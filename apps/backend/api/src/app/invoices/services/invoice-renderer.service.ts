@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as handlebars from 'handlebars';
 import * as puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
-import { Invoice, InvoiceType } from '../entities/invoice.entity';
+import { Invoice, InvoiceStatus, InvoiceType } from '../entities/invoice.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { EcfSubmission } from '../../einvoicing/entities/ecf-submission.entity';
 import { minorUnitsFor } from '../../currencies/currency-catalogue';
@@ -23,7 +23,8 @@ import {
   findIdentityDocumentSpec,
 } from '../../localization/fiscal/identity-document-catalogue';
 import { languageOfCountry } from '../../localization/fiscal/country-language';
-import { isElectronicNcfType } from '../../compliance/entities/ncf-sequence.entity';
+import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
+import { findCountryProfile } from '../../localization/contracts/country-profile.contract';
 import { divisionName } from '../../localization/contracts/administrative-divisions.contract';
 
 /** Everything the template needs, resolved before rendering. */
@@ -197,9 +198,13 @@ export class InvoiceRendererService implements OnModuleDestroy {
      * them — only the WORDS follow the reader.
      */
     const { language, locale, issuerCountry } = this.readerOf(context);
-    // A Dominican e-CF (serie E) — the same rule as `Invoice.isElectronicFiscalDocument`, read from
-    // the number so a plain record renders the same as an entity.
-    const electronic = issuerCountry === 'DO' && isElectronicNcfType((invoice.fiscalNumber ?? '').toUpperCase());
+    // Electronic or traditional, from the issuer's market catalogue — in every country, not only
+    // for a Dominican e-CF. The type recorded on the document, or the one whose number mask the
+    // number follows (`E31##########`), so a plain record renders the same as an entity.
+    const documentKind = this.documentKind(issuerCountry, invoice);
+    const electronic = documentKind?.isElectronic === true;
+    const issued = invoice.status !== InvoiceStatus.DRAFT && Boolean(invoice.issuedAt ?? invoice.fiscalNumber);
+    const authority = findCountryProfile(issuerCountry)?.fiscalAuthority ?? null;
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
@@ -275,12 +280,17 @@ export class InvoiceRendererService implements OnModuleDestroy {
         status: submission?.status ?? null,
         qrDataUri,
         qrUrl: submission?.qrUrl ?? null,
-        isDraft: !invoice.fiscalNumber,
-        // A Dominican e-CF carries the DGII verification (QR, security code) and says it is
-        // electronic; a traditional NCF (serie B) is neither, and printing «FACTURA ELECTRÓNICA»
-        // and an empty «Verificación DGII» box on it misstated what the document is.
-        electronic: electronic,
-        traditionalNcf: Boolean(invoice.fiscalNumber) && !electronic && issuerCountry === 'DO',
+        // A draft is a document not yet issued. It used to be "has no fiscal number", which printed
+        // the draft legend on every issued invoice of a market that assigns none (the United States,
+        // or Mexico, where the PAC's UUID is the fiscal identity).
+        isDraft: !issued,
+        // An electronic document carries the authority's verification (QR, security code) and
+        // says it is electronic; a traditional one (a Dominican serie B, any printed type) is
+        // neither, and printing «FACTURA ELECTRÓNICA» and an empty verification box on it
+        // misstated what the document is.
+        electronic: issued && electronic,
+        traditional: issued && Boolean(invoice.fiscalNumber) && documentKind !== null && !electronic,
+        authority,
       },
     });
   }
@@ -339,6 +349,25 @@ export class InvoiceRendererService implements OnModuleDestroy {
    * fiscal requirement, it is an untranslated string: the Dominican norm prescribes the e-NCF and
    * the document-type code, both of which are printed separately and unchanged.
    */
+  /** The catalogue entry of the document's type in the issuer's market, or null when it has none. */
+  private documentKind(country: string, invoice: Invoice): { isElectronic: boolean } | null {
+    const catalogue = fiscalDocumentTypesFor(country);
+    const type = (invoice.fiscalDocumentType ?? '').toUpperCase();
+    if (type) {
+      const bare = type.replace(/^0+(?=\d)/, '');
+      const byType = catalogue.find((spec) => spec.code === type || spec.code.replace(/^0+(?=\d)/, '') === bare);
+      if (byType) return byType;
+    }
+    const number = (invoice.fiscalNumber ?? '').toUpperCase();
+    if (!number) return null;
+    return (
+      catalogue.find((spec) => {
+        const prefix = spec.sequenceFormat?.replace(/#+$/, '') ?? '';
+        return prefix.length > 0 && number.startsWith(prefix) && number.length === spec.sequenceFormat?.length;
+      }) ?? null
+    );
+  }
+
   private documentTitleKey(invoice: Invoice): string {
     switch (invoice.type) {
       case InvoiceType.CREDIT_NOTE:

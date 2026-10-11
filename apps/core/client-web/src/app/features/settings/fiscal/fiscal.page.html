@@ -11,54 +11,8 @@
     </div>
   }
 
-  <!-- ── 1. How the company issues ─────────────────────────────────────────────── -->
-  <section class="card" aria-labelledby="mode-title">
-    <div class="card__head">
-      <h2 id="mode-title" class="card__title">{{ 'settings.fiscal.mode.title' | translate }}</h2>
-      <p class="card__subtitle">{{ 'settings.fiscal.mode.subtitle' | translate }}</p>
-    </div>
-    <div class="card__body">
-      <div class="mode-choices" role="radiogroup" aria-labelledby="mode-title">
-        @for (mode of modeChoices; track mode.value) {
-          <label class="mode-choice" [class.mode-choice--selected]="emissionMode() === mode.value">
-            <input
-              type="radio"
-              name="fiscal-emission-mode"
-              [value]="mode.value"
-              [checked]="emissionMode() === mode.value"
-              [disabled]="savingMode()"
-              (change)="setEmissionMode(mode.value)"
-            />
-            <span class="mode-choice__text">
-              <span class="mode-choice__title">{{ mode.titleKey | translate }}</span>
-              <span class="mode-choice__description">{{ mode.descriptionKey | translate }}</span>
-            </span>
-          </label>
-        }
-      </div>
-
-      <!-- What the invoice form will let the company issue right now, as the server sees it. -->
-      @if (invoicing(); as state) {
-        <div class="issue-state" aria-live="polite">
-          @if (issuableNow().length) {
-            <p class="issue-state__lead">{{ 'settings.fiscal.mode.can_issue_now' | translate }}</p>
-            <ul class="issue-state__types">
-              @for (type of issuableNow(); track type.code) {
-                <li><vx-badge tone="ok" size="sm">{{ type.labelKey | translate }}</vx-badge></li>
-              }
-            </ul>
-          } @else {
-            <p class="issue-state__lead issue-state__lead--blocked">{{ 'settings.fiscal.mode.cannot_issue_yet' | translate }}</p>
-            <ul class="issue-state__missing">
-              @for (gap of state.missing; track gap) {
-                <li>{{ gap | translate }}</li>
-              }
-            </ul>
-          }
-        </div>
-      }
-    </div>
-  </section>
+  <!-- ── 1. How the company issues, and what it can issue today ────────────────── -->
+  <vx-emission-mode-card [context]="invoicing()" (modeChange)="onModeChange($event)" (changed)="refreshInvoicingState()" />
 
   <!-- ── 2. Authorised ranges (both series) ──────────────────────────────────────── -->
   <section class="card" aria-labelledby="ranges-title">
@@ -151,93 +105,7 @@
   </section>
 
   <!-- ── 3. Signing certificate (electronic only) ───────────────────────────────── -->
-  <section class="card" aria-labelledby="certificate-title">
-    <div class="card__head">
-      <h2 id="certificate-title" class="card__title">{{ 'settings.fiscal.digital_certificate' | translate }}</h2>
-      <p class="card__subtitle">{{ 'settings.fiscal.do.certificate_description' | translate }}</p>
-    </div>
-    <div class="card__body">
-      @if (!certificateRelevant()) {
-        <p class="empty">{{ 'settings.fiscal.mode.certificate_not_needed' | translate }}</p>
-      } @else {
-        <form [formGroup]="certForm" (ngSubmit)="uploadCertificate()" class="certificate-form">
-          <div class="field">
-            <label for="cert-alias">{{ 'settings.fiscal.alias' | translate }} *</label>
-            <input id="cert-alias" type="text" formControlName="alias" [placeholder]="'settings.fiscal.do.certificate_example_name' | translate" />
-          </div>
-          <div class="field">
-            <label for="cert-password">{{ 'settings.fiscal.certificate_password' | translate }} *</label>
-            <input id="cert-password" type="password" formControlName="password" autocomplete="off" />
-          </div>
-          <div class="field field--wide" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
-            <span class="field__label">{{ 'settings.fiscal.file_p12_pfx' | translate }} *</span>
-            <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
-          </div>
-          <div class="certificate-form__actions">
-            <button type="submit" class="primary-button" [disabled]="uploading()">
-              {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
-            </button>
-          </div>
-        </form>
-      }
-
-      @if (certificates().length) {
-        <div class="table-scroll">
-          <table [appSort]="certificatesTable.sort" class="data-table">
-            <thead>
-              <tr>
-                <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
-                <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
-                <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
-                <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
-                <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (c of certificatesTable.rows(); track c.id) {
-                <tr>
-                  <td>{{ c.alias }}</td>
-                  <td>
-                    <span class="holder">{{ c.subjectCommonName || '—' }}</span>
-                    @if (c.holderTaxId) {
-                      <span class="holder__id">
-                        {{ (c.holderKind === 'person' ? 'settings.fiscal.holder_cedula' : 'settings.fiscal.holder_rnc') | translate: { id: c.holderTaxId } }}
-                      </span>
-                    }
-                    @if (c.holderKind === 'person') {
-                      <span class="holder__note">{{ 'settings.fiscal.holder_person_note' | translate }}</span>
-                    }
-                  </td>
-                  <td class="nowrap" [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
-                  <td>
-                    <span class="badges">
-                      <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
-                        {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-                      </vx-badge>
-                      @if (c.isTest) {
-                        <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">
-                          {{ 'settings.fiscal.test_certificate' | translate }}
-                        </vx-badge>
-                      }
-                    </span>
-                  </td>
-                  <td class="actions">
-                    @if (c.isActive) {
-                      <button type="button" class="link-danger" (click)="deactivateCertificate(c.id)">
-                        {{ 'settings.fiscal.turn_off' | translate }}
-                      </button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else if (certificateRelevant()) {
-        <p class="empty">{{ 'settings.fiscal.you_have_not_uploaded_certificate_yet' | translate }}</p>
-      }
-    </div>
-  </section>
+  <vx-signing-certificate-card [context]="invoicing()" (changed)="refreshInvoicingState()" />
 
   <!-- ── 4. What the product covers in this market ─────────────────────────────── -->
   @if (coverage(); as market) {

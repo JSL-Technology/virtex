@@ -103,7 +103,42 @@ describe('InvoiceRendererService', () => {
     const renderer = new InvoiceRendererService(new I18nService());
     const html = await renderer.renderHtml({ invoice, organization, language: 'es', locale: 'es-DO' });
     expect(html).toContain('ELECTRÓNICA');
-    expect(html).toContain('Comprobante Fiscal Electrónico');
+    expect(html).toContain('comprobante fiscal electrónico');
+    expect(html).toContain('Verificación DGII');
+    expect(html).toContain('autoridad fiscal (DGII)');
+  });
+
+  // The same rule in another market: electronic from Colombia's catalogue, verified by the DIAN.
+  it("presents another market's electronic document with its own authority", async () => {
+    const renderer = new InvoiceRendererService(new I18nService());
+    const colombian = {
+      ...invoice,
+      fiscalNumber: 'SETP990000001',
+      fiscalDocumentType: '01',
+    } as unknown as Invoice;
+    const html = await renderer.renderHtml({
+      invoice: colombian,
+      organization: { ...organization, country: 'CO' } as never,
+      language: 'es',
+      locale: 'es-CO',
+    });
+    expect(html).toContain('ELECTRÓNICA');
+    expect(html).toContain('Verificación DIAN');
+    expect(html).not.toContain('DGII');
+  });
+
+  // A market that assigns no fiscal number (the United States): an issued invoice is not a draft.
+  it('does not call an issued document of a market without fiscal numbers a draft', async () => {
+    const renderer = new InvoiceRendererService(new I18nService());
+    const american = { ...invoice, fiscalNumber: null, fiscalDocumentType: null, issuedAt: new Date() } as unknown as Invoice;
+    const html = await renderer.renderHtml({
+      invoice: american,
+      organization: { ...organization, country: 'US' } as never,
+      language: 'es',
+      locale: 'en-US',
+    });
+    expect(html).not.toContain('borrador interno');
+    expect(html).not.toContain('ELECTRÓNICA');
   });
 
   // A traditional NCF is numbered and printed; nothing is signed or sent. It printed as
@@ -114,9 +149,9 @@ describe('InvoiceRendererService', () => {
     const html = await renderer.renderHtml({ invoice: traditional, organization, language: 'es', locale: 'es-DO' });
     expect(html).toContain('B0100000001');
     expect(html).not.toContain('ELECTRÓNICA');
-    expect(html).not.toContain('Comprobante Fiscal Electrónico');
+    expect(html).not.toContain('comprobante fiscal electrónico');
     expect(html).not.toContain('class="verification"');
-    expect(html).toContain('rango autorizado por la DGII');
+    expect(html).toContain('rango autorizado por la autoridad fiscal (DGII)');
   });
 
   it('states the e-mail total and due date in the language and format of the document (QA M4)', () => {

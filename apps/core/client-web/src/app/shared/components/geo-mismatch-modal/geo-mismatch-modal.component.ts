@@ -1,3 +1,4 @@
+import { CountryNamesService } from '../../../core/i18n/countries';
 import { Component, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { GeoLocationService } from '../../../core/services/geo-location.service';
@@ -17,15 +18,10 @@ export class GeoMismatchModalComponent {
   private router = inject(Router);
   private document = inject(DOCUMENT);
 
+  /** The country's name in the reader's language, for any country (`Intl.DisplayNames`). */
+  private readonly countryNames = inject(CountryNamesService);
   getCountryName(code: string): string {
-    const map: Record<string, string> = {
-      'DO': 'República Dominicana',
-      'CO': 'Colombia',
-      'US': 'Estados Unidos',
-      'ES': 'España',
-      'MX': 'México'
-    };
-    return map[code.toUpperCase()] || code.toUpperCase();
+    return this.countryNames.nameOf(code) || code.toUpperCase();
   }
 
   close() {

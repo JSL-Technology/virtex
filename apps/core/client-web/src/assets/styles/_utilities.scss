@@ -191,6 +191,13 @@
 // -----------------------------------------------------------------------------
 .truncate      { @include ds.truncate; }
 .numeric       { @include ds.numeric; }
+//  Figures align on the right, where their units line up. `.text-right` existed only inside the
+//  list-page mixin, so pages that did not include it printed amounts flush left (QA U42).
+.text-right    { text-align: right; }
+.text-center   { text-align: center; }
+td.text-right,
+td.num         { font-variant-numeric: tabular-nums; }
+th.text-right  { text-align: right; }
 .section-label { @include ds.section-label; }
 
 .text-secondary { color: var(--content-secondary); }

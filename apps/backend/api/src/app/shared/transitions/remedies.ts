@@ -33,17 +33,26 @@ export const REMEDIES: Record<string, Precondition['remedy']> = {
     labelKey: 'remedy.configure_sequences',
     route: '/overview#settings/fiscal',
   },
-  // An electronic document needs a certificate to be signed and the company's RNC to be stated;
-  // both are blocking conditions of the issue itself (`EcfSubmissionService.assertReadyToSign`).
-  'einvoicing.do.no_active_digital_certificate_sign_cf': {
+  // An electronic document needs a certificate to be signed and the company's identifier to be
+  // stated, in every market with a regime; both are blocking conditions of the issue itself
+  // (`EcfSubmissionService.assertReadyToSign`).
+  'einvoicing.certificate.none_active': {
     labelKey: 'remedy.upload_certificate',
     route: '/overview#settings/fiscal',
   },
-  'einvoicing.do.certificate_expired': {
+  'einvoicing.certificate.expired': {
     labelKey: 'remedy.upload_certificate',
     route: '/overview#settings/fiscal',
   },
-  'einvoicing.do.organization_has_no_rnc_configured_fill': {
+  'einvoicing.certificate.self_signed': {
+    labelKey: 'remedy.upload_certificate',
+    route: '/overview#settings/fiscal',
+  },
+  'einvoicing.certificate.belongs_to_other_company': {
+    labelKey: 'remedy.upload_certificate',
+    route: '/overview#settings/fiscal',
+  },
+  'einvoicing.certificate.organization_has_no_tax_id': {
     labelKey: 'remedy.complete_company_profile',
     route: '/overview#settings/profile',
   },
