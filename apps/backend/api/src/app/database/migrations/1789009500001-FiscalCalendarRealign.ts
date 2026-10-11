@@ -40,8 +40,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * `.env.example`. Run under the application role it would silently touch nothing, which is how
  * `fiscal_years` came to be empty in the first place.
  */
-export class FiscalCalendarRealign1789009500000 implements MigrationInterface {
-  name = 'FiscalCalendarRealign1789009500000';
+export class FiscalCalendarRealign1789009500001 implements MigrationInterface {
+  name = 'FiscalCalendarRealign1789009500001';
 
   public async up(q: QueryRunner): Promise<void> {
     // ── 1. Realign monthly periods onto their calendar month ───────────────────

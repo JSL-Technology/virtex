@@ -54,6 +54,16 @@ npm run migration:run
 Safe on an empty database and on one that predates the baseline: the baseline detects an existing
 schema and adopts the migration history without touching anything.
 
+`migration:run` first runs `migration:reconcile` (`tools/db/reconcile-migration-renames.mjs`). It
+rewrites the recorded identity of every migration that was renamed after it shipped, as listed in
+`tools/db/migration-renames.json`, so a renamed migration is recognised as applied instead of
+running twice. It is idempotent and does nothing on an empty database. If you run TypeORM directly
+instead of through `npm run migration:run`, run `npm run migration:reconcile` first.
+
+Every migration must have a unique 13-digit timestamp that matches its class name;
+`npm run verify:migration-identities` enforces it in CI. To rename a migration that has shipped,
+rename the file and class, then append the old and new identity to `migration-renames.json`.
+
 To verify the migrations and entities still agree (this is what CI runs):
 
 ```bash

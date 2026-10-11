@@ -42,8 +42,8 @@ const TENANT_FK_NAMES: Readonly<Record<string, string>> = {
  * have, so an existing customer is able to invoice the moment this deploys rather than after
  * someone runs a script.
  */
-export class InvoicingOverhaul1788500000000 implements MigrationInterface {
-  name = 'InvoicingOverhaul1788500000000';
+export class InvoicingOverhaul1788500000001 implements MigrationInterface {
+  name = 'InvoicingOverhaul1788500000001';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await this.referenceData(queryRunner);
