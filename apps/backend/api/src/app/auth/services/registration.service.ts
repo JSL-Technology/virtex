@@ -154,10 +154,14 @@ export class RegistrationService {
     }
     await this.verifyCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
 
+    // A phone number is optional contact data, and its verification is optional too. The e-mail,
+    // which IS verified above, is what proves the person controls the account. The signup screen
+    // lets a person continue with the number unverified (typically when the SMS channel is down)
+    // and promises they can confirm it later from their profile; this used to refuse exactly that
+    // payload with `mobile_verification_code_required`, so the promise ended in an error on the
+    // last step. A code that IS sent must still be correct: it is never silently ignored.
     if (phone && phoneVerificationCode) {
       await this.verifyCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
-    } else if (phone && !phoneVerificationCode) {
-      throw new BadRequestError('auth.mobile_verification_code_required');
     }
 
     // The country's registration rules are not conditional on anything. This used to run only

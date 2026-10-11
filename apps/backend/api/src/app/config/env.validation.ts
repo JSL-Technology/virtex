@@ -262,9 +262,15 @@ export const envValidation = Joi.object({
 
   // Electronic invoicing (e-CF, Dominican Republic / DGII).
   // AES-256-GCM key that encrypts DGII signing certificates at rest. Mandatory to ISSUE e-CF — the
-  // certificate vault refuses to operate without it — but optional here so tenants that do not use
-  // electronic invoicing can boot without configuring it.
-  ECF_CERT_ENCRYPTION_KEY: Joi.string().min(16).optional(),
+  // certificate vault refuses to operate without it — but optional in a deployment so tenants that
+  // do not use electronic invoicing can boot without configuring it. In development it gets the
+  // same stable generated value as every other local secret: without one a developer could not
+  // load a certificate, and so could not issue a single electronic document.
+  ECF_CERT_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().min(16).default(devSecret('ECF_CERT_ENCRYPTION_KEY')),
+    otherwise: Joi.string().min(16).optional(),
+  }),
   // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
   // versions its paths; overrides let an operator pin the exact ones its environment publishes).
   DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),
@@ -391,6 +397,18 @@ export const envValidation = Joi.object({
 
   // Billing. `stripeProvider` returns null without a key and `ensureStripe()` answers 503, so a
   // local run works with billing disabled instead of not running at all.
+  // Which processor backs subscriptions. `simulated` completes checkouts without charging so the
+  // signup and billing flows can be used on a machine with no Stripe account; it is the default
+  // there when no Stripe key is set. Outside development/test only `stripe` is accepted.
+  PAYMENT_PROVIDER: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string()
+      .valid('stripe', 'simulated')
+      .when('STRIPE_SECRET_KEY', { is: Joi.exist(), then: Joi.any().default('stripe'), otherwise: Joi.any().default('simulated') }),
+    otherwise: Joi.string().valid('stripe').default('stripe').messages({
+      'any.only': 'PAYMENT_PROVIDER=simulated cannot be used outside development/test.',
+    }),
+  }),
   STRIPE_SECRET_KEY: optionalInDev(),
   STRIPE_WEBHOOK_SECRET: optionalInDev(),
 

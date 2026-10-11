@@ -9,7 +9,6 @@ import {
   UseGuards,
   Ip,
   Headers,
-  BadRequestException,
   Logger,
 } from '@nestjs/common';
 import type { HttpResponse as Response, HttpRequest as Request } from '../common/http/http.types';
@@ -135,12 +134,15 @@ export class AuthRegistrationController {
       throw new BadRequestError('auth.plan_not_found');
     }
     const billingPeriod = period ?? 'monthly';
-    const priceId = SaasService.priceIdFor(plan, billingPeriod);
+    const priceId = this.paymentService.priceIdFor(plan, billingPeriod);
     if (!priceId) {
-      throw new BadRequestException(
+      // A translated key, not a literal: a bare `BadRequestException` reached the client as the
+      // generic `errors.http_400`, so the person saw «We couldn't complete your registration»
+      // with no hint that the plan itself was the problem.
+      throw new BadRequestError(
         billingPeriod === 'annual'
-          ? 'Este plan no admite facturación anual en este momento.'
-          : 'Este plan no está disponible para contratación en este momento.',
+          ? 'payment.plan_annual_billing_unavailable'
+          : 'payment.plan_unavailable_for_purchase',
       );
     }
     return { plan, priceId };

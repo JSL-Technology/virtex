@@ -646,6 +646,11 @@
     "en": "the Service Charge Payable account",
     "pt": "a conta de Taxa de Serviço a Pagar"
   },
+  "invoices.gaps.signing_certificate": {
+    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Facturación electrónica)",
+    "en": "a valid digital certificate to sign electronic documents (Settings › Electronic invoicing)",
+    "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
+  },
   "invoices.gaps.tax_withheld_account": {
     "es": "la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)",
     "en": "the Tax Withheld by Customers account",

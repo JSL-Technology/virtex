@@ -252,6 +252,13 @@ export class NewInvoicePage implements OnInit {
     this.invoicesService.context().subscribe({
       next: (context) => {
         this.context.set(context);
+        // The tenant's today, not the browser's: see `InvoicingContext.today`. A date the person
+        // already picked is left alone.
+        const issueDate = this.invoiceForm.get('issueDate');
+        if (issueDate && context.today && !issueDate.dirty) {
+          issueDate.setValue(context.today, { emitEvent: false });
+          this.applyPaymentTerms();
+        }
         this.invoiceForm.patchValue(
           {
             currencyCode: context.baseCurrency,

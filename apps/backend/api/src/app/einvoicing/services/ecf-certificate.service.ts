@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
 import { CertificateVaultService } from './certificate-vault.service';
 import { BadRequestError } from '../../i18n/localized.exception';
 
@@ -41,10 +41,16 @@ export class EcfCertificateService {
     const parsed = this.vault.parsePkcs12(input.pfx, input.password);
 
     return this.repo.manager.transaction(async (manager) => {
-      await manager.getRepository(EcfCertificate).update({ organizationId, isActive: true }, { isActive: false });
+      // Only this regime's certificate is replaced. Deactivating every active certificate of the
+      // tenant meant that loading a Mexican CSD switched off the DGII certificate, and the next
+      // Dominican document could not be signed.
+      await manager
+        .getRepository(EcfCertificate)
+        .update({ organizationId, regime: DGII_CERTIFICATE_REGIME, isActive: true }, { isActive: false });
 
       const entity = manager.create(EcfCertificate, {
         organizationId,
+        regime: DGII_CERTIFICATE_REGIME,
         alias: input.alias || parsed.subjectCommonName || 'Certificado DGII',
         encryptedPfx: this.vault.encrypt(input.pfx),
         encryptedPassword: this.vault.encrypt(input.password),

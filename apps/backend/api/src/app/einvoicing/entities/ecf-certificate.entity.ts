@@ -1,6 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 
+/** The regime of a certificate issued for Dominican e-CF documents. */
+export const DGII_CERTIFICATE_REGIME = 'DGII';
+
 /**
  * The DGII digital certificate a tenant signs its e-CF with, stored encrypted at rest.
  *
@@ -35,7 +38,7 @@ export class EcfCertificate {
    *
    * `DGII` for every existing row, which is what they all are.
    */
-  @Column({ name: 'regime', type: 'varchar', length: 16, default: 'DGII' })
+  @Column({ name: 'regime', type: 'varchar', length: 16, default: DGII_CERTIFICATE_REGIME })
   regime: string;
 
   @Column({ name: 'organization_id', type: 'uuid' })

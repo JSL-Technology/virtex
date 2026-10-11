@@ -42,6 +42,30 @@ export interface InvoiceRenderContext {
   language?: LanguageCode;
 }
 
+/** The printed invoice. Named apart from the e-mail's `invoice.hbs` so the two can never collide. */
+export const INVOICE_DOCUMENT_TEMPLATE = 'invoice-document.hbs';
+
+/**
+ * Where a printed-document template lives, in the bundle and in the source tree.
+ *
+ * The bundle copies `src/app/invoices/templates` to `templates/documents` next to `main.js`
+ * (`webpack.config.js`); tests and ts-node run from the source tree. Only these locations are
+ * searched, and the e-mail templates folder is never among them: falling back to it is what made
+ * every printed invoice render the e-mail body.
+ */
+export function documentTemplateCandidates(file: string): string[] {
+  return [
+    path.join(__dirname, 'templates', 'documents', file),
+    path.join(__dirname, '..', 'templates', file),
+    path.join(process.cwd(), 'apps', 'backend', 'api', 'src', 'app', 'invoices', 'templates', file),
+  ];
+}
+
+export function resolveDocumentTemplate(file: string): string {
+  const candidates = documentTemplateCandidates(file);
+  return candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0];
+}
+
 /**
  * Renders the legally required printed representation of a fiscal document.
  *
@@ -205,9 +229,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
   private compiledTemplate(): HandlebarsTemplateDelegate {
     if (this.template) return this.template;
 
-    const templatePath = path.join(__dirname, 'templates', 'invoice.hbs');
-    const fallbackPath = path.join(process.cwd(), 'templates', 'invoice.hbs');
-    const resolved = fs.existsSync(templatePath) ? templatePath : fallbackPath;
+    const resolved = resolveDocumentTemplate(INVOICE_DOCUMENT_TEMPLATE);
 
     let source: string;
     try {

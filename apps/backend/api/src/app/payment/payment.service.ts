@@ -4,10 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
 import { SaasService } from '../saas/saas.service';
-import { SAAS_CONFIG } from '../saas/saas.config';
 import { WebhookEvent } from './entities/webhook-event.entity';
 import { PaymentGateway } from './interfaces/payment-gateway.interface';
 import { RegistrationPaymentPort } from '../auth/ports/registration-payment.port';
+import type { BillingPeriod } from '../saas/enums/billing-period.enum';
 
 @Injectable()
 export class PaymentService extends RegistrationPaymentPort {
@@ -25,6 +25,13 @@ export class PaymentService extends RegistrationPaymentPort {
     private dataSource: DataSource,
     @Inject('PAYMENT_GATEWAY') private paymentGateway: PaymentGateway
   ) { super(); }
+
+  priceIdFor(
+    plan: { slug: string; monthlyPriceId?: string | null; annualPriceId?: string | null },
+    period: BillingPeriod,
+  ): string | null {
+    return this.paymentGateway.priceIdFor(plan, period);
+  }
 
   async createCheckoutSession(organizationId: string, userEmail: string, priceId: string, successUrl: string, cancelUrl: string) {
     return this.paymentGateway.createCheckoutSession({

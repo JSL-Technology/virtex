@@ -78,6 +78,7 @@ describe('NewInvoicePage', () => {
     ],
     serviceChargeRate: 0.1,
     defaultPaymentTermDays: 0,
+    today: '2026-10-10',
     ...overrides,
   });
 
@@ -193,6 +194,13 @@ describe('NewInvoicePage', () => {
 
       expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-12-31');
     });
+  });
+
+  it('dates the document with the tenant\'s today, not the browser\'s', async () => {
+    // A browser on UTC dated a Dominican invoice the next day every evening after 20:00.
+    await build(context({ today: '2026-10-10', defaultPaymentTermDays: 30 }));
+    expect(component.invoiceForm.get('issueDate')?.value).toBe('2026-10-10');
+    expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-11-09');
   });
 
   it('takes its currency from the tenant, not from a hardcoded USD', () => {

@@ -106,6 +106,34 @@ describe('environment validation', () => {
     });
   });
 
+  describe('the payment provider', () => {
+    it('simulates payments in development when no Stripe key is set', () => {
+      const { error, value } = check({ NODE_ENV: 'development' });
+      expect(error).toBeUndefined();
+      expect(value.PAYMENT_PROVIDER).toBe('simulated');
+    });
+
+    it('uses Stripe in development as soon as a Stripe key is set', () => {
+      const { value } = check({ NODE_ENV: 'development', STRIPE_SECRET_KEY: 'sk_test_x' });
+      expect(value.PAYMENT_PROVIDER).toBe('stripe');
+    });
+
+    it('lets a developer force the simulated provider even with a Stripe key', () => {
+      const { value } = check({ NODE_ENV: 'development', STRIPE_SECRET_KEY: 'sk_test_x', PAYMENT_PROVIDER: 'simulated' });
+      expect(value.PAYMENT_PROVIDER).toBe('simulated');
+    });
+
+    it('defaults a deployment to Stripe', () => {
+      const { value } = check(productionEnv());
+      expect(value.PAYMENT_PROVIDER).toBe('stripe');
+    });
+
+    it('refuses to boot a deployment that asks for simulated payments', () => {
+      const { error } = check({ ...productionEnv(), PAYMENT_PROVIDER: 'simulated' });
+      expect(error?.message).toContain('PAYMENT_PROVIDER=simulated cannot be used outside development/test.');
+    });
+  });
+
   describe('a deployment refuses to boot without its secrets', () => {
     it('rejects an empty production environment', () => {
       const { error } = check({ NODE_ENV: 'production' });

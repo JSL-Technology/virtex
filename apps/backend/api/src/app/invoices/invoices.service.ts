@@ -54,6 +54,7 @@ import {
   LedgerEffectLine,
 } from '../shared/transitions/transition-preview';
 import { REMEDIES } from '../shared/transitions/remedies';
+import { runAsTenantJob } from '../shared/tenancy/tenant-job';
 import { I18nService } from '../i18n/i18n.service';
 import { currentLanguage } from '../i18n/request-locale';
 import { isLocalizedError } from '../i18n/localized.exception';
@@ -109,6 +110,14 @@ export interface InvoicingContext {
    * overdue the next morning.
    */
   defaultPaymentTermDays: number;
+  /**
+   * Today in the tenant's own time zone, `YYYY-MM-DD`: the date a new document opens with.
+   *
+   * The form used to take the BROWSER's date. A browser on UTC — or a person travelling — dated a
+   * Dominican invoice the next day every evening after 20:00, while the stock movement and the
+   * ledger, which use the tenant's clock, kept the right day.
+   */
+  today: string;
 }
 
 export interface PaginatedInvoices {
@@ -396,6 +405,14 @@ export class InvoicesService {
     invoice.fiscalNumber = assignment.ncf;
     invoice.fiscalDocumentType = assignment.documentType;
     invoice.fiscalNumberExpiresAt = assignment.expiresAt;
+
+    // An electronic document that cannot be signed must not be issued: its number would be
+    // consumed and the DGII would never receive it. Checked before anything is written, so the
+    // issue preview shows it as the blocking condition, with the way to fix it.
+    if (invoice.isElectronicFiscalDocument) {
+      await this.ecfSubmissionService.assertReadyToSign(organizationId, manager);
+    }
+
     invoice.issuedAt = new Date();
     invoice.status =
       invoice.type === InvoiceType.CREDIT_NOTE ? InvoiceStatus.CREDIT_NOTE : InvoiceStatus.PENDING;
@@ -406,6 +423,11 @@ export class InvoicesService {
 
     await this.posting.post(invoice, manager);
     const saved = await manager.save(invoice);
+
+    // The transmission it owes commits with it (see `EcfSubmissionService.registerPending`).
+    if (saved.isElectronicFiscalDocument) {
+      await this.ecfSubmissionService.registerPending(saved, manager);
+    }
 
     this.logger.log(
       `Documento ${saved.invoiceNumber}${saved.fiscalNumber ? ` / ${saved.fiscalNumber}` : ''} emitido ` +
@@ -1478,6 +1500,13 @@ export class InvoicesService {
       if (activeSequence === 0) gaps.push('invoices.gaps.fiscal_sequence');
     }
 
+    // An electronic document also has to be signed. Asked here so the screen says so before the
+    // person fills a document in, rather than when they press «Issue».
+    const electronic = salesTypes.some((code) => code.toUpperCase().startsWith('E'));
+    if (electronic && countryCode?.toUpperCase() === 'DO' && !(await this.ecfSubmissionService.isReadyToSign(organizationId))) {
+      gaps.push('invoices.gaps.signing_certificate');
+    }
+
     return {
       ready: gaps.length === 0,
       missing: gaps,
@@ -1494,6 +1523,7 @@ export class InvoicesService {
        * something. It used to open due on the day it was issued, whatever the tenant sells on.
        */
       defaultPaymentTermDays: settings?.defaultPaymentTermDays ?? 0,
+      today: await this.fiscalToday(organizationId),
     };
   }
 
@@ -1526,13 +1556,17 @@ export class InvoicesService {
    */
   private triggerEcfSubmission(invoice: Invoice): void {
     if (!invoice.isElectronicFiscalDocument) return;
-    this.ecfSubmissionService
-      .submitInvoice(invoice.id, invoice.organizationId)
-      .catch((error) =>
-        this.logger.error(
-          `Fallo al transmitir el e-CF del documento ${invoice.invoiceNumber}: ${(error as Error).message}`,
-        ),
-      );
+    // On its own connection and tenant context. The request's connection is released as soon as
+    // the response is sent, and running on it failed every transmission with "Query runner already
+    // released". The PENDING row was committed with the invoice, so if this attempt never runs the
+    // reconciler sends it.
+    runAsTenantJob(this.dataSource, invoice.organizationId, () =>
+      this.ecfSubmissionService.submitInvoice(invoice.id, invoice.organizationId),
+    ).catch((error) =>
+      this.logger.error(
+        `e-CF transmission for ${invoice.invoiceNumber} failed: ${(error as Error).message}`,
+      ),
+    );
   }
 }
 

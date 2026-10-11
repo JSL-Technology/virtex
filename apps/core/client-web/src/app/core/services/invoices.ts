@@ -227,6 +227,8 @@ export interface InvoicingContext {
    * overdue the next morning.
    */
   defaultPaymentTermDays: number;
+  /** Today in the tenant's time zone (`YYYY-MM-DD`): what a new document is dated. */
+  today: string;
 }
 
 @Injectable({ providedIn: 'root' })
