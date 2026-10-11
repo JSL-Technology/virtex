@@ -956,6 +956,17 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
 
 const BY_CODE = new Map(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p]));
 
+/**
+ * The name of a first-level division from its code — `('DO', '32')` → «Santo Domingo» — or null
+ * when the country codes none or the code is unknown. Addresses store the code the e-invoicing
+ * schemas require; a printed document shows the name (QA D01: «Santo Domingo Este, 32»).
+ */
+export function divisionName(countryCode: string | null | undefined, code: string | null | undefined): string | null {
+  if (!countryCode || !code) return null;
+  const divisions = findCountryProfile(countryCode.toUpperCase())?.address.divisions;
+  return divisions?.find((d) => d.code === code.trim().toUpperCase())?.name ?? null;
+}
+
 export function findCountryProfile(countryCode: string): CountryFiscalProfile | undefined {
   return BY_CODE.get(countryCode?.toUpperCase() ?? '');
 }

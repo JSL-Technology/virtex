@@ -365,7 +365,7 @@
     "pt": "Aplicado"
   },
   "accounts_payable.detail.back_list": {
-    "es": "Volver al Listado",
+    "es": "Volver al listado",
     "en": "Back to the list",
     "pt": "Voltar à listagem"
   },
@@ -430,9 +430,9 @@
     "pt": "Desconto"
   },
   "accounts_payable.detail.due_date": {
-    "es": "Fecha de Vencimiento",
-    "en": "Due Date",
-    "pt": "Data de Vencimento"
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
   },
   "accounts_payable.detail.edit": {
     "es": "Editar",
@@ -440,14 +440,14 @@
     "pt": "Editar"
   },
   "accounts_payable.detail.general_information": {
-    "es": "Información General",
-    "en": "General Information",
-    "pt": "Informações Gerais"
+    "es": "Información general",
+    "en": "General information",
+    "pt": "Informações gerais"
   },
   "accounts_payable.detail.invoice_lines": {
-    "es": "Líneas de la Factura",
-    "en": "Invoice Lines",
-    "pt": "Linhas da Fatura"
+    "es": "Líneas de la factura",
+    "en": "Invoice lines",
+    "pt": "Linhas da fatura"
   },
   "accounts_payable.detail.invoice_voided": {
     "es": "Factura anulada con éxito.",
@@ -455,9 +455,9 @@
     "pt": "Fatura cancelada."
   },
   "accounts_payable.detail.issue_date": {
-    "es": "Fecha de Emisión",
-    "en": "Issue Date",
-    "pt": "Data de Emissão"
+    "es": "Fecha de emisión",
+    "en": "Issue date",
+    "pt": "Data de emissão"
   },
   "accounts_payable.detail.item": {
     "es": "Concepto",
@@ -533,9 +533,9 @@
     "pt": "Cancelar"
   },
   "accounts_payable.form.add_line": {
-    "es": "Añadir Línea",
-    "en": "Add Line",
-    "pt": "Adicionar Linha"
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
   },
   "accounts_payable.form.billing_purchase_order": {
     "es": "Factura de la orden de compra {{number}}: las cantidades ya recibidas liquidan la mercancía recibida no facturada y no vuelven a entrar al inventario.",
@@ -563,9 +563,9 @@
     "pt": "Total do documento"
   },
   "accounts_payable.form.due_date": {
-    "es": "Fecha de Vencimiento",
-    "en": "Due Date",
-    "pt": "Data de Vencimento"
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
   },
   "accounts_payable.form.error_saving_invoice": {
     "es": "Error al guardar la factura.",
@@ -578,14 +578,14 @@
     "pt": "Imposto seletivo"
   },
   "accounts_payable.form.expense_account": {
-    "es": "Cuenta de Gasto",
-    "en": "Expense Account",
-    "pt": "Conta de Despesa"
+    "es": "Cuenta de gasto",
+    "en": "Expense account",
+    "pt": "Conta de despesa"
   },
   "accounts_payable.form.general_information": {
-    "es": "Información General",
-    "en": "General Information",
-    "pt": "Informações Gerais"
+    "es": "Información general",
+    "en": "General information",
+    "pt": "Informações gerais"
   },
   "accounts_payable.form.hide": {
     "es": "Ocultar",
@@ -613,9 +613,9 @@
     "pt": "Fatura criada."
   },
   "accounts_payable.form.invoice_details": {
-    "es": "Detalles de la Factura",
-    "en": "Invoice Details",
-    "pt": "Detalhes da Fatura"
+    "es": "Detalles de la factura",
+    "en": "Invoice details",
+    "pt": "Detalhes da fatura"
   },
   "accounts_payable.form.invoice_updated": {
     "es": "Factura actualizada con éxito.",
@@ -623,9 +623,9 @@
     "pt": "Fatura atualizada."
   },
   "accounts_payable.form.issue_date": {
-    "es": "Fecha de Emisión",
-    "en": "Issue Date",
-    "pt": "Data de Emissão"
+    "es": "Fecha de emisión",
+    "en": "Issue date",
+    "pt": "Data de emissão"
   },
   "accounts_payable.form.legal_service_charge": {
     "es": "Propina legal",
@@ -789,9 +789,9 @@
     "pt": "Saldo"
   },
   "accounts_payable.list.create_invoice": {
-    "es": "Crear Factura",
-    "en": "Create Invoice",
-    "pt": "Criar Fatura"
+    "es": "Crear factura",
+    "en": "Create invoice",
+    "pt": "Criar fatura"
   },
   "accounts_payable.list.create_your_first_vendor_bill_get": {
     "es": "Crea tu primera factura de proveedor para empezar.",
@@ -814,9 +814,9 @@
     "pt": "Não foi possível carregar as faturas de fornecedor. Tente novamente."
   },
   "accounts_payable.list.new_invoice": {
-    "es": "Nueva Factura",
-    "en": "New Invoice",
-    "pt": "Nova Fatura"
+    "es": "Nueva factura",
+    "en": "New invoice",
+    "pt": "Nova fatura"
   },
   "accounts_payable.list.no_fiscal_number": {
     "en": "No fiscal document",
@@ -847,9 +847,9 @@
     "literal": "Total"
   },
   "accounts_payable.list.vendor_bills": {
-    "es": "Facturas de Proveedor",
-    "en": "Vendor Bills",
-    "pt": "Faturas de Fornecedor"
+    "es": "Facturas de proveedor",
+    "en": "Vendor bills",
+    "pt": "Faturas de fornecedor"
   },
   "accounts_payable.ncf_requires_supplier_tax_id": {
     "es": "La factura con NCF {{ncf}} necesita el RNC o la cédula del proveedor {{supplier}}. Regístralo en la ficha del proveedor: el 606 identifica cada compra por él y la DGII rechaza las que no lo tienen.",

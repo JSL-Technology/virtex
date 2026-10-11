@@ -134,6 +134,16 @@
     "en": "a cash sale must declare at least one payment method",
     "pt": "uma venda à vista deve declarar ao menos uma forma de pagamento"
   },
+  "einvoicing.do.certificate_belongs_to_other_rnc": {
+    "es": "Este certificado es de otra empresa: «{{holder}}», RNC {{rnc}}. El de tu empresa es {{company}}.",
+    "en": "This certificate belongs to another company: «{{holder}}», RNC {{rnc}}. Yours is {{company}}.",
+    "pt": "Este certificado é de outra empresa: «{{holder}}», RNC {{rnc}}. O da sua empresa é {{company}}."
+  },
+  "einvoicing.do.certificate_cannot_sign": {
+    "es": "Este certificado no permite firmar documentos (su uso de clave no incluye la firma digital). Pide a tu entidad certificadora uno para firma.",
+    "en": "This certificate cannot sign documents (its key usage does not include digital signature). Ask your certification authority for a signing certificate.",
+    "pt": "Este certificado não permite assinar documentos (o uso da chave não inclui assinatura digital). Peça à sua autoridade certificadora um certificado de assinatura."
+  },
   "einvoicing.do.certificate_expired": {
     "es": "El certificado digital venció el {{expiredOn}}. Carga el certificado renovado antes de transmitir.",
     "en": "The digital certificate expired on {{expiredOn}}. Upload the renewed certificate before transmitting.",
@@ -144,10 +154,25 @@
     "en": "The certificate file is empty.",
     "pt": "O arquivo do certificado está vazio."
   },
+  "einvoicing.do.certificate_holder_unidentified": {
+    "es": "No encontramos el RNC ni la cédula del titular en el certificado de «{{holder}}». Debe estar emitido al RNC de tu empresa o a la cédula de la persona que autorizaste ante la DGII.",
+    "en": "The certificate of «{{holder}}» carries neither an RNC nor a cédula for its holder. It must be issued to your company's RNC or to the cédula of the person you authorised before the DGII.",
+    "pt": "O certificado de «{{holder}}» não traz o RNC nem a cédula do titular. Deve ser emitido para o RNC da sua empresa ou para a cédula da pessoa autorizada perante a DGII."
+  },
+  "einvoicing.do.certificate_not_yet_valid": {
+    "es": "El certificado digital todavía no está vigente: empieza a valer el {{date}}.",
+    "en": "The digital certificate is not valid yet: it starts on {{date}}.",
+    "pt": "O certificado digital ainda não é válido: começa a valer em {{date}}."
+  },
   "einvoicing.do.certificate_password_required": {
     "es": "La contraseña del certificado es obligatoria.",
     "en": "The certificate password is required.",
     "pt": "A senha do certificado é obrigatória."
+  },
+  "einvoicing.do.certificate_self_signed": {
+    "es": "El certificado es autofirmado: no lo emitió una entidad certificadora autorizada por la DGII, así que los e-CF firmados con él serían rechazados.",
+    "en": "The certificate is self-signed: it was not issued by a certification authority the DGII recognises, so e-CF signed with it would be rejected.",
+    "pt": "O certificado é autoassinado: não foi emitido por uma autoridade certificadora reconhecida pela DGII, portanto os e-CF assinados com ele seriam rejeitados."
   },
   "einvoicing.do.cf_document_could_not_signed_p1": {
     "es": "No se pudo firmar el documento e-CF: {{p1}}",

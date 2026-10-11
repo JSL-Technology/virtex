@@ -271,6 +271,15 @@ export const envValidation = Joi.object({
     then: Joi.string().min(16).default(devSecret('ECF_CERT_ENCRYPTION_KEY')),
     otherwise: Joi.string().min(16).optional(),
   }),
+  // Accept a SELF-SIGNED signing certificate (the fixtures in tools/fixtures/ecf-certificates) so
+  // the e-CF flow can be exercised locally. Only a development or test process may set it: in any
+  // other environment a deployment that carried it would sign documents the DGII cannot trust, so
+  // it fails validation rather than being ignored.
+  ECF_ALLOW_TEST_CERTIFICATES: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().truthy('true').falsy('false').default(false),
+    otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
+  }),
   // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
   // versions its paths; overrides let an operator pin the exact ones its environment publishes).
   DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),

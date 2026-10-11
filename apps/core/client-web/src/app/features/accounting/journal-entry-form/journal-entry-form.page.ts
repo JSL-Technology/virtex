@@ -120,6 +120,13 @@ export class JournalEntryFormPage implements OnInit {
    * explains itself and one that answers 400 after the work is done.
    */
   readonly editBlockedKey = signal<string | null>(null);
+  /**
+   * The entry is shown for reading only: it cannot be modified (see `editBlockedKey`).
+   *
+   * It used to open as «Edit journal entry» with every field editable, a «Reason for the change»
+   * and an active «Save entry» that did nothing when pressed — no request, no message (QA M5).
+   */
+  readonly readOnly = computed(() => this.editBlockedKey() !== null);
   /** The document an automatic entry belongs to, when the server could name it. */
   readonly sourceRoute = signal<string | null>(null);
   /** The entry being modified, once loaded. */
@@ -231,12 +238,21 @@ export class JournalEntryFormPage implements OnInit {
         this.revealTagsWhenUsed();
 
         this.entryForm.markAsPristine();
+        if (this.readOnly()) this.lockForm();
       },
       error: () => {
         this.isLoading.set(false);
         this.editBlockedKey.set('accounting.journal_entry_form.entry_not_found');
+        this.lockForm();
       },
     });
+  }
+
+  /** Nothing on a read-only entry can be typed into, and the reason is not asked for. */
+  private lockForm(): void {
+    this.entryForm.removeControl('modificationReason', { emitEvent: false });
+    this.entryForm.disable({ emitEvent: false });
+    this.showDimensions.set(this.lines.controls.some((line) => Object.keys(line.get('dimensions')?.value ?? {}).length > 0));
   }
 
   /**

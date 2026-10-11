@@ -340,9 +340,9 @@
     "pt": "Livro contábil principal, na moeda funcional da organização."
   },
   "ledger.provisioning.default_ledger_name": {
-    "es": "Libro Principal",
-    "en": "Main Ledger",
-    "pt": "Livro Principal"
+    "es": "Libro principal",
+    "en": "Main ledger",
+    "pt": "Livro principal"
   },
   "ledger.provisioning.final_consumer": {
     "es": "Consumidor final",
@@ -350,59 +350,59 @@
     "pt": "Consumidor final"
   },
   "ledger.provisioning.journals.banks": {
-    "es": "Diario de Bancos",
-    "en": "Banks Journal",
-    "pt": "Diário de Bancos"
+    "es": "Diario de bancos",
+    "en": "Banks journal",
+    "pt": "Diário de bancos"
   },
   "ledger.provisioning.journals.cash": {
-    "es": "Diario de Caja",
-    "en": "Cash Journal",
-    "pt": "Diário de Caixa"
+    "es": "Diario de caja",
+    "en": "Cash journal",
+    "pt": "Diário de caixa"
   },
   "ledger.provisioning.journals.closing": {
-    "es": "Diario de Cierre",
-    "en": "Closing Journal",
-    "pt": "Diário de Encerramento"
+    "es": "Diario de cierre",
+    "en": "Closing journal",
+    "pt": "Diário de encerramento"
   },
   "ledger.provisioning.journals.collections": {
-    "es": "Diario de Cobros",
-    "en": "Collections Journal",
-    "pt": "Diário de Cobranças"
+    "es": "Diario de cobros",
+    "en": "Collections journal",
+    "pt": "Diário de cobranças"
   },
   "ledger.provisioning.journals.depreciation": {
-    "es": "Diario de Depreciación",
-    "en": "Depreciation Journal",
-    "pt": "Diário de Depreciação"
+    "es": "Diario de depreciación",
+    "en": "Depreciation journal",
+    "pt": "Diário de depreciação"
   },
   "ledger.provisioning.journals.general": {
-    "es": "Diario General",
-    "en": "General Journal",
-    "pt": "Diário Geral"
+    "es": "Diario general",
+    "en": "General journal",
+    "pt": "Diário geral"
   },
   "ledger.provisioning.journals.payments": {
-    "es": "Diario de Pagos",
-    "en": "Payments Journal",
-    "pt": "Diário de Pagamentos"
+    "es": "Diario de pagos",
+    "en": "Payments journal",
+    "pt": "Diário de pagamentos"
   },
   "ledger.provisioning.journals.payroll": {
-    "es": "Diario de Nómina",
-    "en": "Payroll Journal",
-    "pt": "Diário da Folha"
+    "es": "Diario de nómina",
+    "en": "Payroll journal",
+    "pt": "Diário da folha"
   },
   "ledger.provisioning.journals.purchases": {
-    "es": "Diario de Compras",
-    "en": "Purchases Journal",
-    "pt": "Diário de Compras"
+    "es": "Diario de compras",
+    "en": "Purchases journal",
+    "pt": "Diário de compras"
   },
   "ledger.provisioning.journals.reconciliation": {
-    "es": "Diario de Conciliación",
-    "en": "Reconciliation Journal",
-    "pt": "Diário de Conciliação"
+    "es": "Diario de conciliación",
+    "en": "Reconciliation journal",
+    "pt": "Diário de conciliação"
   },
   "ledger.provisioning.journals.sales": {
-    "es": "Diario de Ventas",
-    "en": "Sales Journal",
-    "pt": "Diário de Vendas"
+    "es": "Diario de ventas",
+    "en": "Sales journal",
+    "pt": "Diário de vendas"
   },
   "ledger.provisioning.warehouse.main": {
     "es": "Almacén principal",

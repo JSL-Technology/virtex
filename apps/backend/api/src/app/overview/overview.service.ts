@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, LessThan, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { AuditLog, ActionType } from '../audit/entities/audit-log.entity';
 import { User } from '../users/entities/user.entity/user.entity';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
@@ -15,6 +15,7 @@ import {
   ActivityItemDto,
   OverviewEventDto,
 } from './dto/overview.dto';
+import { periodCloseDueSql } from '../shared/database/period-close-due';
 
 /**
  * Which document each audited table is, what permission it takes to see it, and where in the
@@ -245,15 +246,17 @@ export class OverviewService {
     }
 
     if (hasPermission(permissions, [PERMISSIONS.ACCOUNTING_VIEW])) {
-      const closing = await this.periods.find({
-        where: {
-          organizationId,
-          status: PeriodStatus.OPEN,
-          endDate: Between(isoDate(addDays(today, -31)), isoDate(horizon)) as never,
-        },
-        order: { endDate: 'ASC' },
-        take: limit,
-      });
+      // Only closes the company owes: not the months before it started keeping its books here
+      // (QA U24 — a company created in October was told September's close was late).
+      const closing = await this.periods
+        .createQueryBuilder('p')
+        .where('p.organizationId = :organizationId', { organizationId })
+        .andWhere('p.status = :open', { open: PeriodStatus.OPEN })
+        .andWhere('p.endDate BETWEEN :from AND :to', { from: isoDate(addDays(today, -31)), to: isoDate(horizon) })
+        .andWhere(periodCloseDueSql('p', ':organizationId'))
+        .orderBy('p.endDate', 'ASC')
+        .take(limit)
+        .getMany();
       for (const period of closing) {
         events.push({
           id: `period:${period.id}`,

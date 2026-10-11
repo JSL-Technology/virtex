@@ -55,11 +55,11 @@ export class NotificationService {
   private readonly errors = inject(ErrorHandlerService);
 
   showSuccess(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
-    this.toastService.success(this.resolve(messageKey, params), undefined, this.toAction(action));
+    this.toastService.success(this.resolve(messageKey, params), undefined, this.toAction(action), this.keyOf(messageKey, params));
   }
 
   showError(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
-    this.toastService.error(this.resolve(messageKey, params), undefined, this.toAction(action));
+    this.toastService.error(this.resolve(messageKey, params), undefined, this.toAction(action), this.keyOf(messageKey, params));
   }
 
   /**
@@ -102,11 +102,11 @@ export class NotificationService {
   }
 
   showInfo(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
-    this.toastService.info(this.resolve(messageKey, params), undefined, this.toAction(action));
+    this.toastService.info(this.resolve(messageKey, params), undefined, this.toAction(action), this.keyOf(messageKey, params));
   }
 
   showWarning(messageKey: string, params?: Record<string, unknown>, action?: NotificationAction): void {
-    this.toastService.warning(this.resolve(messageKey, params), undefined, this.toAction(action));
+    this.toastService.warning(this.resolve(messageKey, params), undefined, this.toAction(action), this.keyOf(messageKey, params));
   }
 
   /** Turn a caller's action into one the toast can render, resolving the label here as everywhere. */
@@ -129,6 +129,12 @@ export class NotificationService {
    * to itself" from "not found", and the shape test keeps a real sentence from being probed as if
    * it were a key.
    */
+  /** The key, when `message` is one the catalogue resolves — for the toast to translate live. */
+  private keyOf(message: string, params?: Record<string, unknown>): { key: string; params?: Record<string, unknown> } | undefined {
+    if (typeof message !== 'string' || !KEY_SHAPE.test(message)) return undefined;
+    return this.translate.instant(message, params) === message ? undefined : { key: message, params };
+  }
+
   private resolve(message: string, params?: Record<string, unknown>): string {
     if (typeof message !== 'string' || !KEY_SHAPE.test(message)) return message;
     const translated = this.translate.instant(message, params);

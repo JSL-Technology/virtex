@@ -47,7 +47,7 @@
   "shell.group_masters": {
     "es": "Maestros",
     "en": "Master data",
-    "pt": "Dados Mestres"
+    "pt": "Dados mestres"
   },
   "shell.inbox_all_clear": {
     "es": "No tienes nada pendiente.",

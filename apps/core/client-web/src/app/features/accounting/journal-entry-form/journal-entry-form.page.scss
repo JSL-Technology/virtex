@@ -37,6 +37,24 @@
     font-size: var(--text-sm);
   }
 
+  //  A read-only entry: why, and where it is corrected.
+  .entry-locked {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-block: 0 var(--space-4);
+
+    p { margin: 0; }
+  }
+
+  .entry-locked__link {
+    color: inherit;
+    font-weight: var(--font-semibold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
   .entry-alert {
     margin: 0;
     padding: var(--space-3) var(--space-4);

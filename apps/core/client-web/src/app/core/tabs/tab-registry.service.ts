@@ -1,5 +1,4 @@
 import { Injectable, inject, Type } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { TabDefinition, TabType } from './tab.model';
 import { GenericModulePage } from './components/generic-module.page';
 import { AuthService } from '../services/auth';
@@ -35,7 +34,6 @@ export interface ResolvedTab {
 @Injectable({ providedIn: 'root' })
 export class TabRegistryService {
   private auth = inject(AuthService);
-  private translate = inject(TranslateService);
 
   /** Best definition for the URL, or a generic placeholder when nothing declares it. */
   resolve(route: string): ResolvedTab {
@@ -118,8 +116,9 @@ export class TabRegistryService {
       //  embellecido es un dato. Guardarlo en `title` hacía que `openTab` lo buscara en el
       //  catálogo, no lo encontrara, y la pestaña se llamara «[[Customers]]» —el marcador de clave
       //  ausente— en desarrollo, y algo inventado por el humanizador en producción.
-      title: 'tabs.module',
-      titleFn: () => this.prettify(routePath),
+      // «Página no encontrada», not the last segment dressed up as a title: a tab called «Kardex»
+      // for an address that has no page claimed something that is not there (QA K01).
+      title: 'tabs.page_not_found',
       icon: 'LayoutGrid',
       isCloseable: true,
       entityKeyFn: () => `module:${routePath}`,
@@ -134,12 +133,6 @@ export class TabRegistryService {
   private normalize(route: string): string {
     const path = route.split('?')[0].split('#')[0];
     return '/' + this.segments(path).join('/');
-  }
-
-  private prettify(routePath: string): string {
-    const last = this.segments(routePath).pop();
-    if (!last) return this.translate.instant('tabs.module');
-    return last.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
 }
 

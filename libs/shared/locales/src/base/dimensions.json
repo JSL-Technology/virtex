@@ -65,7 +65,7 @@
     "pt": "Ativa"
   },
   "dimensions.page.add_value": {
-    "es": "Añadir valor",
+    "es": "Agregar valor",
     "en": "Add value",
     "pt": "Adicionar valor"
   },
@@ -160,9 +160,9 @@
     "pt": "Há lançamentos com esta dimensão: o nome não pode mais ser alterado."
   },
   "dimensions.page.name_placeholder": {
-    "es": "Centro de Costo, Proyecto, Region…",
-    "en": "Cost Centre, Project, Region…",
-    "pt": "Centro de Custo, Projeto, Regiao…"
+    "es": "Centro de costo, proyecto, region…",
+    "en": "Cost centre, project, region…",
+    "pt": "Centro de custo, projeto, regiao…"
   },
   "dimensions.page.name_required": {
     "es": "La dimensión necesita un nombre.",

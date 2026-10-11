@@ -346,7 +346,7 @@
   },
   "permissions.groups.coa": {
     "es": "Plan de cuentas",
-    "en": "Chart of Accounts",
+    "en": "Chart of accounts",
     "pt": "Plano de contas"
   },
   "permissions.groups.crm": {
@@ -466,7 +466,7 @@
   },
   "permissions.groups.products": {
     "es": "Productos",
-    "en": "Products & Services",
+    "en": "Products & services",
     "pt": "Produtos"
   },
   "permissions.groups.projects": {
@@ -501,7 +501,7 @@
   },
   "permissions.groups.system": {
     "es": "Sistema",
-    "en": "System Settings",
+    "en": "System settings",
     "pt": "Sistema"
   },
   "permissions.groups.taxes": {

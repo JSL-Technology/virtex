@@ -103,9 +103,9 @@
     "pt": "Ativos"
   },
   "reports.balance_sheet.balance_general": {
-    "es": "Balance General",
-    "en": "Balance Sheet",
-    "pt": "Balanço Patrimonial"
+    "es": "Balance general",
+    "en": "Balance sheet",
+    "pt": "Balanço patrimonial"
   },
   "reports.balance_sheet.balance_sheet_does_not_balance_assets": {
     "es": "El balance no cuadra: activos y pasivos más patrimonio difieren en {{amount}}.",
@@ -113,9 +113,9 @@
     "pt": "O balanço não fecha: ativo e passivo mais patrimônio diferem em {{amount}}."
   },
   "reports.balance_sheet.liabilities_equity": {
-    "es": "Pasivos y Patrimonio",
-    "en": "Liabilities and Equity",
-    "pt": "Passivo e Patrimônio Líquido"
+    "es": "Pasivos y patrimonio",
+    "en": "Liabilities and equity",
+    "pt": "Passivo e patrimônio líquido"
   },
   "reports.balance_sheet.result_year": {
     "es": "Resultado del ejercicio",
@@ -123,9 +123,9 @@
     "pt": "Resultado do exercício"
   },
   "reports.balance_sheet.total_assets": {
-    "es": "Total Activos",
-    "en": "Total Assets",
-    "pt": "Total do Ativo"
+    "es": "Total activos",
+    "en": "Total assets",
+    "pt": "Total do ativo"
   },
   "reports.balance_sheet.total_equity": {
     "es": "Total patrimonio",
@@ -138,9 +138,9 @@
     "pt": "Total do passivo"
   },
   "reports.balance_sheet.total_liabilities_equity": {
-    "es": "Total Pasivos y Patrimonio",
-    "en": "Total Liabilities and Equity",
-    "pt": "Total do Passivo e Patrimônio Líquido"
+    "es": "Total pasivos y patrimonio",
+    "en": "Total liabilities and equity",
+    "pt": "Total do passivo e patrimônio líquido"
   },
   "reports.balance_sheet.total_title": {
     "literal": "Total {{title}}"
@@ -226,9 +226,9 @@
     "pt": "Saídas"
   },
   "reports.cash_flow.statement_cash_flows": {
-    "es": "Estado de Flujo de Efectivo",
-    "en": "Statement of Cash Flows",
-    "pt": "Demonstração dos Fluxos de Caixa"
+    "es": "Estado de flujo de efectivo",
+    "en": "Statement of cash flows",
+    "pt": "Demonstração dos fluxos de caixa"
   },
   "reports.cash_flow.unexplained_difference": {
     "es": "Diferencia sin explicar",
@@ -612,9 +612,9 @@
     "pt": "Lucro bruto"
   },
   "reports.income_statement.income_statement": {
-    "es": "Estado de Resultados",
-    "en": "Income Statement",
-    "pt": "Demonstração do Resultado"
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração do resultado"
   },
   "reports.income_statement.net_income": {
     "es": "Resultado neto",
@@ -787,9 +787,9 @@
     "pt": "Saldo inicial"
   },
   "reports.trial_balance.trial_balance": {
-    "es": "Balanza de Comprobación",
-    "en": "Trial Balance",
-    "pt": "Balancete de Verificação"
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete de verificação"
   },
   "reports.trial_balance.trial_balance_agrees_debits_credits_match": {
     "es": "La balanza cuadra: el debe y el haber coinciden en cada columna.",

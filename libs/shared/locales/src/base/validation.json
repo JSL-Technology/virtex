@@ -447,7 +447,7 @@
     "pt": "O formato do e-mail não é válido."
   },
   "validation.email_change.email_cannot_longer_than_254_characters": {
-    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "es": "El correo no puede tener más de 254 caracteres.",
     "en": "The email cannot be longer than 254 characters (RFC 5321).",
     "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
   },
@@ -1257,7 +1257,7 @@
     "pt": "Motivo da rejeição"
   },
   "validation.fields.reorder_level": {
-    "es": "Punto de reorden",
+    "es": "Punto de pedido",
     "en": "Reorder level",
     "pt": "Ponto de reposição"
   },
@@ -1687,7 +1687,7 @@
     "pt": "O formato do e-mail não é válido."
   },
   "validation.login_user.email_cannot_longer_than_254_characters": {
-    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "es": "El correo no puede tener más de 254 caracteres.",
     "en": "The email cannot be longer than 254 characters (RFC 5321).",
     "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
   },
@@ -1902,7 +1902,7 @@
     "pt": "O formato do e-mail não é válido."
   },
   "validation.register_user.email_cannot_longer_than_254_characters": {
-    "es": "El email no puede tener más de 254 caracteres (RFC 5321).",
+    "es": "El correo no puede tener más de 254 caracteres.",
     "en": "The email cannot be longer than 254 characters (RFC 5321).",
     "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
   },

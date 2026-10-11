@@ -77,11 +77,18 @@ export class ToastService {
    * @param duration Optional duration in ms; `0` keeps it until dismissed.
    * @param action Optional call-to-action button that takes the reader where the message points.
    */
-  public show(message: string, type: ToastType = 'info', duration?: number, action?: ToastAction): void {
+  public show(
+    message: string,
+    type: ToastType = 'info',
+    duration?: number,
+    action?: ToastAction,
+    translation?: Toast['translation'],
+  ): void {
     const id = Math.random().toString(36).substring(2, 9);
     const newToast: Toast = {
       id,
       message,
+      translation,
       type,
       // An actionable toast is never shorter than the time it takes to reach its button, unless the
       // caller pinned it deliberately with `0`.
@@ -104,20 +111,20 @@ export class ToastService {
     this.arm(newToast);
   }
 
-  public success(message: string, duration?: number, action?: ToastAction): void {
-    this.show(message, 'success', duration, action);
+  public success(message: string, duration?: number, action?: ToastAction, translation?: Toast['translation']): void {
+    this.show(message, 'success', duration, action, translation);
   }
 
-  public error(message: string, duration?: number, action?: ToastAction): void {
-    this.show(message, 'error', duration, action);
+  public error(message: string, duration?: number, action?: ToastAction, translation?: Toast['translation']): void {
+    this.show(message, 'error', duration, action, translation);
   }
 
-  public info(message: string, duration?: number, action?: ToastAction): void {
-    this.show(message, 'info', duration, action);
+  public info(message: string, duration?: number, action?: ToastAction, translation?: Toast['translation']): void {
+    this.show(message, 'info', duration, action, translation);
   }
 
-  public warning(message: string, duration?: number, action?: ToastAction): void {
-    this.show(message, 'warning', duration, action);
+  public warning(message: string, duration?: number, action?: ToastAction, translation?: Toast['translation']): void {
+    this.show(message, 'warning', duration, action, translation);
   }
 
   /**

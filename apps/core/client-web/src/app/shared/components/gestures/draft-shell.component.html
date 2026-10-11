@@ -29,31 +29,35 @@
         `aria-live="polite"`: el estado de guardado cambia sin que el usuario haga nada visible, y
         es precisamente el dato que no puede quedarse solo en lo visual.
       -->
-      <span class="dr__status" [class]="'dr__status--' + status()" aria-live="polite">
-        @switch (status()) {
-          @case ('saving') {
-            <lucide-icon [img]="SavingIcon" size="14" class="dr__spin" aria-hidden="true"></lucide-icon>
-            <span>{{ 'shell.saving' | translate }}</span>
+      @if (!readOnly()) {
+        <span class="dr__status" [class]="'dr__status--' + status()" aria-live="polite">
+          @switch (status()) {
+            @case ('saving') {
+              <lucide-icon [img]="SavingIcon" size="14" class="dr__spin" aria-hidden="true"></lucide-icon>
+              <span>{{ 'shell.saving' | translate }}</span>
+            }
+            @case ('dirty') {
+              <span class="dr__dot" aria-hidden="true"></span>
+              <span>{{ 'shell.unsaved' | translate }}</span>
+            }
+            @default {
+              <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
+              <span>{{ 'shell.no_changes' | translate }}</span>
+            }
           }
-          @case ('dirty') {
-            <span class="dr__dot" aria-hidden="true"></span>
-            <span>{{ 'shell.unsaved' | translate }}</span>
-          }
-          @default {
-            <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
-            <span>{{ 'shell.no_changes' | translate }}</span>
-          }
-        }
-      </span>
+        </span>
+      }
 
       <ng-content select="[draftActions]"></ng-content>
 
       <button type="button" class="dr__cancel" (click)="cancelled.emit()">
         {{ cancelLabelKey() | translate }}
       </button>
-      <button type="submit" class="dr__save" [disabled]="!canSubmit()">
-        {{ saveLabelKey() | translate }}
-      </button>
+      @if (!readOnly()) {
+        <button type="submit" class="dr__save" [disabled]="!canSubmit()">
+          {{ saveLabelKey() | translate }}
+        </button>
+      }
     </div>
   </header>
 

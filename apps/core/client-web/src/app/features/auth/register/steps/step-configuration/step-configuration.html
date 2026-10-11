@@ -24,7 +24,7 @@
                (error)="onFlagError($event)" alt="">
         </div>
         <select id="country" formControlName="country" (change)="onCountryChange($event)" class="custom-select">
-          <option *ngFor="let c of countries()" [value]="c.countryCode">{{ c.name }}</option>
+          <option *ngFor="let c of countryOptions()" [value]="c.code">{{ c.name }}</option>
         </select>
         <div class="select-chevron">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
@@ -201,10 +201,10 @@
        implementation behind them. -->
   <p class="invoicing-notice" *ngIf="invoicingNotice() as regime">
     <ng-container *ngIf="invoicingSupported(); else invoicingPreview">
-      {{ 'auth.step_configuration.name_requires_electronic_invoicing_regime_details' | translate: { name: config()?.name, regime: regime } }}
+      {{ 'auth.step_configuration.name_requires_electronic_invoicing_regime_details' | translate: { name: configCountryName(), regime: regime } }}
     </ng-container>
     <ng-template #invoicingPreview>
-      <strong>{{ 'register.configuration.einvoicing_unavailable' | translate: { country: config()?.name } }}</strong>
+      <strong>{{ 'register.configuration.einvoicing_unavailable' | translate: { country: configCountryName() } }}</strong>
       {{ 'register.configuration.einvoicing_preview_detail' | translate: { regime: regime } }}
     </ng-template>
   </p>

@@ -13,7 +13,11 @@
            y deja pasar el texto que no lo es). Volver a aplicar `| translate` aquí lo
            traducía dos veces: la cadena ya en inglés «Product created.» se buscaba como
            clave, no existía, y ngx-translate emitía «Missing translation». -->
-      <p>{{ toast().message }}</p>
+      @if (toast().translation; as source) {
+        <p>{{ source.key | translate: source.params }}</p>
+      } @else {
+        <p>{{ toast().message }}</p>
+      }
     </div>
     @if (toast().action; as action) {
       <!--

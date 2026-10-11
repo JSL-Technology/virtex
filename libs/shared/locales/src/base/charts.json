@@ -5,29 +5,29 @@
     "pt": "Valor ({{currency}})"
   },
   "charts.cashflow.consolidated_title": {
-    "es": "Flujo de Efectivo Consolidado",
-    "en": "Consolidated Cash Flow",
-    "pt": "Fluxo de Caixa Consolidado"
+    "es": "Flujo de efectivo consolidado",
+    "en": "Consolidated cash flow",
+    "pt": "Fluxo de caixa consolidado"
   },
   "charts.cashflow.series_name": {
-    "es": "Flujo de Efectivo",
-    "en": "Cash Flow",
-    "pt": "Fluxo de Caixa"
+    "es": "Flujo de efectivo",
+    "en": "Cash flow",
+    "pt": "Fluxo de caixa"
   },
   "charts.cashflow.title": {
-    "es": "Flujo de Efectivo del Período",
-    "en": "Period Cash Flow",
-    "pt": "Fluxo de Caixa do Período"
+    "es": "Flujo de efectivo del período",
+    "en": "Period cash flow",
+    "pt": "Fluxo de caixa do período"
   },
   "charts.cashflow.x.cost_of_goods_sold": {
-    "es": "Costo de Ventas",
-    "en": "Cost of Goods Sold",
-    "pt": "Custo das Vendas"
+    "es": "Costo de ventas",
+    "en": "Cost of goods sold",
+    "pt": "Custo das vendas"
   },
   "charts.cashflow.x.ending_balance": {
-    "es": "Saldo Final",
-    "en": "Ending Balance",
-    "pt": "Saldo Final"
+    "es": "Saldo final",
+    "en": "Ending balance",
+    "pt": "Saldo final"
   },
   "charts.cashflow.x.financing": {
     "es": "Financiación",
@@ -40,24 +40,24 @@
     "pt": "Investimentos"
   },
   "charts.cashflow.x.opening_balance": {
-    "es": "Saldo Inicial",
-    "en": "Opening Balance",
-    "pt": "Saldo Inicial"
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
   },
   "charts.cashflow.x.operating_expenses": {
-    "es": "Gastos Operativos",
-    "en": "Operating Expenses",
-    "pt": "Despesas Operacionais"
+    "es": "Gastos operativos",
+    "en": "Operating expenses",
+    "pt": "Despesas operacionais"
   },
   "charts.cashflow.x.operating_income": {
-    "es": "Ingresos Operativos",
-    "en": "Operating Income",
-    "pt": "Receita Operacional"
+    "es": "Ingresos operativos",
+    "en": "Operating income",
+    "pt": "Receita operacional"
   },
   "charts.common.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "charts.container_label": {
     "es": "{title}. Gráfico de Highcharts.",
@@ -140,9 +140,9 @@
     "pt": "Baixar"
   },
   "charts.menu.full_screen": {
-    "es": "Ver en Pantalla Completa",
-    "en": "View Fullscreen",
-    "pt": "Ver em Tela Cheia"
+    "es": "Ver en pantalla completa",
+    "en": "View fullscreen",
+    "pt": "Ver em tela cheia"
   },
   "charts.menu.jpeg": {
     "es": "Descargar JPEG",
@@ -200,9 +200,9 @@
     "pt": "Unidades"
   },
   "charts.top_products.units_sold": {
-    "es": "Unidades Vendidas",
-    "en": "Units Sold",
-    "pt": "Unidades Vendidas"
+    "es": "Unidades vendidas",
+    "en": "Units sold",
+    "pt": "Unidades vendidas"
   },
   "charts.type.bar": {
     "es": "Barras",

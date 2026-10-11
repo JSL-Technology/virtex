@@ -206,7 +206,7 @@
   },
   "hcm.employees.form.last_name": {
     "es": "Apellidos",
-    "en": "Last Name",
+    "en": "Last name",
     "pt": "Sobrenome"
   },
   "hcm.employees.form.leaving_date": {

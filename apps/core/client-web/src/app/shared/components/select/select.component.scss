@@ -76,6 +76,9 @@
   background: transparent;
   border: none;
   outline: none;
+  //  The base layer gives every focused input its own ring; inside this box that drew a second
+  //  ring within the field's (QA U54). The field shows focus for both, on its container.
+  box-shadow: none;
 
   &::placeholder {
     color: var(--content-tertiary);

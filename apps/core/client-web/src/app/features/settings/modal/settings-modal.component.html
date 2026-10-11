@@ -122,22 +122,26 @@
             <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
             <span>{{ 'settings.modal.intercompany' | translate }}</span>
           </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'fiscal'"
-            (click)="navigate('fiscal')"
-          >
-            <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.electronic_invoicing' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'einvoicing-regime'"
-            (click)="navigate('einvoicing-regime')"
-          >
-            <lucide-icon [img]="RegimeIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.einvoicing_regime' | translate }}</span>
-          </button>
+          @if (showDominicanFiscal()) {
+            <button
+              class="nav-link"
+              [class.active]="section() === 'fiscal'"
+              (click)="navigate('fiscal')"
+            >
+              <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
+              <span>{{ 'settings.modal.electronic_invoicing' | translate }}</span>
+            </button>
+          }
+          @if (showRegimeSettings()) {
+            <button
+              class="nav-link"
+              [class.active]="section() === 'einvoicing-regime'"
+              (click)="navigate('einvoicing-regime')"
+            >
+              <lucide-icon [img]="RegimeIcon" size="16"></lucide-icon>
+              <span>{{ 'settings.modal.einvoicing_regime' | translate }}</span>
+            </button>
+          }
           <button
             class="nav-link"
             [class.active]="section() === 'withholding-regimes'"

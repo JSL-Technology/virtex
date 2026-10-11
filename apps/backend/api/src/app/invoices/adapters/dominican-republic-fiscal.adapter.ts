@@ -4,6 +4,7 @@ import {
   FiscalAssignmentContext,
   FiscalDocumentTypeOption,
   FiscalNumberAssignment,
+  FiscalSeries,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
 import { ComplianceService } from '../../compliance/compliance.service';
@@ -11,8 +12,13 @@ import {
   CREDIT_NOTE_NCF_TYPES,
   NcfType,
   SALES_NCF_TYPES,
+  isElectronicNcfType,
 } from '../../compliance/entities/ncf-sequence.entity';
-import { validateTaxId } from '../../localization/fiscal/identity-document-catalogue';
+import { validateTaxId } from '../../localization/contracts/tax-id.contract';
+import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
+
+/** The Dominican catalogue by code: what each type requires of the buyer. */
+const DOMINICAN_TYPES = new Map(fiscalDocumentTypesFor('DO').map((spec) => [spec.code, spec]));
 import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
@@ -36,7 +42,9 @@ import { BadRequestError } from '../../i18n/localized.exception';
  *
  * The rule now: honour an explicitly requested type when the tenant holds a range for it; otherwise
  * issue crédito fiscal when the buyer carries a VALID Dominican taxpayer identifier, and consumo
- * when they do not.
+ * when they do not — in the series the caller chose: traditional (B01/B02) or electronic
+ * (E31/E32). It used to be electronic always, so a company issuing traditional NCF had to pick the
+ * type by hand on every invoice.
  */
 @Injectable()
 export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
@@ -46,9 +54,10 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     return SALES_NCF_TYPES.map((code) => ({
       code,
       labelKey: `fiscal.do.${code}`,
-      // Only the Factura de Crédito Fiscal entitles the buyer to the ITBIS credit, and it is the
-      // one type the DGII refuses without a valid RNC or cédula.
-      requiresBuyerTaxId: code === NcfType.E31,
+      // From the catalogue: crédito fiscal, gubernamental and regímenes especiales, in either
+      // series. It used to be `code === E31`, so a B01 without an RNC was issued and rejected later.
+      requiresBuyerTaxId: DOMINICAN_TYPES.get(code)?.requiresBuyerTaxId ?? false,
+      electronic: isElectronicNcfType(code),
     }));
   }
 
@@ -56,11 +65,11 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     const { invoice, organizationId, manager } = context;
 
     const requestedType = this.asNcfType(context.requestedType);
-    const type = requestedType ?? this.inferSalesType(invoice);
+    const type = requestedType ?? this.inferSalesType(invoice, context.series ?? 'E');
     if (!SALES_NCF_TYPES.includes(type)) {
       throw new BadRequestError('invoices.document_type_type_not_sales_document', { type });
     }
-    if (type === NcfType.E31 && !this.hasValidDominicanTaxId(invoice)) {
+    if (DOMINICAN_TYPES.get(type)?.requiresBuyerTaxId && !this.hasValidDominicanTaxId(invoice)) {
       // A catalogue key, not a Spanish sentence. This was the one literal left in the adapter, so
       // an English-speaking controller in a Dominican tenant met a paragraph of Spanish at the
       // exact moment an invoice would not issue.
@@ -111,9 +120,11 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     return code as NcfType;
   }
 
-  /** Crédito fiscal for a verified taxpayer, consumo otherwise. */
-  private inferSalesType(invoice: Invoice): NcfType {
-    return this.hasValidDominicanTaxId(invoice) ? NcfType.E31 : NcfType.E32;
+  /** Crédito fiscal for a verified taxpayer, consumo otherwise — in the series asked for. */
+  private inferSalesType(invoice: Invoice, series: FiscalSeries): NcfType {
+    const taxpayer = this.hasValidDominicanTaxId(invoice);
+    if (series === 'B') return taxpayer ? NcfType.B01 : NcfType.B02;
+    return taxpayer ? NcfType.E31 : NcfType.E32;
   }
 
   /**

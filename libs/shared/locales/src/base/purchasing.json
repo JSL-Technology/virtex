@@ -168,9 +168,9 @@
     "pt": "Preço acordado"
   },
   "purchasing.orders.new_order": {
-    "es": "Nueva Orden",
-    "en": "New Order",
-    "pt": "Novo Pedido"
+    "es": "Nueva orden",
+    "en": "New order",
+    "pt": "Novo pedido"
   },
   "purchasing.orders.order": {
     "es": "N.º de orden",
@@ -228,9 +228,9 @@
     "pt": "Fornecedor"
   },
   "purchasing.orders.title": {
-    "es": "Órdenes de Compra",
-    "en": "Purchase Orders",
-    "pt": "Pedidos de Compra"
+    "es": "Órdenes de compra",
+    "en": "Purchase orders",
+    "pt": "Pedidos de compra"
   },
   "purchasing.orders.total": {
     "literal": "Total"
@@ -636,9 +636,9 @@
     "pt": "Artigos"
   },
   "purchasing.requisitions.new_requisition": {
-    "es": "Nueva Requisición",
-    "en": "New Requisition",
-    "pt": "Nova Requisição"
+    "es": "Nueva requisición",
+    "en": "New requisition",
+    "pt": "Nova requisição"
   },
   "purchasing.requisitions.required_date": {
     "es": "Fecha requerida",
@@ -686,9 +686,9 @@
     "pt": "Rejeitada"
   },
   "purchasing.requisitions.title": {
-    "es": "Requisiciones de Compra",
-    "en": "Purchase Requisitions",
-    "pt": "Requisições de Compra"
+    "es": "Requisiciones de compra",
+    "en": "Purchase requisitions",
+    "pt": "Requisições de compra"
   },
   "purchasing.requisitions.total": {
     "literal": "Total"

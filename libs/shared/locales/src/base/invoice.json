@@ -94,6 +94,11 @@
     "en": "Printed representation of an Electronic Fiscal Document (e-CF). Verify its validity on the DGII portal using the QR code or the security code shown above.",
     "pt": "Representação impressa de um Comprovante Fiscal Eletrônico (e-CF). Verifique sua validade no portal da DGII com o QR code ou o código de segurança exibidos acima."
   },
+  "invoice.pdf.legal_issued_traditional": {
+    "es": "Comprobante fiscal (NCF) de un rango autorizado por la DGII. Válido hasta la fecha indicada arriba.",
+    "en": "Fiscal document (NCF) from a range authorised by the DGII. Valid until the date shown above.",
+    "pt": "Comprovante fiscal (NCF) de uma faixa autorizada pela DGII. Válido até a data indicada acima."
+  },
   "invoice.pdf.line_total": {
     "literal": "Total"
   },

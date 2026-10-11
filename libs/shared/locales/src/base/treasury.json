@@ -36,7 +36,7 @@
   },
   "treasury.bank_accounts": {
     "es": "Cuentas bancarias",
-    "en": "Bank Accounts",
+    "en": "Bank accounts",
     "pt": "Contas bancárias"
   },
   "treasury.bank_in_use": {
@@ -183,7 +183,7 @@
     "pt": "Nova conta bancária"
   },
   "treasury.form.normally_opening_balance_equity_not_chosen": {
-    "es": "Normalmente patrimonio de apertura. No se elige por usted: hacerlo distorsionaría los resultados acumulados.",
+    "es": "Normalmente, patrimonio de apertura. No se elige por ti: hacerlo distorsionaría los resultados acumulados.",
     "en": "Normally opening balance equity. Not chosen for you: doing so would misstate retained earnings.",
     "pt": "Normalmente patrimônio de abertura. Não é escolhida por você: fazê-lo distorceria os lucros acumulados."
   },

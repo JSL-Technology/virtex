@@ -25,9 +25,9 @@
     "pt": "Voltar"
   },
   "datasheets.cell_format": {
-    "es": "Formato de Celda",
-    "en": "Cell Format",
-    "pt": "Formato da Célula"
+    "es": "Formato de celda",
+    "en": "Cell format",
+    "pt": "Formato da célula"
   },
   "datasheets.cell_type": {
     "es": "Tipo de dato",
@@ -55,9 +55,9 @@
     "pt": "Número"
   },
   "datasheets.chart_configuration": {
-    "es": "Configuración de Gráfico",
-    "en": "Chart Configuration",
-    "pt": "Configuração do Gráfico"
+    "es": "Configuración de gráfico",
+    "en": "Chart configuration",
+    "pt": "Configuração do gráfico"
   },
   "datasheets.charts": {
     "es": "Gráficos",
@@ -135,19 +135,19 @@
     "pt": "Importar do ERP"
   },
   "datasheets.import_wizard": {
-    "es": "Asistente de Importación",
-    "en": "Import Wizard",
-    "pt": "Assistente de Importação"
+    "es": "Asistente de importación",
+    "en": "Import wizard",
+    "pt": "Assistente de importação"
   },
   "datasheets.insert_chart": {
-    "es": "Insertar Gráfico",
-    "en": "Insert Chart",
-    "pt": "Inserir Gráfico"
+    "es": "Insertar gráfico",
+    "en": "Insert chart",
+    "pt": "Inserir gráfico"
   },
   "datasheets.last_modified": {
-    "es": "Última Modificación",
-    "en": "Last Modified",
-    "pt": "Última Modificação"
+    "es": "Última modificación",
+    "en": "Last modified",
+    "pt": "Última modificação"
   },
   "datasheets.list_failed": {
     "es": "No se pudieron cargar las hojas de datos.",
@@ -170,9 +170,9 @@
     "pt": "Nome"
   },
   "datasheets.new_document": {
-    "es": "Nuevo Libro",
-    "en": "New Book",
-    "pt": "Nova Pasta de Trabalho"
+    "es": "Nuevo libro",
+    "en": "New book",
+    "pt": "Nova pasta de trabalho"
   },
   "datasheets.no_invoiced_sales_period": {
     "es": "No hay ventas facturadas en el período.",

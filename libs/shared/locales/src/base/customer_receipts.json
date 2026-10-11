@@ -150,9 +150,9 @@
     "pt": "Cliente"
   },
   "customer_receipts.list.customer_receipts": {
-    "es": "Recibos de Cliente",
-    "en": "Customer Receipts",
-    "pt": "Recibos de Cliente"
+    "es": "Recibos de cliente",
+    "en": "Customer receipts",
+    "pt": "Recibos de cliente"
   },
   "customer_receipts.list.date": {
     "es": "Fecha",
@@ -160,9 +160,9 @@
     "pt": "Data"
   },
   "customer_receipts.list.new_receipt": {
-    "es": "Nuevo Recibo",
-    "en": "New Receipt",
-    "pt": "Novo Recibo"
+    "es": "Nuevo recibo",
+    "en": "New receipt",
+    "pt": "Novo recibo"
   },
   "customer_receipts.list.no_customer_receipts": {
     "es": "No hay recibos de cliente",

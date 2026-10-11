@@ -1,8 +1,8 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1236,
+  "total": 1235,
   "byRule": {
-    "private-import": 498,
+    "private-import": 497,
     "private-import:spec": 233,
     "forbidden-dependency": 239,
     "forbidden-dependency:spec": 91,
@@ -54,7 +54,7 @@
     "forbidden-dependency|plataforma|identidad": 15,
     "forbidden-dependency|plataforma|configuracion": 5,
     "private-import|plataforma|configuracion": 4,
-    "private-import|ventas|configuracion": 27,
+    "private-import|ventas|configuracion": 26,
     "private-import|ventas|identidad": 66,
     "forbidden-dependency|ventas|contabilidad": 36,
     "private-import|ventas|contabilidad": 29,
