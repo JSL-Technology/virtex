@@ -1,3 +1,4 @@
+import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MyProfilePage } from './my-profile.page';
 import { AuthService } from '../../../core/services/auth';
@@ -90,6 +91,8 @@ describe('MyProfilePage', () => {
           MockPhoneVerificationModalComponent,
           // The real meter: the password fields show it, and it has no dependencies to mock.
           PasswordStrengthComponent,
+          // The role badge is named in the reader's language, not «ADMINISTRATOR» (QA U79).
+          RoleNamePipe,
         ]
       }
     })

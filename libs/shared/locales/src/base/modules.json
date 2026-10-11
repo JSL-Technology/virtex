@@ -15,9 +15,9 @@
     "pt": "Planilhas"
   },
   "modules.hr": {
-    "es": "RR.HH. y Nómina",
-    "en": "HR & Payroll",
-    "pt": "RH e Folha de Pagamento"
+    "es": "RR.HH. y nómina",
+    "en": "HR & payroll",
+    "pt": "RH e folha de pagamento"
   },
   "modules.inventory": {
     "es": "Inventario",
@@ -41,7 +41,7 @@
   },
   "modules.workspace": {
     "es": "Mi trabajo",
-    "en": "My Work",
+    "en": "My work",
     "pt": "Meu trabalho"
   }
 }

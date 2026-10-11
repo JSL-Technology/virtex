@@ -1,8 +1,8 @@
 {
   "mail.billing_notice.go_billing": {
-    "es": "Ir a Facturación",
-    "en": "Go to Billing",
-    "pt": "Ir para Faturamento"
+    "es": "Ir a facturación",
+    "en": "Go to billing",
+    "pt": "Ir para faturamento"
   },
   "mail.common.current_year_app_name_all_rights": {
     "es": "© {{currentYear}} {{appName}}. Todos los derechos reservados.",
@@ -50,17 +50,17 @@
     "pt": "Se foi você quem tentou se cadastrar, pode entrar diretamente aqui:"
   },
   "mail.duplicate_registration.registration_attempt": {
-    "es": "Intento de Registro",
-    "en": "Registration Attempt",
-    "pt": "Tentativa de Cadastro"
+    "es": "Intento de registro",
+    "en": "Registration attempt",
+    "pt": "Tentativa de cadastro"
   },
   "mail.duplicate_registration.reset_password": {
-    "es": "Restablecer Contraseña",
-    "en": "Reset Password",
-    "pt": "Redefinir Senha"
+    "es": "Restablecer contraseña",
+    "en": "Reset password",
+    "pt": "Redefinir senha"
   },
   "mail.duplicate_registration.sign": {
-    "es": "Iniciar Sesión",
+    "es": "Iniciar sesión",
     "en": "Sign In",
     "pt": "Entrar"
   },
@@ -440,9 +440,9 @@
     "pt": "Se você não solicitou este convite, ignore este e-mail."
   },
   "mail.user_invitation.invitation_platform": {
-    "es": "Invitación a la Plataforma",
-    "en": "Invitation to the Platform",
-    "pt": "Convite para a Plataforma"
+    "es": "Invitación a la plataforma",
+    "en": "Invitation to the platform",
+    "pt": "Convite para a plataforma"
   },
   "mail.user_invitation.link_expires_days": {
     "es": "Este enlace expirará en 7 días.",
@@ -480,9 +480,9 @@
     "pt": "Seu código de verificação"
   },
   "mail.verification_code.verification_code": {
-    "es": "Código de Verificación",
-    "en": "Verification Code",
-    "pt": "Código de Verificação"
+    "es": "Código de verificación",
+    "en": "Verification code",
+    "pt": "Código de verificação"
   },
   "mail.verification_code.you_asked_turn_two_step_verification": {
     "es": "Has solicitado habilitar la autenticación de dos pasos (2FA) en tu cuenta.",

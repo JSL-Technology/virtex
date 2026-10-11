@@ -1,3 +1,5 @@
+import { CountryService } from '../../../core/services/country.service';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -106,6 +108,31 @@ export class InvoiceDetailPage implements OnInit {
    * not shown here; the server-rendered PDF, which is the fiscal representation, carries them.
    */
   readonly issuer = computed(() => this.auth.currentUser()?.organization ?? null);
+
+  /**
+   * What the tax identifiers are called where this company invoices — «RNC» in the Dominican
+   * Republic, «RFC» in Mexico. The screen said «Identificación fiscal» while the PDF of the same
+   * document said «RNC» (QA U60). The tenant's market, from the locale context; the generic label
+   * where it is not known yet.
+   */
+  private readonly countries = inject(CountryService);
+  private readonly localeStore = inject(LocaleStore);
+  readonly issuerTaxIdLabel = computed(() => {
+    const market = this.localeStore.tenantContext()?.countryCode?.toUpperCase();
+    const config = this.countries.currentCountry();
+    return market && config?.countryCode?.toUpperCase() === market && config.taxIdLabel
+      ? config.taxIdLabel
+      : this.translate.instant('invoices.detail.tax_id_generic');
+  });
+
+  /** The buyer's: in the Dominican Republic nine digits are an RNC and eleven a cédula. */
+  buyerTaxIdLabel(taxId: string): string {
+    const market = this.localeStore.tenantContext()?.countryCode?.toUpperCase();
+    const digits = taxId.replace(/\D/g, '');
+    if (market === 'DO' && digits.length === 9) return 'RNC';
+    if (market === 'DO' && digits.length === 11) return this.translate.instant('invoices.detail.cedula');
+    return this.issuerTaxIdLabel();
+  }
 
   /**
    * The status, as a catalogue key, a badge class and a tone.
@@ -224,6 +251,11 @@ export class InvoiceDetailPage implements OnInit {
   }
 
   ngOnInit(): void {
+    // The tenant's market's config (its tax identifier's name), when not already loaded.
+    const market = this.localeStore.tenantContext()?.countryCode;
+    if (market && this.countries.currentCountry()?.countryCode?.toUpperCase() !== market.toUpperCase()) {
+      this.countries.getCountryConfig(market).subscribe({ error: () => undefined });
+    }
     this.route.params.subscribe(params => {
         if (params['id']) {
             this.id.set(params['id']);

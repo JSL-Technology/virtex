@@ -1,4 +1,5 @@
-import {
+import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { computed,
   Component,
   HostListener,
   inject,
@@ -26,6 +27,21 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class SettingsModalComponent {
   protected readonly router = inject(Router);
+  /**
+   * Which electronic-invoicing page applies. There were two entries side by side — «Facturación
+   * electrónica» and «Régimen de facturación electrónica» — one for the Dominican DGII and one for
+   * every other market; a tenant saw both and could not tell which was theirs (QA U29). Only the
+   * one for the company's own market is shown. Unknown market: both, rather than hiding one.
+   */
+  private readonly localeStore = inject(LocaleStore);
+  protected readonly showDominicanFiscal = computed(() => {
+    const country = this.localeStore.tenantContext()?.countryCode ?? null;
+    return country === null || country === 'DO';
+  });
+  protected readonly showRegimeSettings = computed(() => {
+    const country = this.localeStore.tenantContext()?.countryCode ?? null;
+    return country === null || country !== 'DO';
+  });
 
   readonly section = signal<string>('my-profile');
 

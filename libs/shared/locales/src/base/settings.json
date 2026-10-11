@@ -140,14 +140,14 @@
     "pt": "Valor"
   },
   "settings.billing.billing_history": {
-    "es": "Historial de Facturación",
-    "en": "Billing History",
-    "pt": "Histórico de Faturamento"
+    "es": "Historial de facturación",
+    "en": "Billing history",
+    "pt": "Histórico de faturamento"
   },
   "settings.billing.billing_plan": {
-    "es": "Facturación y Plan",
-    "en": "Billing and Plan",
-    "pt": "Faturamento e Plano"
+    "es": "Facturación y plan",
+    "en": "Billing and plan",
+    "pt": "Faturamento e plano"
   },
   "settings.billing.change_plan": {
     "es": "Cambiar de plan",
@@ -180,9 +180,9 @@
     "pt": "Continuar para o portal"
   },
   "settings.billing.current_plan_heading": {
-    "es": "Plan Actual",
-    "en": "Current Plan",
-    "pt": "Plano Atual"
+    "es": "Plan actual",
+    "en": "Current plan",
+    "pt": "Plano atual"
   },
   "settings.billing.current_plan_label": {
     "es": "Plan actual",
@@ -275,9 +275,9 @@
     "pt": "Paga"
   },
   "settings.billing.payment_method": {
-    "es": "Método de Pago",
-    "en": "Payment Method",
-    "pt": "Forma de Pagamento"
+    "es": "Método de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
   },
   "settings.billing.period_lifetime": {
     "es": "en total",
@@ -305,9 +305,9 @@
     "pt": "Renova a"
   },
   "settings.billing.resource_usage": {
-    "es": "Uso de Recursos",
-    "en": "Resource Usage",
-    "pt": "Uso de Recursos"
+    "es": "Uso de recursos",
+    "en": "Resource usage",
+    "pt": "Uso de recursos"
   },
   "settings.billing.selected_plan": {
     "es": "Plan seleccionado:",
@@ -355,12 +355,12 @@
     "pt": "você será redirecionado ao portal seguro da Stripe."
   },
   "settings.branding.accent_colour": {
-    "es": "Color de Acento",
+    "es": "Color de acento",
     "en": "Accent colour",
     "pt": "Cor de destaque"
   },
   "settings.branding.appearance_layout": {
-    "es": "Apariencia y Layout",
+    "es": "Apariencia y diseño",
     "en": "Appearance and layout",
     "pt": "Aparência e layout"
   },
@@ -375,12 +375,12 @@
     "pt": "Compacta"
   },
   "settings.branding.company_logo": {
-    "es": "Logo de la Empresa",
+    "es": "Logo de la empresa",
     "en": "Company logo",
     "pt": "Logotipo da empresa"
   },
   "settings.branding.content_width": {
-    "es": "Ancho de Contenido",
+    "es": "Ancho de contenido",
     "en": "Content width",
     "pt": "Largura do conteúdo"
   },
@@ -455,7 +455,7 @@
     "pt": "Alto contraste"
   },
   "settings.branding.language_preferences": {
-    "es": "Preferencias de Idioma",
+    "es": "Preferencias de idioma",
     "en": "Language preferences",
     "pt": "Preferências de idioma"
   },
@@ -465,12 +465,12 @@
     "pt": "Claro"
   },
   "settings.branding.live_preview": {
-    "es": "Vista Previa en Vivo",
+    "es": "Vista previa en vivo",
     "en": "Live preview",
     "pt": "Visualização ao vivo"
   },
   "settings.branding.logo_colours": {
-    "es": "Logo y Colores",
+    "es": "Logo y colores",
     "en": "Logo and colours",
     "pt": "Logotipo e cores"
   },
@@ -483,7 +483,7 @@
     "literal": "Normal"
   },
   "settings.branding.save_changes": {
-    "es": "Guardar Cambios",
+    "es": "Guardar cambios",
     "en": "Save changes",
     "pt": "Salvar alterações"
   },
@@ -494,7 +494,7 @@
   },
   "settings.branding.system_settings": {
     "es": "Sistema",
-    "en": "System Settings",
+    "en": "System settings",
     "pt": "Sistema"
   },
   "settings.branding.theme": {
@@ -503,8 +503,8 @@
     "pt": "Tema"
   },
   "settings.branding.title": {
-    "es": "Personalización Avanzada",
-    "en": "Advanced Customization",
+    "es": "Personalización avanzada",
+    "en": "Advanced customization",
     "pt": "Personalização avançada"
   },
   "settings.branding.typeface": {
@@ -523,9 +523,9 @@
     "pt": "Largo"
   },
   "settings.company_profile.123_main_street_district": {
-    "es": "Calle Principal #123, Sector",
-    "en": "123 Main Street, District",
-    "pt": "Rua Principal, 123 – Bairro"
+    "es": "Calle principal #123, sector",
+    "en": "123 Main street, district",
+    "pt": "Rua principal, 123 – bairro"
   },
   "settings.company_profile.address": {
     "es": "Dirección",
@@ -533,9 +533,9 @@
     "pt": "Endereço"
   },
   "settings.company_profile.address_contact": {
-    "es": "Dirección y Contacto",
-    "en": "Address and Contact",
-    "pt": "Endereço e Contato"
+    "es": "Dirección y contacto",
+    "en": "Address and contact",
+    "pt": "Endereço e contato"
   },
   "settings.company_profile.city": {
     "es": "Ciudad",
@@ -548,9 +548,9 @@
     "pt": "Dados legais e de identificação da empresa."
   },
   "settings.company_profile.company_profile": {
-    "es": "Perfil de la Empresa",
-    "en": "Company Profile",
-    "pt": "Perfil da Empresa"
+    "es": "Perfil de la empresa",
+    "en": "Company profile",
+    "pt": "Perfil da empresa"
   },
   "settings.company_profile.country": {
     "es": "País",
@@ -574,8 +574,8 @@
   },
   "settings.company_profile.ej_virteex_corp": {
     "es": "Ej. Virtex Corp S.A.",
-    "en": "e.g. Virtex Corp Inc.",
-    "pt": "Ex.: Virtex Corp Ltda."
+    "en": "e.g. Virtex corp inc.",
+    "pt": "Ex.: Virtex corp ltda."
   },
   "settings.company_profile.error_loading_company_profile": {
     "es": "Error cargando el perfil de la empresa",
@@ -588,9 +588,9 @@
     "pt": "Erro ao atualizar o perfil"
   },
   "settings.company_profile.general_information": {
-    "es": "Información General",
-    "en": "General Information",
-    "pt": "Informações Gerais"
+    "es": "Información general",
+    "en": "General information",
+    "pt": "Informações gerais"
   },
   "settings.company_profile.https_example_com": {
     "es": "https://ejemplo.com",
@@ -603,9 +603,9 @@
     "pt": "Setor"
   },
   "settings.company_profile.legal_name": {
-    "es": "Nombre Legal",
-    "en": "Legal Name",
-    "pt": "Razão Social"
+    "es": "Nombre legal",
+    "en": "Legal name",
+    "pt": "Razão social"
   },
   "settings.company_profile.legal_name_required": {
     "es": "El nombre legal es requerido.",
@@ -648,12 +648,12 @@
     "pt": "A identificação fiscal é obrigatória."
   },
   "settings.company_profile.technology_retail_manufacturing": {
-    "es": "Ej. Tecnología, Retail, Manufactura…",
-    "en": "e.g. Technology, Retail, Manufacturing…",
-    "pt": "Ex.: Tecnologia, Varejo, Indústria…"
+    "es": "Ej.: tecnología, comercio minorista, manufactura…",
+    "en": "e.g. Technology, retail, manufacturing…",
+    "pt": "Ex.: tecnologia, varejo, indústria…"
   },
   "settings.company_profile.website": {
-    "es": "Sitio Web",
+    "es": "Sitio web",
     "en": "Website",
     "pt": "Site"
   },
@@ -1193,14 +1193,14 @@
     "pt": "Aprovações"
   },
   "settings.modal.billing_plan": {
-    "es": "Facturación y Plan",
-    "en": "Billing and Plan",
-    "pt": "Faturamento e Plano"
+    "es": "Facturación y plan",
+    "en": "Billing and plan",
+    "pt": "Faturamento e plano"
   },
   "settings.modal.cierre_fiscal": {
-    "es": "Cierre Fiscal",
-    "en": "Fiscal Close",
-    "pt": "Fechamento Fiscal"
+    "es": "Cierre fiscal",
+    "en": "Fiscal close",
+    "pt": "Fechamento fiscal"
   },
   "settings.modal.close_settings": {
     "es": "Cerrar configuración",
@@ -1208,24 +1208,24 @@
     "pt": "Fechar configurações"
   },
   "settings.modal.company_profile": {
-    "es": "Perfil de la Empresa",
-    "en": "Company Profile",
-    "pt": "Perfil da Empresa"
+    "es": "Perfil de la empresa",
+    "en": "Company profile",
+    "pt": "Perfil da empresa"
   },
   "settings.modal.company_structure": {
-    "es": "Estructura Empresarial",
-    "en": "Company Structure",
-    "pt": "Estrutura Empresarial"
+    "es": "Estructura empresarial",
+    "en": "Company structure",
+    "pt": "Estrutura empresarial"
   },
   "settings.modal.einvoicing_regime": {
-    "es": "Régimen de facturación electrónica",
-    "en": "E-invoicing regime",
-    "pt": "Regime de faturação eletrônica"
+    "es": "Facturación electrónica",
+    "en": "Electronic invoicing",
+    "pt": "Faturamento eletrônico"
   },
   "settings.modal.electronic_invoicing": {
-    "es": "Facturación Electrónica",
-    "en": "Electronic Invoicing",
-    "pt": "Faturamento Eletrônico"
+    "es": "Comprobantes fiscales",
+    "en": "Fiscal documents",
+    "pt": "Comprovantes fiscais"
   },
   "settings.modal.extensions": {
     "es": "Extensiones",
@@ -1268,9 +1268,9 @@
     "pt": "Multimoeda"
   },
   "settings.modal.my_account": {
-    "es": "Mi Cuenta",
-    "en": "My Account",
-    "pt": "Minha Conta"
+    "es": "Mi cuenta",
+    "en": "My account",
+    "pt": "Minha conta"
   },
   "settings.modal.my_companies": {
     "es": "Mis empresas",
@@ -1278,9 +1278,9 @@
     "pt": "Minhas empresas"
   },
   "settings.modal.my_profile": {
-    "es": "Mi Perfil",
-    "en": "My Profile",
-    "pt": "Meu Perfil"
+    "es": "Mi perfil",
+    "en": "My profile",
+    "pt": "Meu perfil"
   },
   "settings.modal.operations": {
     "es": "Operaciones",
@@ -1298,14 +1298,14 @@
     "pt": "Personalização"
   },
   "settings.modal.roles_permissions": {
-    "es": "Roles y Permisos",
-    "en": "Roles and Permissions",
-    "pt": "Perfis e Permissões"
+    "es": "Roles y permisos",
+    "en": "Roles and permissions",
+    "pt": "Perfis e permissões"
   },
   "settings.modal.security_audit": {
-    "es": "Seguridad y Auditoría",
-    "en": "Security and Audit",
-    "pt": "Segurança e Auditoria"
+    "es": "Seguridad y auditoría",
+    "en": "Security and audit",
+    "pt": "Segurança e auditoria"
   },
   "settings.modal.sequences": {
     "es": "Secuencias",
@@ -1319,7 +1319,7 @@
   },
   "settings.modal.system_settings": {
     "es": "Sistema",
-    "en": "System Settings",
+    "en": "System settings",
     "pt": "Sistema"
   },
   "settings.modal.tax_jurisdictions": {
@@ -1343,7 +1343,7 @@
     "pt": "Retenções"
   },
   "settings.my_companies.add": {
-    "es": "Añadir empresa",
+    "es": "Nueva empresa",
     "en": "Add a company",
     "pt": "Adicionar empresa"
   },
@@ -1450,16 +1450,10 @@
     "en": "Doe",
     "pt": "Silva"
   },
-  "settings.my_profile.english": {
-    "literal": "English"
-  },
   "settings.my_profile.jane": {
     "es": "Juan",
     "en": "Jane",
     "pt": "João"
-  },
-  "settings.my_profile.language_spanish": {
-    "literal": "Español"
   },
   "settings.my_profile.new_email_com": {
     "es": "nuevo@correo.com",
@@ -1467,9 +1461,9 @@
     "pt": "novo@email.com"
   },
   "settings.my_profile.preferred_language": {
-    "es": "Idioma Preferido",
-    "en": "Preferred Language",
-    "pt": "Idioma Preferido"
+    "es": "Idioma preferido",
+    "en": "Preferred language",
+    "pt": "Idioma preferido"
   },
   "settings.pages.accounting.set_default_accounts_posting_rules_your": {
     "es": "Define las cuentas contables predeterminadas y las reglas de registro para tu organización.",
@@ -2182,8 +2176,8 @@
     "pt": "Alterar e-mail"
   },
   "settings.profile.confirm_password": {
-    "es": "Confirmar Contraseña",
-    "en": "Confirm Password",
+    "es": "Confirmar contraseña",
+    "en": "Confirm password",
     "pt": "Confirmar senha"
   },
   "settings.profile.current_password": {
@@ -2192,7 +2186,7 @@
     "pt": "Senha atual"
   },
   "settings.profile.email": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -2278,7 +2272,7 @@
   },
   "settings.profile.job_title": {
     "es": "Cargo",
-    "en": "Job Title",
+    "en": "Job title",
     "pt": "Cargo"
   },
   "settings.profile.job_titles.accountant": {
@@ -2313,11 +2307,11 @@
   },
   "settings.profile.last_name": {
     "es": "Apellidos",
-    "en": "Last Name",
+    "en": "Last name",
     "pt": "Sobrenome"
   },
   "settings.profile.new_password": {
-    "es": "Nueva Contraseña",
+    "es": "Nueva contraseña",
     "en": "New password",
     "pt": "Nova senha"
   },
@@ -2332,7 +2326,7 @@
     "pt": "Senha atualizada."
   },
   "settings.profile.personal_information": {
-    "es": "Información Personal",
+    "es": "Información personal",
     "en": "Personal information",
     "pt": "Informações pessoais"
   },
@@ -2362,17 +2356,17 @@
     "pt": "Código enviado para"
   },
   "settings.profile.phone_verification.send_code": {
-    "es": "Enviar Código",
+    "es": "Enviar código",
     "en": "Send code",
     "pt": "Enviar código"
   },
   "settings.profile.phone_verification.title": {
-    "es": "Verificación de Teléfono",
+    "es": "Verificación de teléfono",
     "en": "Phone verification",
     "pt": "Verificação de telefone"
   },
   "settings.profile.phone_verification.verify": {
-    "es": "Verificar Código",
+    "es": "Verificar código",
     "en": "Verify code",
     "pt": "Verificar código"
   },
@@ -2387,7 +2381,7 @@
     "pt": "Telefone verificado."
   },
   "settings.profile.save_changes": {
-    "es": "Guardar Cambios",
+    "es": "Guardar cambios",
     "en": "Save changes",
     "pt": "Salvar alterações"
   },
@@ -2407,7 +2401,7 @@
     "pt": "Enviar confirmação"
   },
   "settings.profile.update_password": {
-    "es": "Actualizar Contraseña",
+    "es": "Actualizar contraseña",
     "en": "Update password",
     "pt": "Atualizar senha"
   },
@@ -2437,9 +2431,9 @@
     "pt": "Cancelar"
   },
   "settings.roles.clone_role": {
-    "es": "Clonar Rol",
-    "en": "Clone Role",
-    "pt": "Clonar Perfil"
+    "es": "Clonar rol",
+    "en": "Clone role",
+    "pt": "Clonar perfil"
   },
   "settings.roles.create_role": {
     "es": "Crear nuevo rol",
@@ -2447,9 +2441,9 @@
     "pt": "Criar novo papel"
   },
   "settings.roles.delete_role": {
-    "es": "Eliminar Rol",
-    "en": "Delete Role",
-    "pt": "Excluir Perfil"
+    "es": "Eliminar rol",
+    "en": "Delete role",
+    "pt": "Excluir perfil"
   },
   "settings.roles.description": {
     "es": "Descripción",
@@ -2487,9 +2481,9 @@
     "pt": "Perfil excluído com sucesso."
   },
   "settings.roles.role_name": {
-    "es": "Nombre del Rol",
-    "en": "Role Name",
-    "pt": "Nome do Perfil"
+    "es": "Nombre del rol",
+    "en": "Role name",
+    "pt": "Nome do perfil"
   },
   "settings.roles.role_name_cloned_successfully": {
     "es": "Rol \"{{name}}\" clonado exitosamente.",
@@ -2502,9 +2496,9 @@
     "pt": "Perfil atualizado com sucesso."
   },
   "settings.roles.roles_permissions": {
-    "es": "Roles y Permisos",
-    "en": "Roles and Permissions",
-    "pt": "Perfis e Permissões"
+    "es": "Roles y permisos",
+    "en": "Roles and permissions",
+    "pt": "Perfis e permissões"
   },
   "settings.roles.save": {
     "es": "Guardar",
@@ -2832,7 +2826,7 @@
     "pt": "Períodos contábeis"
   },
   "settings.sections.go_structure": {
-    "es": "Estructura Empresarial",
+    "es": "Estructura empresarial",
     "en": "Company structure",
     "pt": "Estrutura empresarial"
   },
@@ -2892,7 +2886,7 @@
     "pt": "As empresas do grupo são registradas em:"
   },
   "settings.sections.inventory_valuation_note": {
-    "es": "El inventario se valora a costo promedio ponderado; los mínimos y puntos de reorden se fijan en cada producto.",
+    "es": "El inventario se valora a costo promedio ponderado; los mínimos y puntos de pedido se fijan en cada producto.",
     "en": "Stock is valued at weighted average cost; minimums and reorder points are set on each product.",
     "pt": "O estoque é avaliado pelo custo médio ponderado; mínimos e pontos de reposição são definidos em cada produto."
   },
@@ -2977,7 +2971,7 @@
     "pt": "Agente de retenção / grande contribuinte"
   },
   "settings.security.2_fa_description": {
-    "es": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
+    "es": "Agrega un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
     "en": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
     "pt": "Adicione um segundo fator ao seu login. Pediremos um código além da sua senha."
   },
@@ -2992,8 +2986,8 @@
     "pt": "2FA ativado."
   },
   "settings.security.2_fa_title": {
-    "es": "Autenticación de Dos Factores (2FA)",
-    "en": "Two-Factor Authentication (2FA)",
+    "es": "Autenticación de dos factores (2FA)",
+    "en": "Two-factor authentication (2FA)",
     "pt": "Autenticação de dois fatores (2FA)"
   },
   "settings.security.action.create": {
@@ -3052,12 +3046,12 @@
     "pt": "Depois"
   },
   "settings.security.backup_codes": {
-    "es": "Códigos de Recuperación",
+    "es": "Códigos de recuperación",
     "en": "Recovery codes",
     "pt": "Códigos de recuperação"
   },
   "settings.security.backup_codes_title": {
-    "es": "Verificación de 2 Pasos Activada",
+    "es": "Verificación de 2 pasos activada",
     "en": "Two-step verification is on",
     "pt": "Verificação em duas etapas ativada"
   },
@@ -3577,7 +3571,7 @@
     "pt": "Verificação em duas etapas"
   },
   "settings.security.setup_authenticator": {
-    "es": "Configurar App Autenticadora",
+    "es": "Configurar app autenticadora",
     "en": "Set up authenticator app",
     "pt": "Configurar aplicativo autenticador"
   },
@@ -3752,7 +3746,7 @@
     "pt": "Fatura de fornecedor"
   },
   "settings.sessions.active_sessions": {
-    "es": "Sesiones Activas",
+    "es": "Sesiones activas",
     "en": "Active sessions",
     "pt": "Sessões ativas"
   },
@@ -3858,7 +3852,7 @@
     "pt": "Adicionar domínio"
   },
   "settings.sso.add_provider": {
-    "es": "Añadir proveedor",
+    "es": "Agregar proveedor",
     "en": "Add provider",
     "pt": "Adicionar provedor"
   },
@@ -3935,9 +3929,9 @@
     "literal": "https://acme.okta.com/oauth2/default"
   },
   "settings.sso.identity_providers_oidc": {
-    "es": "Proveedores de Identidad (OIDC)",
-    "en": "Identity Providers (OIDC)",
-    "pt": "Provedores de Identidade (OIDC)"
+    "es": "Proveedores de identidad (OIDC)",
+    "en": "Identity providers (OIDC)",
+    "pt": "Provedores de identidade (OIDC)"
   },
   "settings.sso.issuer": {
     "literal": "Issuer"
@@ -3977,9 +3971,9 @@
     "literal": "Scopes"
   },
   "settings.sso.single_sign_sso": {
-    "es": "Inicio de Sesión Único (SSO)",
-    "en": "Single Sign-On (SSO)",
-    "pt": "Login Único (SSO)"
+    "es": "Inicio de sesión único (SSO)",
+    "en": "Single sign-on (SSO)",
+    "pt": "Login único (SSO)"
   },
   "settings.sso.status": {
     "es": "Estado",
@@ -4002,9 +3996,9 @@
     "pt": "Valor:"
   },
   "settings.sso.verified_domains": {
-    "es": "Dominios Verificados",
-    "en": "Verified Domains",
-    "pt": "Domínios Verificados"
+    "es": "Dominios verificados",
+    "en": "Verified domains",
+    "pt": "Domínios verificados"
   },
   "settings.sso.verify": {
     "es": "Verificar",
@@ -4047,9 +4041,9 @@
     "pt": "Cancelar"
   },
   "settings.subsidiaries.company_structure": {
-    "es": "Estructura Empresarial",
-    "en": "Company Structure",
-    "pt": "Estrutura Empresarial"
+    "es": "Estructura empresarial",
+    "en": "Company structure",
+    "pt": "Estrutura empresarial"
   },
   "settings.subsidiaries.control_ended": {
     "es": "Fin del control",
@@ -4108,8 +4102,8 @@
   },
   "settings.subsidiaries.ej_virteex_latam": {
     "es": "Ej. Virtex Latam S.A.",
-    "en": "e.g. Virtex Latam Inc.",
-    "pt": "Ex.: Virtex Latam Ltda."
+    "en": "e.g. Virtex latam inc.",
+    "pt": "Ex.: Virtex latam ltda."
   },
   "settings.subsidiaries.empty_description": {
     "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar. Para tiendas u oficinas de esta misma empresa, usa Sucursales.",
@@ -4117,7 +4111,7 @@
     "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar. Para lojas ou escritórios desta mesma empresa, use Filiais."
   },
   "settings.subsidiaries.id_fiscal": {
-    "es": "ID Fiscal:",
+    "es": "ID fiscal:",
     "en": "Tax ID:",
     "pt": "Identificação fiscal:"
   },
@@ -4132,9 +4126,9 @@
     "pt": "A conta de ativo onde esta empresa registra seu investimento na subsidiária; é eliminada na consolidação."
   },
   "settings.subsidiaries.legal_name": {
-    "es": "Nombre Legal",
-    "en": "Legal Name",
-    "pt": "Razão Social"
+    "es": "Nombre legal",
+    "en": "Legal name",
+    "pt": "Razão social"
   },
   "settings.subsidiaries.load_failed": {
     "es": "No se pudieron cargar las subsidiarias.",
@@ -4147,9 +4141,9 @@
     "pt": "Carregando subsidiárias..."
   },
   "settings.subsidiaries.new_subsidiary": {
-    "es": "Nueva Subsidiaria",
-    "en": "New Subsidiary",
-    "pt": "Nova Subsidiária"
+    "es": "Nueva subsidiaria",
+    "en": "New subsidiary",
+    "pt": "Nova subsidiária"
   },
   "settings.subsidiaries.no_subsidiaries_record": {
     "es": "No hay subsidiarias registradas",
@@ -4162,9 +4156,9 @@
     "pt": "{{ownership}}% de participação"
   },
   "settings.subsidiaries.ownership_percentage": {
-    "es": "Porcentaje de Propiedad (%)",
-    "en": "Ownership Percentage (%)",
-    "pt": "Percentual de Participação (%)"
+    "es": "Porcentaje de propiedad (%)",
+    "en": "Ownership percentage (%)",
+    "pt": "Percentual de participação (%)"
   },
   "settings.subsidiaries.select_country": {
     "es": "Elige el país",
@@ -4202,9 +4196,9 @@
     "pt": "Administração"
   },
   "settings.user_management.block_sign_out": {
-    "es": "Bloquear y Cerrar Sesión",
-    "en": "Block and Sign Out",
-    "pt": "Bloquear e Encerrar Sessão"
+    "es": "Bloquear y cerrar sesión",
+    "en": "Block and sign out",
+    "pt": "Bloquear e encerrar sessão"
   },
   "settings.user_management.cancel": {
     "es": "Cancelar",
@@ -4217,19 +4211,19 @@
     "pt": "Mensagem personalizada para o usuário..."
   },
   "settings.user_management.delete_account": {
-    "es": "Eliminar Cuenta",
-    "en": "Delete Account",
-    "pt": "Excluir Conta"
+    "es": "Eliminar cuenta",
+    "en": "Delete account",
+    "pt": "Excluir conta"
   },
   "settings.user_management.delete_permanently": {
-    "es": "Eliminar Permanentemente",
-    "en": "Delete Permanently",
-    "pt": "Excluir Permanentemente"
+    "es": "Eliminar permanentemente",
+    "en": "Delete permanently",
+    "pt": "Excluir permanentemente"
   },
   "settings.user_management.delete_user": {
-    "es": "Eliminar Usuario",
-    "en": "Delete User",
-    "pt": "Excluir Usuário"
+    "es": "Eliminar usuario",
+    "en": "Delete user",
+    "pt": "Excluir usuário"
   },
   "settings.user_management.edit_user": {
     "es": "Editar usuario",
@@ -4237,7 +4231,7 @@
     "pt": "Editar utilizador"
   },
   "settings.user_management.email": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -4252,14 +4246,14 @@
     "pt": "Este campo é obrigatório."
   },
   "settings.user_management.force_sign_out": {
-    "es": "Forzar Cierre de Sesión",
-    "en": "Force Sign Out",
-    "pt": "Forçar Encerramento de Sessão"
+    "es": "Forzar cierre de sesión",
+    "en": "Force sign out",
+    "pt": "Forçar encerramento de sessão"
   },
   "settings.user_management.impersonate_user": {
-    "es": "Suplantar Usuario",
-    "en": "Impersonate User",
-    "pt": "Personificar Usuário"
+    "es": "Suplantar usuario",
+    "en": "Impersonate user",
+    "pt": "Personificar usuário"
   },
   "settings.user_management.invitation_expires": {
     "es": "Caduca",
@@ -4292,9 +4286,9 @@
     "pt": "Convidar novo utilizador"
   },
   "settings.user_management.invite_user": {
-    "es": "Invitar Usuario",
-    "en": "Invite User",
-    "pt": "Convidar Usuário"
+    "es": "Invitar usuario",
+    "en": "Invite user",
+    "pt": "Convidar usuário"
   },
   "settings.user_management.last_name": {
     "es": "Apellido",
@@ -4317,9 +4311,9 @@
     "pt": "Reenviar convite"
   },
   "settings.user_management.reset_password": {
-    "es": "Resetear Contraseña",
-    "en": "Reset Password",
-    "pt": "Redefinir Senha"
+    "es": "Resetear contraseña",
+    "en": "Reset password",
+    "pt": "Redefinir senha"
   },
   "settings.user_management.revoke_invitation": {
     "es": "Retirar",
@@ -4372,9 +4366,9 @@
     "pt": "Usuário convidado com sucesso."
   },
   "settings.user_management.user_management": {
-    "es": "Gestión de Usuarios",
-    "en": "User Management",
-    "pt": "Gestão de Usuários"
+    "es": "Gestión de usuarios",
+    "en": "User management",
+    "pt": "Gestão de usuários"
   },
   "settings.user_management.user_session_has_closed": {
     "es": "La sesión del usuario ha sido cerrada.",

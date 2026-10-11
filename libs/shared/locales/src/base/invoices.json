@@ -30,9 +30,14 @@
     "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
   },
   "invoices.detail.bill": {
-    "es": "FACTURADO A:",
-    "en": "BILL TO:",
-    "pt": "FATURADO PARA:"
+    "es": "FACTURADO A",
+    "en": "BILL TO",
+    "pt": "FATURADO PARA"
+  },
+  "invoices.detail.cedula": {
+    "es": "Cédula",
+    "en": "Cédula",
+    "pt": "Cédula"
   },
   "invoices.detail.cf_resubmitted_dgii": {
     "es": "e-CF reenviado a la DGII.",
@@ -40,9 +45,9 @@
     "pt": "e-CF reenviado à DGII."
   },
   "invoices.detail.contact_person": {
-    "es": "Persona de Contacto:",
-    "en": "Contact person:",
-    "pt": "Pessoa de contato:"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "invoices.detail.content": {
     "es": "Contenido",
@@ -145,9 +150,9 @@
     "pt": "Descrição"
   },
   "invoices.detail.dgii_status": {
-    "es": "Estado DGII:",
-    "en": "DGII status:",
-    "pt": "Status na DGII:"
+    "es": "Estado DGII",
+    "en": "DGII status",
+    "pt": "Status na DGII"
   },
   "invoices.detail.dgii_verification": {
     "es": "Verificación DGII",
@@ -180,9 +185,9 @@
     "pt": "Vencimento"
   },
   "invoices.detail.electronic_fiscal_document_cf": {
-    "es": "Comprobante Fiscal Electrónico (e-CF)",
-    "en": "Electronic Fiscal Document (e-CF)",
-    "pt": "Comprovante Fiscal Eletrônico (e-CF)"
+    "es": "Comprobante fiscal electrónico (e-CF)",
+    "en": "Electronic fiscal document (e-CF)",
+    "pt": "Comprovante fiscal eletrônico (e-CF)"
   },
   "invoices.detail.email_failed": {
     "es": "No se pudo enviar la factura.",
@@ -230,9 +235,9 @@
     "pt": "Finanças"
   },
   "invoices.detail.financial_information": {
-    "es": "Información Financiera",
-    "en": "Financial Information",
-    "pt": "Informações Financeiras"
+    "es": "Información financiera",
+    "en": "Financial information",
+    "pt": "Informações financeiras"
   },
   "invoices.detail.grand_total_label": {
     "literal": "TOTAL:"
@@ -267,11 +272,6 @@
     "en": "Issue document",
     "pt": "Emitir documento"
   },
-  "invoices.detail.issuer_tax_id": {
-    "es": "Identificación fiscal: {{taxId}}",
-    "en": "Tax ID: {{taxId}}",
-    "pt": "Identificação fiscal: {{taxId}}"
-  },
   "invoices.detail.issuing": {
     "es": "Emitiendo…",
     "en": "Issuing…",
@@ -283,19 +283,19 @@
     "pt": "Logística"
   },
   "invoices.detail.logistics_delivery": {
-    "es": "Logística y Entrega",
-    "en": "Logistics and Delivery",
-    "pt": "Logística e Entrega"
+    "es": "Logística y entrega",
+    "en": "Logistics and delivery",
+    "pt": "Logística e entrega"
   },
   "invoices.detail.messages_from_dgii": {
-    "es": "Mensajes de la DGII:",
-    "en": "Messages from the DGII:",
-    "pt": "Mensagens da DGII:"
+    "es": "Mensajes de la DGII",
+    "en": "Messages from the DGII",
+    "pt": "Mensagens da DGII"
   },
   "invoices.detail.ncf": {
-    "en": "Fiscal document no.:",
-    "es": "N.º de comprobante fiscal:",
-    "pt": "N.º do documento fiscal:"
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
@@ -308,9 +308,9 @@
     "pt": "Não atribuído"
   },
   "invoices.detail.notes": {
-    "es": "Notas:",
-    "en": "Notes:",
-    "pt": "Observações:"
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Observações"
   },
   "invoices.detail.open_stamp_lookup": {
     "es": "Abrir la consulta del timbre",
@@ -318,9 +318,9 @@
     "pt": "Abrir a consulta do selo"
   },
   "invoices.detail.outstanding_balance": {
-    "es": "Saldo pendiente:",
-    "en": "Outstanding balance:",
-    "pt": "Saldo em aberto:"
+    "es": "Saldo pendiente",
+    "en": "Outstanding balance",
+    "pt": "Saldo em aberto"
   },
   "invoices.detail.payment_method": {
     "es": "Método de pago",
@@ -328,9 +328,9 @@
     "pt": "Método de pagamento"
   },
   "invoices.detail.payment_terms": {
-    "es": "Condición de Pago:",
-    "en": "Payment terms:",
-    "pt": "Condição de pagamento:"
+    "es": "Condición de pago",
+    "en": "Payment terms",
+    "pt": "Condição de pagamento"
   },
   "invoices.detail.popup_blocked_pdf": {
     "es": "El navegador bloqueó la ventana de impresión; se descarga el PDF, que es el mismo documento.",
@@ -373,19 +373,19 @@
     "pt": "Buscar nas linhas..."
   },
   "invoices.detail.security_code": {
-    "es": "Código de seguridad:",
-    "en": "Security code:",
-    "pt": "Código de segurança:"
+    "es": "Código de seguridad",
+    "en": "Security code",
+    "pt": "Código de segurança"
   },
   "invoices.detail.shipping_address": {
-    "es": "Dirección de Envío:",
-    "en": "Shipping address:",
-    "pt": "Endereço de entrega:"
+    "es": "Dirección de envío",
+    "en": "Shipping address",
+    "pt": "Endereço de entrega"
   },
   "invoices.detail.shipping_method": {
-    "es": "Método de Envío:",
-    "en": "Shipping method:",
-    "pt": "Método de envio:"
+    "es": "Método de envío",
+    "en": "Shipping method",
+    "pt": "Método de envio"
   },
   "invoices.detail.subtotal": {
     "literal": "Subtotal:"
@@ -400,10 +400,15 @@
     "es": "Identificación fiscal",
     "pt": "Identificação fiscal"
   },
+  "invoices.detail.tax_id_labelled": {
+    "es": "{{label}}: {{taxId}}",
+    "en": "{{label}}: {{taxId}}",
+    "pt": "{{label}}: {{taxId}}"
+  },
   "invoices.detail.tax_indicator": {
-    "es": "Indicador de Impuestos:",
-    "en": "Tax indicator:",
-    "pt": "Indicador de impostos:"
+    "es": "Indicador de impuestos",
+    "en": "Tax indicator",
+    "pt": "Indicador de impostos"
   },
   "invoices.detail.tax_rate_applied": {
     "es": "{{rate}} sobre el monto gravado",
@@ -411,9 +416,9 @@
     "pt": "{{rate}} sobre o valor tributado"
   },
   "invoices.detail.taxes": {
-    "es": "Impuestos:",
-    "en": "Taxes:",
-    "pt": "Impostos:"
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
   },
   "invoices.detail.terms_credit_days": {
     "es": "Crédito a {{days}} días",
@@ -434,9 +439,9 @@
     "literal": "Total"
   },
   "invoices.detail.trackid": {
-    "en": "Tracking ID:",
-    "es": "Id. de seguimiento:",
-    "pt": "ID de rastreio:"
+    "en": "Tracking ID",
+    "es": "Id. de seguimiento",
+    "pt": "ID de rastreio"
   },
   "invoices.detail.void_invoice": {
     "es": "Anular",
@@ -742,14 +747,14 @@
     "pt": "um período contábil aberto que cubra a data de hoje"
   },
   "invoices.gaps.receivables_account": {
-    "es": "la cuenta de Cuentas por Cobrar",
-    "en": "the Accounts Receivable account",
-    "pt": "a conta de Contas a Receber"
+    "es": "la cuenta de cuentas por cobrar",
+    "en": "the accounts receivable account",
+    "pt": "a conta de contas a receber"
   },
   "invoices.gaps.sales_discounts_account": {
-    "es": "la cuenta de Descuentos sobre Ventas",
-    "en": "the Sales Discounts account",
-    "pt": "a conta de Descontos sobre Vendas"
+    "es": "la cuenta de descuentos sobre ventas",
+    "en": "the sales discounts account",
+    "pt": "a conta de descontos sobre vendas"
   },
   "invoices.gaps.sales_journal": {
     "es": "el diario de ventas (VENTAS)",
@@ -757,19 +762,19 @@
     "pt": "o diário de vendas (VENTAS)"
   },
   "invoices.gaps.sales_revenue_account": {
-    "es": "la cuenta de Ingresos por Ventas",
-    "en": "the Sales Revenue account",
-    "pt": "a conta de Receita de Vendas"
+    "es": "la cuenta de ingresos por ventas",
+    "en": "the sales revenue account",
+    "pt": "a conta de receita de vendas"
   },
   "invoices.gaps.sales_tax_account": {
-    "es": "la cuenta de Impuesto sobre Ventas por Pagar",
-    "en": "the Sales Tax Payable account",
-    "pt": "a conta de Imposto sobre Vendas a Pagar"
+    "es": "la cuenta de impuesto sobre ventas por pagar",
+    "en": "the sales tax payable account",
+    "pt": "a conta de imposto sobre vendas a pagar"
   },
   "invoices.gaps.service_charge_account": {
-    "es": "la cuenta de Propina Legal por Pagar",
-    "en": "the Service Charge Payable account",
-    "pt": "a conta de Taxa de Serviço a Pagar"
+    "es": "la cuenta de propina legal por pagar",
+    "en": "the service charge payable account",
+    "pt": "a conta de taxa de serviço a pagar"
   },
   "invoices.gaps.signing_certificate": {
     "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Facturación electrónica)",
@@ -777,9 +782,9 @@
     "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
   },
   "invoices.gaps.tax_withheld_account": {
-    "es": "la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)",
-    "en": "the Tax Withheld by Customers account",
-    "pt": "a conta de Retenções Recebidas (imposto retido pelo cliente)"
+    "es": "la cuenta de retenciones recibidas (impuesto retenido por el cliente)",
+    "en": "the tax withheld by customers account",
+    "pt": "a conta de retenções recebidas (imposto retido pelo cliente)"
   },
   "invoices.invoice_has_already_credited_full": {
     "es": "La factura ya fue acreditada en su totalidad.",
@@ -847,9 +852,9 @@
     "pt": "Buscar por número ou cliente..."
   },
   "invoices.invoice_selection_dialog.select_source_document_copy_from": {
-    "es": "Seleccionar Documento Base (Copiar de...)",
-    "en": "Select a Source Document (Copy from...)",
-    "pt": "Selecionar Documento de Origem (Copiar de...)"
+    "es": "Seleccionar documento base (copiar de...)",
+    "en": "Select a source document (copy from...)",
+    "pt": "Selecionar documento de origem (copiar de...)"
   },
   "invoices.invoice_selection_dialog.total": {
     "literal": "Total"
@@ -1108,7 +1113,7 @@
     "pt": "Cancelada"
   },
   "invoices.new.add_line_button": {
-    "es": "+ Añadir línea",
+    "es": "+ Agregar línea",
     "en": "+ Add line",
     "pt": "+ Adicionar linha"
   },

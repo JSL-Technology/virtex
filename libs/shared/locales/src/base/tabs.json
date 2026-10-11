@@ -54,11 +54,6 @@
     "en": "Maximise",
     "pt": "Maximizar"
   },
-  "tabs.module": {
-    "es": "Módulo",
-    "en": "Module",
-    "pt": "Módulo"
-  },
   "tabs.mount_failed": {
     "es": "No se pudo abrir esta ventana.",
     "en": "This window could not be opened.",

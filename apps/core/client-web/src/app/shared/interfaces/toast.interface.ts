@@ -49,4 +49,11 @@ export interface Toast {
   duration?: number;
   /** The one thing the reader can do next, rendered as a button. See {@link ToastAction}. */
   action?: ToastAction;
+  /**
+   * The catalogue key `message` was resolved from, when it was one. The toast translates it again
+   * as it renders, so a toast raised as the reader switches language reads in the language it ends
+   * up in — its title is a key too, and the pair used to arrive half and half: «Success» over
+   * «Perfil actualizado exitosamente.» (QA U83).
+   */
+  translation?: { key: string; params?: Record<string, unknown> };
 }

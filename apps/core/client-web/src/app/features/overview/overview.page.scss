@@ -47,7 +47,8 @@
     font-size: var(--text-md);
   }
 
-  &__date { text-transform: capitalize; }
+  // Only the first letter: `capitalize` turned «domingo, 11 de octubre» into «Domingo, 11 De Octubre».
+  &__date { display: inline-block; &::first-letter { text-transform: uppercase; } }
   &__sep { color: var(--text-tertiary); }
 
   &__actions {
@@ -359,7 +360,6 @@
     font-size: var(--text-xs);
     font-weight: var(--font-semibold);
     text-align: center;
-    text-transform: capitalize;
   }
 
   &__body { min-width: 0; }

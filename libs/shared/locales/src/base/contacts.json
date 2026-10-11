@@ -5,8 +5,8 @@
     "pt": "Endereço"
   },
   "contacts.customer_form.address_line": {
-    "es": "Línea de Dirección",
-    "en": "Address Line",
+    "es": "Línea de dirección",
+    "en": "Address line",
     "pt": "Logradouro"
   },
   "contacts.customer_form.cancel": {
@@ -36,14 +36,14 @@
     "note": "Parallel to masters.supplier_form.supplier_name. It read 'Company Name' while the supplier's read 'Supplier Name', so the two sides of the ledger named the same idea differently."
   },
   "contacts.customer_form.contact_details": {
-    "es": "Datos de Contacto",
-    "en": "Contact Details",
-    "pt": "Dados de Contato"
+    "es": "Datos de contacto",
+    "en": "Contact details",
+    "pt": "Dados de contato"
   },
   "contacts.customer_form.contact_person": {
-    "es": "Persona de Contacto",
-    "en": "Contact Person",
-    "pt": "Pessoa de Contato"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "contacts.customer_form.country": {
     "es": "País",
@@ -111,7 +111,7 @@
     "pt": "Indica que tipo de documento estás a registar para {{country}}."
   },
   "contacts.customer_form.email": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -141,9 +141,9 @@
     "pt": "Pessoa física"
   },
   "contacts.customer_form.main_information": {
-    "es": "Información Principal",
-    "en": "Main Information",
-    "pt": "Informações Principais"
+    "es": "Información principal",
+    "en": "Main information",
+    "pt": "Informações principais"
   },
   "contacts.customer_form.payment_terms": {
     "es": "Términos de pago",
@@ -161,8 +161,8 @@
     "pt": "Telefone"
   },
   "contacts.customer_form.postal_code": {
-    "es": "Código Postal",
-    "en": "Postal Code",
+    "es": "Código postal",
+    "en": "Postal code",
     "pt": "CEP"
   },
   "contacts.customer_form.save_customer": {
@@ -171,9 +171,9 @@
     "pt": "Salvar cliente"
   },
   "contacts.customer_form.state_province": {
-    "es": "Estado/Provincia",
-    "en": "State/Province",
-    "pt": "Estado/Província"
+    "es": "Estado/provincia",
+    "en": "State/province",
+    "pt": "Estado/província"
   },
   "contacts.customer_form.tax_id": {
     "es": "Número de documento",
@@ -206,19 +206,19 @@
     "pt": "Ações"
   },
   "contacts.customers.add_customer": {
-    "es": "Añadir Cliente",
-    "en": "Add Customer",
-    "pt": "Adicionar Cliente"
+    "es": "Nuevo cliente",
+    "en": "Add customer",
+    "pt": "Adicionar cliente"
   },
   "contacts.customers.company_name": {
-    "es": "Nombre de la Empresa",
-    "en": "Company Name",
-    "pt": "Nome da Empresa"
+    "es": "Nombre de la empresa",
+    "en": "Company name",
+    "pt": "Nome da empresa"
   },
   "contacts.customers.contact_person": {
-    "es": "Persona de Contacto",
-    "en": "Contact Person",
-    "pt": "Pessoa de Contato"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "contacts.customers.customer_could_not_deleted": {
     "es": "No se pudo eliminar el cliente.",
@@ -251,7 +251,7 @@
     "pt": "Editar"
   },
   "contacts.customers.email": {
-    "es": "Email",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -296,14 +296,14 @@
     "pt": "Ações"
   },
   "contacts.suppliers.company_name": {
-    "es": "Nombre de la Empresa",
-    "en": "Company Name",
-    "pt": "Nome da Empresa"
+    "es": "Nombre de la empresa",
+    "en": "Company name",
+    "pt": "Nome da empresa"
   },
   "contacts.suppliers.contact_person": {
-    "es": "Persona de Contacto",
-    "en": "Contact Person",
-    "pt": "Pessoa de Contato"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "contacts.suppliers.delete": {
     "es": "Eliminar",
@@ -316,7 +316,7 @@
     "pt": "Editar"
   },
   "contacts.suppliers.email": {
-    "es": "Email",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -326,9 +326,9 @@
     "pt": "Gerencie as informações dos seus fornecedores."
   },
   "contacts.suppliers.new_supplier": {
-    "es": "Nuevo Proveedor",
-    "en": "New Supplier",
-    "pt": "Novo Fornecedor"
+    "es": "Nuevo proveedor",
+    "en": "New supplier",
+    "pt": "Novo fornecedor"
   },
   "contacts.suppliers.phone": {
     "es": "Teléfono",

@@ -54,7 +54,7 @@
           @if (issuer(); as org) {
             <h2>{{ org.legalName }}</h2>
             @if (org.taxId) {
-              <p>{{ 'invoices.detail.issuer_tax_id' | translate: { taxId: org.taxId } }}</p>
+              <p>{{ 'invoices.detail.tax_id_labelled' | translate: { label: issuerTaxIdLabel(), taxId: org.taxId } }}</p>
             }
           }
         </div>
@@ -85,7 +85,7 @@
           <strong>{{ inv.customerName }}</strong><br />
           <!-- The buyer's tax id: a credit-tax invoice (E31) without it is not a valid one (QA A5). -->
           @if (inv.customerTaxId || inv.customer?.taxId; as buyerTaxId) {
-            {{ 'invoices.detail.issuer_tax_id' | translate: { taxId: buyerTaxId } }}<br />
+            {{ 'invoices.detail.tax_id_labelled' | translate: { label: buyerTaxIdLabel(buyerTaxId), taxId: buyerTaxId } }}<br />
           }
           {{ inv.customerAddress }}
         </p>

@@ -5,9 +5,9 @@
     "pt": "{{count}} produto(s) esgotados."
   },
   "dashboard.alerts.period_period_still_open_closing_date": {
-    "es": "El período {{period}} sigue abierto y su fecha de cierre ya pasó.",
-    "en": "Period {{period}} is still open and its closing date has passed.",
-    "pt": "O período {{period}} continua aberto e a sua data de fecho já passou."
+    "es": "El período «{{period}}» sigue abierto y su fecha de cierre ya pasó.",
+    "en": "The period «{{period}}» is still open and its closing date has passed.",
+    "pt": "O período «{{period}}» continua aberto e a sua data de fechamento já passou."
   },
   "dashboard.alerts.receivables_overdue": {
     "es": "{{count}} factura(s) vencida(s) por {{amount}} sin cobrar.",
@@ -15,14 +15,14 @@
     "pt": "{{count}} fatura(s) vencida(s) no valor de {{amount}} por cobrar."
   },
   "dashboard.alerts.stock_low": {
-    "es": "{{count}} producto(s) por debajo de su nivel de reorden.",
+    "es": "{{count}} producto(s) por debajo de su punto de pedido.",
     "en": "{{count}} product(s) below their reorder level.",
     "pt": "{{count}} produto(s) abaixo do seu nível de reposição."
   },
   "dashboard.alerts_panel.early_warnings": {
-    "es": "Alertas Tempranas",
-    "en": "Early Warnings",
-    "pt": "Alertas Antecipados"
+    "es": "Alertas tempranas",
+    "en": "Early warnings",
+    "pt": "Alertas antecipados"
   },
   "dashboard.alerts_panel.nothing_needs_attention_right_now": {
     "es": "Nada requiere atención ahora mismo.",
@@ -35,9 +35,9 @@
     "pt": "Rever"
   },
   "dashboard.ar_aging_chart.accounts_receivable_ageing": {
-    "es": "Envejecimiento de Cuentas por Cobrar",
-    "en": "Accounts Receivable Ageing",
-    "pt": "Aging de Contas a Receber"
+    "es": "Envejecimiento de cuentas por cobrar",
+    "en": "Accounts receivable ageing",
+    "pt": "Aging de contas a receber"
   },
   "dashboard.ar_aging_chart.bar": {
     "es": "Barras",
@@ -45,9 +45,9 @@
     "pt": "Barras"
   },
   "dashboard.ar_aging_chart.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "dashboard.ar_aging_chart.configure": {
     "es": "Configurar",
@@ -85,9 +85,9 @@
     "pt": "Orçamento"
   },
   "dashboard.comparison_chart.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "dashboard.comparison_chart.columns": {
     "es": "Columnas",
@@ -118,9 +118,9 @@
     "pt": "Arraste os widgets para reorganizá-los. Use os cantos para redimensionar."
   },
   "dashboard.expenses_chart.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "dashboard.expenses_chart.columns": {
     "es": "Columnas",
@@ -128,7 +128,7 @@
     "pt": "Colunas"
   },
   "dashboard.expenses_chart.configure_widget": {
-    "es": "Configurar widget",
+    "es": "Configurar tarjeta",
     "en": "Configure the widget",
     "pt": "Configurar o widget"
   },
@@ -138,9 +138,9 @@
     "pt": "Dados\n                    CSV"
   },
   "dashboard.expenses_chart.customize_colours": {
-    "es": "Personalizar Colores",
-    "en": "Customize Colours",
-    "pt": "Personalizar Cores"
+    "es": "Personalizar colores",
+    "en": "Customize colours",
+    "pt": "Personalizar cores"
   },
   "dashboard.expenses_chart.download": {
     "es": "Descargar",
@@ -168,9 +168,9 @@
     "pt": "Por conta contabilística, últimos 12 meses"
   },
   "dashboard.expenses_chart.operating_expense_breakdown": {
-    "es": "Desglose de Gastos Operativos",
-    "en": "Operating Expense Breakdown",
-    "pt": "Composição das Despesas Operacionais"
+    "es": "Desglose de gastos operativos",
+    "en": "Operating expense breakdown",
+    "pt": "Composição das despesas operacionais"
   },
   "dashboard.expenses_chart.pdf_document": {
     "es": "Documento PDF",
@@ -198,9 +198,9 @@
     "pt": "Despesas"
   },
   "dashboard.expenses_chart.title": {
-    "es": "Desglose de Gastos Operativos",
-    "en": "Operating Expense Breakdown",
-    "pt": "Composição das Despesas Operacionais"
+    "es": "Desglose de gastos operativos",
+    "en": "Operating expense breakdown",
+    "pt": "Composição das despesas operacionais"
   },
   "dashboard.expenses_chart.vector_svg": {
     "es": "Vector SVG",
@@ -218,14 +218,14 @@
     "pt": "Capacidade de cobrir dívidas de curto prazo (ideal > 1,5)."
   },
   "dashboard.financial_ratios.current_ratio.name": {
-    "es": "Liquidez Corriente",
-    "en": "Current Ratio",
-    "pt": "Liquidez Corrente"
+    "es": "Liquidez corriente",
+    "en": "Current ratio",
+    "pt": "Liquidez corrente"
   },
   "dashboard.financial_ratios.key_financial_indicators": {
-    "es": "Indicadores Financieros Clave",
-    "en": "Key Financial Indicators",
-    "pt": "Indicadores Financeiros Principais"
+    "es": "Indicadores financieros clave",
+    "en": "Key financial indicators",
+    "pt": "Indicadores financeiros principais"
   },
   "dashboard.financial_ratios.quick_ratio.ability_cover_short_term_debt_without": {
     "es": "Capacidad de cubrir deudas a corto plazo sin vender inventario (ideal > 1).",
@@ -233,9 +233,9 @@
     "pt": "Capacidade de cobrir dívidas de curto prazo sem vender estoque (ideal > 1)."
   },
   "dashboard.financial_ratios.quick_ratio.name": {
-    "es": "Prueba Ácida",
-    "en": "Quick Ratio",
-    "pt": "Liquidez Seca"
+    "es": "Prueba ácida",
+    "en": "Quick ratio",
+    "pt": "Liquidez seca"
   },
   "dashboard.financial_ratios.roa.how_efficiently_company_turns_assets_into": {
     "es": "Eficiencia de la empresa para generar ganancias con sus activos.",
@@ -243,14 +243,14 @@
     "pt": "Eficiência da empresa em gerar lucro com os seus ativos."
   },
   "dashboard.financial_ratios.roa.name": {
-    "es": "ROA (Retorno s/ Activos)",
-    "en": "ROA (Return on Assets)",
-    "pt": "ROA (Retorno s/ Ativos)"
+    "es": "ROA (retorno s/ activos)",
+    "en": "ROA (return on assets)",
+    "pt": "ROA (retorno s/ ativos)"
   },
   "dashboard.financial_ratios.roe.name": {
-    "es": "ROE (Retorno s/ Patrimonio)",
-    "en": "ROE (Return on Equity)",
-    "pt": "ROE (Retorno s/ Património)"
+    "es": "ROE (retorno s/ patrimonio)",
+    "en": "ROE (return on equity)",
+    "pt": "ROE (retorno s/ património)"
   },
   "dashboard.financial_ratios.roe.profit_generated_shareholders_investment": {
     "es": "Rentabilidad generada sobre la inversión de los accionistas.",
@@ -258,9 +258,9 @@
     "pt": "Rentabilidade gerada sobre o investimento dos acionistas."
   },
   "dashboard.financial_ratios.working_capital.name": {
-    "es": "Capital de Trabajo",
-    "en": "Working Capital",
-    "pt": "Capital de Giro"
+    "es": "Capital de trabajo",
+    "en": "Working capital",
+    "pt": "Capital de giro"
   },
   "dashboard.financial_ratios.working_capital.what_available_run_business_day_day": {
     "es": "Recursos disponibles para la operación diaria (activo corriente − pasivo corriente).",
@@ -268,9 +268,9 @@
     "pt": "Recursos disponíveis para a operação diária (ativo circulante − passivo circulante)."
   },
   "dashboard.invoice_status.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "dashboard.invoice_status.columns": {
     "es": "Columnas",
@@ -278,7 +278,7 @@
     "pt": "Colunas"
   },
   "dashboard.invoice_status.configure_widget": {
-    "es": "Configurar widget",
+    "es": "Configurar tarjeta",
     "en": "Configure the widget",
     "pt": "Configurar o widget"
   },
@@ -288,9 +288,9 @@
     "pt": "Dados\n                    CSV"
   },
   "dashboard.invoice_status.customize_colours": {
-    "es": "Personalizar Colores",
-    "en": "Customize Colours",
-    "pt": "Personalizar Cores"
+    "es": "Personalizar colores",
+    "en": "Customize colours",
+    "pt": "Personalizar cores"
   },
   "dashboard.invoice_status.download": {
     "es": "Descargar",
@@ -308,9 +308,9 @@
     "pt": "Tela cheia"
   },
   "dashboard.invoice_status.invoice_status": {
-    "es": "Estado de Facturas",
-    "en": "Invoice Status",
-    "pt": "Situação das Faturas"
+    "es": "Estado de facturas",
+    "en": "Invoice status",
+    "pt": "Situação das faturas"
   },
   "dashboard.invoice_status.jpeg_image": {
     "es": "Imagen JPEG",
@@ -343,9 +343,9 @@
     "pt": "Faturas"
   },
   "dashboard.invoice_status.title": {
-    "es": "Distribución de Facturas",
-    "en": "Invoice Distribution",
-    "pt": "Distribuição de Faturas"
+    "es": "Distribución de facturas",
+    "en": "Invoice distribution",
+    "pt": "Distribuição de faturas"
   },
   "dashboard.invoice_status.vector_svg": {
     "es": "Vector SVG",
@@ -363,9 +363,9 @@
     "pt": "Tudo certo."
   },
   "dashboard.low_stock_products.low_stock_items": {
-    "es": "Productos con Bajo Stock",
-    "en": "Low Stock Items",
-    "pt": "Produtos com Estoque Baixo"
+    "es": "Productos con pocas existencias",
+    "en": "Low stock items",
+    "pt": "Produtos com estoque baixo"
   },
   "dashboard.low_stock_products.no_products_low_stock_right_now": {
     "es": "No hay productos con bajo inventario en este momento.",
@@ -393,9 +393,9 @@
     "pt": "Não há atividade recente para exibir."
   },
   "dashboard.recent_activity.recent_activity": {
-    "es": "Actividad Reciente",
-    "en": "Recent Activity",
-    "pt": "Atividade Recente"
+    "es": "Actividad reciente",
+    "en": "Recent activity",
+    "pt": "Atividade recente"
   },
   "dashboard.sales_chart.area": {
     "es": "Área",
@@ -403,9 +403,9 @@
     "pt": "Área"
   },
   "dashboard.sales_chart.chart_type": {
-    "es": "Tipo de Gráfico",
-    "en": "Chart Type",
-    "pt": "Tipo de Gráfico"
+    "es": "Tipo de gráfico",
+    "en": "Chart type",
+    "pt": "Tipo de gráfico"
   },
   "dashboard.sales_chart.line": {
     "es": "Línea",
@@ -413,9 +413,9 @@
     "pt": "Linha"
   },
   "dashboard.sales_chart.monthly_revenue": {
-    "es": "Ingresos Mensuales",
-    "en": "Monthly Revenue",
-    "pt": "Receita Mensal"
+    "es": "Ingresos mensuales",
+    "en": "Monthly revenue",
+    "pt": "Receita mensal"
   },
   "dashboard.summary.active_customers.title": {
     "es": "Clientes activos",
@@ -428,7 +428,7 @@
     "pt": "{{count}} esgotado(s)"
   },
   "dashboard.summary.low_stock.title": {
-    "es": "Productos bajo stock",
+    "es": "Productos con pocas existencias",
     "en": "Products low on stock",
     "pt": "Produtos com estoque baixo"
   },
@@ -443,7 +443,7 @@
     "pt": "Vendas de hoje"
   },
   "dashboard.top_products_chart.configure_widget": {
-    "es": "Configurar widget",
+    "es": "Configurar tarjeta",
     "en": "Configure the widget",
     "pt": "Configurar o widget"
   },
@@ -453,9 +453,9 @@
     "pt": "Dados\n                    CSV"
   },
   "dashboard.top_products_chart.customize_colours": {
-    "es": "Personalizar Colores",
-    "en": "Customize Colours",
-    "pt": "Personalizar Cores"
+    "es": "Personalizar colores",
+    "en": "Customize colours",
+    "pt": "Personalizar cores"
   },
   "dashboard.top_products_chart.download": {
     "es": "Descargar",
@@ -493,7 +493,7 @@
     "pt": "Imprimir o gráfico"
   },
   "dashboard.top_products_chart.remove_widget": {
-    "es": "Eliminar widget",
+    "es": "Quitar tarjeta",
     "en": "Remove the widget",
     "pt": "Remover o widget"
   },

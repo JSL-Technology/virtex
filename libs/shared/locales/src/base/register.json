@@ -1,8 +1,8 @@
 {
   "register.acme_corp": {
     "es": "Ej. Acme Corp",
-    "en": "e.g. Acme Corp",
-    "pt": "Ex.: Acme Ltda."
+    "en": "e.g. Acme corp",
+    "pt": "Ex.: acme ltda."
   },
   "register.agree": {
     "es": "Acepto los",
@@ -15,9 +15,9 @@
     "pt": "e a"
   },
   "register.company_name": {
-    "es": "Nombre de la Empresa",
-    "en": "Company Name",
-    "pt": "Nome da Empresa"
+    "es": "Nombre de la empresa",
+    "en": "Company name",
+    "pt": "Nome da empresa"
   },
   "register.company_size": {
     "es": "Tamaño de la empresa",
@@ -35,8 +35,8 @@
     "pt": "A emissão eletrônica ainda não está disponível em {{country}}."
   },
   "register.confirm_password": {
-    "es": "Confirmar Contraseña",
-    "en": "Confirm Password",
+    "es": "Confirmar contraseña",
+    "en": "Confirm password",
     "pt": "Confirmar senha"
   },
   "register.country": {
@@ -57,10 +57,10 @@
   "register.doe": {
     "es": "Ej. Pérez",
     "en": "e.g. Doe",
-    "pt": "Ex.: Silva"
+    "pt": "Ex.: silva"
   },
   "register.email": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -180,7 +180,7 @@
     "pt": "Outro"
   },
   "register.industries.retail": {
-    "es": "Comercio y retail",
+    "es": "Comercio minorista",
     "en": "Retail and commerce",
     "pt": "Comércio e varejo"
   },
@@ -202,11 +202,11 @@
   "register.john": {
     "es": "Ej. Juan",
     "en": "e.g. John",
-    "pt": "Ex.: João"
+    "pt": "Ex.: joão"
   },
   "register.last_name": {
     "es": "Apellidos",
-    "en": "Last Name",
+    "en": "Last name",
     "pt": "Sobrenome"
   },
   "register.login_link": {
@@ -240,9 +240,9 @@
     "pt": "Ex.: 11 95555-5555"
   },
   "register.privacy": {
-    "es": "Política de Privacidad",
-    "en": "Privacy Policy",
-    "pt": "Política de Privacidade"
+    "es": "Política de privacidad",
+    "en": "Privacy policy",
+    "pt": "Política de privacidade"
   },
   "register.progress.account": {
     "es": "Cuenta",
@@ -330,9 +330,9 @@
     "pt": "Conte-nos sobre sua empresa"
   },
   "register.steps.business.title": {
-    "es": "Perfil de Negocio",
-    "en": "Business Profile",
-    "pt": "Perfil do Negócio"
+    "es": "Perfil de negocio",
+    "en": "Business profile",
+    "pt": "Perfil do negócio"
   },
   "register.steps.configuration.country_currency_details": {
     "es": "Datos de tu país y moneda",
@@ -340,9 +340,9 @@
     "pt": "Seu país e sua moeda"
   },
   "register.steps.configuration.title": {
-    "es": "Configuración Fiscal",
-    "en": "Fiscal Configuration",
-    "pt": "Configuração Fiscal"
+    "es": "Configuración fiscal",
+    "en": "Fiscal configuration",
+    "pt": "Configuração fiscal"
   },
   "register.steps.plan.annual": {
     "es": "Anual",
@@ -461,7 +461,7 @@
   },
   "register.submit_button": {
     "es": "Registrarse",
-    "en": "Sign Up",
+    "en": "Sign up",
     "pt": "Cadastrar"
   },
   "register.taxid_format": {
@@ -470,14 +470,14 @@
     "pt": "Formato esperado: {{example}}"
   },
   "register.terms": {
-    "es": "Términos de Servicio",
-    "en": "Terms of Service",
-    "pt": "Termos de Serviço"
+    "es": "Términos de servicio",
+    "en": "Terms of service",
+    "pt": "Termos de serviço"
   },
   "register.title": {
-    "es": "Crear Cuenta",
-    "en": "Create Account",
-    "pt": "Criar Conta"
+    "es": "Crear cuenta",
+    "en": "Create account",
+    "pt": "Criar conta"
   },
   "register.verify.email_ok": {
     "es": "¡Correo verificado!",

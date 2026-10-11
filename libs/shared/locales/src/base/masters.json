@@ -140,7 +140,7 @@
     "pt": "Nome da moeda"
   },
   "masters.currencies.empty_help": {
-    "es": "Añade las monedas en las que facturas o compras; la moneda funcional del inquilino ya está fijada.",
+    "es": "Agrega las monedas en las que facturas o compras; la moneda funcional del inquilino ya está fijada.",
     "en": "Add the currencies you invoice or buy in; the tenant's functional currency is already set.",
     "pt": "Adiciona as moedas em que faturas ou compras; a moeda funcional do inquilino já está definida."
   },
@@ -255,9 +255,9 @@
     "pt": "Nome"
   },
   "masters.price_lists.new_list": {
-    "es": "Nueva Lista",
-    "en": "New List",
-    "pt": "Nova Tabela"
+    "es": "Nueva lista",
+    "en": "New list",
+    "pt": "Nova tabela"
   },
   "masters.price_lists.price_list_could_not_deleted": {
     "es": "No se pudo eliminar la lista de precios.",
@@ -270,9 +270,9 @@
     "pt": "Tabela de preços excluída."
   },
   "masters.price_lists.price_lists": {
-    "es": "Listas de Precios",
-    "en": "Price Lists",
-    "pt": "Tabelas de Preços"
+    "es": "Listas de precios",
+    "en": "Price lists",
+    "pt": "Tabelas de preços"
   },
   "masters.price_lists.price_lists_could_not_loaded": {
     "es": "No se pudieron cargar las listas de precios.",
@@ -300,14 +300,14 @@
     "pt": "Inativa"
   },
   "masters.price_lists.valid_from": {
-    "es": "Válido Desde",
+    "es": "Válido desde",
     "en": "Valid From",
     "pt": "Válido De"
   },
   "masters.price_lists.valid_until": {
-    "es": "Válido Hasta",
-    "en": "Valid Until",
-    "pt": "Válido Até"
+    "es": "Válido hasta",
+    "en": "Valid until",
+    "pt": "Válido até"
   },
   "masters.price_lists_form.actions": {
     "es": "Acciones",
@@ -315,9 +315,9 @@
     "pt": "Ações"
   },
   "masters.price_lists_form.add_line": {
-    "es": "Añadir Línea",
-    "en": "Add Line",
-    "pt": "Adicionar Linha"
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
   },
   "masters.price_lists_form.cancel": {
     "es": "Cancelar",
@@ -345,9 +345,9 @@
     "pt": "Erro ao atualizar a tabela de preços."
   },
   "masters.price_lists_form.list_name": {
-    "es": "Nombre de la Lista",
-    "en": "List Name",
-    "pt": "Nome da Tabela"
+    "es": "Nombre de la lista",
+    "en": "List name",
+    "pt": "Nome da tabela"
   },
   "masters.price_lists_form.price": {
     "es": "Precio",
@@ -365,9 +365,9 @@
     "pt": "Tabela de preços criada."
   },
   "masters.price_lists_form.price_list_items": {
-    "es": "Ítems de la Lista de Precios",
-    "en": "Price List Items",
-    "pt": "Itens da Tabela de Preços"
+    "es": "Ítems de la lista de precios",
+    "en": "Price list items",
+    "pt": "Itens da tabela de preços"
   },
   "masters.price_lists_form.price_list_updated": {
     "es": "Lista de precios actualizada exitosamente.",
@@ -405,14 +405,14 @@
     "pt": "Nova tabela de preços"
   },
   "masters.price_lists_form.valid_from": {
-    "es": "Válido Desde",
+    "es": "Válido desde",
     "en": "Valid From",
     "pt": "Válido De"
   },
   "masters.price_lists_form.valid_until": {
-    "es": "Válido Hasta",
-    "en": "Valid Until",
-    "pt": "Válido Até"
+    "es": "Válido hasta",
+    "en": "Valid until",
+    "pt": "Válido até"
   },
   "masters.supplier_form.address": {
     "es": "Dirección",
@@ -425,9 +425,9 @@
     "pt": "Cancelar"
   },
   "masters.supplier_form.contact_person": {
-    "es": "Persona de Contacto",
-    "en": "Contact Person",
-    "pt": "Pessoa de Contato"
+    "es": "Persona de contacto",
+    "en": "Contact person",
+    "pt": "Pessoa de contato"
   },
   "masters.supplier_form.country": {
     "es": "País",
@@ -460,7 +460,7 @@
     "pt": "Indica que tipo de documento estás a registar para {{country}}."
   },
   "masters.supplier_form.email": {
-    "es": "Correo Electrónico",
+    "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
   },
@@ -485,9 +485,9 @@
     "pt": "Telefone"
   },
   "masters.supplier_form.save_supplier": {
-    "es": "Guardar Proveedor",
-    "en": "Save Supplier",
-    "pt": "Salvar Fornecedor"
+    "es": "Guardar proveedor",
+    "en": "Save supplier",
+    "pt": "Salvar fornecedor"
   },
   "masters.supplier_form.supplier_could_not_loaded": {
     "es": "No se pudo cargar el proveedor.",
@@ -500,9 +500,9 @@
     "pt": "Fornecedor criado."
   },
   "masters.supplier_form.supplier_information": {
-    "es": "Información del Proveedor",
-    "en": "Supplier Information",
-    "pt": "Informações do Fornecedor"
+    "es": "Información del proveedor",
+    "en": "Supplier information",
+    "pt": "Informações do fornecedor"
   },
   "masters.supplier_form.supplier_name": {
     "es": "Nombre del proveedor",
@@ -545,7 +545,7 @@
     "pt": "Configure uma nova alíquota para suas transações."
   },
   "masters.tax_form.country_code_optional": {
-    "es": "Código de País (Opcional)",
+    "es": "Código de país (opcional)",
     "en": "Country Code (optional)",
     "pt": "Código do País (opcional)"
   },
@@ -570,9 +570,9 @@
     "pt": "Alíquota"
   },
   "masters.tax_form.save_tax": {
-    "es": "Guardar Impuesto",
-    "en": "Save Tax",
-    "pt": "Salvar Imposto"
+    "es": "Guardar impuesto",
+    "en": "Save tax",
+    "pt": "Salvar imposto"
   },
   "masters.tax_form.subtitle_edit": {
     "es": "Cambia la tasa o el nombre de este impuesto. Los documentos ya emitidos conservan la tasa con la que se calcularon.",
@@ -590,9 +590,9 @@
     "pt": "Imposto criado."
   },
   "masters.tax_form.tax_name": {
-    "es": "Nombre del Impuesto",
-    "en": "Tax Name",
-    "pt": "Nome do Imposto"
+    "es": "Nombre del impuesto",
+    "en": "Tax name",
+    "pt": "Nome do imposto"
   },
   "masters.tax_form.tax_updated": {
     "es": "Impuesto actualizado exitosamente.",

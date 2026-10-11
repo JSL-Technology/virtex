@@ -56,7 +56,7 @@ const noWithholding: CapabilityCoverage = {
   capability: 'withholding',
   level: 'needs-credentials',
   detail: 'Regímenes configurables por el contribuyente',
-  requires: 'los regímenes y tarifas que le apliquen, en Ajustes → Impuestos',
+  requires: 'los regímenes y tarifas que te apliquen, en Ajustes → Impuestos',
 };
 
 const einvoicing = (detail: string, requires: string): CapabilityCoverage => ({
@@ -77,7 +77,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'ITBIS 18 % / 16 % / exento' },
-      einvoicing('DGII e-CF', 'su certificado digital de la DGII'),
+      einvoicing('DGII e-CF', 'tu certificado digital de la DGII'),
       { capability: 'periodicReturns', level: 'implemented', detail: 'Formatos 606, 607, 608 y 609' },
       { capability: 'withholding', level: 'implemented', detail: 'ITBIS e ISR retenidos, Norma 02-05 y Ley 11-92' },
     ],
@@ -88,7 +88,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 16 % / 8 % frontera / 0 %' },
-      einvoicing('CFDI 4.0', 'su Certificado de Sello Digital y un contrato con un PAC'),
+      einvoicing('CFDI 4.0', 'tu Certificado de Sello Digital y un contrato con un PAC'),
       { capability: 'electronicAccounting', level: 'implemented', detail: 'Catálogo, Balanza y Pólizas (Anexo 24 v1.3)' },
       noWithholding,
     ],
@@ -99,7 +99,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 19 % / 5 % / excluido' },
-      einvoicing('DIAN UBL 2.1 con CUFE', 'su certificado de firma digital, la resolución de facturación y su clave técnica'),
+      einvoicing('DIAN UBL 2.1 con CUFE', 'tu certificado de firma digital, la resolución de facturación y tu clave técnica'),
       notImplemented('periodicReturns'),
       noWithholding,
     ],
@@ -110,7 +110,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IGV 18 % / exonerado' },
-      einvoicing('SUNAT UBL 2.1', 'su certificado digital y sus credenciales SOL'),
+      einvoicing('SUNAT UBL 2.1', 'tu certificado digital y tus credenciales SOL'),
       notImplemented('periodicReturns'),
       noWithholding,
     ],
@@ -121,7 +121,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 15 % / 0 %' },
-      einvoicing('SRI 2.1.0 con clave de acceso', 'su certificado de firma electrónica y su punto de emisión'),
+      einvoicing('SRI 2.1.0 con clave de acceso', 'tu certificado de firma electrónica y tu punto de emisión'),
       notImplemented('periodicReturns'),
       noWithholding,
     ],
@@ -132,7 +132,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 19 % / exento' },
-      einvoicing('SII — DTE 33/34/61', 'su certificado digital y sus folios CAF del SII'),
+      einvoicing('SII — DTE 33/34/61', 'tu certificado digital y tus folios CAF del SII'),
       notImplemented('periodicReturns'),
       noWithholding,
     ],
@@ -159,7 +159,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     capabilities: [
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 21 % / 10,5 % / 27 %' },
-      einvoicing('AFIP WSFEv1 con CAE', 'su certificado de AFIP y el punto de venta habilitado'),
+      einvoicing('AFIP WSFEv1 con CAE', 'tu certificado de AFIP y el punto de venta habilitado'),
       notImplemented('periodicReturns'),
       noWithholding,
     ],

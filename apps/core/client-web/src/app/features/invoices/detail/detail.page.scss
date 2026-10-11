@@ -24,12 +24,16 @@
     margin-top: var(--space-6);
 
     .detail-item {
-        label {
+        // The markup names its labels `.detail-label` (a span); this styled only `label`, so every
+        // label ran inline into its value — «Estado DGII» glued to its badge (QA U70). No forced
+        // capitals: they turned «e-NCF» into «E-NCF».
+        label,
+        .detail-label {
             display: block;
             font-size: var(--text-xs);
+            font-weight: var(--font-medium);
             color: var(--text-secondary);
             margin-bottom: var(--space-1);
-            text-transform: uppercase;
         }
         p {
             margin: 0;

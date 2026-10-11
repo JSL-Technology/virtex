@@ -233,6 +233,8 @@ describeWithDb('overview', () => {
     });
 
     it('marks a period still open after its last day as an overdue close', async () => {
+      // A period the company owes: it was keeping its books here before the period began.
+      await dataSource.query(`UPDATE organizations SET created_at = now() - interval '1 year' WHERE id = $1`, [organizationId]);
       await dataSource.getRepository(AccountingPeriod).save({
         organizationId,
         name: 'Mes vencido',
@@ -243,6 +245,21 @@ describeWithDb('overview', () => {
 
       const events = await overview.events(organizationId, ALL);
       expect(events.find((e) => e.reference === 'Mes vencido')?.kind).toBe('PERIOD_CLOSE_OVERDUE');
+    });
+
+    // QA U24: the months before signup are not closes the company owes.
+    it('leaves out a period that ended before the company started, with nothing posted in it', async () => {
+      await dataSource.query(`UPDATE organizations SET created_at = now() WHERE id = $1`, [organizationId]);
+      await dataSource.getRepository(AccountingPeriod).save({
+        organizationId,
+        name: 'Antes del alta',
+        startDate: inDays(-40) as unknown as Date,
+        endDate: inDays(-10) as unknown as Date,
+        status: PeriodStatus.OPEN,
+      });
+
+      const events = await overview.events(organizationId, ALL);
+      expect(events.some((e) => e.reference === 'Antes del alta')).toBe(false);
     });
 
     it('shows a seat only the obligations of the modules it may read', async () => {

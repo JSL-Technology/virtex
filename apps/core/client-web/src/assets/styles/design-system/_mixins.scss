@@ -294,10 +294,10 @@
 
     background-color: var(--surface-sunken);
     color: var(--content-secondary);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-caps);
+    // Written as the catalogue words them. Forced capitals turned «e-NCF» into «E-NCF» — the
+    // DGII's own spelling, wrong in the one column it names (QA U76) — and made every header shout.
     white-space: nowrap;
     border-bottom-color: var(--border-default);
   }

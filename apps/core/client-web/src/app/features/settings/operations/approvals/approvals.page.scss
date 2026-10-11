@@ -25,7 +25,7 @@
 .ap__steps-title { font-size: var(--text-base); font-weight: 600; margin-top: var(--space-4); }
 .ap__table { width: 100%; border-collapse: collapse; margin-top: var(--space-2); }
 .ap__table th, .ap__table td { padding: var(--space-2); text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-.ap__table th { font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; }
+.ap__table th { font-size: var(--text-xs); color: var(--text-secondary); }
 .ap__add-step { margin-top: var(--space-2); }
 .ap__problem { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-secondary); }
 .ap__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }

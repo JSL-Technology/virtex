@@ -5,9 +5,9 @@
     "pt": "Lançamento {{number}} em rascunho"
   },
   "inbox.accounting.period_overdue": {
-    "es": "El periodo {{period}} debió cerrarse",
-    "en": "Period {{period}} should have been closed",
-    "pt": "O período {{period}} deveria ter sido fechado"
+    "es": "El período «{{period}}» debió cerrarse",
+    "en": "The period «{{period}}» should have been closed",
+    "pt": "O período «{{period}}» deveria ter sido fechado"
   },
   "inbox.sales.draft_invoice": {
     "es": "Factura {{number}} sin emitir",

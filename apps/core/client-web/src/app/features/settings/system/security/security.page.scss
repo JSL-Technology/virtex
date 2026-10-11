@@ -27,7 +27,7 @@
 .table-container { overflow-x: auto; }
 .sec__table, .sec__changes { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
 .sec__table th, .sec__table td, .sec__changes th, .sec__changes td { padding: var(--space-2); text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
-.sec__table th, .sec__changes th { font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; }
+.sec__table th, .sec__changes th { font-size: var(--text-xs); color: var(--text-secondary); }
 .sec__changes td { word-break: break-word; }
 .sec__detail > td { background: var(--bg-tertiary); }
 .sec__id { color: var(--text-secondary); }

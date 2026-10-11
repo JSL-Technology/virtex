@@ -11,6 +11,7 @@ import {
 } from '../../../../../core/services/country.service';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { CountryNamesService } from '../../../../../core/i18n/countries';
 
 /**
  * The fiscal identity step: country, tax id, and the fiscal address.
@@ -44,9 +45,27 @@ export class StepConfiguration {
   private router = inject(Router);
 
   readonly countries = signal<SupportedCountry[]>([]);
+  private readonly countryNames = inject(CountryNamesService);
+
+  /**
+   * The supported countries named in the reader's language and sorted as it sorts. The API names
+   * them in English, so a Spanish signup listed «United States» among «República Dominicana» and
+   * «México» (QA U11).
+   */
+  readonly countryOptions = computed(() => {
+    const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+    return this.countries()
+      .map((country) => ({ code: country.countryCode, name: this.countryNames.nameOf(country.countryCode) || country.name }))
+      .sort((a, b) => collator.compare(a.name, b.name));
+  });
   readonly countriesFailed = signal(false);
 
   readonly config = computed(() => this.countryService.currentCountry());
+  /** The selected country in the reader's language, for the sentences that name it. */
+  readonly configCountryName = computed(() => {
+    const config = this.config() as { countryCode?: string; code?: string; name?: string } | null;
+    return this.countryNames.nameOf(config?.countryCode ?? config?.code) || config?.name || '';
+  });
 
   /** The country's first-level divisions, when it publishes a coded catalogue. */
   readonly divisions = computed(() => this.config()?.address.divisions ?? null);

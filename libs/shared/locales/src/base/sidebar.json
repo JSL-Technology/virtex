@@ -6,8 +6,8 @@
   },
   "sidebar.finance.ap_sub.invoices": {
     "es": "Facturas",
-    "en": "Supplier Invoices",
-    "pt": "Faturas de Fornecedor"
+    "en": "Supplier invoices",
+    "pt": "Faturas de fornecedor"
   },
   "sidebar.finance.ar_sub.aging": {
     "es": "Antigüedad de saldos",
@@ -26,32 +26,32 @@
   },
   "sidebar.finance.ar_sub.receipts": {
     "es": "Recibos",
-    "en": "Receipts & Collections",
+    "en": "Receipts & collections",
     "pt": "Recibos"
   },
   "sidebar.finance.gl_sub.book_gl": {
-    "es": "Libro: Mayor",
+    "es": "Libro: mayor",
     "en": "Book: General ledger",
-    "pt": "Livro: Razão"
+    "pt": "Livro: razão"
   },
   "sidebar.finance.gl_sub.book_journal": {
-    "es": "Libro: Diario",
-    "en": "Book: Journal",
-    "pt": "Livro: Diário"
+    "es": "Libro: diario",
+    "en": "Book: journal",
+    "pt": "Livro: diário"
   },
   "sidebar.finance.gl_sub.closing_annual": {
-    "es": "Cierre — Anual",
-    "en": "Closing — Annual",
-    "pt": "Fechamento — Anual"
+    "es": "Cierre — anual",
+    "en": "Closing — annual",
+    "pt": "Fechamento — anual"
   },
   "sidebar.finance.gl_sub.coa": {
     "es": "Plan de cuentas",
-    "en": "Chart of Accounts",
+    "en": "Chart of accounts",
     "pt": "Plano de contas"
   },
   "sidebar.finance.gl_sub.journal": {
     "es": "Asientos",
-    "en": "Journal Entries",
+    "en": "Journal entries",
     "pt": "Lançamentos"
   },
   "sidebar.finance.gl_sub.journals": {
@@ -66,12 +66,12 @@
   },
   "sidebar.finance.gl_sub.period_close": {
     "es": "Cierre de período",
-    "en": "Period Close",
+    "en": "Period close",
     "pt": "Fechamento de período"
   },
   "sidebar.finance.gl_sub.periods": {
     "es": "Periodos contables",
-    "en": "Period Management",
+    "en": "Period management",
     "pt": "Períodos contábeis"
   },
   "sidebar.finance.gl_sub.variance_analysis": {
@@ -80,24 +80,24 @@
     "pt": "Análise de variações"
   },
   "sidebar.finance.statements_sub.balance_sheet": {
-    "es": "Balance General",
-    "en": "Balance Sheet",
-    "pt": "Balanço Patrimonial"
+    "es": "Balance general",
+    "en": "Balance sheet",
+    "pt": "Balanço patrimonial"
   },
   "sidebar.finance.statements_sub.cash_flow": {
-    "es": "Flujo de Efectivo",
-    "en": "Cash Flow",
-    "pt": "Fluxo de Caixa"
+    "es": "Flujo de efectivo",
+    "en": "Cash flow",
+    "pt": "Fluxo de caixa"
   },
   "sidebar.finance.statements_sub.income_statement": {
-    "es": "Estado de Resultados",
-    "en": "Income Statement",
-    "pt": "Demonstração do Resultado"
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração do resultado"
   },
   "sidebar.finance.statements_sub.trial_balance": {
-    "es": "Balanza de Comprobación",
-    "en": "Trial Balance",
-    "pt": "Balancete de Verificação"
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete de verificação"
   },
   "sidebar.finance.treasury_sub.dashboard": {
     "es": "Tablero",
@@ -105,9 +105,9 @@
     "pt": "Painel"
   },
   "sidebar.finance.treasury_sub.reconciliation_manual": {
-    "es": "Conciliación — Manual",
-    "en": "Reconciliation — Manual",
-    "pt": "Conciliação — Manual"
+    "es": "Conciliación — manual",
+    "en": "Reconciliation — manual",
+    "pt": "Conciliação — manual"
   },
   "sidebar.general.approvals": {
     "es": "Aprobaciones",
@@ -186,7 +186,7 @@
   },
   "sidebar.master_data.products": {
     "es": "Productos",
-    "en": "Products & Services",
+    "en": "Products & services",
     "pt": "Produtos"
   },
   "sidebar.master_data.suppliers": {
@@ -211,7 +211,7 @@
   },
   "sidebar.operations.purchasing_sub.orders": {
     "es": "Órdenes de compra",
-    "en": "Purchase Orders",
+    "en": "Purchase orders",
     "pt": "Pedidos de compra"
   },
   "sidebar.operations.purchasing_sub.requisitions": {
