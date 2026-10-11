@@ -2120,8 +2120,6 @@
   "documents.name_not_allowed": "El nombre no puede contener / \\ : * ? \" < > |",
   "documents.name_required": "El archivo necesita un nombre.",
   "documents.not_found": "No se encontró el documento {{id}}.",
-  "relationship_map.not_found": "No se encontró el documento.",
-  "relationship_map.unknown_document_type": "Tipo de documento no reconocido: {{type}}.",
   "documents.parent_is_not_a_folder": "Solo se puede guardar dentro de una carpeta.",
   "documents.repository.action_failed": "No se pudo completar la operación.",
   "documents.repository.all_kinds": "Todos los tipos",

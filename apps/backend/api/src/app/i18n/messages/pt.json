@@ -2120,8 +2120,6 @@
   "documents.name_not_allowed": "O nome não pode conter / \\ : * ? \" < > |",
   "documents.name_required": "O ficheiro precisa de um nome.",
   "documents.not_found": "O documento {{id}} não foi encontrado.",
-  "relationship_map.not_found": "O documento não foi encontrado.",
-  "relationship_map.unknown_document_type": "Tipo de documento não reconhecido: {{type}}.",
   "documents.parent_is_not_a_folder": "Só é possível guardar dentro de uma pasta.",
   "documents.repository.action_failed": "Não foi possível concluir a operação.",
   "documents.repository.all_kinds": "Todos os tipos",
