@@ -163,7 +163,12 @@ export const authInterceptor: HttpInterceptorFn = (
               const authService = injector.get(AuthService);
               //  The refresh was refused, so the session is gone. Say so on the sign-in page:
               //  landing back there with no message reads as "I clicked something wrong".
-              authService.logout(false, 'expired');
+              //  Only for someone who HAD a session: a visitor on a public page (signing up,
+              //  resetting a password) has nothing to expire, and sending them to the sign-in page
+              //  threw away whatever form they were filling in.
+              if (authService.isAuthenticated()) {
+                authService.logout(false, 'expired');
+              }
               return throwError(() => refreshError);
             }),
           );

@@ -12,6 +12,7 @@ import { PasswordService } from './password.service';
 import { AuthConfig } from '../auth.config';
 import { UserIdentity } from '../interfaces/authenticated-user.interface';
 import { BadRequestError, UnauthorizedError } from '../../i18n/localized.exception';
+import { returnedRows } from '../../shared/database/returned-rows';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -337,7 +338,7 @@ export class TwoFactorAuthService {
    * and nothing is returned.
    */
   private async burnBackupCode(security: UserSecurity, hashedCode: string): Promise<boolean> {
-      const spentRows: Array<{ id: string }> = await this.userSecurityRepository.query(
+      const spentRows = returnedRows<{ id: string }>(await this.userSecurityRepository.query(
           `
           UPDATE "user_security"
              SET "backup_codes" = COALESCE(
@@ -350,7 +351,7 @@ export class TwoFactorAuthService {
           RETURNING "id"
           `,
           [security.id, hashedCode],
-      );
+      ));
 
       const spent = spentRows.length === 1;
 

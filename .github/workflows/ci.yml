@@ -142,6 +142,9 @@ jobs:
       # so the integration suites and every `verify:*` script that touches the database were
       # running against an EMPTY `virteex_ci`. Running the migrations here is also the only thing
       # that proves they still apply cleanly from nothing, which is exactly what a deploy does.
+      # Two migrations sharing a timestamp run in a machine-dependent order. Checked before they run.
+      - run: npm run verify:migration-identities
+
       - run: npm run migration:run
 
       # The TypeScript project references are derived from the dependency graph, and `typecheck`

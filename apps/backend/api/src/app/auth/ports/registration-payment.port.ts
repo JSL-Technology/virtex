@@ -1,3 +1,4 @@
+import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
 import type {
   CheckoutSessionInfo,
   CheckoutSessionResult,
@@ -22,6 +23,12 @@ import type {
  * unchanged. The reverse is eliminated.
  */
 export abstract class RegistrationPaymentPort {
+  /** The configured processor's price id for a plan, or null when it cannot be bought that way. */
+  abstract priceIdFor(
+    plan: { slug: string; monthlyPriceId?: string | null; annualPriceId?: string | null },
+    period: BillingPeriod,
+  ): string | null;
+
   abstract createRegistrationCheckoutSession(
     dto: CreateRegistrationCheckoutDto,
   ): Promise<CheckoutSessionResult>;

@@ -1,4 +1,9 @@
 {
+  "remedy.complete_company_profile": {
+    "es": "Completar los datos de la empresa",
+    "en": "Complete the company details",
+    "pt": "Completar os dados da empresa"
+  },
   "remedy.configure_sequences": {
     "es": "Configurar secuencias",
     "en": "Configure sequences",
@@ -13,6 +18,11 @@
     "es": "Revisar el plan",
     "en": "Review the plan",
     "pt": "Rever o plano"
+  },
+  "remedy.upload_certificate": {
+    "es": "Cargar el certificado digital",
+    "en": "Upload the digital certificate",
+    "pt": "Carregar o certificado digital"
   },
   "remedy.view_stock": {
     "es": "Ver existencias",

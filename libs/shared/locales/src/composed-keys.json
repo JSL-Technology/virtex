@@ -70,6 +70,16 @@
       "FAILED",
       "RECONCILED"
     ],
+    "accounts_payable.debit_notes.status": [
+      "POSTED",
+      "VOIDED"
+    ],
+    "accounts_payable.payments.status": [
+      "PENDING",
+      "PROCESSING",
+      "PAID",
+      "VOID"
+    ],
     "accounts_payable.status": [
       "DRAFT",
       "PENDING_APPROVAL",
@@ -87,23 +97,6 @@
       "AUDIT_ADJUSTMENT",
       "PURCHASE_ORDER",
       "PURCHASE_REQUISITION"
-    ],
-    "settings.profile.job_titles": [
-      "ceo",
-      "manager",
-      "accountant",
-      "admin",
-      "employee",
-      "other"
-    ],
-    "notifications.document_type": [
-      "vendor_bill",
-      "journal_entry",
-      "audit_adjustment",
-      "period_reopening",
-      "payment_batch",
-      "purchase_order",
-      "purchase_requisition"
     ],
     "billing.invoice_status": [
       "draft",
@@ -147,6 +140,23 @@
       "ERROR",
       "WARNING",
       "INFO"
+    ],
+    "currencies.rates.methods": [
+      "IDENTITY",
+      "DIRECT",
+      "INVERSE",
+      "TRIANGULATED"
+    ],
+    "currencies.rates.scopes": [
+      "ALL",
+      "TENANT",
+      "SHARED"
+    ],
+    "currencies.rates.types": [
+      "OFFICIAL",
+      "MARKET",
+      "BUY",
+      "SELL"
     ],
     "customer_receipts.method": [
       "CASH",
@@ -246,6 +256,31 @@
     "fiscal.ec": [],
     "fiscal.mx": [],
     "fiscal.pe": [],
+    "fiscal_returns.kinds": [
+      "606",
+      "607",
+      "608",
+      "609",
+      "catalogo",
+      "balanza"
+    ],
+    "fiscal_returns.states": [
+      "missing",
+      "overdue",
+      "generated",
+      "submitted",
+      "changed"
+    ],
+    "fixed_assets.methods": [
+      "STRAIGHT_LINE",
+      "DOUBLE_DECLINING_BALANCE",
+      "SUM_OF_YEARS_DIGITS"
+    ],
+    "fixed_assets.status": [
+      "IN_USE",
+      "SOLD",
+      "DISPOSED"
+    ],
     "hcm.employees.form.frequency_label": [
       "WEEKLY",
       "BIWEEKLY",
@@ -257,6 +292,21 @@
       "TERMINATED"
     ],
     "identity_document": [],
+    "inventory.common.status": [
+      "DRAFT",
+      "POSTED",
+      "CANCELLED"
+    ],
+    "inventory.movements.type": [
+      "OPENING",
+      "PURCHASE_RECEIPT",
+      "PURCHASE_RETURN",
+      "SALE_DISPATCH",
+      "SALE_RETURN",
+      "ADJUSTMENT",
+      "TRANSFER_OUT",
+      "TRANSFER_IN"
+    ],
     "invoices.payment_method": [
       "CASH",
       "CHECK",
@@ -282,9 +332,31 @@
       "Active",
       "Inactive"
     ],
+    "notifications.document_type": [
+      "vendor_bill",
+      "journal_entry",
+      "audit_adjustment",
+      "period_reopening",
+      "payment_batch",
+      "purchase_order",
+      "purchase_requisition"
+    ],
     "overview.activity.item": [],
     "overview.events.item": [],
     "overview.events.kind": [],
+    "partner_ledger.kinds": [
+      "invoice",
+      "credit_note",
+      "debit_note",
+      "receipt",
+      "receipt_void",
+      "bill",
+      "bill_void",
+      "payment",
+      "payment_void",
+      "vendor_debit_note",
+      "vendor_debit_note_void"
+    ],
     "payroll.concepts.calc_label": [
       "FIXED",
       "PERCENTAGE",
@@ -337,12 +409,22 @@
       "RECEIVED",
       "CANCELLED"
     ],
+    "purchasing.receipts.status": [
+      "POSTED",
+      "VOID"
+    ],
     "purchasing.requisitions.status_label": [
       "DRAFT",
       "PENDING_APPROVAL",
       "APPROVED",
       "REJECTED",
       "CONVERTED_TO_PO"
+    ],
+    "recurring_entries.frequency": [
+      "DAILY",
+      "WEEKLY",
+      "MONTHLY",
+      "ANNUALLY"
     ],
     "register.steps.plan.resources": [
       "INVOICES",
@@ -400,6 +482,14 @@
       "needs-credentials",
       "not-implemented"
     ],
+    "settings.profile.job_titles": [
+      "ceo",
+      "manager",
+      "accountant",
+      "admin",
+      "employee",
+      "other"
+    ],
     "settings.sections.rate_type": [
       "OFFICIAL",
       "MARKET",
@@ -433,6 +523,38 @@
       "VENDOR_BILL",
       "JOURNAL_ENTRY"
     ],
+    "transition.line_count": [
+      "one",
+      "other"
+    ],
+    "uom": [
+      "box",
+      "centimetre",
+      "cubic_metre",
+      "day",
+      "dozen",
+      "foot",
+      "gallon",
+      "gram",
+      "hour",
+      "hundredweight",
+      "inch",
+      "kilogram",
+      "litre",
+      "metre",
+      "millilitre",
+      "month",
+      "ounce",
+      "pack",
+      "pair",
+      "pound",
+      "service",
+      "set",
+      "square_foot",
+      "square_metre",
+      "tonne",
+      "unit"
+    ],
     "user.role": [
       "ADMINISTRATOR",
       "MEMBER",
@@ -448,97 +570,7 @@
       "BLOCKED"
     ],
     "validation.constraints": [],
-    "validation.fields": [],
-    "inventory.movements.type": [
-      "OPENING",
-      "PURCHASE_RECEIPT",
-      "PURCHASE_RETURN",
-      "SALE_DISPATCH",
-      "SALE_RETURN",
-      "ADJUSTMENT",
-      "TRANSFER_OUT",
-      "TRANSFER_IN"
-    ],
-    "inventory.common.status": [
-      "DRAFT",
-      "POSTED",
-      "CANCELLED"
-    ],
-    "purchasing.receipts.status": [
-      "POSTED",
-      "VOID"
-    ],
-    "accounts_payable.payments.status": [
-      "PENDING",
-      "PROCESSING",
-      "PAID",
-      "VOID"
-    ],
-    "accounts_payable.debit_notes.status": [
-      "POSTED",
-      "VOIDED"
-    ],
-    "currencies.rates.types": [
-      "OFFICIAL",
-      "MARKET",
-      "BUY",
-      "SELL"
-    ],
-    "currencies.rates.scopes": [
-      "ALL",
-      "TENANT",
-      "SHARED"
-    ],
-    "currencies.rates.methods": [
-      "IDENTITY",
-      "DIRECT",
-      "INVERSE",
-      "TRIANGULATED"
-    ],
-    "fiscal_returns.kinds": [
-      "606",
-      "607",
-      "608",
-      "609",
-      "catalogo",
-      "balanza"
-    ],
-    "fiscal_returns.states": [
-      "missing",
-      "overdue",
-      "generated",
-      "submitted",
-      "changed"
-    ],
-    "fixed_assets.methods": [
-      "STRAIGHT_LINE",
-      "DOUBLE_DECLINING_BALANCE",
-      "SUM_OF_YEARS_DIGITS"
-    ],
-    "fixed_assets.status": [
-      "IN_USE",
-      "SOLD",
-      "DISPOSED"
-    ],
-    "partner_ledger.kinds": [
-      "invoice",
-      "credit_note",
-      "debit_note",
-      "receipt",
-      "receipt_void",
-      "bill",
-      "bill_void",
-      "payment",
-      "payment_void",
-      "vendor_debit_note",
-      "vendor_debit_note_void"
-    ],
-    "recurring_entries.frequency": [
-      "DAILY",
-      "WEEKLY",
-      "MONTHLY",
-      "ANNUALLY"
-    ]
+    "validation.fields": []
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
   "not_keys": [

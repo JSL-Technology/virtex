@@ -324,6 +324,16 @@
     "en": "SFS payable (TSS)",
     "pt": "SFS a pagar (TSS)"
   },
+  "ledger.provisioning.cash_account": {
+    "es": "Caja general",
+    "en": "Main cash",
+    "pt": "Caixa geral"
+  },
+  "ledger.provisioning.default_category": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
   "ledger.provisioning.default_ledger_description": {
     "es": "Libro contable principal, en la moneda funcional de la organización.",
     "en": "Primary accounting ledger, in the organization's functional currency.",
@@ -333,6 +343,11 @@
     "es": "Libro Principal",
     "en": "Main Ledger",
     "pt": "Livro Principal"
+  },
+  "ledger.provisioning.final_consumer": {
+    "es": "Consumidor final",
+    "en": "Final consumer",
+    "pt": "Consumidor final"
   },
   "ledger.provisioning.journals.banks": {
     "es": "Diario de Bancos",

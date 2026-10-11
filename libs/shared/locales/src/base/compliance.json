@@ -109,6 +109,11 @@
     "en": "Purchasing is not available in this installation, so this report cannot be generated.",
     "pt": "As compras não estão disponíveis nesta instalação, então este relatório não pode ser gerado."
   },
+  "compliance.range_expiry_date_required": {
+    "es": "Indica la fecha de vencimiento que la autoridad fiscal asignó al rango {{type}}.",
+    "en": "Enter the expiry date the tax authority assigned to the {{type}} range.",
+    "pt": "Indique a data de vencimento que a autoridade fiscal atribuiu ao intervalo {{type}}."
+  },
   "compliance.report_606_credit_note_without_modified_ncf": {
     "es": "El 606 no se generó: {{count}} nota(s) de crédito de proveedor con NCF modifican una factura sin NCF ({{notes}}). Registra el NCF de la factura de proveedor y vuelve a generarlo.",
     "en": "The 606 was not generated: {{count}} supplier credit note(s) with an NCF modify a bill without an NCF ({{notes}}). Record the vendor bill's NCF and generate it again.",

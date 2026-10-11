@@ -102,6 +102,7 @@
                   placeholderKey="invoices.new.customer_placeholder"
                   emptyLabelKey="invoices.new.customer_empty"
                   createLabelKey="invoices.new.customer_create"
+                  createBlankLabelKey="invoices.new.customer_create_blank"
                 ></vx-select>
               </div>
 
@@ -119,7 +120,7 @@
                 <label class="form-label" for="currencyCode">{{ 'invoices.new.currency' | translate }} *</label>
                 <select id="currencyCode" formControlName="currencyCode" class="form-control">
                   @for (currency of currencies(); track currency.code) {
-                    <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
+                    <option [value]="currency.code">{{ currency.code }} · {{ currency.code | vxCurrencyName: currency.name }}</option>
                   }
                 </select>
               </div>
@@ -128,6 +129,8 @@
               <vx-branch-picker class="form-group" inputId="branchId" formControlName="branchId" />
             </div>
 
+            <!-- Its own horizontal scroll: a wide table must not push the summary out of the window. -->
+            <div class="line-items-scroll">
             <table class="line-items-table">
               <thead>
                 <tr>
@@ -207,6 +210,7 @@
                 }
               </tbody>
             </table>
+            </div>
 
             <button type="button" class="btn btn-link" (click)="addLineItem()">{{ 'invoices.new.add_line_button' | translate }}</button>
 

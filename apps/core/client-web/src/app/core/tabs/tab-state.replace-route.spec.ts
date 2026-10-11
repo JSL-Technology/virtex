@@ -75,7 +75,7 @@ describe('TabStateService — a saved draft takes over its own window', () => {
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },
         { provide: TabEventBusService, useValue: { on: () => of(), emit: jest.fn() } },
-        { provide: TranslateService, useValue: { instant: (k: string) => k } },
+        { provide: TranslateService, useValue: { instant: (k: string) => k, onLangChange: of() } },
       ],
     });
     tabs = TestBed.inject(TabStateService);

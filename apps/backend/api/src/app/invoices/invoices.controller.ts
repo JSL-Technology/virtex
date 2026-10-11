@@ -251,15 +251,17 @@ export class InvoicesController {
     // The company's name as sender and its address for replies: a customer answering an invoice
     // writes to whoever billed them, not to the software vendor.
     const identity = await this.invoicesService.senderIdentity(user.organizationId);
+    // The language and formats of the PDF it carries (QA M4): the customer's, not the sender's.
+    const summary = this.renderer.emailSummary(context);
     await this.mail.sendInvoiceEmail({
       identity: { senderName: identity.senderName, replyTo: identity.replyTo, copyTo: identity.copyTo },
       to,
-      language: invoice.customer?.preferredLanguage ?? null,
+      language: summary.language,
       invoiceNumber: number,
       customerName: invoice.customer?.companyName ?? '',
       companyName: context.organization.legalName,
-      total: `${invoice.currencyCode ?? ''} ${Number(invoice.total ?? 0).toFixed(2)}`.trim(),
-      dueDate: invoice.dueDate ? String(invoice.dueDate).slice(0, 10) : null,
+      total: summary.total,
+      dueDate: summary.dueDate,
       message: dto.message ?? null,
       pdf,
     });

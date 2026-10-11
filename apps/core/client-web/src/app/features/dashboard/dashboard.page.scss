@@ -1,17 +1,17 @@
 @use '../../../assets/styles/variables' as *;
 
+// The indicators live inside the Home page, which scrolls as a whole. They were styled as the
+// full-height page they used to be — `height: 100%` and their own scroller — and inside a section
+// with no height of its own that resolved to nothing: the widgets were cut to a 25 px strip with a
+// scrollbar. They now take the height their rows need (`setGridSize` in the grid options).
 :host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  display: block;
 }
 
 // ── Shell ─────────────────────────────────────────────────────────
 .db-shell {
   display: flex;
   flex-direction: column;
-  height: 100%;
   background-color: var(--bg-primary);
 }
 
@@ -39,7 +39,6 @@
   &__subtitle {
     font-size: var(--text-sm);
     color: var(--text-tertiary);
-    text-transform: capitalize;
   }
 
   &__actions {
@@ -101,15 +100,15 @@
 
 // ── Grid Wrapper ──────────────────────────────────────────────────
 .db-grid-wrap {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding: 1rem 1.5rem;
 }
 
 // ── Gridster overrides ─────────────────────────────────────────────
 gridster {
   background: transparent !important;
+  // `setGridSize` writes an inline width that counts the outer margins the options turn off, two
+  // margins wider than the column it sits in; the items fit, the box overflowed into a scrollbar.
+  max-width: 100%;
 
   // Drag preview placeholder
   ::ng-deep .gridster-preview {

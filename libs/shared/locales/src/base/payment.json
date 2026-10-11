@@ -49,10 +49,20 @@
     "en": "The payment session does not belong to this organization.",
     "pt": "A sessão de pagamento não pertence a esta organização."
   },
+  "payment.plan_annual_billing_unavailable": {
+    "es": "Este plan no admite facturación anual en este momento. Elige la facturación mensual.",
+    "en": "This plan does not offer annual billing right now. Choose monthly billing.",
+    "pt": "Este plano não oferece cobrança anual no momento. Escolha a cobrança mensal."
+  },
   "payment.plan_not_found": {
     "es": "Plan no encontrado.",
     "en": "Plan not found.",
     "pt": "Plano não encontrado."
+  },
+  "payment.plan_unavailable_for_purchase": {
+    "es": "Este plan no se puede contratar en este momento. Elige otro plan o vuelve a intentarlo más tarde.",
+    "en": "This plan cannot be purchased right now. Choose another plan or try again later.",
+    "pt": "Este plano não pode ser contratado no momento. Escolha outro plano ou tente novamente mais tarde."
   },
   "payment.plans.checkout_error": {
     "es": "No pudimos iniciar el pago.",
@@ -113,6 +123,11 @@
     "en": "The webhook signature could not be verified because the raw request body is unavailable.",
     "pt": "Não foi possível verificar a assinatura do webhook porque o corpo original da requisição não está disponível."
   },
+  "payment.simulated_provider_not_allowed": {
+    "es": "El proveedor de pagos simulado solo funciona en desarrollo y pruebas.",
+    "en": "The simulated payment provider only works in development and test.",
+    "pt": "O provedor de pagamentos simulado só funciona em desenvolvimento e testes."
+  },
   "payment.success.body": {
     "es": "Tu suscripción quedó activada.",
     "en": "Your subscription is now active.",
@@ -142,5 +157,10 @@
     "es": "Webhook signature verification failed",
     "en": "The webhook signature could not be verified.",
     "pt": "Não foi possível verificar a assinatura do webhook."
+  },
+  "payment.webhooks_unavailable_simulated_provider": {
+    "es": "Los avisos de pago no están disponibles con el proveedor de pagos simulado.",
+    "en": "Payment notifications are not available with the simulated payment provider.",
+    "pt": "As notificações de pagamento não estão disponíveis com o provedor de pagamentos simulado."
   }
 }

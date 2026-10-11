@@ -295,6 +295,12 @@ async function bootstrap() {
   // a login that cannot post a debit, while a tenant created by the real signup (which resolves
   // its region at request time, long after boot) gets all of it. `listen()` reuses this
   // initialisation, so this only fixes the ordering; it does not initialise twice.
+  // Socket.IO answers the same origins the HTTP API does. Registered BEFORE `app.init()`: the
+  // gateways bind to whatever adapter is installed when they initialise, and registering it after
+  // left every gateway on the default adapter, without these origins, while Nest warned on every
+  // boot that the configured one would never be applied.
+  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, { http: corsOrigins, websocket: wsOrigins }));
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.init();
 
@@ -324,12 +330,24 @@ async function bootstrap() {
     }
   }
 
-  // Socket.IO answers the same origins the HTTP API does. Registered before `listen`, because
-  // that is when the adapter builds the server.
-  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, { http: corsOrigins, websocket: wsOrigins }));
-
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Application is running on: ${await app.getUrl()}/${apiPrefix}`);
 }
-bootstrap();
+
+/**
+ * A boot that fails must end the process.
+ *
+ * `bootstrap()` was called without a handler, so a failure during start-up — the port already in
+ * use, a database that refuses the connection — reached the global unhandled-rejection handler,
+ * whose whole purpose is to keep a RUNNING server alive. The result was a process that had never
+ * listened on its port and never would, reporting itself healthy to anything that only checks
+ * that it exists. Exiting non-zero lets the supervisor (or the developer) see the failure and
+ * restart it.
+ */
+bootstrap().catch((error: unknown) => {
+  const failure = error instanceof Error ? error : new Error(String(error));
+  console.error(`API failed to start: ${failure.message}`);
+  if (failure.stack) console.error(failure.stack);
+  process.exit(1);
+});

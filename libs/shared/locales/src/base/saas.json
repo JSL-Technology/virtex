@@ -24,6 +24,11 @@
     "en": "You are approaching your {{resource}} limit",
     "pt": "Você está chegando ao limite de {{resource}}"
   },
+  "saas.no_active_plan": {
+    "es": "Esta empresa no tiene un plan activo. Contacta a soporte para completar la activación.",
+    "en": "This company has no active plan. Contact support to complete the activation.",
+    "pt": "Esta empresa não tem um plano ativo. Contacte o suporte para concluir a ativação."
+  },
   "saas.organization_context_required_for_feature_check": {
     "es": "No se pudo determinar la organización para verificar el acceso a esta función.",
     "en": "The organization could not be determined to check access to this feature.",
@@ -68,6 +73,16 @@
     "es": "Tu suscripción está al día",
     "en": "Your subscription is up to date",
     "pt": "Sua assinatura está em dia"
+  },
+  "saas.plan_feature_not_enabled": {
+    "es": "Tu plan no incluye esta función.",
+    "en": "Your plan does not include this feature.",
+    "pt": "O seu plano não inclui esta funcionalidade."
+  },
+  "saas.plan_limit_reached": {
+    "es": "Tu plan ya no admite más {{resource}} en este período. Amplía el plan para continuar.",
+    "en": "Your plan allows no more {{resource}} this period. Upgrade your plan to continue.",
+    "pt": "O seu plano já não permite mais {{resource}} neste período. Atualize o plano para continuar."
   },
   "saas.resources.customers": {
     "es": "clientes",

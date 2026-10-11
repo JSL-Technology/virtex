@@ -87,6 +87,21 @@ export class SchedulerLockService {
     }
   }
 
+  /**
+   * Deletes finished runs of `jobName` older than `olderThanMs`.
+   *
+   * A job that fires every few minutes, keyed by its time slot, would otherwise leave hundreds of
+   * rows a day. Only finished runs are removed: an unfinished row is either running now or was
+   * released on failure, and both must stay as they are.
+   */
+  async pruneFinished(jobName: string, olderThanMs: number): Promise<void> {
+    await this.dataSource.query(
+      `DELETE FROM "scheduled_job_runs"
+        WHERE "job_name" = $1 AND "finished_at" IS NOT NULL AND "finished_at" < now() - ($2 || ' milliseconds')::interval`,
+      [jobName, String(olderThanMs)],
+    );
+  }
+
   /** Whether a key has already completed. For callers that need to check without claiming. */
   async hasRun(jobName: string, runKey: string): Promise<boolean> {
     const rows = await this.dataSource.query<{ run_key: string }[]>(

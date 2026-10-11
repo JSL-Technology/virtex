@@ -141,6 +141,69 @@ export class VxListPipe extends LocaleAwarePipe implements PipeTransform {
 }
 
 /**
+ * The catalogue key for a count, by the language's own plural rules.
+ *
+ * `{{ 'transition.line_count' | vxPluralKey: n | translate: { count: n } }}` reads
+ * `transition.line_count.one` for 1 and `transition.line_count.other` otherwise — in English; the
+ * category comes from CLDR, so Portuguese's `one` for 1.5 is right without anyone remembering it.
+ * One translated word for every count printed «1 lines». Only `one` and `other` are used: they are
+ * the two forms the product's languages distinguish in running text, and a family declared in
+ * `composed-keys.json` is checked for both in every language.
+ */
+@Pipe({ name: 'vxPluralKey', standalone: true, pure: false })
+export class VxPluralKeyPipe extends LocaleAwarePipe implements PipeTransform {
+  transform(family: string, count: number | null | undefined): string {
+    const n = Number(count ?? 0);
+    return this.memo(`p|${family}|${n}`, () =>
+      `${family}.${this.format.pluralCategory(n) === 'one' ? 'one' : 'other'}`,
+    );
+  }
+}
+
+/**
+ * A currency's name in the reader's language: `DOP` → «Peso dominicano», «Dominican peso».
+ *
+ * The pickers printed the name stored with the currency, written once in Spanish, so an English
+ * reader chose between «Peso dominicano» and «Dólar estadounidense». The browser already names
+ * every ISO 4217 code in every language; the stored name stays as the fallback for a code it does
+ * not know (a tenant's own unit of account).
+ */
+@Pipe({ name: 'vxCurrencyName', standalone: true, pure: false })
+export class VxCurrencyNamePipe extends LocaleAwarePipe implements PipeTransform {
+  private static readonly cache = new Map<string, Intl.DisplayNames | null>();
+
+  transform(code: string | null | undefined, fallback?: string | null): string {
+    if (!code) return fallback ?? '';
+    const upper = code.toUpperCase();
+    return this.memo(`c|${upper}|${fallback ?? ''}`, () => {
+      const names = VxCurrencyNamePipe.namesFor(this.store.locale());
+      let name: string | undefined;
+      try {
+        name = names?.of(upper);
+      } catch {
+        name = undefined;
+      }
+      // `of` echoes an unknown but well-formed code back; the stored name says more than that.
+      return name && name !== upper ? name : (fallback || upper);
+    });
+  }
+
+  private static namesFor(locale: string): Intl.DisplayNames | null {
+    if (!VxCurrencyNamePipe.cache.has(locale)) {
+      const DisplayNames = (Intl as { DisplayNames?: typeof Intl.DisplayNames }).DisplayNames;
+      let names: Intl.DisplayNames | null = null;
+      try {
+        names = DisplayNames ? new DisplayNames([locale], { type: 'currency' }) : null;
+      } catch {
+        names = null;
+      }
+      VxCurrencyNamePipe.cache.set(locale, names);
+    }
+    return VxCurrencyNamePipe.cache.get(locale) ?? null;
+  }
+}
+
+/**
  * Everything a template needs in order to format, as one import.
  *
  * Grouped so a component adds `FORMAT_PIPES` rather than remembering which seven symbols it
@@ -155,4 +218,6 @@ export const FORMAT_PIPES = [
   VxRelativeTimePipe,
   VxListPipe,
   VxLocalizedNamePipe,
+  VxPluralKeyPipe,
+  VxCurrencyNamePipe,
 ] as const;

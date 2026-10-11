@@ -82,7 +82,7 @@
       <div class="tp__row">
         <span class="tp__row-label">{{ movement.titleKey | translate }}</span>
         <span class="tp__row-value">
-          {{ 'transition.lines' | translate: { count: movement.movements.length } }}
+          {{ 'transition.line_count' | vxPluralKey: movement.movements.length | translate: { count: movement.movements.length } }}
         </span>
       </div>
     }
@@ -90,12 +90,12 @@
 
   <!-- Actions -------------------------------------------------------------- -->
   <footer class="tp__actions">
-    <button type="button" class="btn btn--secondary" (click)="cancelled.emit()">
+    <button type="button" class="btn-secondary" (click)="cancelled.emit()">
       {{ 'common.cancel' | translate }}
     </button>
     <button
       type="button"
-      class="btn btn--primary"
+      class="btn-primary"
       [disabled]="!preview().canExecute || busy()"
       (click)="confirmed.emit()"
     >

@@ -218,6 +218,7 @@ export class NewInvoicePage implements OnInit {
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (!this.settingDueDate) this.dueDateTouched = true;
+        this.syncPaymentMethod();
       });
 
     // `switchMap` drops the answer to a superseded question: a slow response to an older form
@@ -252,6 +253,13 @@ export class NewInvoicePage implements OnInit {
     this.invoicesService.context().subscribe({
       next: (context) => {
         this.context.set(context);
+        // The tenant's today, not the browser's: see `InvoicingContext.today`. A date the person
+        // already picked is left alone.
+        const issueDate = this.invoiceForm.get('issueDate');
+        if (issueDate && context.today && !issueDate.dirty) {
+          issueDate.setValue(context.today, { emitEvent: false });
+          this.applyPaymentTerms();
+        }
         this.invoiceForm.patchValue(
           {
             currencyCode: context.baseCurrency,
@@ -400,6 +408,23 @@ export class NewInvoicePage implements OnInit {
     this.settingDueDate = true;
     this.invoiceForm.get('dueDate')!.setValue(addDays(issueDate, days), { emitEvent: false });
     this.settingDueDate = false;
+    this.syncPaymentMethod();
+  }
+
+  /**
+   * Cash or credit, following the terms, until the person picks a method themselves.
+   *
+   * The control opened on «Cash» and stayed there, so an invoice due in thirty days was recorded
+   * — and reported to the DGII — as a cash sale. The method is the person's call once they make
+   * it; until then it says what the due date says.
+   */
+  private syncPaymentMethod(): void {
+    const control = this.invoiceForm.get('paymentMethod');
+    if (!control || control.dirty) return;
+    const { issueDate, dueDate, paymentMethod } = this.invoiceForm.getRawValue();
+    if (paymentMethod !== 'CASH' && paymentMethod !== 'CREDIT') return;
+    const method = dueDate && issueDate && dueDate > issueDate ? 'CREDIT' : 'CASH';
+    if (method !== paymentMethod) control.setValue(method, { emitEvent: false });
   }
 
   /** True once the user has set a due date themselves; the terms stop deciding for them. */
@@ -524,7 +549,9 @@ export class NewInvoicePage implements OnInit {
   stockShortfall(index: number): number {
     const control = this.lineItems.at(index);
     const product = this.productsById.get(control.get('productId')?.value);
-    if (!product) return 0;
+    // A service is not stocked, so it can never be short: the line used to warn that billing one
+    // hour of delivery was "1 units short of the stock on hand".
+    if (!product || (product as { kind?: string }).kind === 'SERVICE') return 0;
     const quantity = Number(control.get('quantity')?.value) || 0;
     const available = Number((product as { stock?: number }).stock ?? 0);
     return quantity > available ? quantity - available : 0;

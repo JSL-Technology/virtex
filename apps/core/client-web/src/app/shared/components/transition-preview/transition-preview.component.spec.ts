@@ -84,7 +84,7 @@ describe('TransitionPreviewComponent', () => {
 
   it('no deja confirmar lo que el servidor dijo que no se puede ejecutar', async () => {
     const el = await render(blocked);
-    const confirm = el.querySelector('.btn--primary') as HTMLButtonElement;
+    const confirm = el.querySelector('.btn-primary') as HTMLButtonElement;
     expect(confirm.disabled).toBe(true);
   });
 
@@ -110,7 +110,7 @@ describe('TransitionPreviewComponent', () => {
 
   it('deja confirmar cuando el servidor dice que se puede', async () => {
     const el = await render(executable);
-    const confirm = el.querySelector('.btn--primary') as HTMLButtonElement;
+    const confirm = el.querySelector('.btn-primary') as HTMLButtonElement;
     expect(confirm.disabled).toBe(false);
   });
 

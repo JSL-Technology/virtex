@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -67,10 +67,17 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 };
 
 
+/** Where an entry came from, as the server describes it (`journal-entries/entry-origin.ts`). */
+interface EntryOrigin {
+  locked: boolean;
+  reason: string | null;
+  document: { type: string; id: string; route: string | null } | null;
+}
+
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -113,6 +120,8 @@ export class JournalEntryFormPage implements OnInit {
    * explains itself and one that answers 400 after the work is done.
    */
   readonly editBlockedKey = signal<string | null>(null);
+  /** The document an automatic entry belongs to, when the server could name it. */
+  readonly sourceRoute = signal<string | null>(null);
   /** The entry being modified, once loaded. */
   readonly original = signal<ApiJournalEntry | null>(null);
   ledgers = signal<Ledger[]>([]);
@@ -188,6 +197,13 @@ export class JournalEntryFormPage implements OnInit {
 
         if (loaded.status !== 'Posted') {
           this.editBlockedKey.set('accounting.journal_entry_form.only_posted_can_be_modified');
+        }
+        // The accounting of a document — an invoice, a payroll run — is corrected from that
+        // document, never here; the server refuses it, so the screen does not offer it.
+        const origin = (entry as unknown as { origin?: EntryOrigin }).origin;
+        if (origin?.locked) {
+          this.editBlockedKey.set('accounting.journal_entry_form.generated_from_document');
+          this.sourceRoute.set(origin.document?.route ?? null);
         }
 
         this.entryForm.patchValue({
@@ -378,6 +394,8 @@ export class JournalEntryFormPage implements OnInit {
   }
 
   saveEntry(): void {
+    // An entry that cannot be modified is not saved, whatever the form says.
+    if (this.editBlockedKey()) return;
     this.entryForm.markAllAsTouched();
     
     if (this.entryForm.invalid) {

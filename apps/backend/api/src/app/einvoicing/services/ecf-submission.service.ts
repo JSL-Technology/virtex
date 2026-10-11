@@ -1,8 +1,8 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { EcfSubmission, EcfStatus } from '../entities/ecf-submission.entity';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
 import { Invoice, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
 import { TaxTreatment } from '../../invoices/entities/invoice-line-item.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -28,7 +28,7 @@ import {
   unitOfMeasureCode,
 } from '../config/dgii-catalogues';
 import { dgiiTimestamp, organizationTimeZone } from '../../shared/fiscal-clock';
-import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
+import { BadRequestError, NotFoundError, isLocalizedError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 
 /**
@@ -53,6 +53,9 @@ import { I18nService } from '../../i18n/i18n.service';
  * sign of a missing address or an unidentified buyer was a rejection. `EcfValidatorService` runs
  * before signing and its findings are stored on the submission, in the tenant's own language.
  */
+/** Retries before a contingency becomes an error: the reconciler retries every ten minutes. */
+const MAX_CONTINGENCY_ATTEMPTS = 144;
+
 @Injectable()
 export class EcfSubmissionService {
   private readonly logger = new Logger(EcfSubmissionService.name);
@@ -77,6 +80,79 @@ export class EcfSubmissionService {
     private readonly transport: DgiiTransportService,
     private readonly dgiiConfig: DgiiConfigService,
   ) {}
+
+  /**
+   * Refuses to issue an electronic document this tenant cannot sign.
+   *
+   * Called by the issuing transaction, after the fiscal number is chosen and before anything is
+   * saved. It used to be checked only when the e-CF was built, AFTER the sale had committed: the
+   * invoice kept an e-NCF the DGII would never receive, and nothing on screen said so. Raised here,
+   * the same condition blocks the issue preview with a link to the screen that fixes it.
+   */
+  async assertReadyToSign(organizationId: string, manager?: EntityManager): Promise<void> {
+    const orgs = manager ? manager.getRepository(Organization) : this.orgRepo;
+    const org = await orgs.findOne({ where: { id: organizationId }, select: ['id', 'taxId'] });
+    if (!org?.taxId) {
+      throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
+    }
+    const cert = await this.activeCertificate(organizationId, manager);
+    if (!cert) {
+      throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
+    }
+    if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
+      throw new BadRequestError('einvoicing.do.certificate_expired', {
+        expiredOn: cert.notAfter.toISOString().split('T')[0],
+      });
+    }
+  }
+
+  /** `assertReadyToSign` as a yes/no, for readiness screens that list what is missing. */
+  async isReadyToSign(organizationId: string, manager?: EntityManager): Promise<boolean> {
+    try {
+      await this.assertReadyToSign(organizationId, manager);
+      return true;
+    } catch (error) {
+      if (error instanceof BadRequestError) return false;
+      throw error;
+    }
+  }
+
+  /**
+   * Records, inside the issuing transaction, that this document owes the DGII a transmission.
+   *
+   * A transactional outbox: the row commits with the sale or not at all. Transmission used to start
+   * from a fire-and-forget call made after the request had released its connection; it failed every
+   * time with "Query runner already released", before it could write anything, so no e-CF was ever
+   * recorded or sent and the reconciler had nothing to retry. Now a committed electronic document
+   * always has a PENDING row, and `retryContingency` picks it up even if the process dies before
+   * the immediate attempt.
+   */
+  async registerPending(invoice: Invoice, manager: EntityManager): Promise<EcfSubmission> {
+    const repo = manager.getRepository(EcfSubmission);
+    const existing = await repo.findOne({
+      where: { invoiceId: invoice.id, organizationId: invoice.organizationId },
+    });
+    if (existing) return existing;
+    return repo.save(
+      repo.create({
+        organizationId: invoice.organizationId,
+        invoiceId: invoice.id,
+        ncf: invoice.fiscalNumber as string,
+        ecfType: (invoice.fiscalNumber as string).substring(1, 3),
+        status: EcfStatus.PENDING,
+        attempts: 0,
+      }),
+    );
+  }
+
+  /** The certificate that signs DGII documents for this tenant, newest first. */
+  private activeCertificate(organizationId: string, manager?: EntityManager): Promise<EcfCertificate | null> {
+    const repo = manager ? manager.getRepository(EcfCertificate) : this.certRepo;
+    return repo.findOne({
+      where: { organizationId, isActive: true, regime: DGII_CERTIFICATE_REGIME },
+      order: { createdAt: 'DESC' },
+    });
+  }
 
   /**
    * Build, validate, sign and transmit the e-CF for a document that carries an electronic e-NCF.
@@ -128,10 +204,7 @@ export class EcfSubmissionService {
       throw new BadRequestError('einvoicing.do.organization_has_no_rnc_configured_fill');
     }
 
-    const cert = await this.certRepo.findOne({
-      where: { organizationId, isActive: true },
-      order: { createdAt: 'DESC' },
-    });
+    const cert = await this.activeCertificate(organizationId);
     if (!cert) {
       throw new BadRequestError('einvoicing.do.no_active_digital_certificate_sign_cf');
     }
@@ -201,14 +274,28 @@ export class EcfSubmissionService {
           `${issue.field}: ${this.i18n.t(issue.messageKey, issue.params ?? {})}`,
       );
       this.logger.error(`e-CF ${submission.ncf} inválido: ${error.message}`);
-    } else {
+    } else if (isLocalizedError(error)) {
+      // A condition the tenant has to fix — a missing RNC, an expired certificate — will fail the
+      // same way on every retry until they do.
       submission.status = EcfStatus.ERROR;
+      submission.messages = [this.i18n.t(error.messageKey, error.params ?? {})];
+      this.logger.error(`e-CF ${submission.ncf} cannot be transmitted: ${error.messageKey}`);
+    } else {
+      // Anything else is infrastructure — a dropped connection, a timeout, a restart mid-flight.
+      // It used to be stored as ERROR, which the reconciler deliberately never retries, so a
+      // document caught by a transient fault was stranded until someone noticed. Contingency is
+      // retried on the next pass.
+      submission.status = EcfStatus.CONTINGENCY;
       submission.messages = [(error as Error).message];
-      this.logger.error(
-        `Error al transmitir e-CF ${submission.ncf}: ${(error as Error).message}`,
-      );
+      this.logger.warn(`e-CF ${submission.ncf} left in contingency: ${(error as Error).message}`);
     }
     submission.attempts += 1;
+    // A fault that outlives a day of retries is not transient. It is surfaced as an error the
+    // tenant sees instead of being retried forever in silence.
+    if (submission.status === EcfStatus.CONTINGENCY && submission.attempts >= MAX_CONTINGENCY_ATTEMPTS) {
+      submission.status = EcfStatus.ERROR;
+      this.logger.error(`e-CF ${submission.ncf} still failing after ${submission.attempts} attempts; marked as error.`);
+    }
     return this.submissionRepo.save(submission);
   }
 
@@ -249,10 +336,7 @@ export class EcfSubmissionService {
   async pollStatus(submission: EcfSubmission): Promise<EcfSubmission> {
     if (!submission.trackId || isTerminalStatus(submission.status)) return submission;
 
-    const cert = await this.certRepo.findOne({
-      where: { organizationId: submission.organizationId, isActive: true },
-      order: { createdAt: 'DESC' },
-    });
+    const cert = await this.activeCertificate(submission.organizationId);
     if (!cert) return submission;
 
     const loaded = this.vault.load(cert);
@@ -271,10 +355,11 @@ export class EcfSubmissionService {
   }
 
   /** Non-terminal submissions with a trackId, oldest first — used by the reconciler. */
-  findPollable(limit = 50): Promise<EcfSubmission[]> {
+  findPollable(organizationId: string, limit = 50): Promise<EcfSubmission[]> {
     return this.submissionRepo
       .createQueryBuilder('s')
-      .where('s.trackId IS NOT NULL')
+      .where('s.organizationId = :organizationId', { organizationId })
+      .andWhere('s.trackId IS NOT NULL')
       .andWhere('s.status = :sent', { sent: EcfStatus.SENT })
       .orderBy('s.sentAt', 'ASC')
       .limit(limit)
@@ -290,10 +375,11 @@ export class EcfSubmissionService {
    * rejected on their content, and re-sending them unchanged only repeats the rejection. They are
    * surfaced to the tenant instead, and re-submitted explicitly once corrected.
    */
-  findRetriable(limit = 50): Promise<EcfSubmission[]> {
+  findRetriable(organizationId: string, limit = 50): Promise<EcfSubmission[]> {
     return this.submissionRepo
       .createQueryBuilder('s')
-      .where('s.status IN (:...states)', {
+      .where('s.organizationId = :organizationId', { organizationId })
+      .andWhere('s.status IN (:...states)', {
         states: [EcfStatus.CONTINGENCY, EcfStatus.PENDING, EcfStatus.SIGNED],
       })
       .orderBy('s.updatedAt', 'ASC')

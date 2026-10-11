@@ -29,7 +29,10 @@ export interface PromptConfig {
   cancelText?: string;
   variant?: DialogVariant;
   icon?: string;
-  /** Reject anything shorter than this, with `tooShort` as the reason shown. */
+  /**
+   * Reject anything shorter than this, with `tooShort` as the reason shown. Defaults to 1: most
+   * prompts ask for a reason that may not be blank. Pass 0 when a blank answer is meaningful.
+   */
   minLength?: number;
   tooShort?: string;
 }
@@ -213,8 +216,9 @@ export class DialogService {
         discardText: '',
         allowSave: false,
         placeholder: config.placeholder ? this.t(config.placeholder) : '',
-        minLength: config.minLength ?? 0,
-        tooShort: config.tooShort ? this.t(config.tooShort) : '',
+        minLength: config.minLength ?? 1,
+        // Never an empty reason: a refused answer with no explanation reads as a broken button.
+        tooShort: this.t(config.tooShort ?? 'dialog.prompt.required'),
         resolve: (v) => resolve(typeof v === 'string' ? v : null),
       });
     });

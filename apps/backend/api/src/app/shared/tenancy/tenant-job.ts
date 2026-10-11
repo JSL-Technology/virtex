@@ -46,6 +46,40 @@ export async function runAsTenantJob<T>(
 }
 
 /**
+ * Runs `work` once per tenant, each inside that tenant's own context.
+ *
+ * The shape every scheduled job that acts for all tenants needs. A cron has no request, so a query
+ * it runs directly sees no tenant and — under the row-level policies, with the application
+ * connected as the unprivileged role — no rows: the job runs on schedule and silently does
+ * nothing. `organizations` is the directory of tenants and has no policy, so it can be listed
+ * without a context; everything else happens inside `runAsTenantJob`.
+ *
+ * One tenant failing never stops the others; the failure is handed to `onError`.
+ *
+ * @param only restricts the run to these tenants (tests, or a job retried for one company).
+ */
+export async function forEachTenant(
+  dataSource: DataSource,
+  work: (organizationId: string) => Promise<void>,
+  only?: readonly string[],
+  onError: (organizationId: string, error: unknown) => void = (organizationId, error) =>
+    console.error(`Tenant job failed for ${organizationId}: ${(error as Error)?.message ?? error}`),
+): Promise<void> {
+  const ids: string[] = only?.length
+    ? [...only]
+    : (await dataSource.query(`SELECT "id" FROM "organizations" ORDER BY "created_at" ASC`)).map(
+        (row: { id: string }) => row.id,
+      );
+  for (const organizationId of ids) {
+    try {
+      await runAsTenantJob(dataSource, organizationId, () => work(organizationId));
+    } catch (error) {
+      onError(organizationId, error);
+    }
+  }
+}
+
+/**
  * Da contexto de inquilino a una transacción que acaba de CREAR ese inquilino.
  *
  * ## El problema del huevo y la gallina

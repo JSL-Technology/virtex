@@ -318,6 +318,35 @@ describe('RegistrationService', () => {
    * the company goes through the same fiscal validation and duplicate check as a signup; and the
    * stored password hash can never be signed into, because the existing account keeps its own.
    */
+  /**
+   * The phone is optional, and so is its verification. The signup screen lets a person continue
+   * with the number unverified when the SMS channel is down and promises they can confirm it later;
+   * the server used to refuse exactly that payload on the last step.
+   */
+  describe('phone verification at signup', () => {
+    const dto = {
+      email: 'owner@example.do',
+      emailVerificationCode: '123456',
+      phone: '+18095551234',
+      recaptchaToken: 'token',
+      countryCode: 'DO',
+      taxId: '131234569',
+    } as unknown as RegisterUserDto;
+    const validate = (input: RegisterUserDto) =>
+      (service as unknown as { validateRegistration(d: RegisterUserDto): Promise<void> }).validateRegistration(input);
+
+    it('accepts a phone number without a code, leaving it unverified', async () => {
+      await expect(validate(dto)).resolves.toBeUndefined();
+    });
+
+    it('still checks a code when one is sent', async () => {
+      const mfa = (service as unknown as { mfaOrchestratorService: { verifyPublicCode: jest.Mock } })
+        .mfaOrchestratorService;
+      await validate({ ...dto, phoneVerificationCode: '654321' } as RegisterUserDto);
+      expect(mfa.verifyPublicCode).toHaveBeenCalledWith('+18095551234', expect.anything(), '654321');
+    });
+  });
+
   describe('createPendingAdditionalCompany', () => {
     const identity = { email: 'ana@example.com', firstName: 'Ana', lastName: 'Pérez' };
     const company = {

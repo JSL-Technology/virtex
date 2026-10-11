@@ -169,6 +169,8 @@ export class VxSelectComponent<TOption, TValue = TOption>
   readonly inputId = input<string>('');
   readonly placeholderKey = input('shared.select.placeholder');
   readonly createLabelKey = input('shared.select.create');
+  /** The create row's label when nothing has been typed yet. */
+  readonly createBlankLabelKey = input('shared.select.create_blank');
   readonly emptyLabelKey = input('shared.select.empty');
   readonly ariaLabel = input<string | null>(null);
   readonly ariaLabelledBy = input<string | null>(null);

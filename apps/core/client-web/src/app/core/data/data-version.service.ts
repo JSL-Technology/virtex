@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, effect, inject, signal, untracked } from '@angular/core';
+import { DestroyRef, EnvironmentInjector, Injectable, effect, inject, signal, untracked } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { TAB_CONTEXT } from '../tabs/tab-context';
 import { TabStateService } from '../tabs/tab-state.service';
@@ -66,7 +66,13 @@ export function refreshWhenStale(reload: () => void): void {
   let seen = untracked(data.version);
   let wasShown = true;
 
-  effect(() => {
+  // A ROOT effect, not the component's own. A component effect runs as part of its view's change
+  // detection, and a tab that is not on screen has its view detached (`TabWrapperComponent`), so
+  // the effect never saw the tab go away: when it came back, `wasShown` was still true, the return
+  // did not count, and a list opened before a «New customer» tab stayed without the customer just
+  // saved there. A root effect runs on every application tick whatever the view's state; it is
+  // destroyed with the component.
+  const watcher = effect(() => {
     const version = data.version();
     const shown = visible() && (!tab || !tabs || tabs.activeTabId() === tab.tabId);
     untracked(() => {
@@ -76,5 +82,6 @@ export function refreshWhenStale(reload: () => void): void {
       if (shown) seen = version;
       wasShown = shown;
     });
-  });
+  }, { injector: inject(EnvironmentInjector) });
+  destroyRef.onDestroy(() => watcher.destroy());
 }

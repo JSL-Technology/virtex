@@ -109,6 +109,56 @@
     "en": "The concept could not be saved.",
     "pt": "Não foi possível guardar o conceito."
   },
+  "payroll.concepts.seed.afp": {
+    "es": "AFP (fondo de pensiones)",
+    "en": "AFP (pension fund)",
+    "pt": "AFP (fundo de pensões)"
+  },
+  "payroll.concepts.seed.bonus": {
+    "es": "Bonificación",
+    "en": "Bonus",
+    "pt": "Bónus"
+  },
+  "payroll.concepts.seed.commission": {
+    "es": "Comisión",
+    "en": "Commission",
+    "pt": "Comissão"
+  },
+  "payroll.concepts.seed.isr": {
+    "es": "ISR (impuesto sobre la renta)",
+    "en": "ISR (income tax)",
+    "pt": "ISR (imposto sobre o rendimento)"
+  },
+  "payroll.concepts.seed.loan_repayment": {
+    "es": "Abono a préstamo",
+    "en": "Loan repayment",
+    "pt": "Amortização de empréstimo"
+  },
+  "payroll.concepts.seed.night_premium": {
+    "es": "Recargo nocturno (15 %)",
+    "en": "Night premium (15%)",
+    "pt": "Adicional noturno (15 %)"
+  },
+  "payroll.concepts.seed.overtime_100": {
+    "es": "Horas extra (100 %)",
+    "en": "Overtime (100%)",
+    "pt": "Horas extra (100 %)"
+  },
+  "payroll.concepts.seed.overtime_35": {
+    "es": "Horas extra (35 %)",
+    "en": "Overtime (35%)",
+    "pt": "Horas extra (35 %)"
+  },
+  "payroll.concepts.seed.salary_advance": {
+    "es": "Anticipo de salario",
+    "en": "Salary advance",
+    "pt": "Adiantamento salarial"
+  },
+  "payroll.concepts.seed.sfs": {
+    "es": "SFS (seguro familiar de salud)",
+    "en": "SFS (family health insurance)",
+    "pt": "SFS (seguro familiar de saúde)"
+  },
   "payroll.concepts.system": {
     "es": "De ley",
     "en": "Statutory",

@@ -30,6 +30,8 @@ interface PersistedTab {
   id: string;
   type: TabType;
   title: string;
+  /** The translation key the title came from, so a restored tab still follows the language. */
+  titleKey?: string;
   icon: string;
   badge?: number;
   route: string;
@@ -261,6 +263,7 @@ export class TabPersistenceService {
       id: t.id,
       type: t.type,
       title: t.title,
+      titleKey: t.titleKey,
       icon: t.icon,
       badge: t.badge,
       route: t.route,
@@ -284,6 +287,7 @@ export class TabPersistenceService {
       id: t.id,
       type: t.type,
       title: t.title,
+      titleKey: t.titleKey,
       icon: t.icon,
       badge: t.badge,
       route: t.route,

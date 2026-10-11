@@ -32,10 +32,13 @@ module.exports = {
           glob: '**/*.hbs',
           output: 'templates',
         },
+        // Printed documents live apart from the e-mail templates. Both folders used to land in
+        // `templates/`, and the e-mail's `invoice.hbs` overwrote the printed invoice's, so every
+        // PDF, print view and e-mail attachment rendered the e-mail body with its placeholders.
         {
           input: './src/app/invoices/templates',
           glob: '**/*.hbs',
-          output: 'templates',
+          output: 'templates/documents',
         },
       ],
       optimization: false,

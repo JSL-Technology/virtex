@@ -14,6 +14,7 @@ import { SAAS_CONFIG, SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RegistrationPaymentCompletedEvent } from '../events/registration-payment-completed.event';
 import { BadRequestError, ServiceUnavailableError } from '../../i18n/localized.exception';
+import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 @Injectable()
 export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
@@ -28,6 +29,13 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     private saasService: SaasService,
     private eventEmitter: EventEmitter2
   ) {}
+
+  priceIdFor(
+    plan: { monthlyPriceId?: string | null; annualPriceId?: string | null },
+    period: BillingPeriod,
+  ): string | null {
+    return SaasService.priceIdFor(plan, period);
+  }
 
   async onModuleInit(): Promise<void> {
     await this.verifyPriceCatalog();

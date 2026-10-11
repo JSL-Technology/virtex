@@ -1,15 +1,13 @@
-import { Controller, Post, Get, Body, Headers, Req, BadRequestException, UseGuards, Ip, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, Headers, Req, UseGuards, Ip, HttpCode, HttpStatus } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PaymentService } from './payment.service';
 import type { HttpRequest as Request } from '../common/http/http.types';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { User } from '../users/entities/user.entity/user.entity';
 import { SaasService } from '../saas/saas.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
@@ -66,12 +64,12 @@ export class PaymentController {
     if (!plan) {
       throw new BadRequestError('payment.plan_not_found');
     }
-    const priceId = SaasService.priceIdFor(plan, dto.billingPeriod ?? 'monthly');
+    const priceId = this.paymentService.priceIdFor(plan, dto.billingPeriod ?? 'monthly');
     if (!priceId) {
-      throw new BadRequestException(
+      throw new BadRequestError(
         dto.billingPeriod === 'annual'
-          ? 'Este plan no admite facturación anual en este momento.'
-          : 'Este plan no está disponible para contratación en este momento.',
+          ? 'payment.plan_annual_billing_unavailable'
+          : 'payment.plan_unavailable_for_purchase',
       );
     }
 

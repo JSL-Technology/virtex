@@ -162,15 +162,21 @@ describe('authInterceptor — step-up challenges', () => {
  * it replayed the failed attempt and then signed the user out with the dialog still open.
  */
 describe('authInterceptor — credential checks', () => {
-  const run = async (url: string, body: unknown) => {
+  const run = async (url: string, body: unknown, authenticated = true) => {
     const refreshAccessToken = jest.fn(() => throwError(() => new Error('refresh failed')));
+    const logout = jest.fn(() => of(null));
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { url: '/x', navigate: jest.fn() } },
         {
           provide: AuthService,
-          useValue: { refreshAccessToken, authStatus: () => 'authenticated', logout: jest.fn(() => of(null)) },
+          useValue: {
+            refreshAccessToken,
+            authStatus: () => (authenticated ? 'authenticated' : 'anonymous'),
+            isAuthenticated: () => authenticated,
+            logout,
+          },
         },
         {
           provide: AuthQueueService,
@@ -189,7 +195,7 @@ describe('authInterceptor — credential checks', () => {
     const result = await TestBed.runInInjectionContext(() =>
       firstValueFrom(authInterceptor(req, () => throwError(() => error))).catch((e) => e),
     );
-    return { result, error, refreshAccessToken };
+    return { result, error, refreshAccessToken, logout };
   };
 
   it('no refresca ni reintenta ante una contraseña incorrecta en el step-up', async () => {
@@ -208,5 +214,16 @@ describe('authInterceptor — credential checks', () => {
   it('sí refresca un 401 genérico de sesión', async () => {
     const { refreshAccessToken } = await run('http://api/api/v1/invoices', { code: 'UNAUTHORIZED' });
     expect(refreshAccessToken).toHaveBeenCalled();
+  });
+
+  it('cierra la sesión de quien la tenía cuando el refresco falla', async () => {
+    const { logout } = await run('http://api/api/v1/invoices', { code: 'UNAUTHORIZED' });
+    expect(logout).toHaveBeenCalledWith(false, 'expired');
+  });
+
+  it('no manda al inicio de sesión a un visitante anónimo, que no tenía sesión que caducar', async () => {
+    // QA A7: on the signup page a failed refresh sent the visitor to sign-in and lost the form.
+    const { logout } = await run('http://api/api/v1/auth/register-checkout', { code: 'UNAUTHORIZED' }, false);
+    expect(logout).not.toHaveBeenCalled();
   });
 });

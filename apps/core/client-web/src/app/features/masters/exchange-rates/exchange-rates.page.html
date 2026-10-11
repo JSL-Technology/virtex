@@ -60,7 +60,7 @@
           <span>{{ 'currencies.rates.from_currency' | translate }} *</span>
           <select id="rf-from" formControlName="fromCurrency">
             @for (currency of currencies(); track currency.code) {
-              <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+              <option [value]="currency.code">{{ currency.code }} — {{ currency.code | vxCurrencyName: currency.name }}</option>
             }
           </select>
         </label>
@@ -68,7 +68,7 @@
           <span>{{ 'currencies.rates.to_currency' | translate }} *</span>
           <select id="rf-to" formControlName="toCurrency">
             @for (currency of currencies(); track currency.code) {
-              <option [value]="currency.code">{{ currency.code }} — {{ currency.name }}</option>
+              <option [value]="currency.code">{{ currency.code }} — {{ currency.code | vxCurrencyName: currency.name }}</option>
             }
           </select>
         </label>

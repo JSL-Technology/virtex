@@ -48,12 +48,13 @@ describeWithDb('tenant bookkeeping provisioning', () => {
     await dataSource?.destroy();
   });
 
-  const provision = async (booksLanguage: 'es' | 'en' | 'pt') => {
+  const provision = async (booksLanguage: 'es' | 'en' | 'pt', country: string | null = null) => {
     const organization = await dataSource.getRepository(Organization).save(
       dataSource.getRepository(Organization).create({
         legalName: `PROV ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         timezone: 'America/Santo_Domingo',
         booksLanguage,
+        country,
       }),
     );
     await dataSource.transaction((manager) =>
@@ -65,7 +66,7 @@ describeWithDb('tenant bookkeeping provisioning', () => {
         .findOneBy({ organizationId: organization.id, isDefault: true }),
       dataSource.getRepository(Journal).findBy({ organizationId: organization.id }),
     ]);
-    return { organizationId: organization.id, ledger, journals };
+    return { organization, organizationId: organization.id, ledger, journals };
   };
 
   const nameOf = (journals: Journal[], code: string) =>
@@ -126,5 +127,65 @@ describeWithDb('tenant bookkeeping provisioning', () => {
       [`${year}-01-01`, `${year}-12-31`],
     ]);
     expect(await dataSource.getRepository(AccountingPeriod).countBy({ organizationId })).toBe(12);
+  });
+
+  /** The working defaults a company starts with (task: initial seeding). */
+  const countOf = async (sql: string, organizationId: string) =>
+    Number((await dataSource.query(sql, [organizationId]))[0].count);
+
+  it('seeds a final consumer, a category and the Dominican payroll concepts — once', async () => {
+    const { organization, organizationId } = await provision('es', 'DO');
+
+    const consumers = await dataSource.query(
+      `SELECT "companyName", "status" FROM "customers" WHERE "organization_id" = $1 AND "is_final_consumer"`,
+      [organizationId],
+    );
+    expect(consumers).toEqual([{ companyName: 'Consumidor final', status: 'ACTIVE' }]);
+    expect(await countOf(`SELECT count(*) FROM "product_categories" WHERE "organization_id" = $1`, organizationId)).toBe(1);
+
+    const concepts = await dataSource.query(
+      `SELECT "code", "is_system" FROM "payroll_concepts" WHERE "organization_id" = $1 ORDER BY "sort_order"`,
+      [organizationId],
+    );
+    expect(concepts.map((c: { code: string }) => c.code)).toEqual(
+      ['HE35', 'HE100', 'NOCT', 'BONO', 'COMISION', 'AFP', 'SFS', 'ISR', 'PRESTAMO', 'ANTICIPO'],
+    );
+    expect(concepts.filter((c: { is_system: boolean }) => c.is_system).map((c: { code: string }) => c.code)).toEqual(['AFP', 'SFS', 'ISR']);
+
+    // Re-provisioning (Settings › Reprovision, a retried signup) adds nothing.
+    await dataSource.transaction((manager) => provisioner.provision(organization, 'DOP', manager));
+    expect(await countOf(`SELECT count(*) FROM "customers" WHERE "organization_id" = $1`, organizationId)).toBe(1);
+    expect(await countOf(`SELECT count(*) FROM "payroll_concepts" WHERE "organization_id" = $1`, organizationId)).toBe(10);
+  });
+
+  it('adopts a «Consumidor final» the company already created instead of adding a second', async () => {
+    const organization = await dataSource.getRepository(Organization).save(
+      dataSource.getRepository(Organization).create({
+        legalName: `PROV ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timezone: 'America/Santo_Domingo',
+        booksLanguage: 'es',
+        country: 'DO',
+      }),
+    );
+    await dataSource.query(
+      `INSERT INTO "customers" ("organization_id", "companyName", "status") VALUES ($1, 'consumidor final', 'ACTIVE')`,
+      [organization.id],
+    );
+    await dataSource.transaction((manager) => provisioner.provision(organization, 'DOP', manager));
+    const rows = await dataSource.query(
+      `SELECT "is_final_consumer" FROM "customers" WHERE "organization_id" = $1`,
+      [organization.id],
+    );
+    expect(rows).toEqual([{ is_final_consumer: true }]);
+  });
+
+  it('writes the seeded names in the language of the books, and no payroll outside the Dominican engine', async () => {
+    const { organizationId } = await provision('en', 'US');
+    const [consumer] = await dataSource.query(
+      `SELECT "companyName" FROM "customers" WHERE "organization_id" = $1 AND "is_final_consumer"`,
+      [organizationId],
+    );
+    expect(consumer.companyName).toBe('Final consumer');
+    expect(await countOf(`SELECT count(*) FROM "payroll_concepts" WHERE "organization_id" = $1`, organizationId)).toBe(0);
   });
 });

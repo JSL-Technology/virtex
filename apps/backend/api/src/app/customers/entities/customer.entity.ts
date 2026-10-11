@@ -46,6 +46,11 @@ export enum CustomerStatus {
  * `organizations` had already been corrected the same way, to `(tax_id, fiscal_region_id)`. These
  * are the composite indexes that finish the job.
  */
+// One «Consumidor final» per company (seeded with it; see database/seeds/tenant-defaults.ts).
+@Index('UQ_customers_org_final_consumer', ['organizationId'], {
+  unique: true,
+  where: '"is_final_consumer"',
+})
 @Entity({ name: 'customers' })
 @Index('UQ_customers_org_email', ['organizationId', 'email'], { unique: true })
 @Index('UQ_customers_org_tax_id', ['organizationId', 'taxId'], {
@@ -265,6 +270,13 @@ export class Customer {
    * Null means the tenant has not set terms for this customer, and the organization's own default
    * applies. Zero is a real value and means due on receipt.
    */
+  /**
+   * The company's «Consumidor final»: the buyer of a sale that names nobody. Seeded with the
+   * company, one per tenant (partial unique index), and never offered for deletion.
+   */
+  @Column({ name: 'is_final_consumer', type: 'boolean', default: false })
+  isFinalConsumer: boolean;
+
   @Column({ name: 'payment_term_days', type: 'int', nullable: true })
   paymentTermDays?: number | null;
 

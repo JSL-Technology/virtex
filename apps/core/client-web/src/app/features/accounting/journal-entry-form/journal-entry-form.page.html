@@ -57,7 +57,12 @@
         </p>
 
         @if (editBlockedKey(); as blocked) {
-          <p class="entry-alert" role="alert">{{ blocked | translate }}</p>
+          <p class="entry-alert" role="alert">
+            {{ blocked | translate }}
+            @if (sourceRoute(); as route) {
+              <a [routerLink]="route">{{ 'accounting.journal_entry_form.open_source_document' | translate }}</a>
+            }
+          </p>
         }
 
         <div class="form-field description-field">

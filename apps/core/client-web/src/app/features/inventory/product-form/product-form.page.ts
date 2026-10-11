@@ -18,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-of-measure.service';
 
 @Component({
   selector: 'app-product-form-page',
@@ -37,6 +38,7 @@ export class ProductFormPage implements OnInit {
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private categoriesService = inject(ProductCategoriesService);
+  private readonly unitsApi = inject(UnitsOfMeasureService);
   private readonly invoices = inject(InvoicesService);
   private readonly organization = inject(ActiveOrganizationService);
   private readonly warehousesApi = inject(WarehousesService);
@@ -58,6 +60,20 @@ export class ProductFormPage implements OnInit {
    * as the only three things they could be selling.
    */
   readonly categories = signal<ProductCategory[]>([]);
+
+  /**
+   * The units the field offers. The product's own unit is always among them — a code the catalogue
+   * does not list (an import, a unit retired later) must not be silently replaced on save.
+   */
+  private readonly units = signal<UnitOfMeasure[]>([]);
+  readonly unitOptions = computed<Pick<UnitOfMeasure, 'symbol' | 'nameKey'>[]>(() => {
+    const units = this.units();
+    const current = this.currentUnit();
+    return current && !units.some((unit) => unit.symbol === current)
+      ? [{ symbol: current, nameKey: current }, ...units]
+      : units.length ? units : [{ symbol: 'UND', nameKey: 'uom.unit' }];
+  });
+  private readonly currentUnit = signal<string | null>(null);
   isEditMode = signal(false);
   isLoading = signal(true);
   imagePreview = signal<string | ArrayBuffer | null>(null);
@@ -78,6 +94,7 @@ export class ProductFormPage implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadUnits();
     this.warehousesApi.list().subscribe({
       next: (rows) => this.warehouses.set(rows.filter((warehouse) => warehouse.isActive)),
       error: () => this.warehouses.set([]),
@@ -96,6 +113,8 @@ export class ProductFormPage implements OnInit {
       status: ['Active', Validators.required],
       //  Bien o servicio: un servicio no se cuenta ni mueve existencias.
       kind: ['GOOD'],
+      //  Unit of measure, from the platform catalogue. `UND` is what the column defaults to.
+      unitOfMeasure: ['UND'],
       //  Tratamiento fiscal y tasa. El formulario no los tenía, así que todo producto nacía
       //  «gravado al 0 %» y el punto de venta cobraba sin impuesto (QA C-08). La tasa se elige de
       //  las que el mercado del inquilino aplica y viaja como fracción (0.18), nunca como 18.
@@ -109,6 +128,9 @@ export class ProductFormPage implements OnInit {
       else if (!Number(rate?.value)) rate?.setValue(this.taxRates()[0] ?? null, { emitEvent: false });
     });
     this.productForm.get('kind')?.valueChanges.subscribe((kind) => {
+      // A service is sold by the service unless someone already chose a unit.
+      const unit = this.productForm.get('unitOfMeasure');
+      if (unit && !unit.dirty) unit.setValue(kind === 'SERVICE' ? 'SRV' : 'UND', { emitEvent: false });
       const stock = this.productForm.get('stock');
       if (kind === 'SERVICE') {
         stock?.setValue(0, { emitEvent: false });
@@ -139,6 +161,14 @@ export class ProductFormPage implements OnInit {
    * Blocking the whole product form because one dropdown could not be filled would be a worse
    * outcome than a product filed under nothing.
    */
+  /** Load the unit catalogue. Like categories, a failure leaves the field with the default only. */
+  private loadUnits(): void {
+    this.unitsApi.list().subscribe({
+      next: (rows) => this.units.set(rows),
+      error: () => this.units.set([]),
+    });
+  }
+
   private loadCategories(): void {
     this.categoriesService.list().subscribe({
       next: (rows) => this.categories.set(rows),
@@ -151,6 +181,7 @@ export class ProductFormPage implements OnInit {
     this.inventoryService.getProductById(id).subscribe({
       next: (product) => {
         this.productForm.patchValue(product);
+        this.currentUnit.set(product.unitOfMeasure ?? null);
         this.onHand.set(Number(product.stock ?? 0));
         //  Las existencias son el saldo de los movimientos: se ven aquí y se cambian con un ajuste
         //  de inventario, que tiene almacén, motivo, número y asiento. El costo de lo que ya se tiene

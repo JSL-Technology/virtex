@@ -769,6 +769,11 @@
     "en": "Unit Cost",
     "pt": "Custo Unitário"
   },
+  "inventory.product_form.unit_of_measure": {
+    "es": "Unidad de medida",
+    "en": "Unit of measure",
+    "pt": "Unidade de medida"
+  },
   "inventory.product_form.upload_image": {
     "es": "Subir imagen",
     "en": "Upload an image",
@@ -863,6 +868,11 @@
     "es": "Buscar por nombre, SKU o categoría...",
     "en": "Search by name, SKU or category...",
     "pt": "Buscar por nome, SKU ou categoria..."
+  },
+  "inventory.products.service_available": {
+    "es": "Disponible",
+    "en": "Available",
+    "pt": "Disponível"
   },
   "inventory.products.status": {
     "es": "Estado",

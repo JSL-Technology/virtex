@@ -7,6 +7,7 @@ import { OrganizationDomain } from '../../apps/backend/api/src/app/organizations
 import { IdentityProvider } from '../../apps/backend/api/src/app/auth/entities/identity-provider.entity';
 import { EnterpriseSsoService } from '../../apps/backend/api/src/app/auth/services/enterprise-sso.service';
 import { runInTenantContext } from '../../apps/backend/api/src/app/shared/tenancy/tenant-context';
+import { forEachTenant } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
 import { TenantConnectionInterceptor } from '../../apps/backend/api/src/app/shared/tenancy/tenant-connection.interceptor';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import type { CallHandler, ExecutionContext } from '@nestjs/common';
@@ -161,6 +162,44 @@ async function main() {
   check('el interceptor real sostiene el inquilino tras un `await` de otro interceptor', trasAplazar, [
     'Cliente de A',
   ]);
+
+  // 8-10. The paths that do NOT go through a repository: `dataSource.manager`, `dataSource.query`
+  //       and a query runner a service opens itself (the issue preview does). 146 call sites use
+  //       them. Each opens its own connection from the pool, so unless the tenant travels with the
+  //       connection these returned nothing for this role — screens empty in production only.
+  const viaManager = await asTenant(ORG_A, async () =>
+    (await dataSource.manager.find(Customer)).map((c) => c.companyName),
+  );
+  check('dataSource.manager dentro de una empresa ve sus filas', viaManager, ['Cliente de A']);
+
+  const viaQuery = await asTenant(ORG_B, async () =>
+    (await dataSource.query(`SELECT "companyName" AS name FROM customers`)).map((r: { name: string }) => r.name),
+  );
+  check('dataSource.query dentro de una empresa ve sus filas', viaQuery, ['Cliente de B']);
+
+  const viaRunner = await asTenant(ORG_A, async () => {
+    const runner = dataSource.createQueryRunner();
+    await runner.connect();
+    await runner.startTransaction();
+    try {
+      return (await runner.manager.find(Customer)).map((c) => c.companyName);
+    } finally {
+      await runner.rollbackTransaction();
+      await runner.release();
+    }
+  });
+  check('un query runner propio dentro de una empresa ve sus filas', viaRunner, ['Cliente de A']);
+
+  // The connection goes back to the pool clean: the next borrower is not inherited into a tenant.
+  const afterRelease = await dataSource.query(`SELECT current_setting('app.current_organization', true) AS org`);
+  check('la conexión vuelve al pool sin empresa', afterRelease[0].org || null, null);
+
+  // 11. A scheduled job acting for every tenant sees each one's rows, one at a time.
+  const perTenant: string[] = [];
+  await forEachTenant(dataSource, async () => {
+    perTenant.push(...(await repo.find()).map((c) => c.companyName));
+  }, [ORG_A, ORG_B]);
+  check('un trabajo por empresa ve las filas de cada una', perTenant.sort(), ['Cliente de A', 'Cliente de B']);
 
   // 7. Enterprise SSO before sign-in. Discovery runs with NO tenant: it must find the IdP of the
   //    organization that VERIFIED the domain (through the read-only `sso_routing` policy), load

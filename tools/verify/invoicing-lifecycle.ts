@@ -34,6 +34,9 @@ import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/e
 import { NcfType } from '../../apps/backend/api/src/app/compliance/entities/ncf-sequence.entity';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
+import { EcfCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-certificate.service';
+import { runAsTenantJob } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
+import { makeTestCertificate } from './support/test-certificate';
 
 /** Dominican RNC check digit: weights 7-9-8-6-5-4-3-2, modulo 11. */
 function dominicanRnc(prefix: string): string {
@@ -62,6 +65,7 @@ async function main(): Promise<void> {
   const localization = app.get(LocalizationService, { strict: false });
   const organizations = app.get(OrganizationsService, { strict: false });
   const ledger = app.get(StockLedgerService, { strict: false });
+  const certificates = app.get(EcfCertificateService, { strict: false });
 
   const stamp = Date.now();
   const region = await localization.findRegionByCountryCode('DO');
@@ -91,10 +95,11 @@ async function main(): Promise<void> {
   // letting the first POST fail. So a fresh tenant must be missing that and nothing else.
   const readiness = await invoices.invoicingContext(orgId);
   check(
-    'un inquilino recién creado solo espera su rango de e-NCF para facturar',
+    'un inquilino recién creado solo espera su rango de e-NCF y su certificado de firma para facturar',
     !readiness.ready &&
-      readiness.missing.length === 1 &&
-      readiness.missing[0] === 'invoices.gaps.fiscal_sequence',
+      readiness.missing.length === 2 &&
+      readiness.missing.includes('invoices.gaps.fiscal_sequence') &&
+      readiness.missing.includes('invoices.gaps.signing_certificate'),
     readiness.missing.join('; '),
   );
 
@@ -116,17 +121,22 @@ async function main(): Promise<void> {
   try {
     await compliance.provisionNcfSequence(orgId, {
       type: NcfType.E31, prefix: 'E31', startsAt: 50, endsAt: 150,
+      expiresAt: `${new Date().getFullYear() + 1}-12-31`,
     });
   } catch {
     overlapRejected = true;
   }
   check('un rango de e-NCF solapado es rechazado', overlapRejected);
 
-  const readyWithRanges = await invoices.invoicingContext(orgId);
+  // An electronic document must also be signed. With ranges but no certificate the tenant is not
+  // ready, and says exactly that: issuing would consume an e-NCF the DGII never receives.
+  const withRangesNoCertificate = await invoices.invoicingContext(orgId);
   check(
-    'con sus rangos de e-NCF cargados, el inquilino está listo para facturar',
-    readyWithRanges.ready,
-    readyWithRanges.missing.join('; '),
+    'con rangos pero sin certificado, el inquilino espera solo su certificado de firma',
+    !withRangesNoCertificate.ready &&
+      withRangesNoCertificate.missing.length === 1 &&
+      withRangesNoCertificate.missing[0] === 'invoices.gaps.signing_certificate',
+    withRangesNoCertificate.missing.join('; '),
   );
 
   // ── Catalogue ───────────────────────────────────────────────────────────────
@@ -190,6 +200,31 @@ async function main(): Promise<void> {
   // The preview runs the REAL transition and rolls it back, so the only way to trust it is to check
   // both halves: that it leaves no trace, and that what it showed is what issuing then does. A
   // preview that is merely plausible is worse than none — it is a confident statement about money.
+  // Without a certificate the preview blocks, names the reason and points at the screen that fixes it.
+  const blocked = await invoices.previewIssue(draft.id, orgId);
+  const certificateCondition = blocked.preconditions.find(
+    (p) => p.code === 'einvoicing.do.no_active_digital_certificate_sign_cf',
+  );
+  check('sin certificado, la emisión se bloquea', !blocked.canExecute && Boolean(certificateCondition));
+  check(
+    'el bloqueo lleva a cargar el certificado',
+    certificateCondition?.remedy?.route === '/overview#settings/fiscal',
+    certificateCondition?.remedy?.route ?? 'sin remedio',
+  );
+  const afterBlocked = await invoices.findOne(draft.id, orgId);
+  check('un intento bloqueado no consume numeración', !afterBlocked.fiscalNumber);
+
+  const certificate = makeTestCertificate('SONDA FACTURACION');
+  await runAsTenantJob(ds, orgId, () =>
+    certificates.upload(orgId, { pfx: certificate.pfx, password: certificate.password, alias: 'Sonda' }),
+  );
+  const readyWithRanges = await invoices.invoicingContext(orgId);
+  check(
+    'con rangos y certificado, el inquilino está listo para facturar',
+    readyWithRanges.ready,
+    readyWithRanges.missing.join('; '),
+  );
+
   const preview = await invoices.previewIssue(draft.id, orgId);
   check('la previsualización dice que se puede emitir', preview.canExecute);
 
@@ -221,6 +256,14 @@ async function main(): Promise<void> {
   check('el e-NCF lleva su fecha de vencimiento', Boolean(issued.fiscalNumberExpiresAt), issued.fiscalNumberExpiresAt ?? 'sin vencimiento');
   check('la emisión genera un asiento contable', Boolean(issued.journalEntryId));
   check('la emisión contabiliza el costo de la venta', Boolean(issued.costJournalEntryId));
+
+  // The transmission the document owes commits with it: an e-NCF never exists without a record of
+  // whether the DGII has it. Whatever the immediate attempt did, the row is there.
+  const [submission] = await ds.query(
+    `SELECT status FROM ecf_submissions WHERE invoice_id = $1 AND organization_id = $2`,
+    [issued.id, orgId],
+  );
+  check('el e-CF emitido tiene su registro de envío', Boolean(submission?.status), submission?.status ?? 'sin registro');
 
   // The claim the preview made, checked against what actually happened.
   if (previewSequence && previewSequence.kind === 'sequence') {
