@@ -222,62 +222,18 @@
               <h3>{{ 'actions.create_new' | translate }}</h3>
             </div>
             <div class="dropdown-body">
+              @for (item of quickCreateShortcuts(); track item.route) {
               <a
-                routerLink="/invoices/new"
-                [appCanOpen]="'/invoices/new'"
+                [routerLink]="item.route"
+                [appCanOpen]="item.route"
                 (click)="closeQuickCreateModal()"
                 class="quick-action-item"
               >
-                <lucide-icon [img]="FileTextIcon" size="20"></lucide-icon>
-                <span class="quick-action-label"
-                  >{{ 'actions.new_invoice' | translate }}</span
-                >
-                <span class="quick-action-shortcut"
-                  >{{ 'main.shortcut_open_invoices' | translate }}</span
-                >
+                <lucide-icon [img]="quickCreateIcon(item.route)" size="20"></lucide-icon>
+                <span class="quick-action-label">{{ item.descriptionKey | translate }}</span>
+                <vx-kbd class="quick-action-shortcut" [chord]="item.chord" />
               </a>
-              <a
-                routerLink="/quotes/new"
-                [appCanOpen]="'/quotes/new'"
-                (click)="closeQuickCreateModal()"
-                class="quick-action-item"
-              >
-                <lucide-icon [img]="ReceiptIcon" size="20"></lucide-icon>
-                <span class="quick-action-label"
-                  >{{ 'actions.new_quote' | translate }}</span
-                >
-                <span class="quick-action-shortcut"
-                  >{{ 'main.shortcut_open_quotes' | translate }}</span
-                >
-              </a>
-              <a
-                routerLink="/contacts/customers/new"
-                [appCanOpen]="'/contacts/customers/new'"
-                (click)="closeQuickCreateModal()"
-                class="quick-action-item"
-              >
-                <lucide-icon [img]="UserPlusIcon" size="20"></lucide-icon>
-                <span class="quick-action-label"
-                  >{{ 'actions.new_customer' | translate }}</span
-                >
-                <span class="quick-action-shortcut"
-                  >{{ 'main.shortcut_open_customers' | translate }}</span
-                >
-              </a>
-              <a
-                routerLink="/inventory/products/new"
-                [appCanOpen]="'/inventory/products/new'"
-                (click)="closeQuickCreateModal()"
-                class="quick-action-item"
-              >
-                <lucide-icon [img]="PackageIcon" size="20"></lucide-icon>
-                <span class="quick-action-label"
-                  >{{ 'actions.new_product' | translate }}</span
-                >
-                <span class="quick-action-shortcut"
-                  >{{ 'main.shortcut_open_products' | translate }}</span
-                >
-              </a>
+              }
             </div>
           </div>
           }
@@ -417,7 +373,7 @@
               <span>{{ "user.help" | translate }}</span>
             </button>
 
-            <button class="dropdown-item" type="button" (click)="comingSoon()">
+            <button class="dropdown-item" type="button" (click)="openShortcuts()">
               <lucide-icon [img]="KeyboardIcon" size="16"></lucide-icon>
               <span>{{ "user.shortcuts" | translate }}</span>
             </button>
@@ -560,3 +516,11 @@
 }
 
 <app-dialog-host></app-dialog-host>
+
+@if (isShortcutsOpen()) {
+<app-shortcuts-dialog
+  (dismissed)="closeShortcuts()"
+  (help)="comingSoon()"
+  (reportProblem)="comingSoon()"
+/>
+}

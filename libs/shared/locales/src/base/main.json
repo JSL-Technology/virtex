@@ -99,17 +99,145 @@
     "en": "See all results",
     "pt": "Ver todos os resultados"
   },
-  "main.shortcut_open_customers": {
-    "literal": "Alt + Shift + C"
+  "main.shortcuts.close_tab": {
+    "es": "Cerrar la pestaña activa",
+    "en": "Close the active tab",
+    "pt": "Fechar a aba ativa"
   },
-  "main.shortcut_open_invoices": {
-    "literal": "Alt + Shift + I"
+  "main.shortcuts.dismiss": {
+    "es": "Cerrar menús y diálogos",
+    "en": "Close menus and dialogs",
+    "pt": "Fechar menus e caixas de diálogo"
   },
-  "main.shortcut_open_products": {
-    "literal": "Alt + Shift + P"
+  "main.shortcuts.group_create": {
+    "es": "Crear",
+    "en": "Create",
+    "pt": "Criar"
   },
-  "main.shortcut_open_quotes": {
-    "literal": "Alt + Shift + Q"
+  "main.shortcuts.group_general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "main.shortcuts.group_tabs": {
+    "es": "Pestañas",
+    "en": "Tabs",
+    "pt": "Abas"
+  },
+  "main.shortcuts.next_tab": {
+    "es": "Siguiente pestaña",
+    "en": "Next tab",
+    "pt": "Próxima aba"
+  },
+  "main.shortcuts.or": {
+    "es": "o",
+    "en": "or",
+    "pt": "ou"
+  },
+  "main.shortcuts.previous_tab": {
+    "es": "Pestaña anterior",
+    "en": "Previous tab",
+    "pt": "Aba anterior"
+  },
+  "main.shortcuts.reopen_tab": {
+    "es": "Reabrir la última pestaña cerrada",
+    "en": "Reopen the last closed tab",
+    "pt": "Reabrir a última aba fechada"
+  },
+  "main.shortcuts.subtitle": {
+    "es": "Trabaja más rápido sin soltar el teclado.",
+    "en": "Work faster without leaving the keyboard.",
+    "pt": "Trabalhe mais rápido sem tirar as mãos do teclado."
+  },
+  "main.shortcuts.use_from_other_apps": {
+    "es": "Usar atajos de otras apps",
+    "en": "Use shortcuts from other apps",
+    "pt": "Usar atalhos de outros apps"
+  },
+  "main.shortcuts.preset_default": {
+    "es": "Virtex (predeterminado)",
+    "en": "Virtex (default)",
+    "pt": "Virtex (padrão)"
+  },
+  "main.shortcuts.apply": {
+    "es": "Aplicar",
+    "en": "Apply",
+    "pt": "Aplicar"
+  },
+  "main.shortcuts.filter_placeholder": {
+    "es": "Filtrar atajos",
+    "en": "Filter shortcuts",
+    "pt": "Filtrar atalhos"
+  },
+  "main.shortcuts.edit": {
+    "es": "Editar atajo",
+    "en": "Edit shortcut",
+    "pt": "Editar atalho"
+  },
+  "main.shortcuts.reset": {
+    "es": "Restablecer al valor predeterminado",
+    "en": "Reset to default",
+    "pt": "Restaurar padrão"
+  },
+  "main.shortcuts.reset_all": {
+    "es": "Restablecer todo",
+    "en": "Reset all",
+    "pt": "Restaurar tudo"
+  },
+  "main.shortcuts.press_keys": {
+    "es": "Pulsa la nueva combinación",
+    "en": "Press the new shortcut",
+    "pt": "Pressione a nova combinação"
+  },
+  "main.shortcuts.needs_modifier": {
+    "es": "Usa una tecla modificadora (⌘, ⌥, Ctrl o ⇧)",
+    "en": "Use a modifier key (⌘, ⌥, Ctrl or ⇧)",
+    "pt": "Use uma tecla modificadora (⌘, ⌥, Ctrl ou ⇧)"
+  },
+  "main.shortcuts.conflict": {
+    "es": "Ya la usa «{{name}}»",
+    "en": "Already used by “{{name}}”",
+    "pt": "Já usado por “{{name}}”"
+  },
+  "main.shortcuts.no_results": {
+    "es": "Ningún atajo coincide con «{{query}}»",
+    "en": "No shortcuts match “{{query}}”",
+    "pt": "Nenhum atalho corresponde a “{{query}}”"
+  },
+  "main.shortcuts.group_layout": {
+    "es": "Ventanas",
+    "en": "Windows",
+    "pt": "Janelas"
+  },
+  "main.shortcuts.show_shortcuts": {
+    "es": "Mostrar atajos de teclado",
+    "en": "Show keyboard shortcuts",
+    "pt": "Mostrar atalhos do teclado"
+  },
+  "main.shortcuts.search": {
+    "es": "Abrir búsqueda",
+    "en": "Open search",
+    "pt": "Abrir pesquisa"
+  },
+  "main.shortcuts.search_tabs": {
+    "es": "Buscar pestañas",
+    "en": "Search tabs",
+    "pt": "Buscar abas"
+  },
+  "main.shortcuts.go_back": {
+    "es": "Atrás",
+    "en": "Go back",
+    "pt": "Voltar"
+  },
+  "main.shortcuts.go_forward": {
+    "es": "Adelante",
+    "en": "Go forward",
+    "pt": "Avançar"
+  },
+  "main.shortcuts.report_problem": {
+    "es": "Reportar un problema",
+    "en": "Report a problem",
+    "pt": "Relatar um problema"
   },
   "main.try_another_keyword_check_spelling": {
     "es": "Intenta con otra palabra clave o revisa la ortografía.",

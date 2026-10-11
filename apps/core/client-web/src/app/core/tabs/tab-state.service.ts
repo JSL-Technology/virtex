@@ -12,11 +12,15 @@ import { TabEventBusService, TabEvent } from './tab-event-bus.service';
 export type TabSaveHandler = () => Promise<boolean> | boolean;
 
 /** Descriptor mínimo de una pestaña cerrada, para reabrirla (Ctrl/Cmd+Shift+T). */
-interface ClosedTab {
+export interface ClosedTab {
+  /** Stable id for the entry, so the tab-search list can track and reopen a specific one. */
+  id: string;
   route: string;
   queryParams?: Record<string, string>;
   title: string;
   icon: string;
+  /** When it was closed, for the "x minutes ago" the tab-search panel shows. */
+  closedAt: Date;
 }
 
 /** Ruta de la pestaña fija por defecto (página de inicio del workspace). */
@@ -39,8 +43,9 @@ export class TabStateService {
   private tabsSignal = signal<TabModel[]>([]);
   private activeTabIdSignal = signal<string | null>(null);
 
-  /** Pila de pestañas cerradas recientemente (para reabrir). Cap sencillo. */
-  private closedStack: ClosedTab[] = [];
+  /** Pila de pestañas cerradas recientemente (para reabrir). Cap sencillo. Es una señal para que
+   *  el panel de búsqueda de pestañas («Cerradas recientemente») se actualice al vuelo. */
+  private readonly closedTabs = signal<ClosedTab[]>([]);
   private static readonly CLOSED_STACK_MAX = 15;
 
   /** Límite configurable de pestañas (§10). */
@@ -48,6 +53,8 @@ export class TabStateService {
 
   readonly tabs = this.tabsSignal.asReadonly();
   readonly activeTabId = this.activeTabIdSignal.asReadonly();
+  /** Cerradas recientemente, de la más reciente a la más antigua. */
+  readonly recentlyClosed = computed(() => [...this.closedTabs()].reverse());
   readonly activeTab = computed(
     () => this.tabsSignal().find((t) => t.id === this.activeTabIdSignal()) || null
   );
@@ -571,17 +578,31 @@ export class TabStateService {
     if (id) void this.closeTab(id);
   }
 
-  readonly canReopenClosed = (): boolean => this.closedStack.length > 0;
+  readonly canReopenClosed = (): boolean => this.closedTabs().length > 0;
 
   /** Reabre la última pestaña cerrada, permanente (Ctrl/Cmd+Shift+T). */
   reopenLastClosed(): void {
-    const last = this.closedStack.pop();
+    const list = this.closedTabs();
+    const last = list[list.length - 1];
     if (!last) return;
+    this.closedTabs.update((l) => l.slice(0, -1));
+    this.reopen(last);
+  }
+
+  /** Reabre una pestaña cerrada concreta (desde la lista «Cerradas recientemente»). */
+  reopenClosed(id: string): void {
+    const item = this.closedTabs().find((t) => t.id === id);
+    if (!item) return;
+    this.closedTabs.update((l) => l.filter((t) => t.id !== id));
+    this.reopen(item);
+  }
+
+  private reopen(item: ClosedTab): void {
     this.openTab({
-      route: last.route,
-      queryParams: last.queryParams,
-      title: last.title,
-      icon: last.icon,
+      route: item.route,
+      queryParams: item.queryParams,
+      title: item.title,
+      icon: item.icon,
       preview: false,
     });
   }
@@ -590,13 +611,20 @@ export class TabStateService {
     // El inicio (PINNED) no se cierra; y una vista previa efímera tampoco vale
     // la pena guardarla: reabrirla sería reproducir un descarte deliberado.
     if (tab.type === TabType.PINNED || tab.isPreview) return;
-    this.closedStack.push({
+    const entry: ClosedTab = {
+      id: `closed_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
       route: tab.route,
       queryParams: tab.queryParams,
       title: tab.title,
       icon: tab.icon,
+      closedAt: new Date(),
+    };
+    this.closedTabs.update((list) => {
+      const next = [...list, entry];
+      return next.length > TabStateService.CLOSED_STACK_MAX
+        ? next.slice(next.length - TabStateService.CLOSED_STACK_MAX)
+        : next;
     });
-    if (this.closedStack.length > TabStateService.CLOSED_STACK_MAX) this.closedStack.shift();
   }
 
   // ── helpers privados ────────────────────────────────────────────────────

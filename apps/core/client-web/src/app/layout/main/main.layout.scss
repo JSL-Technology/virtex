@@ -637,18 +637,10 @@
     min-width: 0;
   }
 
+  // Just alignment now: the keycaps are drawn by vx-kbd, which brings its own chip styling.
   .quick-action-shortcut {
     margin-left: var(--space-2);
-    display: inline-flex;
-    justify-content: flex-end;
-    font-size: var(--text-xs);
-    letter-spacing: 0.02em;
-    color: var(--text-tertiary);
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 0.15rem 0.4rem;
-    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 

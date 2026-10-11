@@ -1,0 +1,100 @@
+<div class="tsp" role="dialog" [attr.aria-label]="'main.shortcuts.search_tabs' | translate">
+  <!-- Search box with the ⇧⌘A hint, like Chrome. -->
+  <div class="tsp__search">
+    <lucide-icon [img]="SearchIcon" size="16" class="tsp__search-icon" aria-hidden="true" />
+    <input
+      #searchInput
+      type="text"
+      class="tsp__search-input"
+      [value]="query()"
+      (input)="onQuery($event)"
+      (keydown)="onKeydown($event)"
+      [placeholder]="'main.shortcuts.search_tabs' | translate"
+      [attr.aria-label]="'main.shortcuts.search_tabs' | translate"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <vx-kbd class="tsp__search-kbd" [chord]="searchChord()" />
+  </div>
+
+  <div class="tsp__scroll">
+    <!-- Open tabs -->
+    <div class="tsp__section-head">{{ 'tabs.open_tabs' | translate }}</div>
+    <ul class="tsp__list">
+      @for (tab of openResults(); track tab.id) {
+        <li
+          class="tsp__row"
+          [class.is-active]="tab.id === tabState.activeTabId()"
+          [class.is-highlighted]="activeKey() === 'open:' + tab.id"
+        >
+          <button type="button" class="tsp__row-main" (click)="chooseOpen(tab.id)">
+            <span class="tsp__favicon">
+              <lucide-icon [img]="icon(tab.icon)" size="15" aria-hidden="true" />
+            </span>
+            <span class="tsp__text">
+              <span class="tsp__title" [class.is-preview]="tab.isPreview">
+                {{ tab.title }}
+                @if (tab.isDirty) { <span class="tsp__dot" aria-hidden="true"></span> }
+              </span>
+              <span class="tsp__meta">{{ tab.route }} · {{ relativeTime(tab.lastActivatedAt) }}</span>
+            </span>
+          </button>
+          @if (tab.isCloseable) {
+            <button
+              type="button"
+              class="tsp__close"
+              [attr.aria-label]="'tabs.close_tab' | translate"
+              (click)="closeOpen(tab.id, $event)"
+            >
+              <lucide-icon [img]="CloseIcon" size="14" aria-hidden="true" />
+            </button>
+          }
+        </li>
+      } @empty {
+        <li class="tsp__empty">{{ 'tabs.no_open_tabs' | translate }}</li>
+      }
+    </ul>
+
+    <!-- Recently closed -->
+    @if (closedResults().length > 0) {
+      <button
+        type="button"
+        class="tsp__section-head tsp__section-head--toggle"
+        (click)="toggleClosed()"
+        [attr.aria-expanded]="!closedCollapsed()"
+      >
+        <span>{{ 'tabs.recently_closed' | translate }}</span>
+        <lucide-icon
+          [img]="ChevronIcon"
+          size="15"
+          class="tsp__chevron"
+          [class.is-collapsed]="closedCollapsed()"
+          aria-hidden="true"
+        />
+      </button>
+      @if (!closedCollapsed()) {
+        <ul class="tsp__list">
+          @for (item of closedResults(); track item.id) {
+            <li class="tsp__row" [class.is-highlighted]="activeKey() === 'closed:' + item.id">
+              <button type="button" class="tsp__row-main" (click)="chooseClosed(item.id)">
+                <span class="tsp__favicon">
+                  <lucide-icon [img]="icon(item.icon)" size="15" aria-hidden="true" />
+                </span>
+                <span class="tsp__text">
+                  <span class="tsp__title">{{ item.title }}</span>
+                  <span class="tsp__meta">{{ item.route }} · {{ relativeTime(item.closedAt) }}</span>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+
+    @if (!hasAnyResult()) {
+      <p class="tsp__no-results">
+        {{ 'tabs.search_no_results' | translate: { query: query() } }}
+      </p>
+    }
+  </div>
+</div>

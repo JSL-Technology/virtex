@@ -209,11 +209,6 @@
     "en": "Ends on",
     "pt": "Termina a"
   },
-  "settings.billing.expires_exp_month_exp_year": {
-    "es": "Expira {{expMonth}}/{{expYear}}",
-    "en": "Expires {{expMonth}}/{{expYear}}",
-    "pt": "Expira em {{expMonth}}/{{expYear}}"
-  },
   "settings.billing.feature_included": {
     "es": "Incluido",
     "en": "Included",

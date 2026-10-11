@@ -1,0 +1,25 @@
+<!-- Top row: the chip and the contactless glyph on the left, the network mark on the right. -->
+<div class="vx-payment-card__top">
+  <div class="vx-payment-card__chip" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  <svg class="vx-payment-card__contactless" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path d="M5 4a7 7 0 0 1 0 8M8 2.5a10 10 0 0 1 0 11M2 5.5a4 4 0 0 1 0 5"
+          fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+  </svg>
+  <vx-card-brand class="vx-payment-card__brand" [brand]="brand()" [size]="48" [decorative]="true" />
+</div>
+
+<!-- The number, masked down to the only digits we hold. -->
+<div class="vx-payment-card__number">
+  <span class="vx-payment-card__dots">••••</span>
+  <span class="vx-payment-card__dots">••••</span>
+  <span class="vx-payment-card__dots">••••</span>
+  <span class="vx-payment-card__last4">{{ last4Display() }}</span>
+</div>
+
+<!-- Expiry, where «VALID THRU» sits on a physical card. -->
+<div class="vx-payment-card__bottom">
+  <span class="vx-payment-card__exp-label">VALID THRU</span>
+  <span class="vx-payment-card__exp">{{ expiry() }}</span>
+</div>

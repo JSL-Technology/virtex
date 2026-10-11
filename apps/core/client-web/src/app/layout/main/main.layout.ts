@@ -99,6 +99,9 @@ import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';
 import { VxSpinnerComponent } from '../../shared/components/feedback';
+import { VxKbdComponent } from '../../shared/components/kbd';
+import { ShortcutsDialogComponent } from '../../shared/components/shortcuts-dialog';
+import { ShortcutsService } from '../../core/keyboard/shortcuts.service';
 
 import { CanOpenDirective } from '../../core/modules/can-open.directive';
 import { requiredPermissionsFor } from '../../core/modules/module-manifest';
@@ -123,7 +126,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
     StatusBarComponent,
     ModuleRailComponent,
     CanOpenDirective,
-    ...FORMAT_PIPES, VxSpinnerComponent], // ✅ Directiva añadida a los imports
+    ...FORMAT_PIPES, VxSpinnerComponent, VxKbdComponent, ShortcutsDialogComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -133,12 +136,27 @@ export class MainLayout implements OnInit {
   tabPersistence = inject(TabPersistenceService);
   tabRouter = inject(TabRouterService);
   private tabKeyboard = inject(TabKeyboardService);
-  private readonly quickCreateShortcuts = [
-    { key: 'i', route: '/invoices/new' },
-    { key: 'q', route: '/quotes/new' },
-    { key: 'c', route: '/contacts/customers/new' },
-    { key: 'p', route: '/inventory/products/new' },
-  ] as const;
+  private readonly shortcuts = inject(ShortcutsService);
+
+  /**
+   * The create shortcuts, from the service the help dialog also reads — so a rebind in the dialog
+   * shows here too. Each carries its route, the effective chord, and (mapped below) the row icon.
+   *
+   * The icon lives here and not in the registry because it is an Angular/lucide object, not data a
+   * handler can serialise; mapping it by route keeps the registry framework-free.
+   */
+  protected readonly quickCreateShortcuts = this.shortcuts.createMenu;
+  private readonly quickCreateIcons: Record<string, typeof FileText> = {
+    '/invoices/new': FileText,
+    '/quotes/new': Receipt,
+    '/contacts/customers/new': UserPlus,
+    '/inventory/products/new': Package,
+  };
+
+  /** The lucide icon for a create row, by route. */
+  protected quickCreateIcon(route: string): typeof FileText {
+    return this.quickCreateIcons[route] ?? FileText;
+  }
 
   // ✅ Lógica para la Modal "Crear Nuevo"
   isQuickCreateModalOpen: WritableSignal<boolean> = signal(false);
@@ -324,8 +342,6 @@ export class MainLayout implements OnInit {
   protected readonly UserIcon2 = UserIcon2;
   protected readonly BoxIcon = Box;
   protected readonly FileSearchIcon = FileSearch;
-  protected readonly ReceiptIcon = Receipt; // ✅ Icono añadido
-  protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
   protected readonly HelpCircleIcon = HelpCircle;
   protected readonly KeyboardIcon = Keyboard;
@@ -366,6 +382,51 @@ export class MainLayout implements OnInit {
   comingSoon(): void {
     this.notifications.showInfo('feedback.coming_soon');
     this.closeUserMenu();
+  }
+
+  /** The keyboard-shortcuts help window. */
+  readonly isShortcutsOpen = signal(false);
+
+  openShortcuts(): void {
+    this.isShortcutsOpen.set(true);
+    this.closeUserMenu();
+  }
+
+  closeShortcuts(): void {
+    this.isShortcutsOpen.set(false);
+  }
+
+  /**
+   * Dispatch the global application shortcuts. Returns true when one fired, so the caller stops.
+   *
+   * These are the Teams-style "General" shortcuts that make sense for an ERP — show this help,
+   * jump to search, open settings or help, step through history, report a problem — each bound to
+   * an action the shell already has. Everything is read from `ShortcutsService` by id, so a rebind
+   * in the dialog moves the key here too.
+   */
+  private handleAppShortcut(event: KeyboardEvent): boolean {
+    const run = (action: () => void): boolean => {
+      event.preventDefault();
+      action();
+      return true;
+    };
+    if (this.shortcuts.matches(event, 'app.show_shortcuts')) return run(() => this.openShortcuts());
+    if (this.shortcuts.matches(event, 'app.search')) return run(() => this.focusSearch());
+    if (this.shortcuts.matches(event, 'app.settings')) return run(() => this.openSettings());
+    if (this.shortcuts.matches(event, 'app.help')) return run(() => this.comingSoon());
+    if (this.shortcuts.matches(event, 'app.back')) return run(() => this.location.back());
+    if (this.shortcuts.matches(event, 'app.forward')) return run(() => this.location.forward());
+    if (this.shortcuts.matches(event, 'app.report_problem')) return run(() => this.comingSoon());
+    return false;
+  }
+
+  /** Put the cursor in the top-bar search box and select what is there, ready to type over. */
+  private focusSearch(): void {
+    const input = (this.elementRef.nativeElement as HTMLElement).querySelector(
+      '.global-search input',
+    ) as HTMLInputElement | null;
+    input?.focus();
+    input?.select();
   }
 
   closeUserMenu(): void {
@@ -491,27 +552,30 @@ export class MainLayout implements OnInit {
       event.preventDefault();
       return;
     }
-    if (
-      !event.altKey ||
-      !event.shiftKey ||
-      this.isTypingContext(event.target)
-    ) {
-      return;
-    }
+    // The shortcuts editor owns the keyboard while capturing a new binding; stand down.
+    if (this.shortcuts.capturing()) return;
 
-    const shortcut = this.quickCreateShortcuts.find(
-      ({ key }) => key === event.key.toLowerCase(),
-    );
+    // Global application shortcuts (open search/settings/help, navigate history…). Handled before
+    // the typing gate so ⌘, or ⌘E work even from inside a field — they all carry a modifier, so
+    // they can never be a character the reader meant to type.
+    if (this.handleAppShortcut(event)) return;
+
+    if (this.isTypingContext(event.target)) return;
+
+    // The service matches on the EFFECTIVE binding (which the reader may have rebound) and on
+    // `event.code`, not `event.key` — on macOS Option is a compose key, so Option+Shift+I yields a
+    // dead-key character instead of 'i' and `event.key` would never match.
+    const match = this.shortcuts.matchCreate(event);
     // The same rule as the menu: a shortcut to a screen the user may not open, or that no
     // manifest declares, does nothing rather than landing on a 403 or a 404.
-    const target = shortcut ? resolveRoute(shortcut.route) : null;
-    if (!shortcut || !target || !this.authService.hasPermissions(requiredPermissionsFor(target.entry.route.permission))) {
+    const target = match?.route ? resolveRoute(match.route) : null;
+    if (!match?.route || !target || !this.authService.hasPermissions(requiredPermissionsFor(target.entry.route.permission))) {
       return;
     }
 
     event.preventDefault();
     this.closeQuickCreateModal();
-    this.router.navigateByUrl(shortcut.route);
+    this.router.navigateByUrl(match.route);
   }
 
   private isTypingContext(target: EventTarget | null): boolean {

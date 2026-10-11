@@ -47,6 +47,12 @@ const ALLOWED_LITERALS = new Map([
   // Los colores de marca de terceros son literales por definición: alterarlos
   // infringe sus normas de uso.
   ['features/auth/register/steps/step-access/step-access.html', 'logotipo de Google'],
+  // Marcas de las redes de pago (Visa, Mastercard, Amex…): arte de terceros,
+  // literal por definición, igual que el logotipo de Google.
+  ['shared/components/card-brand/', 'marcas de redes de pago (terceros)'],
+  // Tarjeta de pago: artefacto de apariencia fija —como la hoja de impresión de
+  // factura—, no una superficie con tema. Una Visa no tiene «modo oscuro».
+  ['shared/components/payment-card/', 'tarjeta de pago: apariencia fija'],
   // Lienzo propio de la pantalla de acceso, con prefijo --auth-.
   ['features/auth/components/auth-layout/auth-layout.component.scss', 'lienzo de autenticación'],
   ['features/auth/components/auth-footer/auth-footer.component.scss', 'transparencias sobre el lienzo'],

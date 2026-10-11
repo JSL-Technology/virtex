@@ -11,11 +11,12 @@ import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
 
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

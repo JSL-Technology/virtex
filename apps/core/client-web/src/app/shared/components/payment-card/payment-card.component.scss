@@ -1,0 +1,184 @@
+// =============================================================================
+//  VX-PAYMENT-CARD
+// =============================================================================
+//  The colours here are LITERAL and that is deliberate — see the class comment
+//  in payment-card.component.ts. A credit card is a fixed-appearance object,
+//  not a themed surface, so this folder is on the token guardian's allow-list
+//  for the same reason the invoice print sheet is: there is no «dark theme» of
+//  a Visa card. Structure (radius, spacing, shadow depth) still follows the
+//  system; only the card face's own ink is fixed.
+// =============================================================================
+
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1.586; // ISO/IEC 7810 ID-1 — the proportion of a real card.
+  border-radius: 14px;
+  padding: clamp(0.875rem, 4%, 1.25rem);
+  color: #ffffff;
+  // A neutral slate by default; each brand overrides the gradient below.
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.12), transparent 45%),
+    linear-gradient(135deg, #3a3f4b, #22252e);
+  box-shadow:
+    0 10px 24px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+
+  // A soft diagonal sheen, so the face catches light like a laminated card.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 55%, rgba(255, 255, 255, 0.07) 72%, transparent 85%);
+    pointer-events: none;
+  }
+}
+
+// ── Top row ──────────────────────────────────────────────────────────────────
+.vx-payment-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// The EMV chip: a gold tile with its contact lines etched in.
+.vx-payment-card__chip {
+  position: relative;
+  width: 2.5rem;
+  height: 1.875rem;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #e9d9a0, #c7a955);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 4px;
+
+  span {
+    display: block;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  // The vertical line that crosses the contacts.
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+}
+
+.vx-payment-card__contactless {
+  width: 1rem;
+  height: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+// Push the network mark to the far right of the row.
+.vx-payment-card__brand {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+// ── Number ─────────────────────────────────────────────────────────────────
+.vx-payment-card__number {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: auto;
+  font-size: clamp(1rem, 6%, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.vx-payment-card__dots {
+  // Dots are decoration, not data — dim them so the real digits read as the digits.
+  opacity: 0.7;
+  letter-spacing: 0.15em;
+}
+
+.vx-payment-card__last4 {
+  letter-spacing: 0.12em;
+}
+
+// ── Bottom row (expiry) ──────────────────────────────────────────────────────
+.vx-payment-card__bottom {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem;
+  line-height: 1.1;
+}
+
+.vx-payment-card__exp-label {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.vx-payment-card__exp {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Brand faces ──────────────────────────────────────────────────────────────
+//  Each network's own identity colour, darkened into a card-sized gradient.
+:host(.vx-payment-card--visa) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, #1a1f71, #0a0d3c);
+}
+
+:host(.vx-payment-card--mastercard) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.12), transparent 45%),
+    linear-gradient(135deg, #30302f, #121212);
+}
+
+:host(.vx-payment-card--amex) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(135deg, #1b86d1, #0a4e86);
+}
+
+:host(.vx-payment-card--discover) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, #4a4a4a, #1c1c1c);
+}
+
+:host(.vx-payment-card--diners) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, #0a5c90, #052f49);
+}
+
+:host(.vx-payment-card--jcb) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, #2a3140, #14171f);
+}
+
+:host(.vx-payment-card--unionpay) {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(135deg, #15415f, #0a2335);
+}

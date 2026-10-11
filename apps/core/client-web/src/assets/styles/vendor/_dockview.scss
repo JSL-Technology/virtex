@@ -176,9 +176,14 @@
 //  MENÚ CONTEXTUAL
 // -----------------------------------------------------------------------------
 .dv-context-menu {
+  // Room for a label and a right-aligned shortcut without the two touching.
   padding: var(--space-1);
-  min-width: 200px;
+  min-width: 232px;
+  max-width: 320px;
   font-size: var(--text-md);
+  // Each row (app-tab-context-menu-item) is a block that owns its own padding.
+  display: flex;
+  flex-direction: column;
 
   background-color: var(--surface-overlay);
   border: 1px solid var(--border-default);

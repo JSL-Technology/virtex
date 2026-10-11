@@ -1,0 +1,160 @@
+<vx-dialog
+  [titleKey]="'user.shortcuts'"
+  [subtitleKey]="'main.shortcuts.subtitle'"
+  size="xl"
+  (dismissed)="onDismiss()"
+>
+  <div class="ks">
+    <!-- Toolbar: preset picker on the left, live filter on the right. -->
+    <div class="ks__toolbar">
+      <div class="ks__preset">
+        <span class="ks__preset-label">{{ 'main.shortcuts.use_from_other_apps' | translate }}</span>
+        <div class="ks__preset-row">
+          <select
+            class="ks__select"
+            [value]="selectedPreset()"
+            (change)="onPresetChange($event)"
+            [attr.aria-label]="'main.shortcuts.use_from_other_apps' | translate"
+          >
+            @for (preset of presets; track preset.id) {
+              <option [value]="preset.id">{{ preset.labelKey | translate }}</option>
+            }
+          </select>
+          <button class="ks__apply" type="button" (click)="applyPreset()">
+            {{ 'main.shortcuts.apply' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="ks__search">
+        <lucide-icon [img]="SearchIcon" size="16" aria-hidden="true" />
+        <input
+          type="search"
+          class="ks__search-input"
+          [value]="filter()"
+          (input)="onFilter($event)"
+          [placeholder]="'main.shortcuts.filter_placeholder' | translate"
+          [attr.aria-label]="'main.shortcuts.filter_placeholder' | translate"
+        />
+      </div>
+    </div>
+
+    <!-- Groups -->
+    @for (group of filteredGroups(); track group.id) {
+      <section class="ks__group">
+        <button
+          class="ks__group-head"
+          type="button"
+          (click)="toggleGroup(group.id)"
+          [attr.aria-expanded]="!isCollapsed(group.id)"
+        >
+          <lucide-icon
+            [img]="ChevronIcon"
+            size="16"
+            class="ks__chevron"
+            [class.ks__chevron--collapsed]="isCollapsed(group.id)"
+            aria-hidden="true"
+          />
+          <span>{{ group.titleKey | translate }}</span>
+        </button>
+
+        @if (!isCollapsed(group.id)) {
+          <div class="ks__grid">
+            @for (shortcut of group.shortcuts; track shortcut.id) {
+              <div
+                class="ks__row"
+                [class.ks__row--editing]="editingId() === shortcut.id"
+                [class.ks__row--custom]="shortcut.customized"
+              >
+                <span class="ks__desc">{{ shortcut.descriptionKey | translate }}</span>
+
+                @if (editingId() === shortcut.id) {
+                  <div
+                    #capture
+                    class="ks__capture"
+                    tabindex="0"
+                    role="textbox"
+                    [attr.aria-label]="'main.shortcuts.press_keys' | translate"
+                    (keydown)="onCaptureKeydown($event)"
+                    (blur)="onCaptureBlur()"
+                  >
+                    @if (pendingChord(); as chord) {
+                      <vx-kbd [chord]="chord" />
+                    } @else {
+                      <span class="ks__capture-hint">{{ 'main.shortcuts.press_keys' | translate }}</span>
+                    }
+                  </div>
+                } @else {
+                  @if (shortcut.editable) {
+                    <button
+                      class="ks__icon-btn ks__edit"
+                      type="button"
+                      (click)="startEdit(shortcut.id)"
+                      [title]="'main.shortcuts.edit' | translate"
+                      [attr.aria-label]="'main.shortcuts.edit' | translate"
+                    >
+                      <lucide-icon [img]="PencilIcon" size="14" aria-hidden="true" />
+                    </button>
+                  }
+                  @if (shortcut.customized) {
+                    <button
+                      class="ks__icon-btn ks__reset"
+                      type="button"
+                      (click)="resetBinding(shortcut.id)"
+                      [title]="'main.shortcuts.reset' | translate"
+                      [attr.aria-label]="'main.shortcuts.reset' | translate"
+                    >
+                      <lucide-icon [img]="ResetIcon" size="13" aria-hidden="true" />
+                    </button>
+                  }
+                  <span class="ks__keys">
+                    @for (chord of shortcut.chords; track $index) {
+                      @if (!$first) {
+                        <span class="ks__or">{{ 'main.shortcuts.or' | translate }}</span>
+                      }
+                      <vx-kbd [chord]="chord" />
+                    }
+                  </span>
+                }
+
+                @if (editingId() === shortcut.id && rejection(); as reject) {
+                  <p class="ks__error" role="alert">
+                    @if (reject.reason === 'needs_modifier') {
+                      {{ 'main.shortcuts.needs_modifier' | translate }}
+                    } @else {
+                      {{ 'main.shortcuts.conflict' | translate: { name: (reject.withDescriptionKey | translate) } }}
+                    }
+                  </p>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (filteredGroups().length === 0) {
+      <p class="ks__empty">{{ 'main.shortcuts.no_results' | translate: { query: filter() } }}</p>
+    }
+  </div>
+
+  <ng-container dialogActions>
+    <div class="ks__footer">
+      <div class="ks__footer-links">
+        <button type="button" class="ks__link" (click)="help.emit()">
+          {{ 'user.help' | translate }}
+        </button>
+        <span class="ks__footer-sep" aria-hidden="true">·</span>
+        <button type="button" class="ks__link" (click)="reportProblem.emit()">
+          {{ 'main.shortcuts.report_problem' | translate }}
+        </button>
+      </div>
+      @if (hasCustomizations()) {
+        <button class="ks__reset-all" type="button" (click)="resetAll()">
+          <lucide-icon [img]="ResetIcon" size="14" aria-hidden="true" />
+          {{ 'main.shortcuts.reset_all' | translate }}
+        </button>
+      }
+    </div>
+  </ng-container>
+</vx-dialog>

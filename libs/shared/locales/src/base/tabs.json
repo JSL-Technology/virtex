@@ -84,6 +84,16 @@
     "en": "Open tabs",
     "pt": "Abas abertas"
   },
+  "tabs.recently_closed": {
+    "es": "Cerradas recientemente",
+    "en": "Recently closed",
+    "pt": "Fechadas recentemente"
+  },
+  "tabs.search_no_results": {
+    "es": "Ninguna pestaña coincide con «{{query}}»",
+    "en": "No tabs match “{{query}}”",
+    "pt": "Nenhuma aba corresponde a “{{query}}”"
+  },
   "tabs.open_tabs_aria": {
     "es": "Cambiar de pestaña abierta",
     "en": "Switch open tab",

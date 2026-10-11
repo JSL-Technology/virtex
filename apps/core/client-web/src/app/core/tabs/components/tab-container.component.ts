@@ -1,5 +1,5 @@
 import {
-  Component, inject, effect, ChangeDetectionStrategy, computed, ElementRef,
+  Component, inject, effect, ChangeDetectionStrategy, computed, ElementRef, OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,6 +19,12 @@ import { TabHeaderComponent } from './tab-header.component';
 import { GroupControlsComponent } from './group-controls.component';
 import { ThemeService } from '../../services/theme';
 import { WindowModeService } from '../../windows/window-mode.service';
+import { TabContextMenuItemComponent, TabContextMenuItemProps } from './tab-context-menu-item.component';
+import { ShortcutsService } from '../../keyboard/shortcuts.service';
+import { TabCommandsService, TabLayoutController } from '../tab-command.service';
+import { TabSearchService } from '../tab-search.service';
+import { TabSearchButtonComponent } from './tab-search-button.component';
+import { TabSearchPanelComponent } from './tab-search-panel.component';
 
 /**
  * Hospeda Dockview y mapea el signal `tabs` ↔ paneles (TAB_ARCHITECTURE §11).
@@ -28,7 +34,7 @@ import { WindowModeService } from '../../windows/window-mode.service';
 @Component({
   selector: 'app-tab-container',
   standalone: true,
-  imports: [CommonModule, DockviewAngularComponent],
+  imports: [CommonModule, DockviewAngularComponent, TabSearchPanelComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!--
@@ -41,6 +47,7 @@ import { WindowModeService } from '../../windows/window-mode.service';
         class="dockview-theme-virtex"
         [components]="components"
         [tabComponents]="tabComponents"
+        [prefixHeaderActionsComponent]="tabSearchButton"
         [rightHeaderActionsComponent]="rightHeaderActions"
         [getTabContextMenuItems]="tabContextMenuItems"
         [theme]="dvTheme()"
@@ -48,11 +55,17 @@ import { WindowModeService } from '../../windows/window-mode.service';
         [scrollbars]="'custom'"
         (ready)="onReady($event)"
       ></dv-dockview>
+
+      <!-- Chrome-style tab search. One instance; the prefix button and ⇧⌘A both open it. -->
+      @if (tabSearch.isOpen()) {
+        <app-tab-search-panel />
+      }
     </div>
   `,
   styles: [`
     :host { display: block; height: 100%; width: 100%; }
-    .dockview-container { height: 100%; width: 100%; }
+    /* Posición relativa para anclar el panel de búsqueda de pestañas (absoluto) a la esquina. */
+    .dockview-container { height: 100%; width: 100%; position: relative; }
 
     /*
       Modo compacto: sin franja de pestañas. Se navega con el riel y el panel, que en esta anchura
@@ -62,13 +75,15 @@ import { WindowModeService } from '../../windows/window-mode.service';
     .dockview-container--compact ::ng-deep .dv-tabs-and-actions-container { display: none; }
   `],
 })
-export class TabContainerComponent {
+export class TabContainerComponent implements TabLayoutController, OnDestroy {
   private tabState = inject(TabStateService);
   private persistence = inject(TabPersistenceService);
   private prefs = inject(TabPreferencesService);
   private themeService = inject(ThemeService);
   protected readonly windowMode = inject(WindowModeService);
   private translate = inject(TranslateService);
+  private shortcuts = inject(ShortcutsService);
+  private commands = inject(TabCommandsService);
   private el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private dockviewApi: any;
@@ -79,6 +94,9 @@ export class TabContainerComponent {
   readonly components = { tabWrapper: TabWrapperComponent };
   readonly tabComponents = { default: TabHeaderComponent };
   readonly rightHeaderActions = GroupControlsComponent;
+  /** The chevron at the left of each strip that opens the tab-search panel. */
+  readonly tabSearchButton = TabSearchButtonComponent;
+  protected readonly tabSearch = inject(TabSearchService);
 
   readonly dvTheme = computed(() =>
     this.themeService.appliedTheme() === 'dark' ? themeDark : themeLight
@@ -110,37 +128,26 @@ export class TabContainerComponent {
     //  pop-out—, donde Dockview exige la ubicación de rejilla.
     const gridActions: ContextMenuItem[] = inGrid
       ? [
-          {
-            label: t('tabs.split_right'),
-            action: () => this.splitPanel(panel, 'right'),
-          },
-          {
-            label: t('tabs.split_below'),
-            action: () => this.splitPanel(panel, 'below'),
-          },
-          {
-            label: t('tabs.float'),
-            action: () => this.floatPanel(panel),
-          },
+          this.menuItem({ label: t('tabs.split_right'), chord: this.shortcuts.primaryChord('layout.split_right'), run: () => this.splitPanel(panel, 'right') }),
+          this.menuItem({ label: t('tabs.split_below'), chord: this.shortcuts.primaryChord('layout.split_below'), run: () => this.splitPanel(panel, 'below') }),
+          this.menuItem({ label: t('tabs.float'), chord: this.shortcuts.primaryChord('layout.float'), run: () => this.floatPanel(panel) }),
         ]
       : [];
 
     const windowActions: ContextMenuItem[] = [
       'separator',
       ...gridActions,
-      {
-        //  Sacar a una ventana del sistema operativo (no una pestaña del navegador): comparar un
-        //  documento en un segundo monitor sin ceder ancho ni perder la sesión de la empresa. Se
-        //  ofrece en cualquier modo y también desde grupos flotantes/pop-out.
-        label: t('tabs.pop_out_window'),
-        action: () => this.popoutPanel(panel),
-      },
+      //  Sacar a una ventana del sistema operativo (no una pestaña del navegador): comparar un
+      //  documento en un segundo monitor sin ceder ancho ni perder la sesión de la empresa. Se
+      //  ofrece en cualquier modo y también desde grupos flotantes/pop-out.
+      this.menuItem({ label: t('tabs.pop_out_window'), chord: this.shortcuts.primaryChord('layout.popout'), run: () => this.popoutPanel(panel) }),
       ...(inGrid
         ? [
-            {
+            this.menuItem({
               label: maximized ? t('tabs.restore') : t('tabs.maximise'),
-              action: () => (maximized ? api.exitMaximizedGroup() : api.maximizeGroup(panel)),
-            } as ContextMenuItem,
+              chord: this.shortcuts.primaryChord('layout.maximize'),
+              run: () => (maximized ? api.exitMaximizedGroup() : api.maximizeGroup(panel)),
+            }),
           ]
         : []),
     ];
@@ -149,10 +156,7 @@ export class TabContainerComponent {
     //  editarla ni acordarse del doble clic en la cabecera.
     const keepOpen: ContextMenuItem[] = tab?.isPreview
       ? [
-          {
-            label: t('tabs.keep_open'),
-            action: () => this.tabState.markPermanent(panel.id),
-          },
+          this.menuItem({ label: t('tabs.keep_open'), run: () => this.tabState.markPermanent(panel.id) }),
           'separator',
         ]
       : [];
@@ -161,46 +165,48 @@ export class TabContainerComponent {
       ...keepOpen,
       //  Los rótulos estaban escritos en español dentro del componente, así que el menú
       //  contextual del área de trabajo salía en español en las tres lenguas del producto.
-      {
+      //  Cada acción muestra al lado su atajo efectivo (el que el usuario pueda haber reasignado),
+      //  leído de ShortcutsService por id — una sola fuente para el menú, el teclado y el diálogo.
+      this.menuItem({
         label: t('tabs.close'),
         disabled: tab?.isCloseable === false,
-        action: () => void this.tabState.closeTab(panel.id),
-      },
-      {
-        label: t('tabs.close_others'),
-        action: () => this.tabState.closeOthers(panel.id),
-      },
-      {
-        label: t('tabs.close_right'),
-        action: () => this.tabState.closeToRight(panel.id),
-      },
-      {
-        label: t('tabs.close_all'),
-        action: () => this.tabState.closeAll(),
-      },
+        chord: this.shortcuts.primaryChord('tabs.close'),
+        run: () => void this.tabState.closeTab(panel.id),
+      }),
+      this.menuItem({ label: t('tabs.close_others'), chord: this.shortcuts.primaryChord('tabs.close_others'), run: () => this.tabState.closeOthers(panel.id) }),
+      this.menuItem({ label: t('tabs.close_right'), chord: this.shortcuts.primaryChord('tabs.close_right'), run: () => this.tabState.closeToRight(panel.id) }),
+      this.menuItem({ label: t('tabs.close_all'), chord: this.shortcuts.primaryChord('tabs.close_all'), run: () => this.tabState.closeAll() }),
       'separator',
-      {
-        label: t('tabs.duplicate'),
-        action: () => this.tabState.duplicateTab(panel.id),
-      },
-      {
+      this.menuItem({ label: t('tabs.duplicate'), chord: this.shortcuts.primaryChord('tabs.duplicate'), run: () => this.tabState.duplicateTab(panel.id) }),
+      this.menuItem({
         label: tab?.isPinned ? t('tabs.unpin') : t('tabs.pin'),
         disabled: isPinnedType,
-        action: () =>
-          tab?.isPinned
-            ? this.tabState.unpinTab(panel.id)
-            : this.tabState.pinTab(panel.id),
-      },
+        chord: this.shortcuts.primaryChord('tabs.pin'),
+        run: () =>
+          tab?.isPinned ? this.tabState.unpinTab(panel.id) : this.tabState.pinTab(panel.id),
+      }),
       'separator',
-      {
-        //  Ajuste global de comportamiento, no de esta pestaña: si el usuario prefiere que cada
-        //  apertura sea permanente, lo desactiva desde aquí (equivale a enablePreview de VS Code).
-        label: (this.prefs.enablePreview() ? '✓ ' : '') + t('tabs.preview_on_open'),
-        action: () => this.prefs.toggleEnablePreview(),
-      },
+      //  Ajuste global de comportamiento, no de esta pestaña: si el usuario prefiere que cada
+      //  apertura sea permanente, lo desactiva desde aquí (equivale a enablePreview de VS Code).
+      //  El estado va como `checked` —una marca a la izquierda— y no prefijando «✓ » al rótulo.
+      this.menuItem({
+        label: t('tabs.preview_on_open'),
+        checked: this.prefs.enablePreview(),
+        chord: this.shortcuts.primaryChord('tabs.preview_toggle'),
+        run: () => this.prefs.toggleEnablePreview(),
+      }),
       ...windowActions,
     ];
   };
+
+  /**
+   * Wrap a row's data as a Dockview context-menu item rendered by
+   * {@link TabContextMenuItemComponent}. Returning a framework `component` is what lets each row
+   * carry a shortcut chip and a check column instead of Dockview's plain `textContent`.
+   */
+  private menuItem(props: TabContextMenuItemProps): ContextMenuItem {
+    return { component: TabContextMenuItemComponent, componentProps: props };
+  }
 
   /**
    * Sacar el panel a una ventana nativa del sistema operativo (popout de Dockview).
@@ -261,7 +267,42 @@ export class TabContainerComponent {
     return panel.group?.api?.location?.type === 'grid';
   }
 
+  // ── TabLayoutController ──────────────────────────────────────────────────
+  //  The keyboard's counterparts to the context menu's layout actions: the same operations, but on
+  //  the ACTIVE panel rather than the right-clicked one. Registered with TabCommandsService so the
+  //  global shortcut handler can invoke them without reaching into Dockview itself.
+
+  private activePanel(): IDockviewPanel | undefined {
+    const id = this.tabState.activeTabId();
+    return id ? this.panels.get(id) : undefined;
+  }
+
+  splitActive(direction: 'right' | 'below'): void {
+    const panel = this.activePanel();
+    if (panel) this.splitPanel(panel, direction);
+  }
+
+  floatActive(): void {
+    const panel = this.activePanel();
+    if (panel) this.floatPanel(panel);
+  }
+
+  popoutActive(): void {
+    const panel = this.activePanel();
+    if (panel) this.popoutPanel(panel);
+  }
+
+  toggleMaximizeActive(): void {
+    const panel = this.activePanel();
+    if (!panel || !this.dockviewApi || !this.isInGrid(panel)) return;
+    if (this.dockviewApi.hasMaximizedGroup()) this.dockviewApi.exitMaximizedGroup();
+    else this.dockviewApi.maximizeGroup(panel);
+  }
+
   constructor() {
+    // The keyboard dispatches layout actions through this component, which owns the Dockview api.
+    this.commands.registerLayout(this);
+
     effect(() => {
       const tabs = this.tabState.tabs();
       if (this.dockviewApi) this.syncTabs(tabs);
@@ -273,6 +314,11 @@ export class TabContainerComponent {
       const panel = this.panels.get(activeId);
       if (panel && !panel.api.isActive) panel.api.setActive();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.commands.registerLayout(null);
+    if (this.layoutSaveTimer) clearTimeout(this.layoutSaveTimer);
   }
 
   onReady(event: DockviewReadyEvent): void {

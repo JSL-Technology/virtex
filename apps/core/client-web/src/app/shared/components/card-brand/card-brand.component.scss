@@ -1,0 +1,30 @@
+// =============================================================================
+//  VX-CARD-BRAND
+// =============================================================================
+//  The white plate every network mark sits on. Its colours are LITERAL on
+//  purpose and that is why this folder is on the token guardian's allow-list:
+//  a card logo is third-party artwork like the Google mark, not a themed
+//  surface — tinting Visa's blue with the current theme would be a trademark
+//  error, not a feature. Everything structural still comes from the system.
+// =============================================================================
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Width is set inline from `size`; the height follows the 40×24 card-logo box.
+  width: 40px;
+  aspect-ratio: 40 / 24;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+  // A hairline so the plate still has an edge on a white surface, where a plain
+  // white tile would otherwise dissolve into the page.
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,72 @@
+// =============================================================================
+//  TAB CONTEXT MENU ITEM
+// =============================================================================
+//  One row of the Dockview tab menu. The menu container and separators are
+//  themed in assets/styles/vendor/_dockview.scss; this is the row itself.
+//  All colour from tokens so it matches both themes.
+// =============================================================================
+
+:host {
+  display: block;
+}
+
+.dv-ctx-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  // A roomy, pointer-friendly row with a reserved check column on the left and
+  // the shortcut pushed to the right.
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--content-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.12s ease, color 0.12s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-surface);
+    color: var(--content-primary);
+    outline: none;
+  }
+
+  &--disabled {
+    color: var(--content-disabled);
+    cursor: default;
+
+    &:hover,
+    &:focus-visible {
+      background: transparent;
+      color: var(--content-disabled);
+    }
+  }
+}
+
+// Fixed-width so labels line up whether or not a row carries a check.
+.dv-ctx-item__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex-shrink: 0;
+  color: var(--accent-text);
+}
+
+.dv-ctx-item__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// The shortcut sits at the far right, a touch dimmer than the label.
+.dv-ctx-item__kbd {
+  margin-left: var(--space-6);
+  flex-shrink: 0;
+  opacity: 0.9;
+}

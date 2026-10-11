@@ -140,40 +140,9 @@
     }
 }
 
-// Payment card body
-.payment-card-display {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 0.875rem 1rem;
-    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-hover) 100%);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+// Payment method body — the stored card, drawn as a card (vx-payment-card).
+.payment-card-visual {
     margin-bottom: var(--space-4);
-
-    &__chip {
-        width: 2rem;
-        height: 1.5rem;
-        border-radius: 4px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-        flex-shrink: 0;
-        opacity: 0.8;
-    }
-
-    &__info { flex: 1; }
-
-    &__number {
-        font-size: var(--text-base);
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-        letter-spacing: 0.1em;
-        margin-bottom: 0.125rem;
-    }
-
-    &__meta {
-        font-size: var(--text-xs);
-        color: var(--text-secondary);
-    }
 }
 
 // Usage list
