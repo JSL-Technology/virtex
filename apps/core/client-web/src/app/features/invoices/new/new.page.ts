@@ -282,7 +282,6 @@ export class NewInvoicePage implements OnInit {
         // lists each gap and links to where it is fixed. It used to be told twice: the same
         // sentence also came up as a red «Error» toast that covered the title (QA U52). Nothing
         // failed — it is the company's state — so the page states it once, where it stays.
-        }
       },
       error: () =>
         this.notificationService.showError('invoices.new.invoicing_configuration_could_not_loaded'),
