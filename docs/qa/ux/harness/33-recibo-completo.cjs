@@ -1,0 +1,25 @@
+const { launch, login, shot, instrument } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  await login(page);
+  await page.evaluate(() => { history.pushState({}, '', '/e/virtex-dev/customer-receipts/new'); dispatchEvent(new PopStateEvent('popstate')); }); await page.waitForTimeout(3500);
+  const P = page.locator('.dv-active-group .dv-content-container');
+  const cli = P.getByPlaceholder('Busca por nombre, documento o correo…'); await cli.click(); await page.waitForTimeout(1500);
+  console.log('OPCIONES sin escribir', await page.getByRole('option').allInnerTexts());
+  await cli.pressSequentially('QA', { delay: 80 }); await page.waitForTimeout(2000);
+  console.log('OPCIONES con QA', await page.getByRole('option').allInnerTexts());
+  await shot(page, 'F-cobro-5-buscar');
+  await page.getByRole('option').filter({ hasText: 'Ferretería' }).first().click(); await page.waitForTimeout(2500);
+  console.log((await P.innerText()).split('Facturas a aplicar')[1]?.slice(0, 600));
+  await shot(page, 'F-cobro-6-facturas');
+  await P.getByLabel('Monto recibido', { exact: false }).fill('3000'); await page.waitForTimeout(800);
+  await P.locator('select').first().selectOption({ label: 'Efectivo' });
+  await shot(page, 'F-cobro-7-parcial');
+  console.log((await P.innerText()).split('Facturas a aplicar')[1]?.slice(0, 600));
+  await P.getByRole('button', { name: 'Guardar' }).click(); await page.waitForTimeout(3500);
+  console.log('ALERT', await page.locator('[role=alert], .toast').allInnerTexts(), page.url());
+  await shot(page, 'F-cobro-8-guardado');
+  console.log(log.req.filter(r => /receipt/.test(r) && !/GET/.test(r)).join('\n'));
+  await browser.close();
+})();

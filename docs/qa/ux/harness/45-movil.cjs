@@ -1,0 +1,20 @@
+const { launch, login, shot } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch({ viewport: { width: 390, height: 844 }, isMobile: true });
+  const page = await context.newPage();
+  await login(page);
+  await shot(page, 'M-1-inicio');
+  await page.getByRole('button', { name: 'Menú' }).click(); await page.waitForTimeout(1000);
+  await shot(page, 'M-2-menu');
+  await page.locator('a, button').filter({ hasText: 'Ventas' }).first().click(); await page.waitForTimeout(800);
+  await shot(page, 'M-3-menu-ventas');
+  await page.locator('a').filter({ hasText: /^\s*Facturas\s*$/ }).first().click(); await page.waitForTimeout(2500);
+  await shot(page, 'M-4-facturas');
+  await page.locator('a, button').filter({ hasText: 'Nueva factura de venta' }).first().click(); await page.waitForTimeout(3000);
+  await shot(page, 'M-5-nueva-factura');
+  const sw = await page.evaluate(() => [...document.querySelectorAll('.dv-active-group *')].reduce((m, e) => Math.max(m, e.getBoundingClientRect().right), 0));
+  console.log('ancho máximo de contenido', Math.round(sw), 'viewport 390');
+  await page.evaluate(() => { location.hash = 'settings/profile'; }); await page.waitForTimeout(2500);
+  await shot(page, 'M-6-ajustes');
+  await browser.close();
+})();

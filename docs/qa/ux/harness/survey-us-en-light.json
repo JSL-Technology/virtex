@@ -1,0 +1,3004 @@
+[
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/overview",
+  "label": "Inicio",
+  "ms": 4176,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/overview",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "moderate:heading-order(1) e.g. h6",
+   "serious:nested-interactive(1) e.g. .tab-header"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 1,
+  "h1": [
+   "Good morning, María José👋"
+  ],
+  "title": "Home | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-01-overview"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/approvals",
+  "label": "Aprobaciones",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/approvals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(2) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals"
+  ],
+  "tiny": 2,
+  "h1": [
+   "Approvals centre"
+  ],
+  "title": "Approvals | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-02-approvals"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflow-tasks",
+  "label": "Mis tareas",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflow-tasks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(3) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals"
+  ],
+  "tiny": 3,
+  "h1": [
+   "My tasks"
+  ],
+  "title": "My tasks | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-03-workflow-tasks"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/documents/repository",
+  "label": "Todos los documentos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/documents/repository",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(4) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Document repository"
+  ],
+  "tiny": 5,
+  "h1": [
+   "File repository"
+  ],
+  "title": "Document repository | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-04-documents_repository"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflows",
+  "label": "Flujos de trabajo",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflows",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(5) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Document repository"
+  ],
+  "tiny": 5,
+  "h1": [
+   "Workflows"
+  ],
+  "title": "Workflows | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-05-workflows"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflow-instances",
+  "label": "Ejecuciones",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflow-instances",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(6) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Document repository"
+  ],
+  "tiny": 6,
+  "h1": [
+   "Runs"
+  ],
+  "title": "Runs | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-06-workflow-instances"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/invoices",
+  "label": "Facturas",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/invoices",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(7) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Document repository"
+  ],
+  "tiny": 7,
+  "h1": [
+   "Invoices"
+  ],
+  "title": "Invoices | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-07-invoices"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/quotes",
+  "label": "Cotizaciones",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/quotes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(8) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "Document repository",
+   "Workflows"
+  ],
+  "tiny": 8,
+  "h1": [
+   "Quotes"
+  ],
+  "title": "Quotes | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-08-quotes"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/customer-receipts",
+  "label": "Recibos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/customer-receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(9) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts"
+  ],
+  "tiny": 9,
+  "h1": [
+   "Customer receipts"
+  ],
+  "title": "Customer receipts | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-09-customer-receipts"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/sales/history",
+  "label": "Tickets de punto de venta",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/sales/history",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(10) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 10,
+  "h1": [
+   "Point-of-sale tickets"
+  ],
+  "title": "Point-of-sale tickets | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-10-sales_history"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/sales/pos",
+  "label": "Punto de venta",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/sales/pos",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(11) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 11,
+  "h1": [],
+  "title": "Point of sale | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-11-sales_pos"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/contacts/customers",
+  "label": "Clientes",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/contacts/customers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(12) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 17,
+  "h1": [
+   "Customers\n1"
+  ],
+  "title": "Customers | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-12-contacts_customers"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/masters/price-lists",
+  "label": "Listas de precios",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/price-lists",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(13) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 13,
+  "h1": [
+   "Price lists"
+  ],
+  "title": "Price lists | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-13-masters_price-lists"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/reports/aging/receivables",
+  "label": "Antigüedad de saldos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/aging/receivables",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(14) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 14,
+  "h1": [],
+  "title": "Accounts receivable aging | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-14-reports_aging_receivables"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable",
+  "label": "Facturas",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(15) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 15,
+  "h1": [
+   "Vendor bills"
+  ],
+  "title": "Vendor bills | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-15-accounts-payable"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable/payments",
+  "label": "Pagos a proveedores",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable/payments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(16) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 16,
+  "h1": [
+   "Payments to suppliers"
+  ],
+  "title": "Payments to suppliers | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-16-accounts-payable_payments"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable/debit-notes",
+  "label": "Notas de débito",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable/debit-notes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(17) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 17,
+  "h1": [
+   "Debit notes to suppliers"
+  ],
+  "title": "Debit notes | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-17-accounts-payable_debit-notes"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/orders",
+  "label": "Órdenes de compra",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/orders",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(18) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 18,
+  "h1": [
+   "Purchase orders"
+  ],
+  "title": "Purchase orders | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-18-purchasing_orders"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/receipts",
+  "label": "Recepciones",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(19) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 19,
+  "h1": [
+   "Goods receipts"
+  ],
+  "title": "Goods receipts | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-19-purchasing_receipts"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/requisitions",
+  "label": "Requisiciones",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/requisitions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(20) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Approvals",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets"
+  ],
+  "tiny": 20,
+  "h1": [
+   "Purchase requisitions"
+  ],
+  "title": "Purchase requisitions | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-20-purchasing_requisitions"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/contacts/suppliers",
+  "label": "Proveedores",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/contacts/suppliers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(20) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale"
+  ],
+  "tiny": 20,
+  "h1": [
+   "Suppliers"
+  ],
+  "title": "Suppliers | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-21-contacts_suppliers"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/reports/aging/payables",
+  "label": "Antigüedad de saldos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/aging/payables",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(20) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "My tasks",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale"
+  ],
+  "tiny": 20,
+  "h1": [],
+  "title": "Accounts payable ageing | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-22-reports_aging_payables"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/adjustments",
+  "label": "Ajustes de inventario",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(20) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Document repository",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers"
+  ],
+  "tiny": 20,
+  "h1": [
+   "Inventory adjustments"
+  ],
+  "title": "Inventory adjustments | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-23-inventory_adjustments"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/transfers",
+  "label": "Transferencias",
+  "ms": 4009,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/transfers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(20) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Workflows",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists"
+  ],
+  "tiny": 20,
+  "h1": [
+   "Stock transfers"
+  ],
+  "title": "Stock transfers | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-24-inventory_transfers"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/products",
+  "label": "Productos",
+  "ms": 4008,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/products",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(20) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 20,
+  "h1": [
+   "Product inventory"
+  ],
+  "title": "Products & services | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-25-inventory_products"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/stock",
+  "label": "Existencias",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/stock",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(22) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Stock on hand"
+  ],
+  "title": "Stock on hand | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-26-inventory_stock"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/movements",
+  "label": "Kárdex",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/movements",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(22) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 22,
+  "h1": [
+   "Stock movements"
+  ],
+  "title": "Stock movements | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-27-inventory_movements"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/categories",
+  "label": "Categorías",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/categories",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(22) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Categories\n1"
+  ],
+  "title": "Categories | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-28-inventory_categories"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/masters/warehouses",
+  "label": "Almacenes",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/warehouses",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 29,
+  "h1": [
+   "Warehouses\n1"
+  ],
+  "title": "Warehouses | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-29-masters_warehouses"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/masters/units-of-measure",
+  "label": "Unidades de medida",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/units-of-measure",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(4) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 27,
+  "h1": [
+   "Units of measure\n26"
+  ],
+  "title": "Units of measure | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-30-masters_units-of-measure"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/treasury",
+  "label": "Tablero",
+  "ms": 4011,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/treasury",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(26) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Treasury"
+  ],
+  "tiny": 33,
+  "h1": [],
+  "title": "Treasury | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-31-accounting_treasury"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/reconciliation",
+  "label": "Conciliación — manual",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/reconciliation",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(26) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Account reconciliation"
+  ],
+  "tiny": 26,
+  "h1": [],
+  "title": "Account reconciliation | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-32-accounting_reconciliation"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/masters/banks",
+  "label": "Bancos",
+  "ms": 4222,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/banks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Banks"
+  ],
+  "title": "Banks | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-33-masters_banks"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/masters/payment-methods",
+  "label": "Formas de pago",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/payment-methods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 25,
+  "h1": [
+   "Payment methods\n7"
+  ],
+  "title": "Payment methods | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-34-masters_payment-methods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/journal-entries",
+  "label": "Asientos",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/journal-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Journal entries"
+  ],
+  "title": "Journal entries | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-35-accounting_journal-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/recurring-entries",
+  "label": "Asientos recurrentes",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/recurring-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Recurring entries"
+  ],
+  "title": "Recurring entries | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-36-accounting_recurring-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/entry-templates",
+  "label": "Plantillas de asiento",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/entry-templates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customer receipts",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Entry templates"
+  ],
+  "title": "Entry templates | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-37-accounting_entry-templates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets",
+  "label": "Activos fijos",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Point-of-sale tickets",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing",
+   "Vendor bills"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Fixed assets"
+  ],
+  "title": "Fixed assets | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-38-accounting_fixed-assets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets/depreciation",
+  "label": "Ejecutar depreciación",
+  "ms": 4010,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets/depreciation",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Point of sale",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing",
+   "Vendor bills",
+   "Payments to suppliers"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Run depreciation"
+  ],
+  "title": "Run depreciation | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-39-accounting_fixed-assets_depreciation"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/budgets",
+  "label": "Presupuestos",
+  "ms": 4007,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/budgets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customers",
+   "Price lists",
+   "Accounts payable ageing",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Budgets"
+  ],
+  "title": "Budgets | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-40-accounting_budgets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/closing/annual-close",
+  "label": "Cierre — anual",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/closing/annual-close",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(23) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Customers",
+   "Price lists",
+   "Year-end close",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes"
+  ],
+  "tiny": 23,
+  "h1": [],
+  "title": "Year-end close | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-41-accounting_closing_annual-close"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/audit-adjustments",
+  "label": "Ajustes de auditoría",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/audit-adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(23) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Price lists",
+   "Year-end close",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes",
+   "Purchase orders"
+  ],
+  "tiny": 23,
+  "h1": [
+   "Audit adjustments"
+  ],
+  "title": "Audit adjustments | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-42-accounting_audit-adjustments"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/closing/checklist",
+  "label": "Cierre de período",
+  "ms": 4013,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/closing/checklist",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "minor:empty-table-header(1) e.g. th:nth-child(2)",
+   "serious:nested-interactive(23) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Price lists",
+   "Closing checklists",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes",
+   "Purchase orders"
+  ],
+  "tiny": 25,
+  "h1": [],
+  "title": "Closing checklists | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-43-accounting_closing_checklist"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/chart-of-accounts",
+  "label": "Plan de cuentas",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/chart-of-accounts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Closing checklists",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts"
+  ],
+  "tiny": 33,
+  "h1": [
+   "Chart of accounts\n5"
+  ],
+  "title": "Chart of accounts | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-44-accounting_chart-of-accounts"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/daily-journal",
+  "label": "Libro: diario",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/daily-journal",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Closing checklists",
+   "Vendor bills",
+   "Payments to suppliers",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts"
+  ],
+  "tiny": 24,
+  "h1": [
+   "General journal"
+  ],
+  "title": "Daily journal | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-45-accounting_daily-journal"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/general-ledger",
+  "label": "Libro: mayor",
+  "ms": 4015,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/general-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Closing checklists",
+   "Payments to suppliers",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions"
+  ],
+  "tiny": 24,
+  "h1": [
+   "General ledger"
+  ],
+  "title": "General ledger | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-46-accounting_general-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/partner-ledger",
+  "label": "Mayor de terceros",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/partner-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Closing checklists",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [
+   "Partner ledger\n0"
+  ],
+  "title": "Partner ledger | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-47-accounting_partner-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/variance-analysis",
+  "label": "Análisis de variaciones",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/variance-analysis",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Variance analysis",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [
+   "Variance analysis"
+  ],
+  "title": "Variance analysis | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-48-accounting_variance-analysis"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/balance-sheet",
+  "label": "Balance general",
+  "ms": 4003,
+  "idleTx": 2,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/balance-sheet",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(24) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Balance sheet",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [],
+  "title": "Balance sheet | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-49-reports_financial-statements_balance-sheet"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/income-statement",
+  "label": "Estado de resultados",
+  "ms": 4002,
+  "idleTx": 3,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/income-statement",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(24) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Income statement",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [],
+  "title": "Income statement | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-50-reports_financial-statements_income-statement"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/trial-balance",
+  "label": "Balanza de comprobación",
+  "ms": 4006,
+  "idleTx": 3,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/trial-balance",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(24) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Trial balance",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [],
+  "title": "Trial balance | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-51-reports_financial-statements_trial-balance"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/cash-flow",
+  "label": "Flujo de efectivo",
+  "ms": 4002,
+  "idleTx": 2,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/cash-flow",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > .group-title",
+   "serious:nested-interactive(24) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Debit notes",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers"
+  ],
+  "tiny": 24,
+  "h1": [],
+  "title": "Cash flow | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-52-reports_financial-statements_cash-flow"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/fiscal-returns",
+  "label": "Declaraciones fiscales",
+  "ms": 4002,
+  "idleTx": 2,
+  "url": "/e/qa-nandu-sons-llc-2/reports/fiscal-returns",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(24) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase orders",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments"
+  ],
+  "tiny": 24,
+  "h1": [
+   "Fiscal returns"
+  ],
+  "title": "Fiscal returns | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-53-reports_fiscal-returns"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/dimensions",
+  "label": "Dimensiones analíticas",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/dimensions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(26) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers"
+  ],
+  "tiny": 26,
+  "h1": [
+   "Analytic dimensions"
+  ],
+  "title": "Analytic dimensions | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-54-accounting_dimensions"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/ledgers",
+  "label": "Multilibros",
+  "ms": 4008,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/ledgers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column",
+   "serious:nested-interactive(26) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers"
+  ],
+  "tiny": 29,
+  "h1": [
+   "Ledgers\n1"
+  ],
+  "title": "Ledgers | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-55-accounting_ledgers"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/journals",
+  "label": "Diarios",
+  "ms": 4014,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/journals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(26) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Goods receipts",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers"
+  ],
+  "tiny": 41,
+  "h1": [
+   "Journals\n11"
+  ],
+  "title": "Journals | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-56-accounting_journals"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/periods",
+  "label": "Periodos contables",
+  "ms": 4026,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/periods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(28) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 32,
+  "h1": [
+   "Accounting periods\n12"
+  ],
+  "title": "Period management | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-57-accounting_periods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/taxes",
+  "label": "Impuestos",
+  "ms": 4001,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/taxes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(28) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 28,
+  "h1": [
+   "Tax rates"
+  ],
+  "title": "Taxes | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-58-masters_taxes"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/currencies",
+  "label": "Monedas",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/currencies",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(29) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 33,
+  "h1": [
+   "Currencies\n23"
+  ],
+  "title": "Currencies | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-59-masters_currencies"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/currencies/exchange-rates",
+  "label": "Tipos de cambio",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/currencies/exchange-rates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(31) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 31,
+  "h1": [
+   "Exchange rates"
+  ],
+  "title": "Exchange rates | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-60-masters_currencies_exchange-rates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/payment-terms",
+  "label": "Condiciones de pago",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/masters/payment-terms",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(31) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 34,
+  "h1": [
+   "Payment terms\n1"
+  ],
+  "title": "Payment terms | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-61-masters_payment-terms"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/my-payslips",
+  "label": "Mis volantes",
+  "ms": 4004,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/my-payslips",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(31) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Purchase requisitions",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services"
+  ],
+  "tiny": 31,
+  "h1": [
+   "My payslips"
+  ],
+  "title": "My payslips | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-62-payroll_my-payslips"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/runs",
+  "label": "Nóminas",
+  "ms": 4013,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/runs",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(32) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 32,
+  "h1": [
+   "Payroll runs"
+  ],
+  "title": "Payroll runs | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-63-payroll_runs"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/hcm/employees",
+  "label": "Empleados",
+  "ms": 4005,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/hcm/employees",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(33) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 34,
+  "h1": [
+   "Employees"
+  ],
+  "title": "Employees | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-64-hcm_employees"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/hcm/departments",
+  "label": "Departamentos",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/hcm/departments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(34) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 34,
+  "h1": [
+   "Departments"
+  ],
+  "title": "Departments | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-65-hcm_departments"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/concepts",
+  "label": "Conceptos",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/concepts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(35) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Cash flow",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 36,
+  "h1": [
+   "Payroll concepts"
+  ],
+  "title": "Payroll concepts | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-66-payroll_concepts"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/parameters",
+  "label": "Parámetros de ley",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/parameters",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(3) e.g. .menu-group[_ngcontent-ng-c3141353902=\"\"]:nth-child(1) > h3",
+   "serious:nested-interactive(35) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Statutory parameters",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 35,
+  "h1": [
+   "Statutory parameters"
+  ],
+  "title": "Statutory parameters | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-67-payroll_parameters"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/profitability-by-product",
+  "label": "Rentabilidad por producto",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/reports/profitability-by-product",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .group-title",
+   "serious:nested-interactive(35) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Profitability by product",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 41,
+  "h1": [],
+  "title": "Profitability by product | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-68-reports_profitability-by-product"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/profitability-by-customer",
+  "label": "Rentabilidad por cliente",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/reports/profitability-by-customer",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .group-title",
+   "serious:nested-interactive(35) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Profitability by customer",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 41,
+  "h1": [],
+  "title": "Profitability by customer | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-69-reports_profitability-by-customer"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/relationship-map",
+  "label": "Mapa de relaciones",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/reports/relationship-map",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. h3",
+   "serious:nested-interactive(35) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Profitability by customer",
+   "Suppliers",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand"
+  ],
+  "tiny": 35,
+  "h1": [],
+  "title": "Relationship map | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-70-reports_relationship-map"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/datasheets",
+  "label": "DataSheets",
+  "ms": 4006,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/datasheets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. h3",
+   "serious:nested-interactive(35) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"My work\"",
+   "10px \"Sales\"",
+   "10px \"Purchasing\"",
+   "10px \"Inventory\"",
+   "10px \"Treasury\"",
+   "10px \"Accounting\"",
+   "10px \"HR & payroll\"",
+   "10px \"Analytics\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Profitability by customer",
+   "Inventory adjustments",
+   "Stock transfers",
+   "Products & services",
+   "Stock on hand",
+   "Payment methods"
+  ],
+  "tiny": 35,
+  "h1": [
+   "DataSheets"
+  ],
+  "title": "DataSheets | Virtex",
+  "lang": "en",
+  "shot": "us-en-light-71-datasheets"
+ }
+]

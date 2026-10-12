@@ -1,0 +1,22 @@
+const { launch, login, shot, instrument } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch({ locale: 'en-US' });
+  const page = await context.newPage(); const log = instrument(page);
+  await login(page, { email: 'qa.ux.en-us.869854@example.com', password: 'Sup3r-Segura-2026!' }, 'en');
+  await page.evaluate(() => { location.hash = 'settings/profile'; }); await page.waitForTimeout(3000);
+  await shot(page, 'L-1-perfil-en'); await page.getByText('My profile', { exact: true }).click(); await page.waitForTimeout(2500); await shot(page, 'L-1b-my-profile');
+  const sel = page.locator('select').filter({ has: page.locator('option', { hasText: 'Português' }) }).first();
+  await sel.selectOption({ label: 'Português' }); await page.waitForTimeout(1500);
+  await shot(page, 'L-2-tras-elegir-pt');
+  console.log('TEXTO tras elegir (sin guardar):', (await page.locator('[role=dialog], .settings-modal, body').first().innerText()).slice(0, 300).replace(/\n+/g,' | '));
+  const save = page.getByRole('button', { name: /Save changes|Salvar|Guardar/ }).first();
+  console.log('save enabled', await save.isEnabled().catch(()=>'?'));
+  await save.click().catch(e => console.log('no save', e.message.slice(0,80))); await page.waitForTimeout(3000);
+  await shot(page, 'L-3-guardado');
+  console.log('ALERT', await page.locator('[role=alert], .toast').allInnerTexts());
+  await page.keyboard.press('Escape'); await page.waitForTimeout(1500);
+  await shot(page, 'L-4-app-pt');
+  console.log('APP:', (await page.locator('body').innerText()).slice(0, 700).replace(/\n+/g,' | '));
+  console.log(log.req.filter(r=>/PATCH|PUT|POST/.test(r)).join('\n'));
+  await browser.close();
+})();

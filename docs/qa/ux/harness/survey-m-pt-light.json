@@ -1,0 +1,2464 @@
+[
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/overview",
+  "label": "Inicio",
+  "ms": 4239,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/overview",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger",
+   "moderate:heading-order(1) e.g. h6"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Bom dia, María José👋"
+  ],
+  "title": "Início | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-01-overview"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/approvals",
+  "label": "Aprobaciones",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/approvals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Central de aprovações"
+  ],
+  "title": "Aprovações | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-02-approvals"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflow-tasks",
+  "label": "Mis tareas",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflow-tasks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "As minhas tarefas"
+  ],
+  "title": "As minhas tarefas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-03-workflow-tasks"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/documents/repository",
+  "label": "Todos los documentos",
+  "ms": 4011,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/documents/repository",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Repositório de arquivos"
+  ],
+  "title": "Repositório de documentos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-04-documents_repository"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflows",
+  "label": "Flujos de trabajo",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflows",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Fluxos de trabalho"
+  ],
+  "title": "Fluxos de trabalho | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-05-workflows"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/qa-nandu-sons-llc-2/workflow-instances",
+  "label": "Ejecuciones",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/workflow-instances",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Execuções"
+  ],
+  "title": "Execuções | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-06-workflow-instances"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/invoices",
+  "label": "Facturas",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/invoices",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Faturas"
+  ],
+  "title": "Faturas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-07-invoices"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/quotes",
+  "label": "Cotizaciones",
+  "ms": 4014,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/quotes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Cotações"
+  ],
+  "title": "Cotações | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-08-quotes"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/customer-receipts",
+  "label": "Recibos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/customer-receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Recibos de cliente"
+  ],
+  "title": "Recibos de cliente | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-09-customer-receipts"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/sales/history",
+  "label": "Tickets de punto de venta",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/sales/history",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Tíquetes do ponto de venda"
+  ],
+  "title": "Tíquetes do ponto de venda | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-10-sales_history"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/sales/pos",
+  "label": "Punto de venta",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/sales/pos",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Ponto de venda | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-11-sales_pos"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/contacts/customers",
+  "label": "Clientes",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/contacts/customers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Clientes\n1"
+  ],
+  "title": "Clientes | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-12-contacts_customers"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/masters/price-lists",
+  "label": "Listas de precios",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/price-lists",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Tabelas de preços"
+  ],
+  "title": "Tabelas de preços | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-13-masters_price-lists"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/qa-nandu-sons-llc-2/reports/aging/receivables",
+  "label": "Antigüedad de saldos",
+  "ms": 4009,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/aging/receivables",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Aging de contas a receber | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-14-reports_aging_receivables"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable",
+  "label": "Facturas",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Faturas de fornecedor"
+  ],
+  "title": "Faturas de fornecedor | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-15-accounts-payable"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable/payments",
+  "label": "Pagos a proveedores",
+  "ms": 4015,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable/payments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Pagamentos a fornecedores",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Pagamentos a fornecedores"
+  ],
+  "title": "Pagamentos a fornecedores | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-16-accounts-payable_payments"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/accounts-payable/debit-notes",
+  "label": "Notas de débito",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounts-payable/debit-notes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Notas de débito a fornecedores"
+  ],
+  "title": "Notas de débito | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-17-accounts-payable_debit-notes"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/orders",
+  "label": "Órdenes de compra",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/orders",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Pedidos de compra"
+  ],
+  "title": "Pedidos de compra | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-18-purchasing_orders"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/receipts",
+  "label": "Recepciones",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Recebimentos de mercadorias"
+  ],
+  "title": "Recebimentos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-19-purchasing_receipts"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/purchasing/requisitions",
+  "label": "Requisiciones",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/purchasing/requisitions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Requisições de compra"
+  ],
+  "title": "Requisições de compra | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-20-purchasing_requisitions"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/contacts/suppliers",
+  "label": "Proveedores",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/contacts/suppliers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Fornecedores"
+  ],
+  "title": "Fornecedores | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-21-contacts_suppliers"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/qa-nandu-sons-llc-2/reports/aging/payables",
+  "label": "Antigüedad de saldos",
+  "ms": 4009,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/aging/payables",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Idade das contas a pagar | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-22-reports_aging_payables"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/adjustments",
+  "label": "Ajustes de inventario",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Ajustes de inventário"
+  ],
+  "title": "Ajustes de inventário | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-23-inventory_adjustments"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/transfers",
+  "label": "Transferencias",
+  "ms": 4012,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/transfers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Transferências de estoque"
+  ],
+  "title": "Transferências | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-24-inventory_transfers"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/products",
+  "label": "Productos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/products",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Estoque de produtos"
+  ],
+  "title": "Produtos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-25-inventory_products"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/stock",
+  "label": "Existencias",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/stock",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Estoque disponível"
+  ],
+  "title": "Estoque disponível | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-26-inventory_stock"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/movements",
+  "label": "Kárdex",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/movements",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Movimentações de estoque"
+  ],
+  "title": "Movimentações de estoque | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-27-inventory_movements"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/inventory/categories",
+  "label": "Categorías",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/inventory/categories",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Categorias\n1"
+  ],
+  "title": "Categorias | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-28-inventory_categories"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/masters/warehouses",
+  "label": "Almacenes",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/warehouses",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex",
+   "Ações"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Depósitos\n1"
+  ],
+  "title": "Depósitos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-29-masters_warehouses"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/qa-nandu-sons-llc-2/masters/units-of-measure",
+  "label": "Unidades de medida",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/units-of-measure",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Unidades de medida\n26"
+  ],
+  "title": "Unidades de medida | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-30-masters_units-of-measure"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/treasury",
+  "label": "Tablero",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/treasury",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Tesouraria | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-31-accounting_treasury"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/reconciliation",
+  "label": "Conciliación — manual",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/reconciliation",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Conciliação de contas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-32-accounting_reconciliation"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/masters/banks",
+  "label": "Bancos",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/banks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Bancos"
+  ],
+  "title": "Bancos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-33-masters_banks"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/qa-nandu-sons-llc-2/masters/payment-methods",
+  "label": "Formas de pago",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/payment-methods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Formas de pagamento\n7"
+  ],
+  "title": "Formas de pagamento | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-34-masters_payment-methods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/journal-entries",
+  "label": "Asientos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/journal-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Lançamentos contábeis"
+  ],
+  "title": "Lançamentos contábeis | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-35-accounting_journal-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/recurring-entries",
+  "label": "Asientos recurrentes",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/recurring-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Lançamentos recorrentes"
+  ],
+  "title": "Lançamentos recorrentes | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-36-accounting_recurring-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/entry-templates",
+  "label": "Plantillas de asiento",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/entry-templates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Modelos de lançamento"
+  ],
+  "title": "Modelos de lançamento | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-37-accounting_entry-templates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets",
+  "label": "Activos fijos",
+  "ms": 4001,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Ativos imobilizados"
+  ],
+  "title": "Ativos imobilizados | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-38-accounting_fixed-assets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets/depreciation",
+  "label": "Ejecutar depreciación",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/fixed-assets/depreciation",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Executar depreciação"
+  ],
+  "title": "Executar depreciação | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-39-accounting_fixed-assets_depreciation"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/budgets",
+  "label": "Presupuestos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/budgets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Orçamentos"
+  ],
+  "title": "Orçamentos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-40-accounting_budgets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/closing/annual-close",
+  "label": "Cierre — anual",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/closing/annual-close",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Encerramento anual | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-41-accounting_closing_annual-close"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/audit-adjustments",
+  "label": "Ajustes de auditoría",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/audit-adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Ajustes de auditoria"
+  ],
+  "title": "Ajustes de auditoria | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-42-accounting_audit-adjustments"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/closing/checklist",
+  "label": "Cierre de período",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/closing/checklist",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger",
+   "minor:empty-table-header(1) e.g. th:nth-child(2)"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 2,
+  "h1": [],
+  "title": "Checklists de fechamento | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-43-accounting_closing_checklist"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/chart-of-accounts",
+  "label": "Plan de cuentas",
+  "ms": 4025,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/chart-of-accounts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Plano de contas\n5"
+  ],
+  "title": "Plano de contas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-44-accounting_chart-of-accounts"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/daily-journal",
+  "label": "Libro: diario",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/daily-journal",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Livro diário"
+  ],
+  "title": "Livro diário | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-45-accounting_daily-journal"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/general-ledger",
+  "label": "Libro: mayor",
+  "ms": 4014,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/general-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Livro razão"
+  ],
+  "title": "Livro razão | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-46-accounting_general-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/partner-ledger",
+  "label": "Mayor de terceros",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/partner-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Razão de terceiros\n0"
+  ],
+  "title": "Razão de terceiros | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-47-accounting_partner-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/variance-analysis",
+  "label": "Análisis de variaciones",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/variance-analysis",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Análise de variações"
+  ],
+  "title": "Análise de variações | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-48-accounting_variance-analysis"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/balance-sheet",
+  "label": "Balance general",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/balance-sheet",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Balanço patrimonial | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-49-reports_financial-statements_balance-sheet"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/income-statement",
+  "label": "Estado de resultados",
+  "ms": 4002,
+  "idleTx": 1,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/income-statement",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Demonstração do resultado | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-50-reports_financial-statements_income-statement"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/trial-balance",
+  "label": "Balanza de comprobación",
+  "ms": 4001,
+  "idleTx": 2,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/trial-balance",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Balancete de verificação | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-51-reports_financial-statements_trial-balance"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/financial-statements/cash-flow",
+  "label": "Flujo de efectivo",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/financial-statements/cash-flow",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Fluxo de caixa | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-52-reports_financial-statements_cash-flow"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/reports/fiscal-returns",
+  "label": "Declaraciones fiscales",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/fiscal-returns",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Declarações fiscais"
+  ],
+  "title": "Declarações fiscais | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-53-reports_fiscal-returns"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/dimensions",
+  "label": "Dimensiones analíticas",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/dimensions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Dimensões analíticas"
+  ],
+  "title": "Dimensões analíticas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-54-accounting_dimensions"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/ledgers",
+  "label": "Multilibros",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/ledgers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Livros contábeis\n1"
+  ],
+  "title": "Livros contábeis | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-55-accounting_ledgers"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/journals",
+  "label": "Diarios",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/journals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Diários\n11"
+  ],
+  "title": "Diários | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-56-accounting_journals"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/accounting/periods",
+  "label": "Periodos contables",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/accounting/periods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Períodos contábeis\n12"
+  ],
+  "title": "Períodos contábeis | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-57-accounting_periods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/taxes",
+  "label": "Impuestos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/taxes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Alíquotas"
+  ],
+  "title": "Impostos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-58-masters_taxes"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/currencies",
+  "label": "Monedas",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/currencies",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Moedas\n23"
+  ],
+  "title": "Moedas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-59-masters_currencies"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/currencies/exchange-rates",
+  "label": "Tipos de cambio",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/currencies/exchange-rates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Taxas de câmbio"
+  ],
+  "title": "Taxas de câmbio | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-60-masters_currencies_exchange-rates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/qa-nandu-sons-llc-2/masters/payment-terms",
+  "label": "Condiciones de pago",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/masters/payment-terms",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Condições de pagamento\n1"
+  ],
+  "title": "Condições de pagamento | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-61-masters_payment-terms"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/my-payslips",
+  "label": "Mis volantes",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/my-payslips",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Os meus recibos"
+  ],
+  "title": "Os meus recibos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-62-payroll_my-payslips"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/runs",
+  "label": "Nóminas",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/runs",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Folhas de pagamento"
+  ],
+  "title": "Folhas de pagamento | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-63-payroll_runs"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/hcm/employees",
+  "label": "Empleados",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/hcm/employees",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Funcionários"
+  ],
+  "title": "Funcionários | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-64-hcm_employees"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/hcm/departments",
+  "label": "Departamentos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/hcm/departments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Departamentos"
+  ],
+  "title": "Departamentos | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-65-hcm_departments"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/concepts",
+  "label": "Conceptos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/concepts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Conceitos da folha"
+  ],
+  "title": "Conceitos da folha | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-66-payroll_concepts"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/qa-nandu-sons-llc-2/payroll/parameters",
+  "label": "Parámetros de ley",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/payroll/parameters",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "Parâmetros legais"
+  ],
+  "title": "Parâmetros legais | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-67-payroll_parameters"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/profitability-by-product",
+  "label": "Rentabilidad por producto",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/profitability-by-product",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Rentabilidade por produto | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-68-reports_profitability-by-product"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/profitability-by-customer",
+  "label": "Rentabilidad por cliente",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/profitability-by-customer",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Rentabilidade por cliente | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-69-reports_profitability-by-customer"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/reports/relationship-map",
+  "label": "Mapa de relaciones",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/reports/relationship-map",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [],
+  "title": "Mapa de relações | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-70-reports_relationship-map"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/qa-nandu-sons-llc-2/datasheets",
+  "label": "DataSheets",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/qa-nandu-sons-llc-2/datasheets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:button-name(1) e.g. .user-menu-trigger"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Meu trabalho\"",
+   "10px \"Vendas\"",
+   "10px \"Compras\"",
+   "10px \"Estoque\"",
+   "10px \"Tesouraria\"",
+   "10px \"Contabilidade\"",
+   "10px \"RH e folha de pagamento\"",
+   "10px \"Análise\""
+  ],
+  "clipped": [
+   "QA Ñandú & Sons LLC",
+   "Virtex"
+  ],
+  "tiny": 0,
+  "h1": [
+   "DataSheets"
+  ],
+  "title": "Planilhas | Virtex",
+  "lang": "pt",
+  "shot": "m-pt-light-71-datasheets"
+ }
+]
