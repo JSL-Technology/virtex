@@ -2,8 +2,8 @@
    ofrece reintentar en lugar de dejar la página en blanco. Archivo aparte para cumplir la CSP
    `script-src 'self'`. Angular sustituye todo el contenido de <app-root> al arrancar. */
 (function () {
-  var lang = ((location.pathname.split('/')[1] || navigator.language || 'es') + '').slice(0, 2);
-  var t = {
+  const lang = ((location.pathname.split('/')[1] || navigator.language || 'es') + '').slice(0, 2);
+  const t = {
     en: ['Loading…', "We couldn't reach the server", 'Check your connection. If the problem continues, the service may be under maintenance.', 'Try again'],
     pt: ['Carregando…', 'Não foi possível conectar ao servidor', 'Verifique sua conexão. Se o problema continuar, o serviço pode estar em manutenção.', 'Tentar novamente']
   }[lang];
@@ -15,7 +15,7 @@
   }
   document.getElementById('vx-boot-retry').addEventListener('click', function () { location.reload(); });
   setTimeout(function () {
-    var el = document.getElementById('vx-boot');
-    if (el) { el.className += ' vx-boot--failed'; var l = document.getElementById('vx-boot-loading'); if (l) l.style.display = 'none'; }
+    const el = document.getElementById('vx-boot');
+    if (el) { el.className += ' vx-boot--failed'; const l = document.getElementById('vx-boot-loading'); if (l) l.style.display = 'none'; }
   }, 12000);
 })();

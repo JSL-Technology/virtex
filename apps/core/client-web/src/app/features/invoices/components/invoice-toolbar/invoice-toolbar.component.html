@@ -72,7 +72,7 @@
       <span>{{ 'invoices.invoice_toolbar.more' | translate }}</span>
     </button>
     @if (moreOpen()) {
-      <ul class="more-menu" role="menu" (keydown.escape)="moreOpen.set(false)">
+      <ul class="more-menu" role="menu" tabindex="-1" (keydown.escape)="moreOpen.set(false)">
         @if (!isNew) {
           <li role="none">
             <button role="menuitem" type="button" (click)="pick(); exportRequested.emit('excel')">

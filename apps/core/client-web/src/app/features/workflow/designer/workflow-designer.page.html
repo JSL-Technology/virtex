@@ -13,8 +13,9 @@
     />
 
     <div class="wfd__trigger">
-      <label>{{ 'workflow_engine.trigger.label' | translate }}</label>
+      <label for="wfd-trigger-mode">{{ 'workflow_engine.trigger.label' | translate }}</label>
       <select
+        id="wfd-trigger-mode"
         [value]="trigger().mode"
         (change)="setTriggerMode($any($event.target).value)"
         [disabled]="readOnly()"
@@ -95,7 +96,12 @@
                 class="wfd-node"
                 [class.wfd-node--selected]="node.id === selectedNodeId()"
                 [attr.data-type]="node.type"
+                role="button"
+                tabindex="0"
+                [attr.aria-pressed]="node.id === selectedNodeId()"
                 (click)="selectNode(node.id)"
+                (keydown.enter)="selectNode(node.id)"
+                (keydown.space)="$event.preventDefault(); selectNode(node.id)"
               >
                 <div
                   class="wfd-node__port wfd-node__port--in"

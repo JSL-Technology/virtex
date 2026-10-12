@@ -119,7 +119,7 @@ describe('CashFlowPage', () => {
       ...report,
       nonCashTransactions: [
         { accountId: 'a5', code: '1501', name: 'Edificios', debit: 120_000, credit: 0 },
-        { accountId: 'a6', code: '2501', debit: 0, credit: 120_000 },
+        { accountId: 'a6', code: '2501', name: 'Préstamos', debit: 0, credit: 120_000 },
       ],
     });
 
