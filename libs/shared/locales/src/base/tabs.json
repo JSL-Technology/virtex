@@ -49,6 +49,11 @@
     "en": "Keep open",
     "pt": "Manter aberta"
   },
+  "tabs.max_tabs_option": {
+    "es": "Mantener hasta {{count}} pestañas abiertas",
+    "en": "Keep up to {{count}} tabs open",
+    "pt": "Manter até {{count}} abas abertas"
+  },
   "tabs.maximise": {
     "es": "Maximizar",
     "en": "Maximise",
@@ -84,16 +89,6 @@
     "en": "Open tabs",
     "pt": "Abas abertas"
   },
-  "tabs.recently_closed": {
-    "es": "Cerradas recientemente",
-    "en": "Recently closed",
-    "pt": "Fechadas recentemente"
-  },
-  "tabs.search_no_results": {
-    "es": "Ninguna pestaña coincide con «{{query}}»",
-    "en": "No tabs match “{{query}}”",
-    "pt": "Nenhuma aba corresponde a “{{query}}”"
-  },
   "tabs.open_tabs_aria": {
     "es": "Cambiar de pestaña abierta",
     "en": "Switch open tab",
@@ -124,10 +119,20 @@
     "en": "Open in preview",
     "pt": "Abrir em pré-visualização"
   },
+  "tabs.recently_closed": {
+    "es": "Cerradas recientemente",
+    "en": "Recently closed",
+    "pt": "Fechadas recentemente"
+  },
   "tabs.restore": {
     "es": "Restaurar tamaño",
     "en": "Restore size",
     "pt": "Restaurar tamanho"
+  },
+  "tabs.search_no_results": {
+    "es": "Ninguna pestaña coincide con «{{query}}»",
+    "en": "No tabs match “{{query}}”",
+    "pt": "Nenhuma aba corresponde a “{{query}}”"
   },
   "tabs.several_windows_once_split_tile_float": {
     "es": "Varias ventanas a la vez: dividir, mosaico y flotantes.",
@@ -148,6 +153,11 @@
     "es": "Desfijar",
     "en": "Unpin",
     "pt": "Desafixar"
+  },
+  "tabs.unsaved_label": {
+    "es": "{{title}} (cambios sin guardar)",
+    "en": "{{title}} (unsaved changes)",
+    "pt": "{{title}} (alterações não salvas)"
   },
   "tabs.window_layout": {
     "es": "Disposición de ventanas",

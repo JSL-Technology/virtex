@@ -4,35 +4,15 @@
   min-height: 0;
 }
 
-.wfi {
+// The page's own copy for the shell's empty state: icon above sentence, like the shell's default.
+.wfi__empty {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  background: var(--bg-layer-1, var(--bg-secondary));
-}
-
-.wfi__header {
-  display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color, var(--border));
-  background: var(--bg-card, var(--bg-primary));
-  color: var(--content-primary, var(--text-primary));
 
-  h1 {
+  p {
     margin: 0;
-    font-size: var(--text-md, 1rem);
-    font-weight: 600;
-  }
-}
-
-.wfi__state {
-  padding: 24px;
-  color: var(--content-secondary, var(--text-secondary));
-  &--error {
-    color: var(--danger-color, var(--danger));
   }
 }
 

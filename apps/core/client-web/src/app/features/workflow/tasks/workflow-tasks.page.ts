@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, CheckSquare, Clock, ExternalLink } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { LucideAngularModule, ExternalLink } from 'lucide-angular';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
+import { InboxShellComponent, InboxItem, InboxSection } from '../../../shared/components/gestures';
 import { WorkflowService, WorkflowTask } from '../data/workflow.service';
 
 /**
@@ -17,57 +18,45 @@ import { WorkflowService, WorkflowTask } from '../data/workflow.service';
 @Component({
   selector: 'app-workflow-tasks-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [TranslateModule, LucideAngularModule, InboxShellComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-tasks.page.scss',
   template: `
-    <div class="wft">
-      <header class="wft__header">
-        <lucide-icon [img]="TasksIcon" [size]="18" />
-        <h1>{{ 'workflow_engine.nav.tasks' | translate }}</h1>
-      </header>
+    <vx-inbox-shell
+      titleKey="workflow_engine.nav.tasks"
+      [sections]="sections()"
+      [loading]="loading()"
+      [error]="error()"
+      [itemActions]="outcomes"
+      (reload)="load()"
+    >
+    </vx-inbox-shell>
 
-      @if (loading()) {
-        <div class="wft__state">{{ 'workflow_engine.loading' | translate }}</div>
-      } @else if (error()) {
-        <div class="wft__state wft__state--error">{{ error() }}</div>
-      } @else if (tasks().length === 0) {
-        <div class="wft__state">{{ 'workflow_engine.tasks_empty' | translate }}</div>
-      } @else {
-        <ul class="wft__list">
-          @for (task of tasks(); track task.id) {
-            <li class="wft__task">
-              <div class="wft__task-main">
-                <span class="wft__task-name">{{ task.name }}</span>
-                <span class="wft__task-meta">
-                  @if (task.dueAt) {
-                    <span class="wft__due"><lucide-icon [img]="ClockIcon" [size]="13" /> {{ task.dueAt | vxDate }}</span>
-                  }
-                  <button type="button" class="wft__open" (click)="openInstance(task)">
-                    <lucide-icon [img]="OpenIcon" [size]="13" />
-                    {{ 'workflow_engine.view_run' | translate }}
-                  </button>
-                </span>
-              </div>
-              <div class="wft__outcomes">
-                @for (outcome of task.outcomes; track outcome) {
-                  <button
-                    type="button"
-                    class="wft__outcome"
-                    [class.wft__outcome--reject]="outcome === 'reject'"
-                    [class.wft__outcome--approve]="outcome === 'approve'"
-                    [disabled]="acting() === task.id"
-                    (click)="complete(task, outcome)"
-                  >
-                    {{ outcomeLabel(outcome) }}
-                  </button>
-                }
-              </div>
-            </li>
-          }
-        </ul>
+    <!--
+      The outcomes resolve the task without leaving the inbox, and they are exactly the ones its node
+      declared. «View run» sits beside them rather than on the title: whoever decides often wants to
+      look at the path first, but deciding should never require navigating away.
+    -->
+    <ng-template #outcomes let-item>
+      @if (taskOf(item.id); as task) {
+        <button type="button" class="wft__open" (click)="openInstance(task)">
+          <lucide-icon [img]="OpenIcon" size="13" aria-hidden="true"></lucide-icon>
+          <span>{{ 'workflow_engine.view_run' | translate }}</span>
+        </button>
+        @for (outcome of task.outcomes; track outcome) {
+          <button
+            type="button"
+            class="wft__outcome"
+            [class.wft__outcome--reject]="outcome === 'reject'"
+            [class.wft__outcome--approve]="outcome === 'approve'"
+            [disabled]="acting() === task.id"
+            (click)="complete(task, outcome)"
+          >
+            {{ outcomeLabel(outcome) }}
+          </button>
+        }
       }
-    </div>
+    </ng-template>
   `,
 })
 export class WorkflowTasksPage implements OnInit {
@@ -77,14 +66,42 @@ export class WorkflowTasksPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  protected readonly TasksIcon = CheckSquare;
-  protected readonly ClockIcon = Clock;
+  private readonly format = inject(FormatService);
+
   protected readonly OpenIcon = ExternalLink;
 
   readonly tasks = signal<WorkflowTask[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly acting = signal<string | null>(null);
+
+  /**
+   * One section: everything here is the same kind of thing — a human step of a running process —
+   * so splitting it would invent categories. With no tasks the shell says the inbox is clear.
+   *
+   * The shell takes composed text, not keys or raw dates: the due date is formatted here, once, in
+   * the reader's language, and a task past it is flagged so it reads as overdue, not just as red.
+   */
+  readonly sections = computed<InboxSection[]>(() => {
+    const now = Date.now();
+    return [
+      {
+        labelKey: 'workflow_engine.open_tasks',
+        items: this.tasks().map(
+          (task): InboxItem => ({
+            id: task.id,
+            title: task.name,
+            when: task.dueAt ? this.format.date(task.dueAt) : undefined,
+            overdue: task.dueAt ? new Date(task.dueAt).getTime() < now : false,
+            link: null,
+          }),
+        ),
+      },
+    ];
+  });
+
+  /** The actions template receives the `InboxItem`; the outcomes live on the original task. */
+  private readonly byId = computed(() => new Map(this.tasks().map((task) => [task.id, task])));
 
   ngOnInit(): void {
     this.load();
@@ -103,6 +120,10 @@ export class WorkflowTasksPage implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  taskOf(id: string): WorkflowTask | undefined {
+    return this.byId().get(id);
   }
 
   /** Known outcomes get a localized label; anything custom shows exactly as the author typed it. */

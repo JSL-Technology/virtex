@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { resolveTabIcon } from './tab-icon';
@@ -21,8 +21,6 @@ import { resolveTabIcon } from './tab-icon';
     @if (tab(); as t) {
       <div
         class="tab-header"
-        role="tab"
-        [attr.aria-selected]="isActive()"
         [class.is-dirty]="t.isDirty"
         [class.is-pinned]="t.isPinned"
         [class.is-preview]="t.isPreview"
@@ -54,10 +52,15 @@ import { resolveTabIcon } from './tab-icon';
             <span class="tab-dirty-dot" aria-hidden="true"></span>
           }
           @if (t.isCloseable) {
+            <!-- Pointer target only. The focusable tab is Dockview's element, and a button inside a
+                 tab is a control nested in a control (axe «nested-interactive», QA A-04): from the
+                 keyboard the tab closes with Supr/Delete or the close-tab shortcut. -->
             <button
               class="tab-close"
               type="button"
-              [attr.aria-label]="'tabs.close_tab' | translate"
+              tabindex="-1"
+              aria-hidden="true"
+              [title]="'tabs.close_tab' | translate"
               (pointerdown)="$event.stopPropagation()"
               (click)="close($event)"
             >
@@ -72,6 +75,31 @@ import { resolveTabIcon } from './tab-icon';
 })
 export class TabHeaderComponent {
   private tabState = inject(TabStateService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private translate = inject(TranslateService);
+
+  constructor() {
+    // The tab's semantics belong on the element that takes focus — Dockview's `.dv-tab`, the child
+    // of the `tablist` — not on a div inside it. Before, the focusable element had no role and the
+    // inner one was a `tab` holding a button, so screen readers announced neither correctly.
+    effect(() => {
+      const t = this.tab();
+      const el = this.host.nativeElement.closest<HTMLElement>('.dv-tab');
+      if (!t || !el) return;
+      el.setAttribute('role', 'tab');
+      el.setAttribute('aria-selected', String(this.isActive()));
+      const label = t.isDirty ? this.translate.instant('tabs.unsaved_label', { title: t.title }) : t.title;
+      el.setAttribute('aria-label', label);
+      if (!el.dataset['vxKeys']) {
+        el.dataset['vxKeys'] = '1';
+        el.addEventListener('keydown', (event: KeyboardEvent) => {
+          if (event.key !== 'Delete') return;
+          event.preventDefault();
+          if (this.tab()?.isCloseable) void this.tabState.closeTab(this.tabId);
+        });
+      }
+    });
+  }
 
   /** Inyectado por Dockview. */
   params: { tabId?: string } = {};

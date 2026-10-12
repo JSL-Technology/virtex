@@ -180,15 +180,25 @@ describe('AuthService — session bootstrap', () => {
       // Distinct from "signed out": we did not learn the answer, we failed to ask. Pinning the
       // app to the login screen over one bad response would be the wrong trade.
       jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+      jest.useFakeTimers();
+      try {
+        let seen: boolean | undefined;
+        service.resolveSession().subscribe((v) => (seen = v));
+        expectSession().flush({}, { status: 503, statusText: 'Service Unavailable' });
 
-      let seen: boolean | undefined;
-      service.resolveSession().subscribe((v) => (seen = v));
-      expectSession().flush({}, { status: 503, statusText: 'Service Unavailable' });
+        expect(seen).toBe(false);
 
-      expect(seen).toBe(false);
+        // Not at once: every guard asking again in the same instant is what kept a failing API
+        // under load (QA C-02). The answer is kept for a few seconds, then asked again.
+        service.resolveSession().subscribe();
+        httpMock.expectNone(`${API}/auth/session`);
 
-      service.resolveSession().subscribe();
-      expectSession().flush({ authenticated: false, user: null, refreshable: false });
+        jest.advanceTimersByTime(5_000);
+        service.resolveSession().subscribe();
+        expectSession().flush({ authenticated: false, user: null, refreshable: false });
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
 });

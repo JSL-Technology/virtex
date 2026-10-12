@@ -6,6 +6,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
+import { ListShellComponent } from '../../../shared/components/gestures';
 import { WorkflowDefinition, WorkflowService } from '../data/workflow.service';
 
 /**
@@ -19,86 +20,89 @@ import { WorkflowDefinition, WorkflowService } from '../data/workflow.service';
 @Component({
   selector: 'app-workflow-list-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-list.page.scss',
   template: `
-    <div class="wfl">
-      <header class="wfl__header">
-        <div class="wfl__title">
-          <lucide-icon [img]="WorkflowIcon" [size]="18" />
-          <h1>{{ 'workflow_engine.title' | translate }}</h1>
-        </div>
-        <button type="button" class="wfl__new" (click)="create()">
-          <lucide-icon [img]="PlusIcon" [size]="16" />
-          {{ 'workflow_engine.new' | translate }}
-        </button>
-      </header>
+    <!--
+      The shell owns loading, error and empty; the page brings only the table and the create button.
+      «New» lives in the header, outside the switch, because creating the first workflow is the one
+      thing an empty catalogue must still allow.
+    -->
+    <vx-list-shell
+      titleKey="workflow_engine.title"
+      [count]="definitions().length"
+      [loading]="loading()"
+      [error]="error()"
+      [empty]="definitions().length === 0"
+      (reload)="load()"
+    >
+      <button listActions type="button" class="primary-button" (click)="create()">
+        <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'workflow_engine.new' | translate }}</span>
+      </button>
 
-      @if (loading()) {
-        <div class="wfl__state">{{ 'workflow_engine.loading' | translate }}</div>
-      } @else if (error()) {
-        <div class="wfl__state wfl__state--error">{{ error() }}</div>
-      } @else if (definitions().length === 0) {
-        <div class="wfl__state">{{ 'workflow_engine.list.empty' | translate }}</div>
-      } @else {
-        <table class="wfl__table">
-          <thead>
+      <div listEmpty class="empty-copy wfl__empty">
+        <lucide-icon [img]="WorkflowIcon" size="28" aria-hidden="true"></lucide-icon>
+        <p class="ls__state-title">{{ 'workflow_engine.list.empty' | translate }}</p>
+      </div>
+
+      <table class="wfl__table">
+        <thead>
+          <tr>
+            <th>{{ 'workflow_engine.list.name' | translate }}</th>
+            <th>{{ 'workflow_engine.list.version' | translate }}</th>
+            <th>{{ 'workflow_engine.list.status' | translate }}</th>
+            <th>{{ 'workflow_engine.list.updated' | translate }}</th>
+            <th class="wfl__actions-col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (definition of definitions(); track definition.id) {
             <tr>
-              <th>{{ 'workflow_engine.list.name' | translate }}</th>
-              <th>{{ 'workflow_engine.list.version' | translate }}</th>
-              <th>{{ 'workflow_engine.list.status' | translate }}</th>
-              <th>{{ 'workflow_engine.list.updated' | translate }}</th>
-              <th class="wfl__actions-col"></th>
+              <td class="wfl__name">
+                <button type="button" class="wfl__link" (click)="openDesigner(definition)">
+                  {{ definition.name }}
+                </button>
+                @if (definition.trigger.mode === 'event' && definition.trigger.event) {
+                  <span class="wfl__trigger">{{ definition.trigger.event }}</span>
+                }
+              </td>
+              <td>v{{ definition.version }}</td>
+              <td>
+                <span class="wfl__badge" [attr.data-status]="definition.status">
+                  {{ 'workflow_engine.definition_status.' + definition.status.toLowerCase() | translate }}
+                </span>
+              </td>
+              <td>{{ definition.updatedAt | vxDate }}</td>
+              <td class="wfl__actions">
+                @if (definition.status === 'DRAFT') {
+                  <button type="button" (click)="openDesigner(definition)" [title]="'workflow_engine.edit' | translate">
+                    <lucide-icon [img]="EditIcon" [size]="16" />
+                  </button>
+                  <button type="button" (click)="publish(definition)" [title]="'workflow_engine.publish' | translate">
+                    <lucide-icon [img]="PublishIcon" [size]="16" />
+                  </button>
+                  <button type="button" (click)="remove(definition)" [title]="'workflow_engine.delete' | translate">
+                    <lucide-icon [img]="DeleteIcon" [size]="16" />
+                  </button>
+                } @else {
+                  <button type="button" (click)="openDesigner(definition)" [title]="'workflow_engine.view' | translate">
+                    <lucide-icon [img]="EditIcon" [size]="16" />
+                  </button>
+                  <button type="button" (click)="newVersion(definition)" [title]="'workflow_engine.new_version' | translate">
+                    <lucide-icon [img]="VersionIcon" [size]="16" />
+                  </button>
+                }
+                <button type="button" (click)="openRuns(definition)" [title]="'workflow_engine.runs' | translate">
+                  <lucide-icon [img]="WorkflowIcon" [size]="16" />
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (definition of definitions(); track definition.id) {
-              <tr>
-                <td class="wfl__name">
-                  <button type="button" class="wfl__link" (click)="openDesigner(definition)">
-                    {{ definition.name }}
-                  </button>
-                  @if (definition.trigger.mode === 'event' && definition.trigger.event) {
-                    <span class="wfl__trigger">{{ definition.trigger.event }}</span>
-                  }
-                </td>
-                <td>v{{ definition.version }}</td>
-                <td>
-                  <span class="wfl__badge" [attr.data-status]="definition.status">
-                    {{ 'workflow_engine.definition_status.' + definition.status.toLowerCase() | translate }}
-                  </span>
-                </td>
-                <td>{{ definition.updatedAt | vxDate }}</td>
-                <td class="wfl__actions">
-                  @if (definition.status === 'DRAFT') {
-                    <button type="button" (click)="openDesigner(definition)" [title]="'workflow_engine.edit' | translate">
-                      <lucide-icon [img]="EditIcon" [size]="16" />
-                    </button>
-                    <button type="button" (click)="publish(definition)" [title]="'workflow_engine.publish' | translate">
-                      <lucide-icon [img]="PublishIcon" [size]="16" />
-                    </button>
-                    <button type="button" (click)="remove(definition)" [title]="'workflow_engine.delete' | translate">
-                      <lucide-icon [img]="DeleteIcon" [size]="16" />
-                    </button>
-                  } @else {
-                    <button type="button" (click)="openDesigner(definition)" [title]="'workflow_engine.view' | translate">
-                      <lucide-icon [img]="EditIcon" [size]="16" />
-                    </button>
-                    <button type="button" (click)="newVersion(definition)" [title]="'workflow_engine.new_version' | translate">
-                      <lucide-icon [img]="VersionIcon" [size]="16" />
-                    </button>
-                  }
-                  <button type="button" (click)="openRuns(definition)" [title]="'workflow_engine.runs' | translate">
-                    <lucide-icon [img]="WorkflowIcon" [size]="16" />
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-    </div>
+          }
+        </tbody>
+      </table>
+    </vx-list-shell>
   `,
 })
 export class WorkflowListPage implements OnInit {

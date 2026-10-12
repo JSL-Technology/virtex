@@ -56,7 +56,7 @@ describe('TabStateService — vista previa al abrir', () => {
       providers: [
         TabStateService,
         { provide: TabRegistryService, useValue: { resolve, canOpen: () => true } },
-        { provide: TabPreferencesService, useValue: { enablePreview } },
+        { provide: TabPreferencesService, useValue: { enablePreview, maxTabs: () => 12 } },
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },
         { provide: TabEventBusService, useValue: { on: () => of(), emit: jest.fn() } },

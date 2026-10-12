@@ -4,6 +4,11 @@
     "en": "Access",
     "pt": "Aceder"
   },
+  "permissions.actions.act": {
+    "es": "Atender tareas",
+    "en": "Act on tasks",
+    "pt": "Atender tarefas"
+  },
   "permissions.actions.adjust": {
     "es": "Ajustar",
     "en": "Adjust",
@@ -58,6 +63,11 @@
     "es": "Eliminar",
     "en": "Delete",
     "pt": "Excluir"
+  },
+  "permissions.actions.design": {
+    "es": "Diseñar",
+    "en": "Design",
+    "pt": "Projetar"
   },
   "permissions.actions.dispose": {
     "es": "Dar de baja",
@@ -218,6 +228,11 @@
     "es": "Reversar",
     "en": "Reverse",
     "pt": "Estornar"
+  },
+  "permissions.actions.run": {
+    "es": "Ejecutar",
+    "en": "Run",
+    "pt": "Executar"
   },
   "permissions.actions.run_inflation_adjustment": {
     "es": "Ejecutar ajuste por inflación",
@@ -479,6 +494,11 @@
     "en": "Bank reconciliation",
     "pt": "Conciliação bancária"
   },
+  "permissions.groups.relationship_map": {
+    "es": "Mapa de relaciones",
+    "en": "Relationship map",
+    "pt": "Mapa de relacionamentos"
+  },
   "permissions.groups.reports": {
     "es": "Reportes",
     "en": "Reports",
@@ -533,6 +553,11 @@
     "es": "Gestión de almacenes",
     "en": "Warehouse management",
     "pt": "Gestão de armazéns"
+  },
+  "permissions.groups.workflow_engine": {
+    "es": "Motor de flujos de trabajo",
+    "en": "Workflow engine",
+    "pt": "Motor de fluxos de trabalho"
   },
   "permissions.groups.workflows": {
     "es": "Flujos de trabajo",

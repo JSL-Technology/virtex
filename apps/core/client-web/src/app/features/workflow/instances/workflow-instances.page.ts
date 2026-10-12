@@ -5,6 +5,7 @@ import { LucideAngularModule, Play } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
+import { ListShellComponent } from '../../../shared/components/gestures';
 import { WorkflowInstance, WorkflowService } from '../data/workflow.service';
 
 /**
@@ -17,51 +18,50 @@ import { WorkflowInstance, WorkflowService } from '../data/workflow.service';
 @Component({
   selector: 'app-workflow-instances-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-instances.page.scss',
   template: `
-    <div class="wfi">
-      <header class="wfi__header">
-        <lucide-icon [img]="RunIcon" [size]="18" />
-        <h1>{{ 'workflow_engine.nav.instances' | translate }}</h1>
-      </header>
+    <vx-list-shell
+      titleKey="workflow_engine.nav.instances"
+      [count]="instances().length"
+      [loading]="loading()"
+      [error]="error()"
+      [empty]="instances().length === 0"
+      (reload)="reload()"
+    >
+      <div listEmpty class="empty-copy wfi__empty">
+        <lucide-icon [img]="RunIcon" size="28" aria-hidden="true"></lucide-icon>
+        <p class="ls__state-title">{{ 'workflow_engine.instances_empty' | translate }}</p>
+      </div>
 
-      @if (loading()) {
-        <div class="wfi__state">{{ 'workflow_engine.loading' | translate }}</div>
-      } @else if (error()) {
-        <div class="wfi__state wfi__state--error">{{ error() }}</div>
-      } @else if (instances().length === 0) {
-        <div class="wfi__state">{{ 'workflow_engine.instances_empty' | translate }}</div>
-      } @else {
-        <table class="wfi__table">
-          <thead>
-            <tr>
-              <th>{{ 'workflow_engine.instance.subject' | translate }}</th>
-              <th>{{ 'workflow_engine.list.status' | translate }}</th>
-              <th>{{ 'workflow_engine.instance.started' | translate }}</th>
-              <th>{{ 'workflow_engine.instance.completed' | translate }}</th>
+      <table class="wfi__table">
+        <thead>
+          <tr>
+            <th>{{ 'workflow_engine.instance.subject' | translate }}</th>
+            <th>{{ 'workflow_engine.list.status' | translate }}</th>
+            <th>{{ 'workflow_engine.instance.started' | translate }}</th>
+            <th>{{ 'workflow_engine.instance.completed' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (instance of instances(); track instance.id) {
+            <tr (click)="open(instance)">
+              <td class="wfi__subject">
+                {{ instance.subject?.label || ('workflow_engine.instance.untitled' | translate) }}
+              </td>
+              <td>
+                <span class="wfi__badge" [attr.data-status]="instance.status">
+                  {{ 'workflow_engine.instance_status.' + instance.status.toLowerCase() | translate }}
+                </span>
+              </td>
+              <td>{{ instance.createdAt | vxDate }}</td>
+              <td>{{ instance.completedAt ? (instance.completedAt | vxDate) : '—' }}</td>
             </tr>
-          </thead>
-          <tbody>
-            @for (instance of instances(); track instance.id) {
-              <tr (click)="open(instance)">
-                <td class="wfi__subject">
-                  {{ instance.subject?.label || ('workflow_engine.instance.untitled' | translate) }}
-                </td>
-                <td>
-                  <span class="wfi__badge" [attr.data-status]="instance.status">
-                    {{ 'workflow_engine.instance_status.' + instance.status.toLowerCase() | translate }}
-                  </span>
-                </td>
-                <td>{{ instance.createdAt | vxDate }}</td>
-                <td>{{ instance.completedAt ? (instance.completedAt | vxDate) : '—' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-    </div>
+          }
+        </tbody>
+      </table>
+    </vx-list-shell>
   `,
 })
 export class WorkflowInstancesPage {
@@ -87,6 +87,14 @@ export class WorkflowInstancesPage {
       const filter = this.filter();
       this.load(filter);
     });
+  }
+
+  /**
+   * The shell's «retry», and its reload when the list comes back into view after its data changed elsewhere: it
+   * re-reads with the current filter, so a list opened from one workflow stays scoped to it.
+   */
+  reload(): void {
+    this.load(this.filter());
   }
 
   private load(filter: { definitionId?: string }): void {
