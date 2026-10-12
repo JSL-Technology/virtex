@@ -376,9 +376,19 @@ export class WorkflowService {
     return this.http.get<WorkflowEventCatalogue>(`${this.apiUrl}/events`, this.options);
   }
 
-  assignees(search?: string): Observable<WorkflowAssignees> {
-    const params = search?.trim() ? new HttpParams().set('search', search.trim()) : undefined;
+  assignees(search?: string, ids?: readonly string[]): Observable<WorkflowAssignees> {
+    let params = new HttpParams();
+    if (search?.trim()) params = params.set('search', search.trim());
+    if (ids?.length) params = params.set('ids', ids.join(','));
     return this.http.get<WorkflowAssignees>(`${this.apiUrl}/assignees`, { ...this.options, params });
+  }
+
+  /** People of the company, for «person» fields in start and task forms (any workflow grant). */
+  people(search?: string, ids?: readonly string[]): Observable<Array<{ id: string; name: string; email: string }>> {
+    let params = new HttpParams();
+    if (search?.trim()) params = params.set('search', search.trim());
+    if (ids?.length) params = params.set('ids', ids.join(','));
+    return this.http.get<Array<{ id: string; name: string; email: string }>>(`${this.apiUrl}/people`, { ...this.options, params });
   }
 
   // Instances

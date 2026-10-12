@@ -1,0 +1,178 @@
+// =============================================================================
+//  VIRTEX — FOBLEX FLOW INTEGRATION
+// =============================================================================
+//  The bridge between Foblex Flow's `--ff-*` custom properties and Virtex's
+//  tokens, plus the library's structural styles for what it draws itself:
+//  connection paths and markers, connector sockets, waypoints, the selection
+//  area, the minimap, the background pattern, magnetic guides, resize handles
+//  and the external-item preview.
+//
+//  Without this file a connection is an SVG path with `stroke: none`: the
+//  library ships its look as opt-in SCSS and nothing used to include it, which
+//  is why connections were invisible on every canvas.
+//
+//  The selective API is used on purpose. The node and group frames
+//  (`node-group.node` / `.group`) are NOT included: they impose a fixed 120px
+//  width and centred text that fight the app's own node cards. Everything
+//  else maps to the design system's tokens, so the canvas follows the light,
+//  dark and high-contrast themes with no extra rule.
+//
+//  Path relative to this file because the token guard compiles the bundle
+//  with the plain Sass CLI, which does not resolve packages.
+// =============================================================================
+
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/flow-canvas' as ff-canvas;
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/node-group' as ff-node;
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/connector' as ff-connector;
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/connection' as ff-connection;
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/external-item' as ff-external;
+@use '../../../../../../../node_modules/@foblex/flow/styles/domains/plugins' as ff-plugins;
+
+// -----------------------------------------------------------------------------
+//  TOKEN MAPPING
+// -----------------------------------------------------------------------------
+:root {
+  --ff-flow-background-color: var(--surface-canvas, var(--surface-sunken));
+  --ff-flow-text-color: var(--content-primary);
+  --ff-flow-font-family: var(--font-sans);
+  --ff-flow-font-size: var(--text-sm);
+  --ff-canvas-background-color: var(--surface-canvas, var(--surface-sunken));
+
+  --ff-node-background-color: var(--surface-base);
+  --ff-node-background-color-inverse: var(--content-primary);
+  --ff-node-border-color: var(--border-default);
+  --ff-node-border-color-selected: var(--accent-solid);
+  --ff-node-color: var(--content-primary);
+  --ff-node-border-radius: var(--radius-lg);
+  --ff-node-shadow: var(--shadow-sm);
+  --ff-node-shadow-selected: var(--shadow-md);
+  --ff-node-padding: var(--space-3);
+
+  --ff-group-background-color: var(--surface-sunken);
+  --ff-group-background-color-active: var(--accent-surface);
+  --ff-group-border-color: var(--border-default);
+  --ff-group-border-color-selected: var(--accent-solid);
+  --ff-group-border-color-active: var(--accent-solid);
+  --ff-group-color: var(--content-secondary);
+  --ff-group-border-radius: var(--radius-lg);
+  --ff-group-padding: var(--space-4);
+  --ff-grouping-drop-target-border-color: var(--accent-border);
+  --ff-grouping-drop-target-border-style: dashed;
+  --ff-grouping-drop-target-border-width: 1px;
+  --ff-grouping-drop-target-border-color-active: var(--accent-solid);
+  --ff-grouping-drop-target-border-style-active: dashed;
+  --ff-grouping-drop-target-border-width-active: 2px;
+
+  --ff-resize-handle-size: 10px;
+  --ff-resize-handle-fill: var(--accent-solid);
+  --ff-resize-handle-stroke: var(--surface-base);
+  --ff-resize-handle-ring: var(--accent-solid);
+  --ff-resize-handle-radius: 2px;
+  --ff-resize-handle-fill-active: var(--surface-base);
+  --ff-rotate-handle-size: 16px;
+  --ff-rotate-handle-offset: 40px;
+  --ff-rotate-handle-background-color: var(--surface-base);
+  --ff-rotate-handle-border-color: var(--border-strong);
+  --ff-rotate-handle-guide-color: var(--border-strong);
+
+  --ff-connector-background-color: var(--surface-base);
+  --ff-connector-border-color: var(--content-tertiary);
+  --ff-connector-connected-color: var(--accent-solid);
+  --ff-connector-accent-color: var(--accent-solid);
+  --ff-connector-disabled-color: var(--surface-sunken);
+  --ff-connector-disabled-border-color: var(--border-default);
+  --ff-connector-size: 12px;
+  --ff-connector-border-width: 2px;
+  --ff-connector-input-radius: var(--radius-sm);
+  --ff-connector-node-ring-color: var(--ff-canvas-background-color);
+
+  --ff-outlet-background-color: var(--surface-sunken);
+  --ff-outlet-border-color: var(--border-default);
+  --ff-outlet-color: var(--accent-text);
+  --ff-outlet-disabled-background-color: var(--surface-sunken);
+  --ff-outlet-disabled-border-color: var(--border-subtle);
+  --ff-outlet-disabled-color: var(--content-disabled, var(--content-tertiary));
+  --ff-outlet-border-radius: var(--radius-full);
+  --ff-outlet-padding-y: var(--space-1);
+  --ff-outlet-padding-x: var(--space-3);
+
+  --ff-connection-color: var(--content-tertiary);
+  --ff-snap-connection-color: var(--border-strong);
+  --ff-connection-hover-color: var(--accent-surface-hover, var(--accent-surface));
+  --ff-connection-selected-color: var(--accent-solid);
+  --ff-connection-label-color: var(--content-secondary);
+  --ff-connection-content-color: var(--content-primary);
+  --ff-connection-content-background-color: var(--surface-base);
+  --ff-connection-content-border-color: var(--border-default);
+  --ff-connection-content-border-color-selected: var(--accent-solid);
+  --ff-connection-content-border-radius: var(--radius-full);
+  --ff-connection-content-font-size: var(--text-xs);
+  --ff-connection-content-padding-y: 2px;
+  --ff-connection-content-padding-x: var(--space-2);
+  --ff-connection-width: 2px;
+  --ff-connection-hit-width: 16px;
+  --ff-connection-drag-handle-fill: var(--surface-base);
+  --ff-connection-drag-handle-stroke: var(--accent-solid);
+  --ff-marker-color: var(--ff-connection-color);
+  --ff-waypoint-fill: var(--surface-base);
+  --ff-waypoint-stroke: var(--accent-solid);
+  --ff-waypoint-candidate-fill: var(--surface-base);
+  --ff-waypoint-candidate-stroke: var(--success-solid);
+
+  --ff-background-line-color: var(--border-subtle);
+  --ff-background-dot-color: var(--border-default);
+  --ff-selection-area-color: var(--accent-surface);
+  --ff-selection-area-border-color: var(--accent-border);
+
+  --ff-minimap-background-color: var(--surface-base);
+  --ff-minimap-border-color: var(--border-default);
+  --ff-minimap-node-color: var(--content-tertiary);
+  --ff-minimap-node-selected-color: var(--accent-solid);
+  --ff-minimap-view-color: var(--accent-surface);
+  --ff-minimap-view-border-color: var(--accent-border);
+  --ff-minimap-border-radius: var(--radius-md);
+  --ff-minimap-shadow: var(--shadow-md);
+
+  --ff-magnetic-line-color: var(--accent-solid);
+  --ff-magnetic-rect-fill: var(--accent-surface);
+  --ff-magnetic-rect-border-color: var(--accent-border);
+
+  --ff-external-item-background-color: var(--surface-base);
+  --ff-external-item-border-color: var(--border-default);
+  --ff-external-item-color: var(--content-primary);
+  --ff-external-item-disabled-color: var(--content-tertiary);
+  --ff-external-item-disabled-background-color: var(--surface-sunken);
+  --ff-external-item-border-radius: var(--radius-md);
+  --ff-external-item-shadow: var(--shadow-sm);
+  --ff-external-item-preview-shadow: var(--shadow-lg);
+  --ff-external-item-placeholder-background-color: var(--accent-surface);
+  --ff-external-item-placeholder-border-color: var(--accent-border);
+}
+
+// -----------------------------------------------------------------------------
+//  STRUCTURAL STYLES (selective)
+// -----------------------------------------------------------------------------
+@include ff-canvas.flow-canvas();
+@include ff-node.grouping();
+@include ff-node.drag-handle();
+@include ff-node.resize-handle();
+@include ff-node.rotate-handle();
+@include ff-connector.connector();
+@include ff-connection.connection-all();
+@include ff-external.external-item-all();
+@include ff-plugins.plugins();
+
+// Keyboard focus on canvas items (withA11y moves focus between nodes).
+f-flow .f-node:focus-visible,
+f-flow .f-group:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  f-flow .f-scaled-animate,
+  f-flow .f-connection path {
+    transition: none !important;
+    animation: none !important;
+  }
+}

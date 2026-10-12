@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { roleLabel } from '../../../shared/pipes/role-name.pipe';
 import { eventFieldLabel } from '../data/workflow-labels';
 import {
@@ -44,6 +44,8 @@ export class DesignerCatalogs {
   readonly people = signal<PersonOption[]>([]);
   readonly roles = signal<RoleOption[]>([]);
   readonly loaded = signal(false);
+  /** Other processes of the company, for «start a sub-process». */
+  readonly processes = signal<Array<{ key: string; name: string }>>([]);
 
   readonly peopleById = computed(() => new Map(this.people().map((p) => [p.id, p])));
   readonly rolesById = computed(() => new Map(this.roles().map((r) => [r.id, r])));
@@ -73,6 +75,10 @@ export class DesignerCatalogs {
   load(): void {
     this.service.actions().subscribe({ next: (actions) => this.actions.set(actions) });
     this.service.events().subscribe({ next: (events) => this.events.set(events) });
+    this.service.catalogue().subscribe({
+      next: (list) => this.processes.set(list.map((item) => ({ key: item.key, name: item.name }))),
+      error: () => undefined,
+    });
     this.service.assignees().subscribe({
       next: (assignees) => {
         this.setAssignees(assignees);
@@ -83,6 +89,29 @@ export class DesignerCatalogs {
       error: () => this.loaded.set(true),
     });
   }
+
+  /**
+   * Make sure the people a saved graph references have names, even when they are not on the first
+   * page of the directory (a company with thousands of users).
+   */
+  resolvePeople(ids: Iterable<string | undefined | null>): void {
+    const known = this.peopleById();
+    const missing = [...new Set([...ids].filter((id): id is string => !!id && !known.has(id)))];
+    if (!missing.length) return;
+    this.service.assignees(undefined, missing.slice(0, 200)).subscribe({ next: (a) => this.mergePeople(a.users), error: () => undefined });
+  }
+
+  /** The option a stored id names, for `vx-select`'s resolveWith. */
+  resolvePerson = (id: string): Observable<PersonOption | null> => {
+    const known = this.peopleById().get(id);
+    if (known) return of(known);
+    return this.service.assignees(undefined, [id]).pipe(
+      map((a) => {
+        this.mergePeople(a.users);
+        return a.users[0] ?? null;
+      }),
+    );
+  };
 
   /** Server-side search for large companies (the first page arrives with `load`). */
   searchPeople = (query: string): Observable<PersonOption[]> =>

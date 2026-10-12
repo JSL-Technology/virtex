@@ -1,5 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -251,4 +253,12 @@ export class AssigneeQueryDto {
   @IsOptional()
   @MaxLength(100)
   search?: string;
+
+  /** Resolve these people by id (comma-separated) — the ones a saved graph already references. */
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : String(value ?? '').split(',')).map((v: string) => v.trim()).filter(Boolean))
+  @IsArray()
+  @ArrayMaxSize(200)
+  @IsUUID('all', { each: true })
+  ids?: string[];
 }

@@ -16,6 +16,7 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { BadRequestError, ForbiddenError } from '../i18n/localized.exception';
 import { WorkflowDefinitionsService } from './workflow-definitions.service';
@@ -183,10 +184,30 @@ export class WorkflowEngineController {
   @ApiOperation({ summary: 'Las personas y los roles de la empresa a los que se puede asignar una tarea.' })
   async assignees(@Query() query: AssigneeQueryDto, @CurrentUser() user: AuthenticatedUser) {
     const [users, roles] = await Promise.all([
-      this.directory.users(user.organizationId, query.search),
+      this.directory.users(user.organizationId, query.search, query.ids),
       this.directory.roles(user.organizationId),
     ]);
     return { users: users.map(({ id, name, email }) => ({ id, name, email })), roles };
+  }
+
+  /**
+   * The company's people, for a «person» field in a start form or a task form.
+   *
+   * Starting a run or answering a task can ask for a person (who receives the goods, who signs
+   * off next), and the people filling those forms hold RUN or ACT, not DESIGN — so the full
+   * assignee catalogue, which also lists roles, stays a designer's tool and this narrower read
+   * accepts any workflow grant. Only active members of the caller's own company, name and email.
+   */
+  @Get('people')
+  @AuthenticatedOnly('Any workflow grant may read; checked in the handler because grants are any-of here.')
+  @ApiOperation({ summary: 'Personas de la empresa, para un campo «persona» de un formulario de proceso.' })
+  async people(@Query() query: AssigneeQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    const grants = [PERMISSIONS.WORKFLOW_VIEW, PERMISSIONS.WORKFLOW_RUN, PERMISSIONS.WORKFLOW_TASK_ACT, PERMISSIONS.WORKFLOW_DESIGN];
+    if (!grants.some((grant) => hasPermission(user.permissions ?? [], [grant]))) {
+      throw new ForbiddenError('workflow_engine.no_access');
+    }
+    const users = await this.directory.users(user.organizationId, query.search, query.ids);
+    return users.map(({ id, name, email }) => ({ id, name, email }));
   }
 
   // ── Instances ────────────────────────────────────────────────────────────────
