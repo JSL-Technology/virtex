@@ -214,17 +214,20 @@ export class StatementExportService {
   }
 
   exportCashFlow(report: CashFlowStatementReport): void {
-    const adjustmentRows = (movements: { code: string; amount: number }[]): CsvValue[][] =>
-      movements.map((movement) => [movement.code, '', '', movement.amount]);
+    const label = (movement: { code: string; name?: Record<string, string> | string }) =>
+      movement.name ? `${movement.code} ${accountNameOf(movement.name)}` : movement.code;
+    const adjustmentRows = (
+      movements: { code: string; name?: Record<string, string> | string; amount: number }[],
+    ): CsvValue[][] => movements.map((movement) => [label(movement), '', '', movement.amount]);
 
     // Investing and financing carry their two sides as well as their net, because the export is
     // the file a reader takes to a spreadsheet and the gross presentation IAS 7.21 requires has to
     // survive the trip. A file with only the net is a file the statement cannot be rebuilt from.
     const grossRows = (
-      movements: { code: string; inflow: number; outflow: number; amount: number }[],
+      movements: { code: string; name?: Record<string, string> | string; inflow: number; outflow: number; amount: number }[],
     ): CsvValue[][] =>
       movements.map((movement) => [
-        movement.code,
+        label(movement),
         movement.inflow,
         movement.outflow,
         movement.amount,

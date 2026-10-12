@@ -1,8 +1,30 @@
 @use "../../../../../assets/styles/view-styles" as views;
+@use "../../../../../assets/styles/page-classic" as classic;
+
+//  The standard page frame. The four statements had none: no padding, a bare title and the body
+//  touching the right edge (QA A-16).
+:host {
+  display: block;
+  @include classic.page-classic;
+}
+
+//  Everything under the header sits on the header's own gutter, so the statement no longer runs
+//  into the right edge of the window.
+.subview-container > :not(.subview-header) {
+  margin-inline: var(--space-6);
+}
 
 .report-container {
-  padding: var(--space-10);
-  font-family: "Roboto Slab", serif; // Fuente Serif para un look de reporte clásico
+  margin-bottom: var(--space-6);
+  padding: var(--space-8) var(--space-6);
+}
+
+//  The app's own typeface on screen. A serif body that no other screen uses read as a different
+//  product (QA A-16); the classic report look is kept for paper only.
+@media print {
+  .report-container {
+    font-family: Georgia, "Times New Roman", serif;
+  }
 }
 
 .report-header {

@@ -8,7 +8,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--content-link, var(--accent-primary));
+  color: var(--content-link);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -18,12 +18,12 @@
 
 .wft__outcome {
   padding: 6px 14px;
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--content-primary, var(--text-primary));
-  background: var(--bg-secondary, var(--bg-tertiary));
-  border: 1px solid var(--border-color, var(--border));
-  border-radius: var(--border-radius-sm, 6px);
+  color: var(--content-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
 
   &:disabled {
@@ -32,14 +32,14 @@
   }
 
   &--approve {
-    color: var(--success-on-solid, #fff);
-    background: var(--success-solid, #16a34a);
+    color: var(--success-on-solid);
+    background: var(--success-solid);
     border-color: transparent;
   }
 
   &--reject {
-    color: var(--danger-color, #b91c1c);
-    background: var(--danger-color-subtle, rgba(220, 38, 38, 0.12));
-    border-color: var(--danger, #dc2626);
+    color: var(--error-text);
+    background: var(--error-surface);
+    border-color: var(--error-border);
   }
 }

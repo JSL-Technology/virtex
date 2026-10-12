@@ -62,6 +62,11 @@ const ALLOWED_LITERALS = new Map([
   // resultado correcto y fijarlo es deliberado.
   ['features/invoices/detail/detail.page.scss', 'hoja de impresión de factura'],
   ['features/invoices/detail/detail.page.ts', 'hoja de impresión de factura'],
+  // El ticket del punto de venta se imprime en una ventana propia: papel térmico, sin tema.
+  ['features/sales/pos/pos.page.ts', 'ticket impreso del punto de venta'],
+  // Pantalla de arranque: se pinta ANTES de que cargue ninguna hoja de estilos, así que no hay
+  // tokens que leer. Repite a mano los valores de la superficie y el acento, claro y oscuro.
+  ['index.html', 'pantalla de arranque previa a los estilos'],
   // Documento del arnés cargado en un iframe con `sandbox="allow-scripts"` y
   // origen opaco: al estar aislado NO hereda los tokens de `:root`, así que sus
   // colores son necesariamente literales y viven en su propio <style>.

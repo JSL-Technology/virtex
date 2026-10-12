@@ -1,6 +1,6 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>{{ 'reports.trial_balance.trial_balance' | translate }}</h3>
+    <h1>{{ 'reports.trial_balance.trial_balance' | translate }}</h1>
     <div class="header-actions">
       <!--
         Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
@@ -56,12 +56,16 @@
       Whether the six columns agree in pairs. It is the entire purpose of the report, so it is
       stated at the top rather than left for the reader to add up.
     -->
-    @if (data.isBalanced) {
+    <!--
+      Sin movimientos no hay nada que cuadrar: decir «la balanza cuadra» sobre cero filas era un
+      falso positivo (QA A-16). El estado vacío de abajo es lo único que se dice entonces.
+    -->
+    @if (data.rows.length > 0 && data.isBalanced) {
       <p class="balance-check balance-check--ok">
         <lucide-icon [img]="OkIcon" size="16"></lucide-icon>
         {{ 'reports.trial_balance.trial_balance_agrees_debits_credits_match' | translate }}
       </p>
-    } @else {
+    } @else if (data.rows.length > 0) {
       <p class="balance-check balance-check--error" role="alert">
         <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
         {{ 'reports.trial_balance.trial_balance_does_not_agree_total' | translate }}

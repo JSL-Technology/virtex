@@ -96,6 +96,14 @@ describe('TrialBalancePage', () => {
     expect(fixture.nativeElement.querySelector('.balance-check--ok')).toBeFalsy();
   });
 
+  it('no dice que la balanza cuadra cuando no hay movimientos (QA A-16)', () => {
+    fixture.detectChanges();
+    flush({ ...report, rows: [], isBalanced: true });
+
+    expect(fixture.nativeElement.querySelector('.balance-check--ok')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('.report-state')).toBeTruthy();
+  });
+
   it('reports a failed request rather than an empty balance', () => {
     fixture.detectChanges();
     httpMock

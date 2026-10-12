@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileDown } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { VxDateRangeComponent } from '../../../shared/components/date';
 import { TranslateModule } from '@ngx-translate/core';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
@@ -32,7 +34,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +56,60 @@ export class DailyJournalPage {
 
   readonly isEmpty = computed(
     () => !this.loading() && !this.failed() && this.journalEntries().length === 0,
+  );
+
+  /**
+   * The filters a daybook is read with (QA M-21): a date range, the entry's state and a search on
+   * its number or description. The page had none, so last March meant paging back from today.
+   */
+  readonly from = signal<string | null>(null);
+  readonly to = signal<string | null>(null);
+  readonly status = signal<string>('');
+  readonly search = signal('');
+  readonly hasFilters = computed(() => !!(this.from() || this.to() || this.status() || this.search().trim()));
+  readonly STATUSES = [
+    { value: 'Draft', key: 'accounting.journal_entries.status_draft' },
+    { value: 'Pending Approval', key: 'accounting.journal_entries.status_pending_approval' },
+    { value: 'Posted', key: 'accounting.journal_entries.status_posted' },
+    { value: 'Void', key: 'accounting.journal_entries.status_void' },
+  ] as const;
+  private searchTimer?: ReturnType<typeof setTimeout>;
+
+  setRange(from: string | null, to: string | null): void {
+    this.from.set(from);
+    this.to.set(to);
+    this.page.set(1);
+    this.load();
+  }
+
+  setStatus(status: string): void {
+    this.status.set(status);
+    this.page.set(1);
+    this.load();
+  }
+
+  /** Typed search waits for a pause, so each keystroke is not a request. */
+  setSearch(term: string): void {
+    this.search.set(term);
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page.set(1);
+      this.load();
+    }, 300);
+  }
+
+  clearFilters(): void {
+    this.from.set(null);
+    this.to.set(null);
+    this.status.set('');
+    this.search.set('');
+    this.page.set(1);
+    this.load();
+  }
+
+  /** Why «Exportar» is unavailable, said on the button instead of a silent grey. */
+  readonly exportHint = computed(() =>
+    this.isEmpty() ? 'accounting.daily_journal.export_nothing' : 'accounting.daily_journal.export_hint',
   );
 
   /** The window the list is showing. The route is bounded now, so the page has to be able to move. */
@@ -101,7 +157,14 @@ export class DailyJournalPage {
       error: () => this.accountLabels.set(new Map()),
     });
 
-    this.entriesApi.list({ page: this.page(), pageSize: this.pageSize }).subscribe({
+    this.entriesApi.list({
+      page: this.page(),
+      pageSize: this.pageSize,
+      from: this.from(),
+      to: this.to(),
+      status: this.status() || null,
+      search: this.search(),
+    }).subscribe({
       next: (page) => {
         this.journalEntries.set(page.rows);
         this.total.set(page.total);

@@ -37,7 +37,7 @@
     border: 1px solid transparent;
     background: transparent;
     color: var(--text-secondary);
-    border-radius: var(--radius-sm, 6px);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 
@@ -48,7 +48,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--focus-ring, var(--primary));
+      outline: 2px solid var(--focus-ring-color);
       outline-offset: 2px;
     }
 
@@ -66,11 +66,11 @@
 
     &.tool-btn--primary {
       background: var(--primary);
-      color: var(--text-on-primary, #fff);
+      color: var(--accent-on-solid);
 
       &:hover {
-        background: var(--primary-hover, var(--primary));
-        color: var(--text-on-primary, #fff);
+        background: var(--primary-hover);
+        color: var(--accent-on-solid);
       }
     }
   }
@@ -91,7 +91,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg, var(--shadow-sm));
+    box-shadow: var(--shadow-lg);
 
     button {
       display: flex;

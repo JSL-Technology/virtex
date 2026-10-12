@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, Lock, Unlock, RefreshCw } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import {
   AccountingPeriod,
   AccountingPeriodsService,
@@ -45,11 +45,12 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 })
 export class PeriodsPage {
   /** Sortable by its headers (QA B-01). */
-  readonly table = sortable(() => this.periods(), { status: (period) => this.translate.instant(this.statusKey(period.status)) });
+  readonly table = sortable(() => this.periods(), { status: (period) => this.translate.instant(this.statusKey(period.status, period)) });
   private readonly dialog = inject(DialogService);
   private readonly periodsApi = inject(AccountingPeriodsService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
 
   protected readonly LockIcon = Lock;
   protected readonly UnlockIcon = Unlock;
@@ -62,6 +63,33 @@ export class PeriodsPage {
   readonly pending = signal<string | null>(null);
 
   readonly isEmpty = computed(() => !this.loading() && !this.failed() && this.periods().length === 0);
+
+  /** Today as `YYYY-MM-DD`, the form period dates are stored in, so they compare as strings. */
+  private readonly today = localIsoDate(new Date());
+
+  /**
+   * The one period that can be closed now: the earliest open one that has already ended.
+   *
+   * Every open row used to carry the same «Cerrar período» button (QA M-13), twelve of them, which
+   * invited closing December before October — the server refuses it, but only after the click.
+   * Periods close in order, so the screen offers exactly the one that is next.
+   */
+  readonly nextClosableId = computed<string | null>(() => {
+    const next = [...this.periods()]
+      .filter((p) => p.status === 'OPEN' && p.endDate < this.today)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+    return next?.id ?? null;
+  });
+
+  /** The period that has to be closed before this one, for the hint on its row. */
+  readonly nextClosable = computed(() => this.periods().find((p) => p.id === this.nextClosableId()) ?? null);
+
+  /** Where an open period stands in time: ended, current or still to come. */
+  phase(period: AccountingPeriod): 'ended' | 'current' | 'future' {
+    if (period.endDate < this.today) return 'ended';
+    if (period.startDate > this.today) return 'future';
+    return 'current';
+  }
 
   constructor() {
     this.load();
@@ -82,8 +110,16 @@ export class PeriodsPage {
     });
   }
 
-  statusKey(status: AccountingPeriod['status']): string {
-    return status === 'OPEN' ? 'accounting.periods.status_open' : 'accounting.periods.status_closed';
+  statusKey(status: AccountingPeriod['status'], period?: AccountingPeriod): string {
+    if (status !== 'OPEN') return 'accounting.periods.status_closed';
+    if (period && this.phase(period) === 'current') return 'accounting.periods.status_current';
+    if (period && this.phase(period) === 'future') return 'accounting.periods.status_future';
+    return 'accounting.periods.status_open';
+  }
+
+  /** The month as the reader's locale spells it — not the stored Spanish name. */
+  label(period: AccountingPeriod): string {
+    return this.format.date(period.startDate, 'monthYear', { dateOnly: true });
   }
 
   /**
@@ -92,8 +128,9 @@ export class PeriodsPage {
    * `danger` y no `neutral` para el cerrado a propósito: no es un estado inerte, es el que hace
    * que registrar algo en ese período sea imposible.
    */
-  statusTone(status: AccountingPeriod['status']): VxTone {
-    return status === 'OPEN' ? 'ok' : 'danger';
+  statusTone(status: AccountingPeriod['status'], period?: AccountingPeriod): VxTone {
+    if (status !== 'OPEN') return 'danger';
+    return period && this.phase(period) === 'future' ? 'neutral' : 'ok';
   }
 
   /**
@@ -108,7 +145,7 @@ export class PeriodsPage {
     const confirmed = await this.dialog.confirm({
       title: 'accounting.periods.close_confirm_title',
       message: 'accounting.periods.close_confirm_message',
-      messageParams: { period: period.name },
+      messageParams: { period: this.label(period) },
       confirmText: 'accounting.periods.close_confirm_action',
       variant: 'warning',
     });
@@ -119,7 +156,7 @@ export class PeriodsPage {
       next: (result) => this.applyCommand(result.period, result.message),
       error: (err) => {
         this.pending.set(null);
-        this.notifications.showHttpError(err, 'accounting.periods.close_failed', { period: period.name });
+        this.notifications.showHttpError(err, 'accounting.periods.close_failed', { period: this.label(period) });
       },
     });
   }
@@ -148,7 +185,7 @@ export class PeriodsPage {
       next: (result) => this.applyCommand(result.period, result.message),
       error: (err) => {
         this.pending.set(null);
-        this.notifications.showHttpError(err, 'accounting.periods.reopen_failed', { period: period.name });
+        this.notifications.showHttpError(err, 'accounting.periods.reopen_failed', { period: this.label(period) });
       },
     });
   }
@@ -165,4 +202,9 @@ export class PeriodsPage {
     this.pending.set(null);
     this.notifications.showSuccess(message);
   }
+}
+
+function localIsoDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

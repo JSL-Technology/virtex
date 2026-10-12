@@ -19,22 +19,22 @@
 .wfl__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
 
   th {
     text-align: left;
     padding: 8px 16px;
-    font-size: var(--text-xs, 0.75rem);
+    font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: var(--content-tertiary, var(--text-tertiary));
-    border-bottom: 1px solid var(--border-color, var(--border));
+    color: var(--content-tertiary);
+    border-bottom: 1px solid var(--border-color);
   }
 
   td {
     padding: 10px 16px;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--content-primary, var(--text-primary));
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--content-primary);
     vertical-align: middle;
   }
 }
@@ -50,36 +50,36 @@
   font: inherit;
   font-weight: 600;
   text-align: left;
-  color: var(--content-link, var(--accent-primary));
+  color: var(--content-link);
   background: transparent;
   border: none;
   cursor: pointer;
 }
 
 .wfl__trigger {
-  font-size: var(--text-2xs, 0.6875rem);
-  color: var(--content-tertiary, var(--text-tertiary));
+  font-size: var(--text-2xs);
+  color: var(--content-tertiary);
 }
 
 .wfl__badge {
   padding: 2px 8px;
-  font-size: var(--text-2xs, 0.6875rem);
+  font-size: var(--text-2xs);
   font-weight: 600;
-  border-radius: var(--border-radius-full, 999px);
-  background: var(--bg-tertiary, var(--bg-secondary));
-  color: var(--content-secondary, var(--text-secondary));
+  border-radius: var(--border-radius-full);
+  background: var(--bg-tertiary);
+  color: var(--content-secondary);
 
   &[data-status='PUBLISHED'] {
-    background: var(--success-surface, var(--success-bg));
+    background: var(--success-surface);
     color: var(--success-text);
   }
   &[data-status='DRAFT'] {
-    background: var(--info-surface, var(--bg-info-soft));
+    background: var(--info-surface);
     color: var(--info-text);
   }
   &[data-status='ARCHIVED'] {
-    background: var(--bg-tertiary, var(--bg-secondary));
-    color: var(--content-tertiary, var(--text-tertiary));
+    background: var(--bg-tertiary);
+    color: var(--content-tertiary);
   }
 }
 
@@ -98,15 +98,15 @@
     justify-content: center;
     width: 30px;
     height: 30px;
-    color: var(--content-secondary, var(--text-secondary));
+    color: var(--content-secondary);
     background: transparent;
     border: none;
-    border-radius: var(--border-radius-sm, 6px);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
 
     &:hover {
-      background: var(--bg-hover, var(--bg-tertiary));
-      color: var(--content-primary, var(--text-primary));
+      background: var(--bg-hover);
+      color: var(--content-primary);
     }
   }
 }
