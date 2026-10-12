@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
@@ -28,6 +28,14 @@ export interface PosSaleItem {
   taxRate: number;
   lineSubtotal: number;
   lineTax: number;
+}
+
+/** One tender of a till sale. */
+export interface PosPayment {
+  method: 'cash' | 'card' | 'transfer' | 'other';
+  amount: number;
+  /** Card or transfer reference, when the cashier keyed one in. */
+  reference?: string | null;
 }
 
 /**
@@ -92,6 +100,18 @@ export class PosSale {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   customerName: string | null;
+
+  /** Each tender of the sale — one for a plain payment, several for a mixed one (QA C-04). */
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  payments: PosPayment[];
+
+  /** What the customer handed over in cash, when they paid in cash. */
+  @Column({ name: 'amount_tendered', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, nullable: true })
+  amountTendered: number | null;
+
+  /** The change returned, always out of the cash tendered. */
+  @Column({ name: 'change_due', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
+  changeDue: number;
 
   @Column({ type: 'uuid', nullable: true })
   invoiceId: string | null;

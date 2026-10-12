@@ -231,3 +231,42 @@ describe('PosService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
+
+/** QA C-04: la caja registraba la venta sin preguntar cómo se pagó. */
+describe('PosService.settleTenders', () => {
+  it('sin pagos detallados se comporta como antes', () => {
+    expect(PosService.settleTenders({}, 100)).toEqual({
+      method: null,
+      payments: [],
+      amountTendered: null,
+      changeDue: 0,
+      cashKept: 0,
+    });
+  });
+
+  it('en efectivo calcula el cambio y la caja se queda solo con el total', () => {
+    const result = PosService.settleTenders({ payments: [{ method: 'cash', amount: 2000 }] }, 1770.59);
+    expect(result.method).toBe('cash');
+    expect(result.amountTendered).toBe(2000);
+    expect(result.changeDue).toBe(229.41);
+    expect(result.cashKept).toBe(1770.59);
+  });
+
+  it('un pago mixto solo cuenta como efectivo la parte en efectivo', () => {
+    const result = PosService.settleTenders(
+      { payments: [{ method: 'card', amount: 1000 }, { method: 'cash', amount: 800 }] },
+      1770.59,
+    );
+    expect(result.method).toBe('mixed');
+    expect(result.changeDue).toBe(29.41);
+    expect(result.cashKept).toBe(770.59);
+  });
+
+  it('rechaza un pago que no cubre el total', () => {
+    expect(() => PosService.settleTenders({ payments: [{ method: 'card', amount: 10 }] }, 100)).toThrow();
+  });
+
+  it('rechaza un cambio que la tarjeta no puede devolver', () => {
+    expect(() => PosService.settleTenders({ payments: [{ method: 'card', amount: 150 }] }, 100)).toThrow();
+  });
+});

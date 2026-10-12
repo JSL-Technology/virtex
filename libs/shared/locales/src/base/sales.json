@@ -97,6 +97,16 @@
     "en": "Customer:",
     "pt": "Cliente:"
   },
+  "sales.pos.decrease_qty": {
+    "es": "Restar una unidad de {{name}}",
+    "en": "Remove one {{name}}",
+    "pt": "Diminuir uma unidade de {{name}}"
+  },
+  "sales.pos.increase_qty": {
+    "es": "Sumar una unidad de {{name}}",
+    "en": "Add one more {{name}}",
+    "pt": "Adicionar uma unidade de {{name}}"
+  },
   "sales.pos.not_enough_stock": {
     "es": "No hay existencias suficientes de «{{name}}»: quedan {{available}}.",
     "en": "Not enough stock of “{{name}}”: {{available}} left.",
@@ -107,10 +117,125 @@
     "en": "Out of stock",
     "pt": "Esgotado"
   },
+  "sales.pos.pay.card_exceeds_total": {
+    "es": "La parte con tarjeta no puede superar el total.",
+    "en": "The card part cannot exceed the total.",
+    "pt": "A parte no cartão não pode ultrapassar o total."
+  },
+  "sales.pos.pay.card_part": {
+    "es": "Parte con tarjeta",
+    "en": "Card part",
+    "pt": "Parte no cartão"
+  },
+  "sales.pos.pay.cash_part": {
+    "es": "Parte en efectivo",
+    "en": "Cash part",
+    "pt": "Parte em dinheiro"
+  },
+  "sales.pos.pay.cash_received": {
+    "es": "Efectivo recibido",
+    "en": "Cash received",
+    "pt": "Dinheiro recebido"
+  },
+  "sales.pos.pay.change": {
+    "es": "Cambio",
+    "en": "Change",
+    "pt": "Troco"
+  },
+  "sales.pos.pay.charging": {
+    "es": "Registrando…",
+    "en": "Recording…",
+    "pt": "Registrando…"
+  },
+  "sales.pos.pay.confirm": {
+    "es": "Confirmar cobro de {{amount}}",
+    "en": "Confirm payment of {{amount}}",
+    "pt": "Confirmar recebimento de {{amount}}"
+  },
+  "sales.pos.pay.done": {
+    "es": "Venta registrada",
+    "en": "Sale recorded",
+    "pt": "Venda registrada"
+  },
+  "sales.pos.pay.method.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "sales.pos.pay.method.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "sales.pos.pay.method.mixed": {
+    "es": "Mixto",
+    "en": "Split",
+    "pt": "Misto"
+  },
+  "sales.pos.pay.method.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
+  "sales.pos.pay.method.transfer": {
+    "es": "Transferencia",
+    "en": "Transfer",
+    "pt": "Transferência"
+  },
+  "sales.pos.pay.method_label": {
+    "es": "Forma de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
+  },
+  "sales.pos.pay.new_sale": {
+    "es": "Nueva venta",
+    "en": "New sale",
+    "pt": "Nova venda"
+  },
+  "sales.pos.pay.not_enough": {
+    "es": "Lo recibido no cubre el total.",
+    "en": "What was received does not cover the total.",
+    "pt": "O valor recebido não cobre o total."
+  },
+  "sales.pos.pay.paid": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "sales.pos.pay.quick_amounts": {
+    "es": "Montos rápidos",
+    "en": "Quick amounts",
+    "pt": "Valores rápidos"
+  },
+  "sales.pos.pay.reference": {
+    "es": "Referencia (opcional)",
+    "en": "Reference (optional)",
+    "pt": "Referência (opcional)"
+  },
+  "sales.pos.pay.still_owed": {
+    "es": "Falta",
+    "en": "Still owed",
+    "pt": "Falta"
+  },
+  "sales.pos.pay.title": {
+    "es": "Cobrar venta",
+    "en": "Take payment",
+    "pt": "Receber pagamento"
+  },
   "sales.pos.prices_updated_review": {
     "es": "Los precios o impuestos del catálogo cambiaron. El ticket se actualizó: revisa el total con el cliente y vuelve a cobrar.",
     "en": "Catalogue prices or taxes changed. The ticket was updated: review the total with the customer and charge again.",
     "pt": "Os preços ou impostos do catálogo mudaram. O cupom foi atualizado: revise o total com o cliente e cobre novamente."
+  },
+  "sales.pos.quantity_of": {
+    "es": "Cantidad de {{name}}",
+    "en": "Quantity of {{name}}",
+    "pt": "Quantidade de {{name}}"
+  },
+  "sales.pos.remove_item": {
+    "es": "Quitar {{name}} del ticket",
+    "en": "Remove {{name}} from the ticket",
+    "pt": "Remover {{name}} do cupom"
   },
   "sales.pos.search_products_name_sku": {
     "es": "Buscar productos por nombre o SKU...",
@@ -134,6 +259,31 @@
     "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.",
     "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
     "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
+  },
+  "sales.pos.ticket.popup_blocked": {
+    "es": "El navegador bloqueó la ventana del ticket. Permite las ventanas emergentes para este sitio e inténtalo de nuevo.",
+    "en": "The browser blocked the receipt window. Allow pop-ups for this site and try again.",
+    "pt": "O navegador bloqueou a janela do cupom. Permita pop-ups para este site e tente novamente."
+  },
+  "sales.pos.ticket.print": {
+    "es": "Imprimir ticket",
+    "en": "Print receipt",
+    "pt": "Imprimir cupom"
+  },
+  "sales.pos.ticket.thanks": {
+    "es": "¡Gracias por tu compra!",
+    "en": "Thank you for your purchase!",
+    "pt": "Obrigado pela sua compra!"
+  },
+  "sales.pos.ticket.title": {
+    "es": "Ticket de venta",
+    "en": "Sales receipt",
+    "pt": "Cupom de venda"
+  },
+  "sales.pos.walk_in_customer": {
+    "es": "Consumidor final",
+    "en": "Walk-in customer",
+    "pt": "Consumidor final"
   },
   "sales.quote_expired_cannot_accept": {
     "es": "La cotización {{quoteNumber}} venció. Duplícala con fechas nuevas para que el cliente acepte el precio vigente.",

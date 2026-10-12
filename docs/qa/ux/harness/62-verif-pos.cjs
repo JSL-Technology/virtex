@@ -1,0 +1,34 @@
+const { launch, login, shot, instrument, nav } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  await login(page);
+  await nav(page, 'Ventas', 'Punto de venta'); await page.waitForTimeout(2000);
+  const P = page.locator('.dv-active-group .dv-content-container');
+  await shot(page, 'fix/C04-0-pos');
+  const cobrar = P.getByRole('button', { name: /Cobrar/ });
+  console.log('Cobrar visible:', await cobrar.evaluate(e => { const r = e.getBoundingClientRect(); return `${Math.round(r.bottom)} <= ${innerHeight}`; }));
+  console.log('Servicio agotado?', await P.getByText('QA-UX Servicio de instalación').locator('xpath=ancestor::div[contains(@class,"product-card")]').locator('.stock-overlay').count());
+  await P.getByText('QA-UX Martillo', { exact: false }).first().click(); await page.waitForTimeout(500);
+  await cobrar.click(); await page.waitForTimeout(800);
+  await shot(page, 'fix/C04-1-cobro-efectivo');
+  await page.locator('.cash-suggestions button').nth(2).click(); await page.waitForTimeout(300);
+  console.log('Resumen:', await page.locator('.pos-dialog .pay-summary').innerText());
+  await shot(page, 'fix/C04-2-cobro-cambio');
+  await page.locator('.pos-dialog__footer .primary-button').click(); await page.waitForTimeout(2500);
+  await shot(page, 'fix/C04-3-venta-registrada');
+  console.log('Hecho:', (await page.locator('.pos-dialog--done').innerText()).replace(/\n+/g, ' | '));
+  await page.getByRole('button', { name: 'Nueva venta' }).click(); await page.waitForTimeout(500);
+  // mixta
+  await P.getByText('QA-UX Servicio de instalación', { exact: false }).first().click(); await page.waitForTimeout(400);
+  await cobrar.click(); await page.waitForTimeout(500);
+  await page.getByRole('radio', { name: /Mixto/ }).click(); await page.waitForTimeout(400);
+  const inputs = page.locator('.pos-dialog .pos-field input[type=number]');
+  await inputs.nth(0).fill('2000'); await inputs.nth(1).fill('1000'); await page.waitForTimeout(300);
+  await shot(page, 'fix/C04-4-cobro-mixto');
+  console.log('Mixto:', await page.locator('.pos-dialog .pay-summary').innerText());
+  await page.locator('.pos-dialog__footer .primary-button').click(); await page.waitForTimeout(2500);
+  console.log('Hecho2:', (await page.locator('.pos-dialog--done').innerText()).replace(/\n+/g, ' | '));
+  console.log(log.req.filter(r => /pos\/sales/.test(r)).join('\n'));
+  await browser.close();
+})();

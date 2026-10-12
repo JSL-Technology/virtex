@@ -844,11 +844,6 @@
   "invoices.invoice_selection_dialog.total": {
     "literal": "Total"
   },
-  "invoices.invoice_toolbar.back": {
-    "es": "Volver",
-    "en": "Back",
-    "pt": "Voltar"
-  },
   "invoices.invoice_toolbar.collect": {
     "es": "Registrar cobro",
     "en": "Record payment",
@@ -859,35 +854,15 @@
     "en": "Copy to",
     "pt": "Copiar para"
   },
-  "invoices.invoice_toolbar.copy_document": {
-    "es": "Copiar a...",
-    "en": "Copy to...",
-    "pt": "Copiar para..."
-  },
   "invoices.invoice_toolbar.copy_from": {
     "es": "Copiar de",
     "en": "Copy from",
     "pt": "Copiar de"
   },
-  "invoices.invoice_toolbar.copy_from_document": {
-    "es": "Copiar de...",
-    "en": "Copy from...",
-    "pt": "Copiar de..."
-  },
   "invoices.invoice_toolbar.export_excel": {
     "es": "Exportar a Excel",
     "en": "Export to Excel",
     "pt": "Exportar para Excel"
-  },
-  "invoices.invoice_toolbar.export_pdf": {
-    "es": "Exportar a PDF",
-    "en": "Export to PDF",
-    "pt": "Exportar para PDF"
-  },
-  "invoices.invoice_toolbar.first": {
-    "es": "Primero",
-    "en": "First",
-    "pt": "Primeiro"
   },
   "invoices.invoice_toolbar.form_settings": {
     "es": "Personalizar formulario",
@@ -909,20 +884,10 @@
     "en": "Document actions",
     "pt": "Ações do documento"
   },
-  "invoices.invoice_toolbar.last": {
-    "es": "Último",
-    "en": "Last",
-    "pt": "Último"
-  },
   "invoices.invoice_toolbar.more": {
     "es": "Más",
     "en": "More",
     "pt": "Mais"
-  },
-  "invoices.invoice_toolbar.next": {
-    "es": "Avanzar",
-    "en": "Next",
-    "pt": "Avançar"
   },
   "invoices.invoice_toolbar.pdf": {
     "es": "PDF",
@@ -953,11 +918,6 @@
     "es": "Enviar",
     "en": "Send",
     "pt": "Enviar"
-  },
-  "invoices.invoice_toolbar.send_email": {
-    "es": "Enviar por correo",
-    "en": "Send by email",
-    "pt": "Enviar por e-mail"
   },
   "invoices.issue": {
     "es": "Emitir",

@@ -201,6 +201,8 @@
   "pos.open_shift": "Open shift",
   "pos.open_shift_error": "We could not open the shift.",
   "pos.password": "Password",
+  "pos.payment_overpaid_non_cash": "Only cash can exceed the total: card and transfer are charged for the exact amount.",
+  "pos.payment_short": "The payment ({{paid}}) does not cover the sale total ({{total}}).",
   "pos.prices_changed": "A product's price has changed. Prices have been reloaded: check the total before charging.",
   "pos.product_not_available": "One of the products is no longer available for sale.",
   "pos.remove_line": "Remove line",
