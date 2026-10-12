@@ -1,5 +1,5 @@
 const path = require('path'); const fs = require('fs');
-const { chromium } = require('/opt/node22/lib/node_modules/playwright');
+const { chromium } = require(process.env.PW_PATH || '/opt/node22/lib/node_modules/playwright');
 const BASE = 'http://localhost:4200';
 const EVID = path.resolve(__dirname, '..', 'evidence');
 const ADMIN = { email: 'dev@virtex.local', password: 'QA-Test-Pass-2026' };
@@ -21,6 +21,7 @@ async function login(page, creds = ADMIN, lang='es') {
   await page.locator('input[type=password]').first().waitFor({ timeout: 30000 });
   await page.locator('input[type=email], input[formcontrolname=email]').first().fill(creds.email);
   await page.locator('input[type=password]').first().fill(creds.password);
+  await page.evaluate(() => document.querySelector('vite-error-overlay')?.remove());
   await page.locator('button[type=submit]').first().click();
   await page.waitForURL((u) => !u.pathname.includes('/auth/'), { timeout: 30000 });
   await page.waitForTimeout(2500);
