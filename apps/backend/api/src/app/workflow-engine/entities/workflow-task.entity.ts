@@ -3,10 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
+import { WorkflowInstance } from './workflow-instance.entity';
 
 export enum WorkflowTaskStatus {
   OPEN = 'OPEN',
@@ -36,6 +39,11 @@ export class WorkflowTask {
   @Column({ name: 'instance_id', type: 'uuid' })
   instanceId: string;
 
+  /** Declared so the entity states the foreign key the migration creates; a task dies with its instance. */
+  @ManyToOne(() => WorkflowInstance, { onDelete: 'CASCADE', createForeignKeyConstraints: true })
+  @JoinColumn({ name: 'instance_id', foreignKeyConstraintName: 'FK_workflow_tasks_instance' })
+  instance?: WorkflowInstance;
+
   /** The graph node this task realises. */
   @Column({ name: 'node_id', type: 'varchar', length: 64 })
   nodeId: string;
@@ -54,7 +62,7 @@ export class WorkflowTask {
   assigneeUserId: string | null;
 
   /** The outcomes the actor may pick; each matches an outgoing edge. */
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: () => `'[]'` })
   outcomes: string[];
 
   @Column({

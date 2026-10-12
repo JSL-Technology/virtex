@@ -59,10 +59,10 @@ export class WorkflowDefinition {
   })
   status: WorkflowDefinitionStatus;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: () => `'{"edges": [], "nodes": []}'` })
   graph: WorkflowGraph;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: () => `'{"mode": "manual"}'` })
   trigger: WorkflowTrigger;
 
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })

@@ -28,6 +28,7 @@ export enum WorkflowInstanceStatus {
 @Entity({ name: 'workflow_instances' })
 @Index('IDX_workflow_instances_org_status', ['organizationId', 'status'])
 @Index('IDX_workflow_instances_org_wake', ['organizationId', 'nextWakeAt'])
+@Index('IDX_workflow_instances_org_definition', ['organizationId', 'definitionId'])
 export class WorkflowInstance {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -49,10 +50,10 @@ export class WorkflowInstance {
   })
   status: WorkflowInstanceStatus;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: () => `'{}'` })
   context: Record<string, unknown>;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: () => `'[]'` })
   tokens: WorkflowToken[];
 
   @Column({ type: 'jsonb', nullable: true })
