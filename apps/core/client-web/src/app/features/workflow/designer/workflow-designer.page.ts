@@ -6,7 +6,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  Injector,
+  EnvironmentInjector,
   computed,
   effect,
   inject,
@@ -211,7 +211,7 @@ export class WorkflowDesignerPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly tenancy = inject(ActiveOrganizationService);
-  private readonly injector = inject(Injector);
+  private readonly injector = inject(EnvironmentInjector);
   private readonly destroyRef = inject(DestroyRef);
   private readonly scheme = inject(FControlSchemeController);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -611,7 +611,7 @@ export class WorkflowDesignerPage {
   }
 
   issueText(issue: WorkflowIssue): string {
-    return issueMessage(this.translate, issue);
+    return issueMessage(this.translate, issue, (id) => { const node = this.store.nodeById().get(id); return node ? this.nodeName(node) : undefined; });
   }
 
   issueTarget(issue: WorkflowIssue): string {
@@ -714,9 +714,9 @@ export class WorkflowDesignerPage {
     if (!definition) return;
     this.service.newVersion(definition.id).subscribe({
       next: (draft) => {
-        const route = this.tenancy.urlFor(`workflows/${draft.id}/edit`);
-        if (this.tab?.replaceRoute) this.tab.replaceRoute(route, { title: draft.name });
-        else void this.router.navigateByUrl(route);
+        // The tab's route is the page's own, without the company prefix; the router's is the full URL.
+        if (this.tab) this.tab.replaceRoute(`/workflows/${draft.id}/edit`, { title: draft.name });
+        else void this.router.navigateByUrl(this.tenancy.urlFor(`workflows/${draft.id}/edit`));
         if (draft.id !== this.id()) this.load(draft.id);
         this.notifications.showSuccess('workflow_engine.draft_ready', { version: draft.version });
       },
@@ -812,7 +812,8 @@ export class WorkflowDesignerPage {
       });
       this.store.applyLayout(positions);
       requestAnimationFrame(() => requestAnimationFrame(() => this.fit()));
-    } catch {
+    } catch (error) {
+      console.error('[workflow] auto-layout failed', error);
       this.notifications.showError('workflow_engine.designer.layout_failed');
     } finally {
       this.layoutBusy.set(false);

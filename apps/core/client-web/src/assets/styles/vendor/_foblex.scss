@@ -36,7 +36,9 @@
   --ff-flow-text-color: var(--content-primary);
   --ff-flow-font-family: var(--font-sans);
   --ff-flow-font-size: var(--text-sm);
-  --ff-canvas-background-color: var(--surface-canvas, var(--surface-sunken));
+  // The canvas element is sized to the content and transformed: painting it would draw an
+  // opaque box over the background pattern. The flow host carries the colour instead.
+  --ff-canvas-background-color: transparent;
 
   --ff-node-background-color: var(--surface-base);
   --ff-node-background-color-inverse: var(--content-primary);
@@ -84,7 +86,7 @@
   --ff-connector-size: 12px;
   --ff-connector-border-width: 2px;
   --ff-connector-input-radius: var(--radius-sm);
-  --ff-connector-node-ring-color: var(--ff-canvas-background-color);
+  --ff-connector-node-ring-color: var(--ff-flow-background-color);
 
   --ff-outlet-background-color: var(--surface-sunken);
   --ff-outlet-border-color: var(--border-default);
@@ -96,7 +98,7 @@
   --ff-outlet-padding-y: var(--space-1);
   --ff-outlet-padding-x: var(--space-3);
 
-  --ff-connection-color: var(--content-tertiary);
+  --ff-connection-color: var(--content-secondary);
   --ff-snap-connection-color: var(--border-strong);
   --ff-connection-hover-color: var(--accent-surface-hover, var(--accent-surface));
   --ff-connection-selected-color: var(--accent-solid);
@@ -128,7 +130,7 @@
   --ff-minimap-border-color: var(--border-default);
   --ff-minimap-node-color: var(--content-tertiary);
   --ff-minimap-node-selected-color: var(--accent-solid);
-  --ff-minimap-view-color: var(--accent-surface);
+  --ff-minimap-view-color: color-mix(in oklch, var(--accent-solid) 10%, transparent);
   --ff-minimap-view-border-color: var(--accent-border);
   --ff-minimap-border-radius: var(--radius-md);
   --ff-minimap-shadow: var(--shadow-md);
@@ -161,6 +163,14 @@
 @include ff-connection.connection-all();
 @include ff-external.external-item-all();
 @include ff-plugins.plugins();
+
+// The global reset caps every svg at `max-width: 100%`. Foblex draws each connection (and the
+// background pattern) in an svg inside a zero-size container that relies on `overflow: visible`,
+// so the cap turned every one of them into a zero-width svg — which browsers do not paint. This,
+// not the colours, is what made connections invisible.
+f-flow svg {
+  max-width: none;
+}
 
 // Keyboard focus on canvas items (withA11y moves focus between nodes).
 f-flow .f-node:focus-visible,

@@ -66,8 +66,21 @@ export function eventFieldLabel(translate: TranslateService, name: string, label
   return text === key ? name : text;
 }
 
-export function issueMessage(translate: TranslateService, issue: WorkflowIssue): string {
-  return translate.instant(composeKey('workflow_engine.issue', issue.code), issue.params ?? {});
+/**
+ * A validation problem in the reader's words. The server names a step by its name, or by its id
+ * when it has none; `nameOf` lets the screen put the label the reader sees on the canvas instead.
+ */
+export function issueMessage(
+  translate: TranslateService,
+  issue: WorkflowIssue,
+  nameOf?: (nodeId: string) => string | undefined,
+): string {
+  const params: Record<string, string | number> = { ...(issue.params ?? {}) };
+  if (nameOf && issue.nodeId) {
+    const name = nameOf(issue.nodeId);
+    if (name) params['node'] = name;
+  }
+  return translate.instant(composeKey('workflow_engine.issue', issue.code), params);
 }
 
 export function definitionStatusTone(status: WorkflowDefinitionStatus): VxTone {

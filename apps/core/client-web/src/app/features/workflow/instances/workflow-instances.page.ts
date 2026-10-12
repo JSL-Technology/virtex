@@ -66,7 +66,7 @@ const SEARCH_DEBOUNCE_MS = 300;
           <select [value]="processKey()" (change)="setProcess($any($event.target).value)">
             <option value="">{{ 'workflow_engine.instances.all_processes' | translate }}</option>
             @for (process of processes(); track process.key) {
-              <option [value]="process.key">{{ process.name }}</option>
+              <option [value]="process.key" [selected]="process.key === processKey()">{{ process.name }}</option>
             }
           </select>
         </label>

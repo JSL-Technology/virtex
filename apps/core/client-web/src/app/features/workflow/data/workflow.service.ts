@@ -258,6 +258,7 @@ export interface WorkflowInstanceDetail {
   transitions: WorkflowTransition[];
   definition: WorkflowDefinition | null;
   people: Record<string, string>;
+  roles: Record<string, string>;
   children: Array<{ id: string; status: WorkflowInstanceStatus; createdAt: string; definitionName: string | null }>;
 }
 

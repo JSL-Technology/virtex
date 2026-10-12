@@ -170,7 +170,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                 </td>
                 <td>{{ row.updatedAt | vxDate: 'datetime' }}</td>
                 <td class="wfl__actions">
-                  @if (row.published && row.trigger.mode === 'manual' && canRun()) {
+                  @if (row.published && canRun()) {
                     <button type="button" class="wfl__icon" (click)="startRun(row.published)"
                       [attr.aria-label]="'workflow_engine.list.run_named' | translate: { name: row.name }" [title]="'workflow_engine.start.confirm' | translate">
                       <lucide-icon [img]="RunIcon" [size]="16" />

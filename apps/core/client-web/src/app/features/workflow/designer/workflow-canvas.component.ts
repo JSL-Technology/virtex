@@ -105,9 +105,11 @@ const CACHE_THRESHOLD = 60;
  * where `state` and `traversed` colour the path the instance took.
  *
  * Uses: drag handles, connectors with a side per layout direction, drag-to-connect with a preview
- * and snapping, reassigning either end, waypoints, connection content, arrow markers, gradients
+ * and snapping, reassigning either end, waypoints, connection content, arrow markers, colour
  * on the travelled path, lanes with resize handles and drop-to-group, selection area, magnetic
  * lines and rectangles, grid snapping, auto-pan, minimap, background patterns, zoom limits,
+ * (the travelled path is a solid animated stroke, not `f-connection-gradient`: an SVG gradient is
+ * not painted on a perfectly horizontal line, whose bounding box has no height),
  * layer order, geometry cache for large graphs, and fit to screen once nodes are measured.
  */
 @Component({
@@ -196,9 +198,6 @@ const CACHE_THRESHOLD = 60;
             [fSelectionDisabled]="runtime()"
             [class]="edgeClass(edge)"
           >
-            @if (edge.traversed) {
-              <f-connection-gradient [fStartColor]="gradientStart()" [fEndColor]="gradientEnd()" />
-            }
             <f-connection-marker-arrow [type]="MarkerEnd" />
             @if (edge.label) {
               <div fConnectionContent [position]="0.5" [class]="'wf-edge-label wf-edge-label--' + edge.tone" [title]="edge.label">
@@ -362,10 +361,6 @@ export class WorkflowCanvasComponent {
     this.translate.instant('workflow_engine.designer.canvas_label', { nodes: this.nodes().length, edges: this.edges().length }),
   );
 
-  /** Gradient stops are SVG attributes, which cannot read CSS variables: resolve them once. */
-  readonly gradientStart = signal('currentColor');
-  readonly gradientEnd = signal('currentColor');
-
   constructor() {
     if (typeof IntersectionObserver !== 'undefined') {
       const observer = new IntersectionObserver((entries) => this.visible.set(entries.some((e) => e.isIntersecting)));
@@ -391,7 +386,6 @@ export class WorkflowCanvasComponent {
   // ── Viewport ────────────────────────────────────────────────────────────────
 
   onRendered(): void {
-    this.resolveGradientColors();
     if (this.firstRender) {
       this.firstRender = false;
       // Never magnify a two-step draft to fill the screen.
@@ -527,14 +521,6 @@ export class WorkflowCanvasComponent {
     if (edge.traversed) classes.push('wf-edge--traversed');
     if (this.runtime() && !edge.traversed) classes.push('wf-edge--untaken');
     return classes.join(' ');
-  }
-
-  private resolveGradientColors(): void {
-    const style = getComputedStyle(this.host.nativeElement);
-    const start = style.getPropertyValue('--accent-solid').trim();
-    const end = style.getPropertyValue('--success-solid').trim();
-    if (start) this.gradientStart.set(start);
-    if (end) this.gradientEnd.set(end);
   }
 }
 

@@ -35,6 +35,8 @@ export interface WorkflowInstanceDetail {
   definition: WorkflowDefinition | null;
   /** Display names for every user id that appears in the run (starter, actors, assignees). */
   people: Record<string, string>;
+  /** Role names for the roles open tasks are assigned to. */
+  roles: Record<string, string>;
   children: Array<Pick<WorkflowInstance, 'id' | 'status' | 'createdAt'> & { definitionName: string | null }>;
 }
 
@@ -66,7 +68,8 @@ export class WorkflowInstancesService {
       .createQueryBuilder('i')
       .leftJoin(WorkflowDefinition, 'd', 'd.id = i.definition_id AND d.organization_id = i.organization_id')
       .where('i.organization_id = :organizationId', { organizationId })
-      .orderBy('i.created_at', 'DESC')
+      // With skip/take TypeORM pages through entity ids, which needs the PROPERTY name here.
+      .orderBy('i.createdAt', 'DESC')
       .skip((page - 1) * pageSize)
       .take(pageSize);
 
@@ -124,12 +127,15 @@ export class WorkflowInstancesService {
       ...tasks.flatMap((t) => [t.assigneeUserId, t.completedByUserId]),
     ]);
     const childRows = await this.decorate(children, organizationId);
+    const roleIds = new Set(tasks.map((t) => t.assigneeRoleId).filter((id): id is string => !!id));
+    const roles = roleIds.size ? (await this.directory.roles(organizationId)).filter((r) => roleIds.has(r.id)) : [];
     return {
       instance: row,
       tasks,
       transitions,
       definition,
       people: Object.fromEntries(people),
+      roles: Object.fromEntries(roles.map((r) => [r.id, r.name])),
       children: childRows.map((child) => ({ id: child.id, status: child.status, createdAt: child.createdAt, definitionName: child.definitionName })),
     };
   }

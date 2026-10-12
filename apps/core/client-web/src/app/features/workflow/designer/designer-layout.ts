@@ -1,5 +1,5 @@
-import { Injector, runInInjectionContext } from '@angular/core';
-import { EFLayoutDirection } from '@foblex/flow';
+import { EnvironmentInjector, Type, createEnvironmentInjector } from '@angular/core';
+import { EFLayoutDirection, FLayoutEngine, provideFLayout } from '@foblex/flow';
 import { WorkflowGraphEdge, WorkflowGraphNode, WorkflowPoint } from '../data/workflow.service';
 import { NODE_HEIGHT, NODE_WIDTH } from './designer-store';
 
@@ -24,7 +24,7 @@ export interface LayoutRequest {
  * steps move and the author resizes the lane, which keeps the organisational grouping intact.
  */
 export async function computeLayout(
-  injector: Injector,
+  injector: EnvironmentInjector,
   nodes: readonly WorkflowGraphNode[],
   edges: readonly WorkflowGraphEdge[],
   request: LayoutRequest,
@@ -45,11 +45,11 @@ export async function computeLayout(
   let result: { nodes: Array<{ id: string; position: WorkflowPoint }> };
   if (request.engine === 'elk') {
     const { ElkLayoutEngine, EElkLayoutAlgorithm } = await import('@foblex/flow-elk-layout');
-    const engine = runInInjectionContext(injector, () => new ElkLayoutEngine());
+    const engine = engineFrom(injector, ElkLayoutEngine);
     result = await engine.calculate(layoutNodes, connections, { ...options, algorithm: EElkLayoutAlgorithm.LAYERED });
   } else {
     const { DagreLayoutEngine, EDagreLayoutAlgorithm } = await import('@foblex/flow-dagre-layout');
-    const engine = runInInjectionContext(injector, () => new DagreLayoutEngine());
+    const engine = engineFrom(injector, DagreLayoutEngine);
     result = await engine.calculate(layoutNodes, connections, { ...options, algorithm: EDagreLayoutAlgorithm.NETWORK_SIMPLEX });
   }
 
@@ -59,6 +59,21 @@ export async function computeLayout(
   const dx = before.x - after.x;
   const dy = before.y - after.y;
   return new Map(result.nodes.map((n) => [n.id, { x: n.position.x + dx, y: n.position.y + dy }]));
+}
+
+/**
+ * An engine with the providers it needs (its controller and options), in a child injector made
+ * only when the engine is first loaded — `provideFLayout` at the component would pull the engine
+ * into the main bundle.
+ */
+const engines = new WeakMap<object, unknown>();
+function engineFrom<T extends FLayoutEngine>(parent: EnvironmentInjector, type: Type<T>): T {
+  const cached = engines.get(type) as T | undefined;
+  if (cached) return cached;
+  const child = createEnvironmentInjector(provideFLayout(type), parent);
+  const engine = child.get(type);
+  engines.set(type, engine);
+  return engine;
 }
 
 function topLeft(points: WorkflowPoint[]): WorkflowPoint {

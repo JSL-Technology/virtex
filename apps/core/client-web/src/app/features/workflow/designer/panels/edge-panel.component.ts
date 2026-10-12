@@ -155,7 +155,7 @@ export class EdgePanelComponent {
   });
 
   message(issue: WorkflowIssue): string {
-    return issueMessage(this.translate, issue);
+    return issueMessage(this.translate, issue, (id) => this.nameOf(id));
   }
 
   nameOf(id: string): string {

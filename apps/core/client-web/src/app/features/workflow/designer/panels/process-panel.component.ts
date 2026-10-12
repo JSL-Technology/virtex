@@ -82,11 +82,11 @@ const CUSTOM = '__custom';
             @for (group of eventGroups(); track group.key) {
               <optgroup [label]="group.label">
                 @for (event of group.events; track event.key) {
-                  <option [value]="event.key">{{ event.label }}</option>
+                  <option [value]="event.key" [selected]="event.key === eventChoice()">{{ event.label }}</option>
                 }
               </optgroup>
             }
-            <option [value]="custom">{{ 'workflow_engine.trigger.custom_event' | translate }}</option>
+            <option [value]="custom" [selected]="eventChoice() === custom">{{ 'workflow_engine.trigger.custom_event' | translate }}</option>
           </select>
         </div>
         @if (eventChoice() === custom) {

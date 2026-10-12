@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { roleLabel } from '../../../shared/pipes/role-name.pipe';
 import { VX_UI } from '../../../shared/components';
 import { eventFieldLabel, instanceStatusKey, instanceStatusTone, nodeTypeKey, outcomeLabel, taskStatusTone } from '../data/workflow-labels';
 import {
@@ -337,7 +338,10 @@ export class WorkflowInstancePage {
 
   taskAssignee(task: WorkflowTask): string {
     if (task.assigneeUserId) return this.person(task.assigneeUserId);
-    if (task.assigneeRoleId) return this.translate.instant('workflow_engine.timeline.a_role');
+    if (task.assigneeRoleId) {
+      const name = this.detail()?.roles?.[task.assigneeRoleId];
+      return name ? roleLabel(this.translate, name) : this.translate.instant('workflow_engine.timeline.a_role');
+    }
     return '—';
   }
 

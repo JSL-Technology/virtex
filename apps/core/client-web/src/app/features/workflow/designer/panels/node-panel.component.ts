@@ -81,7 +81,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
           <select id="node-lane" [value]="n.parentId ?? ''" [disabled]="readonly()" (change)="store.setParent([n.id], $any($event.target).value || undefined)">
             <option value="">{{ 'workflow_engine.designer.no_lane' | translate }}</option>
             @for (group of groups(); track group.id) {
-              <option [value]="group.id">{{ group.name || ('workflow_engine.designer.lane' | translate) }}</option>
+              <option [value]="group.id" [selected]="group.id === n.parentId">{{ group.name || ('workflow_engine.designer.lane' | translate) }}</option>
             }
           </select>
         </div>
@@ -210,7 +210,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
           <select id="node-action" [value]="cfg.action ?? ''" [disabled]="readonly()" (change)="setAction($any($event.target).value)">
             <option value="">{{ 'workflow_engine.designer.choose_action' | translate }}</option>
             @for (action of catalogs.actions(); track action.key) {
-              <option [value]="action.key">{{ action.labelKey | translate }}</option>
+              <option [value]="action.key" [selected]="action.key === cfg.action">{{ action.labelKey | translate }}</option>
             }
           </select>
           @if (selectedAction()?.descriptionKey; as descriptionKey) {
@@ -258,7 +258,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
             <label for="node-timer-var">{{ 'workflow_engine.designer.date_variable' | translate }}</label>
             <select id="node-timer-var" [value]="cfg.timerUntilVar" [disabled]="readonly()" (change)="patch({ timerUntilVar: $any($event.target).value })">
               @for (variable of dateVariables(); track variable.name) {
-                <option [value]="variable.name">{{ variable.label }}</option>
+                <option [value]="variable.name" [selected]="variable.name === cfg.timerUntilVar">{{ variable.label }}</option>
               }
             </select>
           </div>
@@ -407,7 +407,7 @@ export class NodePanelComponent {
   });
 
   message(issue: WorkflowIssue): string {
-    return issueMessage(this.translate, issue);
+    return issueMessage(this.translate, issue, () => this.node().name?.trim() || this.translate.instant(nodeTypeKey(this.node().type)));
   }
 
   defaultOutcomeLabel(outcome: string): string {

@@ -333,15 +333,20 @@ export class DesignerStore {
 
   /** Apply positions from auto-layout, as one undo step. */
   applyLayout(positions: Map<string, WorkflowPoint>): void {
-    this.commit((d) => ({
-      ...d,
-      nodes: d.nodes.map((node) => {
+    this.commit((d) => {
+      const nodes = d.nodes.map((node) => {
         const position = positions.get(node.id);
         return position ? { ...node, position: { x: snap(position.x), y: snap(position.y) } } : node;
-      }),
-      // Bend points drawn for the old layout would route the new one through empty space.
-      edges: d.edges.map((edge) => (edge.waypoints?.length ? { ...edge, waypoints: undefined } : edge)),
-    }));
+      });
+      return {
+        ...d,
+        nodes,
+        // Lanes follow their steps, so «arrange» never leaves a step outside the lane it belongs to.
+        groups: d.groups.map((group) => fitGroup(group, nodes.filter((n) => n.parentId === group.id))),
+        // Bend points drawn for the old layout would route the new one through empty space.
+        edges: d.edges.map((edge) => (edge.waypoints?.length ? { ...edge, waypoints: undefined } : edge)),
+      };
+    });
   }
 
   // ── Groups (lanes) ─────────────────────────────────────────────────────────
@@ -547,6 +552,26 @@ export function defaultConfig(type: WorkflowNodeType): NonNullable<WorkflowGraph
     default:
       return {};
   }
+}
+
+const LANE_PADDING = 40;
+const LANE_TITLE = 28;
+
+/** A lane resized to wrap its member steps, or unchanged when it has none. */
+function fitGroup(group: WorkflowGraphGroup, members: WorkflowGraphNode[]): WorkflowGraphGroup {
+  if (!members.length) return group;
+  const xs = members.map((n) => n.position?.x ?? 0);
+  const ys = members.map((n) => n.position?.y ?? 0);
+  const x = Math.min(...xs) - LANE_PADDING;
+  const y = Math.min(...ys) - LANE_PADDING - LANE_TITLE;
+  return {
+    ...group,
+    position: { x, y },
+    size: {
+      width: Math.max(...xs) + NODE_WIDTH + LANE_PADDING - x,
+      height: Math.max(...ys) + NODE_HEIGHT + LANE_PADDING - y,
+    },
+  };
 }
 
 /** Drop `undefined`, empty strings and empty arrays so a cleared field leaves no trace in the JSON. */
