@@ -13,6 +13,8 @@ export type WorkflowTransitionKind =
   | 'timer_fired'
   | 'completed'
   | 'cancelled'
+  | 'retried'
+  | 'escalated'
   | 'error';
 
 /**

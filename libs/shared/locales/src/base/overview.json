@@ -50,9 +50,9 @@
     "pt": "{{reference}} atualizado"
   },
   "overview.activity.item.invoices.create": {
-    "es": "Factura {{reference}} emitida",
-    "en": "Invoice {{reference}} issued",
-    "pt": "Fatura {{reference}} emitida"
+    "es": "Factura {{reference}} registrada",
+    "en": "Invoice {{reference}} recorded",
+    "pt": "Fatura {{reference}} registada"
   },
   "overview.activity.item.invoices.delete": {
     "es": "Factura {{reference}} eliminada",
@@ -298,5 +298,20 @@
     "es": "Reintentar",
     "en": "Try again",
     "pt": "Tentar novamente"
+  },
+  "overview.activity.item.workflow_definitions.create": {
+    "es": "Proceso «{{reference}}» creado",
+    "en": "Process “{{reference}}” created",
+    "pt": "Processo «{{reference}}» criado"
+  },
+  "overview.activity.item.workflow_definitions.update": {
+    "es": "Proceso «{{reference}}» actualizado",
+    "en": "Process “{{reference}}” updated",
+    "pt": "Processo «{{reference}}» atualizado"
+  },
+  "overview.activity.item.workflow_definitions.delete": {
+    "es": "Proceso «{{reference}}» eliminado",
+    "en": "Process “{{reference}}” deleted",
+    "pt": "Processo «{{reference}}» eliminado"
   }
 }

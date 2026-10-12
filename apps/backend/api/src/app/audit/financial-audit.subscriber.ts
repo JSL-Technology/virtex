@@ -196,6 +196,9 @@ const AUDITED_TABLES: ReadonlySet<string> = new Set([
   // it is not a document: moving the receivables account moves every future posting.
   'organization_settings',
   'tenant_withholding_regimes',
+  // Business processes are internal controls: publishing a new version of an approval workflow
+  // changes who must sign off what, and an auditor must be able to see who did it and when.
+  'workflow_definitions',
   'accounting_periods',
   'ledgers',
   'document_sequences',

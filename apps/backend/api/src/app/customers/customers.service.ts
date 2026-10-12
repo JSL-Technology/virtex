@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
@@ -36,6 +38,7 @@ export class CustomersService {
     private readonly saasService: SaasService,
     private readonly identityDocuments: IdentityDocumentService,
     private readonly tenantCountry: TenantCountryResolver,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   /**
@@ -130,7 +133,7 @@ export class CustomersService {
     // or consumed the plan-limit check on its way to failing.
     const identity = await this.resolveIdentityDocument(createCustomerDto, organizationId);
 
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
       await this.saasService.enforceLimit(manager, organizationId, SaasResource.CUSTOMERS);
 
       const customer = manager.create(Customer, {
@@ -140,6 +143,15 @@ export class CustomersService {
       });
       return manager.save(customer);
     });
+    // After the commit: a listener reacting to it must find the row.
+    this.events?.emit(BUSINESS_EVENTS.CUSTOMER_CREATED, {
+      organizationId,
+      customerId: created.id,
+      customerName: created.companyName ?? null,
+      email: (created as { email?: string | null }).email ?? null,
+      country: (created as { country?: string | null }).country ?? null,
+    });
+    return created;
   }
 
   /**

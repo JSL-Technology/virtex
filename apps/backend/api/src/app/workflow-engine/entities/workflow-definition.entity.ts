@@ -68,6 +68,17 @@ export class WorkflowDefinition {
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })
   createdByUserId: string | null;
 
+  /** When this version went live, and who published it — the audit trail of a process change. */
+  @Column({ name: 'published_at', type: 'timestamptz', nullable: true })
+  publishedAt: Date | null;
+
+  @Column({ name: 'published_by_user_id', type: 'uuid', nullable: true })
+  publishedByUserId: string | null;
+
+  /** Who last saved the draft. */
+  @Column({ name: 'updated_by_user_id', type: 'uuid', nullable: true })
+  updatedByUserId: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

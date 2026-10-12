@@ -1,0 +1,61 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.ce-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ce-group--nested {
+  padding: var(--space-2);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.ce-group__head,
+.ce-group__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ce-switch select,
+.ce-leaf select,
+.ce-leaf input {
+  @include ds.input-base;
+  height: var(--control-height-sm);
+  font-size: var(--text-sm);
+  min-width: 0;
+}
+
+.ce-negate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.ce-leaf {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.ce-icon {
+  @include ds.button-icon('sm');
+}
+
+.ce-add {
+  @include ds.button-ghost('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}

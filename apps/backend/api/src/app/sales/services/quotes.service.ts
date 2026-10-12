@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BUSINESS_EVENTS } from '../../contracts/business-events/business-events.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, In } from 'typeorm';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
@@ -50,7 +52,21 @@ export class QuotesService {
     private readonly customersService: CustomersService,
     private readonly documentSequencesService: DocumentSequencesService,
     private readonly invoicesService: InvoicesService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  /** Announce a business fact after its transaction committed (see `contracts/business-events`). */
+  private announce(name: string, quote: { id: string; quoteNumber?: string; total?: number; currencyCode?: string; status?: string }, organizationId: string, extra: Record<string, unknown> = {}): void {
+    this.events?.emit(name, {
+      organizationId,
+      quoteId: quote.id,
+      quoteNumber: quote.quoteNumber ?? null,
+      total: quote.total === undefined ? null : Number(quote.total),
+      currencyCode: quote.currencyCode ?? null,
+      status: quote.status ?? null,
+      ...extra,
+    });
+  }
 
   /** What the quote comes to, without saving: the invoice engine on the quote's lines. */
   async preview(dto: CreateQuoteDto, organizationId: string): Promise<ComputedDocument> {
@@ -61,7 +77,7 @@ export class QuotesService {
   async create(dto: CreateQuoteDto, organizationId: string, owner: { id: string }): Promise<Quote> {
     this.assertDates(dto);
     const computed = await this.invoicesService.preview(this.asInvoice(dto), organizationId);
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
       const customer = await this.customersService.findOne(dto.customerId, organizationId);
       const { currencyCode, exchangeRate } = await this.currencyFor(dto, organizationId, manager);
 
@@ -86,6 +102,12 @@ export class QuotesService {
       this.applyComputation(quote, dto, computed, exchangeRate);
       return manager.save(quote);
     });
+    this.announce(BUSINESS_EVENTS.QUOTE_CREATED, created, organizationId, {
+      customerId: created.customer?.id ?? null,
+      customerName: (created.customer as { companyName?: string } | undefined)?.companyName ?? null,
+      actorUserId: owner.id,
+    });
+    return created;
   }
 
   async update(id: string, dto: UpdateQuoteDto, organizationId: string, actorUserId: string | null = null): Promise<Quote> {
@@ -160,24 +182,28 @@ export class QuotesService {
    * «sent». Refused once expired: the customer is accepting a price no longer promised.
    */
   async accept(id: string, organizationId: string): Promise<QuoteView> {
-    return this.transition(id, organizationId, [QuoteStatus.DRAFT, QuoteStatus.SENT], (quote) => {
+    const view = await this.transition(id, organizationId, [QuoteStatus.DRAFT, QuoteStatus.SENT], (quote) => {
       if (isoDate(quote.expiryDate) < today()) {
         throw new ConflictError('sales.quote_expired_cannot_accept', { quoteNumber: quote.quoteNumber });
       }
       quote.status = QuoteStatus.ACCEPTED;
       quote.acceptedAt = new Date();
     });
+    this.announce(BUSINESS_EVENTS.QUOTE_ACCEPTED, view, organizationId);
+    return view;
   }
 
   /** The customer said no. The reason is what sales needs next time. */
   async reject(id: string, reason: string, organizationId: string): Promise<QuoteView> {
     const text = reason?.trim();
     if (!text) throw new BadRequestError('sales.quote_rejection_reason_required');
-    return this.transition(id, organizationId, [QuoteStatus.DRAFT, QuoteStatus.SENT, QuoteStatus.ACCEPTED], (quote) => {
+    const view = await this.transition(id, organizationId, [QuoteStatus.DRAFT, QuoteStatus.SENT, QuoteStatus.ACCEPTED], (quote) => {
       quote.status = QuoteStatus.REJECTED;
       quote.rejectedAt = new Date();
       quote.rejectionReason = text;
     });
+    this.announce(BUSINESS_EVENTS.QUOTE_REJECTED, view, organizationId, { reason: text });
+    return view;
   }
 
   /** Withdrawn before an answer. Kept, numbered: a gap in the numbering is not explained by absence. */

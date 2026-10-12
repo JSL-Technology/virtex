@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { standardSalesTaxRate } from '../inventory/contracts/sellable-product.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, In } from 'typeorm';
@@ -243,6 +244,18 @@ export class InvoicesService {
       return this.issueWithin(saved, dto.fiscalDocumentType ?? null, organizationId, manager);
     });
 
+    // Every new invoice, draft or issued, is a business fact a process may start from.
+    this.eventEmitter.emit(BUSINESS_EVENTS.INVOICE_CREATED, {
+      organizationId,
+      actorUserId,
+      invoiceId: created.id,
+      invoiceNumber: created.invoiceNumber,
+      status: created.status,
+      total: Number(created.total ?? 0),
+      currencyCode: (created as { currencyCode?: string }).currencyCode ?? null,
+      customerId: created.customer?.id ?? (created as { customerId?: string }).customerId ?? null,
+      customerName: (created.customer as { companyName?: string } | undefined)?.companyName ?? null,
+    });
     if (created.status !== InvoiceStatus.DRAFT) {
       this.eventEmitter.emit('invoice.issued', created);
       this.triggerEcfSubmission(created);

@@ -1,4 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In, EntityManager, FindOperator } from 'typeorm';
 import {
@@ -91,6 +93,7 @@ export class CustomerPaymentsService {
     private readonly balances: AccountBalancesService,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   /**
@@ -174,7 +177,7 @@ export class CustomerPaymentsService {
     organizationId: string,
     actorUserId: string,
   ): Promise<CustomerPayment> {
-    return this.dataSource.transaction(async (manager) => {
+    const received = await this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       if (!settings?.defaultAccountsReceivableId) {
         throw new BadRequestError(
@@ -543,6 +546,16 @@ export class CustomerPaymentsService {
       );
       return saved;
     });
+    this.events?.emit(BUSINESS_EVENTS.CUSTOMER_PAYMENT_RECEIVED, {
+      organizationId,
+      actorUserId,
+      paymentId: received.id,
+      receiptNumber: received.receiptNumber,
+      total: Number(received.totalAmount ?? 0),
+      currencyCode: received.currencyCode,
+      customerId: received.customerId ?? null,
+    });
+    return received;
   }
 
   /**
