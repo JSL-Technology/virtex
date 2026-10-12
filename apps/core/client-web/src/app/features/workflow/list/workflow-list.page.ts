@@ -1,3 +1,4 @@
+import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -80,7 +81,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
         <div class="wfl__chips" role="group" [attr.aria-label]="'workflow_engine.list.filter_status' | translate">
           @for (option of statusOptions; track option) {
             <button type="button" class="chip" [class.chip--active]="status() === option" [attr.aria-pressed]="status() === option" (click)="status.set(option)">
-              {{ 'workflow_engine.list.status_' + option | translate }}
+              {{ statusLabel(option) | translate }}
               <span class="wfl__chip-count">{{ counts()[option] }}</span>
             </button>
           }
@@ -323,6 +324,10 @@ export class WorkflowListPage {
     return row.trigger.mode === 'event' && row.trigger.event
       ? eventLabel(this.translate, row.trigger.event)
       : this.translate.instant('workflow_engine.trigger.manual');
+  }
+
+  statusLabel(option: StatusFilter): string {
+    return composeKey('workflow_engine.list.status', option);
   }
 
   resetFilters(): void {

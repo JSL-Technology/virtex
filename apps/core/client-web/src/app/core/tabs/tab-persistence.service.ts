@@ -3,7 +3,7 @@ import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
 import { ActiveOrganizationService } from '../tenancy/active-organization.service';
 import { WorkspaceSyncService } from './workspace-sync.service';
-import { mergeWorkspaces } from './workspace-merge';
+import { mergeWorkspaces, tabIdentity } from './workspace-merge';
 import { TabModel, TabType } from './tab.model';
 
 /** Versión del esquema de persistencia. Incrementar ante cambios incompatibles. */
@@ -58,7 +58,13 @@ interface PersistedWorkspace {
   schemaVersion: number;
   activeTabId: string | null;
   tabs: PersistedTab[];
+  /** Identities of tabs closed recently, with when — so a merge does not bring them back. */
+  closed?: Array<{ key: string; at: number }>;
 }
+
+/** How long a closure is remembered, and how many: enough to outlive any stale copy elsewhere. */
+const CLOSED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const CLOSED_LIMIT = 200;
 
 /**
  * Persistencia del workspace (TAB_ARCHITECTURE §8).
@@ -81,6 +87,9 @@ export class TabPersistenceService {
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
   private remoteTimer: ReturnType<typeof setTimeout> | null = null;
   private restored = false;
+  /** Closed tabs by identity → when; see `ClosedTabs` in workspace-merge. */
+  private closed = new Map<string, number>();
+  private previousIdentities = new Set<string>();
 
   constructor() {
     // Guardado debounced ante cualquier cambio de pestañas / pestaña activa.
@@ -88,6 +97,7 @@ export class TabPersistenceService {
       const tabs = this.tabState.tabs();
       const activeId = this.tabState.activeTabId();
       if (!this.restored) return; // no sobreescribir antes de restaurar
+      this.trackClosures(tabs);
       this.scheduleSave(tabs, activeId);
     });
 
@@ -127,6 +137,7 @@ export class TabPersistenceService {
         return;
       }
 
+      this.absorbClosed(data.closed);
       const tabs = data.tabs.map((t) => this.deserialize(t));
       if (tabs.length === 0) {
         this.clearLayout();
@@ -250,6 +261,7 @@ export class TabPersistenceService {
         schemaVersion: SCHEMA_VERSION,
         activeTabId: activeId,
         tabs: toPersist.map((t) => this.serialize(t)),
+        closed: this.closedList(),
       };
       localStorage.setItem(this.storageKey(), JSON.stringify(payload));
       this.scheduleRemoteSave(payload);
@@ -359,8 +371,9 @@ export class TabPersistenceService {
       return;
     }
 
+    this.absorbClosed(data.closed);
     const incoming = data.tabs.map((t) => this.deserialize(t));
-    const merged = mergeWorkspaces(this.tabState.tabs(), incoming);
+    const merged = mergeWorkspaces(this.tabState.tabs(), incoming, this.closed);
     if (merged.length !== this.tabState.tabs().length) {
       this.tabState.setTabs(merged);
       this.tabState.ensureDefaultTab();
@@ -388,16 +401,49 @@ export class TabPersistenceService {
     const theirs = result.conflict.payload as Partial<PersistedWorkspace> | null;
     if (!theirs || theirs.schemaVersion !== SCHEMA_VERSION || !Array.isArray(theirs.tabs)) return;
 
+    this.absorbClosed(theirs.closed);
     const merged = mergeWorkspaces(
       this.tabState.tabs(),
       theirs.tabs.map((t) => this.deserialize(t)),
+      this.closed,
     );
     this.tabState.setTabs(merged);
     await this.remote.push(SCHEMA_VERSION, {
       schemaVersion: SCHEMA_VERSION,
       activeTabId: this.tabState.activeTabId(),
       tabs: merged.map((t) => this.serialize(t)),
+      closed: this.closedList(),
     });
+  }
+
+  /** Record tabs that disappeared since the last change, and forget closures of reopened ones. */
+  private trackClosures(tabs: TabModel[]): void {
+    const now = Date.now();
+    const current = new Set(tabs.map(tabIdentity));
+    for (const key of this.previousIdentities) {
+      if (!current.has(key)) this.closed.set(key, now);
+    }
+    for (const key of current) this.closed.delete(key);
+    this.previousIdentities = current;
+  }
+
+  private absorbClosed(list: PersistedWorkspace['closed']): void {
+    const open = new Set(this.tabState.tabs().map(tabIdentity));
+    for (const entry of list ?? []) {
+      if (!entry || typeof entry.key !== 'string' || typeof entry.at !== 'number') continue;
+      if (open.has(entry.key) && this.previousIdentities.has(entry.key)) continue;
+      const known = this.closed.get(entry.key);
+      if (known === undefined || entry.at > known) this.closed.set(entry.key, entry.at);
+    }
+  }
+
+  private closedList(): Array<{ key: string; at: number }> {
+    const cutoff = Date.now() - CLOSED_TTL_MS;
+    return [...this.closed.entries()]
+      .filter(([, at]) => at >= cutoff)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, CLOSED_LIMIT)
+      .map(([key, at]) => ({ key, at }));
   }
 
   /** La clave del espacio de trabajo de la empresa activa. */

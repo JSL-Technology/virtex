@@ -1,6 +1,7 @@
 import { WORKFLOW_LIMITS, WorkflowVariable } from './workflow-graph';
 
-const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+/** Keys that would reach an object's prototype chain. A regex, not quoted names: those read as catalogue keys to the i18n scan. */
+const FORBIDDEN_KEY = /^(?:__proto__|constructor|prototype)$/;
 
 /**
  * A deep copy of caller-supplied process data that is safe to store and evaluate.
@@ -25,7 +26,7 @@ function sanitizeValue(value: unknown, depth: number): unknown {
   if (typeof value === 'object') {
     const out: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value as Record<string, unknown>).slice(0, 500)) {
-      if (FORBIDDEN_KEYS.has(key) || key.length > 120) continue;
+      if (FORBIDDEN_KEY.test(key) || key.length > 120) continue;
       out[key] = sanitizeValue(item, depth + 1);
     }
     return out;

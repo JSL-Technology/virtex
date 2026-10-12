@@ -1,3 +1,4 @@
+import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -150,12 +151,12 @@ export class WorkflowInstancePage {
         id: node.id,
         type: node.type,
         name,
-        meta: state ? this.translate.instant(`workflow_engine.run_state.${state}`) : this.translate.instant('workflow_engine.run_state.pending'),
+        meta: state ? this.translate.instant(composeKey('workflow_engine.run_state', state)) : this.translate.instant('workflow_engine.run_state.pending'),
         position: node.position ?? { x: 0, y: 0 },
         parentId: node.parentId,
         state,
         dim: !state,
-        ariaLabel: `${name}, ${state ? this.translate.instant(`workflow_engine.run_state.${state}`) : this.translate.instant('workflow_engine.run_state.pending')}`,
+        ariaLabel: `${name}, ${state ? this.translate.instant(composeKey('workflow_engine.run_state', state)) : this.translate.instant('workflow_engine.run_state.pending')}`,
       };
     });
   });
@@ -321,6 +322,10 @@ export class WorkflowInstancePage {
     return taskStatusTone(task.status);
   }
 
+  taskStatusKey(task: WorkflowTask): string {
+    return composeKey('workflow_engine.task_status', task.status);
+  }
+
   taskOutcome(task: WorkflowTask): string {
     return task.outcome ? outcomeLabel(this.translate, task.outcome, task.outcomeLabels) : '—';
   }
@@ -348,7 +353,7 @@ export class WorkflowInstancePage {
       return found?.name?.trim() || (found ? this.translate.instant(nodeTypeKey(found.type)) : '—');
     };
     const name = (d['nodeName'] as string | null) || node(t.toNodeId ?? t.fromNodeId);
-    const tr = (key: string, params: Record<string, unknown> = {}) => this.translate.instant(`workflow_engine.timeline.${key}`, params);
+    const tr = (key: string, params: Record<string, unknown> = {}) => this.translate.instant(composeKey('workflow_engine.timeline', key), params);
     let text: string;
     let tone: TimelineEntry['tone'] = 'neutral';
     let comment: string | null = null;

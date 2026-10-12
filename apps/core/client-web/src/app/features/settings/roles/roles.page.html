@@ -64,13 +64,13 @@
         <div class="form-field"><label for="description">{{ 'settings.roles.description' | translate }}</label><textarea id="description" formControlName="description"></textarea></div>
         <div class="permissions-grid">
           <h3>{{ 'settings.roles.permissions' | translate }}</h3>
-          @for(group of permissionGroups(); track group.name) {
+          @for(group of permissionGroups(); track group.key) {
           <div class="permission-group">
-            <h4>{{ group.name }}</h4>
+            <h4>{{ group.labelKey | translate }}</h4>
             @for(permission of group.permissions; track permission.value) {
             <div class="permission-item">
               <input type="checkbox" [id]="permission.value" [checked]="isPermissionSelected(permission.value)" (change)="onPermissionChange($event, permission.value)">
-              <label [for]="permission.value">{{ permission.label }}</label>
+              <label [for]="permission.value" [title]="permission.value">{{ permission.actionKey | translate }}</label>
             </div>
             }
           </div>

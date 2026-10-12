@@ -1,3 +1,4 @@
+import { composeKey } from '@virteex/shared/types';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -158,7 +159,7 @@ let sessionClipboard: DesignerClipboard | null = null;
       provide: F_A11Y_CONFIG,
       useFactory: () => {
         const t = inject(TranslateService);
-        const k = (key: string, params?: Record<string, unknown>) => t.instant(`workflow_engine.a11y.${key}`, params);
+        const k = (key: string, params?: Record<string, unknown>) => t.instant(composeKey('workflow_engine.a11y', key), params);
         return mergeA11yConfig({
           keyboard: true,
           moveStep: 20,
@@ -1061,6 +1062,10 @@ export class WorkflowDesignerPage {
 
   typeKey(type: WorkflowNodeType): string {
     return nodeTypeKey(type);
+  }
+
+  schemeHint(): string {
+    return composeKey('workflow_engine.designer.scheme_hint', this.prefs().scheme);
   }
 
   onScale(scale: number): void {

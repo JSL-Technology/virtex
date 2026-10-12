@@ -130,7 +130,7 @@
                       <li>
                         <button type="button" class="wri__task" (click)="focusNode(task.nodeId)">
                           <span class="wri__task-name">{{ task.name }}</span>
-                          <vx-badge [tone]="taskTone(task)">{{ ('workflow_engine.task_status.' + task.status.toLowerCase()) | translate }}</vx-badge>
+                          <vx-badge [tone]="taskTone(task)">{{ taskStatusKey(task) | translate }}</vx-badge>
                         </button>
                         <span class="wri__task-meta">
                           @if (task.status === 'OPEN') {

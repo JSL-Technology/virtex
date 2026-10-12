@@ -240,7 +240,7 @@
                 <option value="select">{{ 'workflow_engine.designer.scheme_select' | translate }}</option>
                 <option value="scroll">{{ 'workflow_engine.designer.scheme_scroll' | translate }}</option>
               </select>
-              <p class="wd-hint">{{ ('workflow_engine.designer.scheme_hint_' + prefs().scheme) | translate }}</p>
+              <p class="wd-hint">{{ schemeHint() | translate }}</p>
             </div>
           </div>
         }

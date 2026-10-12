@@ -1,3 +1,4 @@
+import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FFlowModule } from '@foblex/flow';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -112,7 +113,7 @@ export class DesignerPaletteComponent {
       kind: 'node',
       type,
       label: t(nodeTypeKey(type)),
-      description: t(`workflow_engine.palette.describe.${type}`),
+      description: t(composeKey('workflow_engine.palette.describe', type)),
       icon: NODE_ICONS[type],
     });
     const actions = this.catalogs.actions().map<PaletteItem>((action) => ({
@@ -150,7 +151,7 @@ export class DesignerPaletteComponent {
   });
 
   categoryKey(category: PaletteCategory): string {
-    return `workflow_engine.palette.category.${category}`;
+    return composeKey('workflow_engine.palette.category', category);
   }
 
   toggle(category: PaletteCategory): void {

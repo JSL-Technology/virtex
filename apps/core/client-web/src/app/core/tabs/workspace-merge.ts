@@ -28,11 +28,25 @@ import { TabModel } from './tab.model';
  * - **El orden es el local, y lo que llega nuevo se añade al final**: reordenar las pestañas de
  *   alguien mientras trabaja es desorientarlo por un beneficio que no existe.
  */
+/** The identity a tab is merged by: its record when it has one, else its route. */
+export const tabIdentity = (tab: Pick<TabModel, 'entityKey' | 'route'>): string => tab.entityKey ?? tab.route;
+
+/**
+ * Tabs the person closed, by identity, with when (epoch ms).
+ *
+ * A union alone cannot tell «never had this tab» from «closed it»: a tab closed here and reloaded
+ * before the server heard about it came back from the server's older copy, and so did every tab
+ * closed on one device while another still listed it. A closure newer than the remote tab's last
+ * use wins; reopening the tab later is newer still, so it is not blocked forever.
+ */
+export type ClosedTabs = ReadonlyMap<string, number>;
+
 export function mergeWorkspaces(
   local: TabModel[],
   remote: TabModel[],
+  closed: ClosedTabs = new Map(),
 ): TabModel[] {
-  const identity = (tab: TabModel): string => tab.entityKey ?? tab.route;
+  const identity = tabIdentity;
   const merged = new Map<string, TabModel>();
 
   for (const tab of local) merged.set(identity(tab), tab);
@@ -40,6 +54,8 @@ export function mergeWorkspaces(
   for (const tab of remote) {
     const key = identity(tab);
     const mine = merged.get(key);
+    const closedAt = closed.get(key);
+    if (!mine && closedAt !== undefined && closedAt >= tab.lastActivatedAt.getTime()) continue;
     if (!mine) {
       merged.set(key, tab);
       continue;

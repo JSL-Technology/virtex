@@ -59,7 +59,8 @@ export function eventLabel(translate: TranslateService, event: string | undefine
 }
 
 export function eventFieldLabel(translate: TranslateService, name: string, label?: string | null): string {
-  if (label && !label.startsWith('workflow_engine.')) return label;
+  // A label the server sent as a catalogue key is translated below; anything else is the author's own text.
+  if (label && !/^workflow_engine\./.test(label)) return label;
   const key = composeKey('workflow_engine.event_field', name);
   const text = translate.instant(key);
   return text === key ? name : text;

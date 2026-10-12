@@ -87,4 +87,16 @@ describe('mergeWorkspaces', () => {
     expect(mergeWorkspaces([tab({ route: '/a' })], []).map((t) => t.route)).toEqual(['/a']);
     expect(mergeWorkspaces([], [])).toEqual([]);
   });
+
+  it('no resucita una pestaña cerrada aquí después de su último uso en el otro equipo', () => {
+    const closed = new Map([['/invoices', new Date('2026-02-01').getTime()]]);
+    const result = mergeWorkspaces([], [tab({ route: '/invoices', lastActivatedAt: new Date('2026-01-15') })], closed);
+    expect(result).toEqual([]);
+  });
+
+  it('sí trae la pestaña si el otro equipo la usó después de cerrarla aquí', () => {
+    const closed = new Map([['/invoices', new Date('2026-01-10').getTime()]]);
+    const result = mergeWorkspaces([], [tab({ route: '/invoices', lastActivatedAt: new Date('2026-01-15') })], closed);
+    expect(result.map((t) => t.route)).toEqual(['/invoices']);
+  });
 });
