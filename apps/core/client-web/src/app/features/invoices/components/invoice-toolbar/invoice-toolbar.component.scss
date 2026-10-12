@@ -1,71 +1,118 @@
-.sap-toolbar {
+.doc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.5rem;
+  gap: var(--space-1);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+
+  .toolbar-group {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    background-color: var(--bg-card);
+    gap: 4px;
+  }
+
+  .separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-color);
+    margin: 0 0.5rem;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background-color: var(--bg-hover);
+      color: var(--primary);
+      border-color: var(--border-color);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring, var(--primary));
+      outline-offset: 2px;
+    }
+
+    lucide-icon {
+      display: flex;
+    }
+
+    &.text-btn {
+      padding: 0 0.75rem;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+    }
+
+    &.tool-btn--primary {
+      background: var(--primary);
+      color: var(--text-on-primary, #fff);
+
+      &:hover {
+        background: var(--primary-hover, var(--primary));
+        color: var(--text-on-primary, #fff);
+      }
+    }
+  }
+
+  .more {
+    position: relative;
+  }
+
+  .more-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 20;
+    min-width: 240px;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 0.25rem 0.5rem;
-    gap: var(--space-1);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: var(--space-4);
-    overflow-x: auto;
+    box-shadow: var(--shadow-lg, var(--shadow-sm));
 
-    .toolbar-group {
-        display: flex;
-        align-items: center;
-        gap: 2px;
+    button {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font: inherit;
+      font-size: var(--text-sm);
+      text-align: left;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--bg-hover);
+        outline: none;
+      }
     }
-
-    .separator {
-        width: 1px;
-        height: 24px;
-        background-color: var(--border-color);
-        margin: 0 0.5rem;
-    }
-
-    .spacer {
-        flex: 1;
-    }
-
-    .tool-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-secondary);
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover {
-            background-color: var(--bg-hover);
-            color: var(--primary);
-            border-color: var(--border-color);
-        }
-
-        &:active {
-            background-color: var(--bg-tertiary);
-        }
-
-        lucide-icon {
-            display: flex;
-        }
-
-        &.text-btn {
-            width: auto;
-            padding: 0 0.75rem;
-            gap: var(--space-2);
-            font-size: var(--text-sm);
-            font-weight: var(--font-medium);
-        }
-    }
+  }
 }
-
-//  El bloque de ajustes para modo oscuro que había aquí sobra por completo:
-//  `.sap-toolbar` ya se pinta con `--surface-raised` y `--border-subtle`, que
-//  cambian solos con el tema. Además dependía de `:host-context(.theme-dark)`,
-//  una clase que ya no es la fuente de verdad del tema, así que en la práctica
-//  no llegaba a aplicarse.

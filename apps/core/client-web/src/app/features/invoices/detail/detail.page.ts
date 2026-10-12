@@ -20,7 +20,6 @@ import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
@@ -503,13 +502,11 @@ export class InvoiceDetailPage implements OnInit {
     });
   }
 
-  handleExport(format: 'pdf' | 'word' | 'excel'): void {
+  handleExport(format: 'pdf' | 'excel'): void {
     if (format === 'pdf') {
-        this.downloadPdf();
-    } else if (format === 'word') {
-        this.downloadWord();
+      this.downloadPdf();
     } else {
-        void this.downloadExcel();
+      void this.downloadExcel();
     }
   }
 
@@ -578,26 +575,6 @@ export class InvoiceDetailPage implements OnInit {
       error: () => {
         this.notificationService.showError('invoices.detail.invoice_pdf_could_not_downloaded');
       }
-    });
-  }
-
-  /**
-   * The same fiscal representation the PDF carries, as a Word document.
-   *
-   * It used to copy the on-screen preview out of the page: no issuer or buyer tax id, the screen's
-   * own layout, and a `<title>` hard-coded in Spanish. The server renders the official document for
-   * the PDF and the print view; Word now gets that one too.
-   */
-  downloadWord(): void {
-    const invoice = this.invoice();
-    if (!invoice) return;
-    this.invoicesService.printableHtml(invoice.id).subscribe({
-      next: async (html) => {
-        const blob = await asBlob(html);
-        saveAs(blob as Blob, `${exportBaseName(invoice)}.docx`);
-        this.notificationService.showSuccess('invoices.detail.word_document_generated');
-      },
-      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.word_export_failed'),
     });
   }
 
@@ -707,6 +684,26 @@ export class InvoiceDetailPage implements OnInit {
   }
 
   /** Whether the document can still be corrected: issued, not a note itself, not fully credited. */
+  /** Whether «Registrar cobro» applies: an issued invoice that still has something owed. */
+  canCollect(invoice: Invoice): boolean {
+    return (
+      invoice.type === 'INVOICE' &&
+      ['Pending', 'Partially Paid'].includes(invoice.status) &&
+      Number(invoice.balance ?? 0) > 0
+    );
+  }
+
+  /**
+   * Opens a receipt for this invoice with the customer, the invoice and its balance already filled
+   * in (QA C-03): collecting used to require finding the receipts page, whose «New» button did
+   * nothing, and pressing the invoice by hand.
+   */
+  collect(invoice: Invoice): void {
+    void this.router.navigate(['/customer-receipts/new'], {
+      queryParams: { customerId: invoice.customerId, invoiceId: invoice.id },
+    });
+  }
+
   canCredit(invoice: Invoice): boolean {
     return (
       invoice.type === 'INVOICE' &&

@@ -245,3 +245,51 @@
   font-size: var(--text-xs);
   color: var(--content-secondary);
 }
+
+// QA A-18: la acción destructiva, separada de la correctiva.
+.credit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.credit-actions__buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.credit-actions__divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+}
+
+.danger-link {
+  border: 0;
+  background: transparent;
+  color: var(--color-danger, #c62828);
+  font: inherit;
+  font-weight: var(--font-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 6px 4px;
+
+  &:hover {
+    color: var(--color-danger-strong, #a11d1d);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring, var(--primary));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

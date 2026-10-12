@@ -35,3 +35,29 @@
     white-space: nowrap;
   }
 }
+
+.actions-column {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.row-action {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--primary);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 6px);
+
+  &:hover {
+    background: var(--bg-hover);
+    text-decoration: underline;
+  }
+}
+
+// QA M-08: los identificadores no se parten («FAC-» / «00000001» en dos líneas).
+.data-table td:first-child .table-link,
+.data-table td.mono {
+  white-space: nowrap;
+}

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
@@ -17,7 +17,9 @@ import {
   Search,
   Settings,
   HelpCircle,
-  FileUp
+  FileUp,
+  HandCoins,
+  Ellipsis,
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -50,17 +52,25 @@ export class InvoiceToolbarComponent {
   protected readonly ToolsIcon = Settings;
   protected readonly HelpIcon = HelpCircle;
   protected readonly ImportIcon = FileUp;
+  protected readonly CollectIcon = HandCoins;
+  protected readonly MoreIcon = Ellipsis;
+
+  /** Whether the «Más» menu is open. */
+  protected readonly moreOpen = signal(false);
 
   @Input() canNavigate = true;
   @Input() canCopy = true;
   /** «Copiar de» trae líneas de otro documento: solo tiene sentido en uno que aún se edita. */
   @Input() canCopyFrom = true;
   @Input() isNew = false;
+  /** «Registrar cobro»: only for an issued document with something still owed. */
+  @Input() canCollect = false;
 
   @Output() navigateRequested = new EventEmitter<'first' | 'prev' | 'next' | 'last'>();
   @Output() printRequested = new EventEmitter<void>();
   @Output() emailRequested = new EventEmitter<void>();
-  @Output() exportRequested = new EventEmitter<'pdf' | 'word' | 'excel'>();
+  @Output() exportRequested = new EventEmitter<'pdf' | 'excel'>();
+  @Output() collectRequested = new EventEmitter<void>();
   @Output() copyFrom = new EventEmitter<void>();
   @Output() copyTo = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
@@ -71,5 +81,10 @@ export class InvoiceToolbarComponent {
 
   onNavigate(direction: 'first' | 'prev' | 'next' | 'last') {
     this.navigateRequested.emit(direction);
+  }
+
+  /** Closes the «Más» menu once an entry was chosen. */
+  protected pick(): void {
+    this.moreOpen.set(false);
   }
 }

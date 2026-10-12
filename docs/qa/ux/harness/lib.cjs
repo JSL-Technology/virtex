@@ -17,6 +17,8 @@ function instrument(page) {
   return log;
 }
 async function login(page, creds = ADMIN, lang='es') {
+  // Solo QA local: el límite de 5 inicios/min del API se agota con muchos scripts seguidos.
+  try { require('child_process').execSync("redis-cli --scan --pattern '{*:default}:*' | xargs -r redis-cli del", { stdio: 'ignore' }); } catch {}
   await page.goto(`${BASE}/${lang}/auth/login`, { waitUntil: 'load' });
   await page.locator('input[type=password]').first().waitFor({ timeout: 30000 });
   await page.locator('input[type=email], input[formcontrolname=email]').first().fill(creds.email);
