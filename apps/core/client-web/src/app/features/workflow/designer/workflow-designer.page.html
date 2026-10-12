@@ -335,6 +335,7 @@
       @if (selectionCount()) {
         <span>{{ 'workflow_engine.designer.selected' | translate: { count: selectionCount() } }}</span>
       }
+      @if (!readOnly()) {
       <button type="button" class="wd-status__issues" (click)="inspectorTab.set('issues'); setPref('inspector', true)">
         @if (validating()) {
           {{ 'workflow_engine.designer.validating' | translate }}
@@ -345,6 +346,7 @@
           <lucide-icon [img]="OkIcon" [size]="12" /> {{ 'workflow_engine.designer.ready_to_publish' | translate }}
         }
       </button>
+      }
       <span class="wd-status__spacer"></span>
       <span>{{ zoomPercent() }}%</span>
     </footer>

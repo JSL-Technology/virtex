@@ -199,6 +199,12 @@ let sessionClipboard: DesignerClipboard | null = null;
   styleUrl: './workflow-designer.page.scss',
   host: {
     '(keydown)': 'onKeydown($event)',
+    // The tab wrapper marks a record tab dirty on any edit event (a safety net for pages that
+    // don't track their own state). This page does: whatever was typed — a search box, a person
+    // picker — the tab shows exactly what the store says.
+    '(input)': 'resyncTab()',
+    '(change)': 'resyncTab()',
+    '(paste)': 'resyncTab()',
   },
 })
 export class WorkflowDesignerPage {
@@ -498,6 +504,13 @@ export class WorkflowDesignerPage {
     this.tab?.setTitle(definition.name);
     this.tab?.markClean();
     this.validateNow();
+  }
+
+  resyncTab(): void {
+    queueMicrotask(() => {
+      if (this.store.dirty()) this.tab?.markDirty(true);
+      else this.tab?.markClean();
+    });
   }
 
   reload(): void {

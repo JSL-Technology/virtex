@@ -5,9 +5,9 @@ import {
   FileMinus, FilePen, FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, GitMerge, HandCoins,
   History, Home, Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks,
   ListTree, Network, NotebookTabs, Package, PackageCheck, PackagePlus, PackageSearch, Percent, Puzzle, Receipt,
-  Ruler, Scale, ScrollText, Search, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store,
+  Ruler, Scale, ScrollText, Search, Settings2, Share2, ShieldAlert, ShoppingBag, ShoppingCart, Store,
   Table2, Tag, TrendingUp, Truck, Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound,
-  Warehouse, Waves,
+  Warehouse, Waves, Workflow,
 } from 'lucide-angular';
 
 /**
@@ -28,9 +28,9 @@ const ICONS: Record<string, unknown> = {
   FileMinus, FilePen, FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, GitMerge, HandCoins,
   History, Home, Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks,
   ListTree, Network, NotebookTabs, Package, PackageCheck, PackagePlus, PackageSearch, Percent, Puzzle, Receipt,
-  Ruler, Scale, ScrollText, Search, Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store,
+  Ruler, Scale, ScrollText, Search, Settings2, Share2, ShieldAlert, ShoppingBag, ShoppingCart, Store,
   Table2, Tag, TrendingUp, Truck, Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound,
-  Warehouse, Waves,
+  Warehouse, Waves, Workflow,
 };
 
 export function moduleIcon(name: string): unknown {
