@@ -84,6 +84,7 @@
       "reconciliation",
       "recurring_entries",
       "register",
+      "relationship_map",
       "remedy",
       "reports",
       "reset_password",
@@ -112,6 +113,7 @@
       "validation",
       "widgets",
       "wms",
+      "workflow_engine",
       "workflows"
     ],
     "$core_why": "The namespaces the application shell needs when a language chunk cannot be fetched at all. Emitted as <lang>.core.json and bundled, so a reader on a failing connection sees the sign-in page and the error wording rather than a screen of dotted identifiers. Everything else arrives with the language chunk.",
@@ -224,6 +226,7 @@
       "pwa",
       "reconciliation",
       "register",
+      "relationship_map",
       "remedy",
       "reports",
       "reset_password",
@@ -253,6 +256,7 @@
       "validation",
       "widgets",
       "wms",
+      "workflow_engine",
       "workflows"
     ]
   },

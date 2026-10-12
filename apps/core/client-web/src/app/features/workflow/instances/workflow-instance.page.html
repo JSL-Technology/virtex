@@ -1,0 +1,79 @@
+<div class="wri">
+  <header class="wri__bar">
+    <button type="button" class="wri__icon-btn" (click)="back()" [title]="'workflow_engine.back' | translate">
+      <lucide-icon [img]="BackIcon" [size]="18" />
+    </button>
+    @if (detail(); as d) {
+      <h1>{{ d.definition?.name || ('workflow_engine.nav.instances' | translate) }}</h1>
+      <span class="wri__badge" [attr.data-status]="d.instance.status">
+        {{ 'workflow_engine.instance_status.' + d.instance.status.toLowerCase() | translate }}
+      </span>
+      <span class="wri__spacer"></span>
+      @if (isRunning()) {
+        <button type="button" class="wri__btn" (click)="cancel()">
+          <lucide-icon [img]="CancelIcon" [size]="16" />
+          {{ 'workflow_engine.cancel_run' | translate }}
+        </button>
+      }
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="wri__state">{{ 'workflow_engine.loading' | translate }}</div>
+  } @else if (error()) {
+    <div class="wri__state wri__state--error">{{ error() }}</div>
+  } @else if (detail(); as d) {
+    <div class="wri__body">
+      <div class="wri__canvas">
+        <vx-flow-canvas [nodes]="canvasNodes()" [edges]="canvasEdges()" [nodeTemplate]="card" />
+      </div>
+
+      <aside class="wri__side">
+        @if (d.instance.error) {
+          <div class="wri__error">{{ d.instance.error }}</div>
+        }
+
+        <section class="wri__section">
+          <h3>{{ 'workflow_engine.open_tasks' | translate }}</h3>
+          @if (openTasks().length === 0) {
+            <p class="wri__muted">{{ 'workflow_engine.no_open_tasks' | translate }}</p>
+          } @else {
+            <ul class="wri__tasks">
+              @for (task of openTasks(); track task.id) {
+                <li>
+                  <span class="wri__task-name">{{ task.name }}</span>
+                  <span class="wri__task-outcomes">{{ task.outcomes.join(' / ') }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="wri__section">
+          <h3>{{ 'workflow_engine.timeline' | translate }}</h3>
+          <ul class="wri__timeline">
+            @for (transition of d.transitions; track transition.id) {
+              <li class="wri__event">
+                <span class="wri__event-kind">{{ transitionLabel(transition.kind) }}</span>
+                @if (transition.toNodeId) {
+                  <span class="wri__event-node">{{ nodeName(transition.toNodeId) }}</span>
+                }
+                <span class="wri__event-time">{{ transition.createdAt | vxDate }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      </aside>
+    </div>
+  }
+
+  <ng-template #card let-data>
+    <div class="wri-node" [attr.data-state]="data.state" [attr.data-type]="data.node.type">
+      <span class="wri-node__icon"><lucide-icon [img]="iconFor(data.node.type)" [size]="16" /></span>
+      <span class="wri-node__body">
+        <span class="wri-node__name">{{ data.node.name || ('workflow_engine.node.' + data.node.type | translate) }}</span>
+        <span class="wri-node__type">{{ 'workflow_engine.node.' + data.node.type | translate }}</span>
+      </span>
+    </div>
+  </ng-template>
+</div>

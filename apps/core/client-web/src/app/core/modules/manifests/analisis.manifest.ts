@@ -46,6 +46,29 @@ export const ANALISIS_MODULE: ModuleManifest = {
       menu: { group: 'analysis', labelKey: 'page_titles.profitability_customer' },
       load: () => import('../../../features/reports/profitability-by-customer/profitability-by-customer.page').then((m) => m.ProfitabilityByCustomerPage),
     },
+    {
+      // SAP's «Mapa de relaciones». Reached from a document (type + id in the address); the menu
+      // entry opens it empty, with guidance on where to open it from.
+      path: 'relationship-map',
+      kind: WindowKind.CANVAS,
+      permission: 'relationship_map:view',
+      titleKey: 'relationship_map.title',
+      icon: 'Share2',
+      entityKeyFn: () => 'analisis:relationship-map',
+      menu: { group: 'analysis', labelKey: 'relationship_map.menu' },
+      load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
+    },
+    {
+      //  A free surface: a pannable, zoomable graph, not a document to read — hence CANVAS. The
+      //  title becomes the root document's once the map loads (see the page).
+      path: 'relationship-map/:type/:id',
+      kind: WindowKind.CANVAS,
+      permission: 'relationship_map:view',
+      titleKey: 'relationship_map.title',
+      icon: 'Share2',
+      entityKeyFn: (p) => `analisis:relationship-map:${p['type']}:${p['id']}`,
+      load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
+    },
   ],
 };
 

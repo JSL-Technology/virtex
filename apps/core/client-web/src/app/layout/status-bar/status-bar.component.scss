@@ -4,7 +4,8 @@
   align-items: center;
   gap: 1.25rem;
   padding: 0.3rem 0.9rem;
-  border-top: 1px solid var(--border-color);
+  /* Sin borde superior: la franja de estado se funde con el lienzo, igual que la
+     barra superior; la separación la da el hueco que dejan las tarjetas de arriba. */
   background: var(--bg-secondary);
   font-size: var(--text-xs);
   color: var(--text-tertiary);

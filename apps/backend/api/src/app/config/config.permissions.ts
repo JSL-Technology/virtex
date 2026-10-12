@@ -74,4 +74,18 @@ export const CONFIG_PERMISSIONS = {
   POS_VIEW: 'pos:view',
   POS_OPERATE: 'pos:operate',
   POS_MANAGE_SHIFTS: 'pos:manage_shifts',
+
+  /**
+   * The Business Workflow engine — the SAP-style process designer and runtime, distinct from the
+   * approval policies above (`WORKFLOWS_*`).
+   *
+   * `DESIGN` authors and publishes the process graphs; `RUN` starts, cancels and reads instances;
+   * `VIEW` reads a design without touching it, so an auditor can see a process without altering it;
+   * `TASK_ACT` completes the human steps a running process raises — the approver's grant, held apart
+   * from the designer's so writing the rules and acting under them stay different jobs.
+   */
+  WORKFLOW_DESIGN: 'workflow_engine:design',
+  WORKFLOW_RUN: 'workflow_engine:run',
+  WORKFLOW_VIEW: 'workflow_engine:view',
+  WORKFLOW_TASK_ACT: 'workflow_engine:act',
 } as const;

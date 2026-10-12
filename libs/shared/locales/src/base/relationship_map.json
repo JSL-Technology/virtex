@@ -1,0 +1,197 @@
+{
+  "relationship_map.title": {
+    "es": "Mapa de relaciones",
+    "en": "Relationship map",
+    "pt": "Mapa de relações"
+  },
+  "relationship_map.menu": {
+    "es": "Mapa de relaciones",
+    "en": "Relationship map",
+    "pt": "Mapa de relações"
+  },
+  "relationship_map.empty_hint": {
+    "es": "Abre el mapa desde un documento —una factura, una orden de compra— para ver toda su cadena.",
+    "en": "Open the map from a document — an invoice, a purchase order — to see its whole chain.",
+    "pt": "Abra o mapa a partir de um documento — uma fatura, uma ordem de compra — para ver toda a sua cadeia."
+  },
+  "relationship_map.loading": {
+    "es": "Cargando el mapa…",
+    "en": "Loading the map…",
+    "pt": "Carregando o mapa…"
+  },
+  "relationship_map.load_failed": {
+    "es": "No se pudo cargar el mapa de relaciones.",
+    "en": "The relationship map could not be loaded.",
+    "pt": "Não foi possível carregar o mapa de relações."
+  },
+  "relationship_map.not_found": {
+    "es": "No se encontró el documento.",
+    "en": "The document was not found.",
+    "pt": "O documento não foi encontrado."
+  },
+  "relationship_map.unknown_document_type": {
+    "es": "Tipo de documento no reconocido: {{type}}.",
+    "en": "Unrecognised document type: {{type}}.",
+    "pt": "Tipo de documento não reconhecido: {{type}}."
+  },
+  "relationship_map.truncated": {
+    "es": "Se muestran los primeros {{count}} documentos de la cadena.",
+    "en": "Showing the first {{count}} documents of the chain.",
+    "pt": "Mostrando os primeiros {{count}} documentos da cadeia."
+  },
+  "relationship_map.node.no_number": {
+    "es": "Sin número",
+    "en": "No number",
+    "pt": "Sem número"
+  },
+  "relationship_map.toolbar.zoom_in": {
+    "es": "Acercar",
+    "en": "Zoom in",
+    "pt": "Aproximar"
+  },
+  "relationship_map.toolbar.zoom_out": {
+    "es": "Alejar",
+    "en": "Zoom out",
+    "pt": "Afastar"
+  },
+  "relationship_map.toolbar.fit": {
+    "es": "Ajustar a la pantalla",
+    "en": "Fit to screen",
+    "pt": "Ajustar à tela"
+  },
+  "relationship_map.toolbar.reset": {
+    "es": "Restablecer la vista",
+    "en": "Reset view",
+    "pt": "Redefinir a vista"
+  },
+  "relationship_map.doc.sales_quote": {
+    "es": "Cotización",
+    "en": "Quotation",
+    "pt": "Cotação"
+  },
+  "relationship_map.doc.sales_invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "relationship_map.doc.customer_payment": {
+    "es": "Recibo de cobro",
+    "en": "Customer receipt",
+    "pt": "Recibo de cobrança"
+  },
+  "relationship_map.doc.pos_sale": {
+    "es": "Venta de punto de venta",
+    "en": "POS sale",
+    "pt": "Venda de PDV"
+  },
+  "relationship_map.doc.ecf_submission": {
+    "es": "Comprobante electrónico",
+    "en": "Electronic document",
+    "pt": "Comprovante eletrônico"
+  },
+  "relationship_map.doc.purchase_requisition": {
+    "es": "Requisición",
+    "en": "Requisition",
+    "pt": "Requisição"
+  },
+  "relationship_map.doc.purchase_order": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Ordem de compra"
+  },
+  "relationship_map.doc.goods_receipt": {
+    "es": "Recepción de mercancía",
+    "en": "Goods receipt",
+    "pt": "Recebimento de mercadoria"
+  },
+  "relationship_map.doc.vendor_bill": {
+    "es": "Factura de proveedor",
+    "en": "Vendor bill",
+    "pt": "Fatura de fornecedor"
+  },
+  "relationship_map.doc.journal_entry": {
+    "es": "Asiento contable",
+    "en": "Journal entry",
+    "pt": "Lançamento contábil"
+  },
+  "relationship_map.subtype.credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "relationship_map.subtype.debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "relationship_map.rel.invoiced": {
+    "es": "Facturado",
+    "en": "Invoiced",
+    "pt": "Faturado"
+  },
+  "relationship_map.rel.corrects": {
+    "es": "Corrige",
+    "en": "Corrects",
+    "pt": "Corrige"
+  },
+  "relationship_map.rel.e_submitted": {
+    "es": "Enviado electrónicamente",
+    "en": "Electronically submitted",
+    "pt": "Enviado eletronicamente"
+  },
+  "relationship_map.rel.settled_by": {
+    "es": "Saldado con",
+    "en": "Settled by",
+    "pt": "Liquidado por"
+  },
+  "relationship_map.rel.ordered": {
+    "es": "Ordenado",
+    "en": "Ordered",
+    "pt": "Ordenado"
+  },
+  "relationship_map.rel.received": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "relationship_map.rel.billed": {
+    "es": "Facturado por el proveedor",
+    "en": "Billed",
+    "pt": "Faturado pelo fornecedor"
+  },
+  "relationship_map.rel.posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Lançado"
+  },
+  "relationship_map.rel.cost_posted": {
+    "es": "Costo contabilizado",
+    "en": "Cost posted",
+    "pt": "Custo lançado"
+  },
+  "relationship_map.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "relationship_map.status.open": {
+    "es": "Abierto",
+    "en": "Open",
+    "pt": "Aberto"
+  },
+  "relationship_map.status.closed": {
+    "es": "Cerrado",
+    "en": "Closed",
+    "pt": "Fechado"
+  },
+  "relationship_map.status.cancelled": {
+    "es": "Anulado",
+    "en": "Cancelled",
+    "pt": "Anulado"
+  },
+  "relationship_map.status.unknown": {
+    "es": "Sin estado",
+    "en": "No status",
+    "pt": "Sem estado"
+  }
+}

@@ -72,22 +72,40 @@
   border-radius: var(--radius-full);
 }
 
-.tab-dirty-dot {
+/* Ranura de acción de ancho fijo, reservada SIEMPRE. El punto y la × viven
+   superpuestos y centrados dentro de ella, de modo que (1) la × aparece justo
+   donde estaba el punto, y (2) el título se trunca en el mismo sitio tenga
+   punto, × o nada. */
+.tab-action {
+  position: relative;
   flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.tab-dirty-dot,
+.tab-close {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tab-dirty-dot {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--accent-solid);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+  pointer-events: none;
 }
 
 .tab-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   width: 20px;
   height: 20px;
-  margin-left: 0.05rem;
   padding: 0;
   border: none;
   border-radius: var(--radius-sm);
@@ -106,26 +124,26 @@
     color: var(--content-primary);
   }
 
+  /* El `translate` se conserva para no descentrar la × al pulsarla. */
   &:active {
-    transform: scale(0.9);
+    transform: translate(-50%, -50%) scale(0.9);
   }
 }
 
-/* El botón de cierre se revela al pasar el ratón o en la pestaña activa; en el
-   resto permanece oculto, para no llenar la franja de «×» y dejar respirar los
-   títulos. */
+/* La × se revela al pasar el ratón o en la pestaña activa —en el MISMO sitio que
+   el punto—, y en el resto permanece oculta para no llenar la franja de «×». */
 .tab-header:hover .tab-close,
 :host-context(.dv-active-tab) .tab-close {
   opacity: 1;
 }
 
-/* Cambios sin guardar: un punto en reposo que cede su sitio al botón de cierre
-   al pasar el ratón (igual que VS Code), sea la pestaña activa o no. */
+/* Con cambios sin guardar y sin hover manda el punto: se oculta la × (aunque la
+   pestaña sea la activa). Al pasar el ratón, el punto cede su sitio a la ×. */
 .tab-header.is-dirty:not(:hover) .tab-close {
   opacity: 0;
 }
 .tab-header.is-dirty:hover .tab-dirty-dot {
-  display: none;
+  opacity: 0;
 }
 
 /* Vista previa (efímera, estilo VS Code): título en cursiva. Doble clic en la

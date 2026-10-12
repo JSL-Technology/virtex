@@ -22,7 +22,11 @@
 .dockview-theme-light,
 .dockview-theme-dark {
   --dv-group-view-background-color: var(--surface-base);
-  --dv-tabs-and-actions-container-background-color: var(--surface-canvas);
+  //  La franja de pestañas comparte el color de la barra superior (el «chrome»):
+  //  así el borde superior del editor se lee como una continuación de la barra, y
+  //  la pestaña activa —que adopta la superficie del contenido— resalta sobre ella
+  //  como en un navegador.
+  --dv-tabs-and-actions-container-background-color: var(--chrome-surface);
   --dv-tabs-and-actions-container-height: 40px;
   --dv-tabs-and-actions-container-font-size: var(--text-sm);
 
@@ -64,7 +68,10 @@
 .dockview-theme-light,
 .dockview-theme-dark {
   .dv-tabs-and-actions-container {
-    border-bottom: 1px solid var(--border-subtle);
+    //  Sin borde inferior: la franja (color «chrome») y el contenido (superficie
+    //  del panel) ya se distinguen por el color, y así la pestaña activa —que
+    //  adopta la superficie del contenido— se CONECTA con él sin una costura,
+    //  como en un navegador.
     //  Dockview puede dejar el contenedor en modo vertical, apilando las
     //  pestañas en columna. Se fuerza la fila horizontal.
     flex-direction: row;
@@ -160,8 +167,16 @@
       transition: opacity var(--duration-fast) var(--ease-standard);
     }
 
+    //  Hover al estilo de Chrome: la pestaña se rellena HACIA la superficie del
+    //  panel, pero quedándose a medio camino entre la franja y la activa, de modo
+    //  que se nota que responde sin confundirse con la pestaña seleccionada. El
+    //  `color-mix` da ese punto intermedio en AMBOS temas, donde la escala de
+    //  grises no ofrece un token exacto (en oscuro, `--surface-hover` sería más
+    //  claro que la activa, justo lo contrario de lo que queremos). La primera
+    //  declaración es el repliegue para navegadores sin `color-mix`.
     &:hover {
       background-color: var(--surface-hover);
+      background-color: color-mix(in srgb, var(--surface-base) 62%, var(--chrome-surface));
     }
 
     &:focus-visible {

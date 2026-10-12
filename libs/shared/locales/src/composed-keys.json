@@ -570,7 +570,100 @@
       "BLOCKED"
     ],
     "validation.constraints": [],
-    "validation.fields": []
+    "validation.fields": [],
+    "relationship_map.doc": [
+      "sales_quote",
+      "sales_invoice",
+      "customer_payment",
+      "pos_sale",
+      "ecf_submission",
+      "purchase_requisition",
+      "purchase_order",
+      "goods_receipt",
+      "vendor_bill",
+      "journal_entry"
+    ],
+    "relationship_map.rel": [
+      "invoiced",
+      "corrects",
+      "e_submitted",
+      "settled_by",
+      "ordered",
+      "received",
+      "billed",
+      "posted",
+      "cost_posted"
+    ],
+    "relationship_map.subtype": [
+      "credit_note",
+      "debit_note"
+    ],
+    "relationship_map.status": [
+      "draft",
+      "open",
+      "closed",
+      "cancelled",
+      "unknown"
+    ],
+    "workflow_engine.definition_status": [
+      "DRAFT",
+      "PUBLISHED",
+      "ARCHIVED"
+    ],
+    "workflow_engine.instance_status": [
+      "RUNNING",
+      "COMPLETED",
+      "CANCELLED",
+      "FAILED"
+    ],
+    "workflow_engine.invalid_graph": [
+      "one_start",
+      "need_end",
+      "duplicate_node_id",
+      "edge_dangling",
+      "node_no_exit",
+      "unknown_action"
+    ],
+    "workflow_engine.node": [
+      "start",
+      "end",
+      "task",
+      "approval",
+      "condition",
+      "action",
+      "timer"
+    ],
+    "workflow_engine.op": [
+      "eq",
+      "ne",
+      "gt",
+      "gte",
+      "lt",
+      "lte",
+      "in",
+      "nin",
+      "contains",
+      "exists",
+      "truthy"
+    ],
+    "workflow_engine.outcome": [
+      "approve",
+      "reject",
+      "done"
+    ],
+    "workflow_engine.transition": [
+      "started",
+      "enter",
+      "action",
+      "condition",
+      "task_created",
+      "task_completed",
+      "timer_set",
+      "timer_fired",
+      "completed",
+      "cancelled",
+      "error"
+    ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
   "not_keys": [

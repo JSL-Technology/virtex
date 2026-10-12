@@ -1,0 +1,129 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.wft {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg-layer-1, var(--bg-secondary));
+}
+
+.wft__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, var(--border));
+  background: var(--bg-card, var(--bg-primary));
+  color: var(--content-primary, var(--text-primary));
+
+  h1 {
+    margin: 0;
+    font-size: var(--text-md, 1rem);
+    font-weight: 600;
+  }
+}
+
+.wft__state {
+  padding: 24px;
+  color: var(--content-secondary, var(--text-secondary));
+  &--error {
+    color: var(--danger-color, var(--danger));
+  }
+}
+
+.wft__list {
+  list-style: none;
+  margin: 0;
+  padding: 12px 16px;
+  overflow-y: auto;
+}
+
+.wft__task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--bg-card, var(--bg-primary));
+  border: 1px solid var(--border-color, var(--border));
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.wft__task-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wft__task-name {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--content-primary, var(--text-primary));
+}
+
+.wft__task-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--content-secondary, var(--text-secondary));
+}
+
+.wft__due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wft__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--content-link, var(--accent-primary));
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.wft__outcomes {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.wft__outcome {
+  padding: 6px 14px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--content-primary, var(--text-primary));
+  background: var(--bg-secondary, var(--bg-tertiary));
+  border: 1px solid var(--border-color, var(--border));
+  border-radius: var(--border-radius-sm, 6px);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &--approve {
+    color: var(--success-on-solid, #fff);
+    background: var(--success-solid, #16a34a);
+    border-color: transparent;
+  }
+
+  &--reject {
+    color: var(--danger-color, #b91c1c);
+    background: var(--danger-color-subtle, rgba(220, 38, 38, 0.12));
+    border-color: var(--danger, #dc2626);
+  }
+}

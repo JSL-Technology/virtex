@@ -108,6 +108,9 @@ export const MODULE_OF_FOLDER = {
   taxes: 'configuracion',
   extensions: 'configuracion',
   workflows: 'configuracion',
+  // The SAP-style Business Workflow engine (process designer + runtime). Owns its own tables and
+  // reaches operational modules only through its action registry and trigger service — never by import.
+  'workflow-engine': 'configuracion',
   audit: 'configuracion',
   documents: 'configuracion',
   notifications: 'configuracion',

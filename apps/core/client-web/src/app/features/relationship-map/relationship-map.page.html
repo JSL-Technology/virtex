@@ -1,0 +1,91 @@
+<div class="rm">
+  @if (!hasTarget()) {
+    <!-- Opened from the menu, with no document in the address. -->
+    <div class="rm__empty">
+      <lucide-icon [img]="ShareIcon" [size]="40" class="rm__empty-icon" />
+      <h2 class="rm__empty-title">{{ 'relationship_map.title' | translate }}</h2>
+      <p class="rm__empty-text">{{ 'relationship_map.empty_hint' | translate }}</p>
+    </div>
+  } @else if (loading()) {
+    <div class="rm__state">{{ 'relationship_map.loading' | translate }}</div>
+  } @else if (error()) {
+    <div class="rm__state rm__state--error">{{ error() }}</div>
+  } @else if (map(); as m) {
+    <header class="rm__header">
+      <div class="rm__heading">
+        <lucide-icon [img]="ShareIcon" [size]="18" />
+        <h1>{{ 'relationship_map.title' | translate }}</h1>
+      </div>
+
+      <ul class="rm__legend">
+        @for (kind of legend; track kind) {
+          <li class="rm__legend-item">
+            <span class="rm__dot" [attr.data-status]="kind"></span>
+            {{ statusKey(kind) | translate }}
+          </li>
+        }
+      </ul>
+    </header>
+
+    @if (m.truncated) {
+      <div class="rm__notice">
+        <lucide-icon [img]="InfoIcon" [size]="15" />
+        {{ 'relationship_map.truncated' | translate: { count: m.nodes.length } }}
+      </div>
+    }
+
+    <div class="rm__canvas">
+      <vx-flow-canvas [nodes]="canvasNodes()" [edges]="canvasEdges()" [nodeTemplate]="card" />
+    </div>
+  }
+
+  <!-- One document's card, rendered inside the canvas for each node. -->
+  <ng-template #card let-node>
+    <button
+      type="button"
+      class="rm-node"
+      [class.rm-node--root]="node.root"
+      [class.rm-node--link]="!!node.route"
+      [attr.data-status]="node.statusKind"
+      [disabled]="!node.route"
+      (click)="open(node)"
+    >
+      <span class="rm-node__icon">
+        <lucide-icon [img]="iconFor(node)" [size]="18" />
+      </span>
+
+      <span class="rm-node__body">
+        <span class="rm-node__type">
+          {{ node.typeKey | translate }}
+          @if (node.subtypeKey) {
+            <span class="rm-node__badge">{{ node.subtypeKey | translate }}</span>
+          }
+          @if (node.route) {
+            <lucide-icon [img]="OpenIcon" [size]="12" class="rm-node__open" />
+          }
+        </span>
+
+        <span class="rm-node__number">
+          {{ node.number || ('relationship_map.node.no_number' | translate) }}
+        </span>
+
+        @if (node.party) {
+          <span class="rm-node__party">{{ node.party }}</span>
+        }
+
+        <span class="rm-node__meta">
+          @if (dateOf(node)) {
+            <span class="rm-node__date">{{ dateOf(node) }}</span>
+          }
+          @if (money(node)) {
+            <span class="rm-node__amount">{{ money(node) }}</span>
+          }
+        </span>
+      </span>
+
+      <span class="rm-node__status" [attr.data-status]="node.statusKind">
+        {{ statusKey(node.statusKind) | translate }}
+      </span>
+    </button>
+  </ng-template>
+</div>

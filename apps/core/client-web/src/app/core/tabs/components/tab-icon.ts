@@ -3,7 +3,7 @@ import {
   File, FileText, FilePlus, Receipt, LayoutDashboard, ClipboardList,
   CheckSquare, Bell, Search, UploadCloud, DownloadCloud, FolderArchive,
   ShoppingCart, Package, Users, LayoutGrid, Building, Truck, Briefcase,
-  Factory, Warehouse, BookCopy, BarChartBig, CreditCard, Database,
+  Factory, Warehouse, BookCopy, BarChartBig, CreditCard, Database, Share2,
 } from 'lucide-angular';
 
 /** Iconos lucide disponibles para las pestañas, indexados por nombre. */
@@ -11,7 +11,7 @@ export const TAB_ICONS: Record<string, unknown> = {
   File, FileText, FilePlus, Receipt, LayoutDashboard, ClipboardList,
   CheckSquare, Bell, Search, UploadCloud, DownloadCloud, FolderArchive,
   ShoppingCart, Package, Users, LayoutGrid, Building, Truck, Briefcase,
-  Factory, Warehouse, BookCopy, BarChartBig, CreditCard, Database,
+  Factory, Warehouse, BookCopy, BarChartBig, CreditCard, Database, Share2,
 };
 
 export function resolveTabIcon(name: string | undefined): unknown {

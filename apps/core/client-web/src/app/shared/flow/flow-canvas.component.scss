@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.vx-flow-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-layer-1, var(--bg-secondary));
+
+  f-flow {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  f-canvas {
+    display: block;
+  }
+
+  // Foblex paints the dotted background from `currentColor`; tie it to a subtle token.
+  f-background {
+    color: var(--border-subtle, var(--border-color));
+  }
+}
+
+// The small connection anchors. Present for the geometry, not for the eye.
+.vx-flow-canvas__node {
+  position: absolute;
+}
+
+.vx-flow-canvas__port {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+
+  &--in {
+    left: 0;
+  }
+
+  &--out {
+    right: 0;
+  }
+}
+
+.vx-flow-canvas__toolbar {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-card, var(--bg-primary));
+  border: 1px solid var(--border-color, var(--border));
+  border-radius: var(--border-radius-md, 8px);
+  box-shadow: var(--shadow-md);
+  z-index: 2;
+}
+
+.vx-flow-canvas__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--content-secondary, var(--text-secondary));
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+
+  &:hover {
+    color: var(--content-primary, var(--text-primary));
+    background: var(--bg-hover, var(--bg-tertiary));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus, var(--accent-primary));
+    outline-offset: 1px;
+  }
+}

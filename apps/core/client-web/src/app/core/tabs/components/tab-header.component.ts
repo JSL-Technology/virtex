@@ -43,21 +43,28 @@ import { resolveTabIcon } from './tab-icon';
           <span class="tab-badge">{{ t.badge > 99 ? '99+' : t.badge }}</span>
         }
 
-        @if (t.isDirty) {
-          <span class="tab-dirty-dot" aria-hidden="true"></span>
-        }
-
-        @if (t.isCloseable) {
-          <button
-            class="tab-close"
-            type="button"
-            [attr.aria-label]="'tabs.close_tab' | translate"
-            (pointerdown)="$event.stopPropagation()"
-            (click)="close($event)"
-          >
-            <lucide-icon [img]="XIcon" size="14"></lucide-icon>
-          </button>
-        }
+        <!--
+          Ranura de acción de ancho fijo: el punto de «cambios sin guardar» y el botón de cierre
+          viven en el MISMO sitio (superpuestos y centrados). Así la × aparece justo donde estaba
+          el punto al pasar el ratón, y —al reservarse siempre— el título se trunca en el mismo
+          lugar tenga punto, × o nada.
+        -->
+        <span class="tab-action">
+          @if (t.isDirty) {
+            <span class="tab-dirty-dot" aria-hidden="true"></span>
+          }
+          @if (t.isCloseable) {
+            <button
+              class="tab-close"
+              type="button"
+              [attr.aria-label]="'tabs.close_tab' | translate"
+              (pointerdown)="$event.stopPropagation()"
+              (click)="close($event)"
+            >
+              <lucide-icon [img]="XIcon" size="14"></lucide-icon>
+            </button>
+          }
+        </span>
       </div>
     }
   `,

@@ -45,6 +45,58 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/approvals/approvals.page').then((m) => m.ApprovalsPage),
     },
     {
+      //  SAP Business Workflow: the process catalogue. The designer and the runs hang off it.
+      path: 'workflows',
+      kind: WindowKind.LIST,
+      permission: 'workflow_engine:view',
+      titleKey: 'workflow_engine.title',
+      icon: 'ClipboardList',
+      entityKeyFn: () => 'workspace:workflows',
+      menu: { group: 'configuration', labelKey: 'workflow_engine.nav.workflows' },
+      load: () => import('../../../features/workflow/list/workflow-list.page').then((m) => m.WorkflowListPage),
+    },
+    {
+      //  The visual designer: a free canvas, not a document — hence CANVAS. Opening is VIEW; the
+      //  server enforces DESIGN on save and publish, so a viewer sees the graph read-only.
+      path: 'workflows/:id/edit',
+      kind: WindowKind.CANVAS,
+      permission: 'workflow_engine:view',
+      titleKey: 'workflow_engine.title',
+      icon: 'Share2',
+      entityKeyFn: (p) => `workspace:workflow:${p['id']}`,
+      load: () => import('../../../features/workflow/designer/workflow-designer.page').then((m) => m.WorkflowDesignerPage),
+    },
+    {
+      path: 'workflow-instances',
+      kind: WindowKind.LIST,
+      permission: 'workflow_engine:view',
+      titleKey: 'workflow_engine.nav.instances',
+      icon: 'Share2',
+      entityKeyFn: () => 'workspace:workflow-instances',
+      menu: { group: 'configuration', labelKey: 'workflow_engine.nav.instances' },
+      load: () => import('../../../features/workflow/instances/workflow-instances.page').then((m) => m.WorkflowInstancesPage),
+    },
+    {
+      //  The runtime view: the instance's path through its graph, drawn on the shared canvas.
+      path: 'workflow-instances/:id',
+      kind: WindowKind.CANVAS,
+      permission: 'workflow_engine:view',
+      titleKey: 'workflow_engine.nav.instances',
+      icon: 'Share2',
+      entityKeyFn: (p) => `workspace:workflow-instance:${p['id']}`,
+      load: () => import('../../../features/workflow/instances/workflow-instance.page').then((m) => m.WorkflowInstancePage),
+    },
+    {
+      path: 'workflow-tasks',
+      kind: WindowKind.INBOX,
+      permission: 'workflow_engine:act',
+      titleKey: 'workflow_engine.nav.tasks',
+      icon: 'CheckSquare',
+      entityKeyFn: () => 'workspace:workflow-tasks',
+      menu: { group: 'inbox', labelKey: 'workflow_engine.nav.tasks' },
+      load: () => import('../../../features/workflow/tasks/workflow-tasks.page').then((m) => m.WorkflowTasksPage),
+    },
+    {
       //  The bell in the top bar is where notifications are read; this is its «Ver todas». A menu
       //  entry made it a third inbox beside approvals.
       path: 'notifications',

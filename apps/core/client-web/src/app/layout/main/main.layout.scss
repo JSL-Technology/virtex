@@ -22,7 +22,9 @@
   //  Las dos medidas del armazón, en un solo sitio: el riel y el panel las
   //  necesitan, la rejilla las necesita y el modo compacto las cambia. Tres
   //  copias de un número es como empiezan los desajustes de un píxel.
-  --rail-width: 72px;
+  //  El riel incluye ahora su propio margen izquierdo (tarjeta flotante) y su
+  //  borde, así que se amplía 8px para conservar el ancho útil de sus iconos.
+  --rail-width: 80px;
   --panel-width: 240px;
 
   display: grid;
@@ -336,8 +338,8 @@
   z-index: 100;
   background-color: var(--chrome-surface);
   color: var(--chrome-content);
-  border-bottom: 1px solid rgba(var(--chrome-tint-rgb), 0.14);
-  box-shadow: 0 1px 0 rgba(var(--shadow-color-rgb), 0.22);
+  //  Sin bordes: la barra superior se funde con el lienzo y la separación con el
+  //  área de trabajo la da el hueco que dejan las tarjetas flotantes de abajo.
 
   .topbar-brand {
     display: inline-flex;
@@ -534,6 +536,55 @@
     width: 100%;
     display: block;
   }
+}
+
+// =============================================================================
+//  WORKBENCH DE PANELES FLOTANTES (estilo VS Code)
+// =============================================================================
+//  La navegación (riel + panel) y el editor (contenido) se vuelven tarjetas
+//  redondeadas y con borde, separadas por un hueco donde vive el tirador de
+//  redimensionar: se ve que son DOS grupos distintos. La barra superior y la de
+//  estado van a sangre (sin borde); el hueco que dejan las tarjetas basta para
+//  separarlas.
+:host {
+  --workbench-inset: var(--space-2); //  margen exterior de las tarjetas
+  --workbench-gap: var(--space-1); //  hueco ENTRE panel y editor (más estrecho)
+  --panel-radius: var(--radius-lg);
+}
+
+//  Tarjeta izquierda = riel + panel, UNIDOS en una sola tarjeta. El riel flota
+//  también por la izquierda (un poco separado del borde de la ventana); el
+//  divisor interior lo aporta su propio borde derecho.
+app-module-rail {
+  margin: var(--workbench-inset) 0 var(--workbench-inset) var(--workbench-inset);
+  border: 1px solid var(--border-default);
+  border-right: 0;
+  border-radius: var(--panel-radius) 0 0 var(--panel-radius);
+  overflow: hidden;
+}
+
+.main-sidebar {
+  margin-block: var(--workbench-inset);
+  border: 1px solid var(--border-default);
+  border-left: 0;
+  border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
+}
+
+//  Tarjeta derecha = editor (contenedor de pestañas). Hueco ESTRECHO a la
+//  izquierda (donde vive el tirador) e inset normal en los otros tres lados.
+//  `overflow: hidden` (ya existente) redondea la franja de pestañas con la tarjeta.
+.main-content {
+  margin: var(--workbench-inset) var(--workbench-inset) var(--workbench-inset) var(--workbench-gap);
+  border: 1px solid var(--border-default);
+  border-radius: var(--panel-radius);
+}
+
+//  El tirador se centra en el hueco estrecho, con un área de agarre algo mayor
+//  que se mete un poco en cada tarjeta. El selector es más específico que el
+//  `:host(.vx-resize-handle--end)` interno del componente, para ganarle.
+.main-sidebar vx-resize-handle.sidebar-resizer {
+  right: calc(-1 * var(--workbench-gap) - 5px);
+  width: calc(var(--workbench-gap) + 10px);
 }
 
 // --- SECCIONES DEL HEADER (DERECHA) ---
@@ -1462,6 +1513,17 @@ app-status-bar {
       'topbar'
       'content'
       'status';
+  }
+
+  //  En móvil no hay tarjetas flotantes: el riel y el panel son cajones a pantalla
+  //  completa y el editor ocupa todo. Se retiran los márgenes, bordes y radios del
+  //  modo escritorio.
+  app-module-rail,
+  .main-sidebar,
+  .main-content {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
   }
 
   // En un teléfono, el riel y el panel pasan a un cajón controlado por el menú.
