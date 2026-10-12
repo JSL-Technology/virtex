@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { WorkflowActionParam } from './validation/workflow-graph.validator';
 
 /** What a running action is handed: the instance it belongs to, the live context, and its parameters. */
 export interface WorkflowActionContext {
@@ -11,6 +12,8 @@ export interface WorkflowActionContext {
   params: Record<string, unknown>;
   /** Who started the instance, the default target for a notification. */
   startedByUserId: string | null;
+  /** The instance's subject label, for messages. */
+  subjectLabel: string | null;
 }
 
 export interface WorkflowActionResult {
@@ -18,6 +21,8 @@ export interface WorkflowActionResult {
   outcome?: string;
   /** Variables to merge into the instance context. */
   patch?: Record<string, unknown>;
+  /** A short, human-readable line for the instance timeline. */
+  summary?: string;
 }
 
 /**
@@ -28,12 +33,28 @@ export interface WorkflowActionResult {
  * inversion the approval `ApprovalHandlerRegistry` uses, for the same reason. The built-in set
  * (log, set a variable, notify, call a webhook) ships here; a module can add «post this invoice» or
  * «reserve this stock» later without the engine ever learning their names.
+ *
+ * `params` is the action's contract with the designer: the panel renders a form from it, and
+ * publishing refuses a node whose required parameters are missing or malformed.
  */
 export interface WorkflowAction {
   readonly key: string;
   /** i18n key for the action's name in the designer palette. */
   readonly labelKey: string;
+  /** i18n key for a one-line description shown under the selector. */
+  readonly descriptionKey?: string;
+  /** Outcomes the action may return, so the designer can offer them on outgoing connections. */
+  readonly outcomes?: readonly string[];
+  readonly params: readonly WorkflowActionParam[];
   run(context: WorkflowActionContext): Promise<WorkflowActionResult>;
+}
+
+export interface WorkflowActionCatalogueItem {
+  key: string;
+  labelKey: string;
+  descriptionKey: string | null;
+  outcomes: string[];
+  params: WorkflowActionParam[];
 }
 
 @Injectable()
@@ -52,8 +73,20 @@ export class WorkflowActionRegistry {
     return this.actions.get(key);
   }
 
-  /** The palette: every action the designer may place, as `{ key, labelKey }`. */
-  catalogue(): Array<{ key: string; labelKey: string }> {
-    return [...this.actions.values()].map((action) => ({ key: action.key, labelKey: action.labelKey }));
+  paramsOf(key: string): readonly WorkflowActionParam[] | undefined {
+    return this.actions.get(key)?.params;
+  }
+
+  /** The palette: every action the designer may place, with the form its parameters need. */
+  catalogue(): WorkflowActionCatalogueItem[] {
+    return [...this.actions.values()]
+      .map((action) => ({
+        key: action.key,
+        labelKey: action.labelKey,
+        descriptionKey: action.descriptionKey ?? null,
+        outcomes: [...(action.outcomes ?? [])],
+        params: action.params.map((param) => ({ ...param })),
+      }))
+      .sort((a, b) => a.key.localeCompare(b.key));
   }
 }

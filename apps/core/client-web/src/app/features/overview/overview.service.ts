@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Truck,
   Banknote,
+  Workflow,
   CreditCard,
   Users,
 } from 'lucide-angular';
@@ -122,6 +123,7 @@ const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: stri
   customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts/customers',        record: (id) => `/contacts/customers/${id}/edit` },
   suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers',        record: (id) => `/contacts/suppliers/${id}/edit` },
   products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory/products',        record: (id) => `/inventory/products/${id}/edit` },
+  workflow_definitions: { kind: 'entry', icon: Workflow,  key: 'WORKFLOW_DEFINITIONS', route: '/workflows',                  record: (id) => `/workflows/${id}/edit` },
 };
 
 const EVENT_VIEW: Record<string, { icon: unknown; overdue: boolean }> = {

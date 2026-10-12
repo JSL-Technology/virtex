@@ -59,6 +59,11 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
+  "approvals.document_type.workflow_task": {
+    "es": "Proceso de negocio",
+    "en": "Business process",
+    "pt": "Processo de negócio"
+  },
   "approvals.load_failed": {
     "es": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
     "en": "The approvals could not be loaded. Try again.",

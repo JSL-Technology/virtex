@@ -1,305 +1,370 @@
-<div class="wfd">
-  <header class="wfd__bar">
-    <button type="button" class="wfd__icon-btn" (click)="back()" [title]="'workflow_engine.back' | translate">
-      <lucide-icon [img]="BackIcon" [size]="18" />
-    </button>
+@if (loading()) {
+  <div class="wd-state" role="status" aria-live="polite">
+    <span class="wd-spinner" aria-hidden="true"></span>
+    {{ 'workflow_engine.loading' | translate }}
+  </div>
+} @else if (loadError(); as message) {
+  <div class="wd-state wd-state--error" role="alert">
+    <p>{{ message }}</p>
+    <button type="button" class="secondary-button" (click)="reload()">{{ 'workflow_engine.retry' | translate }}</button>
+  </div>
+} @else {
+  @let def = definition()!;
+  <div class="wd" [class.wd--readonly]="readOnly()" [class.wd--no-palette]="!prefs().palette || readOnly()" [class.wd--no-inspector]="!prefs().inspector">
+    <!-- ── Toolbar ─────────────────────────────────────────────────────────── -->
+    <header class="wd-toolbar" role="toolbar" [attr.aria-label]="'workflow_engine.designer.toolbar' | translate">
+      <div class="wd-toolbar__group wd-toolbar__title">
+        @if (!readOnly()) {
+          <button type="button" class="wd-icon" (click)="togglePref('palette')" [attr.aria-pressed]="prefs().palette"
+            [attr.aria-label]="'workflow_engine.designer.toggle_palette' | translate" [title]="'workflow_engine.designer.toggle_palette' | translate">
+            <lucide-icon [img]="PaletteIcon" [size]="16" />
+          </button>
+        }
+        <h2 class="wd-name" [title]="store.doc().name">{{ store.doc().name || ('workflow_engine.designer.untitled' | translate) }}</h2>
+        <vx-badge [tone]="statusTone(def)">{{ statusKey(def) | translate }}</vx-badge>
+        <span class="wd-version">{{ 'workflow_engine.version' | translate: { version: def.version } }}</span>
+      </div>
 
-    <input
-      class="wfd__name"
-      [value]="name()"
-      (input)="name.set($any($event.target).value)"
-      [disabled]="readOnly()"
-      [attr.placeholder]="'workflow_engine.name_placeholder' | translate"
-    />
+      <div class="wd-toolbar__group" role="group" [attr.aria-label]="'workflow_engine.designer.history' | translate">
+        <button type="button" class="wd-icon" (click)="undo()" [disabled]="!store.canUndo() || readOnly()"
+          [attr.aria-label]="'workflow_engine.shortcut.undo' | translate" [title]="'workflow_engine.shortcut.undo' | translate">
+          <lucide-icon [img]="UndoIcon" [size]="16" />
+        </button>
+        <button type="button" class="wd-icon" (click)="redo()" [disabled]="!store.canRedo() || readOnly()"
+          [attr.aria-label]="'workflow_engine.shortcut.redo' | translate" [title]="'workflow_engine.shortcut.redo' | translate">
+          <lucide-icon [img]="RedoIcon" [size]="16" />
+        </button>
+      </div>
 
-    <div class="wfd__trigger">
-      <label>{{ 'workflow_engine.trigger.label' | translate }}</label>
-      <select
-        [value]="trigger().mode"
-        (change)="setTriggerMode($any($event.target).value)"
-        [disabled]="readOnly()"
-      >
-        <option value="manual">{{ 'workflow_engine.trigger.manual' | translate }}</option>
-        <option value="event">{{ 'workflow_engine.trigger.event' | translate }}</option>
-      </select>
-      @if (trigger().mode === 'event') {
-        <input
-          class="wfd__event"
-          [value]="trigger().event || ''"
-          (input)="setTriggerEvent($any($event.target).value)"
-          [disabled]="readOnly()"
-          [attr.placeholder]="'workflow_engine.trigger.event_placeholder' | translate"
-        />
-      }
-    </div>
+      <div class="wd-toolbar__group" role="group" [attr.aria-label]="'workflow_engine.designer.view' | translate">
+        <button type="button" class="wd-icon" (click)="canvas()?.zoomOut()" [attr.aria-label]="'workflow_engine.shortcut.zoom_out' | translate" [title]="'workflow_engine.shortcut.zoom_out' | translate">
+          <lucide-icon [img]="ZoomOutIcon" [size]="16" />
+        </button>
+        <button type="button" class="wd-zoom" (click)="canvas()?.resetZoom()" [title]="'workflow_engine.designer.reset_zoom' | translate">
+          {{ zoomPercent() }}%
+        </button>
+        <button type="button" class="wd-icon" (click)="canvas()?.zoomIn()" [attr.aria-label]="'workflow_engine.shortcut.zoom_in' | translate" [title]="'workflow_engine.shortcut.zoom_in' | translate">
+          <lucide-icon [img]="ZoomInIcon" [size]="16" />
+        </button>
+        <button type="button" class="wd-icon" (click)="fit()" [attr.aria-label]="'workflow_engine.shortcut.fit' | translate" [title]="'workflow_engine.shortcut.fit' | translate">
+          <lucide-icon [img]="FitIcon" [size]="16" />
+        </button>
+        @if (!readOnly()) {
+          <div class="wd-menu">
+            <button type="button" class="wd-button" [disabled]="layoutBusy()" (click)="autoLayout('dagre')"
+              [title]="'workflow_engine.designer.layout_dagre_hint' | translate">
+              <lucide-icon [img]="LayoutIcon" [size]="16" />
+              <span class="wd-label">{{ 'workflow_engine.designer.auto_layout' | translate }}</span>
+            </button>
+            <select class="wd-select" [attr.aria-label]="'workflow_engine.designer.layout_options' | translate" [disabled]="layoutBusy()"
+              (change)="$any($event.target).value && autoLayout($any($event.target).value); $any($event.target).value = ''">
+              <option value="">▾</option>
+              <option value="dagre">{{ 'workflow_engine.designer.layout_dagre' | translate }}</option>
+              <option value="elk">{{ 'workflow_engine.designer.layout_elk' | translate }}</option>
+            </select>
+          </div>
+        }
+        <button type="button" class="wd-icon" (click)="searchOpen() ? closeSearch() : openSearch()" [attr.aria-pressed]="searchOpen()"
+          [attr.aria-label]="'workflow_engine.shortcut.search' | translate" [title]="'workflow_engine.shortcut.search' | translate">
+          <lucide-icon [img]="SearchIcon" [size]="16" />
+        </button>
+        <button type="button" class="wd-icon" (click)="showSettings.set(!showSettings())" [attr.aria-pressed]="showSettings()"
+          [attr.aria-label]="'workflow_engine.designer.canvas_settings' | translate" [title]="'workflow_engine.designer.canvas_settings' | translate">
+          <lucide-icon [img]="SettingsIcon" [size]="16" />
+        </button>
+        <button type="button" class="wd-icon" (click)="showShortcuts.set(true)" [attr.aria-label]="'workflow_engine.shortcut.help' | translate" [title]="'workflow_engine.shortcut.help' | translate">
+          <lucide-icon [img]="KeyboardIcon" [size]="16" />
+        </button>
+      </div>
 
-    <span class="wfd__spacer"></span>
+      <div class="wd-toolbar__group" role="group" [attr.aria-label]="'workflow_engine.designer.file' | translate">
+        <button type="button" class="wd-icon" (click)="exportJson()" [attr.aria-label]="'workflow_engine.designer.export' | translate" [title]="'workflow_engine.designer.export' | translate">
+          <lucide-icon [img]="ExportIcon" [size]="16" />
+        </button>
+        @if (!readOnly()) {
+          <button type="button" class="wd-icon" (click)="chooseImport()" [attr.aria-label]="'workflow_engine.designer.import' | translate" [title]="'workflow_engine.designer.import' | translate">
+            <lucide-icon [img]="ImportIcon" [size]="16" />
+          </button>
+          <input #importInput type="file" accept="application/json,.json" hidden (change)="importJson($event)" />
+        }
+      </div>
 
-    @if (definition(); as def) {
-      <span class="wfd__badge" [attr.data-status]="def.status">
-        {{ 'workflow_engine.definition_status.' + def.status.toLowerCase() | translate }} · v{{ def.version }}
-      </span>
-    }
+      <div class="wd-toolbar__spacer"></div>
 
-    @if (readOnly()) {
-      <button type="button" class="wfd__btn" (click)="newVersion()">
-        <lucide-icon [img]="VersionIcon" [size]="16" />
-        {{ 'workflow_engine.new_version' | translate }}
-      </button>
-    } @else {
-      <button type="button" class="wfd__btn" (click)="save()" [disabled]="saving()">
-        <lucide-icon [img]="SaveIcon" [size]="16" />
-        {{ 'workflow_engine.save' | translate }}
-      </button>
-      <button type="button" class="wfd__btn wfd__btn--primary" (click)="publish()" [disabled]="saving()">
-        <lucide-icon [img]="PublishIcon" [size]="16" />
-        {{ 'workflow_engine.publish' | translate }}
-      </button>
-    }
-  </header>
-
-  @if (loading()) {
-    <div class="wfd__state">{{ 'workflow_engine.loading' | translate }}</div>
-  } @else if (error()) {
-    <div class="wfd__state wfd__state--error">{{ error() }}</div>
-  } @else {
-    @if (readOnly()) {
-      <div class="wfd__notice">{{ 'workflow_engine.read_only_notice' | translate }}</div>
-    }
-
-    <div class="wfd__body">
-      @if (!readOnly()) {
-        <aside class="wfd__palette">
-          <h3>{{ 'workflow_engine.palette' | translate }}</h3>
-          @for (seed of palette; track seed.type) {
-            <button type="button" class="wfd__palette-item" (click)="addNode(seed.type)">
-              <lucide-icon [img]="iconFor(seed.type)" [size]="16" />
-              {{ 'workflow_engine.node.' + seed.type | translate }}
+      <div class="wd-toolbar__group">
+        @if (!readOnly()) {
+          <span class="wd-save" [class]="'wd-save wd-save--' + saveState()" role="status" aria-live="polite">
+            @switch (saveState()) {
+              @case ('saving') { {{ 'workflow_engine.designer.saving' | translate }} }
+              @case ('dirty') { {{ 'workflow_engine.designer.unsaved' | translate }} }
+              @case ('error') { {{ 'workflow_engine.designer.save_error' | translate }} }
+              @default {
+                {{ 'workflow_engine.designer.saved_at' | translate: { time: (lastSavedAt() | date: 'shortTime') } }}
+              }
+            }
+          </span>
+          <button type="button" class="secondary-button wd-button" (click)="save()" [disabled]="saveState() === 'saving' || !store.dirty()">
+            <lucide-icon [img]="SaveIcon" [size]="16" />
+            <span class="wd-label">{{ 'workflow_engine.save' | translate }}</span>
+          </button>
+          <button type="button" class="primary-button wd-button" (click)="publish()" [disabled]="publishing() || saveState() === 'saving'">
+            <lucide-icon [img]="PublishIcon" [size]="16" />
+            <span class="wd-label">{{ (publishing() ? 'workflow_engine.publishing' : 'workflow_engine.publish') | translate }}</span>
+          </button>
+        } @else if (canDesign()) {
+          @if (def.status === 'PUBLISHED') {
+            <button type="button" class="secondary-button wd-button" (click)="unpublish()">
+              <lucide-icon [img]="UnpublishIcon" [size]="16" />
+              <span class="wd-label">{{ 'workflow_engine.unpublish.action' | translate }}</span>
             </button>
           }
+          <button type="button" class="primary-button wd-button" (click)="newVersion()">
+            <lucide-icon [img]="VersionIcon" [size]="16" />
+            <span class="wd-label">{{ 'workflow_engine.new_version' | translate }}</span>
+          </button>
+        }
+        <button type="button" class="wd-icon" (click)="togglePref('inspector')" [attr.aria-pressed]="prefs().inspector"
+          [attr.aria-label]="'workflow_engine.designer.toggle_inspector' | translate" [title]="'workflow_engine.designer.toggle_inspector' | translate">
+          <lucide-icon [img]="InspectorIcon" [size]="16" />
+        </button>
+      </div>
+    </header>
+
+    @if (readOnly()) {
+      <div class="wd-banner" role="note">
+        @if (!canDesign()) {
+          {{ 'workflow_engine.designer.readonly_permission' | translate }}
+        } @else if (def.status === 'PUBLISHED') {
+          {{ 'workflow_engine.designer.readonly_published' | translate }}
+        } @else {
+          {{ 'workflow_engine.designer.readonly_archived' | translate }}
+        }
+      </div>
+    }
+
+    <div class="wd-body">
+      <!-- ── Palette ─────────────────────────────────────────────────────────── -->
+      @if (prefs().palette && !readOnly()) {
+        <aside class="wd-palette" [attr.aria-label]="'workflow_engine.palette.title' | translate">
+          <app-workflow-designer-palette [readonly]="readOnly()" (add)="addFromPalette($event)" />
         </aside>
       }
 
-      <div class="wfd__canvas">
-        <f-flow fDraggable (fCreateConnection)="onCreateConnection($event)" (fMoveNodes)="onMoveNodes($event)">
-          <f-canvas fZoom>
-            <f-background>
-              <f-circle-pattern />
-            </f-background>
+      <!-- ── Canvas ──────────────────────────────────────────────────────────── -->
+      <main class="wd-canvas">
+        <app-workflow-canvas
+          [nodes]="canvasNodes()"
+          [edges]="canvasEdges()"
+          [groups]="canvasGroups()"
+          [connectionStyle]="store.settings().connectionType ?? 'bezier'"
+          [direction]="store.settings().layoutDirection ?? 'LR'"
+          [prefs]="canvasPrefs()"
+          [readonly]="readOnly()"
+          [selection]="store.selection()"
+          (connect)="onConnect($event)"
+          (reassign)="onReassign($event)"
+          (moved)="onMoved($event)"
+          (selectionChange)="onCanvasSelection($event)"
+          (deleteRequested)="!readOnly() && store.deleteItems()"
+          (dropped)="onDropped($event)"
+          (waypointsChange)="store.setWaypoints($event.edgeId, $event.points)"
+          (droppedToGroup)="onDroppedToGroup($event)"
+          (groupResized)="onGroupResized($event)"
+          (scaleChange)="onScale($event)"
+          (activate)="onActivate()"
+        />
 
-            @for (node of nodes(); track node.id) {
-              <div
-                fNode
-                [fNodeId]="node.id"
-                [fNodePosition]="node.position || { x: 0, y: 0 }"
-                class="wfd-node"
-                [class.wfd-node--selected]="node.id === selectedNodeId()"
-                [attr.data-type]="node.type"
-                (click)="selectNode(node.id)"
-              >
-                <div
-                  class="wfd-node__port wfd-node__port--in"
-                  fNodeInput
-                  [fInputId]="node.id + ':in'"
-                  [fInputConnectableSide]="Left"
-                ></div>
-
-                <span class="wfd-node__icon"><lucide-icon [img]="iconFor(node.type)" [size]="16" /></span>
-                <span class="wfd-node__label">
-                  <span class="wfd-node__name">{{ node.name || ('workflow_engine.node.' + node.type | translate) }}</span>
-                  <span class="wfd-node__type">{{ 'workflow_engine.node.' + node.type | translate }}</span>
-                </span>
-
-                <div
-                  class="wfd-node__port wfd-node__port--out"
-                  fNodeOutput
-                  [fOutputId]="node.id + ':out'"
-                  [fOutputConnectableSide]="Right"
-                ></div>
-              </div>
-            }
-
-            @for (edge of edges(); track edge.id) {
-              <f-connection
-                [fConnectionId]="edge.id"
-                [fOutputId]="edge.from + ':out'"
-                [fInputId]="edge.to + ':in'"
-                [fBehavior]="Fixed"
-                [fType]="Segment"
-              ></f-connection>
-            }
-          </f-canvas>
-        </f-flow>
-      </div>
-
-      <aside class="wfd__panel">
-        @if (selectedNode(); as node) {
-          <div class="wfd__panel-head">
-            <h3>{{ 'workflow_engine.node.' + node.type | translate }}</h3>
-            @if (!readOnly() && node.type !== 'start') {
-              <button type="button" class="wfd__icon-btn" (click)="deleteNode(node.id)" [title]="'workflow_engine.delete' | translate">
-                <lucide-icon [img]="DeleteIcon" [size]="16" />
+        @if (searchOpen()) {
+          <div class="wd-search" role="search">
+            <div class="wd-search__row">
+              <lucide-icon [img]="SearchIcon" [size]="14" aria-hidden="true" />
+              <label for="wd-search-input" class="sr-only">{{ 'workflow_engine.designer.search_steps' | translate }}</label>
+              <input id="wd-search-input" #searchInput type="search" autocomplete="off" [value]="searchQuery()"
+                [placeholder]="'workflow_engine.designer.search_steps' | translate"
+                (input)="setSearch($any($event.target).value)"
+                (keydown.enter)="$event.preventDefault(); nextMatch($event.shiftKey)"
+                (keydown.escape)="$event.stopPropagation(); closeSearch()" />
+              <span class="wd-search__count" aria-live="polite">
+                @if (matches(); as m) { {{ 'workflow_engine.designer.matches' | translate: { count: m.size } }} }
+              </span>
+              <button type="button" class="wd-icon" (click)="closeSearch()" [attr.aria-label]="'workflow_engine.designer.close_search' | translate">
+                <lucide-icon [img]="CloseIcon" [size]="14" />
               </button>
-            }
-          </div>
-
-          <label class="wfd__field">
-            <span>{{ 'workflow_engine.field.name' | translate }}</span>
-            <input [value]="node.name || ''" (input)="setNodeName($any($event.target).value)" [disabled]="readOnly()" />
-          </label>
-
-          @if (node.type === 'task' || node.type === 'approval') {
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.assignee_role' | translate }}</span>
-              <input
-                [value]="node.config?.assigneeRoleId || ''"
-                (input)="setNodeConfig({ assigneeRoleId: $any($event.target).value })"
-                [disabled]="readOnly()"
-                [attr.placeholder]="'workflow_engine.field.role_id' | translate"
-              />
-            </label>
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.assignee_user' | translate }}</span>
-              <input
-                [value]="node.config?.assigneeUserId || ''"
-                (input)="setNodeConfig({ assigneeUserId: $any($event.target).value })"
-                [disabled]="readOnly()"
-                [attr.placeholder]="'workflow_engine.field.user_id' | translate"
-              />
-            </label>
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.outcomes' | translate }}</span>
-              <input
-                [value]="outcomesCsv(node)"
-                (input)="setOutcomes($any($event.target).value)"
-                [disabled]="readOnly()"
-                [attr.placeholder]="'workflow_engine.field.outcomes_placeholder' | translate"
-              />
-            </label>
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.due_hours' | translate }}</span>
-              <input
-                type="number"
-                [value]="node.config?.dueInHours ?? ''"
-                (input)="setNodeConfig({ dueInHours: +$any($event.target).value || undefined })"
-                [disabled]="readOnly()"
-              />
-            </label>
-          }
-
-          @if (node.type === 'action') {
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.action' | translate }}</span>
-              <select
-                [value]="node.config?.action || ''"
-                (change)="setNodeConfig({ action: $any($event.target).value })"
-                [disabled]="readOnly()"
-              >
-                <option value="">—</option>
-                @for (action of actions(); track action.key) {
-                  <option [value]="action.key">{{ action.labelKey | translate }}</option>
-                }
-              </select>
-            </label>
-          }
-
-          @if (node.type === 'timer') {
-            <label class="wfd__field">
-              <span>{{ 'workflow_engine.field.timer_minutes' | translate }}</span>
-              <input
-                type="number"
-                [value]="node.config?.timerMinutes ?? ''"
-                (input)="setNodeConfig({ timerMinutes: +$any($event.target).value || undefined })"
-                [disabled]="readOnly()"
-              />
-            </label>
-          }
-
-          <!-- Outgoing connections -->
-          <div class="wfd__edges">
-            <h4>{{ 'workflow_engine.connections' | translate }}</h4>
-            @for (edge of outgoing(); track edge.id) {
-              <div class="wfd__edge">
-                <div class="wfd__edge-head">
-                  <span class="wfd__edge-to">→ {{ nodeName(edge.to) }}</span>
-                  @if (!readOnly()) {
-                    <button type="button" class="wfd__icon-btn" (click)="deleteEdge(edge.id)" [title]="'workflow_engine.delete' | translate">
-                      <lucide-icon [img]="DeleteIcon" [size]="14" />
+            </div>
+            <div class="wd-search__filters" role="group" [attr.aria-label]="'workflow_engine.designer.filter_types' | translate">
+              @for (type of nodeTypes; track type) {
+                <button type="button" class="wd-chip" [attr.aria-pressed]="typeFilter().has(type)" (click)="toggleType(type)">
+                  {{ typeKey(type) | translate }}
+                </button>
+              }
+            </div>
+            @if (matchList().length) {
+              <ul class="wd-search__results">
+                @for (node of matchList(); track node.id) {
+                  <li>
+                    <button type="button" (click)="store.select({ nodes: [node.id] }); canvas()?.center(node.id)">
+                      <span>{{ nodeName(node) }}</span>
+                      <small>{{ typeKey(node.type) | translate }}</small>
                     </button>
-                  }
-                </div>
-                <div class="wfd__edge-row">
-                  <input
-                    class="wfd__edge-outcome"
-                    [value]="edge.outcome || ''"
-                    (input)="updateEdge(edge.id, { outcome: $any($event.target).value || undefined })"
-                    [disabled]="readOnly()"
-                    [attr.placeholder]="'workflow_engine.field.outcome' | translate"
-                  />
-                  <label class="wfd__edge-default">
-                    <input
-                      type="checkbox"
-                      [checked]="!!edge.default"
-                      (change)="updateEdge(edge.id, { default: $any($event.target).checked })"
-                      [disabled]="readOnly()"
-                    />
-                    {{ 'workflow_engine.field.default' | translate }}
-                  </label>
-                </div>
-
-                @if (node.type === 'condition') {
-                  <div class="wfd__conditions">
-                    @for (leaf of leaves(edge); track $index) {
-                      <div class="wfd__leaf">
-                        <input
-                          class="wfd__leaf-var"
-                          [value]="leaf.var"
-                          (input)="setLeaf(edge, $index, { var: $any($event.target).value })"
-                          [disabled]="readOnly()"
-                          [attr.placeholder]="'workflow_engine.field.variable' | translate"
-                        />
-                        <select
-                          [value]="leaf.op"
-                          (change)="setLeaf(edge, $index, { op: $any($event.target).value })"
-                          [disabled]="readOnly()"
-                        >
-                          @for (op of conditionOps; track op) {
-                            <option [value]="op">{{ 'workflow_engine.op.' + op | translate }}</option>
-                          }
-                        </select>
-                        <input
-                          class="wfd__leaf-value"
-                          [value]="leaf.value"
-                          (input)="setLeaf(edge, $index, { value: $any($event.target).value })"
-                          [disabled]="readOnly()"
-                          [attr.placeholder]="'workflow_engine.field.value' | translate"
-                        />
-                        @if (!readOnly()) {
-                          <button type="button" class="wfd__icon-btn" (click)="removeLeaf(edge, $index)">
-                            <lucide-icon [img]="DeleteIcon" [size]="14" />
-                          </button>
-                        }
-                      </div>
-                    }
-                    @if (!readOnly()) {
-                      <button type="button" class="wfd__add-leaf" (click)="addLeaf(edge)">
-                        + {{ 'workflow_engine.add_condition' | translate }}
-                      </button>
-                    }
-                  </div>
+                  </li>
                 }
-              </div>
+              </ul>
             }
-            @if (outgoing().length === 0) {
-              <p class="wfd__hint">{{ 'workflow_engine.connect_hint' | translate }}</p>
-            }
-          </div>
-        } @else {
-          <div class="wfd__panel-empty">
-            <p>{{ 'workflow_engine.select_hint' | translate }}</p>
           </div>
         }
-      </aside>
+
+        @if (showSettings()) {
+          <div class="wd-settings" role="dialog" [attr.aria-label]="'workflow_engine.designer.canvas_settings' | translate">
+            <div class="wd-settings__head">
+              <strong>{{ 'workflow_engine.designer.canvas_settings' | translate }}</strong>
+              <button type="button" class="wd-icon" (click)="showSettings.set(false)" [attr.aria-label]="'workflow_engine.designer.close' | translate">
+                <lucide-icon [img]="CloseIcon" [size]="14" />
+              </button>
+            </div>
+            <label class="wd-check"><input type="checkbox" [checked]="prefs().snap" (change)="togglePref('snap')" /> {{ 'workflow_engine.designer.pref_snap' | translate }}</label>
+            <label class="wd-check"><input type="checkbox" [checked]="prefs().guides" (change)="togglePref('guides')" /> {{ 'workflow_engine.designer.pref_guides' | translate }}</label>
+            <label class="wd-check"><input type="checkbox" [checked]="prefs().minimap" (change)="togglePref('minimap')" /> {{ 'workflow_engine.designer.pref_minimap' | translate }}</label>
+            <label class="wd-check"><input type="checkbox" [checked]="prefs().connectionsOnTop" (change)="togglePref('connectionsOnTop')" /> {{ 'workflow_engine.designer.pref_layers' | translate }}</label>
+            <div class="wd-field">
+              <label for="wd-pref-bg">{{ 'workflow_engine.designer.pref_background' | translate }}</label>
+              <select id="wd-pref-bg" [value]="prefs().background" (change)="setPref('background', $any($event.target).value)">
+                <option value="dots">{{ 'workflow_engine.designer.background_dots' | translate }}</option>
+                <option value="grid">{{ 'workflow_engine.designer.background_grid' | translate }}</option>
+                <option value="none">{{ 'workflow_engine.designer.background_none' | translate }}</option>
+              </select>
+            </div>
+            <div class="wd-field">
+              <label for="wd-pref-scheme">{{ 'workflow_engine.designer.pref_scheme' | translate }}</label>
+              <select id="wd-pref-scheme" [value]="prefs().scheme" (change)="setPref('scheme', $any($event.target).value)">
+                <option value="default">{{ 'workflow_engine.designer.scheme_default' | translate }}</option>
+                <option value="select">{{ 'workflow_engine.designer.scheme_select' | translate }}</option>
+                <option value="scroll">{{ 'workflow_engine.designer.scheme_scroll' | translate }}</option>
+              </select>
+              <p class="wd-hint">{{ schemeHint() | translate }}</p>
+            </div>
+          </div>
+        }
+
+        @if (!store.nodes().length) {
+          <div class="wd-empty">{{ 'workflow_engine.designer.empty_canvas' | translate }}</div>
+        }
+      </main>
+
+      <!-- ── Inspector ───────────────────────────────────────────────────────── -->
+      @if (prefs().inspector) {
+        <aside class="wd-inspector" [attr.aria-label]="'workflow_engine.designer.inspector' | translate">
+          <div class="wd-tabs" role="tablist">
+            <button type="button" role="tab" id="wd-tab-props" aria-controls="wd-panel-props" [attr.aria-selected]="inspectorTab() === 'properties'" (click)="inspectorTab.set('properties')">
+              {{ 'workflow_engine.designer.properties' | translate }}
+            </button>
+            <button type="button" role="tab" id="wd-tab-issues" aria-controls="wd-panel-issues" [attr.aria-selected]="inspectorTab() === 'issues'" (click)="inspectorTab.set('issues')">
+              {{ 'workflow_engine.designer.issues' | translate }}
+              @if (errorCount()) {
+                <span class="wd-count wd-count--error">{{ errorCount() }}</span>
+              } @else if (warningCount()) {
+                <span class="wd-count wd-count--warning">{{ warningCount() }}</span>
+              }
+            </button>
+          </div>
+
+          @if (inspectorTab() === 'properties') {
+            <div class="wd-inspector__body" role="tabpanel" id="wd-panel-props" aria-labelledby="wd-tab-props">
+              @if (singleNode(); as node) {
+                <app-workflow-node-panel [node]="node" [readonly]="readOnly()" [issues]="issuesByNode().get(node.id) ?? []" />
+              } @else if (singleEdge(); as edge) {
+                <app-workflow-edge-panel [edge]="edge" [readonly]="readOnly()" [issues]="issuesByEdge().get(edge.id) ?? []" />
+              } @else if (singleGroup(); as group) {
+                <app-workflow-group-panel [group]="group" [readonly]="readOnly()" />
+              } @else if (selectionCount() > 1) {
+                <div class="wd-multi">
+                  <h3>{{ 'workflow_engine.designer.multi_selected' | translate: { count: selectionCount() } }}</h3>
+                  @if (!readOnly()) {
+                    <div class="wd-multi__actions">
+                      <button type="button" class="secondary-button wd-button" (click)="store.duplicateSelection()">
+                        <lucide-icon [img]="CopyIcon" [size]="14" /> {{ 'workflow_engine.designer.duplicate' | translate }}
+                      </button>
+                      <button type="button" class="secondary-button wd-button" (click)="store.deleteItems()">
+                        <lucide-icon [img]="DeleteIcon" [size]="14" /> {{ 'workflow_engine.designer.delete_selection' | translate }}
+                      </button>
+                    </div>
+                    @if (store.groups().length && store.selectedNodes().length) {
+                      <div class="wd-field">
+                        <label for="wd-multi-lane">{{ 'workflow_engine.designer.move_to_lane' | translate }}</label>
+                        <select id="wd-multi-lane" (change)="store.setParent(store.selection().nodes, $any($event.target).value || undefined)">
+                          <option value="">{{ 'workflow_engine.designer.no_lane' | translate }}</option>
+                          @for (group of store.groups(); track group.id) {
+                            <option [value]="group.id">{{ group.name }}</option>
+                          }
+                        </select>
+                      </div>
+                    }
+                  }
+                </div>
+              } @else {
+                <app-workflow-process-panel [definition]="def" [readonly]="readOnly()" />
+              }
+            </div>
+          } @else {
+            <div class="wd-inspector__body" role="tabpanel" id="wd-panel-issues" aria-labelledby="wd-tab-issues">
+              @if (!issues().length) {
+                <p class="wd-ok"><lucide-icon [img]="OkIcon" [size]="16" /> {{ 'workflow_engine.designer.no_issues' | translate }}</p>
+              } @else {
+                <ul class="wd-issues">
+                  @for (issue of issues(); track $index) {
+                    <li>
+                      <button type="button" class="wd-issue" [class.wd-issue--error]="issue.severity === 'error'" (click)="focusIssue(issue)">
+                        <lucide-icon [img]="issue.severity === 'error' ? ErrorIcon : WarnIcon" [size]="14" />
+                        <span>
+                          <strong>{{ issueTarget(issue) }}</strong>
+                          {{ issueText(issue) }}
+                        </span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </aside>
+      }
     </div>
+
+    <!-- ── Status bar ─────────────────────────────────────────────────────────── -->
+    <footer class="wd-status">
+      <span>{{ 'workflow_engine.designer.stats' | translate: { nodes: store.nodes().length, edges: store.edges().length } }}</span>
+      @if (selectionCount()) {
+        <span>{{ 'workflow_engine.designer.selected' | translate: { count: selectionCount() } }}</span>
+      }
+      @if (!readOnly()) {
+      <button type="button" class="wd-status__issues" (click)="inspectorTab.set('issues'); setPref('inspector', true)">
+        @if (validating()) {
+          {{ 'workflow_engine.designer.validating' | translate }}
+        } @else if (errorCount() || warningCount()) {
+          <lucide-icon [img]="errorCount() ? ErrorIcon : WarnIcon" [size]="12" />
+          {{ 'workflow_engine.designer.issue_summary' | translate: { errors: errorCount(), warnings: warningCount() } }}
+        } @else {
+          <lucide-icon [img]="OkIcon" [size]="12" /> {{ 'workflow_engine.designer.ready_to_publish' | translate }}
+        }
+      </button>
+      }
+      <span class="wd-status__spacer"></span>
+      <span>{{ zoomPercent() }}%</span>
+    </footer>
+  </div>
+
+  @if (showShortcuts()) {
+    <vx-dialog titleKey="workflow_engine.shortcut.title" size="md" (dismissed)="showShortcuts.set(false)">
+      <dl class="wd-shortcuts">
+        @for (shortcut of shortcuts; track shortcut.labelKey) {
+          <div>
+            <dt><vx-kbd [chord]="shortcut.chord" /></dt>
+            <dd>{{ shortcut.labelKey | translate }}</dd>
+          </div>
+        }
+      </dl>
+      <div dialogActions>
+        <button type="button" class="primary-button" (click)="showShortcuts.set(false)">{{ 'workflow_engine.designer.close' | translate }}</button>
+      </div>
+    </vx-dialog>
   }
-</div>
+}

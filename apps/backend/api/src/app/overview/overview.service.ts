@@ -79,6 +79,10 @@ const ACTIVITY_SOURCES: Record<
     permission: PERMISSIONS.PRODUCTS_VIEW,
     reference: ['name', 'sku'],
   },
+  workflow_definitions: {
+    permission: PERMISSIONS.WORKFLOW_VIEW,
+    reference: ['name', 'key'],
+  },
   quotes: {
     permission: PERMISSIONS.CRM_VIEW,
     reference: ['quoteNumber', 'number'],

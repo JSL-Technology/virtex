@@ -55,7 +55,7 @@ export interface FlowCanvasEdge<E = unknown> {
   styleUrls: ['./flow-canvas.component.scss'],
   template: `
     <div class="vx-flow-canvas">
-      <f-flow fDraggable (fLoaded)="scheduleFit()">
+      <f-flow fDraggable (fNodesRendered)="onNodesRendered()">
         <f-canvas fZoom>
           @if (background()) {
             <f-background>
@@ -162,11 +162,22 @@ export class FlowCanvasComponent {
   protected readonly FitIcon = Maximize;
   protected readonly ResetIcon = Locate;
 
+  /**
+   * Viewport helpers measure the rendered nodes, so the first fit waits for Foblex to report them
+   * (`fNodesRendered`) — fitting from an effect ran before that and triggered FF1009, leaving the
+   * initial view wrong. Later node sets (a new search) refit once the first render has happened.
+   */
+  private rendered = false;
+
   constructor() {
-    // Fit whenever the node set changes — i.e. once the server's answer has rendered.
     effect(() => {
-      if (this.nodes().length > 0) this.scheduleFit();
+      if (this.nodes().length > 0 && this.rendered) this.scheduleFit();
     });
+  }
+
+  onNodesRendered(): void {
+    this.rendered = true;
+    this.scheduleFit();
   }
 
   /** Two frames out: Foblex measures nodes after the first, so one frame is a fit against stale rects. */

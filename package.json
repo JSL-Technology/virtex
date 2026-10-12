@@ -141,6 +141,8 @@
     "@fastify/static": "^10.1.5",
     "@foblex/2d": "^1.2.2",
     "@foblex/flow": "^19.3.0",
+    "@foblex/flow-dagre-layout": "^19.3.0",
+    "@foblex/flow-elk-layout": "^19.3.0",
     "@handsontable/angular-wrapper": "^17.1.0",
     "@keyv/redis": "^4.6.0",
     "@nestjs-modules/mailer": "^2.0.2",

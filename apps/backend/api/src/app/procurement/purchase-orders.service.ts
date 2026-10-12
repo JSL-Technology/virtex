@@ -26,6 +26,7 @@ import { toIsoDate } from '../common/dates';
 import { canTransition } from '@virteex/shared/types';
 import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';
 import { PERMISSIONS } from '../shared/permissions';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
@@ -155,8 +156,10 @@ export class PurchaseOrdersService {
     organizationId: string,
     actorUserId: string,
   ): Promise<PurchaseOrder> {
-    return this.dataSource.transaction(async (manager) => {
+    let supplierName: string | null = null;
+    const created = await this.dataSource.transaction(async (manager) => {
       const supplier = await manager.findOneBy(Supplier, { id: dto.supplierId, organizationId });
+      supplierName = (supplier as { name?: string } | null)?.name ?? null;
       if (!supplier) throw new BadRequestError('procurement.supplier_not_found');
 
       const orderDate = toIsoDate(dto.orderDate ?? new Date());
@@ -179,6 +182,17 @@ export class PurchaseOrdersService {
       await this.replaceLines(manager, order, dto.lines, organizationId);
       return this.findOneWith(manager, order.id, organizationId);
     });
+    this.events?.emit(BUSINESS_EVENTS.PURCHASE_ORDER_CREATED, {
+      organizationId,
+      actorUserId,
+      purchaseOrderId: created.id,
+      number: created.number,
+      total: Number(created.total ?? 0),
+      currencyCode: created.currencyCode,
+      supplierId: created.supplierId,
+      supplierName,
+    });
+    return created;
   }
 
   async update(
