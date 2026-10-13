@@ -1,5 +1,7 @@
 @if (bill(); as billData) {
 <vx-document-shell
+  relationshipMapType="VENDOR_BILL"
+  [relationshipMapId]="billData.id"
   [title]="documentTitle(billData)"
   [subtitle]="billData.vendor?.name ?? billData.vendorId"
   [statusKey]="statusKey(billData.status)"

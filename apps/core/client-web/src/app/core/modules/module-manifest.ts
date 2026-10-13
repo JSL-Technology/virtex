@@ -138,6 +138,15 @@ export interface ModuleRoute {
   isCloseable?: boolean;
 
   /**
+   * Whether this window may open as the reusable PREVIEW tab (the one that is replaced by the next
+   * record you open while browsing). Defaults to the tab type's rule. Set `false` for a window
+   * that is a place to work FROM: the relationship map opens documents in their own tabs, and as
+   * a preview it was replaced by the very document opened from it — losing the map, and leaving
+   * the preview slot pointing at the wrong window.
+   */
+  previewable?: boolean;
+
+  /**
    * The permanent workspace home.
    *
    * A pinned window opens once, sits first, never opens as an ephemeral preview, and

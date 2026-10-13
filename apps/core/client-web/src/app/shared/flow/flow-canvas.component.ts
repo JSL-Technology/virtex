@@ -4,6 +4,7 @@ import {
   TemplateRef,
   effect,
   input,
+  output,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -13,6 +14,7 @@ import {
   EFConnectableSide,
   EFConnectionBehavior,
   EFConnectionType,
+  EFMarkerType,
   FCanvasComponent,
   FFlowModule,
 } from '@foblex/flow';
@@ -30,6 +32,10 @@ export interface FlowCanvasEdge<E = unknown> {
   id: string;
   source: string;
   target: string;
+  /** Text drawn at the middle of the line (already translated). */
+  label?: string | null;
+  /** Extra classes for styling a kind of link (`vx-flow-edge--posting`). */
+  cssClass?: string | null;
   data?: E;
 }
 
@@ -37,15 +43,16 @@ export interface FlowCanvasEdge<E = unknown> {
  * A reusable flow surface built on Foblex Flow, shared by the Relationship Map and the Business
  * Workflow views.
  *
- * It owns the chrome — the pannable, zoomable canvas, the dotted background, the zoom/fit toolbar —
- * and nothing about any one domain. The consumer passes `nodes` (already positioned, usually by
- * {@link layeredLayout}) and `edges`, plus a node template that renders one node's `data`; the
- * template is instantiated inside the canvas, so Foblex finds each `fNode` as its own content and
- * the awkward content-projection path is avoided entirely.
+ * It owns the chrome — the pannable, zoomable canvas, the dotted background, the zoom/fit toolbar,
+ * arrowheads and edge labels — and nothing about any one domain. The consumer passes `nodes`
+ * (already positioned, usually by {@link layeredLayout}) and `edges`, plus a node template that
+ * renders one node's `data`; the template is instantiated inside the canvas, so Foblex finds each
+ * `fNode` as its own content and the awkward content-projection path is avoided entirely.
  *
  * The map fits to the viewport once the nodes are in the DOM — after the server answers, not just on
  * first paint — because the data arrives asynchronously and a fit run against an empty canvas does
- * nothing.
+ * nothing. A fit never zooms past `maxFitScale`: two documents fitted to a wide screen would
+ * otherwise be drawn at three times their size.
  */
 @Component({
   selector: 'vx-flow-canvas',
@@ -54,7 +61,7 @@ export interface FlowCanvasEdge<E = unknown> {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./flow-canvas.component.scss'],
   template: `
-    <div class="vx-flow-canvas">
+    <div class="vx-flow-canvas" (pointerdown)="onPointerDown($event)" (pointerup)="onSurfaceRelease($event)">
       <f-flow fDraggable (fNodesRendered)="onNodesRendered()">
         <f-canvas fZoom>
           @if (background()) {
@@ -63,11 +70,32 @@ export interface FlowCanvasEdge<E = unknown> {
             </f-background>
           }
 
+          @for (edge of edges(); track edge.id) {
+            <f-connection
+              [fConnectionId]="edge.id"
+              [fOutputId]="edge.source + ':out'"
+              [fInputId]="edge.target + ':in'"
+              [fBehavior]="Fixed"
+              [fType]="Segment"
+              [fRadius]="8"
+              [fSelectionDisabled]="true"
+              [class]="'vx-flow-edge ' + (edge.cssClass ?? '')"
+            >
+              <f-connection-marker-arrow [type]="MarkerEnd" />
+              @if (edge.label) {
+                <div fConnectionContent [position]="0.5" class="vx-flow-edge__label" [title]="edge.label">
+                  {{ edge.label }}
+                </div>
+              }
+            </f-connection>
+          }
+
           @for (node of nodes(); track node.id) {
             <div
               fNode
               [fNodeId]="node.id"
               [fNodePosition]="node.position"
+              [fNodeSelectionDisabled]="true"
               class="vx-flow-canvas__node"
             >
               <div
@@ -90,17 +118,10 @@ export interface FlowCanvasEdge<E = unknown> {
               ></div>
             </div>
           }
-
-          @for (edge of edges(); track edge.id) {
-            <f-connection
-              [fConnectionId]="edge.id"
-              [fOutputId]="edge.source + ':out'"
-              [fInputId]="edge.target + ':in'"
-              [fBehavior]="Fixed"
-              [fType]="Segment"
-            ></f-connection>
-          }
         </f-canvas>
+        @if (minimap() && nodes().length > 6) {
+          <f-minimap [fMinSize]="1800" />
+        }
       </f-flow>
 
       <div class="vx-flow-canvas__toolbar" role="toolbar">
@@ -149,6 +170,12 @@ export class FlowCanvasComponent {
   readonly edges = input<FlowCanvasEdge[]>([]);
   readonly nodeTemplate = input.required<TemplateRef<unknown>>();
   readonly background = input(true);
+  readonly minimap = input(false);
+  /** The largest zoom a fit may choose. */
+  readonly maxFitScale = input(1);
+
+  /** A click on the empty surface (not on a node, not on the toolbar). */
+  readonly backgroundClick = output<void>();
 
   private readonly canvas = viewChild(FCanvasComponent);
 
@@ -156,6 +183,7 @@ export class FlowCanvasComponent {
   protected readonly Right = EFConnectableSide.RIGHT;
   protected readonly Fixed = EFConnectionBehavior.FIXED;
   protected readonly Segment = EFConnectionType.SEGMENT;
+  protected readonly MarkerEnd = EFMarkerType.END;
 
   protected readonly ZoomInIcon = Plus;
   protected readonly ZoomOutIcon = Minus;
@@ -165,18 +193,27 @@ export class FlowCanvasComponent {
   /**
    * Viewport helpers measure the rendered nodes, so the first fit waits for Foblex to report them
    * (`fNodesRendered`) — fitting from an effect ran before that and triggered FF1009, leaving the
-   * initial view wrong. Later node sets (a new search) refit once the first render has happened.
+   * initial view wrong. Later node sets (a new map) refit once the first render has happened.
    */
   private rendered = false;
 
+  /** The node ids last fitted: selecting or restyling a node must not move the camera. */
+  private fittedSignature = '';
+
   constructor() {
     effect(() => {
-      if (this.nodes().length > 0 && this.rendered) this.scheduleFit();
+      const signature = this.nodes().map((node) => node.id).join('|');
+      if (!signature || !this.rendered || signature === this.fittedSignature) return;
+      this.fittedSignature = signature;
+      this.scheduleFit();
     });
   }
 
   onNodesRendered(): void {
     this.rendered = true;
+    const signature = this.nodes().map((node) => node.id).join('|');
+    if (signature === this.fittedSignature) return;
+    this.fittedSignature = signature;
     this.scheduleFit();
   }
 
@@ -186,7 +223,12 @@ export class FlowCanvasComponent {
   }
 
   fit(): void {
-    this.canvas()?.fitToScreen({ x: 64, y: 64 }, false);
+    this.canvas()?.fitToScreen({ x: 64, y: 64 }, false, true, this.maxFitScale());
+  }
+
+  /** Bring one node to the middle of the viewport, keeping the zoom. */
+  centerOn(nodeId: string): void {
+    this.canvas()?.centerGroupOrNode(nodeId, true);
   }
 
   zoomIn(): void {
@@ -201,5 +243,29 @@ export class FlowCanvasComponent {
 
   reset(): void {
     this.canvas()?.resetScaleAndCenter(false);
+  }
+
+  private pressedAt: { x: number; y: number } | null = null;
+
+  onPointerDown(event: PointerEvent): void {
+    this.pressedAt = { x: event.clientX, y: event.clientY };
+  }
+
+  /**
+   * A press-and-release on the empty surface clears the consumer's selection. Pointer events rather
+   * than `click`: the surface is not a control (keyboard users clear with Escape, which the page
+   * handles), and a pan also ends in a click.
+   */
+  onSurfaceRelease(event: PointerEvent): void {
+    // Only a release that did not move (not the end of a pan) counts.
+    const moved = this.pressedAt
+      ? Math.hypot(event.clientX - this.pressedAt.x, event.clientY - this.pressedAt.y) > 4
+      : false;
+    this.pressedAt = null;
+    if (moved) return;
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.vx-flow-canvas__node, .vx-flow-canvas__toolbar, .f-minimap')) {
+      this.backgroundClick.emit();
+    }
   }
 }

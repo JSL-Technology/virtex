@@ -1,4 +1,6 @@
 <vx-draft-shell
+  relationshipMapType="PURCHASE_REQUISITION"
+  [relationshipMapId]="id"
   [title]="(current() ? current()!.number : ('purchasing.requisitions.new_requisition' | translate))"
   [subtitle]="'purchasing.requisitions.title' | translate"
   [dirty]="form.dirty"

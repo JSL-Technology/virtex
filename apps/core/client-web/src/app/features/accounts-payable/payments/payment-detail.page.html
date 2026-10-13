@@ -1,4 +1,6 @@
 <vx-document-shell
+  relationshipMapType="VENDOR_PAYMENT"
+  [relationshipMapId]="payment()?.id"
   [title]="payment()?.number ?? ('page_titles.vendor_payment' | translate)"
   [subtitle]="payment()?.bankAccount?.name ?? null"
   [statusKey]="payment() ? 'accounts_payable.payments.status.' + payment()!.status.toLowerCase() : null"

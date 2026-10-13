@@ -1,119 +1,230 @@
-import { FlowDocumentType, FlowStatusKind } from './contracts/document-flow.contracts';
+import {
+  FlowDocumentType,
+  FlowModule,
+  FlowRelationCategory,
+  FlowStatusKind,
+} from './contracts/document-flow.contracts';
 
 /**
  * The declarative registry the whole module runs on.
  *
  * Adding a document type to the map is adding a `NodeSpec`; linking two types is adding an
- * `EdgeSpec`. Neither requires touching the engine, and neither imports the owning module — the
- * specs name tables and *entity property names*, and `DocumentFlowService` resolves those to real
- * column names at runtime from TypeORM's metadata, so the inconsistent physical naming of these
- * tables (`invoiceNumber` beside `customer_id` beside `quoteNumber`) never reaches the SQL by hand.
+ * `EdgeSpec`. Neither touches the engine, and neither imports the owning module: the specs name
+ * *entities* and *entity properties* as strings, and `DocumentFlowCatalog` resolves them to real
+ * tables and columns from TypeORM's runtime metadata — so the inconsistent physical naming of
+ * these tables (`invoiceNumber` beside `customer_id` beside `vendor_payment`) never reaches the SQL
+ * by hand, and a renamed column is reported at start-up instead of failing a user's request.
+ *
+ * `document-flow.specs.spec.ts` checks every name here against the real entities.
  */
 
-/** How to read one document type as a node. Property names are resolved to columns at runtime. */
+/** A value read from a joined row: `via` is the FK property on the document, `prop` is on `entity`. */
+export interface LookupJoin {
+  via: string;
+  entity: string;
+  prop: string;
+}
+
+/** A total computed from child rows (a payment batch has no total column of its own). */
+export interface AggregateTotal {
+  /** Child entity. */
+  entity: string;
+  /** Property on the child pointing back at the document. */
+  fkProp: string;
+  /** Property on the child to sum. */
+  sumProp: string;
+}
+
+/** How to read one document type as a node. */
 export interface NodeSpec {
   type: FlowDocumentType;
-  /** Physical table name (these are stable and snake-cased; used verbatim, quoted). */
-  table: string;
+  /** TypeORM entity name (the class name). Resolved to its table at start-up. */
+  entity: string;
+  module: FlowModule;
   typeKey: string;
-  icon: string;
-  /** Primary key property. Defaults to `id`. */
-  idProp?: string;
-  /** Tenant column property. Defaults to `organizationId`. */
-  orgProp?: string;
-  /** Property holding the human document number. Omitted = the type has no number. */
-  numberProp?: string;
-  /** Property holding the document date. */
-  dateProp?: string;
-  /** Property holding the status enum. */
-  statusProp?: string;
-  /** Property holding the document total. */
-  totalProp?: string;
-  /** Property holding the ISO currency code. */
-  currencyProp?: string;
-  /** A counterparty name frozen on this table (e.g. `customerName`). */
-  partyNameProp?: string;
   /**
-   * A counterparty resolved by join. `idColumn` is the raw FK *column* (relation join columns carry
-   * no scalar property to resolve), `nameProp` is the entity property on the joined table.
+   * The permission that lets someone read this document on its own screen. Without it, the map
+   * still shows the node (so the chain keeps its shape) but withholds every identifying field.
    */
-  partyJoin?: { idColumn: string; table: string; nameProp: string };
-  /** Maps a discriminator property's value to a subtype badge i18n key (e.g. credit note). */
+  permission: string;
+  /** Tenant column properties. Defaults to `['organizationId']`; several = the row belongs to either. */
+  orgProps?: string[];
+  numberProp?: string;
+  dateProp?: string;
+  statusProp?: string;
+  totalProp?: string;
+  totalAggregate?: AggregateTotal;
+  currencyProp?: string;
+  currencyLookup?: LookupJoin;
+  partyNameProp?: string;
+  partyLookup?: LookupJoin;
+  descriptionProp?: string;
   subtype?: { prop: string; map: Record<string, string> };
-  /** Raw status → normalised kind. A status absent here falls back to {@link classifyStatus}. */
+  /**
+   * Raw status → kind. Explicit and exhaustive for the type's enum; `document-flow.specs.spec.ts`
+   * holds the list of values each enum has, so a new status cannot slip through uncoloured.
+   */
   statusMap?: Record<string, FlowStatusKind>;
-  /** Builds the client route (no org prefix) that opens the document, or null when there is none. */
-  route?: (id: string) => string | null;
+  /** Kind for a value missing from `statusMap`, or for a type with no status at all. Default `unknown`. */
+  statusFallback?: FlowStatusKind;
+  /**
+   * A hub collects links from many unrelated documents — a journal entry can be shared by a whole
+   * payment batch, a depreciation run by every asset. When the map *passes through* a hub it does
+   * not fan back out of it into other documents (only into other hubs: a reversal of the entry),
+   * or one invoice's map would grow every other document the same entry touched. Opened *on* a
+   * hub, the map expands from it normally: from a journal entry you want its source document.
+   */
+  hub?: boolean;
+  /** The number can be searched for from the picker. Needs `numberProp`. */
+  searchable?: boolean;
 }
 
 /**
  * How two document types are linked.
  *
- * `fk` — one table carries a foreign-key column pointing at the other. `fkRole` says whether the
- * row carrying the FK is the *source* (base) of the relationship or its *target* (derived), which
- * is what orients the arrow regardless of which end the traversal arrives from.
+ * `fk` — the `carrier` type's entity has a property (`prop`) holding the id of a `target` document.
+ * `carrierRole` says whether the carrier is the *source* (base) of the relationship or its *target*
+ * (derived), which orients the arrow regardless of which end the traversal arrives from.
  *
- * `junction` — a line/link table carries both ids (an invoice paid by a receipt is recorded, one
- * row per application, in `customer_payment_lines`). `sourceSide` names the base end.
+ * `junction` — a line/link entity carries both ids (an invoice paid by a receipt is recorded, one
+ * row per application, in `customer_payment_lines`). `sourceSide` names the base end. `tenantSide`
+ * names the side whose document table the junction is tenant-filtered through when the junction
+ * has no tenant column of its own.
  */
 export type EdgeSpec =
   | {
       kind: 'fk';
-      fkTable: string;
-      fkType: FlowDocumentType;
-      fkProp: string;
-      refType: FlowDocumentType;
-      fkRole: 'source' | 'target';
-      relationKey: string;
+      carrier: FlowDocumentType;
+      prop: string;
+      target: FlowDocumentType;
+      carrierRole: 'source' | 'target';
+      relation: string;
+      category: FlowRelationCategory;
     }
   | {
       kind: 'junction';
-      table: string;
+      entity: string;
       aProp: string;
       aType: FlowDocumentType;
       bProp: string;
       bType: FlowDocumentType;
       sourceSide: 'a' | 'b';
-      relationKey: string;
+      tenantSide: 'a' | 'b';
+      relation: string;
+      category: FlowRelationCategory;
     };
 
 const T = FlowDocumentType;
+const P = {
+  INVOICES: 'invoices:view',
+  CRM: 'crm:view',
+  AR: 'accounts_receivable:view',
+  AP: 'accounts_payable:view',
+  POS: 'pos:view',
+  PROCUREMENT: 'procurement:view',
+  JOURNAL: 'journal_entries:view',
+  TREASURY: 'treasury:view',
+  INTERCOMPANY: 'intercompany:view',
+  STOCK: 'inventory:view_stock',
+  PAYROLL: 'payroll:view',
+  ASSETS: 'fixed_assets:view',
+} as const;
 
-/** Invoice statuses carry fiscal meaning, so they are mapped explicitly rather than guessed. */
-const INVOICE_STATUS: Record<string, FlowStatusKind> = {
-  Draft: 'draft',
-  Pending: 'open',
-  'Partially Paid': 'open',
-  Paid: 'closed',
-  Void: 'cancelled',
-  'Credit Note': 'closed',
-};
+// ── Status maps, one per enum. Exhaustive: see document-flow.specs.spec.ts ─────────────────────
+
+export const STATUS_MAPS = {
+  quote: { DRAFT: 'draft', SENT: 'open', ACCEPTED: 'open', REJECTED: 'cancelled', INVOICED: 'closed', CANCELLED: 'cancelled' },
+  invoice: { Draft: 'draft', Pending: 'open', 'Partially Paid': 'open', Paid: 'closed', Void: 'cancelled', 'Credit Note': 'closed' },
+  customerPayment: { POSTED: 'closed', VOID: 'cancelled' },
+  posSale: { PAID: 'closed', CANCELLED: 'cancelled' },
+  ecf: {
+    PENDING: 'pending',
+    SIGNED: 'pending',
+    SENT: 'pending',
+    ACCEPTED: 'closed',
+    ACCEPTED_WITH_OBSERVATIONS: 'closed',
+    REJECTED: 'cancelled',
+    CONTINGENCY: 'pending',
+    ERROR: 'pending',
+  },
+  requisition: { DRAFT: 'draft', PENDING_APPROVAL: 'pending', APPROVED: 'open', REJECTED: 'cancelled', CONVERTED_TO_PO: 'closed' },
+  purchaseOrder: {
+    DRAFT: 'draft',
+    PENDING_APPROVAL: 'pending',
+    APPROVED: 'open',
+    SENT: 'open',
+    PARTIALLY_RECEIVED: 'open',
+    RECEIVED: 'closed',
+    CANCELLED: 'cancelled',
+  },
+  goodsReceipt: { POSTED: 'closed', VOID: 'cancelled' },
+  vendorBill: {
+    DRAFT: 'draft',
+    PENDING_APPROVAL: 'pending',
+    OPEN: 'open',
+    PARTIALLY_PAID: 'open',
+    PAID: 'closed',
+    VOID: 'cancelled',
+    REJECTED: 'cancelled',
+  },
+  vendorDebitNote: { POSTED: 'closed', VOIDED: 'cancelled' },
+  paymentBatch: { PENDING: 'pending', PROCESSING: 'pending', PAID: 'closed', VOID: 'cancelled' },
+  // `Modified`: superseded by the entry that corrected it — no longer the effective record.
+  journalEntry: { Draft: 'draft', 'Pending Approval': 'pending', Posted: 'closed', Modified: 'cancelled', Void: 'cancelled', Rejected: 'cancelled' },
+  inventoryAdjustment: { DRAFT: 'draft', POSTED: 'closed', CANCELLED: 'cancelled' },
+  payrollRun: { DRAFT: 'draft', CALCULATED: 'pending', APPROVED: 'open', PAID: 'closed', CANCELLED: 'cancelled' },
+  intercompany: { PENDING: 'pending', PROCESSING: 'pending', COMPLETED: 'closed', FAILED: 'cancelled' },
+  fixedAsset: { IN_USE: 'open', DISPOSED: 'closed', SOLD: 'closed' },
+  // Free-text pipeline stage: only the two terminal ones are known; anything else is still open.
+  opportunity: { CLOSED_WON: 'closed', WON: 'closed', CLOSED_LOST: 'cancelled', LOST: 'cancelled' },
+} satisfies Record<string, Record<string, FlowStatusKind>>;
+
+const ON_CUSTOMER: LookupJoin = { via: 'customer', entity: 'Customer', prop: 'companyName' };
 
 export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
+  // ── Ventas ────────────────────────────────────────────────────────────────────────────────────
+  [T.SALES_OPPORTUNITY]: {
+    type: T.SALES_OPPORTUNITY,
+    entity: 'Opportunity',
+    module: 'sales',
+    typeKey: 'relationship_map.doc.sales_opportunity',
+    permission: P.CRM,
+    descriptionProp: 'name',
+    statusProp: 'stage',
+    totalProp: 'amount',
+    partyLookup: ON_CUSTOMER,
+    statusMap: STATUS_MAPS.opportunity,
+    statusFallback: 'open',
+  },
   [T.SALES_QUOTE]: {
     type: T.SALES_QUOTE,
-    table: 'quotes',
+    entity: 'Quote',
+    module: 'sales',
     typeKey: 'relationship_map.doc.sales_quote',
-    icon: 'FileText',
+    permission: P.INVOICES,
     numberProp: 'quoteNumber',
     dateProp: 'issueDate',
     statusProp: 'status',
     totalProp: 'total',
     currencyProp: 'currencyCode',
-    partyJoin: { idColumn: 'customer_id', table: 'customers', nameProp: 'companyName' },
-    route: (id) => `quotes/${id}/edit`,
+    partyLookup: ON_CUSTOMER,
+    descriptionProp: 'notes',
+    statusMap: STATUS_MAPS.quote,
+    searchable: true,
   },
   [T.SALES_INVOICE]: {
     type: T.SALES_INVOICE,
-    table: 'invoices',
+    entity: 'Invoice',
+    module: 'sales',
     typeKey: 'relationship_map.doc.sales_invoice',
-    icon: 'Receipt',
+    permission: P.INVOICES,
     numberProp: 'invoiceNumber',
     dateProp: 'issueDate',
     statusProp: 'status',
     totalProp: 'total',
     currencyProp: 'currencyCode',
     partyNameProp: 'customerName',
+    descriptionProp: 'fiscalNumber',
     subtype: {
       prop: 'type',
       map: {
@@ -121,139 +232,302 @@ export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
         DEBIT_NOTE: 'relationship_map.subtype.debit_note',
       },
     },
-    statusMap: INVOICE_STATUS,
-    route: (id) => `invoices/${id}`,
+    statusMap: STATUS_MAPS.invoice,
+    searchable: true,
   },
   [T.CUSTOMER_PAYMENT]: {
     type: T.CUSTOMER_PAYMENT,
-    table: 'customer_payments',
+    entity: 'CustomerPayment',
+    module: 'sales',
     typeKey: 'relationship_map.doc.customer_payment',
-    icon: 'HandCoins',
+    permission: P.AR,
     numberProp: 'receiptNumber',
     dateProp: 'paymentDate',
     statusProp: 'status',
     totalProp: 'totalAmount',
     currencyProp: 'currencyCode',
-    partyJoin: { idColumn: 'customer_id', table: 'customers', nameProp: 'companyName' },
+    partyLookup: ON_CUSTOMER,
+    descriptionProp: 'reference',
+    statusMap: STATUS_MAPS.customerPayment,
+    searchable: true,
   },
   [T.POS_SALE]: {
     type: T.POS_SALE,
-    table: 'pos_sales',
+    entity: 'PosSale',
+    module: 'sales',
     typeKey: 'relationship_map.doc.pos_sale',
-    icon: 'ShoppingCart',
+    permission: P.POS,
     dateProp: 'createdAt',
     statusProp: 'status',
     totalProp: 'total',
     partyNameProp: 'customerName',
+    statusMap: STATUS_MAPS.posSale,
   },
   [T.ECF_SUBMISSION]: {
     type: T.ECF_SUBMISSION,
-    table: 'ecf_submissions',
+    entity: 'EcfSubmission',
+    module: 'sales',
     typeKey: 'relationship_map.doc.ecf_submission',
-    icon: 'FileCheck',
+    permission: P.INVOICES,
     numberProp: 'ncf',
     dateProp: 'sentAt',
     statusProp: 'status',
+    statusMap: STATUS_MAPS.ecf,
+    searchable: true,
   },
+
+  // ── Compras ───────────────────────────────────────────────────────────────────────────────────
   [T.PURCHASE_REQUISITION]: {
     type: T.PURCHASE_REQUISITION,
-    table: 'purchase_requisitions',
+    entity: 'PurchaseRequisition',
+    module: 'purchasing',
     typeKey: 'relationship_map.doc.purchase_requisition',
-    icon: 'ClipboardList',
+    permission: P.PROCUREMENT,
     numberProp: 'number',
     dateProp: 'requiredDate',
     statusProp: 'status',
     totalProp: 'totalAmount',
-    route: (id) => `purchasing/requisitions/${id}/edit`,
+    statusMap: STATUS_MAPS.requisition,
+    searchable: true,
   },
   [T.PURCHASE_ORDER]: {
     type: T.PURCHASE_ORDER,
-    table: 'purchase_orders',
+    entity: 'PurchaseOrder',
+    module: 'purchasing',
     typeKey: 'relationship_map.doc.purchase_order',
-    icon: 'ShoppingBag',
+    permission: P.PROCUREMENT,
     numberProp: 'number',
     dateProp: 'orderDate',
     statusProp: 'status',
     totalProp: 'total',
     currencyProp: 'currencyCode',
-    partyJoin: { idColumn: 'supplier_id', table: 'suppliers', nameProp: 'name' },
-    route: (id) => `purchasing/orders/${id}/edit`,
+    partyLookup: { via: 'supplier', entity: 'Supplier', prop: 'name' },
+    statusMap: STATUS_MAPS.purchaseOrder,
+    searchable: true,
   },
   [T.GOODS_RECEIPT]: {
     type: T.GOODS_RECEIPT,
-    table: 'purchase_order_receipts',
+    entity: 'PurchaseOrderReceipt',
+    module: 'purchasing',
     typeKey: 'relationship_map.doc.goods_receipt',
-    icon: 'PackageCheck',
+    permission: P.PROCUREMENT,
     numberProp: 'number',
     dateProp: 'receivedAt',
     statusProp: 'status',
-    route: (id) => `purchasing/receipts/${id}`,
+    statusMap: STATUS_MAPS.goodsReceipt,
+    searchable: true,
   },
   [T.VENDOR_BILL]: {
     type: T.VENDOR_BILL,
-    table: 'vendor_bills',
+    entity: 'VendorBill',
+    module: 'purchasing',
     typeKey: 'relationship_map.doc.vendor_bill',
-    icon: 'FileText',
+    permission: P.AP,
     numberProp: 'ncf',
     dateProp: 'date',
     statusProp: 'status',
     totalProp: 'total',
     currencyProp: 'currencyCode',
-    partyJoin: { idColumn: 'vendor_id', table: 'suppliers', nameProp: 'name' },
+    partyLookup: { via: 'vendor', entity: 'Supplier', prop: 'name' },
+    statusMap: STATUS_MAPS.vendorBill,
+    searchable: true,
   },
+  [T.VENDOR_DEBIT_NOTE]: {
+    type: T.VENDOR_DEBIT_NOTE,
+    entity: 'VendorDebitNote',
+    module: 'purchasing',
+    typeKey: 'relationship_map.doc.vendor_debit_note',
+    permission: P.AP,
+    numberProp: 'number',
+    dateProp: 'date',
+    statusProp: 'status',
+    totalProp: 'amount',
+    descriptionProp: 'reason',
+    statusMap: STATUS_MAPS.vendorDebitNote,
+    searchable: true,
+  },
+  [T.VENDOR_PAYMENT]: {
+    type: T.VENDOR_PAYMENT,
+    entity: 'PaymentBatch',
+    module: 'purchasing',
+    typeKey: 'relationship_map.doc.vendor_payment',
+    permission: P.AP,
+    numberProp: 'number',
+    dateProp: 'paymentDate',
+    statusProp: 'status',
+    totalAggregate: { entity: 'VendorPayment', fkProp: 'paymentBatchId', sumProp: 'amount' },
+    currencyLookup: { via: 'bankAccount', entity: 'BankAccount', prop: 'currencyCode' },
+    descriptionProp: 'reference',
+    statusMap: STATUS_MAPS.paymentBatch,
+    searchable: true,
+  },
+
+  // ── Finanzas ──────────────────────────────────────────────────────────────────────────────────
   [T.JOURNAL_ENTRY]: {
     type: T.JOURNAL_ENTRY,
-    table: 'journal_entries',
+    entity: 'JournalEntry',
+    module: 'finance',
     typeKey: 'relationship_map.doc.journal_entry',
-    icon: 'BookOpen',
+    permission: P.JOURNAL,
     numberProp: 'entryNumber',
     dateProp: 'date',
     statusProp: 'status',
+    totalAggregate: { entity: 'JournalEntryLine', fkProp: 'journalEntryId', sumProp: 'debit' },
     currencyProp: 'currencyCode',
-    route: (id) => `accounting/journal-entries/${id}/edit`,
+    descriptionProp: 'description',
+    statusMap: STATUS_MAPS.journalEntry,
+    hub: true,
+    searchable: true,
+  },
+  [T.BANK_TRANSFER]: {
+    type: T.BANK_TRANSFER,
+    entity: 'BankTransfer',
+    module: 'finance',
+    typeKey: 'relationship_map.doc.bank_transfer',
+    permission: P.TREASURY,
+    numberProp: 'reference',
+    dateProp: 'date',
+    totalProp: 'amount',
+    currencyLookup: { via: 'fromBankAccount', entity: 'BankAccount', prop: 'currencyCode' },
+    descriptionProp: 'description',
+    // A transfer is recorded and posted in one act; it has no lifecycle of its own.
+    statusFallback: 'closed',
+  },
+  [T.INTERCOMPANY_TRANSACTION]: {
+    type: T.INTERCOMPANY_TRANSACTION,
+    entity: 'IntercompanyTransaction',
+    module: 'finance',
+    typeKey: 'relationship_map.doc.intercompany_transaction',
+    permission: P.INTERCOMPANY,
+    // Both companies see the transaction; each sees only its own journal entry.
+    orgProps: ['fromOrganizationId', 'toOrganizationId'],
+    dateProp: 'transactionDate',
+    statusProp: 'status',
+    totalProp: 'amount',
+    currencyProp: 'currencyCode',
+    descriptionProp: 'description',
+    statusMap: STATUS_MAPS.intercompany,
+  },
+
+  // ── Inventario ────────────────────────────────────────────────────────────────────────────────
+  [T.INVENTORY_ADJUSTMENT]: {
+    type: T.INVENTORY_ADJUSTMENT,
+    entity: 'InventoryAdjustment',
+    module: 'inventory',
+    typeKey: 'relationship_map.doc.inventory_adjustment',
+    permission: P.STOCK,
+    numberProp: 'number',
+    dateProp: 'date',
+    statusProp: 'status',
+    totalProp: 'valueChange',
+    descriptionProp: 'notes',
+    statusMap: STATUS_MAPS.inventoryAdjustment,
+    searchable: true,
+  },
+
+  // ── RR.HH. ────────────────────────────────────────────────────────────────────────────────────
+  [T.PAYROLL_RUN]: {
+    type: T.PAYROLL_RUN,
+    entity: 'PayrollRun',
+    module: 'hr',
+    typeKey: 'relationship_map.doc.payroll_run',
+    permission: P.PAYROLL,
+    numberProp: 'name',
+    dateProp: 'payDate',
+    statusProp: 'status',
+    totalProp: 'totalNet',
+    currencyProp: 'currencyCode',
+    statusMap: STATUS_MAPS.payrollRun,
+    searchable: true,
+  },
+
+  // ── Activos ───────────────────────────────────────────────────────────────────────────────────
+  [T.FIXED_ASSET]: {
+    type: T.FIXED_ASSET,
+    entity: 'FixedAsset',
+    module: 'assets',
+    typeKey: 'relationship_map.doc.fixed_asset',
+    permission: P.ASSETS,
+    numberProp: 'number',
+    dateProp: 'acquisitionDate',
+    statusProp: 'status',
+    totalProp: 'cost',
+    descriptionProp: 'name',
+    statusMap: STATUS_MAPS.fixedAsset,
+    searchable: true,
   },
 };
 
 /**
  * Every business link the map can traverse, in both directions automatically.
  *
- * Read each as a sentence running base → derived: a quote is *invoiced*, an invoice is *posted* to
- * a journal entry and *settled by* a receipt, a requisition is *ordered*, an order is *received*
- * and *billed*. The engine walks these from either end.
+ * Read each as a sentence running base → derived: an opportunity is *quoted*, a quote is
+ * *invoiced*, an invoice is *posted* and *settled by* a receipt, a requisition is *ordered*, an
+ * order is *received* and *billed*, a bill is *settled by* a payment and *adjusted by* a debit note.
  */
 export const EDGE_SPECS: EdgeSpec[] = [
-  // Sales
-  { kind: 'fk', fkTable: 'quotes', fkType: T.SALES_QUOTE, fkProp: 'invoiceId', refType: T.SALES_INVOICE, fkRole: 'source', relationKey: 'relationship_map.rel.invoiced' },
-  { kind: 'fk', fkTable: 'invoices', fkType: T.SALES_INVOICE, fkProp: 'originalInvoiceId', refType: T.SALES_INVOICE, fkRole: 'target', relationKey: 'relationship_map.rel.corrects' },
-  { kind: 'fk', fkTable: 'pos_sales', fkType: T.POS_SALE, fkProp: 'invoiceId', refType: T.SALES_INVOICE, fkRole: 'source', relationKey: 'relationship_map.rel.invoiced' },
-  { kind: 'fk', fkTable: 'ecf_submissions', fkType: T.ECF_SUBMISSION, fkProp: 'invoiceId', refType: T.SALES_INVOICE, fkRole: 'target', relationKey: 'relationship_map.rel.e_submitted' },
-  { kind: 'junction', table: 'customer_payment_lines', aProp: 'invoiceId', aType: T.SALES_INVOICE, bProp: 'paymentId', bType: T.CUSTOMER_PAYMENT, sourceSide: 'a', relationKey: 'relationship_map.rel.settled_by' },
+  // ── Ventas ──
+  { kind: 'fk', carrier: T.SALES_QUOTE, prop: 'opportunity', target: T.SALES_OPPORTUNITY, carrierRole: 'target', relation: 'quoted', category: 'flow' },
+  { kind: 'fk', carrier: T.SALES_QUOTE, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'source', relation: 'invoiced', category: 'flow' },
+  { kind: 'fk', carrier: T.POS_SALE, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'source', relation: 'invoiced', category: 'flow' },
+  { kind: 'fk', carrier: T.SALES_INVOICE, prop: 'originalInvoiceId', target: T.SALES_INVOICE, carrierRole: 'target', relation: 'corrects', category: 'correction' },
+  { kind: 'fk', carrier: T.ECF_SUBMISSION, prop: 'invoiceId', target: T.SALES_INVOICE, carrierRole: 'target', relation: 'e_submitted', category: 'fiscal' },
+  { kind: 'junction', entity: 'CustomerPaymentLine', aProp: 'invoiceId', aType: T.SALES_INVOICE, bProp: 'paymentId', bType: T.CUSTOMER_PAYMENT, sourceSide: 'a', tenantSide: 'b', relation: 'settled_by', category: 'settlement' },
 
-  // Procurement
-  { kind: 'fk', fkTable: 'purchase_orders', fkType: T.PURCHASE_ORDER, fkProp: 'requisitionId', refType: T.PURCHASE_REQUISITION, fkRole: 'target', relationKey: 'relationship_map.rel.ordered' },
-  { kind: 'fk', fkTable: 'purchase_order_receipts', fkType: T.GOODS_RECEIPT, fkProp: 'orderId', refType: T.PURCHASE_ORDER, fkRole: 'target', relationKey: 'relationship_map.rel.received' },
-  { kind: 'fk', fkTable: 'vendor_bills', fkType: T.VENDOR_BILL, fkProp: 'purchaseOrderId', refType: T.PURCHASE_ORDER, fkRole: 'target', relationKey: 'relationship_map.rel.billed' },
+  // ── Compras ──
+  { kind: 'fk', carrier: T.PURCHASE_ORDER, prop: 'requisitionId', target: T.PURCHASE_REQUISITION, carrierRole: 'target', relation: 'ordered', category: 'flow' },
+  { kind: 'fk', carrier: T.PURCHASE_REQUISITION, prop: 'purchaseOrderId', target: T.PURCHASE_ORDER, carrierRole: 'source', relation: 'ordered', category: 'flow' },
+  { kind: 'fk', carrier: T.GOODS_RECEIPT, prop: 'orderId', target: T.PURCHASE_ORDER, carrierRole: 'target', relation: 'received', category: 'flow' },
+  { kind: 'fk', carrier: T.VENDOR_BILL, prop: 'purchaseOrderId', target: T.PURCHASE_ORDER, carrierRole: 'target', relation: 'billed', category: 'flow' },
+  { kind: 'fk', carrier: T.VENDOR_DEBIT_NOTE, prop: 'vendorBillId', target: T.VENDOR_BILL, carrierRole: 'target', relation: 'adjusted_by', category: 'correction' },
+  { kind: 'junction', entity: 'VendorPayment', aProp: 'vendorBillId', aType: T.VENDOR_BILL, bProp: 'paymentBatchId', bType: T.VENDOR_PAYMENT, sourceSide: 'a', tenantSide: 'b', relation: 'settled_by', category: 'settlement' },
 
-  // Postings to the ledger (source document → journal entry)
-  { kind: 'fk', fkTable: 'invoices', fkType: T.SALES_INVOICE, fkProp: 'journalEntryId', refType: T.JOURNAL_ENTRY, fkRole: 'source', relationKey: 'relationship_map.rel.posted' },
-  { kind: 'fk', fkTable: 'invoices', fkType: T.SALES_INVOICE, fkProp: 'costJournalEntryId', refType: T.JOURNAL_ENTRY, fkRole: 'source', relationKey: 'relationship_map.rel.cost_posted' },
-  { kind: 'fk', fkTable: 'customer_payments', fkType: T.CUSTOMER_PAYMENT, fkProp: 'journalEntryId', refType: T.JOURNAL_ENTRY, fkRole: 'source', relationKey: 'relationship_map.rel.posted' },
-  { kind: 'fk', fkTable: 'purchase_order_receipts', fkType: T.GOODS_RECEIPT, fkProp: 'journalEntryId', refType: T.JOURNAL_ENTRY, fkRole: 'source', relationKey: 'relationship_map.rel.posted' },
-  { kind: 'fk', fkTable: 'vendor_bills', fkType: T.VENDOR_BILL, fkProp: 'journalEntryId', refType: T.JOURNAL_ENTRY, fkRole: 'source', relationKey: 'relationship_map.rel.posted' },
+  // ── Nómina ──
+  { kind: 'fk', carrier: T.PAYROLL_RUN, prop: 'correctsRunId', target: T.PAYROLL_RUN, carrierRole: 'target', relation: 'corrects', category: 'correction' },
+
+  // ── Postings to the ledger (document → journal entry) ──
+  ...posting(T.SALES_INVOICE, 'journalEntryId', 'posted'),
+  ...posting(T.SALES_INVOICE, 'costJournalEntryId', 'cost_posted'),
+  ...posting(T.CUSTOMER_PAYMENT, 'journalEntryId', 'posted'),
+  ...reversal(T.CUSTOMER_PAYMENT, 'reversalJournalEntryId'),
+  ...posting(T.GOODS_RECEIPT, 'journalEntryId', 'posted'),
+  ...reversal(T.GOODS_RECEIPT, 'reversalJournalEntryId'),
+  ...posting(T.VENDOR_BILL, 'journalEntryId', 'posted'),
+  ...reversal(T.VENDOR_BILL, 'reversalJournalEntryId'),
+  ...posting(T.VENDOR_DEBIT_NOTE, 'journalEntryId', 'posted'),
+  ...reversal(T.VENDOR_DEBIT_NOTE, 'reversalJournalEntryId'),
+  ...posting(T.VENDOR_PAYMENT, 'journalEntryId', 'posted'),
+  ...reversal(T.VENDOR_PAYMENT, 'reversalJournalEntryId'),
+  ...posting(T.BANK_TRANSFER, 'journalEntryId', 'posted'),
+  ...posting(T.INVENTORY_ADJUSTMENT, 'journalEntryId', 'posted'),
+  ...posting(T.PAYROLL_RUN, 'journalEntryId', 'posted'),
+  ...posting(T.PAYROLL_RUN, 'paymentJournalEntryId', 'payment_posted'),
+  ...posting(T.INTERCOMPANY_TRANSACTION, 'sourceJournalEntryId', 'posted'),
+  ...posting(T.INTERCOMPANY_TRANSACTION, 'destinationJournalEntryId', 'posted_counterparty'),
+  ...posting(T.FIXED_ASSET, 'disposalJournalEntryId', 'disposal_posted'),
+  { kind: 'junction', entity: 'FixedAssetDepreciation', aProp: 'fixedAssetId', aType: T.FIXED_ASSET, bProp: 'journalEntryId', bType: T.JOURNAL_ENTRY, sourceSide: 'a', tenantSide: 'a', relation: 'depreciated', category: 'posting' },
+
+  // ── Journal entry ↔ journal entry ──
+  { kind: 'fk', carrier: T.JOURNAL_ENTRY, prop: 'reversesEntryId', target: T.JOURNAL_ENTRY, carrierRole: 'target', relation: 'reversed', category: 'reversal' },
+  { kind: 'fk', carrier: T.JOURNAL_ENTRY, prop: 'modifiedFromEntryId', target: T.JOURNAL_ENTRY, carrierRole: 'target', relation: 'modified', category: 'correction' },
+  { kind: 'fk', carrier: T.JOURNAL_ENTRY, prop: 'modifiedToEntryId', target: T.JOURNAL_ENTRY, carrierRole: 'source', relation: 'modified', category: 'correction' },
 ];
 
-/**
- * Fallback classifier for a status this module was not told about.
- *
- * Heuristic on purpose: the alternative is a second copy of every module's status enum, which drifts
- * the day one of them changes. Explicit maps (`NodeSpec.statusMap`) win where the exact wording
- * carries fiscal meaning; everything else is read by shape.
- */
-export function classifyStatus(raw: string | null): FlowStatusKind {
-  if (!raw) return 'unknown';
-  const s = raw.toLowerCase();
-  if (/(draft|borrador|nuevo|new)/.test(s)) return 'draft';
-  if (/(void|cancel|anul|reject|rechaz|fail|error|declin)/.test(s)) return 'cancelled';
-  if (/(paid|pagad|closed|cerrad|accept|acept|post|contabiliz|received|recib|complete|complet|done|approved|aprobad|accepted)/.test(s)) return 'closed';
-  return 'open';
+function posting(carrier: FlowDocumentType, prop: string, relation: string): EdgeSpec[] {
+  return [{ kind: 'fk', carrier, prop, target: T.JOURNAL_ENTRY, carrierRole: 'source', relation, category: 'posting' }];
+}
+
+function reversal(carrier: FlowDocumentType, prop: string): EdgeSpec[] {
+  return [{ kind: 'fk', carrier, prop, target: T.JOURNAL_ENTRY, carrierRole: 'source', relation: 'reversed', category: 'reversal' }];
+}
+
+/** i18n key for a relation's edge label. */
+export function relationKey(relation: string): string {
+  return `relationship_map.rel.${relation}`;
+}
+
+/** Normalise a raw status into a kind, using the spec's explicit map only. */
+export function statusKindOf(spec: NodeSpec, raw: string | null): FlowStatusKind {
+  if (raw == null || raw === '') return spec.statusFallback ?? 'unknown';
+  return spec.statusMap?.[raw] ?? spec.statusFallback ?? 'unknown';
 }

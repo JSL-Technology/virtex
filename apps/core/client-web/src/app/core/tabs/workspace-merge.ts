@@ -76,5 +76,27 @@ export function mergeWorkspaces(
   for (const [key, tab] of merged) {
     if (!localKeys.has(key)) ordered.push(tab);
   }
-  return ordered;
+  return uniqueById(ordered);
+}
+
+/**
+ * One window, one id. Identity above is by RECORD, but a window can change records in place — the
+ * preview tab, reused for the next document opened — keeping its id. Merged by record, the old
+ * incarnation from the other device and the new one from this device both survived under the same
+ * id, and every lookup by id (activate, close, the router sync) then hit whichever came first: a
+ * click that opened an invoice landed on the relationship map the same window used to show. The
+ * most recently active incarnation wins; a dirty one is never dropped for a clean one.
+ */
+export function uniqueById(tabs: TabModel[]): TabModel[] {
+  const winner = new Map<string, TabModel>();
+  for (const tab of tabs) {
+    const current = winner.get(tab.id);
+    if (
+      !current ||
+      (!current.isDirty && (tab.isDirty || tab.lastActivatedAt.getTime() > current.lastActivatedAt.getTime()))
+    ) {
+      winner.set(tab.id, tab);
+    }
+  }
+  return tabs.filter((tab) => winner.get(tab.id) === tab);
 }

@@ -30,6 +30,10 @@
     <div class="ds__actions">
       <ng-content select="[documentActions]"></ng-content>
 
+      @if (relationshipMapType() && relationshipMapId() && state() === 'content') {
+        <vx-relationship-map-link [type]="relationshipMapType()!" [documentId]="relationshipMapId()" />
+      }
+
       @if (hasAside()) {
         <button
           type="button"

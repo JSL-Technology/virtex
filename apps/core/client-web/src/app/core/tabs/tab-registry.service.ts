@@ -98,6 +98,7 @@ export class TabRegistryService {
       title: route.titleKey ?? module.titleKey,
       icon: route.icon ?? module.icon,
       isCloseable,
+      previewable: route.previewable,
       // `authenticated` means "any signed-in user"; it is not a grantable permission, so it must
       // not be handed to hasPermissions() — which would deny it for everyone.
       permissions: requiredPermissionsFor(route.permission),

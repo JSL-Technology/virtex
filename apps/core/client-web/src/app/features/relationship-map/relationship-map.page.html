@@ -1,23 +1,178 @@
 <div class="rm">
   @if (!hasTarget()) {
-    <!-- Opened from the menu, with no document in the address. -->
-    <div class="rm__empty">
-      <lucide-icon [img]="ShareIcon" [size]="40" class="rm__empty-icon" />
-      <h2 class="rm__empty-title">{{ 'relationship_map.title' | translate }}</h2>
-      <p class="rm__empty-text">{{ 'relationship_map.empty_hint' | translate }}</p>
-    </div>
-  } @else if (loading()) {
-    <div class="rm__state">{{ 'relationship_map.loading' | translate }}</div>
-  } @else if (error()) {
-    <div class="rm__state rm__state--error">{{ error() }}</div>
-  } @else if (map(); as m) {
-    <header class="rm__header">
-      <div class="rm__heading">
-        <lucide-icon [img]="ShareIcon" [size]="18" />
-        <h1>{{ 'relationship_map.title' | translate }}</h1>
+    <!-- ── Finder: opened from the menu, with no document in the address ── -->
+    <section class="rm-finder" aria-labelledby="rm-finder-title">
+      <div class="rm-finder__intro">
+        <lucide-icon [img]="ShareIcon" [size]="36" class="rm-finder__icon" aria-hidden="true" />
+        <h1 id="rm-finder-title" class="rm-finder__title">{{ 'relationship_map.title' | translate }}</h1>
+        <p class="rm-finder__text">{{ 'relationship_map.finder.intro' | translate }}</p>
       </div>
 
-      <ul class="rm__legend">
+      <form class="rm-finder__form" role="search" data-view-control (submit)="$event.preventDefault()">
+        <label class="rm-finder__field rm-finder__field--grow">
+          <span class="rm-finder__label">{{ 'relationship_map.finder.number' | translate }}</span>
+          <span class="rm-finder__input-wrap">
+            <lucide-icon [img]="SearchIcon" [size]="16" aria-hidden="true" />
+            <input
+              type="search"
+              class="rm-finder__input"
+              autocomplete="off"
+              maxlength="80"
+              [placeholder]="'relationship_map.finder.placeholder' | translate"
+              [value]="searchText()"
+              (input)="searchText.set($any($event.target).value)"
+            />
+          </span>
+        </label>
+        <label class="rm-finder__field">
+          <span class="rm-finder__label">{{ 'relationship_map.finder.type' | translate }}</span>
+          <select class="rm-finder__select" [value]="searchType()" (change)="searchType.set($any($event.target).value)">
+            <option value="">{{ 'relationship_map.finder.all_types' | translate }}</option>
+            @for (info of types(); track info.type) {
+              @if (info.searchable) {
+                <option [value]="info.type">{{ info.typeKey | translate }}</option>
+              }
+            }
+          </select>
+        </label>
+      </form>
+
+      <div class="rm-finder__results" aria-live="polite">
+        @if (searching()) {
+          <p class="rm-finder__hint">{{ 'relationship_map.finder.searching' | translate }}</p>
+        } @else if (results(); as hits) {
+          @if (hits.length === 0) {
+            <p class="rm-finder__hint">{{ 'relationship_map.finder.no_results' | translate }}</p>
+          } @else {
+            <ul class="rm-finder__list">
+              @for (hit of hits; track hit.key) {
+                <li>
+                  <button type="button" class="rm-hit" [attr.data-module]="hit.module" (click)="openHit(hit)">
+                    <span class="rm-hit__icon"><lucide-icon [img]="iconOf(hit.type)" [size]="18" aria-hidden="true" /></span>
+                    <span class="rm-hit__body">
+                      <span class="rm-hit__type">{{ hit.typeKey | translate }}</span>
+                      <span class="rm-hit__number">{{ hit.number || hit.description || ('relationship_map.node.no_number' | translate) }}</span>
+                      @if (hit.party) {
+                        <span class="rm-hit__party">{{ hit.party }}</span>
+                      }
+                    </span>
+                    <span class="rm-hit__meta">
+                      <span>{{ dateOf(hit) }}</span>
+                      <strong>{{ money(hit) }}</strong>
+                    </span>
+                    <span class="rm-chip" [attr.data-status]="hit.statusKind">{{ statusKey(hit.statusKind) | translate }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        } @else {
+          <p class="rm-finder__hint">{{ 'relationship_map.empty_hint' | translate }}</p>
+        }
+      </div>
+    </section>
+  } @else {
+    <!-- ── Header: what this is, and the tools ── -->
+    <header class="rm__header">
+      <div class="rm__heading">
+        <lucide-icon [img]="ShareIcon" [size]="18" aria-hidden="true" />
+        <div class="rm__titles">
+          <h1 class="rm__title">{{ 'relationship_map.title' | translate }}</h1>
+          @if (rootNode(); as root) {
+            <p class="rm__subtitle">
+              {{ root.typeKey | translate }} {{ root.number }}
+              <span class="rm__counts">
+                · {{ 'relationship_map.summary' | translate: { documents: summary().documents, links: summary().links } }}
+              </span>
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="rm__tools" role="toolbar" data-view-control [attr.aria-label]="'relationship_map.toolbar.label' | translate">
+        <label class="rm-search">
+          <lucide-icon [img]="SearchIcon" [size]="15" aria-hidden="true" />
+          <input
+            type="search"
+            class="rm-search__input"
+            [placeholder]="'relationship_map.toolbar.filter' | translate"
+            [attr.aria-label]="'relationship_map.toolbar.filter' | translate"
+            [value]="filter()"
+            (input)="filter.set($any($event.target).value)"
+          />
+        </label>
+
+        <button
+          type="button"
+          class="rm-tool"
+          [class.is-on]="showPostings()"
+          [attr.aria-pressed]="showPostings()"
+          [title]="'relationship_map.toolbar.postings_hint' | translate"
+          (click)="togglePostings()"
+        >
+          <lucide-icon [img]="PostingsIcon" [size]="15" aria-hidden="true" />
+          <span>{{ 'relationship_map.toolbar.postings' | translate }}</span>
+        </button>
+
+        <label class="rm-depth" [title]="'relationship_map.toolbar.depth_hint' | translate">
+          <span>{{ 'relationship_map.toolbar.depth' | translate }}</span>
+          <select [value]="depth()" (change)="setDepth($any($event.target).value)">
+            @for (choice of depthChoices; track choice) {
+              <option [value]="choice" [selected]="choice === depth()">{{ choice }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="rm-switch" role="group" [attr.aria-label]="'relationship_map.toolbar.view' | translate">
+          <button
+            type="button"
+            class="rm-switch__btn"
+            [class.is-on]="view() === 'diagram'"
+            [attr.aria-pressed]="view() === 'diagram'"
+            [title]="'relationship_map.toolbar.diagram' | translate"
+            (click)="view.set('diagram')"
+          >
+            <lucide-icon [img]="DiagramIcon" [size]="15" aria-hidden="true" />
+            <span class="sr-only">{{ 'relationship_map.toolbar.diagram' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            class="rm-switch__btn"
+            [class.is-on]="view() === 'list'"
+            [attr.aria-pressed]="view() === 'list'"
+            [title]="'relationship_map.toolbar.list' | translate"
+            (click)="view.set('list')"
+          >
+            <lucide-icon [img]="ListIcon" [size]="15" aria-hidden="true" />
+            <span class="sr-only">{{ 'relationship_map.toolbar.list' | translate }}</span>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="rm-tool rm-tool--icon"
+          [disabled]="loading()"
+          [title]="'relationship_map.toolbar.refresh' | translate"
+          [attr.aria-label]="'relationship_map.toolbar.refresh' | translate"
+          (click)="refresh()"
+        >
+          <lucide-icon [img]="RefreshIcon" [size]="15" [class.rm-spin]="loading()" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="rm-tool rm-tool--icon"
+          [disabled]="!map()"
+          [title]="'relationship_map.toolbar.export' | translate"
+          [attr.aria-label]="'relationship_map.toolbar.export' | translate"
+          (click)="exportCsv()"
+        >
+          <lucide-icon [img]="DownloadIcon" [size]="15" aria-hidden="true" />
+        </button>
+      </div>
+    </header>
+
+    <div class="rm__legend-bar">
+      <ul class="rm__legend" [attr.aria-label]="'relationship_map.legend' | translate">
         @for (kind of legend; track kind) {
           <li class="rm__legend-item">
             <span class="rm__dot" [attr.data-status]="kind"></span>
@@ -25,67 +180,277 @@
           </li>
         }
       </ul>
-    </header>
+      <ul class="rm__legend rm__legend--lines">
+        <li class="rm__legend-item"><span class="rm__line rm__line--flow"></span>{{ categoryKey('flow') | translate }}</li>
+        <li class="rm__legend-item"><span class="rm__line rm__line--settlement"></span>{{ categoryKey('settlement') | translate }}</li>
+        <li class="rm__legend-item"><span class="rm__line rm__line--posting"></span>{{ categoryKey('posting') | translate }}</li>
+        <li class="rm__legend-item"><span class="rm__line rm__line--reversal"></span>{{ categoryKey('reversal') | translate }}</li>
+      </ul>
+    </div>
 
-    @if (m.truncated) {
-      <div class="rm__notice">
-        <lucide-icon [img]="InfoIcon" [size]="15" />
-        {{ 'relationship_map.truncated' | translate: { count: m.nodes.length } }}
-      </div>
+    @if (map(); as m) {
+      @if (m.truncated) {
+        <div class="rm__notice" role="status">
+          <lucide-icon [img]="InfoIcon" [size]="15" aria-hidden="true" />
+          <span>
+            @if (m.truncation.nodes) {
+              {{ 'relationship_map.truncated.nodes' | translate: { count: m.nodes.length } }}
+            } @else if (m.truncation.depth) {
+              {{ 'relationship_map.truncated.depth' | translate: { depth: m.limits.maxDepth } }}
+            } @else {
+              {{ 'relationship_map.truncated.fan_out' | translate }}
+            }
+          </span>
+          @if (canWiden()) {
+            <button type="button" class="rm__notice-action" (click)="widen()">
+              {{ 'relationship_map.truncated.widen' | translate }}
+            </button>
+          }
+        </div>
+      }
+      @if (!showPostings() && hiddenPostings() > 0) {
+        <div class="rm__notice rm__notice--quiet" role="status">
+          <lucide-icon [img]="PostingsIcon" [size]="15" aria-hidden="true" />
+          <span>{{ 'relationship_map.postings_hidden' | translate: { count: hiddenPostings() } }}</span>
+          <button type="button" class="rm__notice-action" (click)="togglePostings()">
+            {{ 'relationship_map.toolbar.show_postings' | translate }}
+          </button>
+        </div>
+      }
     }
 
-    <div class="rm__canvas">
-      <vx-flow-canvas [nodes]="canvasNodes()" [edges]="canvasEdges()" [nodeTemplate]="card" />
+    <div class="rm__body">
+      <div class="rm__main">
+        @if (error(); as message) {
+          <div class="rm__state rm__state--error" role="alert">
+            <lucide-icon [img]="WarnIcon" [size]="28" aria-hidden="true" />
+            <p>{{ message }}</p>
+            @if (retryable()) {
+              <button type="button" class="rm-tool" (click)="refresh()">
+                <lucide-icon [img]="RefreshIcon" [size]="15" aria-hidden="true" />
+                {{ 'common.retry' | translate }}
+              </button>
+            }
+          </div>
+        } @else if (!map()) {
+          <div class="rm__state" role="status" aria-busy="true">{{ 'relationship_map.loading' | translate }}</div>
+        } @else if (view() === 'diagram') {
+          <div class="rm__canvas" [class.is-busy]="loading()">
+            <vx-flow-canvas
+              [nodes]="canvasNodes()"
+              [edges]="canvasEdges()"
+              [nodeTemplate]="card"
+              [minimap]="true"
+              (backgroundClick)="clearSelection()"
+            />
+          </div>
+        } @else {
+          <div class="rm-table-wrap" [class.is-busy]="loading()">
+            <table class="rm-table">
+              <caption class="sr-only">{{ 'relationship_map.title' | translate }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'relationship_map.csv.type' | translate }}</th>
+                  <th scope="col">{{ 'relationship_map.csv.number' | translate }}</th>
+                  <th scope="col">{{ 'relationship_map.csv.party' | translate }}</th>
+                  <th scope="col">{{ 'relationship_map.csv.date' | translate }}</th>
+                  <th scope="col" class="rm-table__num">{{ 'relationship_map.csv.amount' | translate }}</th>
+                  <th scope="col">{{ 'relationship_map.csv.status' | translate }}</th>
+                  <th scope="col" class="rm-table__num">{{ 'relationship_map.csv.depth' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of rows(); track row.node.key) {
+                  <tr
+                    [class.is-selected]="row.selected"
+                    [class.is-root]="row.node.root"
+                    [attr.data-module]="row.node.module"
+                    (click)="select(row.node)"
+                    (dblclick)="open(row.node)"
+                  >
+                    <td>
+                      <span class="rm-table__type">
+                        <lucide-icon [img]="row.icon" [size]="15" aria-hidden="true" />
+                        {{ row.node.typeKey | translate }}
+                        @if (row.node.subtypeKey) {
+                          <span class="rm-badge">{{ row.node.subtypeKey | translate }}</span>
+                        }
+                      </span>
+                    </td>
+                    <td>
+                      @if (row.node.restricted) {
+                        <span class="rm-restricted"><lucide-icon [img]="LockIcon" [size]="13" aria-hidden="true" />{{ 'relationship_map.node.restricted' | translate }}</span>
+                      } @else {
+                        <button type="button" class="rm-link" (click)="$event.stopPropagation(); select(row.node)">
+                          {{ row.node.number || row.node.description || ('relationship_map.node.no_number' | translate) }}
+                        </button>
+                      }
+                    </td>
+                    <td>{{ row.node.party }}</td>
+                    <td>{{ dateOf(row.node) }}</td>
+                    <td class="rm-table__num">{{ money(row.node) }}</td>
+                    <td><span class="rm-chip" [attr.data-status]="row.node.statusKind">{{ statusKey(row.node.statusKind) | translate }}</span></td>
+                    <td class="rm-table__num">{{ row.node.depth }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      @if (selected(); as node) {
+        <aside class="rm-panel" [attr.aria-label]="'relationship_map.panel.title' | translate" [attr.data-module]="node.module">
+          <header class="rm-panel__header">
+            <span class="rm-panel__icon"><lucide-icon [img]="iconOf(node.type)" [size]="18" aria-hidden="true" /></span>
+            <div class="rm-panel__titles">
+              <span class="rm-panel__type">{{ node.typeKey | translate }}</span>
+              <h2 class="rm-panel__number">
+                @if (node.restricted) {
+                  {{ 'relationship_map.node.restricted' | translate }}
+                } @else {
+                  {{ node.number || node.description || ('relationship_map.node.no_number' | translate) }}
+                }
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="rm-panel__close"
+              [attr.aria-label]="'common.close' | translate"
+              (click)="clearSelection()"
+            >
+              <lucide-icon [img]="CloseIcon" [size]="16" aria-hidden="true" />
+            </button>
+          </header>
+
+          @if (node.restricted) {
+            <p class="rm-panel__restricted">
+              <lucide-icon [img]="LockIcon" [size]="15" aria-hidden="true" />
+              {{ 'relationship_map.panel.restricted' | translate }}
+            </p>
+          } @else {
+            <dl class="rm-panel__facts">
+              <div><dt>{{ 'relationship_map.csv.status' | translate }}</dt>
+                <dd>
+                  <span class="rm-chip" [attr.data-status]="node.statusKind">{{ statusKey(node.statusKind) | translate }}</span>
+                  @if (node.statusRaw) {
+                    <span class="rm-panel__raw">{{ node.statusRaw }}</span>
+                  }
+                </dd>
+              </div>
+              @if (node.party) {
+                <div><dt>{{ 'relationship_map.csv.party' | translate }}</dt><dd>{{ node.party }}</dd></div>
+              }
+              @if (node.date) {
+                <div><dt>{{ 'relationship_map.csv.date' | translate }}</dt><dd>{{ dateOf(node) }}</dd></div>
+              }
+              @if (node.amount !== null) {
+                <div><dt>{{ 'relationship_map.csv.amount' | translate }}</dt><dd class="rm-panel__amount">{{ money(node) }}</dd></div>
+              }
+              @if (node.description && node.number) {
+                <div><dt>{{ 'relationship_map.csv.description' | translate }}</dt><dd>{{ node.description }}</dd></div>
+              }
+              <div><dt>{{ 'relationship_map.panel.module' | translate }}</dt><dd>{{ moduleKey(node.module) | translate }}</dd></div>
+            </dl>
+          }
+
+          <div class="rm-panel__actions">
+            @if (canOpen(node)) {
+              <button type="button" class="rm-btn rm-btn--primary" (click)="open(node)">
+                <lucide-icon [img]="OpenIcon" [size]="15" aria-hidden="true" />
+                {{ 'relationship_map.panel.open' | translate }}
+              </button>
+            }
+            @if (!node.root && !node.restricted) {
+              <button type="button" class="rm-btn" (click)="reroot(node)">
+                <lucide-icon [img]="CenterIcon" [size]="15" aria-hidden="true" />
+                {{ 'relationship_map.panel.reroot' | translate }}
+              </button>
+            }
+          </div>
+
+          @if (selectedRelations().length) {
+            <h3 class="rm-panel__section">{{ 'relationship_map.panel.relations' | translate }}</h3>
+            <ul class="rm-panel__relations">
+              @for (rel of selectedRelations(); track rel.edge.key + rel.direction) {
+                <li>
+                  <button type="button" class="rm-rel" (click)="selectKey(rel.other.key)">
+                    <lucide-icon [img]="rel.direction === 'in' ? InIcon : OutIcon" [size]="14" aria-hidden="true" class="rm-rel__dir" />
+                    <span class="rm-rel__body">
+                      <span class="rm-rel__label">{{ rel.edge.relationKey | translate }}</span>
+                      <span class="rm-rel__doc">
+                        {{ rel.other.typeKey | translate }}
+                        @if (!rel.other.restricted) {
+                          {{ rel.other.number || rel.other.description }}
+                        }
+                      </span>
+                    </span>
+                    <span class="rm-dot-sm" [attr.data-status]="rel.other.statusKind"></span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </aside>
+      }
     </div>
   }
 
   <!-- One document's card, rendered inside the canvas for each node. -->
-  <ng-template #card let-node>
+  <ng-template #card let-card>
     <button
       type="button"
       class="rm-node"
-      [class.rm-node--root]="node.root"
-      [class.rm-node--link]="!!node.route"
-      [attr.data-status]="node.statusKind"
-      [disabled]="!node.route"
-      (click)="open(node)"
+      [class.rm-node--root]="card.node.root"
+      [class.rm-node--selected]="card.selected"
+      [class.rm-node--dim]="card.dimmed"
+      [class.rm-node--match]="card.match"
+      [class.rm-node--restricted]="card.node.restricted"
+      [attr.data-status]="card.node.statusKind"
+      [attr.data-module]="card.node.module"
+      [attr.aria-pressed]="card.selected"
+      [title]="card.openable ? ('relationship_map.node.open_hint' | translate) : ''"
+      (click)="select(card.node)"
+      (dblclick)="open(card.node)"
     >
       <span class="rm-node__icon">
-        <lucide-icon [img]="iconFor(node)" [size]="18" />
+        <lucide-icon [img]="card.icon" [size]="18" aria-hidden="true" />
       </span>
 
       <span class="rm-node__body">
-        <span class="rm-node__type">
-          {{ node.typeKey | translate }}
-          @if (node.subtypeKey) {
-            <span class="rm-node__badge">{{ node.subtypeKey | translate }}</span>
+        <span class="rm-node__type" [title]="card.node.typeKey | translate">
+          <span class="rm-node__type-text">{{ card.node.typeKey | translate }}</span>
+          @if (card.node.subtypeKey) {
+            <span class="rm-badge">{{ card.node.subtypeKey | translate }}</span>
           }
-          @if (node.route) {
-            <lucide-icon [img]="OpenIcon" [size]="12" class="rm-node__open" />
+          @if (!card.node.restricted) {
+            <span class="rm-chip rm-node__status" [attr.data-status]="card.node.statusKind">
+              {{ statusKey(card.node.statusKind) | translate }}
+            </span>
           }
         </span>
 
-        <span class="rm-node__number">
-          {{ node.number || ('relationship_map.node.no_number' | translate) }}
-        </span>
-
-        @if (node.party) {
-          <span class="rm-node__party">{{ node.party }}</span>
+        @if (card.node.restricted) {
+          <span class="rm-node__number rm-node__number--restricted">
+            <lucide-icon [img]="LockIcon" [size]="13" aria-hidden="true" />
+            {{ 'relationship_map.node.restricted' | translate }}
+          </span>
+        } @else {
+          <span class="rm-node__number" [title]="card.node.number || card.node.description || ''">
+            {{ card.node.number || card.node.description || ('relationship_map.node.no_number' | translate) }}
+          </span>
+          @if (card.node.party) {
+            <span class="rm-node__party" [title]="card.node.party">{{ card.node.party }}</span>
+          }
+          <span class="rm-node__meta">
+            <span>{{ dateOf(card.node) }}</span>
+            @if (money(card.node)) {
+              <span class="rm-node__amount">{{ money(card.node) }}</span>
+            }
+          </span>
         }
-
-        <span class="rm-node__meta">
-          @if (dateOf(node)) {
-            <span class="rm-node__date">{{ dateOf(node) }}</span>
-          }
-          @if (money(node)) {
-            <span class="rm-node__amount">{{ money(node) }}</span>
-          }
-        </span>
       </span>
 
-      <span class="rm-node__status" [attr.data-status]="node.statusKind">
-        {{ statusKey(node.statusKind) | translate }}
-      </span>
     </button>
   </ng-template>
 </div>

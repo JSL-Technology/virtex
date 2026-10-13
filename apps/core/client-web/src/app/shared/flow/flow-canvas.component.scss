@@ -90,3 +90,55 @@
     outline-offset: 1px;
   }
 }
+
+// ── Links ───────────────────────────────────────────────────────────────────
+//  Foblex draws connections as SVG; the classes come from `FlowCanvasEdge.cssClass`. Lines keep
+//  their width at any zoom, so a whole chain fitted to the screen stays readable.
+:host ::ng-deep {
+  .vx-flow-edge {
+    color: var(--content-tertiary);
+
+    .f-connection-path {
+      stroke: currentColor;
+      stroke-width: 1.5px;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .f-marker {
+      color: currentColor;
+    }
+
+    .f-marker path {
+      stroke-width: 0;
+      fill: currentColor;
+    }
+  }
+
+  .vx-flow-edge__label {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1px 6px;
+    font-size: var(--text-2xs, 0.6875rem);
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--content-secondary);
+    background: var(--surface-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full, 999px);
+    pointer-events: none;
+  }
+
+  .f-minimap {
+    position: absolute;
+    left: var(--space-3, 12px);
+    bottom: var(--space-3, 12px);
+    width: 180px;
+    height: 120px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md, 8px);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-md);
+    z-index: 2;
+  }
+}

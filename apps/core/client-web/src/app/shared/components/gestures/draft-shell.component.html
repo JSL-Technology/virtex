@@ -50,6 +50,10 @@
 
       <ng-content select="[draftActions]"></ng-content>
 
+      @if (relationshipMapType() && relationshipMapId()) {
+        <vx-relationship-map-link [type]="relationshipMapType()!" [documentId]="relationshipMapId()" />
+      }
+
       <button type="button" class="dr__cancel" (click)="cancelled.emit()">
         {{ cancelLabelKey() | translate }}
       </button>
