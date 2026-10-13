@@ -29,4 +29,10 @@ export enum SaasResource {
 
   /** Legal entities under one account — group consolidation is an enterprise capability. */
   SUBSIDIARIES = 'subsidiaries',
+
+  /**
+   * Calls to a language model, in credits (`AI_CREDIT_COST` in `ai/gateway/ai-models.ts`). Metered
+   * at the AI gateway, the one place every such call passes, before the call is made.
+   */
+  AI_CREDITS = 'ai_credits',
 }

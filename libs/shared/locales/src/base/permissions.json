@@ -224,6 +224,11 @@
     "en": "Reopen fiscal year",
     "pt": "Reabrir exercício fiscal"
   },
+  "permissions.actions.resolve": {
+    "es": "Resolver",
+    "en": "Resolve",
+    "pt": "Resolver"
+  },
   "permissions.actions.reverse": {
     "es": "Reversar",
     "en": "Reverse",
@@ -258,6 +263,11 @@
     "es": "Transferir",
     "en": "Transfer",
     "pt": "Transferir"
+  },
+  "permissions.actions.use": {
+    "es": "Usar",
+    "en": "Use",
+    "pt": "Usar"
   },
   "permissions.actions.view": {
     "es": "Ver",
@@ -318,6 +328,26 @@
     "es": "Cuentas por cobrar",
     "en": "Accounts receivable",
     "pt": "Contas a receber"
+  },
+  "permissions.groups.ai_anomalies": {
+    "es": "Anomalías detectadas (IA)",
+    "en": "Detected anomalies (AI)",
+    "pt": "Anomalias detetadas (IA)"
+  },
+  "permissions.groups.ai_forecasts": {
+    "es": "Predicciones de demanda (IA)",
+    "en": "Demand forecasts (AI)",
+    "pt": "Previsões de procura (IA)"
+  },
+  "permissions.groups.ai_usage": {
+    "es": "Consumo de IA",
+    "en": "AI usage",
+    "pt": "Consumo de IA"
+  },
+  "permissions.groups.ai_vision": {
+    "es": "Productos desde foto (IA)",
+    "en": "Products from photo (AI)",
+    "pt": "Produtos a partir de foto (IA)"
   },
   "permissions.groups.analytics": {
     "es": "Analítica",

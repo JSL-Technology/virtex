@@ -1,0 +1,37 @@
+{
+  "ai.anomaly_not_found": {
+    "es": "No se encontró la anomalía {{id}}.",
+    "en": "Anomaly {{id}} was not found.",
+    "pt": "A anomalia {{id}} não foi encontrada."
+  },
+  "ai.answer_incomplete": {
+    "es": "La respuesta del asistente quedó incompleta. Inténtalo de nuevo.",
+    "en": "The assistant's answer was incomplete. Try again.",
+    "pt": "A resposta do assistente ficou incompleta. Tente novamente."
+  },
+  "ai.answer_invalid": {
+    "es": "La respuesta del asistente no se pudo validar. Inténtalo de nuevo o completa los datos manualmente.",
+    "en": "The assistant's answer could not be validated. Try again or fill in the details manually.",
+    "pt": "A resposta do assistente não pôde ser validada. Tente novamente ou preencha os dados manualmente."
+  },
+  "ai.not_configured": {
+    "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
+    "en": "Artificial intelligence is not configured on this server. You can continue manually.",
+    "pt": "A inteligência artificial não está configurada neste servidor. Pode continuar manualmente."
+  },
+  "ai.provider_error": {
+    "es": "El servicio de inteligencia artificial no respondió. Inténtalo de nuevo o continúa manualmente.",
+    "en": "The artificial intelligence service did not respond. Try again or continue manually.",
+    "pt": "O serviço de inteligência artificial não respondeu. Tente novamente ou continue manualmente."
+  },
+  "ai.request_refused": {
+    "es": "El asistente no pudo procesar esta solicitud. Revisa el contenido o completa los datos manualmente.",
+    "en": "The assistant could not process this request. Check the content or fill in the details manually.",
+    "pt": "O assistente não conseguiu processar este pedido. Verifique o conteúdo ou preencha os dados manualmente."
+  },
+  "ai.temporarily_unavailable": {
+    "es": "El servicio de inteligencia artificial no está disponible en este momento. Inténtalo más tarde o continúa manualmente.",
+    "en": "The artificial intelligence service is unavailable right now. Try again later or continue manually.",
+    "pt": "O serviço de inteligência artificial não está disponível neste momento. Tente mais tarde ou continue manualmente."
+  }
+}

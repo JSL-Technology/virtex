@@ -25,7 +25,9 @@ jobs:
       # against the entity definitions. Without a real Postgres it could not run at all, which is
       # how the repository ended up with no baseline migration in the first place.
       postgres:
-        image: postgres:16
+        # The official Postgres 16 image with the pgvector extension added. The AI migration creates
+        # `product_embeddings` only where `vector` is available, so CI must have it to test that path.
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

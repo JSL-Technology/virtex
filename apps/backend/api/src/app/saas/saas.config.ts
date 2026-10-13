@@ -54,7 +54,16 @@ export interface PlanFeatureConfig {
 }
 
 /** Capability keys the product actually enforces. A flag outside this set meters nothing. */
-export const SAAS_FEATURE_KEYS = ['group_consolidation', 'enterprise_sso'] as const;
+export const SAAS_FEATURE_KEYS = [
+  'group_consolidation',
+  'enterprise_sso',
+  // The AI platform (docs/IA_PLAN_MAESTRO.md). Photo-assisted product entry is on every tier — it
+  // is metered by `AI_CREDITS`, so the entry tier gets a taste rather than a free ride. Demand
+  // forecasting and anomaly detection run a model per tenant every night and are the paid tiers'.
+  'ai_vision',
+  'ai_forecasting',
+  'ai_anomalies',
+] as const;
 export type SaasFeatureKey = (typeof SAAS_FEATURE_KEYS)[number];
 
 export interface PlanConfig {
@@ -182,12 +191,16 @@ export const SAAS_PLANS: PlanConfig[] = [
       { resource: SaasResource.SUPPLIERS, limit: 50, period: QuotaPeriod.LIFETIME, allowOverage: false },
       { resource: SaasResource.JOURNAL_ENTRIES, limit: 200, period: QuotaPeriod.MONTHLY, allowOverage: false },
       // Group consolidation is not part of this tier. A zero limit refuses the first one.
-      { resource: SaasResource.SUBSIDIARIES, limit: 0, period: QuotaPeriod.LIFETIME, allowOverage: false }
+      { resource: SaasResource.SUBSIDIARIES, limit: 0, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.AI_CREDITS, limit: 50, period: QuotaPeriod.MONTHLY, allowOverage: false }
     ],
     features: [
       // Consistent with the SUBSIDIARIES limit of 0 above.
       { featureKey: 'group_consolidation', isEnabled: false },
       { featureKey: 'enterprise_sso', isEnabled: false },
+      { featureKey: 'ai_vision', isEnabled: true },
+      { featureKey: 'ai_forecasting', isEnabled: false },
+      { featureKey: 'ai_anomalies', isEnabled: false },
     ]
   },
   {
@@ -205,11 +218,15 @@ export const SAAS_PLANS: PlanConfig[] = [
       { resource: SaasResource.CUSTOMERS, limit: 2_000, period: QuotaPeriod.LIFETIME, allowOverage: true },
       { resource: SaasResource.SUPPLIERS, limit: 1_000, period: QuotaPeriod.LIFETIME, allowOverage: true },
       { resource: SaasResource.JOURNAL_ENTRIES, limit: 5_000, period: QuotaPeriod.MONTHLY, allowOverage: true },
-      { resource: SaasResource.SUBSIDIARIES, limit: 3, period: QuotaPeriod.LIFETIME, allowOverage: false }
+      { resource: SaasResource.SUBSIDIARIES, limit: 3, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.AI_CREDITS, limit: 1_000, period: QuotaPeriod.MONTHLY, allowOverage: false }
     ],
     features: [
       { featureKey: 'group_consolidation', isEnabled: true },
       { featureKey: 'enterprise_sso', isEnabled: false },
+      { featureKey: 'ai_vision', isEnabled: true },
+      { featureKey: 'ai_forecasting', isEnabled: true },
+      { featureKey: 'ai_anomalies', isEnabled: true },
     ]
   },
   {
@@ -227,11 +244,15 @@ export const SAAS_PLANS: PlanConfig[] = [
       { resource: SaasResource.CUSTOMERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
       { resource: SaasResource.SUPPLIERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
       { resource: SaasResource.JOURNAL_ENTRIES, limit: -1, period: QuotaPeriod.MONTHLY, allowOverage: true },
-      { resource: SaasResource.SUBSIDIARIES, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true }
+      { resource: SaasResource.SUBSIDIARIES, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.AI_CREDITS, limit: -1, period: QuotaPeriod.MONTHLY, allowOverage: true }
     ],
     features: [
       { featureKey: 'group_consolidation', isEnabled: true },
       { featureKey: 'enterprise_sso', isEnabled: true },
+      { featureKey: 'ai_vision', isEnabled: true },
+      { featureKey: 'ai_forecasting', isEnabled: true },
+      { featureKey: 'ai_anomalies', isEnabled: true },
     ]
   }
 ];

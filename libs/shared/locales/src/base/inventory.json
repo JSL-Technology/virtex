@@ -794,6 +794,16 @@
     "en": "Product \"{{id}}\" was not found.",
     "pt": "Produto \"{{id}}\" não encontrado."
   },
+  "inventory.product_image.not_an_image": {
+    "es": "El archivo no es una imagen válida. Usa una foto JPG, PNG, WEBP o HEIC.",
+    "en": "The file is not a valid image. Use a JPG, PNG, WEBP or HEIC photo.",
+    "pt": "O ficheiro não é uma imagem válida. Use uma foto JPG, PNG, WEBP ou HEIC."
+  },
+  "inventory.product_image.not_found": {
+    "es": "Una de las fotos ya no está disponible. Súbela de nuevo.",
+    "en": "One of the photos is no longer available. Upload it again.",
+    "pt": "Uma das fotos já não está disponível. Envie-a novamente."
+  },
   "inventory.product_not_found_in_document": {
     "es": "Uno de los artículos no existe en esta empresa.",
     "en": "One of the products does not exist in this company.",

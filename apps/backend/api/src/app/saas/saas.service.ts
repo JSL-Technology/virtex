@@ -377,6 +377,16 @@ export class SaasService implements OnModuleInit {
       await this.cacheManager.set(cacheKey, value, 24 * 3600 * 1000);
   }
 
+  /**
+   * `enforceLimit` in a transaction of its own — for a caller in another module, which must not
+   * hand this one its `EntityManager` (see `EntitlementsPort.consume`).
+   */
+  async consume(organizationId: string, resource: SaasResource, increment = 1): Promise<void> {
+    await this.dataSource.transaction((manager) =>
+      this.enforceLimit(manager, organizationId, resource, increment),
+    );
+  }
+
   async enforceLimit(manager: EntityManager, organizationId: string, resource: SaasResource, increment = 1): Promise<void> {
     const org = await manager.findOne(Organization, {
         where: { id: organizationId },

@@ -10,6 +10,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { InventoryPostingService } from './inventory-posting.service';
 import { StockLedgerService, StockPlace } from './stock-ledger.service';
+import { ProductImagesService } from './product-images.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
@@ -40,6 +41,24 @@ export interface StockMovementContext {
   sourceId: string | null;
 }
 
+/** At most this many attributes on a product, each key and value bounded. */
+const MAX_ATTRIBUTES = 20;
+
+/**
+ * Descriptive attributes as stored: string keys and values, trimmed, bounded, blanks dropped.
+ * `null` when nothing is left, so "no attributes" has one representation.
+ */
+export function normaliseAttributes(
+  attributes: Record<string, unknown> | null | undefined,
+): Record<string, string> | null {
+  if (!attributes || typeof attributes !== 'object' || Array.isArray(attributes)) return null;
+  const entries = Object.entries(attributes)
+    .map(([key, value]) => [String(key).trim().slice(0, 40), value == null ? '' : String(value).trim().slice(0, 120)])
+    .filter(([key, value]) => key && value)
+    .slice(0, MAX_ATTRIBUTES);
+  return entries.length ? Object.fromEntries(entries) : null;
+}
+
 @Injectable()
 export class InventoryService implements GoodsReceiptPort {
   constructor(
@@ -55,6 +74,7 @@ export class InventoryService implements GoodsReceiptPort {
     private readonly categories: ProductCategoriesService,
     /** The only writer of what is held, per warehouse. */
     private readonly ledger: StockLedgerService,
+    private readonly images: ProductImagesService,
   ) {}
 
   /**
@@ -79,10 +99,24 @@ export class InventoryService implements GoodsReceiptPort {
             ? createProductDto.taxRate
             : await standardSalesTaxRate(manager, organizationId)
           : 0;
-      const { stock: openingStock = 0, warehouseId, ...fields } = createProductDto;
+      const { stock: openingStock = 0, warehouseId, imageIds = [], ...fields } = createProductDto;
       let product = await manager.save(
-        manager.create(Product, { ...fields, stock: 0, taxTreatment: treatment, taxRate, organizationId }),
+        manager.create(Product, {
+          ...fields,
+          attributes: normaliseAttributes(fields.attributes),
+          stock: 0,
+          taxTreatment: treatment,
+          taxRate,
+          organizationId,
+        }),
       );
+      // Photos uploaded before the product existed are claimed in the same transaction: a product
+      // that failed to save leaves its photos unclaimed, never attached to nothing.
+      const imageUrl = await this.images.claimImages(manager, organizationId, product.id, imageIds);
+      if (imageUrl && !product.imageUrl) {
+        product.imageUrl = imageUrl;
+        product = await manager.save(product);
+      }
       // The opening stock is a movement like any other: it lands in a warehouse and on the kardex.
       if (openingStock > 0 && product.kind !== ProductKind.SERVICE) {
         ({ product } = await this.ledger.move(manager, organizationId, {
@@ -186,6 +220,7 @@ export class InventoryService implements GoodsReceiptPort {
         throw new BadRequestError('inventory.service_holds_no_stock', { name: product.name });
       }
       if (changes.taxTreatment && changes.taxTreatment !== 'TAXED') changes.taxRate = 0;
+      if (changes.attributes !== undefined) changes.attributes = normaliseAttributes(changes.attributes);
 
       return manager.save(manager.merge(Product, product, changes));
     });
