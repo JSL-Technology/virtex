@@ -192,8 +192,6 @@ export const envValidation = Joi.object({
   AI_REQUEST_TIMEOUT_MS: Joi.number().integer().min(5_000).max(600_000).default(90_000),
   VOYAGE_API_KEY: Joi.string().allow('').optional(),
   VOYAGE_MULTIMODAL_MODEL: Joi.string().default('voyage-multimodal-3'),
-  /** Off by default: looking a barcode up sends it to a third party (Open Food Facts). */
-  AI_BARCODE_LOOKUP_ENABLED: Joi.boolean().default(false),
 
   // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module
   // initializes. Development gets a generated, deployment-unusable value; see `secret` above.

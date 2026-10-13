@@ -318,3 +318,33 @@ La gobernanza (auditoría, presupuestos, modo degradado, evaluaciones) se constr
 - `ANTHROPIC_API_KEY` y `VOYAGE_API_KEY` (las funciones quedan desactivadas sin ellas, sin romper el ERP).
 - Infraestructura para un contenedor más (`ai-engine`); una GPU es opcional y solo acelera Chronos/TimesFM.
 - Postgres con la extensión `pgvector` disponible (la tienen RDS, Cloud SQL, Supabase, Neon, Render y Railway).
+
+---
+
+## 11. Estado de la implementación — Fase 1
+
+Lo que está construido, probado y en este repositorio, y en qué se apartó del plan, con el motivo.
+
+| Pieza                                                                                                                                                                                                                | Estado | Dónde                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| Migración `AiPlatform` (campos de producto, `product_images`, tablas `ai_*`, vistas `ai_src_*` con `security_invoker`, rol `virtex_ai_engine`, pgvector opcional)                                                    | ✅     | `apps/backend/api/src/app/database/migrations/1789030000000-AiPlatform.ts`                                     |
+| Gateway de IA (SDK oficial, cuota `ai_credits` antes de cada llamada, circuit breaker, fallback del servidor ante rechazos, structured outputs validados en servidor, registro de costo)                             | ✅     | `ai/gateway/`                                                                                                  |
+| Foto → producto (sharp: EXIF/GPS fuera, orientación, 1568 px; schema con los enums del inquilino; GTIN; duplicados por código, nombre e imagen)                                                                      | ✅     | `ai/product-vision/`, `inventory/product-images.service.ts`                                                    |
+| Subida real de fotos de producto (también sin IA)                                                                                                                                                                    | ✅     | `POST /inventory/images`                                                                                       |
+| Motor Python: historia censurada, Syntetos-Boylan, backtest por serie, ETS/Theta/naive estacional, Croston SBA/TSB/ADIDA/IMAPA, LightGBM global, combinación top-2, bandas conformales, MinT, política de reposición | ✅     | `apps/ai-engine/src/virtex_ai_engine/forecasting/`                                                             |
+| Anomalías: duplicados, venta bajo costo, anulaciones de caja, ajustes grandes, ventas por sucursal (z robusta), Isolation Forest + ECOD, Benford (MAD + chi²), ajuste por feedback                                   | ✅     | `apps/ai-engine/src/virtex_ai_engine/anomalies/`                                                               |
+| Pantallas: formulario con foto, Predicciones, Anomalías                                                                                                                                                              | ✅     | `apps/core/client-web/src/app/features/ai/`                                                                    |
+| Pruebas                                                                                                                                                                                                              | ✅     | 37 de API, 27 del motor (6 de integración como el rol del motor contra la base migrada, en CI), 22 del cliente |
+
+**Desviaciones, medidas y no supuestas:**
+
+- **AutoARIMA fuera del conjunto de candidatos.** Medido: unos 6 s por serie diaria frente a 0,2 s de ETS; con él, 62 series tardaban 253 s, y sin él 7,8 s, con el mismo WAPE mediano. En miles de productos habría ocupado un worker durante horas.
+- **NHITS/TFT (deep learning) quedan para empresas que lo justifiquen.** El ensamble actual ya incluye un modelo global (LightGBM), que es lo que ganó la M5. Las redes se añaden como candidato cuando haya catálogos con historia larga que lo requieran.
+- **Chronos-Bolt es opcional** (`pip install .[foundation]` y `AI_ENGINE_FOUNDATION_MODELS=1`): arrastra PyTorch. Sin él, los productos nuevos se pronostican con su propia historia corta y una banda amplia.
+- **MinT usa `wls_struct`**: no necesita residuos dentro de muestra y es estable con demanda intermitente.
+- **Escritura del motor sin `COPY`.** PostgreSQL rechaza `COPY FROM` bajo RLS para un rol sin BYPASSRLS, que es justamente la garantía buscada; se inserta por lotes con `unnest`.
+- **Explicaciones de anomalías bajo demanda** (cuestan un crédito y se guardan) en lugar de en lote nocturno: la mayoría de los hallazgos se entienden por su evidencia.
+- **Lectura del código de barras en el navegador (ZXing) y consulta a Open Food Facts/GS1:** pendientes. Hoy el código lo lee el modelo y se valida con el dígito verificador en el servidor; uno que no lo supera no se usa.
+- **Panel «Administración › IA»:** el endpoint `GET /ai/usage` existe (llamadas, créditos y costo del mes por función). Falta la pantalla.
+
+**Siguiente:** Fase 2 — control por lenguaje natural sobre este mismo gateway, con herramientas que heredan los permisos del usuario, y facturas de proveedor desde foto/PDF.

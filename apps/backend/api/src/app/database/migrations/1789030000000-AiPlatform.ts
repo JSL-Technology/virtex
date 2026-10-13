@@ -47,6 +47,14 @@ export class AiPlatform1789030000000 implements MigrationInterface {
   public async up(q: QueryRunner): Promise<void> {
     const TENANT = `(NULLIF(current_setting('app.current_organization', true), ''))::uuid`;
 
+    // ── The plan meters AI calls ──────────────────────────────────────────────────
+    // `SaasResource.AI_CREDITS` is stored in two PostgreSQL enums. Without the value, `seedPlans`
+    // fails to write the new limit at boot and every metered call is refused for want of one.
+    for (const type of ['saas_plan_limits_resource_enum', 'saas_usage_metrics_resource_enum']) {
+      const exists = (await q.query(`SELECT 1 FROM pg_type WHERE typname = $1`, [type])).length > 0;
+      if (exists) await q.query(`ALTER TYPE "${type}" ADD VALUE IF NOT EXISTS 'ai_credits'`);
+    }
+
     // ── Catalogue fields a photo can fill ─────────────────────────────────────────
     await q.query(`ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "barcode" varchar(64) NULL`);
     await q.query(`ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "brand" varchar(120) NULL`);
@@ -462,6 +470,8 @@ export class AiPlatform1789030000000 implements MigrationInterface {
     await q.query(`ALTER TABLE "products" DROP COLUMN IF EXISTS "attributes"`);
     await q.query(`ALTER TABLE "products" DROP COLUMN IF EXISTS "brand"`);
     await q.query(`ALTER TABLE "products" DROP COLUMN IF EXISTS "barcode"`);
+    // `ai_credits` stays in the plan enums: PostgreSQL cannot drop an enum value, and an unused
+    // value is harmless.
     // The role is left in place: it may own a password a deployment set, and dropping a role that
     // still holds grants elsewhere fails. Revoking is enough to make it inert.
     await q.query(`
