@@ -28,6 +28,9 @@ export enum WorkflowDefinitionStatus {
  */
 @Entity({ name: 'workflow_definitions' })
 @Index('IDX_workflow_definitions_org_key', ['organizationId', 'key'])
+// At most one published and one draft version per process key (WorkflowEngineHardening).
+@Index('UQ_workflow_definitions_one_published', ['organizationId', 'key'], { unique: true, where: `"status" = 'PUBLISHED'` })
+@Index('UQ_workflow_definitions_one_draft', ['organizationId', 'key'], { unique: true, where: `"status" = 'DRAFT'` })
 @Index('UQ_workflow_definitions_org_key_version', ['organizationId', 'key', 'version'], {
   unique: true,
 })
@@ -59,10 +62,10 @@ export class WorkflowDefinition {
   })
   status: WorkflowDefinitionStatus;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: { nodes: [], edges: [] } })
   graph: WorkflowGraph;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: { mode: 'manual' } })
   trigger: WorkflowTrigger;
 
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })
