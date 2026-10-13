@@ -61,7 +61,7 @@ export interface FlowCanvasEdge<E = unknown> {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./flow-canvas.component.scss'],
   template: `
-    <div class="vx-flow-canvas" (pointerdown)="onPointerDown($event)" (click)="onSurfaceClick($event)">
+    <div class="vx-flow-canvas" (pointerdown)="onPointerDown($event)" (pointerup)="onSurfaceRelease($event)">
       <f-flow fDraggable (fNodesRendered)="onNodesRendered()">
         <f-canvas fZoom>
           @if (background()) {
@@ -251,8 +251,13 @@ export class FlowCanvasComponent {
     this.pressedAt = { x: event.clientX, y: event.clientY };
   }
 
-  onSurfaceClick(event: MouseEvent): void {
-    // A pan ends in a click too; only a click that did not move clears the selection.
+  /**
+   * A press-and-release on the empty surface clears the consumer's selection. Pointer events rather
+   * than `click`: the surface is not a control (keyboard users clear with Escape, which the page
+   * handles), and a pan also ends in a click.
+   */
+  onSurfaceRelease(event: PointerEvent): void {
+    // Only a release that did not move (not the end of a pan) counts.
     const moved = this.pressedAt
       ? Math.hypot(event.clientX - this.pressedAt.x, event.clientY - this.pressedAt.y) > 4
       : false;
