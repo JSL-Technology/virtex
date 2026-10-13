@@ -413,6 +413,8 @@ export class AiPlatform1789030000000 implements MigrationInterface {
     `);
     // Write: only what the engine produces.
     await q.query(`GRANT SELECT, UPDATE ON "ai_model_runs" TO virtex_ai_engine`);
+    // What people said about past findings: the engine quietens a detector a tenant keeps dismissing.
+    await q.query(`GRANT SELECT ON "ai_anomaly_feedback" TO virtex_ai_engine`);
     await q.query(
       `GRANT SELECT, INSERT, UPDATE, DELETE ON "ai_forecasts", "ai_inventory_insights", "ai_anomalies" TO virtex_ai_engine`,
     );
