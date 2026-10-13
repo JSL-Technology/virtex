@@ -165,6 +165,9 @@ export class WorkflowInstancesPage {
   /** Optional filters from the query string (`?key=…&status=…&definitionId=…`). */
   readonly key = input<string>('');
   readonly definitionId = input<string>('');
+  // The query string says `?status=`, and `status` is already the filter's own state below: the
+  // route parameter seeds it once, so it is bound under the address's name and read as the seed.
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   readonly initialStatus = input<string>('', { alias: 'status' });
 
   protected readonly statuses = STATUSES;
