@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, RotateCw, PanelRight } from 'lucide-angular';
 import { VxBadgeComponent, VxTone } from '../badge';
+import { RelationshipMapLinkComponent } from '../relationship-map-link';
 
 /**
  * Cómo se pinta el estado de un documento. Semántico, nunca decorativo.
@@ -33,7 +34,7 @@ export type DocumentTone = VxTone;
 @Component({
   selector: 'vx-document-shell',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, VxBadgeComponent],
+  imports: [TranslateModule, LucideAngularModule, VxBadgeComponent, RelationshipMapLinkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './document-shell.component.html',
   styleUrls: ['./document-shell.component.scss'],
@@ -58,6 +59,13 @@ export class DocumentShellComponent {
   /** El panel lateral solo aparece si la página proyecta algo en él. */
   readonly hasAside = input(false);
   readonly asideOpen = input(true);
+
+  /**
+   * The document as the relationship map names it (`SALES_INVOICE` + its id). Given both, the
+   * header carries the «Mapa de relaciones» action, as every document's toolbar does in SAP.
+   */
+  readonly relationshipMapType = input<string | null>(null);
+  readonly relationshipMapId = input<string | null | undefined>(null);
 
   readonly back = output<void>();
   readonly reload = output<void>();

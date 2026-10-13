@@ -1,4 +1,6 @@
 <vx-draft-shell
+  relationshipMapType="SALES_QUOTE"
+  [relationshipMapId]="id"
   [title]="current() ? current()!.quoteNumber : ('sales.quotes.new' | translate)"
   [subtitle]="'sales.quotes.title' | translate"
   [dirty]="form.dirty"

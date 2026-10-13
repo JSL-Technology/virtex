@@ -1,4 +1,6 @@
 <vx-draft-shell
+  relationshipMapType="INVENTORY_ADJUSTMENT"
+  [relationshipMapId]="id()"
   [title]="current() ? current()!.number : ('inventory.adjustments.new' | translate)"
   [subtitle]="'inventory.adjustments.title' | translate"
   [dirty]="form.dirty"

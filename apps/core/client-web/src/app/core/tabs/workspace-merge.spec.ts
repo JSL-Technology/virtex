@@ -99,4 +99,15 @@ describe('mergeWorkspaces', () => {
     const result = mergeWorkspaces([], [tab({ route: '/invoices', lastActivatedAt: new Date('2026-01-15') })], closed);
     expect(result.map((t) => t.route)).toEqual(['/invoices']);
   });
+
+  it('keeps one window per id when a reused tab changed records on this device', () => {
+    const old = new Date('2026-10-01T10:00:00Z');
+    const recent = new Date('2026-10-01T11:00:00Z');
+    const base = { type: 'RECORD', title: 'x', icon: 'x', isDirty: false, isLoading: false, isCloseable: true, isPinned: false, isPreview: true, createdAt: old, order: 0 } as const;
+    // Same window id: on the other device it still shows the map, here it now shows the invoice.
+    const local = [{ ...base, id: 'w1', route: '/invoices/88', entityKey: 'invoice:88', lastActivatedAt: recent }];
+    const remote = [{ ...base, id: 'w1', route: '/map/1', entityKey: 'map:1', lastActivatedAt: old }];
+    const merged = mergeWorkspaces(local as never, remote as never);
+    expect(merged.map((t) => t.route)).toEqual(['/invoices/88']);
+  });
 });

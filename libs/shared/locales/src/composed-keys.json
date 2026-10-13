@@ -435,6 +435,7 @@
       "SUBSIDIARIES"
     ],
     "relationship_map.doc": [
+      "sales_opportunity",
       "sales_quote",
       "sales_invoice",
       "customer_payment",
@@ -444,9 +445,17 @@
       "purchase_order",
       "goods_receipt",
       "vendor_bill",
-      "journal_entry"
+      "vendor_debit_note",
+      "vendor_payment",
+      "journal_entry",
+      "bank_transfer",
+      "intercompany_transaction",
+      "inventory_adjustment",
+      "payroll_run",
+      "fixed_asset"
     ],
     "relationship_map.rel": [
+      "quoted",
       "invoiced",
       "corrects",
       "e_submitted",
@@ -454,11 +463,19 @@
       "ordered",
       "received",
       "billed",
+      "adjusted_by",
       "posted",
-      "cost_posted"
+      "cost_posted",
+      "payment_posted",
+      "posted_counterparty",
+      "disposal_posted",
+      "depreciated",
+      "reversed",
+      "modified"
     ],
     "relationship_map.status": [
       "draft",
+      "pending",
       "open",
       "closed",
       "cancelled",
@@ -878,6 +895,33 @@
       "date",
       "select",
       "user"
+    ],
+    "relationship_map.module": [
+      "sales",
+      "purchasing",
+      "finance",
+      "inventory",
+      "hr",
+      "assets"
+    ],
+    "relationship_map.category": [
+      "flow",
+      "settlement",
+      "posting",
+      "reversal",
+      "correction",
+      "fiscal"
+    ],
+    "relationship_map.csv": [
+      "type",
+      "number",
+      "party",
+      "date",
+      "amount",
+      "currency",
+      "status",
+      "description",
+      "depth"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

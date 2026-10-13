@@ -1,4 +1,6 @@
 <vx-document-shell
+  relationshipMapType="VENDOR_DEBIT_NOTE"
+  [relationshipMapId]="note()?.id"
   [title]="note()?.number ?? ('page_titles.vendor_debit_note' | translate)"
   [subtitle]="note()?.vendorBill?.vendor?.name ?? null"
   [statusKey]="note() ? 'accounts_payable.debit_notes.status.' + note()!.status.toLowerCase() : null"

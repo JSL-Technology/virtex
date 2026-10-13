@@ -1,4 +1,6 @@
 <vx-document-shell
+  relationshipMapType="FIXED_ASSET"
+  [relationshipMapId]="asset()?.id"
   [title]="asset() ? asset()!.number + ' · ' + asset()!.name : ('page_titles.fixed_asset' | translate)"
   [subtitle]="asset()?.description ?? null"
   [statusKey]="asset() ? statusKey(asset()!.status) : null"

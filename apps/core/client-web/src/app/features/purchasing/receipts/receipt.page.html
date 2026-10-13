@@ -1,4 +1,6 @@
 <vx-document-shell
+  relationshipMapType="GOODS_RECEIPT"
+  [relationshipMapId]="receipt()?.id"
   [title]="receipt()?.number ?? ('page_titles.goods_receipt' | translate)"
   [subtitle]="receipt()?.supplierName ?? null"
   [statusKey]="receipt() ? 'purchasing.receipts.status.' + receipt()!.status.toLowerCase() : null"

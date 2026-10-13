@@ -7,6 +7,7 @@ import { TabPreferencesService } from './tab-preferences.service';
 import { DialogService } from '../services/dialog.service';
 import { NotificationService } from '../services/notification';
 import { TabEventBusService, TabEvent } from './tab-event-bus.service';
+import { uniqueById } from './workspace-merge';
 
 /** Handler que una página puede registrar para guardar antes de cerrar (dirty). */
 export type TabSaveHandler = () => Promise<boolean> | boolean;
@@ -116,6 +117,7 @@ export class TabStateService {
     // config; si no, según la preferencia del usuario y qué representa la ventana.
     const asPreview =
       definition.tabType !== TabType.PINNED &&
+      definition.previewable !== false &&
       (config.preview ??
         (this.prefs.enablePreview() && this.isPreviewable(definition.tabType, params)));
 
@@ -148,7 +150,11 @@ export class TabStateService {
     // contenido en el sitio en vez de acumular otra pestaña al lado. Es lo que
     // hace que ir abriendo registros no deje un reguero de pestañas.
     if (asPreview) {
-      const preview = this.tabsSignal().find((t) => t.isPreview && t.isCloseable);
+      // Never a window declared non-previewable, even one persisted as a preview by an older build:
+      // reusing the relationship map's tab for the document opened FROM it replaced the map.
+      const preview = this.tabsSignal().find(
+        (t) => t.isPreview && t.isCloseable && this.registry.resolve(t.route).definition.previewable !== false,
+      );
       if (preview) {
         this.reusePreview(preview.id, {
           type: definition.tabType,
@@ -555,8 +561,41 @@ export class TabStateService {
     return this.tabsSignal().find((t) => t.entityKey === key) || null;
   }
 
+  /**
+   * Replaces the whole list — on restore, from this browser or from the account's saved workspace.
+   *
+   * The list is normalised on the way in, because it may have been written by an older build or
+   * merged from another device:
+   *
+   *  - The entity key is RE-DERIVED from the route. The route is what the tab shows; a stored key
+   *    that disagreed with it (a tab showing a relationship map but claiming to be an invoice)
+   *    made `openTab`'s de-duplication send every later attempt to open that invoice to the map.
+   *  - Two tabs with the same id collapse into the most recently active (see `uniqueById`), and two
+   *    claiming the same entity into the first: every lookup assumes one of each.
+   *  - A window that may not be a preview stops being one, and at most one preview survives — the
+   *    preview slot is, by definition, a single reusable tab.
+   */
   setTabs(tabs: TabModel[]): void {
-    this.tabsSignal.set(this.sortPinned(tabs));
+    const seen = new Set<string>();
+    let previewKept = false;
+    const normalised: TabModel[] = [];
+    for (const tab of uniqueById(tabs)) {
+      let entityKey = tab.entityKey;
+      let previewable = true;
+      try {
+        const { definition, params } = this.registry.resolve(tab.route);
+        if (definition.entityKeyFn) entityKey = definition.entityKeyFn(params, tab.queryParams);
+        previewable = definition.previewable !== false;
+      } catch {
+        /* An unresolvable route keeps what it had; the wrapper shows its own error. */
+      }
+      if (entityKey && seen.has(entityKey)) continue;
+      if (entityKey) seen.add(entityKey);
+      const isPreview = tab.isPreview && previewable && !previewKept;
+      if (isPreview) previewKept = true;
+      normalised.push({ ...tab, entityKey, isPreview });
+    }
+    this.tabsSignal.set(this.sortPinned(normalised));
   }
 
   // ── Navegación por teclado / reabrir cerrada ────────────────────────────

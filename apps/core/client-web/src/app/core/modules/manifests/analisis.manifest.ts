@@ -55,6 +55,7 @@ export const ANALISIS_MODULE: ModuleManifest = {
       titleKey: 'relationship_map.title',
       icon: 'Share2',
       entityKeyFn: () => 'analisis:relationship-map',
+      previewable: false,
       menu: { group: 'analysis', labelKey: 'relationship_map.menu' },
       load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
     },
@@ -67,6 +68,8 @@ export const ANALISIS_MODULE: ModuleManifest = {
       titleKey: 'relationship_map.title',
       icon: 'Share2',
       entityKeyFn: (p) => `analisis:relationship-map:${p['type']}:${p['id']}`,
+      // A place to work FROM: documents opened on it get their own tabs, the map stays.
+      previewable: false,
       load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
     },
   ],
