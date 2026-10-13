@@ -165,7 +165,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.6",
     "@nestlab/google-recaptcha": "^3.10.0",
-    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/core": "^18.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^14.0.2",
