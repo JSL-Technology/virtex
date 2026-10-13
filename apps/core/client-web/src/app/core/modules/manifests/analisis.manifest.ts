@@ -27,6 +27,17 @@ export const ANALISIS_MODULE: ModuleManifest = {
       load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
     },
     {
+      // Lo que la auditoría automática encontró inusual en ventas, compras, existencias y caja.
+      path: 'anomalies',
+      kind: WindowKind.LIST,
+      permission: 'ai_anomalies:view',
+      titleKey: 'page_titles.ai_anomalies',
+      icon: 'ShieldAlert',
+      entityKeyFn: () => 'analisis:ai-anomalies',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_anomalies' },
+      load: () => import('../../../features/ai/anomalies/anomalies.page').then((m) => m.AnomaliesPage),
+    },
+    {
       path: 'profitability-by-product',
       kind: WindowKind.OVERVIEW,
       permission: 'reports:view_sales',

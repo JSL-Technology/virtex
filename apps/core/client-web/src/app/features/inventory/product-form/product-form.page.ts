@@ -4,9 +4,13 @@ import { InvoicesService } from '../../../core/services/invoices';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { composeKey } from '@virteex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, Image } from 'lucide-angular';
+import { LucideAngularModule, Image, Sparkles, X } from 'lucide-angular';
+import { catchError, of } from 'rxjs';
+import { AiService, ProductMatch, ProductSuggestion } from '../../ai/data/ai.service';
+import { AuthService } from '../../../core/services/auth';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import {
@@ -47,6 +51,36 @@ export class ProductFormPage implements OnInit {
   readonly warehouses = signal<Warehouse[]>([]);
 
   protected readonly ImageIcon = Image;
+  protected readonly SparklesIcon = Sparkles;
+  protected readonly RemoveIcon = X;
+  /** A catalogue key whose leaf comes from data: `('x', 'STOCKOUT_RISK')` → `x.stockout_risk`. */
+  protected readonly k = composeKey;
+
+  private readonly ai = inject(AiService);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * Whether a photo is read by the AI. Asked once: the plan, the server's configuration and the
+   * provider's health are the server's to know. A failure answers "no" and the photo is simply
+   * stored, which is what the form did before there was any AI.
+   */
+  private readonly aiStatus = toSignal(this.ai.status().pipe(catchError(() => of(null))), { initialValue: null });
+  readonly canUseAi = computed(
+    () => !this.isEditMode() && !!this.aiStatus()?.vision.available && this.auth.hasPermissions(['ai_vision:use']),
+  );
+
+  /** Where the photo is in its journey: stored, being read, read, or failed. */
+  readonly photoState = signal<'idle' | 'uploading' | 'analysing' | 'done' | 'error'>('idle');
+  /** Photos stored for this draft, claimed by the product when it is created. */
+  private readonly imageIds = signal<string[]>([]);
+  readonly suggestion = signal<ProductSuggestion | null>(null);
+  readonly duplicates = computed<ProductMatch[]>(() => this.suggestion()?.possibleDuplicates ?? []);
+  /**
+   * The fields the AI filled and nobody has touched since, with the model's confidence. A field
+   * leaves this map the moment its value changes, so a badge never claims a value the person wrote.
+   */
+  private readonly suggested = signal<Record<string, number>>({});
+  readonly attributes = signal<Array<{ key: string; value: string }>>([]);
 
   /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
   readonly problems = signal<DraftProblem[]>([]);
@@ -120,7 +154,23 @@ export class ProductFormPage implements OnInit {
       //  las que el mercado del inquilino aplica y viaja como fracción (0.18), nunca como 18.
       taxTreatment: ['TAXED'],
       taxRate: [null as number | null],
+      barcode: ['', [Validators.maxLength(64), Validators.pattern(/^[0-9A-Za-z-]*$/)]],
+      brand: ['', [Validators.maxLength(120)]],
     });
+
+    this.productForm.get('cost')?.valueChanges.subscribe((cost) => this.costValue.set(Number(cost) || 0));
+
+    // A suggestion stops being one as soon as the person changes the field.
+    for (const field of SUGGESTIBLE_FIELDS) {
+      this.productForm.get(field)?.valueChanges.subscribe(() => {
+        if (this.applyingSuggestion) return;
+        this.suggested.update((map) => {
+          if (!(field in map)) return map;
+          const { [field]: _removed, ...rest } = map;
+          return rest;
+        });
+      });
+    }
 
     this.productForm.get('taxTreatment')?.valueChanges.subscribe((treatment) => {
       const rate = this.productForm.get('taxRate');
@@ -181,6 +231,9 @@ export class ProductFormPage implements OnInit {
     this.inventoryService.getProductById(id).subscribe({
       next: (product) => {
         this.productForm.patchValue(product);
+        this.attributes.set(
+          Object.entries(product.attributes ?? {}).map(([key, value]) => ({ key, value: String(value) })),
+        );
         this.currentUnit.set(product.unitOfMeasure ?? null);
         this.onHand.set(Number(product.stock ?? 0));
         //  Las existencias son el saldo de los movimientos: se ven aquí y se cambian con un ajuste
@@ -203,12 +256,137 @@ export class ProductFormPage implements OnInit {
   }
 
   onFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => this.imagePreview.set(reader.result);
-      reader.readAsDataURL(file);
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => this.imagePreview.set(reader.result);
+    reader.readAsDataURL(file);
+    // Choosing the same file again must fire `change` again.
+    input.value = '';
+
+    //  An existing product keeps the behaviour it had: the photo is previewed only.
+    if (this.isEditMode()) return;
+    if (this.canUseAi()) this.analysePhoto(file);
+    else this.storePhoto(file);
+  }
+
+  /** Store the photo so the product can claim it, with no analysis. */
+  private storePhoto(file: File): void {
+    this.photoState.set('uploading');
+    this.inventoryService.uploadProductImage(file).subscribe({
+      next: ({ id }) => {
+        this.imageIds.set([id]);
+        this.photoState.set('done');
+      },
+      error: (err) => {
+        this.photoState.set('error');
+        this.notificationService.showHttpError(err, 'ai.photo.upload_failed');
+      },
+    });
+  }
+
+  /** Store the photo AND propose the catalogue entry it shows. Nothing is saved until the person saves. */
+  private analysePhoto(file: File): void {
+    this.photoState.set('analysing');
+    this.suggestion.set(null);
+    this.ai.suggestProductFromImage(file).subscribe({
+      next: (suggestion) => {
+        this.imageIds.set([suggestion.imageId]);
+        this.suggestion.set(suggestion);
+        this.photoState.set('done');
+        if (!suggestion.isProductPhoto) {
+          this.notificationService.showWarning('ai.photo.not_a_product');
+          return;
+        }
+        this.applySuggestion(suggestion);
+      },
+      error: (err) => {
+        //  The form works by hand exactly as before; the photo is still stored if it can be.
+        this.photoState.set('error');
+        this.notificationService.showHttpError(err, 'ai.photo.analysis_failed');
+        this.storePhoto(file);
+      },
+    });
+  }
+
+  private applyingSuggestion = false;
+
+  /**
+   * Fill the fields the person has not touched. A value already typed is never overwritten — the
+   * suggestion is help, not authority — and a barcode that failed its check digit is left out.
+   */
+  private applySuggestion(s: ProductSuggestion): void {
+    const filled: Record<string, number> = {};
+    const set = (field: string, value: unknown, confidence: number) => {
+      const control = this.productForm.get(field);
+      if (!control || control.dirty || control.disabled || value === null || value === undefined || value === '') return;
+      control.setValue(value);
+      filled[field] = confidence;
+    };
+
+    this.applyingSuggestion = true;
+    try {
+      set('name', s.name.value, s.name.confidence);
+      set('description', s.description.value, s.description.confidence);
+      set('brand', s.brand.value, s.brand.confidence);
+      if (s.barcode.check !== 'invalid') set('barcode', s.barcode.value, s.barcode.confidence);
+      if (s.categoryId.value && this.categories().some((c) => c.id === s.categoryId.value)) {
+        set('categoryId', s.categoryId.value, s.categoryId.confidence);
+      }
+      set('kind', s.kind.value, s.kind.confidence);
+      if (this.unitOptions().some((u) => u.symbol === s.unitOfMeasure.value)) {
+        set('unitOfMeasure', s.unitOfMeasure.value, s.unitOfMeasure.confidence);
+      }
+      set('taxTreatment', s.taxTreatment.value, s.taxTreatment.confidence);
+      if (s.taxTreatment.value === 'TAXED' && s.taxRate > 0 && this.taxRates().includes(s.taxRate)) {
+        set('taxRate', s.taxRate, s.taxTreatment.confidence);
+      }
+    } finally {
+      this.applyingSuggestion = false;
     }
+    if (!this.attributes().length) {
+      this.attributes.set(Object.entries(s.attributes).map(([key, value]) => ({ key, value })));
+    }
+    this.suggested.set(filled);
+    if (Object.keys(filled).length) this.productForm.markAsDirty();
+  }
+
+  /** The model's confidence in a field it filled, or null when the field is the person's own. */
+  confidenceOf(field: string): number | null {
+    return this.suggested()[field] ?? null;
+  }
+
+  /**
+   * A price from the tenant's own numbers: the cost entered, times the median markup of the
+   * category's products. Never from the model.
+   */
+  readonly suggestedPrice = computed(() => {
+    const markup = this.suggestion()?.pricing.typicalMarkup;
+    const cost = Number(this.costValue());
+    return markup && cost > 0 ? Math.round(cost * markup * 100) / 100 : null;
+  });
+  private readonly costValue = signal<number>(0);
+
+  applySuggestedPrice(): void {
+    const price = this.suggestedPrice();
+    if (price !== null) {
+      this.productForm.get('price')?.setValue(price);
+      this.productForm.get('price')?.markAsDirty();
+    }
+  }
+
+  addAttribute(key: string, value: string): void {
+    const k = key.trim().slice(0, 40);
+    const v = value.trim().slice(0, 120);
+    if (!k || !v) return;
+    this.attributes.update((list) => [...list.filter((a) => a.key !== k), { key: k, value: v }].slice(0, 20));
+    this.productForm.markAsDirty();
+  }
+
+  removeAttribute(key: string): void {
+    this.attributes.update((list) => list.filter((a) => a.key !== key));
+    this.productForm.markAsDirty();
   }
 
   cancel(): void {
@@ -245,6 +423,10 @@ export class ProductFormPage implements OnInit {
 
     const formValue = this.productForm.getRawValue();
     const productId = this.id();
+    formValue.attributes = this.attributes().length
+      ? Object.fromEntries(this.attributes().map((a) => [a.key, a.value]))
+      : null;
+    if (!productId && this.imageIds().length) formValue.imageIds = this.imageIds();
 
     //  What is held is changed by documents — adjustments, transfers, sales, receipts — never by
     //  editing the product; neither is the cost of stock already held.
@@ -282,3 +464,16 @@ export class ProductFormPage implements OnInit {
     });
   }
 }
+
+/** The fields a photo can fill. */
+const SUGGESTIBLE_FIELDS = [
+  'name',
+  'description',
+  'brand',
+  'barcode',
+  'categoryId',
+  'kind',
+  'unitOfMeasure',
+  'taxTreatment',
+  'taxRate',
+] as const;

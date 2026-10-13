@@ -1,4 +1,389 @@
 {
+  "ai.anomalies.all": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "ai.anomalies.category": {
+    "es": "Área",
+    "en": "Area",
+    "pt": "Área"
+  },
+  "ai.anomalies.category_label.cash": {
+    "es": "Caja",
+    "en": "Cash",
+    "pt": "Caixa"
+  },
+  "ai.anomalies.category_label.inventory": {
+    "es": "Existencias",
+    "en": "Stock",
+    "pt": "Stock"
+  },
+  "ai.anomalies.category_label.purchases": {
+    "es": "Compras",
+    "en": "Purchases",
+    "pt": "Compras"
+  },
+  "ai.anomalies.category_label.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "ai.anomalies.confirmed": {
+    "es": "Marcada como útil.",
+    "en": "Marked as useful.",
+    "pt": "Marcada como útil."
+  },
+  "ai.anomalies.detector.forensic_benford": {
+    "es": "Importes de proveedor que no siguen la ley de Benford",
+    "en": "Supplier amounts that do not follow Benford's law",
+    "pt": "Montantes de fornecedor que não seguem a lei de Benford"
+  },
+  "ai.anomalies.detector.outlier_invoice": {
+    "es": "Factura atípica",
+    "en": "Atypical invoice",
+    "pt": "Fatura atípica"
+  },
+  "ai.anomalies.detector.rule_duplicate_vendor_bill": {
+    "es": "Factura de proveedor posiblemente duplicada",
+    "en": "Possibly duplicated supplier invoice",
+    "pt": "Fatura de fornecedor possivelmente duplicada"
+  },
+  "ai.anomalies.detector.rule_large_inventory_adjustment": {
+    "es": "Ajuste de inventario inusualmente grande",
+    "en": "Unusually large stock adjustment",
+    "pt": "Ajuste de stock invulgarmente grande"
+  },
+  "ai.anomalies.detector.rule_pos_cancellations": {
+    "es": "Anulaciones de caja fuera de lo normal",
+    "en": "Unusual till cancellations",
+    "pt": "Anulações de caixa fora do normal"
+  },
+  "ai.anomalies.detector.rule_sale_below_cost": {
+    "es": "Venta por debajo del costo",
+    "en": "Sale below cost",
+    "pt": "Venda abaixo do custo"
+  },
+  "ai.anomalies.detector.timeseries_branch_sales": {
+    "es": "Ventas de la sucursal fuera de lo habitual",
+    "en": "Branch sales out of the ordinary",
+    "pt": "Vendas da filial fora do habitual"
+  },
+  "ai.anomalies.dismissed": {
+    "es": "Descartada. Usaremos esta respuesta para afinar la revisión.",
+    "en": "Dismissed. We will use this to tune the review.",
+    "pt": "Descartada. Usaremos esta resposta para afinar a revisão."
+  },
+  "ai.anomalies.empty_help": {
+    "es": "La revisión automática corre cada noche. Si encuentra algo inusual, aparecerá aquí.",
+    "en": "The automatic review runs every night. If it finds something unusual, it will appear here.",
+    "pt": "A revisão automática corre todas as noites. Se encontrar algo invulgar, aparecerá aqui."
+  },
+  "ai.anomalies.empty_title": {
+    "es": "Sin anomalías que revisar",
+    "en": "No anomalies to review",
+    "pt": "Sem anomalias para rever"
+  },
+  "ai.anomalies.evidence.amount": {
+    "es": "Importe del día",
+    "en": "Amount on the day",
+    "pt": "Montante do dia"
+  },
+  "ai.anomalies.evidence.bills": {
+    "es": "Facturas analizadas",
+    "en": "Invoices analysed",
+    "pt": "Faturas analisadas"
+  },
+  "ai.anomalies.evidence.cancelled": {
+    "es": "Anulados",
+    "en": "Cancelled",
+    "pt": "Anulados"
+  },
+  "ai.anomalies.evidence.cancelled_total": {
+    "es": "Importe anulado",
+    "en": "Amount cancelled",
+    "pt": "Montante anulado"
+  },
+  "ai.anomalies.evidence.cost": {
+    "es": "Costo",
+    "en": "Cost",
+    "pt": "Custo"
+  },
+  "ai.anomalies.evidence.count": {
+    "es": "Veces registrada",
+    "en": "Times recorded",
+    "pt": "Vezes registada"
+  },
+  "ai.anomalies.evidence.direction": {
+    "es": "Sentido",
+    "en": "Direction",
+    "pt": "Sentido"
+  },
+  "ai.anomalies.evidence.discount_ratio": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
+  "ai.anomalies.evidence.expected": {
+    "es": "Importe habitual",
+    "en": "Usual amount",
+    "pt": "Montante habitual"
+  },
+  "ai.anomalies.evidence.fiscal_number": {
+    "es": "Número fiscal",
+    "en": "Fiscal number",
+    "pt": "Número fiscal"
+  },
+  "ai.anomalies.evidence.hour": {
+    "es": "Hora",
+    "en": "Hour",
+    "pt": "Hora"
+  },
+  "ai.anomalies.evidence.invoice_number": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "ai.anomalies.evidence.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "ai.anomalies.evidence.loss": {
+    "es": "Pérdida",
+    "en": "Loss",
+    "pt": "Perda"
+  },
+  "ai.anomalies.evidence.mad": {
+    "es": "Desviación media (MAD)",
+    "en": "Mean absolute deviation (MAD)",
+    "pt": "Desvio médio (MAD)"
+  },
+  "ai.anomalies.evidence.margin": {
+    "es": "Margen",
+    "en": "Margin",
+    "pt": "Margem"
+  },
+  "ai.anomalies.evidence.p_value": {
+    "es": "Valor p",
+    "en": "p-value",
+    "pt": "Valor p"
+  },
+  "ai.anomalies.evidence.percentile": {
+    "es": "Percentil de rareza",
+    "en": "Unusualness percentile",
+    "pt": "Percentil de raridade"
+  },
+  "ai.anomalies.evidence.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "ai.anomalies.evidence.rate": {
+    "es": "Proporción",
+    "en": "Rate",
+    "pt": "Proporção"
+  },
+  "ai.anomalies.evidence.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "ai.anomalies.evidence.revenue": {
+    "es": "Ingreso",
+    "en": "Revenue",
+    "pt": "Receita"
+  },
+  "ai.anomalies.evidence.robust_z": {
+    "es": "Desviación (z robusta)",
+    "en": "Deviation (robust z)",
+    "pt": "Desvio (z robusto)"
+  },
+  "ai.anomalies.evidence.threshold": {
+    "es": "Umbral",
+    "en": "Threshold",
+    "pt": "Limiar"
+  },
+  "ai.anomalies.evidence.tickets": {
+    "es": "Tickets",
+    "en": "Tickets",
+    "pt": "Talões"
+  },
+  "ai.anomalies.evidence.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "ai.anomalies.evidence.typical_rate": {
+    "es": "Proporción habitual",
+    "en": "Typical rate",
+    "pt": "Proporção habitual"
+  },
+  "ai.anomalies.evidence.typical_value": {
+    "es": "Valor habitual",
+    "en": "Typical value",
+    "pt": "Valor habitual"
+  },
+  "ai.anomalies.evidence.unit_cost": {
+    "es": "Costo unitario",
+    "en": "Unit cost",
+    "pt": "Custo unitário"
+  },
+  "ai.anomalies.evidence.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "ai.anomalies.explain": {
+    "es": "Explicar",
+    "en": "Explain",
+    "pt": "Explicar"
+  },
+  "ai.anomalies.explain_failed": {
+    "es": "No se pudo generar la explicación.",
+    "en": "The explanation could not be generated.",
+    "pt": "Não foi possível gerar a explicação."
+  },
+  "ai.anomalies.feedback_failed": {
+    "es": "No se pudo guardar tu respuesta.",
+    "en": "Your answer could not be saved.",
+    "pt": "Não foi possível guardar a sua resposta."
+  },
+  "ai.anomalies.last_run": {
+    "es": "Última revisión: {{when}}",
+    "en": "Last review: {{when}}",
+    "pt": "Última revisão: {{when}}"
+  },
+  "ai.anomalies.last_run_failed": {
+    "es": "La última revisión falló.",
+    "en": "The last review failed.",
+    "pt": "A última revisão falhou."
+  },
+  "ai.anomalies.load_failed": {
+    "es": "No se pudieron cargar las anomalías.",
+    "en": "Anomalies could not be loaded.",
+    "pt": "Não foi possível carregar as anomalias."
+  },
+  "ai.anomalies.mark_false_positive": {
+    "es": "Falso positivo",
+    "en": "False positive",
+    "pt": "Falso positivo"
+  },
+  "ai.anomalies.mark_useful": {
+    "es": "Útil",
+    "en": "Useful",
+    "pt": "Útil"
+  },
+  "ai.anomalies.reopen": {
+    "es": "Reabrir",
+    "en": "Reopen",
+    "pt": "Reabrir"
+  },
+  "ai.anomalies.run_failed": {
+    "es": "No se pudo iniciar la revisión.",
+    "en": "The review could not be started.",
+    "pt": "Não foi possível iniciar a revisão."
+  },
+  "ai.anomalies.run_in_progress": {
+    "es": "Revisión en curso…",
+    "en": "Review in progress…",
+    "pt": "Revisão em curso…"
+  },
+  "ai.anomalies.run_now": {
+    "es": "Revisar ahora",
+    "en": "Review now",
+    "pt": "Rever agora"
+  },
+  "ai.anomalies.run_queued": {
+    "es": "La revisión está en marcha. Los hallazgos aparecerán en unos minutos.",
+    "en": "The review is running. Findings will appear in a few minutes.",
+    "pt": "A revisão está em curso. As conclusões aparecerão em alguns minutos."
+  },
+  "ai.anomalies.severity": {
+    "es": "Gravedad",
+    "en": "Severity",
+    "pt": "Gravidade"
+  },
+  "ai.anomalies.severity_label.critical": {
+    "es": "Crítica",
+    "en": "Critical",
+    "pt": "Crítica"
+  },
+  "ai.anomalies.severity_label.high": {
+    "es": "Alta",
+    "en": "High",
+    "pt": "Alta"
+  },
+  "ai.anomalies.severity_label.low": {
+    "es": "Baja",
+    "en": "Low",
+    "pt": "Baixa"
+  },
+  "ai.anomalies.severity_label.medium": {
+    "es": "Media",
+    "en": "Medium",
+    "pt": "Média"
+  },
+  "ai.anomalies.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "ai.anomalies.status_label.confirmed": {
+    "es": "Confirmada",
+    "en": "Confirmed",
+    "pt": "Confirmada"
+  },
+  "ai.anomalies.status_label.dismissed": {
+    "es": "Descartada",
+    "en": "Dismissed",
+    "pt": "Descartada"
+  },
+  "ai.anomalies.status_label.open": {
+    "es": "Pendiente",
+    "en": "Open",
+    "pt": "Pendente"
+  },
+  "ai.anomalies.subtitle": {
+    "es": "Lo que la revisión automática encontró inusual en ventas, compras, existencias y caja.",
+    "en": "What the automatic review found unusual in sales, purchases, stock and cash.",
+    "pt": "O que a revisão automática encontrou de invulgar em vendas, compras, stock e caixa."
+  },
+  "ai.anomalies.title": {
+    "es": "Anomalías",
+    "en": "Anomalies",
+    "pt": "Anomalias"
+  },
+  "ai.anomalies.value.drop": {
+    "es": "caída",
+    "en": "drop",
+    "pt": "queda"
+  },
+  "ai.anomalies.value.gain": {
+    "es": "sobrante",
+    "en": "surplus",
+    "pt": "sobra"
+  },
+  "ai.anomalies.value.loss": {
+    "es": "faltante",
+    "en": "shortage",
+    "pt": "falta"
+  },
+  "ai.anomalies.value.same_amount_and_date": {
+    "es": "mismo importe y fecha",
+    "en": "same amount and date",
+    "pt": "mesmo montante e data"
+  },
+  "ai.anomalies.value.same_fiscal_number": {
+    "es": "mismo número fiscal",
+    "en": "same fiscal number",
+    "pt": "mesmo número fiscal"
+  },
+  "ai.anomalies.value.spike": {
+    "es": "pico",
+    "en": "spike",
+    "pt": "pico"
+  },
   "ai.anomaly_not_found": {
     "es": "No se encontró la anomalía {{id}}.",
     "en": "Anomaly {{id}} was not found.",
@@ -18,6 +403,421 @@
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
     "en": "Artificial intelligence is not configured on this server. You can continue manually.",
     "pt": "A inteligência artificial não está configurada neste servidor. Pode continuar manualmente."
+  },
+  "ai.photo.analysing": {
+    "es": "Analizando la foto…",
+    "en": "Analysing the photo…",
+    "pt": "A analisar a foto…"
+  },
+  "ai.photo.analysis_failed": {
+    "es": "No se pudo analizar la foto. Puedes completar el formulario manualmente.",
+    "en": "The photo could not be analysed. You can fill in the form manually.",
+    "pt": "Não foi possível analisar a foto. Pode preencher o formulário manualmente."
+  },
+  "ai.photo.apply_price": {
+    "es": "Usar {{price}}",
+    "en": "Use {{price}}",
+    "pt": "Usar {{price}}"
+  },
+  "ai.photo.barcode_check_failed": {
+    "es": "El código leído ({{code}}) no supera el dígito verificador. Escanéalo o escríbelo.",
+    "en": "The code read ({{code}}) fails its check digit. Scan or type it.",
+    "pt": "O código lido ({{code}}) não passa no dígito de controlo. Leia-o ou escreva-o."
+  },
+  "ai.photo.filled": {
+    "es": "Listo: revisa los campos marcados como sugeridos.",
+    "en": "Done: review the fields marked as suggested.",
+    "pt": "Pronto: reveja os campos marcados como sugeridos."
+  },
+  "ai.photo.intro": {
+    "es": "Sube una foto del producto y completaremos los campos por ti. Revisa todo antes de guardar.",
+    "en": "Upload a photo of the product and we will fill in the fields for you. Review everything before saving.",
+    "pt": "Envie uma foto do produto e preencheremos os campos por si. Reveja tudo antes de guardar."
+  },
+  "ai.photo.match_reason.barcode": {
+    "es": "mismo código de barras",
+    "en": "same barcode",
+    "pt": "mesmo código de barras"
+  },
+  "ai.photo.match_reason.image": {
+    "es": "foto parecida",
+    "en": "similar photo",
+    "pt": "foto semelhante"
+  },
+  "ai.photo.match_reason.name": {
+    "es": "nombre parecido",
+    "en": "similar name",
+    "pt": "nome semelhante"
+  },
+  "ai.photo.not_a_product": {
+    "es": "La foto no parece mostrar un producto. Completa los campos manualmente.",
+    "en": "The photo does not seem to show a product. Fill in the fields manually.",
+    "pt": "A foto não parece mostrar um produto. Preencha os campos manualmente."
+  },
+  "ai.photo.notes": {
+    "es": "Observaciones del asistente",
+    "en": "Assistant notes",
+    "pt": "Observações do assistente"
+  },
+  "ai.photo.possible_duplicates": {
+    "es": "Puede que este producto ya exista:",
+    "en": "This product may already exist:",
+    "pt": "Este produto pode já existir:"
+  },
+  "ai.photo.price_hint": {
+    "es": "Margen típico de la categoría: ×{{markup}} ({{count}} productos).",
+    "en": "Typical category markup: ×{{markup}} ({{count}} products).",
+    "pt": "Margem típica da categoria: ×{{markup}} ({{count}} produtos)."
+  },
+  "ai.photo.stored": {
+    "es": "Foto guardada. Se asociará al producto al guardarlo.",
+    "en": "Photo stored. It will be attached to the product when you save it.",
+    "pt": "Foto guardada. Será associada ao produto quando o guardar."
+  },
+  "ai.photo.suggested_badge": {
+    "es": "IA · {{confidence}}",
+    "en": "AI · {{confidence}}",
+    "pt": "IA · {{confidence}}"
+  },
+  "ai.photo.suggested_hint": {
+    "es": "Valor sugerido a partir de la foto, con la confianza del modelo. Cambiarlo lo convierte en tuyo.",
+    "en": "Value suggested from the photo, with the model's confidence. Changing it makes it yours.",
+    "pt": "Valor sugerido a partir da foto, com a confiança do modelo. Alterá-lo torna-o seu."
+  },
+  "ai.photo.upload_and_fill": {
+    "es": "Sube o toma una foto para completar el formulario",
+    "en": "Upload or take a photo to fill in the form",
+    "pt": "Envie ou tire uma foto para preencher o formulário"
+  },
+  "ai.photo.upload_failed": {
+    "es": "No se pudo subir la foto.",
+    "en": "The photo could not be uploaded.",
+    "pt": "Não foi possível enviar a foto."
+  },
+  "ai.photo.uploading": {
+    "es": "Subiendo la foto…",
+    "en": "Uploading the photo…",
+    "pt": "A enviar a foto…"
+  },
+  "ai.predictions.accuracy": {
+    "es": "error medio en pruebas: {{wape}}",
+    "en": "backtest error: {{wape}}",
+    "pt": "erro médio nos testes: {{wape}}"
+  },
+  "ai.predictions.all_statuses": {
+    "es": "Todos los estados",
+    "en": "All statuses",
+    "pt": "Todos os estados"
+  },
+  "ai.predictions.avg_daily_demand": {
+    "es": "Venta diaria reciente",
+    "en": "Recent daily sales",
+    "pt": "Venda diária recente"
+  },
+  "ai.predictions.backtest_error": {
+    "es": "Error en pruebas (WAPE)",
+    "en": "Backtest error (WAPE)",
+    "pt": "Erro nos testes (WAPE)"
+  },
+  "ai.predictions.branch_rank": {
+    "es": "Puesto en sucursal",
+    "en": "Branch rank",
+    "pt": "Posição na filial"
+  },
+  "ai.predictions.censored_days": {
+    "es": "Días sin existencias excluidos",
+    "en": "Out-of-stock days excluded",
+    "pt": "Dias sem stock excluídos"
+  },
+  "ai.predictions.chart.actual": {
+    "es": "Vendido",
+    "en": "Sold",
+    "pt": "Vendido"
+  },
+  "ai.predictions.chart.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "ai.predictions.chart.forecast": {
+    "es": "Previsto",
+    "en": "Forecast",
+    "pt": "Previsto"
+  },
+  "ai.predictions.chart.p10": {
+    "es": "Mínimo probable (P10)",
+    "en": "Likely minimum (P10)",
+    "pt": "Mínimo provável (P10)"
+  },
+  "ai.predictions.chart.p50": {
+    "es": "Esperado (P50)",
+    "en": "Expected (P50)",
+    "pt": "Esperado (P50)"
+  },
+  "ai.predictions.chart.p90": {
+    "es": "Máximo probable (P90)",
+    "en": "Likely maximum (P90)",
+    "pt": "Máximo provável (P90)"
+  },
+  "ai.predictions.chart.range": {
+    "es": "Rango probable (P10–P90)",
+    "en": "Likely range (P10–P90)",
+    "pt": "Intervalo provável (P10–P90)"
+  },
+  "ai.predictions.chart.show_table": {
+    "es": "Ver los datos en tabla",
+    "en": "Show the data as a table",
+    "pt": "Ver os dados em tabela"
+  },
+  "ai.predictions.chart.units": {
+    "es": "Unidades",
+    "en": "Units",
+    "pt": "Unidades"
+  },
+  "ai.predictions.days_of_cover": {
+    "es": "Días de cobertura",
+    "en": "Days of cover",
+    "pt": "Dias de cobertura"
+  },
+  "ai.predictions.details": {
+    "es": "Detalle",
+    "en": "Details",
+    "pt": "Detalhe"
+  },
+  "ai.predictions.empty_help": {
+    "es": "Cambia o quita los filtros para ver más productos.",
+    "en": "Change or clear the filters to see more products.",
+    "pt": "Altere ou remova os filtros para ver mais produtos."
+  },
+  "ai.predictions.empty_title": {
+    "es": "Nada coincide con los filtros",
+    "en": "Nothing matches the filters",
+    "pt": "Nada corresponde aos filtros"
+  },
+  "ai.predictions.last_run": {
+    "es": "Última predicción: {{when}}",
+    "en": "Last prediction: {{when}}",
+    "pt": "Última previsão: {{when}}"
+  },
+  "ai.predictions.last_run_failed": {
+    "es": "El último cálculo falló; se muestran los resultados anteriores.",
+    "en": "The last calculation failed; previous results are shown.",
+    "pt": "O último cálculo falhou; são mostrados os resultados anteriores."
+  },
+  "ai.predictions.lead_time": {
+    "es": "Plazo de reposición (días)",
+    "en": "Lead time (days)",
+    "pt": "Prazo de reposição (dias)"
+  },
+  "ai.predictions.load_failed": {
+    "es": "No se pudieron cargar las predicciones.",
+    "en": "Predictions could not be loaded.",
+    "pt": "Não foi possível carregar as previsões."
+  },
+  "ai.predictions.loading_chart": {
+    "es": "Cargando el gráfico…",
+    "en": "Loading the chart…",
+    "pt": "A carregar o gráfico…"
+  },
+  "ai.predictions.model": {
+    "es": "Modelo",
+    "en": "Model",
+    "pt": "Modelo"
+  },
+  "ai.predictions.never_run_help": {
+    "es": "Se calculan cada noche con tu historial de ventas. Puedes pedir una ahora con «Recalcular ahora».",
+    "en": "They are calculated every night from your sales history. You can request one now with “Recalculate now”.",
+    "pt": "São calculadas todas as noites com o seu histórico de vendas. Pode pedir uma agora com «Recalcular agora»."
+  },
+  "ai.predictions.never_run_title": {
+    "es": "Aún no hay predicciones",
+    "en": "No predictions yet",
+    "pt": "Ainda não há previsões"
+  },
+  "ai.predictions.next_30_days": {
+    "es": "Próximos 30 días",
+    "en": "Next 30 days",
+    "pt": "Próximos 30 dias"
+  },
+  "ai.predictions.no_branch": {
+    "es": "Sin sucursal",
+    "en": "No branch",
+    "pt": "Sem filial"
+  },
+  "ai.predictions.on_hand": {
+    "es": "Existencias",
+    "en": "On hand",
+    "pt": "Em stock"
+  },
+  "ai.predictions.overview": {
+    "es": "Resumen de la predicción",
+    "en": "Prediction overview",
+    "pt": "Resumo da previsão"
+  },
+  "ai.predictions.range_hint": {
+    "es": "Hasta {{p90}} con un 90 % de probabilidad",
+    "en": "Up to {{p90}} with 90 % probability",
+    "pt": "Até {{p90}} com 90 % de probabilidade"
+  },
+  "ai.predictions.reorder_point": {
+    "es": "Punto de reorden",
+    "en": "Reorder point",
+    "pt": "Ponto de encomenda"
+  },
+  "ai.predictions.run_failed": {
+    "es": "No se pudo iniciar el cálculo.",
+    "en": "The calculation could not be started.",
+    "pt": "Não foi possível iniciar o cálculo."
+  },
+  "ai.predictions.run_in_progress": {
+    "es": "Calculando…",
+    "en": "Calculating…",
+    "pt": "A calcular…"
+  },
+  "ai.predictions.run_now": {
+    "es": "Recalcular ahora",
+    "en": "Recalculate now",
+    "pt": "Recalcular agora"
+  },
+  "ai.predictions.run_queued": {
+    "es": "Se está calculando una nueva predicción. Los resultados aparecerán en unos minutos.",
+    "en": "A new prediction is being calculated. Results will appear in a few minutes.",
+    "pt": "Está a ser calculada uma nova previsão. Os resultados aparecerão em alguns minutos."
+  },
+  "ai.predictions.safety_stock": {
+    "es": "Stock de seguridad",
+    "en": "Safety stock",
+    "pt": "Stock de segurança"
+  },
+  "ai.predictions.search": {
+    "es": "Buscar producto o SKU",
+    "en": "Search product or SKU",
+    "pt": "Procurar produto ou SKU"
+  },
+  "ai.predictions.series_failed": {
+    "es": "No se pudo cargar el gráfico.",
+    "en": "The chart could not be loaded.",
+    "pt": "Não foi possível carregar o gráfico."
+  },
+  "ai.predictions.service_level": {
+    "es": "Nivel de servicio",
+    "en": "Service level",
+    "pt": "Nível de serviço"
+  },
+  "ai.predictions.show_chart": {
+    "es": "Ver la predicción de {{name}}",
+    "en": "Show the prediction for {{name}}",
+    "pt": "Ver a previsão de {{name}}"
+  },
+  "ai.predictions.sort": {
+    "es": "Ordenar por",
+    "en": "Sort by",
+    "pt": "Ordenar por"
+  },
+  "ai.predictions.sort_risk": {
+    "es": "Riesgo primero",
+    "en": "Risk first",
+    "pt": "Risco primeiro"
+  },
+  "ai.predictions.sort_top_sellers": {
+    "es": "Más vendidos",
+    "en": "Top sellers",
+    "pt": "Mais vendidos"
+  },
+  "ai.predictions.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "ai.predictions.status_label.dead_stock": {
+    "es": "Sin movimiento",
+    "en": "Dead stock",
+    "pt": "Sem movimento"
+  },
+  "ai.predictions.status_label.ok": {
+    "es": "Correcto",
+    "en": "OK",
+    "pt": "Correto"
+  },
+  "ai.predictions.status_label.overstock": {
+    "es": "Exceso",
+    "en": "Overstock",
+    "pt": "Excesso"
+  },
+  "ai.predictions.status_label.reorder": {
+    "es": "Reponer",
+    "en": "Reorder",
+    "pt": "Repor"
+  },
+  "ai.predictions.status_label.stockout_risk": {
+    "es": "Riesgo de quiebre",
+    "en": "Stock-out risk",
+    "pt": "Risco de rutura"
+  },
+  "ai.predictions.stockout_date": {
+    "es": "Se agota el",
+    "en": "Runs out on",
+    "pt": "Esgota a"
+  },
+  "ai.predictions.subtitle": {
+    "es": "Qué se venderá, dónde y cuándo reponer, calculado cada noche a partir de tus movimientos.",
+    "en": "What will sell, where, and when to restock — computed every night from your movements.",
+    "pt": "O que vai vender, onde e quando repor — calculado todas as noites a partir dos seus movimentos."
+  },
+  "ai.predictions.suggested_order": {
+    "es": "Comprar",
+    "en": "Order",
+    "pt": "Comprar"
+  },
+  "ai.predictions.title": {
+    "es": "Predicciones de demanda",
+    "en": "Demand predictions",
+    "pt": "Previsões de procura"
+  },
+  "ai.predictions.top_by_branch": {
+    "es": "Lo que más se venderá en cada sucursal",
+    "en": "What will sell most in each branch",
+    "pt": "O que mais vai vender em cada filial"
+  },
+  "ai.predictions.units_next_30_days": {
+    "es": "Unidades previstas en los próximos 30 días",
+    "en": "Units expected over the next 30 days",
+    "pt": "Unidades previstas nos próximos 30 dias"
+  },
+  "ai.product.add_attribute": {
+    "es": "Añadir atributo",
+    "en": "Add attribute",
+    "pt": "Adicionar atributo"
+  },
+  "ai.product.attribute_name": {
+    "es": "Atributo",
+    "en": "Attribute",
+    "pt": "Atributo"
+  },
+  "ai.product.attribute_value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "ai.product.attributes": {
+    "es": "Atributos",
+    "en": "Attributes",
+    "pt": "Atributos"
+  },
+  "ai.product.barcode": {
+    "es": "Código de barras",
+    "en": "Barcode",
+    "pt": "Código de barras"
+  },
+  "ai.product.brand": {
+    "es": "Marca",
+    "en": "Brand",
+    "pt": "Marca"
+  },
+  "ai.product.remove_attribute": {
+    "es": "Quitar {{name}}",
+    "en": "Remove {{name}}",
+    "pt": "Remover {{name}}"
   },
   "ai.provider_error": {
     "es": "El servicio de inteligencia artificial no respondió. Inténtalo de nuevo o continúa manualmente.",

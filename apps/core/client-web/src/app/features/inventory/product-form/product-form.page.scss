@@ -63,3 +63,91 @@
 
   a { color: var(--accent-text); }
 }
+
+//  ── Lo que propone la IA a partir de la foto ─────────────────────────────────
+//  La marca distingue lo sugerido de lo escrito. Usa los tokens de «info» y no
+//  los de éxito o advertencia: una sugerencia no es un estado bueno ni malo.
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--space-1);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-sm);
+  background: var(--info-surface);
+  color: var(--info-text);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.ai-intro {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.file-input-label.is-busy {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.photo-status {
+  min-height: 1.25rem;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.field-hint--warning { color: var(--warning-text); }
+
+.ai-duplicates {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-md);
+  background: var(--warning-surface);
+  color: var(--warning-text);
+  font-size: var(--text-sm);
+
+  ul { margin: var(--space-1) 0 0; padding-inline-start: var(--space-4); }
+  a { color: var(--accent-text); }
+  .muted { color: var(--content-secondary); }
+}
+
+.ai-duplicates__title { margin: 0; font-weight: var(--font-semibold); }
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-inline-start: var(--space-1);
+  color: var(--accent-text);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.attribute-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.attribute-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full, 999px);
+  font-size: var(--text-sm);
+}
+
+.attribute-chip__key { color: var(--content-secondary); }
+
+.attribute-add { align-items: flex-end; }
+.attribute-add__button { margin-bottom: var(--space-1); }

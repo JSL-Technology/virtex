@@ -7,12 +7,14 @@ import { Product } from './product.model';
 export type CreateProductDto = Omit<Product, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'> & {
   /** Where the opening stock is. Omitted: the company's default warehouse. */
   warehouseId?: string;
+  /** Photos uploaded before the product existed; the first becomes its image. */
+  imageIds?: string[];
 };
 /**
  * Editing the catalogue entry. Not what is held: the quantity on hand changes through inventory
  * adjustments and transfers, and the cost of stock already held through a revaluing adjustment.
  */
-export type UpdateProductDto = Partial<Omit<CreateProductDto, 'stock' | 'warehouseId'>>;
+export type UpdateProductDto = Partial<Omit<CreateProductDto, 'stock' | 'warehouseId' | 'imageIds'>>;
 
 /**
  * Inventory HTTP client — canonical location is `features/inventory/data/`.
@@ -50,6 +52,16 @@ export class InventoryService {
 
   updateProduct(id: string, product: UpdateProductDto): Observable<Product> {
     return this.http.patch<Product>(`${this.apiUrl}/${id}`, product);
+  }
+
+  /**
+   * Store a product photo before the product exists. The create request claims it by id. The server
+   * strips its metadata (GPS included) and re-encodes it.
+   */
+  uploadProductImage(file: File): Observable<{ id: string; width: number; height: number }> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.post<{ id: string; width: number; height: number }>(`${this.apiUrl}/images`, body);
   }
 
   deleteProduct(id: string): Observable<void> {
