@@ -12,6 +12,9 @@ Four layers, from the most precise to the most general:
    Unsupervised: useful from the first day, with no labelled fraud to learn from.
 4. **Forensics** — Benford's law on a supplier's invoice amounts: invented numbers do not follow
    the first-digit distribution that real amounts do.
+5. **Controls** — the checks an auditor runs: receipts recorded twice, suppliers paid more than
+   they billed, purchase order / receipt / bill disagreeing, returns, prices and discounts far
+   from the norm, issued documents edited or deleted, work at hours the company never works.
 
 A finding carries structured evidence; whether it is a problem is for a person to decide.
 """
@@ -440,6 +443,504 @@ def benford_vendors(bills: pd.DataFrame, min_bills: int = 50) -> list[Finding]:
                     "threshold": BENFORD_NONCONFORMITY,
                     "observed": [round(float(v), 4) for v in observed],
                     "expected": [round(float(v), 4) for v in BENFORD],
+                },
+            )
+        )
+    return findings
+
+
+# ── 5. Controls over money and documents ──────────────────────────────────────────
+
+
+def duplicate_customer_payments(payments: pd.DataFrame) -> list[Finding]:
+    """The same customer receipt recorded twice: same customer and bank reference, or same customer,
+    amount and date. Either overstates cash and, once applied, clears invoices nobody paid.
+
+    payments: id, customer_id, reference, total_amount, payment_date, branch_id
+    """
+    if payments.empty:
+        return []
+    findings: list[Finding] = []
+    seen: set[frozenset] = set()
+    ref = payments["reference"].fillna("").astype(str).str.strip().str.upper()
+    with_ref = payments[ref != ""]
+    groups = [("same_reference", g) for _, g in with_ref.groupby(["customer_id", ref[ref != ""]]) if len(g) > 1]
+    groups += [("same_amount_and_date", g) for _, g in payments.groupby(["customer_id", "total_amount", "payment_date"]) if len(g) > 1]
+    for reason, group in groups:
+        ids = frozenset(group["id"].astype(str))
+        if ids in seen:
+            continue
+        seen.add(ids)
+        first = group.sort_values("payment_date").iloc[0]
+        findings.append(
+            Finding(
+                detector="rule.duplicate_customer_payment",
+                category="cash",
+                severity="HIGH" if reason == "same_reference" else "MEDIUM",
+                score=1.0 if reason == "same_reference" else 0.7,
+                entity_type="customer_payment",
+                entity_id=str(first["id"]),
+                occurred_on=_iso(first["payment_date"]),
+                fingerprint=f"duppay:{':'.join(sorted(ids))}"[:128],
+                branch_id=first.get("branch_id"),
+                evidence={
+                    "reason": reason,
+                    "paymentIds": sorted(ids),
+                    "customerId": str(first["customer_id"]),
+                    "reference": first.get("reference"),
+                    "amount": round(float(first["total_amount"]), 2),
+                    "count": int(len(group)),
+                },
+            )
+        )
+    return findings
+
+
+def vendor_overpayments(settlements: pd.DataFrame, tolerance: float = 0.01) -> list[Finding]:
+    """Supplier bills settled for more than they were worth, or settled twice by identical payments.
+
+    The payables screens stop a payment above the balance; this catches what got past them — two
+    payment runs racing, a voided bill paid anyway, a balance edited by hand.
+
+    settlements: bill_id, vendor_id, bill_total, bill_date, branch_id, payment_id, payment_date, amount
+    """
+    if settlements.empty:
+        return []
+    findings = []
+    for bill_id, group in settlements.groupby("bill_id"):
+        first = group.iloc[0]
+        total = float(first["bill_total"])
+        settled = float(group["amount"].sum())
+        repeated = group.groupby(["amount", "payment_date"]).size()
+        repeated = repeated[repeated > 1]
+        over = settled - total
+        if over <= max(tolerance, total * 1e-4) and repeated.empty:
+            continue
+        reason = "settled_above_total" if over > max(tolerance, total * 1e-4) else "identical_payments"
+        ratio = over / total if total else 1.0
+        findings.append(
+            Finding(
+                detector="rule.vendor_overpayment",
+                category="purchases",
+                severity="HIGH" if reason == "settled_above_total" else "MEDIUM",
+                score=float(min(1.0, 0.6 + max(ratio, 0))),
+                entity_type="vendor_bill",
+                entity_id=str(bill_id),
+                occurred_on=_iso(group["payment_date"].max()),
+                fingerprint=f"overpay:{bill_id}",
+                branch_id=first.get("branch_id"),
+                evidence={
+                    "reason": reason,
+                    "vendorId": str(first["vendor_id"]),
+                    "billTotal": round(total, 2),
+                    "settled": round(settled, 2),
+                    "excess": round(max(over, 0.0), 2),
+                    "payments": int(len(group)),
+                    "paymentIds": sorted(group["payment_id"].astype(str).tolist())[:20],
+                },
+            )
+        )
+    return findings
+
+
+def three_way_match(lines: pd.DataFrame, orders: pd.DataFrame, qty_tolerance: float = 0.0001,
+                    amount_tolerance: float = 0.02) -> list[Finding]:
+    """Purchase order, goods receipt and supplier bill must agree.
+
+    Two breaks matter: a line billed for more than was received (paying for goods that never
+    arrived), or for more than was ordered; and an order whose bills add up to more than the order
+    itself, beyond a small tolerance for freight and rounding.
+
+    lines:  order_id, order_number, supplier_id, branch_id, order_date, line_id, product_id,
+            quantity, received_quantity, billed_quantity, unit_price
+    orders: order_id, order_number, supplier_id, branch_id, order_date, order_total, billed_total, bills
+    """
+    findings = []
+    if not lines.empty:
+        df = lines.copy()
+        for column in ("quantity", "received_quantity", "billed_quantity", "unit_price"):
+            df[column] = df[column].astype(float).fillna(0.0)
+        df["unreceived"] = df["billed_quantity"] - df["received_quantity"]
+        df["over_ordered"] = df["billed_quantity"] - df["quantity"]
+        df = df[(df["unreceived"] > qty_tolerance) | (df["over_ordered"] > qty_tolerance)]
+        for order_id, group in df.groupby("order_id"):
+            first = group.iloc[0]
+            value = float((group["unreceived"].clip(lower=0) * group["unit_price"]).sum())
+            not_received = bool((group["unreceived"] > qty_tolerance).any())
+            findings.append(
+                Finding(
+                    detector="rule.three_way_match",
+                    category="purchases",
+                    severity="HIGH" if not_received else "MEDIUM",
+                    score=0.9 if not_received else 0.6,
+                    entity_type="purchase_order",
+                    entity_id=str(order_id),
+                    occurred_on=_iso(first["order_date"]),
+                    fingerprint=f"3way:lines:{order_id}",
+                    branch_id=first.get("branch_id"),
+                    evidence={
+                        "reason": "billed_not_received" if not_received else "billed_above_ordered",
+                        "orderNumber": first.get("order_number"),
+                        "supplierId": str(first["supplier_id"]),
+                        "lines": int(len(group)),
+                        "valueNotReceived": round(value, 2),
+                        "productIds": sorted(group["product_id"].dropna().astype(str).unique().tolist())[:20],
+                    },
+                )
+            )
+    if not orders.empty:
+        df = orders.copy()
+        df["order_total"] = df["order_total"].astype(float)
+        df["billed_total"] = df["billed_total"].astype(float)
+        df = df[(df["order_total"] > 0) & (df["billed_total"] > df["order_total"] * (1 + amount_tolerance))]
+        for row in df.itertuples(index=False):
+            excess = row.billed_total - row.order_total
+            ratio = excess / row.order_total
+            findings.append(
+                Finding(
+                    detector="rule.three_way_match",
+                    category="purchases",
+                    severity="HIGH" if ratio >= 0.1 else "MEDIUM",
+                    score=float(min(1.0, 0.5 + ratio)),
+                    entity_type="purchase_order",
+                    entity_id=str(row.order_id),
+                    occurred_on=_iso(row.order_date),
+                    fingerprint=f"3way:amount:{row.order_id}",
+                    branch_id=row.branch_id,
+                    evidence={
+                        "reason": "billed_above_order_total",
+                        "orderNumber": row.order_number,
+                        "supplierId": str(row.supplier_id),
+                        "orderTotal": round(float(row.order_total), 2),
+                        "billedTotal": round(float(row.billed_total), 2),
+                        "excess": round(float(excess), 2),
+                        "bills": int(row.bills),
+                    },
+                )
+            )
+    return findings
+
+
+def returns_spike(movements: pd.DataFrame, min_dispatched: float = 10, min_returned: float = 3,
+                  z_threshold: float = 3.5) -> list[Finding]:
+    """Products coming back far more often than they used to, and than the tenant's other products.
+
+    A product whose return rate jumps is a quality problem, a mis-sold product — or refunds being
+    recorded against goods that never left. Compared with the product's own earlier rate AND with
+    the tenant's spread of rates, so a product that has always been returned a lot is not news.
+
+    movements: product_id, recent (bool: inside the reporting window), dispatched, returned, last_day
+    """
+    if movements.empty:
+        return []
+    df = movements.copy()
+    df["dispatched"] = df["dispatched"].astype(float).fillna(0.0)
+    df["returned"] = df["returned"].astype(float).fillna(0.0)
+    recent = df[df["recent"]].set_index("product_id")
+    before = df[~df["recent"]].set_index("product_id")
+    recent = recent[recent["dispatched"] >= min_dispatched]
+    if len(recent) < 5:
+        return []
+    rate = (recent["returned"] / recent["dispatched"]).clip(0, 1)
+    z = pd.Series(robust_z(rate.to_numpy()), index=rate.index)
+    prior_rate = (before["returned"] / before["dispatched"].replace(0, np.nan)).reindex(rate.index)
+    tenant_rate = float(recent["returned"].sum() / recent["dispatched"].sum())
+    findings = []
+    for product_id in rate.index:
+        r, zz = float(rate[product_id]), float(z[product_id])
+        baseline = prior_rate.get(product_id)
+        baseline = float(baseline) if baseline is not None and np.isfinite(baseline) else tenant_rate
+        if recent.loc[product_id, "returned"] < min_returned or zz < z_threshold or r < max(3 * baseline, baseline + 0.1):
+            continue
+        findings.append(
+            Finding(
+                detector="rule.returns_spike",
+                category="sales",
+                severity=_severity_from_z(zz),
+                score=_score_from_z(zz),
+                entity_type="product",
+                entity_id=str(product_id),
+                occurred_on=_iso(recent.loc[product_id, "last_day"]),
+                fingerprint=f"returns:{product_id}:{pd.Timestamp(recent.loc[product_id, 'last_day']):%Y-%m}",
+                evidence={
+                    "dispatched": round(float(recent.loc[product_id, "dispatched"]), 2),
+                    "returned": round(float(recent.loc[product_id, "returned"]), 2),
+                    "returnRate": round(r, 4),
+                    "previousRate": round(baseline, 4),
+                    "tenantRate": round(tenant_rate, 4),
+                    "robustZ": round(zz, 2),
+                },
+            )
+        )
+    return findings
+
+
+def unusual_price_changes(changes: pd.DataFrame, min_relative: float = 0.5) -> list[Finding]:
+    """A product's price or cost changed by a large fraction at once, or its price set below cost.
+
+    changes: id, product_id, product_name, old_price, new_price, old_cost, new_cost, current_cost,
+             changed_by_user_id, changed_at, local_hour, off_hours (bool)
+    """
+    if changes.empty:
+        return []
+    findings = []
+    for row in changes.itertuples(index=False):
+        reasons, worst = [], 0.0
+        for kind, old, new in (("price", row.old_price, row.new_price), ("cost", row.old_cost, row.new_cost)):
+            if old is None or new is None or pd.isna(old) or pd.isna(new) or float(old) <= 0:
+                continue
+            relative = (float(new) - float(old)) / float(old)
+            if abs(relative) >= min_relative:
+                reasons.append(f"{kind}_{'drop' if relative < 0 else 'rise'}")
+                worst = max(worst, abs(relative))
+        cost = row.new_cost if row.new_cost is not None and not pd.isna(row.new_cost) else row.current_cost
+        below_cost = (row.new_price is not None and not pd.isna(row.new_price) and cost is not None
+                      and not pd.isna(cost) and float(cost) > 0 and float(row.new_price) < float(cost))
+        if below_cost:
+            reasons.append("price_below_cost")
+        if not reasons:
+            continue
+        off_hours = bool(row.off_hours)
+        severity = "HIGH" if below_cost or worst >= 0.8 or (off_hours and worst >= min_relative) else "MEDIUM"
+        findings.append(
+            Finding(
+                detector="rule.price_change",
+                category="inventory",
+                severity=severity,
+                score=float(min(1.0, max(worst, 0.8 if below_cost else 0) + (0.1 if off_hours else 0))),
+                entity_type="product",
+                entity_id=str(row.product_id),
+                occurred_on=_iso(row.changed_at),
+                fingerprint=f"pricechg:{row.id}",
+                evidence={
+                    "reasons": reasons,
+                    "productName": row.product_name,
+                    "oldPrice": None if pd.isna(row.old_price) else round(float(row.old_price), 4),
+                    "newPrice": None if pd.isna(row.new_price) else round(float(row.new_price), 4),
+                    "oldCost": None if pd.isna(row.old_cost) else round(float(row.old_cost), 4),
+                    "newCost": None if pd.isna(row.new_cost) else round(float(row.new_cost), 4),
+                    "changedByUserId": None if row.changed_by_user_id is None else str(row.changed_by_user_id),
+                    "localHour": int(row.local_hour),
+                    "offHours": off_hours,
+                },
+            )
+        )
+    return findings
+
+
+def invoiced_price_deviations(lines: pd.DataFrame, min_history: int = 8, z_threshold: float = 4.0,
+                              min_relative: float = 0.4, max_findings: int = 50,
+                              report_since=None) -> list[Finding]:
+    """A product invoiced at a unit price far from what it is normally invoiced at.
+
+    Measured on the log of the price, against that product's own median and MAD, so a product sold
+    at many price points is judged by its own spread. Both a statistical and a material threshold
+    must be crossed.
+
+    The history can reach further back than `report_since`; only lines from then on are reported.
+
+    lines: invoice_id, invoice_number, issue_date, branch_id, product_id, price
+    """
+    if lines.empty:
+        return []
+    df = lines[lines["price"].astype(float) > 0].copy()
+    df["log_price"] = np.log(df["price"].astype(float))
+    findings = []
+    for product_id, group in df.groupby("product_id"):
+        if len(group) < min_history:
+            continue
+        median = float(np.exp(np.median(group["log_price"])))
+        z = robust_z(group["log_price"].to_numpy())
+        flagged = group.assign(z=z)
+        flagged = flagged[(flagged["z"].abs() >= z_threshold)
+                          & ((flagged["price"].astype(float) - median).abs() >= min_relative * median)]
+        if report_since is not None:
+            flagged = flagged[pd.to_datetime(flagged["issue_date"]) >= pd.Timestamp(report_since)]
+        for row in flagged.itertuples(index=False):
+            findings.append(
+                Finding(
+                    detector="rule.invoiced_price",
+                    category="sales",
+                    severity="HIGH" if row.z <= -6 else "MEDIUM" if abs(row.z) >= 5 else "LOW",
+                    score=_score_from_z(row.z),
+                    entity_type="invoice",
+                    entity_id=str(row.invoice_id),
+                    occurred_on=_iso(row.issue_date),
+                    fingerprint=f"invprice:{row.invoice_id}:{product_id}",
+                    branch_id=row.branch_id,
+                    evidence={
+                        "invoiceNumber": row.invoice_number,
+                        "productId": str(product_id),
+                        "price": round(float(row.price), 4),
+                        "typicalPrice": round(median, 4),
+                        "direction": "below" if row.z < 0 else "above",
+                        "robustZ": round(float(row.z), 2),
+                        "comparedWith": int(len(group)),
+                    },
+                )
+            )
+    findings.sort(key=lambda f: -f.score)
+    return findings[:max_findings]
+
+
+def discount_outliers(invoices: pd.DataFrame, min_ratio: float = 0.25, z_threshold: float = 4.0,
+                      min_discounted: int = 20) -> list[Finding]:
+    """Invoices discounted far beyond the tenant's own practice.
+
+    The norm is the tenant's: among its discounted invoices, a ratio this far above the median, and
+    at least `min_ratio` of the gross. A business that routinely gives 30 % is not flagged for 30 %.
+
+    invoices: id, invoice_number, issue_date, branch_id, total, discount_total
+    """
+    if invoices.empty:
+        return []
+    df = invoices.copy()
+    gross = df["total"].astype(float) + df["discount_total"].astype(float)
+    df["ratio"] = (df["discount_total"].astype(float) / gross.replace(0, np.nan)).fillna(0).clip(0, 1)
+    discounted = df[df["ratio"] > 0]
+    if len(discounted) < min_discounted:
+        return []
+    discounted = discounted.assign(z=robust_z(discounted["ratio"].to_numpy()))
+    typical = float(discounted["ratio"].median())
+    flagged = discounted[(discounted["z"] >= z_threshold) & (discounted["ratio"] >= max(min_ratio, 2 * typical))]
+    return [
+        Finding(
+            detector="rule.discount",
+            category="sales",
+            severity="HIGH" if row.ratio >= 0.5 else "MEDIUM",
+            score=float(min(1.0, row.ratio + 0.3)),
+            entity_type="invoice",
+            entity_id=str(row.id),
+            occurred_on=_iso(row.issue_date),
+            fingerprint=f"discount:{row.id}",
+            branch_id=row.branch_id,
+            evidence={
+                "invoiceNumber": row.invoice_number,
+                "discount": round(float(row.discount_total), 2),
+                "discountRatio": round(float(row.ratio), 4),
+                "typicalRatio": round(typical, 4),
+                "robustZ": round(float(row.z), 2),
+            },
+        )
+        for row in flagged.itertuples(index=False)
+    ]
+
+
+#: Fields whose change on an issued document alters what it says it is worth, or who it binds.
+SENSITIVE_FIELDS = {
+    "invoices": {"total", "subtotal", "tax", "discountTotal", "customerId", "issueDate", "fiscalNumber",
+                 "invoiceNumber", "totalInBaseCurrency", "exchangeRate", "currencyCode"},
+    "vendor_bills": {"total", "ncf", "vendorId", "date", "taxAmount", "totalInBaseCurrency", "exchangeRate",
+                     "currencyCode"},
+    "customer_payments": {"totalAmount", "customerId", "paymentDate", "reference", "exchangeRate", "currencyCode"},
+}
+#: Statuses in which a document has not yet been issued and may be edited freely.
+UNISSUED = {"Draft", "DRAFT", "PENDING_APPROVAL", "REJECTED"}
+
+
+def post_issue_changes(changes: pd.DataFrame) -> list[Finding]:
+    """An issued document deleted, or its amounts, dates or counterparty edited after issue.
+
+    An issued invoice is voided or credited, never edited or removed: the edit erases what the
+    customer and the tax authority were told. Read from the audit trail's metadata only — the names
+    of the fields that changed, not their values.
+
+    changes: entity, entity_id, action, user_id, created_at, status_before, changed_fields (list)
+    """
+    if changes.empty:
+        return []
+    df = changes[changes["entity"].isin(SENSITIVE_FIELDS)
+                 & changes["action"].isin(["UPDATE", "DELETE"])
+                 & changes["status_before"].notna()
+                 & ~changes["status_before"].isin(UNISSUED)].copy()
+    findings = []
+    for row in df.itertuples(index=False):
+        fields = sorted(set(row.changed_fields or []) & SENSITIVE_FIELDS[row.entity])
+        if row.action == "UPDATE" and not fields:
+            continue
+        deleted = row.action == "DELETE"
+        findings.append(
+            Finding(
+                detector="rule.post_issue_change",
+                category="sales" if row.entity == "invoices" else "purchases" if row.entity == "vendor_bills" else "cash",
+                severity="CRITICAL" if deleted else "HIGH",
+                score=1.0 if deleted else 0.85,
+                entity_type={"invoices": "invoice", "vendor_bills": "vendor_bill"}.get(row.entity, "customer_payment"),
+                entity_id=str(row.entity_id),
+                occurred_on=_iso(row.created_at),
+                fingerprint=f"postissue:{row.entity}:{row.entity_id}:{pd.Timestamp(row.created_at).isoformat()}"[:128],
+                evidence={
+                    "action": row.action,
+                    "statusBefore": row.status_before,
+                    "fields": fields,
+                    "userId": None if row.user_id is None or pd.isna(row.user_id) else str(row.user_id),
+                    "changedAt": pd.Timestamp(row.created_at).isoformat(),
+                },
+            )
+        )
+    return findings
+
+
+def local_hours(stamps: pd.Series, timezone: str | None) -> pd.Series:
+    """UTC timestamps as wall-clock hours in the tenant's zone; an unknown zone falls back to UTC."""
+    stamps = pd.to_datetime(stamps, utc=True)
+    try:
+        return stamps.dt.tz_convert(timezone or "UTC")
+    except Exception:  # noqa: BLE001
+        return stamps.dt.tz_convert("UTC")
+
+
+def learn_rare_hours(hours: pd.Series, rare_share: float = 0.02, min_events: int = 200) -> set[int]:
+    """The hours of the day that together account for under `rare_share` of the tenant's activity.
+
+    Learnt, not configured: a bakery's 5 a.m. is normal; an accounting firm's is not. Empty when
+    there is too little activity to say what is normal.
+    """
+    if len(hours) < min_events:
+        return set()
+    share = hours.value_counts(normalize=True).reindex(range(24), fill_value=0.0).sort_values()
+    return {int(h) for h in share[share.cumsum() <= rare_share].index}
+
+
+def off_hours_activity(events: pd.DataFrame, timezone: str | None, min_events: int = 200,
+                       rare_share: float = 0.02, min_rare_actions: int = 3) -> list[Finding]:
+    """A user working on documents at hours this company almost never works (see `learn_rare_hours`),
+    in the tenant's own time zone.
+
+    events: user_id, created_at (UTC)
+    """
+    if len(events) < min_events:
+        return []
+    df = events.dropna(subset=["user_id"]).copy()
+    if len(df) < min_events:
+        return []
+    stamps = local_hours(df["created_at"], timezone)
+    df["hour"] = stamps.dt.hour
+    df["day"] = stamps.dt.date
+    rare_hours = learn_rare_hours(df["hour"], rare_share, min_events)
+    if not rare_hours:
+        return []
+    share = float(df["hour"].isin(rare_hours).mean())
+    findings = []
+    for (user_id, day), group in df[df["hour"].isin(rare_hours)].groupby(["user_id", "day"]):
+        if len(group) < min_rare_actions:
+            continue
+        findings.append(
+            Finding(
+                detector="rule.off_hours",
+                category="security",
+                severity="MEDIUM" if len(group) >= 10 else "LOW",
+                score=float(min(1.0, len(group) / 20)),
+                entity_type="user",
+                entity_id=str(user_id),
+                occurred_on=_iso(day),
+                fingerprint=f"offhours:{user_id}:{_iso(day)}",
+                evidence={
+                    "userId": str(user_id),
+                    "actions": int(len(group)),
+                    "hours": sorted(int(h) for h in group["hour"].unique()),
+                    "shareOfActivityAtThoseHours": round(share, 4),
+                    "timezone": timezone or "UTC",
                 },
             )
         )

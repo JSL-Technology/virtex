@@ -29,6 +29,11 @@
     "en": "Sales",
     "pt": "Vendas"
   },
+  "ai.anomalies.category_label.security": {
+    "es": "Seguridad",
+    "en": "Security",
+    "pt": "Segurança"
+  },
   "ai.anomalies.confirmed": {
     "es": "Marcada como útil.",
     "en": "Marked as useful.",
@@ -44,25 +49,70 @@
     "en": "Atypical invoice",
     "pt": "Fatura atípica"
   },
+  "ai.anomalies.detector.rule_discount": {
+    "es": "Descuento fuera de la norma",
+    "en": "Discount beyond the norm",
+    "pt": "Desconto fora do normal"
+  },
+  "ai.anomalies.detector.rule_duplicate_customer_payment": {
+    "es": "Cobro de cliente registrado dos veces",
+    "en": "Customer receipt recorded twice",
+    "pt": "Recebimento de cliente registrado duas vezes"
+  },
   "ai.anomalies.detector.rule_duplicate_vendor_bill": {
     "es": "Factura de proveedor posiblemente duplicada",
     "en": "Possibly duplicated supplier invoice",
     "pt": "Fatura de fornecedor possivelmente duplicada"
+  },
+  "ai.anomalies.detector.rule_invoiced_price": {
+    "es": "Precio facturado lejos del habitual",
+    "en": "Invoiced price far from the usual",
+    "pt": "Preço faturado longe do habitual"
   },
   "ai.anomalies.detector.rule_large_inventory_adjustment": {
     "es": "Ajuste de inventario inusualmente grande",
     "en": "Unusually large stock adjustment",
     "pt": "Ajuste de stock invulgarmente grande"
   },
+  "ai.anomalies.detector.rule_off_hours": {
+    "es": "Actividad en horas en que la empresa no trabaja",
+    "en": "Activity at hours the company does not work",
+    "pt": "Atividade em horários em que a empresa não trabalha"
+  },
   "ai.anomalies.detector.rule_pos_cancellations": {
     "es": "Anulaciones de caja fuera de lo normal",
     "en": "Unusual till cancellations",
     "pt": "Anulações de caixa fora do normal"
   },
+  "ai.anomalies.detector.rule_post_issue_change": {
+    "es": "Documento emitido modificado o eliminado",
+    "en": "Issued document edited or deleted",
+    "pt": "Documento emitido alterado ou excluído"
+  },
+  "ai.anomalies.detector.rule_price_change": {
+    "es": "Cambio de precio o costo inusual",
+    "en": "Unusual price or cost change",
+    "pt": "Mudança incomum de preço ou custo"
+  },
+  "ai.anomalies.detector.rule_returns_spike": {
+    "es": "Devoluciones muy por encima de lo habitual",
+    "en": "Returns far above normal",
+    "pt": "Devoluções muito acima do habitual"
+  },
   "ai.anomalies.detector.rule_sale_below_cost": {
     "es": "Venta por debajo del costo",
     "en": "Sale below cost",
     "pt": "Venda abaixo do custo"
+  },
+  "ai.anomalies.detector.rule_three_way_match": {
+    "es": "Orden de compra, recepción y factura no cuadran",
+    "en": "Purchase order, receipt and bill do not match",
+    "pt": "Pedido de compra, recebimento e fatura não conferem"
+  },
+  "ai.anomalies.detector.rule_vendor_overpayment": {
+    "es": "Factura de proveedor pagada de más",
+    "en": "Supplier bill overpaid",
+    "pt": "Fatura de fornecedor paga a mais"
   },
   "ai.anomalies.detector.timeseries_branch_sales": {
     "es": "Ventas de la sucursal fuera de lo habitual",
@@ -84,10 +134,30 @@
     "en": "No anomalies to review",
     "pt": "Sem anomalias para rever"
   },
+  "ai.anomalies.evidence.action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "ai.anomalies.evidence.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
   "ai.anomalies.evidence.amount": {
     "es": "Importe del día",
     "en": "Amount on the day",
     "pt": "Montante do dia"
+  },
+  "ai.anomalies.evidence.bill_total": {
+    "es": "Total de la factura",
+    "en": "Bill total",
+    "pt": "Total da fatura"
+  },
+  "ai.anomalies.evidence.billed_total": {
+    "es": "Total facturado",
+    "en": "Total billed",
+    "pt": "Total faturado"
   },
   "ai.anomalies.evidence.bills": {
     "es": "Facturas analizadas",
@@ -104,6 +174,11 @@
     "en": "Amount cancelled",
     "pt": "Montante anulado"
   },
+  "ai.anomalies.evidence.compared_with": {
+    "es": "Comparado con",
+    "en": "Compared with",
+    "pt": "Comparado com"
+  },
   "ai.anomalies.evidence.cost": {
     "es": "Costo",
     "en": "Cost",
@@ -119,15 +194,35 @@
     "en": "Direction",
     "pt": "Sentido"
   },
+  "ai.anomalies.evidence.discount": {
+    "es": "Descuento",
+    "en": "Discount",
+    "pt": "Desconto"
+  },
   "ai.anomalies.evidence.discount_ratio": {
     "es": "Descuento",
     "en": "Discount",
     "pt": "Desconto"
   },
+  "ai.anomalies.evidence.dispatched": {
+    "es": "Despachado",
+    "en": "Dispatched",
+    "pt": "Expedido"
+  },
+  "ai.anomalies.evidence.excess": {
+    "es": "Exceso",
+    "en": "Excess",
+    "pt": "Excesso"
+  },
   "ai.anomalies.evidence.expected": {
     "es": "Importe habitual",
     "en": "Usual amount",
     "pt": "Montante habitual"
+  },
+  "ai.anomalies.evidence.fields": {
+    "es": "Campos modificados",
+    "en": "Fields changed",
+    "pt": "Campos alterados"
   },
   "ai.anomalies.evidence.fiscal_number": {
     "es": "Número fiscal",
@@ -139,6 +234,11 @@
     "en": "Hour",
     "pt": "Hora"
   },
+  "ai.anomalies.evidence.hours": {
+    "es": "Horas",
+    "en": "Hours",
+    "pt": "Horas"
+  },
   "ai.anomalies.evidence.invoice_number": {
     "es": "Factura",
     "en": "Invoice",
@@ -148,6 +248,11 @@
     "es": "Líneas",
     "en": "Lines",
     "pt": "Linhas"
+  },
+  "ai.anomalies.evidence.local_hour": {
+    "es": "Hora local",
+    "en": "Local hour",
+    "pt": "Hora local"
   },
   "ai.anomalies.evidence.loss": {
     "es": "Pérdida",
@@ -164,15 +269,70 @@
     "en": "Margin",
     "pt": "Margem"
   },
+  "ai.anomalies.evidence.new_cost": {
+    "es": "Costo nuevo",
+    "en": "New cost",
+    "pt": "Custo novo"
+  },
+  "ai.anomalies.evidence.new_price": {
+    "es": "Precio nuevo",
+    "en": "New price",
+    "pt": "Preço novo"
+  },
+  "ai.anomalies.evidence.off_hours": {
+    "es": "Fuera de horario",
+    "en": "Outside working hours",
+    "pt": "Fora do horário"
+  },
+  "ai.anomalies.evidence.old_cost": {
+    "es": "Costo anterior",
+    "en": "Previous cost",
+    "pt": "Custo anterior"
+  },
+  "ai.anomalies.evidence.old_price": {
+    "es": "Precio anterior",
+    "en": "Previous price",
+    "pt": "Preço anterior"
+  },
+  "ai.anomalies.evidence.order_number": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Pedido de compra"
+  },
+  "ai.anomalies.evidence.order_total": {
+    "es": "Total de la orden",
+    "en": "Order total",
+    "pt": "Total do pedido"
+  },
   "ai.anomalies.evidence.p_value": {
     "es": "Valor p",
     "en": "p-value",
     "pt": "Valor p"
   },
+  "ai.anomalies.evidence.payments": {
+    "es": "Pagos",
+    "en": "Payments",
+    "pt": "Pagamentos"
+  },
   "ai.anomalies.evidence.percentile": {
     "es": "Percentil de rareza",
     "en": "Unusualness percentile",
     "pt": "Percentil de raridade"
+  },
+  "ai.anomalies.evidence.previous_rate": {
+    "es": "Tasa anterior",
+    "en": "Previous rate",
+    "pt": "Taxa anterior"
+  },
+  "ai.anomalies.evidence.price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "ai.anomalies.evidence.product_name": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
   },
   "ai.anomalies.evidence.quantity": {
     "es": "Cantidad",
@@ -189,6 +349,26 @@
     "en": "Reason",
     "pt": "Motivo"
   },
+  "ai.anomalies.evidence.reasons": {
+    "es": "Motivos",
+    "en": "Reasons",
+    "pt": "Motivos"
+  },
+  "ai.anomalies.evidence.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "ai.anomalies.evidence.return_rate": {
+    "es": "Tasa de devolución",
+    "en": "Return rate",
+    "pt": "Taxa de devolução"
+  },
+  "ai.anomalies.evidence.returned": {
+    "es": "Devuelto",
+    "en": "Returned",
+    "pt": "Devolvido"
+  },
   "ai.anomalies.evidence.revenue": {
     "es": "Ingreso",
     "en": "Revenue",
@@ -198,6 +378,26 @@
     "es": "Desviación (z robusta)",
     "en": "Deviation (robust z)",
     "pt": "Desvio (z robusto)"
+  },
+  "ai.anomalies.evidence.settled": {
+    "es": "Saldado",
+    "en": "Settled",
+    "pt": "Liquidado"
+  },
+  "ai.anomalies.evidence.share_of_activity_at_those_hours": {
+    "es": "Actividad habitual a esas horas",
+    "en": "Usual activity at those hours",
+    "pt": "Atividade habitual nesses horários"
+  },
+  "ai.anomalies.evidence.status_before": {
+    "es": "Estado previo",
+    "en": "Previous status",
+    "pt": "Status anterior"
+  },
+  "ai.anomalies.evidence.tenant_rate": {
+    "es": "Tasa de la empresa",
+    "en": "Company rate",
+    "pt": "Taxa da empresa"
   },
   "ai.anomalies.evidence.threshold": {
     "es": "Umbral",
@@ -209,14 +409,29 @@
     "en": "Tickets",
     "pt": "Talões"
   },
+  "ai.anomalies.evidence.timezone": {
+    "es": "Zona horaria",
+    "en": "Time zone",
+    "pt": "Fuso horário"
+  },
   "ai.anomalies.evidence.total": {
     "es": "Total",
     "en": "Total",
     "pt": "Total"
   },
+  "ai.anomalies.evidence.typical_price": {
+    "es": "Precio habitual",
+    "en": "Usual price",
+    "pt": "Preço habitual"
+  },
   "ai.anomalies.evidence.typical_rate": {
     "es": "Proporción habitual",
     "en": "Typical rate",
+    "pt": "Proporção habitual"
+  },
+  "ai.anomalies.evidence.typical_ratio": {
+    "es": "Proporción habitual",
+    "en": "Usual ratio",
     "pt": "Proporção habitual"
   },
   "ai.anomalies.evidence.typical_value": {
@@ -233,6 +448,11 @@
     "es": "Valor",
     "en": "Value",
     "pt": "Valor"
+  },
+  "ai.anomalies.evidence.value_not_received": {
+    "es": "Valor facturado sin recibir",
+    "en": "Value billed but not received",
+    "pt": "Valor faturado não recebido"
   },
   "ai.anomalies.explain": {
     "es": "Explicar",
@@ -354,20 +574,85 @@
     "en": "Anomalies",
     "pt": "Anomalias"
   },
+  "ai.anomalies.value.above": {
+    "es": "Por encima",
+    "en": "Above",
+    "pt": "Acima"
+  },
+  "ai.anomalies.value.below": {
+    "es": "Por debajo",
+    "en": "Below",
+    "pt": "Abaixo"
+  },
+  "ai.anomalies.value.billed_above_order_total": {
+    "es": "Facturas por encima del total de la orden",
+    "en": "Bills above the order total",
+    "pt": "Faturas acima do total do pedido"
+  },
+  "ai.anomalies.value.billed_above_ordered": {
+    "es": "Facturado por encima de lo pedido",
+    "en": "Billed above what was ordered",
+    "pt": "Faturado acima do pedido"
+  },
+  "ai.anomalies.value.billed_not_received": {
+    "es": "Facturado sin recibir",
+    "en": "Billed but not received",
+    "pt": "Faturado sem recebimento"
+  },
+  "ai.anomalies.value.cost_drop": {
+    "es": "Bajada de costo",
+    "en": "Cost cut",
+    "pt": "Redução de custo"
+  },
+  "ai.anomalies.value.cost_rise": {
+    "es": "Subida de costo",
+    "en": "Cost rise",
+    "pt": "Aumento de custo"
+  },
+  "ai.anomalies.value.delete": {
+    "es": "Eliminación",
+    "en": "Deletion",
+    "pt": "Exclusão"
+  },
   "ai.anomalies.value.drop": {
     "es": "caída",
     "en": "drop",
     "pt": "queda"
+  },
+  "ai.anomalies.value.false": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
   },
   "ai.anomalies.value.gain": {
     "es": "sobrante",
     "en": "surplus",
     "pt": "sobra"
   },
+  "ai.anomalies.value.identical_payments": {
+    "es": "Pagos idénticos",
+    "en": "Identical payments",
+    "pt": "Pagamentos idênticos"
+  },
   "ai.anomalies.value.loss": {
     "es": "faltante",
     "en": "shortage",
     "pt": "falta"
+  },
+  "ai.anomalies.value.price_below_cost": {
+    "es": "Precio por debajo del costo",
+    "en": "Price below cost",
+    "pt": "Preço abaixo do custo"
+  },
+  "ai.anomalies.value.price_drop": {
+    "es": "Bajada de precio",
+    "en": "Price cut",
+    "pt": "Redução de preço"
+  },
+  "ai.anomalies.value.price_rise": {
+    "es": "Subida de precio",
+    "en": "Price rise",
+    "pt": "Aumento de preço"
   },
   "ai.anomalies.value.same_amount_and_date": {
     "es": "mismo importe y fecha",
@@ -379,10 +664,30 @@
     "en": "same fiscal number",
     "pt": "mesmo número fiscal"
   },
+  "ai.anomalies.value.same_reference": {
+    "es": "Misma referencia",
+    "en": "Same reference",
+    "pt": "Mesma referência"
+  },
+  "ai.anomalies.value.settled_above_total": {
+    "es": "Saldada por encima del total",
+    "en": "Settled above the total",
+    "pt": "Liquidada acima do total"
+  },
   "ai.anomalies.value.spike": {
     "es": "pico",
     "en": "spike",
     "pt": "pico"
+  },
+  "ai.anomalies.value.true": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
+  },
+  "ai.anomalies.value.update": {
+    "es": "Modificación",
+    "en": "Edit",
+    "pt": "Alteração"
   },
   "ai.anomaly_not_found": {
     "es": "No se encontró la anomalía {{id}}.",

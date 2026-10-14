@@ -76,7 +76,7 @@ export class AnomaliesQueryDto extends PageQuery {
   @IsOptional()
   severity?: (typeof SEVERITIES)[number];
 
-  @IsIn(['sales', 'purchases', 'inventory', 'cash'], { message: 'validation.constraints.is_in' })
+  @IsIn(['sales', 'purchases', 'inventory', 'cash', 'security'], { message: 'validation.constraints.is_in' })
   @IsOptional()
   category?: string;
 }

@@ -13,7 +13,9 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  *  - `ai_src_document_changes`: who changed or deleted an issued document, and when — the audit
  *    trail's metadata only, never the values. `audit_logs` carries no row-level policy (its tenant is
  *    nullable: it also records sign-in attempts), so this view filters by the tenant setting
- *    explicitly and is a security barrier: the engine reads the view, never the table.
+ *    explicitly and is a security barrier: the engine reads the view, never the table. It exposes
+ *    the status the document had and the NAMES of the fields that changed — enough to tell "an
+ *    issued invoice's total was edited" from "a payment updated its balance" — and no values.
  *  - `ai_model_runs.notified_at`: which finished runs have already been turned into notifications,
  *    so each one is announced exactly once, whichever API replica notices it.
  */
@@ -87,14 +89,30 @@ export class AiPhaseOneCompletion1789040000000 implements MigrationInterface {
     await q.query(`
       CREATE OR REPLACE VIEW "ai_src_document_changes" WITH (security_barrier = true) AS
       SELECT a."organization_id", a."entity", a."entity_id", a."actionType"::text AS "action",
-             a."user_id", a."created_at"
+             a."user_id", a."created_at",
+             -- The document's status before the change (for a deletion: what was deleted).
+             COALESCE(a."previous_value"->>'status',
+                      CASE WHEN a."actionType"::text = 'DELETE' THEN a."new_value"->>'status' END) AS "status_before",
+             -- The names of the fields that changed, never their values. Numbers compare as numbers:
+             -- 2360 and "2360.00" are the same amount written two ways.
+             ARRAY(
+               SELECT k FROM jsonb_object_keys(COALESCE(a."new_value", '{}'::jsonb)) AS k
+                WHERE a."previous_value" ? k
+                  AND (a."previous_value"->>k) IS DISTINCT FROM (a."new_value"->>k)
+                  AND CASE
+                        WHEN COALESCE(a."previous_value"->>k, '') ~ '^-?[0-9]+(\\.[0-9]+)?$'
+                         AND COALESCE(a."new_value"->>k, '') ~ '^-?[0-9]+(\\.[0-9]+)?$'
+                        THEN (a."previous_value"->>k)::numeric <> (a."new_value"->>k)::numeric
+                        ELSE true
+                      END
+             ) AS "changed_fields"
         FROM "audit_logs" a
        WHERE a."organization_id" = ${TENANT}
          AND a."actionType"::text IN ('CREATE', 'UPDATE', 'DELETE')
     `);
 
     await q.query(`
-      GRANT SELECT ON "product_price_history", "customer_payments", "vendor_payment",
+      GRANT SELECT ON "product_price_history", "customer_payments", "vendor_payment", "payment_batches",
                       "ai_src_daily_prices", "ai_src_document_changes"
       TO virtex_ai_engine
     `);

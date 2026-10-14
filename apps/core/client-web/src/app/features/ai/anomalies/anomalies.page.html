@@ -86,8 +86,12 @@
               <dt>{{ k('ai.anomalies.evidence', field.key) | translate }}</dt>
               <dd>
                 @if (isNumber(field.value)) { {{ field.value | vxNumber: '1.0-4' }} }
-                @else if (field.key === 'direction' || field.key === 'reason') { {{ k('ai.anomalies.value', '' + field.value) | translate }} }
-                @else { {{ field.value }} }
+                @else if (isTranslated(field.key)) {
+                  @for (v of asList(field.value); track $index) {
+                    {{ k('ai.anomalies.value', v) | translate }}{{ $last ? '' : ', ' }}
+                  }
+                }
+                @else { {{ asList(field.value).join(', ') }} }
               </dd>
             </div>
           }

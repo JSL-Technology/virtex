@@ -30,7 +30,19 @@ const EVIDENCE_FIELDS: Record<string, string[]> = {
   'timeseries.branch_sales': ['amount', 'expected', 'direction', 'robustZ'],
   'outlier.invoice': ['invoiceNumber', 'total', 'discountRatio', 'hour', 'lines', 'percentile'],
   'forensic.benford': ['bills', 'mad', 'threshold', 'pValue'],
+  'rule.duplicate_customer_payment': ['reference', 'amount', 'count', 'reason'],
+  'rule.vendor_overpayment': ['reason', 'billTotal', 'settled', 'excess', 'payments'],
+  'rule.three_way_match': ['orderNumber', 'reason', 'valueNotReceived', 'orderTotal', 'billedTotal', 'excess'],
+  'rule.returns_spike': ['dispatched', 'returned', 'returnRate', 'previousRate', 'tenantRate'],
+  'rule.price_change': ['productName', 'reasons', 'oldPrice', 'newPrice', 'oldCost', 'newCost', 'localHour', 'offHours'],
+  'rule.invoiced_price': ['invoiceNumber', 'price', 'typicalPrice', 'direction', 'comparedWith'],
+  'rule.discount': ['invoiceNumber', 'discount', 'discountRatio', 'typicalRatio'],
+  'rule.post_issue_change': ['action', 'statusBefore', 'fields'],
+  'rule.off_hours': ['actions', 'hours', 'shareOfActivityAtThoseHours', 'timezone'],
 };
+
+/** Evidence whose values are codes, shown through `ai.anomalies.value.*` rather than as written. */
+const TRANSLATED_VALUES = new Set(['direction', 'reason', 'reasons', 'action', 'offHours']);
 
 /**
  * The anomaly inbox: what the engine found unusual in sales, purchases, stock and cash.
@@ -59,7 +71,7 @@ export class AnomaliesPage implements OnInit {
   protected readonly ReopenIcon = RotateCcw;
   protected readonly SEVERITIES: AnomalySeverity[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
   protected readonly STATUSES: AnomalyStatus[] = ['OPEN', 'CONFIRMED', 'DISMISSED'];
-  protected readonly CATEGORIES = ['sales', 'purchases', 'inventory', 'cash'];
+  protected readonly CATEGORIES = ['sales', 'purchases', 'inventory', 'cash', 'security'];
   /** A catalogue key whose leaf comes from data: `('x', 'STOCKOUT_RISK')` → `x.stockout_risk`. */
   protected readonly k = composeKey;
   protected readonly toneOf = (severity: AnomalySeverity) => SEVERITY_TONE[severity];
@@ -144,6 +156,15 @@ export class AnomaliesPage implements OnInit {
 
   isNumber(value: unknown): value is number {
     return typeof value === 'number';
+  }
+
+  isTranslated(key: string): boolean {
+    return TRANSLATED_VALUES.has(key);
+  }
+
+  /** A scalar or a list, as the list of values to show. */
+  asList(value: unknown): string[] {
+    return (Array.isArray(value) ? value : [value]).map((v) => String(v));
   }
 
   runNow(): void {
