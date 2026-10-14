@@ -10,6 +10,7 @@ import { AiAnomalyFeedback } from './entities/ai-anomaly-feedback.entity';
 import { AiGatewayService } from './gateway/ai-gateway.service';
 import { EmbeddingsService } from './embeddings/embeddings.service';
 import { ProductVisionService } from './product-vision/product-vision.service';
+import { BarcodeLookupService } from './product-vision/barcode-lookup.service';
 import { EngineRunsService, AI_ENGINE_QUEUE } from './engine/engine-runs.service';
 import { AiSchedulerService } from './engine/ai-scheduler.service';
 import { AiRunNotifierService } from './engine/ai-run-notifier.service';
@@ -37,6 +38,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     AiGatewayService,
     EmbeddingsService,
     ProductVisionService,
+    BarcodeLookupService,
     EngineRunsService,
     AiSchedulerService,
     AiRunNotifierService,

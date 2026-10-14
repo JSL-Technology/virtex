@@ -27,6 +27,7 @@ import { FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-fil
 import { BadRequestError } from '../i18n/localized.exception';
 import { CheckFeature, EntitlementsPort } from '../saas/contracts/entitlements.contract';
 import { ProductVisionService } from './product-vision/product-vision.service';
+import { BarcodeLookupService } from './product-vision/barcode-lookup.service';
 import { ForecastingService } from './forecasting/forecasting.service';
 import { AnomaliesService } from './anomalies/anomalies.service';
 import { EngineRunsService } from './engine/engine-runs.service';
@@ -59,6 +60,7 @@ export class AiController {
 
   constructor(
     private readonly vision: ProductVisionService,
+    private readonly barcodes: BarcodeLookupService,
     private readonly forecasting: ForecastingService,
     private readonly anomalies: AnomaliesService,
     private readonly runs: EngineRunsService,
@@ -155,6 +157,21 @@ export class AiController {
           .catch((error) => this.logger.warn(`Failed to remove temporary upload ${spooled}: ${error.message}`));
       }
     }
+  }
+
+  /**
+   * What is known about a scanned barcode: the tenant's products that already carry it and, when
+   * the deployment enabled it, a public reference. No model is involved and no credit is spent, so
+   * it is not behind the AI plan feature — scanning is part of entering a product.
+   */
+  @Get('products/barcode/:code')
+  @HasPermission(PERMISSIONS.PRODUCTS_CREATE)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Look a barcode up in the catalogue and, if enabled, in Open Food Facts.' })
+  barcode(@CurrentUser() user: AuthenticatedUser, @Param('code') code: string) {
+    if (!/^[0-9A-Za-z-]{1,64}$/.test(code ?? '')) throw new BadRequestError('ai.barcode_invalid');
+    return this.barcodes.lookup(user.organizationId, code);
   }
 
   // ── Forecasting ────────────────────────────────────────────────────────────────

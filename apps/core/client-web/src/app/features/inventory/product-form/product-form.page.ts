@@ -7,9 +7,10 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, Image, Sparkles, X } from 'lucide-angular';
+import { LucideAngularModule, Image, ScanBarcode, Sparkles, X } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
-import { AiService, ProductMatch, ProductSuggestion } from '../../ai/data/ai.service';
+import { AiService, ExternalProductReference, ProductMatch, ProductSuggestion } from '../../ai/data/ai.service';
+import { BarcodeScannerComponent } from '../../ai/barcode-scanner/barcode-scanner.component';
 import { AuthService } from '../../../core/services/auth';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -18,7 +19,7 @@ import {
   ProductCategory,
 } from '../../../core/api/product-categories.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -26,7 +27,7 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-o
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
+  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,11 +53,13 @@ export class ProductFormPage implements OnInit {
 
   protected readonly ImageIcon = Image;
   protected readonly SparklesIcon = Sparkles;
+  protected readonly ScanIcon = ScanBarcode;
   protected readonly RemoveIcon = X;
   /** A catalogue key whose leaf comes from data: `('x', 'STOCKOUT_RISK')` → `x.stockout_risk`. */
   protected readonly k = composeKey;
 
   private readonly ai = inject(AiService);
+  private readonly translate = inject(TranslateService);
   private readonly auth = inject(AuthService);
 
   /**
@@ -74,7 +77,27 @@ export class ProductFormPage implements OnInit {
   /** Photos stored for this draft, claimed by the product when it is created. */
   private readonly imageIds = signal<string[]>([]);
   readonly suggestion = signal<ProductSuggestion | null>(null);
-  readonly duplicates = computed<ProductMatch[]>(() => this.suggestion()?.possibleDuplicates ?? []);
+  /** Products that already carry a barcode just scanned. */
+  readonly scanMatches = signal<ProductMatch[]>([]);
+  readonly duplicates = computed<ProductMatch[]>(() => {
+    const all = [...this.scanMatches(), ...(this.suggestion()?.possibleDuplicates ?? [])];
+    return all.filter((match, index) => all.findIndex((other) => other.id === match.id) === index);
+  });
+  /** The camera scanner is open. */
+  readonly scanning = signal(false);
+  /** What a public product database said about the barcode, shown for the person to check. */
+  readonly reference = signal<ExternalProductReference | null>(null);
+  /**
+   * The AI and the public references fill everything except money: price and cost are the
+   * company's own, and until someone sets them the product would sell at zero.
+   */
+  readonly pricingPending = computed(
+    () =>
+      !this.isEditMode() &&
+      (!!this.suggestion()?.isProductPhoto || !!this.reference()) &&
+      !(this.priceValue() > 0) &&
+      !(this.costValue() > 0),
+  );
   /**
    * The fields the AI filled and nobody has touched since, with the model's confidence. A field
    * leaves this map the moment its value changes, so a badge never claims a value the person wrote.
@@ -159,6 +182,7 @@ export class ProductFormPage implements OnInit {
     });
 
     this.productForm.get('cost')?.valueChanges.subscribe((cost) => this.costValue.set(Number(cost) || 0));
+    this.productForm.get('price')?.valueChanges.subscribe((price) => this.priceValue.set(Number(price) || 0));
 
     // A suggestion stops being one as soon as the person changes the field.
     for (const field of SUGGESTIBLE_FIELDS) {
@@ -348,6 +372,9 @@ export class ProductFormPage implements OnInit {
     if (!this.attributes().length) {
       this.attributes.set(Object.entries(s.attributes).map(([key, value]) => ({ key, value })));
     }
+    // The maker, when the label names one, is kept as an attribute: the catalogue has no column
+    // for it, and it is what a buyer searches by when the brand is a distributor's.
+    if (s.manufacturer.value) this.addAttribute(this.translate.instant('ai.product.manufacturer_attribute'), s.manufacturer.value);
     this.suggested.set(filled);
     if (Object.keys(filled).length) this.productForm.markAsDirty();
   }
@@ -367,6 +394,7 @@ export class ProductFormPage implements OnInit {
     return markup && cost > 0 ? Math.round(cost * markup * 100) / 100 : null;
   });
   private readonly costValue = signal<number>(0);
+  private readonly priceValue = signal<number>(0);
 
   applySuggestedPrice(): void {
     const price = this.suggestedPrice();
@@ -387,6 +415,40 @@ export class ProductFormPage implements OnInit {
   removeAttribute(key: string): void {
     this.attributes.update((list) => list.filter((a) => a.key !== key));
     this.productForm.markAsDirty();
+  }
+
+  /** A barcode read by the camera (or typed in the scanner): what is it? */
+  onScanned(code: string): void {
+    this.scanning.set(false);
+    const control = this.productForm.get('barcode');
+    if (control && !control.disabled) {
+      control.setValue(code);
+      control.markAsDirty();
+    }
+    this.ai.lookupBarcode(code).subscribe({
+      next: (lookup) => {
+        this.scanMatches.set(lookup.existing);
+        if (lookup.check === 'invalid') this.notificationService.showWarning('ai.scan.check_failed');
+        this.reference.set(lookup.reference);
+        if (lookup.reference) this.applyReference(lookup.reference);
+      },
+      // The code is in the field either way; what is known about it is a bonus.
+      error: () => this.scanMatches.set([]),
+    });
+  }
+
+  /** Fill only what the person has not typed, from a public reference they are shown and can check. */
+  private applyReference(reference: ExternalProductReference): void {
+    for (const [field, value] of [['name', reference.name], ['brand', reference.brand]] as const) {
+      const control = this.productForm.get(field);
+      if (value && control && !control.dirty && !control.value) {
+        control.setValue(value);
+        control.markAsDirty();
+      }
+    }
+    if (reference.quantity && !this.attributes().some((a) => a.value === reference.quantity)) {
+      this.addAttribute(this.translate.instant('ai.product.quantity_attribute'), reference.quantity);
+    }
   }
 
   cancel(): void {

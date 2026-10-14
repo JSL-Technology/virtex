@@ -22,6 +22,7 @@ const answer = (overrides: Record<string, unknown> = {}) => ({
   name: 'Café molido Santo Domingo 453 g',
   description: 'Café tostado y molido.',
   brand: 'Santo Domingo',
+  manufacturer: 'Industrias Banilejas',
   category_id: CATEGORY_A,
   unit_of_measure: 'UND',
   barcode: '7501055363063',
@@ -32,6 +33,7 @@ const answer = (overrides: Record<string, unknown> = {}) => ({
     name: 0.95,
     description: 0.8,
     brand: 0.97,
+    manufacturer: 0.8,
     category: 0.9,
     unit_of_measure: 0.7,
     barcode: 0.92,
@@ -125,8 +127,10 @@ describe('ProductVisionService.suggestFromImage', () => {
       })),
     };
     const embeddings = { embedImage: jest.fn().mockResolvedValue(null), nearestProducts: jest.fn() };
-    const service = new ProductVisionService(gateway as never, catalog as never, embeddings as never);
-    return { service, catalog, gateway, embeddings };
+    const reference = { source: 'open_food_facts', name: 'Café molido', brand: 'Santo Domingo', quantity: '453 g', imageUrl: null, url: 'u' };
+    const barcodes = { external: jest.fn().mockResolvedValue(reference) };
+    const service = new ProductVisionService(gateway as never, catalog as never, embeddings as never, barcodes as never);
+    return { service, catalog, gateway, embeddings, barcodes };
   };
 
   const upload = { fileName: 'cafe.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('raw') };
@@ -140,7 +144,21 @@ describe('ProductVisionService.suggestFromImage', () => {
     // The tenant's standard rate, because the suggestion is TAXED.
     expect(suggestion.taxRate).toBe(0.18);
     expect(suggestion.pricing).toEqual({ typicalMarkup: 1.4, sampleSize: 12 });
+    expect(suggestion.manufacturer).toEqual({ value: 'Industrias Banilejas', confidence: 0.8 });
     expect(catalog.storeImage).toHaveBeenCalledWith('org-1', 'user-1', upload);
+  });
+
+  it('asks the public reference only for a valid barcode that is not already in the catalogue', async () => {
+    const fresh = build();
+    expect((await fresh.service.suggestFromImage('org-1', 'user-1', upload)).reference?.source).toBe('open_food_facts');
+    expect(fresh.barcodes.external).toHaveBeenCalledWith('7501055363063');
+
+    const known = build({ duplicates: [{ id: 'p-1', name: 'Café', reason: 'barcode', similarity: 1 }] });
+    expect((await known.service.suggestFromImage('org-1', 'user-1', upload)).reference).toBeNull();
+    const misread = build({ answer: { barcode: '7501055363064' } });
+    await misread.service.suggestFromImage('org-1', 'user-1', upload);
+    expect(known.barcodes.external).not.toHaveBeenCalled();
+    expect(misread.barcodes.external).not.toHaveBeenCalled();
   });
 
   it('withdraws confidence from a barcode that fails its own check digit', async () => {

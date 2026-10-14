@@ -41,7 +41,20 @@
             </div>
             <div class="form-field">
               <label for="barcode">{{ 'ai.product.barcode' | translate }} @if (confidenceOf('barcode'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
-              <input id="barcode" formControlName="barcode" maxlength="64" inputmode="numeric" autocomplete="off" />
+              <div class="barcode-input">
+                <input id="barcode" formControlName="barcode" maxlength="64" inputmode="numeric" autocomplete="off" />
+                <button type="button" class="btn-secondary barcode-input__scan" (click)="scanning.set(true)"
+                        [attr.aria-label]="'ai.scan.open' | translate" [title]="'ai.scan.open' | translate">
+                  <lucide-icon [img]="ScanIcon" size="16" aria-hidden="true"></lucide-icon>
+                  <span>{{ 'ai.scan.button' | translate }}</span>
+                </button>
+              </div>
+              @if (reference(); as ref) {
+                <small class="field-hint">
+                  {{ 'ai.scan.reference_hint' | translate: { name: ref.name ?? ref.brand } }}
+                  <a [href]="ref.url" target="_blank" rel="noopener noreferrer">{{ 'ai.scan.reference_source' | translate }}</a>
+                </small>
+              }
               @if (suggestion()?.barcode?.check === 'invalid') {
                 <small class="field-hint field-hint--warning">{{ 'ai.photo.barcode_check_failed' | translate: { code: suggestion()?.barcode?.value } }}</small>
               }
@@ -145,6 +158,9 @@
         <section class="form-section">
           <h2 class="form-section-title">{{ 'inventory.product_form.pricing_stock' | translate }}</h2>
 
+          @if (pricingPending()) {
+            <p class="field-hint field-hint--warning ai-pricing-pending" role="status">{{ 'ai.photo.pricing_pending' | translate }}</p>
+          }
           <div class="form-row">
             <div class="form-field">
               <label for="price">{{ 'inventory.product_form.sale_price' | translate }}</label>
@@ -288,3 +304,7 @@
     </div>
   </div>
 </vx-draft-shell>
+
+@if (scanning()) {
+  <app-barcode-scanner (scanned)="onScanned($event)" (dismissed)="scanning.set(false)" />
+}

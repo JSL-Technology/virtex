@@ -35,6 +35,7 @@ export interface ProductSuggestion {
   name: Suggested<string>;
   description: Suggested<string>;
   brand: Suggested<string | null>;
+  manufacturer: Suggested<string | null>;
   categoryId: Suggested<string | null>;
   unitOfMeasure: Suggested<string>;
   barcode: Suggested<string | null> & { check: 'valid' | 'invalid' | 'unchecked' };
@@ -45,8 +46,26 @@ export interface ProductSuggestion {
   notes: string;
   possibleDuplicates: ProductMatch[];
   pricing: { typicalMarkup: number | null; sampleSize: number };
+  reference: ExternalProductReference | null;
   model: string;
   requestId: string;
+}
+
+/** What a public product database says about a barcode. A reference to check, never saved as-is. */
+export interface ExternalProductReference {
+  source: 'open_food_facts';
+  name: string | null;
+  brand: string | null;
+  quantity: string | null;
+  imageUrl: string | null;
+  url: string;
+}
+
+export interface BarcodeLookup {
+  code: string;
+  check: 'valid' | 'invalid' | 'unchecked';
+  existing: ProductMatch[];
+  reference: ExternalProductReference | null;
 }
 
 export type InventoryStatus = 'STOCKOUT_RISK' | 'REORDER' | 'OVERSTOCK' | 'DEAD_STOCK' | 'OK';
@@ -147,6 +166,11 @@ export class AiService {
     const body = new FormData();
     body.append('file', file);
     return this.http.post<ProductSuggestion>(`${this.url}/products/from-image`, body);
+  }
+
+  /** The tenant's products carrying this barcode and, if enabled, a public reference. No credit spent. */
+  lookupBarcode(code: string): Observable<BarcodeLookup> {
+    return this.http.get<BarcodeLookup>(`${this.url}/products/barcode/${encodeURIComponent(code)}`);
   }
 
   forecastSummary(): Observable<ForecastSummary> {

@@ -15,6 +15,7 @@ const suggestion = (overrides: Partial<ProductSuggestion> = {}): ProductSuggesti
   name: { value: 'Café molido 453 g', confidence: 0.95 },
   description: { value: 'Café tostado y molido.', confidence: 0.8 },
   brand: { value: 'Santo Domingo', confidence: 0.97 },
+  manufacturer: { value: null, confidence: 0 },
   categoryId: { value: 'cat-1', confidence: 0.9 },
   unitOfMeasure: { value: 'KG', confidence: 0.7 },
   barcode: { value: '7501055363063', confidence: 0.92, check: 'valid' },
@@ -25,6 +26,7 @@ const suggestion = (overrides: Partial<ProductSuggestion> = {}): ProductSuggesti
   notes: '',
   possibleDuplicates: [],
   pricing: { typicalMarkup: 1.5, sampleSize: 8 },
+  reference: null,
   model: 'claude-opus-5-5',
   requestId: 'req-1',
   ...overrides,
@@ -37,7 +39,7 @@ const choose = (component: ProductFormPage, file: File) =>
 describe('ProductFormPage — product from photo', () => {
   let fixture: ComponentFixture<ProductFormPage>;
   let component: ProductFormPage;
-  let ai: { status: jest.Mock; suggestProductFromImage: jest.Mock };
+  let ai: { status: jest.Mock; suggestProductFromImage: jest.Mock; lookupBarcode: jest.Mock };
   let inventory: Record<string, jest.Mock>;
   let notifications: Record<string, jest.Mock>;
 
@@ -52,6 +54,7 @@ describe('ProductFormPage — product from photo', () => {
         }),
       ),
       suggestProductFromImage: jest.fn().mockReturnValue(of(suggestion())),
+      lookupBarcode: jest.fn().mockReturnValue(of({ code: '7501055363063', check: 'valid', existing: [], reference: null })),
     };
     inventory = {
       getProductById: jest.fn(),
@@ -186,5 +189,59 @@ describe('ProductFormPage — product from photo', () => {
     choose(component, photo());
     expect(notifications['showWarning']).toHaveBeenCalledWith('ai.photo.not_a_product');
     expect(component.productForm.get('name')?.value).toBe('');
+  });
+
+  it('keeps the manufacturer the label names as an attribute', async () => {
+    await setup();
+    ai.suggestProductFromImage.mockReturnValue(of(suggestion({ manufacturer: { value: 'Induban', confidence: 0.8 } })));
+    choose(component, photo());
+    expect(component.attributes()).toContainEqual({ key: 'ai.product.manufacturer_attribute', value: 'Induban' });
+  });
+
+  it('says price and cost are still to be set after the AI filled the rest', async () => {
+    await setup();
+    expect(component.pricingPending()).toBe(false);
+    choose(component, photo());
+    expect(component.pricingPending()).toBe(true);
+    component.productForm.get('price')!.setValue(12);
+    expect(component.pricingPending()).toBe(false);
+  });
+
+  it('a scanned barcode fills the field and shows the product that already carries it', async () => {
+    await setup();
+    const existing = { id: 'p-9', name: 'Café molido', sku: 'CAF-1', barcode: '7501055363063', brand: null, imageUrl: null, reason: 'barcode', similarity: 1 };
+    ai.lookupBarcode.mockReturnValue(of({ code: '7501055363063', check: 'valid', existing: [existing], reference: null }));
+    component.scanning.set(true);
+    component.onScanned('7501055363063');
+    expect(component.scanning()).toBe(false);
+    expect(component.productForm.get('barcode')?.value).toBe('7501055363063');
+    expect(component.duplicates()).toEqual([existing]);
+  });
+
+  it('a public reference fills only the empty fields, for the person to check', async () => {
+    await setup();
+    component.productForm.get('brand')!.setValue('Mi marca');
+    component.productForm.get('brand')!.markAsDirty();
+    ai.lookupBarcode.mockReturnValue(
+      of({
+        code: '7501055363063',
+        check: 'valid',
+        existing: [],
+        reference: { source: 'open_food_facts', name: 'Café molido', brand: 'Santo Domingo', quantity: '453 g', imageUrl: null, url: 'https://x' },
+      }),
+    );
+    component.onScanned('7501055363063');
+    expect(component.productForm.get('name')?.value).toBe('Café molido');
+    expect(component.productForm.get('brand')?.value).toBe('Mi marca');
+    expect(component.attributes()).toContainEqual({ key: 'ai.product.quantity_attribute', value: '453 g' });
+    expect(component.reference()?.source).toBe('open_food_facts');
+  });
+
+  it('a scan whose lookup fails still leaves the code in the field', async () => {
+    await setup();
+    ai.lookupBarcode.mockReturnValue(throwError(() => ({ status: 403 })));
+    component.onScanned('123456');
+    expect(component.productForm.get('barcode')?.value).toBe('123456');
+    expect(component.duplicates()).toEqual([]);
   });
 });

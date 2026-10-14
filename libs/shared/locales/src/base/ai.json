@@ -704,6 +704,11 @@
     "en": "The assistant's answer could not be validated. Try again or fill in the details manually.",
     "pt": "A resposta do assistente não pôde ser validada. Tente novamente ou preencha os dados manualmente."
   },
+  "ai.barcode_invalid": {
+    "es": "El código de barras no es válido.",
+    "en": "The barcode is not valid.",
+    "pt": "O código de barras não é válido."
+  },
   "ai.not_configured": {
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
     "en": "Artificial intelligence is not configured on this server. You can continue manually.",
@@ -773,6 +778,11 @@
     "es": "Margen típico de la categoría: ×{{markup}} ({{count}} productos).",
     "en": "Typical category markup: ×{{markup}} ({{count}} products).",
     "pt": "Margem típica da categoria: ×{{markup}} ({{count}} produtos)."
+  },
+  "ai.photo.pricing_pending": {
+    "es": "Precio y costo pendientes: la IA no los propone. Defínelos antes de guardar o el producto se venderá a cero.",
+    "en": "Price and cost pending: the AI does not propose them. Set them before saving or the product will sell at zero.",
+    "pt": "Preço e custo pendentes: a IA não os propõe. Defina-os antes de salvar ou o produto será vendido a zero."
   },
   "ai.photo.stored": {
     "es": "Foto guardada. Se asociará al producto al guardarlo.",
@@ -1119,6 +1129,16 @@
     "en": "Brand",
     "pt": "Marca"
   },
+  "ai.product.manufacturer_attribute": {
+    "es": "Fabricante",
+    "en": "Manufacturer",
+    "pt": "Fabricante"
+  },
+  "ai.product.quantity_attribute": {
+    "es": "Contenido",
+    "en": "Contents",
+    "pt": "Conteúdo"
+  },
   "ai.product.remove_attribute": {
     "es": "Quitar {{name}}",
     "en": "Remove {{name}}",
@@ -1133,6 +1153,71 @@
     "es": "El asistente no pudo procesar esta solicitud. Revisa el contenido o completa los datos manualmente.",
     "en": "The assistant could not process this request. Check the content or fill in the details manually.",
     "pt": "O assistente não conseguiu processar este pedido. Verifique o conteúdo ou preencha os dados manualmente."
+  },
+  "ai.scan.button": {
+    "es": "Escanear",
+    "en": "Scan",
+    "pt": "Escanear"
+  },
+  "ai.scan.camera_label": {
+    "es": "Vista de la cámara",
+    "en": "Camera view",
+    "pt": "Visão da câmera"
+  },
+  "ai.scan.check_failed": {
+    "es": "El dígito de control del código leído no cuadra: vuelve a escanearlo.",
+    "en": "The scanned code's check digit does not match: scan it again.",
+    "pt": "O dígito verificador do código lido não confere: escaneie novamente."
+  },
+  "ai.scan.denied": {
+    "es": "No hay permiso para usar la cámara. Puedes escribir el código.",
+    "en": "Camera permission was denied. You can type the code.",
+    "pt": "Sem permissão para usar a câmera. Você pode digitar o código."
+  },
+  "ai.scan.instructions": {
+    "es": "Apunta al código de barras y mantenlo dentro del recuadro.",
+    "en": "Point at the barcode and keep it in the frame.",
+    "pt": "Aponte para o código de barras e mantenha-o no quadro."
+  },
+  "ai.scan.manual": {
+    "es": "O escribe el código",
+    "en": "Or type the code",
+    "pt": "Ou digite o código"
+  },
+  "ai.scan.open": {
+    "es": "Escanear el código de barras con la cámara",
+    "en": "Scan the barcode with the camera",
+    "pt": "Escanear o código de barras com a câmera"
+  },
+  "ai.scan.reference_hint": {
+    "es": "Datos públicos para este código: {{name}}. Revísalos.",
+    "en": "Public data for this code: {{name}}. Check them.",
+    "pt": "Dados públicos para este código: {{name}}. Revise-os."
+  },
+  "ai.scan.reference_source": {
+    "es": "Open Food Facts",
+    "en": "Open Food Facts",
+    "pt": "Open Food Facts"
+  },
+  "ai.scan.starting": {
+    "es": "Activando la cámara…",
+    "en": "Starting the camera…",
+    "pt": "Ativando a câmera…"
+  },
+  "ai.scan.title": {
+    "es": "Escanear código de barras",
+    "en": "Scan barcode",
+    "pt": "Escanear código de barras"
+  },
+  "ai.scan.unavailable": {
+    "es": "La cámara no está disponible en este dispositivo. Puedes escribir el código.",
+    "en": "The camera is not available on this device. You can type the code.",
+    "pt": "A câmera não está disponível neste dispositivo. Você pode digitar o código."
+  },
+  "ai.scan.use_code": {
+    "es": "Usar código",
+    "en": "Use code",
+    "pt": "Usar código"
   },
   "ai.temporarily_unavailable": {
     "es": "El servicio de inteligencia artificial no está disponible en este momento. Inténtalo más tarde o continúa manualmente.",

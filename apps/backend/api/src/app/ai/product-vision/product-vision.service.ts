@@ -9,11 +9,12 @@ import {
   ProductMatch,
 } from '../../inventory/contracts/product-catalog.contract';
 import { checkGtin, GtinCheck } from './gtin';
+import { BarcodeLookupService, ExternalProductReference } from './barcode-lookup.service';
 import { BadRequestError } from '../../i18n/localized.exception';
 
 const TAX_TREATMENTS = ['TAXED', 'ZERO_RATED', 'EXEMPT'] as const;
 const KINDS = ['GOOD', 'SERVICE'] as const;
-const FIELDS = ['name', 'description', 'brand', 'category', 'unit_of_measure', 'barcode', 'kind', 'tax_treatment'] as const;
+const FIELDS = ['name', 'description', 'brand', 'manufacturer', 'category', 'unit_of_measure', 'barcode', 'kind', 'tax_treatment'] as const;
 
 type Field = (typeof FIELDS)[number];
 
@@ -23,6 +24,7 @@ interface VisionAnswer {
   name: string;
   description: string;
   brand: string | null;
+  manufacturer: string | null;
   category_id: string | null;
   unit_of_measure: string;
   barcode: string | null;
@@ -46,6 +48,8 @@ export interface ProductSuggestion {
   name: Suggested<string>;
   description: Suggested<string>;
   brand: Suggested<string | null>;
+  /** Who makes it, when the label says so and it differs from the brand ("Fabricado por …"). */
+  manufacturer: Suggested<string | null>;
   categoryId: Suggested<string | null>;
   unitOfMeasure: Suggested<string>;
   barcode: Suggested<string | null> & { check: GtinCheck };
@@ -59,6 +63,8 @@ export interface ProductSuggestion {
   possibleDuplicates: ProductMatch[];
   /** From the tenant's own prices and costs — the model is never asked for a price. */
   pricing: { typicalMarkup: number | null; sampleSize: number };
+  /** What a public product database says about this barcode, when the tenant enabled the lookup. */
+  reference: ExternalProductReference | null;
   model: string;
   requestId: string;
 }
@@ -78,6 +84,7 @@ Rules:
 - Choose category_id only from the listed categories, by id; null if none fits. Choose unit_of_measure only from the listed symbols. Prefer a brand spelling already in the company's list when it is the same brand.
 - kind is SERVICE only when the photo shows a service rather than a physical item.
 - tax_treatment: TAXED unless the item is plainly of a kind commonly exempt (unprocessed staple food, medicines); this is a suggestion a person will confirm.
+- manufacturer: the company that makes the product when the label names it ("Elaborado por", "Fabricado por", "Distribuido por") and it is not just the brand; null otherwise.
 - attributes: up to eight short key/value pairs that are visible (size, weight, volume, colour, flavour, material, pack quantity).
 - confidence: for each field, 0 to 1 — how sure you are the value is right for this photo.
 - If the photo is not of a product (a person, a document, a landscape), set is_product_photo to false and leave the fields empty.
@@ -100,6 +107,7 @@ export class ProductVisionService {
     private readonly gateway: AiGatewayService,
     private readonly catalog: ProductCatalogPort,
     private readonly embeddings: EmbeddingsService,
+    private readonly barcodes: BarcodeLookupService,
   ) {}
 
   async suggestFromImage(
@@ -136,6 +144,11 @@ export class ProductVisionService {
     const vector = await embedding;
     const duplicates = await this.findDuplicates(organizationId, value, vector);
     const pricing = await this.catalog.pricingHint(organizationId, value.category_id);
+    // A public reference only for a barcode that passed its check digit and is not already ours.
+    const reference =
+      barcodeCheck === 'valid' && !duplicates.some((match) => match.reason === 'barcode')
+        ? await this.barcodes.external(value.barcode!)
+        : null;
 
     return {
       imageId: image.id,
@@ -143,6 +156,7 @@ export class ProductVisionService {
       name: { value: value.name, confidence: value.confidence.name },
       description: { value: value.description, confidence: value.confidence.description },
       brand: { value: value.brand, confidence: value.confidence.brand },
+      manufacturer: { value: value.manufacturer, confidence: value.confidence.manufacturer },
       categoryId: { value: value.category_id, confidence: value.confidence.category },
       unitOfMeasure: { value: value.unit_of_measure, confidence: value.confidence.unit_of_measure },
       barcode: {
@@ -159,6 +173,7 @@ export class ProductVisionService {
       notes: value.notes,
       possibleDuplicates: duplicates,
       pricing,
+      reference,
       model,
       requestId,
     };
@@ -233,6 +248,7 @@ export function buildSchema(context: CatalogContext): Record<string, unknown> {
       'name',
       'description',
       'brand',
+      'manufacturer',
       'category_id',
       'unit_of_measure',
       'barcode',
@@ -247,6 +263,7 @@ export function buildSchema(context: CatalogContext): Record<string, unknown> {
       name: { type: 'string', description: 'Catalogue name, in Spanish, at most 255 characters.' },
       description: { type: 'string' },
       brand: nullable({ type: 'string' }),
+      manufacturer: nullable({ type: 'string' }),
       category_id: categoryId,
       unit_of_measure: { type: 'string', enum: unitSymbols },
       barcode: nullable({ type: 'string', description: 'Digits exactly as printed under the bars.' }),
@@ -315,6 +332,7 @@ export function validateAnswer(raw: unknown, context: CatalogContext): VisionAns
     name: text(answer['name'], 255),
     description: text(answer['description'], 2_000),
     brand,
+    manufacturer: text(answer['manufacturer'], 120) || null,
     category_id: categoryId,
     unit_of_measure: units.has(unit) ? unit : units.has('UND') ? 'UND' : [...units][0] ?? 'UND',
     barcode,
