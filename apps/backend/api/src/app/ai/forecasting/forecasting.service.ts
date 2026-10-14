@@ -132,6 +132,40 @@ export class ForecastingService {
     );
   }
 
+  /**
+   * How long each supplier really takes, measured from the year's goods receipts: order date to
+   * receipt, median and 90th percentile (the figure to plan safety stock against), and how often
+   * the goods arrived by the date the order promised. The same receipts the engine reads to size
+   * reorder points, so a buyer can see why a reorder point is what it is.
+   */
+  async supplierLeadTimes(organizationId: string) {
+    const rows: Array<Record<string, unknown>> = await this.dataSource.query(
+      `WITH receipts AS (
+         SELECT r."id", o."supplier_id", r."received_at",
+                GREATEST(r."received_at"::date - o."order_date", 0) AS "days",
+                o."expected_date" IS NOT NULL AS "promised",
+                (o."expected_date" IS NOT NULL AND r."received_at"::date <= o."expected_date") AS "on_time"
+           FROM "purchase_order_receipts" r
+           JOIN "purchase_orders" o ON o."id" = r."order_id"
+          WHERE r."organization_id" = $1 AND o."organization_id" = $1 AND r."voided_at" IS NULL
+            AND r."received_at" >= now() - interval '365 days'
+       )
+       SELECT s."id" AS "supplierId", s."name" AS "supplierName", COUNT(*)::int AS "receipts",
+              percentile_cont(0.5) WITHIN GROUP (ORDER BY rc."days")::float AS "medianDays",
+              percentile_cont(0.9) WITHIN GROUP (ORDER BY rc."days")::float AS "p90Days",
+              MIN(rc."days")::int AS "minDays", MAX(rc."days")::int AS "maxDays",
+              (AVG(rc."on_time"::int) FILTER (WHERE rc."promised"))::float AS "onTimeRate",
+              MAX(rc."received_at") AS "lastReceivedAt"
+         FROM receipts rc
+         JOIN "suppliers" s ON s."id" = rc."supplier_id"
+        GROUP BY s."id", s."name"
+        ORDER BY COUNT(*) DESC, s."name"
+        LIMIT 200`,
+      [organizationId],
+    );
+    return rows;
+  }
+
   /** History and forecast of one series, for the chart: actual units sold, then P10/P50/P90 ahead. */
   async series(organizationId: string, productId: string, warehouseId: string, historyDays = 180) {
     const days = Math.min(Math.max(historyDays, 7), 730);

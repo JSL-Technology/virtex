@@ -108,6 +108,37 @@
         </div>
       </div>
     }
+
+    @if (leadTimes().length) {
+      <details class="pred-leadtimes card">
+        <summary class="pred-leadtimes__title">{{ 'ai.predictions.lead_times' | translate: { count: leadTimes().length } }}</summary>
+        <p class="pred-leadtimes__hint">{{ 'ai.predictions.lead_times_hint' | translate }}</p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'ai.predictions.lt_supplier' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_receipts' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_median' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_p90' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_range' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_on_time' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of leadTimes(); track row.supplierId) {
+              <tr>
+                <th scope="row">{{ row.supplierName }}</th>
+                <td class="num">{{ row.receipts | vxNumber: '1.0-0' }}</td>
+                <td class="num">{{ row.medianDays | vxNumber: '1.0-1' }}</td>
+                <td class="num">{{ row.p90Days | vxNumber: '1.0-1' }}</td>
+                <td class="num">{{ row.minDays }}–{{ row.maxDays }}</td>
+                <td class="num">{{ row.onTimeRate === null ? '—' : (row.onTimeRate | vxPercent) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    }
   </section>
 
   <div class="table-container card">

@@ -45,6 +45,20 @@ export interface AiOverview {
   pending: { seriousAnomalies: number; openAnomalies: number; stockoutRisks: number };
 }
 
+/** A supplier's measured lead time over the last year. */
+export interface SupplierLeadTime {
+  supplierId: string;
+  supplierName: string;
+  receipts: number;
+  medianDays: number;
+  p90Days: number;
+  minDays: number;
+  maxDays: number;
+  /** Share of receipts that arrived by the promised date; null when no order promised one. */
+  onTimeRate: number | null;
+  lastReceivedAt: string;
+}
+
 /** A proposed field and how sure the model was of it, 0–1. */
 export interface Suggested<T> {
   value: T;
@@ -225,6 +239,10 @@ export class AiService {
     offset?: number;
   }): Observable<Page<InventoryInsight>> {
     return this.http.get<Page<InventoryInsight>>(`${this.url}/forecasts/insights`, { params: toParams(query) });
+  }
+
+  supplierLeadTimes(): Observable<SupplierLeadTime[]> {
+    return this.http.get<SupplierLeadTime[]>(`${this.url}/forecasts/supplier-lead-times`);
   }
 
   topByBranch(perBranch = 10): Observable<TopSeller[]> {

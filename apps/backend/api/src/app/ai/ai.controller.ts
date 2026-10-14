@@ -243,6 +243,14 @@ export class AiController {
     return this.forecasting.topByBranch(user.organizationId, query.perBranch);
   }
 
+  @Get('forecasts/supplier-lead-times')
+  @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
+  @CheckFeature('ai_forecasting')
+  @ApiOperation({ summary: 'Measured lead time per supplier over the last year: median, P90, on-time rate.' })
+  supplierLeadTimes(@CurrentUser() user: AuthenticatedUser) {
+    return this.forecasting.supplierLeadTimes(user.organizationId);
+  }
+
   @Get('forecasts/series')
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')

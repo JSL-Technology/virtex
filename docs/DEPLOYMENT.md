@@ -180,6 +180,7 @@ answer 503 or stay hidden. The architecture and the reasoning behind each model 
 | `AI_MODEL_VISION`, `AI_MODEL_NARRATIVE`, `AI_MODEL_DEEP_ANALYSIS` | Model per feature; defaults `claude-opus-5-5`, `claude-opus-5-5`, `claude-fable-5-1`. |
 | `VOYAGE_API_KEY`                                                  | Image embeddings for duplicate detection (needs pgvector).                            |
 | `AI_ENABLED=false`                                                | Turns every model call off without removing the key.                                  |
+| `AI_OPEN_FOOD_FACTS_ENABLED=true`                                 | Looks scanned barcodes up in Open Food Facts; only the barcode is sent. Off by default. |
 
 Every call is metered against the plan's `ai_credits` and recorded in `ai_requests` (tokens, cost,
 latency, outcome — never the user's input). The plan features `ai_vision`, `ai_forecasting` and
@@ -221,3 +222,20 @@ docker run \
 The API queues a forecasting and an anomaly run per entitled tenant every night at 02:17 server
 time, and on demand from the screens. A run that never finishes is marked failed after six hours;
 the screens keep showing the last good results meanwhile.
+
+When a run finishes, the API announces what it found — products at risk of stocking out, new
+high-severity anomalies — in the notification bell of the people allowed to see them, once per run
+whatever the number of API replicas. It hears the engine through BullMQ's job events; a sweep every
+three hours covers any it missed.
+
+To decide which forecasting model to trust on a tenant's own data, run the benchmark from the
+engine image (read-only, as the engine role):
+
+```bash
+docker run --rm -e AI_ENGINE_DB_HOST=… -e AI_ENGINE_DB_NAME=… -e AI_ENGINE_DB_PASSWORD=… \
+  virtex-ai-engine virtex-ai-benchmark --organization <uuid> --windows 3 --output /tmp/report.json
+```
+
+It compares the engine's ensemble with LightGBM (with and without holiday, price and promotion
+drivers) and a seasonal-naive baseline — and Prophet and CatBoost when the image is built with the
+`benchmark` extra — by WAPE, MASE, bias, P10–P90 coverage and run time.

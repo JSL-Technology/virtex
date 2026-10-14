@@ -54,6 +54,9 @@ describe('PredictionsPage', () => {
           { branchId: 'b2', branchName: 'Santiago', productId: 'p2', productName: 'Azúcar', sku: null, forecast30d: 120, onHand: 80, rank: 1 },
         ]),
       ),
+      supplierLeadTimes: jest.fn().mockReturnValue(
+        of([{ supplierId: 's1', supplierName: 'Induban', receipts: 12, medianDays: 6, p90Days: 11, minDays: 3, maxDays: 14, onTimeRate: 0.75, lastReceivedAt: '2026-10-01T00:00:00Z' }]),
+      ),
       series: jest.fn().mockReturnValue(of({ history: [{ date: '2026-10-01', quantity: 9 }], forecast: [{ date: '2026-10-14', p10: 6, p50: 10, p90: 14, model: 'AutoETS' }] })),
       runForecast: jest.fn().mockReturnValue(of({ id: 'r2', status: 'QUEUED', createdAt: '' })),
     };
@@ -79,6 +82,11 @@ describe('PredictionsPage', () => {
 
   it('groups the best sellers by branch', () => {
     expect(component.branches().map((b) => b.name)).toEqual(['Santo Domingo', 'Santiago']);
+  });
+
+  it('shows the measured lead time of each supplier', () => {
+    expect(component.leadTimes()).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector('.pred-leadtimes')?.textContent).toContain('Induban');
   });
 
   it('filters by a status chip, and a second click clears it', () => {

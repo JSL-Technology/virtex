@@ -344,7 +344,81 @@ Lo que está construido, probado y en este repositorio, y en qué se apartó del
 - **MinT usa `wls_struct`**: no necesita residuos dentro de muestra y es estable con demanda intermitente.
 - **Escritura del motor sin `COPY`.** PostgreSQL rechaza `COPY FROM` bajo RLS para un rol sin BYPASSRLS, que es justamente la garantía buscada; se inserta por lotes con `unnest`.
 - **Explicaciones de anomalías bajo demanda** (cuestan un crédito y se guardan) en lugar de en lote nocturno: la mayoría de los hallazgos se entienden por su evidencia.
-- **Lectura del código de barras en el navegador (ZXing) y consulta a Open Food Facts/GS1:** pendientes. Hoy el código lo lee el modelo y se valida con el dígito verificador en el servidor; uno que no lo supera no se usa.
-- **Panel «Administración › IA»:** el endpoint `GET /ai/usage` existe (llamadas, créditos y costo del mes por función). Falta la pantalla.
+
+### 11.1 Cierre de huecos de la Fase 1
+
+Huecos que la primera entrega dejó abiertos, uno por uno, y cómo quedó cada uno:
+
+**1. LightGBM sin feriados ni precio.** Lo resuelve `forecasting/exogenous.py`:
+
+- Feriados del país de la empresa y sus vísperas (`holidays`).
+- Índice de precio respecto a la mediana del propio producto, a partir de `ai_src_daily_prices` (líneas de factura y del POS).
+- Tasa de descuento y días de promoción.
+- Sucursal y categoría, como variables estáticas.
+
+En el horizonte, el precio se mantiene en el último valor y el descuento en cero. Si una promoción ya está planificada, puede pasarse como dato conocido.
+
+Resultado en la prueba sintética: el WAPE de LightGBM bajó de **0,358 a 0,283**.
+
+**2. Sin banco de pruebas.** Ahora existe `virtex-ai-benchmark --organization <uuid>` (o `--synthetic`), un backtest de origen móvil:
+
+- Lee los datos de la empresa con el rol del motor y no escribe nada.
+- Compara el ensamble del motor, LightGBM con y sin variables externas, naive estacional, Prophet y CatBoost.
+- Mide WAPE, MASE, sesgo, cobertura P10–P90 y tiempo.
+- Prophet y CatBoost son opcionales (`pip install .[benchmark]`); si faltan, salen como `skipped`.
+
+Resultado en datos sintéticos (60 series, 2 cortes):
+
+| Candidato                       | WAPE  | MASE | Tiempo |
+| ------------------------------- | ----- | ---- | ------ |
+| LightGBM con variables externas | 0,331 | 0,73 | 1,9 s  |
+| CatBoost                        | 0,331 | 0,73 | 2,0 s  |
+| Ensamble del motor              | 0,334 | —    | 27 s   |
+| Prophet                         | 0,365 | —    | 12 s   |
+| Naive estacional                | 0,501 | 1,00 | —      |
+
+El ensamble del motor tiene además una cobertura de 0,80. **La decisión de modelo en producción debe salir de correr esta herramienta con los datos reales de cada empresa**, no de esta tabla.
+
+**3. Precio y costo sin historial.** La tabla `product_price_history` registra cada cambio, con quién y cuándo. La escribe `InventoryService.update` en la misma transacción que el cambio.
+
+**4. Detectores de anomalías limitados.** Se añadieron nueve controles (`anomalies/detectors.py`). Cada uno se prueba con datos que contienen exactamente la anomalía y con datos parecidos que no deben marcarse.
+
+| Control                        | Qué detecta                                                                                               |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Cobro duplicado                | Mismo cliente con la misma referencia, o el mismo monto y fecha.                                          |
+| Proveedor pagado de más        | Factura de proveedor saldada por encima de su total, pagada dos veces o pagada después de anularse.       |
+| Cruce OC / recepción / factura | Facturado sin recibir, facturado por encima de lo pedido, o facturas que suman más que la orden.          |
+| Pico de devoluciones           | Tasa de devolución por encima de la del propio producto y de la empresa.                                  |
+| Cambio de precio o costo       | Cambio del 50 % o más, o precio por debajo del costo. Es más grave si ocurre fuera de horario.            |
+| Precio facturado anómalo       | Lejos de la mediana del producto (z robusta sobre el logaritmo).                                          |
+| Descuento fuera de norma       | Fuera de la práctica habitual de la empresa.                                                              |
+| Documento emitido alterado     | Factura, factura de proveedor o cobro emitido que se borra, o cuyo importe, fecha o contraparte se edita. |
+| Actividad fuera de horario     | Horas raras aprendidas por empresa y en su zona horaria.                                                  |
+
+El detector de documentos alterados lee solo metadatos del audit trail a través de la vista barrera `ai_src_document_changes`: nombres de campos, nunca valores.
+
+**5. La IA no avisaba.** Cuando el motor completa un trabajo, todas las réplicas de la API reciben el evento `completed` de BullMQ:
+
+- La corrida se reclama con un `UPDATE` condicional sobre `notified_at`. Probado con cuatro reclamos concurrentes: un solo aviso.
+- Un barrido cada 3 horas cubre los eventos perdidos.
+- El evento se define en `contracts/`: los riesgos de quiebre llegan a quien ve predicciones y las anomalías nuevas HIGH/CRITICAL a quien ve anomalías, en su idioma.
+
+**6. Código de barras y Open Food Facts.** El formulario escanea con la cámara usando `BarcodeDetector` y, si el navegador no lo tiene, ZXing cargado al vuelo; si no hay cámara, el código se escribe a mano.
+
+`GET /ai/products/barcode/:code` busca primero en el catálogo propio. Open Food Facts solo se consulta si `AI_OPEN_FOOD_FACTS_ENABLED=true`: sale únicamente el código, con 3 s de timeout y caché de un día.
+
+La foto ahora también lee el fabricante, y el formulario avisa de que precio y costo quedan pendientes.
+
+**7. Sin pantalla de administración.** Ahora existe **Ajustes › Inteligencia artificial**, alimentada por `GET /ai/overview`. Muestra:
+
+- disponibilidad de cada función y por qué está o no (el plan o el servidor);
+- créditos del plan;
+- costo del mes por función;
+- últimas corridas con su precisión, y botón para ejecutar;
+- pendientes por revisar.
+
+**8. Lead time por proveedor invisible.** La página de Predicciones muestra, por proveedor, la mediana y el P90 de días entre pedido y recepción, más la tasa de entregas a tiempo. Se calculan con las recepciones del último año, las mismas con que el motor dimensiona los puntos de reorden.
+
+Pruebas del motor: 45, de las cuales 6 son de integración como el rol del motor contra la base migrada.
 
 **Siguiente:** Fase 2 — control por lenguaje natural sobre este mismo gateway, con herramientas que heredan los permisos del usuario, y facturas de proveedor desde foto/PDF.

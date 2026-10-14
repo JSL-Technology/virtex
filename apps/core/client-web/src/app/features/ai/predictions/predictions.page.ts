@@ -18,6 +18,7 @@ import {
   ForecastSummary,
   InventoryInsight,
   InventoryStatus,
+  SupplierLeadTime,
   TopSeller,
 } from '../data/ai.service';
 import { ForecastChartComponent } from './forecast-chart.component';
@@ -77,6 +78,8 @@ export class PredictionsPage implements OnInit {
   readonly rows = signal<InventoryInsight[]>([]);
   readonly summary = signal<ForecastSummary | null>(null);
   readonly topSellers = signal<TopSeller[]>([]);
+  /** Measured lead time per supplier — what the reorder points are sized against. */
+  readonly leadTimes = signal<SupplierLeadTime[]>([]);
   readonly warehouses = signal<Warehouse[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -133,6 +136,10 @@ export class PredictionsPage implements OnInit {
     this.ai.topByBranch(5).subscribe({
       next: (rows) => this.topSellers.set(rows),
       error: () => this.topSellers.set([]),
+    });
+    this.ai.supplierLeadTimes().subscribe({
+      next: (rows) => this.leadTimes.set(rows),
+      error: () => this.leadTimes.set([]),
     });
   }
 

@@ -127,3 +127,12 @@
 }
 
 .muted { color: var(--content-secondary); }
+
+.pred-leadtimes {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+
+  .num { text-align: end; font-variant-numeric: tabular-nums; }
+}
+.pred-leadtimes__title { cursor: pointer; font-weight: 600; }
+.pred-leadtimes__hint { margin: var(--space-2) 0; font-size: var(--text-sm); color: var(--content-secondary); }

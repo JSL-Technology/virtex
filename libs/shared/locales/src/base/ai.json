@@ -1154,6 +1154,16 @@
     "en": "Lead time (days)",
     "pt": "Prazo de reposição (dias)"
   },
+  "ai.predictions.lead_times": {
+    "es": "Plazos de entrega por proveedor ({{count}})",
+    "en": "Lead time by supplier ({{count}})",
+    "pt": "Prazos de entrega por fornecedor ({{count}})"
+  },
+  "ai.predictions.lead_times_hint": {
+    "es": "Medidos con las recepciones del último año, del pedido a la recepción. Los puntos de reorden se calculan con estos plazos.",
+    "en": "Measured from the last year's receipts, from order to receipt. Reorder points are sized with these lead times.",
+    "pt": "Medidos com os recebimentos do último ano, do pedido ao recebimento. Os pontos de reposição são calculados com esses prazos."
+  },
   "ai.predictions.load_failed": {
     "es": "No se pudieron cargar las predicciones.",
     "en": "Predictions could not be loaded.",
@@ -1163,6 +1173,36 @@
     "es": "Cargando el gráfico…",
     "en": "Loading the chart…",
     "pt": "A carregar o gráfico…"
+  },
+  "ai.predictions.lt_median": {
+    "es": "Mediana (días)",
+    "en": "Median (days)",
+    "pt": "Mediana (dias)"
+  },
+  "ai.predictions.lt_on_time": {
+    "es": "A tiempo",
+    "en": "On time",
+    "pt": "No prazo"
+  },
+  "ai.predictions.lt_p90": {
+    "es": "P90 (días)",
+    "en": "P90 (days)",
+    "pt": "P90 (dias)"
+  },
+  "ai.predictions.lt_range": {
+    "es": "Rango (días)",
+    "en": "Range (days)",
+    "pt": "Intervalo (dias)"
+  },
+  "ai.predictions.lt_receipts": {
+    "es": "Recepciones",
+    "en": "Receipts",
+    "pt": "Recebimentos"
+  },
+  "ai.predictions.lt_supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
   },
   "ai.predictions.model": {
     "es": "Modelo",
