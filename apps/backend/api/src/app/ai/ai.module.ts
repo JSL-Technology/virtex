@@ -12,6 +12,8 @@ import { EmbeddingsService } from './embeddings/embeddings.service';
 import { ProductVisionService } from './product-vision/product-vision.service';
 import { EngineRunsService, AI_ENGINE_QUEUE } from './engine/engine-runs.service';
 import { AiSchedulerService } from './engine/ai-scheduler.service';
+import { AiRunNotifierService } from './engine/ai-run-notifier.service';
+import { AiEngineEventsListener } from './engine/ai-engine-events.listener';
 import { ForecastingService } from './forecasting/forecasting.service';
 import { AnomaliesService } from './anomalies/anomalies.service';
 import { AiController } from './ai.controller';
@@ -37,6 +39,8 @@ import { InventoryModule } from '../inventory/inventory.module';
     ProductVisionService,
     EngineRunsService,
     AiSchedulerService,
+    AiRunNotifierService,
+    AiEngineEventsListener,
     ForecastingService,
     AnomaliesService,
   ],

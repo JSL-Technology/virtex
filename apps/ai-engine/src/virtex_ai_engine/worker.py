@@ -95,7 +95,11 @@ async def serve(settings: config_module.Settings) -> None:
     async def process(job, _token):
         attempts = int((job.opts or {}).get("attempts", 1))
         attempts_left = attempts - (int(job.attemptsMade or 0) + 1)
-        return await asyncio.to_thread(execute, db, settings, job.data, attempts_left)
+        status = await asyncio.to_thread(execute, db, settings, job.data, attempts_left)
+        # The API listens for completed jobs to announce what a run found; it needs to know whose
+        # run it was without reading the job back (completed jobs are pruned).
+        return {"status": status, "runId": job.data.get("runId"), "organizationId": job.data.get("organizationId"),
+                "kind": job.data.get("kind")}
 
     worker = Worker(
         settings.queue_name,
