@@ -1,4 +1,234 @@
 {
+  "ai.admin.availability": {
+    "es": "Disponibilidad",
+    "en": "Availability",
+    "pt": "Disponibilidade"
+  },
+  "ai.admin.col_calls": {
+    "es": "Llamadas",
+    "en": "Calls",
+    "pt": "Chamadas"
+  },
+  "ai.admin.col_cost": {
+    "es": "Costo estimado (USD)",
+    "en": "Estimated cost (USD)",
+    "pt": "Custo estimado (USD)"
+  },
+  "ai.admin.col_credits": {
+    "es": "Créditos",
+    "en": "Credits",
+    "pt": "Créditos"
+  },
+  "ai.admin.col_failed": {
+    "es": "Fallidas",
+    "en": "Failed",
+    "pt": "Com falha"
+  },
+  "ai.admin.col_feature": {
+    "es": "Función",
+    "en": "Feature",
+    "pt": "Função"
+  },
+  "ai.admin.cost_note": {
+    "es": "Estimado con los precios de lista del proveedor registrados en cada llamada; no es la factura.",
+    "en": "Estimated from the provider's list prices recorded with each call; it is not the bill.",
+    "pt": "Estimado com os preços de tabela do provedor registrados em cada chamada; não é a fatura."
+  },
+  "ai.admin.credits": {
+    "es": "Créditos de IA del mes",
+    "en": "AI credits this month",
+    "pt": "Créditos de IA do mês"
+  },
+  "ai.admin.credits_not_metered": {
+    "es": "El plan no mide créditos de IA.",
+    "en": "The plan does not meter AI credits.",
+    "pt": "O plano não mede créditos de IA."
+  },
+  "ai.admin.credits_unlimited": {
+    "es": "{{used}} créditos usados; el plan no tiene límite.",
+    "en": "{{used}} credits used; the plan has no limit.",
+    "pt": "{{used}} créditos usados; o plano não tem limite."
+  },
+  "ai.admin.credits_used": {
+    "es": "{{used}} de {{limit}} créditos usados.",
+    "en": "{{used}} of {{limit}} credits used.",
+    "pt": "{{used}} de {{limit}} créditos usados."
+  },
+  "ai.admin.engine_version": {
+    "es": "Versión del motor",
+    "en": "Engine version",
+    "pt": "Versão do motor"
+  },
+  "ai.admin.feature.anomalies": {
+    "es": "Detección de anomalías",
+    "en": "Anomaly detection",
+    "pt": "Detecção de anomalias"
+  },
+  "ai.admin.feature.explanations": {
+    "es": "Explicación de anomalías en lenguaje natural",
+    "en": "Plain-language anomaly explanations",
+    "pt": "Explicação de anomalias em linguagem natural"
+  },
+  "ai.admin.feature.forecasting": {
+    "es": "Predicción de demanda e inventario",
+    "en": "Demand and inventory forecasting",
+    "pt": "Previsão de demanda e estoque"
+  },
+  "ai.admin.feature.vision": {
+    "es": "Crear productos desde una foto",
+    "en": "Create products from a photo",
+    "pt": "Criar produtos a partir de uma foto"
+  },
+  "ai.admin.findings": {
+    "es": "Hallazgos",
+    "en": "Findings",
+    "pt": "Achados"
+  },
+  "ai.admin.load_failed": {
+    "es": "No se pudo cargar el estado de la IA.",
+    "en": "The AI status could not be loaded.",
+    "pt": "Não foi possível carregar o status da IA."
+  },
+  "ai.admin.median_wape": {
+    "es": "Error mediano (WAPE)",
+    "en": "Median error (WAPE)",
+    "pt": "Erro mediano (WAPE)"
+  },
+  "ai.admin.never_ran": {
+    "es": "Todavía no se ha ejecutado.",
+    "en": "It has not run yet.",
+    "pt": "Ainda não foi executada."
+  },
+  "ai.admin.no_usage": {
+    "es": "Sin uso este mes.",
+    "en": "No use this month.",
+    "pt": "Sem uso neste mês."
+  },
+  "ai.admin.pending": {
+    "es": "Pendiente de revisar",
+    "en": "Waiting for review",
+    "pt": "Aguardando revisão"
+  },
+  "ai.admin.pending_anomalies": {
+    "es": "{{count}} anomalías abiertas ({{serious}} graves)",
+    "en": "{{count}} open anomalies ({{serious}} serious)",
+    "pt": "{{count}} anomalias abertas ({{serious}} graves)"
+  },
+  "ai.admin.pending_stockouts": {
+    "es": "{{count}} productos en riesgo de agotarse",
+    "en": "{{count}} products at risk of running out",
+    "pt": "{{count}} produtos em risco de acabar"
+  },
+  "ai.admin.run_failed": {
+    "es": "No se pudo iniciar la ejecución.",
+    "en": "The run could not be started.",
+    "pt": "Não foi possível iniciar a execução."
+  },
+  "ai.admin.run_kind.anomaly": {
+    "es": "Anomalías",
+    "en": "Anomalies",
+    "pt": "Anomalias"
+  },
+  "ai.admin.run_kind.forecast": {
+    "es": "Predicción",
+    "en": "Forecasting",
+    "pt": "Previsão"
+  },
+  "ai.admin.run_now": {
+    "es": "Ejecutar ahora",
+    "en": "Run now",
+    "pt": "Executar agora"
+  },
+  "ai.admin.run_queued": {
+    "es": "Ejecución en cola.",
+    "en": "Run queued.",
+    "pt": "Execução na fila."
+  },
+  "ai.admin.run_status.failed": {
+    "es": "Fallida",
+    "en": "Failed",
+    "pt": "Com falha"
+  },
+  "ai.admin.run_status.queued": {
+    "es": "En cola",
+    "en": "Queued",
+    "pt": "Na fila"
+  },
+  "ai.admin.run_status.running": {
+    "es": "En curso",
+    "en": "Running",
+    "pt": "Em andamento"
+  },
+  "ai.admin.run_status.succeeded": {
+    "es": "Completada",
+    "en": "Completed",
+    "pt": "Concluída"
+  },
+  "ai.admin.running": {
+    "es": "En curso…",
+    "en": "Running…",
+    "pt": "Em andamento…"
+  },
+  "ai.admin.runs": {
+    "es": "Ejecuciones del motor",
+    "en": "Engine runs",
+    "pt": "Execuções do motor"
+  },
+  "ai.admin.series": {
+    "es": "Series pronosticadas",
+    "en": "Series forecast",
+    "pt": "Séries previstas"
+  },
+  "ai.admin.state.available": {
+    "es": "Disponible",
+    "en": "Available",
+    "pt": "Disponível"
+  },
+  "ai.admin.state.not_in_plan": {
+    "es": "No incluido en el plan",
+    "en": "Not included in the plan",
+    "pt": "Não incluído no plano"
+  },
+  "ai.admin.state.provider_missing": {
+    "es": "El servidor no tiene configurado el proveedor de IA",
+    "en": "The server has no AI provider configured",
+    "pt": "O servidor não tem o provedor de IA configurado"
+  },
+  "ai.admin.subtitle": {
+    "es": "Qué hace la IA por la empresa, cuánto ha usado este mes y cuánto ha costado.",
+    "en": "What the AI does for the company, how much it has used this month and what it has cost.",
+    "pt": "O que a IA faz pela empresa, quanto usou neste mês e quanto custou."
+  },
+  "ai.admin.title": {
+    "es": "Inteligencia artificial",
+    "en": "Artificial intelligence",
+    "pt": "Inteligência artificial"
+  },
+  "ai.admin.total_cost": {
+    "es": "Total estimado",
+    "en": "Estimated total",
+    "pt": "Total estimado"
+  },
+  "ai.admin.usage": {
+    "es": "Uso del mes por función",
+    "en": "This month's use by feature",
+    "pt": "Uso do mês por função"
+  },
+  "ai.admin.usage_feature.anomaly_narrative": {
+    "es": "Explicación de anomalías",
+    "en": "Anomaly explanations",
+    "pt": "Explicação de anomalias"
+  },
+  "ai.admin.usage_feature.product_image_embedding": {
+    "es": "Búsqueda de duplicados por imagen",
+    "en": "Duplicate search by image",
+    "pt": "Busca de duplicados por imagem"
+  },
+  "ai.admin.usage_feature.product_vision": {
+    "es": "Producto desde foto",
+    "en": "Product from photo",
+    "pt": "Produto a partir de foto"
+  },
   "ai.anomalies.all": {
     "es": "Todas",
     "en": "All",

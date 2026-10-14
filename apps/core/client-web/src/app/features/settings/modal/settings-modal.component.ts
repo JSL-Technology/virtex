@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
-import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText, Landmark, MapPin, MapPinned, Building2, Scale, Puzzle } from 'lucide-angular';
+import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText, Landmark, MapPin, MapPinned, Building2, Scale, Puzzle, Sparkles } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -119,6 +119,8 @@ export class SettingsModalComponent {
       import('../../extensions/extensions.page').then((m) => m.ExtensionsPage),
     'billing': () =>
       import('../billing/billing.page').then((m) => m.BillingPage),
+    'ai': () =>
+      import('../system/ai/ai-settings.page').then((m) => m.AiSettingsPage),
   };
 
   readonly currentComponent = toSignal(
@@ -185,4 +187,5 @@ export class SettingsModalComponent {
   protected readonly SmtpIcon = Mail;
   protected readonly SsoIcon = Shield;
   protected readonly ExtensionsIcon = Puzzle;
+  protected readonly AiIcon = Sparkles;
 }

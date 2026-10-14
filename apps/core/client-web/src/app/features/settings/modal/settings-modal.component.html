@@ -247,6 +247,15 @@
             <span>SSO</span>
           </button>
           <button
+            *appHasPermission="'ai_usage:view'"
+            class="nav-link"
+            [class.active]="section() === 'ai'"
+            (click)="navigate('ai')"
+          >
+            <lucide-icon [img]="AiIcon" size="16"></lucide-icon>
+            <span>{{ 'settings.modal.ai' | translate }}</span>
+          </button>
+          <button
             *appHasPermission="'extensions:view'"
             class="nav-link"
             [class.active]="section() === 'extensions'"

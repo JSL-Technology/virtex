@@ -22,4 +22,18 @@ export abstract class EntitlementsPort {
    * requests cannot each see the last unit free.
    */
   abstract consume(organizationId: string, resource: SaasResource, increment?: number): Promise<void>;
+
+  /**
+   * How much of a metered resource the tenant has used in its current window, and its limit —
+   * the same figures the billing screen shows. `null` when the plan does not meter it.
+   */
+  abstract quota(organizationId: string, resource: SaasResource): Promise<ResourceQuota | null>;
+}
+
+export interface ResourceQuota {
+  used: number;
+  /** `null` when unlimited. */
+  limit: number | null;
+  unlimited: boolean;
+  period: string;
 }

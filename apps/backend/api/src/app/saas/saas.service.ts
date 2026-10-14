@@ -27,6 +27,7 @@ import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
 import { UserCacheService } from '../auth/modules/user-cache.service';
+import type { ResourceQuota } from './contracts/entitlements.contract';
 
 @Injectable()
 export class SaasService implements OnModuleInit {
@@ -679,6 +680,20 @@ export class SaasService implements OnModuleInit {
     }
 
     return usageData;
+  }
+
+  /** One metered resource's usage and limit, as `getUsage` reports it (see `EntitlementsPort.quota`). */
+  async quota(organizationId: string, resource: SaasResource): Promise<ResourceQuota | null> {
+    const row = (await this.getUsage(organizationId)).find(
+      (entry) => entry.resource === resource && entry.type === 'numeric',
+    ) as { used: number; limit: number; isUnlimited: boolean; period: string } | undefined;
+    if (!row) return null;
+    return {
+      used: Number(row.used ?? 0),
+      limit: row.isUnlimited ? null : Number(row.limit),
+      unlimited: !!row.isUnlimited,
+      period: row.period,
+    };
   }
 
   async checkLimit(organizationId: string, resource: SaasResource, increment: number): Promise<boolean> {

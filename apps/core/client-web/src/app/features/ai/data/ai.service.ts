@@ -11,6 +11,40 @@ export interface AiStatus {
   duplicateImageSearch: boolean;
 }
 
+/** One feature's use this month, by outcome. */
+export interface AiUsageRow {
+  feature: string;
+  status: 'SUCCEEDED' | 'REFUSED' | 'FAILED';
+  calls: number;
+  credits: number;
+  costMicroUsd: number;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+export interface AiRunSummary {
+  id: string;
+  status: 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
+  trigger: 'SCHEDULED' | 'MANUAL' | 'EVENT';
+  createdAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  error: string | null;
+  engineVersion: string | null;
+  series: number | null;
+  medianWape: number | null;
+  findings: number | null;
+}
+
+/** What the administrator's AI screen shows. */
+export interface AiOverview {
+  status: AiStatus;
+  credits: { used: number; limit: number | null; unlimited: boolean; period: string } | null;
+  usage: AiUsageRow[];
+  runs: Record<'forecast' | 'anomaly', { latest: AiRunSummary | null; lastSucceeded: AiRunSummary | null }>;
+  pending: { seriousAnomalies: number; openAnomalies: number; stockoutRisks: number };
+}
+
 /** A proposed field and how sure the model was of it, 0–1. */
 export interface Suggested<T> {
   value: T;
@@ -160,6 +194,10 @@ export class AiService {
 
   status(): Observable<AiStatus> {
     return this.http.get<AiStatus>(`${this.url}/status`);
+  }
+
+  overview(): Observable<AiOverview> {
+    return this.http.get<AiOverview>(`${this.url}/overview`);
   }
 
   suggestProductFromImage(file: File): Observable<ProductSuggestion> {

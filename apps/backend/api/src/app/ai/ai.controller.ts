@@ -25,7 +25,8 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-file.interface';
 import { BadRequestError } from '../i18n/localized.exception';
-import { CheckFeature, EntitlementsPort } from '../saas/contracts/entitlements.contract';
+import { CheckFeature, EntitlementsPort, SaasResource } from '../saas/contracts/entitlements.contract';
+import { AiModelRun } from './entities/ai-model-run.entity';
 import { ProductVisionService } from './product-vision/product-vision.service';
 import { BarcodeLookupService } from './product-vision/barcode-lookup.service';
 import { ForecastingService } from './forecasting/forecasting.service';
@@ -114,6 +115,48 @@ export class AiController {
       inputTokens: Number(row['inputTokens']),
       outputTokens: Number(row['outputTokens']),
     }));
+  }
+
+  /**
+   * Everything the administrator's AI screen shows, in one request: what is available and why
+   * not, the plan's credits, this month's use and cost by feature, how the last runs went, and
+   * what is waiting for someone. Read-only; the costs are the provider's list prices recorded with
+   * each call, so they are an estimate of the bill, not the bill.
+   */
+  @Get('overview')
+  @HasPermission(PERMISSIONS.AI_USAGE_VIEW)
+  @ApiOperation({ summary: 'AI administration: availability, credits, monthly usage and cost, runs, pending findings.' })
+  async overview(@CurrentUser() user: AuthenticatedUser) {
+    const organizationId = user.organizationId;
+    const [status, credits, usage, forecast, forecastOk, anomaly, anomalyOk, pending] = await Promise.all([
+      this.status(user),
+      this.entitlements.quota(organizationId, SaasResource.AI_CREDITS),
+      this.usage(user),
+      this.runs.latest(organizationId, 'FORECAST'),
+      this.runs.latestSucceeded(organizationId, 'FORECAST'),
+      this.runs.latest(organizationId, 'ANOMALY'),
+      this.runs.latestSucceeded(organizationId, 'ANOMALY'),
+      this.dataSource.query(
+        `SELECT
+           (SELECT COUNT(*) FROM "ai_anomalies"
+             WHERE "organization_id" = $1 AND "status" = 'OPEN' AND "severity" IN ('HIGH', 'CRITICAL'))::int AS "seriousAnomalies",
+           (SELECT COUNT(*) FROM "ai_anomalies" WHERE "organization_id" = $1 AND "status" = 'OPEN')::int AS "openAnomalies",
+           (SELECT COUNT(*) FROM "ai_inventory_insights"
+             WHERE "organization_id" = $1 AND "status" = 'STOCKOUT_RISK')::int AS "stockoutRisks"`,
+        [organizationId],
+      ) as Promise<Array<{ seriousAnomalies: number; openAnomalies: number; stockoutRisks: number }>>,
+    ]);
+    const run = (latest: AiModelRun | null, lastSucceeded: AiModelRun | null) => ({
+      latest: latest && summariseRun(latest),
+      lastSucceeded: lastSucceeded && summariseRun(lastSucceeded),
+    });
+    return {
+      status,
+      credits,
+      usage,
+      runs: { forecast: run(forecast, forecastOk), anomaly: run(anomaly, anomalyOk) },
+      pending: pending[0] ?? { seriousAnomalies: 0, openAnomalies: 0, stockoutRisks: 0 },
+    };
   }
 
   // ── Product from photo ─────────────────────────────────────────────────────────
@@ -281,4 +324,23 @@ export class AiController {
   explain(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
     return this.anomalies.explain(user.organizationId, user.id, id);
   }
+}
+
+/** A run as the administration screen shows it: no parameters, only what happened and how well. */
+function summariseRun(run: AiModelRun) {
+  const metrics = (run.metrics ?? {}) as Record<string, unknown>;
+  const pick = (key: string) => (typeof metrics[key] === 'number' ? (metrics[key] as number) : null);
+  return {
+    id: run.id,
+    status: run.status,
+    trigger: run.trigger,
+    createdAt: run.createdAt,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    error: run.error,
+    engineVersion: run.engineVersion,
+    series: pick('series'),
+    medianWape: pick('medianWape'),
+    findings: pick('findings'),
+  };
 }
