@@ -11,6 +11,7 @@ dependencies = [
   "mlforecast>=1.0",
   "lightgbm>=4.3",
   "hierarchicalforecast>=1.0",
+  "holidays>=0.60",
   "scikit-learn>=1.5",
   "scipy>=1.11",
   "pyod>=2.0",
@@ -22,10 +23,13 @@ dependencies = [
 # Zero-shot foundation models for products with little or no history. Pulls in PyTorch, so it is
 # opt-in: without it, cold-start series fall back to their own short history.
 foundation = ["chronos-forecasting>=1.4", "torch>=2.3"]
+# The benchmark's optional challengers (see virtex_ai_engine/benchmark.py). Not used in production.
+benchmark = ["prophet>=1.1", "catboost>=1.2"]
 dev = ["pytest>=8"]
 
 [project.scripts]
 virtex-ai-engine = "virtex_ai_engine.worker:main"
+virtex-ai-benchmark = "virtex_ai_engine.benchmark:main"
 
 [build-system]
 requires = ["hatchling"]

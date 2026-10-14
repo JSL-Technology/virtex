@@ -11,6 +11,7 @@ import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { InventoryPostingService } from './inventory-posting.service';
 import { StockLedgerService, StockPlace } from './stock-ledger.service';
 import { ProductImagesService } from './product-images.service';
+import { ProductPriceHistory } from './entities/product-price-history.entity';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
@@ -222,7 +223,25 @@ export class InventoryService implements GoodsReceiptPort {
       if (changes.taxTreatment && changes.taxTreatment !== 'TAXED') changes.taxRate = 0;
       if (changes.attributes !== undefined) changes.attributes = normaliseAttributes(changes.attributes);
 
-      return manager.save(manager.merge(Product, product, changes));
+      // A price or cost that changes leaves a row behind: who, when, from what, to what.
+      const before = { price: Number(product.price), cost: Number(product.cost) };
+      const saved = await manager.save(manager.merge(Product, product, changes));
+      const priceChanged = changes.price !== undefined && Number(saved.price) !== before.price;
+      const costChanged = changes.cost !== undefined && Number(saved.cost) !== before.cost;
+      if (priceChanged || costChanged) {
+        await manager.save(
+          manager.create(ProductPriceHistory, {
+            organizationId,
+            productId: saved.id,
+            oldPrice: priceChanged ? before.price : null,
+            newPrice: priceChanged ? Number(saved.price) : null,
+            oldCost: costChanged ? before.cost : null,
+            newCost: costChanged ? Number(saved.cost) : null,
+            changedByUserId: actorUserId,
+          }),
+        );
+      }
+      return saved;
     });
   }
 

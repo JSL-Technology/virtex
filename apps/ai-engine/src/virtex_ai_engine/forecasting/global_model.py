@@ -58,8 +58,30 @@ def _model():
     )
 
 
-def cross_validate_and_forecast(train: pd.DataFrame, horizon: int, cv_horizon: int, cv_windows: int
-                                ) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+def _with_features(train: pd.DataFrame, exog) -> tuple[pd.DataFrame, list[str]]:
+    """Training frame with the exogenous columns joined in, and the names of the static ones."""
+    if exog is None:
+        return train, []
+    from .exogenous import STATIC
+
+    data = train.merge(exog.history, on=["unique_id", "ds"], how="left").merge(exog.static, on="unique_id", how="left")
+    for column in STATIC:
+        data[column] = data[column].astype(str).astype("category")
+    for column in ("is_holiday", "is_pre_holiday", "promo"):
+        data[column] = data[column].fillna(0).astype(int)
+    data["price_index"] = data["price_index"].fillna(1.0)
+    data["discount_rate"] = data["discount_rate"].fillna(0.0)
+    return data, list(STATIC)
+
+
+def cross_validate_and_forecast(train: pd.DataFrame, horizon: int, cv_horizon: int, cv_windows: int,
+                                exog=None) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+    """Backtest and forecast with one LightGBM across all series.
+
+    With `exog` (see `exogenous.py`) the model also sees holidays, price, discount and promotions as
+    dynamic features and branch and category as categorical static ones; without it, only the
+    series' own lags and the calendar.
+    """
     if train.empty:
         return None, None
     lengths = train.groupby("unique_id").size()
@@ -67,14 +89,21 @@ def cross_validate_and_forecast(train: pd.DataFrame, horizon: int, cv_horizon: i
         return None, None
     # Every series must be long enough for the lags and the backtest windows.
     eligible = lengths[lengths >= 28 + cv_horizon * cv_windows + 1].index
-    data = train[train["unique_id"].isin(eligible)]
-    if data["unique_id"].nunique() < MIN_SERIES:
+    base = train[train["unique_id"].isin(eligible)]
+    if base["unique_id"].nunique() < MIN_SERIES:
         return None, None
+    data, static = _with_features(base, exog)
     try:
-        cv = _model().cross_validation(df=data, h=cv_horizon, n_windows=cv_windows, step_size=cv_horizon)
+        cv = _model().cross_validation(
+            df=data, h=cv_horizon, n_windows=cv_windows, step_size=cv_horizon, static_features=static
+        )
         fitted = _model()
-        fitted.fit(data)
-        fc = fitted.predict(h=horizon)
+        fitted.fit(data, static_features=static)
+        if exog is not None:
+            future = exog.future[exog.future["unique_id"].isin(eligible)]
+            fc = fitted.predict(h=horizon, X_df=future)
+        else:
+            fc = fitted.predict(h=horizon)
         cv[ALIAS] = cv[ALIAS].clip(lower=0)
         fc[ALIAS] = fc[ALIAS].clip(lower=0)
         return cv[["unique_id", "ds", "cutoff", ALIAS]], fc[["unique_id", "ds", ALIAS]]

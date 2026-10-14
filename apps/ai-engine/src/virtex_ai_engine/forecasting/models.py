@@ -214,7 +214,7 @@ def _short_history(train: pd.DataFrame, uids: list[str], horizon: int, foundatio
 
 
 def forecast_all(train: pd.DataFrame, classes: pd.DataFrame, horizon: int, *, n_jobs: int = -1,
-                 foundation: bool = False) -> ForecastResult:
+                 foundation: bool = False, exog=None) -> ForecastResult:
     """Forecast every series in `train` (unique_id, ds, y) `horizon` days ahead."""
     results: list[pd.DataFrame] = []
     selections: list[pd.DataFrame] = []
@@ -228,7 +228,7 @@ def forecast_all(train: pd.DataFrame, classes: pd.DataFrame, horizon: int, *, n_
     # The global model sees every backtestable series at once; its predictions join each group's
     # candidates and win only where they backtest better.
     lgbm_cv, lgbm_fc = global_model.cross_validate_and_forecast(
-        train[train["unique_id"].isin(smooth + sparse)], horizon, CV_HORIZON, CV_WINDOWS
+        train[train["unique_id"].isin(smooth + sparse)], horizon, CV_HORIZON, CV_WINDOWS, exog=exog
     )
 
     for uids, models in ((smooth, _smooth_models()), (sparse, _intermittent_models())):
@@ -273,6 +273,7 @@ def forecast_all(train: pd.DataFrame, classes: pd.DataFrame, horizon: int, *, n_
         "medianWape": float(finite.median()) if len(finite) else None,
         "modelsChosen": {k: int(v) for k, v in accuracy["model"].value_counts().head(12).items()},
         "globalModel": lgbm_cv is not None,
+        "exogenous": exog is not None,
         "bandCoverageTarget": BAND_COVERAGE,
     }
     return ForecastResult(forecasts=forecasts, accuracy=accuracy[["unique_id", "model", "wape", "demand_class"]], metrics=metrics)

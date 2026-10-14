@@ -25,6 +25,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
 import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
 import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
 import { ProductImage } from './entities/product-image.entity';
+import { ProductPriceHistory } from './entities/product-price-history.entity';
 import { ProductImagesService } from './product-images.service';
 import { ProductCatalogPort } from './contracts/product-catalog.contract';
 
@@ -34,6 +35,7 @@ import { ProductCatalogPort } from './contracts/product-catalog.contract';
       Product,
       ProductCategory,
       ProductImage,
+      ProductPriceHistory,
       Location,
       StockLevel,
       StockMovement,

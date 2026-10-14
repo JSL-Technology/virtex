@@ -11,7 +11,7 @@ import pandas as pd
 import psycopg
 
 from ..db import Database, frame
-from . import classify, history, insights, models, reconcile
+from . import classify, exogenous, history, insights, models, reconcile
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +74,18 @@ def load(conn: psycopg.Connection, organization_id: str, params: Params, today: 
                 WHERE organization_id = %s AND received_on >= %s""",
             (organization_id, since),
         ),
+        "prices": frame(
+            conn,
+            """SELECT product_id::text, day, avg_price::float, discount_rate::float
+                 FROM ai_src_daily_prices WHERE organization_id = %s AND day >= %s""",
+            (organization_id, since),
+        ),
+        "products": frame(
+            conn,
+            "SELECT id::text AS product_id, price::float, category_id::text FROM products WHERE organization_id = %s",
+            org,
+        ),
+        "organization": frame(conn, "SELECT country, timezone FROM organizations WHERE id = %s", org),
         "on_order": frame(
             conn,
             """SELECT l.product_id::text, SUM(GREATEST(l.quantity - l.received_quantity, 0))::float AS quantity
@@ -114,11 +126,13 @@ def run(db: Database, organization_id: str, run_id: str, raw_params: dict, *, fo
         )
         reconciled = False
     else:
-        result = models.forecast_all(train, classes, params.horizon_days, foundation=foundation)
         branch_of_series = {
             uid: str(branch_of_warehouse.get(history.split_series_id(uid)[1]) or "none")
-            for uid in result.forecasts["unique_id"].unique()
+            for uid in train["unique_id"].unique()
         }
+        country = data["organization"]["country"].iloc[0] if not data["organization"].empty else None
+        exog = exogenous.build(train, data["prices"], data["products"], branch_of_series, country, params.horizon_days)
+        result = models.forecast_all(train, classes, params.horizon_days, foundation=foundation, exog=exog)
         result.forecasts, reconciled = reconcile.reconcile(train, result.forecasts, branch_of_series)
 
     table = insights.compute(

@@ -39,6 +39,8 @@ fugue==0.9.4
     # via statsforecast
 hierarchicalforecast==1.5.3
     # via virtex-ai-engine (pyproject.toml)
+holidays==0.106
+    # via virtex-ai-engine (pyproject.toml)
 iniconfig==2.3.1
     # via pytest
 interface-meta==2.0.1
@@ -145,6 +147,7 @@ pytest==9.1.1
 python-dateutil==2.9.0.post0
     # via
     #   croniter
+    #   holidays
     #   matplotlib
     #   pandas
 pytz==2026.5
