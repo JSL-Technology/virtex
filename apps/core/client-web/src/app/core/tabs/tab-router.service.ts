@@ -93,7 +93,10 @@ export class TabRouterService {
     // `/e/acme/workflow-instances/…`) `router.url` still reads `/`: the saved tab then won over the
     // link. The navigation in flight knows where it is going.
     const inFlight = this.router.getCurrentNavigation()?.finalUrl;
-    const url = inFlight ? this.router.serializeUrl(inFlight) : this.router.url;
+    // The page under a settings link (`/overview#settings/approvals`) is still the page asked
+    // for; judging it with its fragment discarded it, the saved tab won, and the navigation to that
+    // tab dropped the fragment — the settings window a link pointed at never opened.
+    const url = this.stripFragment(inFlight ? this.router.serializeUrl(inFlight) : this.router.url);
     return this.isWorkspaceUrl(url) ? this.parseUrl(url) : null;
   }
 

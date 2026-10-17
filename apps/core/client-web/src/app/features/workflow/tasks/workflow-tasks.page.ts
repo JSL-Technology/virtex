@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { ExternalLink, LucideAngularModule, MessageSquareText } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -178,6 +178,7 @@ export class WorkflowTasksPage {
   private readonly tenancy = inject(ActiveOrganizationService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
   private readonly router = inject(Router);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly cdr = inject(ChangeDetectorRef);
@@ -293,10 +294,15 @@ export class WorkflowTasksPage {
     return outcomeTone(outcome);
   }
 
+  /** A fact as the run view shows it: the person's number and date format, yes/no in words. */
   factValue(value: unknown): string {
     if (value === null || value === undefined || value === '') return '—';
-    if (typeof value === 'boolean') return value ? '✓' : '✗';
-    if (typeof value === 'number') return value.toLocaleString(this.translate.currentLang);
+    if (typeof value === 'boolean') return this.translate.instant(value ? 'workflow_engine.yes' : 'workflow_engine.no');
+    if (typeof value === 'number') return this.format.number(value);
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/.test(value) && !Number.isNaN(Date.parse(value))) {
+      return this.format.date(value, value.length > 10 ? 'dateTime' : 'date');
+    }
+    if (Array.isArray(value)) return value.map((item) => this.factValue(item)).join(', ');
     return typeof value === 'object' ? JSON.stringify(value) : String(value);
   }
 
