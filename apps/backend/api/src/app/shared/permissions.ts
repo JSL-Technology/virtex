@@ -21,6 +21,7 @@ import { INVENTORY_PERMISSIONS } from '../inventory/inventory.permissions';
 import { PAYROLL_PERMISSIONS } from '../payroll/payroll.permissions';
 import { REPORTS_PERMISSIONS } from '../reports/reports.permissions';
 import { CONFIG_PERMISSIONS } from '../config/config.permissions';
+import { AI_PERMISSIONS } from './ai.permissions';
 
 export const PERMISSIONS = {
   ...IAM_PERMISSIONS,
@@ -31,6 +32,7 @@ export const PERMISSIONS = {
   ...PAYROLL_PERMISSIONS,
   ...REPORTS_PERMISSIONS,
   ...CONFIG_PERMISSIONS,
+  ...AI_PERMISSIONS,
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

@@ -175,6 +175,31 @@ export const envValidation = Joi.object({
   }),
   XE_API_BASE_URL: Joi.string().uri().default('https://xecdapi.xe.com/v1'),
 
+  /**
+   * The AI platform. Every key is optional: without `ANTHROPIC_API_KEY` the features that need a
+   * language model answer 503 and the forms they assist work exactly as before, and without
+   * `VOYAGE_API_KEY` duplicates are found by barcode and name rather than by image. Nothing else
+   * in the product depends on either.
+   *
+   * The model names are configuration, not code, so moving a feature to a newer model is a deploy
+   * setting. The defaults are the models the AI architecture document chose (docs/IA_PLAN_MAESTRO.md).
+   */
+  AI_ENABLED: Joi.boolean().default(true),
+  ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
+  AI_MODEL_VISION: Joi.string().default('claude-opus-5-5'),
+  AI_MODEL_NARRATIVE: Joi.string().default('claude-opus-5-5'),
+  AI_MODEL_DEEP_ANALYSIS: Joi.string().default('claude-fable-5-1'),
+  AI_REQUEST_TIMEOUT_MS: Joi.number().integer().min(5_000).max(600_000).default(90_000),
+  VOYAGE_API_KEY: Joi.string().allow('').optional(),
+  VOYAGE_MULTIMODAL_MODEL: Joi.string().default('voyage-multimodal-3'),
+  /**
+   * Look a scanned or photographed barcode up in Open Food Facts (public, free, food and drink)
+   * when it is not already in the tenant's catalogue. Off by default: it sends the barcode — and
+   * only the barcode — to a third party, which is a decision for whoever runs the deployment.
+   */
+  AI_OPEN_FOOD_FACTS_ENABLED: Joi.boolean().default(false),
+  AI_OPEN_FOOD_FACTS_URL: Joi.string().uri().default('https://world.openfoodfacts.org'),
+
   // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module
   // initializes. Development gets a generated, deployment-unusable value; see `secret` above.
   JWT_SECRET: secret('JWT_SECRET'),

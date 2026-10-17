@@ -19,6 +19,41 @@
     "en": "Your company has no active administrator to send the request to.",
     "pt": "Sua empresa não tem um administrador ativo para receber a solicitação."
   },
+  "notifications.ai.anomalies.body": {
+    "es": "La revisión de hoy encontró {{count}} anomalías de severidad alta ({{critical}} críticas).",
+    "en": "Today's review found {{count}} high-severity anomalies ({{critical}} critical).",
+    "pt": "A revisão de hoje encontrou {{count}} anomalias de severidade alta ({{critical}} críticas)."
+  },
+  "notifications.ai.anomalies.body_one": {
+    "es": "La revisión de hoy encontró una anomalía de severidad alta.",
+    "en": "Today's review found one high-severity anomaly.",
+    "pt": "A revisão de hoje encontrou uma anomalia de severidade alta."
+  },
+  "notifications.ai.anomalies.title": {
+    "es": "Nuevas anomalías para revisar",
+    "en": "New anomalies to review",
+    "pt": "Novas anomalias para revisar"
+  },
+  "notifications.ai.anomalies.title_critical": {
+    "es": "Anomalías críticas para revisar",
+    "en": "Critical anomalies to review",
+    "pt": "Anomalias críticas para revisar"
+  },
+  "notifications.ai.stockouts.body": {
+    "es": "{{count}} productos podrían agotarse antes de que llegue un pedido, el primero hacia el {{date}}: {{products}}…",
+    "en": "{{count}} products could run out before an order arrives, the first around {{date}}: {{products}}…",
+    "pt": "{{count}} produtos podem acabar antes da chegada de um pedido, o primeiro por volta de {{date}}: {{products}}…"
+  },
+  "notifications.ai.stockouts.body_one": {
+    "es": "{{products}} podría agotarse hacia el {{date}}, antes de que llegue un pedido.",
+    "en": "{{products}} could run out around {{date}}, before an order arrives.",
+    "pt": "{{products}} pode acabar por volta de {{date}}, antes da chegada de um pedido."
+  },
+  "notifications.ai.stockouts.title": {
+    "es": "Productos a punto de agotarse",
+    "en": "Products about to run out",
+    "pt": "Produtos prestes a acabar"
+  },
   "notifications.approval.approved.body": {
     "es": "Se aprobó: {{document}}. Ya tiene efecto.",
     "en": "Approved: {{document}}. It has taken effect.",

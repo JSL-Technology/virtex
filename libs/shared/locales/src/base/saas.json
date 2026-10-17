@@ -84,6 +84,11 @@
     "en": "Your plan allows no more {{resource}} this period. Upgrade your plan to continue.",
     "pt": "O seu plano já não permite mais {{resource}} neste período. Atualize o plano para continuar."
   },
+  "saas.resources.ai_credits": {
+    "es": "Créditos de IA",
+    "en": "AI credits",
+    "pt": "Créditos de IA"
+  },
   "saas.resources.customers": {
     "es": "clientes",
     "en": "customers",

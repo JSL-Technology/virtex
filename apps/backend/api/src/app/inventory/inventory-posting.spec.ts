@@ -107,6 +107,8 @@ describeWithDb('inventory posting', () => {
         dataSource.getRepository(Product),
       ),
       ledger,
+      // No photos are attached in these scenarios; the claim is a no-op.
+      { claimImages: jest.fn().mockResolvedValue(null) } as never,
     );
     // Stock counts and revaluations are documents now, not edits of the product.
     adjustments = new InventoryAdjustmentsService(
@@ -266,6 +268,7 @@ describeWithDb('inventory posting', () => {
           dataSource.getRepository(Product),
         ),
         ledger,
+        { claimImages: jest.fn().mockResolvedValue(null) } as never,
       );
 
     /** The most recent entry's narrative — the one the test just caused. */

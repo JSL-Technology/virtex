@@ -43,6 +43,18 @@ export const INVENTARIO_MODULE: ModuleManifest = {
       entityKeyFn: (p) => `inventario:product:${p['id']}`,
       load: () => import('../../../features/inventory/product-form/product-form.page').then((m) => m.ProductFormPage),
     },
+    //  Qué se venderá, dónde, y qué hacer con las existencias: el pronóstico del motor de IA, con
+    //  la fecha de quiebre, el punto de reorden y la cantidad sugerida de compra por almacén.
+    {
+      path: 'predictions',
+      kind: WindowKind.LIST,
+      permission: 'ai_forecasts:view',
+      titleKey: 'page_titles.ai_predictions',
+      icon: 'TrendingUp',
+      entityKeyFn: () => 'inventario:ai-predictions',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_predictions' },
+      load: () => import('../../../features/ai/predictions/predictions.page').then((m) => m.PredictionsPage),
+    },
     //  Lo que se tiene, dónde y cómo llegó. Sin estas pantallas el módulo eran cuatro catálogos y
     //  la cantidad en existencia era un campo editable del artículo (auditoría H-01, H-02).
     {

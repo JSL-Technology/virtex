@@ -61,3 +61,10 @@ dump.rdb
 # Tenant-uploaded files are runtime artifacts, not source. The API writes them under
 # public/uploads at request time; they must never be committed into the repository.
 apps/backend/api/public/uploads/
+
+# Python (apps/ai-engine)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
